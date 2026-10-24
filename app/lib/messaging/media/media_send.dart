@@ -115,14 +115,18 @@ void _deleteQuietly(String path) {
 Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     {required String chatKind, required int chatId, String? replyTo}) async {
   String caption = '';
+  var viewOnce = false;
   if (d.kind == 'photo') {
-    final c = await Navigator.of(context).push<String>(MaterialPageRoute(
-        fullscreenDialog: true, builder: (_) => PhotoSendPreview(draft: d)));
+    final c = await Navigator.of(context).push<PhotoSendChoice>(MaterialPageRoute(
+        fullscreenDialog: true,
+        // e-gaps: view-once is offered in 1:1 chats
+        builder: (_) => PhotoSendPreview(draft: d, allowViewOnce: chatKind == 'member')));
     if (c == null) {
       _deleteQuietly(d.path);
       return null;
     }
-    caption = c;
+    caption = c.caption;
+    viewOnce = c.viewOnce;
   } else if (d.kind == 'document') {
     final ok = await showDialog<bool>(
       context: context,
@@ -164,9 +168,10 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     height: d.height,
     durationMs: d.durationMs,
     wave: d.wave,
-    thumbB64: d.thumbB64,
+    thumbB64: viewOnce ? '' : d.thumbB64,
     caption: caption.trim(),
     replyTo: replyTo,
+    viewOnce: viewOnce,
   );
   try {
     await MediaOutbox.instance.add(job);
@@ -177,16 +182,31 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
   return job;
 }
 
+/// What the photo preview returns: the caption + e-gaps view-once choice.
+class PhotoSendChoice {
+  final String caption;
+  final bool viewOnce;
+  const PhotoSendChoice(this.caption, {this.viewOnce = false});
+}
+
 /// WhatsApp-like photo preview: the picture, a caption box, Send.
 class PhotoSendPreview extends StatefulWidget {
   final MediaDraft draft;
-  const PhotoSendPreview({super.key, required this.draft});
+
+  /// e-gaps: show the "1" (view once) toggle.
+  final bool allowViewOnce;
+
+  /// The toggle's starting state (gallery shots).
+  final bool initialViewOnce;
+  const PhotoSendPreview(
+      {super.key, required this.draft, this.allowViewOnce = false, this.initialViewOnce = false});
   @override
   State<PhotoSendPreview> createState() => _PhotoSendPreviewState();
 }
 
 class _PhotoSendPreviewState extends State<PhotoSendPreview> {
   final _caption = TextEditingController();
+  late bool _viewOnce = widget.initialViewOnce;
 
   @override
   void dispose() {
@@ -246,11 +266,47 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                   ),
                 ),
               ),
+              if (widget.allowViewOnce) ...[
+                const SizedBox(width: Gap.xs),
+                Tooltip(
+                  message: _viewOnce ? t.eVoOnHint : t.eVoToggle,
+                  child: Semantics(
+                    button: true,
+                    toggled: _viewOnce,
+                    label: t.eVoToggle,
+                    child: InkWell(
+                      key: const Key('e-vo-toggle'),
+                      customBorder: const CircleBorder(),
+                      onTap: () {
+                        setState(() => _viewOnce = !_viewOnce);
+                        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+                            duration: const Duration(seconds: 2),
+                            content: Text(_viewOnce ? t.eVoOnHint : t.eVoOffHint)));
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _viewOnce ? Colors.white : Colors.white12,
+                        ),
+                        child: Text('1',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: _viewOnce ? Colors.black : Colors.white)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(width: Gap.sm),
               IconButton.filled(
                 key: const Key('md1-photo-send'),
                 tooltip: t.md1Send,
-                onPressed: () => Navigator.pop(context, _caption.text),
+                onPressed: () => Navigator.pop(
+                    context, PhotoSendChoice(_caption.text, viewOnce: _viewOnce)),
                 icon: const Icon(Icons.send),
               ),
             ]),

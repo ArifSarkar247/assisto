@@ -271,6 +271,10 @@ def attach_check(user, ref, kind):
         return None, "blob_missing"
     if b.owner_id != user.id and not can_access(user, ref):
         return None, "blob_missing"
+    if b.owner_id != user.id:   # e-gaps: a view-once file is never forwarded
+        from . import e_gaps
+        if e_gaps.is_view_once_blob(ref):
+            return None, "blob_missing"
     return b, None
 
 

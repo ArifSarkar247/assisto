@@ -19,6 +19,7 @@ enum ChatMenuAction {
   bubble, // c3-msg: per-chat "Show as bubble" (Android 11+)
   exportChat,
   closeChat,
+  lockChat, // e-gaps: chat lock (fingerprint / face / code)
   // --- divider ---
   sendCallLink,
   scheduleCall,
@@ -57,6 +58,7 @@ Future<ChatMenuAction?> showChatMenu(
   BuildContext context, {
   required bool isFavourite,
   bool? bubbleOn, // c3-msg: null = hide the row (no bubbles on this phone)
+  bool locked = false, // e-gaps: flips Lock chat / Unlock chat
 }) {
   final t = AppLocalizations.of(context);
   final rows = <_Row>[
@@ -74,6 +76,8 @@ Future<ChatMenuAction?> showChatMenu(
           (t) => bubbleOn ? t.c3BubbleOff : t.c3BubbleOn),
     _Row(ChatMenuAction.exportChat, Icons.ios_share, (t) => t.msgrChatExport),
     _Row(ChatMenuAction.closeChat, Icons.archive_outlined, (t) => t.msgrChatClose),
+    _Row(ChatMenuAction.lockChat, locked ? Icons.lock_open_outlined : Icons.lock_outline,
+        (t) => locked ? t.eLockUnlockChat : t.eLockLockChat),
     const _Row.divider(),
     _Row(ChatMenuAction.sendCallLink, Icons.link, (t) => t.msgrChatSendCallLink),
     _Row(ChatMenuAction.scheduleCall, Icons.schedule, (t) => t.msgrChatScheduleCall),

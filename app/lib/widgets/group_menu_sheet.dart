@@ -18,6 +18,7 @@ enum GroupMenuAction {
   nicknames, // cde-chat
   addToFavourites,
   exportChat,
+  lockChat, // e-gaps
   // ── calls ──
   sendCallLink,
   scheduleCall,
@@ -40,6 +41,7 @@ enum GroupMenuAction {
 Future<GroupMenuAction?> showGroupMenuSheet(
   BuildContext context, {
   required bool isFavourite,
+  bool locked = false, // e-gaps
 }) {
   final t = AppLocalizations.of(context);
   return showModalBottomSheet<GroupMenuAction>(
@@ -78,6 +80,9 @@ Future<GroupMenuAction?> showGroupMenuSheet(
                 GroupMenuAction.addToFavourites),
             _item(ctx, Icons.ios_share, t.grpMenuExportChat,
                 GroupMenuAction.exportChat),
+            _item(ctx, locked ? Icons.lock_open_outlined : Icons.lock_outline,
+                locked ? t.eLockUnlockChat : t.eLockLockChat,
+                GroupMenuAction.lockChat),
             const Divider(height: 1),
             _item(ctx, Icons.link_outlined, t.grpMenuSendCallLink,
                 GroupMenuAction.sendCallLink),

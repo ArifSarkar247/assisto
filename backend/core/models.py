@@ -1127,6 +1127,11 @@ class CircleMessage(models.Model):
     per_recipient = models.JSONField(null=True, blank=True)  # opaque fan-out map
     mentions = models.JSONField(null=True, blank=True)       # list[int] member ids
     announcement = models.BooleanField(default=False)
+    # e-gaps: VIEW-ONCE media (1:1). The flag is routing metadata only; the
+    # file key stays inside the E2E descriptor. Once the recipient opens it,
+    # the server blanks the ciphertext + deletes the encrypted blob.
+    view_once = models.BooleanField(default=False)
+    view_once_opened_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

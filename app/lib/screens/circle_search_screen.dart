@@ -9,6 +9,13 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'package:intl/intl.dart';
+
+import '../messaging/chat_decor/chat_control.dart' show isControlText;
+import '../messaging/chat_decor/decor_store.dart';
+import '../messaging/chat_lock.dart';
+import '../p3/assisto_card.dart' show cardFallback;
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_chat_screen.dart';
 
 /// Search ACROSS all circle chats. Because the server stores ciphertext only,
@@ -21,7 +28,11 @@ import 'circle_chat_screen.dart';
 class CircleSearchScreen extends StatefulWidget {
   final List<Map<String, dynamic>> members;
   final IdentityKeyPair identity;
-  const CircleSearchScreen({super.key, required this.members, required this.identity});
+
+  /// e-gaps: the text typed in the chat-list search (opened from there).
+  final String initialQuery;
+  const CircleSearchScreen(
+      {super.key, required this.members, required this.identity, this.initialQuery = ''});
 
   @override
   State<CircleSearchScreen> createState() => _CircleSearchScreenState();
@@ -39,11 +50,20 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
   final _index = <_CircleSearchHit>[];
   bool _loading = true;
   String _query = '';
+  late final TextEditingController _box =
+      TextEditingController(text: widget.initialQuery);
 
   @override
   void initState() {
     super.initState();
+    _query = widget.initialQuery;
     _buildIndex();
+  }
+
+  @override
+  void dispose() {
+    _box.dispose();
+    super.dispose();
   }
 
   ApiClient get _api => context.read<AppState>().api;
@@ -52,8 +72,13 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
   /// Pull + decrypt each accepted member's chat once, into a local index.
   Future<void> _buildIndex() async {
     final me = context.read<AppState>().user?.id;
+    await ChatLockStore.instance.warm();
     for (final member in widget.members) {
       final id = member['id'];
+      // e-gaps: a locked chat is searched only while the lock is open
+      if (ChatLockStore.instance.isLockedSync('member:$id') && !ChatLockSession.isOpen) {
+        continue;
+      }
       final peer = _peerPub(member);
       if (peer == null) continue;
       try {
@@ -63,7 +88,8 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
           if ('${env['deleted'] ?? ''}' == 'everyone') continue;
           if ('${env['content_type'] ?? 'text'}' != 'text') continue;
           final text = _decrypt(env, peer, me);
-          if (text == null || text.isEmpty) continue;
+          // e-gaps: theme / timer / nickname lines are not messages
+          if (text == null || text.isEmpty || isControlText(text)) continue;
           final at = DateTime.tryParse('${env['created_at'] ?? ''}')?.toLocal() ?? DateTime.now();
           _index.add(_CircleSearchHit(member, text, at));
         }
@@ -115,7 +141,9 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
-          autofocus: true,
+          key: const Key('e-msg-search-box'),
+          controller: _box,
+          autofocus: widget.initialQuery.isEmpty,
           decoration: InputDecoration(hintText: _t.circleSearchAll, border: InputBorder.none),
           onChanged: (v) => setState(() => _query = v),
         ),
@@ -130,12 +158,20 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                       itemCount: results.length,
                       itemBuilder: (_, i) {
                         final h = results[i];
-                        final name = '${h.member['name'] ?? ''}';
+                        // cde-chat nickname first, like the chat list
+                        final name = DecorStore.instance.peerName(
+                            'member:${h.member['id']}', '${h.member['name'] ?? ''}');
                         return ListTile(
+                          key: Key('e-msg-hit-$i'),
                           leading: CircleAvatar(
                               child: Text(name.isEmpty ? '?' : name.characters.first.toUpperCase())),
-                          title: Text(name),
-                          subtitle: Text(h.text, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          subtitle: Text(cardFallback(h.text),
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
+                          trailing: Text(
+                              notifLocalizeDigits(context,
+                                  DateFormat('d/M/yy').format(h.at)),
+                              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
                           onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (_) => CircleChatScreen(member: h.member, identity: widget.identity),
                           )),

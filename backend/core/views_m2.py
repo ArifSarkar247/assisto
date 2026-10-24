@@ -1092,8 +1092,15 @@ class CircleChatSettingsView(APIView):
         if m is None:
             return _not_found()
         row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
-        from .views_m1_messenger import member_favourite
+        from .views_m1_messenger import member_favourite, chat_pref
+        # e-gaps: when the timer started, so the phone wipes ITS copies
+        # (decrypted files, preview) of exactly the messages that expire.
+        pref = chat_pref(request.user, "member", m.id)
+        since = pref.disappearing_since if pref else None
         return Response({**self._dict(row),
+                         "disappearing_since":
+                             since.isoformat() if since and row.disappearing_sec
+                             else None,
                          "favourite": member_favourite(request.user, m.id)})
 
     def post(self, request, pk):

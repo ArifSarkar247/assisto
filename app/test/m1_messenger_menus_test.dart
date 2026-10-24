@@ -252,6 +252,9 @@ void main() {
     await _settle(tester);
     await tester.scrollUntilVisible(find.text(t.msgrChatClear), 150,
         scrollable: find.byType(Scrollable).last);
+    // e-gaps: one more row (Lock chat) — bring the last row fully on screen
+    await tester.ensureVisible(find.text(t.msgrChatClear));
+    await _settle(tester);
     await tester.tap(find.text(t.msgrChatClear));
     await _settle(tester);
     await tester.tap(find.widgetWithText(FilledButton, t.msgrChatClear));

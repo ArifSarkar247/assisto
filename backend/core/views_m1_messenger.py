@@ -150,7 +150,8 @@ def _organise_mute_state(user, kind, chat_id):
             "muted_until": s.mute_until.isoformat() if s.mute_until else None}
 
 
-def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None):
+def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None,
+             expired=None):
     """Drop rows the viewer cleared, deleted-for-me, or that are past the
     disappearing TTL (sent at/after the timer started) — the purge job deletes
     those for real; this keeps them invisible between purge runs."""
@@ -163,6 +164,8 @@ def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None):
             continue
         if ttl and since is not None and x.created_at >= since and \
                 X.is_expired(x.created_at, ttl, now=now):
+            if expired is not None:   # e-gaps: deleted for real by caller
+                expired.append(x)
             continue
         out.append(x)
     return out
@@ -188,9 +191,16 @@ def visible_conversation(user, edge):
     pref = chat_pref(user, "member", edge.id)
     cs = ChatSettings.objects.filter(user=user, peer=edge).first()
     ttl = X.normalize_disappearing(cs.disappearing_sec) if cs else 0
-    return _visible(user, conversation_rows(edge),
-                    cleared_at=pref.cleared_at if pref else None,
-                    ttl=ttl, since=pref.disappearing_since if pref else None)
+    expired = []
+    out = _visible(user, conversation_rows(edge),
+                   cleared_at=pref.cleared_at if pref else None,
+                   ttl=ttl, since=pref.disappearing_since if pref else None,
+                   expired=expired)
+    # e-gaps: past the timer = deleted for real (rows + encrypted blobs),
+    # even when no purge cron runs on the box.
+    from . import e_gaps
+    e_gaps.purge_rows(expired)
+    return out
 
 
 def group_timer(group):
@@ -200,11 +210,15 @@ def group_timer(group):
 def visible_group_messages(group, user):
     pref = chat_pref(user, "group", group.id)
     t = group_timer(group)
-    return _visible(user, CircleMessage.objects.filter(group=group)
-                    .order_by("created_at"),
-                    cleared_at=pref.cleared_at if pref else None,
-                    ttl=t.disappearing_sec if t else 0,
-                    since=t.since if t else None)
+    expired = []
+    out = _visible(user, CircleMessage.objects.filter(group=group)
+                   .order_by("created_at"),
+                   cleared_at=pref.cleared_at if pref else None,
+                   ttl=t.disappearing_sec if t else 0,
+                   since=t.since if t else None, expired=expired)
+    from . import e_gaps   # e-gaps: deleted for real (rows + blobs)
+    e_gaps.purge_rows(expired)
+    return out
 
 
 def group_prefs_for(group, user):
@@ -217,6 +231,10 @@ def group_prefs_for(group, user):
         "mute": m["mute"], "muted_until": m["muted_until"],
         "disappearing": TTL_BY_SEC.get(t.disappearing_sec if t else 0, "off"),
         "disappearing_sec": t.disappearing_sec if t else 0,
+        # e-gaps: the phone wipes its own copies of what expires
+        "disappearing_since": (t.since.isoformat()
+                               if t and t.since and t.disappearing_sec
+                               else None),
         "theme": (pref.theme if pref and pref.theme else "default"),
         "favourite": bool(pref and pref.favourite),
     }

@@ -575,6 +575,8 @@ def group_rows(user):
     rows = []
     mems = (CircleGroupMember.objects.filter(member=user, status="active")
             .select_related("group"))
+    from .views_e_gaps import group_organise_map   # e-gaps: pin / archive
+    gorg = group_organise_map(user)
     for gm in mems:
         g = gm.group
         msgs = visible_group_messages(g, user)
@@ -600,7 +602,10 @@ def group_rows(user):
             "last_text": "", "last": env, "unread": unread,
             "at": last.created_at.isoformat() if last else
             g.created_at.isoformat(),
-            "status": "", "pinned": False, "archived": False,
+            "status": "",
+            "pinned": bool(gorg.get(str(g.id), {}).get("pinned")),
+            "pin_at": gorg.get(str(g.id), {}).get("pin_at"),
+            "archived": bool(gorg.get(str(g.id), {}).get("archived")),
             "muted": bool(muted), "favourite": False, "lists": [],
         })
     return rows

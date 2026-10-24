@@ -62,6 +62,9 @@ import '../messaging/chat_decor/decor_chat.dart';
 import '../messaging/chat_decor/decor_sheets.dart';
 import '../messaging/chat_decor/decor_store.dart';
 import '../messaging/chat_decor/system_line.dart';
+import '../messaging/disappear_sweep.dart'; // e-gaps
+import '../messaging/view_once.dart'; // e-gaps
+import '../messaging/chat_lock.dart'; // e-gaps
 import '../messaging/media/media_prep.dart' show pickPhoto, MediaDraft;
 import '../widgets/paywall_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -155,6 +158,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Chat-menu backed state (confirmed from the server on open).
   bool _favourite = false;
   int _disappearingSec = 0;
+  // e-gaps: when the timer started (only later messages expire) + which
+  // timer-change lines this screen already saw (a NEW one re-reads it).
+  DateTime? _disappearSince;
+  final Set<String> _timerSeen = {};
+  bool _timerPrimed = false;
 
   // cde-chat (order 6 D + E): the chat's shared theme + nicknames, synced by
   // E2E control messages (+ the server copy for a reinstall).
@@ -418,6 +426,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       });
       _rememberPreview();
       _foldControls(); // cde-chat
+      unawaited(_trackDisappearing()); // e-gaps
     } catch (_) {
       // Silent: a failed poll just waits for the next tick.
     } finally {
@@ -453,6 +462,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           x.pinned != y.pinned ||
           x.starred != y.starred ||
           x.media?.ref != y.media?.ref ||
+          x.viewOnceOpened != y.viewOnceOpened ||
           x.reactions.length != y.reactions.length) {
         return true;
       }
@@ -625,6 +635,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _load() async {
+    // e-gaps: this phone's record of opened view-once photos (sync reads in
+    // the decrypt below) + any open-acks still owed to the server.
+    await ViewOnceStore.instance.warm();
+    unawaited(ViewOnceStore.instance.flush(_ackViewOnce));
     // e2-keys: remember the snapshot key, then fetch the LIVE one in
     // parallel with the history (no extra wait before the first frame).
     final id = _memberId;
@@ -667,7 +681,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // are opaque prefs). Failures just leave the honest defaults.
     try {
       final s = await _api.circleChatSettings(_memberId ?? 0);
-      _disappearingSec = (s['disappearing_sec'] as int?) ?? 0;
+      _applyTimer(s);
       _favourite = s['favourite'] == true;
     } catch (_) {}
     if (mounted) {
@@ -682,6 +696,65 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     unawaited(_loadCalls());
     _rememberPreview();
     _foldControls(); // cde-chat
+    unawaited(_trackDisappearing()); // e-gaps
+  }
+
+  // ---- e-gaps: disappearing timer on THIS phone ----------------------------
+  void _applyTimer(Map<String, dynamic> s) {
+    _disappearingSec = (s['disappearing_sec'] as num?)?.toInt() ?? 0;
+    _disappearSince = DateTime.tryParse('${s['disappearing_since'] ?? ''}')?.toLocal();
+  }
+
+  Future<void> _reloadTimer() async {
+    try {
+      final s = await _api.circleChatSettings(_memberId ?? 0);
+      if (!mounted) return;
+      setState(() => _applyTimer(s));
+      unawaited(_trackDisappearing());
+    } catch (_) {}
+  }
+
+  bool _expired(CircleMessage m) =>
+      !m.pending &&
+      int.tryParse(m.id) != null &&
+      isExpired(m.at, _disappearingSec, _disappearSince);
+
+  /// Register what this chat shows under the timer (its decrypted file +
+  /// preview are wiped on expiry), then sweep whatever is already due.
+  Future<void> _trackDisappearing() async {
+    final since = _disappearSince;
+    if (_disappearingSec > 0 && since != null) {
+      for (final m in _messages) {
+        if (m.pending || int.tryParse(m.id) == null || m.at.isBefore(since)) continue;
+        await DisappearSweep.instance.track(
+            _chatKey, m.id, m.at.add(Duration(seconds: _disappearingSec)),
+            media: m.media);
+      }
+    }
+    await DisappearSweep.instance.sweep();
+  }
+
+  // ---- e-gaps: view-once ---------------------------------------------------
+  Future<void> _ackViewOnce(String msgId) async {
+    try {
+      await _api.postJson('/circle/messages/$msgId/view-once-open', {});
+    } on ApiException catch (e) {
+      // 400/404: nothing left to wipe on the server — the ack is done
+      if (e.status != 400 && e.status != 404) rethrow;
+    }
+  }
+
+  Future<void> _openViewOnce(CircleMessage m) async {
+    final d = m.media;
+    if (d == null || m.mine || m.viewOnceOpened) return;
+    await openViewOnce(context,
+        msgId: m.id, desc: d, deps: ViewOnceDeps.real(_ackViewOnce));
+    if (!mounted) return;
+    setState(() {
+      _messages = [
+        for (final x in _messages) x.id == m.id ? x.copyWith(viewOnceOpened: true) : x
+      ];
+    });
   }
 
   /// a1-circle: GET circle/calls?member=<id> -> the call events of this chat.
@@ -792,6 +865,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _markSeen() async {
     final id = _memberId;
     if (id == null || _seenInFlight) return;
+    if (_lockedShut) return; // e-gaps: never "seen" behind the lock
     // x2-ticks: blue ✓✓ only when the chat is open AND visible.
     if (!_visibleNow) {
       _seenPending = true;
@@ -909,29 +983,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       if (m.replyToId == null || m.replyPreview != null) return m;
       final src = byId[m.replyToId];
       if (src == null) return m;
-      return CircleMessage(
-        id: m.id,
-        text: m.text,
-        mine: m.mine,
-        at: m.at,
-        status: m.status,
-        decryptFailed: m.decryptFailed,
-        replyToId: m.replyToId,
-        replyPreview: src.text.isNotEmpty
-            ? src.text
-            : (src.media != null ? md1KindLabel(_t, src.media!) : null),
-        reactions: m.reactions,
-        edited: m.edited,
-        deleted: m.deleted,
-        forwarded: m.forwarded,
-        forwardHops: m.forwardHops,
-        starred: m.starred,
-        pinned: m.pinned,
-        contentType: m.contentType,
-        mediaCaption: m.mediaCaption,
-        mediaGated: m.mediaGated,
-        media: m.media,
-        mediaJob: m.mediaJob,
+      return m.copyWith(
+        replyPreview: src.viewOnce
+            ? _t.eVoReplyLabel
+            : src.text.isNotEmpty
+                ? src.text
+                : (src.media != null ? md1KindLabel(_t, src.media!) : null),
       );
     }).toList();
   }
@@ -951,7 +1008,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
     MediaDescriptor? media;
     final isMedia = kMd1Kinds.contains(contentType);
-    if (deleted == 'everyone') {
+    // e-gaps: view-once — the server flag OR the E2E descriptor's own mark;
+    // opened on the server or on this phone = never decrypted again.
+    var viewOnce = env['view_once'] == true;
+    final voOpened = env['view_once_opened'] == true ||
+        ViewOnceStore.instance.isOpenedSync('${env['id'] ?? ''}');
+    final voBlank = viewOnce && (voOpened || '${env['ciphertext'] ?? ''}'.isEmpty);
+    if (voBlank) {
+      // nothing to decrypt: opened / the sender's own copy
+    } else if (deleted == 'everyone') {
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
     } else if (contentType == 'text' || isMedia) {
       try {
@@ -982,6 +1047,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             media = MediaDescriptor.tryParse(pt);
             if (media == null) {
               failed = true;
+            } else if (viewOnce || descriptorIsViewOnce(pt)) {
+              viewOnce = true; // e-gaps: no caption / file in the bubble
             } else {
               text = media.caption;
               // cde-chat: a photo THEME (the descriptor carries `cc1`)
@@ -1016,6 +1083,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // md1: photo / voice / document really work; other kinds stay gated
       mediaGated: contentType != 'text' && !isMedia,
       media: media,
+      viewOnce: viewOnce,
+      viewOnceOpened: voOpened,
     );
   }
 
@@ -1346,6 +1415,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       canDeleteEveryone: canDeleteEveryone,
       onReact: (emoji) => _react(m, emoji),
       showInfo: m.mine && !m.pending,
+      protectedContent: m.viewOnce, // e-gaps
     );
     if (action == null || !mounted) return;
     switch (action) {
@@ -1578,6 +1648,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _doForwardInto(CircleMessage m) async {
+    if (m.viewOnce) return; // e-gaps: never forwarded
     final peer = _peerPub ?? await _refreshPeerKey();
     if (peer == null) {
       final id = _memberId;
@@ -1703,9 +1774,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // In-chat search (client-side over decrypted text)
   // -------------------------------------------------------------------------
   List<CircleMessage> get _visible {
-    if (!_searching || _searchQuery.trim().isEmpty) return _messages;
+    // e-gaps: a message past the disappearing timer is gone at once on this
+    // phone (the server deletes it for real; the next load drops it).
+    final live = _disappearingSec > 0
+        ? _messages.where((m) => !_expired(m)).toList()
+        : _messages;
+    if (!_searching || _searchQuery.trim().isEmpty) return live;
     final terms = _searchQuery.toLowerCase().trim().split(RegExp(r'\s+'));
-    return _messages.where((m) {
+    return live.where((m) {
       if (m.deleted == 'everyone') return false;
       final hay = m.text.toLowerCase();
       return terms.every((tk) => hay.contains(tk));
@@ -1745,7 +1821,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // -------------------------------------------------------------------------
   Future<void> _openChatMenu() async {
     final action = await showChatMenu(context,
-        isFavourite: _favourite, bubbleOn: _bubbleOn);
+        isFavourite: _favourite,
+        bubbleOn: _bubbleOn,
+        locked: ChatLockStore.instance.isLockedSync(_chatKey));
     if (action == null || !mounted) return;
     switch (action) {
       case ChatMenuAction.bubble:
@@ -1786,6 +1864,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         break;
       case ChatMenuAction.closeChat:
         await _closeChat();
+        break;
+      case ChatMenuAction.lockChat:
+        await toggleChatLock(context, _chatKey); // e-gaps
         break;
       case ChatMenuAction.sendCallLink:
         await _sendCallLink();
@@ -1853,10 +1934,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _disappearingFlow() async {
     final sec = await showDisappearingPicker(context, _disappearingSec);
     if (sec == null || !mounted) return;
+    final prev = _disappearingSec;
+    if (sec == prev) return;
     setState(() => _disappearingSec = sec);
     try {
+      // server first (it mirrors the ONE timer onto both sides), then the
+      // E2E system line so both phones show "X turned on ..." at once
       await _api.setDisappearing(_memberId ?? 0, sec);
+      await _sendControl(
+          ChatControl.timer(sec, at: DateTime.now().millisecondsSinceEpoch));
+      await _reloadTimer();
     } catch (e) {
+      if (mounted) setState(() => _disappearingSec = prev);
       _fail(e);
     }
   }
@@ -1873,12 +1962,20 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   /// Fold every control in the loaded history into the chat state (newest
   /// server stamp wins, so the order never matters).
   void _foldControls() {
+    var timerChanged = false;
     for (final m in _messages) {
       if (m.pending) continue;
       final c = _controlOf(m);
       if (c == null) continue;
+      if (c.isTimer) {
+        // e-gaps: the peer changed the timer while this chat is open
+        if (_timerSeen.add(m.id) && _timerPrimed && !m.mine) timerChanged = true;
+        continue;
+      }
       unawaited(_decor.fold(m.id, c, mine: m.mine, photo: m.media));
     }
+    _timerPrimed = true;
+    if (timerChanged) unawaited(_reloadTimer());
   }
 
   String get _myRealName {
@@ -2277,7 +2374,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _bulkForward() async {
-    final toForward = _selectedMsgs.toList();
+    // e-gaps: a view-once photo is never forwarded
+    final toForward = _selectedMsgs.where((m) => !m.viewOnce).toList();
     setState(() {
       _selecting = false;
       _selected.clear();
@@ -2336,8 +2434,16 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     );
   }
 
+  /// e-gaps: a locked chat opened from outside its folder asks first.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      ChatLockGate(chatKey: _chatKey, child: Builder(builder: _buildChat));
+
+  bool get _lockedShut =>
+      ChatLockStore.instance.isLockedSync(_chatKey) &&
+      !ChatLockSession.isChatOpen(_chatKey);
+
+  Widget _buildChat(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final relation = '${widget.member['relation'] ?? 'friend'}';
     final pinned = _messages.where((m) => m.pinned).toList();
@@ -2416,7 +2522,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                     text: _describe(m, cc),
                                     icon: cc.isTheme
                                         ? Icons.palette_outlined
-                                        : Icons.badge_outlined));
+                                        : cc.isTimer
+                                            ? Icons.timer_outlined
+                                            : Icons.badge_outlined));
                           }
                           // p3: an Assisto card (E2E like any message)
                           final p3c = _p3Card(m);
@@ -2454,6 +2562,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                 ? () => _openMedia(m)
                                 : null,
                             onOpenFile: _selecting ? null : _openFile,
+                            onOpenViewOnce: (_selecting || m.media == null)
+                                ? null
+                                : () => _openViewOnce(m),
                           );
                           // p3: on-device scam warning under an incoming message
                           final Widget bubble = scam.flagged

@@ -26,6 +26,8 @@ Future<CircleMsgAction?> showCircleMessageActions(
   required ValueChanged<String> onReact,
   bool showInfo = false,
   List<String>? reactions, // cde-chat: the chat theme's own quick emoji
+  // e-gaps: a view-once photo — no copy / forward / star / pin
+  bool protectedContent = false,
 }) {
   final t = AppLocalizations.of(context);
   return showModalBottomSheet<CircleMsgAction>(
@@ -67,12 +69,14 @@ Future<CircleMsgAction?> showCircleMessageActions(
           ),
           const Divider(height: 1),
           _tile(ctx, Icons.reply_outlined, t.circleActionReply, CircleMsgAction.reply),
-          _tile(ctx, Icons.copy_outlined, t.copy, CircleMsgAction.copy),
-          _tile(ctx, Icons.forward_outlined, t.circleActionForward, CircleMsgAction.forward),
-          _tile(ctx, isStarred ? Icons.star : Icons.star_border,
-              isStarred ? t.circleActionUnstar : t.circleActionStar, CircleMsgAction.star),
-          _tile(ctx, isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-              isPinned ? t.circleActionUnpin : t.circleActionPin, CircleMsgAction.pin),
+          if (!protectedContent) ...[
+            _tile(ctx, Icons.copy_outlined, t.copy, CircleMsgAction.copy),
+            _tile(ctx, Icons.forward_outlined, t.circleActionForward, CircleMsgAction.forward),
+            _tile(ctx, isStarred ? Icons.star : Icons.star_border,
+                isStarred ? t.circleActionUnstar : t.circleActionStar, CircleMsgAction.star),
+            _tile(ctx, isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                isPinned ? t.circleActionUnpin : t.circleActionPin, CircleMsgAction.pin),
+          ],
           if (mine && canEdit)
             _tile(ctx, Icons.edit_outlined, t.circleActionEdit, CircleMsgAction.edit),
           if (showInfo)
