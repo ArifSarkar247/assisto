@@ -136,7 +136,7 @@ List<Map<String, dynamic>> _rows(bool bn) {
       };
   return [
     one(1, _n(bn, 'Rahim', 'রহিম'), _n(bn, 'See you at 8', '৮টায় দেখা হবে'), 1),
-    one(2, _n(bn, 'Nadia', 'নাদিয়া'), _n(bn, 'Private: the surprise plan', 'গোপন: সারপ্রাইজের পরিকল্পনা'), 2),
+    one(52, _n(bn, 'Nadia', 'নাদিয়া'), _n(bn, 'Private: the surprise plan', 'গোপন: সারপ্রাইজের পরিকল্পনা'), 2),
     one(3, _n(bn, 'Karim', 'করিম'), _n(bn, 'Sent the invoice', 'ইনভয়েস পাঠিয়েছি'), 5),
     {
       'id': 'g7', 'kind': 'group', 'is_group': true, 'group_id': 7,
@@ -188,12 +188,15 @@ final Map<String, Widget Function(String)> eGapsShots = {
     return const _VoiceDemo();
   },
   'e_hub_locked_pinned_group': (l) {
-    ChatLockStore.instance.lock('member:2');
+    // a code exists whenever a chat is locked (tapping the folder asks it);
+    // ids unique to this shot so no other gallery screen sees the lock
+    ChatLockStore.instance.setCode('1357').then((_) => ChatLockStore.instance.lock('member:52'));
     return _withApi(l, Scaffold(body: MsgrHubChatList(identity: C3Fake.me, members: const [])));
   },
   'e_lock_gate': (l) {
-    ChatLockAuth.biometric = (_) async => null; // no code set yet: no dialog
-    ChatLockStore.instance.lock('member:91');
+    // opened from outside the folder: the gate + the code prompt
+    ChatLockAuth.biometric = (_) async => false;
+    ChatLockStore.instance.setCode('1357').then((_) => ChatLockStore.instance.lock('member:91'));
     return _withApi(l, CircleChatScreen(member: _member(l == 'bn'), identity: C3Fake.me));
   },
   'e_message_search': (l) => _withApi(
