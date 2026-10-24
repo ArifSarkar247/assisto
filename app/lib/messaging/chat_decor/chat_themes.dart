@@ -229,7 +229,9 @@ class ChatWallpaper extends StatelessWidget {
   final ChatThemeDef def;
   final File? photo;
   final Widget child;
-  const ChatWallpaper({super.key, required this.def, this.photo, required this.child});
+  final double patternScale;
+  const ChatWallpaper(
+      {super.key, required this.def, this.photo, required this.child, this.patternScale = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +246,8 @@ class ChatWallpaper extends StatelessWidget {
       fit: StackFit.passthrough,
       children: [
         Positioned.fill(
-          child: RepaintBoundary(
+          child: ClipRect(
+           child: RepaintBoundary(
             child: DecoratedBox(
               key: ValueKey('cde-wallpaper-${def.id}'),
               decoration: grad,
@@ -262,8 +265,10 @@ class ChatWallpaper extends StatelessWidget {
                       : const SizedBox.expand())
                   : (def.pattern == ChatPattern.none
                       ? const SizedBox.expand()
-                      : CustomPaint(painter: ChatPatternPainter(def))),
+                      : CustomPaint(
+                          painter: ChatPatternPainter(def, scale: patternScale))),
             ),
+           ),
           ),
         ),
         child,
@@ -302,7 +307,7 @@ class ChatThemeSwatch extends StatelessWidget {
     if (d == null) {
       return ColoredBox(color: scheme.surface, child: bubbles);
     }
-    return ChatWallpaper(def: d, photo: photo, child: bubbles);
+    return ChatWallpaper(def: d, photo: photo, patternScale: 0.5, child: bubbles);
   }
 }
 
@@ -310,13 +315,17 @@ class ChatThemeSwatch extends StatelessWidget {
 /// looks the same on every phone.
 class ChatPatternPainter extends CustomPainter {
   final ChatThemeDef def;
-  ChatPatternPainter(this.def);
+  final double scale; // < 1 = denser (the small picker swatches)
+  ChatPatternPainter(this.def, {this.scale = 1});
 
   static const double _tile = 170;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size0) {
     if (def.patternColors.isEmpty) return;
+    canvas.save();
+    canvas.scale(scale);
+    final size = size0 / scale;
     final rnd = math.Random(def.id.codeUnits.fold<int>(7, (a, b) => a * 31 + b) & 0x7fffffff);
     // one tile's motif positions, then repeated
     final motifs = <(Offset, double, double, int)>[];
@@ -345,6 +354,7 @@ class ChatPatternPainter extends CustomPainter {
         }
       }
     }
+    canvas.restore();
   }
 
   void _motif(Canvas canvas, Offset at, double s, double rot, Color color, int k) {
@@ -469,5 +479,6 @@ class ChatPatternPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ChatPatternPainter old) => old.def.id != def.id;
+  bool shouldRepaint(ChatPatternPainter old) =>
+      old.def.id != def.id || old.scale != scale;
 }
