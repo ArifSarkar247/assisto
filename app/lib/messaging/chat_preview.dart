@@ -5,6 +5,7 @@ import '../crypto/e2e.dart';
 import 'media/media_descriptor.dart';
 import 'msg_ticks.dart';
 import '../p3/assisto_card.dart' show cardFallback;
+import 'chat_decor/chat_control.dart'; // cde-chat
 
 /// md2: the decrypted detail a media preview shows after its icon + label:
 /// a photo's caption, a document's file name ('' = just the label).
@@ -56,6 +57,10 @@ class ChatPreview {
   final DateTime? at;
   final bool isGroup;
 
+  /// cde-chat: the last message is a theme / nickname change (the list
+  /// draws it as a localised system line).
+  final ChatControl? control;
+
   const ChatPreview({
     required this.kind,
     this.text = '',
@@ -65,6 +70,7 @@ class ChatPreview {
     this.tick,
     this.at,
     this.isGroup = false,
+    this.control,
   });
 
   static Uint8List? _b64(String? s) {
@@ -109,15 +115,17 @@ class ChatPreview {
     final sender = '${last['sender_name'] ?? ''}';
     final ct = '${last['content_type'] ?? 'text'}';
     final tick = mine ? tickFrom('${last['status'] ?? 'sent'}') : null;
-    ChatPreview of(PreviewKind k, [String text = '']) => ChatPreview(
-        kind: k,
-        text: text,
-        mine: mine,
-        senderName: sender,
-        contentType: ct,
-        tick: tick,
-        at: at,
-        isGroup: isGroup);
+    ChatPreview of(PreviewKind k, [String text = '', ChatControl? control]) =>
+        ChatPreview(
+            kind: k,
+            text: text,
+            mine: mine,
+            senderName: sender,
+            contentType: ct,
+            tick: tick,
+            at: at,
+            isGroup: isGroup,
+            control: control);
 
     final deleted = '${last['deleted'] ?? ''}';
     if (deleted == 'everyone') return of(PreviewKind.deleted);
@@ -143,6 +151,10 @@ class ChatPreview {
         if (pt != null) break;
       }
     }
+    if (isMedia && ct == 'photo' && pt != null) {
+      final cc = controlInDescriptor(pt); // cde-chat: a photo theme
+      if (cc != null) return of(PreviewKind.text, '', cc);
+    }
     if (isMedia) {
       // md2: a photo's caption / a document's NAME (decrypted here - the
       // server never has it); the label + icon otherwise. Never the
@@ -154,7 +166,9 @@ class ChatPreview {
       return c.isNotEmpty ? of(PreviewKind.text, c) : of(PreviewKind.encrypted);
     }
     // p3: an Assisto card previews as its readable first line
-    return of(PreviewKind.text, cardFallback(pt).replaceAll('\n', ' ').trim());
+    final line = cardFallback(pt).replaceAll('\n', ' ').trim();
+    if (isControlText(pt)) return of(PreviewKind.text, line, decodeControl(pt));
+    return of(PreviewKind.text, line);
   }
 
   /// Every public key this phone knows for the row's peer, current first,

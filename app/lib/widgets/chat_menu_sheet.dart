@@ -13,6 +13,7 @@ enum ChatMenuAction {
   mute,
   disappearing,
   chatTheme,
+  nicknames, // cde-chat
   addFavourite,
   addToList,
   bubble, // c3-msg: per-chat "Show as bubble" (Android 11+)
@@ -65,6 +66,7 @@ Future<ChatMenuAction?> showChatMenu(
     _Row(ChatMenuAction.mute, Icons.notifications_off_outlined, (t) => t.msgrChatMute, submenu: true),
     _Row(ChatMenuAction.disappearing, Icons.timer_outlined, (t) => t.msgrChatDisappearing, submenu: true),
     _Row(ChatMenuAction.chatTheme, Icons.palette_outlined, (t) => t.msgrChatTheme),
+    _Row(ChatMenuAction.nicknames, Icons.badge_outlined, (t) => t.cdeNickTitle),
     _Row(ChatMenuAction.addFavourite, Icons.star_outline, (t) => _favLabel(t, isFavourite)),
     _Row(ChatMenuAction.addToList, Icons.playlist_add, (t) => t.msgrChatAddToList, submenu: true),
     if (bubbleOn != null)

@@ -15,6 +15,7 @@ enum GroupMenuAction {
   mute,
   disappearing,
   chatTheme,
+  nicknames, // cde-chat
   addToFavourites,
   exportChat,
   // ── calls ──
@@ -66,6 +67,8 @@ Future<GroupMenuAction?> showGroupMenuSheet(
                 trailing: const Icon(Icons.chevron_right)),
             _item(ctx, Icons.palette_outlined, t.grpMenuChatTheme,
                 GroupMenuAction.chatTheme),
+            _item(ctx, Icons.badge_outlined, t.cdeNickTitle,
+                GroupMenuAction.nicknames),
             _item(
                 ctx,
                 isFavourite ? Icons.star : Icons.star_border,

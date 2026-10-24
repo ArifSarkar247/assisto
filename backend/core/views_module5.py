@@ -431,7 +431,15 @@ def _member_dict(m):
         # (UserPublicKey) — never from the edge.
         **_live_key_fields(m),
         "sharing": m.sharing or {},
+        **_cde_fields(m),
     }
+
+
+def _cde_fields(m):
+    """cde-chat: the shared nickname (what I call them / they call me) + the
+    chat theme id. `name` stays the REAL name (profile / info)."""
+    from . import chat_decor
+    return chat_decor.edge_nicknames(m)
 
 
 def _msgreq_info(m):

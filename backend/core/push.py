@@ -349,6 +349,19 @@ def display_name(user):
     return (getattr(user, "name", "") or "").strip() or "Assisto"
 
 
+def seen_name(viewer, user, group=None):
+    """cde-chat: `user`'s name as `viewer` sees it in that chat — the shared
+    nickname when one is set, else the public display name."""
+    try:
+        from . import chat_decor
+        nick = chat_decor.nickname_seen_by(viewer, user, group=group)
+        if nick:
+            return nick
+    except Exception:
+        pass
+    return display_name(user)
+
+
 def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                  data=None, high_priority=False, data_only=False):
     """Send `kind` to every registered device of `user`. Returns the number of
@@ -625,13 +638,14 @@ def hook_circle_message(sender, member, message):
                                    edge.id if edge else "", message.id,
                                    sender.id)
         preview = prefs.get("show_preview", True)
-        tb, te, bb, be = (_message_texts(display_name(sender)) if preview
+        sname = seen_name(recipient, sender)  # cde-chat: nickname first
+        tb, te, bb, be = (_message_texts(sname) if preview
                           else _private_texts())
         return safe_push(recipient, "message", tb, te, bb, be, data={
             "message_id": message.id, "chat_kind": "member",
             "chat_id": edge.id if edge is not None else "",
             "sender_id": sender.id,
-            "sender_name": display_name(sender) if preview else "",
+            "sender_name": sname if preview else "",
             # c3-msg: the device honours the account-wide preview switch too
             "preview": "1" if preview else "0",
             "route": "circle/chat"}, high_priority=True)
@@ -666,12 +680,15 @@ def hook_group_message(sender, group, message):
                                 sender.id)
                 continue
             preview = prefs.get("show_preview", True)
-            t = (tb, te, bb, be) if preview else _private_texts()
+            sname = seen_name(r.member, sender, group=group)  # cde-chat
+            t = ((tb, te, bb, be) if sname == display_name(sender)
+                 else _message_texts(sname)[:2] + (bb, be))
+            t = t if preview else _private_texts()
             safe_push(r.member, "message", *t, data={
                 "message_id": message.id, "chat_kind": "group",
                 "chat_id": group.id, "group_id": group.id,
                 "sender_id": sender.id,
-                "sender_name": display_name(sender) if preview else "",
+                "sender_name": sname if preview else "",
                 "preview": "1" if preview else "0",
                 "route": "circle/group"}, high_priority=True)
             sent += 1
@@ -702,7 +719,7 @@ def hook_call_placed(caller, member, call):
                 return False
         except Exception:
             pass
-        name = display_name(caller)
+        name = seen_name(callee, caller)  # cde-chat: the callee's nickname
         video = getattr(call, "kind", "voice") == "video"
         return safe_push(callee, "call",
                          "%s কল করছেন" % name, "%s is calling" % name,

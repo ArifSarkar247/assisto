@@ -31,6 +31,8 @@ import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
 import 'msgr_avatar.dart';
 import 'robo_id.dart';
+import '../messaging/chat_decor/decor_store.dart'; // cde-chat
+import '../messaging/chat_decor/system_line.dart';
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -104,6 +106,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     super.initState();
     _rt.acquire();
     _rt.states.addListener(_onRt);
+    // cde-chat: nicknames from this phone's store (and the server rows)
+    DecorStore.instance.revision.addListener(_onRt);
+    unawaited(DecorStore.instance.loadAll());
     _load();
     // x2-ticks: my last message's tick updates live (no list reload); a
     // new message for me reloads the list at once.
@@ -140,6 +145,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     _rcptSub?.cancel(); // x2-ticks
     _newSub?.cancel();
     _rt.states.removeListener(_onRt);
+    DecorStore.instance.revision.removeListener(_onRt); // cde-chat
     _rt.release();
     super.dispose();
   }
@@ -199,6 +205,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _chats = dedupeChatRows(((r['results'] ?? r['chats'] ?? const []) as List)
           .cast<Map<String, dynamic>>());
       _loadFailed = false;
+      // cde-chat: the server's nickname for every 1:1 row (reinstall-safe)
+      for (final c in _chats) {
+        if (!_isGroup(c)) {
+          unawaited(DecorStore.instance.adoptMemberPayload(_key(c), _memberOf(c)));
+        }
+      }
       await _loadPeerKeys(_chats);
       _previews.clear();
       _publishUnread();
@@ -334,7 +346,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
 
   String _nameOf(Map<String, dynamic> c) => _isGroup(c)
       ? '${(c['group'] as Map?)?['name'] ?? _memberOf(c)['name'] ?? ''}'
-      : '${_memberOf(c)['name'] ?? ''}';
+      // cde-chat: the nickname first (the real name stays in contact info)
+      : DecorStore.instance.peerName(_key(c), '${_memberOf(c)['name'] ?? ''}');
 
   /// UNREAD-BADGE FIX: opening a chat clears the row, the tab badge and the
   /// app-icon badge source in the SAME frame, cancels that chat's
@@ -968,7 +981,18 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       case PreviewKind.text:
         body = pv.text;
     }
-    final prefix = pv.kind == PreviewKind.empty
+    // cde-chat: a theme / nickname change reads as a localised system line
+    final cc = pv.control;
+    var ctrlLine = false;
+    if (cc != null && (cc.isTheme || cc.uid == null)) {
+      ctrlLine = true;
+      body = describeControl(t, cc,
+          mine: pv.mine,
+          actor: pv.senderName,
+          peerName: pv.senderName);
+      lead = cc.isTheme ? Icons.palette_outlined : Icons.badge_outlined;
+    }
+    final prefix = pv.kind == PreviewKind.empty || ctrlLine
         ? ''
         : (pv.mine
             ? (pv.isGroup ? '${t.c3You}: ' : '')

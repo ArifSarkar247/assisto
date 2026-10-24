@@ -1,0 +1,250 @@
+{
+  "_comment": "cde-chat (owner order 6 C/D/E): video-call stage gestures, REAL synced chat themes (presets, own photo, AI), Messenger-style nicknames + system lines. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_cde_arb.json",
+  "en": {
+    "cdeThemeClassic": "Classic",
+    "cdeThemeLove": "Love",
+    "cdeThemeRoses": "Roses",
+    "cdeThemeMoonlight": "Moon & stars",
+    "cdeThemeSunset": "Sunset",
+    "cdeThemeCalm": "Calm sea",
+    "cdeThemeMidnight": "Midnight",
+    "cdeThemeForest": "Forest",
+    "cdeThemeEid": "Eid Mubarak",
+    "cdeThemeBirthday": "Birthday",
+    "cdeThemeAnniversary": "Anniversary",
+    "cdeThemeCustom": "Your photo",
+    "cdeThemeAi": "AI theme",
+    "cdeThemeYou": "You changed the theme to {theme}",
+    "@cdeThemeYou": {
+      "placeholders": {
+        "theme": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeThemeOther": "{name} changed the theme to {theme}",
+    "@cdeThemeOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "theme": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickYouOther": "You set the nickname for {name} to {nick}",
+    "@cdeNickYouOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickYouSelf": "You set your nickname to {nick}",
+    "@cdeNickYouSelf": {
+      "placeholders": {
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickOtherYou": "{name} set your nickname to {nick}",
+    "@cdeNickOtherYou": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickOtherSelf": "{name} set their nickname to {nick}",
+    "@cdeNickOtherSelf": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickOtherOther": "{name} set the nickname for {target} to {nick}",
+    "@cdeNickOtherOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "target": {
+          "type": "String"
+        },
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickRmYouOther": "You removed the nickname for {name}",
+    "@cdeNickRmYouOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickRmYouSelf": "You removed your nickname",
+    "cdeNickRmOtherYou": "{name} removed your nickname",
+    "@cdeNickRmOtherYou": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickRmOtherSelf": "{name} removed their nickname",
+    "@cdeNickRmOtherSelf": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickRmOtherOther": "{name} removed the nickname for {target}",
+    "@cdeNickRmOtherOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "target": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeThemeTitle": "Chat theme",
+    "cdeThemeSubtitle": "You both see the theme you choose, at once.",
+    "cdeThemeSubtitleGroup": "Everyone in the group sees the theme you choose.",
+    "cdeThemeInUse": "In use",
+    "cdeThemeFromPhoto": "Use my photo",
+    "cdeThemeFromPhotoHint": "Sent end-to-end encrypted. Dimmed so text stays easy to read.",
+    "cdeThemeAiCreate": "Create with AI",
+    "cdeThemeAiHint": "Describe a picture. Uses {credits} credits.",
+    "@cdeThemeAiHint": {
+      "placeholders": {
+        "credits": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeThemeAiPromptLabel": "Describe the wallpaper",
+    "cdeThemeAiPromptExample": "For example: a moonlit river with boats",
+    "cdeThemeAiFaceLock": "Face Lock is on: no real person's face is added or changed.",
+    "cdeThemeAiMaking": "Making your AI theme…",
+    "cdeThemeAiFailed": "The AI theme couldn't be made. Try again — you won't be charged twice.",
+    "cdeThemeCreate": "Create",
+    "cdeThemeSending": "Setting your photo theme…",
+    "cdeThemeFailed": "Couldn't change the theme. Check the internet and try again.",
+    "cdeNickTitle": "Nicknames",
+    "cdeNickSubtitle": "Everyone in this chat sees the nicknames.",
+    "cdeNickYouRow": "{name} (you)",
+    "@cdeNickYouRow": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickSet": "Set a nickname",
+    "cdeNickEditTitle": "Nickname for {name}",
+    "@cdeNickEditTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickEditTitleSelf": "Your nickname",
+    "cdeNickEditHint": "Nickname",
+    "cdeNickRemove": "Remove nickname",
+    "cdeNickFailed": "Couldn't save the nickname. Check the internet and try again.",
+    "cdeNickRealName": "Real name: {name}",
+    "@cdeNickRealName": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeNickInfo": "Nickname: {nick}",
+    "@cdeNickInfo": {
+      "placeholders": {
+        "nick": {
+          "type": "String"
+        }
+      }
+    },
+    "cdeCallSwapHint": "Your camera. Tap to switch views, drag to move.",
+    "cdeCallSwapHintRemote": "Their camera. Tap to switch views, drag to move.",
+    "cdeCallFullHint": "Double-tap for full screen, pinch to zoom"
+  },
+  "bn": {
+    "cdeThemeClassic": "ক্লাসিক",
+    "cdeThemeLove": "ভালোবাসা",
+    "cdeThemeRoses": "গোলাপ",
+    "cdeThemeMoonlight": "চাঁদ-তারা",
+    "cdeThemeSunset": "সূর্যাস্ত",
+    "cdeThemeCalm": "শান্ত সাগর",
+    "cdeThemeMidnight": "মধ্যরাত",
+    "cdeThemeForest": "সবুজ বন",
+    "cdeThemeEid": "ঈদ মোবারক",
+    "cdeThemeBirthday": "জন্মদিন",
+    "cdeThemeAnniversary": "বিবাহবার্ষিকী",
+    "cdeThemeCustom": "আপনার ছবি",
+    "cdeThemeAi": "এআই থিম",
+    "cdeThemeYou": "আপনি থিম বদলে {theme} করেছেন",
+    "cdeThemeOther": "{name} থিম বদলে {theme} করেছেন",
+    "cdeNickYouOther": "আপনি {name}-এর ডাকনাম দিয়েছেন {nick}",
+    "cdeNickYouSelf": "আপনি নিজের ডাকনাম দিয়েছেন {nick}",
+    "cdeNickOtherYou": "{name} আপনার ডাকনাম দিয়েছেন {nick}",
+    "cdeNickOtherSelf": "{name} নিজের ডাকনাম দিয়েছেন {nick}",
+    "cdeNickOtherOther": "{name} {target}-এর ডাকনাম দিয়েছেন {nick}",
+    "cdeNickRmYouOther": "আপনি {name}-এর ডাকনাম মুছে দিয়েছেন",
+    "cdeNickRmYouSelf": "আপনি নিজের ডাকনাম মুছে দিয়েছেন",
+    "cdeNickRmOtherYou": "{name} আপনার ডাকনাম মুছে দিয়েছেন",
+    "cdeNickRmOtherSelf": "{name} নিজের ডাকনাম মুছে দিয়েছেন",
+    "cdeNickRmOtherOther": "{name} {target}-এর ডাকনাম মুছে দিয়েছেন",
+    "cdeThemeTitle": "চ্যাট থিম",
+    "cdeThemeSubtitle": "আপনি যে থিম বাছবেন, দুজনেই সঙ্গে সঙ্গে সেটি দেখবেন।",
+    "cdeThemeSubtitleGroup": "আপনি যে থিম বাছবেন, গ্রুপের সবাই সেটি দেখবেন।",
+    "cdeThemeInUse": "চালু আছে",
+    "cdeThemeFromPhoto": "নিজের ছবি দিন",
+    "cdeThemeFromPhotoHint": "এন্ড-টু-এন্ড এনক্রিপ্টেড হয়ে যায়। লেখা সহজে পড়তে ছবিটি একটু গাঢ় করা হয়।",
+    "cdeThemeAiCreate": "এআই দিয়ে বানান",
+    "cdeThemeAiHint": "একটি ছবির বর্ণনা দিন। {credits} ক্রেডিট লাগবে।",
+    "cdeThemeAiPromptLabel": "ওয়ালপেপারের বর্ণনা দিন",
+    "cdeThemeAiPromptExample": "যেমন: চাঁদের আলোয় নদী আর নৌকা",
+    "cdeThemeAiFaceLock": "ফেস লক চালু: কোনো আসল মানুষের মুখ যোগ বা বদল করা হয় না।",
+    "cdeThemeAiMaking": "আপনার এআই থিম তৈরি হচ্ছে…",
+    "cdeThemeAiFailed": "এআই থিম তৈরি করা যায়নি। আবার চেষ্টা করুন — দুবার কাটা হবে না।",
+    "cdeThemeCreate": "তৈরি করুন",
+    "cdeThemeSending": "আপনার ছবির থিম দেওয়া হচ্ছে…",
+    "cdeThemeFailed": "থিম বদলানো যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "cdeNickTitle": "ডাকনাম",
+    "cdeNickSubtitle": "এই চ্যাটের সবাই ডাকনামগুলো দেখতে পান।",
+    "cdeNickYouRow": "{name} (আপনি)",
+    "cdeNickSet": "ডাকনাম দিন",
+    "cdeNickEditTitle": "{name}-এর ডাকনাম",
+    "cdeNickEditTitleSelf": "আপনার ডাকনাম",
+    "cdeNickEditHint": "ডাকনাম",
+    "cdeNickRemove": "ডাকনাম মুছুন",
+    "cdeNickFailed": "ডাকনাম সেভ করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "cdeNickRealName": "আসল নাম: {name}",
+    "cdeNickInfo": "ডাকনাম: {nick}",
+    "cdeCallSwapHint": "আপনার ক্যামেরা। ভিউ বদলাতে ট্যাপ করুন, সরাতে টেনে নিন।",
+    "cdeCallSwapHintRemote": "ওনার ক্যামেরা। ভিউ বদলাতে ট্যাপ করুন, সরাতে টেনে নিন।",
+    "cdeCallFullHint": "ফুল স্ক্রিনের জন্য দুবার ট্যাপ করুন, জুম করতে দুই আঙুলে টানুন"
+  }
+}

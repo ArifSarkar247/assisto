@@ -475,12 +475,28 @@ def envelope_for(viewer, x, ctx, key_cache=None):
             peer_pub = ctx["edge_key"]
     return {
         "id": x.id, "sender_id": x.sender_id, "mine": mine,
-        "sender_name": (x.sender.name or "") if x.sender_id else "",
+        "sender_name": _cde_sender_name(viewer, x, ctx, key_cache, mine),
         "content_type": x.content_type, "ciphertext": ct, "nonce": nonce,
         "sender_key_id": x.sender_key_id, "scheme": x.scheme,
         "peer_public_key": peer_pub, "deleted": x.deleted or "",
         "created_at": x.created_at.isoformat(),
     }
+
+
+def _cde_sender_name(viewer, x, ctx, cache, mine):
+    """cde-chat: the sender's name as THIS viewer sees it — the shared
+    nickname of the chat when one is set, else the real name."""
+    if not x.sender_id:
+        return ""
+    name = x.sender.name or ""
+    if mine:
+        return name
+    k = ("cde-nick", x.sender_id)
+    if k not in cache:
+        from . import chat_decor
+        cache[k] = chat_decor.nickname_seen_by(
+            viewer, x.sender, group=ctx.get("group") if x.group_id else None)
+    return cache[k] or name
 
 
 def _unseen_window(user, rows, limit):
@@ -744,7 +760,8 @@ class NotifyPullView(APIView):
         else:
             from .views_module5 import _member_dict
             md = _member_dict(ctx["edge"])
-            title, peer_pub = md.get("name", ""), md.get("public_key", "")
+            title, peer_pub = (md.get("nickname") or md.get("name", ""),
+                               md.get("public_key", ""))  # cde-chat
             photo, photo_v = md.get("photo", ""), md.get("photo_v", "")
         cache = {}
         msgs = [envelope_for(request.user, x, ctx, cache) for x in window]
