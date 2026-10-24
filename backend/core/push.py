@@ -266,6 +266,10 @@ def _is_dead_token(code, js):
              if isinstance(d, dict)}
     if "UNREGISTERED" in codes or (code == 404 and err.get("status") == "NOT_FOUND"):
         return True
+    # ring-everywhere: a token minted for another Firebase project can never
+    # receive our pushes either (FCM v1 SENDER_ID_MISMATCH, HTTP 403).
+    if code == 403 and "SENDER_ID_MISMATCH" in codes:
+        return True
     if code == 400 and (err.get("status") == "INVALID_ARGUMENT"
                         or "INVALID_ARGUMENT" in codes):
         msg = str(err.get("message", "")).lower()
@@ -302,8 +306,10 @@ def build_message(token, data, notification=None, priority="high", ttl_s=3600,
 
 
 def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
-                  collapse_key=None, android_channel=None):
-    """Send one FCM v1 message. True on success. Never raises."""
+                  collapse_key=None, android_channel=None, result=None):
+    """Send one FCM v1 message. True on success. Never raises.
+    ring-everywhere: pass a dict as `result` to receive FCM's message id
+    (`result["name"]`, e.g. "projects/x/messages/0:123") on success."""
     try:
         if not token:
             return False
@@ -322,6 +328,11 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
                 "Authorization": "Bearer " + access,
                 "Content-Type": "application/json; charset=utf-8"})
             if code == 200:
+                if isinstance(result, dict):
+                    try:
+                        result["name"] = str((js or {}).get("name", ""))[:160]
+                    except Exception:
+                        pass
                 return True
             if code == 401 and attempt == 0:
                 continue                      # stale token -> refresh once
@@ -394,17 +405,39 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
         elif kind in ("call", "call_cancel") and payload.get("call_id"):
             collapse = "call-%s" % payload["call_id"]
         sent = 0
+        msg_ids = []
         for tok in dict.fromkeys(tokens):
+            res = {}
             if send_to_token(tok, payload, notification,
                              priority="high" if high_priority else "normal",
                              ttl_s=TTL_S.get(kind, 3600), collapse_key=collapse,
-                             android_channel=CHANNELS[kind]):
+                             android_channel=CHANNELS[kind], result=res):
                 sent += 1
+                if res.get("name"):
+                    msg_ids.append(res["name"])
+        if kind == "call" and payload.get("call_id"):
+            _record_call_push(payload.get("call_id"), sent, msg_ids)
         log.info("push: kind=%s devices=%d sent=%d", kind, len(tokens), sent)
         return sent
     except Exception as e:
         log.warning("push: push_to_user error %s", type(e).__name__)
         return 0
+
+
+def _record_call_push(call_id, sent, msg_ids):
+    """ring-everywhere: FCM accepted the ring for this call -> remember when
+    and its message id (Owner Admin / delivery debugging). Never raises."""
+    if not sent:
+        return
+    try:
+        from django.utils import timezone as _tz
+        from .models import CallSession
+        qs = CallSession.objects.filter(call_id=int(call_id))
+        qs.filter(fcm_sent_at__isnull=True).update(fcm_sent_at=_tz.now())
+        if msg_ids:
+            qs.update(fcm_msg_id=msg_ids[-1][:160])
+    except Exception:
+        pass
 
 
 def _get_executor():
@@ -697,8 +730,12 @@ def hook_group_message(sender, group, message):
         return False
 
 
-def hook_call_placed(caller, member, call):
-    """Ring the callee's devices (data-only, high priority, 30 s TTL)."""
+def hook_call_placed(caller, member, call, attempt=0):
+    """Ring the callee's devices (data-only, high priority, 30 s TTL).
+    ring-everywhere: `attempt` > 0 is a bounded resend (same collapse key
+    call-<id>, the phone shows ONE notification per call id). The payload
+    carries `ack_sig` so the phone's NATIVE FCM service can confirm
+    delivery / decline without the Flutter engine or the auth token."""
     try:
         if not is_available():
             return False
@@ -731,9 +768,19 @@ def hook_call_placed(caller, member, call):
                                # x1-calls A3: caller photo for the full-screen
                                # ring + notification large icon
                                "caller_photo": _x1_photo(caller),
+                               "ack_sig": _ack_sig(call),
+                               "attempt": int(attempt or 0),
                                "route": "circle/call"})
     except Exception:
         return False
+
+
+def _ack_sig(call):
+    try:
+        from .call_ack import sign
+        return sign(call.id, call.callee_id)
+    except Exception:
+        return ""
 
 
 def _x1_photo(user):

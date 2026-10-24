@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui' show DartPluginRegistrant, Locale;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
@@ -199,6 +200,10 @@ class PushNotifier {
         // c2-calls: tell the caller this phone is REALLY ringing, and ring
         // with the chosen (per-contact / Assisto / picked) ringtone.
         unawaited(ackRinging(p.callId));
+        // ring-everywhere: the NATIVE ring (IncomingCall.kt, same id) is
+        // already on screen, or this is a resend of a ring we already show:
+        // ONE notification per call id — never a second one.
+        if (await callRingShowing(p.notificationId)) return;
         ring = await CallSoundPrefs.ringtoneFor(p.chatId);
         if (ring != null) {
           try {
@@ -286,6 +291,32 @@ class PushNotifier {
           PushPayload({'kind': 'call', 'call_id': callId}).notificationId);
     } catch (e) {
       callLog('push_notifier#call1', e);
+    }
+    // ring-everywhere: also end the native ring's Telecom call (UI isolate;
+    // in a background isolate the channel is absent -> quietly skipped, the
+    // native side ends it on its own receivers / timeout).
+    try {
+      await _callsCh.invokeMethod<bool>('cancelRing', {'call_id': callId});
+    } catch (_) {}
+  }
+
+  static const _callsCh = MethodChannel('com.assisto/calls');
+
+  /// Tests: the ids Android reports as showing (null = ask the plugin).
+  @visibleForTesting
+  static Set<int>? debugActiveIds;
+
+  /// ring-everywhere: is a ring notification with [id] showing right now
+  /// (drawn natively by IncomingCall.kt or by us)? Errors -> false (draw).
+  static Future<bool> callRingShowing(int id) async {
+    final t = debugActiveIds;
+    if (t != null) return t.contains(id);
+    try {
+      final act = await _android?.getActiveNotifications();
+      return act?.any((n) => n.id == id && (n.tag == null || n.tag!.isEmpty)) ??
+          false;
+    } catch (_) {
+      return false;
     }
   }
 

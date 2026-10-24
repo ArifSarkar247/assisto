@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../calls/fullscreen_call_prompt.dart'; // play-fsi
+import '../ring_checklist_screen.dart'; // ring-everywhere banner
 import '../../messaging/unread_store.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -366,16 +367,21 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
                 refreshToken: _refresh,
                 onAdd: _openAdd,
                 // Incoming requests at the TOP of My Circle (Accept/Decline).
-                header: M3RequestsBanner(
-                  key: _bannerKey,
-                  identity: _identity, // mr1: request previews
-                  onSeeAll: _openRequests,
-                  onChanged: (n, accepted) {
-                    if (!mounted) return;
-                    setState(() => _incoming = n);
-                    if (accepted) _afterChange();
-                  },
-                ),
+                // ring-everywhere: above them, a small "calls may not ring"
+                // banner while the call checklist finds something missing.
+                header: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const RingCheckBanner(),
+                  M3RequestsBanner(
+                    key: _bannerKey,
+                    identity: _identity, // mr1: request previews
+                    onSeeAll: _openRequests,
+                    onChanged: (n, accepted) {
+                      if (!mounted) return;
+                      setState(() => _incoming = n);
+                      if (accepted) _afterChange();
+                    },
+                  ),
+                ]),
               ),
               _updatesTab(),
               _communitiesTab(),

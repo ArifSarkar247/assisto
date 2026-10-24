@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
+import 'ring_checklist_screen.dart' show RingCheckBadge;
 import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 import 'assisto_chats_screen.dart';
@@ -234,8 +235,10 @@ class _AppDrawerState extends State<AppDrawer> {
               if (!searching) ...[
                 const Divider(height: Gap.md),
                 ListTile(
-                  leading: Icon(Icons.settings_outlined,
-                      color: scheme.onSurfaceVariant),
+                  // ring-everywhere: warning dot while calls may not ring
+                  leading: RingCheckBadge(
+                      child: Icon(Icons.settings_outlined,
+                          color: scheme.onSurfaceVariant)),
                   title: Text(t.settingsTitle),
                   onTap: () => _push((_) => const SettingsScreen()),
                 ),

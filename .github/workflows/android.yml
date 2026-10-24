@@ -432,6 +432,39 @@ jobs:
           )
           if 'AssistoFcmService' not in s:
               s = s.replace('</application>', push_components + '    </application>', 1)
+          # ---- ring-everywhere ---- calls ring NATIVELY (no Flutter needed):
+          # MANAGE_OWN_CALLS is a NORMAL (install-time) permission for a
+          # self-managed Telecom ConnectionService (no READ_PHONE_STATE /
+          # CALL_PHONE). The service is bound only by Telecom (BIND_TELECOM_
+          # CONNECTION_SERVICE). CallActionReceiver = the ring's Decline button
+          # (not exported). RingTestReceiver = CI proof hook: exported but
+          # guarded by android.permission.DUMP (adb shell / system only) AND
+          # inert unless the CI smoke APK armed it (Dart, ASSISTO_SMOKE only).
+          if 'MANAGE_OWN_CALLS' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>\n',
+                  s, count=1)
+          ring_components = (
+              '\n        <service android:name="com.assisto.assisto.calls.AssistoConnectionService"'
+              ' android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"'
+              ' android:exported="true">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.telecom.ConnectionService"/>'
+              '\n            </intent-filter>'
+              '\n        </service>'
+              '\n        <receiver android:name="com.assisto.assisto.calls.CallActionReceiver"'
+              ' android:exported="false"/>'
+              '\n        <receiver android:name="com.assisto.assisto.calls.RingTestReceiver"'
+              ' android:permission="android.permission.DUMP"'
+              ' android:exported="true">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="com.assisto.assisto.RING_TEST"/>'
+              '\n            </intent-filter>'
+              '\n        </receiver>\n'
+          )
+          if 'AssistoConnectionService' not in s:
+              s = s.replace('</application>', ring_components + '    </application>', 1)
+          # ---- /ring-everywhere ----
           # ---- w1-webphoto ---- Android App Link on MainActivity:
           # https://lifeassisto.com/photo/app?t=<token> opens the website
           # passport photo in Photo Studio. Flutter's built-in deep linking
@@ -1097,3 +1130,57 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
   # ---- /play-fsi ----
+
+  # ---- ring-everywhere ---- Proof that an incoming call RINGS NATIVELY with
+  # the app killed: force-stopped (home screen), force-stopped with Settings
+  # in front, screen off, screen off + Doze (`dumpsys deviceidle force-idle`).
+  # The smoke APK's adb-only hook (RingTestReceiver: DUMP permission + armed
+  # only by the ASSISTO_SMOKE build) runs the same native path a ring push
+  # runs. Screenshots + dumpsys + logcat are uploaded. NOT a publish gate
+  # (continue-on-error; not named launch-smoke-test, so ship_watch ignores it).
+  ring-proof:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [34, 30]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/ringproof
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Native ring with the app killed (API ${{ matrix.api }})
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 600
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            sleep 60
+            bash tools/ringproof/ring_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}
+      - name: Upload ring proof (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ring-proof-api${{ matrix.api }}
+          path: |
+            ring_*.png
+            ring_*.txt
+          retention-days: 30
+          if-no-files-found: warn
+  # ---- /ring-everywhere ----

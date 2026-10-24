@@ -42,7 +42,30 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
     // c3-msg: the plugin's own receiver hands the push to Dart (which
     // decrypts + draws the MessagingStyle conversation); here we only
     // schedule the optional BUBBLE upgrade of that notification. Guarded.
+    //
+    // ring-everywhere: a CALL push rings NATIVELY first (IncomingCall: CallStyle
+    // notification + full-screen intent + ringtone + Telecom self-managed
+    // call), before the push is handed to Flutter — a cold / blocked Dart
+    // isolate on an aggressive OEM can no longer leave the phone silent. Then
+    // the native delivered / ringing ack goes to the server on this (FCM
+    // background) thread. Dart still gets the push as a fallback; it sees the
+    // ring already showing (same notification id) and draws nothing.
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        var data: Map<String, String>? = null
+        var isCall = false
+        var shown = false
+        try {
+            data = remoteMessage.data
+            val ic = com.assisto.assisto.calls.IncomingCall
+            if (ic.isCall(data)) {
+                isCall = true
+                shown = ic.onCallPush(applicationContext, data!!)
+            } else if (ic.isCancel(data)) {
+                ic.onCancelPush(applicationContext, data!!)
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "native ring skipped: ${t.javaClass.simpleName}")
+        }
         super.onMessageReceived(remoteMessage)
         try {
             com.assisto.assisto.messaging.BubbleHelper.onMessagePush(
@@ -50,6 +73,9 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
             )
         } catch (t: Throwable) {
             Log.w(TAG, "bubble hook skipped: ${t.javaClass.simpleName}")
+        }
+        if (isCall && data != null) {
+            com.assisto.assisto.calls.CallAck.afterPush(applicationContext, data, shown)
         }
     }
 

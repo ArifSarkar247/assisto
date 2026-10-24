@@ -968,3 +968,24 @@ BN.update({
     "ch_alert_open": "কল হেলথ খুলুন",
 })
 # ---- /calls-health ----
+
+# ---- ring-everywhere ---- owner panel: Calls -> ring delivery by phone
+EN.update({
+    "rd_title": "Ring delivery by phone (last 7 days)",
+    "rd_note": "Calls whose ring push went to the callee's phone. Delivered = that phone confirmed it got the ring (Assisto's native service answers the moment the push arrives, even with the app closed). Low numbers for one brand mean that brand's battery saver is blocking Assisto: send its testers the steps in owner_actions/CALL_RING_TEST_BN.md.",
+    "rd_total": "Ring pushes", "rd_delivered": "Delivered", "rd_rate": "Delivery rate",
+    "rd_brand": "Brand", "rd_model": "Model", "rd_android": "Android",
+    "rd_attempts": "Calls", "rd_resends": "Resends",
+    "rd_by_brand": "By brand", "rd_by_android": "By Android version",
+    "rd_by_model": "By phone model", "rd_none": "No ring pushes in the last 7 days.",
+})
+BN.update({
+    "rd_title": "ফোন অনুযায়ী রিং পৌঁছানো (গত ৭ দিন)",
+    "rd_note": "যে কলগুলোর রিং পুশ যাকে কল তার ফোনে পাঠানো হয়েছে। পৌঁছেছে = সেই ফোন জানিয়েছে রিং পেয়েছে (অ্যাপ বন্ধ থাকলেও Assisto-র নেটিভ সার্ভিস পুশ আসামাত্র উত্তর দেয়)। কোনো ব্র্যান্ডে হার কম হলে সেই ব্র্যান্ডের ব্যাটারি সেভার Assisto আটকাচ্ছে: সেই টেস্টারদের owner_actions/CALL_RING_TEST_BN.md-এর ধাপগুলো পাঠান।",
+    "rd_total": "রিং পুশ", "rd_delivered": "পৌঁছেছে", "rd_rate": "পৌঁছানোর হার",
+    "rd_brand": "ব্র্যান্ড", "rd_model": "মডেল", "rd_android": "অ্যান্ড্রয়েড",
+    "rd_attempts": "কল", "rd_resends": "আবার পাঠানো",
+    "rd_by_brand": "ব্র্যান্ড অনুযায়ী", "rd_by_android": "অ্যান্ড্রয়েড ভার্সন অনুযায়ী",
+    "rd_by_model": "ফোন মডেল অনুযায়ী", "rd_none": "গত ৭ দিনে কোনো রিং পুশ নেই।",
+})
+# ---- /ring-everywhere ----

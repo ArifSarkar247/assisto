@@ -90,46 +90,6 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
     setState(() => _result[step] = r);
   }
 
-  String _title(AppLocalizations t, OemStepId s, OemFamily f) => switch (s) {
-        OemStepId.batteryOpt => t.oemStepBatteryOptTitle,
-        OemStepId.bgRestricted => t.oemStepBgRestrictedTitle,
-        OemStepId.samsungUnrestricted => t.oemStepUnrestrictedTitle,
-        OemStepId.autostart => t.oemStepAutostartTitle,
-        OemStepId.oemBattery =>
-          f == OemFamily.samsung ? t.oemStepSleepingTitle : t.oemStepOemBatteryTitle,
-        OemStepId.lockRecent => t.oemStepLockTitle,
-      };
-
-  String _body(AppLocalizations t, OemStepId s, OemFamily f) {
-    switch (s) {
-      case OemStepId.batteryOpt:
-        return t.oemStepBatteryOptBody;
-      case OemStepId.bgRestricted:
-        return t.oemStepBgRestrictedBody;
-      case OemStepId.samsungUnrestricted:
-        return t.oemStepUnrestrictedBody;
-      case OemStepId.lockRecent:
-        return t.oemStepLockBody;
-      case OemStepId.autostart:
-        return switch (f) {
-          OemFamily.xiaomi => t.oemStepAutostartXiaomi,
-          OemFamily.realme => t.oemStepAutostartRealme,
-          OemFamily.oneplus => t.oemStepAutostartOneplus,
-          OemFamily.vivo => t.oemStepAutostartVivo,
-          OemFamily.transsion => t.oemStepAutostartTranssion,
-          _ => t.oemStepAutostartOppo,
-        };
-      case OemStepId.oemBattery:
-        return switch (f) {
-          OemFamily.xiaomi => t.oemStepOemBatteryXiaomi,
-          OemFamily.vivo => t.oemStepOemBatteryVivo,
-          OemFamily.samsung => t.oemStepOemBatterySamsung,
-          OemFamily.transsion => t.oemStepOemBatteryTranssion,
-          _ => t.oemStepOemBatteryOppo,
-        };
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -199,8 +159,8 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
             for (var i = 0; i < steps.length; i++)
               _StepCard(
                 index: i + 1,
-                title: _title(t, steps[i], _family),
-                body: _body(t, steps[i], _family),
+                title: oemStepTitle(t, steps[i], _family),
+                body: oemStepBody(t, steps[i], _family),
                 done: info != null && oemStepDone(steps[i], info),
                 checkable: steps[i].checkable && info != null,
                 byHandOnly: steps[i].nativeStep == null,
@@ -363,5 +323,46 @@ class _BrandPill extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// tl1 step texts (shared with the ring-everywhere call checklist).
+String oemStepTitle(AppLocalizations t, OemStepId s, OemFamily f) => switch (s) {
+      OemStepId.batteryOpt => t.oemStepBatteryOptTitle,
+      OemStepId.bgRestricted => t.oemStepBgRestrictedTitle,
+      OemStepId.samsungUnrestricted => t.oemStepUnrestrictedTitle,
+      OemStepId.autostart => t.oemStepAutostartTitle,
+      OemStepId.oemBattery =>
+        f == OemFamily.samsung ? t.oemStepSleepingTitle : t.oemStepOemBatteryTitle,
+      OemStepId.lockRecent => t.oemStepLockTitle,
+    };
+
+String oemStepBody(AppLocalizations t, OemStepId s, OemFamily f) {
+  switch (s) {
+    case OemStepId.batteryOpt:
+      return t.oemStepBatteryOptBody;
+    case OemStepId.bgRestricted:
+      return t.oemStepBgRestrictedBody;
+    case OemStepId.samsungUnrestricted:
+      return t.oemStepUnrestrictedBody;
+    case OemStepId.lockRecent:
+      return t.oemStepLockBody;
+    case OemStepId.autostart:
+      return switch (f) {
+        OemFamily.xiaomi => t.oemStepAutostartXiaomi,
+        OemFamily.realme => t.oemStepAutostartRealme,
+        OemFamily.oneplus => t.oemStepAutostartOneplus,
+        OemFamily.vivo => t.oemStepAutostartVivo,
+        OemFamily.transsion => t.oemStepAutostartTranssion,
+        _ => t.oemStepAutostartOppo,
+      };
+    case OemStepId.oemBattery:
+      return switch (f) {
+        OemFamily.xiaomi => t.oemStepOemBatteryXiaomi,
+        OemFamily.vivo => t.oemStepOemBatteryVivo,
+        OemFamily.samsung => t.oemStepOemBatterySamsung,
+        OemFamily.transsion => t.oemStepOemBatteryTranssion,
+        _ => t.oemStepOemBatteryOppo,
+      };
   }
 }

@@ -125,4 +125,10 @@ def calls(request):
         ]
     except Exception:
         ctx["ch"] = None
+    # ring-everywhere: ring delivery success by phone brand / model / Android.
+    try:
+        from core import call_ack
+        ctx["rd"] = call_ack.delivery_stats(24 * 7)
+    except Exception:
+        ctx["rd"] = None
     return page(request, "owner/calls.html", ctx, status=status, nav="calls")

@@ -5120,3 +5120,26 @@ class CallHealthEvent(models.Model):
     class Meta:
         ordering = ["-id"]
 # ---- /calls-health ----
+
+
+# ---- ring-everywhere ---- (owner 24 Oct: "CALLS MUST RING LIKE WHATSAPP ON
+# EVERY PHONE"). Per call: when the FCM ring was handed to Google (and its
+# message id), when the callee phone's NATIVE FCM service confirmed it got the
+# push (delivered — works without Flutter), how many bounded resends went out,
+# the callee phone's brand / model / Android SDK (no PII: for the Owner Admin
+# delivery-rate table) and whether a never-delivered missed call is still
+# waiting to be shown when that phone next comes online. Device rows carry the
+# same brand / model / sdk from token registration.
+CallSession.add_to_class("fcm_sent_at", models.DateTimeField(null=True, blank=True))
+CallSession.add_to_class("fcm_msg_id", models.CharField(max_length=160, blank=True, default=""))
+CallSession.add_to_class("delivered_at", models.DateTimeField(null=True, blank=True))
+CallSession.add_to_class("push_resends", models.PositiveSmallIntegerField(default=0))
+CallSession.add_to_class("last_push_at", models.DateTimeField(null=True, blank=True))
+CallSession.add_to_class("callee_brand", models.CharField(max_length=32, blank=True, default=""))
+CallSession.add_to_class("callee_model", models.CharField(max_length=48, blank=True, default=""))
+CallSession.add_to_class("callee_sdk", models.PositiveSmallIntegerField(default=0))
+CallSession.add_to_class("missed_pending", models.BooleanField(default=False))
+Device.add_to_class("brand", models.CharField(max_length=32, blank=True, default=""))
+Device.add_to_class("model", models.CharField(max_length=48, blank=True, default=""))
+Device.add_to_class("sdk_int", models.PositiveSmallIntegerField(default=0))
+# ---- /ring-everywhere ----

@@ -23,6 +23,7 @@ import 'name_about_screen.dart';
 import 'about_screen.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
+import 'ring_checklist_screen.dart'; // ring-everywhere
 import 'in_progress_screen.dart';
 import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
@@ -362,6 +363,15 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.subscriptionsHint),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SubscriptionsScreen())),
+          ),
+          // ring-everywhere: the call ring checklist (badge while missing)
+          ListTile(
+            key: const Key('settings-ring-check'),
+            leading: const RingCheckBadge(child: Icon(Icons.ring_volume_outlined)),
+            title: Text(AppLocalizations.of(context).ringCheckTitle),
+            subtitle: Text(AppLocalizations.of(context).ringCheckTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const RingChecklistScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.battery_charging_full_outlined),
