@@ -18771,5 +18771,104 @@
   "athbResumeBody": "Tap to open Assisto and protection starts again.",
   "@athbResumeBody": {
     "description": "Body of the 'protection paused' notification; tapping opens the app, which restarts protection."
+  },
+  "e2rWaiting": "Waiting for this message. Ask {name} to open Assisto.",
+  "@e2rWaiting": {
+    "description": "Grey line in a chat bubble whose message this phone cannot open yet (e.g. after a reinstall); the other person's phone re-sends it when they open the app.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "e2rWaitingGeneric": "Waiting for this message. Ask the sender to open Assisto.",
+  "@e2rWaitingGeneric": {
+    "description": "Same as e2rWaiting when the sender's name is not known."
+  },
+  "e2rRestoreTitle": "Restore your chats",
+  "@e2rRestoreTitle": {
+    "description": "Title of the screen shown after signing in on a new install when a chat-key backup exists."
+  },
+  "e2rRestoreBody": "We found a backup of your chat keys. Enter your Assisto Security PIN to open your old messages on this phone.",
+  "@e2rRestoreBody": {
+    "description": "Restore screen explanation."
+  },
+  "e2rPinLabel": "Security PIN",
+  "@e2rPinLabel": {
+    "description": "Label of the PIN field on the restore / backup screens."
+  },
+  "e2rRestoreButton": "Restore",
+  "@e2rRestoreButton": {
+    "description": "Restore screen main button."
+  },
+  "e2rSkip": "Skip",
+  "@e2rSkip": {
+    "description": "Restore screen: continue without restoring."
+  },
+  "e2rSkipNote": "If you skip, your contacts' phones send your old messages again when they open Assisto.",
+  "@e2rSkipNote": {
+    "description": "Restore screen: what happens on skip."
+  },
+  "e2rWrongPin": "Wrong PIN. {count} tries left.",
+  "@e2rWrongPin": {
+    "description": "Restore: wrong PIN; count is already formatted with local digits.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "e2rLocked": "Too many wrong tries. Try again after {time}.",
+  "@e2rLocked": {
+    "description": "Restore: server locked PIN attempts; time already formatted.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "e2rLockedLater": "Too many wrong tries. Try again later.",
+  "@e2rLockedLater": {
+    "description": "Restore: locked, unknown time."
+  },
+  "e2rRestoring": "Restoring…",
+  "@e2rRestoring": {
+    "description": "Restore in progress (takes 1-2 seconds)."
+  },
+  "e2rRestored": "Your chats are restored.",
+  "@e2rRestored": {
+    "description": "Restore succeeded."
+  },
+  "e2rFailed": "Couldn't restore right now. Check the internet and try again.",
+  "@e2rFailed": {
+    "description": "Restore failed (network)."
+  },
+  "e2rBackupTile": "Chat key backup",
+  "@e2rBackupTile": {
+    "description": "Security screen tile: back up the chat encryption keys under the Security PIN."
+  },
+  "e2rBackupTileSub": "Protected by your Security PIN. A new phone can then open your old chats.",
+  "@e2rBackupTileSub": {
+    "description": "Subtitle of the chat key backup tile."
+  },
+  "e2rBackupNeedPin": "Set a Security PIN first to back up your chat keys.",
+  "@e2rBackupNeedPin": {
+    "description": "Backup tile tapped without a Security PIN."
+  },
+  "e2rBackupDone": "Chat keys backed up.",
+  "@e2rBackupDone": {
+    "description": "Backup succeeded."
+  },
+  "e2rBackupFailed": "Backup didn't finish. Try again.",
+  "@e2rBackupFailed": {
+    "description": "Backup failed."
+  },
+  "e2rEnterPinTitle": "Enter Security PIN",
+  "@e2rEnterPinTitle": {
+    "description": "Dialog title asking for the Security PIN before a backup."
+  },
+  "e2rPinHonest": "A short PIN is easier to guess: someone holding a copy of the server could try every PIN. Use 6 or more digits.",
+  "@e2rPinHonest": {
+    "description": "Honest limit shown on the restore / backup screens."
   }
 }
