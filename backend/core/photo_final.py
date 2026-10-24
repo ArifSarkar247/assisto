@@ -43,7 +43,7 @@ ULTRA_SLUG = "photo_fal"
 DEFAULT_ULTRA_MODEL = "fal-ai/crystal-upscaler"
 DATA_URI_MAX = 256 * 1024       # Replicate: bigger inputs go through the Files API
 POLL_EVERY_S = 1.5
-SMALL_PHOTO_PX = 400 * 400      # <= this gets the whole-image Real-ESRGAN on our CPU (~10 tiles)
+SMALL_PHOTO_PX = 640 * 640      # <= this gets the whole-image Real-ESRGAN on our CPU (<= 25 tiles, ~15 s)
 
 
 class ProviderFailed(Exception):
