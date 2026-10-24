@@ -186,12 +186,16 @@ class _InviteScreenState extends State<InviteScreen> {
         const SizedBox(height: 12),
         // ---- my invites ----
         _section(t.p5StatsTitle, [
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            _stat(t.p5StatJoined, n(stats['joined'])),
-            _stat(t.p5StatWaiting, n(stats['pending'])),
-            _stat(t.p5StatRewarded, n(stats['rewarded'])),
-            _stat(t.p5StatCredits, n(stats['credits_earned'])),
-          ]),
+          LayoutBuilder(builder: (ctx, c) {
+            // two equal columns at any width / language (no orphan tile)
+            final w = ((c.maxWidth - 8) / 2).floorToDouble();
+            return Wrap(spacing: 8, runSpacing: 8, children: [
+              _stat(t.p5StatJoined, n(stats['joined']), w),
+              _stat(t.p5StatWaiting, n(stats['pending']), w),
+              _stat(t.p5StatRewarded, n(stats['rewarded']), w),
+              _stat(t.p5StatCredits, n(stats['credits_earned']), w),
+            ]);
+          }),
         ]),
         // ---- my own claim / enter a friend's code ----
         if (mine != null) ...[
@@ -324,10 +328,10 @@ class _InviteScreenState extends State<InviteScreen> {
         ]),
       );
 
-  Widget _stat(String label, String value) {
+  Widget _stat(String label, String value, double width) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      constraints: const BoxConstraints(minWidth: 140),
+      width: width,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,

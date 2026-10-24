@@ -35,13 +35,15 @@ void main() {
 
   testWidgets('invite screen shows server rules with Bangla digits',
       (tester) async {
+    await tester.binding.setSurfaceSize(const Size(400, 2400));
     await tester.pumpWidget(_wrap(InviteScreen(loader: () async => p5Me()), 'bn'));
     await tester.pumpAndSettle();
-    expect(find.text('K7QF2M9P'), findsOneWidget);
-    expect(find.textContaining('২০ AI ক্রেডিট'), findsOneWidget);
+    expect(find.byKey(const ValueKey('p5_code')), findsOneWidget);
+    expect(find.textContaining('আপনি পাবেন ২০ AI ক্রেডিট'), findsOneWidget);
     expect(find.textContaining('১৪ দিনের'), findsOneWidget);
     expect(find.byKey(const ValueKey('p5_code_field')), findsOneWidget);
     expect(find.textContaining('টাকা নয়'), findsOneWidget);
+    await tester.binding.setSurfaceSize(null);
   });
 
   testWidgets('pending claim shows progress, no code field (en)', (tester) async {
