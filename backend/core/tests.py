@@ -2304,15 +2304,22 @@ class LostPhoneRecoveryTests(APITestCase):
         self.phone.last_lng = 90.40
         self.phone.went_dark_alerted = False
         self.phone.save()
-        before = FamilyAlert.objects.filter(user=self.owner).count()
+        from core.models import NotifEvent as _NE
+        before_owner = FamilyAlert.objects.filter(user=self.owner).count()
+        before = _NE.objects.filter(user=self.helper).count()
         _call_command("check_went_dark")
         self.phone.refresh_from_db()
         self.assertTrue(self.phone.went_dark_alerted)
-        after1 = FamilyAlert.objects.filter(user=self.owner).count()
+        # owner 24 Oct: the circle is told, never the owner himself
+        after1 = _NE.objects.filter(user=self.helper).count()
         self.assertEqual(after1, before + 1)
+        self.assertEqual(FamilyAlert.objects.filter(user=self.owner).count(),
+                         before_owner)
+        self.assertFalse(_NE.objects.filter(
+            user=self.owner, meta__has_key="went_dark_at").exists())
         # Second run is a no-op (idempotent).
         _call_command("check_went_dark")
-        after2 = FamilyAlert.objects.filter(user=self.owner).count()
+        after2 = _NE.objects.filter(user=self.helper).count()
         self.assertEqual(after2, after1)
 
     # -- recovery text drafts: non-empty + localized ---------------------

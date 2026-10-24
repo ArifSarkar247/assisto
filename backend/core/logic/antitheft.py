@@ -65,6 +65,64 @@ def heartbeat_interval_min(battery, charging, lost_mode):
     return INTERVAL_NORMAL
 
 
+# --- went dark (at-heartbeat) ---------------------------------------------
+# "Stopped checking in" must survive Doze, OEM battery savers and a slow
+# network: a phone's heartbeat can easily arrive one or two intervals late.
+# We only call a phone dark after SEVERAL missed check-ins AND a minimum
+# silence AND a grace window. A phone the engine reports as battery-optimised
+# (Android may delay it much more) gets an even longer wait.
+WENT_DARK_MISSED = 4            # missed check-ins (intervals) before "dark"
+WENT_DARK_FLOOR_MIN = 45        # never "dark" after less silence than this
+WENT_DARK_GRACE_MIN = 10        # extra slack on top (late heartbeats)
+WENT_DARK_MISSED_OPTIMISED = 6  # battery-optimised phones: wait longer
+WENT_DARK_FLOOR_OPTIMISED_MIN = 90
+HEARTBEAT_INTERVAL_MAX = 120    # sanity cap for a device-reported interval
+
+
+def went_dark_threshold_min(interval_min, battery_optimised=False):
+    """Minutes of silence after which a protected phone counts as dark."""
+    try:
+        iv = int(interval_min or 0)
+    except (TypeError, ValueError):
+        iv = 0
+    if iv <= 0:
+        iv = INTERVAL_NORMAL
+    iv = min(iv, HEARTBEAT_INTERVAL_MAX)
+    if battery_optimised:
+        base = max(iv * WENT_DARK_MISSED_OPTIMISED, WENT_DARK_FLOOR_OPTIMISED_MIN)
+    else:
+        base = max(iv * WENT_DARK_MISSED, WENT_DARK_FLOOR_MIN)
+    return base + WENT_DARK_GRACE_MIN
+
+
+def last_seen_at(*stamps):
+    """The newest of the given datetimes (heartbeat, any ingest...), or None."""
+    xs = [s for s in stamps if s is not None]
+    return max(xs) if xs else None
+
+
+def battery_optimised(capabilities):
+    """True only when the engine REPORTED that Android battery optimisation is
+    on for Assisto (unknown -> False: the normal thresholds apply)."""
+    if not isinstance(capabilities, dict):
+        return False
+    return capabilities.get("batteryOptimised") is True
+
+
+def reported_interval(item, lost_mode=False):
+    """The heartbeat interval the engine says it is using now (newer engines
+    send `interval`), else the policy estimate from the battery it sent."""
+    v = i_or_none(item.get("interval")) if isinstance(item, dict) else None
+    if v is not None and 1 <= v <= HEARTBEAT_INTERVAL_MAX:
+        return v
+    if not isinstance(item, dict):
+        return None
+    b = i_or_none(item.get("battery"))
+    if b is None:
+        return None
+    return heartbeat_interval_min(b, item.get("charging") is True, lost_mode)
+
+
 # --- tokens ---------------------------------------------------------------
 
 def new_engine_token():

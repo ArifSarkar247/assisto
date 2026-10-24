@@ -113,13 +113,19 @@ def can_view(phone, user):
 
 def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
            family_only=False):
-    """FamilyAlert + NotifEvent + FCM push to the owner and approved family
-    ONLY. Never raises (an alert failure must not lose the stored event).
+    """ONE in-app record (a bilingual NotifEvent, type "security") + ONE FCM
+    push per recipient: the owner and approved family ONLY. Never raises (an
+    alert failure must not lose the stored event).
+
+    at-heartbeat (owner 24 Oct): this used to ALSO create a FamilyAlert, so the
+    same event showed twice (Family + Security in the notification centre).
+    The NotifEvent is now the single record; the foreground /alerts poll reads
+    it too (alert_rows_for), so phones without working push still see it.
 
     at-falsealarm: recipients are de-duplicated by user id, so one person
     (e.g. the owner who is also linked as a family member's peer) gets ONE
     push per alert. family_only=True skips the owner (the all-clear after the
-    owner's own "It was me")."""
+    owner's own "It was me", went-dark and back-online)."""
     from . import push
     meta = dict(meta or {})
     meta.update({"phone_id": phone.id, "owner_id": phone.owner_id,
@@ -138,10 +144,6 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
             continue
         seen.add(u.pk)
         try:
-            en = push.user_lang(u) == "en"
-            FamilyAlert.objects.create(
-                user=u, kind="antitheft", title=(te if en else tb)[:160],
-                body=be if en else bb, severity="high", payload=meta)
             NotifEvent.objects.create(
                 user=u, type="security", title_bn=tb[:200], title_en=te[:200],
                 body_bn=bb, body_en=be, route="security/lost-phone",
@@ -154,6 +156,73 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
         except Exception:
             continue
     return sent
+
+
+# How long an unseen anti-theft alert stays in the foreground /alerts poll.
+ALERT_POLL_HOURS = 48
+
+
+def alert_rows_for(user, lang="bn", now=None, limit=10):
+    """at-heartbeat: unseen, unresolved anti-theft alerts for the foreground
+    /alerts poll (same shape as a FamilyAlert row there). Never raises."""
+    now = now or timezone.now()
+    out = []
+    try:
+        qs = (NotifEvent.objects.filter(
+            user=user, type="security", seen=False,
+            at__gte=now - timedelta(hours=ALERT_POLL_HOURS),
+            meta__has_key="antitheft_kind").order_by("-at")[:limit])
+        for n in qs:
+            m = n.meta or {}
+            if m.get("resolved_at"):
+                continue
+            en = lang == "en"
+            title = (n.title_en if en else n.title_bn) or n.title_en or n.title_bn
+            body = (n.body_en if en else n.body_bn) or n.body_en or n.body_bn
+            out.append({"type": "antitheft", "text": body or title,
+                        "title": title, "severity": "high",
+                        "kind": m.get("antitheft_kind") or ""})
+    except Exception:
+        return out
+    return out
+
+
+def resolve_went_dark(phone, now=None):
+    """at-heartbeat: the phone is checking in again -> every went-dark record
+    about it (this one and any older ones) is resolved: NotifEvents marked
+    seen + resolved_at, legacy FamilyAlerts dismissed, the timeline event
+    flagged. Returns how many in-app records changed. Never raises."""
+    now = now or timezone.now()
+    stamp = now.isoformat()
+    changed = 0
+    try:
+        for n in NotifEvent.objects.filter(
+                type="security", meta__phone_id=phone.id,
+                meta__antitheft_kind="went_dark"):
+            m = dict(n.meta or {})
+            if m.get("resolved_at") and n.seen:
+                continue
+            m.setdefault("resolved_at", stamp)
+            n.meta, n.seen = m, True
+            n.save(update_fields=["meta", "seen"])
+            changed += 1
+        changed += FamilyAlert.objects.filter(
+            kind="antitheft", payload__phone_id=phone.id,
+            payload__antitheft_kind="went_dark", dismissed=False,
+        ).update(dismissed=True)
+        # legacy (pre-engine) went-dark rows carry went_dark_at, no phone_id
+        changed += FamilyAlert.objects.filter(
+            user=phone.owner, kind="security", payload__has_key="went_dark_at",
+            dismissed=False).update(dismissed=True)
+        for ev in AntiTheftEvent.objects.filter(phone=phone, kind="went_dark"):
+            d = dict(ev.data or {})
+            if d.get("resolved_at"):
+                continue
+            d["resolved_at"] = stamp
+            AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
+    except Exception:
+        pass
+    return changed
 
 
 def _config(phone, eng, interval=None):
@@ -616,7 +685,11 @@ class EngineIngestView(APIView):
 
 
         if isinstance(request.data.get("capabilities"), dict):
-            eng.capabilities = at.clean_data(request.data["capabilities"])
+            # at-heartbeat: MERGE (a heartbeat reports only a few live facts,
+            # e.g. batteryOptimised; the enable-time facts must survive).
+            caps = dict(eng.capabilities or {})
+            caps.update(at.clean_data(request.data["capabilities"]))
+            eng.capabilities = at.clean_data(caps)
 
         accepted, duplicate, rejected = [], [], []
         rows = []
@@ -656,6 +729,11 @@ class EngineIngestView(APIView):
                 ring.append(cid)
                 eng.recent_ids = ring[-at.RECENT_IDS_KEEP:]
                 phone.last_heartbeat_at = now
+                # at-heartbeat: learn the interval the engine really uses
+                # (battery-aware) so "went dark" waits the right time.
+                iv = at.reported_interval(it, phone.lost_mode)
+                if iv is not None:
+                    phone.heartbeat_interval_min = iv
                 if lat is not None and (eng.last_fix_at is None or ev_at >= eng.last_fix_at):
                     phone.last_lat, phone.last_lng = lat, lng
                     eng.last_fix_at = ev_at
@@ -706,6 +784,9 @@ class EngineIngestView(APIView):
         if new_events:
             _alert_new_events(phone, eng, new_events, now)
         if back_online:
+            # at-heartbeat: resolve the went-dark alert(s), then ONE
+            # "back online" line to approved family only (never the owner).
+            resolve_went_dark(phone, now)
             te, be, tb, bb = at.back_online_text(_owner_name(phone.owner),
                                                  phone.last_lat, phone.last_lng)
             notify(phone, "online", te, be, tb, bb, family_only=True,

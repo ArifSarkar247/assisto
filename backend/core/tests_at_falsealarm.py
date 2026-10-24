@@ -18,7 +18,7 @@ from rest_framework.test import APITestCase
 
 from core import views_antitheft as atv
 from core.models import (AntiTheftEngine, AntiTheftEvent, AuditLog, CircleMember,
-                         FamilyAlert, ProtectedPhone, User)
+                         FamilyAlert, NotifEvent, ProtectedPhone, User)
 
 URL = "/api/v1/security/engine/false-alarm"
 
@@ -129,10 +129,10 @@ class FalseAlarmTests(_Base):
         self.assertEqual(r.data["family_notified"], 1)
         users = [c.args[0].pk for c in sp.call_args_list]
         self.assertEqual(users, [self.family.pk])
-        self.assertEqual(FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="all_clear").count(), 1)
-        self.assertFalse(FamilyAlert.objects.filter(
-            user=self.owner, payload__antitheft_kind="all_clear").exists())
+        self.assertEqual(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="all_clear").count(), 1)
+        self.assertFalse(NotifEvent.objects.filter(
+            user=self.owner, meta__antitheft_kind="all_clear").exists())
 
     def test_nothing_to_clear_is_ok_and_silent(self):
         with mock.patch("core.push.safe_push") as sp:

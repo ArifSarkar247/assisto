@@ -214,9 +214,12 @@ PERMISSIONS = [
                 "offline if your own phone is lost or stolen. The camera is used only if you turn on \"intruder "
                 "photo\": one front-camera photo after several wrong screen-unlock attempts, encrypted, visible "
                 "only to you and your approved family. A notification is always visible while it runs."),
-        "when": ("শুধু আপনি সিকিউরিটি পিন দিয়ে সুরক্ষা চালু করলে। লঞ্চ বা রিস্টার্টে নিজে থেকে চালু হয় না।",
-                 "Only when you turn protection on with your Security PIN. It never starts by itself at launch "
-                 "or after a restart."),
+        "when": ("শুধু আপনি সিকিউরিটি পিন দিয়ে সুরক্ষা চালু করলে। সুরক্ষা চালু থাকলে ফোন রিস্টার্ট, অ্যাপ আপডেট "
+                 "বা অ্যাপ খোলার পরে এটি আবার চালু হয়, যাতে সুরক্ষা চুপচাপ বন্ধ না থাকে। সুরক্ষা বন্ধ থাকলে "
+                 "কখনো নিজে থেকে চালু হয় না।",
+                 "Only when you turn protection on with your Security PIN. While protection is on, it comes "
+                 "back after a phone restart, an app update or when you open the app, so protection never "
+                 "silently stops. With protection off it never starts by itself."),
         "revoke": ("অ্যাপে সার্বক্ষণিক সুরক্ষা বন্ধ করুন (সিকিউরিটি পিন), অথবা ক্যামেরার অনুমতি তুলে নিন।",
                    "Turn always-on protection off in the app (Security PIN), or remove the camera permission."),
     },

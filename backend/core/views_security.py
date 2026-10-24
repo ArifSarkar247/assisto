@@ -45,17 +45,23 @@ def _accepted_members(user):
 
 
 def _notify_owner_and_circle(user, title, body, kind="security", ntype="security",
-                             route="security", meta=None):
+                             route="security", meta=None, include_owner=True):
     """Create a FamilyAlert + NotifEvent for the owner, a NotifEvent for each
     accepted circle member, and email everyone with an address. fail_silently
-    on email (see views_module5). Never raises."""
+    on email (see views_module5). Never raises.
+
+    include_owner=False (at-heartbeat, owner 24 Oct): the circle only — used
+    for "your phone went dark", which the owner must never get about the
+    phone he is holding."""
     meta = meta or {}
     now = timezone.now()
-    FamilyAlert.objects.create(user=user, kind="security", title=title,
-                               body=body, severity="high", payload=meta)
-    NotifEvent.objects.create(user=user, type="security", title_en=title,
-                              body_en=body, route=route, meta=meta, at=now)
-    emails = [user.email] if user.email else []
+    emails = []
+    if include_owner:
+        FamilyAlert.objects.create(user=user, kind="security", title=title,
+                                   body=body, severity="high", payload=meta)
+        NotifEvent.objects.create(user=user, type="security", title_en=title,
+                                  body_en=body, route=route, meta=meta, at=now)
+        emails = [user.email] if user.email else []
     for m in _accepted_members(user):
         if m.peer_user_id:
             NotifEvent.objects.create(user_id=m.peer_user_id, type="security",
@@ -75,7 +81,7 @@ def _notify_owner_and_circle(user, title, body, kind="security", ntype="security
         from . import push
         push.hook_family_alert(user, title, title, body, body,
                                data={"alert_kind": kind, "route": route},
-                               include_self=True)
+                               include_self=include_owner)
     except Exception:
         pass
 

@@ -1226,6 +1226,13 @@ def _build_alerts(user, lang="bn"):
     for fa in user.family_alerts.filter(dismissed=False)[:10]:
         alerts.append({"type": fa.kind, "text": fa.body or fa.title,
                        "title": fa.title, "severity": fa.severity or "high"})
+    # at-heartbeat: anti-theft alerts are ONE NotifEvent per person now (no
+    # FamilyAlert twin); the foreground poll still surfaces the unseen ones.
+    try:
+        from .views_antitheft import alert_rows_for
+        alerts.extend(alert_rows_for(user, lang))
+    except Exception:
+        pass
     # overdue safe-arrival check-ins — auto-build a family alert on poll
     from .logic import safety as _safety
     now_dt = timezone.now()

@@ -32,11 +32,9 @@ from .views_security import _primary_phone, _notify_owner_and_circle
 # shared helpers
 # --------------------------------------------------------------------------
 
-# "went dark" = no heartbeat for interval * this multiple. The native engine
-# pings every heartbeat_interval_min; a few missed pings is normal (tunnel,
-# battery, sleep), so we wait for several before crying theft.
-WENT_DARK_MULTIPLE = 3
-WENT_DARK_FLOOR_MIN = 30   # never alert on a gap shorter than this
+# "went dark": see core/logic/antitheft.went_dark_threshold_min (several
+# missed check-ins + a floor + a grace window; longer when the engine reports
+# the phone is battery-optimised). at-heartbeat (owner 24 Oct).
 TRAIL_LIMIT = 50           # recent heartbeats returned in the lost-phone view
 
 
@@ -63,21 +61,29 @@ def _went_dark_since(phone, now=None):
     """Return the datetime the phone likely went dark, else None.
 
     A phone is "dark" if it is armed AND we have a last heartbeat AND the gap
-    since it exceeds max(interval * WENT_DARK_MULTIPLE, floor). We return the
+    since the phone was last seen (heartbeat OR any engine delivery) exceeds
+    antitheft.went_dark_threshold_min(interval, battery_optimised). We return the
     last-seen time (so the UI can say "last seen at ..."). A phone that never
     reported a heartbeat is NOT considered dark (we have nothing to compare)."""
     now = now or timezone.now()
-    engine_on = False
+    from .logic import antitheft as _at
+    engine_on, last_ingest, caps = False, None, {}
     try:  # b6-antitheft: an enabled native engine also counts as "watching"
-        engine_on = bool(phone.engine.enabled)
+        eng = phone.engine
+        engine_on = bool(eng.enabled)
+        last_ingest = eng.last_ingest_at
+        caps = eng.capabilities or {}
     except Exception:
         engine_on = False
     if not (phone.armed or engine_on) or not phone.last_heartbeat_at:
         return None
-    interval = phone.heartbeat_interval_min or 10
-    threshold = max(interval * WENT_DARK_MULTIPLE, WENT_DARK_FLOOR_MIN)
-    if (now - phone.last_heartbeat_at) > timedelta(minutes=threshold):
-        return phone.last_heartbeat_at
+    # at-heartbeat: ANY delivery from the engine (an event batch too) proves
+    # the phone is alive, not only a heartbeat row.
+    seen = _at.last_seen_at(phone.last_heartbeat_at, last_ingest)
+    threshold = _at.went_dark_threshold_min(
+        phone.heartbeat_interval_min, _at.battery_optimised(caps))
+    if (now - seen) > timedelta(minutes=threshold):
+        return seen
     return None
 
 
@@ -152,7 +158,13 @@ class HeartbeatView(APIView):
             phone.last_lat = lat
             phone.last_lng = lng
         # Phone is alive again — clear the went-dark latch so a future gap can
-        # re-alert.
+        # re-alert, and close the went-dark alert(s) (at-heartbeat).
+        if phone.went_dark_alerted:
+            try:
+                from .views_antitheft import resolve_went_dark
+                resolve_went_dark(phone)
+            except Exception:
+                pass
         phone.went_dark_alerted = False
         phone.save(update_fields=["last_heartbeat_at", "last_lat", "last_lng",
                                   "went_dark_alerted", "updated_at"])

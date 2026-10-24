@@ -17,7 +17,7 @@ from rest_framework.test import APITestCase
 
 from core.logic import antitheft as at
 from core.models import (AntiTheftEngine, AntiTheftEvent, CircleMember,
-                         FamilyAlert, PhoneHeartbeat, ProtectedPhone, User)
+                         FamilyAlert, NotifEvent, PhoneHeartbeat, ProtectedPhone, User)
 
 
 def _jpeg(nbytes=64):
@@ -79,10 +79,10 @@ class EnableDisableTests(_Base):
         self.assertTrue(eng.enabled)
         self.assertEqual(eng.token_hash, at.hash_token(self.token))
         # owner + approved family both get a "protection on" alert
-        self.assertTrue(FamilyAlert.objects.filter(
-            user=self.owner, kind="antitheft").exists())
-        self.assertTrue(FamilyAlert.objects.filter(
-            user=self.family, kind="antitheft").exists())
+        self.assertTrue(NotifEvent.objects.filter(
+            user=self.owner, meta__has_key="antitheft_kind").exists())
+        self.assertTrue(NotifEvent.objects.filter(
+            user=self.family, meta__has_key="antitheft_kind").exists())
 
     def test_enable_rotates_token(self):
         self._enable()
@@ -179,17 +179,17 @@ class IngestionTests(_Base):
         self.phone.refresh_from_db()
         self.assertTrue(self.phone.frozen_until and
                         self.phone.frozen_until > timezone.now())
-        self.assertTrue(FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="snatch").exists())
+        self.assertTrue(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="snatch").exists())
 
     def test_sim_change_alert_is_honest_about_number(self):
         self._ingest([{"id": "sim-1", "kind": "sim_change",
                        "data": {"state": "inserted", "carrier": "Robi", "v": 2}}])
-        fa = FamilyAlert.objects.filter(user=self.owner,
-                                        payload__antitheft_kind="sim_change").first()
+        fa = NotifEvent.objects.filter(user=self.owner,
+                                        meta__antitheft_kind="sim_change").first()
         self.assertIsNotNone(fa)
         # owner lang is bn → honest Bangla line that the number is not readable
-        self.assertIn("নতুন নম্বর পড়তে দেয় না", fa.body)
+        self.assertIn("নতুন নম্বর পড়তে দেয় না", fa.body_bn)
 
     def test_failed_unlock_below_threshold_does_not_alert(self):
         eng = AntiTheftEngine.objects.get(phone=self.phone)
@@ -197,18 +197,18 @@ class IngestionTests(_Base):
         eng.save()
         self._ingest([{"id": "fu-1", "kind": "failed_unlock",
                        "data": {"count": 2}}])
-        self.assertFalse(FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="failed_unlock").exists())
+        self.assertFalse(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="failed_unlock").exists())
         self._ingest([{"id": "fu-2", "kind": "failed_unlock",
                        "data": {"count": 4}}])
-        self.assertTrue(FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="failed_unlock").exists())
+        self.assertTrue(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="failed_unlock").exists())
 
     def test_alert_cooldown_dedupes_flapping(self):
         for i in range(3):
             self._ingest([{"id": "snf-%d" % i, "kind": "snatch"}])
-        n = FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="snatch").count()
+        n = NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="snatch").count()
         self.assertEqual(n, 1)   # cooldown collapses the burst to one
 
     def test_back_online_alert_after_dark(self):
@@ -220,8 +220,8 @@ class IngestionTests(_Base):
         self.assertFalse(self.phone.went_dark_alerted)
         # owner 24 Oct: the device owner never gets went-dark / back-online
         # alerts about his own phone (only approved family members do)
-        self.assertFalse(FamilyAlert.objects.filter(
-            user=self.owner, payload__antitheft_kind="online").exists())
+        self.assertFalse(NotifEvent.objects.filter(
+            user=self.owner, meta__antitheft_kind="online").exists())
 
     def test_old_fix_does_not_overwrite_newer_location(self):
         now = timezone.now()
@@ -370,10 +370,10 @@ class WentDarkWiringTests(_Base):
         self.assertTrue(self.phone.went_dark_alerted)
         self.assertTrue(AntiTheftEvent.objects.filter(phone=self.phone,
                                                       kind="went_dark").exists())
-        self.assertTrue(FamilyAlert.objects.filter(
-            user=self.family, payload__antitheft_kind="went_dark").exists())
-        self.assertFalse(FamilyAlert.objects.filter(
-            user=other, payload__antitheft_kind="went_dark").exists())
+        self.assertTrue(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="went_dark").exists())
+        self.assertFalse(NotifEvent.objects.filter(
+            user=other, meta__antitheft_kind="went_dark").exists())
 
     def test_check_went_dark_uses_engine_heartbeats(self):
         self._enable()
