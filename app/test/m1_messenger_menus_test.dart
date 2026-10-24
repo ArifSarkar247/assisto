@@ -181,19 +181,21 @@ void main() {
 
     testWidgets('a server refusal is shown, not a fake "pending"',
         (tester) async {
+      // cde-chat: the group theme is the REAL shared theme now (server copy
+      // first); a refusal shows the server's sentence and sends nothing.
       final api = _RecApi({...base(),
-        '/circle/groups/7/theme': ApiException('bad_color', 400)});
+        '/circle/decor/group/7': ApiException('bad_theme', 400)});
       final g = <String, dynamic>{'id': 7, 'name': 'Family'};
       await _pump(tester, api,
           CircleGroupChatScreen(group: g, identity: _identity));
       await openMenu(tester);
       await tester.tap(find.text(t.grpMenuChatTheme));
       await _settle(tester);
-      await tester.tap(find.text(t.grpThemeOcean));
+      await tester.tap(find.text(t.cdeThemeCalm));
       await _settle(tester);
-      expect(find.text('bad_color'), findsOneWidget);
+      expect(find.text('bad_theme'), findsOneWidget);
       expect(find.text(t.circleBackendPending), findsNothing);
-      expect(g['theme'], isNull);
+      expect(api.posted('/circle/groups/7/messages'), isFalse);
       await _dispose(tester);
     });
 

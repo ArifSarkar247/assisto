@@ -209,7 +209,8 @@ class _Badge extends StatelessWidget {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 11, color: const Color(0xFFFFD866)),
           const SizedBox(width: 3),
-          Flexible(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 72),
             child: Text(text,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

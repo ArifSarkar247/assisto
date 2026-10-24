@@ -30,6 +30,7 @@ import 'package:assisto/p3/assisto_card.dart' show cardFallback;
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/widgets/msgr_hub_chat_list.dart';
+import 'package:assisto/widgets/paywall_sheet.dart';
 
 final _e2e = SoftwareE2E();
 final _me = _e2e.generateIdentity();
@@ -366,18 +367,19 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const Key('cde-theme-sheet')), findsOneWidget);
     // the AI entry is hidden (no provider), "my photo" is offered with a lock
+    await tester.ensureVisible(find.byKey(const Key('cde-theme-midnight')));
+    await _settle(tester);
     await tester.tap(find.byKey(const Key('cde-theme-midnight')));
     await _settle(tester);
     expect(api.posts('/circle/decor/member/5'), isEmpty);
     expect(api.posts('/circle/5/messages'), isEmpty);
-    expect(find.byKey(const Key('p2-paywall-head')), findsOneWidget);
+    expect(find.byType(PaywallSheet, skipOffstage: false), findsOneWidget);
     await _dispose(tester);
   });
 
   testWidgets('theme sheet: Free shows locks + photo row, AI hidden without a provider;'
       ' Premium with a provider shows the AI entry', (tester) async {
     Future<void> sheet(Widget w) async {
-      await tester.binding.setSurfaceSize(const Size(400, 1600));
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('en'),
         supportedLocales: AppLocalizations.supportedLocales,
@@ -388,6 +390,9 @@ void main() {
         ],
         home: Scaffold(body: w),
       ));
+      await tester.pump();
+      // the sheet scrolls: bring its last rows in
+      await tester.drag(find.byKey(const Key('cde-theme-sheet')), const Offset(0, -900));
       await tester.pump();
     }
 
@@ -400,7 +405,7 @@ void main() {
         currentId: 'eid', premium: true, aiAvailable: true, aiCredits: '20'));
     expect(find.byKey(const Key('cde-theme-ai')), findsOneWidget);
     expect(find.text(t.cdeThemeAiHint('20')), findsOneWidget);
-    expect(find.byIcon(Icons.lock_outline), findsNothing);
+    expect(find.byIcon(Icons.lock_outline, skipOffstage: false), findsNothing);
   });
 
   testWidgets('a free theme: server copy, repaint here, E2E control out', (tester) async {
@@ -420,6 +425,8 @@ void main() {
     await _settle(tester);
     await tester.tap(find.text(t.msgrChatTheme));
     await tester.pump(const Duration(seconds: 4));
+    await _settle(tester);
+    await tester.ensureVisible(find.byKey(const Key('cde-theme-calm')));
     await _settle(tester);
     await tester.tap(find.byKey(const Key('cde-theme-calm')));
     await _settle(tester, 30);
