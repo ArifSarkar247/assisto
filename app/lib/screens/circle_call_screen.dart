@@ -10,6 +10,7 @@ import '../calls/api_call_signaling.dart';
 import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_keepalive.dart';
+import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
@@ -297,7 +298,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         unawaited(CallKeepAlive.start(
             channelName: t.c2ChOngoing,
             title: t.c2CallOngoingTitle(_name),
-            text: t.c2CallOngoingText));
+            text: t.c2CallOngoingText,
+            hangupLabel: t.c2CallHangup,
+            onHangup: () async {
+              final cc = _c;
+              if (cc != null) await cc.hangup();
+            }));
       }
       if (c.isEnded) {
         if (CallRuntime.instance.activeCallId == c.callId) {
@@ -317,6 +323,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (_closed || !mounted) return;
     _closed = true;
     _popSelf();
+    // play-fsi: after an incoming call, ask once for full-screen calls
+    if (!widget.outgoing) FullScreenCallPrompt.maybeShowAfterCall();
   }
 
   /// Pops THIS route even while its PopScope still says "can't pop" (the

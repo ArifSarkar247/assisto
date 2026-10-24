@@ -156,9 +156,17 @@ jobs:
               '\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>'
               '\n    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>'
               '\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>'
-              '\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>'
-              '\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>'
-              '\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>'
+              # ---- play-perm ---- NO photo/video/audio library permission (Play
+              # Photo & Video policy): every pick goes through the system Photo
+              # Picker (image_picker usePhotoPicker). open_filex declares them in its
+              # own manifest, so they are REMOVED for both builds; the gate below fails
+              # the build if any comes back.
+              '\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>'
+              '\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>'
+              '\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>'
+              '\n    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" tools:node="remove"/>'
+              '\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>'
+              # ---- /play-perm ----
               '\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>'
               '\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>'
               # #79 hands-free voice SOS — foreground service (mic + location)
@@ -190,6 +198,14 @@ jobs:
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
+          # ---- play-fgs ---- geolocator ships a background location service we
+          # never start (no foregroundNotificationConfig anywhere); drop it so
+          # the Play foreground-service review only sees services we use.
+          if 'GeolocatorLocationService' not in s:
+              s = s.replace('</application>',
+                  '    <service android:name="com.baseflow.geolocator.GeolocatorLocationService"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          # ---- /play-fgs ----
           queries = (
               '\n    <queries>'
               '\n      <intent><action android:name="android.intent.action.DIAL"/>'
@@ -807,6 +823,14 @@ jobs:
             --out "$OUT" /tmp/aligned.apk
           "${BT}apksigner" verify --print-certs "$OUT" | head -5
           rm -f /tmp/ks.p12 /tmp/aligned.apk
+          # ---- play-perm ---- the website APK uses the Photo Picker too
+          PERMS=$("${BT}aapt2" dump permissions "$OUT" 2>/dev/null || "${BT}aapt" dump permissions "$OUT")
+          for P in READ_MEDIA_IMAGES READ_MEDIA_VIDEO READ_MEDIA_AUDIO READ_MEDIA_VISUAL_USER_SELECTED READ_EXTERNAL_STORAGE; do
+            if echo "$PERMS" | grep -q "android.permission.$P"; then
+              echo "::error::$P is in the APK manifest (use the Photo Picker)"; exit 1
+            fi
+          done
+          # ---- /play-perm ----
           ls -la out
           echo "size: $(du -h "$OUT" | cut -f1)"
 
@@ -873,6 +897,13 @@ jobs:
           if grep -a -q REQUEST_INSTALL_PACKAGES /tmp/play-manifest.pb; then
             echo "::error::REQUEST_INSTALL_PACKAGES still in the Play bundle manifest"; exit 1
           fi
+          # ---- play-perm ---- Play Photo & Video policy: no media-library permission
+          for P in READ_MEDIA_IMAGES READ_MEDIA_VIDEO READ_MEDIA_AUDIO READ_MEDIA_VISUAL_USER_SELECTED READ_EXTERNAL_STORAGE; do
+            if grep -a -q "android.permission.$P" /tmp/play-manifest.pb; then
+              echo "::error::$P is in the Play bundle manifest (use the Photo Picker)"; exit 1
+            fi
+          done
+          # ---- /play-perm ----
           # ---- pay1 ---- Play Billing needs the BILLING permission in the bundle
           if ! grep -a -q com.android.vending.BILLING /tmp/play-manifest.pb; then
             echo "::error::com.android.vending.BILLING missing from the Play bundle manifest"; exit 1
@@ -994,3 +1025,68 @@ jobs:
             logcat.txt
           retention-days: 7
           if-no-files-found: warn
+
+  # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the
+  # app reads the full-screen-intent permission correctly: denied -> the app
+  # says can=false and shows the one-time prompt (screenshot); allowed ->
+  # can=true. Uses the CI smoke APK's `ao_open=__fsi__` probe. NOT a publish
+  # gate (continue-on-error; not named launch-smoke-test).
+  fsi-proof-api34:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Full-screen intent check (API 34)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 600
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            sleep 60
+            adb install -r apk/*.apk || { echo "install failed"; exit 1; }
+            adb shell pm grant com.assisto.assisto android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+            adb shell appops set com.assisto.assisto USE_FULL_SCREEN_INTENT deny
+            adb shell appops get com.assisto.assisto USE_FULL_SCREEN_INTENT | tee fsi_appops_denied.txt
+            timeout 30 adb logcat -c || true
+            adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __fsi__
+            sleep 35
+            adb exec-out screencap -p > fsi_denied.png || true
+            timeout 30 adb logcat -d > fsi_denied_logcat.txt || true
+            grep "FSI_PROBE" fsi_denied_logcat.txt | tee fsi_result.txt
+            adb shell am force-stop com.assisto.assisto
+            adb shell appops set com.assisto.assisto USE_FULL_SCREEN_INTENT allow
+            timeout 30 adb logcat -c || true
+            adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __fsi__
+            sleep 35
+            adb exec-out screencap -p > fsi_allowed.png || true
+            timeout 30 adb logcat -d > fsi_allowed_logcat.txt || true
+            grep "FSI_PROBE" fsi_allowed_logcat.txt | tee -a fsi_result.txt
+            grep -q "FSI_PROBE can=false" fsi_denied_logcat.txt || { echo "::error::denied case did not report can=false"; exit 1; }
+            grep -q "FSI_PROBE can=true" fsi_allowed_logcat.txt || { echo "::error::allowed case did not report can=true"; exit 1; }
+            echo "FSI PROOF OK on API 34"
+      - name: Upload FSI proof (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fsi-proof-api34
+          path: |
+            fsi_*.png
+            fsi_*.txt
+          retention-days: 30
+          if-no-files-found: warn
+  # ---- /play-fsi ----

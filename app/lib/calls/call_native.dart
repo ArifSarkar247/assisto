@@ -78,6 +78,20 @@ class CallNative {
   static Future<void> keepScreenOn(bool on) =>
       _invoke<bool>('keepScreenOn', {'on': on});
 
+  /// play-fsi: may incoming calls show full-screen? (Android 14+ asks the
+  /// user; older Android: always true. Errors count as true — never nag.)
+  static Future<bool> canFullScreen() async {
+    _ensureHandler();
+    final v = await _invoke<bool>('canFullScreen');
+    return v ?? true;
+  }
+
+  /// Opens Settings -> Assisto -> Full screen notifications.
+  static Future<bool> openFullScreenSettings() async {
+    _ensureHandler();
+    return await _invoke<bool>('openFullScreenSettings') == true;
+  }
+
   static Future<bool> pipSupported() async {
     _ensureHandler();
     return await _invoke<bool>('pipSupported') == true;

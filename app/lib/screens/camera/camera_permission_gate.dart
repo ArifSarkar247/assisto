@@ -38,18 +38,17 @@ class CameraPermissions {
   /// True when the microphone is available (video records audio).
   bool get micGranted => _mic.isGranted;
 
-  /// True when we may read the photo library (gallery strip + picker).
-  bool get photosGranted => _photos.isGranted || _photos == PermissionStatus.limited;
+  /// play-perm: the gallery button uses the system Photo Picker, which needs
+  /// no photo-library permission, so the app never asks for one.
+  bool get photosGranted => true;
 
   PermissionStatus _camera = PermissionStatus.denied;
   PermissionStatus _mic = PermissionStatus.denied;
-  PermissionStatus _photos = PermissionStatus.denied;
 
   /// Refresh the current statuses without prompting (used on resume).
   Future<void> refresh() async {
     _camera = await Permission.camera.status;
     _mic = await Permission.microphone.status;
-    _photos = await Permission.photos.status;
   }
 
   /// Returns the gate state for the CAMERA permission after a passive check.
@@ -62,18 +61,16 @@ class CameraPermissions {
     return CameraPermState.explain;
   }
 
-  /// Ask the OS for camera (+ mic + photos). Returns the resulting gate state
+  /// Ask the OS for camera (+ mic). Returns the resulting gate state
   /// for the camera permission; call sites read [micGranted]/[photosGranted]
   /// afterwards to decide whether to enable video + the gallery strip.
   Future<CameraPermState> request() async {
     final results = await [
       Permission.camera,
       Permission.microphone,
-      Permission.photos,
     ].request();
     _camera = results[Permission.camera] ?? _camera;
     _mic = results[Permission.microphone] ?? _mic;
-    _photos = results[Permission.photos] ?? _photos;
     if (_camera.isGranted) return CameraPermState.granted;
     if (_camera.isPermanentlyDenied || _camera.isRestricted) {
       return CameraPermState.denied;

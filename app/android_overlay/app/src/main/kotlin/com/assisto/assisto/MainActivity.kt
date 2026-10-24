@@ -278,6 +278,14 @@ class MainActivity : FlutterFragmentActivity() {
                     // Null for normal launches — Dart only reads it in debug.
                     "aoSmokeOpen" -> result.success(intent?.getStringExtra("ao_open"))
 
+                    // play-fgs: a foreground-service notification button asked
+                    // to open one screen (allow-listed in Dart). Read once.
+                    "notifOpen" -> {
+                        val v = intent?.getStringExtra("assisto_open")
+                        intent?.removeExtra("assisto_open")
+                        result.success(v)
+                    }
+
                     "openAdminSettings" -> {
                         try {
                             startActivity(
