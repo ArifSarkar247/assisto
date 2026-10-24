@@ -44,6 +44,9 @@ class MediaJob {
   /// descriptor (`cc1`), so the photo becomes the chat wallpaper (older
   /// versions just show the photo).
   final Map<String, dynamic>? control;
+
+  /// e-gaps: a view-once photo (1:1) — no thumbnail, the sender keeps no copy.
+  final bool viewOnce;
   // progress (persisted)
   String encPath;
   String keyB64, nonceB64, sha;
@@ -70,6 +73,7 @@ class MediaJob {
     this.caption = '',
     this.replyTo,
     this.control,
+    this.viewOnce = false,
     this.encPath = '',
     this.keyB64 = '',
     this.nonceB64 = '',
@@ -93,6 +97,7 @@ class MediaJob {
         if (caption.isNotEmpty) 'cap': caption,
         if (replyTo != null) 'reply_to': replyTo,
         if (control != null) 'cc1': control,
+        if (viewOnce) 'vo': 1,
         'at': at.toUtc().toIso8601String(),
         'enc': encPath, 'k': keyB64, 'n': nonceB64, 'sha': sha,
         'csize': cipherSize, 'ref': ref, 'state': state, 'err': error,
@@ -120,6 +125,7 @@ class MediaJob {
       caption: '${j['cap'] ?? ''}',
       replyTo: j['reply_to'] == null ? null : '${j['reply_to']}',
       control: (j['cc1'] as Map?)?.cast<String, dynamic>(),
+      viewOnce: j['vo'] == 1,
       at: DateTime.tryParse('${j['at'] ?? ''}')?.toLocal() ?? DateTime.now(),
       encPath: '${j['enc'] ?? ''}',
       keyB64: '${j['k'] ?? ''}',
@@ -458,14 +464,16 @@ class MediaOutbox {
       if (me == null) return MediaStep.waiting;
       // cde-chat: a photo theme carries its control block inside the
       // (E2E) descriptor — the server only ever sees the blob ref.
-      final plain = job.control == null
+      var plain = job.control == null
           ? job.descriptor().encode()
           : jsonEncode({...job.descriptor().toJson(), 'cc1': job.control});
+      if (job.viewOnce) plain = markViewOnce(plain); // e-gaps
       final env = <String, dynamic>{
         'content_type': job.kind,
         'blob_ref': job.ref,
         'client_msg_id': job.id,
         if (job.replyTo != null) 'reply_to': job.replyTo,
+        if (job.viewOnce && job.chatKind == 'member') 'view_once': true,
         'sender_key_id': me.keyId,
         'scheme': _e2e.scheme,
       };
@@ -506,7 +514,16 @@ class MediaOutbox {
         res = await transport.sendMember(job.chatId, {...env, ...ct.toEnvelopeFields()});
       }
       // 5) done: my plaintext copy becomes the cache file for my own bubble
-      await MediaCache.instance.adopt(job.ref, job.descriptor().ext, job.srcPath);
+      // (e-gaps: a view-once photo leaves NO copy on the sender's phone)
+      if (job.viewOnce) {
+        try {
+          if (File(job.srcPath).existsSync()) File(job.srcPath).deleteSync();
+        } catch (e) {
+          reportNonFatal('e_vo_src_cleanup', e);
+        }
+      } else {
+        await MediaCache.instance.adopt(job.ref, job.descriptor().ext, job.srcPath);
+      }
       try {
         if (File(job.encPath).existsSync()) File(job.encPath).deleteSync();
       } catch (e) {

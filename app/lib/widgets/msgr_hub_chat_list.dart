@@ -32,6 +32,10 @@ import '../realtime/realtime_channel.dart';
 import 'msgr_avatar.dart';
 import 'robo_id.dart';
 import '../messaging/chat_decor/decor_store.dart'; // cde-chat
+import '../messaging/chat_lock.dart'; // e-gaps
+import '../messenger_chat_api.dart'; // e-gaps: clear (forgot lock code)
+import '../messenger_group_api.dart';
+import '../screens/circle_search_screen.dart'; // e-gaps: message search
 import '../messaging/chat_decor/system_line.dart';
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
@@ -46,6 +50,17 @@ import '../messaging/chat_decor/system_line.dart';
 /// The "Ask Assisto" intent: when the query starts with "ask assisto" we keep
 /// the list filtered to the remaining text for now and hint the agent handoff
 /// (the agent route lands later) — honest, never a dead action.
+/// e-gaps: "Forgot the lock code" clears this person's view of a locked chat.
+Future<void> clearChatForLock(ApiClient api, String chatKey) async {
+  final i = chatKey.indexOf(':');
+  final id = chatKey.substring(i + 1);
+  if (chatKey.startsWith('group:')) {
+    await api.groupClear(id);
+  } else {
+    await api.clearChat(int.parse(id));
+  }
+}
+
 class MsgrHubChatList extends StatefulWidget {
   final IdentityKeyPair? identity;
   final List<Map<String, dynamic>> members;
@@ -85,6 +100,10 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   /// the active list. Toggled from the "Archived (n)" banner.
   bool _showArchived = false;
 
+  /// e-gaps: the "Locked chats" folder (opened after biometric / code).
+  bool _showLocked = false;
+  AppLifecycleListener? _life;
+
   List<Map<String, dynamic>> _chats = [];
   bool _loadFailed = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
@@ -109,6 +128,15 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     // cde-chat: nicknames from this phone's store (and the server rows)
     DecorStore.instance.revision.addListener(_onRt);
     unawaited(DecorStore.instance.loadAll());
+    // e-gaps: locked chats leave this list (folder at the top)
+    ChatLockStore.instance.revision.addListener(_onRt);
+    unawaited(ChatLockStore.instance.warm().then((_) => _onRt()));
+    final api = _api;
+    ChatLockAuth.clearChat = (k) => clearChatForLock(api, k);
+    _life = AppLifecycleListener(onPause: () {
+      ChatLockSession.end(); // the locked folder closes when the app leaves
+      if (mounted && _showLocked) setState(() => _showLocked = false);
+    });
     _load();
     // x2-ticks: my last message's tick updates live (no list reload); a
     // new message for me reloads the list at once.
@@ -146,6 +174,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     _newSub?.cancel();
     _rt.states.removeListener(_onRt);
     DecorStore.instance.revision.removeListener(_onRt); // cde-chat
+    ChatLockStore.instance.revision.removeListener(_onRt); // e-gaps
+    _life?.dispose();
     _rt.release();
     super.dispose();
   }
@@ -281,6 +311,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   }
 
   bool _isArchived(Map<String, dynamic> c) => c['archived'] == true;
+  bool _isLocked(Map<String, dynamic> c) =>
+      ChatLockStore.instance.isLockedSync(_key(c));
+  int get _lockedCount => _chats.where(_isLocked).length;
   bool _isPinned(Map<String, dynamic> c) => c['pinned'] == true;
   int _pinnedCount() => _chats.where(_isPinned).length;
 
@@ -298,10 +331,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   /// msg_organise.order_chat_list.
   List<Map<String, dynamic>> get _visible {
     final q = _foldedQuery();
-    var list = _chats
-        .where((c) => _isArchived(c) == _showArchived)
-        .where(_matchesFilter)
-        .toList();
+    var list = _showLocked
+        ? _chats.where(_isLocked).toList()
+        : _chats
+            .where((c) => !_isLocked(c)) // e-gaps: only in the locked folder
+            .where((c) => _isArchived(c) == _showArchived)
+            .where(_matchesFilter)
+            .toList();
     if (q.isNotEmpty) {
       list = list.where((c) {
         final name = _nameOf(c).toLowerCase();
@@ -337,7 +373,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     return [...pinned, ...rest];
   }
 
-  int get _archivedCount => _chats.where(_isArchived).length;
+  int get _archivedCount =>
+      _chats.where((c) => _isArchived(c) && !_isLocked(c)).length;
 
   /// True when the user is actively searching but nothing matched — drives a
   /// no-results state distinct from an empty list (mirrors the server
@@ -404,9 +441,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       c['pin_at'] = pinning ? DateTime.now().toUtc().toIso8601String() : null;
     });
     final id = _chatId(c);
-    if (id == null) return;
+    if (id == null && !_isGroup(c)) return;
     try {
-      await _api.postJson('messenger/chats/$id/pin', {'pinned': pinning});
+      if (_isGroup(c)) {
+        await _api.postJson('/circle/groups/${_groupId(c)}/organise', {'pinned': pinning});
+      } else {
+        await _api.postJson('messenger/chats/$id/pin', {'pinned': pinning});
+      }
     } catch (_) {
       // m3-circle: never silent — undo the optimistic change and say so.
       if (mounted) {
@@ -427,9 +468,14 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     });
     _toast(archiving ? _t.msgrChatArchived : _t.msgrChatUnarchived);
     final id = _chatId(c);
-    if (id == null) return;
+    if (id == null && !_isGroup(c)) return;
     try {
-      await _api.postJson('messenger/chats/$id/archive', {'archived': archiving});
+      if (_isGroup(c)) {
+        await _api.postJson(
+            '/circle/groups/${_groupId(c)}/organise', {'archived': archiving});
+      } else {
+        await _api.postJson('messenger/chats/$id/archive', {'archived': archiving});
+      }
     } catch (_) {
       if (mounted) {
         setState(() => c['archived'] = !archiving);
@@ -542,8 +588,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!archived && !group)
+            if (!archived)
               ListTile(
+                key: const Key('e-org-pin'),
                 leading: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined),
                 title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
                 onTap: () {
@@ -582,14 +629,24 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   _markUnread(c);
                 },
               ),
-            if (!group)
             ListTile(
+              key: const Key('e-org-archive'),
               leading: Icon(
                   archived ? Icons.unarchive_outlined : Icons.archive_outlined),
               title: Text(archived ? t.msgrChatUnarchive : t.msgrChatArchive),
               onTap: () {
                 Navigator.pop(ctx);
                 _toggleArchive(c);
+              },
+            ),
+            // e-gaps: chat lock (fingerprint / face or this phone's code)
+            ListTile(
+              key: const Key('e-org-lock'),
+              leading: Icon(_isLocked(c) ? Icons.lock_open_outlined : Icons.lock_outline),
+              title: Text(_isLocked(c) ? t.eLockUnlockChat : t.eLockLockChat),
+              onTap: () {
+                Navigator.pop(ctx);
+                unawaited(toggleChatLock(context, _key(c)));
               },
             ),
           ],
@@ -620,10 +677,19 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     return Column(children: [
       if (widget.header != null) widget.header!,
       _searchBar(),
-      if (!_showArchived) _chipsRow(),
-      if (_showArchived) _archivedHeader(),
-      if (!_showArchived && _foldedQuery().isEmpty && _archivedCount > 0)
-        _archivedBanner(),
+      if (_showLocked)
+        _lockedHeader()
+      else ...[
+        if (!_showArchived) _chipsRow(),
+        if (_showArchived) _archivedHeader(),
+        // e-gaps: the locked folder, then the archive banner
+        if (!_showArchived && _foldedQuery().isEmpty && _lockedCount > 0)
+          _lockedBanner(),
+        if (!_showArchived && _foldedQuery().isEmpty && _archivedCount > 0)
+          _archivedBanner(),
+      ],
+      // e-gaps: search inside the messages too (decrypted on this phone)
+      if (_foldedQuery().isNotEmpty && widget.identity != null) _searchMessagesRow(),
       Expanded(
         child: visible.isEmpty
             ? (_isNoResults ? _noResults() : _empty())
@@ -656,6 +722,67 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         title: Text(t.msgrChatArchivedTitle,
             style: Theme.of(context).textTheme.titleMedium),
       ),
+    );
+  }
+
+  // ---- e-gaps: locked chats + message search -----------------------------
+
+  Future<void> _openLocked() async {
+    if (!ChatLockSession.isOpen && !await ChatLockAuth.authenticate(context)) return;
+    if (mounted) setState(() => _showLocked = true);
+  }
+
+  Widget _lockedBanner() {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      key: const Key('e-locked-banner'),
+      onTap: _openLocked,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 12),
+        child: Row(children: [
+          Icon(Icons.lock_outline, size: 20, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Text(_t.eLockFolder, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          _CountPill(count: _lockedCount),
+        ]),
+      ),
+    );
+  }
+
+  Widget _lockedHeader() => Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: ListTile(
+          dense: true,
+          leading: IconButton(
+            key: const Key('e-locked-back'),
+            icon: const Icon(Icons.arrow_back),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            onPressed: () {
+              ChatLockSession.end(); // leaving the folder locks it again
+              setState(() => _showLocked = false);
+            },
+          ),
+          title: Text(_t.eLockFolder, style: Theme.of(context).textTheme.titleMedium),
+        ),
+      );
+
+  Widget _searchMessagesRow() {
+    final scheme = Theme.of(context).colorScheme;
+    final q = _query.trim();
+    return ListTile(
+      key: const Key('e-search-messages'),
+      dense: true,
+      leading: Icon(Icons.manage_search, color: scheme.primary),
+      title: Text(_t.eSearchMessagesFor(q), maxLines: 2, overflow: TextOverflow.ellipsis),
+      onTap: () {
+        final id = widget.identity;
+        if (id == null) return;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => CircleSearchScreen(
+                members: widget.members, identity: id, initialQuery: q)));
+      },
     );
   }
 

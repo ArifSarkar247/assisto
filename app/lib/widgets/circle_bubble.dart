@@ -10,6 +10,7 @@ import '../messaging/msg_ticks.dart';
 import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
+import '../messaging/view_once.dart';
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -41,6 +42,11 @@ class CircleMessage {
   final MediaDescriptor? media;
   final MediaJob? mediaJob;
 
+  /// e-gaps: a view-once photo; [viewOnceOpened] = the receiver opened it
+  /// (server state or this phone's own record) — it can't be opened again.
+  final bool viewOnce;
+  final bool viewOnceOpened;
+
   const CircleMessage({
     required this.id,
     required this.text,
@@ -63,6 +69,8 @@ class CircleMessage {
     this.mediaGated = false,
     this.media,
     this.mediaJob,
+    this.viewOnce = false,
+    this.viewOnceOpened = false,
   });
 
   CircleMessage copyWith({
@@ -74,6 +82,8 @@ class CircleMessage {
     bool? pinned,
     bool? pending,
     String? text,
+    String? replyPreview,
+    bool? viewOnceOpened,
   }) =>
       CircleMessage(
         id: id,
@@ -83,7 +93,7 @@ class CircleMessage {
         status: status ?? this.status,
         decryptFailed: decryptFailed,
         replyToId: replyToId,
-        replyPreview: replyPreview,
+        replyPreview: replyPreview ?? this.replyPreview,
         reactions: reactions ?? this.reactions,
         edited: edited ?? this.edited,
         deleted: deleted ?? this.deleted,
@@ -97,6 +107,8 @@ class CircleMessage {
         mediaGated: mediaGated,
         media: media,
         mediaJob: mediaJob,
+        viewOnce: viewOnce,
+        viewOnceOpened: viewOnceOpened ?? this.viewOnceOpened,
       );
 }
 
@@ -113,6 +125,9 @@ class CircleBubble extends StatelessWidget {
 
   /// c3-msg: briefly tinted after a jump-to-original.
   final bool highlighted;
+
+  /// e-gaps: open a received view-once photo (null = can't from here).
+  final VoidCallback? onOpenViewOnce;
   const CircleBubble(
       {super.key,
       required this.msg,
@@ -120,7 +135,8 @@ class CircleBubble extends StatelessWidget {
       this.onTapMedia,
       this.onOpenFile,
       this.onTapReply,
-      this.highlighted = false});
+      this.highlighted = false,
+      this.onOpenViewOnce});
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +237,20 @@ class CircleBubble extends StatelessWidget {
   }
 
   Widget _mediaBody(BuildContext context, AppLocalizations t, Color fg) {
+    if (msg.viewOnce && msg.mediaJob == null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Gap.xs),
+        child: ViewOnceTile(
+          key: ValueKey('e-vo-${msg.id}'),
+          mine: msg.mine,
+          opened: msg.viewOnceOpened,
+          fg: fg,
+          onOpen: (msg.mine || msg.viewOnceOpened || msg.media == null)
+              ? null
+              : onOpenViewOnce,
+        ),
+      );
+    }
     if (msg.media != null || msg.mediaJob != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),

@@ -28,7 +28,26 @@ abstract class VoiceBackend {
   Stream<void> get completed;
 }
 
-class AudioplayersBackend implements VoiceBackend {
+/// e-gaps: optional playback-speed seam (1x / 1.5x / 2x). Kept separate from
+/// [VoiceBackend] so older fakes keep compiling.
+abstract class VoiceRateBackend {
+  Future<void> setRate(double rate);
+}
+
+/// The speeds a tap on the speed pill cycles through (WhatsApp order).
+const List<double> kVoiceRates = [1.0, 1.5, 2.0];
+
+/// The next speed after [r] (unknown values restart at 1x).
+double nextVoiceRate(double r) {
+  final i = kVoiceRates.indexOf(r);
+  return kVoiceRates[(i < 0 ? 0 : i + 1) % kVoiceRates.length];
+}
+
+/// "1×" / "1.5×" / "2×" (Latin digits; callers localize digits).
+String voiceRateLabel(double r) =>
+    '${r == r.roundToDouble() ? r.toInt() : r}\u00d7';
+
+class AudioplayersBackend implements VoiceBackend, VoiceRateBackend {
   AudioPlayer? _p;
   AudioPlayer get _player => _p ??= AudioPlayer()..setReleaseMode(ReleaseMode.stop);
 
@@ -48,6 +67,8 @@ class AudioplayersBackend implements VoiceBackend {
   Stream<Duration> get duration => _player.onDurationChanged;
   @override
   Stream<void> get completed => _player.onPlayerComplete;
+  @override
+  Future<void> setRate(double rate) => _player.setPlaybackRate(rate);
 }
 
 class VoicePlayer {
@@ -60,6 +81,26 @@ class VoicePlayer {
   VoiceBackend? _b;
   final List<StreamSubscription<Object?>> _subs = [];
   final ValueNotifier<VoiceState> state = ValueNotifier(const VoiceState());
+
+  /// e-gaps: the playback speed for every voice note (kept for this app run).
+  final ValueNotifier<double> rate = ValueNotifier(1.0);
+
+  Future<void> _applyRate() async {
+    final Object? b = _b; // (Object? so the is-check promotes)
+    if (b is! VoiceRateBackend) return;
+    try {
+      await b.setRate(rate.value);
+    } catch (e) {
+      reportNonFatal('e_voice_rate', e); // some ROMs refuse: plays at 1x
+    }
+  }
+
+  /// Tap on the speed pill: 1x -> 1.5x -> 2x -> 1x, applied at once.
+  Future<double> cycleRate() async {
+    rate.value = nextVoiceRate(rate.value);
+    if (state.value.playing) await _applyRate();
+    return rate.value;
+  }
 
   VoiceBackend _backend() {
     final have = _b;
@@ -95,11 +136,13 @@ class VoicePlayer {
       if (s.path == path && s.positionMs > 0) {
         state.value = VoiceState(path: path, playing: true, positionMs: s.positionMs, durationMs: s.durationMs);
         await b.resume();
+        if (rate.value != 1.0) await _applyRate();
         return true;
       }
       if (s.path.isNotEmpty) await b.stop();
       state.value = VoiceState(path: path, playing: true, durationMs: durationMs);
       await b.play(path);
+      if (rate.value != 1.0) await _applyRate();
       return true;
     } catch (e) {
       reportNonFatal('md1_voice_play', e);

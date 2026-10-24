@@ -14,6 +14,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
 import '../messaging/msg_notify.dart';
+import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
 import '../security/secret_store.dart';
 
 /// Draws Assisto pushes as local notifications. Usable from the UI isolate AND
@@ -214,8 +215,18 @@ class PushNotifier {
             .load(p.callerPhoto, timeout: const Duration(milliseconds: 2500))
             .catchError((_) => null);
       }
-      await _plugin.show(p.notificationId, titleFor(p),
-          p.body.isEmpty ? null : p.body,
+      var title = titleFor(p);
+      var body = p.body;
+      // e-gaps: a LOCKED chat's fallback notification shows no name / text
+      final chat = MsgPushHandler.chatOf(p);
+      if (chat != null &&
+          await ChatLockStore.isLockedFresh('${chat.kind}:${chat.id}')) {
+        final t = msgL10n(p.lang);
+        title = t.eLockNotifTitle;
+        body = t.eLockNotifBody;
+      }
+      await _plugin.show(p.notificationId, title,
+          body.isEmpty ? null : body,
           detailsFor(p, ringtoneUri: ring, largeIcon: face),
           payload: p.encode());
     } catch (e) {

@@ -27,6 +27,7 @@ String describeControl(
     final label = chatThemeLabel(t, c.themeId);
     return mine ? t.cdeThemeYou(label) : t.cdeThemeOther(actor, label);
   }
+  if (c.isTimer) return describeTimer(t, c.sec, mine: mine, actor: actor);
   final n = c.name;
   final rm = c.removed;
   final uid = c.uid;
@@ -60,6 +61,7 @@ String describeControl(
 String controlFallbackLine(AppLocalizations t, ChatControl c,
     {required String myName, String targetName = ''}) {
   if (c.isTheme) return t.cdeThemeOther(myName, chatThemeLabel(t, c.themeId));
+  if (c.isTimer) return describeTimer(t, c.sec, mine: false, actor: myName);
   final rm = c.removed;
   if (c.uid == null) {
     if (c.who == 'sender') {
@@ -73,6 +75,22 @@ String controlFallbackLine(AppLocalizations t, ChatControl c,
   return rm
       ? t.cdeNickRmOtherOther(myName, targetName)
       : t.cdeNickOtherOther(myName, targetName, c.name);
+}
+
+/// e-gaps: "24 hours" / "7 days" / "90 days" for a disappearing timer.
+String timerLabel(AppLocalizations t, int sec) {
+  if (sec <= 0) return t.msgrChatDisapOff;
+  if (sec <= 86400) return t.msgrChatDisap24h;
+  if (sec <= 604800) return t.msgrChatDisap7d;
+  return t.msgrChatDisap90d;
+}
+
+/// e-gaps: the system line for a disappearing-timer change.
+String describeTimer(AppLocalizations t, int sec,
+    {required bool mine, required String actor}) {
+  if (sec <= 0) return mine ? t.eTimerOffYou : t.eTimerOffOther(actor);
+  final label = timerLabel(t, sec);
+  return mine ? t.eTimerOnYou(label) : t.eTimerOnOther(actor, label);
 }
 
 /// A centred chip: "Rahim changed the theme to Love".

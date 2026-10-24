@@ -29,6 +29,8 @@ import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/echo_reconcile.dart'; // md2
+import '../messaging/disappear_sweep.dart'; // e-gaps
+import '../messaging/chat_lock.dart'; // e-gaps
 import '../messaging/forward.dart'; // md2
 import '../services/action_feedback.dart';
 import '../messaging/media/media_actions.dart'; // md1
@@ -398,6 +400,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _markSeen() async {
+    // e-gaps: never "seen" behind the chat lock
+    if (ChatLockStore.instance.isLockedSync(_chatKey) &&
+        !ChatLockSession.isChatOpen(_chatKey)) {
+      return;
+    }
     if (!_visibleNow) {
       _seenPending = true; // x2-ticks: covered / backgrounded → not read yet
       return;
@@ -861,7 +868,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // -------------------------------------------------------------------------
   Future<void> _openMenu() async {
     final action =
-        await showGroupMenuSheet(context, isFavourite: _isFavourite);
+        await showGroupMenuSheet(context,
+            isFavourite: _isFavourite,
+            locked: ChatLockStore.instance.isLockedSync(_chatKey));
     if (action == null || !mounted) return;
     switch (action) {
       case GroupMenuAction.groupInfo:
@@ -888,6 +897,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         await _toggleFavourite();
       case GroupMenuAction.exportChat:
         await _exportChat();
+      case GroupMenuAction.lockChat:
+        await toggleChatLock(context, _chatKey); // e-gaps
       case GroupMenuAction.sendCallLink:
         await _sendCallLink();
       case GroupMenuAction.scheduleCall:
@@ -962,14 +973,49 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ('90d', _t.grpDisappear90d),
       ],
     );
-    if (v == null) return;
+    if (v == null || v == '${widget.group['disappearing'] ?? 'off'}') return;
     try {
       await _api.groupSetDisappearing(_groupId, v);
-      setState(() => widget.group['disappearing'] = v);
+      setState(() {
+        widget.group['disappearing'] = v;
+        widget.group['disappearing_since'] =
+            v == 'off' ? null : DateTime.now().toUtc().toIso8601String();
+      });
+      // e-gaps: every member's phone shows "X turned on ..." (E2E line)
+      await _sendControl(ChatControl.timer(_timerSecOf(v),
+          at: DateTime.now().millisecondsSinceEpoch));
       _toast(_t.grpDisappearingSet);
     } catch (e) {
       _fail(e);
     }
+  }
+
+  // ---- e-gaps: the group's disappearing timer on THIS phone --------------
+  static const _kTimerTokens = {'off': 0, '24h': 86400, '7d': 604800, '90d': 7776000};
+  static int _timerSecOf(String token) => _kTimerTokens[token] ?? 0;
+  static String _timerTokenOf(int sec) => sec <= 0
+      ? 'off'
+      : sec <= 86400
+          ? '24h'
+          : sec <= 604800
+              ? '7d'
+              : '90d';
+
+  /// Register what this chat shows under the timer (its decrypted files /
+  /// preview are wiped on this phone at expiry) and sweep what is due.
+  Future<void> _trackDisappearing() async {
+    final sec = _timerSecOf('${widget.group['disappearing'] ?? 'off'}');
+    final since = DateTime.tryParse('${widget.group['disappearing_since'] ?? ''}');
+    if (sec > 0 && since != null) {
+      for (final m in _messages) {
+        final id = '${m['id'] ?? ''}';
+        final at = DateTime.tryParse('${m['created_at'] ?? ''}');
+        if (int.tryParse(id) == null || at == null || at.isBefore(since)) continue;
+        await DisappearSweep.instance.track(
+            _chatKey, id, at.add(Duration(seconds: sec)), media: _mediaOf(m));
+      }
+    }
+    await DisappearSweep.instance.sweep();
   }
 
   // ---- cde-chat: shared theme + nicknames ---------------------------------
@@ -988,12 +1034,23 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   void _foldControls() {
+    ChatControl? newestTimer;
     for (final m in _messages) {
       final c = _controlOf(m);
       if (c == null) continue;
+      if (c.isTimer) {
+        // e-gaps: the newest timer line is the group's timer now
+        if (newestTimer == null || c.at > newestTimer.at) newestTimer = c;
+        continue;
+      }
       unawaited(_decor.fold('${m['id']}', c,
           mine: m['mine'] == true, photo: _mediaOf(m)));
     }
+    final tok = newestTimer == null ? null : _timerTokenOf(newestTimer.sec);
+    if (tok != null && tok != '${widget.group['disappearing'] ?? 'off'}' && mounted) {
+      setState(() => widget.group['disappearing'] = tok);
+    }
+    unawaited(_trackDisappearing()); // e-gaps
   }
 
   /// A member's REAL name by user id (roster), for system lines.
@@ -1513,8 +1570,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ],
       );
 
+  /// e-gaps: a locked chat opened from outside its folder asks first.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      ChatLockGate(chatKey: _chatKey, child: Builder(builder: _buildChat));
+
+  Widget _buildChat(BuildContext context) {
     final pinned =
         _messages.where((m) => m['pinned'] == true).toList();
     return Scaffold(
@@ -1830,7 +1891,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (cc != null) {
       return ChatSystemLine(
           text: _describe(msg, cc),
-          icon: cc.isTheme ? Icons.palette_outlined : Icons.badge_outlined);
+          icon: cc.isTheme
+              ? Icons.palette_outlined
+              : cc.isTimer
+                  ? Icons.timer_outlined
+                  : Icons.badge_outlined);
     }
     if (job is MediaJob) {
       // md1: a send still on its way (progress ring + cancel / retry)

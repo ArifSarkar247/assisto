@@ -91,6 +91,7 @@ class DecorChat {
   /// number of times — the newest `at` wins).
   Future<bool> fold(String messageId, ChatControl c,
       {required bool mine, MediaDescriptor? photo}) async {
+    if (c.isTimer) return false; // e-gaps: the screen owns the timer
     final key = '$messageId|${c.at}';
     if (_seen.contains(key)) return false;
     _seen.add(key);

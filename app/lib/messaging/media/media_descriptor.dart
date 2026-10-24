@@ -167,3 +167,24 @@ String mediaDurationLabel(int ms) {
   final s = (ms / 1000).round();
   return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 }
+
+// e-gaps: view-once photos (see messaging/view_once.dart).
+/// Whether a decrypted descriptor JSON is a view-once one (`"vo":1`).
+bool descriptorIsViewOnce(String plaintext) {
+  if (!plaintext.startsWith('{') || !plaintext.contains('"vo"')) return false;
+  try {
+    final j = jsonDecode(plaintext);
+    return j is Map && (j['vo'] == 1 || j['vo'] == true);
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Mark a descriptor JSON as view-once (and drop the thumbnail: nothing of
+/// the photo may stay in the chat).
+String markViewOnce(String descriptorJson) {
+  final j = jsonDecode(descriptorJson) as Map<String, dynamic>;
+  j['vo'] = 1;
+  j.remove('thumb');
+  return jsonEncode(j);
+}

@@ -71,6 +71,19 @@ class PreviewCache {
     } catch (_) {}
   }
 
+  /// e-gaps: forget [chatKey]'s preview when it is message [msgId] (a
+  /// disappearing message expired, a view-once photo was opened).
+  Future<void> drop(String chatKey, String msgId) async {
+    final m = await _load();
+    final cur = m[chatKey];
+    if (cur == null || cur['id'] != msgId) return;
+    m.remove(chatKey);
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(_k, jsonEncode(m));
+    } catch (_) {}
+  }
+
   /// Tests only.
   void resetForTest() => _mem = null;
 }

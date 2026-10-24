@@ -21,6 +21,7 @@ import 'chat_preview.dart' show mediaPreviewDetail;
 import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
+import 'chat_lock.dart' show ChatLockStore; // e-gaps
 
 /// c3-msg — WhatsApp-style message notifications, built ON THE DEVICE.
 ///
@@ -87,7 +88,11 @@ class MsgNotifModel {
     required this.lang,
     this.photo = '',
     this.photoV = '',
+    this.locked = false,
   });
+
+  /// e-gaps: a LOCKED chat — no name, no text, no inline reply.
+  final bool locked;
 
   bool get isEmpty => lines.isEmpty;
   String get tag => notifTag(kind, chatId);
@@ -176,6 +181,7 @@ MsgNotifModel buildMsgNotifModel(
   required AppLocalizations t,
   required String lang,
   int window = kMsgWindow,
+  bool locked = false,
 }) {
   final chat = (pull['chat'] as Map?)?.cast<String, dynamic>() ?? const {};
   final kind = chat['kind'] == 'group' ? 'group' : 'member';
@@ -191,6 +197,32 @@ MsgNotifModel buildMsgNotifModel(
       ? pull['unseen'] as int
       : raw.where((m) => m['mine'] != true).length;
   final slice = raw.length <= window ? raw : raw.sublist(raw.length - window);
+
+  if (locked) {
+    // e-gaps: a locked chat never shows who wrote or what (WhatsApp)
+    return MsgNotifModel(
+      kind: kind,
+      chatId: id,
+      title: t.eLockNotifTitle,
+      isGroup: false,
+      unseen: unseen,
+      hidden: true,
+      locked: true,
+      lang: lang,
+      lines: slice.isEmpty
+          ? const []
+          : [
+              NotifLine(
+                sender: t.eLockNotifTitle,
+                senderKey: 'locked',
+                text: t.eLockNotifBody,
+                at: DateTime.tryParse('${slice.last['created_at'] ?? ''}')
+                        ?.toLocal() ??
+                    DateTime.now(),
+              ),
+            ],
+    );
+  }
 
   if (hide) {
     final n = max(1, unseen);
@@ -311,12 +343,14 @@ NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
           peerIconPath == null ? null : FilePathAndroidBitmap(peerIconPath),
       groupKey: kMsgGroupKey,
       tag: m.tag,
-      shortcutId: m.shortcutId,
+      shortcutId: m.locked ? null : m.shortcutId, // e-gaps: no name
       visibility: NotificationVisibility.private,
       onlyAlertOnce: silent,
       silent: silent,
       number: m.unseen,
-      actions: [
+      actions: m.locked
+          ? const <AndroidNotificationAction>[]
+          : [
         AndroidNotificationAction(
           kActionReply,
           t.c3NotifReply,
@@ -553,11 +587,14 @@ class MsgPushHandler {
       final self = await identity();
       // this phone's switch OR the account-wide "Message preview" off
       final hide = await hideContent() || p.data['preview'] == '0';
+      // e-gaps: read fresh (this may be the FCM background isolate)
+      final locked = await ChatLockStore.isLockedFresh('${chat.kind}:${chat.id}');
       final model = buildMsgNotifModel(pull,
           decrypt: self == null ? (_) => null : e2eDecryptor(self, e2e: e2e),
           hide: hide,
           t: t,
-          lang: p.lang);
+          lang: p.lang,
+          locked: locked);
       if (model.isEmpty) {
         // already read on another device (or the chat is open) → clear
         await sink.cancel(chat.kind, chat.id);

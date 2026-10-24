@@ -109,11 +109,18 @@ class VoiceNoteBody extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
-                      notifLocalizeDigits(
-                          context, mediaDurationLabel(playing || pos > 0 ? pos : dur)),
-                      style: TextStyle(fontSize: 11, color: fg.withValues(alpha: 0.8)),
-                    ),
+                    Row(children: [
+                      Text(
+                        notifLocalizeDigits(
+                            context, mediaDurationLabel(playing || pos > 0 ? pos : dur)),
+                        style: TextStyle(fontSize: 11, color: fg.withValues(alpha: 0.8)),
+                      ),
+                      // e-gaps: playback speed (shown once this note plays)
+                      if (mine && (playing || pos > 0)) ...[
+                        const SizedBox(width: 8),
+                        VoiceRatePill(fg: fg),
+                      ],
+                    ]),
                   ],
                 ),
               ),
@@ -121,6 +128,42 @@ class VoiceNoteBody extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// e-gaps: the 1x / 1.5x / 2x pill — one tap cycles the speed.
+class VoiceRatePill extends StatelessWidget {
+  final Color fg;
+  const VoiceRatePill({super.key, required this.fg});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return ValueListenableBuilder<double>(
+      valueListenable: VoicePlayer.instance.rate,
+      builder: (context, r, _) => Semantics(
+        button: true,
+        label: t.eVoiceSpeed,
+        child: InkWell(
+          key: const Key('e-voice-rate'),
+          borderRadius: BorderRadius.circular(10),
+          onTap: () => VoicePlayer.instance.cycleRate(),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 24),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: fg.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              notifLocalizeDigits(context, voiceRateLabel(r)),
+              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: fg),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -212,6 +212,7 @@ import 'p4_world_shots.dart'; // p4-world
 import 'c2_calls_shots.dart'; // c2-calls
 import 'b1_calls_shots.dart'; // b1-calls
 import 'cde_shots.dart'; // cde-chat
+import 'e_gaps_shots.dart'; // e-gaps
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -604,6 +605,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     for (final e in b1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // b1-calls
     for (final e in cdeShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cde-chat
+    for (final e in eGapsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // e-gaps
     // h1-home: home ad hero (free / premium) + image in chat
     // (home hero shots: no urgent cards, so the welcome slot is visible)
     for (final e in h1Shots.entries)

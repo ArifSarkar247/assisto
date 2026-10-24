@@ -17,9 +17,12 @@ import 'dart:convert';
 
 const String kControlMarker = '⁣CC1:';
 
+/// e-gaps: the longest disappearing timer a control may carry (90 days).
+const int kMaxTimerSec = 7776000;
+
 /// One decoded control event.
 class ChatControl {
-  /// 'theme' | 'nick'
+  /// 'theme' | 'nick' | 'timer' (e-gaps: disappearing-messages timer)
   final String type;
 
   /// theme: the theme id ('classic' = none, 'custom' / 'ai' = photo).
@@ -37,8 +40,12 @@ class ChatControl {
   /// Server time of the write (ms since epoch) — newest wins on every phone.
   final int at;
 
+  /// timer: the disappearing-messages timer in seconds (0 = off).
+  final int sec;
+
   const ChatControl._(this.type,
-      {this.themeId = '', this.who = '', this.uid, this.name = '', this.at = 0});
+      {this.themeId = '', this.who = '', this.uid, this.name = '', this.at = 0,
+      this.sec = 0});
 
   const ChatControl.theme(String id, {int at = 0})
       : this._('theme', themeId: id, at: at);
@@ -46,7 +53,13 @@ class ChatControl {
   const ChatControl.nick({String who = '', int? uid, required String name, int at = 0})
       : this._('nick', who: who, uid: uid, name: name, at: at);
 
+  /// e-gaps: "X turned on disappearing messages (24 hours)" — both phones
+  /// draw the system line; the timer itself is server-authoritative.
+  const ChatControl.timer(int sec, {int at = 0})
+      : this._('timer', sec: sec, at: at);
+
   bool get isTheme => type == 'theme';
+  bool get isTimer => type == 'timer';
   bool get isNick => type == 'nick';
   bool get removed => isNick && name.isEmpty;
 
@@ -56,6 +69,7 @@ class ChatControl {
         if (who.isNotEmpty) 'who': who,
         if (uid != null) 'uid': uid,
         if (isNick) 'n': name,
+        if (isTimer) 'sec': sec,
         'at': at,
       };
 
@@ -67,6 +81,11 @@ class ChatControl {
       final id = '${j['id'] ?? ''}';
       if (id.isEmpty || id.length > 24) return null;
       return ChatControl.theme(id, at: at);
+    }
+    if (t == 'timer') {
+      final s = j['sec'] is num ? (j['sec'] as num).toInt() : int.tryParse('${j['sec']}');
+      if (s == null || s < 0 || s > kMaxTimerSec) return null;
+      return ChatControl.timer(s, at: at);
     }
     if (t == 'nick') {
       final who = '${j['who'] ?? ''}';

@@ -1,0 +1,124 @@
+{
+  "_comment": "e-gaps (owner order E): My Circle vs WhatsApp/Messenger/Telegram — disappearing timer lines, view-once photos, chat lock, message search, voice-note speed. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_e_arb.json",
+  "en": {
+    "eVoiceSpeed": "Playback speed",
+    "eTimerOnYou": "You turned on disappearing messages. New messages will disappear after {time}.",
+    "@eTimerOnYou": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "eTimerOnOther": "{name} turned on disappearing messages. New messages will disappear after {time}.",
+    "@eTimerOnOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "eTimerOffYou": "You turned off disappearing messages.",
+    "eTimerOffOther": "{name} turned off disappearing messages.",
+    "@eTimerOffOther": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "eVoToggle": "View once",
+    "eVoOnHint": "View once: they can open this photo one time only",
+    "eVoOffHint": "View once is off",
+    "eVoTapToView": "View once · tap to open",
+    "eVoNotOpenedYet": "View once · not opened yet",
+    "eVoOpened": "Opened",
+    "eVoOpenedByThem": "They opened this view-once photo",
+    "eVoOpenedByYou": "You opened this view-once photo",
+    "eVoAlreadyOpened": "This view-once photo was already opened",
+    "eVoOpenFailed": "Couldn't open the photo. Check the internet and try again.",
+    "eVoViewerTitle": "View once photo",
+    "eVoViewerHint": "When you close it, this photo is gone for good. Screenshots are blocked.",
+    "eVoReplyLabel": "View once photo",
+    "eLockLockChat": "Lock chat",
+    "eLockUnlockChat": "Unlock chat",
+    "eLockLocked": "Chat locked. Find it in Locked chats.",
+    "eLockUnlocked": "Chat unlocked",
+    "eLockFolder": "Locked chats",
+    "eLockBioReason": "Unlock your locked chats",
+    "eLockEnterCode": "Enter your chat lock code",
+    "eLockCodeLabel": "Code (4–8 digits)",
+    "eLockCodeConfirm": "Type the code again",
+    "eLockCodeRule": "Use 4 to 8 digits",
+    "eLockCodeMismatch": "The two codes don't match",
+    "eLockWrongCode": "Wrong code. Try again.",
+    "eLockUnlock": "Unlock",
+    "eLockSave": "Save",
+    "eLockSetCodeTitle": "Set a chat lock code",
+    "eLockSetCodeBody": "Locked chats open with your fingerprint or face, or with this code. Only this phone knows it.",
+    "eLockForgot": "Forgot code?",
+    "eLockForgotTitle": "Unlock all and clear?",
+    "eLockForgotBody": "Without the code, the locked chats can only be unlocked by clearing their messages from your view. The other person keeps theirs.",
+    "eLockForgotConfirm": "Unlock and clear",
+    "eLockForgotDone": "Locked chats were unlocked and cleared",
+    "eLockGateTitle": "This chat is locked",
+    "eLockNotifTitle": "Assisto",
+    "eLockNotifBody": "New message",
+    "eSearchMessagesFor": "Search messages for \"{query}\"",
+    "@eSearchMessagesFor": {
+      "placeholders": {
+        "query": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "eVoiceSpeed": "চালানোর গতি",
+    "eTimerOnYou": "আপনি অদৃশ্য মেসেজ চালু করেছেন। নতুন মেসেজ {time} পরে মুছে যাবে।",
+    "eTimerOnOther": "{name} অদৃশ্য মেসেজ চালু করেছেন। নতুন মেসেজ {time} পরে মুছে যাবে।",
+    "eTimerOffYou": "আপনি অদৃশ্য মেসেজ বন্ধ করেছেন।",
+    "eTimerOffOther": "{name} অদৃশ্য মেসেজ বন্ধ করেছেন।",
+    "eVoToggle": "একবার দেখা যাবে",
+    "eVoOnHint": "একবার দেখা: উনি ছবিটি মাত্র একবার খুলতে পারবেন",
+    "eVoOffHint": "একবার দেখা বন্ধ",
+    "eVoTapToView": "একবার দেখা · খুলতে চাপুন",
+    "eVoNotOpenedYet": "একবার দেখা · এখনো খোলা হয়নি",
+    "eVoOpened": "খোলা হয়েছে",
+    "eVoOpenedByThem": "উনি একবার-দেখার ছবিটি খুলেছেন",
+    "eVoOpenedByYou": "আপনি একবার-দেখার ছবিটি খুলেছেন",
+    "eVoAlreadyOpened": "একবার-দেখার ছবিটি আগেই খোলা হয়েছে",
+    "eVoOpenFailed": "ছবিটি খোলা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "eVoViewerTitle": "একবার দেখার ছবি",
+    "eVoViewerHint": "বন্ধ করলে ছবিটি চিরতরে মুছে যাবে। স্ক্রিনশট নেওয়া যায় না।",
+    "eVoReplyLabel": "একবার দেখার ছবি",
+    "eLockLockChat": "চ্যাট লক করুন",
+    "eLockUnlockChat": "চ্যাট আনলক করুন",
+    "eLockLocked": "চ্যাট লক হয়েছে। \"লক করা চ্যাট\"-এ পাবেন।",
+    "eLockUnlocked": "চ্যাট আনলক হয়েছে",
+    "eLockFolder": "লক করা চ্যাট",
+    "eLockBioReason": "লক করা চ্যাট খুলুন",
+    "eLockEnterCode": "চ্যাট লকের কোড দিন",
+    "eLockCodeLabel": "কোড (৪–৮ সংখ্যা)",
+    "eLockCodeConfirm": "কোডটি আবার লিখুন",
+    "eLockCodeRule": "৪ থেকে ৮টি সংখ্যা দিন",
+    "eLockCodeMismatch": "দুটি কোড মেলেনি",
+    "eLockWrongCode": "ভুল কোড। আবার চেষ্টা করুন।",
+    "eLockUnlock": "আনলক",
+    "eLockSave": "সেভ করুন",
+    "eLockSetCodeTitle": "চ্যাট লকের কোড ঠিক করুন",
+    "eLockSetCodeBody": "লক করা চ্যাট আঙুলের ছাপ বা মুখ দিয়ে, অথবা এই কোড দিয়ে খুলবে। কোডটি শুধু এই ফোন জানে।",
+    "eLockForgot": "কোড ভুলে গেছেন?",
+    "eLockForgotTitle": "সব আনলক করে মুছে দেবেন?",
+    "eLockForgotBody": "কোড ছাড়া লক করা চ্যাট খুলতে হলে আপনার দিক থেকে সেগুলোর মেসেজ মুছে দিতে হবে। অন্যজনের মেসেজ থেকে যাবে।",
+    "eLockForgotConfirm": "আনলক করে মুছুন",
+    "eLockForgotDone": "লক করা চ্যাট আনলক ও মুছে দেওয়া হয়েছে",
+    "eLockGateTitle": "এই চ্যাটটি লক করা",
+    "eLockNotifTitle": "Assisto",
+    "eLockNotifBody": "নতুন মেসেজ",
+    "eSearchMessagesFor": "\"{query}\" মেসেজে খুঁজুন"
+  }
+}
