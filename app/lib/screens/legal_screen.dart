@@ -195,7 +195,11 @@ class _LegalPageState extends State<_LegalPage> {
                   child: ListView(
                     padding: const EdgeInsets.all(Gap.lg),
                     children: [
-                      LegalDraftBanner(stamp: page!.stamp),
+                      if (page!.draft)
+                        LegalDraftBanner(stamp: page.stamp)
+                      else
+                        Text(page.stamp,
+                            style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(height: Gap.md),
                       if (page.sections.length > 3) ...[
                         LegalSearchField(

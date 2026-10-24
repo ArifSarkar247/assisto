@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0082_e2e_groups"),
+        ("core", "0083_ring_everywhere"),
     ]
 
     operations = [

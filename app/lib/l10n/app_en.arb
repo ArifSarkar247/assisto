@@ -19024,5 +19024,46 @@
   "ringCheckBadge": "Calls ring setup needs attention",
   "@ringCheckBadge": {
     "description": "Screen-reader label of the warning badge on the Settings entry."
+  },
+  "connRequestSentBanner": "Request sent — they can reply after accepting",
+  "@connRequestSentBanner": {
+    "description": "Sender's chat with someone who has not accepted the message request yet (banner above the composer)."
+  },
+  "connNoLinksYet": "Links can be sent after they accept your request.",
+  "@connNoLinksYet": {
+    "description": "Toast: the sender typed a link (http / www) in a message request; only plain text goes before accept."
+  },
+  "connConnectedLine": "You are now connected",
+  "@connConnectedLine": {
+    "description": "Centred system line in a 1:1 chat at the moment the request was accepted (both phones)."
+  },
+  "connAudioCall": "Audio call",
+  "@connAudioCall": {
+    "description": "Button on a My Circle contact sheet / contact info: start an audio call."
+  },
+  "connVideoCall": "Video call",
+  "@connVideoCall": {
+    "description": "Button on a My Circle contact sheet / contact info: start a video call."
+  },
+  "connDecline": "Decline",
+  "@connDecline": {
+    "description": "Message request bar: decline the request (the sender is not told)."
+  },
+  "connDeclineTitle": "Decline this request?",
+  "@connDeclineTitle": {
+    "description": "Confirm dialog title before declining a message request."
+  },
+  "connDeclineBody": "{name} won't be told, and their messages won't reach you.",
+  "@connDeclineBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Confirm dialog body before declining a message request."
+  },
+  "connDeclinedToast": "Request declined",
+  "@connDeclinedToast": {
+    "description": "Toast after declining a message request."
   }
 }

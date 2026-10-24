@@ -1,1 +1,1 @@
-Build 225: incoming calls now ring natively even when Assisto is closed, swiped away or another app is open (full screen, Answer/Decline); new call setup checklist for your phone brand; the server resends a call that did not arrive.
+Build 225: incoming calls ring natively even when Assisto is closed, swiped away or another app is open (full screen, Answer/Decline), with a call setup checklist for your phone; My Circle: after sending a request the chat opens straight away, and accepted contacts get Message / Audio / Video buttons everywhere.

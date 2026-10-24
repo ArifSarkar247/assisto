@@ -14960,5 +14960,14 @@
   "ringCheckTileSub": "Assisto বন্ধ থাকলেও কল যেন বাজে",
   "ringCheckBanner": "Assisto বন্ধ থাকলে এই ফোনে কল নাও বাজতে পারে।",
   "ringCheckBannerFix": "এখনই ঠিক করুন",
-  "ringCheckBadge": "কল বাজার সেটআপে মনোযোগ দরকার"
+  "ringCheckBadge": "কল বাজার সেটআপে মনোযোগ দরকার",
+  "connRequestSentBanner": "অনুরোধ পাঠানো হয়েছে — গ্রহণ করলে উনি উত্তর দিতে পারবেন",
+  "connNoLinksYet": "অনুরোধ গ্রহণ করার পর লিংক পাঠাতে পারবেন।",
+  "connConnectedLine": "আপনারা এখন সংযুক্ত",
+  "connAudioCall": "অডিও কল",
+  "connVideoCall": "ভিডিও কল",
+  "connDecline": "ফিরিয়ে দিন",
+  "connDeclineTitle": "এই অনুরোধ ফিরিয়ে দেবেন?",
+  "connDeclineBody": "{name}-কে জানানো হবে না, আর তাঁর মেসেজ আপনার কাছে আসবে না।",
+  "connDeclinedToast": "অনুরোধ ফিরিয়ে দেওয়া হয়েছে"
 }

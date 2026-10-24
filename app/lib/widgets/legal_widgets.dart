@@ -17,6 +17,9 @@ class LegalPageData {
   final String key;
   final String title;
   final String stamp;
+  /// false = owner-reviewed page (no red DRAFT banner; the stamp is a plain
+  /// 'updated …' line).
+  final bool draft;
   final String? lastUpdated;
   final String? contact;
   final String body; // flat back-compat body
@@ -30,6 +33,7 @@ class LegalPageData {
     required this.key,
     required this.title,
     required this.stamp,
+    this.draft = true,
     required this.body,
     required this.sections,
     this.lastUpdated,
@@ -55,6 +59,7 @@ class LegalPageData {
       key: (j['key'] as String?) ?? '',
       title: (j['title'] as String?) ?? '',
       stamp: (j['stamp'] as String?) ?? '',
+      draft: j['draft'] != false,
       lastUpdated: j['last_updated'] as String?,
       contact: j['contact'] as String?,
       webUrl: _httpsOrNull(j['web_url']),
