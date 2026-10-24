@@ -278,6 +278,10 @@ void main() {
         const ContactInfoScreen(member: {'id': 5, 'name': 'Bilal'}));
     expect(find.text(t.msgrContactCustomNotif), findsNothing);
     expect(find.text(t.msgrContactChatLock), findsNothing);
+    // connect-flow added Message / Audio / Video buttons above the details,
+    // so the groups-in-common row may sit below the fold: scroll to it first
+    await tester.scrollUntilVisible(find.text('Family'), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(find.text('Family'), findsOneWidget);
     await tester.scrollUntilVisible(find.text(t.circleBlock), 200,
         scrollable: find.byType(Scrollable).first);
