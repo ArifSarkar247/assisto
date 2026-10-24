@@ -34,20 +34,24 @@ def _opts(feature, plan="free", usage=None, cost_usd=0.04, **ps):
 
 # =========================================================================== pricing
 class PricingRulesTests(SimpleTestCase):
-    def test_free_hd_enhance_three_a_day_one_ad_each_then_paywall(self):
+    def test_free_hd_enhance_ads_route_daily_cap_then_paywall(self):
+        # photo-final (owner 24 Oct) replaced "3 a day, 1 ad each": after the
+        # 3 lifetime free ones, with AdMob live each enhance = 2 ads, still at
+        # most free_enhance_per_day a day (core/tests_photo_final.py has the rest)
+        base = {"lifetime_free": 3, "ads_live": True}
         for used in range(3):
-            q = _opts("enhance_server", usage={"enhance_today": used}, cost_usd=0)
+            q = _opts("enhance_server", usage={**base, "enhance_today": used}, cost_usd=0)
             self.assertTrue(q["ok"])
-            self.assertEqual(q["options"], [{"via": "ads", "ads": 1, "trial": False}])
+            self.assertEqual(q["options"], [{"via": "ads", "ads": 2, "trial": False}])
             self.assertEqual(q["left_today"], 3 - used)
-        q = _opts("enhance_server", usage={"enhance_today": 3}, cost_usd=0)
+        q = _opts("enhance_server", usage={**base, "enhance_today": 3}, cost_usd=0)
         self.assertFalse(q["ok"])
         self.assertEqual(q["reason"], "daily_limit")
         self.assertTrue(q["paywall"])
         # editable in Owner Admin
-        q = _opts("enhance_server", usage={"enhance_today": 3}, cost_usd=0, free_enhance_per_day=5,
-                  free_enhance_ads=2)
-        self.assertEqual(q["options"][0]["ads"], 2)
+        q = _opts("enhance_server", usage={**base, "enhance_today": 3}, cost_usd=0,
+                  free_enhance_per_day=5, enhance_unlock_ads=1)
+        self.assertEqual(q["options"][0]["ads"], 1)
 
     def test_premium_no_ads_fair_use_cap(self):
         q = _opts("enhance_server", plan="premium", usage={"enhance_today": 99}, cost_usd=0)
@@ -191,9 +195,18 @@ class QueueTests(_Base):
         self.assertEqual(self.prem.ai_credits, before + PhotoStudioJob.objects.get(pk=jid).credits_charged)
 
     def test_free_enhance_needs_its_ad_then_daily_limit(self):
+        # photo-final: the 3 lifetime free ones are used, AdMob is live
+        for _ in range(3):
+            PhotoStudioJob.objects.create(user=self.free, feature="enhance_server", status="done",
+                                          funding="gift", flags={"free_kind": "lifetime"},
+                                          )
+        PhotoStudioJob.objects.filter(funding="gift").update(created_at=timezone.now() - timedelta(days=9))
+        p = mock.patch.object(S, "_ad_units", return_value={"_configured": True})
+        p.start()
+        self.addCleanup(p.stop)
         r = self.post(self.free, "jobs", {"feature": "enhance_server", "via": "ads"})
         self.assertEqual(r.status_code, 201, r.content)
-        self.assertEqual(r.json()["job"]["ads_required"], 1)
+        self.assertEqual(r.json()["job"]["ads_required"], 2)
         jid = r.json()["job"]["id"]
         r = self.post(self.free, "jobs/%d/run" % jid, {"image_b64": base64.b64encode(_png()).decode()})
         self.assertEqual(r.status_code, 402)                            # no ad yet: no bypass
