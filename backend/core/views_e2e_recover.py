@@ -395,10 +395,15 @@ def on_key_changed(user):
             if req is not None:
                 notify_resend(req, target_edge=e)
                 n += 1
-        return n
     except Exception as e:
         log.warning("e2e_recover: key change fan-out %s", type(e).__name__)
-        return 0
+        n = 0
+    try:   # e2e-groups: every group of the user re-shares too
+        from . import views_e2e_groups as E2G
+        n += E2G.on_key_changed(user)
+    except Exception as e:
+        log.warning("e2e_recover: group fan-out %s", type(e).__name__)
+    return n
 
 
 def _synth_key_change_requests(me, now):
@@ -446,7 +451,13 @@ class E2ResendPendingView(APIView):
                         "reason": r.reason,
                         "since": (now - timedelta(days=RESEND_WINDOW_DAYS))
                         .isoformat()})
-        return Response({"results": out})
+        groups = []
+        try:   # e2e-groups: group messages my own copy can re-share
+            from . import views_e2e_groups as E2G
+            groups = E2G.pending_for(me, now)
+        except Exception as e:
+            log.warning("e2e_recover: group pending %s", type(e).__name__)
+        return Response({"results": out, "groups": groups})
 
 
 class E2ResendAskView(APIView):

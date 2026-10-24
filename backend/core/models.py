@@ -5061,6 +5061,35 @@ class E2ResendRequest(models.Model):
         unique_together = [("requester", "target", "key_id")]
 # ---- /e2e-recover ----
 
+# ---- e2e-groups ---- (peer-assisted re-share for GROUP chats). A group
+# message is sealed per member (per_recipient); after a member's key changes
+# any OTHER member whose own copy opens re-encrypts it to the new key and
+# uploads a CircleMessageCopy (for_user = that member). One request per
+# (requester, group, key) — every member's phone can answer it; the server
+# keeps the FIRST copy per (message, for_user) (the original sender's copy
+# may replace another member's).
+class E2GroupResendRequest(models.Model):
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="e2_group_resend_made")
+    group = models.ForeignKey(CircleGroup, on_delete=models.CASCADE,
+                              related_name="e2_resend_requests")
+    key_id = models.CharField(max_length=64, default="")
+    whole = models.BooleanField(default=False)
+    message_ids = models.JSONField(default=list, blank=True)
+    reason = models.CharField(max_length=16, default="decrypt")
+    asks = models.IntegerField(default=0)
+    # helpers (user ids) that answered this round — not listed to them again
+    # until the requester asks for more.
+    served_by = models.JSONField(default=list, blank=True)
+    notified_at = models.DateTimeField(null=True, blank=True)
+    fulfilled_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("requester", "group", "key_id")]
+# ---- /e2e-groups ----
+
 # ---- calls-health ---- (owner 24 Oct: "Call server busy", "rang then dropped")
 # CallSession.push_sent: an FCM ring was handed to at least one registered
 # device of the callee -> the ring-ack window is the full ring time (see

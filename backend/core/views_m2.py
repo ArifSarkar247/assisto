@@ -197,10 +197,18 @@ class CircleGroupMembersView(APIView):
         out = []
         for r in rows:
             is_self = (r.member_id == me.id)
+            hist = []
             if is_self:
                 pub, kid = "", ""  # my own key lives on my device
             else:
                 pub, kid = _peer_key_for(me, r.member)
+                # e2e-groups: earlier public keys open older messages
+                from . import e2_keys
+                try:
+                    hist = [h["public_key"] for h in
+                            e2_keys.key_history(e2_keys.key_row(r.member))]
+                except Exception:
+                    hist = []
             out.append({
                 "member_id": r.id,
                 "user_id": r.member_id,
@@ -208,6 +216,7 @@ class CircleGroupMembersView(APIView):
                 "role": r.role,
                 "public_key": pub,
                 "key_id": kid,
+                "key_history": hist,
                 "is_self": is_self,
                 "my_member_id": (mine.id if mine else None),
                 "my_role": (mine.role if mine else None),
@@ -350,6 +359,10 @@ class CircleGroupMessagesView(APIView):
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
         C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
+        # e2e-groups: my replacement copy (re-shared by another member's
+        # phone to my current key) rides next to the untouched original.
+        from . import views_e2e_recover as E2R
+        E2R.annotate_copies(out, msgs, request.user)
         if meta is not None:
             chat_paging.mark_unseen(out, meta["unseen"])
             return Response({"results": out, "has_more": meta["has_more"],
