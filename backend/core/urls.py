@@ -991,3 +991,15 @@ urlpatterns[:0] = [
     path("circle/groups/<int:pk>/organise", egv.GroupOrganiseView.as_view()),
 ]
 # ---- /e-gaps ----
+
+# ---- e2e-recover ---- (key recovery: peer-assisted history resend + PIN-
+# sealed key-ring backup). PREPENDED so the literal paths win.
+from . import views_e2e_recover as e2r  # noqa: E402
+urlpatterns[:0] = [
+    path("e2/backup", e2r.E2BackupView.as_view()),
+    path("e2/backup/open", e2r.E2BackupOpenView.as_view()),
+    path("circle/e2/resend", e2r.E2ResendPendingView.as_view()),
+    path("circle/<int:pk>/e2/resend", e2r.E2ResendAskView.as_view()),
+    path("circle/<int:pk>/e2/copies", e2r.E2CopiesView.as_view()),
+]
+# ---- /e2e-recover ----

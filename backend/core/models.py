@@ -4948,3 +4948,78 @@ class FoundingSeat(models.Model):
     class Meta:
         ordering = ["number"]
 # ---- /p5-growth ----
+
+
+# ===========================================================================
+# ---- e2e-recover ---- (owner launch-blocker 24 Oct: after a reinstall every
+# older 1:1 message showed "cannot be decrypted"). Three pieces, all
+# ciphertext-only — the server never sees a private key, a PIN or plaintext:
+#   * E2KeyBackup       — the user's KEY RING sealed on the phone with a key
+#                         derived from the Security PIN (scrypt + HKDF). The
+#                         server stores only a HASH of a separate auth key and
+#                         releases the sealed blob after a correct proof, with
+#                         wrong-PIN counting + lockout.
+#   * CircleMessageCopy — a per-recipient REPLACEMENT copy of a 1:1 message,
+#                         re-encrypted by the OTHER party's phone to the
+#                         recipient's NEW key. The original row's ciphertext
+#                         is never touched.
+#   * E2ResendRequest   — "please re-share this chat to my current key"
+#                         (Signal-style retry receipt / key change).
+class E2KeyBackup(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="e2_key_backup")
+    salt = models.CharField(max_length=64, default="")
+    kdf = models.JSONField(default=dict, blank=True)
+    auth_hash = models.CharField(max_length=128, default="")
+    blob = models.TextField(default="")          # sealed key ring (base64)
+    nonce = models.CharField(max_length=64, default="")
+    key_ids = models.JSONField(default=list, blank=True)
+    current_key_id = models.CharField(max_length=64, blank=True, default="")
+    # Up to 3 earlier backups sealed under a DIFFERENT PIN/salt (a reinstall
+    # that skipped restore and later set a PIN never destroys the old ring).
+    archive = models.JSONField(default=list, blank=True)
+    wrong_count = models.IntegerField(default=0)       # in the current hour
+    window_start = models.DateTimeField(null=True, blank=True)
+    wrong_total = models.IntegerField(default=0)       # consecutive
+    locked_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class CircleMessageCopy(models.Model):
+    message = models.ForeignKey(CircleMessage, on_delete=models.CASCADE,
+                                related_name="e2_copies")
+    for_user = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name="e2_copies_for")
+    by_user = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="e2_copies_by")
+    ciphertext = models.TextField(default="")
+    nonce = models.CharField(max_length=128, default="")
+    sender_key_id = models.CharField(max_length=64, blank=True, default="")
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    key_id = models.CharField(max_length=64, blank=True, default="")  # for_user's key
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("message", "for_user")]
+
+
+class E2ResendRequest(models.Model):
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="e2_resend_made")
+    target = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="e2_resend_got")
+    key_id = models.CharField(max_length=64, default="")
+    whole = models.BooleanField(default=False)
+    message_ids = models.JSONField(default=list, blank=True)
+    reason = models.CharField(max_length=16, default="decrypt")
+    asks = models.IntegerField(default=0)
+    notified_at = models.DateTimeField(null=True, blank=True)
+    fulfilled_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("requester", "target", "key_id")]
+# ---- /e2e-recover ----

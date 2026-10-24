@@ -154,6 +154,27 @@ class SoftwareE2E implements E2E {
     }
   }
 
+  /// e2e-recover: the per-pair AEAD key (what [encrypt]/[decrypt] derive
+  /// internally) — symmetric, so it opens messages in BOTH directions of a
+  /// pair. Lets the key-ring decrypt cache one X25519 per (my key, peer key)
+  /// instead of one per message.
+  Uint8List pairKey(IdentityKeyPair self, Uint8List peerPublicKey) {
+    final shared = X25519.scalarMult(self.privateKey, peerPublicKey);
+    return Hkdf.derive(shared, _contextInfo(self.publicKey, peerPublicKey), 32);
+  }
+
+  /// Open [ct] with a [pairKey]. Null on a wrong key / tamper. Never throws.
+  String? openWithKey(Uint8List key, Ciphertext ct) {
+    try {
+      final pt = ChaCha20Poly1305.decrypt(
+          key, base64Decode(ct.nonceB64), base64Decode(ct.ciphertextB64),
+          aad: _aad(ct.senderKeyId));
+      return pt == null ? null : utf8.decode(pt);
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Context binds the key derivation to BOTH identities (order-independent) so
   // the same shared secret can't be reused across different pairs.
   Uint8List _contextInfo(Uint8List a, Uint8List b) {

@@ -98,6 +98,9 @@ void main() {
     // Deferred, post-first-frame, SAFE-MODE-aware init. If the previous launch
     // never reached the home screen, we SKIP all of this and the app still opens.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // e2e-recover: restore-from-PIN gate + key backup hooks, BEFORE any
+      // sign-in could create a new key (sync, no I/O, guarded).
+      try { KeyWiring.instance.installRecoveryHooks(appState); } catch (_) {}
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.

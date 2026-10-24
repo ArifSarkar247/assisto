@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../crypto/key_backup.dart'; // e2e-recover
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../services/security_guard.dart';
@@ -123,6 +126,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
       final r = await _api.securityPinSet(res.$2, currentPin: res.$1);
       if (r['ok'] == true) {
         _snack(tr.securityPinSaved);
+        // e2e-recover: (re)seal the chat-key backup under the new PIN, in
+        // the background (merges an older backup first).
+        unawaited(KeyBackupService.instance
+            .backupWithPin(res.$2, oldPin: res.$1));
         await _load();
       } else {
         _snack(tr.securityPinSetFailed);
@@ -504,10 +511,68 @@ class _SecurityScreenState extends State<SecurityScreen> {
             const SizedBox(height: Gap.xs),
             Text(tr.securityPinSeparateNote,
                 style: Theme.of(context).textTheme.bodySmall),
+            // e2e-recover: chat-key backup under the Security PIN.
+            const Divider(height: Gap.lg),
+            ListTile(
+              key: const Key('e2r-backup-tile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.cloud_done_outlined),
+              title: Text(tr.e2rBackupTile),
+              subtitle: Text(tr.e2rBackupTileSub),
+              onTap: _busy ? null : _backupKeys,
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _backupKeys() async {
+    final tr = AppLocalizations.of(context);
+    if (!_hasPin) {
+      _snack(tr.e2rBackupNeedPin);
+      await _setPin();
+      return;
+    }
+    final c = TextEditingController();
+    final pin = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr.e2rEnterPinTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          ObscureTextField(
+            controller: c,
+            keyboardType: TextInputType.number,
+            maxLength: 8,
+            autofocus: true,
+            decoration: InputDecoration(labelText: tr.e2rPinLabel),
+          ),
+          Text(tr.e2rPinHonest, style: Theme.of(ctx).textTheme.bodySmall),
+        ]),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(tr.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, c.text.trim()),
+              child: Text(tr.save)),
+        ],
+      ),
+    );
+    if (pin == null || pin.length < 4 || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final v = await _api.securityPinVerify(pin);
+      if (v['ok'] != true) {
+        _snack(v['locked'] == true ? tr.securityLockedOut : tr.securityBadPin);
+        return;
+      }
+      final ok = await KeyBackupService.instance.backupWithPin(pin);
+      _snack(ok ? tr.e2rBackupDone : tr.e2rBackupFailed);
+    } catch (_) {
+      _snack(tr.e2rBackupFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Widget _armCard(AppLocalizations tr) {

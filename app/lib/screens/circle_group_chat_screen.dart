@@ -20,6 +20,9 @@ import 'package:share_plus/share_plus.dart';
 import '../api.dart';
 import '../config.dart';
 import '../crypto/e2e.dart';
+import '../widgets/circle_bubble.dart' show e2rWaitingText; // e2e-recover
+import '../crypto/identity_vault.dart'; // e2e-recover
+import '../crypto/plain_cache.dart'; // e2e-recover
 import '../crypto/key_service.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_admin_api.dart';
@@ -379,6 +382,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   @override
   void dispose() {
+    unawaited(PlainCache.instance.persist()); // e2e-recover
     DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
@@ -479,6 +483,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _load() async {
+    // e2e-recover: key ring + local plaintext cache, in parallel (never
+    // delays the first frame); a rebuild re-opens what they unlock.
+    final uid = context.read<AppState>().user?.id;
+    unawaited(() async {
+      try {
+        final r = await IdentityVault.instance.ring();
+        await PlainCache.instance.warm(uid);
+        if (!mounted) return;
+        setState(() => _ring = r);
+      } catch (_) {} // best-effort: key ring is optional, chat still opens
+    }());
     // Spinner only on the very first load — a reload after send/react/pin
     // keeps the list on screen (no flash, no jump).
     if (mounted && !_loading && !_loadedOnce) setState(() => _loading = true);
@@ -2021,7 +2036,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   ),
                 ),
               if (undecryptable)
-                Text(_t.e2CantDecryptHere,
+                Text(e2rWaitingText(_t, msg['mine'] == true ? '' : senderName),
                     key: const Key('e2-cant-decrypt'),
                     style: TextStyle(
                         fontStyle: FontStyle.italic,
@@ -2431,16 +2446,35 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     return raw;
   }
 
+  // e2e-recover: every private key of this phone (current first).
+  List<IdentityKeyPair> _ring = const [];
+
   String? _decryptRaw(Map<String, dynamic> msg) {
     final ck = '${msg['id']}|${msg['deleted'] ?? ''}';
     final hit = _ptCache[ck];
     if (hit != null) return hit;
-    final pt = _decryptUncached(msg);
+    // e2e-recover: every key of my key ring (old keys after a restore),
+    // then this phone's cache of what it already opened once.
+    String? pt;
+    for (final me in [
+      widget.identity,
+      ..._ring.where((k) => k.keyId != widget.identity.keyId),
+    ]) {
+      pt = _decryptUncached(msg, me);
+      if (pt != null) break;
+    }
+    final mid = '${msg['id'] ?? ''}';
+    final gone = '${msg['deleted'] ?? ''}' == 'everyone' ||
+        msg['view_once'] == true;
+    if (pt == null && !gone) pt = PlainCache.instance.get(mid);
+    if (pt != null && !gone && !descriptorIsViewOnce(pt)) {
+      PlainCache.instance.put(mid, pt);
+    }
     if (pt != null) _ptCache[ck] = pt;
     return pt;
   }
 
-  String? _decryptUncached(Map<String, dynamic> msg) {
+  String? _decryptUncached(Map<String, dynamic> msg, IdentityKeyPair me) {
     try {
       final per = (msg['per_recipient'] as Map?)?.cast<String, dynamic>();
       // Resolve MY entry only: prefer the per-message my_member_id, else the
@@ -2460,7 +2494,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           if (r.isEmpty || e.value is! Map) continue;
           final b = (e.value as Map).cast<String, dynamic>();
           final pt = _e2e.decrypt(
-            self: widget.identity,
+            self: me,
             senderPublicKey: Uint8List.fromList(base64Decode('${r['public_key']}')),
             ct: Ciphertext(
               scheme: '${msg['scheme'] ?? _e2e.scheme}',
@@ -2491,7 +2525,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       final senderPub = _senderPublicKey(msg);
       if (senderPub == null) return null;
       final pt = _e2e.decrypt(
-        self: widget.identity,
+        self: me,
         senderPublicKey: senderPub,
         ct: Ciphertext(
           scheme: '${msg['scheme'] ?? _e2e.scheme}',

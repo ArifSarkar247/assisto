@@ -3,7 +3,7 @@
 // messages" divider case, groups the same; (item 1) no snackbar for a
 // keyless peer — the message waits in the outbox (clock) and is sent when
 // the peer's background publish lands; security-code-changed note;
-// honest "can't decrypt on this device" bubble.
+// honest "waiting for this message" line (never the raw error).
 import 'dart:async';
 
 import 'package:assisto/api.dart';
@@ -303,7 +303,9 @@ void main() {
     expect(find.text(t.e2SecurityCodeChanged('Abul Kashem')), findsOneWidget);
     expect(find.text('new phone text'), findsOneWidget);
     expect(find.text('old phone text'), findsOneWidget); // history key kept
-    expect(find.text(t.e2CantDecryptHere), findsOneWidget);
+    // e2e-recover: never the raw error — one grey "waiting" line instead
+    expect(find.text(t.e2rWaiting('Abul Kashem')), findsOneWidget);
+    expect(find.text(t.e2CantDecryptHere), findsNothing);
     await _dispose(tester);
   });
 
