@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
+import '../growth/branded_share.dart'; // p5-growth
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -38,7 +38,9 @@ class HtipsTipCard extends StatelessWidget {
         : t.htipsSourceDateLine(sourceName, reviewed);
     final text = '$title\n\n$body\n\n$srcLine\n${t.htipsNotMedicalAdvice}';
     try {
-      await Share.share(text, subject: title);
+      // p5-growth: branded image + text (source + not-medical-advice lines
+      // stay inside the shared text).
+      await showBrandedShare(context, body: text, label: title, subject: title);
     } catch (_) {
       await Clipboard.setData(ClipboardData(text: text));
       if (context.mounted) {

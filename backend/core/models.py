@@ -54,7 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     autonomy_level = models.PositiveSmallIntegerField(
         choices=AUTONOMY_CHOICES, default=AUTONOMY_SUGGEST)
     language = models.CharField(max_length=8, default="bn")
-    referral_code = models.CharField(max_length=12, blank=True)   # feature 19 invite
+    referral_code = models.CharField(max_length=12, blank=True,   # feature 19 invite
+                                     db_index=True)               # p5: /i/<code> lookup
     referred_by = models.CharField(max_length=12, blank=True)
 
     # --- monetization (P3) ---
@@ -4862,3 +4863,83 @@ class ChatDecor(models.Model):
     class Meta:
         unique_together = [("kind", "key")]
 # ---- /cde-chat ----
+
+# ---- p5-growth ----
+class ActiveDay(models.Model):
+    """One row per user per local (Asia/Dhaka) day the user used the API with
+    their token. Written at most once a day per user (core.growth.touch).
+    `cohort_day` (signup date) + `since_signup` (days after signup) are
+    denormalised so D1/D7/D30 retention and activation are single indexed
+    counts. Holds no content — only that the account was used that day."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="active_days")
+    day = models.DateField()
+    cohort_day = models.DateField()
+    since_signup = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "day"],
+                                               name="p5_active_day_once")]
+        indexes = [models.Index(fields=["cohort_day", "since_signup"],
+                                name="p5_active_cohort_idx"),
+                   models.Index(fields=["day"], name="p5_active_day_idx")]
+
+
+class InstallPing(models.Model):
+    """Anonymous first-app-open marker. The app makes a random install id on
+    first open and sends it once; we keep only its SHA-256. A reinstall (new
+    id) counts again. `user` is linked later when the same install signs in."""
+    id_hash = models.CharField(max_length=64, unique=True)
+    platform = models.CharField(max_length=12, blank=True, default="android")
+    app_version = models.CharField(max_length=24, blank=True, default="")
+    ref_code = models.CharField(max_length=12, blank=True, default="")
+    device_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="install_pings")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+
+class ReferralClaim(models.Model):
+    """Invite-code referral: the invitee typed the inviter's code. Credits for
+    BOTH are granted only when the invitee is ACTIVATED (core.growth). One
+    claim per invitee; anti-abuse fields (device / phone hash) survive an
+    account deletion so a re-registered phone cannot earn again."""
+    STATES = [("pending", "pending"), ("rewarded", "rewarded"),
+              ("rejected", "rejected")]
+    inviter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                related_name="referral_claims_made")
+    invitee = models.OneToOneField(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="referral_claim")
+    code = models.CharField(max_length=12)
+    device_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    phone_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    reason = models.CharField(max_length=32, blank=True, default="")
+    inviter_credits = models.PositiveIntegerField(default=0)
+    invitee_credits = models.PositiveIntegerField(default=0)
+    cost_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    claimed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-claimed_at"]
+        indexes = [models.Index(fields=["inviter", "state", "decided_at"],
+                                name="p5_claim_inviter_idx"),
+                   models.Index(fields=["state", "decided_at"],
+                                name="p5_claim_state_idx")]
+
+
+class FoundingSeat(models.Model):
+    """Automatic Founding Member seat: the first N ACTIVATED accounts (N =
+    Pricing → referral.founding_auto_seats) get a numbered badge and a
+    one-time credit perk. Separate from the owner's manual /owner/founders
+    grant (free Premium months), which is unchanged."""
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True,
+                                related_name="founding_seat")
+    number = models.PositiveIntegerField(unique=True)
+    credits = models.PositiveIntegerField(default=0)
+    cost_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    granted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["number"]
+# ---- /p5-growth ----

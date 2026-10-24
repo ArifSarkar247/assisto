@@ -970,3 +970,13 @@ urlpatterns += [
     path("circle/decor/group/<int:pk>", cde.DecorGroupView.as_view()),
 ]
 # ---- /cde-chat ----
+
+
+# ---- p5-growth ---- invite-code referral, Founding seat, install ping
+from . import views_p5_growth as p5g  # noqa: E402
+urlpatterns += [
+    path("growth/me", p5g.GrowthMeView.as_view()),
+    path("growth/claim", p5g.GrowthClaimView.as_view()),
+    path("growth/install", p5g.InstallPingView.as_view()),
+]
+# ---- /p5-growth ----

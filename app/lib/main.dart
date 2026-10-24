@@ -22,6 +22,7 @@ import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
+import 'growth/install_ping.dart';
 import 'diag/crash_boot.dart';
 import 'diag/crash_reporter.dart';
 import 'screens/home_screen.dart';
@@ -102,6 +103,11 @@ void main() {
       // first frame (never on the cold-start path, runs in safe mode too).
       unawaited(Future<void>.delayed(const Duration(seconds: 3), () {
         try { KeyWiring.instance.start(appState); } catch (_) {}
+      }));
+      // p5-growth: anonymous first-open marker for the owner funnel — pure
+      // Dart + HTTP, once, well after the first frame, fully guarded.
+      unawaited(Future<void>.delayed(const Duration(seconds: 8), () async {
+        try { await InstallPing.run(appState); } catch (_) {}
       }));
       if (!safe) {
         // #196 home-widget plugin — only touch the native widget bridge when the

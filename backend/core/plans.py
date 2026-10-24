@@ -102,6 +102,17 @@ def lifetime_founder(user):
 def founding_member(user):
     """Badge payload for /me: {"active", "lifetime", "since", "premium_until"}."""
     if not user.is_founder:
+        # p5-growth: an automatic numbered Founding seat shows the same badge
+        # (no free Premium attached — its perk was one-time credits).
+        try:
+            from .models import FoundingSeat
+            seat = FoundingSeat.objects.filter(user_id=user.pk).first()
+        except Exception:
+            seat = None
+        if seat is not None:
+            return {"active": True, "lifetime": False,
+                    "since": seat.granted_at.isoformat(), "premium_until": None,
+                    "seat": seat.number}
         return {"active": False, "lifetime": False, "since": None, "premium_until": None}
     since = getattr(user, "founder_since", None)
     until = getattr(user, "founder_until", None)

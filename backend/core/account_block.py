@@ -28,4 +28,11 @@ class BlockAwareTokenAuthentication(TokenAuthentication):
         user, token = super().authenticate_credentials(key)
         if is_blocked(user):
             raise exceptions.AuthenticationFailed("account_blocked")
+        # p5-growth: once a local day, mark the account active (retention +
+        # referral activation). Never raises, one cheap check otherwise.
+        try:
+            from .growth import touch
+            touch(user)
+        except Exception:
+            pass
         return user, token

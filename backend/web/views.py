@@ -585,11 +585,42 @@ def made30_card(request):
 
 
 # ---- m3-circle: /i/<token> — the page a My Circle invite link opens ----
+def referral_invite(request, raw):
+    """p5-growth: https://lifeassisto.com/i/<CODE> — invite landing. Shows the
+    code + Play link (carrying the code as install referrer) and the honest
+    reward rule. Never shows the inviter's name, phone or any account data."""
+    from core import growth as G
+    from core.models import User as _User
+    lang = _lang(request)
+    code = G.normalize_code(raw)
+    valid = bool(code) and _User.objects.filter(
+        referral_code=code, is_active=True, account_status="active").exists()
+    c = G.cfg()
+    bn = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    ctx = _ctx(request, code=code, valid=valid,
+               play_url=G.play_link(code if valid else ""),
+               claim_days=c["invite_claim_days"],
+               claim_days_bn=str(c["invite_claim_days"]).translate(bn),
+               need=c["invite_activation_days"],
+               need_bn=str(c["invite_activation_days"]).translate(bn),
+               inviter_credits=c["invite_credits_inviter"],
+               invitee_credits=c["invite_credits_invitee"],
+               inviter_credits_bn=str(c["invite_credits_inviter"]).translate(bn),
+               invitee_credits_bn=str(c["invite_credits_invitee"]).translate(bn))
+    resp = render(request, "web/invite.html", ctx, status=200 if valid else 404)
+    resp["Cache-Control"] = "public, max-age=300"
+    return resp
+
+
 def circle_invite(request, token):
     """Landing page for a shared My Circle invite (QR / share / SMS link).
     Bilingual, no login. Step 1 install Assisto, step 2 in the app: My Circle
     -> Add to My Circle -> "Paste invite link". Never reveals the inviter's
     phone; shows only their display name when the token is valid."""
+    # p5-growth: a short code without a dot is an INVITE CODE (referral), not a
+    # signed My Circle token -> the referral landing (Play link + the code).
+    if "." not in token and len(token) <= 12:
+        return referral_invite(request, token)
     from django.utils.html import escape
     from core.logic import circle as _circle
     from core.models import User as _User
