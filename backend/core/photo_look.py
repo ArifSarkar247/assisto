@@ -31,11 +31,11 @@ import numpy as np
 
 PRESETS = {
     "natural": {"gain": 1.20, "gamma_min": 0.80, "clahe": 1.3, "clahe_mix": 0.45,
-                "wb": 0.45, "warm": 1.5, "vib": 0.10, "crisp": 0.45, "skin": 0.45,
-                "keep_tex": 0.40, "blur_sigma": 0.010, "sharp": 0.30, "dn": 1.0},
+                "wb": 0.45, "warm": 1.5, "vib": 0.10, "crisp": 0.45, "skin": 0.30,
+                "keep_tex": 0.55, "blur_sigma": 0.010, "sharp": 0.30, "dn": 1.0},
     "strong": {"gain": 1.40, "gamma_min": 0.68, "clahe": 1.9, "clahe_mix": 0.65,
-               "wb": 0.65, "warm": 3.0, "vib": 0.18, "crisp": 0.62, "skin": 0.62,
-               "keep_tex": 0.32, "blur_sigma": 0.018, "sharp": 0.50, "dn": 1.4},
+               "wb": 0.65, "warm": 3.0, "vib": 0.18, "crisp": 0.60, "skin": 0.45,
+               "keep_tex": 0.45, "blur_sigma": 0.018, "sharp": 0.50, "dn": 1.4},
 }
 CRISP_SIDE = 192
 MAX_FACES = 6
@@ -302,16 +302,31 @@ def apply(rgb, faces, *, preset="natural", up_sess=None, seg_sess=None, blur=Fal
     """The whole look stage. Returns (rgb float32, report)."""
     p = PRESETS.get(preset, PRESETS["natural"])
     rep = {"preset": preset if preset in PRESETS else "natural"}
-    out, rep["detail"] = detail(rgb.astype(np.float32), p)
+    ref = rgb.astype(np.float32)          # skin-tone reference = the photo as it came in
+    out, rep["detail"] = detail(ref, p)
     if crisp and upscale_x4 is not None:
         out, rep["faces_crisp"] = face_crisp(out, faces, up_sess, p, upscale_x4)
     sk = skin_mask(out, faces)
-    out, rep["skin_area"] = skin_smooth(out, faces, p, mask=sk)
-    before = out
+    # skin smoothing only on faces big enough to have skin texture to keep
+    # (small faces turned waxy in the benchmark)
+    big = [f for f in faces if f["box"][2] >= SKIN_MIN_FACE]
+    out, rep["skin_area"] = skin_smooth(out, big, p) if big else (out, 0.0)
     out = auto_tone(out, p)
     out = vibrance(out, p, skin=sk)
-    out, rep["face_tone"] = keep_face_tone(before, out, faces)
+    out, rep["face_tone"] = keep_face_tone(ref, out, faces)
     rep["bg_blur"] = False
-    if blur and faces:
+    if blur and is_portrait(out, faces):
         out, rep["bg_blur"] = bg_blur(out, subject_mask(out, seg_sess, faces), p)
     return out.astype(np.float32), rep
+
+
+SKIN_MIN_FACE = 160        # px face width at the working size
+PORTRAIT_MIN_FACE = 0.12   # largest face >= 12 % of the image width -> a portrait
+
+
+def is_portrait(rgb, faces):
+    """Background blur only for portraits / selfies (1-3 people, a big face).
+    In the benchmark a group/scene photo got its small people blurred away."""
+    if not faces or len(faces) > 3:
+        return False
+    return max(f["box"][2] for f in faces) >= PORTRAIT_MIN_FACE * rgb.shape[1]

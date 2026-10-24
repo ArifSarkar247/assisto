@@ -318,15 +318,19 @@ def local_enhance(raw, *, preset="natural", blur=False, max_mp=2, paths=None, se
         # small / old photos get real pixels (Real-ESRGAN x4 -> <= max_mp);
         # bigger ones keep their own pixels (CPU budget) — faces still get
         # the Real-ESRGAN face pass in the look stage
-        ai = R.upscale_x4(rgb, up)
-        out = _fit_mp(ai, max_mp)
+        ai = _fit_mp(R.upscale_x4(rgb, up), max_mp)
+        base = R._resize(rgb, ai.shape[1], ai.shape[0])
+        # colours (skin tone!) from the photo itself, only luminance detail
+        # from the model; faces get the full detail (FACE LOCK checks them)
+        out = R.merge_keep_faces(ai, base, [], face_ai=1.0)
         k = out.shape[1] / rgb.shape[1]
         faces = [{**f, "box": [v * k for v in f["box"]],
                   "pts": [[px * k, py * k] for px, py in f.get("pts") or []]} for f in faces]
         steps["global_ai"] = True
     seg = session(paths["segment"]) if (blur and paths.get("segment")) else None
     out, rep = LK.apply(out, faces, preset=preset, up_sess=up, seg_sess=seg, blur=blur,
-                        upscale_x4=R.upscale_x4 if up is not None else None)
+                        upscale_x4=R.upscale_x4 if up is not None else None,
+                        crisp=not steps["global_ai"])    # one Real-ESRGAN pass per face, not two
     steps.update(rep)
     steps["out"] = [int(out.shape[1]), int(out.shape[0])]
     steps["ms"] = int((time.monotonic() - t0) * 1000)

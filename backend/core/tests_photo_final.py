@@ -134,12 +134,13 @@ class ProviderPickTests(SimpleTestCase):
 class LookTests(SimpleTestCase):
     def _portrait(self):
         rng = np.random.default_rng(1)
-        img = np.full((240, 200, 3), 0.25, np.float32)
-        yy, xx = np.mgrid[0:240, 0:200]
-        face = ((xx - 100) / 45.0) ** 2 + ((yy - 100) / 58.0) ** 2 < 1
+        img = np.full((480, 400, 3), 0.25, np.float32)
+        yy, xx = np.mgrid[0:480, 0:400]
+        face = ((xx - 200) / 90.0) ** 2 + ((yy - 200) / 116.0) ** 2 < 1
         img[face] = (0.45, 0.30, 0.22)                    # darker skin tone
         img += rng.normal(0, 0.02, img.shape).astype(np.float32)
-        faces = [{"box": [55, 42, 90, 116], "pts": [[82, 85], [118, 85], [100, 105], [86, 128], [114, 128]]}]
+        faces = [{"box": [110, 84, 180, 232],             # big enough for skin smoothing
+                  "pts": [[164, 170], [236, 170], [200, 210], [172, 256], [228, 256]]}]
         return np.clip(img, 0, 1), faces
 
     def test_presets_change_the_photo_and_never_whiten_the_face(self):

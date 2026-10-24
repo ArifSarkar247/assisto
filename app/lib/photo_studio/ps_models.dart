@@ -26,6 +26,9 @@ enum PsFeature {
 
   /// d1-photo v2: HD enhance on OUR photo worker (+ FACE LOCK).
   enhanceServer,
+
+  /// photo-final: Ultra HD (Premium only, hosted upscaler, monthly quota).
+  ultraHd,
 }
 
 extension PsFeatureWire on PsFeature {
@@ -38,6 +41,7 @@ extension PsFeatureWire on PsFeature {
         PsFeature.colorize => 'colorize',
         PsFeature.oldRestore => 'old_restore',
         PsFeature.enhanceServer => 'enhance_server',
+        PsFeature.ultraHd => 'ultra_hd',
       };
   bool get isCloud => this != PsFeature.enhanceHd;
 
@@ -46,7 +50,8 @@ extension PsFeatureWire on PsFeature {
       this == PsFeature.deblur ||
       this == PsFeature.colorize ||
       this == PsFeature.oldRestore ||
-      this == PsFeature.enhanceServer;
+      this == PsFeature.enhanceServer ||
+      this == PsFeature.ultraHd;
 
   static PsFeature? fromWire(String w) =>
       PsFeature.values.where((f) => f.wire == w).firstOrNull;
@@ -85,12 +90,21 @@ class FeatureQuote {
       required this.reason,
       this.options = const [],
       this.message = '',
-      this.paidPlan = false});
+      this.paidPlan = false,
+      this.freeLeft,
+      this.leftMonth});
   final bool ok;
   final String reason;
   final List<FundingOption> options;
   final String message;
   final bool paidPlan;
+
+  /// photo-final: free HD enhances still left (lifetime or this week);
+  /// null = not on a free route.
+  final int? freeLeft;
+
+  /// photo-final: Ultra HD images left this month (paid plans).
+  final int? leftMonth;
 
   static const none = FeatureQuote(ok: false, reason: 'unknown');
 
@@ -110,6 +124,8 @@ class FeatureQuote {
       reason: _s(j['reason']),
       message: _s(j['message']),
       paidPlan: j['paid_plan'] == true,
+      freeLeft: j['free_left'] is num ? _i(j['free_left']) : null,
+      leftMonth: j['left_month'] is num ? _i(j['left_month']) : null,
       options: ((j['options'] as List?) ?? const [])
           .whereType<Map>()
           .map(FundingOption.fromJson)
@@ -138,7 +154,11 @@ class PsConfig {
     this.templates = const [],
     this.limits = const {},
     this.usage = const {},
+    this.enhanceCap = EnhanceCapability.none,
   });
+
+  /// photo-final: what the server HD enhance really offers right now.
+  final EnhanceCapability enhanceCap;
   final String plan;
   final bool free;
   final bool entryAdDue;
@@ -214,6 +234,36 @@ class PsConfig {
       usage: {
         for (final e in ((j['usage'] as Map?) ?? const {}).entries) '${e.key}': _i(e.value)
       },
+      enhanceCap: EnhanceCapability.fromJson(j['enhance']),
+    );
+  }
+}
+
+/// photo-final: the server's honest capability report for HD enhance — the
+/// app shows a control only when the server says it really works.
+class EnhanceCapability {
+  const EnhanceCapability(
+      {this.bgBlur = false,
+      this.faceLock = false,
+      this.faceRestore = false,
+      this.ultraAvailable = false,
+      this.providers = const []});
+  final bool bgBlur, faceLock, faceRestore, ultraAvailable;
+
+  /// Paid providers connected on the server (names only, for the owner).
+  final List<String> providers;
+
+  static const none = EnhanceCapability();
+
+  factory EnhanceCapability.fromJson(Object? raw) {
+    if (raw is! Map) return none;
+    final u = raw['ultra_hd'];
+    return EnhanceCapability(
+      bgBlur: raw['bg_blur'] == true,
+      faceLock: raw['face_lock'] == true,
+      faceRestore: raw['face_restore'] == true,
+      ultraAvailable: u is Map && u['available'] == true,
+      providers: ((raw['providers'] as List?) ?? const []).map((e) => '$e').toList(),
     );
   }
 }
@@ -252,6 +302,10 @@ class PsJob {
 
   bool get funded => status == 'funded' || status == 'done';
   bool get waiting => status == 'queued' || status == 'running';
+
+  /// photo-final: today's paid budget on the server is used — the job waits
+  /// in the queue until tomorrow (nothing charged, nothing lost).
+  bool get waitingForBudget => status == 'queued' && flags['waiting'] == 'spend_cap';
 
   factory PsJob.fromJson(Map j) => PsJob(
         id: _i(j['id']),

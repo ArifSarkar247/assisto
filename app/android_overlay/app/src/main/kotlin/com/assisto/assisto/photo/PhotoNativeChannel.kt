@@ -56,6 +56,17 @@ object PhotoNativeChannel {
     private val cancelled = AtomicBoolean(false)
     private var channel: MethodChannel? = null
 
+    private fun deviceKey(activity: Activity): String = try {
+        val id = android.provider.Settings.Secure.getString(
+            activity.contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: ""
+        if (id.isEmpty()) "" else {
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            md.digest(("assisto:" + id).toByteArray()).joinToString("") { "%02x".format(it) }
+        }
+    } catch (e: Throwable) {
+        ""
+    }
+
     fun register(activity: Activity, messenger: BinaryMessenger) {
         val ch = MethodChannel(messenger, NAME)
         channel = ch
@@ -69,6 +80,10 @@ object PhotoNativeChannel {
                         cancelled.set(true)
                         result.success(null)
                     }
+                    // photo-final: stable device key for the server's free
+                    // counters — SHA-256 of ANDROID_ID (same after a reinstall
+                    // of the same signed app); the raw id never leaves the phone.
+                    "deviceKey" -> result.success(deviceKey(activity))
                     "upscale" -> {
                         cancelled.set(false)
                         val args = HashMap<String, Any?>()
