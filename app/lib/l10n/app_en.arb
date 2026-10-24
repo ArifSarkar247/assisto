@@ -18925,5 +18925,12 @@
   "pfQueuedBudget": "Your photo is in the queue — it runs as soon as today's server capacity frees up (by tomorrow). Nothing was charged.",
   "@pfQueuedBudget": {
     "description": "Photo Studio: honest message when the job waits for the next day's paid-provider budget."
-  }
+  },
+  "cpCallWeakNetwork": "Weak network — the call couldn't connect. Please try again.",
+  "cpCallServerProblem": "Server problem — the call couldn't be set up. Please try again in a moment.",
+  "cpPrivEveryone": "Everyone",
+  "cpPrivMyContacts": "My contacts",
+  "cpPrivFamilyOnly": "Family only",
+  "cpPrivLastSeenReciprocal": "If you don't share your last seen, you can't see other people's last seen either.",
+  "cpPrivOnlineReciprocal": "If you don't share when you're online, you can't see when others are online either."
 }

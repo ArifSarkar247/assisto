@@ -1,1 +1,1 @@
-Build 223: Lost/Stolen protection restarts by itself after an app update, a reboot and whenever you open the app; fewer false "stopped checking in" alerts, and you are never alerted about your own phone.
+Build 223: My Circle chats recover old messages after a reinstall and keys can be backed up with your Security PIN; calls retry silently and reconnect when the network changes; online, typing, recording and last-seen status; Lost/Stolen protection restarts after updates; better Photo Studio enhance (Natural/Strong, portrait blur).
