@@ -612,7 +612,7 @@ class BillingTests(Base):
         d["seller_agent"]["wa_cost_bdt"]["marketing"] = 5.0
         row.data = d
         row.save()
-        self.assertEqual(BZ.wa_charge_credits("marketing", pricing.normalize(d)), 7)  # ceil(5×1.4)
+        self.assertEqual(BZ.wa_charge_credits("marketing", pricing.normalize(d)), 9)  # NET floor ceil(5/0.60)
         self.user.ai_credits = 20
         self.user.save()
         st = {"object": "whatsapp_business_account", "entry": [{"changes": [{"field": "messages",
@@ -625,7 +625,7 @@ class BillingTests(Base):
         st["entry"][0]["changes"][0]["value"]["statuses"][0]["id"] = "wamid.T2"
         self.post_wa(st)        # same conversation → no second charge
         self.user.refresh_from_db()
-        self.assertEqual(self.user.ai_credits, 13)
+        self.assertEqual(self.user.ai_credits, 11)   # 20 - 9 (NET floor)
 
     def test_seller_sku_in_payment_catalog(self):
         from core.payments import catalog

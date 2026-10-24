@@ -996,7 +996,8 @@ def warnings(pricing_cfg):
 
 def wa_charge_credits(category, pricing_cfg):
     """Credits to charge the seller for one billable WhatsApp message /
-    conversation of `category`: ceil(meta_cost × (1 + margin) / credit_bdt).
+    conversation of `category`: the larger of ceil(meta_cost × (1 + margin)
+    / credit_bdt) and the NET floor ceil(meta_cost / margin_net_floor / credit_bdt).
     0 while the owner has not set the rate."""
     sa = cfg_normalize(pricing_cfg.get("seller_agent"))
     cost = sa["wa_cost_bdt"].get(category, sa["wa_cost_bdt"].get("marketing", 0.0))
@@ -1004,7 +1005,13 @@ def wa_charge_credits(category, pricing_cfg):
         return 0
     margin = float(pricing_cfg.get("margin", 0.40))
     cb = float(pricing_cfg.get("credit_bdt", 1.0)) or 1.0
-    return max(1, int(math.ceil(cost * (1 + margin) / cb - 1e-9)))
+    by_margin = math.ceil(cost * (1 + margin) / cb - 1e-9)
+    # Same NET-margin guarantee as every other action (pricing.MARGIN_NET_FLOOR,
+    # 0.60): the credits' ৳-value must be >= cost / floor. cost x 1.4 alone let
+    # the real cost reach ~71% of the charge (growth plan review, 25 Oct).
+    floor = float(((pricing_cfg.get("guarantees") or {}).get("margin_net_floor")) or 0.60)
+    by_floor = math.ceil(cost / floor / cb - 1e-9)
+    return max(1, int(max(by_margin, by_floor)))
 
 
 # =========================================================================
