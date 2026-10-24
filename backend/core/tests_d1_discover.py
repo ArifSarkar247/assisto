@@ -105,7 +105,9 @@ class RulesPureTests(TestCase):
         if not p.exists():
             self.skipTest("app source not present")
         src = p.read_text()
-        start = src.index("routes = {")
+        # play-nomed: the full map is _allRoutes; `routes` filters it in Play
+        marker = "_allRoutes = {" if "_allRoutes = {" in src else "routes = {"
+        start = src.index(marker)
         block = src[start:src.index("};", start)]
         keys = re.findall(r"^\s*'([a-z_0-9]+)':", block, re.M)
         self.assertEqual(sorted(keys), sorted(D.ROUTE_KEYS))
