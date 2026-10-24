@@ -30,7 +30,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-WORKER_ONLY = ("enhance_server", "colorize", "old_restore", "deblur")
+WORKER_ONLY = ("enhance_server", "colorize", "old_restore", "deblur", "ultra_hd")
 MAX_RUNS = 3
 
 
@@ -65,7 +65,8 @@ def enqueue(job, raw, face_boxes=None, params=None):
     item, _ = PhotoWorkItem.objects.update_or_create(job=job, defaults={
         "state": "queued", "priority": 0 if S.is_free(job.user) else 10,
         "input_name": name, "face_boxes": face_boxes or [], "params": params or {},
-        "claimed_by": "", "claimed_at": None, "finished_at": None, "error": ""})
+        "claimed_by": "", "claimed_at": None, "finished_at": None, "error": "",
+        "not_before": None})
     job.status = "queued"
     job.save(update_fields=["status"])
     if inline():
@@ -90,9 +91,12 @@ def models_q_ahead(it):
 # ------------------------------------------------------------------ worker side
 def claim(worker_id):
     from .models import PhotoWorkItem
+    from django.db.models import Q
     with transaction.atomic():
         it = (PhotoWorkItem.objects.select_for_update(skip_locked=True)
-              .filter(state="queued").order_by("-priority", "created_at").first())
+              .filter(state="queued")
+              .filter(Q(not_before__isnull=True) | Q(not_before__lte=timezone.now()))
+              .order_by("-priority", "created_at").first())
         if it is None:
             return None
         it.state = "running"
@@ -128,6 +132,9 @@ def _drop_input(item):
             os.remove(os.path.join(_queue_dir(), item.input_name))
         except OSError:
             pass
+
+
+from .photo_final import SpendCapWait as SpendCapWaitError  # noqa: E402
 
 
 class JobFailed(Exception):
@@ -177,19 +184,24 @@ def _execute(job, raw, item):
     f = job.feature
     try:
         if f == "enhance_server":
-            gpu = R.gpu_enhance_conf() if not S.is_free(job.user) else None
-            if gpu:
-                out = R.gpu_enhance(raw, gpu)
-                cost = R._num(gpu.get("cost_per_run_usd"))
-                report["path"] = "gpu"
-            else:
-                from . import photo_facelock as FL
-                rgb = R._decode(raw)
-                faces = FL.detect(rgb, PM.server_model("server_face"))
-                up = R._session(PM.server_model("upscale"))
-                o, info = R.enhance_rgb(rgb, up, faces, "free" if S.is_free(job.user) else "premium")
-                out, cost = R._encode(o), 0.0
-                report.update(path="cpu", **{k: info[k] for k in ("global_ai", "out_size", "faces")})
+            # photo-final: server-side provider switch (rollout %, cache,
+            # daily spend cap, fallback to the previous provider, per-image
+            # log) — local_worker = our CPU pipeline incl. the new look stage.
+            # (The old photo_restore_gpu.enhance_version fast path is
+            # superseded by the `photo_enhance_replicate` provider.)
+            from . import photo_final as PFN
+            try:
+                out, cost, rep = PFN.run_enhance(job, raw, item)
+            except PFN.ProviderFailed as e:
+                raise JobFailed(e.code)
+            report.update(rep)
+        elif f == "ultra_hd":
+            from . import photo_final as PFN
+            try:
+                out, cost, rep = PFN.run_ultra(job, raw)
+            except PFN.ProviderFailed as e:
+                raise JobFailed(e.code)
+            report.update(rep)
         elif f in ("colorize", "old_restore"):
             paths = {r: PM.server_model(r) for r in ("upscale", "server_colorize")}
             out, info = R.process(f, raw, paths, faces=item.face_boxes,
@@ -207,6 +219,8 @@ def _execute(job, raw, item):
             out = PP.run(slug, conf, feature=f, image_bytes=raw, prompt=job.prompt, mime=_mime(raw))
             cost = max(prov, float(table.get("provider_cost") or 0))
             report["path"] = slug
+    except SpendCapWaitError:
+        raise
     except R.RestoreBusy as e:
         raise JobFailed(str(e), busy=True)
     except (R.RestoreError, PP.ProviderError) as e:
@@ -239,6 +253,9 @@ def process_item(item):
     job.save(update_fields=["status", "runs"])
     try:
         out, cost_usd, report = _execute(job, raw, item)
+    except SpendCapWaitError as e:
+        _wait_for_budget(item, job, e.until)
+        return
     except JobFailed as e:
         _fail(item, job, e.code, busy=e.busy)
         return
@@ -267,6 +284,22 @@ def process_item(item):
     item.error = ""
     item.save(update_fields=["state", "finished_at", "ms", "error"])
     _drop_input(item)
+
+
+def _wait_for_budget(item, job, until):
+    """photo-final: today's paid-provider budget is used -> the job WAITS in
+    the queue (honest "in queue" on the phone), not charged, not failed."""
+    job.runs = max(0, job.runs - 1)
+    job.status = "queued"
+    flags = dict(job.flags or {})
+    flags["waiting"] = "spend_cap"
+    job.flags = flags
+    job.save(update_fields=["runs", "status", "flags"])
+    item.state = "queued"
+    item.attempts = max(0, item.attempts - 1)
+    item.not_before = until
+    item.claimed_by = ""
+    item.save(update_fields=["state", "attempts", "not_before", "claimed_by"])
 
 
 def _fail(item, job, code, busy=False, final=False):

@@ -57,6 +57,11 @@ def is_free(user):
     return plan_of(user) == "free"
 
 
+def photo_worker_enabled():
+    from . import photo_worker
+    return photo_worker.enabled()
+
+
 # ------------------------------------------------------------------ providers
 _PROVIDER_NEEDS = {
     "photo_gemini": ("Gemini API key + cost per image", "Gemini API key ও ছবি প্রতি খরচ"),
@@ -144,7 +149,7 @@ def _guard_over():
         return False
 
 
-def quote(user, feature, c=None):
+def quote(user, feature, c=None, device_key=""):
     """funding_options for this user right now (no side effects)."""
     c = c or _cfg()
     from .logic import pricing as P
@@ -152,7 +157,16 @@ def quote(user, feature, c=None):
     cost_usd = 0.0
     provider_ready = True
     slug = ""
-    if feature in PS.RESTORE_FEATURES or feature in PS.WORKER_FEATURES:
+    usage = None
+    if feature == PS.ULTRA_FEATURE:
+        # photo-final: Ultra HD on fal.ai — Premium only, monthly quota
+        from . import photo_final as PFN
+        conf = PFN.ultra_conf()
+        provider_ready = conf is not None and photo_worker_enabled()
+        cost_usd = PFN.ultra_cost_usd(conf) if provider_ready else 0.0
+        slug = "fal" if provider_ready else ""
+        usage = PFN.ultra_usage(user) if plan != "free" else {}
+    elif feature in PS.RESTORE_FEATURES or feature in PS.WORKER_FEATURES:
         # d1-photo: our photo worker (CPU) or the key-gated GPU API
         from . import photo_restore
         st = photo_restore.status(feature, "en")
@@ -168,15 +182,21 @@ def quote(user, feature, c=None):
         cost_usd = max(prov_cost, float(table.get("provider_cost") or 0)) if slug else 0.0
     table_credits = int((c["action_costs"].get(PS.FEATURE_ACTION.get(feature, ""))
                          or {}).get("credits") or 0)
+    if feature in PS.WORKER_FEATURES:
+        usage = usage_of(user)
+        if plan == "free":
+            # photo-final: free enhances per account AND device (reinstall-proof)
+            from . import photo_final as PFN
+            usage.update(PFN.enhance_usage(user, device_key))
+    elif usage is None and plan == "free" and feature in PS.TRIAL_FEATURES:
+        usage = usage_of(user)
     q = PS.funding_options(
         feature=feature, plan=plan, cost_usd=cost_usd, usd_bdt=c["usd_bdt"],
         table_credits=table_credits, net_floor=P.net_floor(c),
         credit_bdt=c["credit_bdt"], ps_cfg=c.get("photo_studio"),
         ad_rewards=c["ad_rewards"], trials_used_today=trials_used_today(user),
         guard_over=_guard_over() if plan == "free" else False,
-        provider_ready=provider_ready,
-        usage=usage_of(user) if (feature in PS.WORKER_FEATURES or
-                                 (plan == "free" and feature in PS.TRIAL_FEATURES)) else None)
+        provider_ready=provider_ready, usage=usage)
     q["provider"] = slug
     q["feature"] = feature
     return q
@@ -230,6 +250,13 @@ def funding_message(reason, lang):
                          "Today's fair-use limit is reached — try again tomorrow."),
         "week_used": ("এই সপ্তাহের ফ্রি AI ছবি ব্যবহার হয়ে গেছে — ক্রেডিট বা প্রিমিয়াম দিয়ে চালিয়ে যান।",
                       "This week's free AI image is used — continue with credits or Premium."),
+        # photo-final
+        "week_free_used": ("এই সপ্তাহের ফ্রি HD এনহ্যান্স ব্যবহার হয়ে গেছে — আগামী সপ্তাহে আবার পাবেন, বা প্রিমিয়াম নিন।",
+                           "This week's free HD enhance is used — next one next week, or go Premium."),
+        "premium_only": ("Ultra HD শুধু প্রিমিয়াম/বিজনেস প্ল্যানে।",
+                         "Ultra HD is for Premium / Business plans."),
+        "ultra_quota": ("এই মাসের Ultra HD শেষ — আগামী মাসে আবার পাবেন।",
+                        "This month's Ultra HD images are used — more next month."),
     }.get(reason)
     return pick(lang, m[0], m[1]) if m else ""
 
@@ -310,7 +337,9 @@ def create_job(user, data, lang="bn"):
     from . import billing
     billing.ensure_monthly_pool(user)       # paid: this month's pool first
     c = _cfg()
-    q = quote(user, feature, c)
+    from . import photo_final as PFN
+    dkey = PFN.device_key(data.get("device_id"))
+    q = quote(user, feature, c, device_key=dkey)
     if not q.get("ok"):
         return 409, {"ok": False, "reason": q["reason"],
                      "message": funding_message(q["reason"], lang), "quote": q}
@@ -327,12 +356,31 @@ def create_job(user, data, lang="bn"):
     job_opts = {"options": options, "beauty": beauty, "strength": strength}
     if feature == "old_restore":
         job_opts["restore_colorize"] = data.get("restore_colorize") is not False
+    if feature in PS.WORKER_FEATURES:
+        job_opts["bg_blur"] = data.get("bg_blur") is True      # photo-final portrait blur
+    flags = dict(verdict["flags"] or {})
+    if feature in PS.WORKER_FEATURES and opt["via"] == "gift":
+        flags["free_kind"] = q.get("free_kind", "lifetime")
     job = PhotoStudioJob(
         user=user, feature=feature, prompt=prompt,
         options=job_opts,
-        flags=verdict["flags"], provider=q.get("provider", ""),
-        cost_bdt=0.0, funding=opt["via"])
+        flags=flags, provider=q.get("provider", ""),
+        cost_bdt=0.0, funding=opt["via"], device_key=dkey)
     note = "photo:%s" % feature
+    if feature in PS.WORKER_FEATURES and opt["via"] == "gift":
+        # photo-final: a free enhance — re-checked under a row lock so two
+        # parallel requests can never both take the last free one
+        from .models import User
+        with transaction.atomic():
+            User.objects.select_for_update().get(pk=user.pk)
+            q2 = quote(user, feature, c, device_key=dkey)
+            if not (q2.get("ok") and any(o["via"] == "gift" for o in q2["options"])):
+                return 409, {"ok": False, "reason": q2.get("reason", "week_free_used"),
+                             "message": funding_message(q2.get("reason", ""), lang), "quote": q2}
+            job.status = "funded"
+            job.funded_at = timezone.now()
+            job.save()
+        return 201, {"ok": True, "job": job_state(job, lang), "quote": q2}
     if opt["via"] in ("free", "gift"):
         # gift = one of the free user's lifetime free AI generations (owner
         # decision; its real cost is tracked by the free-tier Profit Guard)
@@ -678,7 +726,8 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
     from . import billing
     from . import photo_providers as PP
     from . import integrations
-    if job.feature not in PS.CLOUD_FEATURES and job.feature not in PS.WORKER_FEATURES:
+    if (job.feature not in PS.CLOUD_FEATURES and job.feature not in PS.WORKER_FEATURES
+            and job.feature != PS.ULTRA_FEATURE):
         return 400, {"ok": False, "reason": "not_cloud"}
     if job.status != "funded":
         return 402, {"ok": False, "reason": "not_funded", "job": job_state(job, lang)}
@@ -696,7 +745,12 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
     if photo_worker.should_queue(job.feature):
         # d1-photo v2: heavy work never runs in the API — the photo worker
         # does it (and the FACE LOCK); the phone polls the job.
-        if job.feature in photo_worker.WORKER_ONLY:
+        if job.feature == PS.ULTRA_FEATURE:
+            from . import photo_final as PFN
+            if not (photo_worker.enabled() and PFN.ultra_conf()):
+                return 409, {"ok": False, "reason": "provider_missing",
+                             "message": funding_message("provider_missing", lang)}
+        elif job.feature in photo_worker.WORKER_ONLY:
             from . import photo_restore
             st = photo_restore.status(job.feature, lang)
             if not st["ready"]:
@@ -791,9 +845,15 @@ def client_config(user, lang="bn", request=None):
     ps = ps_cfg(c)
     plan = plan_of(user)
     prov = providers_state(lang, c)
-    quotes = {f: quote(user, f, c) for f in PS.FEATURES}
+    from . import photo_final as PFN
+    dkey = ""
+    if request is not None:
+        from .otp import device_id
+        dkey = PFN.device_key(device_id(request))
+    quotes = {f: quote(user, f, c, device_key=dkey) for f in PS.FEATURES}
     for f, q in quotes.items():
         q["message"] = funding_message(q.get("reason", ""), lang) if q.get("reason") != "ok" else ""
+    enhance_cap = PFN.capability(user, lang)
     return {
         "plan": plan, "free": plan == "free", "ads_shown": plan == "free",
         "entry_ad": entry_ad_state(user),
@@ -815,14 +875,20 @@ def client_config(user, lang="bn", request=None):
         "is_owner": bool(getattr(user, "is_superuser", False)),
         # d1-photo: heavy restore jobs — ready? (owner sees what is missing)
         "restore": _restore_state(lang),
-        # no licence-clean face-restoration model exists: never offered
-        "face_restore": {"available": False, "reason": "no_licence_clean_model"},
+        # face restoration: only when the owner turned the GFPGAN legal switch
+        # on AND a Replicate key is connected (photo-final, MODEL_LICENSES.md)
+        "face_restore": {"available": bool(enhance_cap["face_restore"]),
+                         "reason": "" if enhance_cap["face_restore"] else "owner_legal_decision"},
+        # photo-final: what the server enhance REALLY offers right now
+        "enhance": enhance_cap,
         # d1-photo v2: one-tap templates + what is left today/this week
         "templates": templates(lang),
         "usage": usage_of(user),
         "limits": {k: ps[k] for k in ("free_enhance_per_day", "free_enhance_ads",
                                       "premium_enhance_daily_cap", "free_gen_lifetime",
-                                      "free_gen_per_week", "free_gen_min_ads")},
+                                      "free_gen_per_week", "free_gen_min_ads",
+                                      "free_enhance_lifetime", "enhance_unlock_ads",
+                                      "free_enhance_per_week_no_ads")},
     }
 
 

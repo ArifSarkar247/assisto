@@ -535,7 +535,14 @@ _PS_AD_KEYS = ("entry_interstitial_enabled", "entry_interstitial_gap_min", "enha
                "ad_value_share", "ticket_ttl_min",
                # d1-photo v2 pricing (owner order 6)
                "free_enhance_per_day", "free_enhance_ads", "premium_enhance_daily_cap",
-               "free_gen_lifetime", "free_gen_per_week", "free_gen_min_ads")
+               "free_gen_lifetime", "free_gen_per_week", "free_gen_min_ads",
+               # photo-final (owner 24 Oct): free enhance rules, provider switch,
+               # daily spend cap, GFPGAN legal switch, Ultra HD budget
+               "free_enhance_lifetime", "enhance_unlock_ads", "free_enhance_per_week_no_ads",
+               "rollout_assisto_face", "rollout_runpod_serverless", "rollout_replicate",
+               "provider_timeout_s", "daily_spend_cap_usd", "cap_fallback_local",
+               "face_restore_gfpgan", "face_blend_natural_pct", "face_blend_strong_pct",
+               "max_input_mp", "ultra_hd_budget_pct")
 _AD_FLAGS = ("ads_rewarded", "ads_app_open")
 
 

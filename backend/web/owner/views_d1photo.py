@@ -63,6 +63,13 @@ def photo(request):
                   "done_24h": q.filter(state="done", finished_at__gte=timezone.now() - timezone.timedelta(hours=24)).count()},
         "worker_on": bool(getattr(settings, "PHOTO_WORKER", False)),
     }
+    # photo-final: per-image provider log + today's spend vs the daily cap
+    from core import photo_final as PFN
+    ctx["queue"]["waiting_budget"] = q.filter(state="queued", not_before__gt=timezone.now()).count()
+    ctx["prov_log"] = PFN.provider_log(50)
+    ctx["prov_summary"] = PFN.provider_summary(7)
+    ctx["spend"] = {"today": PFN.spent_today_usd(), "cap": S.ps_cfg()["daily_spend_cap_usd"],
+                    "connected": sorted(PFN.configured()), "ultra": bool(PFN.ultra_conf())}
     return page(request, "owner/photo.html", ctx, nav="photo")
 
 

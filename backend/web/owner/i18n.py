@@ -807,6 +807,10 @@ EN.update({
     "ph_reports_title": "“Report this AI image” (from the app)", "ph_reports_empty": "No reports.",
     "ph_reason": "Reason", "ph_note": "Note", "ph_close": "Close",
     "ph_queue_title": "Photo worker queue", "ph_worker_on": "worker on", "ph_worker_off": "worker not installed",
+    "ph_waiting_budget": "waiting for tomorrow's budget", "ph_prov_title": "Enhance providers — per-image log",
+    "ph_prov_spent": "Paid spend today", "ph_prov_connected": "connected", "ph_prov_runs": "runs (7 days)",
+    "ph_prov_avg": "avg seconds", "ph_prov_failed": "failed", "ph_prov_fallback": "fallback from",
+    "ph_prov_empty": "No provider runs yet.",
 })
 BN.update({
     "nav_photo": "ফটো স্টুডিও",
@@ -825,6 +829,10 @@ BN.update({
     "ph_reports_title": "“এই AI ছবি রিপোর্ট করুন” (অ্যাপ থেকে)", "ph_reports_empty": "কোনো রিপোর্ট নেই।",
     "ph_reason": "কারণ", "ph_note": "মন্তব্য", "ph_close": "বন্ধ করুন",
     "ph_queue_title": "ফটো ওয়ার্কারের সারি", "ph_worker_on": "ওয়ার্কার চালু", "ph_worker_off": "ওয়ার্কার ইনস্টল হয়নি",
+    "ph_waiting_budget": "কালকের বাজেটের অপেক্ষায়", "ph_prov_title": "এনহ্যান্স প্রোভাইডার — ছবি প্রতি লগ",
+    "ph_prov_spent": "আজকের পেইড খরচ", "ph_prov_connected": "যুক্ত", "ph_prov_runs": "রান (৭ দিন)",
+    "ph_prov_avg": "গড় সেকেন্ড", "ph_prov_failed": "ব্যর্থ", "ph_prov_fallback": "ফলব্যাক:",
+    "ph_prov_empty": "এখনো কোনো প্রোভাইডার রান নেই।",
 })
 
 # ---- p5-growth: Owner Admin → Growth funnel + automatic Founding seats ----
