@@ -18870,5 +18870,60 @@
   "e2rPinHonest": "A short PIN is easier to guess: someone holding a copy of the server could try every PIN. Use 6 or more digits.",
   "@e2rPinHonest": {
     "description": "Honest limit shown on the restore / backup screens."
+  },
+  "pfTitle": "HD enhance",
+  "@pfTitle": {
+    "description": "Photo Studio: card title of the server HD enhance (face detail, skin, tone, optional portrait blur)."
+  },
+  "pfBody": "Sharper face, natural skin, better light and colour. Runs on our server — your face stays yours.",
+  "@pfBody": {
+    "description": "Photo Studio: one-line explanation under the HD enhance title."
+  },
+  "pfNatural": "Natural",
+  "@pfNatural": {
+    "description": "Photo Studio HD enhance: gentle preset (segmented button)."
+  },
+  "pfStrong": "Strong",
+  "@pfStrong": {
+    "description": "Photo Studio HD enhance: stronger preset (segmented button)."
+  },
+  "pfPortraitBlur": "Portrait blur (soft background)",
+  "@pfPortraitBlur": {
+    "description": "Photo Studio HD enhance: switch that blurs the background behind the person."
+  },
+  "pfEnhanceButton": "Enhance in HD",
+  "@pfEnhanceButton": {
+    "description": "Photo Studio: button that starts the server HD enhance."
+  },
+  "pfFreeLeft": "{count} free HD enhances left",
+  "@pfFreeLeft": {
+    "description": "Photo Studio: free HD enhances still left for this user/phone.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pfAdsEach": "Each HD enhance: watch {count} short ads",
+  "@pfAdsEach": {
+    "description": "Photo Studio: after the free ones, each HD enhance is unlocked by N rewarded ads.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pfUltraButton": "Ultra HD ({count} left this month)",
+  "@pfUltraButton": {
+    "description": "Photo Studio: Premium-only Ultra HD button with the monthly images left.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pfQueuedBudget": "Your photo is in the queue — it runs as soon as today's server capacity frees up (by tomorrow). Nothing was charged.",
+  "@pfQueuedBudget": {
+    "description": "Photo Studio: honest message when the job waits for the next day's paid-provider budget."
   }
 }

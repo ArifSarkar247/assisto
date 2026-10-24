@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0077_e_gaps'),
+        ('core', '0078_e2e_recover'),
     ]
 
     operations = [
