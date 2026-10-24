@@ -1224,6 +1224,10 @@ def _build_alerts(user, lang="bn"):
     alerts = []
     # family alerts (scam a member reported; surfaced via the foreground poll)
     for fa in user.family_alerts.filter(dismissed=False)[:10]:
+        # owner 24 Oct: legacy anti-theft rows about the user's OWN phone never
+        # reach his own urgent card / briefing
+        if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
+            continue
         alerts.append({"type": fa.kind, "text": fa.body or fa.title,
                        "title": fa.title, "severity": fa.severity or "high"})
     # at-heartbeat: anti-theft alerts are ONE NotifEvent per person now (no

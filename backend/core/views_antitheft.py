@@ -176,6 +176,10 @@ def alert_rows_for(user, lang="bn", now=None, limit=10):
             m = n.meta or {}
             if m.get("resolved_at"):
                 continue
+            # owner 24 Oct: never put alerts about the user's OWN device in his
+            # own urgent card / briefing (he is holding it); family still gets them
+            if m.get("owner_id") == user.id:
+                continue
             en = lang == "en"
             title = (n.title_en if en else n.title_bn) or n.title_en or n.title_bn
             body = (n.body_en if en else n.body_bn) or n.body_en or n.body_bn

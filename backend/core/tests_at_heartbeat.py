@@ -316,3 +316,24 @@ class AutoResolveTests(_Base):
         self._go_dark()
         self.assertGreaterEqual(atv.resolve_went_dark(self.phone), 1)
         self.assertEqual(atv.resolve_went_dark(self.phone), 0)
+
+
+class OwnDeviceNotInOwnUrgentCard(APITestCase):
+    """owner 24 Oct: 'Assisto has not heard from the phone' showed in the
+    owner's own home urgent card while he was using that phone."""
+
+    def test_own_device_alerts_excluded_family_still_sees(self):
+        from core.models import User, NotifEvent, FamilyAlert
+        from core.views import _build_alerts
+        from django.utils import timezone
+        owner = User.objects.create_user(phone="01710000801", password="x", name="O", email="own-o@example.com")
+        fam = User.objects.create_user(phone="01710000802", password="x", name="F", email="own-f@example.com")
+        meta = {"antitheft_kind": "went_dark", "owner_id": owner.id, "phone_id": 1}
+        for u in (owner, fam):
+            NotifEvent.objects.create(user=u, type="security", title_en="dark", title_bn="dark",
+                                      body_en="not heard", body_bn="not heard", meta=meta,
+                                      at=timezone.now())
+        FamilyAlert.objects.create(user=owner, kind="antitheft", title="dark", body="x",
+                                   severity="high", payload=meta)
+        self.assertFalse([a for a in _build_alerts(owner, "en") if a.get("type") == "antitheft"])
+        self.assertTrue([a for a in _build_alerts(fam, "en") if a.get("type") == "antitheft"])
