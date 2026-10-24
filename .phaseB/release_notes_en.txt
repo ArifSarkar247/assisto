@@ -1,1 +1,1 @@
-Build 222: in the Google Play version, medicine and medical-record features are hidden; reminders, family safety and Health Connect fitness data stay. Bug fixes.
+Build 223: Lost/Stolen protection restarts by itself after an app update, a reboot and whenever you open the app; fewer false "stopped checking in" alerts, and you are never alerted about your own phone.
