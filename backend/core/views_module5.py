@@ -712,6 +712,9 @@ class CircleKeysView(APIView):
         if pub:
             row, created, changed = e2_keys.publish(
                 request.user, pub, data.get("key_id", ""), data.get("scheme", ""))
+            if changed:   # e2e-recover: contacts re-share history to it
+                from . import views_e2e_recover as E2R
+                E2R.on_key_changed(request.user)
         edges = CircleMember.objects.filter(peer_user=request.user).count() \
             if pub else 0
         return Response({"ok": True, "published": bool(pub), "edges": edges,
@@ -970,6 +973,10 @@ class CircleMessagesView(APIView):
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
         C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
+        # e2e-recover: my replacement copy (re-shared by the peer's phone to
+        # my current key) rides next to the untouched original.
+        from . import views_e2e_recover as E2R
+        E2R.annotate_copies(out, msgs, request.user)
         # mr1: the chat learns live when a message request is accepted
         edge = {"state": m.state, "direction": m.direction or "outgoing",
                 "request": _msgreq_info(m)}
