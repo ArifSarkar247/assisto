@@ -25,7 +25,7 @@ What each number means (shown on the page too):
 from datetime import timedelta
 from decimal import Decimal
 
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
@@ -85,7 +85,8 @@ def headline(days=30, now=None):
         user__in=closed.values("pk"), since_signup__lt=ACTIVATION_WINDOW_DAYS)
         .values("user_id").annotate(n=Count("id")).filter(n__gte=need).count())
 
-    active = (ActiveDay.objects.filter(day__gte=since_day)
+    active = (ActiveDay.objects.filter(day__gte=since_day, user__is_superuser=False,
+                                       user__is_staff=False)
               .values("user_id").distinct().count())
     pay = payments(days, now)
     return {
