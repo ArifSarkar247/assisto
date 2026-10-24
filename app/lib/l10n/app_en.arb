@@ -19065,5 +19065,112 @@
   "connDeclinedToast": "Request declined",
   "@connDeclinedToast": {
     "description": "Toast after declining a message request."
-  }
+  },
+  "mc2Accuracy": "Accurate to about {m} m",
+  "@mc2Accuracy": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2ActionFailed": "Couldn't open that on this phone.",
+  "mc2AddToContacts": "Add to contacts",
+  "mc2Call": "Call",
+  "mc2CircleEmpty": "No one in My Circle yet.",
+  "mc2ContactFromCircle": "From My Circle",
+  "mc2ContactFromPhone": "From phone contacts",
+  "mc2ContactNone": "No contacts found",
+  "mc2ContactSearch": "Search by name or number",
+  "mc2ContactSendTitle": "Send this contact?",
+  "mc2ContactsCantRead": "Couldn't read contacts on this phone.",
+  "mc2ContactsDenied": "Contacts access is off for Assisto. To pick a phone contact, turn it on in Settings.",
+  "mc2FallbackContact": "👤 Contact: {who}",
+  "@mc2FallbackContact": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2FallbackLive": "📍 Live location until {time}: {link}",
+  "@mc2FallbackLive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2FallbackLocation": "📍 Location: {link}",
+  "@mc2FallbackLocation": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2Finding": "Finding your location…",
+  "mc2ForegroundNote": "Your live location updates only while Assisto is open on your phone.",
+  "mc2GpsOff": "Location (GPS) is off on this phone. Turn it on and try again.",
+  "mc2LiveEnded": "Live location ended",
+  "mc2LiveTitle": "Share live location for",
+  "mc2LiveUntil": "Live until {time}",
+  "@mc2LiveUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2MessageOnAssisto": "Message",
+  "mc2Mute": "Mute",
+  "mc2NoFix": "Couldn't find your location. Go near a window or outside and try again.",
+  "mc2OnAssisto": "On Assisto",
+  "mc2OpenFailed": "No maps app or browser could open this location.",
+  "mc2OpenInMaps": "Open in Maps",
+  "mc2OpenWith": "Open with another app",
+  "mc2PermLocBody": "Assisto reads your location only when you share it in a chat. It is locked on your phone before it is sent.",
+  "mc2PermLocDenied": "Location access is off for Assisto. To share your location, turn it on in Settings.",
+  "mc2PermLocTitle": "Share your location",
+  "mc2PlaceHint": "Add a place name (optional)",
+  "mc2PlayVideo": "Play video",
+  "mc2SendFailed": "Couldn't send. Check your internet and try again.",
+  "mc2SendLocation": "Send this location",
+  "mc2SetMobileVideo": "Videos",
+  "mc2ShareLive": "Share live location",
+  "mc2StopFailed": "Couldn't stop yet — no internet. Assisto keeps trying while it is open.",
+  "mc2StopSharing": "Stop sharing",
+  "mc2TurnOnLocation": "Turn on location",
+  "mc2Unmute": "Unmute",
+  "mc2UpdatedAt": "Updated at {time}",
+  "@mc2UpdatedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2UpdatedMin": "Updated {n} min ago",
+  "@mc2UpdatedMin": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2UpdatedNow": "Updated just now",
+  "mc2VideoFailed": "Couldn't play this video here.",
+  "mc2VideoLoading": "Loading video…",
+  "mc2VideoSendBody": "{info} · sent as it is, locked on your phone before it is sent",
+  "@mc2VideoSendBody": {
+    "placeholders": {
+      "info": {
+        "type": "String"
+      }
+    }
+  },
+  "mc2VideoSendTitle": "Send this video?"
 }
