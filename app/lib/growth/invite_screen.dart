@@ -77,7 +77,7 @@ class _InviteScreenState extends State<InviteScreen> {
       String dev = '';
       try {
         dev = await InstallPing.installId();
-      } catch (_) {}
+      } catch (_) {} // best-effort: the claim still works without a device id
       final r = await api.growthClaim(code, deviceId: dev);
       _claimMsg = (r['detail'] ?? '').toString();
       if (r['ok'] == true && r['me'] is Map) {
@@ -217,9 +217,14 @@ class _InviteScreenState extends State<InviteScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton(
-                  onPressed: _claiming ? null : _claim,
-                  child: Text(t.p5EnterButton)),
+              // disabled until a code is typed (never a dead tap)
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _codeCtl,
+                builder: (_, v, __) => FilledButton(
+                    onPressed:
+                        (_claiming || v.text.trim().isEmpty) ? null : _claim,
+                    child: Text(t.p5EnterButton)),
+              ),
             ]),
             if (_claimMsg != null && _claimMsg!.isNotEmpty)
               Padding(
