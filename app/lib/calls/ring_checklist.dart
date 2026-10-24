@@ -168,7 +168,7 @@ class RingChecklist {
   /// is ever shown before a real check ran.
   static final ValueNotifier<bool> attention = ValueNotifier<bool>(false);
 
-  @visibleForTesting
+  /// Native bridge (tests / gallery swap in a fake).
   static RingCheckNative native = const ChannelRingCheckNative();
 
   @visibleForTesting

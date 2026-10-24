@@ -83,6 +83,14 @@ Widget _app(Widget home, {String lang = 'en', double scale = 1.0}) => MediaQuery
       ),
     );
 
+Future<void> _tapKey(WidgetTester tester, Finder f) async {
+  await tester.scrollUntilVisible(f, 150);
+  await tester.ensureVisible(f);
+  await tester.pump(const Duration(milliseconds: 50));
+  await tester.tap(f);
+  await _settle(tester);
+}
+
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 10; i++) {
     await tester.pump(const Duration(milliseconds: 50));
@@ -273,20 +281,13 @@ void main() {
       expect(tester.widget<Text>(find.byKey(const Key('ring-state-notifications'))).data,
           t.ringCheckStatusOk);
       // every Fix opens something (Xiaomi autostart -> the vendor screen)
-      await tester.scrollUntilVisible(
-          find.byKey(const Key('ring-fix-oem_autostart')), 200);
-      await tester.tap(find.byKey(const Key('ring-fix-oem_autostart')));
-      await _settle(tester);
+      await _tapKey(tester, find.byKey(const Key('ring-fix-oem_autostart')));
       expect(n.fixes, contains('autostart'));
       // by-hand-only (lock in recents): no Fix button, only "I've done it"
-      expect(find.byKey(const Key('ring-fix-oem_lockRecent')), findsNothing);
-      for (final k in ['oem_autostart', 'oem_oemBattery', 'oem_batteryOpt',
-          'oem_lockRecent']) {
-        final c = find.byKey(Key('ring-confirm-$k'));
-        if (c.evaluate().isEmpty) continue;
-        await tester.scrollUntilVisible(c, 200);
-        await tester.tap(c);
-        await _settle(tester);
+      expect(find.byKey(const Key('ring-fix-oem_lockRecent'), skipOffstage: false),
+          findsNothing);
+      for (final k in ['oem_autostart', 'oem_oemBattery', 'oem_lockRecent']) {
+        await _tapKey(tester, find.byKey(Key('ring-confirm-$k')));
       }
       // battery optimisation is checkable: still Missing until Android says so
       expect(RingChecklist.attention.value, isTrue);
@@ -310,7 +311,8 @@ void main() {
       await _settle(tester);
       final bn = await AppLocalizations.delegate.load(const Locale('bn'));
       expect(find.text(bn.ringCheckTitle), findsOneWidget);
-      expect(find.text(bn.ringCheckStatusMissing), findsWidgets);
+      expect(find.text(bn.ringCheckStatusMissing, skipOffstage: false),
+          findsWidgets);
       expect(tester.takeException(), isNull);
       await tester.scrollUntilVisible(find.byKey(const Key('ring-check-later')), 300);
       expect(tester.takeException(), isNull);
