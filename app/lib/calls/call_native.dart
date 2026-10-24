@@ -96,6 +96,38 @@ class CallNative {
     return await _invoke<bool>('openFullScreenSettings') == true;
   }
 
+  // ---- ring-everywhere (IncomingCall.kt / CallAck.kt / TelecomBridge.kt) ----
+
+  /// The API base + app version the NATIVE ring needs for its delivered /
+  /// ringing / decline ack (no token: the push carries a per-call signature).
+  static Future<void> setNativeConfig(String apiBase, String appVersion) =>
+      _invoke<bool>('setNativeConfig',
+          {'api_base': apiBase, 'app_version': appVersion});
+
+  /// Stop the native ring + its Telecom call for [callId] (idempotent).
+  static Future<void> cancelRing(String callId) =>
+      _invoke<bool>('cancelRing', {'call_id': callId});
+
+  /// Telecom self-managed call: mark it active / end it.
+  static Future<bool> telecomActive(String callId) async =>
+      await _invoke<bool>('telecomActive', {'call_id': callId}) == true;
+  static Future<bool> telecomEnd(String callId) async =>
+      await _invoke<bool>('telecomEnd', {'call_id': callId}) == true;
+
+  /// Notifications on AND the ringing call channel not switched off?
+  /// null = Android can't tell us right now.
+  static Future<bool?> callChannelOk() => _invoke<bool>('callChannelOk');
+
+  /// {brand, manufacturer, model, sdk_int} (no PII) or null.
+  static Future<Map<String, Object?>?> deviceFacts() async {
+    final m = await _invoke<Map<dynamic, dynamic>>('deviceFacts');
+    return m?.map((k, v) => MapEntry('$k', v as Object?));
+  }
+
+  /// CI smoke build ONLY (ASSISTO_SMOKE): arm the adb ring-test hook.
+  static Future<bool> armRingTest() async =>
+      await _invoke<bool>('armRingTest') == true;
+
   static Future<bool> pipSupported() async {
     _ensureHandler();
     return await _invoke<bool>('pipSupported') == true;

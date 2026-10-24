@@ -1004,3 +1004,13 @@ urlpatterns[:0] = [
     path("circle/<int:pk>/e2/copies", e2r.E2CopiesView.as_view()),
 ]
 # ---- /e2e-recover ----
+
+# ---- ring-everywhere ---- native delivered/ringing/decline ack (per-call
+# HMAC, no account token) + never-delivered missed calls on reconnect.
+# PREPENDED so the literal paths win over circle/calls/<int:call_id>.
+from . import views_ring as ringv  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/calls/<int:call_id>/ack", ringv.RingAckView.as_view()),
+    path("circle/calls/missed_pending", ringv.MissedPendingView.as_view()),
+]
+# ---- /ring-everywhere ----

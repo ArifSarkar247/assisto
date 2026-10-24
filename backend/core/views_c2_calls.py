@@ -317,6 +317,15 @@ def end_call(rec, reason, by="server", now=None, sess=None, notify=True):
         notify_missed = True
     else:
         notify_missed = False
+    # ring-everywhere: never delivered to the callee's phone -> show it as a
+    # missed call when that phone next comes online (call_ack).
+    if notify and was_ringing:
+        try:
+            from . import call_ack
+            if call_ack.mark_missed_pending(rec, sess, reason):
+                upd.append("missed_pending")
+        except Exception:
+            pass
     sess.save(update_fields=upd)
     publish_state(rec)
     if notify and not was_ringing:
@@ -336,6 +345,14 @@ def sweep(rec, now=None):
     if not CS.is_live(rec.state):
         return rec
     sess = session_of(rec)
+    if rec.state == "ringing":
+        # ring-everywhere: no delivered / ringing ack 4 s after the ring push
+        # -> resend it (bounded, idempotent; call_ack.maybe_resend).
+        try:
+            from . import call_ack
+            call_ack.maybe_resend(rec, sess, now)
+        except Exception:
+            pass
     reason = CS.sweep_decision(
         rec.state, now, rec.started_at, ringing_at=sess.ringing_at,
         answered_at=rec.answered_at, caller_seen=sess.caller_seen_at,
@@ -761,7 +778,8 @@ def place_call(request, member, peer, kind, client_call_id=""):
                 # calls-health: an FCM ring went to a real device -> wait the
                 # full ring window for its ack (call_signal.OFFLINE_ACK_PUSHED_S)
                 sess.push_sent = True
-                sess.save(update_fields=["push_sent"])
+                sess.last_push_at = now   # ring-everywhere: resend clock
+                sess.save(update_fields=["push_sent", "last_push_at"])
     turn_ready = bool(getattr(settings, "TURN_STATIC_SECRET", "")) or \
         bool(getattr(settings, "CIRCLE_TURN_READY", False))
     push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \

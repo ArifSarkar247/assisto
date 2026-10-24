@@ -84,6 +84,18 @@ object CallsChannel {
         } catch (_: Throwable) { true }
     }
 
+    /// ring-everywhere checklist: are notifications on AND is the ringing
+    /// call channel not switched off? null = can't tell (no activity yet).
+    private fun callChannelOk(): Boolean? {
+        val a = activity ?: return null
+        return try {
+            val nm = a.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (!nm.areNotificationsEnabled()) return false
+            val ch = nm.getNotificationChannel("calls") ?: return true // not created yet
+            ch.importance != NotificationManager.IMPORTANCE_NONE
+        } catch (_: Throwable) { null }
+    }
+
     /// Opens Settings -> Assisto -> "Full screen notifications".
     private fun openFullScreenSettings(): Boolean {
         val a = activity ?: return false
@@ -146,6 +158,34 @@ object CallsChannel {
                         )
                     )
                     "watchNetwork" -> result.success(watchNetwork(call.argument<Boolean>("on") == true))
+                    // ring-everywhere (native ring + Telecom + checklist)
+                    "setNativeConfig" -> {
+                        val c = ctx()
+                        if (c != null) CallAck.setConfig(c, call.argument<String>("api_base"),
+                            call.argument<String>("app_version"))
+                        result.success(c != null)
+                    }
+                    "telecomActive" -> result.success(
+                        TelecomBridge.active(call.argument<String>("call_id") ?: ""))
+                    "telecomEnd" -> result.success(
+                        TelecomBridge.end(call.argument<String>("call_id") ?: ""))
+                    "cancelRing" -> {
+                        val c = ctx()
+                        val id = call.argument<String>("call_id") ?: ""
+                        if (c != null && id.isNotEmpty()) IncomingCall.cancel(c, id)
+                        result.success(c != null)
+                    }
+                    "callChannelOk" -> result.success(callChannelOk())
+                    "deviceFacts" -> result.success(mapOf(
+                        "brand" to (Build.BRAND ?: ""),
+                        "manufacturer" to (Build.MANUFACTURER ?: ""),
+                        "model" to (Build.MODEL ?: ""),
+                        "sdk_int" to Build.VERSION.SDK_INT))
+                    "armRingTest" -> {
+                        val c = ctx()
+                        if (c != null) RingTestReceiver.arm(c)
+                        result.success(c != null)
+                    }
                     else -> result.notImplemented()
                 }
             } catch (t: Throwable) {

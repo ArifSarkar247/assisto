@@ -122,14 +122,37 @@ class MainActivity : FlutterFragmentActivity() {
         super.onStop()
     }
 
+    // ring-everywhere: while Assisto is on screen a call push is NOT drawn
+    // natively — the running app shows its in-app incoming screen instead.
+    override fun onResume() {
+        super.onResume()
+        com.assisto.assisto.calls.IncomingCall.appInForeground = true
+    }
+
+    override fun onPause() {
+        com.assisto.assisto.calls.IncomingCall.appInForeground = false
+        super.onPause()
+    }
+
     private fun applyLockScreenPolicy(i: Intent?) {
+        var callId = ""
         val isCall = try {
             val raw = i?.getStringExtra("payload")
-            raw != null && JSONObject(raw).optString("kind") == "call"
+            val js = if (raw != null) JSONObject(raw) else null
+            callId = js?.optString("call_id") ?: ""
+            js != null && js.optString("kind") == "call"
         } catch (e: Exception) {
             false
         }
         setOverLockScreen(isCall)
+        // ring-everywhere: the call screen takes over from the native ring
+        // (Answer / tap / full-screen) -> the Telecom ringing call ends here.
+        if (isCall && callId.isNotEmpty()) {
+            try {
+                com.assisto.assisto.calls.TelecomBridge.answered(callId)
+            } catch (e: Throwable) {
+            }
+        }
     }
 
     private fun setOverLockScreen(on: Boolean) {

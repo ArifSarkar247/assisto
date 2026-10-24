@@ -14,6 +14,7 @@ import 'updater.dart';
 import 'screens/always_on_protection_screen.dart'; // play-fgs
 import 'media/photo_picker_setup.dart'; // play-perm
 import 'play_update.dart'; // ota1
+import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
@@ -40,7 +41,8 @@ import 'voice/va_launch.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
 import 'screens/battery_guidance_screen.dart';
-import 'services/oem_guide.dart';
+import 'screens/ring_checklist_screen.dart'; // ring-everywhere
+import 'calls/ring_checklist.dart'; // ring-everywhere
 import 'services/antitheft_resume.dart'; // at-heartbeat
 import 'screens/deletion_grace_screen.dart';
 
@@ -304,10 +306,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
 
   Future<void> _maybeSmokeOpen() async {
     if (!kDebugMode && !_smokeBuild) return;
+    if (_smokeBuild) {
+      // ring-everywhere CI proof (job ring-proof): arm the adb-only native
+      // ring-test hook. ONLY the CI smoke APK ever does this.
+      try {
+        if (await CallNative.armRingTest()) debugPrint('RING_HOOK armed');
+      } catch (_) {}
+    }
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');
       if (route == null || route.isEmpty || !mounted) return;
+      if (route == '__ring__') return; // ring-proof: arming above is all
       if (route == '__fsi__') {
         // play-fsi CI proof (Android 14 emulator job fsi-proof-api34)
         await FullScreenCallPrompt.debugProbe();
@@ -455,8 +465,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     // tl1: OEM background guide, shown ONCE after login as a pushed route
     // (never part of the home screen). Android only; runs seconds after the
     // first frame, one prefs read + one native lookup, all crash-guarded.
-    OemGuideGate.schedule(
-        context, () => const BatteryGuidanceScreen(firstRun: true));
+    // ring-everywhere: that guide now lives inside the call ring checklist
+    // (notifications + full-screen + the same OEM steps), shown once when
+    // something is missing.
+    RingCheckGate.schedule(
+        context, () => const RingChecklistScreen(firstRun: true));
     // Only resolve the home swap once we're past login + onboarding, so the
     // normal startup flow is never disturbed.
     _resolveElderly();

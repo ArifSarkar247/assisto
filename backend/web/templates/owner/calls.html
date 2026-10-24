@@ -17,6 +17,25 @@
   {% for key, label, n in ch_steps %}<tr><td>{{ label }}</td><td class="num {% if n %}neg{% endif %}">{{ n }}</td></tr>{% endfor %}
   </tbody></table></div>
 </section>{% endif %}
+{% if rd %}<section class="card" id="ring-delivery"><h2>{{ T.rd_title }}</h2>
+  <p class="small">{{ T.rd_note }}</p>
+  {% if rd.attempts %}
+  <div class="tiles">
+    <div class="tile"><span>{{ T.rd_total }}</span><b>{{ rd.attempts }}</b></div>
+    <div class="tile"><span>{{ T.rd_delivered }}</span><b>{{ rd.delivered }}</b></div>
+    <div class="tile"><span>{{ T.rd_rate }}</span><b class="{% if rd.pct is not None and rd.pct < 90 %}neg{% endif %}">{% if rd.pct is not None %}{{ rd.pct }}%{% else %}—{% endif %}</b></div>
+  </div>
+  <div class="tbl"><table><thead><tr><th>{{ T.rd_by_brand }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
+  {% for b in rd.brands %}<tr><td>{{ b.brand }}</td><td class="num">{{ b.attempts }}</td><td class="num">{{ b.delivered }}</td><td class="num {% if b.pct is not None and b.pct < 90 %}neg{% endif %}">{% if b.pct is not None %}{{ b.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="tbl"><table><thead><tr><th>{{ T.rd_by_android }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
+  {% for a in rd.androids %}<tr><td>{{ a.android }}</td><td class="num">{{ a.attempts }}</td><td class="num">{{ a.delivered }}</td><td class="num {% if a.pct is not None and a.pct < 90 %}neg{% endif %}">{% if a.pct is not None %}{{ a.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="tbl"><table><thead><tr><th>{{ T.rd_brand }}</th><th>{{ T.rd_model }}</th><th>{{ T.rd_android }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_resends }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
+  {% for r in rd.rows %}<tr><td>{{ r.brand }}</td><td>{{ r.model }}</td><td>{{ r.android }}</td><td class="num">{{ r.attempts }}</td><td class="num">{{ r.delivered }}</td><td class="num">{{ r.resends }}</td><td class="num {% if r.pct is not None and r.pct < 90 %}neg{% endif %}">{% if r.pct is not None %}{{ r.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">{{ T.rd_none }}</p>{% endif %}
+</section>{% endif %}
 {% if not cur %}<p class="empty">{{ T.t9_no_samples }}</p>{% else %}
 {% if summ.stale %}<div class="flash warn">{{ T.t9_stale }} {{ cur.at|date:"Y-m-d H:i" }}</div>{% endif %}
 <div class="tiles">

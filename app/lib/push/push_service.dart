@@ -9,7 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../alerts_fg.dart';
 import '../api.dart';
+import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
+import '../config.dart';
 import '../notifications.dart';
 import '../state.dart';
 import '../screens/delete_account_screen.dart';
@@ -104,6 +106,8 @@ class PushService {
 
     // 1) Local-notification taps / actions (UI isolate).
     Notifications.onResponse = _onLocalResponse;
+    // ring-everywhere: the native ring's ack needs the API base (no token).
+    unawaited(_nativeConfig());
     try {
       await PushNotifier.createChannels(_lang());
     } catch (_) {}
@@ -185,6 +189,67 @@ class PushService {
     } catch (_) {}
     if (fg) unawaited(_syncReceipts());
     if (!fg) ReceiptBus.instance.relax(); // x2-ticks: no fast poll in bg
+    if (fg && !_realtimeOnly) {
+      // ring-everywhere: back online -> calls this phone never got, and a
+      // fresh token registration now and then (FCM may rotate it while the
+      // app was killed and the plugin could not tell us).
+      unawaited(fetchMissedCalls());
+      final last = _registeredAt;
+      if (last == null ||
+          DateTime.now().difference(last) > reRegisterEvery) {
+        _registeredToken = null;
+        unawaited(_register(null));
+      }
+    }
+  }
+
+  /// ring-everywhere: re-register the FCM token at most this often on resume.
+  static const reRegisterEvery = Duration(hours: 12);
+  DateTime? _registeredAt;
+  DateTime? _missedFetchedAt;
+
+  Future<void> _nativeConfig() async {
+    try {
+      String ver = '';
+      try {
+        final info = await PackageInfo.fromPlatform();
+        ver = '${info.version}+${info.buildNumber}';
+      } catch (_) {}
+      await CallNative.setNativeConfig(AppConfig.api('/').toString(), ver);
+    } catch (_) {}
+  }
+
+  /// ring-everywhere: GET circle/calls/missed_pending and draw each
+  /// never-delivered missed call ONCE (the server clears what it returns;
+  /// the notification id is per caller, so an FCM copy replaces it).
+  Future<int> fetchMissedCalls({bool force = false}) async {
+    final app = _app;
+    if (app == null || !app.loggedIn || app.loading) return 0;
+    final last = _missedFetchedAt;
+    if (!force &&
+        last != null &&
+        DateTime.now().difference(last) < const Duration(seconds: 60)) {
+      return 0;
+    }
+    _missedFetchedAt = DateTime.now();
+    try {
+      final r = await app.api
+          .missedPending()
+          .timeout(const Duration(seconds: 10));
+      final items = r['items'];
+      if (items is! List) return 0;
+      var n = 0;
+      for (final it in items) {
+        if (it is! Map) continue;
+        final p = PushPayload.fromData(it);
+        if (!p.isMissedCall) continue;
+        await PushNotifier.show(p);
+        n++;
+      }
+      return n;
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<void> _syncReceipts() async {
@@ -227,6 +292,7 @@ class PushService {
     if (!_realtimeOnly) {
       unawaited(_register(null));
       unawaited(_maybeAskPermission());
+      unawaited(fetchMissedCalls()); // ring-everywhere (throttled)
     }
     // c3-msg presence/typing ride the app's ONE real-time loop (c2-calls'
     // PollRealtimeTransport, owned by CallRuntime) + the delivered sync.
@@ -269,9 +335,19 @@ class PushService {
         final info = await PackageInfo.fromPlatform();
         ver = '${info.version}+${info.buildNumber}';
       } catch (_) {}
-      await app.api.pushRegister(token, appVersion: ver);
+      Map<String, Object?>? dev;
+      try {
+        dev = await CallNative.deviceFacts();
+      } catch (_) {}
+      final r = await app.api.pushRegister(token, appVersion: ver, device: dev);
       _registeredToken = token;
+      _registeredAt = DateTime.now();
       await _setPushOk(true);
+      // ring-everywhere: the server holds calls this phone never got.
+      final pending = r['missed_pending'];
+      if (pending is int && pending > 0) {
+        unawaited(fetchMissedCalls(force: true));
+      }
     } catch (e) {
       await _setPushOk(false);
       if (kDebugMode) debugPrint('push register failed: $e');
@@ -450,6 +526,8 @@ class PushService {
     _realtimeOnly = false;
     _pending = null;
     _registeredToken = null;
+    _registeredAt = null;
+    _missedFetchedAt = null;
     available.value = false;
     bridge = createPushBridge();
   }

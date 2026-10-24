@@ -48,13 +48,19 @@ class DeviceRegisterView(APIView):
             platform = "android"
         app_version = str(d.get("app_version", "") or "").strip()[:24]
         user = request.user
+        # ring-everywhere: phone brand / model / Android SDK for the Owner
+        # Admin call-delivery table (no PII). Old builds send none -> kept.
+        from . import call_ack
+        brand, model, sdk = call_ack.clean_facts(d)
+        defaults = {"platform": platform, "app_version": app_version}
+        if brand:
+            defaults.update(brand=brand, model=model, sdk_int=sdk)
         with transaction.atomic():
             # Same install now belongs to this account -> drop other owners.
             moved = Device.objects.filter(push_token=token).exclude(
                 user=user).delete()[0]
             dev, created = Device.objects.update_or_create(
-                user=user, push_token=token,
-                defaults={"platform": platform, "app_version": app_version})
+                user=user, push_token=token, defaults=defaults)
             keep = list(Device.objects.filter(user=user)
                         .order_by("-last_seen", "-id")
                         .values_list("id", flat=True)[:MAX_DEVICES])
@@ -64,7 +70,10 @@ class DeviceRegisterView(APIView):
         record_app_version(user, app_version)
         return Response({"ok": True, "id": dev.id, "created": created,
                          "reassigned": bool(moved),
-                         "push_available": push.is_available()},
+                         "push_available": push.is_available(),
+                         # ring-everywhere: never-delivered missed calls are
+                         # waiting (GET circle/calls/missed_pending)
+                         "missed_pending": call_ack.pending_count(user)},
                         status=status.HTTP_201_CREATED if created
                         else status.HTTP_200_OK)
 
