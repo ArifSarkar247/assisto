@@ -16,20 +16,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Existing `Color(0x` literals per file (comments ignored), 2026-10-24.
 const _colorAllow = <String, int>{
-  'lib/calls/call_mini_bar.dart': 2,
-  'lib/calls/video_stage.dart': 1,
   'lib/growth/branded_share.dart': 5,
   'lib/growth/invite_screen.dart': 2,
   'lib/messaging/call_events.dart': 2,
   'lib/messaging/chat_decor/chat_themes.dart': 107,
   'lib/messaging/chat_decor/decor_sheets.dart': 2,
-  'lib/messaging/chat_header.dart': 2,
-  'lib/messaging/date_separators.dart': 4,
   'lib/messaging/msg_ticks.dart': 10,
   'lib/photo_studio/ps_export.dart': 3,
   'lib/screens/admin/owner_pnl_screen.dart': 1,
   'lib/screens/always_on_protection_screen.dart': 1,
-  'lib/screens/circle_call_screen.dart': 9,
   'lib/screens/circle_group_info_screen.dart': 1,
   'lib/screens/circle_status_composer_screen.dart': 5,
   'lib/screens/dictionary_screen.dart': 2,
@@ -64,7 +59,6 @@ const _colorAllow = <String, int>{
   'lib/widgets/guide_data.dart': 9,
   'lib/widgets/inbox_item_card.dart': 4,
   'lib/widgets/meddb_drug_card.dart': 2,
-  'lib/widgets/msgr_hub_chat_list.dart': 2,
   'lib/widgets/nearby_data.dart': 11,
   'lib/widgets/ref_leaderboard.dart': 3,
   'lib/widgets/safety_checkin_card.dart': 1,
@@ -84,11 +78,28 @@ const _f2Screens = <String>[
   'lib/screens/shop_',
   'lib/screens/money_',
   'lib/screens/reminders',
+  // f3-design: My Circle + call screens (circle_chat / circle_group_chat are
+  // type-scale clean too but not guarded yet — another branch is adding
+  // attach options there; guard them once that has merged).
+  'lib/calls/',
+  'lib/push/incoming_call_screen.dart',
+  'lib/screens/circle_call_screen.dart',
+  'lib/screens/circle_screen.dart',
+  'lib/screens/ring_checklist_screen.dart',
+  'lib/screens/messenger/messenger_home_screen.dart',
+  'lib/screens/messenger/contact_info_screen.dart',
+  'lib/screens/messenger/m3_',
+  'lib/screens/messenger/connection_requests_screen.dart',
+  'lib/widgets/msgr_hub_chat_list.dart',
 ];
 
 /// `fontSize: <expr>` allowed here: the export watermark is painted onto the
-/// image itself and scales with the image, not with the UI type scale.
-const _fontSizeAllow = <String>{'lib/photo_studio/ps_export.dart'};
+/// image itself and scales with the image, not with the UI type scale; the
+/// call avatar's initial is sized from the avatar radius.
+const _fontSizeAllow = <String>{
+  'lib/photo_studio/ps_export.dart',
+  'lib/calls/call_avatar.dart',
+};
 
 /// Source lines with `//` comments removed (good enough for these guards:
 /// a `//` inside a string only hides the rest of that line).

@@ -124,24 +124,25 @@ class CallEventChip extends StatelessWidget {
     final time = DateFormat.Hm(lang == 'bn' ? 'bn' : 'en').format(event.at);
     final label = callEventLabel(t, event, lang);
     final chip = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(callEventIcon(event), size: 16, color: event.missed ? red : scheme.primary),
-        const SizedBox(width: 6),
+        const SizedBox(width: Gap.sm),
         Flexible(
           child: Text(label,
               key: const Key('a1-call-label'),
-              style: TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600, color: fg)),
+              style: AType.labelLarge
+                  .copyWith(fontWeight: FontWeight.w600, color: fg)),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: Gap.sm),
         Text(time,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-        const SizedBox(width: 6),
+            style: AFonts.figures(AType.labelMedium)!
+                .copyWith(color: scheme.onSurfaceVariant)),
+        const SizedBox(width: Gap.sm),
         // the kind; brand-coloured when it calls back on tap
         Icon(event.video ? Icons.videocam : Icons.call,
             size: 16,
@@ -149,7 +150,7 @@ class CallEventChip extends StatelessWidget {
       ]),
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: Gap.md),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md),
       child: Center(
         child: Semantics(
           button: onCallBack != null,
@@ -160,7 +161,11 @@ class CallEventChip extends StatelessWidget {
               key: ValueKey('a1-call-${event.id}'),
               borderRadius: BorderRadius.circular(Radii.pill),
               onTap: onCallBack,
-              child: chip,
+              // f3: the pill stays compact; its tap area is 48 dp tall
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: Gap.xxxl),
+                child: Align(widthFactor: 1, heightFactor: 1, child: chip),
+              ),
             ),
           ),
         ),

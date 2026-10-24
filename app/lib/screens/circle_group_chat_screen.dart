@@ -1592,6 +1592,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   PreferredSizeWidget _searchAppBar() => AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => setState(() {
             _searching = false;
             _searchQuery = '';
@@ -1608,6 +1609,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   PreferredSizeWidget _selectAppBar() => AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: _exitSelect,
         ),
         title: Text(_t.grpSelectedCount('${_selected.length}')),
@@ -1867,14 +1869,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       padding: const EdgeInsets.symmetric(vertical: Gap.sm),
       child: Container(
         color: scheme.surfaceContainerHighest,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: Gap.md),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xs, horizontal: Gap.md),
         child: Text(
           localDigits(_t.e2UnreadDivider(_unreadAtOpen),
               Localizations.localeOf(context).languageCode), // qa2
           key: const Key('e2-unread-divider'),
           textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: 12,
+          style: AType.labelMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: scheme.onSurfaceVariant),
         ),
@@ -2059,13 +2060,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.forward_outlined,
                         size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: Gap.xs),
                     Text(
                         ((msg['forward_hops'] as int?) ?? 0) >= 5
                             ? _t.circleForwardedMany
                             : _t.circleForwarded,
-                        style: TextStyle(
-                            fontSize: 12,
+                        style: AType.bodySmall.copyWith(
                             fontStyle: FontStyle.italic,
                             color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ]),
@@ -2182,11 +2182,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   for (final e in _decor.themeDef?.reactions ??
                       const ['👍', '❤️', '😂', '😮', '😢', '🙏'])
                     InkWell(
+                      customBorder: const CircleBorder(),
                       onTap: () {
                         Navigator.pop(ctx);
                         _react(msg, e);
                       },
-                      child: Text(e, style: const TextStyle(fontSize: 28)),
+                      // f3: a 48 dp tap target around each reaction
+                      child: SizedBox(
+                        width: Gap.xxxl,
+                        height: Gap.xxxl,
+                        child: Center(
+                            child: Text(e, style: AType.headlineLarge)),
+                      ),
                     ),
                 ],
               ),
@@ -2266,6 +2273,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.close, size: 18),
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
             onPressed: () => setState(() => _replyTo = null),
           ),
         ],
@@ -2356,6 +2364,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               onPressed: () => _openAssisto(),
             ),
             IconButton.filled(
+              tooltip: _t.send,
               icon: _sending
                   ? const SizedBox(
                       width: 18,

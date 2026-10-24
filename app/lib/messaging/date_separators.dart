@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme.dart';
 
 /// t1-ticks — WhatsApp-standard date separators for My Circle chats (1:1 and
 /// groups), list-agnostic so they plug into any message list (plain or a
@@ -426,36 +427,38 @@ class E2eNoticeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    // amber note like WhatsApp's, contrast-checked on both themes
-    final bg = dark ? const Color(0xFF3A3220) : const Color(0xFFFFF4CC);
-    final fg = dark ? const Color(0xFFF5D88A) : const Color(0xFF5C4400);
+    // amber note like WhatsApp's: the AA warning-container tokens
+    final tok = AssistoTokens.of(context);
+    final bg = tok.warningContainer;
+    final fg = tok.onWarningContainer;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(28, 8, 28, 6),
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.sm, Gap.xl, Gap.xs),
         child: Material(
           key: const Key('t1-e2e-notice'),
           color: bg,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(Radii.md),
           child: InkWell(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(Radii.md),
             onTap: () => _info(context),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.lock_outline, size: 14, color: fg),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(t.circleE2eBanner,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12, height: 1.3, color: fg)),
-                  ),
-                ],
+            // f3: a 48 dp tall tap target even when the note fits one line
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: Gap.xxxl),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Gap.md, vertical: Gap.xs),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.lock_outline, size: 14, color: fg),
+                    const SizedBox(width: Gap.sm),
+                    Flexible(
+                      child: Text(t.circleE2eBanner,
+                          textAlign: TextAlign.center,
+                          style: AType.bodySmall.copyWith(color: fg)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
