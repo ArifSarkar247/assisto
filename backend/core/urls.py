@@ -849,6 +849,7 @@ urlpatterns += [
     path("security/engine/enable", atv.EngineEnableView.as_view()),
     path("security/engine/disable", atv.EngineDisableView.as_view()),
     path("security/engine/settings", atv.EngineSettingsView.as_view()),
+    path("security/engine/false-alarm", atv.FalseAlarmView.as_view()),
     path("security/engine/ingest", atv.EngineIngestView.as_view()),
     path("security/engine/photo", atv.EnginePhotoView.as_view()),
     path("security/engine/timeline", atv.EngineTimelineView.as_view()),

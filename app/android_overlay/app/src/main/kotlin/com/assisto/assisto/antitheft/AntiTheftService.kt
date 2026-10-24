@@ -21,6 +21,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.OutputStream
@@ -76,6 +78,28 @@ class AntiTheftService : Service(), SensorEventListener {
 
         private const val PREFS = "assisto_antitheft_engine"
 
+        // at-falsealarm: SIM baseline (SimBaseline.kt) in the engine prefs.
+        // "sim_base" present = baseline recorded (may be "" = no SIM).
+        private const val K_SIM_BASE = "sim_base"
+        private const val K_SIM_SEEN = "sim_seen"
+        // SIM state goes NOT_READY -> READY -> LOADED: evaluate this long
+        // after the LAST SIM broadcast.
+        private const val SIM_DEBOUNCE_MS = 8_000L
+        private const val SIM_MAX_RETRIES = 6
+        // No snatch detection right after protection is switched on / the
+        // baseline is re-recorded (the owner is handling the phone).
+        private const val SNATCH_GRACE_MS = 2 * 60_000L
+        // Safety cap so a "quiet" that was never switched back off expires.
+        private const val QUIET_MAX_MS = 15 * 60_000L
+
+        // While the Always-on protection screen is visible (Dart setQuiet),
+        // the owner is the one moving the phone: no snatch detection.
+        @Volatile private var quietUntil = 0L
+
+        fun setQuiet(on: Boolean) {
+            quietUntil = if (on) System.currentTimeMillis() + QUIET_MAX_MS else 0L
+        }
+
         private fun hasLocationPerm(ctx: Context): Boolean = try {
             ctx.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 android.content.pm.PackageManager.PERMISSION_GRANTED ||
@@ -85,7 +109,7 @@ class AntiTheftService : Service(), SensorEventListener {
 
         fun start(ctx: Context, token: String, apiBase: String,
                   config: JSONObject, title: String, body: String,
-                  offLabel: String = "Turn off"): Boolean {
+                  offLabel: String = "Turn off", rebaseline: Boolean = false): Boolean {
             // Android 14+: startForeground() with a location/camera type throws
             // without that permission, and a startForegroundService() that
             // never reaches startForeground() kills the process. So we refuse
@@ -96,8 +120,12 @@ class AntiTheftService : Service(), SensorEventListener {
                 return false
             }
             return try {
-                ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                    .putString("token", token)
+                val ed = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                // at-falsealarm: protection switched ON -> the SIM(s) in the
+                // phone now are the owner's; re-record them silently. A
+                // relaunch re-arm (flush) never passes this, so it compares.
+                if (rebaseline) ed.remove(K_SIM_BASE).remove(K_SIM_SEEN)
+                ed.putString("token", token)
                     .putString("api", apiBase)
                     .putString("config", config.toString())
                     .putString("title", title)
@@ -190,6 +218,11 @@ class AntiTheftService : Service(), SensorEventListener {
     private val snatch = SnatchDetector()
     private var lastSimReceiver: BroadcastReceiver? = null
     private var sysReceiver: BroadcastReceiver? = null
+    @Volatile private var snatchGraceUntil = 0L
+    private var simRetries = 0
+    private val simCheck = Runnable {
+        try { checkSim() } catch (_: Throwable) {}
+    }
 
     private val heartbeatTick = object : Runnable {
         override fun run() {
@@ -220,6 +253,7 @@ class AntiTheftService : Service(), SensorEventListener {
                 stopSelf()
                 return START_NOT_STICKY
             }
+            val fresh = !running
             if (!running) {
                 startWorker()
                 registerReceivers()
@@ -227,6 +261,12 @@ class AntiTheftService : Service(), SensorEventListener {
                 instance = this
                 running = true
             }
+            if (fresh || intent?.action == ACTION_START) {
+                snatchGraceUntil = System.currentTimeMillis() + SNATCH_GRACE_MS
+            }
+            // at-falsealarm: record the baseline (first arm / reinstall /
+            // switched on again) or compare to it (re-arm after a restart).
+            if (fresh || !hasSimBaseline()) scheduleSimCheck(2_000L)
             // Any start/flush intent kicks an immediate check-in + queue drain.
             bg.post { try { doHeartbeat() } catch (_: Throwable) {} }
             if (intent?.action == ACTION_SNATCH) {
@@ -520,6 +560,15 @@ class AntiTheftService : Service(), SensorEventListener {
         }
         collect("accepted"); collect("duplicate")
         queue?.ack(done)
+        // at-falsealarm: the owner said "It was me" -> re-record the baseline.
+        try {
+            if (resp.optJSONObject("config")?.optBoolean("rebaseline_sim", false) == true) {
+                getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .remove(K_SIM_BASE).remove(K_SIM_SEEN).apply()
+                snatchGraceUntil = System.currentTimeMillis() + SNATCH_GRACE_MS
+                scheduleSimCheck(2_000L)
+            }
+        } catch (_: Throwable) {}
         // reflect server's lost_mode back into prefs for the interval policy
         try {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -576,9 +625,16 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     }
 
+    /** Owner is handling the phone: setup screen open or just armed. */
+    private fun snatchSuppressed(): Boolean {
+        val now = System.currentTimeMillis()
+        return now < snatchGraceUntil || now < quietUntil
+    }
+
     override fun onSensorChanged(event: SensorEvent?) {
         try {
             if (event == null) return
+            if (snatchSuppressed()) { snatch.reset(); return }
             var x = event.values[0]; var y = event.values[1]; var z = event.values[2]
             // For a raw accelerometer, remove ~gravity so magnitude ~0 at rest.
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
@@ -632,6 +688,11 @@ class AntiTheftService : Service(), SensorEventListener {
             }
             sysReceiver = object : BroadcastReceiver() {
                 override fun onReceive(c: Context?, i: Intent?) {
+                    // SIM_STATE_CHANGED and CONNECTIVITY_ACTION are STICKY:
+                    // registering delivers the CURRENT state at once. That is
+                    // not an event (it reported the owner's own SIM as a
+                    // "SIM change" seconds after arming). Ignore it.
+                    try { if (isInitialStickyBroadcast()) return } catch (_: Throwable) {}
                     try { onSystemEvent(i) } catch (_: Throwable) {}
                 }
             }
@@ -639,8 +700,6 @@ class AntiTheftService : Service(), SensorEventListener {
         } catch (_: Throwable) {
         }
     }
-
-    private var lastSimState = ""
 
     private fun onSystemEvent(i: Intent?) {
         when (i?.action) {
@@ -650,23 +709,98 @@ class AntiTheftService : Service(), SensorEventListener {
             }
             Intent.ACTION_BATTERY_LOW ->
                 capture("low_battery", JSONObject().put("battery", batteryPct() ?: -1))
-            "android.intent.action.SIM_STATE_CHANGED" -> {
-                val state = i.getStringExtra("ss") ?: ""
-                if (state.isNotEmpty() && state != lastSimState &&
-                    (state == "ABSENT" || state == "LOADED" || state == "READY")) {
-                    lastSimState = state
-                    val data = JSONObject()
-                        .put("state", if (state == "ABSENT") "removed" else "inserted")
-                    SimInfo.carrier(applicationContext)?.let { data.put("carrier", it) }
-                    capture("sim_change", data)
-                }
-            }
+            // Debounced; compared to the owner's baseline in checkSim().
+            "android.intent.action.SIM_STATE_CHANGED" -> scheduleSimCheck(SIM_DEBOUNCE_MS)
             else -> {
                 if (networkKind() == "none") {
                     capture("offline", JSONObject().put("reason", "no_network"))
                 }
             }
         }
+    }
+
+    // ---- SIM baseline (at-falsealarm) -------------------------------------
+
+    private fun hasSimBaseline(): Boolean = try {
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(K_SIM_BASE)
+    } catch (_: Throwable) { false }
+
+    private fun scheduleSimCheck(delayMs: Long) {
+        try {
+            if (!this::bg.isInitialized) return
+            simRetries = 0
+            bg.removeCallbacks(simCheck)
+            bg.postDelayed(simCheck, delayMs)
+        } catch (_: Throwable) {}
+    }
+
+    /** One identity per SIM slot (see SimBaseline). No new permissions:
+     *  getSimState(slot), getSubscriptionIds(slot) and simOperator are all
+     *  readable without READ_PHONE_STATE. */
+    private fun readSimSlots(): List<String?> {
+        val tm = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            ?: return listOf(null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                val sm = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE)
+                    as? SubscriptionManager
+                if (sm != null) {
+                    val n = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                        tm.activeModemCount else @Suppress("DEPRECATION") tm.phoneCount
+                    val out = ArrayList<String?>()
+                    for (slot in 0 until n.coerceIn(1, 4)) {
+                        val state = tm.getSimState(slot)
+                        @Suppress("DEPRECATION")
+                        val ids = sm.getSubscriptionIds(slot) ?: IntArray(0)
+                        val sub = ids.firstOrNull { it >= 0 }
+                        val op = if (sub != null)
+                            tm.createForSubscriptionId(sub).simOperator else null
+                        out.add(SimBaseline.slotIdentity(state, ids, op))
+                    }
+                    return out
+                }
+            } catch (_: Throwable) {
+                // vendor quirk: fall through to the default-SIM reading
+            }
+        }
+        return try {
+            listOf(SimBaseline.slotIdentity(tm.simState, null, tm.simOperator))
+        } catch (_: Throwable) { listOf(null) }
+    }
+
+    /** Worker thread: record the baseline silently, or compare to it. */
+    private fun checkSim() {
+        val current = SimBaseline.snapshot(readSimSlots())
+        if (current == null) {
+            // still NOT_READY / locked / unreadable: look again a bit later,
+            // never guess (a guess would be a false alarm).
+            if (simRetries < SIM_MAX_RETRIES) {
+                simRetries++
+                bg.postDelayed(simCheck, SIM_DEBOUNCE_MS)
+            }
+            return
+        }
+        val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val enc = SimBaseline.encode(current)
+        if (!p.contains(K_SIM_BASE)) {
+            p.edit().putString(K_SIM_BASE, enc).putString(K_SIM_SEEN, enc).apply()
+            return // baseline recorded silently — never an alert
+        }
+        val baseline = SimBaseline.decode(p.getString(K_SIM_BASE, ""))
+        val seen = if (p.contains(K_SIM_SEEN))
+            SimBaseline.decode(p.getString(K_SIM_SEEN, "")) else baseline
+        val v = SimBaseline.evaluate(baseline, seen, current)
+        p.edit().putString(K_SIM_SEEN, enc).apply()
+        val kind = v.alert ?: return
+        val data = JSONObject()
+            .put("state", kind)
+            .put("v", 2) // baseline-aware engine (server trusts it at arming)
+            .put("inserted", v.inserted.size)
+            .put("removed", v.removed.size)
+        if (kind == "inserted") {
+            SimInfo.carrier(applicationContext)?.let { data.put("carrier", it) }
+        }
+        capture("sim_change", data)
     }
 
     override fun onDestroy() {

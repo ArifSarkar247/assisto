@@ -14,6 +14,7 @@ import '../services/antitheft_service.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/false_alarm_button.dart';
 import 'phone_safety_screen.dart';
 import '../services/error_report.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -56,18 +57,29 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // at-falsealarm: the owner is handling his own phone on this screen —
+    // no snatch detection while it is visible.
+    AntiTheftService.setQuiet(true);
     _load();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    AntiTheftService.setQuiet(false);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState s) {
-    if (s == AppLifecycleState.resumed) _refreshRunning();
+    if (s == AppLifecycleState.resumed) {
+      AntiTheftService.setQuiet(true);
+      _refreshRunning();
+    } else if (s == AppLifecycleState.paused ||
+        s == AppLifecycleState.hidden ||
+        s == AppLifecycleState.detached) {
+      AntiTheftService.setQuiet(false);
+    }
   }
 
   Future<void> _load() async {
@@ -161,6 +173,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           config: (resp['config'] as Map?)?.cast<String, dynamic>() ?? const {},
           notif: {'title': tr.atNotifTitle, 'body': tr.atNotifBody,
               'off': tr.atNotifOff},
+          // at-falsealarm: switched ON now -> today's SIM(s) are the owner's.
+          rebaseline: true,
         );
         await AntiTheftService.flushNow();
       }
@@ -354,6 +368,15 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       children: [
         _statusCard(tr, scheme),
         const SizedBox(height: Gap.md),
+        if (FalseAlarmButton.shouldShow(_state)) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: FalseAlarmButton(onCleared: _load),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+        ],
         _intro(tr),
         const SizedBox(height: Gap.md),
         if (_enabled) ...[

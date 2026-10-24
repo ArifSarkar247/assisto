@@ -151,3 +151,102 @@ class StoreAndForwardQueue {
     _ids.removeWhere(done.contains);
   }
 }
+
+/// at-falsealarm — Dart mirror of the native SIM-baseline rules
+/// (android_overlay/.../antitheft/SimBaseline.kt). Keep both in sync; this
+/// copy is what the unit test exercises (no kotlinc on the build box).
+///
+/// Slot identity: '' = empty slot, null = not readable yet (skip this round,
+/// never guess), 's<subId>:<mccmnc>' on Android 10+, 'op:<mccmnc>' on 8–9.
+class SimBaselineRules {
+  static const int absent = 1; // TelephonyManager.SIM_STATE_ABSENT
+  static const int ready = 5; // SIM_STATE_READY
+  static const int loaded = 10; // SIM_STATE_LOADED (hidden on some levels)
+
+  static String? slotIdentity(int state, List<int>? subIds, String? mccmnc) {
+    if (state == absent) return '';
+    if (state != ready && state != loaded) return null;
+    final op = (mccmnc ?? '').trim();
+    if (subIds == null) return op.isEmpty ? null : 'op:$op';
+    final valid = subIds.where((s) => s >= 0);
+    if (valid.isEmpty) return null;
+    return 's${valid.first}:${op.isEmpty ? '?' : op}';
+  }
+
+  static Set<String>? snapshot(List<String?> slots) {
+    final out = <String>{};
+    for (final s in slots) {
+      if (s == null) return null;
+      if (s.isNotEmpty) out.add(s);
+    }
+    return out;
+  }
+
+  static String encode(Set<String> s) => (s.toList()..sort()).join(',');
+
+  static Set<String> decode(String? s) => (s ?? '')
+      .split(',')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toSet();
+
+  /// Returns 'inserted', 'removed' or null (no alert).
+  static String? evaluate(
+      Set<String> baseline, Set<String> lastSeen, Set<String> current) {
+    final inserted =
+        current.where((x) => !baseline.contains(x) && !lastSeen.contains(x));
+    final removed =
+        baseline.where((x) => lastSeen.contains(x) && !current.contains(x));
+    if (inserted.isNotEmpty) return 'inserted';
+    if (removed.isNotEmpty) return 'removed';
+    return null;
+  }
+}
+
+/// at-falsealarm — the native engine's SIM pipeline as a pure state machine
+/// (mirrors AntiTheftService.checkSim + its receiver). The tests use it to
+/// prove the end-to-end rules: the initial sticky broadcast is ignored, the
+/// first readable snapshot is a SILENT baseline, transitions are debounced,
+/// and only a real change vs the baseline alerts.
+class SimEngineModel {
+  String? base; // null = no baseline stored (first arm / reinstall)
+  String? seen;
+  final List<String> alerts = [];
+  bool _pending = false;
+
+  /// Switching protection on (Dart passes rebaseline: true).
+  void armRebaseline() {
+    base = null;
+    seen = null;
+    _pending = true;
+  }
+
+  /// A fresh service start (relaunch re-arm): compares, never re-baselines.
+  void serviceStart() => _pending = true;
+
+  /// A SIM_STATE_CHANGED broadcast. [initialSticky] = the copy Android hands
+  /// a newly registered receiver (the current state, not an event).
+  void onBroadcast({bool initialSticky = false}) {
+    if (initialSticky) return;
+    _pending = true; // debounced: evaluated once, ~8 s after the last one
+  }
+
+  /// The debounce timer fired; [slots] = per-slot identities now.
+  void debounceFired(List<String?> slots) {
+    if (!_pending) return;
+    final cur = SimBaselineRules.snapshot(slots);
+    if (cur == null) return; // unreadable: stays pending, retried later
+    _pending = false;
+    final enc = SimBaselineRules.encode(cur);
+    if (base == null) {
+      base = enc;
+      seen = enc;
+      return; // silent baseline
+    }
+    final b = SimBaselineRules.decode(base);
+    final v = SimBaselineRules.evaluate(
+        b, seen == null ? b : SimBaselineRules.decode(seen), cur);
+    seen = enc;
+    if (v != null) alerts.add(v);
+  }
+}

@@ -19,6 +19,9 @@ import org.json.JSONObject
  *   start({engineToken, apiBase, config, notifTitle, notifBody}) -> Bool
  *   stop()         -> void
  *   flush()        -> void  try an immediate check-in + queue drain
+ *   setQuiet({on}) -> void  owner is on the protection screen: no snatch
+ *                        detection (at-falsealarm)
+ *   start(..., rebaseline: true) re-records the SIM baseline (switch-on)
  *   configure({config}) -> Bool  new settings from the open app (re-declares
  *                        the foreground types, e.g. adds CAMERA for the
  *                        opt-in intruder photo)
@@ -43,16 +46,22 @@ object AntiTheftChannel {
                         val title = call.argument<String>("notifTitle") ?: "Protection on"
                         val body = call.argument<String>("notifBody") ?: ""
                         val off = call.argument<String>("notifOff") ?: "Turn off"
+                        val rebase = call.argument<Boolean>("rebaseline") ?: false
                         if (token.isBlank() || api.isBlank()) {
                             result.success(false)
                         } else {
                             val ok = AntiTheftService.start(
-                                app, token, api, JSONObject(cfgMap), title, body, off)
+                                app, token, api, JSONObject(cfgMap), title, body, off,
+                                rebase)
                             result.success(ok)
                         }
                     }
                     "stop" -> { AntiTheftService.stop(app); result.success(null) }
                     "flush" -> { AntiTheftService.flush(app); result.success(null) }
+                    "setQuiet" -> {
+                        AntiTheftService.setQuiet(call.argument<Boolean>("on") ?: false)
+                        result.success(null)
+                    }
                     "configure" -> {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))

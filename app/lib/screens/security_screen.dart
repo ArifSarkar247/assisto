@@ -8,6 +8,7 @@ import '../widgets/password_field.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/false_alarm_button.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'journey_start_screen.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -377,6 +378,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     style: TextStyle(
                         color: scheme.onSurface, fontSize: 13, height: 1.3),
                   ),
+                  const SizedBox(height: Gap.sm),
+                  FalseAlarmButton(onCleared: _load),
                 ],
               ),
             ),

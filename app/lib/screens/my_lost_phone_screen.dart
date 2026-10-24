@@ -10,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -237,6 +238,10 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 Icons.travel_explore, Brand.blue),
             if (frozen) _statusChip(t.mlpStatusFrozen, t.mlpStatusFrozenBody,
                 Icons.ac_unit, Brand.purple),
+            if (frozen) ...[
+              const SizedBox(height: Gap.sm),
+              FalseAlarmButton(onCleared: _load),
+            ],
             if (wentDark != null)
               _wentDarkBlock(t, scheme, _fmtWhen(wentDark)),
           ],

@@ -184,7 +184,7 @@ class IngestionTests(_Base):
 
     def test_sim_change_alert_is_honest_about_number(self):
         self._ingest([{"id": "sim-1", "kind": "sim_change",
-                       "data": {"state": "inserted", "carrier": "Robi"}}])
+                       "data": {"state": "inserted", "carrier": "Robi", "v": 2}}])
         fa = FamilyAlert.objects.filter(user=self.owner,
                                         payload__antitheft_kind="sim_change").first()
         self.assertIsNotNone(fa)
