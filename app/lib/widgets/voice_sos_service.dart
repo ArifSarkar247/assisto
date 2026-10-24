@@ -36,6 +36,10 @@ const int kVoiceSosServiceId = 7900;
 const String kVoiceSosFire = 'voice_sos_fire';
 const String kVoiceSosUnavailable = 'voice_sos_unavailable';
 const String kVoiceSosListening = 'voice_sos_listening';
+const String kVoiceSosStopped = 'voice_sos_stopped';
+
+/// play-fgs: id of the notification's Stop button.
+const String kVoiceSosStopButton = 'stop';
 
 /// Top-level entry point for the foreground task isolate. MUST be top-level and
 /// annotated so it is not tree-shaken in release builds.
@@ -133,6 +137,18 @@ class VoiceSosTaskHandler extends TaskHandler {
     });
   }
 
+  /// play-fgs: the persistent notification's Stop button turns voice SOS off
+  /// right there (Play foreground-service policy: the user can always stop).
+  @override
+  void onNotificationButtonPressed(String id) {
+    if (id != kVoiceSosStopButton) return;
+    try {
+      VoiceSosConfig.setEnabled(false);
+    } catch (_) {}
+    FlutterForegroundTask.sendDataToMain(kVoiceSosStopped);
+    FlutterForegroundTask.stopService();
+  }
+
   @override
   void onReceiveData(Object data) {
     // The main isolate can push an updated wake phrase without a restart.
@@ -169,6 +185,8 @@ class VoiceSosManager {
   /// Callbacks the host screen can observe for honest UI state.
   VoidCallback? onUnavailable;
   VoidCallback? onListening;
+  /// play-fgs: the user pressed Stop on the notification.
+  VoidCallback? onStopped;
 
   /// Called once near app start AND whenever the service is (re)started so the
   /// manager can fire SOS using the live, authenticated AppState.
@@ -186,6 +204,9 @@ class VoiceSosManager {
       onUnavailable?.call();
     } else if (data == kVoiceSosListening) {
       onListening?.call();
+    } else if (data == kVoiceSosStopped) {
+      VoiceSosConfig.setEnabled(false);
+      onStopped?.call();
     }
   }
 
@@ -255,7 +276,8 @@ class VoiceSosManager {
   Future<bool> isRunning() => FlutterForegroundTask.isRunningService;
 
   /// Start the always-listening service. Returns false if the OS refused.
-  Future<bool> start(String notifTitle, String notifText) async {
+  Future<bool> start(String notifTitle, String notifText,
+      {String stopLabel = 'Stop'}) async {
     try {
       if (await FlutterForegroundTask.isRunningService) return true;
       final r = await FlutterForegroundTask.startService(
@@ -266,6 +288,9 @@ class VoiceSosManager {
         ],
         notificationTitle: notifTitle,
         notificationText: notifText,
+        notificationButtons: [
+          NotificationButton(id: kVoiceSosStopButton, text: stopLabel),
+        ],
         callback: voiceSosStartCallback,
       );
       return r is ServiceRequestSuccess;

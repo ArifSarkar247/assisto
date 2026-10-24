@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../../messaging/unread_store.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -79,6 +81,9 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     super.initState();
     _tab = widget.initialTab.clamp(0, 3);
     _bootstrap();
+    // play-fsi: once, ask to allow full-screen incoming calls (Android 14+)
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => FullScreenCallPrompt.maybeShow(context));
   }
 
   ApiClient get _api => context.read<AppState>().api;

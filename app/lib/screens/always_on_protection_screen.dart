@@ -159,7 +159,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           engineToken: token,
           apiBase: AppConfig.apiBase + AppConfig.apiPrefix,
           config: (resp['config'] as Map?)?.cast<String, dynamic>() ?? const {},
-          notif: {'title': tr.atNotifTitle, 'body': tr.atNotifBody},
+          notif: {'title': tr.atNotifTitle, 'body': tr.atNotifBody,
+              'off': tr.atNotifOff},
         );
         await AntiTheftService.flushNow();
       }

@@ -11,7 +11,10 @@ import 'alerts_fg.dart';
 import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
+import 'screens/always_on_protection_screen.dart'; // play-fgs
+import 'media/photo_picker_setup.dart'; // play-perm
 import 'play_update.dart'; // ota1
+import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'push/push_service.dart';
@@ -72,6 +75,10 @@ void main() {
     // channel), needed before first frame so text-scale/contrast apply app-wide.
     final a11y = A11yPrefs();
     unawaited(a11y.load());
+
+    // play-perm: image/video picks use the system Photo Picker (no media
+    // permission). A Dart field flip on the registered plugin — no native call.
+    usePhotoPicker();
 
     // Held here (not only inside the provider) so the deferred push init below
     // can reach it without a BuildContext.
@@ -255,6 +262,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _pollAlerts();
       _maybeSmokeOpen();
       PlayUpdate.checkSoon(); // ota1: Play build only, lazy + guarded
+      _maybeNotifOpen(); // play-fgs
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
@@ -275,12 +283,32 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   /// only runs AFTER the first frame — never on the cold-start critical path.
   static const bool _smokeBuild = bool.fromEnvironment('ASSISTO_SMOKE');
 
+  /// play-fgs: a foreground-service notification button can ask to open ONE
+  /// allow-listed screen (the anti-theft "Turn off" button opens the
+  /// protection screen, where the owner switches it off inside the app).
+  Future<void> _maybeNotifOpen() async {
+    try {
+      const ch = MethodChannel('com.assisto/device_admin');
+      final v = await ch.invokeMethod<String>('notifOpen');
+      if (v != 'antitheft_off' || !mounted) return;
+      appNavigatorKey.currentState?.push(MaterialPageRoute<void>(
+          builder: (_) => const AlwaysOnProtectionScreen()));
+    } catch (_) {
+      // channel missing (tests / non-Android): nothing to open
+    }
+  }
+
   Future<void> _maybeSmokeOpen() async {
     if (!kDebugMode && !_smokeBuild) return;
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');
       if (route == null || route.isEmpty || !mounted) return;
+      if (route == '__fsi__') {
+        // play-fsi CI proof (Android 14 emulator job fsi-proof-api34)
+        await FullScreenCallPrompt.debugProbe();
+        return;
+      }
       if (route == '__tour__') {
         // CI calls this once, on the very first (race-free) cold start, to walk
         // every re-enabled native-plugin screen in a SINGLE process — so the
@@ -327,6 +355,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (state == AppLifecycleState.resumed) {
       _pollAlerts();
+      _maybeNotifOpen(); // play-fgs
       // Re-pick up a flag change made while backgrounded (or in Settings).
       _resolveElderly();
       // Part 3: assist gesture / wake word while Assisto was in background.

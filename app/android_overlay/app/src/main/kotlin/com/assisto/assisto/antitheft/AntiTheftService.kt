@@ -84,7 +84,8 @@ class AntiTheftService : Service(), SensorEventListener {
         } catch (_: Throwable) { false }
 
         fun start(ctx: Context, token: String, apiBase: String,
-                  config: JSONObject, title: String, body: String): Boolean {
+                  config: JSONObject, title: String, body: String,
+                  offLabel: String = "Turn off"): Boolean {
             // Android 14+: startForeground() with a location/camera type throws
             // without that permission, and a startForegroundService() that
             // never reaches startForeground() kills the process. So we refuse
@@ -101,6 +102,7 @@ class AntiTheftService : Service(), SensorEventListener {
                     .putString("config", config.toString())
                     .putString("title", title)
                     .putString("body", body)
+                    .putString("offLabel", offLabel)
                     .apply()
                 val i = Intent(ctx, AntiTheftService::class.java).setAction(ACTION_START)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -175,6 +177,7 @@ class AntiTheftService : Service(), SensorEventListener {
     private var apiBase = ""
     private var notifTitle = "Assisto protection is on"
     private var notifBody = ""
+    private var offLabel = "Turn off"
     private var snatchLock = false
     private var intruderPhoto = false   // opt-in (server default is off too)
     private var failThreshold = 3
@@ -258,6 +261,23 @@ class AntiTheftService : Service(), SensorEventListener {
         return t
     }
 
+    /// play-fgs: the notification's "Turn off" button. It opens Assisto on the
+    /// protection screen, where the owner switches protection off in the app —
+    /// not a one-tap stop in the shade, which a thief holding the phone could
+    /// use to disable the protection.
+    private fun offAction(): Notification.Action? = try {
+        val open = packageManager.getLaunchIntentForPackage(packageName)
+            ?.putExtra("assisto_open", "antitheft_off")
+            ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        if (open == null) null else {
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            val p = PendingIntent.getActivity(this, 7, open, flags)
+            Notification.Action.Builder(
+                null as android.graphics.drawable.Icon?, offLabel, p).build()
+        }
+    } catch (_: Throwable) { null }
+
     private fun ensureForeground() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -282,6 +302,7 @@ class AntiTheftService : Service(), SensorEventListener {
             .setContentText(notifBody)
             .setOngoing(true)
             .also { if (pi != null) it.setContentIntent(pi) }
+            .also { b -> offAction()?.let { b.addAction(it) } }
             .build()
         val want = wantedTypes()
         // Try the full set, then without the camera, then (pre-Android-14
@@ -324,6 +345,7 @@ class AntiTheftService : Service(), SensorEventListener {
         apiBase = p.getString("api", "") ?: ""
         notifTitle = p.getString("title", notifTitle) ?: notifTitle
         notifBody = p.getString("body", notifBody) ?: notifBody
+        offLabel = p.getString("offLabel", offLabel) ?: offLabel
         try {
             val cfg = JSONObject(p.getString("config", "{}") ?: "{}")
             snatchLock = cfg.optBoolean("snatch_lock", false)

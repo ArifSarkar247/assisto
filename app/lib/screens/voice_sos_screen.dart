@@ -49,6 +49,9 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
     VoiceSosManager.instance.onListening = () {
       if (mounted) setState(() => _unavailable = false);
     };
+    VoiceSosManager.instance.onStopped = () {
+      if (mounted) setState(() => _enabled = false);
+    };
     _load();
   }
 
@@ -57,6 +60,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
     WidgetsBinding.instance.removeObserver(this);
     VoiceSosManager.instance.onUnavailable = null;
     VoiceSosManager.instance.onListening = null;
+    VoiceSosManager.instance.onStopped = null;
     super.dispose();
   }
 
@@ -125,7 +129,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
         VoiceSosManager.instance.attach(context.read<AppState>());
         // 4) Start the service.
         final ok = await VoiceSosManager.instance
-            .start(t.vsosNotifTitle, t.vsosNotifText);
+            .start(t.vsosNotifTitle, t.vsosNotifText, stopLabel: t.vaStop);
         if (!mounted) return;
         if (!ok) {
           messenger.showSnackBar(SnackBar(content: Text(t.vsosStartFailed)));

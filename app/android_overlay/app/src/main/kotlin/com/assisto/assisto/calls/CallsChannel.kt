@@ -22,6 +22,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Rational
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -64,6 +65,36 @@ object CallsChannel {
     private var pickResult: MethodChannel.Result? = null
     private val main = Handler(Looper.getMainLooper())
 
+    /// play-fsi: Android 14+ only shows an incoming call FULL-SCREEN when the
+    /// user allowed "full screen notifications" for Assisto (Play does not
+    /// pre-grant it to us). Below 14 it is always allowed. Without it the call
+    /// still rings as a high-priority heads-up notification.
+    private fun canFullScreen(): Boolean {
+        if (Build.VERSION.SDK_INT < 34) return true
+        val a = activity ?: return true
+        return try {
+            (a.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .canUseFullScreenIntent()
+        } catch (_: Throwable) { true }
+    }
+
+    /// Opens Settings -> Assisto -> "Full screen notifications".
+    private fun openFullScreenSettings(): Boolean {
+        val a = activity ?: return false
+        if (Build.VERSION.SDK_INT < 34) return false
+        return try {
+            a.startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                Uri.parse("package:" + a.packageName)))
+            true
+        } catch (_: Throwable) {
+            try {   // some OEM builds lack the page: fall back to the app's settings
+                a.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + a.packageName)))
+                true
+            } catch (_: Throwable) { false }
+        }
+    }
+
     fun register(activity: Activity, messenger: BinaryMessenger) {
         this.activity = activity
         val ch = MethodChannel(messenger, CHANNEL)
@@ -95,6 +126,9 @@ object CallsChannel {
                     "setProximity" -> result.success(setProximity(call.argument<Boolean>("on") == true))
                     "keepScreenOn" -> result.success(keepScreenOn(call.argument<Boolean>("on") == true))
                     "pipSupported" -> result.success(pipSupported())
+                    // play-fsi: full-screen incoming calls (Android 14+ not pre-granted)
+                    "canFullScreen" -> result.success(canFullScreen())
+                    "openFullScreenSettings" -> result.success(openFullScreenSettings())
                     "enterPip" -> result.success(
                         enterPip(call.argument<Int>("w") ?: 9, call.argument<Int>("h") ?: 16)
                     )

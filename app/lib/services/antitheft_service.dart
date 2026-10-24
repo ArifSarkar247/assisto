@@ -58,6 +58,7 @@ class AntiTheftService {
             'config': config,
             'notifTitle': notif['title'] ?? 'Protection on',
             'notifBody': notif['body'] ?? '',
+            'notifOff': notif['off'] ?? 'Turn off', // play-fgs
           }) ??
           false;
     } catch (_) {

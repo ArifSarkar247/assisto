@@ -12838,8 +12838,8 @@
   "vsosStartFailed": "Couldn't start the listening service. Please try again.",
   "vsosNotifChannelName": "Hands-free SOS",
   "vsosNotifChannelDesc": "This notification shows while hands-free SOS is listening.",
-  "vsosNotifTitle": "Assisto is listening for your SOS phrase",
-  "vsosNotifText": "Tap to turn off. Your speech stays on your device.",
+  "vsosNotifTitle": "Voice SOS is on — listening for your SOS phrase",
+  "vsosNotifText": "Microphone and location in use for voice SOS. Speech stays on this phone. Tap Stop to turn it off.",
   "swTitle": "Smartwatch & fitness",
   "swOpenSettings": "Open Health Connect settings",
   "swUnavailableTitle": "Health Connect isn't available",
@@ -14445,7 +14445,7 @@
   "vaWakeConfirmTitle": "Turn on “Hey Assisto”?",
   "vaWakeConfirmBody": "Assisto will keep the microphone on to listen for “Hey Assisto” — on this phone only, nothing is uploaded. A notification shows while it listens, and it uses some extra battery. You can stop it from the notification any time.",
   "vaWakeTurnOn": "Turn on",
-  "vaWakeNotifTitle": "Listening for “Hey Assisto”",
+  "vaWakeNotifTitle": "“Hey Assisto” is on — listening for the wake word",
   "vaWakeNotifBody": "Microphone in use on this phone only. Tap Stop to turn off.",
   "vaWakeTapToTalk": "Tap to talk to Assisto",
   "vaTtsTitle": "Spoken replies",
@@ -16386,9 +16386,9 @@
   "@atHubSubtitle": {},
   "atNeedsPinFirst": "Set your Security PIN first, then turn on protection.",
   "@atNeedsPinFirst": {},
-  "atNotifTitle": "Assisto protection is on",
+  "atNotifTitle": "Lost/Stolen protection is on",
   "@atNotifTitle": {},
-  "atNotifBody": "Watching your phone for snatch, SIM change and going offline.",
+  "atNotifBody": "Watching for snatch, SIM change and going offline. Uses location, and the front camera only if your phone is taken. Tap Turn off to stop.",
   "@atNotifBody": {},
   "atEnabledSnack": "Always-on protection is now on.",
   "@atEnabledSnack": {},
@@ -18738,5 +18738,18 @@
         "type": "int"
       }
     }
-  }
+  },
+  "@vsosNotifTitle": {},
+  "@vsosNotifText": {},
+  "@vaWakeNotifTitle": {},
+  "atNotifOff": "Turn off",
+  "@atNotifOff": {},
+  "fsiTitle": "Show incoming calls on full screen?",
+  "@fsiTitle": {},
+  "fsiBody": "So you never miss a My Circle call, allow Assisto to show incoming calls on the full screen, even when the phone is locked. Without it, calls still ring as a notification at the top of the screen.",
+  "@fsiBody": {},
+  "fsiAllow": "Allow",
+  "@fsiAllow": {},
+  "fsiLater": "Not now",
+  "@fsiLater": {}
 }

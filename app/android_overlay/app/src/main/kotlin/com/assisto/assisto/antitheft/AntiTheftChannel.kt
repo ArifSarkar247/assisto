@@ -42,11 +42,12 @@ object AntiTheftChannel {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         val title = call.argument<String>("notifTitle") ?: "Protection on"
                         val body = call.argument<String>("notifBody") ?: ""
+                        val off = call.argument<String>("notifOff") ?: "Turn off"
                         if (token.isBlank() || api.isBlank()) {
                             result.success(false)
                         } else {
                             val ok = AntiTheftService.start(
-                                app, token, api, JSONObject(cfgMap), title, body)
+                                app, token, api, JSONObject(cfgMap), title, body, off)
                             result.success(ok)
                         }
                     }
