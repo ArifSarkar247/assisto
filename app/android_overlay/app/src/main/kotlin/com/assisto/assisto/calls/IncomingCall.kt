@@ -283,7 +283,7 @@ object IncomingCall {
     }
 
     private fun payloadJson(d: Map<String, String>): String = try {
-        JSONObject(d as Map<*, *>).toString()
+        JSONObject(d).toString()
     } catch (_: Throwable) {
         "{}"
     }
