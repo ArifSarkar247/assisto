@@ -45,13 +45,42 @@ the Bangla font decision, the no-clip / tap-target / contrast test
   tokens when merged.
 - Items 1, 2, 4, 5, 9 unchanged (item 5 icon migration not started on purpose).
 
+## f3-design (part 3, branch `agent/f3-design`) — item 1 done
+
+- `CallInk` in `lib/theme.dart`: the always-dark call canvas palette (text /
+  soft / hint ink, failure red, quality bars, glass, scrims, mini bar).
+- Call screens (`circle_call_screen`, `push/incoming_call_screen`,
+  `calls/call_mini_bar`, `calls/video_stage`, `calls/call_avatar`): every
+  `Color(0x…)` → `CallInk`, every `fontSize:` → `AType` (avatar initial
+  stays radius-relative), spacing/radius → `Gap`/`Radii`, timer + mini-bar
+  time tabular.
+- My Circle (`circle_screen`, `circle_chat_screen`, `circle_group_chat_screen`,
+  `ring_checklist_screen`, `messenger/messenger_home_screen`, `m3_add_to_circle`,
+  `connection_requests`, `widgets/msgr_hub_chat_list`, `messaging/date_separators`,
+  `messaging/call_events`, `messaging/chat_header`): type scale, tokens
+  (typing/online green → `AssistoTokens.success`, E2E note → warning
+  container, "sent" check → success/onSuccess), tooltips on send / close /
+  back / add, 48 dp group reaction targets, 48 dp E2E note + call-event
+  chip tap areas, chat-list chips + badges no longer clip at 200 %,
+  request Accept/Decline wraps instead of overflowing.
+- Guard: allowlist down 287 → 267 `Color(0x…)` (removed circle_call_screen 9,
+  call_mini_bar 2, video_stage 1, msgr_hub_chat_list 2, date_separators 4,
+  chat_header 2); the no-`fontSize` guard now covers the call + circle files
+  above. Proof: `.phaseB/design_shots/f3/` (a11y audit clean on all 22 screens).
+
+### Still open after f3
+- `circle_chat_screen` / `circle_group_chat_screen` are `fontSize`-clean but
+  not in the guard yet (the My Circle media branch is adding attach options
+  there — add them once it has merged).
+- `call_events.dart` keeps its 2 missed-call reds (a1_circle_test asserts
+  `0xFFB91C1C`); `msg_ticks.dart` (10) untouched.
+- Chat list: the "Invite" text link on not-on-Assisto rows is < 48 dp tall
+  (the whole row is also tappable); names truncate earlier at 200 % (16 sp).
+- `chat_header` status fitting keeps its own computed font sizes.
+
 ## Remaining work (in the owner's priority order)
 
-1. **My Circle + call screens hand polish** — `lib/screens/circle_screen.dart`,
-   `lib/screens/messenger/*` (circle chat, chat list, contact info, add to
-   circle, requests), `lib/calls/*` (calling / ringing / connected / video /
-   incoming). Replace literal colours/sizes with `AssistoTokens`, `Gap`,
-   `Radii`, text-theme styles; check 200% font (`ASSISTO_SHOT_SCALE=2.0`).
+1. ~~My Circle + call screens hand polish~~ — done in f3 (see above).
 2. **Home** (structure kept, look may change): `home_screen.dart`,
    `home_quick_buttons.dart`, `app_drawer.dart`.
 3. **Assisto AI chat** (`ai_chat_screen.dart`, `agent_thread_screen.dart`),

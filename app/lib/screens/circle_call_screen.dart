@@ -468,9 +468,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
             if (c != null && c.isLive && !c.remoteMicOn)
               const Positioned(
-                left: 8,
-                bottom: 8,
-                child: Icon(Icons.mic_off, color: Colors.white, size: 20),
+                left: Gap.sm,
+                bottom: Gap.sm,
+                child: Icon(Icons.mic_off, color: CallInk.text, size: 20),
               ),
           ],
         ),
@@ -488,10 +488,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Color(0x99000000),
-                      Color(0x00000000),
-                      Color(0x00000000),
-                      Color(0xB3000000)
+                      CallInk.scrimTop,
+                      Colors.transparent,
+                      Colors.transparent,
+                      CallInk.scrimBottom
                     ],
                     stops: [0, 0.25, 0.65, 1],
                   ),
@@ -522,9 +522,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               child: Text(_t.c2CallNoRelay,
                   key: const Key('call-no-relay'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7))),
+                  style: AType.bodySmall.copyWith(color: CallInk.textHint)),
             ),
           const Spacer(flex: 2),
           if (live) _noticeBanner(c),
@@ -551,7 +549,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                   child: Semantics(
                     label: t.b1CallCameraOffSelf,
                     child: const Icon(Icons.videocam_off_outlined,
-                        color: Colors.white70, size: 32),
+                        color: CallInk.textHint, size: 32),
                   ),
                 ),
           canSwap: remoteVideo,
@@ -596,7 +594,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       lead = IconButton(
         key: const Key('call-pip'),
         tooltip: t.c2CallPip,
-        color: Colors.white,
+        color: CallInk.text,
         icon: const Icon(Icons.picture_in_picture_alt_outlined),
         onPressed: () => CallNative.enterPip(w: 9, h: 16),
       );
@@ -605,12 +603,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       lead = IconButton(
         key: const Key('call-minimize'),
         tooltip: t.b1CallMinimize,
-        color: Colors.white,
+        color: CallInk.text,
         icon: const Icon(Icons.keyboard_arrow_down),
         onPressed: () => _handOff(c),
       );
     } else {
-      lead = const SizedBox(width: 48);
+      lead = const SizedBox(width: Gap.xxxl);
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
@@ -621,23 +619,21 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.lock_outline,
-                    size: 13, color: Colors.white.withValues(alpha: 0.7)),
+                const Icon(Icons.lock_outline,
+                    size: 14, color: CallInk.textHint),
                 const SizedBox(width: Gap.xs),
                 Flexible(
                   child: Text(t.c2CallEncrypted,
                       maxLines: 2,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.7))),
+                      style: AType.bodySmall.copyWith(color: CallInk.textHint)),
                 ),
               ],
             ),
           ),
           SizedBox(
-            width: 48,
+            width: Gap.xxxl,
             child: live ? _QualityBars(c.quality) : null,
           ),
         ],
@@ -648,8 +644,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Widget _avatar(double r) =>
       CallAvatar(name: _name, photoUrl: _photo, version: _photoV, radius: r);
 
-  TextStyle get _hintStyle =>
-      TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.75));
+  TextStyle get _hintStyle => AType.bodySmall.copyWith(color: CallInk.textHint);
 
   Widget _nameAndStatus(CallController? c) {
     final t = _t;
@@ -667,31 +662,27 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 26,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700)),
+              style: AType.headlineMedium
+                  .copyWith(color: CallInk.text, fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!ended)
                 Icon(_isVideo ? Icons.videocam_outlined : Icons.call_outlined,
-                    size: 16, color: Colors.white.withValues(alpha: 0.8)),
+                    size: 16, color: CallInk.textSoft),
               if (bad)
                 const Icon(Icons.error_outline,
-                    size: 16, color: Color(0xFFFFB3BB)),
+                    size: 16, color: CallInk.failure),
               const SizedBox(width: Gap.xs),
               Flexible(
                 child: Text(_status(c),
                     key: const Key('call-status'),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                        color: bad
-                            ? const Color(0xFFFFB3BB)
-                            : Colors.white.withValues(alpha: 0.85))),
+                    // the live timer: tabular figures so it never jitters
+                    style: AType.bodyLarge.copyWith(
+                        fontFeatures: AFonts.tabular,
+                        color: bad ? CallInk.failure : CallInk.textSoft)),
               ),
             ],
           ),
@@ -720,7 +711,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live && kDebugMode)
             Text(c.relayed ? t.b1CallDebugRelay : t.b1CallDebugDirect,
                 key: const Key('call-debug-path'),
-                style: _hintStyle.copyWith(fontSize: 11)),
+                style: _hintStyle.merge(AType.labelSmall)),
           if (live && _isVideo && !c.remoteCameraOn)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
@@ -740,21 +731,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   Widget _badge(IconData icon, String text, Key key) => Container(
         key: key,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding:
+            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(14),
+          color: CallInk.chip,
+          borderRadius: BorderRadius.circular(Radii.lg),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: Colors.white),
-            const SizedBox(width: 6),
+            Icon(icon, size: 14, color: CallInk.text),
+            const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(text,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Colors.white)),
+                  style: AType.bodySmall.copyWith(color: CallInk.text)),
             ),
           ],
         ),
@@ -784,12 +776,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: Gap.md, vertical: Gap.sm),
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.45),
-            borderRadius: BorderRadius.circular(14),
+            color: CallInk.notice,
+            borderRadius: BorderRadius.circular(Radii.lg),
           ),
           child: Text(text,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Colors.white)),
+              style: AType.bodyMedium.copyWith(color: CallInk.text)),
         ),
       ),
     );
@@ -807,7 +799,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           child: Text(t.b1CallVideoSwitching,
               key: const Key('call-video-switching'),
               textAlign: TextAlign.center,
-              style: _hintStyle.copyWith(fontSize: 13)),
+              style: _hintStyle.merge(AType.bodyMedium)),
         );
       case VideoUpgrade.requesting:
         return Padding(
@@ -816,20 +808,20 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             key: const Key('call-video-waiting'),
             children: [
               const SizedBox(
-                  width: 16,
-                  height: 16,
+                  width: Gap.lg,
+                  height: Gap.lg,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white)),
+                      strokeWidth: 2, color: CallInk.text)),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.b1CallVideoWaiting(_name),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13, color: Colors.white)),
+                    style: AType.bodyMedium.copyWith(color: CallInk.text)),
               ),
               TextButton(
                 key: const Key('call-video-cancel'),
-                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                style: TextButton.styleFrom(foregroundColor: CallInk.text),
                 onPressed: c.cancelVideoRequest,
                 child: Text(t.b1CallVideoCancel),
               ),
@@ -843,23 +835,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             key: const Key('call-video-prompt'),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(20),
+              color: CallInk.glassHigh,
+              borderRadius: BorderRadius.circular(Radii.xl),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.videocam, color: Colors.white),
+                    const Icon(Icons.videocam, color: CallInk.text),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(t.b1CallVideoAsk(_name),
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
+                          style: AType.titleMedium.copyWith(
+                              color: CallInk.text,
                               fontWeight: FontWeight.w600)),
                     ),
                   ],
@@ -873,9 +864,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     OutlinedButton(
                       key: const Key('call-video-decline'),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.6))),
+                          foregroundColor: CallInk.text,
+                          side: const BorderSide(color: CallInk.textHint)),
                       onPressed: c.declineVideo,
                       child: Text(t.b1CallVideoNotNow),
                     ),
@@ -962,8 +952,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             padding: const EdgeInsets.symmetric(
                 vertical: Gap.md, horizontal: Gap.sm),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(28),
+              color: CallInk.glass,
+              borderRadius: BorderRadius.circular(Radii.xl),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1039,7 +1029,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 child: const SizedBox(
                     width: 68,
                     height: 68,
-                    child: Icon(Icons.call_end, color: Colors.white, size: 32)),
+                    child: Icon(Icons.call_end, color: CallInk.text, size: 32)),
               ),
             ),
           ),
@@ -1076,8 +1066,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           OutlinedButton(
             key: const Key('call-close'),
             style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.5))),
+                foregroundColor: CallInk.text,
+                side: const BorderSide(color: CallInk.textHint)),
             onPressed: _close,
             child: Text(t.close),
           ),
@@ -1105,7 +1095,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 Text(_t.circleCallVideoPremiumBody,
                     textAlign: TextAlign.center,
                     style:
-                        TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                        Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.xl),
                 FilledButton.icon(
                   icon: const Icon(Icons.workspace_premium),
@@ -1205,9 +1195,9 @@ class _QualityBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final (Color color, int bars, String label) = switch (q) {
-      CallQuality.good => (const Color(0xFF5BD69A), 3, t.c2CallQualityGood),
-      CallQuality.fair => (const Color(0xFFFFC857), 2, t.c2CallQualityFair),
-      CallQuality.poor => (const Color(0xFFFF6B78), 1, t.c2CallQualityPoor),
+      CallQuality.good => (CallInk.good, 3, t.c2CallQualityGood),
+      CallQuality.fair => (CallInk.fair, 2, t.c2CallQualityFair),
+      CallQuality.poor => (CallInk.poor, 1, t.c2CallQualityPoor),
       CallQuality.unknown => (Colors.white54, 0, ''),
     };
     if (bars == 0) return const SizedBox.shrink();
@@ -1227,7 +1217,7 @@ class _QualityBars extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 1),
                 decoration: BoxDecoration(
                   color: i < bars ? color : Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(Gap.xxs),
                 ),
               ),
           ],
@@ -1255,10 +1245,10 @@ class _CtlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onTap != null;
     final bg = active
-        ? Colors.white
-        : Colors.white.withValues(alpha: enabled ? 0.16 : 0.06);
+        ? CallInk.text
+        : CallInk.text.withValues(alpha: enabled ? 0.16 : 0.06);
     final fg =
-        active ? Brand.ink : Colors.white.withValues(alpha: enabled ? 1 : 0.45);
+        active ? Brand.ink : CallInk.text.withValues(alpha: enabled ? 1 : 0.45);
     return Expanded(
       // b1: the label is part of the tap target too (2-line labels at 1.5x)
       child: GestureDetector(
@@ -1287,8 +1277,7 @@ class _CtlButton extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
+              style: AType.bodySmall.copyWith(color: CallInk.textSoft)),
         ],
       ),
       ),

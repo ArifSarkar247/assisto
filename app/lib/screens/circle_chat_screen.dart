@@ -2216,6 +2216,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   hintText: _t.msgrChatNewListHint,
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.add),
+                    tooltip: _t.add,
                     onPressed: () => Navigator.pop(ctx, 'new:${controller.text.trim()}'),
                   ),
                 ),
@@ -2874,6 +2875,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   PreferredSizeWidget _selectionAppBar(ColorScheme scheme) => AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: () => setState(() {
             _selecting = false;
             _selected.clear();
@@ -2907,6 +2909,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   PreferredSizeWidget _searchAppBar(ColorScheme scheme) => AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => setState(() {
             _searching = false;
             _searchQuery = '';
@@ -2931,10 +2934,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               child: Text(pinned.last.text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
             Text('${pinned.length}',
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AFonts.figures(AType.labelSmall)!.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -2944,7 +2947,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
           child: Text(_live.recording ? _t.c3Recording : _t.c3Typing,
-              style: TextStyle(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant, fontSize: 12)),
+              style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
         ),
       );
 
@@ -3016,14 +3019,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         child: Container(
           width: double.infinity,
           color: scheme.surfaceContainerHighest,
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: Gap.md),
+          padding: const EdgeInsets.symmetric(vertical: Gap.xs, horizontal: Gap.md),
           child: Text(
             localDigits(_t.e2UnreadDivider(_unreadAtOpen),
                 Localizations.localeOf(context).languageCode), // qa2
             key: const Key('e2-unread-divider'),
             textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 12,
+            style: AType.labelMedium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: scheme.onSurfaceVariant),
           ),
@@ -3036,27 +3038,26 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               vertical: Gap.xs, horizontal: Gap.lg),
           child: Material(
             color: scheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(Radii.md),
             child: InkWell(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(Radii.md),
               onTap: _explainSecurityChange,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: Gap.md, vertical: 6),
+                    horizontal: Gap.md, vertical: Gap.xs),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.shield_outlined,
                         size: 14, color: scheme.onSecondaryContainer),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: Gap.xs),
                     Flexible(
                       child: Text(
                         _t.e2SecurityCodeChanged(_memberName),
                         key: const Key('e2-security-note'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSecondaryContainer),
+                        style: AType.bodySmall
+                            .copyWith(color: scheme.onSecondaryContainer),
                       ),
                     ),
                   ],
@@ -3165,6 +3166,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               ),
               RoboId(id: 'tl_chat_send',
                 child: IconButton.filled(
+                  tooltip: _editing != null ? _t.save : _t.send,
                   onPressed: _sending ? null : _send,
                   icon: Icon(_editing != null ? Icons.check : Icons.send),
                 ),

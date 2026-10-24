@@ -311,7 +311,7 @@ class _CircleScreenState extends State<CircleScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.only(bottom: 96),
+                padding: const EdgeInsets.only(bottom: Gap.xxxl * 2),
                 children: [
                   // INCOMING requests (sent to me) — accept/decline here.
                   if (_incoming.isNotEmpty) ...[
@@ -357,7 +357,10 @@ class _CircleScreenState extends State<CircleScreen> {
             Text(
               _backendReady ? _t.circleEmptyBody : _t.qaLoadFailedRetry,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: scheme.onSurfaceVariant),
             ),
             if (!_backendReady) ...[
               const SizedBox(height: Gap.md),
@@ -442,14 +445,16 @@ class _CircleScreenState extends State<CircleScreen> {
             const SizedBox(height: Gap.sm),
             if (isIncoming)
               // INCOMING (sent to me): Accept / Decline.
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              // f3: wraps instead of overflowing at 200 % text
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: Gap.sm,
+                runSpacing: Gap.xs,
                 children: [
                   TextButton(
                     onPressed: () => _act(r, 'decline'),
                     child: Text(_t.circleDecline),
                   ),
-                  const SizedBox(width: Gap.sm),
                   FilledButton.icon(
                     icon: const Icon(Icons.check, size: 18),
                     label: Text(_t.circleAccept),

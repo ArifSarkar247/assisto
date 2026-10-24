@@ -8,6 +8,8 @@
 // costs nothing at app launch and never touches the camera itself.
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 enum StageCorner { topLeft, topRight, bottomLeft, bottomRight }
 
 class VideoStage extends StatefulWidget {
@@ -173,13 +175,13 @@ class VideoStageState extends State<VideoStage> {
                 child: DecoratedBox(
                   key: ValueKey('call-self-corner-${_corner.name}'),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(Radii.lg),
                     boxShadow: const [
-                      BoxShadow(color: Color(0x66000000), blurRadius: 10, offset: Offset(0, 3)),
+                      BoxShadow(color: CallInk.tileShadow, blurRadius: 10, offset: Offset(0, 3)),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(Radii.lg),
                     child: ColoredBox(
                       color: Colors.black,
                       child: KeyedSubtree(

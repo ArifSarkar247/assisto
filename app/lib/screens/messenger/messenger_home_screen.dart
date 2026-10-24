@@ -405,8 +405,8 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           labelTextStyle: WidgetStateProperty.all(
-            const TextStyle(
-                fontSize: 11, letterSpacing: 0, fontWeight: FontWeight.w600),
+            AType.labelSmall
+                .copyWith(letterSpacing: 0, fontWeight: FontWeight.w600),
           ),
         ),
         child: MediaQuery.withClampedTextScaling(

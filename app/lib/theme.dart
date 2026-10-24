@@ -88,6 +88,46 @@ class Brand {
   );
 }
 
+/// f3-design: ink for the ALWAYS-dark call canvas (calling / ringing /
+/// connected / video / incoming / mini bar). These do not follow the app
+/// theme on purpose — the canvas is [Brand.ink] / [Brand.heroDark] in both.
+/// Every text tone here is ≥ 4.5:1 on [Brand.ink] and on the hero gradient.
+class CallInk {
+  CallInk._();
+  static const text = Colors.white;
+
+  /// Secondary text (status line, control labels): white @ 85 %.
+  static const textSoft = Color(0xD9FFFFFF);
+
+  /// Hints, the encrypted line, small print: white @ 75 %.
+  static const textHint = Color(0xBFFFFFFF);
+
+  /// A failure the user should notice (red status line), on the dark canvas.
+  static const failure = Color(0xFFFFB3BB);
+
+  /// Network-quality bars (the dark theme's success / warning / error).
+  static const good = Color(0xFF5BD69A);
+  static const fair = Color(0xFFFFC857);
+  static const poor = Color(0xFFFF6B78);
+
+  /// Glass surfaces on the canvas (controls tray, prompt card, chips).
+  static const glass = Color(0x1AFFFFFF); // white @ 10 %
+  static const glassHigh = Color(0x24FFFFFF); // white @ 14 %
+  static const chip = Color(0x59000000); // black @ 35 %
+  static const notice = Color(0x73000000); // black @ 45 %
+
+  /// Over live remote video: top / bottom scrims so the ink stays readable.
+  static const scrimTop = Color(0x99000000);
+  static const scrimBottom = Color(0xB3000000);
+
+  /// The minimized-call bar (white on it is 6.4:1) and its hang-up glyph.
+  static const miniBar = Color(0xFF146C43);
+  static const miniHangup = Color(0xFFFFD6DA);
+
+  /// Self-view tile shadow on the video stage.
+  static const tileShadow = Color(0x66000000);
+}
+
 /// 4/8-pt spacing scale. Use these instead of magic numbers.
 class Gap {
   Gap._();

@@ -174,7 +174,7 @@ class _CallAvatarState extends State<CallAvatar> {
       return CircleAvatar(
         key: const Key('call-avatar-photo'),
         radius: r,
-        backgroundColor: Colors.white.withValues(alpha: 0.14),
+        backgroundColor: CallInk.glassHigh,
         backgroundImage: MemoryImage(b),
         onBackgroundImageError: (_, __) {},
       );
@@ -188,13 +188,13 @@ class _CallAvatarState extends State<CallAvatar> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: widget.onDark ? Colors.white.withValues(alpha: 0.14) : null,
+        color: widget.onDark ? CallInk.glassHigh : null,
         gradient: widget.onDark ? null : Brand.gradient,
       ),
       child: Text(initial,
           style: TextStyle(
               fontSize: r * 0.8,
-              color: Colors.white,
+              color: CallInk.text,
               fontWeight: FontWeight.w700)),
     );
   }

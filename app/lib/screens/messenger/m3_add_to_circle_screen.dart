@@ -223,7 +223,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
             Text(t.m3MyQrBody, textAlign: TextAlign.center),
             const SizedBox(height: Gap.sm),
             SelectableText(link,
-                style: const TextStyle(fontSize: 12), textAlign: TextAlign.center),
+                style: AType.bodySmall, textAlign: TextAlign.center),
           ]),
         ),
         actions: [
@@ -343,7 +343,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
           ),
           const SizedBox(width: Gap.sm),
           Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: Gap.xs),
             child: FilledButton(
               key: const Key('m3-find'),
               onPressed: _st == _St.searching ? null : _find,
@@ -390,7 +390,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         ),
         const SizedBox(height: Gap.sm),
         Text(t.m3ScanLater,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.xl),
       ],
     );
@@ -480,8 +480,8 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                       Text(name.isEmpty ? t.circleSomeone : name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 17)),
+                          style: AType.titleMedium
+                              .copyWith(fontWeight: FontWeight.w700)),
                       Text(t.m3OnAssistoNumber(local),
                           style: TextStyle(color: scheme.onSurfaceVariant)),
                     ]),
@@ -516,8 +516,8 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                   _messageButton(u),
                   const SizedBox(height: Gap.xs),
                   Text(t.mr1MessageNowHint,
-                      style: TextStyle(
-                          color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                      style: AType.bodySmall
+                          .copyWith(color: scheme.onSurfaceVariant)),
                   const SizedBox(height: Gap.md),
                   Text(t.mr1OrAddToCircle,
                       style: Theme.of(context).textTheme.titleSmall),
@@ -527,7 +527,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(t.msgrRelationRequired,
-                          style: TextStyle(color: scheme.error, fontSize: 12)),
+                          style: AType.bodySmall.copyWith(color: scheme.error)),
                     ),
                   const SizedBox(height: Gap.md),
                   FilledButton.icon(
@@ -616,8 +616,9 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           CircleAvatar(
             radius: 36,
-            backgroundColor: Brand.success,
-            child: const Icon(Icons.check, color: Colors.white, size: 40),
+            backgroundColor: AssistoTokens.of(context).success,
+            child: Icon(Icons.check,
+                color: AssistoTokens.of(context).onSuccess, size: 40),
           ),
           const SizedBox(height: Gap.lg),
           Text(_accepted ? t.m3ConnectedWith(who) : t.m3RequestSentTo(who),
