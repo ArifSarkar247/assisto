@@ -480,8 +480,9 @@ jobs:
               if i != -1:
                   s = s[:i] + 'android:supportsPictureInPicture="true"\n            ' + s[i:]
           # ---- b6-antitheft ---- opt-in always-on Lost/Stolen engine.
-          # The service is started ONLY from Dart after the owner turned
-          # protection on (Security PIN) — never at launch, never on boot.
+          # The service is first started ONLY from Dart after the owner turned
+          # protection on (Security PIN) — never at launch. While ON it is
+          # brought back on app open / update / boot (at-heartbeat).
           # Types: location (reports the lost phone's last location) + camera
           # (ONLY declared at runtime when the owner opted in to the intruder
           # photo and granted the camera; otherwise startForeground uses
@@ -495,9 +496,14 @@ jobs:
               '\n        <service android:name="com.assisto.assisto.antitheft.AntiTheftService"'
               ' android:foregroundServiceType="location|camera"'
               ' android:exported="false"/>'
-              # ACTION_SHUTDOWN: best-effort last location (queued). BOOT_COMPLETED:
-              # only QUEUES a 'boot' event — it NEVER starts the service (an FGS
-              # started from the background crashes on Android 14+).
+              # ACTION_SHUTDOWN: best-effort last location (queued). BOOT_COMPLETED
+              # queues a 'boot' event. at-heartbeat: BOOT_COMPLETED and
+              # MY_PACKAGE_REPLACED (app update) restart the engine while
+              # protection is ON, only where Android allows a background FGS
+              # start (RestartPolicy.kt: Android 8-13; 14+ only with background
+              # location, else a "tap to resume" notification). Never the camera
+              # type from there, never a SIM rebaseline. No new permissions
+              # (RECEIVE_BOOT_COMPLETED is already declared). Not directBootAware.
               '\n        <receiver android:name="com.assisto.assisto.antitheft.ShutdownReceiver"'
               ' android:exported="false">'
               '\n            <intent-filter>'
@@ -505,6 +511,7 @@ jobs:
               '\n                <action android:name="android.intent.action.QUICKBOOT_POWEROFF"/>'
               '\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>'
               '\n                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>'
+              '\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>'
               '\n            </intent-filter>'
               '\n        </receiver>\n'
           )

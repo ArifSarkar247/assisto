@@ -41,6 +41,7 @@ import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
 import 'screens/battery_guidance_screen.dart';
 import 'services/oem_guide.dart';
+import 'services/antitheft_resume.dart'; // at-heartbeat
 import 'screens/deletion_grace_screen.dart';
 
 void main() {
@@ -372,6 +373,31 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // never blocks resume (same fire-and-forget pattern as the alert poll).
       unawaited(SecurityHeartbeat.maybeSend(app.api));
     }
+    _resumeProtection();
+  }
+
+  /// at-heartbeat: on EVERY app open / resume, bring the always-on
+  /// Lost/Stolen engine back if protection is ON (an app update or the OS may
+  /// have killed it) — start with the stored token, NO SIM rebaseline. Then a
+  /// one-time battery-optimisation guide if Android is throttling Assisto.
+  /// Seconds after the frame, fire-and-forget, every step crash-guarded.
+  void _resumeProtection() {
+    Map<String, String> notif = const {};
+    try {
+      notif = AntiTheftResume.texts(AppLocalizations.of(context));
+    } catch (_) {}
+    final nav = Navigator.maybeOf(context);
+    final route = ModalRoute.of(context);
+    final loggedIn = context.read<AppState>().loggedIn;
+    unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
+      try {
+        final on = await AntiTheftResume.onAppOpen(notif);
+        if (!on || !loggedIn || nav == null || !mounted) return;
+        await AntiTheftResume.maybeShowBatteryGuide(
+            nav, () => const BatteryGuidanceScreen(),
+            stillOk: () => mounted && (route == null || route.isCurrent));
+      } catch (_) {}
+    }));
   }
 
   void _resolveElderly() {

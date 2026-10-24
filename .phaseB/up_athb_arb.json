@@ -1,0 +1,12 @@
+{
+  "en": {
+    "athbResumeTitle": "Lost/Stolen protection paused",
+    "@athbResumeTitle": {"description": "Quiet Android notification after a phone restart / app update when Android did not let the always-on protection restart by itself (Android 14+)."},
+    "athbResumeBody": "Tap to open Assisto and protection starts again.",
+    "@athbResumeBody": {"description": "Body of the 'protection paused' notification; tapping opens the app, which restarts protection."}
+  },
+  "bn": {
+    "athbResumeTitle": "হারানো/চুরি সুরক্ষা থেমে আছে",
+    "athbResumeBody": "Assisto খুলতে ট্যাপ করুন, সুরক্ষা আবার চালু হবে।"
+  }
+}

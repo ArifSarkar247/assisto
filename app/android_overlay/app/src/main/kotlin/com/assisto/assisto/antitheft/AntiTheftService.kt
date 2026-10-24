@@ -21,6 +21,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import org.json.JSONArray
@@ -34,10 +35,14 @@ import kotlin.math.sqrt
 /**
  * b6-antitheft — the opt-in, always-on Lost/Stolen foreground service.
  *
- * NOTHING here runs at app launch, on boot, or via any ContentProvider. It is
+ * NOTHING here runs at app launch or via any ContentProvider. It is first
  * started ONLY from Dart (AntiTheftChannel.start) after the user turned
  * protection on and the server returned a scoped engine token. It stops when
- * the user turns protection off. A permanent notification is shown the whole
+ * the user turns protection off. at-heartbeat: while protection is ON (token
+ * in prefs) it is brought BACK after an app update / reboot
+ * (ShutdownReceiver -> restartFromBackground, RestartPolicy rules) and on
+ * every app open (AntiTheftChannel.resume) — never re-recording the SIM
+ * baseline. A permanent notification is shown the whole
  * time it runs (Android requires it for a foreground service, and it is the
  * honest thing to do).
  *
@@ -68,6 +73,10 @@ class AntiTheftService : Service(), SensorEventListener {
         // open app (AntiTheftChannel.configure), so adding the CAMERA type is
         // allowed (Android 11+/14 while-in-use rule).
         const val ACTION_RECONFIG = "com.assisto.assisto.antitheft.RECONFIG"
+        // at-heartbeat: restart after an app update / reboot (background).
+        // Never declares the CAMERA type; never re-records the SIM baseline.
+        const val ACTION_RESTART = "com.assisto.assisto.antitheft.RESTART"
+        private const val RESUME_NOTIF_ID = 8441
 
         @Volatile var running = false
             private set
@@ -141,6 +150,136 @@ class AntiTheftService : Service(), SensorEventListener {
                 true
             } catch (_: Throwable) {
                 false
+            }
+        }
+
+        private fun hasBackgroundLocationPerm(ctx: Context): Boolean = try {
+            // literal string: the constant is API 29+ (below 29 there is no
+            // separate background permission; RestartPolicy only asks on 34+)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                ctx.checkSelfPermission("android.permission.ACCESS_BACKGROUND_LOCATION") ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        } catch (_: Throwable) { false }
+
+        /** Is Android battery optimisation ON for Assisto? null = can't tell. */
+        fun batteryOptimised(ctx: Context): Boolean? = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val pm = ctx.getSystemService(Context.POWER_SERVICE) as? PowerManager
+                pm?.isIgnoringBatteryOptimizations(ctx.packageName)?.not()
+            } else null
+        } catch (_: Throwable) { null }
+
+        /**
+         * at-heartbeat: the owner opened Assisto (foreground). If protection
+         * is ON (token in prefs) bring the engine back, or kick a check-in if
+         * it is already running. This is start(..., rebaseline = false): the
+         * SIM baseline recorded at switch-on is kept and compared. Fresh
+         * localized texts from the open app replace the stored ones. Returns
+         * false when protection is off or Android would refuse the start.
+         */
+        fun resume(ctx: Context, title: String?, body: String?, offLabel: String?,
+                   resumeTitle: String?, resumeBody: String?): Boolean {
+            return try {
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                val token = p.getString("token", "") ?: ""
+                val api = p.getString("api", "") ?: ""
+                if (token.isBlank() || api.isBlank()) return false
+                val ed = p.edit()
+                if (!resumeTitle.isNullOrBlank()) ed.putString("resumeTitle", resumeTitle)
+                if (!resumeBody.isNullOrBlank()) ed.putString("resumeBody", resumeBody)
+                ed.apply()
+                try {
+                    (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
+                        ?.cancel(RESUME_NOTIF_ID)
+                } catch (_: Throwable) {}
+                if (running) {
+                    flush(ctx)
+                    return true
+                }
+                val cfg = try { JSONObject(p.getString("config", "{}") ?: "{}") }
+                    catch (_: Throwable) { JSONObject() }
+                start(ctx, token, api, cfg,
+                    if (title.isNullOrBlank()) (p.getString("title", "") ?: "") else title,
+                    if (body.isNullOrBlank()) (p.getString("body", "") ?: "") else body,
+                    if (offLabel.isNullOrBlank()) (p.getString("offLabel", "Turn off") ?: "Turn off")
+                        else offLabel,
+                    false) // rebaseline = false: keep the owner's SIM baseline
+            } catch (_: Throwable) {
+                false
+            }
+        }
+
+        /**
+         * at-heartbeat: called from ShutdownReceiver after MY_PACKAGE_REPLACED
+         * or BOOT_COMPLETED while protection is ON. Starts the engine only
+         * where Android allows it from the background (RestartPolicy);
+         * otherwise posts a quiet "tap to resume" notification. Never throws.
+         */
+        fun restartFromBackground(ctx: Context, trigger: String): Boolean {
+            return try {
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                val token = p.getString("token", "") ?: ""
+                if (token.isBlank() || (p.getString("api", "") ?: "").isBlank()) return false
+                if (running) return true
+                val sdk = Build.VERSION.SDK_INT
+                val bgLoc = hasBackgroundLocationPerm(ctx)
+                // Android 14+: location is the only type we may use from here,
+                // so the location permission itself must be held as well.
+                val ok = RestartPolicy.canStart(trigger, sdk, bgLoc) &&
+                    (sdk < 34 || hasLocationPerm(ctx))
+                if (!ok) {
+                    if (trigger == RestartPolicy.UPDATE || trigger == RestartPolicy.BOOT) {
+                        postTapToResume(ctx)
+                    }
+                    return false
+                }
+                val i = Intent(ctx, AntiTheftService::class.java).setAction(ACTION_RESTART)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ctx.startForegroundService(i)
+                } else {
+                    ctx.startService(i)
+                }
+                true
+            } catch (_: Throwable) {
+                // e.g. ForegroundServiceStartNotAllowedException (QUICKBOOT on
+                // Android 12+): resume on the next app open instead.
+                try { postTapToResume(ctx) } catch (_: Throwable) {}
+                false
+            }
+        }
+
+        /** Quiet notification "Protection paused, tap to resume", in the
+         *  texts the open app stored (bn/en). None stored -> nothing shown. */
+        private fun postTapToResume(ctx: Context) {
+            try {
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                val title = p.getString("resumeTitle", "") ?: ""
+                val body = p.getString("resumeBody", "") ?: ""
+                if (title.isBlank()) return
+                val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                    ?: return
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    nm.createNotificationChannel(NotificationChannel(
+                        CHANNEL_ID, "Lost/Stolen protection",
+                        NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) })
+                }
+                val tap = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+                val pi = if (tap != null) PendingIntent.getActivity(
+                    ctx, 9, tap,
+                    PendingIntent.FLAG_UPDATE_CURRENT or
+                        (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                            PendingIntent.FLAG_IMMUTABLE else 0)) else null
+                val b = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    Notification.Builder(ctx, CHANNEL_ID) else
+                    @Suppress("DEPRECATION") Notification.Builder(ctx)
+                val n = b.setSmallIcon(ctx.applicationInfo.icon)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setAutoCancel(true)
+                    .also { if (pi != null) it.setContentIntent(pi) }
+                    .build()
+                nm.notify(RESUME_NOTIF_ID, n) // no POST_NOTIFICATIONS -> dropped, no crash
+            } catch (_: Throwable) {
             }
         }
 
@@ -247,7 +386,11 @@ class AntiTheftService : Service(), SensorEventListener {
             // reject a camera/location type from the background).
             if (fgTypes == -1 || intent?.action == ACTION_START ||
                 intent?.action == ACTION_RECONFIG) {
-                ensureForeground()
+                // at-heartbeat: a background (re)start (RESTART, or a sticky
+                // restart with no intent) never declares CAMERA — not allowed
+                // from BOOT_COMPLETED / the background on Android 14+.
+                ensureForeground(allowCamera = intent != null &&
+                    intent.action != null && intent.action != ACTION_RESTART)
             }
             if (token.isBlank()) {
                 stopSelf()
@@ -290,11 +433,11 @@ class AntiTheftService : Service(), SensorEventListener {
 
     // ---- foreground notification ------------------------------------------
 
-    private fun wantedTypes(): Int {
+    private fun wantedTypes(allowCamera: Boolean): Int {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
         var t = 0
         if (hasLocationPerm(this)) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && intruderPhoto &&
+        if (allowCamera && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && intruderPhoto &&
             IntruderCamera.canAttempt(this)) {
             t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
         }
@@ -318,7 +461,7 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     } catch (_: Throwable) { null }
 
-    private fun ensureForeground() {
+    private fun ensureForeground(allowCamera: Boolean = true) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(
@@ -344,7 +487,7 @@ class AntiTheftService : Service(), SensorEventListener {
             .also { if (pi != null) it.setContentIntent(pi) }
             .also { b -> offAction()?.let { b.addAction(it) } }
             .build()
-        val want = wantedTypes()
+        val want = wantedTypes(allowCamera)
         // Try the full set, then without the camera, then (pre-Android-14
         // only, where types are not permission-checked) the manifest default.
         val attempts = ArrayList<Int>()
@@ -432,6 +575,10 @@ class AntiTheftService : Service(), SensorEventListener {
             .put("at", System.currentTimeMillis())
             .put("battery", batteryPct() ?: JSONObject.NULL)
             .put("network", networkKind())
+            // at-heartbeat: the interval this phone uses now (battery-aware),
+            // so the server waits the right time before "stopped checking in".
+            .put("interval", currentIntervalMin())
+            .put("charging", charging())
         LastLocation.get(applicationContext)?.let {
             item.put("lat", it.first).put("lng", it.second)
         }
@@ -547,6 +694,12 @@ class AntiTheftService : Service(), SensorEventListener {
         val body = JSONObject()
             .put("sent_at", nowIso())
             .put("items", items)
+        // at-heartbeat: a live fact the server's "went dark" rule uses (Doze /
+        // battery saver can delay an optimised phone's heartbeats a lot).
+        try {
+            val opt = batteryOptimised(applicationContext)
+            if (opt != null) body.put("capabilities", JSONObject().put("batteryOptimised", opt))
+        } catch (_: Throwable) {}
         val resp = postJson("/security/engine/ingest", body) ?: return
         // 401 engine_revoked -> protection was turned off / token rotated: stop.
         if (resp.optBoolean("stop", false)) {

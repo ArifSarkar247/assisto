@@ -48,7 +48,7 @@ class AntiTheftService {
     required String engineToken,
     required String apiBase,
     required Map<String, dynamic> config,
-    required Map<String, String> notif, // {title, body}
+    required Map<String, String> notif, // {title, body, off, resumeTitle, resumeBody}
     // at-falsealarm: true ONLY when the owner just switched protection on —
     // the SIM(s) in the phone now become the silent baseline. A relaunch
     // re-arm never passes it (it compares to the stored baseline).
@@ -63,7 +63,32 @@ class AntiTheftService {
             'notifTitle': notif['title'] ?? 'Protection on',
             'notifBody': notif['body'] ?? '',
             'notifOff': notif['off'] ?? 'Turn off', // play-fgs
+            // at-heartbeat: "protection paused, tap to resume" texts
+            'resumeTitle': notif['resumeTitle'] ?? '',
+            'resumeBody': notif['resumeBody'] ?? '',
             'rebaseline': rebaseline,
+          }) ??
+          false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// at-heartbeat: the app was opened / resumed. If protection is ON (the
+  /// native engine still holds its scoped token) the engine is started again
+  /// with that token and `rebaseline: false` — the SIM baseline recorded at
+  /// switch-on is compared, never re-recorded — or, if it is already running,
+  /// asked for an immediate check-in. Protection off -> false, nothing runs.
+  /// [notif] = {title, body, off, resumeTitle, resumeBody}. Never throws.
+  static Future<bool> resume({required Map<String, String> notif}) async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('resume', {
+            'notifTitle': notif['title'] ?? '',
+            'notifBody': notif['body'] ?? '',
+            'notifOff': notif['off'] ?? '',
+            'resumeTitle': notif['resumeTitle'] ?? '',
+            'resumeBody': notif['resumeBody'] ?? '',
           }) ??
           false;
     } catch (_) {

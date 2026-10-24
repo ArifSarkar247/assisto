@@ -10,7 +10,9 @@ import '../antitheft_api.dart';
 import '../api.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
+import '../services/antitheft_resume.dart'; // at-heartbeat
 import '../services/antitheft_service.dart';
+import 'battery_guidance_screen.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -101,8 +103,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       // After a restart (or if the OS stopped it) the native engine still has
       // its scoped token: resume it now that the owner is looking at this
       // screen in the foreground. Never at app launch, only here.
-      if (st['enabled'] == true && !running) {
-        await AntiTheftService.flushNow();
+      // at-heartbeat: resume = start with the stored token, NO SIM rebaseline
+      // (the app-open path in main.dart does the same on every open).
+      if (st['enabled'] == true && !running && mounted) {
+        await AntiTheftService.resume(
+            notif: AntiTheftResume.texts(AppLocalizations.of(context)));
         running = await AntiTheftService.isRunning();
       }
       if (!mounted) return;
@@ -171,8 +176,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           engineToken: token,
           apiBase: AppConfig.apiBase + AppConfig.apiPrefix,
           config: (resp['config'] as Map?)?.cast<String, dynamic>() ?? const {},
-          notif: {'title': tr.atNotifTitle, 'body': tr.atNotifBody,
-              'off': tr.atNotifOff},
+          notif: AntiTheftResume.texts(tr),
           // at-falsealarm: switched ON now -> today's SIM(s) are the owner's.
           rebaseline: true,
         );
@@ -180,6 +184,12 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       }
       _snack(tr.atEnabledSnack);
       await _load();
+      // at-heartbeat: a battery-optimised phone delays/stops check-ins — show
+      // the battery guide once (never again on app open either).
+      if (token.isNotEmpty && mounted) {
+        await AntiTheftResume.maybeShowBatteryGuide(
+            Navigator.of(context), () => const BatteryGuidanceScreen());
+      }
     } catch (_) {
       _snack(tr.securityActionError);
     } finally {

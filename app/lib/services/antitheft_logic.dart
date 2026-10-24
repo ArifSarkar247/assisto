@@ -250,3 +250,32 @@ class SimEngineModel {
     if (v != null) alerts.add(v);
   }
 }
+
+/// at-heartbeat — when may the always-on engine be brought back? Mirrors
+/// android_overlay/.../antitheft/RestartPolicy.kt 1:1 (keep in sync).
+///   'app'    the owner opened / resumed Assisto: always.
+///   'update' MY_PACKAGE_REPLACED, 'boot' BOOT_COMPLETED: Android 8-13 yes;
+///            Android 14+ only with background location (a location
+///            foreground service can't start from the background without it),
+///            otherwise a "tap to resume" notification.
+/// A background restart never declares the camera type, and NO restart ever
+/// re-records the SIM baseline (only switching protection on does).
+class RestartRules {
+  static const app = 'app';
+  static const update = 'update';
+  static const boot = 'boot';
+
+  static bool canStart(String trigger, int sdk, bool hasBackgroundLocation) {
+    if (trigger == app) return true;
+    if (trigger != update && trigger != boot) return false;
+    if (sdk >= 34) return hasBackgroundLocation;
+    return true;
+  }
+
+  static bool allowCamera(String trigger) => trigger == app;
+
+  static bool needsTapToResume(
+          String trigger, int sdk, bool hasBackgroundLocation) =>
+      (trigger == update || trigger == boot) &&
+      !canStart(trigger, sdk, hasBackgroundLocation);
+}
