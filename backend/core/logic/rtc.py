@@ -12,8 +12,13 @@ import hashlib
 import hmac
 
 TURN_DEFAULT_TTL = 3600            # credentials valid for 1 hour
-THROTTLE_LOAD_FACTOR = 2.0         # throttle when 1-min load > factor * cpus
-THROTTLE_MIN_MEM_MB = 250         # throttle when available RAM drops below this
+# Owner 24 Oct ("Call server busy" while builds ran): Assisto now has its OWN
+# server (no Asalify to protect). Load average counts low-priority build/test
+# jobs (nice 19, ionice idle, user.slice CPUWeight 40 vs assisto/coturn 800),
+# which never starve a call — so CPU load alone no longer refuses calls; only a
+# truly overloaded box (load > 8x cpus) or real memory exhaustion does.
+THROTTLE_LOAD_FACTOR = 8.0         # throttle when 1-min load > factor * cpus
+THROTTLE_MIN_MEM_MB = 150         # throttle when available RAM drops below this
 
 
 def turn_credentials(secret, user_id, now_ts, ttl=TURN_DEFAULT_TTL):

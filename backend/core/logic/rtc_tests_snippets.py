@@ -30,7 +30,9 @@ def test_ice_servers_has_stun_and_turn_udp_tcp():
 
 
 def test_throttle_on_high_load():
-    d = rtc.throttle_decision(loadavg1=5.0, cpus=2, mem_avail_mb=2000)
+    # build/test load (load 6 on 2 cpus) must NOT refuse calls any more
+    assert not rtc.throttle_decision(loadavg1=6.3, cpus=2, mem_avail_mb=2000)["throttled"]
+    d = rtc.throttle_decision(loadavg1=17.0, cpus=2, mem_avail_mb=2000)
     assert d["throttled"] and d["reason"] == "load"
 
 
