@@ -195,14 +195,18 @@ class PhotoSendPreview extends StatefulWidget {
 
   /// e-gaps: show the "1" (view once) toggle.
   final bool allowViewOnce;
-  const PhotoSendPreview({super.key, required this.draft, this.allowViewOnce = false});
+
+  /// The toggle's starting state (gallery shots).
+  final bool initialViewOnce;
+  const PhotoSendPreview(
+      {super.key, required this.draft, this.allowViewOnce = false, this.initialViewOnce = false});
   @override
   State<PhotoSendPreview> createState() => _PhotoSendPreviewState();
 }
 
 class _PhotoSendPreviewState extends State<PhotoSendPreview> {
   final _caption = TextEditingController();
-  bool _viewOnce = false;
+  late bool _viewOnce = widget.initialViewOnce;
 
   @override
   void dispose() {

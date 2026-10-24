@@ -208,44 +208,10 @@ class _PreviewOn extends StatelessWidget {
   final String path;
   const _PreviewOn({required this.path});
   @override
-  Widget build(BuildContext context) => _Tapper(
-        child: PhotoSendPreview(
-            allowViewOnce: true,
-            draft: MediaDraft(kind: 'photo', path: path, name: 'IMG-3.png', mime: 'image/png', size: 2000)),
-      );
-}
-
-/// Taps the "1" once after the first frame (shows the ON state).
-class _Tapper extends StatefulWidget {
-  final Widget child;
-  const _Tapper({required this.child});
-  @override
-  State<_Tapper> createState() => _TapperState();
-}
-
-class _TapperState extends State<_Tapper> {
-  final _key = GlobalKey();
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _key.currentContext;
-      if (ctx == null) return;
-      void visit(Element e) {
-        final w = e.widget;
-        if (w is InkWell && w.key == const Key('e-vo-toggle')) {
-          w.onTap?.call();
-          return;
-        }
-        e.visitChildren(visit);
-      }
-
-      (ctx as Element).visitChildren(visit);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => KeyedSubtree(key: _key, child: widget.child);
+  Widget build(BuildContext context) => PhotoSendPreview(
+      allowViewOnce: true,
+      initialViewOnce: true,
+      draft: MediaDraft(kind: 'photo', path: path, name: 'IMG-3.png', mime: 'image/png', size: 2000));
 }
 
 class _VoiceDemo extends StatelessWidget {

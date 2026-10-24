@@ -243,9 +243,12 @@ class GroupMenuTests(_Base):
         fresh = self.gmsg(self.g, self.a)
         rows = self.cb.get(self.p("messages")).json()["results"]
         self.assertEqual([x["id"] for x in rows], [fresh.id])
+        # e-gaps: the read itself deleted the expired row for real (no cron
+        # needed); the purge command finds nothing left and is still safe.
+        self.assertFalse(CircleMessage.objects.filter(pk=old.pk).exists())
         out = StringIO()
         call_command("purge_disappearing", stdout=out)
-        self.assertIn("group=1", out.getvalue())
+        self.assertIn("group=0", out.getvalue())
         self.assertFalse(CircleMessage.objects.filter(pk=old.pk).exists())
         self.assertTrue(CircleMessage.objects.filter(pk=fresh.pk).exists())
 

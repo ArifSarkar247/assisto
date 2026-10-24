@@ -159,6 +159,8 @@ void main() {
       await tester.pump();
       expect(fake.calls.last, 'rate 2.0');
       // pause -> resume keeps the chosen speed
+      fake._pos.add(const Duration(seconds: 2));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('md1-voice-play')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('md1-voice-play')));
@@ -273,7 +275,15 @@ void main() {
         ctx = c;
         return const SizedBox();
       })));
-      final done = openViewOnce(ctx, msgId: '501', desc: _desc('v1'), deps: deps);
+      late Future<bool> done;
+      // real file I/O + storage run outside the fake clock
+      await tester.runAsync(() async {
+        done = openViewOnce(ctx, msgId: '501', desc: _desc('v1'), deps: deps);
+        for (var i = 0; i < 40 && secure.calls.isEmpty; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 25));
+          await tester.pump();
+        }
+      });
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e-vo-image')), findsOneWidget);
       expect(file.existsSync(), isFalse); // plaintext only in memory
@@ -286,7 +296,9 @@ void main() {
       expect(find.byIcon(Icons.save_alt_outlined), findsNothing);
       await tester.tap(find.byKey(const Key('e-vo-close')));
       await tester.pumpAndSettle();
-      expect(await done, isTrue);
+      late bool doneOk;
+      await tester.runAsync(() async => doneOk = await done);
+      expect(doneOk, isTrue);
       expect(secure.calls, ['on', 'off']);
       // a second tap is refused, nothing fetched
       var fetched = false;
@@ -300,8 +312,9 @@ void main() {
               },
               ack: (_) async {},
               secure: secure));
-      await tester.pump();
-      expect(await again, isFalse);
+      late bool againOk;
+      await tester.runAsync(() async => againOk = await again);
+      expect(againOk, isFalse);
       expect(fetched, isFalse);
       await tester.pump();
       expect(find.text('This view-once photo was already opened'), findsOneWidget);
