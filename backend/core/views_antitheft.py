@@ -111,18 +111,32 @@ def can_view(phone, user):
     return any(u.pk == user.pk for u in approved_family_users(phone))
 
 
-def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False):
+def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
+           family_only=False):
     """FamilyAlert + NotifEvent + FCM push to the owner and approved family
-    ONLY. Never raises (an alert failure must not lose the stored event)."""
+    ONLY. Never raises (an alert failure must not lose the stored event).
+
+    at-falsealarm: recipients are de-duplicated by user id, so one person
+    (e.g. the owner who is also linked as a family member's peer) gets ONE
+    push per alert. family_only=True skips the owner (the all-clear after the
+    owner's own "It was me")."""
     from . import push
     meta = dict(meta or {})
     meta.update({"phone_id": phone.id, "owner_id": phone.owner_id,
                  "antitheft_kind": kind})
     owner = phone.owner
-    recips = [owner] + ([] if owner_only else approved_family_users(phone))
+    recips = [] if family_only else [owner]
+    if not owner_only:
+        recips += approved_family_users(phone)
     now = timezone.now()
     sent = 0
+    seen = set()
     for u in recips:
+        if u is None or u.pk in seen:
+            continue
+        if family_only and u.pk == phone.owner_id:
+            continue
+        seen.add(u.pk)
         try:
             en = push.user_lang(u) == "en"
             FamilyAlert.objects.create(
@@ -153,6 +167,26 @@ def _config(phone, eng, interval=None):
         "intruder_photo": eng.intruder_photo,
         "failed_unlock_threshold": eng.failed_unlock_threshold,
     }
+
+
+# at-falsealarm: an older engine (before the SIM baseline) reported the
+# CURRENT SIM as "sim_change inserted" seconds after protection was switched on
+# (a sticky Android broadcast). Such legacy events (no data.v) arriving within
+# this window after enabling are stored for the timeline but never freeze the
+# phone or alert anyone. The new engine sends data.v=2 and is trusted.
+LEGACY_SIM_GRACE_S = 120
+
+
+def _legacy_arming_sim(eng, kind, ev_at, data):
+    if kind != "sim_change" or not eng.enabled_at:
+        return False
+    try:
+        if int((data or {}).get("v") or 0) >= 2:
+            return False
+    except (TypeError, ValueError):
+        pass
+    delta = (ev_at - eng.enabled_at).total_seconds()
+    return -30 <= delta <= LEGACY_SIM_GRACE_S
 
 
 def _member_brief(m):
@@ -284,6 +318,9 @@ class EngineStateView(APIView):
             "went_dark_at": dark.isoformat() if dark else None,
             "interval_min": phone.heartbeat_interval_min,
             "frozen": sec.is_frozen(phone, now),
+            "frozen_until": (phone.frozen_until.isoformat()
+                             if sec.is_frozen(phone, now) else None),
+            "theft_signal": bool(_recent_signals(phone, now)),
             "lost_mode": phone.lost_mode,
             "recent": recent,
         })
@@ -391,6 +428,115 @@ class EngineSettingsView(APIView):
         eng.save()
         return Response({"ok": True, "config": _config(phone, eng),
                          "alert_members": [_member_brief(m) for m in approved_members(phone)]})
+
+
+# --------------------------------------------------------------------------
+# at-falsealarm: owner's "It was me / false alarm"
+# --------------------------------------------------------------------------
+
+FALSE_ALARM_WINDOW_H = sec.FREEZE_HOURS
+FALSE_ALARM_MAX_PER_DAY = 5
+
+
+def _sig_dt(s):
+    from django.utils.dateparse import parse_datetime
+    at_ = s.get("at") if isinstance(s, dict) else None
+    try:
+        return parse_datetime(at_) if isinstance(at_, str) else at_
+    except Exception:
+        return None
+
+
+def _recent_signals(phone, now):
+    cutoff = now - timedelta(hours=FALSE_ALARM_WINDOW_H)
+    out = []
+    for s in (phone.signals or []):
+        dt = _sig_dt(s)
+        if dt is not None and dt >= cutoff:
+            out.append(s)
+    return out
+
+
+class FalseAlarmView(APIView):
+    """POST security/engine/false-alarm {pin, phone_id?} — owner only.
+
+    The owner says the theft signal was them (e.g. they switched protection on
+    and their own SIM was reported). Needs the Security PIN, verified HERE
+    (a wrong PIN counts toward the wrong-PIN lock). Then: the 48h freeze is
+    lifted, theft signals of the last 48h are removed from the phone (kept in
+    the AuditLog with the before-state), the matching AntiTheftEvents are
+    marked data.false_alarm=true, the engine is told to re-record its SIM
+    baseline on its next check-in, and approved family get ONE short
+    all-clear (the owner gets no second push). Rate-limited per day."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .models import AuditLog
+        pid = at.i_or_none(request.data.get("phone_id"))
+        qs = ProtectedPhone.objects.filter(owner=request.user)
+        phone = (qs.filter(pk=pid).first() if pid is not None
+                 else _primary_phone(request.user, create=False))
+        if phone is None:
+            raise Http404
+        now = timezone.now()
+        done_today = AuditLog.objects.filter(
+            user=request.user, action="antitheft.false_alarm_cleared",
+            created_at__gte=now - timedelta(hours=24)).count()
+        if done_today >= FALSE_ALARM_MAX_PER_DAY:
+            return Response({"ok": False, "reason": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        # Always the PIN — also (and especially) in lost mode / reported
+        # stolen: only the real owner can say "it was me".
+        gate = _pin_gate(request, phone)
+        if gate is not None:
+            return gate
+        phone.refresh_from_db()
+        recent = _recent_signals(phone, now)
+        was_frozen = sec.is_frozen(phone, now)
+        if not recent and not was_frozen:
+            return Response({"ok": True, "cleared": 0, "frozen": False})
+        before = {"frozen_until": (phone.frozen_until.isoformat()
+                                   if phone.frozen_until else None),
+                  "signals": list(phone.signals or []),
+                  "lost_mode": phone.lost_mode, "status": phone.status}
+        cutoff = now - timedelta(hours=FALSE_ALARM_WINDOW_H)
+        keep = []
+        for s in (phone.signals or []):
+            dt = _sig_dt(s)
+            if dt is not None and dt >= cutoff:
+                continue
+            keep.append(s)
+        phone.signals = keep
+        phone.frozen_until = None
+        phone.save()
+        evs = list(AntiTheftEvent.objects.filter(
+            phone=phone, kind__in=list(at.SIGNAL_KINDS),
+            received_at__gte=cutoff))
+        for ev in evs:
+            d = dict(ev.data or {})
+            d["false_alarm"] = True
+            AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
+        eng = _engine(phone, create=False)
+        if eng is not None:
+            ls = dict(eng.last_sim or {})
+            ls["rebaseline"] = True
+            AntiTheftEngine.objects.filter(pk=eng.pk).update(last_sim=ls)
+        AuditLog.objects.create(
+            user=request.user, action="antitheft.false_alarm_cleared",
+            detail={"phone_id": phone.id, "before": before,
+                    "removed_signals": recent, "event_ids": [e.id for e in evs],
+                    "at": now.isoformat()})
+        name = _owner_name(request.user)
+        sent = notify(phone, "all_clear",
+                      "All clear: it was a false alarm",
+                      ("%s confirmed with the Security PIN that the recent theft "
+                       "alert was a false alarm. No action needed." % name),
+                      "সব ঠিক আছে: ভুল সতর্কবার্তা ছিল",
+                      ("%s সিকিউরিটি পিন দিয়ে নিশ্চিত করেছেন যে চুরির সাম্প্রতিক "
+                       "সতর্কবার্তাটি ভুল ছিল। কিছু করতে হবে না।" % name),
+                      family_only=True)
+        return Response({"ok": True, "cleared": len(recent), "frozen": False,
+                         "events_marked": len(evs), "family_notified": sent})
 
 
 # --------------------------------------------------------------------------
@@ -537,6 +683,13 @@ class EngineIngestView(APIView):
                 eng.last_fix_at = ev_at
             # a theft signal freezes Section-8 actions (snatch / sim_change)
             if kind in at.SIGNAL_KINDS:
+                if _legacy_arming_sim(eng, kind, ev_at, ev.data):
+                    d = dict(ev.data or {})
+                    d["ignored"] = "arming_baseline"
+                    AntiTheftEvent.objects.filter(pk=ev.pk).update(
+                        data=d, alerted=True)
+                    new_events.pop()
+                    continue
                 sec.register_signal(phone, at.SIGNAL_KINDS[kind], now)
 
         # phone is reporting again → clear the went-dark latch so a later gap
@@ -561,10 +714,18 @@ class EngineIngestView(APIView):
         PhoneHeartbeat.prune(phone)
         prune_phone(phone, now)
 
+        cfg = _config(phone, eng)
+        # at-falsealarm: "It was me" asks the engine to re-record the SIM
+        # baseline — delivered once, then consumed.
+        ls = dict(eng.last_sim or {})
+        if ls.pop("rebaseline", False):
+            cfg["rebaseline_sim"] = True
+            AntiTheftEngine.objects.filter(pk=eng.pk).update(last_sim=ls)
+
         return Response({
             "ok": True,
             "accepted": accepted, "duplicate": duplicate, "rejected": rejected,
-            "config": _config(phone, eng),
+            "config": cfg,
             "lost_mode": phone.lost_mode,
             "lost_message": phone.lost_message,
             "lost_contact": phone.lost_contact,
