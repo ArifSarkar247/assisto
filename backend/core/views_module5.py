@@ -523,8 +523,10 @@ class ChatPinView(_OrganiseBase):
         from .logic import msg_organise as MO
         want = bool((request.data or {}).get("pinned", True))
         row = self._row(request.user, pk)
+        # e-gaps: the cap counts pinned GROUPS too (one list, one cap)
         pinned_count = ChatOrganiseState.objects.filter(
-            user=request.user, chat_kind="member", pinned=True).count()
+            user=request.user, chat_kind__in=("member", "group"),
+            pinned=True).exclude(pk=row.pk).count()
         ok, reason = MO.can_pin_chat(pinned_count, row.pinned)
         if want and not ok:
             return Response({"ok": False, "code": reason},
@@ -961,6 +963,9 @@ class CircleMessagesView(APIView):
             # (same client_msg_id) — no frame where the message is missing.
             "client_msg_id": x.client_msg_id if x.sender_id == uid else "",
         } for x in msgs]
+        from . import e_gaps   # e-gaps: view-once state + stripping
+        for row, x in zip(out, msgs):
+            e_gaps.annotate(row, x, uid)
         # c3-msg: ticks (sent/delivered/read) on my own messages.
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
@@ -1080,6 +1085,7 @@ class CircleMessagesView(APIView):
         # (silent delivery ping there), so only the inbox routing counts here.
         notify = circle_privacy.should_notify({}, decision["inbox"])
         fh = int(env.get("forward_hops", 0) or 0)
+        from . import e_gaps as _eg
         x = CircleMessage.objects.create(
             member=m, sender=request.user,
             recipient_ids=env.get("recipient_ids", []),
@@ -1093,6 +1099,7 @@ class CircleMessagesView(APIView):
             forwarded=bool(env.get("forwarded")),
             forward_hops=fh,
             link_preview=env.get("link_preview"),
+            view_once=_eg.wants_view_once(env, env["content_type"]),
         )
         if md1_blob is not None:   # md1: retention knows who must download
             from . import circle_blobs as CB

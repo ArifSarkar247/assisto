@@ -31,6 +31,7 @@ class Command(BaseCommand):
         from core.models import (ChatSettings, CircleMessage, MsgChatPref,
                                  MsgExport, MsgGroupTimer)
         from core.logic import circle_extras as X
+        from core import e_gaps
         now = timezone.now()
         dry = opts.get("dry_run")
         n_dm = n_grp = n_exp = 0
@@ -52,7 +53,7 @@ class Command(BaseCommand):
                 created_at__lt=now - timedelta(seconds=ttl))
             n_dm += qs.count()
             if not dry:
-                qs.delete()
+                e_gaps.purge_rows(list(qs))   # e-gaps: + encrypted blobs
 
         for t in MsgGroupTimer.objects.filter(disappearing_sec__gt=0):
             ttl = X.normalize_disappearing(t.disappearing_sec)
@@ -63,7 +64,7 @@ class Command(BaseCommand):
                 created_at__lt=now - timedelta(seconds=ttl))
             n_grp += qs.count()
             if not dry:
-                qs.delete()
+                e_gaps.purge_rows(list(qs))   # e-gaps: + encrypted blobs
 
         for e in MsgExport.objects.filter(expires_at__lt=now):
             n_exp += 1

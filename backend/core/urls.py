@@ -970,3 +970,13 @@ urlpatterns += [
     path("circle/decor/group/<int:pk>", cde.DecorGroupView.as_view()),
 ]
 # ---- /cde-chat ----
+
+# ---- e-gaps ---- (owner order E: view-once media). PREPENDED so the literal
+# path wins over the circle/messages/<pk>/<action> catch-all.
+from . import views_e_gaps as egv  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/messages/<int:pk>/view-once-open",
+         egv.ViewOnceOpenView.as_view()),
+    path("circle/groups/<int:pk>/organise", egv.GroupOrganiseView.as_view()),
+]
+# ---- /e-gaps ----
