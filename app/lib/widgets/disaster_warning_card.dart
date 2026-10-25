@@ -54,7 +54,7 @@ class DisasterWarningCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Row(children: [
-                      Icon(Icons.place_outlined,
+                      Icon(Icons.place_rounded,
                           size: 13, color: scheme.onSurfaceVariant),
                       const SizedBox(width: 2),
                       Expanded(
@@ -72,7 +72,7 @@ class DisasterWarningCard extends StatelessWidget {
           // severity + metric chips
           Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
             _Pill(
-              icon: Icons.priority_high,
+              icon: Icons.priority_high_rounded,
               label: dSevLabel(context, warning.severity),
               color: tint,
               filled: true,
@@ -81,7 +81,7 @@ class DisasterWarningCard extends StatelessWidget {
               _Pill(icon: dKindIcon(warning.kind), label: chip, color: tint),
             if (warning.sample || !warning.isLive)
               _Pill(
-                icon: Icons.science_outlined,
+                icon: Icons.science_rounded,
                 label: t.disSampleBadge,
                 color: scheme.onSurfaceVariant,
               ),
@@ -99,13 +99,13 @@ class DisasterWarningCard extends StatelessWidget {
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [ // qa1
             FilledButton.tonalIcon(
               onPressed: onSteps,
-              icon: const Icon(Icons.checklist_rtl, size: 18),
+              icon: const Icon(Icons.checklist_rtl_rounded, size: 18),
               label: Text(t.disWhatToDo),
             ),
             const SizedBox(width: Gap.sm),
             OutlinedButton.icon(
               onPressed: onShare,
-              icon: const Icon(Icons.share_outlined, size: 18),
+              icon: const Icon(Icons.share_rounded, size: 18),
               label: Text(t.disShare),
             ),
           ]),

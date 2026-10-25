@@ -110,7 +110,7 @@ class _JobsFilterSheetState extends State<JobsFilterSheet> {
             controller: _location,
             decoration: InputDecoration(
               labelText: tr.jobsFilterLocation,
-              prefixIcon: const Icon(Icons.location_on_outlined),
+              prefixIcon: const Icon(Icons.location_on_rounded),
               border: const OutlineInputBorder(),
             ),
           ),

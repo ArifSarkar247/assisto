@@ -158,34 +158,34 @@ class _CarModeScreenState extends State<CarModeScreen> {
     final wide = MediaQuery.of(context).size.width > 600;
     final tiles = <Widget>[
       _BigButton(
-        icon: Icons.navigation_outlined,
+        icon: Icons.navigation_rounded,
         label: tr.vehCarNavigate,
         color: Brand.blue,
         onTap: _navigate,
       ),
       _BigButton(
-        icon: Icons.mic_none,
+        icon: Icons.mic_none_rounded,
         label: tr.vehCarVoice,
         color: Brand.purple,
         onTap: () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const VoiceAssistantScreen())),
       ),
       _BigButton(
-        icon: _logging ? Icons.stop_circle_outlined : Icons.route,
+        icon: _logging ? Icons.stop_circle_rounded : Icons.route_rounded,
         label: _logging ? tr.vehCarStopTrip : tr.vehCarStartTrip,
         color: _logging ? scheme.error : Brand.success,
         busy: _saving,
         onTap: _saving ? null : (_logging ? _stopTrip : _startTrip),
       ),
       _BigButton(
-        icon: Icons.car_repair,
+        icon: Icons.car_repair_rounded,
         label: tr.vehObdTitle,
         color: Brand.warning,
         onTap: () => Navigator.push(
             context, MaterialPageRoute(builder: (_) => const VehicleObdScreen())),
       ),
       _BigButton(
-        icon: Icons.videocam_outlined,
+        icon: Icons.videocam_rounded,
         label: tr.vehCarDashcam,
         color: Brand.cyan,
         onTap: () => Navigator.push(
@@ -205,7 +205,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Row(children: [
-                    Icon(Icons.fiber_manual_record, color: scheme.error),
+                    Icon(Icons.fiber_manual_record_rounded, color: scheme.error),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
@@ -222,7 +222,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
               Card(
                 margin: const EdgeInsets.only(bottom: Gap.md),
                 child: ListTile(
-                  leading: const Icon(Icons.check_circle, color: Brand.success),
+                  leading: const Icon(Icons.check_circle_rounded, color: Brand.success),
                   title: Text(tr.vehCarTripSaved),
                   subtitle: Text(
                     '${tr.vehKm(vehNumStr(context, vehNum(_lastTrip!['total_km']) ?? 0, decimals: 1))}  ·  '
@@ -248,7 +248,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.info_outline, color: scheme.onSecondaryContainer),
+                  Icon(Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(tr.vehCarHonest,

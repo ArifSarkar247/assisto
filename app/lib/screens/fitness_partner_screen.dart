@@ -101,19 +101,19 @@ String _typeLabel(AppLocalizations tr, String? t) {
 IconData _typeIcon(String? t) {
   switch (t) {
     case 'run':
-      return Icons.directions_run;
+      return Icons.directions_run_rounded;
     case 'cycle':
-      return Icons.directions_bike;
+      return Icons.directions_bike_rounded;
     case 'gym':
-      return Icons.fitness_center;
+      return Icons.fitness_center_rounded;
     case 'yoga':
-      return Icons.self_improvement;
+      return Icons.self_improvement_rounded;
     case 'sport':
-      return Icons.sports_soccer;
+      return Icons.sports_soccer_rounded;
     case 'other':
-      return Icons.bolt;
+      return Icons.bolt_rounded;
     default:
-      return Icons.directions_walk;
+      return Icons.directions_walk_rounded;
   }
 }
 
@@ -183,13 +183,13 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.fitLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -199,12 +199,12 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: StateMessage(
-          icon: Icons.favorite_outline,
+          icon: Icons.favorite_outline_rounded,
           title: tr.fitWelcomeTitle,
           message: tr.fitWelcomeBody,
           action: FilledButton.icon(
             onPressed: _setGoal,
-            icon: const Icon(Icons.flag_outlined),
+            icon: const Icon(Icons.flag_rounded),
             label: Text(tr.fitSetGoal),
           ),
         ),
@@ -217,13 +217,13 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
       appBar: AppBar(title: Text(tr.fitTitle), actions: [
         IconButton(
           tooltip: tr.fitChangeGoal,
-          icon: const Icon(Icons.flag_outlined),
+          icon: const Icon(Icons.flag_rounded),
           onPressed: _setGoal,
         ),
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _logWorkout,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.fitLogWorkout),
       ),
       body: RefreshIndicator(
@@ -273,7 +273,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
             title: Text(_typeLabel(tr, w['type'] as String?)),
             subtitle: Text(_workoutSubtitle(tr, w)),
             trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, size: 20),
+              icon: const Icon(Icons.delete_outline_rounded, size: 20),
               tooltip: tr.delete,
               onPressed: () async {
                 final id = w['id'];
@@ -422,16 +422,16 @@ class _WeeklyStreakRow extends StatelessWidget {
       Expanded(
           child: _statCard(context, tr.fitThisWeek,
               tr.fitSessions((summary['count'] as int?) ?? 0),
-              Brand.blue, Icons.calendar_today_outlined)),
+              Brand.blue, Icons.calendar_today_rounded)),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: _statCard(context, tr.fitMinutesLabel,
               '${(summary['minutes'] as int?) ?? 0}',
-              Brand.purple, Icons.timer_outlined)),
+              Brand.purple, Icons.timer_rounded)),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: _statCard(context, tr.fitStreak, tr.fitDays(streak),
-              Brand.success, Icons.local_fire_department_outlined)),
+              Brand.success, Icons.local_fire_department_rounded)),
     ]);
   }
 }
@@ -450,7 +450,7 @@ class _CoachTip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.tips_and_updates_outlined,
+          Icon(Icons.tips_and_updates_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -807,7 +807,7 @@ Widget _nonMedicalNote(BuildContext context, String text) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.favorite_border, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.favorite_border_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,

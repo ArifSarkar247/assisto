@@ -155,30 +155,30 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
       appBar: AppBar(title: Text(tr.paBoardTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _open(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.paBoardNew),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paBoardLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _saved.isEmpty
                   ? StateMessage(
-                      icon: Icons.groups_2_outlined,
+                      icon: Icons.groups_2_rounded,
                       title: tr.paBoardWelcomeTitle,
                       message: tr.paBoardWelcomeBody,
                       action: FilledButton.icon(
                         onPressed: () => _open(),
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add_rounded),
                         label: Text(tr.paBoardNew),
                       ),
                     )
@@ -198,7 +198,7 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
                           return Card(
                             margin: EdgeInsets.zero,
                             child: ListTile(
-                              leading: Icon(Icons.groups_2_outlined,
+                              leading: Icon(Icons.groups_2_rounded,
                                   color: scheme.primary),
                               title: Text(_clean(r['title']?.toString()),
                                   maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -578,7 +578,7 @@ class _PackEditorState extends State<_PackEditor> {
           // ---- Agenda
           _SectionEditor(
             label: tr.paBoardSecAgenda,
-            icon: Icons.list_alt_outlined,
+            icon: Icons.list_alt_rounded,
             rows: _agenda,
             addLabel: tr.paBoardAddAgenda,
             onChanged: () => setState(() {}),
@@ -591,7 +591,7 @@ class _PackEditorState extends State<_PackEditor> {
           // ---- Documents
           _SectionEditor(
             label: tr.paBoardSecDocuments,
-            icon: Icons.folder_outlined,
+            icon: Icons.folder_rounded,
             rows: _documents,
             addLabel: tr.paBoardAddDocument,
             onChanged: () => setState(() {}),
@@ -603,7 +603,7 @@ class _PackEditorState extends State<_PackEditor> {
           // ---- Attendees
           _SectionEditor(
             label: tr.paBoardSecAttendees,
-            icon: Icons.people_alt_outlined,
+            icon: Icons.people_alt_rounded,
             rows: _attendees,
             addLabel: tr.paBoardAddAttendee,
             onChanged: () => setState(() {}),
@@ -616,7 +616,7 @@ class _PackEditorState extends State<_PackEditor> {
           // ---- Resolutions
           _SectionEditor(
             label: tr.paBoardSecResolutions,
-            icon: Icons.how_to_vote_outlined,
+            icon: Icons.how_to_vote_rounded,
             rows: _resolutions,
             addLabel: tr.paBoardAddResolution,
             onChanged: () => setState(() {}),
@@ -630,7 +630,7 @@ class _PackEditorState extends State<_PackEditor> {
           const SizedBox(height: Gap.lg),
 
           Row(children: [
-            Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.paAiReviewMarker,
@@ -669,7 +669,7 @@ class _PackEditorState extends State<_PackEditor> {
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
                 },
-                icon: const Icon(Icons.copy_outlined, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
                 label: Text(tr.copy),
               ),
             ),
@@ -677,7 +677,7 @@ class _PackEditorState extends State<_PackEditor> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => Share.share(rendered),
-                icon: const Icon(Icons.share_outlined, size: 18),
+                icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(tr.share),
               ),
             ),
@@ -688,7 +688,7 @@ class _PackEditorState extends State<_PackEditor> {
             child: FilledButton.icon(
               onPressed:
                   (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_outlined, size: 18),
+              icon: const Icon(Icons.save_rounded, size: 18),
               label: Text(tr.save),
             ),
           ),
@@ -713,7 +713,7 @@ class _PackEditorState extends State<_PackEditor> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child:
@@ -781,7 +781,7 @@ class _SectionEditor extends StatelessWidget {
             Expanded(child: builder(rows[i], onChanged)),
             IconButton(
               tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-              icon: Icon(Icons.remove_circle_outline, color: scheme.error),
+              icon: Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
               onPressed: () {
                 rows.removeAt(i);
                 onChanged();
@@ -797,7 +797,7 @@ class _SectionEditor extends StatelessWidget {
               rows.add(newRow());
               onChanged();
             },
-            icon: const Icon(Icons.add, size: 18),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: Text(addLabel),
           ),
         ),

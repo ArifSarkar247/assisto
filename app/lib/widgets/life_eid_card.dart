@@ -109,7 +109,7 @@ class _LifeEidCardState extends State<LifeEidCard> {
               icon: _busy
                   ? const SizedBox(
                       width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.auto_awesome, size: 16),
+                  : const Icon(Icons.auto_awesome_rounded, size: 16),
               label: Text(t.eidGenerate),
               onPressed: _busy ? null : _generate,
             ),
@@ -129,7 +129,7 @@ class _LifeEidCardState extends State<LifeEidCard> {
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.share, size: 16),
+                  icon: const Icon(Icons.share_rounded, size: 16),
                   label: Text(t.eidShare),
                   onPressed: () => Share.share(_draft.text),
                 ),

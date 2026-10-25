@@ -95,8 +95,8 @@ class ResetStrengthMeter extends StatelessWidget {
           children: [
             Icon(
               score.meetsFloor
-                  ? Icons.check_circle_outline
-                  : Icons.info_outline,
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.info_outline_rounded,
               size: 16,
               color: color,
             ),

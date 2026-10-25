@@ -532,7 +532,7 @@ class _ChatLockGateState extends State<ChatLockGate> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.lock_outline, size: 56, color: scheme.primary),
+            Icon(Icons.lock_outline_rounded, size: 56, color: scheme.primary),
             const SizedBox(height: Gap.md),
             Text(t.eLockGateTitle,
                 textAlign: TextAlign.center,
@@ -541,7 +541,7 @@ class _ChatLockGateState extends State<ChatLockGate> {
             FilledButton.icon(
               key: const Key('e-lock-gate-unlock'),
               onPressed: _ask,
-              icon: const Icon(Icons.lock_open),
+              icon: const Icon(Icons.lock_open_rounded),
               label: Text(t.eLockUnlock),
             ),
           ]),

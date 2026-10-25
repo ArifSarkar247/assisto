@@ -178,7 +178,7 @@ class _LocationCardState extends State<LocationCard> {
               ),
               const SizedBox(height: Gap.sm),
               Row(children: [
-                Icon(s.live ? Icons.my_location : Icons.location_on,
+                Icon(s.live ? Icons.my_location_rounded : Icons.location_on_rounded,
                     size: 18, color: liveNow ? Brand.success : widget.fg),
                 const SizedBox(width: Gap.xs),
                 Expanded(
@@ -210,7 +210,7 @@ class _LocationCardState extends State<LocationCard> {
                       padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
                       minimumSize: const Size(48, 40)),
                   onPressed: _open,
-                  icon: const Icon(Icons.map_outlined, size: 18),
+                  icon: const Icon(Icons.map_rounded, size: 18),
                   label: Text(t.mc2OpenInMaps),
                 ),
                 if (canStop)
@@ -224,7 +224,7 @@ class _LocationCardState extends State<LocationCard> {
                     icon: _stopping
                         ? const SizedBox(
                             width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.stop_circle_outlined, size: 18),
+                        : const Icon(Icons.stop_circle_rounded, size: 18),
                     label: Text(t.mc2StopSharing),
                   ),
               ]),

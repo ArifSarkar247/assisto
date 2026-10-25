@@ -36,16 +36,16 @@ class _SettingsVoiceSectionState extends State<SettingsVoiceSection> {
     final t = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final options = [
-      ('auto', Icons.auto_awesome_outlined, t.p1VoiceAuto, t.p1VoiceAutoBody),
+      ('auto', Icons.auto_awesome_rounded, t.p1VoiceAuto, t.p1VoiceAutoBody),
       (
         'bn',
-        Icons.record_voice_over_outlined,
+        Icons.record_voice_over_rounded,
         t.languageBangla,
         t.p1VoiceBnBody
       ),
       (
         'en',
-        Icons.record_voice_over_outlined,
+        Icons.record_voice_over_rounded,
         t.languageEnglish,
         t.p1VoiceEnBody
       ),
@@ -54,7 +54,7 @@ class _SettingsVoiceSectionState extends State<SettingsVoiceSection> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
         child: Row(children: [
-          Icon(Icons.mic_none, size: 20, color: cs.primary),
+          Icon(Icons.mic_none_rounded, size: 20, color: cs.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.p1VoiceTitle,

@@ -213,7 +213,7 @@ class FinanceResultCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.lightbulb_outline,
+                  Icon(Icons.lightbulb_outline_rounded,
                       size: 18, color: scheme.onSecondaryContainer),
                   const SizedBox(width: Gap.sm),
                   Expanded(
@@ -239,7 +239,7 @@ class FinanceResultCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton.icon(
                 onPressed: onShare,
-                icon: const Icon(Icons.ios_share, size: 18),
+                icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(shareLabel),
               ),
             ),
@@ -265,7 +265,7 @@ class FinanceErrorBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.error_outline, size: 18, color: scheme.onErrorContainer),
+        Icon(Icons.error_outline_rounded, size: 18, color: scheme.onErrorContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(message,

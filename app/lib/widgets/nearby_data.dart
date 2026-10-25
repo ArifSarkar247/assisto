@@ -37,17 +37,17 @@ class CatMeta {
 }
 
 const List<CatMeta> kNearbyCats = [
-  CatMeta(NearbyCat.hospital, Icons.local_hospital_outlined, Color(0xFFE0485A)),
-  CatMeta(NearbyCat.pharmacy, Icons.local_pharmacy_outlined, Color(0xFF2E9E6B)),
-  CatMeta(NearbyCat.atmBank, Icons.atm_outlined, Color(0xFF3B6EF6)),
-  CatMeta(NearbyCat.mobileAgent, Icons.phone_android_outlined, Color(0xFFE0485A)),
-  CatMeta(NearbyCat.police, Icons.local_police_outlined, Color(0xFF2347D9)),
-  CatMeta(NearbyCat.fire, Icons.fire_truck_outlined, Color(0xFFE0A500)),
-  CatMeta(NearbyCat.transport, Icons.directions_bus_outlined, Color(0xFF9B4DF0)),
-  CatMeta(NearbyCat.fuel, Icons.local_gas_station_outlined, Color(0xFFE0A500)),
-  CatMeta(NearbyCat.restaurant, Icons.restaurant_outlined, Color(0xFFE0485A)),
-  CatMeta(NearbyCat.mosque, Icons.mosque_outlined, Color(0xFF2E9E6B)),
-  CatMeta(NearbyCat.govt, Icons.account_balance_outlined, Color(0xFF3B6EF6)),
+  CatMeta(NearbyCat.hospital, Icons.local_hospital_rounded, Color(0xFFE0485A)),
+  CatMeta(NearbyCat.pharmacy, Icons.local_pharmacy_rounded, Color(0xFF2E9E6B)),
+  CatMeta(NearbyCat.atmBank, Icons.atm_rounded, Color(0xFF3B6EF6)),
+  CatMeta(NearbyCat.mobileAgent, Icons.phone_android_rounded, Color(0xFFE0485A)),
+  CatMeta(NearbyCat.police, Icons.local_police_rounded, Color(0xFF2347D9)),
+  CatMeta(NearbyCat.fire, Icons.fire_truck_rounded, Color(0xFFE0A500)),
+  CatMeta(NearbyCat.transport, Icons.directions_bus_rounded, Color(0xFF9B4DF0)),
+  CatMeta(NearbyCat.fuel, Icons.local_gas_station_rounded, Color(0xFFE0A500)),
+  CatMeta(NearbyCat.restaurant, Icons.restaurant_rounded, Color(0xFFE0485A)),
+  CatMeta(NearbyCat.mosque, Icons.mosque_rounded, Color(0xFF2E9E6B)),
+  CatMeta(NearbyCat.govt, Icons.account_balance_rounded, Color(0xFF3B6EF6)),
 ];
 
 CatMeta catMeta(NearbyCat c) => kNearbyCats.firstWhere((m) => m.cat == c);

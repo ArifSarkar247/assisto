@@ -87,7 +87,7 @@ class AccessibilityModeScreen extends StatelessWidget {
           ),
 
           _ToggleTile(
-            icon: Icons.contrast,
+            icon: Icons.contrast_rounded,
             title: t.a11yHighContrast,
             subtitle: t.a11yHighContrastSub,
             value: a.highContrast,
@@ -98,7 +98,7 @@ class AccessibilityModeScreen extends StatelessWidget {
           const Divider(),
           _SectionLabel(label: t.a11ySectionMotion),
           _ToggleTile(
-            icon: Icons.animation,
+            icon: Icons.animation_rounded,
             title: t.a11yReduceMotion,
             subtitle: t.a11yReduceMotionSub,
             value: a.reduceMotion,
@@ -109,7 +109,7 @@ class AccessibilityModeScreen extends StatelessWidget {
           const Divider(),
           _SectionLabel(label: t.a11ySectionLayout),
           _ToggleTile(
-            icon: Icons.view_agenda_outlined,
+            icon: Icons.view_agenda_rounded,
             title: t.a11ySimplified,
             subtitle: t.a11ySimplifiedSub,
             value: a.simplifiedLayout,
@@ -120,7 +120,7 @@ class AccessibilityModeScreen extends StatelessWidget {
           const Divider(),
           _SectionLabel(label: t.a11ySectionAssist),
           _ToggleTile(
-            icon: Icons.record_voice_over_outlined,
+            icon: Icons.record_voice_over_rounded,
             title: t.a11yScreenReader,
             subtitle: t.a11yScreenReaderSub,
             value: a.screenReaderHints,
@@ -128,7 +128,7 @@ class AccessibilityModeScreen extends StatelessWidget {
             prefs: a,
           ),
           _ToggleTile(
-            icon: Icons.vibration,
+            icon: Icons.vibration_rounded,
             title: t.a11yHaptics,
             subtitle: t.a11yHapticsSub,
             value: a.haptics,
@@ -252,7 +252,7 @@ class _TextScaleTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.format_size),
+            const Icon(Icons.format_size_rounded),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(t.a11yLargeText,

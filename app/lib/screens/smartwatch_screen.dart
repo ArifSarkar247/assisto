@@ -226,7 +226,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         if (_phase == _Phase.ready || _phase == _Phase.needsPermission)
           IconButton(
             tooltip: tr.swOpenSettings,
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_rounded),
             onPressed: _openSettings,
           ),
       ]),
@@ -235,13 +235,13 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         _Phase.unavailable => _unavailable(tr),
         _Phase.needsPermission => _needsPermission(tr),
         _Phase.error => StateMessage(
-            icon: Icons.cloud_off,
+            icon: Icons.cloud_off_rounded,
             tint: scheme.error,
             title: tr.swErrorTitle,
             message: tr.swErrorBody,
             action: FilledButton.tonalIcon(
               onPressed: _loadData,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry),
             ),
           ),
@@ -252,13 +252,13 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
 
   Widget _unavailable(AppLocalizations tr) => ListView(children: [
         StateMessage(
-          icon: Icons.watch_off_outlined,
+          icon: Icons.watch_off_rounded,
           tint: Brand.purple,
           title: tr.swUnavailableTitle,
           message: tr.swUnavailableBody2,
           action: FilledButton.icon(
             onPressed: _openSettings,
-            icon: const Icon(Icons.download_outlined),
+            icon: const Icon(Icons.download_rounded),
             label: Text(tr.swInstall),
           ),
         ),
@@ -270,13 +270,13 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
 
   Widget _needsPermission(AppLocalizations tr) => ListView(children: [
         StateMessage(
-          icon: Icons.watch_outlined,
+          icon: Icons.watch_rounded,
           tint: Brand.blue,
           title: tr.swConnectTitle,
           message: tr.swConnectBody,
           action: FilledButton.icon(
             onPressed: _requestPermission,
-            icon: const Icon(Icons.link),
+            icon: const Icon(Icons.link_rounded),
             label: Text(tr.swConnect),
           ),
         ),
@@ -285,7 +285,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
           child: Center(
             child: TextButton.icon(
               onPressed: _openSettings,
-              icon: const Icon(Icons.settings_outlined, size: 18),
+              icon: const Icon(Icons.settings_rounded, size: 18),
               label: Text(tr.swOpenSettings),
             ),
           ),
@@ -306,7 +306,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         children: [
           if (!hasAny)
             StateMessage(
-              icon: Icons.favorite_outline,
+              icon: Icons.favorite_outline_rounded,
               tint: Brand.cyan,
               title: tr.swNoDataTitle,
               message: tr.swNoDataBody,
@@ -347,7 +347,7 @@ class _TodayGrid extends StatelessWidget {
       Row(children: [
         Expanded(
           child: _Metric(
-            icon: Icons.directions_walk,
+            icon: Icons.directions_walk_rounded,
             color: Brand.blue,
             label: tr.swSteps,
             value: summary.todaySteps == null
@@ -358,7 +358,7 @@ class _TodayGrid extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: _Metric(
-            icon: Icons.favorite,
+            icon: Icons.favorite_rounded,
             color: Brand.danger,
             label: tr.swHeartRate,
             value: summary.latestHeartRate == null
@@ -371,7 +371,7 @@ class _TodayGrid extends StatelessWidget {
       Row(children: [
         Expanded(
           child: _Metric(
-            icon: Icons.bedtime_outlined,
+            icon: Icons.bedtime_rounded,
             color: Brand.purple,
             label: tr.swSleep,
             value: summary.todaySleepMinutes == null
@@ -382,7 +382,7 @@ class _TodayGrid extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: _Metric(
-            icon: Icons.local_fire_department_outlined,
+            icon: Icons.local_fire_department_rounded,
             color: Brand.warning,
             label: tr.swActiveEnergy,
             value: summary.todayEnergyKcal == null
@@ -578,7 +578,7 @@ class _SurfaceLinks extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.insights_outlined, size: 20, color: scheme.secondary),
+          Icon(Icons.insights_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -609,7 +609,7 @@ class _PrivacyNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.swPrivacyNote,

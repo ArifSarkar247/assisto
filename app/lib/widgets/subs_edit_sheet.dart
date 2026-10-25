@@ -128,7 +128,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
               controller: _name,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                  labelText: t.name, prefixIcon: const Icon(Icons.label_outline)),
+                  labelText: t.name, prefixIcon: const Icon(Icons.label_outline_rounded)),
             ),
             const SizedBox(height: Gap.md),
             TextField(
@@ -138,7 +138,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
               decoration: InputDecoration(
                   labelText: t.amount,
                   prefixText: '\u09F3 ',
-                  prefixIcon: const Icon(Icons.payments_outlined)),
+                  prefixIcon: const Icon(Icons.payments_rounded)),
             ),
             const SizedBox(height: Gap.lg),
             _label(t.subsCycle),
@@ -160,14 +160,14 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                     labelText: t.subsCustomDays,
-                    prefixIcon: const Icon(Icons.repeat)),
+                    prefixIcon: const Icon(Icons.repeat_rounded)),
               ),
             ],
             const SizedBox(height: Gap.lg),
-            _dateRow(context, t.nextDue, Icons.event, _due,
+            _dateRow(context, t.nextDue, Icons.event_rounded, _due,
                 (d) => setState(() => _due = d)),
             const SizedBox(height: Gap.sm),
-            _dateRow(context, t.subsTrialEnd, Icons.hourglass_bottom,
+            _dateRow(context, t.subsTrialEnd, Icons.hourglass_bottom_rounded,
                 _trialEnd, (d) => setState(() => _trialEnd = d)),
             const SizedBox(height: Gap.lg),
             _label(t.subsCategory),
@@ -213,7 +213,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
               maxLines: 2,
               decoration: InputDecoration(
                   labelText: t.subsNotes,
-                  prefixIcon: const Icon(Icons.notes)),
+                  prefixIcon: const Icon(Icons.notes_rounded)),
             ),
             if (editing) ...[
               const SizedBox(height: Gap.lg),
@@ -243,7 +243,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _submit,
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: Text(t.save),
                 ),
               ),
@@ -277,7 +277,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
         if (value != null)
           GestureDetector(
             onTap: () => onPick(null),
-            child: const Icon(Icons.clear, size: 18),
+            child: const Icon(Icons.clear_rounded, size: 18),
           ),
       ]),
       onPressed: () async {

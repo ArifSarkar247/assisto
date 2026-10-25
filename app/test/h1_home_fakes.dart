@@ -44,7 +44,7 @@ class _FakeNativeTemplate extends StatelessWidget {
             ),
             child: Stack(children: [
               const Center(
-                  child: Icon(Icons.play_circle_fill, size: 56, color: Colors.white)),
+                  child: Icon(Icons.play_circle_fill_rounded, size: 56, color: Colors.white)),
               Positioned(
                 right: 8,
                 bottom: 8,
@@ -52,7 +52,7 @@ class _FakeNativeTemplate extends StatelessWidget {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                       color: Colors.black54, borderRadius: BorderRadius.circular(14)),
-                  child: const Icon(Icons.volume_off, size: 18, color: Colors.white),
+                  child: const Icon(Icons.volume_off_rounded, size: 18, color: Colors.white),
                 ),
               ),
             ]),

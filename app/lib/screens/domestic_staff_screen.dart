@@ -130,13 +130,13 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.staffTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.staffLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -145,12 +145,12 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.staffTitle)),
         body: StateMessage(
-          icon: Icons.diversity_3_outlined,
+          icon: Icons.diversity_3_rounded,
           title: tr.staffWelcomeTitle,
           message: tr.staffWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addPerson,
-            icon: const Icon(Icons.person_add_alt_1),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
             label: Text(tr.staffAddPerson),
           ),
         ),
@@ -162,7 +162,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
       appBar: AppBar(title: Text(tr.staffTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addPerson,
-        icon: const Icon(Icons.person_add_alt_1),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(tr.staffAddPerson),
       ),
       body: RefreshIndicator(
@@ -178,7 +178,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                     tr.staffMonthlyPayroll,
                     _StaffMath.fmtPoisha(house.totalMonthlySalary.toDouble()),
                     scheme.primary,
-                    Icons.payments_outlined),
+                    Icons.payments_rounded),
               ),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -187,7 +187,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                     tr.staffTotalDues,
                     _StaffMath.fmtPoisha(house.totalNetDues.toDouble()),
                     house.totalNetDues > 0 ? Brand.purple : Brand.success,
-                    Icons.account_balance_wallet_outlined),
+                    Icons.account_balance_wallet_rounded),
               ),
             ]),
             const SizedBox(height: Gap.lg),
@@ -244,7 +244,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                     ]),
               ),
               const SizedBox(width: Gap.sm),
-              const Icon(Icons.chevron_right),
+              const Icon(Icons.chevron_right_rounded),
             ]),
             const SizedBox(height: Gap.sm),
             Row(children: [
@@ -368,12 +368,12 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
         title: Text((widget.person['name'] ?? '').toString()),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             tooltip: tr.edit,
             onPressed: _editProfile,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             tooltip: tr.delete,
             onPressed: _confirmDeletePerson,
           ),
@@ -381,7 +381,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _busy ? null : _addPayment,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.staffLogEntry),
       ),
       body: ListView(
@@ -417,7 +417,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                     tr.staffWagesOutstanding,
                     _StaffMath.fmtPoisha(s.wagesOutstanding.toDouble()),
                     s.wagesOutstanding > 0 ? Brand.purple : Brand.success,
-                    Icons.receipt_long_outlined)),
+                    Icons.receipt_long_rounded)),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: _statCard(
@@ -425,7 +425,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                     tr.staffAdvanceBalance,
                     _StaffMath.fmtPoisha(s.advanceBalance.toDouble()),
                     scheme.secondary,
-                    Icons.account_balance_wallet_outlined)),
+                    Icons.account_balance_wallet_rounded)),
           ]),
           const SizedBox(height: Gap.lg),
           Text(tr.staffMonthByMonth,
@@ -875,7 +875,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.shield_outlined, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.shield_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,

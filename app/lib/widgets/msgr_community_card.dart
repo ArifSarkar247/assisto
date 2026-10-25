@@ -106,7 +106,7 @@ class MsgrCommunityCard extends StatelessWidget {
       alignment: Alignment.center,
       child: hasPhoto
           ? null
-          : const Icon(Icons.groups_2_outlined, color: Colors.white),
+          : const Icon(Icons.groups_2_rounded, color: Colors.white),
     );
   }
 }

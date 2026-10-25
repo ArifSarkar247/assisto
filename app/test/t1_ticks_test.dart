@@ -279,11 +279,11 @@ void main() {
                   actions: [
                     IconButton(
                         onPressed: () {},
-                        icon: const Icon(Icons.videocam_outlined)),
+                        icon: const Icon(Icons.videocam_rounded)),
                     IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.call_outlined)),
+                        onPressed: () {}, icon: const Icon(Icons.call_rounded)),
                     IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.more_vert)),
+                        onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
                   ],
                 ),
               );
@@ -302,10 +302,10 @@ void main() {
           // The test font draws every glyph a full em wide, so the fit check
           // runs at 1.0x.
           if (scale == 1.0) expect(name.didExceedMaxLines, isFalse);
-          final video = tester.getRect(find.byIcon(Icons.videocam_outlined));
+          final video = tester.getRect(find.byIcon(Icons.videocam_rounded));
           final title = tester.getRect(find.byKey(const Key('t1-header')));
           expect(video.left - title.right, lessThan(24));
-          expect(find.byIcon(Icons.search), findsNothing);
+          expect(find.byIcon(Icons.search_rounded), findsNothing);
           expect(status, isNotNull); // single line, ellipsis-guarded
           // both lines inside the 56 px toolbar
           final bar = tester.getRect(find.byType(AppBar));

@@ -178,7 +178,7 @@ class _MsgrReportSheetState extends State<MsgrReportSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Icon(Icons.flag_outlined, color: scheme.primary),
+              Icon(Icons.flag_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
@@ -251,8 +251,8 @@ class _MsgrReportSheetState extends State<MsgrReportSheet> {
                 children: [
                   Icon(
                     _hasSevere
-                        ? Icons.gpp_maybe_outlined
-                        : Icons.shield_outlined,
+                        ? Icons.gpp_maybe_rounded
+                        : Icons.shield_rounded,
                     size: 20,
                     color: _hasSevere ? Brand.danger : scheme.primary,
                   ),
@@ -282,7 +282,7 @@ class _MsgrReportSheetState extends State<MsgrReportSheet> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.send_outlined),
+                  : const Icon(Icons.send_rounded),
               label: Text(t.msgrModReportSubmit),
             ),
             const SizedBox(height: Gap.sm),

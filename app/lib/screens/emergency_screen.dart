@@ -217,12 +217,12 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            leading: const Icon(Icons.image_outlined),
+            leading: const Icon(Icons.image_rounded),
             title: Text(t.emergencyShareAsImage),
             onTap: () => Navigator.pop(ctx, 'image'),
           ),
           ListTile(
-            leading: const Icon(Icons.text_snippet_outlined),
+            leading: const Icon(Icons.text_snippet_rounded),
             title: Text(t.emergencyShareAsText),
             onTap: () => Navigator.pop(ctx, 'text'),
           ),
@@ -320,7 +320,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         IconButton(
           tooltip: t.emergencyShare,
           onPressed: _shareCard,
-          icon: const Icon(Icons.ios_share),
+          icon: const Icon(Icons.ios_share_rounded),
         ),
         _saving
             ? const Padding(
@@ -334,7 +334,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 onPressed: _editing
                     ? _save
                     : () => setState(() => _editing = true),
-                icon: Icon(_editing ? Icons.save : Icons.edit_outlined),
+                icon: Icon(_editing ? Icons.save_rounded : Icons.edit_rounded),
               ),
       ]),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
@@ -342,7 +342,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(children: [
-              const Icon(Icons.cloud_off, size: 16, color: Colors.grey),
+              const Icon(Icons.cloud_off_rounded, size: 16, color: Colors.grey),
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.emergencyOfflineBadge,
@@ -366,7 +366,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: Gap.lg, vertical: Gap.sm)),
           onPressed: _shareLocation,
-          icon: const Icon(Icons.my_location, size: 18),
+          icon: const Icon(Icons.my_location_rounded, size: 18),
           label: Text(t.shareMyLocation, textAlign: TextAlign.center),
         ),
         const SizedBox(height: Gap.sm),
@@ -377,7 +377,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   horizontal: Gap.lg, vertical: Gap.sm)),
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const SafetyScreen())),
-          icon: const Icon(Icons.health_and_safety_outlined, size: 18),
+          icon: const Icon(Icons.health_and_safety_rounded, size: 18),
           label: Text(t.safetyToolsButton, textAlign: TextAlign.center),
         ),
 
@@ -442,7 +442,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () => setState(() => _editing = true),
-            icon: const Icon(Icons.edit_outlined, size: 18),
+            icon: const Icon(Icons.edit_rounded, size: 18),
             label: Text(t.edit),
           ),
         ),
@@ -450,7 +450,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         Expanded(
           child: FilledButton.tonalIcon(
             onPressed: _shareCard,
-            icon: const Icon(Icons.ios_share, size: 18),
+            icon: const Icon(Icons.ios_share_rounded, size: 18),
             label: Text(t.emergencyShare),
           ),
         ),
@@ -502,7 +502,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         const Spacer(),
         TextButton.icon(
             onPressed: _addContact,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.add)),
       ]),
       for (int i = 0; i < _contacts.length; i++)
@@ -514,10 +514,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 Text('${_contacts[i]['phone']} · ${_contacts[i]['relation'] ?? ''}'),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: [
               IconButton(tooltip: AppLocalizations.of(context).call,
-                  icon: const Icon(Icons.call, color: Brand.success),
+                  icon: const Icon(Icons.call_rounded, color: Brand.success),
                   onPressed: () => _call('${_contacts[i]['phone']}')),
               IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () =>
                       setState(() => _contacts.removeAt(i))),
             ]),
@@ -538,7 +538,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         Expanded(
           child: FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.save, size: 18),
+            icon: const Icon(Icons.save_rounded, size: 18),
             label: Text(t.save),
           ),
         ),

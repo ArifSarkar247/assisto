@@ -108,7 +108,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
       padding: const EdgeInsets.all(Gap.md),
       children: [
         if (_needsKey)
-          NeedsKeyBanner(t.crmCardOcrNeedsKey, icon: Icons.document_scanner_outlined),
+          NeedsKeyBanner(t.crmCardOcrNeedsKey, icon: Icons.document_scanner_rounded),
         Text(t.crmCardPasteHint,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: Gap.sm),
@@ -121,7 +121,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
         const SizedBox(height: Gap.sm),
         FilledButton.tonalIcon(
           onPressed: _busy ? null : _parse,
-          icon: const Icon(Icons.auto_fix_high_outlined),
+          icon: const Icon(Icons.auto_fix_high_rounded),
           label: Text(t.crmCardParse),
         ),
         if (_hasDraft) ...[
@@ -143,7 +143,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(children: [
-                const Icon(Icons.warning_amber_outlined, size: 18, color: Brand.warning),
+                const Icon(Icons.warning_amber_rounded, size: 18, color: Brand.warning),
                 const SizedBox(width: Gap.xs),
                 Expanded(child: Text(t.crmPossibleDuplicate)),
               ]),
@@ -152,7 +152,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
           const SizedBox(height: Gap.md),
           FilledButton.icon(
             onPressed: _busy ? null : _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: Text(t.crmSaveLead),
           ),
         ],

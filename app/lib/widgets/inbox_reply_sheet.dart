@@ -54,7 +54,7 @@ class InboxReplySheet extends StatelessWidget {
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             for (final k in keys)
               ActionChip(
-                avatar: const Icon(Icons.bolt, size: 16),
+                avatar: const Icon(Icons.bolt_rounded, size: 16),
                 label: Text(replyLabel(tr, k)),
                 onPressed: () => Navigator.pop(context, replyLabel(tr, k)),
               ),
@@ -68,7 +68,7 @@ class InboxReplySheet extends StatelessWidget {
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.vpn_key_outlined, size: 18, color: scheme.onTertiaryContainer),
+            Icon(Icons.vpn_key_rounded, size: 18, color: scheme.onTertiaryContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(

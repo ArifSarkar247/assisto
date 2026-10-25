@@ -152,7 +152,7 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
               Card(
                 margin: const EdgeInsets.only(bottom: Gap.md),
                 child: ListTile(
-                  leading: Icon(Icons.check_circle, color: scheme.primary),
+                  leading: Icon(Icons.check_circle_rounded, color: scheme.primary),
                   title: Text(t.oemGuideAllSet),
                 ),
               ),
@@ -235,7 +235,7 @@ class _StepCard extends StatelessWidget {
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           ExcludeSemantics(
             child: done
-                ? Icon(Icons.check_circle, color: scheme.primary, size: 28)
+                ? Icon(Icons.check_circle_rounded, color: scheme.primary, size: 28)
                 : CircleAvatar(
                     radius: 14,
                     backgroundColor: scheme.primaryContainer,
@@ -264,7 +264,7 @@ class _StepCard extends StatelessWidget {
                   const SizedBox(height: Gap.xs),
                   FilledButton.tonalIcon(
                     onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new, size: 18),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
                     label: Text(open == OemOpen.oem ? t.open : t.oemGuideOpenAppInfo),
                   ),
                 ],
@@ -313,7 +313,7 @@ class _BrandPill extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               if (selected) ...[
-                Icon(Icons.check, size: 18, color: fg),
+                Icon(Icons.check_rounded, size: 18, color: fg),
                 const SizedBox(width: Gap.xs),
               ],
               Flexible(child: Text(label, style: TextStyle(color: fg))),

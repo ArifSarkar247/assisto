@@ -109,7 +109,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Row(children: [
-          Icon(Icons.swap_horiz, color: Theme.of(ctx).colorScheme.primary),
+          Icon(Icons.swap_horiz_rounded, color: Theme.of(ctx).colorScheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(t.srvConfirmTitle)),
         ]),
@@ -208,7 +208,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             decoration: InputDecoration(
               hintText: t.srvHint,
               border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.dns_outlined),
+              prefixIcon: const Icon(Icons.dns_rounded),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -223,7 +223,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
                         width: Gap.lg,
                         height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.network_check),
+                    : const Icon(Icons.network_check_rounded),
                 label: Text(t.srvTestButton),
               ),
             ),
@@ -231,7 +231,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             Expanded(
               child: FilledButton.icon(
                 onPressed: _probing ? null : _save,
-                icon: const Icon(Icons.save_outlined),
+                icon: const Icon(Icons.save_rounded),
                 label: Text(t.srvSaveButton),
               ),
             ),
@@ -243,7 +243,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             OutlinedButton.icon(
               onPressed: _revert,
               style: OutlinedButton.styleFrom(foregroundColor: Brand.danger),
-              icon: const Icon(Icons.settings_backup_restore),
+              icon: const Icon(Icons.settings_backup_restore_rounded),
               label: Text(t.srvRevertButton),
             ),
         ],
@@ -264,7 +264,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(isDefault ? Icons.verified_outlined : Icons.swap_horiz,
+          Icon(isDefault ? Icons.verified_rounded : Icons.swap_horiz_rounded,
               size: 18,
               color: isDefault ? Brand.success : Brand.warning),
           const SizedBox(width: Gap.sm),
@@ -283,23 +283,23 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
   Widget _probeIndicator(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     if (_probing) {
-      return _probeRow(Icons.sync, scheme.primary, t.srvProbeChecking, null);
+      return _probeRow(Icons.sync_rounded, scheme.primary, t.srvProbeChecking, null);
     }
     final p = _probe;
     if (p == null) {
       return _probeRow(
-          Icons.help_outline, scheme.onSurfaceVariant, t.srvProbeIdle, null);
+          Icons.help_outline_rounded, scheme.onSurfaceVariant, t.srvProbeIdle, null);
     }
     switch (p.state) {
       case ServerConfig.probeReachable:
-        return _probeRow(Icons.check_circle_outline, Brand.success,
+        return _probeRow(Icons.check_circle_outline_rounded, Brand.success,
             t.srvProbeReachable, t.srvProbeLatency('${p.latencyMs}'));
       case ServerConfig.probeUnreachable:
-        return _probeRow(Icons.error_outline, Brand.warning,
+        return _probeRow(Icons.error_outline_rounded, Brand.warning,
             t.srvProbeUnreachable('${p.status}'), null);
       default:
         return _probeRow(
-            Icons.cloud_off_outlined, Brand.danger, t.srvProbeError, null);
+            Icons.cloud_off_rounded, Brand.danger, t.srvProbeError, null);
     }
   }
 

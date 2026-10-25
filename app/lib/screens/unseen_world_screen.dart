@@ -226,7 +226,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         title: Text(t.unseenTitle),
         actions: [
           PopupMenuButton<Division?>(
-            icon: const Icon(Icons.filter_alt_outlined),
+            icon: const Icon(Icons.filter_alt_rounded),
             tooltip: t.unseenDivision,
             onSelected: (d) => setState(() => _division = d),
             itemBuilder: (_) => [
@@ -261,12 +261,12 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
           decoration: InputDecoration(
             isDense: true,
             hintText: t.unseenSearchHint,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
                     tooltip: AppLocalizations.of(context).f2ClearSearch,
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close_rounded),
                     onPressed: () {
                       _searchCtrl.clear();
                       setState(() => _query = '');
@@ -298,7 +298,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       color: Brand.blue.withValues(alpha: 0.10),
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       child: Row(children: [
-        const Icon(Icons.travel_explore_outlined, size: 16, color: Brand.blue),
+        const Icon(Icons.travel_explore_rounded, size: 16, color: Brand.blue),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -317,7 +317,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       color: Brand.warning.withValues(alpha: 0.12),
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       child: Row(children: [
-        const Icon(Icons.info_outline, size: 16, color: Brand.warning),
+        const Icon(Icons.info_outline_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.unseenLocationBanner,
@@ -343,7 +343,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
 
     if (results.isEmpty) {
       return StateMessage(
-        icon: _showWishlist ? Icons.bookmark_border : Icons.search_off,
+        icon: _showWishlist ? Icons.bookmark_border_rounded : Icons.search_off_rounded,
         title: _showWishlist ? t.unseenNoWishlist : t.nothingFound,
         message: _showWishlist ? t.unseenNoWishlistHint : null,
       );
@@ -354,15 +354,15 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg),
       children: [
         if (showExtras && seasonal.isNotEmpty) ...[
-          _sectionHeader(Icons.wb_sunny_outlined, t.unseenSeasonalNow),
+          _sectionHeader(Icons.wb_sunny_rounded, t.unseenSeasonalNow),
           for (final d in seasonal) _card(t, d),
           const SizedBox(height: Gap.sm),
         ],
         if (showExtras) ...[
-          _sectionHeader(Icons.map_outlined, t.unseenTripIdeas),
+          _sectionHeader(Icons.map_rounded, t.unseenTripIdeas),
           for (final trip in kTripIdeas) _tripCard(t, trip),
           const SizedBox(height: Gap.sm),
-          _sectionHeader(Icons.explore_outlined, t.unseenDestinations),
+          _sectionHeader(Icons.explore_rounded, t.unseenDestinations),
         ],
         for (final d in results)
           if (!(showExtras && seasonal.any((s) => s.id == d.id))) _card(t, d),

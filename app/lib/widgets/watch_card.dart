@@ -62,19 +62,19 @@ String watchKindTitle(AppLocalizations t, String kind) {
     WatchAction a) {
   switch (a) {
     case WatchAction.open:
-      return (icon: Icons.open_in_new, label: (t) => t.watchOpen);
+      return (icon: Icons.open_in_new_rounded, label: (t) => t.watchOpen);
     case WatchAction.dismiss:
-      return (icon: Icons.close, label: (t) => t.watchDismiss);
+      return (icon: Icons.close_rounded, label: (t) => t.watchDismiss);
     case WatchAction.snooze:
-      return (icon: Icons.snooze_outlined, label: (t) => t.watchSnooze);
+      return (icon: Icons.snooze_rounded, label: (t) => t.watchSnooze);
     case WatchAction.markDone:
-      return (icon: Icons.check, label: (t) => t.watchMarkDone);
+      return (icon: Icons.check_rounded, label: (t) => t.watchMarkDone);
     case WatchAction.markTaken:
-      return (icon: Icons.medication_outlined, label: (t) => t.watchMarkTaken);
+      return (icon: Icons.medication_rounded, label: (t) => t.watchMarkTaken);
     case WatchAction.call:
-      return (icon: Icons.call_outlined, label: (t) => t.watchCall);
+      return (icon: Icons.call_rounded, label: (t) => t.watchCall);
     case WatchAction.payHint:
-      return (icon: Icons.payments_outlined, label: (t) => t.watchPayHint);
+      return (icon: Icons.payments_rounded, label: (t) => t.watchPayHint);
   }
 }
 

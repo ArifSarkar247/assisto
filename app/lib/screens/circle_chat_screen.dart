@@ -2228,7 +2228,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   style: Theme.of(ctx).textTheme.titleMedium),
               for (final l in lists)
                 ListTile(
-                  leading: const Icon(Icons.label_outline),
+                  leading: const Icon(Icons.label_outline_rounded),
                   title: Text('${l['name'] ?? ''}'),
                   onTap: () => Navigator.pop(ctx, 'id:${l['id']}'),
                 ),
@@ -2237,7 +2237,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 decoration: InputDecoration(
                   hintText: _t.msgrChatNewListHint,
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(Icons.add_rounded),
                     tooltip: _t.add,
                     onPressed: () => Navigator.pop(ctx, 'new:${controller.text.trim()}'),
                   ),
@@ -2602,7 +2602,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                 key: key,
                                 child: ChatSystemLine(
                                     text: _t.cdeThemeSending,
-                                    icon: Icons.palette_outlined));
+                                    icon: Icons.palette_rounded));
                           }
                           final cc = _controlOf(m);
                           if (cc != null) {
@@ -2611,10 +2611,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                 child: ChatSystemLine(
                                     text: _describe(m, cc),
                                     icon: cc.isTheme
-                                        ? Icons.palette_outlined
+                                        ? Icons.palette_rounded
                                         : cc.isTimer
-                                            ? Icons.timer_outlined
-                                            : Icons.badge_outlined));
+                                            ? Icons.timer_rounded
+                                            : Icons.badge_rounded));
                           }
                           // p3: an Assisto card (E2E like any message)
                           final p3c = _p3Card(m);
@@ -2687,8 +2687,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                     padding: const EdgeInsets.only(left: Gap.sm),
                                     child: Icon(
                                       sel
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
+                                          ? Icons.check_circle_rounded
+                                          : Icons.radio_button_unchecked_rounded,
                                       color: sel
                                           ? scheme.primary
                                           : scheme.onSurfaceVariant,
@@ -2872,13 +2872,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         if (_callsOpen) ...[
           IconButton(
             tooltip: _t.circleVideo,
-            icon: const Icon(Icons.videocam_outlined),
+            icon: const Icon(Icons.videocam_rounded),
             onPressed: () => _placeCall('video'),
           ),
           RoboId(id: 'tl_chat_voice_call', // tl1: Test Lab Robo target
             child: IconButton(
               tooltip: _t.circleVoiceCall,
-              icon: const Icon(Icons.call_outlined),
+              icon: const Icon(Icons.call_rounded),
               onPressed: () => _placeCall('voice'),
             ),
           ),
@@ -2887,7 +2887,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         if (!_reqIn)
           IconButton(
             tooltip: _t.msgrChatMore,
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert_rounded),
             onPressed: _openChatMenu,
           ),
       ],
@@ -2896,7 +2896,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   PreferredSizeWidget _selectionAppBar(ColorScheme scheme) => AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: () => setState(() {
             _selecting = false;
@@ -2907,22 +2907,22 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         actions: [
           IconButton(
             tooltip: _t.circleActionStar,
-            icon: const Icon(Icons.star_outline),
+            icon: const Icon(Icons.star_outline_rounded),
             onPressed: _selected.isEmpty ? null : _bulkStar,
           ),
           IconButton(
             tooltip: _t.msgrChatCopy,
-            icon: const Icon(Icons.copy_outlined),
+            icon: const Icon(Icons.copy_rounded),
             onPressed: _selected.isEmpty ? null : _bulkCopy,
           ),
           IconButton(
             tooltip: _t.circleActionForward,
-            icon: const Icon(Icons.forward_outlined),
+            icon: const Icon(Icons.forward_rounded),
             onPressed: _selected.isEmpty ? null : _bulkForward,
           ),
           IconButton(
             tooltip: _t.delete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             onPressed: _selected.isEmpty ? null : _bulkDelete,
           ),
         ],
@@ -2930,7 +2930,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   PreferredSizeWidget _searchAppBar(ColorScheme scheme) => AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => setState(() {
             _searching = false;
@@ -2950,7 +2950,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         child: Row(
           children: [
-            Icon(Icons.push_pin, size: 14, color: scheme.primary),
+            Icon(Icons.push_pin_rounded, size: 14, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(pinned.last.text,
@@ -3070,7 +3070,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.shield_outlined,
+                    Icon(Icons.shield_rounded,
                         size: 14, color: scheme.onSecondaryContainer),
                     const SizedBox(width: Gap.xs),
                     Flexible(
@@ -3122,7 +3122,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.lock_outline, size: 48, color: scheme.primary.withValues(alpha: 0.7)),
+              Icon(Icons.lock_outline_rounded, size: 48, color: scheme.primary.withValues(alpha: 0.7)),
               const SizedBox(height: Gap.md),
               Text(_searching ? _t.circleSearchNoResults : _t.circleChatEmpty,
                   textAlign: TextAlign.center,
@@ -3151,7 +3151,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             children: [
               if (_canAttach)
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const Icon(Icons.add_circle_outline_rounded),
                   tooltip: _t.circleAttach,
                   onPressed: _attach,
                 )
@@ -3182,7 +3182,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               // p3: the Assisto button (same actions as typing "@Assisto")
               IconButton(
                 key: const ValueKey('p3-assisto-btn'),
-                icon: const Icon(Icons.auto_awesome_outlined),
+                icon: const Icon(Icons.auto_awesome_rounded),
                 tooltip: _t.p3Assisto,
                 onPressed: _reqIn ? null : () => _openAssisto(),
               ),
@@ -3190,7 +3190,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 child: IconButton.filled(
                   tooltip: _editing != null ? _t.save : _t.send,
                   onPressed: _sending ? null : _send,
-                  icon: Icon(_editing != null ? Icons.check : Icons.send),
+                  icon: Icon(_editing != null ? Icons.check_rounded : Icons.send_rounded),
                 ),
               ),
             ],

@@ -62,15 +62,15 @@ String _typeLabel(AppLocalizations tr, String? t) {
 IconData _typeIcon(String? t) {
   switch (t) {
     case 'fee':
-      return Icons.payments_outlined;
+      return Icons.payments_rounded;
     case 'exam':
-      return Icons.edit_note_outlined;
+      return Icons.edit_note_rounded;
     case 'ptm':
-      return Icons.groups_outlined;
+      return Icons.groups_rounded;
     case 'event':
-      return Icons.celebration_outlined;
+      return Icons.celebration_rounded;
     default:
-      return Icons.sticky_note_2_outlined;
+      return Icons.sticky_note_2_rounded;
   }
 }
 
@@ -132,13 +132,13 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.kidTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.kidLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -147,12 +147,12 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.kidTitle)),
         body: StateMessage(
-          icon: Icons.school_outlined,
+          icon: Icons.school_rounded,
           title: tr.kidWelcomeTitle,
           message: tr.kidWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addChild,
-            icon: const Icon(Icons.person_add_alt),
+            icon: const Icon(Icons.person_add_alt_rounded),
             label: Text(tr.kidAddChild),
           ),
         ),
@@ -164,7 +164,7 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
       appBar: AppBar(title: Text(tr.kidTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addChild,
-        icon: const Icon(Icons.person_add_alt),
+        icon: const Icon(Icons.person_add_alt_rounded),
         label: Text(tr.kidAddChild),
       ),
       body: RefreshIndicator(
@@ -270,7 +270,7 @@ class _ChildCard extends StatelessWidget {
             Row(children: [
               CircleAvatar(
                 backgroundColor: Brand.blue.withValues(alpha: 0.15),
-                child: Icon(Icons.child_care_outlined, color: Brand.blue),
+                child: Icon(Icons.child_care_rounded, color: Brand.blue),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -391,7 +391,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
         title: Text(name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             tooltip: tr.delete,
             onPressed: _confirmDeleteChild,
           ),
@@ -399,7 +399,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _busy ? null : _addNotice,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.kidAddNotice),
       ),
       body: _notices.isEmpty
@@ -411,7 +411,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.xl),
                 StateMessage(
-                  icon: Icons.sticky_note_2_outlined,
+                  icon: Icons.sticky_note_2_rounded,
                   title: tr.kidNoNoticesTitle,
                   message: tr.kidNoNoticesBody,
                 ),
@@ -422,15 +422,15 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
               children: [
                 // per-type summary chips
                 Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-                  _summaryChip(context, Icons.payments_outlined,
+                  _summaryChip(context, Icons.payments_rounded,
                       tr.kidChipFees((counts['fee'] as int?) ?? 0), Brand.blue),
-                  _summaryChip(context, Icons.edit_note_outlined,
+                  _summaryChip(context, Icons.edit_note_rounded,
                       tr.kidChipExams((counts['exam'] as int?) ?? 0),
                       Brand.purple),
-                  _summaryChip(context, Icons.groups_outlined,
+                  _summaryChip(context, Icons.groups_rounded,
                       tr.kidChipPtm((counts['ptm'] as int?) ?? 0),
                       scheme.tertiary),
-                  _summaryChip(context, Icons.celebration_outlined,
+                  _summaryChip(context, Icons.celebration_rounded,
                       tr.kidChipEvents((counts['event'] as int?) ?? 0),
                       Brand.success),
                 ]),
@@ -617,13 +617,13 @@ class _NoticeCard extends StatelessWidget {
             IconButton(
               tooltip: done ? tr.kidMarkUndone : tr.kidMarkDone,
               icon: Icon(
-                  done ? Icons.check_circle : Icons.radio_button_unchecked,
+                  done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
                   color: done ? Brand.success : scheme.outline),
               onPressed: onToggleDone,
             ),
             IconButton(
               tooltip: tr.delete,
-              icon: const Icon(Icons.delete_outline, size: 20),
+              icon: const Icon(Icons.delete_outline_rounded, size: 20),
               onPressed: onDelete,
             ),
           ]),
@@ -869,10 +869,10 @@ class _NoticeFormState extends State<_NoticeForm> {
 
 // ======================= shared small helpers =======================
 Widget _privacyNote(BuildContext context, String text) =>
-    _infoNote(context, Icons.shield_outlined, text);
+    _infoNote(context, Icons.shield_rounded, text);
 
 Widget _reminderSeamNote(BuildContext context, String text) =>
-    _infoNote(context, Icons.notifications_none, text);
+    _infoNote(context, Icons.notifications_none_rounded, text);
 
 Widget _infoNote(BuildContext context, IconData icon, String text) {
   final scheme = Theme.of(context).colorScheme;

@@ -171,16 +171,16 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
     Widget? trailing;
     if (joined) {
       trailing = MsgrActionChip(
-          label: _t.communityOpen, icon: Icons.arrow_forward, onPressed: () => _open(g));
+          label: _t.communityOpen, icon: Icons.arrow_forward_rounded, onPressed: () => _open(g));
     } else if (requested) {
       trailing = MsgrActionChip(
           label: _t.communityRequested,
-          icon: Icons.hourglass_empty,
+          icon: Icons.hourglass_empty_rounded,
           muted: true);
     } else if (joinable) {
       trailing = MsgrActionChip(
         label: openJoin ? _t.communityJoin : _t.communityRequestToJoin,
-        icon: openJoin ? Icons.add : Icons.outgoing_mail,
+        icon: openJoin ? Icons.add_rounded : Icons.outgoing_mail,
         onPressed: () => _join(g),
       );
     }
@@ -190,7 +190,7 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
       photoRef: g['photo_ref']?.toString(),
       countLabel: _t.communityMemberCount('$count'),
       badge: isAnnouncements
-          ? _badge(_t.communityAnnouncementsGroup, Icons.campaign_outlined)
+          ? _badge(_t.communityAnnouncementsGroup, Icons.campaign_rounded)
           : null,
       trailing: trailing,
       onTap: joined ? () => _open(g) : null,
@@ -218,7 +218,7 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
         child: Column(
           children: [
             const SizedBox(height: Gap.xxl),
-            Icon(Icons.diversity_3_outlined,
+            Icon(Icons.diversity_3_rounded,
                 size: 56, color: scheme.primary.withValues(alpha: 0.7)),
             const SizedBox(height: Gap.md),
             Text(_t.communityEmptyTitle,

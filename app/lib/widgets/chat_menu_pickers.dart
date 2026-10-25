@@ -132,7 +132,7 @@ Future<String?> showChatThemePicker(BuildContext context, String current) {
                         ),
                       ),
                       child: c.token == current
-                          ? const Icon(Icons.check, color: Colors.white, size: 20)
+                          ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
                           : null,
                     ),
                   ),

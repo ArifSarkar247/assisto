@@ -36,18 +36,18 @@ class ResetChannelTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (icon, title, subtitle) = switch (channel) {
       RecoveryChannel.email => (
-          Icons.email_outlined,
+          Icons.email_rounded,
           t.resetChannelEmail,
           available ? t.resetChannelEmailReady : t.resetChannelEmailReady,
         ),
       RecoveryChannel.sms => (
-          Icons.sms_outlined,
+          Icons.sms_rounded,
           t.resetChannelSms,
           // 🔑 honest: works only once an SMS gateway is connected (o1-otp)
           available ? t.otpResetSmsReady : t.resetSmsUnavailable,
         ),
       RecoveryChannel.securityQuestion => (
-          Icons.help_outline,
+          Icons.help_outline_rounded,
           t.resetChannelSecurityQ,
           t.resetChannelSecurityQNote,
         ),
@@ -65,11 +65,11 @@ class ResetChannelTile extends StatelessWidget {
           subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
           trailing: available
               ? (selected
-                  ? Icon(Icons.check_circle, color: scheme.primary)
-                  : const Icon(Icons.chevron_right))
+                  ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                  : const Icon(Icons.chevron_right_rounded))
               : Tooltip(
                   message: t.resetChannelLockedTip,
-                  child: Icon(Icons.lock_outline,
+                  child: Icon(Icons.lock_outline_rounded,
                       size: 18, color: scheme.onSurfaceVariant),
                 ),
           enabled: available,
@@ -94,7 +94,7 @@ class ResetRateLimitBanner extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(children: [
-          Icon(Icons.timer_outlined, color: scheme.onErrorContainer),
+          Icon(Icons.timer_rounded, color: scheme.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(
             child: Text(t.resetTooManyAttempts,
@@ -120,7 +120,7 @@ class ResetSignOutAllTile extends StatelessWidget {
     final t = AppLocalizations.of(context);
     return Card(
       child: SwitchListTile(
-        secondary: const Icon(Icons.devices_outlined),
+        secondary: const Icon(Icons.devices_rounded),
         title: Text(t.resetSignOutAll),
         subtitle: Text(t.resetSignOutAllNote,
             style: const TextStyle(fontSize: 12)),

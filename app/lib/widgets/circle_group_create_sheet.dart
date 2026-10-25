@@ -72,7 +72,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
                 radius: 32,
                 backgroundColor:
                     Theme.of(context).colorScheme.primaryContainer,
-                child: const Icon(Icons.groups_outlined, size: 30),
+                child: const Icon(Icons.groups_rounded, size: 30),
               ),
             ),
             const SizedBox(height: Gap.lg),
@@ -82,7 +82,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: t.circleGroupName,
-                prefixIcon: const Icon(Icons.badge_outlined),
+                prefixIcon: const Icon(Icons.badge_rounded),
               ),
             ),
             TextField(
@@ -92,7 +92,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
               minLines: 1,
               decoration: InputDecoration(
                 labelText: t.circleGroupDescription,
-                prefixIcon: const Icon(Icons.notes_outlined),
+                prefixIcon: const Icon(Icons.notes_rounded),
                 alignLabelWithHint: true,
               ),
             ),
@@ -131,7 +131,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                icon: const Icon(Icons.check),
+                icon: const Icon(Icons.check_rounded),
                 onPressed: canCreate
                     ? () => Navigator.pop(
                           ctx0(context),

@@ -349,7 +349,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off, size: 48),
+              const Icon(Icons.cloud_off_rounded, size: 48),
               const SizedBox(height: Gap.md),
               Text(honestFailText(tr, _failCause, otherwise: tr.securityLoadFailed), textAlign: TextAlign.center),
               const SizedBox(height: Gap.md),
@@ -368,7 +368,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Row(
           children: [
-            const Icon(Icons.ac_unit, color: Brand.danger, size: 28),
+            const Icon(Icons.ac_unit_rounded, color: Brand.danger, size: 28),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
@@ -404,7 +404,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Row(
               children: [
-                Icon(armed ? Icons.verified_user : Icons.gpp_maybe,
+                Icon(armed ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
                     color: fg, size: 32),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -434,13 +434,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                 child: Row(
                   children: [
-                    const Icon(Icons.place_outlined, size: 20),
+                    const Icon(Icons.place_rounded, size: 20),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(tr.securityTrustedPlaces(
                           fmtInt(context, _trustedPlaces))),
                     ),
-                    const Icon(Icons.chevron_right, size: 20),
+                    const Icon(Icons.chevron_right_rounded, size: 20),
                   ],
                 ),
               ),
@@ -481,7 +481,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.pin_outlined),
+                const Icon(Icons.pin_rounded),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityPinCardTitle,
@@ -507,7 +507,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ListTile(
               key: const Key('e2r-backup-tile'),
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.cloud_done_outlined),
+              leading: const Icon(Icons.cloud_done_rounded),
               title: Text(tr.e2rBackupTile),
               subtitle: Text(tr.e2rBackupTileSub),
               onTap: _busy ? null : _backupKeys,
@@ -585,12 +585,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
               width: double.infinity,
               child: _armed
                   ? OutlinedButton.icon(
-                      icon: const Icon(Icons.lock_open_outlined),
+                      icon: const Icon(Icons.lock_open_rounded),
                       label: Text(tr.securityDisarm),
                       onPressed: _busy ? null : _disarm,
                     )
                   : FilledButton.icon(
-                      icon: const Icon(Icons.shield_outlined),
+                      icon: const Icon(Icons.shield_rounded),
                       label: Text(tr.securityArm),
                       onPressed: _busy ? null : _arm,
                     ),
@@ -653,7 +653,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           ),
           const SizedBox(width: Gap.sm),
           FilledButton.tonalIcon(
-            icon: const Icon(Icons.block, size: 18),
+            icon: const Icon(Icons.block_rounded, size: 18),
             label: Text(tr.securityWasntMe),
             onPressed: _busy ? null : () => _cancelPending(p),
           ),
@@ -711,7 +711,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.diversity_1_outlined),
+                const Icon(Icons.diversity_1_rounded),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityApproverTitle,
@@ -736,7 +736,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 children: [
                   for (final m in cands)
                     ChoiceChip(
-                      avatar: const Icon(Icons.person_outline, size: 18),
+                      avatar: const Icon(Icons.person_outline_rounded, size: 18),
                       label: Text('${m['name'] ?? ''}'),
                       selected: m['id'] == currentId,
                       onSelected: _busy
@@ -763,7 +763,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.info_outline,
+                Icon(Icons.info_outline_rounded,
                     color: scheme.onSecondaryContainer, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(

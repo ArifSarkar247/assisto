@@ -49,17 +49,17 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       appBar: AppBar(title: Text(t.moneyTrendsTitle), actions: [
         IconButton(
             tooltip: t.moneyReportTitle,
-            icon: const Icon(Icons.description_outlined),
+            icon: const Icon(Icons.description_rounded),
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const MoneyReportScreen()))),
         IconButton(
-            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync_rounded)),
       ]),
       body: _loading
           ? const SkeletonList(count: 5)
           : _failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.moneyTrendsTitle,
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(
@@ -76,7 +76,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
         [];
     if (months.isEmpty && cats.isEmpty) {
       return StateMessage(
-          icon: Icons.insights_outlined,
+          icon: Icons.insights_rounded,
           title: t.moneyTrendsTitle,
           message: t.moneyNoTransactionsHint);
     }

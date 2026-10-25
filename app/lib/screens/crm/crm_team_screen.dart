@@ -71,12 +71,12 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_outlined),
+        NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_rounded),
         // Invite code (owner/manager): share so teammates can "Join a team".
         if (_inviteCode != null && _inviteCode!.isNotEmpty) ...[
           Card(
             child: ListTile(
-              leading: const Icon(Icons.vpn_key_outlined),
+              leading: const Icon(Icons.vpn_key_rounded),
               title: Text(t.crmInviteCode),
               subtitle: Text(t.crmInviteCodeHint),
               trailing: SelectableText(_inviteCode!,
@@ -109,7 +109,7 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
           for (final r in _rules)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.alt_route_outlined),
+                leading: const Icon(Icons.alt_route_rounded),
                 title: Text([
                   if ((r['match_industry'] ?? '').toString().isNotEmpty)
                     crmIndustryLabel(t, r['match_industry'].toString()),

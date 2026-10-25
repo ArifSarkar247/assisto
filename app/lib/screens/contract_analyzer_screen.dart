@@ -463,7 +463,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
           const SizedBox(width: Gap.sm),
           OutlinedButton.icon(
             onPressed: _saveAnalysis,
-            icon: const Icon(Icons.bookmark_outline, size: 18),
+            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
             label: Text(t.save),
           ),
         ]),
@@ -507,7 +507,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
             borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(children: [
-            const Icon(Icons.verified_outlined,
+            const Icon(Icons.verified_rounded,
                 size: 18, color: Brand.success),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -541,7 +541,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
       ...r.checklist.map((k) => Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.check_box_outline_blank,
+              Icon(Icons.check_box_outline_blank_rounded,
                   size: 18, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -562,7 +562,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.gavel_outlined, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.gavel_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.caDisclaimer,
@@ -579,7 +579,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.caLoadError,
         message: serverFailText(t, _failCause),
@@ -588,7 +588,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
     }
     if (_saved.isEmpty) {
       return StateMessage(
-        icon: Icons.description_outlined,
+        icon: Icons.description_rounded,
         title: t.caEmptyTitle,
         message: t.caEmptyBody,
         action: FilledButton.tonalIcon(
@@ -618,7 +618,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
                   overflow: TextOverflow.ellipsis),
               onTap: () => _openSaved(row),
               trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(row),
               ),
@@ -645,7 +645,7 @@ class _HonestMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -677,7 +677,7 @@ class _DeeperAiCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+        Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

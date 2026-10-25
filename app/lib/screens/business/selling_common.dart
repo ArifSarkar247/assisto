@@ -48,7 +48,7 @@ class StaffRedactedNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.biz_staff_restricted,
@@ -165,10 +165,10 @@ int takaToPoisha(num taka) => (taka * 100).round();
 List<({String code, String label, IconData icon})> paymentMethods(
         AppLocalizations t) =>
     [
-      (code: 'cash', label: t.biz_pay_cash, icon: Icons.payments_outlined),
-      (code: 'bkash', label: t.biz_pay_bkash, icon: Icons.phone_android),
-      (code: 'nagad', label: t.biz_pay_nagad, icon: Icons.phone_android),
-      (code: 'due', label: t.biz_pay_due, icon: Icons.schedule_outlined),
+      (code: 'cash', label: t.biz_pay_cash, icon: Icons.payments_rounded),
+      (code: 'bkash', label: t.biz_pay_bkash, icon: Icons.phone_android_rounded),
+      (code: 'nagad', label: t.biz_pay_nagad, icon: Icons.phone_android_rounded),
+      (code: 'due', label: t.biz_pay_due, icon: Icons.schedule_rounded),
     ];
 
 /// A pill-style brand gradient header used atop each selling screen body — keeps

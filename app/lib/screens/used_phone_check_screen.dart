@@ -223,13 +223,13 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             controller: _imei,
             label: t.upImeiSrcDialer,
             hint: t.upImeiSrcDialerHint,
-            icon: Icons.dialpad,
+            icon: Icons.dialpad_rounded,
           ),
           if (_hasVaultImei)
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
-                icon: const Icon(Icons.auto_fix_high, size: 18),
+                icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
                 label: Text(t.upPrefillFromVault),
                 onPressed: _prefill,
               ),
@@ -239,21 +239,21 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             controller: _imeiSettings,
             label: t.upImeiSrcSettings,
             hint: t.upImeiSrcSettingsHint,
-            icon: Icons.settings_outlined,
+            icon: Icons.settings_rounded,
           ),
           const SizedBox(height: Gap.md),
           _ImeiField(
             controller: _imeiBox,
             label: t.upImeiSrcBox,
             hint: t.upImeiSrcBoxHint,
-            icon: Icons.inventory_2_outlined,
+            icon: Icons.inventory_2_rounded,
           ),
           const SizedBox(height: Gap.md),
           _ImeiField(
             controller: _imeiTray,
             label: t.upImeiSrcTray,
             hint: t.upImeiSrcTrayHint,
-            icon: Icons.sim_card_outlined,
+            icon: Icons.sim_card_rounded,
           ),
           const SizedBox(height: Gap.sm),
           SizedBox(
@@ -264,7 +264,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.search),
+                  : const Icon(Icons.search_rounded),
               label: Text(_busy ? t.upChecking : t.upCheckButton),
               onPressed: _busy ? null : _check,
             ),
@@ -272,7 +272,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           if (_error != null) ...[
             const SizedBox(height: Gap.md),
             _MessageCard(
-              icon: _rateLimited ? Icons.hourglass_empty : Icons.error_outline,
+              icon: _rateLimited ? Icons.hourglass_empty_rounded : Icons.error_outline_rounded,
               color: Brand.warning,
               text: _error!,
             ),
@@ -308,7 +308,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.info_outline,
+                Icon(Icons.info_outline_rounded,
                     size: 20, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -328,7 +328,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
-                  Icon(Icons.policy_outlined,
+                  Icon(Icons.policy_rounded,
                       size: 20, color: scheme.onSurfaceVariant),
                   const SizedBox(width: Gap.sm),
                   Expanded(
@@ -344,7 +344,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
-              icon: const Icon(Icons.report_gmailerrorred_outlined, size: 18),
+              icon: const Icon(Icons.report_gmailerrorred_rounded, size: 18),
               label: Text(t.upReportStolenLink),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const ReportStolenScreen())),
@@ -378,25 +378,25 @@ class _ResultCard extends StatelessWidget {
         switch (result) {
       'reported_stolen' => (
           Brand.danger,
-          Icons.gpp_bad_outlined,
+          Icons.gpp_bad_rounded,
           t.upResultStolenTitle,
           t.upResultStolenBody,
         ),
       'verified_transfer' => (
           Brand.blue,
-          Icons.verified_outlined,
+          Icons.verified_rounded,
           t.upResultVerifiedTitle,
           t.upResultVerifiedBody,
         ),
       'clean' => (
           Brand.success,
-          Icons.verified_user_outlined,
+          Icons.verified_user_rounded,
           t.upResultCleanTitle,
           t.upResultCleanBody,
         ),
       _ => (
           Brand.warning,
-          Icons.help_outline,
+          Icons.help_outline_rounded,
           t.upResultUnknown,
           '',
         ),
@@ -509,7 +509,7 @@ class _TamperWarningCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.gpp_bad_outlined, color: Brand.danger, size: 34),
+              const Icon(Icons.gpp_bad_rounded, color: Brand.danger, size: 34),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.upTamperWarnTitle,
@@ -567,7 +567,7 @@ class _TacCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.help_outline, size: 20, color: scheme.onSurfaceVariant),
+            Icon(Icons.help_outline_rounded, size: 20, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.upTacUnavailable,
@@ -588,7 +588,7 @@ class _TacCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.phone_android, color: Brand.blue, size: 22),
+              const Icon(Icons.phone_android_rounded, color: Brand.blue, size: 22),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.upTacHeading(makeModel),

@@ -139,8 +139,8 @@ PreferredSizeWidget _bar(Widget title) => AppBar(
       titleSpacing: 0,
       title: title,
       actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_outlined)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.call_outlined)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_rounded)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.call_rounded)),
       ],
     );
 

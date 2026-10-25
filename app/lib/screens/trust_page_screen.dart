@@ -79,7 +79,7 @@ class TrustPageScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.verified_user, color: Colors.white, size: 36),
+                const Icon(Icons.verified_user_rounded, color: Colors.white, size: 36),
                 const SizedBox(height: 10),
                 Text(t.trustHeadline,
                     style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -94,37 +94,37 @@ class TrustPageScreen extends StatelessWidget {
           // ---- WHAT WE DO (verified claims) ----
           _SectionHeader(text: t.trustWhatWeDo),
           _ClaimTile(
-            icon: Icons.account_balance_wallet,
+            icon: Icons.account_balance_wallet_rounded,
             tint: good,
             title: t.trustMoneyTitle,
             body: t.trustMoneyBody,
           ),
           _ClaimTile(
-            icon: Icons.lock,
+            icon: Icons.lock_rounded,
             tint: good,
             title: t.trustE2eTitle,
             body: t.trustE2eBody,
           ),
           _ClaimTile(
-            icon: Icons.smart_toy,
+            icon: Icons.smart_toy_rounded,
             tint: good,
             title: t.trustAiTitle,
             body: t.trustAiBody,
           ),
           _ClaimTile(
-            icon: Icons.privacy_tip,
+            icon: Icons.privacy_tip_rounded,
             tint: good,
             title: t.trustSellTitle,
             body: t.trustSellBody,
           ),
           _ClaimTile(
-            icon: Icons.download_done,
+            icon: Icons.download_done_rounded,
             tint: good,
             title: t.trustControlTitle,
             body: t.trustControlBody,
           ),
           _ClaimTile(
-            icon: Icons.dns,
+            icon: Icons.dns_rounded,
             tint: good,
             title: t.trustDataLocationTitle,
             body: t.trustDataLocationBody,
@@ -153,7 +153,7 @@ class TrustPageScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Icon(Icons.gavel, size: 22, color: scheme.onSurfaceVariant),
+                    Icon(Icons.gavel_rounded, size: 22, color: scheme.onSurfaceVariant),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(t.trustLicenseTitle,
@@ -173,12 +173,12 @@ class TrustPageScreen extends StatelessWidget {
           // ---- links to the real policy surfaces ----
           _SectionHeader(text: t.trustReadMore),
           _LinkTile(
-            icon: Icons.policy,
+            icon: Icons.policy_rounded,
             label: t.trustOpenLegal,
             onTap: () => ChatNav.push(context, 'legal'),
           ),
           _LinkTile(
-            icon: Icons.info_outline,
+            icon: Icons.info_outline_rounded,
             label: t.trustOpenAbout,
             onTap: () => ChatNav.push(context, 'name_about'),
           ),
@@ -261,7 +261,7 @@ class _NeverTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.block, size: 22, color: tint),
+            Icon(Icons.block_rounded, size: 22, color: tint),
             const SizedBox(width: Gap.md),
             Expanded(child: Text(text, style: AType.titleMedium.copyWith(height: 1.35))),
           ],
@@ -283,7 +283,7 @@ class _LinkTile extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         leading: Icon(icon, color: scheme.primary),
         title: Text(label, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right_rounded),
         onTap: onTap,
       ),
     );

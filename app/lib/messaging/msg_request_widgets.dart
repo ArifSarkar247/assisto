@@ -86,7 +86,7 @@ class MsgRequestWaitingLine extends StatelessWidget {
       key: const Key('mr1-waiting'),
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, 0),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.schedule, size: 14, color: scheme.onSurfaceVariant),
+        Icon(Icons.schedule_rounded, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.xs),
         Flexible(
           // connect-flow: the owner's banner wording (25 Oct)
@@ -192,12 +192,12 @@ class MsgRequestActionBar extends StatelessWidget {
                     color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.35)),
             const SizedBox(height: Gap.sm),
             Row(children: [
-              act(const Key('mr1-block'), Icons.block, t.circleBlock, onBlock,
+              act(const Key('mr1-block'), Icons.block_rounded, t.circleBlock, onBlock,
                   danger: true),
-              act(const Key('mr1-report'), Icons.flag_outlined, t.circleReport,
+              act(const Key('mr1-report'), Icons.flag_rounded, t.circleReport,
                   onReport, danger: true),
               // connect-flow: Decline (silent — the sender is not told)
-              act(const Key('mr1-delete'), Icons.close, t.connDecline,
+              act(const Key('mr1-delete'), Icons.close_rounded, t.connDecline,
                   onDelete),
             ]),
             const SizedBox(height: Gap.xs),
@@ -211,7 +211,7 @@ class MsgRequestActionBar extends StatelessWidget {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.check),
+                    : const Icon(Icons.check_rounded),
                 label: Text(t.circleAccept),
               ),
             ),

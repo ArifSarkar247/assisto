@@ -249,7 +249,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
           const SizedBox(height: Gap.xl),
           FilledButton.icon(
             onPressed: _run,
-            icon: const Icon(Icons.auto_awesome, size: 18),
+            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
             label: Text(t.qtRun),
           ),
 
@@ -286,7 +286,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _result!.result.isEmpty ? null : _share,
-                    icon: const Icon(Icons.ios_share, size: 18),
+                    icon: const Icon(Icons.ios_share_rounded, size: 18),
                     label: Text(t.share),
                   ),
                 ),
@@ -300,7 +300,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
               const SizedBox(height: Gap.sm),
               OutlinedButton.icon(
                 onPressed: _result!.result.isEmpty ? null : _save,
-                icon: const Icon(Icons.bookmark_outline, size: 18),
+                icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
                 label: Text(t.save),
               ),
             ],
@@ -326,7 +326,7 @@ class _AiMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -351,7 +351,7 @@ class _NeedsKeyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return StateMessage(
-      icon: Icons.key_outlined,
+      icon: Icons.key_rounded,
       tint: Brand.warning,
       title: title,
       message: body,

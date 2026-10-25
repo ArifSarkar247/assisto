@@ -202,7 +202,7 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ],
                 ),
-                trailing: const Icon(Icons.edit_outlined),
+                trailing: const Icon(Icons.edit_rounded),
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -230,7 +230,7 @@ class SettingsScreen extends StatelessWidget {
           // motion, simplified layout, screen-reader hints, haptics. Sits in the
           // accessibility cluster next to Elderly simple-mode.
           ListTile(
-            leading: const Icon(Icons.accessibility_new_outlined),
+            leading: const Icon(Icons.accessibility_new_rounded),
             title: Text(t.a11yTitle),
             subtitle: Text(t.a11yTileSub),
             onTap: () => Navigator.push(context,
@@ -239,7 +239,7 @@ class SettingsScreen extends StatelessWidget {
           // a6: push — Notifications & calls (delivery status, permission,
           // Android 14 full-screen calls, battery hint).
           ListTile(
-            leading: const Icon(Icons.notifications_active_outlined),
+            leading: const Icon(Icons.notifications_active_rounded),
             title: Text(t.pushSetTitle),
             subtitle: Text(t.pushSetTileSub),
             onTap: () => Navigator.push(context,
@@ -248,7 +248,7 @@ class SettingsScreen extends StatelessWidget {
           // Part 3: Assisto Voice — default digital assistant, optional
           // "Hey Assisto" wake word (off by default), spoken replies.
           ListTile(
-            leading: const Icon(Icons.graphic_eq),
+            leading: const Icon(Icons.graphic_eq_rounded),
             title: Text(t.vaSettingsTitle),
             subtitle: Text(t.vaSettingsTileSub),
             onTap: () => Navigator.push(context,
@@ -259,7 +259,7 @@ class SettingsScreen extends StatelessWidget {
           // #198 Digital security check-up — a guided self-audit + security
           // score. Lives with Safety (protection) settings.
           ListTile(
-            leading: const Icon(Icons.verified_user_outlined),
+            leading: const Icon(Icons.verified_user_rounded),
             title: Text(t.secTitle),
             subtitle: Text(t.secTileSub),
             onTap: () => Navigator.push(context,
@@ -268,7 +268,7 @@ class SettingsScreen extends StatelessWidget {
           // #201 Trust / proof page — the app's honest integrity statement
           // (what Assisto does and never does). Lives with the safety/trust tiles.
           ListTile(
-            leading: const Icon(Icons.shield_outlined),
+            leading: const Icon(Icons.shield_rounded),
             title: Text(t.trustTitle),
             subtitle: Text(t.trustTileSub),
             onTap: () => Navigator.push(context,
@@ -282,32 +282,32 @@ class SettingsScreen extends StatelessWidget {
           // Action Center's Done tab reads the same GET /audit source the old
           // AuditScreen used, so this is a strict superset — no lost function.
           ListTile(
-            leading: const Icon(Icons.receipt_long_outlined),
+            leading: const Icon(Icons.receipt_long_rounded),
             title: Text(AppLocalizations.of(context).auditLogTile),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const ActionCenterScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.cloud_off_outlined),
+            leading: const Icon(Icons.cloud_off_rounded),
             title: Text(oStr(context, 'offTitle')),
             subtitle: Text(oStr(context, 'offAvailableOffline')),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OfflineStatusScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.insights_outlined),
+            leading: const Icon(Icons.insights_rounded),
             title: Text(AppLocalizations.of(context).analyticsTitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OwnerAnalyticsScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.badge_outlined),
+            leading: const Icon(Icons.badge_rounded),
             title: Text(AppLocalizations.of(context).nameAboutTitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const NameAboutScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.download_outlined),
+            leading: const Icon(Icons.download_rounded),
             title: Text(AppLocalizations.of(context).exportDataTile),
             subtitle: Text(AppLocalizations.of(context).exportDataSubtitle),
             onTap: () => _export(context),
@@ -315,26 +315,26 @@ class SettingsScreen extends StatelessWidget {
           // #197 Encrypted backup & phone transfer — passphrase-encrypted bundle
           // (reuses the SoftwareE2E crypto); local works no-key, Drive = seam.
           ListTile(
-            leading: const Icon(Icons.enhanced_encryption_outlined),
+            leading: const Icon(Icons.enhanced_encryption_rounded),
             title: Text(AppLocalizations.of(context).bkTitle),
             subtitle: Text(AppLocalizations.of(context).bkTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const EncryptedBackupScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.table_chart_outlined),
+            leading: const Icon(Icons.table_chart_rounded),
             title: Text(AppLocalizations.of(context).exportExcelTile),
             onTap: () => _downloadOpen(context, '/export/excel', 'assisto-export.xlsx'),
           ),
           ListTile(
-            leading: const Icon(Icons.picture_as_pdf_outlined),
+            leading: const Icon(Icons.picture_as_pdf_rounded),
             title: Text(AppLocalizations.of(context).exportPdfTile),
             onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
           ),
           const Divider(),
           // Business Model Build 3 — credits + an always-visible storage meter.
           ListTile(
-            leading: const Icon(Icons.bolt_outlined),
+            leading: const Icon(Icons.bolt_rounded),
             title: Text(t.creditsTitle),
             subtitle: Text(t.creditsSettingsSub),
             onTap: () => Navigator.push(context,
@@ -351,14 +351,14 @@ class SettingsScreen extends StatelessWidget {
           // offer notifications max N/day).
           ListTile(
             key: const Key('settings-offers'),
-            leading: const Icon(Icons.local_offer_outlined),
+            leading: const Icon(Icons.local_offer_rounded),
             title: Text(t.p2OffersTitle),
             subtitle: Text(t.p2OffersSettingsSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.autorenew),
+            leading: const Icon(Icons.autorenew_rounded),
             title: Text(t.subscriptions),
             subtitle: Text(t.subscriptionsHint),
             onTap: () => Navigator.push(context,
@@ -367,14 +367,14 @@ class SettingsScreen extends StatelessWidget {
           // ring-everywhere: the call ring checklist (badge while missing)
           ListTile(
             key: const Key('settings-ring-check'),
-            leading: const RingCheckBadge(child: Icon(Icons.ring_volume_outlined)),
+            leading: const RingCheckBadge(child: Icon(Icons.ring_volume_rounded)),
             title: Text(AppLocalizations.of(context).ringCheckTitle),
             subtitle: Text(AppLocalizations.of(context).ringCheckTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const RingChecklistScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.battery_charging_full_outlined),
+            leading: const Icon(Icons.battery_charging_full_rounded),
             title: Text(AppLocalizations.of(context).oemGuideTitle),
             subtitle: Text(AppLocalizations.of(context).oemGuideTileSub),
             onTap: () => Navigator.push(context,
@@ -388,14 +388,14 @@ class SettingsScreen extends StatelessWidget {
           // these switches yet, so the tile is hidden (feature_gates.dart).
           if (kSourcePermissionsEnforced)
           ListTile(
-            leading: const Icon(Icons.tune),
+            leading: const Icon(Icons.tune_rounded),
             title: Text(AppLocalizations.of(context).inputSourcePermissions),
             subtitle: Text(AppLocalizations.of(context).inputSourceSubtitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => SourcesScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.pending_actions_outlined),
+            leading: const Icon(Icons.pending_actions_rounded),
             title: Text(AppLocalizations.of(context).inProgress),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const InProgressScreen())),
@@ -404,7 +404,7 @@ class SettingsScreen extends StatelessWidget {
           _MsgrSettingsSection(),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.gavel_outlined),
+            leading: const Icon(Icons.gavel_rounded),
             title: Text(AppLocalizations.of(context).legalTitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const LegalScreen())),
@@ -416,13 +416,13 @@ class SettingsScreen extends StatelessWidget {
           // this screen (screenshot captured first, removable).
           ListTile(
             key: const Key('settings-feedback'),
-            leading: const Icon(Icons.rate_review_outlined),
+            leading: const Icon(Icons.rate_review_rounded),
             title: Text(t.fbTile),
             subtitle: Text(t.fbTileSub),
             onTap: () => FeedbackSheet.open(context, route: 'settings'),
           ),
           ListTile(
-            leading: const Icon(Icons.support_agent_outlined),
+            leading: const Icon(Icons.support_agent_rounded),
             title: Text(AppLocalizations.of(context).supportReportTile),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SupportCenterScreen())),
@@ -430,19 +430,19 @@ class SettingsScreen extends StatelessWidget {
           // l1-launch: no self-update tile in the Google Play build.
           if (!AppConfig.playStore)
           ListTile(
-            leading: const Icon(Icons.system_update_outlined),
+            leading: const Icon(Icons.system_update_rounded),
             title: Text(AppLocalizations.of(context).updateTile),
             subtitle: Text(AppLocalizations.of(context).updateTileSubtitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
           ),
           ListTile(
-            leading: const Icon(Icons.card_giftcard_outlined),
+            leading: const Icon(Icons.card_giftcard_rounded),
             title: Text(AppLocalizations.of(context).inviteFriendsTile),
             onTap: () => _invite(context),
           ),
           ListTile(
-            leading: Icon(Icons.delete_forever_outlined,
+            leading: Icon(Icons.delete_forever_rounded,
                 color: Theme.of(context).colorScheme.error),
             title: Text(AppLocalizations.of(context).delAcctTile,
                 style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -451,7 +451,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.logout),
+            leading: const Icon(Icons.logout_rounded),
             title: Text(AppLocalizations.of(context).logout),
             onTap: () => app.logout(),
           ),
@@ -466,9 +466,9 @@ class SettingsScreen extends StatelessWidget {
           // Version info lives ONLY here, deep in Settings → About (owner rule:
           // nothing version-related on the home screen, sidebar, or elsewhere).
           ListTile(
-            leading: const Icon(Icons.info_outline),
+            leading: const Icon(Icons.info_outline_rounded),
             title: Text(AppLocalizations.of(context).aboutTitle),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const AboutScreen()),
             ),
@@ -528,7 +528,7 @@ class _DeletePendingBannerState extends State<_DeletePendingBanner> {
       child: Card(
         color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
         child: ListTile(
-          leading: Icon(Icons.schedule, color: AssistoTokens.of(context).warning),
+          leading: Icon(Icons.schedule_rounded, color: AssistoTokens.of(context).warning),
           title: Text(t.delAcctScheduledTitle),
           subtitle: Text(t.delAcctScheduledBody(when)),
           trailing: TextButton(
@@ -592,19 +592,19 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
         // Moderation tools — operators/owners only.
         if (_isOperator == true) ...[
           ListTile(
-            leading: const Icon(Icons.shield_outlined),
+            leading: const Icon(Icons.shield_rounded),
             title: Text(t.settingsMsgrAdminTools),
             subtitle: Text(t.settingsMsgrAdminToolsSub),
             onTap: () => _open(const AdminModerationScreen()),
           ),
           ListTile(
-            leading: const Icon(Icons.manage_accounts_outlined),
+            leading: const Icon(Icons.manage_accounts_rounded),
             title: Text(t.settingsMsgrUsers),
             onTap: () => _open(const AdminUsersScreen()),
           ),
           // #178 Cost kill-switch & feature flags (owner/superuser).
           ListTile(
-            leading: const Icon(Icons.toggle_on_outlined),
+            leading: const Icon(Icons.toggle_on_rounded),
             title: Text(t.costFlagsTile),
             subtitle: Text(t.costFlagsTileSub),
             onTap: () => _open(const CostFlagsScreen()),
@@ -614,7 +614,7 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
           // the same operator probe and re-checked server-side (403 -> owner
           // only state).
           ListTile(
-            leading: const Icon(Icons.query_stats_outlined),
+            leading: const Icon(Icons.query_stats_rounded),
             title: Text(t.pnlTile),
             subtitle: Text(t.pnlTileSub),
             onTap: () => _open(const OwnerPnlScreen()),
@@ -622,7 +622,7 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
           // d1-discover: owner Discover manager (home spotlight cards, sponsors,
           // reports). Same operator probe; the server re-checks superuser.
           ListTile(
-            leading: const Icon(Icons.view_carousel_outlined),
+            leading: const Icon(Icons.view_carousel_rounded),
             title: Text(t.discoverMgrTile),
             subtitle: Text(t.discoverMgrTileSub),
             onTap: () => _open(const DiscoverManagerScreen()),
@@ -634,7 +634,7 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
           // AppConfig reads ServerConfig.effectiveBase() at startup.
           if (_kServerSwapWired)
             ListTile(
-              leading: const Icon(Icons.dns_outlined),
+              leading: const Icon(Icons.dns_rounded),
               title: Text(t.srvTile),
               subtitle: Text(t.srvTileSub),
               onTap: () => _open(const ServerAddressScreen()),
@@ -642,19 +642,19 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
         ],
         // Policies — visible to everyone.
         ListTile(
-          leading: const Icon(Icons.policy_outlined),
+          leading: const Icon(Icons.policy_rounded),
           title: Text(t.msgrModPolicyContentTitle),
           onTap: () => _open(const ModerationPolicyScreen(
               kind: MsgrModPolicyKind.contentPolicy)),
         ),
         ListTile(
-          leading: const Icon(Icons.handshake_outlined),
+          leading: const Icon(Icons.handshake_rounded),
           title: Text(t.msgrModPolicyGuidelinesTitle),
           onTap: () => _open(const ModerationPolicyScreen(
               kind: MsgrModPolicyKind.communityGuidelines)),
         ),
         ListTile(
-          leading: const Icon(Icons.no_adult_content),
+          leading: const Icon(Icons.no_adult_content_rounded),
           title: Text(t.msgrModPolicyAdultTitle),
           onTap: () => _open(const ModerationPolicyScreen(
               kind: MsgrModPolicyKind.adultContent)),
@@ -709,7 +709,7 @@ class _AuditScreenState extends State<AuditScreen> {
               final a = items[i];
               return ListTile(
                 dense: true,
-                leading: const Icon(Icons.check_circle_outline, size: 20),
+                leading: const Icon(Icons.check_circle_outline_rounded, size: 20),
                 title: Text(a.action),
                 subtitle: Text(fmt.format(a.createdAt.toLocal())),
               );
@@ -837,7 +837,7 @@ class _SupportScreenState extends State<SupportScreen> {
               child: Padding(
                 padding: EdgeInsets.all(Gap.xl),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.check_circle,
+                  Icon(Icons.check_circle_rounded,
                       color: AssistoTokens.of(context).success, size: 56),
                   SizedBox(height: Gap.md),
                   Text(AppLocalizations.of(context).supportThanks, textAlign: TextAlign.center),
@@ -961,7 +961,7 @@ class _SafetySectionState extends State<_SafetySection> {
       // play-nomed: medicine follow-up note only where medicines exist.
       if (kMedicalFeaturesAllowed)
       ListTile(
-        leading: const Icon(Icons.medication_outlined),
+        leading: const Icon(Icons.medication_rounded),
         title: Text(t.medicineReminderFollowUp),
         subtitle: Text(t.setPerMedicineReRemind,
             style: AType.bodySmall),
@@ -1026,7 +1026,7 @@ class _HomeWidgetTileState extends State<_HomeWidgetTile> {
     // entirely (no "coming soon" row, no toggle that would do nothing).
     if (!HomeWidgetService.isSupported) return const SizedBox.shrink();
     return SwitchListTile(
-      secondary: const Icon(Icons.widgets_outlined),
+      secondary: const Icon(Icons.widgets_rounded),
       value: _enabled,
       onChanged: _loaded ? _toggle : null,
       title: Text(t.hwTile),

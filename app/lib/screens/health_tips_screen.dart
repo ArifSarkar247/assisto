@@ -167,7 +167,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
-                  Icon(Icons.info_outline, size: 18, color: scheme.onTertiaryContainer),
+                  Icon(Icons.info_outline_rounded, size: 18, color: scheme.onTertiaryContainer),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(_disclaimer,
@@ -202,7 +202,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
             controller: _search,
             decoration: InputDecoration(
               hintText: t.healthTipsSearchHint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
             ),
             onSubmitted: (_) => _load(),
             textInputAction: TextInputAction.search,
@@ -235,7 +235,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
                 ),
             FilterChip(
               avatar: Icon(
-                _savedOnly ? Icons.bookmark : Icons.bookmark_border,
+                _savedOnly ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                 size: 16,
               ),
               label: Text(t.htipsSavedFilter),
@@ -306,7 +306,7 @@ class _EmergencyCheckBox extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.emergency_outlined, color: Brand.danger, size: 20),
+            const Icon(Icons.emergency_rounded, color: Brand.danger, size: 20),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(label,
                 style: const TextStyle(fontWeight: FontWeight.w700))),
@@ -326,7 +326,7 @@ class _EmergencyCheckBox extends StatelessWidget {
               icon: checking
                   ? const SizedBox(
                       width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.health_and_safety_outlined, size: 18),
+                  : const Icon(Icons.health_and_safety_rounded, size: 18),
               label: Text(button),
             ),
           ),
@@ -349,7 +349,7 @@ class _EmergencyCheckBox extends StatelessWidget {
           ] else if (action != null && action!.isEmpty) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.check_circle_outline, size: 16, color: scheme.secondary),
+              Icon(Icons.check_circle_outline_rounded, size: 16, color: scheme.secondary),
               const SizedBox(width: Gap.xs),
               Expanded(child: Text(safeText,
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
@@ -374,7 +374,7 @@ class _ErrorRetry extends StatelessWidget {
         const SizedBox(height: Gap.md),
         OutlinedButton.icon(
           onPressed: onRetry,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(AppLocalizations.of(context).retry),
         ),
       ]),

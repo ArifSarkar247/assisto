@@ -179,12 +179,12 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
     if (lines.isEmpty && app.budgets.items.isEmpty) {
       return Scaffold(
         body: StateMessage(
-          icon: Icons.donut_large_outlined,
+          icon: Icons.donut_large_rounded,
           title: t.budgetEmptyTitle,
           message: t.budgetEmptyBody,
           action: FilledButton.icon(
               onPressed: () => _addOrEdit(context),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.budgetAddFirst)),
         ),
       );
@@ -192,7 +192,7 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          onPressed: () => _addOrEdit(context), child: const Icon(Icons.add)),
+          onPressed: () => _addOrEdit(context), child: const Icon(Icons.add_rounded)),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: ListView(
@@ -204,7 +204,7 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
                 padding: const EdgeInsets.only(top: Gap.md),
                 child: Card(
                   child: ListTile(
-                    leading: const Icon(Icons.cloud_off_outlined),
+                    leading: const Icon(Icons.cloud_off_rounded),
                     title: Text(t.budgetOffline),
                   ),
                 ),
@@ -331,7 +331,7 @@ class _HistoryTabState extends State<_HistoryTab> {
             ? const SkeletonList(count: 4)
             : _offline
                 ? StateMessage(
-                    icon: Icons.cloud_off_outlined,
+                    icon: Icons.cloud_off_rounded,
                     title: t.budgetLoadFailed,
                     message: t.budgetOffline,
                     action:
@@ -339,7 +339,7 @@ class _HistoryTabState extends State<_HistoryTab> {
                   )
                 : lines.isEmpty
                     ? StateMessage(
-                        icon: Icons.history,
+                        icon: Icons.history_rounded,
                         title: t.budgetEmptyTitle,
                         message: t.budgetEmptyBody,
                       )
@@ -435,10 +435,10 @@ class _PlanTabState extends State<_PlanTab> {
         children: [
           Card(
             child: ListTile(
-              leading: const Icon(Icons.pie_chart_outline),
+              leading: const Icon(Icons.pie_chart_outline_rounded),
               title: Text(t.budgetTemplateTitle),
               subtitle: Text(t.budgetTemplateBody),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _template(context),
             ),
           ),
@@ -454,14 +454,14 @@ class _PlanTabState extends State<_PlanTab> {
             const SkeletonList(count: 3)
           else if (_offline)
             StateMessage(
-              icon: Icons.cloud_off_outlined,
+              icon: Icons.cloud_off_rounded,
               title: t.budgetLoadFailed,
               message: t.budgetOffline,
               action: FilledButton(onPressed: _load, child: Text(t.retry)),
             )
           else if (suggestions.isEmpty)
             StateMessage(
-              icon: Icons.insights_outlined,
+              icon: Icons.insights_rounded,
               title: t.budgetPlanTitle,
               message: t.budgetEmptyBody,
             )
@@ -537,13 +537,13 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), actions: [
         IconButton(
-            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync_rounded)),
       ]),
       body: _loading
           ? const SkeletonList(count: 4)
           : _failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: widget.category,
                   message: honestFailText(t, _failCause, otherwise: t.budgetOffline),
                   action:
@@ -551,7 +551,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                 )
               : ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                   Row(children: [
-                    Icon(rollover ? Icons.autorenew : Icons.block, size: 18),
+                    Icon(rollover ? Icons.autorenew_rounded : Icons.block_rounded, size: 18),
                     const SizedBox(width: Gap.sm),
                     Text(rollover ? t.budgetRolloverOn : t.budgetRolloverOff,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -561,7 +561,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                     Card(
                       color: scheme.secondaryContainer,
                       child: ListTile(
-                        leading: Icon(Icons.savings_outlined,
+                        leading: Icon(Icons.savings_rounded,
                             color: scheme.onSecondaryContainer),
                         title: Text(t.budgetCarryForward,
                             style: TextStyle(

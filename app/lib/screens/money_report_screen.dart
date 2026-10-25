@@ -73,18 +73,18 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       appBar: AppBar(title: Text(t.moneyReportTitle), actions: [
         IconButton(
             tooltip: 'PDF',
-            icon: const Icon(Icons.picture_as_pdf_outlined),
+            icon: const Icon(Icons.picture_as_pdf_rounded),
             onPressed: () => _export('pdf')),
         IconButton(
             tooltip: 'Excel',
-            icon: const Icon(Icons.table_chart_outlined),
+            icon: const Icon(Icons.table_chart_rounded),
             onPressed: () => _export('xlsx')),
       ]),
       body: _loading
           ? const SkeletonList(count: 5)
           : _failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.moneyReportTitle,
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -106,29 +106,29 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthIncome,
-                tkFmt(d['income']), AssistoTokens.of(context).success, Icons.south_west)),
+                tkFmt(d['income']), AssistoTokens.of(context).success, Icons.south_west_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyMonthExpense,
-                tkFmt(d['expense']), Theme.of(context).colorScheme.error, Icons.north_east)),
+                tkFmt(d['expense']), Theme.of(context).colorScheme.error, Icons.north_east_rounded)),
       ]),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthNet, tkFmt(d['net']),
                 dbl(d['net']) >= 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
-                Icons.savings_outlined)),
+                Icons.savings_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneySavingsRate,
                 '${d['savings_rate'] ?? 0}%', Brand.onTint(context, Brand.purple),
-                Icons.percent)),
+                Icons.percent_rounded)),
       ]),
       if (biggest != null) ...[
         const SizedBox(height: Gap.md),
         Card(
           child: ListTile(
-            leading: Icon(Icons.local_fire_department_outlined,
+            leading: Icon(Icons.local_fire_department_rounded,
                 color: AssistoTokens.of(context).warning),
             title: Text(t.moneyBiggestExpense),
             subtitle: Text('${biggest['category']} · ${moneyDay(context, biggest['date'])}'),
@@ -160,10 +160,10 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
             subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}', style: const TextStyle(fontFeatures: AFonts.tabular)),
             trailing: Icon(
                 b['state'] == 'over'
-                    ? Icons.error_outline
+                    ? Icons.error_outline_rounded
                     : b['state'] == 'near'
-                        ? Icons.warning_amber_outlined
-                        : Icons.check_circle_outline,
+                        ? Icons.warning_amber_rounded
+                        : Icons.check_circle_outline_rounded,
                 color: b['state'] == 'over'
                     ? Theme.of(context).colorScheme.error
                     : b['state'] == 'near'

@@ -167,20 +167,20 @@ class _FilingScreenState extends State<FilingScreen> {
       appBar: AppBar(title: Text(tr.paFileTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.create_new_folder_outlined),
+        icon: const Icon(Icons.create_new_folder_rounded),
         label: Text(tr.paFileAdd),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paFileLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -193,13 +193,13 @@ class _FilingScreenState extends State<FilingScreen> {
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           StateMessage(
-            icon: Icons.folder_copy_outlined,
+            icon: Icons.folder_copy_rounded,
             tint: Brand.blue,
             title: tr.paFileWelcomeTitle,
             message: tr.paFileWelcomeBody,
             action: FilledButton.icon(
               onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.create_new_folder_outlined),
+              icon: const Icon(Icons.create_new_folder_rounded),
               label: Text(tr.paFileAdd),
             ),
           ),
@@ -218,7 +218,7 @@ class _FilingScreenState extends State<FilingScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.search_off,
+                icon: Icons.search_off_rounded,
                 title: tr.paFileNoMatchTitle,
                 message: tr.paFileNoMatchBody,
                 action: TextButton(
@@ -281,7 +281,7 @@ class _FilingScreenState extends State<FilingScreen> {
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: tr.paFileSearchHint,
             border: const OutlineInputBorder(),
           ),
@@ -298,7 +298,7 @@ class _FilingScreenState extends State<FilingScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: Gap.sm),
                 child: FilterChip(
-                  avatar: const Icon(Icons.sell_outlined, size: 16),
+                  avatar: const Icon(Icons.sell_rounded, size: 16),
                   label: Text(tg),
                   selected: _tag == tg,
                   onSelected: (_) =>
@@ -334,7 +334,7 @@ class _FilingScreenState extends State<FilingScreen> {
                   overflow: TextOverflow.ellipsis),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);
@@ -349,9 +349,9 @@ class _FilingScreenState extends State<FilingScreen> {
           Wrap(spacing: Gap.sm, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
             _pill(_categoryLabel(tr, cat), scheme.primary),
             if (hasImage)
-              _meta(Icons.image_outlined, tr.paFileScanAttached, scheme),
+              _meta(Icons.image_rounded, tr.paFileScanAttached, scheme),
             if (dateStr.isNotEmpty)
-              _meta(Icons.event, _fmtDate(dateStr, tr), scheme),
+              _meta(Icons.event_rounded, _fmtDate(dateStr, tr), scheme),
           ]),
           if (notes.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
@@ -372,7 +372,7 @@ class _FilingScreenState extends State<FilingScreen> {
           if (extracted.isNotEmpty) ...[
             const Divider(height: Gap.xl),
             Row(children: [
-              Icon(Icons.text_snippet_outlined,
+              Icon(Icons.text_snippet_rounded,
                   size: 15, color: scheme.secondary),
               const SizedBox(width: 4),
               Text(tr.paFileExtractedLabel,
@@ -410,15 +410,15 @@ class _FilingScreenState extends State<FilingScreen> {
   IconData _categoryIcon(String c) {
     switch (c) {
       case 'contracts':
-        return Icons.handshake_outlined;
+        return Icons.handshake_rounded;
       case 'invoices':
-        return Icons.receipt_long_outlined;
+        return Icons.receipt_long_rounded;
       case 'letters':
-        return Icons.mail_outline;
+        return Icons.mail_outline_rounded;
       case 'reports':
-        return Icons.assessment_outlined;
+        return Icons.assessment_rounded;
       default:
-        return Icons.description_outlined;
+        return Icons.description_rounded;
     }
   }
 
@@ -470,7 +470,7 @@ class _OcrSeamCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(ready ? Icons.auto_awesome : Icons.lock_outline,
+            Icon(ready ? Icons.auto_awesome_rounded : Icons.lock_outline_rounded,
                 size: 20, color: scheme.secondary),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -604,7 +604,7 @@ class _FilingFormState extends State<_FilingForm> {
                   );
                   if (d != null) setState(() => _date = d);
                 },
-                icon: const Icon(Icons.event),
+                icon: const Icon(Icons.event_rounded),
                 label: Text(_date == null
                     ? tr.paFileSetDate
                     : fmt.format(_date!)),

@@ -26,7 +26,7 @@ class PlansFaq extends StatelessWidget {
       if (_savingLine(t) != null) ...[
         _noteCard(
           scheme,
-          icon: Icons.calendar_month_outlined,
+          icon: Icons.calendar_month_rounded,
           title: t.plansAnnualVsMonthlyTitle,
           body: _savingLine(t)!,
         ),
@@ -36,7 +36,7 @@ class PlansFaq extends StatelessWidget {
       // Manage / cancel + billing honesty.
       _noteCard(
         scheme,
-        icon: Icons.receipt_long_outlined,
+        icon: Icons.receipt_long_rounded,
         title: t.plansManageTitle,
         body: t.plansManageBody,
       ),

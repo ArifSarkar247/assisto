@@ -205,7 +205,7 @@ class _NomineeReleaseSheetState extends State<NomineeReleaseSheet> {
                 const SizedBox(height: Gap.md),
                 FilledButton.tonalIcon(
                   onPressed: _busy ? null : () => _revoke(tr),
-                  icon: const Icon(Icons.lock_outline),
+                  icon: const Icon(Icons.lock_outline_rounded),
                   label: Text(tr.nomineeRevokeAccess),
                 ),
               ] else if (_pending) ...[
@@ -219,13 +219,13 @@ class _NomineeReleaseSheetState extends State<NomineeReleaseSheet> {
                   style: FilledButton.styleFrom(
                       backgroundColor: scheme.error),
                   onPressed: _busy ? null : () => _cancelRelease(tr),
-                  icon: const Icon(Icons.cancel_outlined),
+                  icon: const Icon(Icons.cancel_rounded),
                   label: Text(tr.nomineeCancelRelease),
                 ),
                 const SizedBox(height: Gap.sm),
                 OutlinedButton.icon(
                   onPressed: _busy ? null : () => _openAccess(tr),
-                  icon: const Icon(Icons.lock_open),
+                  icon: const Icon(Icons.lock_open_rounded),
                   label: Text(tr.nomineeOpenNowAfterWindow),
                 ),
               ] else ...[
@@ -237,7 +237,7 @@ class _NomineeReleaseSheetState extends State<NomineeReleaseSheet> {
                 const SizedBox(height: Gap.md),
                 FilledButton.icon(
                   onPressed: _busy ? null : () => _requestRelease(tr),
-                  icon: const Icon(Icons.schedule_send_outlined),
+                  icon: const Icon(Icons.schedule_send_rounded),
                   label: Text(tr.nomineeRequestRelease),
                 ),
               ],
@@ -257,12 +257,12 @@ class _StatusCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final (color, label, icon, desc) = activated
-        ? (scheme.error, tr.nomineeStatusOpen, Icons.lock_open,
+        ? (scheme.error, tr.nomineeStatusOpen, Icons.lock_open_rounded,
             tr.nomineeStatusOpenDesc)
         : pending
-            ? (Brand.warning, tr.nomineeStatusPending, Icons.hourglass_top,
+            ? (Brand.warning, tr.nomineeStatusPending, Icons.hourglass_top_rounded,
                 tr.nomineeStatusPendingDesc)
-            : (Brand.success, tr.nomineeStatusArmed, Icons.lock_outline,
+            : (Brand.success, tr.nomineeStatusArmed, Icons.lock_outline_rounded,
                 tr.nomineeStatusArmedDesc);
     return Container(
       width: double.infinity,
@@ -312,7 +312,7 @@ class _SafeguardExplainer extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.verified_user_outlined,
+          Icon(Icons.verified_user_rounded,
               size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(tr.nomineeHowReleaseWorks,

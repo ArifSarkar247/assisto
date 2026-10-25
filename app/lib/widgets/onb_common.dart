@@ -163,7 +163,7 @@ class OnbChoiceTile extends StatelessWidget {
             ),
             const SizedBox(width: Gap.sm),
             Icon(
-              selected ? Icons.check_circle : Icons.chevron_right,
+              selected ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
               color: selected ? scheme.primary : scheme.onSurfaceVariant,
             ),
           ]),

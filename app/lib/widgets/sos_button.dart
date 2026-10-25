@@ -27,7 +27,7 @@ class SosButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: compact ? 14 : 20),
         ),
         onPressed: onPressed,
-        icon: Icon(Icons.sos, size: compact ? 22 : 28),
+        icon: Icon(Icons.sos_rounded, size: compact ? 22 : 28),
         label: Text(label,
             style: TextStyle(
                 fontSize: compact ? 16 : 20, fontWeight: FontWeight.bold)),

@@ -112,13 +112,13 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.paResearchTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paResearchLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ),
       );
@@ -128,18 +128,18 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
       appBar: AppBar(title: Text(t.paResearchTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openTopicEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.paResearchNewTopic),
       ),
       body: topics.isEmpty
           ? StateMessage(
-              icon: Icons.menu_book_outlined,
+              icon: Icons.menu_book_rounded,
               tint: Brand.blue,
               title: t.paResearchWelcomeTitle,
               message: t.paResearchWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _openTopicEditor(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.paResearchNewTopic),
               ),
             )
@@ -162,7 +162,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
                         },
                         leading: CircleAvatar(
                           backgroundColor: scheme.primaryContainer,
-                          child: Icon(Icons.topic_outlined,
+                          child: Icon(Icons.topic_rounded,
                               color: scheme.onPrimaryContainer),
                         ),
                         title: Text('${tp['title'] ?? ''}',
@@ -172,7 +172,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
                             : Text('${tp['goal']}',
                                 maxLines: 2, overflow: TextOverflow.ellipsis),
                         trailing: IconButton(
-                            icon: const Icon(Icons.edit_outlined),
+                            icon: const Icon(Icons.edit_rounded),
                             tooltip: t.edit,
                             onPressed: () => _openTopicEditor(tp)),
                       ),
@@ -196,7 +196,7 @@ class _AiSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome, size: 20, color: scheme.secondary),
+          Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -391,7 +391,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
 
                   // ---- notes ----
                   _SectionHeader(
-                      icon: Icons.sticky_note_2_outlined,
+                      icon: Icons.sticky_note_2_rounded,
                       label: t.paResearchNotesHeader,
                       onAdd: () => _addItem('note')),
                   if (_notes.isEmpty)
@@ -399,7 +399,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                   else
                     for (final n in _notes)
                       _ItemTile(
-                        icon: Icons.notes,
+                        icon: Icons.notes_rounded,
                         title: '${n['text'] ?? ''}',
                         subtitle: '',
                         onDelete: () => _delete(n['id'] as int),
@@ -408,7 +408,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
 
                   // ---- sources ----
                   _SectionHeader(
-                      icon: Icons.link,
+                      icon: Icons.link_rounded,
                       label: t.paResearchSourcesHeader,
                       onAdd: () => _addItem('source')),
                   if (_sources.isEmpty)
@@ -416,7 +416,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                   else
                     for (final s in _sources)
                       _ItemTile(
-                        icon: Icons.link_outlined,
+                        icon: Icons.link_rounded,
                         title: '${s['text'] ?? ''}'.trim().isEmpty
                             ? '${s['ref'] ?? ''}'
                             : '${s['text']}',
@@ -427,7 +427,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
 
                   // ---- outline sections ----
                   _SectionHeader(
-                      icon: Icons.format_list_numbered,
+                      icon: Icons.format_list_numbered_rounded,
                       label: t.paResearchOutlineHeader,
                       onAdd: () => _addOrEditSection()),
                   if (_sections.isEmpty)
@@ -475,7 +475,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
 
                   // ---- export ----
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.file_download_outlined),
+                    icon: const Icon(Icons.file_download_rounded),
                     label: Text(t.paResearchExportButton),
                     onPressed: () => showModalBottomSheet(
                       context: context,
@@ -547,7 +547,7 @@ class _ExportSheetState extends State<_ExportSheet> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                icon: const Icon(Icons.copy),
+                icon: const Icon(Icons.copy_rounded),
                 label: Text(t.paResearchCopy),
                 onPressed: text.isEmpty
                     ? null
@@ -585,7 +585,7 @@ class _SectionHeader extends StatelessWidget {
               style:
                   AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
           onPressed: onAdd),
     ]);
@@ -624,7 +624,7 @@ class _ItemTile extends StatelessWidget {
           ? null
           : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: IconButton(
-          icon: const Icon(Icons.close, size: 18),
+          icon: const Icon(Icons.close_rounded, size: 18),
           tooltip: t.delete,
           onPressed: onDelete),
     );

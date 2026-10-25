@@ -77,7 +77,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
           ? const SkeletonList(count: 6)
           : _error
               ? StateMessage(
-                  icon: _offline ? Icons.wifi_off : Icons.cloud_off,
+                  icon: _offline ? Icons.wifi_off_rounded : Icons.cloud_off_rounded,
                   title: _offline ? t.nameAboutOfflineTitle : t.nameAboutErrorTitle,
                   message: _offline
                       ? t.nameAboutOfflineBody
@@ -150,14 +150,14 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
 
           // ---- Trademark-check status ----
           NameAboutSectionTitle(
-              text: t.nameAboutStatusLabel, icon: Icons.fact_check_outlined),
+              text: t.nameAboutStatusLabel, icon: Icons.fact_check_rounded),
           NameAboutStatusCard(status: status),
           const SizedBox(height: Gap.lg),
 
           // ---- Relevant trademark classes (9 & 42 emphasised) ----
           if (classWidgets.isNotEmpty) ...[
             NameAboutSectionTitle(
-                text: t.nameAboutClassesLabel, icon: Icons.category_outlined),
+                text: t.nameAboutClassesLabel, icon: Icons.category_rounded),
             Text(t.nameAboutClassesHint,
                 style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.45)),
             const SizedBox(height: Gap.sm),
@@ -206,7 +206,7 @@ class _EmptyWithDisclaimer extends StatelessWidget {
       children: [
         const NameAboutDisclaimerBanner(),
         const SizedBox(height: Gap.xl),
-        Icon(Icons.badge_outlined,
+        Icon(Icons.badge_rounded,
             size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(height: Gap.md),
         Text(t.nameAboutEmptyTitle,

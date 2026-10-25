@@ -54,7 +54,7 @@ class BusinessPlansScreen extends StatelessWidget {
           cta: FilledButton.icon(
             onPressed: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const PlansScreen())),
-            icon: const Icon(Icons.auto_awesome),
+            icon: const Icon(Icons.auto_awesome_rounded),
             label: Text(tr.bizPlanUpgradeCta),
           ),
         ),
@@ -82,7 +82,7 @@ class BusinessPlansScreen extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(highlighted ? Icons.workspace_premium : Icons.check_circle_outline,
+          Icon(highlighted ? Icons.workspace_premium_rounded : Icons.check_circle_outline_rounded,
               color: highlighted ? Colors.white : scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(title,
@@ -100,7 +100,7 @@ class BusinessPlansScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.check,
+              Icon(Icons.check_rounded,
                   size: 18, color: highlighted ? Colors.white : scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(

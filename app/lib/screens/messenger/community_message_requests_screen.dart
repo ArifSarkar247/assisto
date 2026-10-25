@@ -296,7 +296,7 @@ class _CommunityMessageRequestsScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_off_outlined,
+                  Icon(Icons.cloud_off_rounded,
                       size: 56, color: scheme.onSurfaceVariant),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
@@ -305,7 +305,7 @@ class _CommunityMessageRequestsScreenState
                   const SizedBox(height: Gap.lg),
                   FilledButton.icon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(_t.retry),
                   ),
                 ],
@@ -320,7 +320,7 @@ class _CommunityMessageRequestsScreenState
         child: Column(
           children: [
             const SizedBox(height: Gap.xxl),
-            Icon(Icons.mark_email_read_outlined,
+            Icon(Icons.mark_email_read_rounded,
                 size: 56, color: scheme.primary.withValues(alpha: 0.7)),
             const SizedBox(height: Gap.md),
             Text(_t.communityRequestsEmptyTitle,

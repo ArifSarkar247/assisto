@@ -51,10 +51,10 @@ class CrmLogActivitySheet extends StatefulWidget {
 typedef _ActType = ({String kind, IconData icon, String Function(AppLocalizations) label});
 
 final List<_ActType> _types = [
-  (kind: 'call', icon: Icons.call, label: (t) => t.crmCall),
-  (kind: 'meeting', icon: Icons.groups_outlined, label: (t) => t.crmMeetingType),
-  (kind: 'meeting', icon: Icons.place_outlined, label: (t) => t.crmVisitType),
-  (kind: 'note', icon: Icons.sticky_note_2_outlined, label: (t) => t.crmNoteType),
+  (kind: 'call', icon: Icons.call_rounded, label: (t) => t.crmCall),
+  (kind: 'meeting', icon: Icons.groups_rounded, label: (t) => t.crmMeetingType),
+  (kind: 'meeting', icon: Icons.place_rounded, label: (t) => t.crmVisitType),
+  (kind: 'note', icon: Icons.sticky_note_2_rounded, label: (t) => t.crmNoteType),
 ];
 
 class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
@@ -206,7 +206,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _saving ? null : _pickDate,
-                icon: const Icon(Icons.event_outlined, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(
                   _followUp == null
                       ? t.crmNextFollowUp
@@ -218,7 +218,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
             if (_followUp != null)
               IconButton(
                 tooltip: t.close,
-                icon: const Icon(Icons.clear, size: 18),
+                icon: const Icon(Icons.clear_rounded, size: 18),
                 onPressed: _saving ? null : () => setState(() => _followUp = null),
               ),
           ]),
@@ -233,7 +233,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.check),
+                  : const Icon(Icons.check_rounded),
               label: Text(t.save),
             ),
           ),

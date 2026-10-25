@@ -147,7 +147,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       appBar: AppBar(title: Text(t.ramadanTitle), actions: [
         IconButton(
           tooltip: t.ramadanRefresh,
-          icon: const Icon(Icons.my_location),
+          icon: const Icon(Icons.my_location_rounded),
           onPressed: _loadTimes,
         ),
       ]),
@@ -203,7 +203,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       Row(children: [
         Expanded(
           child: _timeCard(
-            icon: Icons.nightlight_round,
+            icon: Icons.nightlight_round_rounded,
             label: t.ramadanSehri,
             time: sehri,
             color: Brand.purple,
@@ -212,7 +212,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: _timeCard(
-            icon: Icons.wb_twilight,
+            icon: Icons.wb_twilight_rounded,
             label: t.ramadanIftar,
             time: iftar,
             color: Brand.warning,
@@ -237,7 +237,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       SwitchListTile(
         key: const Key('ramadan-sehri-switch'),
         contentPadding: EdgeInsets.zero,
-        secondary: const Icon(Icons.alarm),
+        secondary: const Icon(Icons.alarm_rounded),
         title: Text(t.ramadanSehriWake),
         subtitle: Text(t.ramadanSehriWakeValue(_sehriPrewake, _shift(sehri, -_sehriPrewake))),
         value: _sehriOn,
@@ -258,7 +258,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       SwitchListTile(
         key: const Key('ramadan-iftar-switch'),
         contentPadding: EdgeInsets.zero,
-        secondary: const Icon(Icons.notifications_active_outlined),
+        secondary: const Icon(Icons.notifications_active_rounded),
         title: Text(t.ramadanIftarAlert),
         subtitle: Text(t.ramadanIftarAlertValue(_iftarPrealert, _shift(iftar, -_iftarPrealert))),
         value: _iftarOn,
@@ -287,7 +287,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
             borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(children: [
-            const Icon(Icons.phone_in_talk_outlined, size: 16, color: Colors.grey),
+            const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.grey),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanWakeCallComing,
@@ -344,7 +344,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ),
       child: Row(children: [
         // theme-aware: the fixed dark-amber text was unreadable in dark mode
-        const Icon(Icons.info_outline, size: 18, color: Brand.warning),
+        const Icon(Icons.info_outline_rounded, size: 18, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(msg,

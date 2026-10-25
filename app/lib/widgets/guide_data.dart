@@ -151,34 +151,34 @@ class GuideCatMeta {
 }
 
 const Map<String, GuideCatMeta> kGuideCatMeta = {
-  'identity': GuideCatMeta(Icons.badge_outlined, Color(0xFF3B6EF6)),
-  'travel': GuideCatMeta(Icons.flight_takeoff_outlined, Color(0xFF9B4DF0)),
-  'driving': GuideCatMeta(Icons.directions_car_outlined, Color(0xFF2347D9)),
-  'tax': GuideCatMeta(Icons.receipt_long_outlined, Color(0xFF2E9E6B)),
-  'land': GuideCatMeta(Icons.landscape_outlined, Color(0xFFE0A500)),
-  'business': GuideCatMeta(Icons.storefront_outlined, Color(0xFFE0485A)),
-  'utility': GuideCatMeta(Icons.bolt_outlined, Color(0xFFE0A500)),
-  'police': GuideCatMeta(Icons.verified_user_outlined, Color(0xFF2347D9)),
+  'identity': GuideCatMeta(Icons.badge_rounded, Color(0xFF3B6EF6)),
+  'travel': GuideCatMeta(Icons.flight_takeoff_rounded, Color(0xFF9B4DF0)),
+  'driving': GuideCatMeta(Icons.directions_car_rounded, Color(0xFF2347D9)),
+  'tax': GuideCatMeta(Icons.receipt_long_rounded, Color(0xFF2E9E6B)),
+  'land': GuideCatMeta(Icons.landscape_rounded, Color(0xFFE0A500)),
+  'business': GuideCatMeta(Icons.storefront_rounded, Color(0xFFE0485A)),
+  'utility': GuideCatMeta(Icons.bolt_rounded, Color(0xFFE0A500)),
+  'police': GuideCatMeta(Icons.verified_user_rounded, Color(0xFF2347D9)),
 };
 
 const GuideCatMeta _kDefaultCatMeta =
-    GuideCatMeta(Icons.description_outlined, Color(0xFF3B6EF6));
+    GuideCatMeta(Icons.description_rounded, Color(0xFF3B6EF6));
 
 GuideCatMeta guideCatMeta(String key) => kGuideCatMeta[key] ?? _kDefaultCatMeta;
 
 /// Per-service icon (chrome only; falls back to the category icon).
 const Map<String, IconData> kGuideServiceIcon = {
-  'nid': Icons.badge_outlined,
-  'epassport': Icons.book_outlined,
-  'birth': Icons.child_care_outlined,
-  'driving': Icons.directions_car_outlined,
-  'tin': Icons.receipt_long_outlined,
-  'porcha': Icons.landscape_outlined,
-  'trade_license': Icons.storefront_outlined,
-  'electricity': Icons.bolt_outlined,
-  'water_gas': Icons.water_drop_outlined,
-  'police_clearance': Icons.verified_user_outlined,
-  'brta_vehicle': Icons.directions_car_filled_outlined,
+  'nid': Icons.badge_rounded,
+  'epassport': Icons.book_rounded,
+  'birth': Icons.child_care_rounded,
+  'driving': Icons.directions_car_rounded,
+  'tin': Icons.receipt_long_rounded,
+  'porcha': Icons.landscape_rounded,
+  'trade_license': Icons.storefront_rounded,
+  'electricity': Icons.bolt_rounded,
+  'water_gas': Icons.water_drop_rounded,
+  'police_clearance': Icons.verified_user_rounded,
+  'brta_vehicle': Icons.directions_car_filled_rounded,
 };
 
 IconData guideServiceIcon(GuideService s) =>

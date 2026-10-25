@@ -103,7 +103,7 @@ class JobsCard extends StatelessWidget {
               ]),
             ),
             IconButton(
-              icon: Icon(saved ? Icons.bookmark : Icons.bookmark_border,
+              icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                   color: saved ? scheme.primary : scheme.onSurfaceVariant),
               tooltip: saved ? tr.jobsRemoveSaved : tr.jobsSaveJob,
               onPressed: onToggleSave,

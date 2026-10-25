@@ -117,27 +117,27 @@ class _MsgrChatListState extends State<MsgrChatList> {
           ListTile(
             leading: Icon(isPinned
                 ? Icons.push_pin_outlined
-                : Icons.push_pin),
+                : Icons.push_pin_rounded),
             title: Text(isPinned ? t.msgrActionUnpin : t.msgrActionPin),
             onTap: () => Navigator.pop(ctx, 'pin'),
           ),
           ListTile(
             leading: Icon(isMuted
-                ? Icons.notifications_active_outlined
-                : Icons.notifications_off_outlined),
+                ? Icons.notifications_active_rounded
+                : Icons.notifications_off_rounded),
             title: Text(isMuted ? t.msgrActionUnmute : t.msgrActionMute),
             onTap: () => Navigator.pop(ctx, 'mute'),
           ),
           ListTile(
             leading: Icon(hasUnread
-                ? Icons.mark_chat_read_outlined
-                : Icons.mark_chat_unread_outlined),
+                ? Icons.mark_chat_read_rounded
+                : Icons.mark_chat_unread_rounded),
             title: Text(
                 hasUnread ? t.msgrActionMarkRead : t.msgrActionMarkUnread),
             onTap: () => Navigator.pop(ctx, 'read'),
           ),
           ListTile(
-            leading: Icon(Icons.delete_outline,
+            leading: Icon(Icons.delete_outline_rounded,
                 color: Theme.of(ctx).colorScheme.error),
             title: Text(t.msgrActionDelete,
                 style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
@@ -222,7 +222,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Icons.search, size: 20),
+            prefixIcon: const Icon(Icons.search_rounded, size: 20),
             hintText: _t.msgrSearchHint,
           ),
         ),
@@ -248,7 +248,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 80),
-      Icon(Icons.forum_outlined,
+      Icon(Icons.forum_rounded,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
       Center(
@@ -329,13 +329,13 @@ class _MsgrChatListState extends State<MsgrChatList> {
                   if (muted)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.xs),
-                      child: Icon(Icons.notifications_off_outlined,
+                      child: Icon(Icons.notifications_off_rounded,
                           size: 15, color: scheme.onSurfaceVariant),
                     ),
                   if (pinned)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.xs),
-                      child: Icon(Icons.push_pin,
+                      child: Icon(Icons.push_pin_rounded,
                           size: 14, color: scheme.onSurfaceVariant),
                     ),
                   if (unread > 0)
@@ -407,7 +407,7 @@ class _Ticks extends StatelessWidget {
   Widget build(BuildContext context) {
     final read = status == 'read' || status == 'seen';
     final delivered = read || status == 'delivered';
-    final icon = delivered ? Icons.done_all : Icons.done;
+    final icon = delivered ? Icons.done_all_rounded : Icons.done_rounded;
     final color = read ? scheme.primary : scheme.onSurfaceVariant;
     return Icon(icon, size: 15, color: color);
   }

@@ -346,7 +346,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         const SizedBox(height: Gap.sm),
         OutlinedButton.icon(
           onPressed: _rows.length >= _maxComponents ? null : () => _addRow(),
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(t.ceAddComponent),
         ),
         const SizedBox(height: Gap.lg),
@@ -389,7 +389,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.ceLoadError,
         message: serverFailText(t, _failCause),
@@ -398,12 +398,12 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     }
     if (_saved.isEmpty) {
       return StateMessage(
-        icon: Icons.calculate_outlined,
+        icon: Icons.calculate_rounded,
         title: t.ceEmptyTitle,
         message: t.ceEmptyBody,
         action: FilledButton.tonalIcon(
           onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(t.ceTabEstimate),
         ),
       );
@@ -437,7 +437,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
                   overflow: TextOverflow.ellipsis),
               onTap: () => _openSaved(row),
               trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(row),
               ),
@@ -509,7 +509,7 @@ class _ComponentCard extends StatelessWidget {
           if (canRemove)
             IconButton(
               visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.close, size: 18),
+              icon: const Icon(Icons.close_rounded, size: 18),
               tooltip: t.delete,
               onPressed: onRemove,
             ),
@@ -652,7 +652,7 @@ class _TotalsCard extends StatelessWidget {
           Expanded(
             child: FilledButton.icon(
               onPressed: onSave,
-              icon: const Icon(Icons.bookmark_outline, size: 18),
+              icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
               label: Text(t.save),
             ),
           ),
@@ -681,7 +681,7 @@ class _HonestMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -713,7 +713,7 @@ class _AiEstimateCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+        Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -742,7 +742,7 @@ class _DisclaimerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,

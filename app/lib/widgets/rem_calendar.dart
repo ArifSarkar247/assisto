@@ -83,7 +83,7 @@ class _RemCalendarViewState extends State<RemCalendarView> {
         ),
         IconButton(
           tooltip: t.remCalPrev,
-          icon: const Icon(Icons.chevron_left),
+          icon: const Icon(Icons.chevron_left_rounded),
           onPressed: () => setState(() => _shift(-1)),
         ),
         TextButton(
@@ -95,7 +95,7 @@ class _RemCalendarViewState extends State<RemCalendarView> {
         ),
         IconButton(
           tooltip: t.remCalNext,
-          icon: const Icon(Icons.chevron_right),
+          icon: const Icon(Icons.chevron_right_rounded),
           onPressed: () => setState(() => _shift(1)),
         ),
       ]),
@@ -342,7 +342,7 @@ class _RemCalendarViewState extends State<RemCalendarView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.event_available_outlined,
+              Icon(Icons.event_available_rounded,
                   size: 44,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: Gap.md),
@@ -539,10 +539,10 @@ class _AgendaRow extends StatelessWidget {
                                 _tag(Icons.warning_amber_rounded,
                                     t.remCalOverdue, Brand.danger),
                               if (rule != null)
-                                _tag(Icons.repeat,
+                                _tag(Icons.repeat_rounded,
                                     recurrenceLabel(t, rule), Brand.purple),
                               if ((d['priority'] ?? 'none') == 'high')
-                                _tag(Icons.flag, t.remPriorityHigh,
+                                _tag(Icons.flag_rounded, t.remPriorityHigh,
                                     Brand.warning),
                             ],
                           ),
@@ -555,15 +555,15 @@ class _AgendaRow extends StatelessWidget {
                         tooltip: done ? t.remCalUndo : t.remCalDone,
                         icon: Icon(
                             done
-                                ? Icons.check_circle
-                                : Icons.radio_button_unchecked,
+                                ? Icons.check_circle_rounded
+                                : Icons.radio_button_unchecked_rounded,
                             color: done ? Brand.success : null),
                         onPressed: () => _toggleDone(context),
                       ),
                     // reschedule
                     IconButton(
                       tooltip: t.remCalReschedule,
-                      icon: const Icon(Icons.edit_calendar_outlined),
+                      icon: const Icon(Icons.edit_calendar_rounded),
                       onPressed: () => _reschedule(context),
                     ),
                   ],
@@ -676,11 +676,11 @@ Color _kindColor(String kind, ColorScheme scheme) {
 IconData _kindIcon(String kind) {
   switch (kind) {
     case 'todo':
-      return Icons.checklist;
+      return Icons.checklist_rounded;
     case 'note':
-      return Icons.sticky_note_2_outlined;
+      return Icons.sticky_note_2_rounded;
     default:
-      return Icons.alarm;
+      return Icons.alarm_rounded;
   }
 }
 

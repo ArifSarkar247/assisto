@@ -58,7 +58,7 @@ class MsgrChannelPostCard extends StatelessWidget {
               Row(
                 children: [
                   if (pinned) ...[
-                    Icon(Icons.push_pin, size: 16, color: cs.primary),
+                    Icon(Icons.push_pin_rounded, size: 16, color: cs.primary),
                     const SizedBox(width: Gap.xs),
                     Text(t.channelPinned,
                         style: Theme.of(context)
@@ -73,7 +73,7 @@ class MsgrChannelPostCard extends StatelessWidget {
                       tooltip:
                           pinned ? t.channelUnpin : t.channelPin,
                       icon: Icon(pinned
-                          ? Icons.push_pin
+                          ? Icons.push_pin_rounded
                           : Icons.push_pin_outlined),
                       onPressed: () => onTogglePin!(!pinned),
                     ),
@@ -110,8 +110,8 @@ class MsgrChannelPostCard extends StatelessWidget {
           alignment: Alignment.center,
           child: Icon(
             kind == 'video'
-                ? Icons.play_circle_outline
-                : Icons.image_outlined,
+                ? Icons.play_circle_outline_rounded
+                : Icons.image_rounded,
             size: 40,
             color: cs.onSurfaceVariant,
           ),
@@ -129,7 +129,7 @@ class MsgrChannelPostCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.link, color: cs.primary),
+            Icon(Icons.link_rounded, color: cs.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(url,
@@ -243,8 +243,8 @@ class MsgrChannelPostCard extends StatelessWidget {
                         padding: const EdgeInsets.only(right: Gap.xs),
                         child: Icon(
                             multi
-                                ? Icons.check_box
-                                : Icons.radio_button_checked,
+                                ? Icons.check_box_rounded
+                                : Icons.radio_button_checked_rounded,
                             size: 18,
                             color: cs.primary),
                       ),

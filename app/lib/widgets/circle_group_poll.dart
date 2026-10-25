@@ -80,7 +80,7 @@ class _PollComposerState extends State<_PollComposer> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: t.circleGroupPollQuestion,
-                prefixIcon: const Icon(Icons.help_outline),
+                prefixIcon: const Icon(Icons.help_outline_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -101,7 +101,7 @@ class _PollComposerState extends State<_PollComposer> {
                     ),
                     if (_options.length > _kPollMinOptions)
                       IconButton(
-                        icon: const Icon(Icons.remove_circle_outline),
+                        icon: const Icon(Icons.remove_circle_outline_rounded),
                         onPressed: () =>
                             setState(() => _options.removeAt(i).dispose()),
                       ),
@@ -110,7 +110,7 @@ class _PollComposerState extends State<_PollComposer> {
               ),
             if (_options.length < _kPollMaxOptions)
               TextButton.icon(
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.circleGroupPollAddOption),
                 onPressed: () =>
                     setState(() => _options.add(TextEditingController())),
@@ -223,7 +223,7 @@ class _CircleGroupPollCardState extends State<CircleGroupPollCard> {
           children: [
             Row(
               children: [
-                const Icon(Icons.poll_outlined, size: 18),
+                const Icon(Icons.poll_rounded, size: 18),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text('${widget.poll['question'] ?? ''}',
@@ -278,11 +278,11 @@ class _CircleGroupPollCardState extends State<CircleGroupPollCard> {
                     Icon(
                       chosen
                           ? (_multi
-                              ? Icons.check_box
-                              : Icons.radio_button_checked)
+                              ? Icons.check_box_rounded
+                              : Icons.radio_button_checked_rounded)
                           : (_multi
-                              ? Icons.check_box_outline_blank
-                              : Icons.radio_button_unchecked),
+                              ? Icons.check_box_outline_blank_rounded
+                              : Icons.radio_button_unchecked_rounded),
                       size: 18,
                     ),
                     const SizedBox(width: Gap.sm),

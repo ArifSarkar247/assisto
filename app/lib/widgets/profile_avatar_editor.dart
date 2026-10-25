@@ -45,18 +45,18 @@ class ProfileAvatarEditor extends StatelessWidget {
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            leading: const Icon(Icons.photo_camera_outlined),
+            leading: const Icon(Icons.photo_camera_rounded),
             title: Text(t.msgrTakePhoto),
             onTap: () => Navigator.pop(ctx, 'camera'),
           ),
           ListTile(
-            leading: const Icon(Icons.photo_library_outlined),
+            leading: const Icon(Icons.photo_library_rounded),
             title: Text(t.msgrPickFromGallery),
             onTap: () => Navigator.pop(ctx, 'gallery'),
           ),
           if (currentPhoto.isNotEmpty)
             ListTile(
-              leading: Icon(Icons.delete_outline, color: scheme.error),
+              leading: Icon(Icons.delete_outline_rounded, color: scheme.error),
               title: Text(t.msgrRemovePhoto,
                   style: TextStyle(color: scheme.error)),
               onTap: () => Navigator.pop(ctx, 'remove'),
@@ -111,7 +111,7 @@ class ProfileAvatarEditor extends StatelessWidget {
                   onTap: () => _openSheet(context),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.photo_camera_outlined,
+                    child: Icon(Icons.photo_camera_rounded,
                         size: 18, color: scheme.onPrimary),
                   ),
                 ),

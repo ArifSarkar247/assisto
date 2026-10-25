@@ -172,7 +172,7 @@ class CirclePrivacyToggle extends StatelessWidget {
     this.subtitle,
     required this.value,
     required this.onChanged,
-    this.icon = Icons.tune,
+    this.icon = Icons.tune_rounded,
   });
 
   @override
@@ -245,20 +245,20 @@ class CircleSafetyActions extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          leading: Icon(Icons.block, color: scheme.error),
+          leading: Icon(Icons.block_rounded, color: scheme.error),
           title: Text(blocked ? t.circleUnblock : t.circleBlock),
           subtitle: Text(t.circleBlockExplainer),
           onTap: onToggleBlock,
         ),
         ListTile(
-          leading: const Icon(Icons.visibility_off_outlined),
+          leading: const Icon(Icons.visibility_off_rounded),
           title:
               Text(restricted ? t.circleUnrestrict : t.circleRestrict),
           subtitle: Text(t.circleRestrictExplainer),
           onTap: onToggleRestrict,
         ),
         ListTile(
-          leading: Icon(Icons.flag_outlined, color: scheme.error),
+          leading: Icon(Icons.flag_rounded, color: scheme.error),
           title: Text(t.circleReport),
           subtitle: Text(t.circleReportExplainer),
           onTap: onReport,

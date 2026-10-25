@@ -107,30 +107,30 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
     final peer = '${row['peer_name'] ?? ''}';
     final preview = '${row['preview'] ?? row['text'] ?? ''}';
     return ListTile(
-      leading: const Icon(Icons.star, color: Colors.amber),
+      leading: const Icon(Icons.star_rounded, color: Colors.amber),
       title: Text(peer.isEmpty ? '?' : peer,
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(preview.isEmpty ? t.msgrStarredJump : preview,
           maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right_rounded),
       onTap: () => _jump(row),
     );
   }
 
   Widget _empty() => _centeredState(
-      Icons.star_outline, _t.msgrStarredEmptyTitle, _t.msgrStarredEmptyBody);
+      Icons.star_outline_rounded, _t.msgrStarredEmptyTitle, _t.msgrStarredEmptyBody);
 
   Widget _error() {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
           serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.msgrRetry),
         ),
       ),

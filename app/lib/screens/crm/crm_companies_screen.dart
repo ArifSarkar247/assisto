@@ -69,7 +69,7 @@ class _CrmCompaniesScreenState extends State<CrmCompaniesScreen> {
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
         child: TextField(
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: t.crmSearchCompanies,
             isDense: true,
             border: OutlineInputBorder(
@@ -81,7 +81,7 @@ class _CrmCompaniesScreenState extends State<CrmCompaniesScreen> {
       Expanded(
         child: _companies.isEmpty
             ? CrmStateView.empty(
-                icon: Icons.domain_outlined,
+                icon: Icons.domain_rounded,
                 title: t.crmNoCompanies,
                 message: t.crmNoCompaniesHint,
               )
@@ -138,18 +138,18 @@ class _CompanyRow extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Row(children: [
-          Icon(Icons.people_alt_outlined, size: 13, color: scheme.onSurfaceVariant),
+          Icon(Icons.people_alt_rounded, size: 13, color: scheme.onSurfaceVariant),
           const SizedBox(width: 3),
           Text(t.crmContactCount(contactCount),
               style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           if (size > 0) ...[
             const SizedBox(width: 10),
-            Icon(Icons.badge_outlined, size: 13, color: scheme.onSurfaceVariant),
+            Icon(Icons.badge_rounded, size: 13, color: scheme.onSurfaceVariant),
             const SizedBox(width: 3),
             Text('$size', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ]),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right_rounded),
       ),
     );
   }

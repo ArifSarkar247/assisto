@@ -57,7 +57,7 @@ class C1Disclosure extends StatelessWidget {
             height: 72,
             decoration: const BoxDecoration(
                 shape: BoxShape.circle, gradient: Brand.gradient),
-            child: const Icon(Icons.contacts_outlined,
+            child: const Icon(Icons.contacts_rounded,
                 color: Colors.white, size: 36),
           ),
         ),
@@ -73,7 +73,7 @@ class C1Disclosure extends StatelessWidget {
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.lock_outline, color: scheme.onPrimaryContainer),
+            Icon(Icons.lock_outline_rounded, color: scheme.onPrimaryContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.c1DisclosureLead,
@@ -85,24 +85,24 @@ class C1Disclosure extends StatelessWidget {
           ]),
         ),
         const SizedBox(height: Gap.md),
-        _fact(context, Icons.help_outline, 'cmDiscWhyTitle', 'cmDiscWhyBody'),
-        _fact(context, Icons.delete_outline, 'cmDiscStoreTitle',
+        _fact(context, Icons.help_outline_rounded, 'cmDiscWhyTitle', 'cmDiscWhyBody'),
+        _fact(context, Icons.delete_outline_rounded, 'cmDiscStoreTitle',
             'cmDiscStoreBody'),
-        _fact(context, Icons.tune, 'cmDiscControlTitle', 'cmDiscControlBody'),
+        _fact(context, Icons.tune_rounded, 'cmDiscControlTitle', 'cmDiscControlBody'),
         const SizedBox(height: Gap.xs),
         Text(t.c1DisclosureNextStep,
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
         TextButton.icon(
           onPressed: onPrivacy,
-          icon: const Icon(Icons.shield_outlined, size: 18),
+          icon: const Icon(Icons.shield_rounded, size: 18),
           label: Text(cmLabel(context, 'cmPrivacyLearnMore')),
         ),
         const SizedBox(height: Gap.sm),
         FilledButton.icon(
           key: const Key('c1-allow'),
           onPressed: onAllow,
-          icon: const Icon(Icons.verified_user_outlined),
+          icon: const Icon(Icons.verified_user_rounded),
           label: Text(t.msgrContactsAllow),
         ),
         const SizedBox(height: Gap.xs),
@@ -155,7 +155,7 @@ class C1InfoBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon ?? Icons.info_outline, color: scheme.onSecondaryContainer),
+        Icon(icon ?? Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -244,7 +244,7 @@ class C1AssistoUserRow extends StatelessWidget {
         primary = FilledButton.icon(
           key: Key('c1-add-${user['id']}'),
           onPressed: busy ? null : onAdd,
-          icon: const Icon(Icons.person_add_alt_1, size: 18),
+          icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
           label: Text(t.c1AddToCircle),
         );
         // mr1: WhatsApp-like — anyone on Assisto can be messaged at once (a
@@ -253,32 +253,32 @@ class C1AssistoUserRow extends StatelessWidget {
           key: Key('mr1-msg-${user['id']}'),
           tooltip: t.c1Message,
           onPressed: busy ? null : onMessage,
-          icon: const Icon(Icons.chat_bubble_outline),
+          icon: const Icon(Icons.chat_bubble_outline_rounded),
         );
       case C1CircleState.pending:
         primary = FilledButton.tonalIcon(
           key: Key('mr1-msg-${user['id']}'),
           onPressed: busy ? null : onMessage,
-          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+          icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
           label: Text(t.c1Message),
         );
       case C1CircleState.incoming:
         primary = FilledButton.icon(
           onPressed: busy ? null : onAccept,
-          icon: const Icon(Icons.check, size: 18),
+          icon: const Icon(Icons.check_rounded, size: 18),
           label: Text(t.c1Accept),
         );
       case C1CircleState.accepted:
         primary = FilledButton.tonalIcon(
           key: Key('c1-msg-${user['id']}'),
           onPressed: onMessage,
-          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+          icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
           label: Text(t.c1Message),
         );
         secondary = IconButton.outlined(
           tooltip: t.c1Call,
           onPressed: onCall,
-          icon: const Icon(Icons.call_outlined),
+          icon: const Icon(Icons.call_rounded),
         );
     }
     return Padding(
@@ -304,7 +304,7 @@ class C1AssistoUserRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Row(children: [
-                  Icon(Icons.schedule, size: 16, color: scheme.primary),
+                  Icon(Icons.schedule_rounded, size: 16, color: scheme.primary),
                   const SizedBox(width: Gap.xs),
                   Flexible(
                     child: Text(t.c1Requested,

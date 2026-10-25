@@ -47,7 +47,7 @@ class OfflineBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(Radii.pill),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.cloud_off_outlined,
+            Icon(Icons.cloud_off_rounded,
                 size: 14, color: scheme.onTertiaryContainer),
             const SizedBox(width: Gap.xs),
             Text(oStr(context, 'offStatusOffline'),
@@ -70,7 +70,7 @@ class OfflineBanner extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off_outlined,
+          Icon(Icons.cloud_off_rounded,
               size: 18, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(

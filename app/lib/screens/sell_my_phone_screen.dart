@@ -39,14 +39,14 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
   // Checklist steps — order matters (reset is LAST). Persisted per-step with
   // Settings.setBool, exactly like the phone-safety wizard.
   static const _steps = <_SellStep>[
-    _SellStep('backup', Icons.cloud_upload_outlined),
-    _SellStep('google', Icons.account_circle_outlined,
+    _SellStep('backup', Icons.cloud_upload_rounded),
+    _SellStep('google', Icons.account_circle_rounded,
         link: 'https://myaccount.google.com/'),
-    _SellStep('brand', Icons.badge_outlined),
-    _SellStep('disarm', Icons.lock_open_outlined, disarm: true),
-    _SellStep('admin', Icons.admin_panel_settings_outlined),
-    _SellStep('sim', Icons.sim_card_outlined),
-    _SellStep('reset', Icons.restart_alt_outlined),
+    _SellStep('brand', Icons.badge_rounded),
+    _SellStep('disarm', Icons.lock_open_rounded, disarm: true),
+    _SellStep('admin', Icons.admin_panel_settings_rounded),
+    _SellStep('sim', Icons.sim_card_rounded),
+    _SellStep('reset', Icons.restart_alt_rounded),
   ];
 
   final Map<String, bool> _done = {};
@@ -340,7 +340,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
-              icon: const Icon(Icons.report_gmailerrorred_outlined, size: 18),
+              icon: const Icon(Icons.report_gmailerrorred_rounded, size: 18),
               label: Text(t.upReportTitle),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const ReportStolenScreen())),
@@ -378,7 +378,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           shape: const Border(),
           collapsedShape: const Border(),
           leading: Icon(
-            done ? Icons.check_circle : s.icon,
+            done ? Icons.check_circle_rounded : s.icon,
             color: done ? Brand.success : scheme.onSurfaceVariant,
           ),
           title: Text(s.title(t),
@@ -405,7 +405,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(t.upStepGoogleOpen),
                   onPressed: () => _openLink(s.link!),
                 ),
@@ -414,7 +414,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.lock_open_outlined, size: 18),
+                  icon: const Icon(Icons.lock_open_rounded, size: 18),
                   label: Text(t.upStepDisarmButton),
                   onPressed: () => _runDisarm(s.id),
                 ),
@@ -445,14 +445,14 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
               labelText: t.upImeiLabel,
               helperText: t.upImeiHint,
               helperMaxLines: 3,
-              prefixIcon: const Icon(Icons.smartphone_outlined),
+              prefixIcon: const Icon(Icons.smartphone_rounded),
             ),
           ),
           if (_hasVaultImei)
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
-                icon: const Icon(Icons.auto_fix_high, size: 18),
+                icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
                 label: Text(t.upPrefillFromVault),
                 onPressed: _prefill,
               ),
@@ -462,7 +462,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             controller: _model,
             decoration: InputDecoration(
                 labelText: t.upFieldModel,
-                prefixIcon: const Icon(Icons.phone_android_outlined)),
+                prefixIcon: const Icon(Icons.phone_android_rounded)),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -471,14 +471,14 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                 const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
                 labelText: t.upFieldPrice,
-                prefixIcon: const Icon(Icons.payments_outlined)),
+                prefixIcon: const Icon(Icons.payments_rounded)),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _buyerName,
             decoration: InputDecoration(
                 labelText: t.upFieldBuyerName,
-                prefixIcon: const Icon(Icons.person_outline)),
+                prefixIcon: const Icon(Icons.person_outline_rounded)),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -486,7 +486,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
                 labelText: t.upFieldBuyerNid,
-                prefixIcon: const Icon(Icons.badge_outlined)),
+                prefixIcon: const Icon(Icons.badge_rounded)),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -497,7 +497,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.receipt_long_outlined),
+                  : const Icon(Icons.receipt_long_rounded),
               label: Text(t.upReceiptCreate),
               onPressed: _creating ? null : _createReceipt,
             ),
@@ -550,7 +550,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                   style: AType.bodySmall.copyWith(color: scheme.onSecondaryContainer)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
-              icon: const Icon(Icons.copy, size: 18),
+              icon: const Icon(Icons.copy_rounded, size: 18),
               label: Text(t.upTokenCopy),
               onPressed: () async {
                 await copyToClipboard(token);
@@ -570,7 +570,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                       height: 18,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.verified_user_outlined),
+                  : const Icon(Icons.verified_user_rounded),
               label: Text(t.upAuthorizeButton),
               onPressed: _authorizing ? null : _authorize,
             ),
@@ -589,7 +589,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             controller: _acceptToken,
             decoration: InputDecoration(
               labelText: t.upBuyerTokenLabel,
-              prefixIcon: const Icon(Icons.qr_code_2_outlined),
+              prefixIcon: const Icon(Icons.qr_code_2_rounded),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -601,7 +601,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.download_done_outlined),
+                  : const Icon(Icons.download_done_rounded),
               label: Text(t.upBuyerAcceptButton),
               onPressed: _accepting ? null : _accept,
             ),
@@ -657,7 +657,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
-        leading: Icon(seller ? Icons.sell_outlined : Icons.shopping_bag_outlined),
+        leading: Icon(seller ? Icons.sell_rounded : Icons.shopping_bag_rounded),
         title: Text(t.upReceiptRow(modelText, priceText)),
         subtitle: state.isEmpty
             ? null

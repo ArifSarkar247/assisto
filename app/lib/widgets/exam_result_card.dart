@@ -89,7 +89,7 @@ class ExamResultCard extends StatelessWidget {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.celebration, color: Colors.white, size: 20),
+            const Icon(Icons.celebration_rounded, color: Colors.white, size: 20),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
@@ -123,7 +123,7 @@ class ExamResultCard extends StatelessWidget {
       ),
       const SizedBox(height: Gap.sm),
       OutlinedButton.icon(
-        icon: const Icon(Icons.share, size: 16),
+        icon: const Icon(Icons.share_rounded, size: 16),
         label: Text(t.examShareCard),
         onPressed: _hasAny ? () => _share(context) : null,
       ),

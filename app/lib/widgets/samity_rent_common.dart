@@ -326,7 +326,7 @@ class NoMoneyBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.verified_user_outlined, size: 20, color: scheme.secondary),
+        Icon(Icons.verified_user_rounded, size: 20, color: scheme.secondary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,

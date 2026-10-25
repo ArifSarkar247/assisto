@@ -52,7 +52,7 @@ class _NameAboutChecklistState extends State<NameAboutChecklist> {
     final progress = total == 0 ? 0.0 : done / total;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      NameAboutSectionTitle(text: t.nameAboutChecklistLabel, icon: Icons.checklist_rtl),
+      NameAboutSectionTitle(text: t.nameAboutChecklistLabel, icon: Icons.checklist_rtl_rounded),
       Text(t.nameAboutChecklistHint,
           style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13, height: 1.45)),
       const SizedBox(height: Gap.sm),
@@ -99,7 +99,7 @@ class _NameAboutChecklistState extends State<NameAboutChecklist> {
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.nameAboutChecklistDone,

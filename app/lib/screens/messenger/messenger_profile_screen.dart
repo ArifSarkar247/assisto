@@ -238,7 +238,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading:
-                  Icon(Icons.phone_outlined, color: scheme.onSurfaceVariant),
+                  Icon(Icons.phone_rounded, color: scheme.onSurfaceVariant),
               title: Text(_phone),
             )
           else
@@ -335,7 +335,7 @@ class _LoadErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off, size: 48, color: scheme.error),
+          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
           const SizedBox(height: Gap.md),
           Text(AppLocalizations.of(context).pfLoadError,
               textAlign: TextAlign.center,
@@ -375,7 +375,7 @@ class _PrivacyHintCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(children: [
-            Icon(Icons.lock_outline, size: 20, color: scheme.primary),
+            Icon(Icons.lock_outline_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
@@ -392,7 +392,7 @@ class _PrivacyHintCard extends StatelessWidget {
                             color: scheme.primary)),
                   ]),
             ),
-            Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+            Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
           ]),
         ),
       ),

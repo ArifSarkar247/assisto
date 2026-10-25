@@ -65,7 +65,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
         backgroundColor: Colors.black,
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.phone_in_talk, color: Colors.white54, size: 48),
+            const Icon(Icons.phone_in_talk_rounded, color: Colors.white54, size: 48),
             const SizedBox(height: Gap.lg),
             Text(t.fakeCallArmed(widget.delaySeconds),
                 style: const TextStyle(color: Colors.white70)),
@@ -88,7 +88,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
           const CircleAvatar(
               radius: 52,
               backgroundColor: Colors.white24,
-              child: Icon(Icons.person, size: 60, color: Colors.white)),
+              child: Icon(Icons.person_rounded, size: 60, color: Colors.white)),
           const SizedBox(height: 20),
           Text(widget.caller,
               style: AType.displaySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
@@ -103,19 +103,19 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
                 ? Center(
                     child: _CallBtn(
                         color: Brand.dangerFill,
-                        icon: Icons.call_end,
+                        icon: Icons.call_end_rounded,
                         label: t.fakeCallEnd,
                         onTap: _hangUp),
                   )
                 : Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                     _CallBtn(
                         color: Brand.dangerFill,
-                        icon: Icons.call_end,
+                        icon: Icons.call_end_rounded,
                         label: t.fakeCallDecline,
                         onTap: _hangUp),
                     _CallBtn(
                         color: Brand.successFill,
-                        icon: Icons.call,
+                        icon: Icons.call_rounded,
                         label: t.fakeCallAnswer,
                         onTap: _answer),
                   ]),

@@ -337,7 +337,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           tooltip: t.vaClose,
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           onPressed: _close,
         ),
         title: Text(t.vaTitle,
@@ -348,7 +348,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
           if (!_locked)
           IconButton(
             tooltip: t.vaSettingsTitle,
-            icon: const Icon(Icons.tune),
+            icon: const Icon(Icons.tune_rounded),
             onPressed: () async {
               await _stopListening();
               if (!context.mounted) return;
@@ -380,7 +380,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
               child: Row(children: [
-                Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant),
+                Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(t.vaLockedNote,
@@ -409,7 +409,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         Center(
           child: ShaderMask(
             shaderCallback: (r) => Brand.gradient.createShader(r),
-            child: const Icon(Icons.graphic_eq, size: 56, color: Colors.white),
+            child: const Icon(Icons.graphic_eq_rounded, size: 56, color: Colors.white),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -434,7 +434,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
           children: [
             for (final e in examples)
               ActionChip(
-                avatar: Icon(Icons.mic_none, size: 18, color: scheme.primary),
+                avatar: Icon(Icons.mic_none_rounded, size: 18, color: scheme.primary),
                 label: Text(e, softWrap: true),
                 onPressed: () => _handle(e),
               ),
@@ -516,7 +516,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
               IconButton.filled(
                 tooltip: t.vaSend,
                 onPressed: _submitTyped,
-                icon: const Icon(Icons.arrow_upward),
+                icon: const Icon(Icons.arrow_upward_rounded),
               ),
             ]),
           ),
@@ -531,7 +531,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             tooltip: t.vaTypeInstead,
             iconSize: 26,
             onPressed: () => setState(() => _typing = !_typing),
-            icon: Icon(_typing ? Icons.keyboard_hide : Icons.keyboard_outlined,
+            icon: Icon(_typing ? Icons.keyboard_hide_rounded : Icons.keyboard_rounded,
                 color: scheme.onSurfaceVariant),
           ),
           const SizedBox(width: Gap.xl),
@@ -553,7 +553,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             tooltip: t.vaStopSpeaking,
             iconSize: 26,
             onPressed: () => VaNative.stopSpeaking(),
-            icon: Icon(Icons.volume_off_outlined,
+            icon: Icon(Icons.volume_off_rounded,
                 color: scheme.onSurfaceVariant),
           ),
         ]),
@@ -629,7 +629,7 @@ class _MicOrb extends StatelessWidget {
                               strokeWidth: 2.5, color: Colors.white))
                       : listening
                           ? _Wave(value: v)
-                          : const Icon(Icons.mic, color: Colors.white, size: 36),
+                          : const Icon(Icons.mic_rounded, color: Colors.white, size: 36),
                 ),
               ]);
             },
@@ -746,7 +746,7 @@ class _ResultCardState extends State<_ResultCard> {
                         ? null
                         : () async {
                             final b = o.buttons[i];
-                            if (b.icon == Icons.undo) {
+                            if (b.icon == Icons.undo_rounded) {
                               setState(() => _used.add(i));
                             }
                             await b.onTap();

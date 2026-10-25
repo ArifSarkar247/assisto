@@ -32,7 +32,7 @@ class InProgressScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xl),
               children: [
                 if (reminders.isNotEmpty) ...[
-                  _section(context, Icons.alarm_outlined, t.navReminders),
+                  _section(context, Icons.alarm_rounded, t.navReminders),
                   for (final r in reminders)
                     _tile(
                       context,
@@ -46,7 +46,7 @@ class InProgressScreen extends StatelessWidget {
                 ],
                 if (todos.isNotEmpty) ...[
                   const SizedBox(height: Gap.md),
-                  _section(context, Icons.checklist_outlined, t.navNotesTasks),
+                  _section(context, Icons.checklist_rounded, t.navNotesTasks),
                   for (final td in todos)
                     _tile(context, data(td)['title'] ?? '',
                         data(td)['due_at'] != null
@@ -72,7 +72,7 @@ class InProgressScreen extends StatelessWidget {
   Widget _tile(BuildContext context, String title, String? sub) => Card(
         margin: const EdgeInsets.only(bottom: Gap.sm),
         child: ListTile(
-          leading: const Icon(Icons.radio_button_unchecked, size: 20),
+          leading: const Icon(Icons.radio_button_unchecked_rounded, size: 20),
           title: Text(title),
           subtitle: sub == null ? null : Text(sub),
           visualDensity: VisualDensity.compact,
@@ -90,7 +90,7 @@ class _Empty extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xxl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.check_circle_outline, size: 56, color: scheme.primary),
+          Icon(Icons.check_circle_outline_rounded, size: 56, color: scheme.primary),
           const SizedBox(height: Gap.md),
           Text(AppLocalizations.of(context).inprogAllClear,
               textAlign: TextAlign.center,

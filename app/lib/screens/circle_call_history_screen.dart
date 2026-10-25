@@ -96,7 +96,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   Widget _empty(ColorScheme scheme) => ListView(
         children: [
           const SizedBox(height: 96),
-          Icon(Icons.call_outlined,
+          Icon(Icons.call_rounded,
               size: 56, color: scheme.primary.withValues(alpha: 0.7)),
           const SizedBox(height: Gap.md),
           Text(
@@ -146,12 +146,12 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         children: [
           Icon(
             declined
-                ? Icons.call_end
+                ? Icons.call_end_rounded
                 : outgoing
-                    ? Icons.call_made
+                    ? Icons.call_made_rounded
                     : missed
-                        ? Icons.call_missed
-                        : Icons.call_received,
+                        ? Icons.call_missed_rounded
+                        : Icons.call_received_rounded,
             size: 14,
             color: dirColor,
           ),
@@ -191,7 +191,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             tooltip: kind == 'video'
                 ? _t.circleCallBackVideo
                 : _t.circleCallBackVoice,
-            icon: Icon(kind == 'video' ? Icons.videocam_outlined : Icons.call),
+            icon: Icon(kind == 'video' ? Icons.videocam_rounded : Icons.call_rounded),
             onPressed: () => _callBack(call, kind),
           ),
         ],

@@ -163,120 +163,120 @@ class SidebarSections {
     // a sidebar section. Connected circle / Circle privacy / Circle calls are
     // features of that hub, not standalone modules, so they are NOT listed here.
     // 1. Reminders & Memory
-    SidebarSection('reminders_memory', Icons.notifications_active_outlined,
+    SidebarSection('reminders_memory', Icons.notifications_active_rounded,
         (t) => t.sidebarRemindersMemory, [
-      SidebarItem(Icons.alarm_outlined, (t) => t.navReminders,
+      SidebarItem(Icons.alarm_rounded, (t) => t.navReminders,
           (_) => const RemindersScreen(),
           synonyms: ['reminder', 'alarm']),
-      SidebarItem(Icons.cake_outlined, (t) => t.birthdaysTitle,
+      SidebarItem(Icons.cake_rounded, (t) => t.birthdaysTitle,
           (_) => const BirthdaysScreen(),
           synonyms: ['birthday', 'memorable', 'anniversary']),
-      SidebarItem(Icons.event_outlined, (t) => t.meetingsTitle,
+      SidebarItem(Icons.event_rounded, (t) => t.meetingsTitle,
           (_) => const MeetingsScreen(),
           synonyms: ['meeting', 'appointment', 'calendar']),
-      SidebarItem(Icons.checklist_outlined, (t) => t.navNotesTasks,
+      SidebarItem(Icons.checklist_rounded, (t) => t.navNotesTasks,
           (_) => const NotesTodosScreen(),
           synonyms: ['note', 'task', 'todo', 'to-do']),
-      SidebarItem(Icons.psychology_outlined, (t) => t.navMemory,
+      SidebarItem(Icons.psychology_rounded, (t) => t.navMemory,
           (_) => const MemoryScreen(),
           synonyms: ['memory', 'ai knows', 'remember']),
       // #18 Saved / bookmarks — universal save surface.
-      SidebarItem(Icons.bookmark_outline, (t) => t.savedTitle,
+      SidebarItem(Icons.bookmark_outline_rounded, (t) => t.savedTitle,
           (_) => const SavedItemsScreen(),
           synonyms: ['saved', 'bookmark', 'bookmarks', 'star', 'keep']),
     ]),
     // 2. My Account
-    SidebarSection('my_account', Icons.account_balance_wallet_outlined,
+    SidebarSection('my_account', Icons.account_balance_wallet_rounded,
         (t) => t.sidebarMoney, [
-      SidebarItem(Icons.account_balance_wallet_outlined, (t) => t.moduleMoney,
+      SidebarItem(Icons.account_balance_wallet_rounded, (t) => t.moduleMoney,
           (_) => const MoneyScreen(),
           synonyms: ['account', 'finance', 'ledger', 'money', 'expense', 'income']),
       // Advanced Budget module (feature #50, SPEC v2.1 §21).
-      SidebarItem(Icons.pie_chart_outline, (t) => t.budgetTitle,
+      SidebarItem(Icons.pie_chart_outline_rounded, (t) => t.budgetTitle,
           (_) => const MoneyBudgetScreen(),
           synonyms: ['budget', 'limit', 'spending plan', 'rollover']),
       // Tax & Zakat calculators (feature #60) — client-side, bilingual.
-      SidebarItem(Icons.receipt_long_outlined, (t) => t.taxTitle,
+      SidebarItem(Icons.receipt_long_rounded, (t) => t.taxTitle,
           (_) => const MoneyTaxScreen(),
           synonyms: ['tax', 'zakat', 'nisab', 'income tax', 'nbr']),
       // Monthly Money Wrapped recap (feature #63).
-      SidebarItem(Icons.auto_awesome_outlined, (t) => t.wrappedTitle,
+      SidebarItem(Icons.auto_awesome_rounded, (t) => t.wrappedTitle,
           (_) => const MoneyWrappedScreen(),
           synonyms: ['wrapped', 'recap', 'monthly', 'summary', 'story']),
       // Money by voice — speak an expense/income, confirm, log (feature #62).
-      SidebarItem(Icons.mic_none_outlined, (t) => t.mvoiceTitle,
+      SidebarItem(Icons.mic_none_rounded, (t) => t.mvoiceTitle,
           (_) => const MoneyVoiceScreen(),
           synonyms: ['voice', 'speak', 'say', 'mic', 'dictate']),
-      SidebarItem(Icons.autorenew, (t) => t.subscriptions,
+      SidebarItem(Icons.autorenew_rounded, (t) => t.subscriptions,
           (_) => const SubscriptionsScreen(),
           synonyms: ['subscription', 'recurring', 'bill']),
-      SidebarItem(Icons.calculate_outlined, (t) => t.financeTools,
+      SidebarItem(Icons.calculate_rounded, (t) => t.financeTools,
           (_) => const FinanceScreen(),
           synonyms: ['finance', 'loan', 'savings', 'calculator']),
       // Payment / auto-pay LADDER (SPEC v2.1 §21): escalating collection/auto-pay
       // reminders. Never holds money, never auto-charges — key-gated payments.
-      SidebarItem(Icons.stairs_outlined, (t) => t.plTitle,
+      SidebarItem(Icons.stairs_rounded, (t) => t.plTitle,
           (_) => const PaymentLadderScreen(),
           synonyms: ['payment', 'ladder', 'collection', 'auto-pay', 'tagada']),
       // Section-20 money modules (SPEC v2.1 §20) — thin, on the Money foundation.
-      SidebarItem(Icons.restaurant_outlined, (t) => t.messTitle,
+      SidebarItem(Icons.restaurant_rounded, (t) => t.messTitle,
           (_) => const MessAccountingScreen(),
           synonyms: ['mess', 'bachelor', 'meal', 'bazar', 'manager']),
-      SidebarItem(Icons.groups_outlined, (t) => t.splitTitle,
+      SidebarItem(Icons.groups_rounded, (t) => t.splitTitle,
           (_) => const ExpenseSplitScreen(),
           synonyms: ['split', 'splitwise', 'share', 'settle', 'group expense']),
-      SidebarItem(Icons.savings_outlined, (t) => t.samityTitle,
+      SidebarItem(Icons.savings_rounded, (t) => t.samityTitle,
           (_) => const SamityScreen(),
           synonyms: ['samity', 'committee', 'rosca', 'rotating savings']),
-      SidebarItem(Icons.home_work_outlined, (t) => t.rentTitle,
+      SidebarItem(Icons.home_work_rounded, (t) => t.rentTitle,
           (_) => const LandlordTenantScreen(),
           synonyms: ['rent', 'landlord', 'tenant', 'bari', 'house rent']),
       // #193 Prepaid electricity & gas meter tracker.
-      SidebarItem(Icons.electric_meter_outlined, (t) => t.meterTitle,
+      SidebarItem(Icons.electric_meter_rounded, (t) => t.meterTitle,
           (_) => const PrepaidMeterScreen(),
           synonyms: ['meter', 'prepaid', 'electricity', 'gas', 'recharge', 'token']),
       // #186 Domestic staff/driver payroll + #171 savings challenge.
-      SidebarItem(Icons.badge_outlined, (t) => t.staffTitle,
+      SidebarItem(Icons.badge_rounded, (t) => t.staffTitle,
           (_) => const DomesticStaffScreen(),
           synonyms: ['staff', 'maid', 'driver', 'cook', 'salary', 'household']),
-      SidebarItem(Icons.emoji_events_outlined, (t) => t.savechalTitle,
+      SidebarItem(Icons.emoji_events_rounded, (t) => t.savechalTitle,
           (_) => const SavingsChallengeScreen(),
           synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
       // #51 AI spending advice (key-gated mock) + #34 market price radar.
-      SidebarItem(Icons.insights_outlined, (t) => t.spendTitle,
+      SidebarItem(Icons.insights_rounded, (t) => t.spendTitle,
           (_) => const SpendingAdviceScreen(),
           synonyms: ['spending', 'advice', 'insights', 'ai money', 'analysis']),
-      SidebarItem(Icons.trending_up_outlined, (t) => t.priceTitle,
+      SidebarItem(Icons.trending_up_rounded, (t) => t.priceTitle,
           (_) => const PriceRadarScreen(),
           synonyms: ['price', 'radar', 'market', 'bazar', 'rate']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
-    SidebarSection('family_safety', Icons.diversity_1_outlined,
+    SidebarSection('family_safety', Icons.diversity_1_rounded,
         (t) => t.sidebarFamilySafety, [
-      SidebarItem(Icons.diversity_1_outlined, (t) => t.moduleFamily,
+      SidebarItem(Icons.diversity_1_rounded, (t) => t.moduleFamily,
           (_) => const FamilyScreen(),
           synonyms: ['family', 'care', 'medicine schedule', 'elderly']),
-      SidebarItem(Icons.shield_outlined, (t) => t.nominee,
+      SidebarItem(Icons.shield_rounded, (t) => t.nominee,
           (_) => const NomineeScreen(),
           synonyms: ['nominee', 'access', 'inheritance']),
-      SidebarItem(Icons.navigation_outlined, (t) => t.journeyHubTitle,
+      SidebarItem(Icons.navigation_rounded, (t) => t.journeyHubTitle,
           (_) => const JourneyStartScreen(),
           synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track']),
-      SidebarItem(Icons.emergency_outlined, (t) => t.moduleEmergency,
+      SidebarItem(Icons.emergency_rounded, (t) => t.moduleEmergency,
           (_) => const EmergencyScreen(),
           synonyms: ['emergency', 'sos', 'card']),
-      SidebarItem(Icons.verified_user_outlined, (t) => t.scamTitle,
+      SidebarItem(Icons.verified_user_rounded, (t) => t.scamTitle,
           (_) => const ScamScreen(),
           synonyms: ['scam', 'fraud', 'protection']),
       // NO SHOWPIECES: hidden until a real fall sensor engine ships.
       if (FallDetectScreen.engineShipped)
-        SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
+        SidebarItem(Icons.monitor_heart_rounded, (t) => t.fallDetectTitle,
             (_) => const FallDetectScreen(),
             synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
       // #80 Lost / stolen phone protection (device-admin: lock / alarm /
       // locate / lost-message). Chat-openable via ChatNav route 'lost_stolen'.
-      SidebarItem(Icons.phonelink_lock_outlined, (t) => t.lostStolenTitle,
+      SidebarItem(Icons.phonelink_lock_rounded, (t) => t.lostStolenTitle,
           (_) => const LostStolenScreen(),
           synonyms: ['lost', 'stolen', 'theft', 'anti-theft', 'find phone',
               'device admin', 'remote lock', 'churi', 'harano']),
@@ -287,7 +287,7 @@ class SidebarSections {
       // chances) is reachable from INSIDE this screen and from Lost/Stolen, so
       // it adds no second sidebar entry. ChatNav routes 'my_lost_phone' +
       // 'recovery'.
-      SidebarItem(Icons.travel_explore_outlined, (t) => t.mlpTitle,
+      SidebarItem(Icons.travel_explore_rounded, (t) => t.mlpTitle,
           (_) => const MyLostPhoneScreen(),
           synonyms: ['my lost phone', 'lost phone', 'find my phone',
               'track phone', 'lost mode', 'recovery', 'gd', 'harano',
@@ -295,14 +295,14 @@ class SidebarSections {
       // Phone Safety Check-up — honest anti-theft hardening wizard (brand-aware
       // menu paths, self-confirm checklist, protection score). ChatNav route
       // 'phone_safety'.
-      SidebarItem(Icons.security, (t) => t.phoneSafetyTitle,
+      SidebarItem(Icons.security_rounded, (t) => t.phoneSafetyTitle,
           (_) => const PhoneSafetyScreen(),
           synonyms: ['phone safety', 'theft', 'anti-theft', 'churi',
               'nirapotta', 'lock', 'harden', 'secure phone']),
       // Section 8 — Stolen-while-unlocked protection: server-side ownership +
       // delayed/alerted sensitive actions (disarm, transfer, remove admin).
       // ChatNav route 'security'.
-      SidebarItem(Icons.shield_outlined, (t) => t.securityTitle,
+      SidebarItem(Icons.shield_rounded, (t) => t.securityTitle,
           (_) => const SecurityScreen(),
           synonyms: ['security', 'stolen while unlocked', 'ownership',
               'anti-theft ownership', 'protect phone', 'churi', 'disarm',
@@ -312,7 +312,7 @@ class SidebarSections {
       // accept, and "my receipts". Report-my-phone-stolen + mark-recovered live
       // INSIDE this screen (and the Used-phone check screen), so they add no
       // 3rd top entry. ChatNav route 'sell_phone'.
-      SidebarItem(Icons.sell_outlined, (t) => t.upSellTitle,
+      SidebarItem(Icons.sell_rounded, (t) => t.upSellTitle,
           (_) => const SellMyPhoneScreen(),
           synonyms: ['sell phone', 'sell my phone', 'transfer phone',
               'phone sale', 'report stolen', 'report phone', 'bikri', 'churi']),
@@ -320,7 +320,7 @@ class SidebarSections {
       // privacy-first: NO video — the edge box detects on-device and sends only
       // signals + at most one snapshot. Alerts say "please check camera X".
       // Business-gated inside the screen. ChatNav route 'shop_box'.
-      SidebarItem(Icons.storefront_outlined, (t) => t.shopBoxTitle,
+      SidebarItem(Icons.storefront_rounded, (t) => t.shopBoxTitle,
           (_) => const ShopBoxScreen(),
           synonyms: ['shop box', 'cctv', 'camera', 'loss prevention',
               'shop security', 'theft', 'churi', 'dokan', 'store camera',
@@ -328,20 +328,20 @@ class SidebarSections {
       // Wave-D batch-4: BD-specific disaster & weather warnings (cyclone / flood
       // / heatwave / earthquake), official sources only. Also chat-openable via
       // ChatNav route 'disaster'.
-      SidebarItem(Icons.cyclone, (t) => t.disTitle,
+      SidebarItem(Icons.cyclone_rounded, (t) => t.disTitle,
           (_) => const DisasterAlertsScreen(),
           synonyms: ['disaster', 'cyclone', 'flood', 'warning', 'earthquake',
               'weather warning']),
       // #188 Blood-donor network (community registry; donor contact opt-in).
-      SidebarItem(Icons.bloodtype_outlined, (t) => t.bloodTitle,
+      SidebarItem(Icons.bloodtype_rounded, (t) => t.bloodTitle,
           (_) => const BloodDonorScreen(),
           synonyms: ['blood', 'donor', 'donate', 'blood group', 'rokto']),
       // #27 Kid's school corner — notices → fees / exams / PTM per child.
-      SidebarItem(Icons.school_outlined, (t) => t.kidTitle,
+      SidebarItem(Icons.school_rounded, (t) => t.kidTitle,
           (_) => const KidSchoolScreen(),
           synonyms: ['kid', 'child', 'school', 'fees', 'exam', 'ptm', 'notice']),
       // #187 Doctor serial / appointment tracker.
-      SidebarItem(Icons.medical_services_outlined, (t) => t.doctorSerialTitle,
+      SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),
           synonyms: ['doctor', 'appointment', 'serial', 'chamber', 'hospital'],
           medical: true),
@@ -350,78 +350,78 @@ class SidebarSections {
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
     // SettingsScreen and in the Messenger hub-settings. Contacts remains a
     // real module and keeps its own entry.
-    SidebarSection('contacts', Icons.contacts_outlined,
+    SidebarSection('contacts', Icons.contacts_rounded,
         (t) => t.contactsTitle, [
-      SidebarItem(Icons.contacts_outlined, (t) => t.contactsTitle,
+      SidebarItem(Icons.contacts_rounded, (t) => t.contactsTitle,
           (_) => const CrmContactsScreen(),
           synonyms: ['contact', 'phonebook', 'crm']),
     ]),
     // 5. Daily Life — Health info (medicine DB, health tips) folded in per
     // SPEC v2.1 §4 (standalone Health section removed).
-    SidebarSection('daily_life', Icons.auto_awesome_outlined,
+    SidebarSection('daily_life', Icons.auto_awesome_rounded,
         (t) => t.sidebarLife, [
       // Part 3: Assisto Voice — hands-free assistant (calls, alarms, torch,
       // YouTube, maps, reminders, expenses, SOS — outgoing always confirmed).
-      SidebarItem(Icons.graphic_eq, (t) => t.vaTitle,
+      SidebarItem(Icons.graphic_eq_rounded, (t) => t.vaTitle,
           (_) => const VoiceAssistantScreen(),
           synonyms: ['voice assistant', 'assistant', 'hey assisto', 'voice',
               'talk', 'speak', 'alarm', 'torch', 'flashlight']),
-      SidebarItem(Icons.medication_outlined, (t) => t.medicineDbTitle,
+      SidebarItem(Icons.medication_rounded, (t) => t.medicineDbTitle,
           (_) => const MedicineDbScreen(),
           synonyms: ['medicine', 'drug', 'pharmacy'],
           medical: true),
-      SidebarItem(Icons.tips_and_updates_outlined, (t) => t.healthTipsTitle,
+      SidebarItem(Icons.tips_and_updates_rounded, (t) => t.healthTipsTitle,
           (_) => const HealthTipsScreen(),
           synonyms: ['health', 'tips', 'wellness'],
           medical: true),
-      SidebarItem(Icons.lock_outline, (t) => t.moduleVault,
+      SidebarItem(Icons.lock_outline_rounded, (t) => t.moduleVault,
           (_) => const VaultScreen(),
           synonyms: ['document', 'vault', 'file', 'nid', 'passport']),
-      SidebarItem(Icons.account_balance_outlined, (t) => t.serviceGuide,
+      SidebarItem(Icons.account_balance_rounded, (t) => t.serviceGuide,
           (_) => const GuideScreen(),
           synonyms: ['government', 'service', 'guide']),
-      SidebarItem(Icons.place_outlined, (t) => t.sidebarNearby,
+      SidebarItem(Icons.place_rounded, (t) => t.sidebarNearby,
           (_) => const NearbyScreen(),
           synonyms: ['nearby', 'around me', 'places']),
       // p4-world: Unseen World — Today cards, web answers, jobs, hubs.
-      SidebarItem(Icons.public, (t) => t.uwTitle,
+      SidebarItem(Icons.public_rounded, (t) => t.uwTitle,
           (_) => const WorldHubScreen(),
           synonyms: ['world', 'today', 'news', 'weather', 'prayer time',
               'currency', 'gold price', 'fuel price', 'jobs', 'expat', 'visa',
               'bcs', 'farmer', 'crop', 'passport', 'nid', 'prescription',
               'web search', 'ask anything']),
-      SidebarItem(Icons.travel_explore_outlined, (t) => t.unseenTitle,
+      SidebarItem(Icons.travel_explore_rounded, (t) => t.unseenTitle,
           (_) => const UnseenWorldScreen(),
           synonyms: ['unseen', 'travel', 'explore']),
-      SidebarItem(Icons.menu_book_outlined, (t) => t.dictionaryTitle,
+      SidebarItem(Icons.menu_book_rounded, (t) => t.dictionaryTitle,
           (_) => const DictionaryScreen(),
           synonyms: ['dictionary', 'word', 'meaning']),
-      SidebarItem(Icons.nightlight_outlined, (t) => t.ramadanTitle,
+      SidebarItem(Icons.nightlight_rounded, (t) => t.ramadanTitle,
           (_) => const RamadanScreen(),
           synonyms: ['prayer', 'ramadan', 'namaz', 'roza']),
-      SidebarItem(Icons.radar_outlined, (t) => t.watchFeed,
+      SidebarItem(Icons.radar_rounded, (t) => t.watchFeed,
           (_) => const WatchFeedScreen(),
           synonyms: ['watch', 'feed', 'alerts']),
-      SidebarItem(Icons.school_outlined, (t) => t.examTitle,
+      SidebarItem(Icons.school_rounded, (t) => t.examTitle,
           (_) => const ExamResultScreen(),
           synonyms: ['exam', 'result', 'ssc', 'hsc']),
       // ps1-photo: Photo Studio — one-tap AI enhance + edit/generate by prompt.
       // It REPLACES the old enhance tool (owner order): one entry, one ad rule.
-      SidebarItem(Icons.auto_awesome_outlined, (t) => t.psTitle,
+      SidebarItem(Icons.auto_awesome_rounded, (t) => t.psTitle,
           (_) => const PhotoStudioScreen(),
           synonyms: ['photo studio', 'edit photo', 'background', 'passport photo',
               'ai photo', 'beauty', 'retouch', 'photo', 'enhance', 'image']),
-      SidebarItem(Icons.directions_car_outlined, (t) => t.rideFoodTitle,
+      SidebarItem(Icons.directions_car_rounded, (t) => t.rideFoodTitle,
           (_) => const RideFoodScreen(),
           synonyms: ['ride', 'food', 'uber', 'pathao', 'foodpanda', 'delivery']),
       // Anti-theft Batch 4: Used-phone check — enter an IMEI, check the
       // community + ownership registry before buying a second-hand phone.
       // ChatNav route 'used_phone_check'.
-      SidebarItem(Icons.phonelink_setup_outlined, (t) => t.upCheckTitle,
+      SidebarItem(Icons.phonelink_setup_rounded, (t) => t.upCheckTitle,
           (_) => const UsedPhoneCheckScreen(),
           synonyms: ['used phone', 'second hand', 'secondhand', 'imei check',
               'buy used phone', 'check phone', 'stolen check', 'purano phone']),
-      SidebarItem(Icons.directions_car_outlined, (t) => t.vehiclesTitle,
+      SidebarItem(Icons.directions_car_rounded, (t) => t.vehiclesTitle,
           (_) => const MyVehiclesScreen(), synonyms: [
         'vehicle',
         'car',
@@ -435,35 +435,35 @@ class SidebarSections {
         'tracker'
       ]),
       // Section-20 life modules (SPEC v2.1 §20) — Daily Life group.
-      SidebarItem(Icons.school_outlined, (t) => t.studentTitle,
+      SidebarItem(Icons.school_rounded, (t) => t.studentTitle,
           (_) => const StudentCornerScreen(),
           synonyms: ['student', 'routine', 'cgpa', 'gpa', 'assignment', 'exam']),
-      SidebarItem(Icons.celebration_outlined, (t) => t.weddingTitle,
+      SidebarItem(Icons.celebration_rounded, (t) => t.weddingTitle,
           (_) => const WeddingEventsScreen(),
           synonyms: ['wedding', 'event', 'guest', 'biye', 'party', 'anniversary']),
-      SidebarItem(Icons.mosque_outlined, (t) => t.qurbaniTitle,
+      SidebarItem(Icons.mosque_rounded, (t) => t.qurbaniTitle,
           (_) => const QurbaniScreen(),
           synonyms: ['qurbani', 'eid', 'korbani', 'sacrifice', 'animal share']),
-      SidebarItem(Icons.flight_takeoff_outlined, (t) => t.probashiTitle,
+      SidebarItem(Icons.flight_takeoff_rounded, (t) => t.probashiTitle,
           (_) => const ProbashiScreen(),
           synonyms: ['probashi', 'expat', 'remittance', 'abroad', 'foreign']),
       // #199 Farmer / village mode — large-touch farm ledger + crop calendar.
-      SidebarItem(Icons.agriculture_outlined, (t) => t.farmerTitle,
+      SidebarItem(Icons.agriculture_rounded, (t) => t.farmerTitle,
           (_) => const FarmerModeScreen(),
           synonyms: ['farmer', 'village', 'crop', 'livestock', 'krishi', 'chash']),
       // Health §10: #69 timeline + #71 wellness; #173 challenges; #72 fitness.
-      SidebarItem(Icons.timeline_outlined, (t) => t.htlTitle,
+      SidebarItem(Icons.timeline_rounded, (t) => t.htlTitle,
           (_) => const HealthTimelineScreen(),
           synonyms: ['health', 'timeline', 'record', 'history', 'medical'],
           medical: true),
-      SidebarItem(Icons.local_drink_outlined, (t) => t.wellTitle,
+      SidebarItem(Icons.local_drink_rounded, (t) => t.wellTitle,
           (_) => const WellnessTrackerScreen(),
           synonyms: ['wellness', 'water', 'sleep', 'diet', 'tracker']),
-      SidebarItem(Icons.fitness_center_outlined, (t) => t.fitTitle,
+      SidebarItem(Icons.fitness_center_rounded, (t) => t.fitTitle,
           (_) => const FitnessPartnerScreen(),
           synonyms: ['fitness', 'workout', 'exercise', 'steps', 'gym']),
       // #70 Smartwatch & fitness — Health Connect bridge (steps/HR/sleep/energy).
-      SidebarItem(Icons.watch_outlined, (t) => t.swTitle,
+      SidebarItem(Icons.watch_rounded, (t) => t.swTitle,
           (_) => const SmartwatchScreen(),
           synonyms: [
             'watch',
@@ -474,96 +474,96 @@ class SidebarSections {
             'wearable',
             'fitness band'
           ]),
-      SidebarItem(Icons.quiz_outlined, (t) => t.chalTitle,
+      SidebarItem(Icons.quiz_rounded, (t) => t.chalTitle,
           (_) => const DailyChallengesScreen(),
           synonyms: ['challenge', 'quiz', 'daily', 'streak', 'game']),
       // #30 Contract analyzer + #132 language-learning partner (key-gated mock).
-      SidebarItem(Icons.gavel_outlined, (t) => t.caTitle,
+      SidebarItem(Icons.gavel_rounded, (t) => t.caTitle,
           (_) => const ContractAnalyzerScreen(),
           synonyms: ['contract', 'agreement', 'analyze', 'clause', 'legal helper']),
-      SidebarItem(Icons.translate_outlined, (t) => t.lpTitle,
+      SidebarItem(Icons.translate_rounded, (t) => t.lpTitle,
           (_) => const LanguagePartnerScreen(),
           synonyms: ['language', 'learn', 'english', 'vocabulary', 'practice']),
       // §6/§8 key-gated-mock: #7 daily brief, #29 doc scanner, #92 transcription,
       // #35 travel planner.
-      SidebarItem(Icons.wb_sunny_outlined, (t) => t.dbTitle,
+      SidebarItem(Icons.wb_sunny_rounded, (t) => t.dbTitle,
           (_) => const DailyBriefScreen(),
           synonyms: ['brief', 'morning', 'night', 'digest', 'summary', 'today']),
-      SidebarItem(Icons.document_scanner_outlined, (t) => t.dsTitle,
+      SidebarItem(Icons.document_scanner_rounded, (t) => t.dsTitle,
           (_) => const DocScannerScreen(),
           synonyms: ['document', 'scan', 'scanner', 'nid', 'passport', 'ocr']),
-      SidebarItem(Icons.graphic_eq_outlined, (t) => t.tnTitle,
+      SidebarItem(Icons.graphic_eq_rounded, (t) => t.tnTitle,
           (_) => const TranscriptionScreen(),
           synonyms: ['transcription', 'voice note', 'transcribe', 'recording']),
-      SidebarItem(Icons.luggage_outlined, (t) => t.tvTitle,
+      SidebarItem(Icons.luggage_rounded, (t) => t.tvTitle,
           (_) => const TravelPlannerScreen(),
           synonyms: ['travel', 'trip', 'itinerary', 'tour', 'journey', 'vacation']),
       // §6 AI-core: #15 voice mood (on-device opt-in), #6 proactive AI;
       // §20 #194 area community (local-area board).
-      SidebarItem(Icons.mood_outlined, (t) => t.moodTitle,
+      SidebarItem(Icons.mood_rounded, (t) => t.moodTitle,
           (_) => const VoiceMoodScreen(),
           synonyms: ['mood', 'wellbeing', 'feeling', 'mental', 'check-in']),
-      SidebarItem(Icons.lightbulb_outline, (t) => t.proTitle,
+      SidebarItem(Icons.lightbulb_outline_rounded, (t) => t.proTitle,
           (_) => const ProactiveAiScreen(),
           synonyms: ['proactive', 'suggestions', 'nudges', 'ai', 'digest']),
       // f6 (no showpieces): a "neighbourhood board" whose posts no neighbour
       // can see (per-user collection) — hidden until a moderated shared feed
       // exists on the server.
       if (kAreaBoardShared)
-        SidebarItem(Icons.holiday_village_outlined, (t) => t.areaCommunityTitle,
+        SidebarItem(Icons.holiday_village_rounded, (t) => t.areaCommunityTitle,
             (_) => const AreaCommunityScreen(),
             synonyms: ['area', 'community', 'neighbourhood', 'local', 'notice board']),
     ]),
     // 7. Work
-    SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [
+    SidebarSection('work', Icons.work_outline_rounded, (t) => t.sidebarWork, [
       // f6 (no showpieces): Agent Studio automations never fire yet (and its
       // social composer labels template drafts "AI-generated"), so the entry
       // is hidden until automations really run.
       if (kAgentStudioRunsAutomations)
-        SidebarItem(Icons.auto_awesome_outlined, (t) => t.agentStudio,
+        SidebarItem(Icons.auto_awesome_rounded, (t) => t.agentStudio,
             (_) => const AgentStudioScreen(),
             synonyms: ['agent', 'studio', 'automation']),
       // #21 Task manager — projects / board / assign / progress.
-      SidebarItem(Icons.view_kanban_outlined, (t) => t.tmTitle,
+      SidebarItem(Icons.view_kanban_rounded, (t) => t.tmTitle,
           (_) => const TaskManagerScreen(),
           synonyms: ['task', 'project', 'board', 'kanban', 'assign', 'progress']),
       // #36 Cost/time estimator + #131 mock interview (key-gated mock).
-      SidebarItem(Icons.calculate_outlined, (t) => t.ceTitle,
+      SidebarItem(Icons.calculate_rounded, (t) => t.ceTitle,
           (_) => const CostEstimatorScreen(),
           synonyms: ['estimate', 'cost', 'time', 'quote', 'budget estimate']),
-      SidebarItem(Icons.record_voice_over_outlined, (t) => t.miTitle,
+      SidebarItem(Icons.record_voice_over_rounded, (t) => t.miTitle,
           (_) => const MockInterviewScreen(),
           synonyms: ['interview', 'mock', 'practice', 'job prep', 'viva']),
       // #17 Quick tools + #130 blog & script writer (key-gated AI mock).
-      SidebarItem(Icons.bolt_outlined, (t) => t.qtTitle,
+      SidebarItem(Icons.bolt_rounded, (t) => t.qtTitle,
           (_) => const QuickToolsScreen(),
           synonyms: ['quick', 'tools', 'summarise', 'grammar', 'translate', 'tone']),
-      SidebarItem(Icons.article_outlined, (t) => t.bwTitle,
+      SidebarItem(Icons.article_rounded, (t) => t.bwTitle,
           (_) => const BlogWriterScreen(),
           synonyms: ['blog', 'script', 'writing', 'post', 'caption', 'draft']),
-      SidebarItem(Icons.work_outline, (t) => t.jobHunter,
+      SidebarItem(Icons.work_outline_rounded, (t) => t.jobHunter,
           (_) => const JobsScreen(),
           synonyms: ['job', 'hunter', 'career']),
-      SidebarItem(Icons.description_outlined, (t) => t.cvTitle,
+      SidebarItem(Icons.description_rounded, (t) => t.cvTitle,
           (_) => const CvBuilderScreen(),
           synonyms: ['cv', 'resume', 'bio data', 'biodata', 'curriculum vitae']),
-      SidebarItem(Icons.mark_email_unread_outlined, (t) => t.aiInbox,
+      SidebarItem(Icons.mark_email_unread_rounded, (t) => t.aiInbox,
           (_) => const InboxScreen(),
           synonyms: ['inbox', 'ai inbox', 'mail']),
       // PA Secretary — SPEC §14 / §4. Section 14 core (schedule, meeting brief,
       // visitor filter, liaison, personal tasks, delegate access) now ships, so
       // this opens the PA hub.
-      SidebarItem(Icons.support_agent_outlined, (t) => t.sidebarPaSecretary,
+      SidebarItem(Icons.support_agent_rounded, (t) => t.sidebarPaSecretary,
           (_) => const PaHubScreen(),
           synonyms: ['pa', 'secretary', 'personal assistant', 'pa mode']),
     ]),
     // 8. Business
-    SidebarSection('business', Icons.storefront_outlined,
+    SidebarSection('business', Icons.storefront_rounded,
         (t) => t.sidebarBusiness, [
-      SidebarItem(Icons.storefront_outlined, (t) => t.business,
+      SidebarItem(Icons.storefront_rounded, (t) => t.business,
           (_) => const BusinessScreen(),
           synonyms: ['business', 'shop', 'store', 'orders']),
-      SidebarItem(Icons.insights_outlined, (t) => t.crmTitle,
+      SidebarItem(Icons.insights_rounded, (t) => t.crmTitle,
           (_) => const CrmHomeScreen(),
           synonyms: ['crm', 'sales', 'leads', 'pipeline']),
     ]),

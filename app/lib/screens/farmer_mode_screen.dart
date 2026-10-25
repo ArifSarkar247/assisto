@@ -126,7 +126,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
             title: Text(t.farmerTitle,
                 style: _title.copyWith(fontWeight: FontWeight.bold))),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: Brand.danger,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.farmerLoadError),
@@ -134,7 +134,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
             constraints: const BoxConstraints(minHeight: 56),
             child: FilledButton.icon(
                 onPressed: _load,
-                icon: const Icon(Icons.refresh, size: 24),
+                icon: const Icon(Icons.refresh_rounded, size: 24),
                 label: Text(t.retry, style: _body)),
           ),
         ),
@@ -157,9 +157,9 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
             tabAlignment: TabAlignment.start,
             labelStyle: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
             tabs: [
-              Tab(icon: const Icon(Icons.agriculture, size: 26), text: t.farmerTabLedger),
-              Tab(icon: const Icon(Icons.calendar_month, size: 26), text: t.farmerTabCalendar),
-              Tab(icon: const Icon(Icons.pets, size: 26), text: t.farmerTabLivestock),
+              Tab(icon: const Icon(Icons.agriculture_rounded, size: 26), text: t.farmerTabLedger),
+              Tab(icon: const Icon(Icons.calendar_month_rounded, size: 26), text: t.farmerTabCalendar),
+              Tab(icon: const Icon(Icons.pets_rounded, size: 26), text: t.farmerTabLivestock),
             ],
           ),
         ),
@@ -271,7 +271,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
   Future<bool?> _confirmDelete(String title, String body) => showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          icon: const Icon(Icons.delete_outline, color: Brand.danger, size: 30),
+          icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger, size: 30),
           title: Text(title, style: _title),
           content: Text(body, style: _body),
           actions: [
@@ -469,7 +469,7 @@ class _LedgerTab extends StatelessWidget {
     final t = AppLocalizations.of(context);
     if (records.isEmpty) {
       return _WelcomeState(
-        icon: Icons.agriculture,
+        icon: Icons.agriculture_rounded,
         title: t.farmerLedgerWelcomeTitle,
         body: t.farmerLedgerWelcomeBody,
         cta: t.farmerAddRecord,
@@ -479,7 +479,7 @@ class _LedgerTab extends StatelessWidget {
     final now = DateTime.now();
     final summary = FarmerEngine.ledgerSummary(records, now: now);
     return Scaffold(
-      floatingActionButton: _BigFab(label: t.farmerAddRecord, icon: Icons.add, onTap: onAdd),
+      floatingActionButton: _BigFab(label: t.farmerAddRecord, icon: Icons.add_rounded, onTap: onAdd),
       body: RefreshIndicator(
         onRefresh: onRefresh,
         child: ListView(
@@ -629,7 +629,7 @@ class _RecordCard extends StatelessWidget {
               const SizedBox(height: Gap.sm),
               Row(
                 children: [
-                  Icon(profit.profit >= 0 ? Icons.trending_up : Icons.trending_down,
+                  Icon(profit.profit >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
                       size: 22,
                       color: profit.profit >= 0 ? AssistoTokens.of(context).success : scheme.error),
                   const SizedBox(width: 6),
@@ -702,7 +702,7 @@ class _CalendarTab extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, size: 26, color: Brand.blue),
+              const Icon(Icons.info_outline_rounded, size: 26, color: Brand.blue),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Text(t.farmerCalendarNote,
@@ -764,9 +764,9 @@ class _SeasonCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _line(context, Icons.grass, t.farmerSowWindow, _monthRange(t, season.sowMonths)),
+            _line(context, Icons.grass_rounded, t.farmerSowWindow, _monthRange(t, season.sowMonths)),
             const SizedBox(height: Gap.xs),
-            _line(context, Icons.agriculture, t.farmerHarvestWindow,
+            _line(context, Icons.agriculture_rounded, t.farmerHarvestWindow,
                 _monthRange(t, season.harvestMonths)),
             const SizedBox(height: Gap.md),
             Text(t.farmerCommonCrops,
@@ -823,7 +823,7 @@ class _LivestockTab extends StatelessWidget {
     final t = AppLocalizations.of(context);
     if (livestock.isEmpty) {
       return _WelcomeState(
-        icon: Icons.pets,
+        icon: Icons.pets_rounded,
         title: t.farmerLivestockWelcomeTitle,
         body: t.farmerLivestockWelcomeBody,
         cta: t.farmerAddAnimal,
@@ -833,7 +833,7 @@ class _LivestockTab extends StatelessWidget {
     final now = DateTime.now();
     final summary = FarmerEngine.livestockSummary(livestock, now: now);
     return Scaffold(
-      floatingActionButton: _BigFab(label: t.farmerAddAnimal, icon: Icons.add, onTap: onAdd),
+      floatingActionButton: _BigFab(label: t.farmerAddAnimal, icon: Icons.add_rounded, onTap: onAdd),
       body: RefreshIndicator(
         onRefresh: onRefresh,
         child: ListView(
@@ -871,7 +871,7 @@ class _LivestockSummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.pets, size: 26),
+                const Icon(Icons.pets_rounded, size: 26),
                 const SizedBox(width: Gap.sm),
                 Text('${t.farmerTotalHead}: ${digits(summary.totalHead)}',
                     style: _title.copyWith(fontWeight: FontWeight.bold)),
@@ -889,7 +889,7 @@ class _LivestockSummaryCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.vaccines, size: 24, color: Brand.warning),
+                    const Icon(Icons.vaccines_rounded, size: 24, color: Brand.warning),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
@@ -966,22 +966,22 @@ class _VaccBadge extends StatelessWidget {
       case kVaccDue:
         c = Theme.of(context).colorScheme.error;
         label = t.farmerVaccDue;
-        icon = Icons.vaccines;
+        icon = Icons.vaccines_rounded;
         break;
       case kVaccSoon:
         c = AssistoTokens.of(context).warning;
         label = t.farmerVaccSoon;
-        icon = Icons.schedule;
+        icon = Icons.schedule_rounded;
         break;
       case kVaccOk:
         c = AssistoTokens.of(context).success;
         label = t.farmerVaccOk;
-        icon = Icons.check_circle;
+        icon = Icons.check_circle_rounded;
         break;
       default:
         c = AssistoTokens.of(context).textMuted;
         label = t.farmerVaccUnknown;
-        icon = Icons.help_outline;
+        icon = Icons.help_outline_rounded;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
@@ -1038,7 +1038,7 @@ class _WelcomeState extends StatelessWidget {
             foregroundColor: k.onSuccess,
           ),
           onPressed: onCta,
-          icon: const Icon(Icons.add, size: 26),
+          icon: const Icon(Icons.add_rounded, size: 26),
           label: Text(cta, style: _body),
         ),
       ),
@@ -1167,14 +1167,14 @@ class _RecordFormState extends State<_RecordForm> {
             Text(widget.existing == null ? t.farmerAddRecord : t.farmerEditRecord,
                 style: _title.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: Gap.lg),
-            _bigField(_name, t.farmerFieldName, Icons.label_outline),
+            _bigField(_name, t.farmerFieldName, Icons.label_outline_rounded),
             const SizedBox(height: Gap.md),
             DropdownButtonFormField<String>(
               initialValue: _crop,
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: t.farmerFieldCrop,
-                prefixIcon: const Icon(Icons.eco, size: 24),
+                prefixIcon: const Icon(Icons.eco_rounded, size: 24),
                 border: const OutlineInputBorder(),
               ),
               style: _body,
@@ -1194,12 +1194,12 @@ class _RecordFormState extends State<_RecordForm> {
             ]),
             const SizedBox(height: Gap.md),
             Row(children: [
-              Expanded(child: _bigField(_cost, t.farmerFieldCost, Icons.payments, number: true)),
+              Expanded(child: _bigField(_cost, t.farmerFieldCost, Icons.payments_rounded, number: true)),
               const SizedBox(width: Gap.md),
-              Expanded(child: _bigField(_income, t.farmerFieldIncome, Icons.sell, number: true)),
+              Expanded(child: _bigField(_income, t.farmerFieldIncome, Icons.sell_rounded, number: true)),
             ]),
             const SizedBox(height: Gap.md),
-            _bigField(_notes, t.farmerFieldNotes, Icons.notes, lines: 2),
+            _bigField(_notes, t.farmerFieldNotes, Icons.notes_rounded, lines: 2),
             if (_error != null) ...[
               const SizedBox(height: 10),
               Text(_error!, style: AType.bodyLarge.copyWith(color: Theme.of(context).colorScheme.error)),
@@ -1217,7 +1217,7 @@ class _RecordFormState extends State<_RecordForm> {
               const SizedBox(height: Gap.sm),
               TextButton.icon(
                 onPressed: () => Navigator.pop(context, {'__delete__': true}),
-                icon: const Icon(Icons.delete_outline, color: Brand.danger),
+                icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger),
                 label: Text(t.delete, style: _body.copyWith(color: Theme.of(context).colorScheme.error)),
               ),
             ],
@@ -1249,7 +1249,7 @@ class _RecordFormState extends State<_RecordForm> {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: const Icon(Icons.event, size: 24),
+          prefixIcon: const Icon(Icons.event_rounded, size: 24),
           border: const OutlineInputBorder(),
         ),
         child: Text(
@@ -1347,7 +1347,7 @@ class _LivestockFormState extends State<_LivestockForm> {
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: t.farmerFieldAnimal,
-                prefixIcon: const Icon(Icons.pets, size: 24),
+                prefixIcon: const Icon(Icons.pets_rounded, size: 24),
                 border: const OutlineInputBorder(),
               ),
               style: _body,
@@ -1364,7 +1364,7 @@ class _LivestockFormState extends State<_LivestockForm> {
               style: _body,
               decoration: InputDecoration(
                 labelText: t.farmerFieldCount,
-                prefixIcon: const Icon(Icons.numbers, size: 24),
+                prefixIcon: const Icon(Icons.numbers_rounded, size: 24),
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -1384,7 +1384,7 @@ class _LivestockFormState extends State<_LivestockForm> {
               child: InputDecorator(
                 decoration: InputDecoration(
                   labelText: t.farmerFieldLastVacc,
-                  prefixIcon: const Icon(Icons.vaccines, size: 24),
+                  prefixIcon: const Icon(Icons.vaccines_rounded, size: 24),
                   helperText: t.farmerLastVaccHelper,
                   border: const OutlineInputBorder(),
                 ),
@@ -1403,7 +1403,7 @@ class _LivestockFormState extends State<_LivestockForm> {
               style: _body,
               decoration: InputDecoration(
                 labelText: t.farmerFieldNotes,
-                prefixIcon: const Icon(Icons.notes, size: 24),
+                prefixIcon: const Icon(Icons.notes_rounded, size: 24),
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -1424,7 +1424,7 @@ class _LivestockFormState extends State<_LivestockForm> {
               const SizedBox(height: Gap.sm),
               TextButton.icon(
                 onPressed: () => Navigator.pop(context, {'__delete__': true}),
-                icon: const Icon(Icons.delete_outline, color: Brand.danger),
+                icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger),
                 label: Text(t.delete, style: _body.copyWith(color: Theme.of(context).colorScheme.error)),
               ),
             ],

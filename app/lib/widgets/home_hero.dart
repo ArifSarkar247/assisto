@@ -371,7 +371,7 @@ class HeroAdFrame extends StatelessWidget {
           ),
           if (hasVideo && startMuted) ...[
             const SizedBox(width: Gap.sm),
-            Icon(Icons.volume_off_outlined, size: 16, color: scheme.onSurfaceVariant),
+            Icon(Icons.volume_off_rounded, size: 16, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(t.h1HeroMutedHint,

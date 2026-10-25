@@ -371,7 +371,7 @@ void main() {
       await _host(tester, api, CircleChatScreen(member: _member5(), identity: _me));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextField).last, 'see you at 5');
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byIcon(Icons.send_rounded));
       // first poll (7 s) does NOT have it yet; at 10 s the server copy lands;
       // the 14 s poll swaps it in. Present EXACTLY once in every frame.
       await _frames(tester, const Duration(seconds: 18), (i) {
@@ -423,7 +423,7 @@ void main() {
       await _host(tester, api, CircleGroupChatScreen(group: _group7, identity: _me));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextField).last, 'bring the papers');
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(find.byIcon(Icons.send_rounded));
       await _frames(tester, const Duration(seconds: 20), (i) {
         expect(find.text('bring the papers', findRichText: true), findsOneWidget,
             reason: 'frame $i');

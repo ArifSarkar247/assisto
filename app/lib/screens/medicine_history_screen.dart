@@ -58,7 +58,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
           ? const SkeletonList(count: 4)
           : failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.medHistoryTitle,
                   message: t.medHistoryEmpty,
                   action: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -71,7 +71,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
     final meds = (data?['medicines'] as List? ?? []);
     if (meds.isEmpty) {
       return StateMessage(
-        icon: Icons.insights_outlined,
+        icon: Icons.insights_rounded,
         title: t.medHistoryTitle,
         message: t.medHistoryEmpty,
       );
@@ -154,7 +154,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
             if (streak > 0) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                const Icon(Icons.local_fire_department_outlined, size: 16),
+                const Icon(Icons.local_fire_department_rounded, size: 16),
                 const SizedBox(width: Gap.xs),
                 Text(t.medStreakValue(fmtInt(context, streak)),
                     style: TextStyle(color: scheme.onSurfaceVariant)),

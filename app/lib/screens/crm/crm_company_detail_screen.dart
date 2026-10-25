@@ -94,7 +94,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
             ? CrmStateView.error(
                 error: _error!, title: t.loadFailed, onRetry: _load)
             : CrmStateView.empty(
-                icon: Icons.domain_disabled_outlined,
+                icon: Icons.domain_disabled_rounded,
                 title: t.crmCompanyNotFound),
       );
     }
@@ -137,19 +137,19 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(children: [
               KvRow(t.crmIndustry, _industryLabel(t, c['industry']?.toString()),
-                  icon: Icons.category_outlined),
+                  icon: Icons.category_rounded),
               if ((c['size'] as num?) != null && (c['size'] as num) > 0)
                 KvRow(t.crmHeadcount, '${c['size']}',
-                    icon: Icons.badge_outlined),
+                    icon: Icons.badge_rounded),
               if ((c['phone'] ?? '').toString().isNotEmpty)
                 KvRow(t.crmPhone, c['phone'].toString(),
-                    icon: Icons.phone_outlined),
+                    icon: Icons.phone_rounded),
               if ((c['website'] ?? '').toString().isNotEmpty)
                 KvRow(t.crmWebsite, c['website'].toString(),
-                    icon: Icons.language_outlined),
+                    icon: Icons.language_rounded),
               if ((c['address'] ?? '').toString().isNotEmpty)
                 KvRow(t.crmAddress, c['address'].toString(),
-                    icon: Icons.place_outlined),
+                    icon: Icons.place_rounded),
             ]),
           ),
         ),
@@ -183,7 +183,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
   Widget _people(AppLocalizations t) {
     if (_contacts.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.person_off_outlined, title: t.crmNoContacts);
+          icon: Icons.person_off_rounded, title: t.crmNoContacts);
     }
     // Primary first, then decision makers, then the rest.
     final sorted = [..._contacts]..sort((a, b) {
@@ -208,7 +208,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_activities.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.history_toggle_off_outlined,
+          icon: Icons.history_toggle_off_rounded,
           title: t.crmNoActivity,
           message: t.crmCompanyTimelineClientNote);
     }
@@ -264,7 +264,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_deals.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.handshake_outlined, title: t.crmNoDeals);
+          icon: Icons.handshake_rounded, title: t.crmNoDeals);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -283,7 +283,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           return Card(
             margin: EdgeInsets.zero,
             child: ListTile(
-              leading: Icon(Icons.handshake_outlined, color: tint),
+              leading: Icon(Icons.handshake_rounded, color: tint),
               title: Text(d['title']?.toString() ?? '—',
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
@@ -310,7 +310,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         .toList();
     if (withDocs.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.folder_open_outlined,
+          icon: Icons.folder_open_rounded,
           title: t.crmNoDocuments,
           message: t.crmDocumentsClientNote);
     }
@@ -322,7 +322,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         Card(
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
-            leading: const Icon(Icons.attach_file),
+            leading: const Icon(Icons.attach_file_rounded),
             title: Text(
                 (a['subject']?.toString().isNotEmpty == true
                         ? a['subject']
@@ -411,7 +411,7 @@ class _ContactTile extends StatelessWidget {
             CircleAvatar(
               radius: 18,
               backgroundColor: scheme.secondaryContainer,
-              child: Icon(Icons.person_outline,
+              child: Icon(Icons.person_outline_rounded,
                   size: 18, color: scheme.onSecondaryContainer),
             ),
             const SizedBox(width: Gap.sm),
@@ -441,7 +441,7 @@ class _ContactTile extends StatelessWidget {
             if (phone.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () => onCall(phone),
-                icon: const Icon(Icons.call, size: 16),
+                icon: const Icon(Icons.call_rounded, size: 16),
                 label: Text(contact['phone']?.toString() ?? phone,
                     overflow: TextOverflow.ellipsis),
               ),
@@ -450,7 +450,7 @@ class _ContactTile extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => onMail(email),
-                  icon: const Icon(Icons.mail_outline, size: 16),
+                  icon: const Icon(Icons.mail_outline_rounded, size: 16),
                   label: Text(email,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),

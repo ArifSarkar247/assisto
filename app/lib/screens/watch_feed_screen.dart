@@ -399,18 +399,18 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           IconButton(
             tooltip: t.watchPersonalize,
             onPressed: _openSources,
-            icon: const Icon(Icons.tune),
+            icon: const Icon(Icons.tune_rounded),
           ),
           IconButton(
             tooltip: t.watchRefresh,
             onPressed: _loading ? null : _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addUsdWatcher,
-        icon: const Icon(Icons.add_alert_outlined),
+        icon: const Icon(Icons.add_alert_rounded),
         label: Text(t.qa1WatchAddRateAlert), // qa1: clearer copy (bn read awkwardly)
       ),
       body: _loading
@@ -433,13 +433,13 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
             ])
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.watchErrorTitle,
                   message: honestFailText(t, _failCause, otherwise: t.watchErrorBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.watchRetry)),
                 )
               : RefreshIndicator(
@@ -459,7 +459,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: StateMessage(
-              icon: Icons.verified_outlined,
+              icon: Icons.verified_rounded,
               tint: Brand.success,
               title: t.watchAllClearTitle,
               message: t.watchAllClearBody,
@@ -489,11 +489,11 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         // Always show the three groups so the digest structure is legible;
         // empty groups show honest per-group copy.
         _group(t.watchGroupNeedsYou, t.watchGroupNeedsYouHint,
-            Icons.pan_tool_alt_outlined, Brand.danger, needs),
+            Icons.pan_tool_alt_rounded, Brand.danger, needs),
         _group(t.watchGroupToday, t.watchGroupTodayHint,
-            Icons.today_outlined, Brand.blue, todayItems),
+            Icons.today_rounded, Brand.blue, todayItems),
         _group(t.watchGroupUpcoming, t.watchGroupUpcomingHint,
-            Icons.upcoming_outlined, Brand.purple, upcoming),
+            Icons.upcoming_rounded, Brand.purple, upcoming),
         if (hasWatchers) ...[
           const SizedBox(height: Gap.lg),
           _watchersSection(t),
@@ -518,7 +518,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(children: [
-                Icon(Icons.visibility_off_outlined,
+                Icon(Icons.visibility_off_rounded,
                     size: 16, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -598,7 +598,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
               }()),
               trailing: IconButton(
                 tooltip: t.watchRemoveWatcher,
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 onPressed: () => runUserAction(context, 'watch.removeWatcher', () async { // db1
                   await _api.deleteItem('watchers', w['id']);
                   _load();

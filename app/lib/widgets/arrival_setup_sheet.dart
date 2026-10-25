@@ -91,12 +91,12 @@ class _ArrivalSetupSheetState extends State<ArrivalSetupSheet> {
             controller: _place,
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context).aDestinationLabel,
-              prefixIcon: const Icon(Icons.place_outlined),
+              prefixIcon: const Icon(Icons.place_rounded),
             ),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
-            icon: const Icon(Icons.schedule),
+            icon: const Icon(Icons.schedule_rounded),
             label: Text('${AppLocalizations.of(context).aByTime}: ${_time.format(context)}'),
             onPressed: () async {
               final picked = await showTimePicker(context: context, initialTime: _time);
@@ -135,7 +135,7 @@ class _ArrivalSetupSheetState extends State<ArrivalSetupSheet> {
           const Divider(height: 24),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.nightlight_round),
+            secondary: const Icon(Icons.nightlight_round_rounded),
             title: Text(AppLocalizations.of(context).aNightSafety),
             subtitle: Text(AppLocalizations.of(context).aNightSafetyDesc,
                 style: const TextStyle(fontSize: 12)),

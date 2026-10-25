@@ -234,7 +234,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             ? Padding(
                 padding: const EdgeInsets.all(Gap.xl),
                 child: StateMessage(
-                    icon: Icons.favorite_border,
+                    icon: Icons.favorite_border_rounded,
                     title: cStr(context, 'cReachOutTitle'),
                     message: cStr(context, 'cNeverTalked')),
               )
@@ -284,7 +284,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.contacts_outlined),
+        icon: const Icon(Icons.contacts_rounded),
         title: Text(cStr(context, 'cImportFromPhone')),
         content: Text(cStr(context, 'cImportPrivacy')),
         actions: [
@@ -308,11 +308,11 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
         actions: [
           IconButton(
             tooltip: cStr(context, 'cSortBy'),
-            icon: const Icon(Icons.sort),
+            icon: const Icon(Icons.sort_rounded),
             onPressed: _all.isEmpty ? null : _pickSort,
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert_rounded),
             onSelected: (v) {
               if (v == 'import') _showImport();
               if (v == 'export') _exportAll();
@@ -321,17 +321,17 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             itemBuilder: (ctx) => [
               PopupMenuItem(
                   value: 'import',
-                  child: _menu(Icons.download_outlined,
+                  child: _menu(Icons.download_rounded,
                       cStr(context, 'cImportFromPhone'))),
               PopupMenuItem(
                   enabled: _all.isNotEmpty,
                   value: 'export',
                   child: _menu(
-                      Icons.upload_outlined, cStr(context, 'cExportAll'))),
+                      Icons.upload_rounded, cStr(context, 'cExportAll'))),
               PopupMenuItem(
                   enabled: _all.length > 1,
                   value: 'dedupe',
-                  child: _menu(Icons.merge_type,
+                  child: _menu(Icons.merge_type_rounded,
                       cStr(context, 'cMergeDuplicates'))),
             ],
           ),
@@ -339,20 +339,20 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),
-        icon: const Icon(Icons.person_add_alt),
+        icon: const Icon(Icons.person_add_alt_rounded),
         label: Text(tr.contact),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: serverFailText(tr, _failCause),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)))
               : RefreshIndicator(
                   onRefresh: _load,
@@ -393,7 +393,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
         padding: const EdgeInsets.symmetric(
             horizontal: Gap.lg, vertical: Gap.sm),
         child: Row(children: [
-          Icon(Icons.cloud_off, size: 18, color: scheme.onSecondaryContainer),
+          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(cStr(context, 'cOfflineShowingCached'),
@@ -409,7 +409,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           onChanged: (v) => setState(() => _query = v),
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: cStr(context, 'cSearchHint'),
             isDense: true,
             filled: true,
@@ -420,7 +420,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                 ? null
                 : IconButton(
                     tooltip: AppLocalizations.of(context).f2ClearSearch,
-                    icon: const Icon(Icons.clear),
+                    icon: const Icon(Icons.clear_rounded),
                     onPressed: () {
                       _searchCtl.clear();
                       setState(() => _query = '');
@@ -462,7 +462,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             setState(() {
               _favOnly = !_favOnly;
             });
-          }, icon: Icons.star, count: counts['_fav']),
+          }, icon: Icons.star_rounded, count: counts['_fav']),
           for (final g in kGroupOrder)
             chip(groupLabel(context, g), _group == g, () {
               setState(() => _group = _group == g ? '' : g);
@@ -484,12 +484,12 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.favorite, color: AssistoTokens.of(context).warning),
+                Icon(Icons.favorite_rounded, color: AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.md),
                 Expanded(
                     child: Text(
                         '${cStr(context, 'cReachOutTitle')} · ${localeNum(context, n)}')),
-                const Icon(Icons.chevron_right),
+                const Icon(Icons.chevron_right_rounded),
               ]),
             ),
           ),
@@ -499,12 +499,12 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
   Widget _listBody(AppLocalizations tr) {
     if (_all.isEmpty) {
       return StateMessage(
-        icon: Icons.contacts_outlined,
+        icon: Icons.contacts_rounded,
         title: tr.noContactsYet,
         message: cStr(context, 'cEmptyBody'),
         action: FilledButton.icon(
           onPressed: () => _openEditor(),
-          icon: const Icon(Icons.person_add_alt),
+          icon: const Icon(Icons.person_add_alt_rounded),
           label: Text(tr.addContact),
         ),
       );
@@ -512,7 +512,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     final list = _visible;
     if (list.isEmpty) {
       return StateMessage(
-        icon: Icons.search_off,
+        icon: Icons.search_off_rounded,
         title: cStr(context, 'cNoSearchResults'),
         message: cStr(context, 'cSearchHint'),
       );
@@ -552,7 +552,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                 padding: const EdgeInsets.all(Gap.xxs),
                 decoration: BoxDecoration(
                     color: Theme.of(context).cardColor, shape: BoxShape.circle),
-                child: Icon(Icons.favorite,
+                child: Icon(Icons.favorite_rounded,
                     size: 12, color: AssistoTokens.of(context).warning),
               ),
             ),
@@ -563,7 +563,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                   maxLines: 1, overflow: TextOverflow.ellipsis)),
           if (c.favourite) ...[
             const SizedBox(width: Gap.xs),
-            Icon(Icons.star, size: 16, color: AssistoTokens.of(context).warning),
+            Icon(Icons.star_rounded, size: 16, color: AssistoTokens.of(context).warning),
           ],
         ]),
         subtitle: subtitleBits.isEmpty
@@ -575,7 +575,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             : IconButton(
                 tooltip: cStr(context, 'cFavourite'),
                 icon: Icon(
-                    c.favourite ? Icons.star : Icons.star_border,
+                    c.favourite ? Icons.star_rounded : Icons.star_border_rounded,
                     color: c.favourite ? AssistoTokens.of(context).warning : scheme.outline),
                 onPressed: () {
                   c.favourite = !c.favourite;
@@ -626,7 +626,7 @@ class _DedupeSheet extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: StateMessage(
-            icon: Icons.verified_outlined,
+            icon: Icons.verified_rounded,
             tint: AssistoTokens.of(context).success,
             title: cStr(context, 'cNoDuplicates'),
           ),
@@ -678,7 +678,7 @@ class _DedupeSheet extends StatelessWidget {
                     Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: FilledButton.icon(
-                        icon: const Icon(Icons.merge_type, size: 18),
+                        icon: const Icon(Icons.merge_type_rounded, size: 18),
                         label: Text(cStr(context, 'cMerge')),
                         onPressed: () => onMerge(g),
                       ),

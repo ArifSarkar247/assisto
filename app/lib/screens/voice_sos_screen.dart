@@ -163,8 +163,8 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
             for (final p in VoiceSosConfig.defaultPhrases)
               ListTile(
                 leading: Icon(p == _phrase
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked),
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded),
                 title: Text(p),
                 onTap: () => Navigator.pop(ctx, p),
               ),
@@ -201,7 +201,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
                 _mainToggle(),
                 if (_unavailable) ...[
                   const SizedBox(height: Gap.md),
-                  _notice(Icons.mic_off_outlined, Brand.warning,
+                  _notice(Icons.mic_off_rounded, Brand.warning,
                       t.vsosUnavailable),
                 ],
                 if (_micBlocked) ...[
@@ -230,7 +230,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.hearing_disabled,
+            Icon(Icons.hearing_disabled_rounded,
                 size: 56, color: cs.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(
@@ -260,7 +260,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
     final cs = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Icon(Icons.record_voice_over_outlined, color: cs.primary, size: 28),
+        Icon(Icons.record_voice_over_rounded, color: cs.primary, size: 28),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.vsosHeadline,
@@ -281,7 +281,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
       child: SwitchListTile(
         value: _enabled,
         onChanged: _busy ? null : _toggle,
-        secondary: Icon(_enabled ? Icons.hearing : Icons.hearing_disabled,
+        secondary: Icon(_enabled ? Icons.hearing_rounded : Icons.hearing_disabled_rounded,
             color: _enabled ? Brand.danger : Colors.grey),
         title: Text(t.vsosEnableTitle,
             style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -293,7 +293,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
   Widget _phraseTile() {
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.campaign_outlined),
+        leading: const Icon(Icons.campaign_rounded),
         title: Text(t.vsosPhraseLabel),
         subtitle: Text('"$_phrase"',
             style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -304,15 +304,15 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
   }
 
   Widget _batteryNote() =>
-      _notice(Icons.battery_alert_outlined, Brand.warning, t.vsosBatteryNote);
+      _notice(Icons.battery_alert_rounded, Brand.warning, t.vsosBatteryNote);
 
   Widget _privacyNote() =>
-      _notice(Icons.lock_outline, Brand.success, t.vsosPrivacyNote);
+      _notice(Icons.lock_outline_rounded, Brand.success, t.vsosPrivacyNote);
 
   Widget _runningNote() {
     if (!_enabled) return const SizedBox.shrink();
     return _notice(
-        Icons.notifications_active_outlined,
+        Icons.notifications_active_rounded,
         Theme.of(context).colorScheme.primary,
         _running ? t.vsosRunningNote : t.vsosNotRunningNote);
   }
@@ -345,7 +345,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.mic_off, color: Brand.danger, size: 20),
+          const Icon(Icons.mic_off_rounded, color: Brand.danger, size: 20),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.vsosMicBlocked,
@@ -356,7 +356,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           onPressed: openAppSettings,
-          icon: const Icon(Icons.settings, size: 18),
+          icon: const Icon(Icons.settings_rounded, size: 18),
           label: Text(t.vsosOpenSettings),
         ),
       ]),

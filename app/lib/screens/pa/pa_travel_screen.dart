@@ -159,13 +159,13 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.paTravelTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paTravelLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ),
       );
@@ -175,18 +175,18 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
       appBar: AppBar(title: Text(t.paTravelTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openTripEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.paTravelNewTrip),
       ),
       body: trips.isEmpty
           ? StateMessage(
-              icon: Icons.flight_takeoff,
+              icon: Icons.flight_takeoff_rounded,
               tint: Brand.blue,
               title: t.paTravelWelcomeTitle,
               message: t.paTravelWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _openTripEditor(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.paTravelNewTrip),
               ),
             )
@@ -246,7 +246,7 @@ class _TripCard extends StatelessWidget {
         onTap: onOpen,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.card_travel, color: scheme.onPrimaryContainer),
+          child: Icon(Icons.card_travel_rounded, color: scheme.onPrimaryContainer),
         ),
         title: Text('${trip['title'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -264,7 +264,7 @@ class _TripCard extends StatelessWidget {
           ],
         ),
         trailing: IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             tooltip: t.edit,
             onPressed: onEdit),
       ),
@@ -381,7 +381,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
                   // ---- legs ----
                   _SectionHeader(
-                      icon: Icons.alt_route,
+                      icon: Icons.alt_route_rounded,
                       label: t.paTravelLegsHeader,
                       onAdd: () => _editLeg()),
                   if (legs.isEmpty)
@@ -398,7 +398,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
                   // ---- stays ----
                   _SectionHeader(
-                      icon: Icons.hotel,
+                      icon: Icons.hotel_rounded,
                       label: t.paTravelStaysHeader,
                       onAdd: () => _editStay()),
                   if (stays.isEmpty)
@@ -406,7 +406,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                   else
                     for (final s in stays)
                       _TwoLineTile(
-                        icon: Icons.hotel_outlined,
+                        icon: Icons.hotel_rounded,
                         title: '${s['name'] ?? ''}',
                         subtitle:
                             '${s['check_in'] ?? ''} → ${s['check_out'] ?? ''}',
@@ -417,7 +417,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
                   // ---- meetings ----
                   _SectionHeader(
-                      icon: Icons.groups_2_outlined,
+                      icon: Icons.groups_2_rounded,
                       label: t.paTravelMeetingsHeader,
                       onAdd: () => _editMeeting()),
                   if (meetings.isEmpty)
@@ -425,7 +425,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                   else
                     for (final m in meetings)
                       _TwoLineTile(
-                        icon: Icons.event_outlined,
+                        icon: Icons.event_rounded,
                         title: '${m['title'] ?? ''}',
                         subtitle: [
                           '${m['at'] ?? ''}',
@@ -439,7 +439,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
                   // ---- packing ----
                   _SectionHeader(
-                      icon: Icons.checklist,
+                      icon: Icons.checklist_rounded,
                       label: t.paTravelPackingHeader,
                       onAdd: () => _addPack()),
                   if (packing.isNotEmpty) ...[
@@ -476,7 +476,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                             {'kind': 'pack', 'label': p['label'], 'checked': v}),
                         title: Text('${p['label'] ?? ''}'),
                         secondary: IconButton(
-                            icon: const Icon(Icons.close, size: 18),
+                            icon: const Icon(Icons.close_rounded, size: 18),
                             tooltip: t.delete,
                             onPressed: () => _delete(p['id'] as int)),
                       ),
@@ -484,7 +484,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
                   // ---- printable summary ----
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.summarize_outlined),
+                    icon: const Icon(Icons.summarize_rounded),
                     label: Text(t.paTravelSummaryButton),
                     onPressed: () => showModalBottomSheet(
                       context: context,
@@ -586,7 +586,7 @@ class _BookingSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.confirmation_number_outlined,
+          Icon(Icons.confirmation_number_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -622,7 +622,7 @@ class _SectionHeader extends StatelessWidget {
               style:
                   AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
           onPressed: onAdd),
     ]);
@@ -688,7 +688,7 @@ class _LegTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: const Icon(Icons.swap_horiz),
+      leading: const Icon(Icons.swap_horiz_rounded),
       title: Text('${leg['from_place'] ?? ''} → ${leg['to_place'] ?? ''}',
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(<String>[
@@ -1150,7 +1150,7 @@ class _DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
-      icon: const Icon(Icons.event, size: 18),
+      icon: const Icon(Icons.event_rounded, size: 18),
       label: Align(
         alignment: Alignment.centerLeft,
         child: Text(value.isEmpty ? label : '$label: $value'),

@@ -66,7 +66,7 @@ class AdminPrivacyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AdminNoteCard(
-        icon: Icons.lock_outline,
+        icon: Icons.lock_outline_rounded,
         text: text,
         accent: Theme.of(context).colorScheme.secondary,
       );
@@ -79,7 +79,7 @@ class AdminLegalNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AdminNoteCard(
-        icon: Icons.account_balance_outlined,
+        icon: Icons.account_balance_rounded,
         text: text,
         accent: Brand.purple,
       );

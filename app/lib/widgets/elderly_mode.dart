@@ -63,7 +63,7 @@ class EldersModeController {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.family_restroom, color: Brand.blue),
+        icon: const Icon(Icons.family_restroom_rounded, color: Brand.blue),
         title: Text(t.elderlyPermissionTitle),
         content: Text(t.elderlyPermissionBody),
         actions: [
@@ -145,7 +145,7 @@ class _ElderlyModeTileState extends State<ElderlyModeTile> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.elderly, color: Brand.blue),
+        icon: const Icon(Icons.elderly_rounded, color: Brand.blue),
         title: Text(title),
         content: Text(body),
         actions: [
@@ -165,7 +165,7 @@ class _ElderlyModeTileState extends State<ElderlyModeTile> {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 56),
       child: SwitchListTile(
-        secondary: const Icon(Icons.elderly, size: 28),
+        secondary: const Icon(Icons.elderly_rounded, size: 28),
         title: Text(t.elderlyToggleTitle,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
         subtitle: Text(t.elderlyToggleSubtitle),

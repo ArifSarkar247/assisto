@@ -125,7 +125,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       padding: const EdgeInsets.all(Gap.lg),
       children: [
         const SizedBox(height: Gap.xxl),
-        Icon(Icons.cloud_off_outlined,
+        Icon(Icons.cloud_off_rounded,
             size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(height: Gap.md),
         Text(honestFailText(t, _failCause, otherwise: t.mlpLoadFailed),
@@ -163,23 +163,23 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         // Primary actions.
         if (!lostMode)
           FilledButton.icon(
-            icon: const Icon(Icons.travel_explore),
+            icon: const Icon(Icons.travel_explore_rounded),
             onPressed: _turnOnLost,
             label: Text(t.mlpTurnOnLost),
           )
         else
           OutlinedButton.icon(
-            icon: const Icon(Icons.lock_open_outlined),
+            icon: const Icon(Icons.lock_open_rounded),
             onPressed: _turnOffLost,
             label: Text(t.mlpTurnOffLost),
           ),
         const SizedBox(height: Gap.sm),
         Card(
           child: ListTile(
-            leading: const Icon(Icons.gavel_outlined),
+            leading: const Icon(Icons.gavel_rounded),
             title: Text(t.mlpRecoveryHelp),
             subtitle: Text(t.mlpRecoveryHelpBody),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RecoveryScreen()),
@@ -214,7 +214,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
           children: [
             Row(
               children: [
-                Icon(armed ? Icons.verified_user : Icons.gpp_maybe,
+                Icon(armed ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
                     color: fg, size: 30),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -235,9 +235,9 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
               ],
             ),
             if (lost) _statusChip(t.mlpStatusLost, t.mlpStatusLostBody,
-                Icons.travel_explore, Brand.blue),
+                Icons.travel_explore_rounded, Brand.blue),
             if (frozen) _statusChip(t.mlpStatusFrozen, t.mlpStatusFrozenBody,
-                Icons.ac_unit, Brand.purple),
+                Icons.ac_unit_rounded, Brand.purple),
             if (frozen) ...[
               const SizedBox(height: Gap.sm),
               FalseAlarmButton(onCleared: _load),
@@ -288,7 +288,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.cloud_off_outlined, size: 18),
+            const Icon(Icons.cloud_off_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Column(
@@ -337,7 +337,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.map_outlined),
+                  icon: const Icon(Icons.map_rounded),
                   label: Text(t.mlpOpenInMaps),
                   onPressed: () => _openMaps(
                       (loc['lat'] as num), (loc['lng'] as num)),
@@ -371,11 +371,11 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 return ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.place_outlined),
+                  leading: const Icon(Icons.place_rounded),
                   title: Text(when.isEmpty ? '—' : t.mlpTrailPoint(when)),
                   trailing: (lat != null && lng != null)
                       ? IconButton(
-                          icon: const Icon(Icons.map_outlined),
+                          icon: const Icon(Icons.map_rounded),
                           tooltip: t.mlpOpenInMaps,
                           onPressed: () => _openMaps(lat, lng),
                         )
@@ -447,7 +447,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.sim_card_outlined,
+                Icon(Icons.sim_card_rounded,
                     color: has ? Brand.warning : scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Text(t.mlpSimTitle,
@@ -518,7 +518,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 return ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.history),
+                  leading: const Icon(Icons.history_rounded),
                   title: Text(kind.isEmpty ? '—' : kind),
                   subtitle: detail.trim().isEmpty ? null : Text(detail),
                 );
@@ -537,7 +537,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.info_outline, size: 18),
+            const Icon(Icons.info_outline_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(t.mlpHonestNote,
@@ -806,7 +806,7 @@ class _LostModeSheetState extends State<_LostModeSheet> {
                 ),
                 const Spacer(),
                 FilledButton.icon(
-                  icon: const Icon(Icons.travel_explore),
+                  icon: const Icon(Icons.travel_explore_rounded),
                   onPressed: () => Navigator.pop(
                     context,
                     _LostForm(

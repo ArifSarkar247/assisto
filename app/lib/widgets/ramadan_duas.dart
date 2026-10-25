@@ -41,7 +41,7 @@ class RamadanDuas extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.menu_book_outlined, color: Brand.purple),
+            const Icon(Icons.menu_book_rounded, color: Brand.purple),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanDuasTitle,

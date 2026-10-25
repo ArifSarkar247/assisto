@@ -145,7 +145,7 @@ class _CrmWhatsAppSheetState extends State<CrmWhatsAppSheet> {
         padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Row(children: [
-            Icon(Icons.chat_outlined, color: scheme.primary),
+            Icon(Icons.chat_rounded, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text('WhatsApp · ${widget.leadName}',
@@ -234,7 +234,7 @@ class _CrmWhatsAppSheetState extends State<CrmWhatsAppSheet> {
               icon: _sending
                   ? const SizedBox(
                       width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send_outlined),
+                  : const Icon(Icons.send_rounded),
               label: Text(hasKey ? t.crmWaSend : t.crmWaSendDraft),
             ),
           ),

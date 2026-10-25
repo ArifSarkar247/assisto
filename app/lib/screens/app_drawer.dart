@@ -111,7 +111,7 @@ class _AppDrawerState extends State<AppDrawer> {
         ListTile(
           key: const ValueKey('drawer_assisto_ai'),
           dense: true,
-          leading: Icon(Icons.auto_awesome, color: scheme.primary),
+          leading: Icon(Icons.auto_awesome_rounded, color: scheme.primary),
           title: Text(t.aichatTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -134,7 +134,7 @@ class _AppDrawerState extends State<AppDrawer> {
           child: ListTile(
             dense: true,
             leading:
-                Icon(Icons.diversity_3_outlined, color: scheme.onSurfaceVariant),
+                Icon(Icons.diversity_3_rounded, color: scheme.onSurfaceVariant),
             title: Text(t.sidebarMyCircle),
             onTap: () => _push((_) => const MessengerHomeScreen()),
           ),
@@ -147,11 +147,11 @@ class _AppDrawerState extends State<AppDrawer> {
             onChanged: (v) => setState(() => _q = v),
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: const Icon(Icons.search, size: 20),
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
               hintText: t.search,
               suffixIcon: searching
                   ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       onPressed: () {
                         _searchCtrl.clear();
                         setState(() => _q = '');
@@ -174,7 +174,7 @@ class _AppDrawerState extends State<AppDrawer> {
               if (circleHit)
                 ListTile(
                   key: const ValueKey('drawer_search_my_circle'),
-                  leading: Icon(Icons.diversity_3_outlined,
+                  leading: Icon(Icons.diversity_3_rounded,
                       color: scheme.onSurfaceVariant),
                   title: Text(t.sidebarMyCircle,
                       style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -237,13 +237,13 @@ class _AppDrawerState extends State<AppDrawer> {
                 ListTile(
                   // ring-everywhere: warning dot while calls may not ring
                   leading: RingCheckBadge(
-                      child: Icon(Icons.settings_outlined,
+                      child: Icon(Icons.settings_rounded,
                           color: scheme.onSurfaceVariant)),
                   title: Text(t.settingsTitle),
                   onTap: () => _push((_) => const SettingsScreen()),
                 ),
                 ListTile(
-                  leading: Icon(Icons.workspace_premium_outlined,
+                  leading: Icon(Icons.workspace_premium_rounded,
                       color: scheme.onSurfaceVariant),
                   title: Text(t.sidebarPlansPoints),
                   onTap: () => _push((_) => const PlansScreen()),
@@ -251,7 +251,7 @@ class _AppDrawerState extends State<AppDrawer> {
                 // p5-growth: invite friends (referral) + Founding Members
                 ListTile(
                   key: const ValueKey('drawer_invite_friends'),
-                  leading: Icon(Icons.card_giftcard_outlined,
+                  leading: Icon(Icons.card_giftcard_rounded,
                       color: scheme.onSurfaceVariant),
                   title: Text(t.p5InviteTitle),
                   onTap: () => _push((_) => const InviteScreen()),

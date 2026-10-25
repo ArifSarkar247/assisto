@@ -200,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           : () => Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) =>
                                   OtpLoginScreen(backend: widget.otpBackend))),
-                      icon: const Icon(Icons.sms_outlined, size: 18),
+                      icon: const Icon(Icons.sms_rounded, size: 18),
                       label: Text(t.otpLoginWithSms),
                     ),
                 ],

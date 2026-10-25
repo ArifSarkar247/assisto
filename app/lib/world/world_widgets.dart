@@ -76,7 +76,7 @@ class UwSpeakButton extends StatelessWidget {
       tooltip: t.uwListen,
       visualDensity: compact ? VisualDensity.compact : null,
       onPressed: text.trim().isEmpty ? null : () => _speak(context),
-      icon: const Icon(Icons.volume_up_outlined),
+      icon: const Icon(Icons.volume_up_rounded),
     );
   }
 }
@@ -86,7 +86,7 @@ class UwNote extends StatelessWidget {
   const UwNote(
       {super.key,
       required this.text,
-      this.icon = Icons.info_outline,
+      this.icon = Icons.info_outline_rounded,
       this.warn = false});
   final String text;
   final IconData icon;
@@ -157,7 +157,7 @@ class UwLinkTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: Icon(Icons.open_in_new, color: scheme.primary, size: 20),
+      leading: Icon(Icons.open_in_new_rounded, color: scheme.primary, size: 20),
       title: Text(label),
       subtitle: host.isEmpty ? null : Text(host),
       onTap: () => uwOpen(context, url),

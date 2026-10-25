@@ -86,7 +86,7 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -94,7 +94,7 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
     }
     if (_items.isEmpty) {
       return StateMessage(
-        icon: Icons.task_alt_outlined,
+        icon: Icons.task_alt_rounded,
         title: t.baApprovalsEmptyTitle,
         message: t.baApprovalsEmptyBody,
       );
@@ -167,7 +167,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
       title: bd(context, '${it['customer_name'] ?? ''}'.isEmpty
           ? baChannelLabel(t, '${it['channel']}')
           : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}'),
-      icon: Icons.fact_check_outlined,
+      icon: Icons.fact_check_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: AssistoTokens.of(context).warning),
         const SizedBox(height: Gap.md),
@@ -180,7 +180,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
         if (problems.isNotEmpty) ...[
           BizNote(
             text: bd(context, t.baNumbersNotInCatalog(problems.map((p) => '${p['value']}').join(', '))),
-            icon: Icons.error_outline,
+            icon: Icons.error_outline_rounded,
             tint: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: Gap.md),
@@ -205,7 +205,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
                 : () => _run(
                     () => api.bizAgentApprove(id, text: _edited ? _c.text.trim() : null),
                     t.baSent),
-            icon: const Icon(Icons.send_outlined, size: 18),
+            icon: const Icon(Icons.send_rounded, size: 18),
             label: Text(_edited ? t.baSendEdited : t.baApprove),
           ),
         ]),

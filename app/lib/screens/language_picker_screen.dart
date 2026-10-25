@@ -31,7 +31,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 width: 72,
                 decoration: const BoxDecoration(
                     gradient: Brand.gradient, shape: BoxShape.circle),
-                child: const Icon(Icons.psychology_alt_outlined,
+                child: const Icon(Icons.psychology_alt_rounded,
                     color: Colors.white, size: 38),
               ),
             ),
@@ -92,7 +92,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
               Text(sub, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ),
-          Icon(selected ? Icons.check_circle : Icons.circle_outlined,
+          Icon(selected ? Icons.check_circle_rounded : Icons.circle_rounded,
               color: selected ? scheme.primary : scheme.outline),
         ]),
       ),

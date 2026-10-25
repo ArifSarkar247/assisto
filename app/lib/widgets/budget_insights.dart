@@ -31,11 +31,11 @@ class BudgetInsights extends StatelessWidget {
   IconData _icon(String? code) {
     switch (code) {
       case 'over':
-        return Icons.trending_up;
+        return Icons.trending_up_rounded;
       case 'near':
-        return Icons.warning_amber_outlined;
+        return Icons.warning_amber_rounded;
       default:
-        return Icons.check_circle_outline;
+        return Icons.check_circle_outline_rounded;
     }
   }
 
@@ -88,7 +88,7 @@ class BudgetGoalLinkCard extends StatelessWidget {
     if (!hasGoal) {
       return Card(
         child: ListTile(
-          leading: const Icon(Icons.savings_outlined),
+          leading: const Icon(Icons.savings_rounded),
           title: Text(t.budgetGoalLinkTitle),
           subtitle: Text(t.budgetGoalLinkNone),
         ),
@@ -102,7 +102,7 @@ class BudgetGoalLinkCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.savings_outlined, color: scheme.onSecondaryContainer),
+            Icon(Icons.savings_rounded, color: scheme.onSecondaryContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.budgetGoalLinkTitle,

@@ -126,7 +126,7 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
               IconButton(
                 visualDensity: VisualDensity.compact,
                 tooltip: _fav ? t.medicineDbRemoveSave : t.medicineDbSave,
-                icon: Icon(_fav ? Icons.star : Icons.star_border,
+                icon: Icon(_fav ? Icons.star_rounded : Icons.star_border_rounded,
                     color: _fav ? Brand.warning : scheme.onSurfaceVariant),
                 onPressed: _toggleFav,
               ),
@@ -134,7 +134,7 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
           if (widget.offline) ...[
             const SizedBox(height: Gap.xs),
             Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.cloud_off, size: 13, color: scheme.onSurfaceVariant),
+              Icon(Icons.cloud_off_rounded, size: 13, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Text(t.medicineDbOfflineCached,
                   style:
@@ -146,11 +146,11 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
           // ---- generic / form / manufacturer chips ----
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             if (generic.isNotEmpty)
-              _Chip(icon: Icons.science_outlined, text: generic),
+              _Chip(icon: Icons.science_rounded, text: generic),
             if (form.isNotEmpty)
-              _Chip(icon: Icons.medication_outlined, text: form),
+              _Chip(icon: Icons.medication_rounded, text: form),
             if (manufacturer.isNotEmpty)
-              _Chip(icon: Icons.factory_outlined, text: manufacturer),
+              _Chip(icon: Icons.factory_rounded, text: manufacturer),
           ]),
 
           // ---- labelled facts ----
@@ -185,7 +185,7 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Icon(Icons.info_outline,
+                      Icon(Icons.info_outline_rounded,
                           size: 15, color: scheme.onSurfaceVariant),
                       const SizedBox(width: Gap.xs),
                       Text(t.medicineDbInteractions,
@@ -272,13 +272,13 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
           Row(children: [
             TextButton.icon(
               onPressed: () => Share.share(_shareText(t)),
-              icon: const Icon(Icons.ios_share, size: 18),
+              icon: const Icon(Icons.ios_share_rounded, size: 18),
               label: Text(t.medicineDbShare),
             ),
             const Spacer(),
             TextButton.icon(
               onPressed: () => showMedDbReportSheet(context, brand),
-              icon: const Icon(Icons.flag_outlined, size: 18),
+              icon: const Icon(Icons.flag_rounded, size: 18),
               label: Text(t.medicineDbReportTitle),
             ),
           ]),
@@ -330,7 +330,7 @@ class _AltRow extends StatelessWidget {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.swap_horiz, size: 18),
+      leading: const Icon(Icons.swap_horiz_rounded, size: 18),
       title: Row(children: [
         Flexible(
             child: Text('${alt['brand'] ?? ''}  ${alt['strength'] ?? ''}'.trim())),

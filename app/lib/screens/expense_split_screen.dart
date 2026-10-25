@@ -94,13 +94,13 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.splitTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.splitLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -109,12 +109,12 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.splitTitle)),
         body: StateMessage(
-          icon: Icons.group_add_outlined,
+          icon: Icons.group_add_rounded,
           title: tr.splitWelcomeTitle,
           message: tr.splitWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addPerson,
-            icon: const Icon(Icons.person_add_alt_1),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
             label: Text(tr.splitAddPerson),
           ),
         ),
@@ -214,7 +214,7 @@ class _PeopleTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: onAdd,
-        icon: const Icon(Icons.person_add_alt_1),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(tr.splitAddPerson),
       ),
       body: RefreshIndicator(
@@ -239,7 +239,7 @@ class _PeopleTab extends StatelessWidget {
                 ),
                 title: Text(nm, maxLines: 1, overflow: TextOverflow.ellipsis),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   tooltip: tr.delete,
                   onPressed: () => _confirmDelete(context, p),
                 ),
@@ -300,17 +300,17 @@ class _ExpensesTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.splitAddExpense),
       ),
       body: expenses.isEmpty
           ? StateMessage(
-              icon: Icons.receipt_long_outlined,
+              icon: Icons.receipt_long_rounded,
               title: tr.splitNoExpensesTitle,
               message: tr.splitNoExpensesBody,
               action: FilledButton.icon(
                 onPressed: () => _addOrEdit(context),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.splitAddExpense),
               ),
             )
@@ -328,7 +328,7 @@ class _ExpensesTab extends StatelessWidget {
                     margin: EdgeInsets.zero,
                     child: ListTile(
                       leading:
-                          Icon(Icons.receipt_outlined, color: scheme.primary),
+                          Icon(Icons.receipt_rounded, color: scheme.primary),
                       title: Text(
                           (e['title'] ?? tr.splitExpenseGeneric).toString(),
                           maxLines: 1,
@@ -444,7 +444,7 @@ class _SettleTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     if (expenses.isEmpty) {
       return StateMessage(
-        icon: Icons.handshake_outlined,
+        icon: Icons.handshake_rounded,
         title: tr.splitSettleEmptyTitle,
         message: tr.splitSettleEmptyBody,
       );
@@ -458,7 +458,7 @@ class _SettleTab extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(Icons.summarize_outlined, color: scheme.primary),
+              Icon(Icons.summarize_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(tr.splitTotalSpent,
@@ -477,7 +477,7 @@ class _SettleTab extends StatelessWidget {
         for (final r in s.rows) _balanceRow(context, r),
         const SizedBox(height: Gap.lg),
         Row(children: [
-          Icon(Icons.auto_fix_high_outlined, size: 18, color: scheme.primary),
+          Icon(Icons.auto_fix_high_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.splitSettleUp,
@@ -494,7 +494,7 @@ class _SettleTab extends StatelessWidget {
             margin: EdgeInsets.zero,
             child: ListTile(
               leading:
-                  const Icon(Icons.check_circle_outline, color: Brand.success),
+                  const Icon(Icons.check_circle_outline_rounded, color: Brand.success),
               title: Text(tr.splitAllSettled),
             ),
           ),
@@ -502,7 +502,7 @@ class _SettleTab extends StatelessWidget {
           Card(
             margin: const EdgeInsets.only(bottom: Gap.sm),
             child: ListTile(
-              leading: const Icon(Icons.east, color: Brand.blue),
+              leading: const Icon(Icons.east_rounded, color: Brand.blue),
               title: Text(
                 tr.splitPaysText(t.fromName, t.toName),
                 maxLines: 2,
@@ -521,7 +521,7 @@ class _SettleTab extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(s.reconciles ? Icons.verified_outlined : Icons.info_outline,
+              Icon(s.reconciles ? Icons.verified_rounded : Icons.info_outline_rounded,
                   size: 18,
                   color:
                       s.reconciles ? Brand.success : scheme.onSurfaceVariant),

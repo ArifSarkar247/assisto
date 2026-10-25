@@ -55,9 +55,9 @@ void main() {
     });
 
     test('icons: ✓ / ✓✓ / ✓✓', () {
-      expect(tickIcon(MsgTick.sent), Icons.done);
-      expect(tickIcon(MsgTick.delivered), Icons.done_all);
-      expect(tickIcon(MsgTick.read), Icons.done_all);
+      expect(tickIcon(MsgTick.sent), Icons.done_rounded);
+      expect(tickIcon(MsgTick.delivered), Icons.done_all_rounded);
+      expect(tickIcon(MsgTick.read), Icons.done_all_rounded);
     });
 
     for (final b in Brightness.values) {

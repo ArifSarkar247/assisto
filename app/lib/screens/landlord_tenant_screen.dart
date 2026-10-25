@@ -162,7 +162,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           (_tabs.index == 0 && rentActiveUnits(_units).isNotEmpty)
               ? FloatingActionButton.extended(
                   onPressed: () => _addOrEditUnit(),
-                  icon: const Icon(Icons.add_home_work_outlined),
+                  icon: const Icon(Icons.add_home_work_rounded),
                   label: Text(t.rentAddUnit),
                 )
               : null,
@@ -170,13 +170,13 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.rentLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)),
                 )
               : RefreshIndicator(
@@ -194,12 +194,12 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       return ListView(children: [
         const SizedBox(height: Gap.xxl),
         StateMessage(
-          icon: Icons.home_work_outlined,
+          icon: Icons.home_work_rounded,
           title: t.rentEmptyTitle,
           message: t.rentEmptyBody,
           action: FilledButton.icon(
             onPressed: () => _addOrEditUnit(),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.rentAddUnit),
           ),
         ),
@@ -252,7 +252,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       return ListView(children: [
         const SizedBox(height: Gap.xxl),
         StateMessage(
-          icon: Icons.receipt_long_outlined,
+          icon: Icons.receipt_long_rounded,
           title: t.rentArrearsEmptyTitle,
           message: t.rentArrearsEmptyBody,
         ),
@@ -324,7 +324,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
         const SizedBox(height: Gap.md),
         if (grand == 0)
           StateMessage(
-            icon: Icons.verified_outlined,
+            icon: Icons.verified_rounded,
             tint: Brand.success,
             title: t.rentNoArrearsTitle,
             message: t.rentNoArrearsBody,
@@ -453,13 +453,13 @@ class _MonthPicker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        IconButton(tooltip: MaterialLocalizations.of(context).previousMonthTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
+        IconButton(tooltip: MaterialLocalizations.of(context).previousMonthTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left_rounded)),
         Expanded(
           child: Text(monthLabel(context, month),
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w700)),
         ),
-        IconButton(tooltip: MaterialLocalizations.of(context).nextMonthTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right)),
+        IconButton(tooltip: MaterialLocalizations.of(context).nextMonthTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right_rounded)),
       ]),
     );
   }
@@ -528,10 +528,10 @@ class _UnitCard extends StatelessWidget {
                         : t.rentStatusDue,
                 color: color,
                 icon: status == 'paid'
-                    ? Icons.check_circle
+                    ? Icons.check_circle_rounded
                     : status == 'partial'
-                        ? Icons.timelapse
-                        : Icons.error_outline,
+                        ? Icons.timelapse_rounded
+                        : Icons.error_outline_rounded,
               ),
             ]),
             subtitle: Padding(
@@ -566,18 +566,18 @@ class _UnitCard extends StatelessWidget {
                   Expanded(
                     child: FilledButton.tonalIcon(
                       onPressed: onRecord,
-                      icon: const Icon(Icons.payments_outlined, size: 18),
+                      icon: const Icon(Icons.payments_rounded, size: 18),
                       label: Text(t.rentRecordPayment),
                     ),
                   ),
                 if (onRecord != null) const SizedBox(width: Gap.sm),
                 IconButton(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: const Icon(Icons.edit_rounded),
                     tooltip: t.edit),
                 IconButton(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: t.delete),
               ]),
             ],
@@ -675,7 +675,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
               onPressed: _addUtil,
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(t.rentAddUtility),
             ),
           ),
@@ -735,7 +735,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
         ),
         IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           onPressed: () => setState(() => _utils.removeAt(i)),
-          icon: const Icon(Icons.close, size: 18),
+          icon: const Icon(Icons.close_rounded, size: 18),
         ),
       ]),
     );
@@ -860,7 +860,7 @@ class _OfflineBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off, size: 16, color: Brand.warning),
+        const Icon(Icons.wifi_off_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,

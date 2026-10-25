@@ -104,18 +104,18 @@ class NearbyPlaceCard extends StatelessWidget {
             IconButton(
               tooltip: favourite ? t.nearbyUnsave : t.nearbySave,
               onPressed: onToggleFav,
-              icon: Icon(favourite ? Icons.star : Icons.star_border,
+              icon: Icon(favourite ? Icons.star_rounded : Icons.star_border_rounded,
                   color: favourite ? Brand.gold : scheme.onSurfaceVariant),
             ),
           ]),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
             if (distanceMeters != null)
-              _chip(Icons.near_me, _dist(t), scheme.primary, scheme),
-            _chip(open == true ? Icons.check_circle : Icons.schedule,
+              _chip(Icons.near_me_rounded, _dist(t), scheme.primary, scheme),
+            _chip(open == true ? Icons.check_circle_rounded : Icons.schedule_rounded,
                 statusText, statusColor, scheme),
             if (place.open24 || place.openMin != null)
-              _chip(Icons.access_time, _hours(t), scheme.onSurfaceVariant, scheme),
+              _chip(Icons.access_time_rounded, _hours(t), scheme.onSurfaceVariant, scheme),
           ]),
           const SizedBox(height: Gap.sm),
           Row(children: [
@@ -123,7 +123,7 @@ class NearbyPlaceCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => openForUser(context, Uri.parse('tel:$phone'), where: 'nearby.call'), // db1
-                  icon: const Icon(Icons.call, size: 18, color: Brand.success),
+                  icon: const Icon(Icons.call_rounded, size: 18, color: Brand.success),
                   label: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(t.nearbyCall, maxLines: 1)),
@@ -134,7 +134,7 @@ class NearbyPlaceCard extends StatelessWidget {
               child: FilledButton.tonalIcon(
                 onPressed: () => openForUser(context, Uri.parse(place.directionsUrl), // db1
                     where: 'nearby.directions', mode: LaunchMode.externalApplication),
-                icon: const Icon(Icons.directions, size: 18),
+                icon: const Icon(Icons.directions_rounded, size: 18),
                 // one line, scaled to fit (large font broke "Direction s")
                 label: FittedBox(
                     fit: BoxFit.scaleDown,

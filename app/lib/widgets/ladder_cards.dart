@@ -41,7 +41,7 @@ class LadderHero extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w800, color: tint)),
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.bolt, size: 18, color: Theme.of(context).colorScheme.primary),
+              Icon(Icons.bolt_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
@@ -75,7 +75,7 @@ class LadderNoMoneyBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.verified_user_outlined, color: cs.onSecondaryContainer),
+        Icon(Icons.verified_user_rounded, color: cs.onSecondaryContainer),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(t.plNoMoneyBanner,
@@ -276,7 +276,7 @@ class LadderDebtCard extends StatelessWidget {
             ] else if (!paid && upcoming != null) ...[
               const SizedBox(height: Gap.sm),
               Row(children: [
-                Icon(Icons.schedule, size: 15, color: cs.onSurfaceVariant),
+                Icon(Icons.schedule_rounded, size: 15, color: cs.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Text(t.plNextIn(fmtInt(context, upcoming!['days_until'] as int)),
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
@@ -287,13 +287,13 @@ class LadderDebtCard extends StatelessWidget {
               if (!paid)
                 TextButton.icon(
                   onPressed: onMarkPaid,
-                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
                   label: Text(t.plMarkPaid),
                 ),
               if (!paid)
                 TextButton.icon(
                   onPressed: onTogglePause,
-                  icon: Icon(paused ? Icons.play_arrow : Icons.snooze, size: 18),
+                  icon: Icon(paused ? Icons.play_arrow_rounded : Icons.snooze_rounded, size: 18),
                   label: Text(paused ? t.plResume : t.plPause),
                 ),
             ]),

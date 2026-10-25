@@ -61,7 +61,7 @@ class _GuideNeedSheet extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(Icons.check_circle_outline, size: 18, color: scheme.secondary),
+                    Icon(Icons.check_circle_outline_rounded, size: 18, color: scheme.secondary),
                     const SizedBox(width: Gap.md),
                     Expanded(child: Text(d, style: const TextStyle(height: 1.35))),
                   ]),
@@ -79,7 +79,7 @@ class _GuideNeedSheet extends StatelessWidget {
 
             const SizedBox(height: Gap.md),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+              Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -97,7 +97,7 @@ class _GuideNeedSheet extends StatelessWidget {
                     Navigator.of(context).pop();
                     onOpenLink(service.url);
                   },
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(tr.guideOfficialSite),
                 ),
               ),
@@ -128,7 +128,7 @@ class _KV extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Row(children: [
-              Icon(Icons.verified_outlined, size: 13, color: scheme.tertiary),
+              Icon(Icons.verified_rounded, size: 13, color: scheme.tertiary),
               const SizedBox(width: 4),
               Flexible(
                 child: Text(verify!,

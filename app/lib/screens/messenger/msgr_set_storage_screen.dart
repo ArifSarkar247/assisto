@@ -80,38 +80,38 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                 MsgrSetSection(t.msgrSetStorageUsageSection),
                 if (_usageAvailable) ...[
                   MsgrSetRow(
-                    icon: Icons.sd_storage_outlined,
+                    icon: Icons.sd_storage_rounded,
                     title: t.msgrSetStorageTotal,
                     value: _mb(_usage['total_bytes']),
                   ),
                   MsgrSetRow(
-                    icon: Icons.photo_outlined,
+                    icon: Icons.photo_rounded,
                     title: t.msgrSetStorageMedia,
                     value: _mb(_usage['media_bytes']),
                   ),
                   MsgrSetRow(
-                    icon: Icons.description_outlined,
+                    icon: Icons.description_rounded,
                     title: t.msgrSetStorageDocs,
                     value: _mb(_usage['docs_bytes']),
                   ),
                   MsgrSetRow(
-                    icon: Icons.backup_outlined,
+                    icon: Icons.backup_rounded,
                     title: t.msgStorageBackups,
                     value: _mb(_usage['backup_bytes']),
                   ),
                   MsgrSetRow(
-                    icon: Icons.data_usage_outlined,
+                    icon: Icons.data_usage_rounded,
                     title: t.msgStorageQuota,
                     value: _mb(_usage['quota_bytes']),
                   ),
                 ] else
                   MsgrSetNote(t.msgrSetStorageUnavailable,
-                      icon: Icons.info_outline),
+                      icon: Icons.info_outline_rounded),
                 // md1: My Circle chats carry E2E photos / voice / documents.
                 MsgrSetSection(t.md1SetAutoTitle),
                 SwitchListTile(
                   key: const Key('md1-auto-wifi'),
-                  secondary: const Icon(Icons.wifi),
+                  secondary: const Icon(Icons.wifi_rounded),
                   title: Text(t.md1SetWifi),
                   subtitle: Text(t.md1SetWifiSub),
                   value: _wifi,
@@ -122,10 +122,10 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                 ),
                 MsgrSetSection(t.md1SetMobileTitle),
                 for (final (k, icon, label) in [
-                  ('photo', Icons.photo_outlined, t.md1SetMobilePhotos),
-                  ('voice', Icons.mic_none_outlined, t.md1SetMobileVoice),
-                  ('document', Icons.description_outlined, t.md1SetMobileDocs),
-                  ('video', Icons.videocam_outlined, t.mc2SetMobileVideo), // mc-media2
+                  ('photo', Icons.photo_rounded, t.md1SetMobilePhotos),
+                  ('voice', Icons.mic_none_rounded, t.md1SetMobileVoice),
+                  ('document', Icons.description_rounded, t.md1SetMobileDocs),
+                  ('video', Icons.videocam_rounded, t.mc2SetMobileVideo), // mc-media2
                 ])
                   SwitchListTile(
                     key: Key('md1-auto-mobile-$k'),
@@ -137,7 +137,7 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                       await MediaPrefs.setMobileAuto(k, v);
                     },
                   ),
-                MsgrSetNote(t.md1SetKeepNote, icon: Icons.lock_outline),
+                MsgrSetNote(t.md1SetKeepNote, icon: Icons.lock_outline_rounded),
               ],
             ),
     );

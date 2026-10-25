@@ -53,14 +53,14 @@ class CircleAttachGrid extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     (IconData, String) look(CircleAttachKind k) => switch (k) {
-          CircleAttachKind.gallery => (Icons.photo_library_outlined, t.circleAttachGallery),
-          CircleAttachKind.camera => (Icons.photo_camera_outlined, t.circleAttachCamera),
-          CircleAttachKind.voice => (Icons.mic_none_outlined, t.circleVoiceNote),
-          CircleAttachKind.video => (Icons.videocam_outlined, t.circleVideo),
-          CircleAttachKind.document => (Icons.insert_drive_file_outlined, t.circleAttachDocument),
-          CircleAttachKind.contact => (Icons.contact_page_outlined, t.circleAttachContact),
-          CircleAttachKind.location => (Icons.location_on_outlined, t.circleAttachLocation),
-          CircleAttachKind.liveLocation => (Icons.my_location_outlined, t.circleAttachLiveLocation),
+          CircleAttachKind.gallery => (Icons.photo_library_rounded, t.circleAttachGallery),
+          CircleAttachKind.camera => (Icons.photo_camera_rounded, t.circleAttachCamera),
+          CircleAttachKind.voice => (Icons.mic_none_rounded, t.circleVoiceNote),
+          CircleAttachKind.video => (Icons.videocam_rounded, t.circleVideo),
+          CircleAttachKind.document => (Icons.insert_drive_file_rounded, t.circleAttachDocument),
+          CircleAttachKind.contact => (Icons.contact_page_rounded, t.circleAttachContact),
+          CircleAttachKind.location => (Icons.location_on_rounded, t.circleAttachLocation),
+          CircleAttachKind.liveLocation => (Icons.my_location_rounded, t.circleAttachLiveLocation),
         };
 
     Widget cell(CircleAttachKind kind) {
@@ -119,17 +119,17 @@ Future<String?> showLiveLocationDurations(BuildContext context) {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: const Icon(Icons.timer_outlined),
+            leading: const Icon(Icons.timer_rounded),
             title: Text(t.circleLive15m),
             onTap: () => Navigator.pop(ctx, '15m'),
           ),
           ListTile(
-            leading: const Icon(Icons.timer_outlined),
+            leading: const Icon(Icons.timer_rounded),
             title: Text(t.circleLive1h),
             onTap: () => Navigator.pop(ctx, '1h'),
           ),
           ListTile(
-            leading: const Icon(Icons.timer_outlined),
+            leading: const Icon(Icons.timer_rounded),
             title: Text(t.circleLive8h),
             onTap: () => Navigator.pop(ctx, '8h'),
           ),

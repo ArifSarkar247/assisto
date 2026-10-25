@@ -323,7 +323,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         actions: [
           IconButton(
             tooltip: _t.communityMembersTitle,
-            icon: const Icon(Icons.people_outline),
+            icon: const Icon(Icons.people_outline_rounded),
             onPressed: _openMembers,
           ),
           PopupMenuButton<String>(
@@ -429,7 +429,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   Widget _requestRow(Map<String, dynamic> req) {
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.person_add_alt_1_outlined)),
+      leading: const CircleAvatar(child: Icon(Icons.person_add_alt_1_rounded)),
       title: Text('${req['requester_name'] ?? ''}'),
       subtitle: Text(_t.communityWantsToJoin('${req['group_name'] ?? ''}')),
       trailing: Row(
@@ -437,13 +437,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         children: [
           IconButton(
             tooltip: _t.communityApprove,
-            icon: const Icon(Icons.check_circle_outline),
+            icon: const Icon(Icons.check_circle_outline_rounded),
             color: Brand.success,
             onPressed: () => _approve(req),
           ),
           IconButton(
             tooltip: _t.communityReject,
-            icon: const Icon(Icons.cancel_outlined),
+            icon: const Icon(Icons.cancel_rounded),
             color: Brand.danger,
             onPressed: () => _reject(req),
           ),
@@ -465,7 +465,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.campaign_outlined,
+                Icon(Icons.campaign_rounded,
                     size: 13, color: Theme.of(context).colorScheme.tertiary),
                 const SizedBox(width: 4),
                 Text(_t.communityAdminsPostOnly,
@@ -516,7 +516,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_off_outlined,
+                  Icon(Icons.cloud_off_rounded,
                       size: 56, color: scheme.onSurfaceVariant),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
@@ -525,7 +525,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   const SizedBox(height: Gap.lg),
                   FilledButton.icon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(_t.retry),
                   ),
                 ],

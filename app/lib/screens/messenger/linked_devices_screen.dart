@@ -101,7 +101,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                   color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
-                child: Icon(Icons.qr_code_2,
+                child: Icon(Icons.qr_code_2_rounded,
                     size: 160, color: scheme.onSurface),
               ),
               const SizedBox(height: Gap.md),
@@ -168,7 +168,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
               Material(
                 color: Theme.of(context).colorScheme.surface,
                 child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.qr_code_2)),
+                  leading: const CircleAvatar(child: Icon(Icons.qr_code_2_rounded)),
                   title: Text(t.msgrLinkDevice),
                   subtitle: Text(t.msgrLinkScanHint,
                       maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -177,7 +177,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.chevron_right),
+                      : const Icon(Icons.chevron_right_rounded),
                   onTap: _linkBusy ? null : _startLink,
                 ),
               ),
@@ -206,7 +206,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     final name = '${d['name'] ?? d['platform'] ?? ''}';
     final last = '${d['last_active'] ?? d['linked_at'] ?? ''}';
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.devices_outlined)),
+      leading: const CircleAvatar(child: Icon(Icons.devices_rounded)),
       title: Text(name.isEmpty ? '?' : name,
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: last.isEmpty
@@ -221,19 +221,19 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   }
 
   Widget _empty() => _centeredState(
-      Icons.devices_outlined, _t.msgrLinkedEmptyTitle, _t.msgrLinkedEmptyBody);
+      Icons.devices_rounded, _t.msgrLinkedEmptyTitle, _t.msgrLinkedEmptyBody);
 
   Widget _error() {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 80),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
           serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.msgrRetry),
         ),
       ),

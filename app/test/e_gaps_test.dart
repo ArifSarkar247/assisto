@@ -292,8 +292,8 @@ void main() {
       expect(await ViewOnceStore.instance.isOpened('501'), isTrue);
       expect(await ViewOnceStore.instance.owed(), 0);
       // no save / share / forward in the viewer
-      expect(find.byIcon(Icons.share_outlined), findsNothing);
-      expect(find.byIcon(Icons.save_alt_outlined), findsNothing);
+      expect(find.byIcon(Icons.share_rounded), findsNothing);
+      expect(find.byIcon(Icons.save_alt_rounded), findsNothing);
       await tester.tap(find.byKey(const Key('e-vo-close')));
       await tester.pumpAndSettle();
       late bool doneOk;

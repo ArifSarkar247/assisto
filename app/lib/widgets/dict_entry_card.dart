@@ -86,7 +86,7 @@ class _DictEntryCardState extends State<DictEntryCard> {
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
-              child: Icon(Icons.swap_horiz, size: 18),
+              child: Icon(Icons.swap_horiz_rounded, size: 18),
             ),
             Expanded(
               child: Text(e.en,
@@ -104,7 +104,7 @@ class _DictEntryCardState extends State<DictEntryCard> {
                   label: '/${e.ipa}/',
                   color: cs.secondary,
                   tooltip: t.dictPronunciationNote,
-                  icon: Icons.volume_up_outlined,
+                  icon: Icons.volume_up_rounded,
                 ),
             ]),
           ],
@@ -126,18 +126,18 @@ class _DictEntryCardState extends State<DictEntryCard> {
             IconButton(
               tooltip: _saved ? t.dictRemoveSaved : t.dictSave,
               onPressed: () => _toggleSave(t),
-              icon: Icon(_saved ? Icons.star : Icons.star_border,
+              icon: Icon(_saved ? Icons.star_rounded : Icons.star_border_rounded,
                   color: _saved ? Brand.warning : null),
             ),
             IconButton(
               tooltip: t.dictCopy,
               onPressed: () => _copy(t),
-              icon: const Icon(Icons.copy_outlined),
+              icon: const Icon(Icons.copy_rounded),
             ),
             IconButton(
               tooltip: t.dictShare,
               onPressed: () => _share(t),
-              icon: const Icon(Icons.share_outlined),
+              icon: const Icon(Icons.share_rounded),
             ),
           ]),
         ]),

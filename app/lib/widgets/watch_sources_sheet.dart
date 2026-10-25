@@ -28,21 +28,21 @@ String watchSourceLabel(AppLocalizations t, WatchSource s) {
 IconData watchSourceIcon(WatchSource s) {
   switch (s) {
     case WatchSource.reminders:
-      return Icons.alarm_outlined;
+      return Icons.alarm_rounded;
     case WatchSource.medicine:
-      return Icons.medication_outlined;
+      return Icons.medication_rounded;
     case WatchSource.money:
-      return Icons.account_balance_wallet_outlined;
+      return Icons.account_balance_wallet_rounded;
     case WatchSource.subscriptions:
-      return Icons.autorenew_outlined;
+      return Icons.autorenew_rounded;
     case WatchSource.birthdays:
-      return Icons.cake_outlined;
+      return Icons.cake_rounded;
     case WatchSource.safety:
-      return Icons.directions_walk_outlined;
+      return Icons.directions_walk_rounded;
     case WatchSource.family:
-      return Icons.family_restroom_outlined;
+      return Icons.family_restroom_rounded;
     case WatchSource.watchers:
-      return Icons.trending_up_outlined;
+      return Icons.trending_up_rounded;
   }
 }
 

@@ -148,7 +148,7 @@ class _InviteComposerState extends State<_InviteComposer> {
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 labelText: t.circlePhoneLabel,
-                prefixIcon: const Icon(Icons.phone_outlined),
+                prefixIcon: const Icon(Icons.phone_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -162,12 +162,12 @@ class _InviteComposerState extends State<_InviteComposer> {
               decoration: InputDecoration(
                 labelText: t.circleRequestNoteLabel,
                 hintText: t.circleRequestNoteHint,
-                prefixIcon: const Icon(Icons.edit_note_outlined),
+                prefixIcon: const Icon(Icons.edit_note_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
             FilledButton.icon(
-              icon: const Icon(Icons.send_outlined),
+              icon: const Icon(Icons.send_rounded),
               label: Text(t.circleSendRequest),
               onPressed: _ready && _phone.text.trim().isNotEmpty ? () => _emit('phone') : null,
             ),
@@ -176,7 +176,7 @@ class _InviteComposerState extends State<_InviteComposer> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.qr_code_2_outlined),
+                    icon: const Icon(Icons.qr_code_2_rounded),
                     label: Text(t.circleQrInvite),
                     onPressed: _ready ? () => _emit('qr') : null,
                   ),
@@ -184,7 +184,7 @@ class _InviteComposerState extends State<_InviteComposer> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.share_outlined),
+                    icon: const Icon(Icons.share_rounded),
                     label: Text(t.circleShareLink),
                     onPressed: _ready ? () => _emit('link') : null,
                   ),
@@ -252,7 +252,7 @@ Future<void> showCircleInviteLink(
       actions: [
         if (value != null)
           TextButton.icon(
-            icon: const Icon(Icons.copy_outlined),
+            icon: const Icon(Icons.copy_rounded),
             label: Text(t.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: value));

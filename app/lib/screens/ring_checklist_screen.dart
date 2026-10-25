@@ -116,7 +116,7 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(allOk ? Icons.check_circle : Icons.ring_volume_rounded,
+                Icon(allOk ? Icons.check_circle_rounded : Icons.ring_volume_rounded,
                     color: allOk
                         ? scheme.onPrimaryContainer
                         : scheme.onTertiaryContainer),
@@ -204,9 +204,9 @@ class _RowCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final note = AType.bodySmall.copyWith(color: scheme.onSurfaceVariant);
     final (IconData icon, Color color, String label) = switch (row.state) {
-      RingCheckState.ok => (Icons.check_circle, scheme.primary, t.ringCheckStatusOk),
-      RingCheckState.missing => (Icons.error, scheme.error, t.ringCheckStatusMissing),
-      RingCheckState.check => (Icons.help, scheme.tertiary, t.ringCheckStatusCheck),
+      RingCheckState.ok => (Icons.check_circle_rounded, scheme.primary, t.ringCheckStatusOk),
+      RingCheckState.missing => (Icons.error_rounded, scheme.error, t.ringCheckStatusMissing),
+      RingCheckState.check => (Icons.help_rounded, scheme.tertiary, t.ringCheckStatusCheck),
     };
     // a confirmed by-hand step keeps its "Not done" undo
     final confirmable = row.id == RingCheckId.oemStep &&
@@ -257,7 +257,7 @@ class _RowCard extends StatelessWidget {
                     OutlinedButton.icon(
                       key: Key('ring-confirm-${row.key}'),
                       onPressed: () => onConfirm(true),
-                      icon: const Icon(Icons.check, size: 18),
+                      icon: const Icon(Icons.check_rounded, size: 18),
                       label: Text(t.ringCheckMarkDone),
                     ),
                 ]),

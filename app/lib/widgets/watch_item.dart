@@ -117,10 +117,10 @@ List<WatchSource> watchSourcesAvailable() => [
     WatchSeverity s, ColorScheme scheme) {
   switch (s) {
     case WatchSeverity.high:
-      return (icon: Icons.priority_high, tint: Brand.danger);
+      return (icon: Icons.priority_high_rounded, tint: Brand.danger);
     case WatchSeverity.med:
-      return (icon: Icons.notifications_active_outlined, tint: Brand.warning);
+      return (icon: Icons.notifications_active_rounded, tint: Brand.warning);
     case WatchSeverity.low:
-      return (icon: Icons.info_outline, tint: scheme.primary);
+      return (icon: Icons.info_outline_rounded, tint: scheme.primary);
   }
 }

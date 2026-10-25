@@ -130,7 +130,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
               gradient: const LinearGradient(colors: [Brand.cyan, Brand.blue, Brand.purple]),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.hub_outlined, size: 38, color: Colors.white),
+            child: const Icon(Icons.hub_rounded, size: 38, color: Colors.white),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -147,8 +147,8 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         SegmentedButton<bool>(
           segments: [
             // qa1: the full bn label wrapped to two lines inside the segment
-            ButtonSegment(value: false, label: Text(t.qa1CrmStartShort), icon: const Icon(Icons.rocket_launch_outlined)),
-            ButtonSegment(value: true, label: Text(t.crmJoinTeam), icon: const Icon(Icons.group_add_outlined)),
+            ButtonSegment(value: false, label: Text(t.qa1CrmStartShort), icon: const Icon(Icons.rocket_launch_rounded)),
+            ButtonSegment(value: true, label: Text(t.crmJoinTeam), icon: const Icon(Icons.group_add_rounded)),
           ],
           selected: {_joinMode},
           onSelectionChanged: (s) => setState(() {
@@ -178,7 +178,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.error_outline, color: scheme.error, size: 20),
+        Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -203,7 +203,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           labelText: t.crmCompanyName,
-          prefixIcon: const Icon(Icons.business_outlined),
+          prefixIcon: const Icon(Icons.business_rounded),
           border: const OutlineInputBorder(),
         ),
       ),
@@ -234,7 +234,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         onPressed: _busy ? null : () => _start(t),
         icon: _busy
             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.rocket_launch_outlined),
+            : const Icon(Icons.rocket_launch_rounded),
         label: Text(t.crmCreateOrg),
       ),
     ]);
@@ -251,7 +251,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         decoration: InputDecoration(
           labelText: t.crmInviteCode,
           hintText: 'ABCD2345',
-          prefixIcon: const Icon(Icons.vpn_key_outlined),
+          prefixIcon: const Icon(Icons.vpn_key_rounded),
           border: const OutlineInputBorder(),
         ),
       ),
@@ -260,7 +260,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         onPressed: _busy ? null : () => _join(t),
         icon: _busy
             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.group_add_outlined),
+            : const Icon(Icons.group_add_rounded),
         label: Text(t.crmJoinTeam),
       ),
     ]);

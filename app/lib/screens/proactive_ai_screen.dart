@@ -257,7 +257,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Icon(Icons.help_outline, color: Brand.blue),
+              Icon(Icons.help_outline_rounded, color: Brand.blue),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(tr.proWhyTitle,
@@ -292,13 +292,13 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.proTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.proLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -312,7 +312,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
           onRefresh: _load,
           child: ListView(children: [
             StateMessage(
-              icon: Icons.check_circle_outline,
+              icon: Icons.check_circle_outline_rounded,
               tint: Brand.success,
               title: tr.proEmptyTitle,
               message: digest.dismissedCount > 0
@@ -334,7 +334,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
         actions: [
           IconButton(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               tooltip: tr.retry),
         ],
       ),
@@ -389,9 +389,9 @@ class _GroupHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final (label, color, icon) = switch (urgency) {
-      'now' => (tr.proUrgNow, Brand.danger, Icons.priority_high),
-      'soon' => (tr.proUrgSoon, Brand.warning, Icons.schedule),
-      _ => (tr.proUrgFyi, Brand.blue, Icons.lightbulb_outline),
+      'now' => (tr.proUrgNow, Brand.danger, Icons.priority_high_rounded),
+      'soon' => (tr.proUrgSoon, Brand.warning, Icons.schedule_rounded),
+      _ => (tr.proUrgFyi, Brand.blue, Icons.lightbulb_outline_rounded),
     };
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, Gap.xs, Gap.xs),
@@ -462,7 +462,7 @@ class _NudgeCard extends StatelessWidget {
             ),
             IconButton(
               onPressed: onDismiss,
-              icon: const Icon(Icons.close, size: 20),
+              icon: const Icon(Icons.close_rounded, size: 20),
               tooltip: tr.proDismiss,
               visualDensity: VisualDensity.compact,
             ),
@@ -470,7 +470,7 @@ class _NudgeCard extends StatelessWidget {
           Row(children: [
             TextButton.icon(
               onPressed: onWhy,
-              icon: const Icon(Icons.help_outline, size: 16),
+              icon: const Icon(Icons.help_outline_rounded, size: 16),
               label: Text(tr.proWhy),
               style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
@@ -512,7 +512,7 @@ class _HonestNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.proHonestNote,
@@ -723,23 +723,23 @@ class _Pro {
     switch (kind) {
       case 'bill_due':
       case 'loan_due':
-        return Icons.receipt_long_outlined;
+        return Icons.receipt_long_rounded;
       case 'subscription':
-        return Icons.autorenew;
+        return Icons.autorenew_rounded;
       case 'birthday':
-        return Icons.cake_outlined;
+        return Icons.cake_rounded;
       case 'refill':
-        return Icons.medication_outlined;
+        return Icons.medication_rounded;
       case 'expense_gap':
-        return Icons.account_balance_wallet_outlined;
+        return Icons.account_balance_wallet_rounded;
       case 'family_alert':
-        return Icons.family_restroom;
+        return Icons.family_restroom_rounded;
       case 'safe_journey':
-        return Icons.directions_walk;
+        return Icons.directions_walk_rounded;
       case 'reminder':
-        return Icons.alarm;
+        return Icons.alarm_rounded;
       default:
-        return Icons.notifications_none;
+        return Icons.notifications_none_rounded;
     }
   }
 }

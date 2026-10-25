@@ -19,7 +19,7 @@ class HtipsSeasonal extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Icon(Icons.wb_sunny_outlined, size: 18, color: scheme.primary),
+        Icon(Icons.wb_sunny_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.xs),
         Text(t.htipsSeasonalTitle,
             style: Theme.of(context).textTheme.titleSmall),
@@ -66,7 +66,7 @@ class _SeasonalCard extends StatelessWidget {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Icon(Icons.campaign_outlined, size: 18, color: scheme.onPrimaryContainer),
+                Icon(Icons.campaign_rounded, size: 18, color: scheme.onPrimaryContainer),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(title,

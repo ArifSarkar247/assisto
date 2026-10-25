@@ -177,12 +177,12 @@ class _PendingTabState extends State<_PendingTab> {
                 onOpenAutonomy: () => _openAutonomy(context),
               ),
               _emptyState(context,
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.actionErrorTitle,
                   body: t.loadFailedBody,
                   action: FilledButton.tonalIcon(
                     onPressed: _reload,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(t.retry),
                   )),
             ]);
@@ -196,7 +196,7 @@ class _PendingTabState extends State<_PendingTab> {
               ),
               if (items.isEmpty)
                 _emptyState(context,
-                    icon: Icons.inbox_outlined,
+                    icon: Icons.inbox_rounded,
                     title: t.actionPendingEmptyTitle,
                     body: t.actionPendingEmptyBody)
               else
@@ -270,12 +270,12 @@ class _DoneTabState extends State<_DoneTab> {
                 onOpenAutonomy: () => _openAutonomy(context),
               ),
               _emptyState(context,
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.actionErrorTitle,
                   body: t.loadFailedBody,
                   action: FilledButton.tonalIcon(
                     onPressed: _reload,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(t.retry),
                   )),
             ]);
@@ -298,7 +298,7 @@ class _DoneTabState extends State<_DoneTab> {
               ),
               if (all.isEmpty)
                 _emptyState(context,
-                    icon: Icons.history,
+                    icon: Icons.history_rounded,
                     title: t.actionDoneEmptyTitle,
                     body: t.actionDoneEmptyBody)
               else ...[
@@ -309,7 +309,7 @@ class _DoneTabState extends State<_DoneTab> {
                 ),
                 if (items.isEmpty)
                   _emptyState(context,
-                      icon: Icons.filter_alt_off_outlined,
+                      icon: Icons.filter_alt_off_rounded,
                       title: t.actionFilterEmptyTitle,
                       body: t.actionFilterEmptyBody)
                 else

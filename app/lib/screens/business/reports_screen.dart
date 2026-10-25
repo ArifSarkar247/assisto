@@ -83,7 +83,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           IconButton(
             key: const ValueKey('q1-report-share'),
             tooltip: t.share,
-            icon: const Icon(Icons.ios_share),
+            icon: const Icon(Icons.ios_share_rounded),
             onPressed: _export,
           ),
         ],
@@ -115,13 +115,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
@@ -136,10 +136,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
           _byPayment(t, scheme, d),
           const SizedBox(height: Gap.lg),
           _topList(t, scheme, t.biz_report_top_products,
-              (d['top_products'] ?? []) as List, Icons.inventory_2_outlined),
+              (d['top_products'] ?? []) as List, Icons.inventory_2_rounded),
           const SizedBox(height: Gap.lg),
           _topList(t, scheme, t.biz_report_top_customers,
-              (d['top_customers'] ?? []) as List, Icons.person_outline),
+              (d['top_customers'] ?? []) as List, Icons.person_outline_rounded),
           const SizedBox(height: Gap.xl),
         ],
       ),

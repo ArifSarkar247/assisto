@@ -175,7 +175,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Icon(_hasDuress ? Icons.lock : Icons.lock_open,
+          leading: Icon(_hasDuress ? Icons.lock_rounded : Icons.lock_open_rounded,
               color: _hasDuress ? Colors.green : Colors.grey),
           title: Text(_hasDuress ? t.duressConfigured : t.duressNotSet),
           subtitle: Text(t.duressSubtitle),

@@ -25,7 +25,7 @@ class HealthTipCard extends StatelessWidget {
           if (sourceName.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Row(children: [
-              Icon(Icons.verified_outlined, size: 14, color: scheme.secondary),
+              Icon(Icons.verified_rounded, size: 14, color: scheme.secondary),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.healthTipSourceLine(sourceName),

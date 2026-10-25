@@ -156,7 +156,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             color: Colors.white,
                             tooltip: s.playing ? t.md1Pause : t.md1Play,
                             onPressed: () => _toggle(s),
-                            icon: Icon(s.playing ? Icons.pause : Icons.play_arrow),
+                            icon: Icon(s.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
                           ),
                         ),
                       ),
@@ -195,7 +195,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 color: Colors.white,
                                 tooltip: s.muted ? t.mc2Unmute : t.mc2Mute,
                                 onPressed: () => c.setMuted(!s.muted),
-                                icon: Icon(s.muted ? Icons.volume_off : Icons.volume_up),
+                                icon: Icon(s.muted ? Icons.volume_off_rounded : Icons.volume_up_rounded),
                               ),
                             ]),
                           ),
@@ -222,7 +222,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.videocam_off_outlined, color: Colors.white70, size: 48),
+            const Icon(Icons.videocam_off_rounded, color: Colors.white70, size: 48),
             const SizedBox(height: Gap.md),
             Text(t.mc2VideoFailed,
                 textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
@@ -230,7 +230,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             FilledButton.icon(
               key: const Key('mc2-video-open-with'),
               onPressed: _openElsewhere,
-              icon: const Icon(Icons.open_in_new),
+              icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.mc2OpenWith),
             ),
           ]),

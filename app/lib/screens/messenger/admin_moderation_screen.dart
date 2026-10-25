@@ -113,9 +113,9 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
       selected: _sort,
       options: [
         AdminChoice('severity', t.msgrModSortSeverity,
-            icon: Icons.priority_high),
-        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_outlined),
-        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule),
+            icon: Icons.priority_high_rounded),
+        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_rounded),
+        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule_rounded),
       ],
     );
     if (v != null && v != _sort) setState(() => _sort = v);
@@ -168,11 +168,11 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
             choices: [
               AdminChoice('all', t.msgrModFilterAll),
               AdminChoice('severe', t.msgrModFilterSevere,
-                  icon: Icons.priority_high),
+                  icon: Icons.priority_high_rounded),
               AdminChoice('legal', t.msgrModFilterLegal,
-                  icon: Icons.account_balance_outlined),
+                  icon: Icons.account_balance_rounded),
               AdminChoice('appeals', t.msgrModFilterAppeals,
-                  icon: Icons.gavel_outlined),
+                  icon: Icons.gavel_rounded),
             ],
           ),
           if (_status == _Status.ok)
@@ -187,13 +187,13 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
             child: switch (_status) {
               _Status.loading => const SkeletonList(count: 6),
               _Status.adminsOnly => StateMessage(
-                  icon: Icons.admin_panel_settings_outlined,
+                  icon: Icons.admin_panel_settings_rounded,
                   title: t.msgrModAdminsOnlyTitle,
                   message: t.msgrModAdminsOnlyBody,
                   tint: Theme.of(context).colorScheme.tertiary,
                 ),
               _Status.error => StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
@@ -207,7 +207,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.55,
                           child: StateMessage(
-                            icon: Icons.inbox_outlined,
+                            icon: Icons.inbox_rounded,
                             title: t.msgrModQueueEmptyTitle,
                             message: t.msgrModQueueEmptyBody,
                           ),
@@ -221,7 +221,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                         children: [
                           if (_sort == 'severity' && severe.isNotEmpty) ...[
                             _GroupHeader(
-                              icon: Icons.gpp_maybe,
+                              icon: Icons.gpp_maybe_rounded,
                               color: Brand.danger,
                               label: t.msgrModGroupSevere,
                             ),
@@ -232,7 +232,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                             ],
                             if (rest.isNotEmpty) ...[
                               _GroupHeader(
-                                icon: Icons.flag_outlined,
+                                icon: Icons.flag_rounded,
                                 color:
                                     Theme.of(context).colorScheme.onSurfaceVariant,
                                 label: t.msgrModGroupOther,
@@ -447,35 +447,35 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                     spacing: Gap.sm,
                     runSpacing: Gap.sm,
                     children: [
-                      _actionBtn(Icons.visibility_off_outlined,
+                      _actionBtn(Icons.visibility_off_rounded,
                           t.msgrModActionRemove, Brand.danger, () {
                         _act('remove', t.msgrModActionRemove,
                             t.msgrModActionRemoveDesc,
                             destructive: true);
                       }),
-                      _actionBtn(Icons.restore_outlined,
+                      _actionBtn(Icons.restore_rounded,
                           t.msgrModActionRestore, Brand.success, () {
                         _act('restore', t.msgrModActionRestore,
                             t.msgrModActionRestoreDesc);
                       }),
-                      _actionBtn(Icons.warning_amber_outlined,
+                      _actionBtn(Icons.warning_amber_rounded,
                           t.msgrModActionWarn, Brand.warning, () {
                         _act('warn', t.msgrModActionWarn,
                             t.msgrModActionWarnDesc);
                       }),
-                      _actionBtn(Icons.pause_circle_outline,
+                      _actionBtn(Icons.pause_circle_outline_rounded,
                           t.msgrModActionSuspend, Brand.warning, () {
                         _act('suspend', t.msgrModActionSuspend,
                             t.msgrModActionSuspendDesc,
                             destructive: true);
                       }),
-                      _actionBtn(Icons.block, t.msgrModActionBan, Brand.danger,
+                      _actionBtn(Icons.block_rounded, t.msgrModActionBan, Brand.danger,
                           () {
                         _act('ban', t.msgrModActionBan, t.msgrModActionBanDesc,
                             destructive: true);
                       }),
                       if (resolved || underAppeal)
-                        _actionBtn(Icons.refresh, t.msgrModReopen,
+                        _actionBtn(Icons.refresh_rounded, t.msgrModReopen,
                             scheme.primary, _reopen),
                     ],
                   ),
@@ -495,7 +495,7 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                             .titleMedium
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(width: Gap.sm),
-                    Icon(Icons.lock_clock_outlined,
+                    Icon(Icons.lock_clock_rounded,
                         size: 16, color: scheme.onSurfaceVariant),
                   ]),
                   const SizedBox(height: Gap.xs),
@@ -551,7 +551,7 @@ class _AppealBanner extends StatelessWidget {
         border: Border.all(color: scheme.tertiary.withValues(alpha: 0.4)),
       ),
       child: Row(children: [
-        Icon(Icons.gavel_outlined, size: 18, color: scheme.tertiary),
+        Icon(Icons.gavel_rounded, size: 18, color: scheme.tertiary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(
@@ -610,25 +610,25 @@ class _QueueCard extends StatelessWidget {
         return (
           label: t.msgrModStatusHidden,
           color: Brand.warning,
-          icon: Icons.visibility_off_outlined
+          icon: Icons.visibility_off_rounded
         );
       case 'removed':
         return (
           label: t.msgrModStatusRemoved,
           color: Brand.danger,
-          icon: Icons.delete_outline
+          icon: Icons.delete_outline_rounded
         );
       case 'restored':
         return (
           label: t.msgrModStatusRestored,
           color: Brand.success,
-          icon: Icons.restore_outlined
+          icon: Icons.restore_rounded
         );
       default:
         return (
           label: t.msgrModStatusVisible,
           color: scheme.primary,
-          icon: Icons.visibility_outlined
+          icon: Icons.visibility_rounded
         );
     }
   }
@@ -665,7 +665,7 @@ class _QueueCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                severe ? Icons.gpp_maybe : Icons.flag_outlined,
+                severe ? Icons.gpp_maybe_rounded : Icons.flag_rounded,
                 color: severe ? Brand.danger : scheme.primary,
                 size: 20,
               ),
@@ -680,7 +680,7 @@ class _QueueCard extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
             ],
           ),
           const SizedBox(height: Gap.sm),
@@ -695,16 +695,16 @@ class _QueueCard extends StatelessWidget {
                 MsgrModStatusPill(
                     label: t.msgrModSevereBadge,
                     color: Brand.danger,
-                    icon: Icons.priority_high),
+                    icon: Icons.priority_high_rounded),
               if (legal)
                 MsgrModStatusPill(
                     label: t.msgrModLegalBadge,
                     color: Brand.purple,
-                    icon: Icons.account_balance_outlined),
+                    icon: Icons.account_balance_rounded),
               MsgrModStatusPill(
                 label: t.msgrModReportsCount(_digits(reports.toString(), loc)),
                 color: scheme.onSurfaceVariant,
-                icon: Icons.flag_outlined,
+                icon: Icons.flag_rounded,
               ),
             ],
           ),
@@ -779,20 +779,20 @@ class _AuditTimeline extends StatelessWidget {
     switch (action) {
       case 'remove':
       case 'ban':
-        return (icon: Icons.block, color: Brand.danger);
+        return (icon: Icons.block_rounded, color: Brand.danger);
       case 'restore':
-        return (icon: Icons.restore_outlined, color: Brand.success);
+        return (icon: Icons.restore_rounded, color: Brand.success);
       case 'warn':
       case 'suspend':
-        return (icon: Icons.warning_amber_outlined, color: Brand.warning);
+        return (icon: Icons.warning_amber_rounded, color: Brand.warning);
       case 'appeal':
-        return (icon: Icons.gavel_outlined, color: scheme.tertiary);
+        return (icon: Icons.gavel_rounded, color: scheme.tertiary);
       case 'reopen':
-        return (icon: Icons.refresh, color: scheme.primary);
+        return (icon: Icons.refresh_rounded, color: scheme.primary);
       case 'report':
-        return (icon: Icons.flag_outlined, color: scheme.onSurfaceVariant);
+        return (icon: Icons.flag_rounded, color: scheme.onSurfaceVariant);
       default:
-        return (icon: Icons.circle, color: scheme.primary);
+        return (icon: Icons.circle_rounded, color: scheme.primary);
     }
   }
 }

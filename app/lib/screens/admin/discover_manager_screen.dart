@@ -182,11 +182,11 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
           if (_st == _St.ok) ...[
             IconButton(
                 tooltip: t.discoverMgrPreview,
-                icon: const Icon(Icons.visibility_outlined),
+                icon: const Icon(Icons.visibility_rounded),
                 onPressed: _preview),
             IconButton(
                 tooltip: t.refresh,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 onPressed: _load),
           ],
         ],
@@ -194,27 +194,27 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
       floatingActionButton: _st == _St.ok
           ? FloatingActionButton.extended(
               onPressed: () => _edit(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.discoverMgrAdd),
             )
           : null,
       body: switch (_st) {
         _St.loading => const SkeletonList(),
         _St.ownerOnly => StateMessage(
-            icon: Icons.admin_panel_settings_outlined,
+            icon: Icons.admin_panel_settings_rounded,
             title: t.pnlOwnerOnlyTitle,
             message: t.discoverMgrOwnerOnly,
             tint: Brand.warning,
           ),
         _St.error => StateMessage(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.loadFailed,
             message:
                 honestFailText(t, _failCause, otherwise: t.loadFailedBody),
             tint: Brand.danger,
             action: FilledButton.icon(
                 onPressed: _load,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.retry)),
           ),
         _St.ok => _list(t),
@@ -226,7 +226,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_cards.isEmpty) {
       return StateMessage(
-          icon: Icons.view_carousel_outlined, title: t.discoverMgrEmpty);
+          icon: Icons.view_carousel_rounded, title: t.discoverMgrEmpty);
     }
     return ReorderableListView.builder(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
@@ -306,7 +306,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                   index: i,
                   child: const Padding(
                     padding: EdgeInsets.all(Gap.xs),
-                    child: Icon(Icons.drag_handle),
+                    child: Icon(Icons.drag_handle_rounded),
                   ),
                 ),
               ]),
@@ -643,7 +643,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
             if (!isNew)
               IconButton(
                 tooltip: t.discoverMgrReport,
-                icon: const Icon(Icons.insights_outlined),
+                icon: const Icon(Icons.insights_rounded),
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -701,11 +701,11 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                 segments: [
                   ButtonSegment(
                       value: false,
-                      icon: const Icon(Icons.apps_outlined),
+                      icon: const Icon(Icons.apps_rounded),
                       label: Text(t.qa2DiscoverActionRoute)),
                   ButtonSegment(
                       value: true,
-                      icon: const Icon(Icons.language_outlined),
+                      icon: const Icon(Icons.language_rounded),
                       label: Text(t.qa2DiscoverActionUrl)),
                 ],
                 selected: {_useUrl},
@@ -740,7 +740,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                       child: Semantics(
                         label: name.replaceAll('_', ' '),
                         child: Icon(
-                            kDiscoverIcons[name] ?? Icons.auto_awesome_outlined,
+                            kDiscoverIcons[name] ?? Icons.auto_awesome_rounded,
                             size: 24),
                       ),
                     ),
@@ -751,7 +751,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 OutlinedButton.icon(
                   onPressed: _pickImage,
-                  icon: const Icon(Icons.image_outlined),
+                  icon: const Icon(Icons.image_rounded),
                   label: Text(t.discoverMgrImagePick),
                 ),
                 if ('${_card?['image_url'] ?? ''}'.isNotEmpty)
@@ -817,7 +817,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.check),
+                  : const Icon(Icons.check_rounded),
               label: Text(t.save),
             ),
           ],
@@ -851,7 +851,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
         (!startOfDay && value != null) ? value.subtract(const Duration(seconds: 1)) : value;
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.event_outlined),
+      leading: const Icon(Icons.event_rounded),
       title: Text(label),
       subtitle: Text(_fmt(shown)),
       trailing: value == null
@@ -953,14 +953,14 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
       appBar: AppBar(title: Text(t.discoverMgrReportTitle)),
       body: _failed
           ? StateMessage(
-              icon: Icons.cloud_off_outlined,
+              icon: Icons.cloud_off_rounded,
               title: t.loadFailed,
               message:
                   honestFailText(t, _failCause, otherwise: t.loadFailedBody),
               tint: Brand.danger,
               action: FilledButton.icon(
                   onPressed: _load,
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(t.retry)),
             )
           : d == null
@@ -1004,12 +1004,12 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                     Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                       OutlinedButton.icon(
                         onPressed: _exporting ? null : () => _export('csv'),
-                        icon: const Icon(Icons.table_view_outlined),
+                        icon: const Icon(Icons.table_view_rounded),
                         label: Text(t.discoverMgrExportCsv),
                       ),
                       OutlinedButton.icon(
                         onPressed: _exporting ? null : () => _export('pdf'),
-                        icon: const Icon(Icons.picture_as_pdf_outlined),
+                        icon: const Icon(Icons.picture_as_pdf_rounded),
                         label: Text(t.discoverMgrExportPdf),
                       ),
                     ]),

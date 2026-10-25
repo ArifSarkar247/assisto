@@ -18,18 +18,18 @@ class OnbPermissions extends StatelessWidget {
     // (icon, title, why). Reuses the SAME reason strings the live prompt uses
     // (permMic/permLocation/permCamera) so the promise matches the ask.
     final rows = <(IconData, String, String)>[
-      (Icons.notifications_active_outlined, t.onbPermNotifTitle,
+      (Icons.notifications_active_rounded, t.onbPermNotifTitle,
           t.onbPermNotifWhy),
-      (Icons.mic_none, t.onbPermMicTitle, t.permMic),
-      (Icons.photo_camera_outlined, t.onbPermCameraTitle, t.permCamera),
-      (Icons.location_on_outlined, t.onbPermLocationTitle, t.permLocation),
-      (Icons.contacts_outlined, t.onbPermContactsTitle, t.onbPermContactsWhy),
+      (Icons.mic_none_rounded, t.onbPermMicTitle, t.permMic),
+      (Icons.photo_camera_rounded, t.onbPermCameraTitle, t.permCamera),
+      (Icons.location_on_rounded, t.onbPermLocationTitle, t.permLocation),
+      (Icons.contacts_rounded, t.onbPermContactsTitle, t.onbPermContactsWhy),
     ];
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
-        Icon(Icons.verified_user_outlined, size: 40, color: scheme.primary),
+        Icon(Icons.verified_user_rounded, size: 40, color: scheme.primary),
         const SizedBox(height: Gap.sm),
         Text(t.onbPermTitle,
             textAlign: TextAlign.center,
@@ -49,7 +49,7 @@ class OnbPermissions extends StatelessWidget {
           ),
         const SizedBox(height: Gap.sm),
         Row(children: [
-          Icon(Icons.lock_outline, size: 16, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.onbPermFootnote,

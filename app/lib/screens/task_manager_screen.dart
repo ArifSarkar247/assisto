@@ -243,7 +243,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       floatingActionButton: (!_loading && !_error && _projects.isNotEmpty)
           ? FloatingActionButton.extended(
               onPressed: _openProjectEditor,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tmStr(context, 'tmNewProject')),
             )
           : null,
@@ -254,13 +254,13 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     if (_loading) return const SkeletonList(count: 5);
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: tmStr(context, 'tmLoadFailed'),
         message: honestFailText(AppLocalizations.of(context), _failCause,
             otherwise: tmStr(context, 'tmLoadFailedBody')),
         action: FilledButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(tmStr(context, 'tmRetry')),
         ),
       );
@@ -298,7 +298,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off, size: 18, color: Brand.warning),
+        const Icon(Icons.wifi_off_rounded, size: 18, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(tmStr(context, 'tmOffline'),
@@ -318,7 +318,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
             width: 84,
             decoration: const BoxDecoration(
                 gradient: Brand.gradient, shape: BoxShape.circle),
-            child: const Icon(Icons.dashboard_customize_outlined,
+            child: const Icon(Icons.dashboard_customize_rounded,
                 size: 40, color: Colors.white),
           ),
         ),
@@ -339,7 +339,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
             const SizedBox(height: Gap.xl),
             FilledButton.icon(
               onPressed: _openProjectEditor,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tmStr(context, 'tmCreateFirstProject')),
             ),
           ]),
@@ -456,7 +456,7 @@ class _ProjectCard extends StatelessWidget {
             ]),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-              _pill(context, Icons.list_alt_outlined,
+              _pill(context, Icons.list_alt_rounded,
                   tmStrNum(context, 'tmSummaryLine', summary.total), null),
               if (summary.overdue > 0)
                 _pill(context, Icons.warning_amber_rounded,
@@ -621,7 +621,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
             tooltip: _board
                 ? tmStr(context, 'tmViewList')
                 : tmStr(context, 'tmViewBoard'),
-            icon: Icon(_board ? Icons.view_list_outlined : Icons.view_column_outlined),
+            icon: Icon(_board ? Icons.view_list_rounded : Icons.view_column_rounded),
             onPressed: () => setState(() => _board = !_board),
           ),
           _filterMenu(),
@@ -636,7 +636,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openTaskEditor(),
-        icon: const Icon(Icons.add_task),
+        icon: const Icon(Icons.add_task_rounded),
         label: Text(tmStr(context, 'tmNewTask')),
       ),
     );
@@ -687,7 +687,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
       child: Row(children: [
-        const Icon(Icons.filter_alt_outlined, size: 16),
+        const Icon(Icons.filter_alt_rounded, size: 16),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(chips.join('  •  '),
@@ -710,7 +710,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     final hasUnassigned = _projectTasks.any((t) => t.assignee.trim().isEmpty);
     return PopupMenuButton<String>(
       tooltip: tmStr(context, 'tmFilter'),
-      icon: Icon(_hasFilter ? Icons.filter_alt : Icons.filter_alt_outlined),
+      icon: Icon(_hasFilter ? Icons.filter_alt_rounded : Icons.filter_alt_outlined),
       onSelected: (v) {
         setState(() {
           if (v == 'all') {
@@ -759,18 +759,18 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
   }
 
   Widget _emptyTasks() => StateMessage(
-        icon: Icons.add_task,
+        icon: Icons.add_task_rounded,
         title: tmStr(context, 'tmNoTasksYet'),
         message: tmStr(context, 'tmNoTasksBody'),
         action: FilledButton.icon(
           onPressed: () => _openTaskEditor(),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tmStr(context, 'tmNewTask')),
         ),
       );
 
   Widget _noMatch() => StateMessage(
-        icon: Icons.filter_alt_off_outlined,
+        icon: Icons.filter_alt_off_rounded,
         title: tmStr(context, 'tmNoMatch'),
         message: tmStr(context, 'tmNoMatchBody'),
         action: TextButton(
@@ -962,7 +962,7 @@ class _TaskTile extends StatelessWidget {
               ),
               PopupMenuButton<String>(
                 tooltip: tmStr(context, 'tmMoveTo'),
-                icon: Icon(Icons.more_vert,
+                icon: Icon(Icons.more_vert_rounded,
                     size: 18, color: scheme.onSurfaceVariant),
                 onSelected: onMove,
                 itemBuilder: (_) => [
@@ -971,7 +971,7 @@ class _TaskTile extends StatelessWidget {
                       PopupMenuItem(
                         value: s,
                         child: Row(children: [
-                          Icon(Icons.arrow_right_alt,
+                          Icon(Icons.arrow_right_alt_rounded,
                               size: 16, color: statusColor(context, s)),
                           const SizedBox(width: Gap.sm),
                           Text(statusLabel(context, s)),
@@ -1002,11 +1002,11 @@ class _TaskTile extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               if (task.assignee.trim().isNotEmpty)
-                _chip(context, Icons.person_outline, task.assignee, null),
+                _chip(context, Icons.person_outline_rounded, task.assignee, null),
               if (task.due.trim().isNotEmpty)
                 _chip(
                     context,
-                    overdue ? Icons.event_busy : Icons.event_outlined,
+                    overdue ? Icons.event_busy_rounded : Icons.event_rounded,
                     _dueLabel(context),
                     overdue ? Brand.danger : null),
               if (overdue)
@@ -1142,7 +1142,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             if (widget.existing != null)
               IconButton(
                 tooltip: tmStr(context, 'tmDelete'),
-                icon: const Icon(Icons.delete_outline, color: Brand.danger),
+                icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger),
                 onPressed: () => Navigator.pop(
                     context, const _TaskEditorResult(deleted: true)),
               ),
@@ -1230,7 +1230,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _pickDate,
-                icon: const Icon(Icons.event_outlined),
+                icon: const Icon(Icons.event_rounded),
                 label: Text(
                   _due == null
                       ? tmStr(context, 'tmPickDate')
@@ -1242,7 +1242,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             if (_due != null)
               IconButton(
                 tooltip: tmStr(context, 'tmNoDue'),
-                icon: const Icon(Icons.clear),
+                icon: const Icon(Icons.clear_rounded),
                 onPressed: () => setState(() => _due = null),
               ),
           ]),

@@ -232,7 +232,7 @@ class CircleBubble extends StatelessWidget {
     if (msg.decryptFailed && !deleted) {
       final muted = Theme.of(context).colorScheme.onSurfaceVariant;
       return Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.lock_outline, size: 16, color: muted),
+        Icon(Icons.lock_outline_rounded, size: 16, color: muted),
         const SizedBox(width: Gap.xs),
         Flexible(
           child: Text(show,
@@ -290,13 +290,13 @@ class CircleBubble extends StatelessWidget {
       );
     }
     final icon = {
-      'photo': Icons.photo_outlined,
-      'video': Icons.videocam_outlined,
-      'voice': Icons.mic_none_outlined,
-      'document': Icons.insert_drive_file_outlined,
-      'contact': Icons.contact_page_outlined,
-      'location': Icons.location_on_outlined,
-    }[msg.contentType] ?? Icons.attachment_outlined;
+      'photo': Icons.photo_rounded,
+      'video': Icons.videocam_rounded,
+      'voice': Icons.mic_none_rounded,
+      'document': Icons.insert_drive_file_rounded,
+      'contact': Icons.contact_page_rounded,
+      'location': Icons.location_on_rounded,
+    }[msg.contentType] ?? Icons.attachment_rounded;
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.xs),
       child: InkWell(
@@ -318,7 +318,7 @@ class CircleBubble extends StatelessWidget {
             ),
             if (msg.mediaGated) ...[
               const SizedBox(width: Gap.xs),
-              Icon(Icons.lock_clock_outlined, size: 14, color: fg),
+              Icon(Icons.lock_clock_rounded, size: 14, color: fg),
             ],
           ],
         ),
@@ -356,7 +356,7 @@ class CircleBubble extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.forward_outlined, size: 13, color: color),
+          Icon(Icons.forward_rounded, size: 13, color: color),
           const SizedBox(width: Gap.xs),
           Text(
             msg.forwardHops >= 5 ? t.circleForwardedMany : t.circleForwarded,
@@ -402,11 +402,11 @@ class CircleBubble extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (msg.pinned) ...[
-          Icon(Icons.push_pin, size: 12, color: metaColor),
+          Icon(Icons.push_pin_rounded, size: 12, color: metaColor),
           const SizedBox(width: 3),
         ],
         if (msg.starred) ...[
-          Icon(Icons.star, size: 12, color: metaColor),
+          Icon(Icons.star_rounded, size: 12, color: metaColor),
           const SizedBox(width: 3),
         ],
         if (msg.edited) ...[
@@ -448,7 +448,7 @@ class CircleEncryptionBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.lock_outline, size: 16, color: scheme.onSecondaryContainer),
+          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(
@@ -487,7 +487,7 @@ class CircleComposerContext extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(isEdit ? Icons.edit_outlined : Icons.reply_outlined,
+          Icon(isEdit ? Icons.edit_rounded : Icons.reply_rounded,
               size: 16, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -504,7 +504,7 @@ class CircleComposerContext extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close_rounded, size: 18),
             onPressed: onCancel,
           ),
         ],

@@ -121,7 +121,7 @@ class WallpaperThemePicker extends StatelessWidget {
                         ),
                       ),
                       child: selected
-                          ? const Icon(Icons.check, color: Colors.white, size: 20)
+                          ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
                           : null,
                     ),
                     const SizedBox(height: Gap.xs),
@@ -141,7 +141,7 @@ class WallpaperThemePicker extends StatelessWidget {
         ),
         if (onFromPhoto != null)
           ListTile(
-            leading: const Icon(Icons.add_photo_alternate_outlined),
+            leading: const Icon(Icons.add_photo_alternate_rounded),
             title: Text(t.circleExtrasFromMyPhoto),
             subtitle: Text(t.circleExtrasOnDeviceOnly,
                 style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),

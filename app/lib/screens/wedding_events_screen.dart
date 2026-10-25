@@ -100,13 +100,13 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.weddingTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.weddingLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -116,12 +116,12 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.weddingTitle)),
         body: StateMessage(
-          icon: Icons.celebration_outlined,
+          icon: Icons.celebration_rounded,
           title: tr.weddingWelcomeTitle,
           message: tr.weddingWelcomeBody,
           action: FilledButton.icon(
             onPressed: _editEvent,
-            icon: const Icon(Icons.event),
+            icon: const Icon(Icons.event_rounded),
             label: Text(tr.weddingSetEvent),
           ),
         ),
@@ -134,7 +134,7 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
           title: Text(tr.weddingTitle),
           actions: [
             IconButton(
-              icon: const Icon(Icons.edit_calendar_outlined),
+              icon: const Icon(Icons.edit_calendar_rounded),
               tooltip: tr.weddingSetEvent,
               onPressed: _editEvent,
             ),
@@ -258,7 +258,7 @@ class _EventEditorState extends State<_EventEditor> {
         const SizedBox(height: Gap.md),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.event),
+          leading: const Icon(Icons.event_rounded),
           title: Text(_date == null
               ? tr.weddingNoDate
               : WeddingEngine.isoDate(_date!)),
@@ -266,7 +266,7 @@ class _EventEditorState extends State<_EventEditor> {
               ? null
               : IconButton(
                   tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () => setState(() => _date = null)),
           onTap: _pickDate,
         ),
@@ -363,7 +363,7 @@ class _OverviewTab extends StatelessWidget {
         Row(children: [
           Expanded(
             child: _StatCard(
-              icon: Icons.groups_2_outlined,
+              icon: Icons.groups_2_rounded,
               label: tr.weddingConfirmedGuests,
               value: gs.confirmedHeads.toString(),
               hint: tr.weddingExpectedGuests(gs.expectedHeads),
@@ -372,7 +372,7 @@ class _OverviewTab extends StatelessWidget {
           const SizedBox(width: Gap.md),
           Expanded(
             child: _StatCard(
-              icon: Icons.task_alt,
+              icon: Icons.task_alt_rounded,
               label: tr.weddingOpenTasks,
               value: tb.all.where((t) => t.state != 'done').length.toString(),
               hint: tb.overdueCount > 0
@@ -533,12 +533,12 @@ class _GuestsTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, null),
-        icon: const Icon(Icons.person_add_alt_1),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(tr.weddingAddGuest),
       ),
       body: guests.isEmpty
           ? StateMessage(
-              icon: Icons.groups_2_outlined,
+              icon: Icons.groups_2_rounded,
               title: tr.weddingGuestsEmptyTitle,
               message: tr.weddingGuestsEmptyBody,
             )
@@ -576,7 +576,7 @@ class _GuestsTab extends StatelessWidget {
                         subtitle: Text(_guestSub(tr, g)),
                         trailing: IconButton(
                           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                          icon: const Icon(Icons.delete_outline),
+                          icon: const Icon(Icons.delete_outline_rounded),
                           onPressed: () async {
                             if (await _confirmDelete(context, _guestPath,
                                 g['id'], tr.weddingDeleteGuestBody)) {
@@ -758,12 +758,12 @@ class _BudgetTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, null),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.weddingAddBudget),
       ),
       body: rows.isEmpty
           ? StateMessage(
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Icons.account_balance_wallet_rounded,
               title: tr.weddingBudgetEmptyTitle,
               message: tr.weddingBudgetEmptyBody,
             )
@@ -802,7 +802,7 @@ class _BudgetTab extends StatelessWidget {
                             Icon(
                                 s.overBudget
                                     ? Icons.warning_amber_rounded
-                                    : Icons.check_circle_outline,
+                                    : Icons.check_circle_outline_rounded,
                                 color: s.overBudget
                                     ? scheme.onErrorContainer
                                     : scheme.primary),
@@ -842,7 +842,7 @@ class _BudgetTab extends StatelessWidget {
                                 size: 18, color: scheme.error),
                           IconButton(
                             tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                            icon: const Icon(Icons.delete_outline),
+                            icon: const Icon(Icons.delete_outline_rounded),
                             onPressed: () async {
                               if (await _confirmDelete(context, _budgetPath,
                                   _idOf(c.category), tr.weddingDeleteBudgetBody)) {
@@ -1032,12 +1032,12 @@ class _TasksTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, null),
-        icon: const Icon(Icons.add_task),
+        icon: const Icon(Icons.add_task_rounded),
         label: Text(tr.weddingAddTask),
       ),
       body: board.all.isEmpty
           ? StateMessage(
-              icon: Icons.checklist_outlined,
+              icon: Icons.checklist_rounded,
               title: tr.weddingTasksEmptyTitle,
               message: tr.weddingTasksEmptyBody,
             )
@@ -1170,7 +1170,7 @@ class _TaskCard extends StatelessWidget {
         ]),
         trailing: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           onPressed: onDelete,
         ),
         onTap: onTap,
@@ -1263,7 +1263,7 @@ class _TaskEditorState extends State<_TaskEditor> {
         const SizedBox(height: Gap.md),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.event),
+          leading: const Icon(Icons.event_rounded),
           title: Text(_due == null
               ? tr.weddingNoDue
               : WeddingEngine.isoDate(_due!)),
@@ -1271,7 +1271,7 @@ class _TaskEditorState extends State<_TaskEditor> {
               ? null
               : IconButton(
                   tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () => setState(() => _due = null)),
           onTap: _pickDate,
         ),

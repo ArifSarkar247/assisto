@@ -73,13 +73,13 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
         actions: [
           IconButton(
             tooltip: tr.vehCarModeTitle,
-            icon: const Icon(Icons.drive_eta_outlined),
+            icon: const Icon(Icons.drive_eta_rounded),
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const CarModeScreen())),
           ),
           IconButton(
             tooltip: tr.vehFleetTitle,
-            icon: const Icon(Icons.local_shipping_outlined),
+            icon: const Icon(Icons.local_shipping_rounded),
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const FleetDashboardScreen())),
           ),
@@ -89,7 +89,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _pair,
-              icon: const Icon(Icons.add_link),
+              icon: const Icon(Icons.add_link_rounded),
               label: Text(tr.vehPairCta),
             ),
       body: _body(tr, scheme),
@@ -100,12 +100,12 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: tr.loadFailed,
         message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
         action: FilledButton.tonalIcon(
-            onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)),
+            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(tr.retry)),
       );
     }
     return RefreshIndicator(
@@ -119,7 +119,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xl),
               child: StateMessage(
-                icon: Icons.gps_not_fixed,
+                icon: Icons.gps_not_fixed_rounded,
                 title: tr.vehEmptyTitle,
                 message: tr.vehEmptyBody,
               ),
@@ -145,7 +145,7 @@ class _HonestCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline, color: scheme.onSecondaryContainer),
+          Icon(Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.vehHonestHardware,
@@ -220,7 +220,7 @@ class _TrackerCard extends StatelessWidget {
             Row(children: [
               CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.15),
-                child: Icon(Icons.gps_fixed, color: color),
+                child: Icon(Icons.gps_fixed_rounded, color: color),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -240,7 +240,7 @@ class _TrackerCard extends StatelessWidget {
                   label: Text(tr.vehSharedWithYou, maxLines: 1),
                   visualDensity: VisualDensity.compact,
                 ),
-              if (state == 'paired') const Icon(Icons.chevron_right),
+              if (state == 'paired') const Icon(Icons.chevron_right_rounded),
             ]),
             if (state == 'pending' || state == 'expired') ...[
               const SizedBox(height: Gap.sm),
@@ -391,7 +391,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         icon: _busy
             ? const SizedBox(
                 width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.link),
+            : const Icon(Icons.link_rounded),
         label: Text(tr.vehPairSubmit),
       ),
     ]);
@@ -407,7 +407,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       if (proto != 'gt06') '${sms['teltonika'] ?? ''}',
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Icon(Icons.timer_outlined, size: 40, color: Brand.warning),
+      Icon(Icons.timer_rounded, size: 40, color: Brand.warning),
       const SizedBox(height: Gap.sm),
       Text(tr.vehPairWaitingTitle,
           textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
@@ -425,7 +425,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
                 style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
             trailing: IconButton(
               tooltip: tr.vehCopy,
-              icon: const Icon(Icons.copy),
+              icon: const Icon(Icons.copy_rounded),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: l));
                 ScaffoldMessenger.of(context)

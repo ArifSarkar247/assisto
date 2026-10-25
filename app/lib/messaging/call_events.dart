@@ -102,8 +102,8 @@ String callEventLabel(AppLocalizations t, CallEvent e, String lang) {
 
 IconData callEventIcon(CallEvent e) {
   // direction first (the kind is the trailing call-back icon)
-  if (e.missed) return Icons.call_missed;
-  return e.outgoing ? Icons.call_made : Icons.call_received;
+  if (e.missed) return Icons.call_missed_rounded;
+  return e.outgoing ? Icons.call_made_rounded : Icons.call_received_rounded;
 }
 
 /// Centred event chip in the chat timeline. [onCallBack] null = calls are
@@ -144,7 +144,7 @@ class CallEventChip extends StatelessWidget {
                 .copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(width: Gap.sm),
         // the kind; brand-coloured when it calls back on tap
-        Icon(event.video ? Icons.videocam : Icons.call,
+        Icon(event.video ? Icons.videocam_rounded : Icons.call_rounded,
             size: 16,
             color: onCallBack != null ? scheme.primary : scheme.onSurfaceVariant),
       ]),

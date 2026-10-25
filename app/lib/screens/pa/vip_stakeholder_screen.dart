@@ -240,30 +240,30 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _open(),
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
               label: Text(tr.paVipNew),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVipLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : rows.isEmpty
                   ? StateMessage(
-                      icon: Icons.handshake_outlined,
+                      icon: Icons.handshake_rounded,
                       title: tr.paVipWelcomeTitle,
                       message: tr.paVipWelcomeBody,
                       action: FilledButton.icon(
                         onPressed: () => _open(),
-                        icon: const Icon(Icons.person_add_alt_1),
+                        icon: const Icon(Icons.person_add_alt_1_rounded),
                         label: Text(tr.paVipNew),
                       ),
                     )
@@ -278,7 +278,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                           if (overdue > 0 || dueSoon > 0)
                             const SizedBox(height: Gap.md),
                           Row(children: [
-                            Icon(Icons.lock_outline,
+                            Icon(Icons.lock_outline_rounded,
                                 size: 14, color: scheme.onSurfaceVariant),
                             const SizedBox(width: Gap.xs),
                             Expanded(
@@ -309,8 +309,8 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
       child: Row(children: [
         Icon(
             overdue > 0
-                ? Icons.notification_important_outlined
-                : Icons.schedule,
+                ? Icons.notification_important_rounded
+                : Icons.schedule_rounded,
             color: overdue > 0 ? scheme.error : scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -415,7 +415,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
         color: c.withValues(alpha: 0.14),
         shape: BoxShape.circle,
       ),
-      child: Icon(filled ? Icons.star : Icons.star_border, size: 18, color: c),
+      child: Icon(filled ? Icons.star_rounded : Icons.star_border_rounded, size: 18, color: c),
     );
   }
 
@@ -613,7 +613,7 @@ class _VipEditorState extends State<_VipEditor> {
           const SizedBox(height: Gap.lg),
           // ---- privacy-sensitive: notes
           Row(children: [
-            Icon(Icons.lock_outline, size: 16, color: scheme.primary),
+            Icon(Icons.lock_outline_rounded, size: 16, color: scheme.primary),
             const SizedBox(width: Gap.xs),
             Text(tr.paVipPrivateSection,
                 style: Theme.of(context)
@@ -645,7 +645,7 @@ class _VipEditorState extends State<_VipEditor> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Icon(Icons.history_outlined, size: 18, color: scheme.primary),
+                Icon(Icons.history_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.paVipLogTitle,
@@ -685,7 +685,7 @@ class _VipEditorState extends State<_VipEditor> {
                   IconButton(
                     tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                     icon:
-                        Icon(Icons.remove_circle_outline, color: scheme.error),
+                        Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
                     onPressed: () => setState(() => _log.removeAt(i)),
                   ),
                 ]),
@@ -696,7 +696,7 @@ class _VipEditorState extends State<_VipEditor> {
                 child: TextButton.icon(
                   onPressed: () =>
                       setState(() => _log.add({'date': '', 'note': ''})),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(tr.paVipAddLog),
                 ),
               ),
@@ -704,7 +704,7 @@ class _VipEditorState extends State<_VipEditor> {
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
-            Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.paVipPrivacyNote,
@@ -717,7 +717,7 @@ class _VipEditorState extends State<_VipEditor> {
             child: FilledButton.icon(
               onPressed:
                   (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_outlined, size: 18),
+              icon: const Icon(Icons.save_rounded, size: 18),
               label: Text(tr.save),
             ),
           ),

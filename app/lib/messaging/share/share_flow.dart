@@ -95,7 +95,7 @@ Future<bool> ensureLocationPermission(BuildContext context) async {
         context: context,
         builder: (ctx) => AlertDialog(
           key: const Key('mc2-loc-perm'),
-          icon: const Icon(Icons.location_on_outlined),
+          icon: const Icon(Icons.location_on_rounded),
           title: Text(t.mc2PermLocTitle),
           content: Text(t.mc2PermLocBody),
           actions: [
@@ -199,7 +199,7 @@ Future<String?> pickLiveDuration(BuildContext context) {
         for (final e in {'15m': t.circleLive15m, '1h': t.circleLive1h, '8h': t.circleLive8h}.entries)
           ListTile(
             key: Key('mc2-live-${e.key}'),
-            leading: const Icon(Icons.timer_outlined),
+            leading: const Icon(Icons.timer_rounded),
             title: Text(e.value),
             onTap: () => Navigator.pop(ctx, e.key),
           ),
@@ -254,14 +254,14 @@ class _LocationPreviewState extends State<_LocationPreview> {
             FilledButton.icon(
               key: const Key('mc2-loc-send'),
               onPressed: () => Navigator.pop(context, _LocChoice(false, _label.text.trim())),
-              icon: const Icon(Icons.send),
+              icon: const Icon(Icons.send_rounded),
               label: Text(t.mc2SendLocation),
             ),
             const SizedBox(height: Gap.xs),
             OutlinedButton.icon(
               key: const Key('mc2-loc-live'),
               onPressed: () => Navigator.pop(context, _LocChoice(true, _label.text.trim())),
-              icon: const Icon(Icons.my_location),
+              icon: const Icon(Icons.my_location_rounded),
               label: Text(t.mc2ShareLive),
             ),
           ]),
@@ -443,13 +443,13 @@ Future<String?> shareContactFlow(BuildContext context,
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         ListTile(
           key: const Key('mc2-contact-from-phone'),
-          leading: const Icon(Icons.contacts_outlined),
+          leading: const Icon(Icons.contacts_rounded),
           title: Text(t.mc2ContactFromPhone),
           onTap: () => Navigator.pop(ctx, 'phone'),
         ),
         ListTile(
           key: const Key('mc2-contact-from-circle'),
-          leading: const Icon(Icons.people_outline),
+          leading: const Icon(Icons.people_outline_rounded),
           title: Text(t.mc2ContactFromCircle),
           onTap: () => Navigator.pop(ctx, 'circle'),
         ),
@@ -522,7 +522,7 @@ class _SharePickerScreenState<T> extends State<SharePickerScreen<T>> {
             key: const Key('mc2-pick-search'),
             onChanged: (v) => setState(() => _q = v.trim()),
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
               hintText: t.mc2ContactSearch,
               border: const OutlineInputBorder(),
             ),

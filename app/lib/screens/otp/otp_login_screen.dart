@@ -30,7 +30,7 @@ class _PhoneField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: t.otpPhoneLabel,
         hintText: t.otpPhoneHint,
-        prefixIcon: const Icon(Icons.phone_iphone_outlined),
+        prefixIcon: const Icon(Icons.phone_iphone_rounded),
         errorText: errorText,
         errorMaxLines: 3,
       ),
@@ -127,7 +127,7 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
                   FilledButton.icon(
                     key: const Key('otp-send'),
                     onPressed: _busy ? null : _go,
-                    icon: const Icon(Icons.sms_outlined),
+                    icon: const Icon(Icons.sms_rounded),
                     label: Padding(
                       padding: const EdgeInsets.symmetric(vertical: Gap.md),
                       child: Text(t.otpSendCode),
@@ -226,7 +226,7 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(children: [
-                    Icon(Icons.check_circle_outline,
+                    Icon(Icons.check_circle_outline_rounded,
                         color: scheme.onSecondaryContainer),
                     const SizedBox(width: 10),
                     Expanded(
@@ -248,7 +248,7 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
               FilledButton.icon(
                 key: const Key('otp-send'),
                 onPressed: _getCode,
-                icon: const Icon(Icons.sms_outlined),
+                icon: const Icon(Icons.sms_rounded),
                 label: Padding(
                   padding: const EdgeInsets.symmetric(vertical: Gap.md),
                   child: Text(t.otpSendCode),
@@ -256,7 +256,7 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
               ),
             ] else ...[
               Row(children: [
-                Icon(Icons.verified_outlined, color: scheme.primary),
+                Icon(Icons.verified_rounded, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(t.otpVerified)),
               ]),

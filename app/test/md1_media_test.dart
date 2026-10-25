@@ -541,7 +541,7 @@ void main() {
       await tester.tap(find.byKey(const Key('md1-voice-play')));
       await tester.pump();
       expect(fake.calls.last, 'play /x/v.m4a');
-      expect(find.byIcon(Icons.pause_circle_filled), findsOneWidget);
+      expect(find.byIcon(Icons.pause_circle_filled_rounded), findsOneWidget);
       await tester.tap(find.byKey(const Key('md1-voice-play')));
       await tester.pump();
       expect(fake.calls.last, 'pause');

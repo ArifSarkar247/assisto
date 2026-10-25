@@ -11,9 +11,9 @@ enum PermKind { mic, location, camera }
 Future<bool> showPermissionReason(BuildContext context, PermKind kind) async {
   final t = AppLocalizations.of(context);
   final (IconData icon, String reason) = switch (kind) {
-    PermKind.mic => (Icons.mic_none, t.permMic),
-    PermKind.location => (Icons.location_on_outlined, t.permLocation),
-    PermKind.camera => (Icons.photo_camera_outlined, t.permCamera),
+    PermKind.mic => (Icons.mic_none_rounded, t.permMic),
+    PermKind.location => (Icons.location_on_rounded, t.permLocation),
+    PermKind.camera => (Icons.photo_camera_rounded, t.permCamera),
   };
   final ok = await showDialog<bool>(
     context: context,

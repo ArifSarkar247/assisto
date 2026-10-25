@@ -26,7 +26,7 @@ class DictWordOfTheDayCard extends StatelessWidget {
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+              const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
               const SizedBox(width: 6),
               Text(t.dictWordOfTheDay,
                   style: const TextStyle(
@@ -71,7 +71,7 @@ class DictChipRow extends StatelessWidget {
     required this.onTap,
     this.onClear,
     this.clearLabel,
-    this.icon = Icons.history,
+    this.icon = Icons.history_rounded,
   });
 
   @override
@@ -164,7 +164,7 @@ class DictOfflineBanner extends StatelessWidget {
       color: Brand.warning.withValues(alpha: 0.14),
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       child: Row(children: [
-        const Icon(Icons.cloud_off, size: 16, color: Color(0xFF8A6D00)),
+        const Icon(Icons.cloud_off_rounded, size: 16, color: Color(0xFF8A6D00)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(text, style: const TextStyle(fontSize: 12, color: Color(0xFF8A6D00))),

@@ -102,13 +102,13 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.htlTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.htlLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -118,13 +118,13 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
         appBar: AppBar(title: Text(tr.htlTitle)),
         body: ListView(children: [
           StateMessage(
-            icon: Icons.timeline,
+            icon: Icons.timeline_rounded,
             tint: Brand.blue,
             title: tr.htlWelcomeTitle,
             message: tr.htlWelcomeBody,
             action: FilledButton.icon(
               onPressed: _addOrEdit,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.htlAddEvent),
             ),
           ),
@@ -150,15 +150,15 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
           IconButton(
             tooltip: _byCategory ? tr.htlGroupByMonth : tr.htlGroupByCategory,
             icon: Icon(_byCategory
-                ? Icons.calendar_month_outlined
-                : Icons.category_outlined),
+                ? Icons.calendar_month_rounded
+                : Icons.category_rounded),
             onPressed: () => setState(() => _byCategory = !_byCategory),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addOrEdit,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.htlAddEvent),
       ),
       body: Column(children: [
@@ -171,7 +171,7 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
         Expanded(
           child: events.isEmpty
               ? StateMessage(
-                  icon: Icons.filter_alt_off_outlined,
+                  icon: Icons.filter_alt_off_rounded,
                   tint: scheme.onSurfaceVariant,
                   title: tr.htlNoneMatchTitle,
                   message: tr.htlNoneMatchBody,
@@ -180,7 +180,7 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
                       _selected.clear();
                       _search.clear();
                     }),
-                    icon: const Icon(Icons.clear_all),
+                    icon: const Icon(Icons.clear_all_rounded),
                     label: Text(tr.htlClearFilters),
                   ),
                 )
@@ -255,11 +255,11 @@ class _FilterBar extends StatelessWidget {
           decoration: InputDecoration(
             isDense: true,
             hintText: tr.htlSearchHint,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: search.text.isEmpty
                 ? null
                 : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                    icon: const Icon(Icons.clear, size: 18),
+                    icon: const Icon(Icons.clear_rounded, size: 18),
                     onPressed: () {
                       search.clear();
                       onChanged();
@@ -457,7 +457,7 @@ class _EventCard extends StatelessWidget {
                       const SizedBox(height: Gap.xs),
                       Row(children: [
                         if (doctor.isNotEmpty) ...[
-                          Icon(Icons.person_outline,
+                          Icon(Icons.person_outline_rounded,
                               size: 13, color: scheme.onSurfaceVariant),
                           const SizedBox(width: 3),
                           Flexible(
@@ -469,7 +469,7 @@ class _EventCard extends StatelessWidget {
                           const SizedBox(width: Gap.sm),
                         ],
                         if (place.isNotEmpty) ...[
-                          Icon(Icons.place_outlined,
+                          Icon(Icons.place_rounded,
                               size: 13, color: scheme.onSurfaceVariant),
                           const SizedBox(width: 3),
                           Flexible(
@@ -507,7 +507,7 @@ class _Disclaimer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.htlDisclaimer,
@@ -631,7 +631,7 @@ class _EventFormState extends State<_EventForm> {
               child: InputDecorator(
                 decoration: InputDecoration(
                     labelText: tr.htlEventDate,
-                    prefixIcon: const Icon(Icons.event_outlined),
+                    prefixIcon: const Icon(Icons.event_rounded),
                     border: const OutlineInputBorder()),
                 child: Row(children: [
                   Expanded(
@@ -641,7 +641,7 @@ class _EventFormState extends State<_EventForm> {
                   ),
                   if (_date != null)
                     IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       onPressed: () => setState(() => _date = null),
                     ),
                 ]),
@@ -653,7 +653,7 @@ class _EventFormState extends State<_EventForm> {
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                   labelText: tr.htlDoctor,
-                  prefixIcon: const Icon(Icons.person_outline),
+                  prefixIcon: const Icon(Icons.person_outline_rounded),
                   border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.md),
@@ -662,7 +662,7 @@ class _EventFormState extends State<_EventForm> {
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                   labelText: tr.htlPlace,
-                  prefixIcon: const Icon(Icons.place_outlined),
+                  prefixIcon: const Icon(Icons.place_rounded),
                   border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.md),
@@ -691,7 +691,7 @@ class _EventFormState extends State<_EventForm> {
                       Navigator.pop(context, {'_delete': true});
                     }
                   },
-                  icon: Icon(Icons.delete_outline,
+                  icon: Icon(Icons.delete_outline_rounded,
                       color: Theme.of(context).colorScheme.error),
                 ),
               Expanded(
@@ -749,13 +749,13 @@ String _catLabel(AppLocalizations tr, String c) => switch (c) {
     };
 
 IconData _catIcon(String c) => switch (c) {
-      'visit' => Icons.medical_services_outlined,
-      'test' => Icons.science_outlined,
-      'prescription' => Icons.receipt_long_outlined,
-      'vaccination' => Icons.vaccines_outlined,
-      'symptom' => Icons.sick_outlined,
-      'hospitalization' => Icons.local_hospital_outlined,
-      _ => Icons.note_alt_outlined,
+      'visit' => Icons.medical_services_rounded,
+      'test' => Icons.science_rounded,
+      'prescription' => Icons.receipt_long_rounded,
+      'vaccination' => Icons.vaccines_rounded,
+      'symptom' => Icons.sick_rounded,
+      'hospitalization' => Icons.local_hospital_rounded,
+      _ => Icons.note_alt_rounded,
     };
 
 Color _catColor(String c) => switch (c) {

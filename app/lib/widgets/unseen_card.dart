@@ -88,7 +88,7 @@ class UnseenCard extends StatelessWidget {
             IconButton(
               tooltip: saved ? t.unseenRemoveWishlist : t.unseenAddWishlist,
               onPressed: onToggleSave,
-              icon: Icon(saved ? Icons.bookmark : Icons.bookmark_border,
+              icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                   color: Colors.white),
             ),
           ]),
@@ -97,17 +97,17 @@ class UnseenCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.sm),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (distanceMeters != null)
-              _chipRow(scheme, Icons.near_me_outlined,
+              _chipRow(scheme, Icons.near_me_rounded,
                   t.unseenKmAway(_km(distanceMeters!))),
-            _fact(scheme, Icons.event_available_outlined, t.unseenBestSeason,
+            _fact(scheme, Icons.event_available_rounded, t.unseenBestSeason,
                 '${dest.bestTime}  ($seasonLabel)'),
-            _fact(scheme, Icons.directions_bus_outlined, t.unseenHowToGet,
+            _fact(scheme, Icons.directions_bus_rounded, t.unseenHowToGet,
                 dest.howToGet),
-            _fact(scheme, Icons.payments_outlined, t.unseenApproxCost, cost),
+            _fact(scheme, Icons.payments_rounded, t.unseenApproxCost, cost),
             if (dest.nearby.isNotEmpty)
-              _fact(scheme, Icons.place_outlined, t.unseenNearby,
+              _fact(scheme, Icons.place_rounded, t.unseenNearby,
                   dest.nearby.join(', ')),
-            _fact(scheme, Icons.lightbulb_outline, t.unseenTip, dest.tip),
+            _fact(scheme, Icons.lightbulb_outline_rounded, t.unseenTip, dest.tip),
             const SizedBox(height: Gap.xs),
             // Honest source + photo credit.
             Text('${t.unseenSource}: ${dest.source.label}',
@@ -123,11 +123,11 @@ class UnseenCard extends StatelessWidget {
           children: [
             TextButton.icon(
                 onPressed: onDirections,
-                icon: const Icon(Icons.map_outlined, size: 18),
+                icon: const Icon(Icons.map_rounded, size: 18),
                 label: Text(t.unseenDirections)),
             TextButton.icon(
                 onPressed: onShare,
-                icon: const Icon(Icons.share_outlined, size: 18),
+                icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(t.unseenShare)),
           ],
         ),

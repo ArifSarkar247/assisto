@@ -171,13 +171,13 @@ Widget _withApi(String l, Widget child) {
 
 PreferredSizeWidget _bar(Widget title) => AppBar(
       // the real chat has a back arrow: the narrowest title (360 dp)
-      leading: IconButton(onPressed: () {}, icon: const Icon(Icons.arrow_back)),
+      leading: IconButton(onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
       titleSpacing: 0,
       title: title,
       actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_outlined)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.call_outlined)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_rounded)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.call_rounded)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
       ],
     );
 

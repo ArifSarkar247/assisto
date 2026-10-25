@@ -37,7 +37,7 @@ class UnseenCategoryBar extends StatelessWidget {
         children: [
           _chip(
             context,
-            icon: Icons.bookmark_border,
+            icon: Icons.bookmark_border_rounded,
             label: t.unseenWishlist,
             selected: showWishlist,
             onTap: onToggleWishlist,
@@ -45,7 +45,7 @@ class UnseenCategoryBar extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           _chip(
             context,
-            icon: Icons.apps_outlined,
+            icon: Icons.apps_rounded,
             label: t.unseenAll,
             selected: !showWishlist && selected == null,
             onTap: () => onSelect(null),

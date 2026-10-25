@@ -158,13 +158,13 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.priceTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.priceLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -180,17 +180,17 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _add(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.priceLogPrice),
             ),
       body: _logs.isEmpty
           ? StateMessage(
-              icon: Icons.storefront_outlined,
+              icon: Icons.storefront_rounded,
               title: tr.priceWelcomeTitle,
               message: tr.priceWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _add(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.priceLogPrice),
               ),
             )
@@ -215,7 +215,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.primary),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.priceManualNote,
@@ -243,7 +243,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
             ),
             IconButton(
               tooltip: tr.priceLogPrice,
-              icon: const Icon(Icons.add_circle_outline),
+              icon: const Icon(Icons.add_circle_outline_rounded),
               onPressed: () => onAddHere(item: item.item, unit: item.unit),
             ),
           ]),
@@ -278,7 +278,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           ...item.logs.map((l) => ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.schedule,
+                leading: Icon(Icons.schedule_rounded,
                     size: 18, color: scheme.onSurfaceVariant),
                 title: Text(l.priceDisplay,
                     style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -312,7 +312,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
+          Icon(up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
               size: 13, color: color),
           const SizedBox(width: 3),
           Text('${item.changePct.abs().toStringAsFixed(1)}%',
@@ -346,7 +346,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.sensors_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.sensors_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.priceFeedSeamTitle,
@@ -449,7 +449,7 @@ Future<Map<String, dynamic>?> _logSheet(
                     hintText: 'YYYY-MM-DD',
                     suffixIcon: IconButton(
                       tooltip: MaterialLocalizations.of(context).datePickerHelpText,
-                      icon: const Icon(Icons.calendar_today, size: 18),
+                      icon: const Icon(Icons.calendar_today_rounded, size: 18),
                       onPressed: () async {
                         final now = DateTime.now();
                         final picked = await showDatePicker(

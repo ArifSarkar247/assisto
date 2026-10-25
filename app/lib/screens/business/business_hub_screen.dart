@@ -116,7 +116,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               title: Text((b['name'] ?? '').toString()),
               subtitle: Text(_typeLabel(t, (b['type'] ?? '').toString())),
               trailing: b['id'] == _selected?['id']
-                  ? Icon(Icons.check_circle, color: Theme.of(ctx).colorScheme.primary)
+                  ? Icon(Icons.check_circle_rounded, color: Theme.of(ctx).colorScheme.primary)
                   : null,
               onTap: () {
                 Navigator.pop(ctx);
@@ -125,7 +125,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.add_business_outlined),
+            leading: const Icon(Icons.add_business_rounded),
             title: Text(t.businessAddAnother),
             onTap: () {
               Navigator.pop(ctx);
@@ -154,7 +154,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.flash_on_outlined),
+            leading: const Icon(Icons.flash_on_rounded),
             title: Text(t.sellQuickSell),
             onTap: () {
               Navigator.pop(ctx);
@@ -162,7 +162,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.inventory_2_outlined),
+            leading: const Icon(Icons.inventory_2_rounded),
             title: Text(t.sellProducts),
             onTap: () {
               Navigator.pop(ctx);
@@ -170,7 +170,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.receipt_long_outlined),
+            leading: const Icon(Icons.receipt_long_rounded),
             title: Text(t.sellOrders),
             onTap: () {
               Navigator.pop(ctx);
@@ -178,7 +178,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.people_outline),
+            leading: const Icon(Icons.people_outline_rounded),
             title: Text(t.sellCustomers),
             onTap: () {
               Navigator.pop(ctx);
@@ -186,7 +186,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.qr_code_2_outlined),
+            leading: const Icon(Icons.qr_code_2_rounded),
             title: Text(t.sellPayments),
             onTap: () {
               Navigator.pop(ctx);
@@ -212,7 +212,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.business)),
         body: StateMessage(
-          icon: Icons.cloud_off_outlined,
+          icon: Icons.cloud_off_rounded,
           title: t.business,
           message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
           action: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -223,11 +223,11 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.business)),
         body: StateMessage(
-          icon: Icons.storefront_outlined,
+          icon: Icons.storefront_rounded,
           title: t.businessWelcomeTitle,
           message: t.businessWelcomeBody,
           action: FilledButton.icon(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             onPressed: () => _openSetup(),
             label: Text(t.businessCreateFirst),
           ),
@@ -251,7 +251,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
         actions: [
           IconButton(
             tooltip: t.businessSetupTitle,
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_rounded),
             onPressed: () => _openSetup(),
           ),
         ],
@@ -283,14 +283,14 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 if (_businesses.length > 1)
                   TextButton.icon(
                     style: TextButton.styleFrom(foregroundColor: Colors.white),
-                    icon: const Icon(Icons.unfold_more, size: 18),
+                    icon: const Icon(Icons.unfold_more_rounded, size: 18),
                     label: Text(t.businessSwitch),
                     onPressed: _showSwitcher,
                   )
                 else
                   IconButton(
                     tooltip: t.businessAddAnother,
-                    icon: const Icon(Icons.add_business_outlined),
+                    icon: const Icon(Icons.add_business_rounded),
                     onPressed: () => _openSetup(addMore: true),
                   ),
               ]),
@@ -306,7 +306,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             const SizedBox(height: Gap.md),
 
             _HubCard(
-              icon: Icons.menu_book_outlined,
+              icon: Icons.menu_book_rounded,
               tint: scheme.primary,
               title: t.khataTitle,
               subtitle: t.businessKhataSub,
@@ -314,7 +314,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
             const SizedBox(height: Gap.md),
             _HubCard(
-              icon: Icons.point_of_sale_outlined,
+              icon: Icons.point_of_sale_rounded,
               tint: scheme.secondary,
               title: t.businessSelling,
               subtitle: t.businessSellingSub,
@@ -322,7 +322,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
             const SizedBox(height: Gap.md),
             _HubCard(
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Icons.account_balance_wallet_rounded,
               tint: AssistoTokens.of(context).success,
               title: t.cashboxTitle,
               subtitle: t.businessCashboxSub,
@@ -331,7 +331,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             if (!isStaff) ...[
               const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.insights_outlined,
+                icon: Icons.insights_rounded,
                 tint: scheme.tertiary,
                 title: t.businessReports,
                 subtitle: t.businessReportsSub,
@@ -339,7 +339,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               ),
               const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.inventory_2_outlined,
+                icon: Icons.inventory_2_rounded,
                 tint: Brand.cyan,
                 title: t.supTitle,
                 subtitle: t.supHubSub,
@@ -347,7 +347,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               ),
               const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.insights_outlined,
+                icon: Icons.insights_rounded,
                 tint: Theme.of(context).colorScheme.error,
                 title: t.demandTitle,
                 subtitle: t.demandHubSub,
@@ -358,7 +358,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               // in code and shows its own gate/upgrade when unpaid; the hub just
               // mirrors the Premium badge when the business is unpaid.
               _HubCard(
-                icon: Icons.handshake_outlined,
+                icon: Icons.handshake_rounded,
                 tint: Brand.purple,
                 title: t.bizBargainTitle,
                 subtitle: t.bizBargainHubSub,
@@ -371,7 +371,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             // AI assistant handles its own Premium gate + upgrade screen; the
             // hub just shows the Premium badge when the business is unpaid.
             _HubCard(
-              icon: Icons.smart_toy_outlined,
+              icon: Icons.smart_toy_rounded,
               tint: Brand.purple,
               title: t.businessAiAssistant,
               subtitle: t.businessAiAssistantSub,
@@ -383,7 +383,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             // p1-bizagent: the 24/7 AI sales agent for Page / Instagram /
             // WhatsApp (own seller plans + trial; honest setup states).
             _HubCard(
-              icon: Icons.support_agent_outlined,
+              icon: Icons.support_agent_rounded,
               tint: Brand.blue,
               title: t.baHubTitle,
               subtitle: t.baHubSub,
@@ -392,7 +392,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             const SizedBox(height: Gap.md),
             // Plans comparison (Free vs Premium) — informational, open to all.
             _HubCard(
-              icon: Icons.workspace_premium_outlined,
+              icon: Icons.workspace_premium_rounded,
               tint: Brand.cyan,
               title: t.bizPlansTitle,
               subtitle: t.bizPlansHubSub,
@@ -400,7 +400,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
             const SizedBox(height: Gap.md),
             _HubCard(
-              icon: Icons.tune_outlined,
+              icon: Icons.tune_rounded,
               tint: scheme.onSurfaceVariant,
               title: t.businessSetupTitle,
               subtitle: t.businessSetupSub,
@@ -513,7 +513,7 @@ class _NetPositionCardState extends State<_NetPositionCard> {
           if (!widget.isStaff) ...[
             const Divider(height: Gap.xl),
             Row(children: [
-              Icon(ahead ? Icons.trending_up : Icons.trending_down,
+              Icon(ahead ? Icons.trending_up_rounded : Icons.trending_down_rounded,
                   color: ahead ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -609,7 +609,7 @@ class _HubCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(Radii.pill),
                           ),
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
-                            const Icon(Icons.workspace_premium,
+                            const Icon(Icons.workspace_premium_rounded,
                                 size: 13, color: Brand.purple),
                             const SizedBox(width: 3),
                             Text(lockedLabel ?? '',
@@ -626,7 +626,7 @@ class _HubCard extends StatelessWidget {
                         style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                   ]),
             ),
-            Icon(locked ? Icons.lock_outline : Icons.chevron_right,
+            Icon(locked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded,
                 color: scheme.onSurfaceVariant),
           ]),
         ),
@@ -644,19 +644,19 @@ class _TypeAvatar extends StatelessWidget {
   IconData get _icon {
     switch (type) {
       case 'online_seller':
-        return Icons.shopping_bag_outlined;
+        return Icons.shopping_bag_rounded;
       case 'small_shop':
-        return Icons.storefront_outlined;
+        return Icons.storefront_rounded;
       case 'service':
-        return Icons.handyman_outlined;
+        return Icons.handyman_rounded;
       case 'food':
-        return Icons.restaurant_outlined;
+        return Icons.restaurant_rounded;
       case 'wholesaler':
-        return Icons.warehouse_outlined;
+        return Icons.warehouse_rounded;
       case 'b2b':
-        return Icons.business_center_outlined;
+        return Icons.business_center_rounded;
       default:
-        return Icons.store_outlined;
+        return Icons.store_rounded;
     }
   }
 

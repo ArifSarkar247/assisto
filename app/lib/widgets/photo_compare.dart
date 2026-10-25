@@ -75,13 +75,13 @@ class _PhotoCompareState extends State<PhotoCompare> {
                         left: 8,
                         top: 8,
                         child: _tag(context, AppLocalizations.of(context).phBefore,
-                            scheme, Icons.history),
+                            scheme, Icons.history_rounded),
                       ),
                       Positioned(
                         right: 8,
                         top: 8,
                         child: _tag(context, AppLocalizations.of(context).phAfter,
-                            scheme, Icons.auto_fix_high),
+                            scheme, Icons.auto_fix_high_rounded),
                       ),
                     ],
                   ),
@@ -92,7 +92,7 @@ class _PhotoCompareState extends State<PhotoCompare> {
         ),
         const SizedBox(height: 6),
         Row(children: [
-          Icon(Icons.compare_outlined,
+          Icon(Icons.compare_rounded,
               size: 16, color: scheme.onSurfaceVariant),
           const SizedBox(width: 6),
           Expanded(

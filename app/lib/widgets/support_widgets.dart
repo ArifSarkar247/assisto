@@ -78,8 +78,8 @@ class TicketCard extends StatelessWidget {
               children: [
                 Icon(
                   kind == 'bug'
-                      ? Icons.bug_report_outlined
-                      : Icons.support_agent_outlined,
+                      ? Icons.bug_report_rounded
+                      : Icons.support_agent_rounded,
                   size: 20,
                   color: scheme.primary,
                 ),
@@ -147,7 +147,7 @@ class FaqTile extends StatelessWidget {
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
-        leading: Icon(Icons.help_outline, color: scheme.primary),
+        leading: Icon(Icons.help_outline_rounded, color: scheme.primary),
         title: Text(question,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         childrenPadding:

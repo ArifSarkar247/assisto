@@ -84,13 +84,13 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.bloodTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.bloodLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -99,13 +99,13 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.bloodTitle)),
         body: StateMessage(
-          icon: Icons.bloodtype_outlined,
+          icon: Icons.bloodtype_rounded,
           tint: Brand.blue,
           title: tr.bloodWelcomeTitle,
           message: tr.bloodWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addOrEdit,
-            icon: const Icon(Icons.person_add_alt_1),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
             label: Text(tr.bloodRegisterDonor),
           ),
         ),
@@ -123,7 +123,7 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _addOrEdit,
-          icon: const Icon(Icons.person_add_alt_1),
+          icon: const Icon(Icons.person_add_alt_1_rounded),
           label: Text(tr.bloodRegisterDonor),
         ),
         body: TabBarView(children: [
@@ -276,7 +276,7 @@ class _SearchTabState extends State<_SearchTab> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               labelText: tr.bloodSearchArea,
-              prefixIcon: const Icon(Icons.place_outlined),
+              prefixIcon: const Icon(Icons.place_rounded),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -299,7 +299,7 @@ class _SearchTabState extends State<_SearchTab> {
       Expanded(
         child: results.isEmpty
             ? StateMessage(
-                icon: Icons.search_off,
+                icon: Icons.search_off_rounded,
                 tint: scheme.onSurfaceVariant,
                 title: tr.bloodNoneFoundTitle,
                 message: tr.bloodNoneFoundBody,
@@ -369,7 +369,7 @@ class _DonorCard extends StatelessWidget {
             ),
             if (onEdit != null)
               IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20),
+                icon: const Icon(Icons.edit_rounded, size: 20),
                 tooltip: tr.edit,
                 onPressed: () => onEdit!(card.raw),
               ),
@@ -381,10 +381,10 @@ class _DonorCard extends StatelessWidget {
                 card.availability == 'available'
                     ? Brand.success
                     : scheme.onSurfaceVariant),
-            _chip(context, Icons.event_available_outlined, eligLabel,
+            _chip(context, Icons.event_available_rounded, eligLabel,
                 eligColor),
             if (card.nextDate != null && !card.eligible)
-              _chip(context, Icons.calendar_today_outlined,
+              _chip(context, Icons.calendar_today_rounded,
                   tr.bloodNextEligible(card.nextDate!), scheme.onSurfaceVariant),
           ]),
           const SizedBox(height: Gap.sm),
@@ -409,9 +409,9 @@ class _DonorCard extends StatelessWidget {
       );
 
   IconData _availabilityIcon(String a) => switch (a) {
-        'available' => Icons.check_circle_outline,
-        'paused' => Icons.pause_circle_outline,
-        _ => Icons.do_not_disturb_on_outlined,
+        'available' => Icons.check_circle_outline_rounded,
+        'paused' => Icons.pause_circle_outline_rounded,
+        _ => Icons.do_not_disturb_on_rounded,
       };
 
   String _availabilityLabel(AppLocalizations tr, String a) => switch (a) {
@@ -432,7 +432,7 @@ class _ContactRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     if (card.phone != null && card.phone!.isNotEmpty) {
       return Row(children: [
-        Icon(Icons.phone_outlined, size: 16, color: Brand.blue),
+        Icon(Icons.phone_rounded, size: 16, color: Brand.blue),
         const SizedBox(width: 6),
         Expanded(
           child: Text(card.phone!,
@@ -442,7 +442,7 @@ class _ContactRow extends StatelessWidget {
       ]);
     }
     return Row(children: [
-      Icon(Icons.lock_outline, size: 15, color: scheme.onSurfaceVariant),
+      Icon(Icons.lock_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
       const SizedBox(width: 6),
       Expanded(
         child: Text(tr.bloodContactHidden,
@@ -463,7 +463,7 @@ class _PrivacyNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.shield_outlined, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.shield_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.bloodPrivacyNote,
@@ -581,7 +581,7 @@ class _DonorFormState extends State<_DonorForm> {
               decoration: InputDecoration(
                   labelText: tr.bloodAreaLabel,
                   hintText: tr.bloodAreaHint,
-                  prefixIcon: const Icon(Icons.place_outlined),
+                  prefixIcon: const Icon(Icons.place_rounded),
                   border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.md),
@@ -601,7 +601,7 @@ class _DonorFormState extends State<_DonorForm> {
               child: InputDecorator(
                 decoration: InputDecoration(
                     labelText: tr.bloodLastDonation,
-                    prefixIcon: const Icon(Icons.event_outlined),
+                    prefixIcon: const Icon(Icons.event_rounded),
                     border: const OutlineInputBorder()),
                 child: Row(children: [
                   Expanded(
@@ -616,7 +616,7 @@ class _DonorFormState extends State<_DonorForm> {
                   ),
                   if (_lastDonation != null)
                     IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       onPressed: () => setState(() => _lastDonation = null),
                     ),
                 ]),
@@ -656,7 +656,7 @@ class _DonorFormState extends State<_DonorForm> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                     labelText: tr.bloodPhone,
-                    prefixIcon: const Icon(Icons.phone_outlined),
+                    prefixIcon: const Icon(Icons.phone_rounded),
                     border: const OutlineInputBorder()),
               ),
             ],

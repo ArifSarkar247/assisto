@@ -228,7 +228,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                       Text(honestFailText(_t, _failCause, otherwise: _t.msgLoadFailed), textAlign: TextAlign.center),
                       const SizedBox(height: Gap.md),
                       FilledButton.icon(
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Icons.refresh_rounded),
                         label: Text(_t.retry),
                         onPressed: () {
                           setState(() => _loading = true);
@@ -259,27 +259,27 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // p3: profile note (24 h)
                 if (_note != null)
-                  _tile(Icons.sticky_note_2_outlined, _t.p3NoteOnProfile, _note!),
+                  _tile(Icons.sticky_note_2_rounded, _t.p3NoteOnProfile, _note!),
                 // About / phone
                 if (about.isNotEmpty)
-                  _tile(Icons.info_outline, _t.msgrContactAbout, about),
+                  _tile(Icons.info_outline_rounded, _t.msgrContactAbout, about),
                 if (phone.isNotEmpty)
-                  _tile(Icons.phone_outlined, _t.msgrContactPhone, phone),
+                  _tile(Icons.phone_rounded, _t.msgrContactPhone, phone),
 
                 const Divider(),
 
                 // Media / links / docs
                 ListTile(
-                  leading: const Icon(Icons.perm_media_outlined),
+                  leading: const Icon(Icons.perm_media_rounded),
                   title: Text(_t.msgrContactMediaLinksDocs),
                   subtitle: Text(notifLocalizeDigits(context, '$mediaCount · $linkCount · $docCount')),
                 ),
                 // Starred
                 ListTile(
-                  leading: const Icon(Icons.star_outline),
+                  leading: const Icon(Icons.star_outline_rounded),
                   title: Text(_t.msgrContactStarred),
                   subtitle: Text(notifLocalizeDigits(context, '$starredCount')),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => StarredMessagesScreen(
                           members: [widget.member]))),
@@ -289,17 +289,17 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // Mute
                 SwitchListTile(
-                  secondary: const Icon(Icons.notifications_off_outlined),
+                  secondary: const Icon(Icons.notifications_off_rounded),
                   title: Text(_t.msgrChatMute),
                   value: _muted,
                   onChanged: _toggleMute,
                 ),
                 // Disappearing
                 ListTile(
-                  leading: const Icon(Icons.timer_outlined),
+                  leading: const Icon(Icons.timer_rounded),
                   title: Text(_t.msgrChatDisappearing),
                   subtitle: Text(_disappearingLabel(_disappearingSec)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _editDisappearing,
                 ),
 
@@ -307,7 +307,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // Encryption note
                 ListTile(
-                  leading: Icon(Icons.verified_user_outlined,
+                  leading: Icon(Icons.verified_user_rounded,
                       color: scheme.primary),
                   title: Text(_t.msgrContactEncryption),
                   subtitle: Text(fingerprint.isEmpty
@@ -317,7 +317,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // Relationship (Connected circle)
                 _tile(
-                  Icons.diversity_3_outlined,
+                  Icons.diversity_3_rounded,
                   _t.msgrContactRelationship,
                   CircleRelation.labelFor(_t, relation,
                       custom: '${_info['custom_label'] ?? widget.member['custom_label'] ?? ''}'),
@@ -334,7 +334,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   ),
                   for (final g in groupsInCommon)
                     ListTile(
-                      leading: const Icon(Icons.groups_outlined),
+                      leading: const Icon(Icons.groups_rounded),
                       title: Text('${(g is Map ? g['name'] : g) ?? ''}',
                           maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
@@ -351,13 +351,13 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // Block / Report
                 ListTile(
-                  leading: Icon(Icons.block, color: scheme.error),
+                  leading: Icon(Icons.block_rounded, color: scheme.error),
                   title: Text(_blocked ? _t.circleUnblock : _t.circleBlock,
                       style: TextStyle(color: scheme.error)),
                   onTap: _toggleBlock,
                 ),
                 ListTile(
-                  leading: Icon(Icons.flag_outlined, color: scheme.error),
+                  leading: Icon(Icons.flag_rounded, color: scheme.error),
                   title: Text(_t.circleReport,
                       style: TextStyle(color: scheme.error)),
                   onTap: _report,

@@ -63,15 +63,15 @@ Color dSevColor(DisasterSev s) {
 IconData dKindIcon(String kind) {
   switch (kind) {
     case 'cyclone':
-      return Icons.cyclone;
+      return Icons.cyclone_rounded;
     case 'flood':
-      return Icons.water_drop_outlined;
+      return Icons.water_drop_rounded;
     case 'heat':
-      return Icons.thermostat;
+      return Icons.thermostat_rounded;
     case 'earthquake':
-      return Icons.vibration;
+      return Icons.vibration_rounded;
     default:
-      return Icons.warning_amber_outlined;
+      return Icons.warning_amber_rounded;
   }
 }
 

@@ -69,10 +69,10 @@ class NomineeCard extends StatelessWidget {
     };
 
     final (statusColor, statusLabel, statusIcon) = activated
-        ? (scheme.error, tr.nomineeStatusOpen, Icons.lock_open)
+        ? (scheme.error, tr.nomineeStatusOpen, Icons.lock_open_rounded)
         : pending
-            ? (Brand.warning, tr.nomineeStatusPending, Icons.hourglass_top)
-            : (Brand.success, tr.nomineeStatusArmed, Icons.lock_outline);
+            ? (Brand.warning, tr.nomineeStatusPending, Icons.hourglass_top_rounded)
+            : (Brand.success, tr.nomineeStatusArmed, Icons.lock_outline_rounded);
 
     return Card(
       child: Padding(
@@ -143,7 +143,7 @@ class NomineeCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           // Trigger + status row.
           Row(children: [
-            Icon(Icons.bolt_outlined,
+            Icon(Icons.bolt_rounded,
                 size: 16, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.xs),
             Expanded(
@@ -178,7 +178,7 @@ class NomineeCard extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: onManageRelease,
-              icon: const Icon(Icons.tune, size: 18),
+              icon: const Icon(Icons.tune_rounded, size: 18),
               label: Text(tr.nomineeManageAccess),
             ),
           ]),

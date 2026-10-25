@@ -248,7 +248,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                         Gap.lg, Gap.md, Gap.lg, Gap.xs),
                     child: Row(
                       children: [
-                        Icon(Icons.lock_outline,
+                        Icon(Icons.lock_outline_rounded,
                             size: 15, color: scheme.onSurfaceVariant),
                         const SizedBox(width: Gap.xs),
                         Expanded(
@@ -287,7 +287,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_off_outlined,
+                  Icon(Icons.cloud_off_rounded,
                       size: 56, color: scheme.onSurfaceVariant),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
@@ -296,7 +296,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                   const SizedBox(height: Gap.lg),
                   FilledButton.icon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(_t.retry),
                   ),
                 ],

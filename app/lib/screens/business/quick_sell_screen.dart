@@ -163,12 +163,12 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           ? const SkeletonList()
           : _error != null
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : Column(children: [
                   Padding(
@@ -177,7 +177,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: t.biz_product_name,
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: const Icon(Icons.search_rounded),
                       ),
                       onChanged: (v) => setState(() => _q = v.trim().toLowerCase()),
                     ),
@@ -198,7 +198,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
             .toList();
     if (filtered.isEmpty) {
       return StateMessage(
-          icon: Icons.inventory_2_outlined, title: t.biz_cart_empty);
+          icon: Icons.inventory_2_rounded, title: t.biz_cart_empty);
     }
     return GridView.builder(
       padding: const EdgeInsets.all(Gap.lg),
@@ -251,9 +251,9 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                         ? Image.network(p['photo'].toString(),
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Icon(
-                                Icons.image_outlined,
+                                Icons.image_rounded,
                                 color: scheme.onSurfaceVariant))
-                        : Icon(Icons.inventory_2_outlined,
+                        : Icon(Icons.inventory_2_rounded,
                             color: scheme.onSurfaceVariant),
                   ),
                 ),
@@ -289,7 +289,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
             child: Row(children: [
               Badge(
                 label: Text('$count'),
-                child: const Icon(Icons.shopping_cart_outlined),
+                child: const Icon(Icons.shopping_cart_rounded),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -393,7 +393,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).delete,
-            icon: Icon(Icons.delete_outline, color: scheme.error),
+            icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
             onPressed: () async {
               await _removeLine(line);
               after();
@@ -412,7 +412,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               await _editPrice(line);
               after();
             },
-            icon: const Icon(Icons.edit_outlined, size: 16),
+            icon: const Icon(Icons.edit_rounded, size: 16),
             label: Text('${unit.takaIn(context)}', style: const TextStyle(fontFeatures: AFonts.tabular)),
           ),
           const SizedBox(width: Gap.sm),
@@ -427,7 +427,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     return Row(children: [
       IconButton.filledTonal(
         tooltip: AppLocalizations.of(context).f2Decrease,
-        icon: const Icon(Icons.remove, size: 18),
+        icon: const Icon(Icons.remove_rounded, size: 18),
         onPressed: () => onChange(qty - 1),
       ),
       Padding(
@@ -437,7 +437,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       ),
       IconButton.filledTonal(
         tooltip: AppLocalizations.of(context).f2Increase,
-        icon: const Icon(Icons.add, size: 18),
+        icon: const Icon(Icons.add_rounded, size: 18),
         onPressed: () => onChange(qty + 1),
       ),
     ]);
@@ -646,7 +646,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            leading: const Icon(Icons.share_outlined),
+            leading: const Icon(Icons.share_rounded),
             title: Text(t.biz_receipt_share),
             onTap: () {
               Navigator.pop(ctx);
@@ -654,7 +654,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.block, color: Theme.of(ctx).colorScheme.error),
+            leading: Icon(Icons.block_rounded, color: Theme.of(ctx).colorScheme.error),
             title: Text(t.shopVoidTitle),
             onTap: () {
               Navigator.pop(ctx);
@@ -735,7 +735,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(children: [
-                  Icon(Icons.info_outline,
+                  Icon(Icons.info_outline_rounded,
                       color: AssistoTokens.of(context).warning, size: 18),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(t.biz_discount_clamped)),

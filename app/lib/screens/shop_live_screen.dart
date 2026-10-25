@@ -254,7 +254,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
         return Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.videocam_off_outlined, color: Colors.white70, size: 48),
+            const Icon(Icons.videocam_off_rounded, color: Colors.white70, size: 48),
             const SizedBox(height: Gap.md),
             Text(t.shopLiveEnded,
                 textAlign: TextAlign.center,
@@ -271,7 +271,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
         return Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.portable_wifi_off, color: Colors.white70, size: 48),
+            const Icon(Icons.portable_wifi_off_rounded, color: Colors.white70, size: 48),
             const SizedBox(height: Gap.md),
             Text(_error,
                 textAlign: TextAlign.center,
@@ -296,13 +296,13 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
           if (_phase == _Phase.live)
             Chip(
-              avatar: Icon(_relayed ? Icons.cloud_sync_outlined : Icons.bolt_outlined,
+              avatar: Icon(_relayed ? Icons.cloud_sync_rounded : Icons.bolt_rounded,
                   size: 18, color: _relayed ? scheme.tertiary : AssistoTokens.of(context).success),
               label: Text(_relayed ? t.shopLiveRelayed : t.shopLiveP2p),
             ),
           if (active)
             Chip(
-              avatar: const Icon(Icons.timer_outlined, size: 18),
+              avatar: const Icon(Icons.timer_rounded, size: 18),
               label: Text(t.shopLiveTimeLeft(_mmss(_left))),
             ),
         ]),
@@ -325,7 +325,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               style: FilledButton.styleFrom(backgroundColor: scheme.error,
                   foregroundColor: scheme.onError),
               onPressed: () => _end(),
-              icon: const Icon(Icons.stop_circle_outlined),
+              icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.shopLiveStop),
             ),
           ),

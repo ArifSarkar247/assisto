@@ -101,17 +101,17 @@ class _TargetsTabState extends State<_TargetsTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(null),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.crmSetTarget),
       ),
       body: _targets.isEmpty
           ? CrmStateView.empty(
-              icon: Icons.flag_outlined,
+              icon: Icons.flag_rounded,
               title: t.crmNoTargets,
               message: t.crmNoTargetsHint,
               action: FilledButton.tonalIcon(
                   onPressed: () => _edit(null),
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(t.crmSetTarget)))
           : RefreshIndicator(
               onRefresh: _load,
@@ -140,12 +140,12 @@ class _TargetsTabState extends State<_TargetsTab> {
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             IconButton(
                 tooltip: AppLocalizations.of(context).edit,
-                icon: const Icon(Icons.edit_outlined, size: 18),
+                icon: const Icon(Icons.edit_rounded, size: 18),
                 onPressed: () => _edit(tg)),
           ]),
           if (!set)
             NeedsKeyBanner(t.crmOwnerMustSetTarget,
-                icon: Icons.flag_outlined)
+                icon: Icons.flag_rounded)
           else ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
@@ -170,7 +170,7 @@ class _TargetsTabState extends State<_TargetsTab> {
             if (onPace != null) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(onPace == true ? Icons.trending_up : Icons.trending_down,
+                Icon(onPace == true ? Icons.trending_up_rounded : Icons.trending_down_rounded,
                     size: 16,
                     color: onPace == true ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
@@ -227,7 +227,7 @@ class _LeaderboardTabState extends State<_LeaderboardTab> {
     }
     if (_rows.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.emoji_events_outlined,
+          icon: Icons.emoji_events_rounded,
           title: t.crmNoLeaderboard,
           message: t.crmNoLeaderboardHint);
     }

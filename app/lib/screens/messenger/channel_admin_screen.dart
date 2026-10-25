@@ -181,18 +181,18 @@ class _PostsTabState extends State<_PostsTab> {
       floatingActionButton: widget.canPublish
           ? FloatingActionButton.extended(
               onPressed: _compose,
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit_rounded),
               label: Text(t.channelPost))
           : null,
       body: widget.posts.isEmpty
           ? MsgrEmptyState(
-              icon: Icons.post_add,
+              icon: Icons.post_add_rounded,
               title: t.channelNoPostsTitle,
               body: t.channelComposeFirstBody,
               action: widget.canPublish
                   ? FilledButton.icon(
                       onPressed: _compose,
-                      icon: const Icon(Icons.edit_outlined),
+                      icon: const Icon(Icons.edit_rounded),
                       label: Text(t.channelPost))
                   : null,
             )
@@ -296,11 +296,11 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
             Wrap(
               spacing: Gap.sm,
               children: [
-                _kindChip('text', t.channelPostText, Icons.notes),
+                _kindChip('text', t.channelPostText, Icons.notes_rounded),
                 // Photo / video posts are hidden: the server has no channel
                 // media upload yet, so an "attach" button would do nothing.
-                _kindChip('link', t.channelPostLink, Icons.link),
-                _kindChip('poll', t.channelPostPoll, Icons.poll_outlined),
+                _kindChip('link', t.channelPostLink, Icons.link_rounded),
+                _kindChip('poll', t.channelPostPoll, Icons.poll_rounded),
               ],
             ),
             const SizedBox(height: Gap.md),
@@ -372,7 +372,7 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
                 ),
                 if (_pollOptions.length > 2)
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close_rounded),
                     onPressed: () => setState(
                         () => _pollOptions.removeAt(i).dispose()),
                   ),
@@ -384,7 +384,7 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
               ? null
               : () => setState(
                   () => _pollOptions.add(TextEditingController())),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(t.channelPollAddOption),
         ),
         SwitchListTile(
@@ -560,7 +560,7 @@ class _ProfileTabState extends State<_ProfileTab> {
         else if (isOwner)
           OutlinedButton.icon(
             onPressed: _requestVerification,
-            icon: const Icon(Icons.verified_outlined),
+            icon: const Icon(Icons.verified_rounded),
             label: Text(t.channelRequestVerification),
           ),
         const SizedBox(height: Gap.sm),
@@ -697,13 +697,13 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
                 child: _statCard(
                     t.channelAnalyticsViews,
                     msgrLocalizeDigits(views.toString(), bn),
-                    Icons.visibility_outlined)),
+                    Icons.visibility_rounded)),
             const SizedBox(width: Gap.md),
             Expanded(
                 child: _statCard(
                     t.channelAnalyticsReactions,
                     msgrLocalizeDigits(reactions.toString(), bn),
-                    Icons.favorite_outline)),
+                    Icons.favorite_outline_rounded)),
           ],
         ),
         const SizedBox(height: Gap.lg),
@@ -718,7 +718,7 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.trending_up),
+              leading: const Icon(Icons.trending_up_rounded),
               title: Text('${g['day'] ?? ''}'),
               trailing: Text(msgrLocalizeDigits(
                   '${(g['count'] as num?)?.toInt() ?? 0}', bn)),
@@ -727,7 +727,7 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
         // Analytics are aggregates only — never a per-follower listing.
         Row(
           children: [
-            Icon(Icons.lock_outline,
+            Icon(Icons.lock_outline_rounded,
                 size: 16,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
@@ -878,19 +878,19 @@ class _AdminsTabState extends State<_AdminsTab> {
       floatingActionButton: widget.isOwner
           ? FloatingActionButton.extended(
               onPressed: _add,
-              icon: const Icon(Icons.person_add_alt),
+              icon: const Icon(Icons.person_add_alt_rounded),
               label: Text(t.channelAddAdmin))
           : null,
       body: ListView(
         children: [
           for (final a in _admins)
             ListTile(
-              leading: const Icon(Icons.shield_outlined),
+              leading: const Icon(Icons.shield_rounded),
               title: Text('${a['name'] ?? a['user_id'] ?? ''}'),
               subtitle: a['is_owner'] == true ? Text(t.channelOwner) : null,
               trailing: (widget.isOwner && a['is_owner'] != true)
                   ? IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
                       onPressed: () => _remove(
                           (a['user_id'] as num).toInt(),
                           '${a['name'] ?? a['user_id'] ?? ''}'),

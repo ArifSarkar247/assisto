@@ -73,22 +73,22 @@ class ContactQuickActions extends StatelessWidget {
         );
 
     if (phone != null) {
-      buttons.add(act(Icons.call, cStr(context, 'cCall'), Brand.success,
+      buttons.add(act(Icons.call_rounded, cStr(context, 'cCall'), Brand.success,
           () => _launch(context, Uri.parse('tel:${phone.trim()}'))));
-      buttons.add(act(Icons.sms_outlined, cStr(context, 'cSms'), scheme.primary,
+      buttons.add(act(Icons.sms_rounded, cStr(context, 'cSms'), scheme.primary,
           () => _launch(context, Uri.parse('sms:${phone.trim()}'))));
-      buttons.add(act(Icons.chat_outlined, cStr(context, 'cWhatsapp'),
+      buttons.add(act(Icons.chat_rounded, cStr(context, 'cWhatsapp'),
           const Color(0xFF25D366), () {
         final wa = 'https://wa.me/${_onlyPhone(phone)}';
         _launch(context, Uri.parse(wa));
       }));
     }
     if (email != null) {
-      buttons.add(act(Icons.email_outlined, cStr(context, 'cEmailAction'),
+      buttons.add(act(Icons.email_rounded, cStr(context, 'cEmailAction'),
           scheme.tertiary, () => _launch(context, Uri.parse('mailto:$email'))));
     }
     // share vCard always available (never a dead end even with no phone/email)
-    buttons.add(act(Icons.ios_share, cStr(context, 'cShareVcard'),
+    buttons.add(act(Icons.ios_share_rounded, cStr(context, 'cShareVcard'),
         scheme.secondary, () => Share.share(contact.toVcard(context))));
 
     return Row(children: buttons);
@@ -133,7 +133,7 @@ class _ContactDetailSheet extends StatelessWidget {
               ? null
               : IconButton(
                   tooltip: tr.copy,
-                  icon: const Icon(Icons.copy, size: 18),
+                  icon: const Icon(Icons.copy_rounded, size: 18),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: copy));
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -143,22 +143,22 @@ class _ContactDetailSheet extends StatelessWidget {
         );
 
     for (final p in c.phones) {
-      rows.add(field(Icons.phone, p,
+      rows.add(field(Icons.phone_rounded, p,
           onTap: () => _launch(context, Uri.parse('tel:${p.trim()}')),
           copy: p));
     }
     for (final e in c.emails) {
-      rows.add(field(Icons.email_outlined, e,
+      rows.add(field(Icons.email_rounded, e,
           onTap: () => _launch(context, Uri.parse('mailto:$e')), copy: e));
     }
     for (final a in c.addresses) {
-      rows.add(field(Icons.location_on_outlined, a, copy: a));
+      rows.add(field(Icons.location_on_rounded, a, copy: a));
     }
-    if (c.org.isNotEmpty) rows.add(field(Icons.business, c.org));
+    if (c.org.isNotEmpty) rows.add(field(Icons.business_rounded, c.org));
     if (c.birthday.isNotEmpty) {
-      rows.add(field(Icons.cake_outlined, c.birthday));
+      rows.add(field(Icons.cake_rounded, c.birthday));
     }
-    if (c.note.isNotEmpty) rows.add(field(Icons.notes, c.note));
+    if (c.note.isNotEmpty) rows.add(field(Icons.notes_rounded, c.note));
 
     final since = c.daysSinceInteraction();
     final touchLine = c.cadence.isEmpty
@@ -197,7 +197,7 @@ class _ContactDetailSheet extends StatelessWidget {
                   ),
                   if (c.favourite) ...[
                     const SizedBox(width: 6),
-                    const Icon(Icons.star, color: Brand.warning, size: 20),
+                    const Icon(Icons.star_rounded, color: Brand.warning, size: 20),
                   ],
                 ]),
                 if (c.relation.isNotEmpty || c.linkedUserId != null)
@@ -207,11 +207,11 @@ class _ContactDetailSheet extends StatelessWidget {
                       if (c.relation.isNotEmpty)
                         ContactTag(
                             text: relationDisplay(context, c.relation),
-                            icon: Icons.favorite_border),
+                            icon: Icons.favorite_border_rounded),
                       if (c.linkedUserId != null)
                         ContactTag(
                             text: cStr(context, 'cLinkedCircle'),
-                            icon: Icons.link,
+                            icon: Icons.link_rounded,
                             color: scheme.tertiary),
                     ]),
                   ),
@@ -219,7 +219,7 @@ class _ContactDetailSheet extends StatelessWidget {
             ),
             IconButton(
                 tooltip: cStr(context, 'cEditContact'),
-                icon: const Icon(Icons.edit_outlined),
+                icon: const Icon(Icons.edit_rounded),
                 onPressed: () =>
                     Navigator.pop(context, ContactDetailResult.edit)),
           ]),
@@ -241,7 +241,7 @@ class _ContactDetailSheet extends StatelessWidget {
                   ? Brand.warning.withValues(alpha: 0.12)
                   : scheme.surfaceContainerHighest,
               child: ListTile(
-                leading: Icon(Icons.favorite,
+                leading: Icon(Icons.favorite_rounded,
                     color: c.touchDue() ? Brand.warning : scheme.primary),
                 title: Text(touchLine),
                 subtitle: Text(
@@ -264,14 +264,14 @@ class _ContactDetailSheet extends StatelessWidget {
           Row(children: [
             if (c.linkedUserId == null)
               TextButton.icon(
-                icon: const Icon(Icons.link),
+                icon: const Icon(Icons.link_rounded),
                 label: Text(cStr(context, 'cLinkCircle')),
                 onPressed: () =>
                     Navigator.pop(context, ContactDetailResult.linkCircle),
               ),
             const Spacer(),
             TextButton.icon(
-              icon: Icon(Icons.delete_outline, color: scheme.error),
+              icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
               label: Text(tr.delete, style: TextStyle(color: scheme.error)),
               onPressed: () =>
                   Navigator.pop(context, ContactDetailResult.delete),
@@ -421,7 +421,7 @@ class _ContactEditorState extends State<_ContactEditor> {
               ),
               if (cs.length > 1)
                 IconButton(
-                  icon: Icon(Icons.remove_circle_outline, color: scheme.error),
+                  icon: Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
                   onPressed: () => setState(() => cs.removeAt(i)),
                 ),
             ]),
@@ -429,7 +429,7 @@ class _ContactEditorState extends State<_ContactEditor> {
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: TextButton.icon(
-            icon: const Icon(Icons.add, size: 18),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: Text(addLabel),
             onPressed: () =>
                 setState(() => cs.add(TextEditingController())),
@@ -456,7 +456,7 @@ class _ContactEditorState extends State<_ContactEditor> {
             textCapitalization: TextCapitalization.words,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.person_outline),
+              prefixIcon: const Icon(Icons.person_outline_rounded),
               labelText: tr.name,
               border: const OutlineInputBorder(),
             ),
@@ -464,7 +464,7 @@ class _ContactEditorState extends State<_ContactEditor> {
           const SizedBox(height: Gap.sm),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            secondary: Icon(Icons.star,
+            secondary: Icon(Icons.star_rounded,
                 color: _favourite ? Brand.warning : scheme.outline),
             title: Text(cStr(context, 'cFavourite')),
             value: _favourite,
@@ -472,21 +472,21 @@ class _ContactEditorState extends State<_ContactEditor> {
           ),
           const Divider(),
           _sectionLabel(context, cStr(context, 'cPhones')),
-          multiField(cStr(context, 'cAddPhone'), Icons.phone, _phones,
+          multiField(cStr(context, 'cAddPhone'), Icons.phone_rounded, _phones,
               TextInputType.phone),
           const SizedBox(height: Gap.sm),
           _sectionLabel(context, cStr(context, 'cEmails')),
-          multiField(cStr(context, 'cAddEmail'), Icons.email_outlined, _emails,
+          multiField(cStr(context, 'cAddEmail'), Icons.email_rounded, _emails,
               TextInputType.emailAddress),
           const SizedBox(height: Gap.sm),
           _sectionLabel(context, cStr(context, 'cAddresses')),
-          multiField(cStr(context, 'cAddAddress'), Icons.location_on_outlined,
+          multiField(cStr(context, 'cAddAddress'), Icons.location_on_rounded,
               _addresses, TextInputType.streetAddress),
           const Divider(),
           TextField(
             controller: _org,
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.business),
+              prefixIcon: const Icon(Icons.business_rounded),
               labelText: tr.organization,
               border: const OutlineInputBorder(),
             ),
@@ -539,14 +539,14 @@ class _ContactEditorState extends State<_ContactEditor> {
               ),
             ),
             IconButton(
-                icon: const Icon(Icons.add_circle_outline),
+                icon: const Icon(Icons.add_circle_outline_rounded),
                 onPressed: _addLabel),
           ]),
           const SizedBox(height: Gap.md),
           // birthday
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.cake_outlined),
+            leading: const Icon(Icons.cake_rounded),
             title: Text(cStr(context, 'cBirthday')),
             subtitle:
                 _birthday.isEmpty ? null : Text(_birthday),
@@ -570,7 +570,7 @@ class _ContactEditorState extends State<_ContactEditor> {
             controller: _note,
             maxLines: 3,
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.notes),
+              prefixIcon: const Icon(Icons.notes_rounded),
               labelText: tr.note,
               border: const OutlineInputBorder(),
               alignLabelWithHint: true,

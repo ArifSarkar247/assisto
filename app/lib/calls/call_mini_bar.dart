@@ -105,7 +105,7 @@ class _CallMiniBarState extends State<CallMiniBar> {
           padding: EdgeInsets.fromLTRB(Gap.lg, top + 6, Gap.xs, 6),
           child: Row(
             children: [
-              Icon(c.videoOn ? Icons.videocam : Icons.call,
+              Icon(c.videoOn ? Icons.videocam_rounded : Icons.call_rounded,
                   color: CallInk.text, size: 20),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -133,7 +133,7 @@ class _CallMiniBarState extends State<CallMiniBar> {
               if (c.muted)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
-                  child: Icon(Icons.mic_off,
+                  child: Icon(Icons.mic_off_rounded,
                       color: CallInk.text, size: 18, semanticLabel: t.circleCallMute),
                 ),
               // no Tooltip: the bar sits ABOVE the Navigator (no Overlay)
@@ -147,7 +147,7 @@ class _CallMiniBarState extends State<CallMiniBar> {
                   child: const SizedBox(
                       width: Gap.xxxl,
                       height: Gap.xxxl,
-                      child: Icon(Icons.call_end, color: CallInk.miniHangup)),
+                      child: Icon(Icons.call_end_rounded, color: CallInk.miniHangup)),
                 ),
               ),
             ],
