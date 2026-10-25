@@ -2,11 +2,10 @@
 
 Owner order (21 Oct): a feature is **DONE only when a real user flow works end to end**. Unit tests are not evidence.
 
-**Status of this document: PROVISIONAL.**
-- Every class below comes from a static sweep (code reading + `tools/route_check.py` against Django's real URL resolver) plus local backend round-trip tests.
-- **No emulator flow has run yet.** This server has no `/dev/kvm`. The flows run only in `.github/workflows/reality.yml` on GitHub Actions, and that workflow has not been pushed or run yet.
-- Every "evidence" cell reads **pending first CI run** until the `reality-evidence` artifact exists.
-- After the first run, replace each provisional class with the class from `reality_out/reality_summary.md`.
+**Status of this document: priority flows = REAL emulator evidence (reality run 40220390438, 25 Oct, branch agent/reality-fix): 110 rows, A=105 B=5 C=0 D=0, every job green.**
+- Evidence per flow: artifacts `reality-evidence-<group>--swiftshader_indirect` (step screenshots, results.json with every HTTP call + status, django.log, logcat) and `reality-summary` of run 40220390438.
+- The drawer-sweep rows (S…) prove only that the screen **opens honestly** (no 404/405/5xx, no exception, no load-failed state). Their deep actions keep the provisional class until a dedicated flow or the phone checklist proves them.
+- How the run became trustworthy (rf1, 25 Oct): the first real run (40205920547: A=18 C=7 D=6) had 5 flows failing on stale `byIcon` finders (the f5 icon migration) and 6 flows that never ran because the HOST emulator segfaulted ("RenderThread: segfault", Impeller-GLES frames of 6-18 s right after a text-field focus). Fixes: tooltip/Key finders + a CI guard against `byIcon(` in flows; soft IME disabled on the emulator; the CI **test APK only** renders with Skia (`EnableImpeller=false` in the debug manifest — release keeps Impeller); a device death now resumes the group at the next flow and a flow that kills the emulator twice is reported D "crashed DURING this flow", never A.
 
 Classes:
 - **A**: fully works now.
@@ -30,26 +29,29 @@ Classes:
 
 ## Priority flows (hand-written, real round trip)
 
-| section | feature | flow file / id | class (provisional) | evidence | what was fixed | key needed (B) |
+| section | feature | flow file / id | class (run 40220390438) | evidence | what was fixed | key needed (B) |
 |---|---|---|---|---|---|---|
-| Start | Language picker (first run) | onboarding_flow.dart / 01_language | A? | pending first CI run | — | |
-| Start | Login (seeded phone + password; wrong-password error) | onboarding_flow.dart / 02_login | A? | pending first CI run (seed + `POST /auth/login` 200 verified locally on :8790) | — | |
-| Start | Onboarding | onboarding_flow.dart / 03_onboarding | A? | pending first CI run | — | |
-| Home | Chat send → saved home session on the server | home_flow.dart / 04_home_chat | B? | pending first CI run (`POST /agent` answered the honest no-key reply locally) | — | ANTHROPIC_API_KEY for real answers |
-| Home | Chat restored after app restart | home_flow.dart / 05_home_restore | A? | pending first CI run | — | |
-| Home | Sidebar chat history (list + reopen) | home_flow.dart / 06_sidebar_history | A? | pending first CI run | — | |
-| Home | Edit the 6 quick buttons (persists across restart) | home_flow.dart / 07_quick_buttons | A? | pending first CI run | — (on-device by design) | |
-| Personal | Reminders: NL quick-add + form, synced | personal_flow.dart / 08_reminders | A? | pending first CI run | — | an OS alarm with the app closed → phone checklist 6 |
-| Personal | Notes | personal_flow.dart / 09_notes | A? | pending first CI run | — | |
-| Personal | To-dos (create + done) | personal_flow.dart / 10_todos | A? | pending first CI run | — | |
-| Money | Add expense | personal_flow.dart / 11_money | A? | pending first CI run (seeded account/txns via the API OK) | report export: file was dropped with a fake "exported" (fixed) | |
-| Money | Budget | personal_flow.dart / 12_budget | A? | pending first CI run | — | |
-| Family | Family members load | family_circle_flow.dart / 13_family | A? (members) | pending first CI run | — | |
+| Start | Language picker (first run) | onboarding_flow.dart / 01_language | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Start | Login (seeded phone + password; wrong-password error) | onboarding_flow.dart / 02_login | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Start | Onboarding | onboarding_flow.dart / 03_onboarding | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Home | Chat send → saved home session on the server | home_flow.dart / 04_home_chat | **B** | run 40220390438: POST /agent 2xx; message saved in a home chat session (server read-back); the answer is the honest "needs the AI key" reply | — | ANTHROPIC_API_KEY for real answers |
+| Home | Chat restored after app restart | home_flow.dart / 05_home_restore | **A** | run 40220390438: fresh AppState after "restart" shows the last home conversation | — | |
+| Home | Sidebar chat history (list + reopen) | home_flow.dart / 06_sidebar_history | **A** | run 40220390438: drawer -> Assisto AI lists the chat (GET /chat/sessions) and reopens it on home | — | |
+| Home | Edit the 6 quick buttons (persists across restart) | home_flow.dart / 07_quick_buttons | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — (on-device by design) | |
+| Personal | Reminders: NL quick-add + form, synced | personal_flow.dart / 08_reminders | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | an OS alarm with the app closed → phone checklist 6 |
+| Personal | Notes | personal_flow.dart / 09_notes | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Personal | To-dos (create + done) | personal_flow.dart / 10_todos | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Money | Add expense | personal_flow.dart / 11_money | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | report export: file was dropped with a fake "exported" (fixed) | |
+| Money | Budget | personal_flow.dart / 12_budget | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
+| Family | Family members load | family_circle_flow.dart / 13_family | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
 | Family | Family accounting tab | — (sweep S024) | A? (fixed, m1) | route_check clean (`/family/accounting/*` built, integer poisha) | — | |
-| Safety | SOS countdown → Cancel (nothing sent) | family_circle_flow.dart / 14_sos_countdown | A? | pending first CI run | — | a real SOS → phone checklist 12 |
+| Safety | SOS countdown → Cancel (nothing sent) | family_circle_flow.dart / 14_sos_countdown | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | a real SOS → phone checklist 12 |
 | Safety | Check-in / arrived / Safe Journey | sweep (S026/S028) | A? (fixed) | route_check now clean for these | **fixed C:** check-in "arrived", journey arrived / respond-OK / duress PIN / places / routines / wellness all used `createItem()` → trailing `/` → **404 on every call**. Failures were swallowed with a fake "arrived" / silent check-in. They now use the real routes and show honest failure messages. | |
-| My Circle | E2E message A→B **and** B→A between seeded users | family_circle_flow.dart / 15_circle_message | A? (fixed) | pending first CI run; backend round trip proven by `core.tests_reality` | **fixed C (critical):** (1) `POST /circle/keys` discarded the key, so no peer ever got `public_key` and every chat stopped at "key missing"; (2) a message lived only on the sender's edge, so **the peer never received it**. Keys are now published onto peer edges (and re-published on every open), the recipient reads the mirror edge, the recipient can react, and unread counts include incoming messages. | |
-| My Circle | **Calls (voice + video)** | family_circle_flow.dart / 16_circle_call | **C** (owner code audit + q1 seam audit 22 Oct) | no real media yet: flutter_webrtc not in pubspec, `circle_call_screen.dart` carries "SFU/TURN SEAM … integrator adds" + a "dev affordance" connect path | c2-calls building real WebRTC | stays **C until a real two-device test passes: voice AND video, Wi-Fi ↔ mobile data (TURN), app open AND app closed** |
+| My Circle | E2E message A→B **and** B→A between seeded users | family_circle_flow.dart / 15_circle_message | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | **fixed C (critical):** (1) `POST /circle/keys` discarded the key, so no peer ever got `public_key` and every chat stopped at "key missing"; (2) a message lived only on the sender's edge, so **the peer never received it**. Keys are now published onto peer edges (and re-published on every open), the recipient reads the mirror edge, the recipient can react, and unread counts include incoming messages. | |
+| My Circle | **Calls (voice + video)** | family_circle_flow.dart / 16_circle_call | **B** | run 40220390438: call screen opens, POST /circle/ 2xx, no 4xx/5xx, hang-up returns to chat; a connected call needs TURN + 2 phones | c2-calls building real WebRTC | stays **C until a real two-device test passes: voice AND video, Wi-Fi ↔ mobile data (TURN), app open AND app closed** |
+| My Circle | Add by number (any format) → request → chat opens with "Request sent" → accept → E2E messages → voice/video screens | my_circle_add_flow.dart / 17_circle_add_whatsapp | **B** | run 40220390438: whole connect flow on two seeded accounts; media needs 2 phones + TURN | rf1: flow follows the owner connect flow (25 Oct) | TURN_STATIC_SECRET + FCM on two phones |
+| My Circle | REAL calls: A→B voice ICE connected (server phase connected), B→A video rings in-app + connects, decline | circle_real_call_flow.dart / 18_circle_real_call | **B** | run 40220390438: both WebRTC peers reach ICE connected on one emulator (host candidates) | rf1: the flow polls the server phase (clients report "connected" after reading stats) | two real phones (Wi-Fi ↔ mobile data) + TURN + FCM |
+| My Circle | Ticks sent → delivered → read, typing/online, decrypted preview + unread badge | my_circle_ticks_flow.dart / 19_circle_ticks | **A** | run 40220390438: flow passed end to end (UI + second client + server) | — | |
 | My Circle | Group chat react / pin / vote / member events | — | A? (fixed, m1) | route_check clean | m1: group URL shapes aligned | |
 | My Circle | Messenger TODO(backend) routes (info, clear, two-step, change-number, settings/*, group export/ai, community leave/notifications, circle/chats, community/message-requests) | — | A? (fixed, m1) | route_check clean (all 25 TODO(backend) built; see .phaseB/MESSENGER_ROUTES.md) | — | |
 | My Circle | Connection requests list (`GET messenger/request` → 405) | — | A? (fixed, m1) | route_check clean | GET list added | |
@@ -58,112 +60,112 @@ Classes:
 | My Circle | **Contacts on Assisto (phonebook match, number search)** | — | **C** (owner audit) | permission stub always true; `_runMatch(const [])`; UserPhoneHash never created; no phone normalisation | agent c1-contacts fixing | contacts plugin + READ_CONTACTS (native build) |
 | My Circle | Report a member / mute status | — | A? (fixed) | static | a failed report/mute showed "Reported"/"Muted" anyway (fixed) | |
 | My Circle | **Contacts on Assisto** (who of my contacts is on Assisto → Add to My Circle → accept → message/call; find by number) | — (c1-contacts; `core.tests_c1_contacts` + `test/c1_contacts_screen_test.dart`) | **C** (until the two-phone test passes, phone checklist 18ক) | backend round trip proven locally (two accounts: search `+880 1711-000777` / `8801711000777` / `01711000777` all find the user; contacts/match with the device hash finds them; circle request → accept → message delivered → call endpoint allows voice). Widget tests with a fake ContactsSource. **No real phone run yet.** | **fixed facade (c1):** (1) the permission was a stub that always returned true, and the phonebook was never read (`_runMatch(const [])`). (2) `UserPhoneHash` rows were never created, so match and search could never find anyone. (3) Matching was "verified only" while OTP is off, so nobody was matchable. (4) circle/request joined phones by exact string (01… vs +880… never matched). (5) The contract endpoint never sent the match salt, so the device hashed with an empty key. Now: one canonical phone helper (`core/phone.py`, mirrored on the device), hashes are created on register / phone change (signal) and backfilled by migration 0051, admin flag `contacts_match_unverified` (ON for test builds, OFF before launch = OTP-verified only), new `POST messenger/contacts/lookup`, and the WhatsApp-style screen. **Honest limit:** reading the phonebook needs the `flutter_contacts` plugin + READ_CONTACTS in the next native build (`.phaseB/proposals/c1-contacts.md`). Until then the screen says so and offers find-by-number. | native build with READ_CONTACTS; two real phones |
-| Business | POS sale → receipt → void | business_flow.dart / 17_pos_sale_void | A? | pending first CI run | — | |
+| Business | POS sale → receipt → void | business_flow.dart / 17_pos_sale_void | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
 | Business | Product edit / customer save / merchant-QR save | (sweep + `core.tests_reality`) | A? (fixed) | backend tests pass | **fixed C:** all three POSTed to views with **no POST handler (405)**, so the forms never saved; `cost_price` was silently dropped on create (profit wrong) | bKash/Nagad merchant = pointer only |
-| Business | Khata party | business_flow.dart / 18_khata | A? | pending first CI run | — | |
+| Business | Khata party | business_flow.dart / 18_khata | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
 | Business | Paper-khata / voice-entry "Confirm & save" | — | A? (fixed: hidden) | static | button only closed the sheet (fake save) → hidden until a real ledger write exists | OCR / speech key |
-| Business | CRM org + lead | business_flow.dart / 19_crm_lead | A? | pending first CI run | quote-versions screen called a non-existent route (fixed → `/crm/proposals?lead=`) | |
-| Shop Box | Site + camera + end-of-day check | business_flow.dart / 20_shop_box | B? | pending first CI run | — | real camera/NVR or Shop Box phone for alerts/live |
-| Daily life | Documents vault | docs_voice_settings_flow.dart / 21_documents | A? | pending first CI run | — | |
+| Business | CRM org + lead | business_flow.dart / 19_crm_lead | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | quote-versions screen called a non-existent route (fixed → `/crm/proposals?lead=`) | |
+| Shop Box | Site + camera + end-of-day check | business_flow.dart / 20_shop_box | **B** | run 40220390438: Shop Box is plan-gated for the seeded user; the paywall is shown honestly (no fake data) | — | real camera/NVR or Shop Box phone for alerts/live |
+| Daily life | Documents vault | docs_voice_settings_flow.dart / 21_documents | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
 | Daily life | AI Inbox | sweep S083 | B (fixed) | static | **fixed C:** filled every real user's inbox with FAKE sample emails (e.g. "bKash: URGENT payment failed"). Now an honest "no inbox connected" state. | mail account key |
-| Voice | Voice screen opens; typed fallback answers | docs_voice_settings_flow.dart / 22_voice_screen | B? | pending first CI run; **speech itself cannot run on CI** (no mic / Google speech) | — | phone checklist 19-21 |
+| Voice | Voice screen opens; typed fallback answers | docs_voice_settings_flow.dart / 22_voice_screen | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | phone checklist 19-21 |
 | Voice | Home chat "approval" card | — | A? (fixed) | static | Approve / Edit / Cancel buttons were `onPressed: () {}` → now information-only (the backend never sends this type) | |
-| Settings | Switch Bangla ↔ English; About | docs_voice_settings_flow.dart / 23_settings_language | A? | pending first CI run | — | |
+| Settings | Switch Bangla ↔ English; About | docs_voice_settings_flow.dart / 23_settings_language | **A** | run 40220390438: flow passed end to end (UI action + server read-back) | — | |
 | Settings | Server-address swap (owner) | — | A? (fixed: hidden) | static | the screen promised the override "takes effect after relaunch", but nothing reads it → tile hidden (`_kServerSwapWired`) | |
 | Family | Probashi "schedule a call" reminder | — | A? (fixed) | static | the reminder was saved with field `due` (the model field is `due_at`), so it had **no time**, and a failure claimed success (fixed) | |
 
 ## Drawer sweep (every other feature) — flow `99_drawer_sweep`, rows S001…
 
-The class is provisional, from static evidence. The CI sweep replaces it with: did it open, which calls did it make and with which status, did it throw, did it show a load-failed state.
+Run 40220390438: all 84 drawer items opened clean (S001-S084 in the run; the run numbers rows by the CURRENT drawer order, so match by label). The class below stays provisional for deep actions. The CI sweep checks: did it open, which calls did it make and with which status, did it throw, did it show a load-failed state.
 
 | # | section | feature (drawer label) | screen | provisional class | static evidence | key needed |
 |---|---|---|---|---|---|---|
-| S001 | Reminders & Memory | Reminders | `reminders_screen.dart` | A? | flow 08; an OS alarm firing with the app closed needs the phone (checklist 6) |  |
-| S002 | Reminders & Memory | Birthdays & memorable days | `birthdays_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S003 | Reminders & Memory | Meetings & appointments | `meetings_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S004 | Reminders & Memory | Notes/Tasks | `notes_todos_screen.dart` | A? | flows 09/10 |  |
-| S005 | Reminders & Memory | AI knows | `memory_screen.dart` | A? | every client route resolves (route_check) |  |
-| S006 | Reminders & Memory | Saved | `saved_items_screen.dart` | A? | every client route resolves (route_check) |  |
-| S007 | Account & Finance | Account & Finance | `money_screen.dart` | A? (fixed) | flow 11; fixed: the report export claimed "exported" but dropped the file (now saves + opens the share sheet) |  |
-| S008 | Account & Finance | Budget | `money_budget_screen.dart` | A? | flow 12 |  |
-| S009 | Account & Finance | Tax & Zakat | `money_tax_screen.dart` | A? | every client route resolves (route_check) |  |
-| S010 | Account & Finance | Money Wrapped | `money_wrapped_screen.dart` | A? | every client route resolves (route_check) |  |
-| S011 | Account & Finance | Money by voice | `money_voice_screen.dart` | A? | every client route resolves (route_check) |  |
-| S012 | Account & Finance | Subscriptions | `subscriptions_screen.dart` | A? | every client route resolves (route_check) |  |
-| S013 | Account & Finance | Finance tools | `finance_screen.dart` | A? | every client route resolves (route_check) |  |
-| S014 | Account & Finance | Payment Ladder | `payment_ladder_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S015 | Account & Finance | Mess & bachelor accounting | `mess_accounting_screen.dart` | A? | every client route resolves (route_check) |  |
-| S016 | Account & Finance | Split expenses | `expense_split_screen.dart` | A? | every client route resolves (route_check) |  |
-| S017 | Account & Finance | Samity | `samity_screen.dart` | A? | every client route resolves (route_check) |  |
-| S018 | Account & Finance | House rent | `landlord_tenant_screen.dart` | A? | every client route resolves (route_check) |  |
-| S019 | Account & Finance | Prepaid meters | `prepaid_meter_screen.dart` | A? | every client route resolves (route_check) |  |
-| S020 | Account & Finance | Household staff & driver | `domestic_staff_screen.dart` | A? | every client route resolves (route_check) |  |
-| S021 | Account & Finance | Savings challenge | `savings_challenge_screen.dart` | A? | every client route resolves (route_check) |  |
-| S022 | Account & Finance | AI spending insights | `spending_advice_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S023 | Account & Finance | Market price radar | `price_radar_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S024 | Family & Safety | Family | `family_screen.dart` | A? (fixed, m1) | family accounting routes built; members tab flow 13 |  |
-| S025 | Family & Safety | Nominee access | `nominee_screen.dart` | A? | every client route resolves (route_check) |  |
-| S026 | Family & Safety | Safe Journey | `journey_start_screen.dart` | A? (fixed) | fixed: arrived / respond-OK / duress PIN / places / routines / wellness used createItem() -> trailing "/" -> 404; they now POST the real routes. The timeline route is still missing (m1) |  |
-| S027 | Family & Safety | Emergency | `emergency_screen.dart` | A? | flow 14 (SOS countdown + cancel); a real SOS needs the phone (checklist 12) |  |
-| S028 | Family & Safety | Scam protection | `scam_screen.dart` | A? (fixed) | fixed: "report scam" posted to scam/report/ (404); it now uses the real route |  |
+| S001 | Reminders & Memory | Reminders | `reminders_screen.dart` | A? · run 40220390438: opened clean | flow 08; an OS alarm firing with the app closed needs the phone (checklist 6) |  |
+| S002 | Reminders & Memory | Birthdays & memorable days | `birthdays_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S003 | Reminders & Memory | Meetings & appointments | `meetings_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S004 | Reminders & Memory | Notes/Tasks | `notes_todos_screen.dart` | A? · run 40220390438: opened clean | flows 09/10 |  |
+| S005 | Reminders & Memory | AI knows | `memory_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S006 | Reminders & Memory | Saved | `saved_items_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S007 | Account & Finance | Account & Finance | `money_screen.dart` | A? (fixed) · run 40220390438: opened clean | flow 11; fixed: the report export claimed "exported" but dropped the file (now saves + opens the share sheet) |  |
+| S008 | Account & Finance | Budget | `money_budget_screen.dart` | A? · run 40220390438: opened clean | flow 12 |  |
+| S009 | Account & Finance | Tax & Zakat | `money_tax_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S010 | Account & Finance | Money Wrapped | `money_wrapped_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S011 | Account & Finance | Money by voice | `money_voice_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S012 | Account & Finance | Subscriptions | `subscriptions_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S013 | Account & Finance | Finance tools | `finance_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S014 | Account & Finance | Payment Ladder | `payment_ladder_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S015 | Account & Finance | Mess & bachelor accounting | `mess_accounting_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S016 | Account & Finance | Split expenses | `expense_split_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S017 | Account & Finance | Samity | `samity_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S018 | Account & Finance | House rent | `landlord_tenant_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S019 | Account & Finance | Prepaid meters | `prepaid_meter_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S020 | Account & Finance | Household staff & driver | `domestic_staff_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S021 | Account & Finance | Savings challenge | `savings_challenge_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S022 | Account & Finance | AI spending insights | `spending_advice_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S023 | Account & Finance | Market price radar | `price_radar_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S024 | Family & Safety | Family | `family_screen.dart` | A? (fixed, m1) · run 40220390438: opened clean | family accounting routes built; members tab flow 13 |  |
+| S025 | Family & Safety | Nominee access | `nominee_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S026 | Family & Safety | Safe Journey | `journey_start_screen.dart` | A? (fixed) · run 40220390438: opened clean | fixed: arrived / respond-OK / duress PIN / places / routines / wellness used createItem() -> trailing "/" -> 404; they now POST the real routes. The timeline route is still missing (m1) |  |
+| S027 | Family & Safety | Emergency | `emergency_screen.dart` | A? · run 40220390438: opened clean | flow 14 (SOS countdown + cancel); a real SOS needs the phone (checklist 12) |  |
+| S028 | Family & Safety | Scam protection | `scam_screen.dart` | A? (fixed) · run 40220390438: opened clean | fixed: "report scam" posted to scam/report/ (404); it now uses the real route |  |
 | S029 | Family & Safety | Accident / fall detection | `fall_detect_screen.dart` | B? | native fall sensor not wired; the screen says so honestly | native sensor plugin |
-| S030 | Family & Safety | Lost / Stolen Protection | `lost_stolen_screen.dart` | A? (fixed, m1) | journey timeline route built |  |
-| S031 | Family & Safety | My lost phone | `my_lost_phone_screen.dart` | A? | every client route resolves (route_check) |  |
-| S032 | Family & Safety | Phone Safety Check-up | `phone_safety_screen.dart` | A? | every client route resolves (route_check) |  |
-| S033 | Family & Safety | Phone ownership protection | `security_screen.dart` | A? | every client route resolves (route_check) |  |
-| S034 | Family & Safety | Sell my phone safely | `sell_my_phone_screen.dart` | A? | every client route resolves (route_check) |  |
-| S035 | Family & Safety | Shop Box | `shop_box_screen.dart` | B? | flow 20 (site + camera + EOD); live view / motion need a real camera or Shop Box phone | camera / NVR + Shop Box device |
-| S036 | Family & Safety | Disaster alerts | `disaster_alerts_screen.dart` | B? (fixed, m1) | /disaster/feed built; honest state until an official feed source is set | official feed source |
-| S037 | Family & Safety | Blood donors | `blood_donor_screen.dart` | A? | every client route resolves (route_check) |  |
-| S038 | Family & Safety | School corner | `kid_school_screen.dart` | A? | every client route resolves (route_check) |  |
-| S039 | Family & Safety | Doctor appointments | `doctor_serial_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S040 | Contacts | Contacts | `crm_contacts_screen.dart` | A? | every client route resolves (route_check) |  |
-| S041 | Daily Life | Assisto Voice | `voice_assistant_screen.dart` | B? | flow 22 (typed fallback); speech can't run on CI | phone mic + Google speech; AI key |
-| S042 | Daily Life | Medicine database | `medicine_db_screen.dart` | A? (fixed, m1) | /medicine-db/report built |  |
-| S043 | Daily Life | Health tips | `health_tips_screen.dart` | A? | every client route resolves (route_check) |  |
-| S044 | Daily Life | Documents | `vault_screen.dart` | A? | flow 21 (record without a file); attaching a file needs the phone (checklist 10) |  |
-| S045 | Daily Life | Service guide | `guide_screen.dart` | A? | every client route resolves (route_check) |  |
-| S046 | Daily Life | Nearby | `nearby_screen.dart` | B? | curated Dhaka dataset with an honest "mock — live with Maps key" banner (verify the banner in the sweep shot) | Google Maps key + location |
-| S047 | Daily Life | Unseen Bangladesh | `unseen_world_screen.dart` | A? | every client route resolves (route_check) |  |
-| S048 | Daily Life | Dictionary | `dictionary_screen.dart` | B? | honest needs-data state (open-licence dictionary not wired server-side) | dictionary dataset |
-| S049 | Daily Life | Ramadan mode | `ramadan_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S050 | Daily Life | Watch feed | `watch_feed_screen.dart` | A? | every client route resolves (route_check) |  |
-| S051 | Daily Life | Exam result | `exam_result_screen.dart` | A? | every client route resolves (route_check) |  |
+| S030 | Family & Safety | Lost / Stolen Protection | `lost_stolen_screen.dart` | A? (fixed, m1) · run 40220390438: opened clean | journey timeline route built |  |
+| S031 | Family & Safety | My lost phone | `my_lost_phone_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S032 | Family & Safety | Phone Safety Check-up | `phone_safety_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S033 | Family & Safety | Phone ownership protection | `security_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S034 | Family & Safety | Sell my phone safely | `sell_my_phone_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S035 | Family & Safety | Shop Box | `shop_box_screen.dart` | B? · run 40220390438: opened clean | flow 20 (site + camera + EOD); live view / motion need a real camera or Shop Box phone | camera / NVR + Shop Box device |
+| S036 | Family & Safety | Disaster alerts | `disaster_alerts_screen.dart` | B? (fixed, m1) · run 40220390438: opened clean | /disaster/feed built; honest state until an official feed source is set | official feed source |
+| S037 | Family & Safety | Blood donors | `blood_donor_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S038 | Family & Safety | School corner | `kid_school_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S039 | Family & Safety | Doctor appointments | `doctor_serial_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S040 | Contacts | Contacts | `crm_contacts_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S041 | Daily Life | Assisto Voice | `voice_assistant_screen.dart` | B? · run 40220390438: opened clean | flow 22 (typed fallback); speech can't run on CI | phone mic + Google speech; AI key |
+| S042 | Daily Life | Medicine database | `medicine_db_screen.dart` | A? (fixed, m1) · run 40220390438: opened clean | /medicine-db/report built |  |
+| S043 | Daily Life | Health tips | `health_tips_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S044 | Daily Life | Documents | `vault_screen.dart` | A? · run 40220390438: opened clean | flow 21 (record without a file); attaching a file needs the phone (checklist 10) |  |
+| S045 | Daily Life | Service guide | `guide_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S046 | Daily Life | Nearby | `nearby_screen.dart` | B? · run 40220390438: opened clean | curated Dhaka dataset with an honest "mock — live with Maps key" banner (verify the banner in the sweep shot) | Google Maps key + location |
+| S047 | Daily Life | Unseen Bangladesh | `unseen_world_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S048 | Daily Life | Dictionary | `dictionary_screen.dart` | B? · run 40220390438: opened clean | honest needs-data state (open-licence dictionary not wired server-side) | dictionary dataset |
+| S049 | Daily Life | Ramadan mode | `ramadan_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S050 | Daily Life | Watch feed | `watch_feed_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S051 | Daily Life | Exam result | `exam_result_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
 | S052 | Daily Life | Enhance photo | `photo_enhance_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S053 | Daily Life | Ride & food | `ride_food_screen.dart` | A? | every client route resolves (route_check) |  |
-| S054 | Daily Life | Used phone check | `used_phone_check_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S055 | Daily Life | My Vehicles | `my_vehicles_screen.dart` | B? | live tracking honestly marked "coming soon"; no fake map | GPS tracker integration |
-| S056 | Daily Life | Student corner | `student_corner_screen.dart` | A? | every client route resolves (route_check) |  |
-| S057 | Daily Life | Wedding & events | `wedding_events_screen.dart` | A? | every client route resolves (route_check) |  |
-| S058 | Daily Life | Qurbani & Eid planner | `qurbani_screen.dart` | A? | every client route resolves (route_check) |  |
-| S059 | Daily Life | Probashi corner | `probashi_screen.dart` | A? | every client route resolves (route_check) |  |
-| S060 | Daily Life | Farmer mode | `farmer_mode_screen.dart` | A? | every client route resolves (route_check) |  |
-| S061 | Daily Life | Health timeline | `health_timeline_screen.dart` | A? | every client route resolves (route_check) |  |
-| S062 | Daily Life | Water, sleep & diet | `wellness_tracker_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S063 | Daily Life | Fitness partner | `fitness_partner_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S064 | Daily Life | Smartwatch & fitness | `smartwatch_screen.dart` | A? | every client route resolves (route_check) |  |
-| S065 | Daily Life | Daily challenge | `daily_challenges_screen.dart` | A? | every client route resolves (route_check) |  |
-| S066 | Daily Life | Contract analyzer | `contract_analyzer_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S067 | Daily Life | Language partner | `language_partner_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S068 | Daily Life | Daily brief | `daily_brief_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S069 | Daily Life | Document scanner | `doc_scanner_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S070 | Daily Life | Calls & voice notes | `transcription_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S071 | Daily Life | Travel planner | `travel_planner_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S072 | Daily Life | Mood & energy | `voice_mood_screen.dart` | A? | every client route resolves (route_check) |  |
-| S073 | Daily Life | Proactive helper | `proactive_ai_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S053 | Daily Life | Ride & food | `ride_food_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S054 | Daily Life | Used phone check | `used_phone_check_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S055 | Daily Life | My Vehicles | `my_vehicles_screen.dart` | B? · run 40220390438: opened clean | live tracking honestly marked "coming soon"; no fake map | GPS tracker integration |
+| S056 | Daily Life | Student corner | `student_corner_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S057 | Daily Life | Wedding & events | `wedding_events_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S058 | Daily Life | Qurbani & Eid planner | `qurbani_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S059 | Daily Life | Probashi corner | `probashi_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S060 | Daily Life | Farmer mode | `farmer_mode_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S061 | Daily Life | Health timeline | `health_timeline_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S062 | Daily Life | Water, sleep & diet | `wellness_tracker_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S063 | Daily Life | Fitness partner | `fitness_partner_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S064 | Daily Life | Smartwatch & fitness | `smartwatch_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S065 | Daily Life | Daily challenge | `daily_challenges_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S066 | Daily Life | Contract analyzer | `contract_analyzer_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S067 | Daily Life | Language partner | `language_partner_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S068 | Daily Life | Daily brief | `daily_brief_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S069 | Daily Life | Document scanner | `doc_scanner_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S070 | Daily Life | Calls & voice notes | `transcription_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S071 | Daily Life | Travel planner | `travel_planner_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S072 | Daily Life | Mood & energy | `voice_mood_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S073 | Daily Life | Proactive helper | `proactive_ai_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
 | S074 | Daily Life | Area community | `area_community_screen.dart` | A? | every client route resolves (route_check) |  |
 | S075 | Work | Agent Studio | `agent_studio_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S076 | Work | Task Manager | `task_manager_screen.dart` | A? | every client route resolves (route_check) |  |
-| S077 | Work | Cost & time estimator | `cost_estimator_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S078 | Work | Mock interview | `mock_interview_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S079 | Work | Quick tools | `quick_tools_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S080 | Work | Blog & script writing | `blog_writer_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S081 | Work | Job hunter | `jobs_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S082 | Work | CV Builder | `cv_builder_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S083 | Work | AI Inbox | `inbox_screen.dart` | B (fixed) | fixed: fake sample emails (e.g. "bKash: payment failed") removed; honest "no inbox connected" state | mail account (Gmail/IMAP) key |
-| S084 | Work | PA Secretary | `pa_hub_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S085 | Business | Business | `business_screen.dart` | A? (fixed) | flows 17/18; fixed in the backend: product edit (405), customer save (405), merchant-QR save (405), cost_price dropped on create; the paper-khata fake "Confirm & save" is hidden |  |
-| S086 | Business | CRM | `crm_home_screen.dart` | A? (fixed) | flow 19; fixed: quote versions called a non-existent route (now /crm/proposals?lead=) |  |
+| S076 | Work | Task Manager | `task_manager_screen.dart` | A? · run 40220390438: opened clean | every client route resolves (route_check) |  |
+| S077 | Work | Cost & time estimator | `cost_estimator_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S078 | Work | Mock interview | `mock_interview_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S079 | Work | Quick tools | `quick_tools_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S080 | Work | Blog & script writing | `blog_writer_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S081 | Work | Job hunter | `jobs_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S082 | Work | CV Builder | `cv_builder_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S083 | Work | AI Inbox | `inbox_screen.dart` | B (fixed) · run 40220390438: opened clean | fixed: fake sample emails (e.g. "bKash: payment failed") removed; honest "no inbox connected" state | mail account (Gmail/IMAP) key |
+| S084 | Work | PA Secretary | `pa_hub_screen.dart` | B? · run 40220390438: opened clean | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
+| S085 | Business | Business | `business_screen.dart` | A? (fixed) · run 40220390438: opened clean | flows 17/18; fixed in the backend: product edit (405), customer save (405), merchant-QR save (405), cost_price dropped on create; the paper-khata fake "Confirm & save" is hidden |  |
+| S086 | Business | CRM | `crm_home_screen.dart` | A? (fixed) · run 40220390438: opened clean | flow 19; fixed: quote versions called a non-existent route (now /crm/proposals?lead=) |  |
 
 ## API contract (`tools/route_check.py`)
 
