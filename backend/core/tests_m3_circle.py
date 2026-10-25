@@ -1,9 +1,9 @@
 """m3-circle — My Circle "works like WhatsApp", PROVEN end to end.
 
 Two accounts registered through the REAL /auth/register endpoint (B as
-01865052200). Every step below is a real HTTP round trip:
+01711000777). Every step below is a real HTTP round trip:
 
-  A finds B by "+880 1865-052200" -> sends a request -> B sees it at the top
+  A finds B by "+880 1711-000777" -> sends a request -> B sees it at the top
   (incoming, accept/decline) -> B "adds A back" typing A's number in another
   format (8801…) which IS accepting -> both are connected -> E2E envelopes
   both ways -> voice call: create -> ring push payload (FCM mocked, data-only)
@@ -30,7 +30,7 @@ from core.models import CallRecord, CircleInvite, CircleMember, Device, User
 from .tests_push import SA, FakeFCM
 
 PASSWORD = "Strong#Pass123"
-OWNER_NO = "01865052200"
+OWNER_NO = "01711000777"
 
 
 def _auth(user):
@@ -83,11 +83,11 @@ class TwoPhoneEndToEnd(TestCase):
 
     def test_add_accept_message_voice_video(self):
         a, b, ca, cb = self.a, self.b, self.ca, self.cb
-        self.assertEqual(b.phone, "+8801865052200")
+        self.assertEqual(b.phone, "+8801711000777")
 
-        # 1. A: My Circle -> + -> Add to My Circle -> types "+880 1865-052200"
+        # 1. A: My Circle -> + -> Add to My Circle -> types "+880 1711-000777"
         r = ca.post("/api/v1/messenger/contacts/lookup",
-                    {"phone": "+880 1865-052200"}, format="json")
+                    {"phone": "+880 1711-000777"}, format="json")
         self.assertEqual(r.status_code, 200, r.content)
         d = r.json()
         self.assertTrue(d["found"])
@@ -101,7 +101,7 @@ class TwoPhoneEndToEnd(TestCase):
         self.assertEqual(r.json()["state"], "pending")
         # sending twice never duplicates
         r2 = ca.post("/api/v1/circle/request",
-                     {"phone": "01865052200", "relation": "friend"}, format="json")
+                     {"phone": "01711000777", "relation": "friend"}, format="json")
         self.assertEqual(r2.status_code, 200)
         self.assertEqual(r2.json()["id"], r.json()["id"])
 
@@ -209,7 +209,7 @@ class TwoPhoneEndToEnd(TestCase):
 
     def test_decline_shows_nothing_and_cancel_before_answer_stops_ring(self):
         a, b, ca, cb = self.a, self.b, self.ca, self.cb
-        ca.post("/api/v1/circle/request", {"phone": "০১৮৬৫০৫২২০০",
+        ca.post("/api/v1/circle/request", {"phone": "০১৭১১০০০৭৭৭",
                                            "relation": "friend"}, format="json")
         inc = cb.get("/api/v1/circle/requests").json()["results"][0]
         r = cb.post(f"/api/v1/circle/request/{inc['id']}/act",
@@ -354,4 +354,7 @@ class ChatCommandsOpenCircleAdd(TestCase):
 class SeedRealityHasTheSecondPhone(TestCase):
     def test_seed_users(self):
         from core.management.commands import seed_reality as SR
-        self.assertEqual(SR.USERS["c"]["phone"], OWNER_NO)
+        # the real second-phone number lives only in the server .env (REALITY_C_PHONE);
+        # the repo default is the fake OWNER_NO
+        import os
+        self.assertEqual(SR.USERS["c"]["phone"], os.getenv("REALITY_C_PHONE", OWNER_NO))

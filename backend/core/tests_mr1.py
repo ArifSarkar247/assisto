@@ -28,7 +28,7 @@ def _env(text="x", cmid=""):
 class MessageRequests(TestCase):
     def setUp(self):
         self.a = _register("Amina A", "01711000001")
-        self.b = _register("Owner B", "01865052200")
+        self.b = _register("Owner B", "01711000777")
         self.ca, self.cb = _auth(self.a), _auth(self.b)
         p = mock.patch("core.push.safe_push", return_value=1)
         self.push = p.start()
@@ -38,7 +38,7 @@ class MessageRequests(TestCase):
         self.addCleanup(p2.stop)
 
     # ---- helpers -----------------------------------------------------------
-    def _start(self, c=None, phone="+880 1865-052200"):
+    def _start(self, c=None, phone="+880 1711-000777"):
         return (c or self.ca).post("/api/v1/circle/message-request/start",
                                    {"phone": phone}, format="json")
 
@@ -55,8 +55,8 @@ class MessageRequests(TestCase):
 
     # ---- start -------------------------------------------------------------
     def test_start_any_format_creates_request_pair(self):
-        for phone in ("01865052200", "+880 1865-052200", "8801865052200",
-                      "০১৮৬৫০৫২২০০"):
+        for phone in ("01711000777", "+880 1711-000777", "8801711000777",
+                      "০১৭১১০০০৭৭৭"):
             r = self._start(phone=phone)
             self.assertEqual(r.status_code, 200, r.content)
             self.assertEqual(r.json()["state"], "pending")

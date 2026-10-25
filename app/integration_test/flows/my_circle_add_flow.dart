@@ -2,12 +2,12 @@
 // CI emulator against the throw-away seeded Django (seed_reality):
 //
 //   A = Reality Rahim (the phone under test, 01700000001) — driven via the UI
-//   C = Reality Nadia (the "second phone", registered as 01865052200, NOT
+//   C = Reality Nadia (the "second phone", registered as 01711000777, NOT
 //       connected to A at seed time) — driven via an independent API client,
 //       exactly like the existing family_circle_flow uses user B.
 //
 //   home chat "circle" -> My Circle add opens (the old "no match")
-//   My Circle FAB -> New chat -> Add to My Circle -> "+880 1865-052200"
+//   My Circle FAB -> New chat -> Add to My Circle -> "+880 1711-000777"
 //   -> Friend -> Send -> success                       (A, UI)
 //   C sees the request, adds A back typing "880-1700-000001" (= accept)
 //   A <-> C real E2E messages both ways
@@ -28,7 +28,7 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 
 import '../support/harness.dart';
 
-const _phoneC = String.fromEnvironment('REALITY_PHONE_C', defaultValue: '01865052200');
+const _phoneC = String.fromEnvironment('REALITY_PHONE_C', defaultValue: '01711000777');
 const _nameC = 'Reality Nadia';
 final _tag = DateTime.now().millisecondsSinceEpoch % 100000;
 
@@ -47,7 +47,7 @@ void registerMyCircleAddFlows() {
     final idC = e2e.generateIdentity();
     late ApiClient apiC;
 
-    await f.step('second phone (C, 01865052200) signs in + publishes its key', () async {
+    await f.step('second phone (C, 01711000777) signs in + publishes its key', () async {
       apiC = await f.net(() async {
         final c = ApiClient();
         final res = await c.login(identifier: _phoneC, password: Seed.password);
@@ -79,10 +79,10 @@ void registerMyCircleAddFlows() {
       await f.shot('new-chat');
     });
 
-    await f.step('Add to My Circle: "+880 1865-052200" -> found', () async {
+    await f.step('Add to My Circle: "+880 1711-000777" -> found', () async {
       await f.tap(find.byKey(const Key('m3-new-add')), settleSeconds: 2);
       await f.waitFor(find.byKey(const Key('m3-number')));
-      await f.tester.enterText(find.byKey(const Key('m3-number')), '+880 1865-052200');
+      await f.tester.enterText(find.byKey(const Key('m3-number')), '+880 1711-000777');
       await f.pumpFor(const Duration(milliseconds: 400));
       await f.shot('number-typed');
       await f.tap(find.byKey(const Key('m3-find')), settleSeconds: 3);

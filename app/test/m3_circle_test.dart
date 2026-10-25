@@ -40,7 +40,7 @@ class _Api extends ApiClient {
   }
 
   final Map<String, Map<String, dynamic>> users = {
-    '+8801865052200': {
+    '+8801711000777': {
       'id': 2,
       'name': 'Nadia Rahman',
       'photo': '',
@@ -418,9 +418,9 @@ void main() {
       final api = _Api();
       await _pump(tester, const M3AddToCircleScreen(), api: api);
       final t = _t(tester);
-      await tester.enterText(find.byKey(const Key('m3-number')), '+880 1865-052200');
+      await tester.enterText(find.byKey(const Key('m3-number')), '+880 1711-000777');
       await _tapKey(tester, 'm3-find');
-      expect(api.lookups, ['+8801865052200']);
+      expect(api.lookups, ['+8801711000777']);
       expect(find.byKey(const Key('m3-found')), findsOneWidget);
       expect(find.text('Nadia Rahman'), findsOneWidget);
       // relation is required
@@ -442,7 +442,7 @@ void main() {
     testWidgets('family maps to a real server code; custom needs a label',
         (tester) async {
       final api = _Api();
-      await _pump(tester, const M3AddToCircleScreen(initialNumber: '8801865052200'),
+      await _pump(tester, const M3AddToCircleScreen(initialNumber: '8801711000777'),
           api: api);
       await _tapKey(tester, 'm3-rel-custom');
       await _tapKey(tester, 'm3-send');
@@ -479,7 +479,7 @@ void main() {
       expect(api.lookups, isEmpty);
 
       api.failures['/messenger/contacts/lookup'] = ApiException('boom', 502);
-      await tester.enterText(find.byKey(const Key('m3-number')), '01865052200');
+      await tester.enterText(find.byKey(const Key('m3-number')), '01711000777');
       await _tapKey(tester, 'm3-find');
       expect(find.byKey(const Key('m3-error')), findsOneWidget);
       expect(find.text(t.m3ErrServer), findsOneWidget);
@@ -501,7 +501,7 @@ void main() {
         (tester) async {
       final api = _Api()..hang.add('/messenger/contacts/lookup');
       await _pump(tester, const M3AddToCircleScreen(), api: api);
-      await tester.enterText(find.byKey(const Key('m3-number')), '01865052200');
+      await tester.enterText(find.byKey(const Key('m3-number')), '01711000777');
       await tester.tap(find.byKey(const Key('m3-find')));
       await tester.pump();
       await tester.pump(const Duration(seconds: 15, milliseconds: 10));
@@ -513,7 +513,7 @@ void main() {
 
     testWidgets('Bangla: the add screen renders without clipping at 360 px',
         (tester) async {
-      await _pump(tester, const M3AddToCircleScreen(initialNumber: '01865052200'),
+      await _pump(tester, const M3AddToCircleScreen(initialNumber: '01711000777'),
           lang: 'bn');
       expect(tester.takeException(), isNull);
       expect(find.byKey(const Key('m3-found')), findsOneWidget);

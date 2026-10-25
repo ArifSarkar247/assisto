@@ -534,7 +534,7 @@ void main() {
         (tester) async {
       final api = _Api()
         ..replies['/messenger/contacts/lookup'] = {
-          'ok': true, 'found': true, 'phone': '+8801865052200',
+          'ok': true, 'found': true, 'phone': '+8801711000777',
           'user': {'id': 2, 'name': 'Nadia Rahman',
                    'circle': {'state': 'none'}},
         }
@@ -545,7 +545,7 @@ void main() {
         }
         ..replies['/circle/5/messages'] = {'results': <dynamic>[]};
       await _host(tester, api,
-          const M3AddToCircleScreen(initialNumber: '01865-052200'));
+          const M3AddToCircleScreen(initialNumber: '01711-000777'));
       await _settle(tester);
       expect(find.byKey(const Key('mr1-msg-found')), findsOneWidget);
       expect(find.text(en.mr1MessageNowHint), findsOneWidget);
