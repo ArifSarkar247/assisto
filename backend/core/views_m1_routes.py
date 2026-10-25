@@ -380,9 +380,18 @@ class CircleChatsView(APIView):
         edges += list(CircleMember.objects.filter(
             user=request.user, state="pending", direction="outgoing",
             peer_user__isnull=False, messages__isnull=False).distinct())
+        from . import chat_actions as CA
+        from .models import ChatSettings as _CS
+        timers = {cs.peer_id: cs.disappearing_sec for cs in
+                  _CS.objects.filter(user=request.user,
+                                     disappearing_sec__gt=0)}
         for m in edges:
             rows = visible_conversation(request.user, m)
             if m.state != "accepted" and not rows:
+                continue
+            # chat-actions: a chat I deleted stays off MY list until a newer
+            # message arrives (the circle membership is untouched).
+            if CA.chat_hidden(request.user, "member", m.id, rows):
                 continue
             last = rows[-1] if rows else None
             # b2-badges: the SAME count the home badge sums (blocked = 0,
@@ -407,6 +416,8 @@ class CircleChatsView(APIView):
                 "archived": bool(o.get("archived")),
                 "muted": bool(o.get("muted")),
                 "favourite": member_favourite(request.user, m.id),
+                # chat-actions: the timer icon on the row
+                "disappearing_sec": timers.get(m.id, 0),
                 "request": "outgoing" if m.state != "accepted" else None,
                 "lists": [cl.id for cl in lists
                           if m.id in (cl.member_refs or [])

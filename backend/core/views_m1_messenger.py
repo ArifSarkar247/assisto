@@ -151,15 +151,16 @@ def _organise_mute_state(user, kind, chat_id):
 
 
 def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None,
-             expired=None):
+             expired=None, keep_starred=False):
     """Drop rows the viewer cleared, deleted-for-me, or that are past the
     disappearing TTL (sent at/after the timer started) — the purge job deletes
     those for real; this keeps them invisible between purge runs."""
     now = now or timezone.now()
     out = []
     for x in rows:
-        if cleared_at is not None and x.created_at <= cleared_at:
-            continue
+        if cleared_at is not None and x.created_at <= cleared_at and not (
+                keep_starred and user.id in (x.starred_by or [])):
+            continue   # chat-actions: "Keep starred messages" survives a clear
         if user.id in (x.hidden_for or []):
             continue
         if ttl and since is not None and x.created_at >= since and \
@@ -194,6 +195,7 @@ def visible_conversation(user, edge):
     expired = []
     out = _visible(user, conversation_rows(edge),
                    cleared_at=pref.cleared_at if pref else None,
+                   keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=ttl, since=pref.disappearing_since if pref else None,
                    expired=expired)
     # e-gaps: past the timer = deleted for real (rows + encrypted blobs),
@@ -214,6 +216,7 @@ def visible_group_messages(group, user):
     out = _visible(user, CircleMessage.objects.filter(group=group)
                    .order_by("created_at"),
                    cleared_at=pref.cleared_at if pref else None,
+                   keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=t.disappearing_sec if t else 0,
                    since=t.since if t else None, expired=expired)
     from . import e_gaps   # e-gaps: deleted for real (rows + blobs)
@@ -395,10 +398,13 @@ class ChatClearView(APIView):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
         if m is None:
             return _nf()
-        p = chat_pref(request.user, "member", m.id, create=True)
-        p.cleared_at = timezone.now()
-        p.save(update_fields=["cleared_at", "updated_at"])
-        return Response({"ok": True, "cleared_at": p.cleared_at.isoformat()})
+        # chat-actions: optional "Keep starred messages"; what vanishes is
+        # deleted for real once nobody in the chat can see it.
+        from . import chat_actions as CA
+        keep = CA._truthy((request.data or {}).get("keep_starred", False))
+        return Response(CA.clear_for(request.user, "member", m.id,
+                                     visible_conversation(request.user, m),
+                                     keep_starred=keep))
 
 
 # ===========================================================================
@@ -450,6 +456,10 @@ class GroupDisappearingView(APIView):
         g, mine = _group_and_me(request, pk)
         if g is None:
             return _nf()
+        # chat-actions (owner 26 Oct): group admins set the group timer.
+        if mine.role != G.ROLE_ADMIN:
+            return Response({"ok": False, "detail": "not_admin"},
+                            status=status.HTTP_403_FORBIDDEN)
         ttl = str((request.data or {}).get("ttl", "")).strip()
         if ttl not in TTL_TOKENS:
             return _bad("bad_ttl")
@@ -509,10 +519,11 @@ class GroupClearView(APIView):
         g, mine = _group_and_me(request, pk)
         if g is None:
             return _nf()
-        p = chat_pref(request.user, "group", g.id, create=True)
-        p.cleared_at = timezone.now()
-        p.save(update_fields=["cleared_at", "updated_at"])
-        return Response({"ok": True, "cleared_at": p.cleared_at.isoformat()})
+        from . import chat_actions as CA
+        keep = CA._truthy((request.data or {}).get("keep_starred", False))
+        return Response(CA.clear_for(request.user, "group", g.id,
+                                     visible_group_messages(g, request.user),
+                                     keep_starred=keep))
 
 
 class GroupMessageActView(APIView):
@@ -545,23 +556,16 @@ class GroupMessageActView(APIView):
             if scope == "everyone":
                 env = {"sender_id": x.sender_id, "created_at": x.created_at,
                        "deleted": x.deleted or ""}
-                if not CMSG.can_delete_for_everyone(env, uid):
-                    return Response({"ok": False, "detail": "delete_window"},
+                from . import chat_actions as CA
+                if not CMSG.can_delete_for_everyone(
+                        env, uid, window_min=CA.delete_window_min()):
+                    return Response({"ok": False, "detail": "delete_window",
+                                     "window_min": CA.delete_window_min()},
                                     status=status.HTTP_403_FORBIDDEN)
-                x.deleted = "everyone"
-                x.ciphertext = ""
-                x.nonce = ""
-                x.per_recipient = None
-                x.save(update_fields=["deleted", "ciphertext", "nonce",
-                                      "per_recipient"])
-                if x.blob_ref:   # md1: the encrypted file goes too
-                    from . import circle_blobs as CB
-                    CB.release(x.blob_ref)
+                CA.delete_for_everyone(x)   # ciphertext/copies/blob gone
                 return Response({"ok": True, "deleted": "everyone"})
-            hidden = set(x.hidden_for or [])
-            hidden.add(uid)
-            x.hidden_for = sorted(hidden)
-            x.save(update_fields=["hidden_for"])
+            from . import chat_actions as CA
+            CA.delete_for_me(request.user, x)
             return Response({"ok": True, "deleted": "me"})
         return _bad("unknown action")
 

@@ -151,6 +151,12 @@ class CircleGroupsView(APIView):
         CircleGroupMember.objects.create(
             group=g, member=request.user, role=G.ROLE_ADMIN,
             status=G.MEMBERSHIP_ACTIVE)
+        # chat-actions: the creator's default timer for new chats
+        try:
+            from . import chat_actions as CA
+            CA.apply_default_group_timer(request.user, g)
+        except Exception:
+            pass
         return Response(_group_dict(g, request.user),
                         status=status.HTTP_201_CREATED)
 

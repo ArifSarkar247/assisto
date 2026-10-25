@@ -225,6 +225,9 @@ MEDIA_X_ACCEL = env_bool("MEDIA_X_ACCEL", False)
 # aliasing this dir, then CIRCLE_BLOB_X_ACCEL=1 (see .phaseB/proposals/md1.md).
 CIRCLE_BLOB_ROOT = os.getenv("CIRCLE_BLOB_ROOT", str(BASE_DIR / "private" / "circle_blobs"))
 CIRCLE_BLOB_X_ACCEL = env_bool("CIRCLE_BLOB_X_ACCEL", False)
+# chat-actions: "Delete for everyone" window in minutes (WhatsApp ~2 days).
+# Enforced on the SERVER (1:1 + groups); the app reads it from the chat GET.
+CIRCLE_DELETE_EVERYONE_WINDOW_MIN = int(os.getenv("CIRCLE_DELETE_EVERYONE_WINDOW_MIN", "2880"))
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15MB uploads (screenshots/photos)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
