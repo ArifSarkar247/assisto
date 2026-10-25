@@ -1,5 +1,10 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## ✅ versionCode 10238 — Internal + Closed testing-এ গেছে (রিভিউ স্বয়ংক্রিয়, ২৫ Oct রাত)
+- আপনার "ads declared"-এর পর পাঠানো হলো। 237 বাতিল হয়েছিল (বিল্ড আটকে গিয়েছিল), তাই 238-এই 237-এর সব আছে: AdMob (শুধু ফ্রি প্ল্যান, এখন Google-এর টেস্ট বিজ্ঞাপন), Business AI Agent v2, ফটো স্টুডিও (শুধু বাণিজ্যিকভাবে পরিষ্কার পথ)। APK: https://api.lifeassisto.com/dl/IZAFlO9tQ_Gw7s3N9vrlfiHK/assisto-part7-build238.apk
+- **লাইভ যাচাই:** lifeassisto.com/app-ads.txt-এ ঠিক লাইন আছে (`google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0`, text/plain, 200); lifeassisto.com/privacy-তে বাংলা ও ইংরেজিতে AdMob অংশ আছে। আপনার Data safety-র সাথে হুবহু মেলাতে যোগ করেছি: "অ্যাপে বিজ্ঞাপনের সাথে কী করা হলো" ও "SDK-র ডায়াগনস্টিক তথ্য", আর "সুনির্দিষ্ট (GPS) অবস্থান কখনো বিজ্ঞাপনে দেওয়া হয় না" (আনুমানিক এলাকা IP থেকে — যেটা আপনি ঘোষণা করেছেন)।
+- পরের বিল্ড তৈরি হচ্ছে: OPPO ভিডিও-কল ঠিক, My Circle-এ "সর্বশেষে যান" বোতাম, "পাঠানো যায়নি · ট্যাপ করে আবার", কলের তালিকায় সব/মিসড, কল শেষে কথার সময়, রিয়ালিটি-অডিট ঠিক।
+
 ## 🌙 ২৫ Oct রাত — আপনার আদেশ অনুযায়ী
 - **10236 টেস্টারদের হাতে:** Play-তে Internal ও Closed testing দুটোতেই **10236 — completed**। কল পৌঁছানো (Owner Admin → Calls, শেষ ৭ দিন): ২১টি কলের ১৮টি বেজেছে (**৮৬%**); Realme RMX3491 ৩/৩, OPPO CPH2637 (Android 16) ১/১, Realme RMX3195 ২/৩ (৩ বার আবার পাঠাতে হয়েছে); ১৪টি পুরনো বিল্ড থেকে (ফোনের তথ্য নেই) — টেস্টাররা 10236-এ গেলে পরিসংখ্যান পরিষ্কার হবে।
 - **ক্র্যাশ ও মতামত:** Play-তে কোনো রিভিউ নেই; Play Vitals API বন্ধ (অপেক্ষার তালিকা ৭)। নিজেদের রিপোর্টে শেষ ৩ দিনে ২টি ত্রুটি (ক্র্যাশ ০) — দুটিই OPPO-তে **ভিডিও কলের ছোট পর্দায় লেআউট-এরর**; ঠিক করা হয়েছে + টেস্ট (পুরনো কোডে ত্রুটি হুবহু ধরা পড়ে, নতুনে পাস) — পরের বিল্ডে যাবে।
@@ -14,7 +19,7 @@
 - **Play-তে পাঠাতে:** `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`-এর ধাপ (Ads = Yes, Advertising ID = Yes, Data safety) শেষ করে আমাকে "ads declared" লিখুন — আমি সাথে সাথে 10238 Internal + Closed testing-এ পাঠাব। Play-তে এখন সর্বশেষ 10236।
 
 ## ⏳ আপনার অপেক্ষায় (তালিকা — এর মধ্যে আমি পরের কাজ চালিয়ে যাচ্ছি) — ২৫ Oct
-1. **(আপনি কাল সকালে করবেন) AdMob বিল্ড Play-তে পাঠানোর আগে Play Console:** Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
+1. ✅ **Play Console বিজ্ঞাপন-ঘোষণা আপনি করেছেন (২৫ Oct রাত, submission 10)।** বাকি শুধু: AdMob-এ GDPR + US স্টেট বার্তা (আপনি কাল) আর SSV callback URL। আগের নির্দেশনা: Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
 2. **ফটো স্টুডিও:** মুখ-রিস্টোর প্রোভাইডার বাছাই (fal-এ Topaz নাকি Clarity), Real-ESRGAN রাখবেন নাকি বাদ, আর Replicate/fal.ai key (Owner Admin → Integrations) — ততক্ষণ এগুলো বন্ধ ও লুকানো।
 3. ~~রেফারেল পুরস্কারের অঙ্ক~~ — ✅ **আপনি নিশ্চিত করেছেন (২৫ Oct রাত):** ২০/১০ ক্রেডিট, মাসে সর্বোচ্চ ১০, ফাউন্ডিং ৫০০×২০ — লাইভ সার্ভারে ঠিক এই মানই চালু।
 4. **Test Lab ডিভাইস-ম্যাট্রিক্স:** GCP_TESTLAB_SA সিক্রেট (আগে থেকে অপেক্ষায়)।
