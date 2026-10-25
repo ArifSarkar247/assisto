@@ -155,7 +155,10 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
                 meta=meta, at=now)
             push.safe_push(u, "family_alert", tb, te, bb, be,
                            data={"alert_kind": "antitheft", "route": "security/lost-phone",
-                                 "phone_id": phone.id, "antitheft_kind": kind},
+                                 "phone_id": phone.id, "antitheft_kind": kind,
+                                 # grab-guard: the app drops pushes about
+                                 # its own phone (2nd line of defence)
+                                 "owner_id": phone.owner_id},
                            high_priority=True)
             sent += 1
         except Exception:
@@ -193,7 +196,8 @@ def alert_rows_for(user, lang="bn", now=None, limit=10):
                         "kind": m.get("antitheft_kind") or "",
                         # own-device: lets the app's urgent card drop rows
                         # about the user's own phone (2nd line of defence)
-                        "owner_id": m.get("owner_id")})
+                        "owner_id": m.get("owner_id"),
+                        "phone_id": m.get("phone_id")})
     except Exception:
         return out
     return out
@@ -382,6 +386,8 @@ class EngineStateView(APIView):
                                               blocked=False)
         recent = [_event_json(e) for e in phone.engine_events.all()[:5]]
         return Response({
+            # grab-guard: the app remembers its own protected phone id
+            "phone_id": phone.id,
             "enabled": eng.enabled,
             "enabled_at": eng.enabled_at.isoformat() if eng.enabled_at else None,
             "has_pin": bool(phone.security_pin_hash),

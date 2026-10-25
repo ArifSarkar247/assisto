@@ -25,6 +25,11 @@ import org.json.JSONObject
  *   setQuiet({on}) -> void  owner is on the protection screen: no snatch
  *                        detection (at-falsealarm)
  *   start(..., rebaseline: true) re-records the SIM baseline (switch-on)
+ *   grabPending()  -> Int   grab-guard: ms left before a detected grab is
+ *                        sent (-1 = none pending)
+ *   grabCancel()   -> Bool  owner said "it was me" (PIN verified by the
+ *                        server first) -> drop it; true = was still pending
+ *   grabSendNow()  -> void  "No, it wasn't me" -> send it now
  *   configure({config}) -> Bool  new settings from the open app (re-declares
  *                        the foreground types, e.g. adds CAMERA for the
  *                        opt-in intruder photo)
@@ -68,6 +73,9 @@ object AntiTheftChannel {
                                         .putString("resumeBody", rb).apply()
                                 }
                             } catch (_: Throwable) {}
+                            AntiTheftService.saveGrabTexts(app,
+                                call.argument<String>("grabTitle"),
+                                call.argument<String>("grabBody"))
                             val ok = AntiTheftService.start(
                                 app, token, api, JSONObject(cfgMap), title, body, off,
                                 rebase)
@@ -79,6 +87,9 @@ object AntiTheftChannel {
                     // check-in. Protection off -> false, nothing started.
                     "resume" -> {
                         AntiTheftService.saveDeviceId(app, call.argument<String>("deviceId"))
+                        AntiTheftService.saveGrabTexts(app,
+                            call.argument<String>("grabTitle"),
+                            call.argument<String>("grabBody"))
                         result.success(AntiTheftService.resume(
                         app,
                         call.argument<String>("notifTitle"),
@@ -91,6 +102,13 @@ object AntiTheftChannel {
                     "flush" -> { AntiTheftService.flush(app); result.success(null) }
                     "setQuiet" -> {
                         AntiTheftService.setQuiet(call.argument<Boolean>("on") ?: false)
+                        result.success(null)
+                    }
+                    // grab-guard: the own-device "Was this you?" window
+                    "grabPending" -> result.success(AntiTheftService.grabPendingMs(app))
+                    "grabCancel" -> result.success(AntiTheftService.cancelGrab(app))
+                    "grabSendNow" -> {
+                        AntiTheftService.sendGrabNow(app)
                         result.success(null)
                     }
                     "configure" -> {

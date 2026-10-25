@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_resume.dart'; // at-heartbeat
 import '../services/antitheft_service.dart';
+import '../services/own_device_guard.dart'; // grab-guard
 import 'battery_guidance_screen.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
@@ -91,6 +93,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     });
     try {
       final st = await _api.engineState();
+      // grab-guard: this is MY protected phone (own-device alert filter)
+      unawaited(OwnDeviceGuard.rememberPhone(st['phone_id']));
       Map<String, dynamic> caps = const {};
       try {
         caps = await AntiTheftService.capabilities();

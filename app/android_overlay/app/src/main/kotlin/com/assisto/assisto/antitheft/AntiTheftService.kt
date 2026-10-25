@@ -110,6 +110,68 @@ class AntiTheftService : Service(), SensorEventListener {
             quietUntil = if (on) System.currentTimeMillis() + QUIET_MAX_MS else 0L
         }
 
+        // grab-guard: a grab detected on THIS phone waits for the owner's
+        // "Was this you?" (SnatchPolicy.CONFIRM_WINDOW_MS) before it is sent.
+        // The pending grab lives in the engine prefs (survives a restart).
+        private const val K_GRAB_AT = "grab_pending_at"
+        private const val K_GRAB_LOCKED = "grab_pending_locked"
+        private const val K_GRAB_TITLE = "grabTitle"
+        private const val K_GRAB_BODY = "grabBody"
+        private const val GRAB_CHANNEL_ID = "assisto_grab_check"
+        private const val GRAB_NOTIF_ID = 8442
+        private val grabLock = Any()
+
+        /** bn/en texts of the local "Was this you?" notification (from the
+         *  open app). Blank -> ignored. Never throws. */
+        fun saveGrabTexts(ctx: Context, title: String?, body: String?) {
+            try {
+                if (title.isNullOrBlank()) return
+                ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .putString(K_GRAB_TITLE, title)
+                    .putString(K_GRAB_BODY, body ?: "").apply()
+            } catch (_: Throwable) {}
+        }
+
+        /** ms left before the pending grab is sent; -1 = none pending. */
+        fun grabPendingMs(ctx: Context): Int = try {
+            val at = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getLong(K_GRAB_AT, 0L)
+            if (at <= 0L) -1 else
+                (at + SnatchPolicy.CONFIRM_WINDOW_MS - System.currentTimeMillis())
+                    .coerceIn(0L, SnatchPolicy.CONFIRM_WINDOW_MS).toInt()
+        } catch (_: Throwable) { -1 }
+
+        /** The owner confirmed it was him (the server verified the Security
+         *  PIN first): drop the pending grab. true = it was still pending. */
+        fun cancelGrab(ctx: Context): Boolean {
+            val had = try {
+                synchronized(grabLock) {
+                    val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    val pending = p.getLong(K_GRAB_AT, 0L) > 0L
+                    if (pending) p.edit().remove(K_GRAB_AT).remove(K_GRAB_LOCKED).commit()
+                    pending
+                }
+            } catch (_: Throwable) { false }
+            cancelGrabNotif(ctx)
+            try { instance?.dropGrabTimer() } catch (_: Throwable) {}
+            return had
+        }
+
+        /** "No, it wasn't me": send the pending grab now. Never throws. */
+        fun sendGrabNow(ctx: Context) {
+            try {
+                val svc = instance
+                if (svc != null && running) svc.postCommitGrab() else flush(ctx)
+            } catch (_: Throwable) {}
+        }
+
+        private fun cancelGrabNotif(ctx: Context) {
+            try {
+                (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
+                    ?.cancel(GRAB_NOTIF_ID)
+            } catch (_: Throwable) {}
+        }
+
         private fun hasLocationPerm(ctx: Context): Boolean = try {
             ctx.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 android.content.pm.PackageManager.PERMISSION_GRANTED ||
@@ -377,6 +439,17 @@ class AntiTheftService : Service(), SensorEventListener {
     private var lastSimReceiver: BroadcastReceiver? = null
     private var sysReceiver: BroadcastReceiver? = null
     @Volatile private var snatchGraceUntil = 0L
+    // grab-guard: live facts for SnatchPolicy, kept by runtime receivers
+    // (never a binder call per sensor sample).
+    @Volatile private var screenOn = true
+    @Volatile private var unlockedNow = false
+    @Volatile private var lastUnlockAt = 0L
+    @Volatile private var chargingNow = false
+    @Volatile private var hourNow = 12
+    @Volatile private var hourAt = 0L
+    private val grabCommit = Runnable {
+        try { commitGrab() } catch (_: Throwable) {}
+    }
     private var simRetries = 0
     private val simCheck = Runnable {
         try { checkSim() } catch (_: Throwable) {}
@@ -448,6 +521,15 @@ class AntiTheftService : Service(), SensorEventListener {
         bg = Handler(worker.looper)
         queue = AntiTheftQueue(this)
         bg.post(heartbeatTick)
+        // grab-guard: a grab still waiting from before a restart is sent when
+        // its 60 s are up (or at once if they already are).
+        try {
+            val at = getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(K_GRAB_AT, 0L)
+            if (at > 0L) {
+                val left = at + SnatchPolicy.CONFIRM_WINDOW_MS - System.currentTimeMillis()
+                bg.postDelayed(grabCommit, left.coerceIn(0L, SnatchPolicy.CONFIRM_WINDOW_MS))
+            }
+        } catch (_: Throwable) {}
     }
 
     // ---- foreground notification ------------------------------------------
@@ -701,10 +783,11 @@ class AntiTheftService : Service(), SensorEventListener {
     }
 
     /** Queue an event; try to send immediately, keep it on failure. */
-    private fun capture(kind: String, data: JSONObject = JSONObject()) {
+    private fun capture(kind: String, data: JSONObject = JSONObject(),
+                        atMs: Long = System.currentTimeMillis()) {
         val cid = "$kind-" + UUID.randomUUID().toString().take(12)
         val loc = LastLocation.get(applicationContext)
-        queue?.add(cid, kind, System.currentTimeMillis(),
+        queue?.add(cid, kind, atMs,
             loc?.first, loc?.second, batteryPct(), data)
         bg.post { try { doHeartbeat() } catch (_: Throwable) {} }
     }
@@ -794,6 +877,13 @@ class AntiTheftService : Service(), SensorEventListener {
     // ---- snatch detector ---------------------------------------------------
 
     private fun startSnatch() {
+        // grab-guard: the starting facts; receivers keep them current.
+        try {
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            screenOn = pm?.isInteractive ?: true
+            unlockedNow = screenOn && screenUnlocked()
+            chargingNow = charging()
+        } catch (_: Throwable) {}
         try {
             sensorMgr = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
             val s = sensorMgr?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
@@ -820,13 +910,15 @@ class AntiTheftService : Service(), SensorEventListener {
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val m = sqrt((x * x + y * y + z * z).toDouble())
                 val mag = Math.abs(m - SensorManager.GRAVITY_EARTH)
-                if (snatch.onSample(mag, System.currentTimeMillis(), screenUnlocked())) {
+                val now = System.currentTimeMillis()
+                if (snatch.onSample(mag, now, snatchContext(now))) {
                     onSnatchDetected()
                 }
                 return
             }
             val mag = sqrt((x * x + y * y + z * z).toDouble())
-            if (snatch.onSample(mag, System.currentTimeMillis(), screenUnlocked())) {
+            val now = System.currentTimeMillis()
+            if (snatch.onSample(mag, now, snatchContext(now))) {
                 onSnatchDetected()
             }
         } catch (_: Throwable) {
@@ -841,16 +933,112 @@ class AntiTheftService : Service(), SensorEventListener {
         km != null && !km.isKeyguardLocked
     } catch (_: Throwable) { true }
 
+    /** grab-guard: the facts SnatchPolicy decides on (cached, cheap). */
+    private fun snatchContext(now: Long): SnatchContext {
+        if (now - hourAt > 60_000L) {
+            try {
+                hourNow = java.util.Calendar.getInstance()
+                    .get(java.util.Calendar.HOUR_OF_DAY)
+            } catch (_: Throwable) {}
+            hourAt = now
+        }
+        val since = if (lastUnlockAt > 0L) now - lastUnlockAt else null
+        return SnatchContext(chargingNow, screenOn, unlockedNow, since, hourNow)
+    }
+
     private fun onSnatchDetected() {
         try {
-            val data = JSONObject().put("locked", snatchLock)
+            var locked = false
             // optional instant lock via the existing device admin (honest: only
             // if admin is active; we never claim a lock we didn't do).
             if (snatchLock) {
-                val locked = DeviceAdminLock.lockNow(applicationContext)
-                data.put("locked", locked)
+                locked = DeviceAdminLock.lockNow(applicationContext)
             }
-            capture("snatch", data)
+            bg.post { try { beginGrabCheck(locked) } catch (_: Throwable) {} }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /**
+     * grab-guard (owner 25 Oct): on the OWN phone a grab first asks "Was this
+     * you?" — a heads-up notification; the app shows the PIN dialog when it is
+     * opened. Not answered within SnatchPolicy.CONFIRM_WINDOW_MS -> sent as
+     * usual (family alerted). No texts stored yet -> sent at once (as before).
+     */
+    private fun beginGrabCheck(locked: Boolean) {
+        val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val title = p.getString(K_GRAB_TITLE, "") ?: ""
+        if (title.isBlank()) {
+            capture("snatch", JSONObject().put("locked", locked))
+            return
+        }
+        synchronized(grabLock) {
+            if (p.getLong(K_GRAB_AT, 0L) > 0L) return // one at a time
+            p.edit().putLong(K_GRAB_AT, System.currentTimeMillis())
+                .putBoolean(K_GRAB_LOCKED, locked).commit()
+        }
+        postGrabNotif(title, p.getString(K_GRAB_BODY, "") ?: "")
+        bg.removeCallbacks(grabCommit)
+        bg.postDelayed(grabCommit, SnatchPolicy.CONFIRM_WINDOW_MS)
+    }
+
+    /** Worker thread: the pending grab goes to the queue (original time). */
+    private fun commitGrab() {
+        var at = 0L
+        var locked = false
+        synchronized(grabLock) {
+            val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            at = p.getLong(K_GRAB_AT, 0L)
+            if (at <= 0L) return // cancelled ("it was me") or already sent
+            locked = p.getBoolean(K_GRAB_LOCKED, false)
+            p.edit().remove(K_GRAB_AT).remove(K_GRAB_LOCKED).commit()
+        }
+        cancelGrabNotif(applicationContext)
+        capture("snatch", JSONObject().put("locked", locked).put("confirm_wait", true), at)
+    }
+
+    fun postCommitGrab() {
+        if (!this::bg.isInitialized) return
+        bg.removeCallbacks(grabCommit)
+        bg.post(grabCommit)
+    }
+
+    fun dropGrabTimer() {
+        if (this::bg.isInitialized) bg.removeCallbacks(grabCommit)
+    }
+
+    private fun postGrabNotif(title: String, body: String) {
+        try {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                ?: return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                nm.createNotificationChannel(NotificationChannel(
+                    GRAB_CHANNEL_ID, title, NotificationManager.IMPORTANCE_HIGH))
+            }
+            val tap = packageManager.getLaunchIntentForPackage(packageName)
+            val pi = if (tap != null) PendingIntent.getActivity(
+                this, 10, tap,
+                PendingIntent.FLAG_UPDATE_CURRENT or
+                    (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        PendingIntent.FLAG_IMMUTABLE else 0)) else null
+            val b = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                Notification.Builder(this, GRAB_CHANNEL_ID) else
+                @Suppress("DEPRECATION") Notification.Builder(this)
+            b.setSmallIcon(applicationInfo.icon)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setStyle(Notification.BigTextStyle().bigText(body))
+                .setAutoCancel(true)
+            if (pi != null) b.setContentIntent(pi)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                b.setTimeoutAfter(SnatchPolicy.CONFIRM_WINDOW_MS)
+            } else {
+                // API 24-25 heads-up: high priority + sound/vibration
+                @Suppress("DEPRECATION")
+                b.setPriority(Notification.PRIORITY_HIGH)
+                    .setDefaults(Notification.DEFAULT_ALL)
+            }
+            nm.notify(GRAB_NOTIF_ID, b.build()) // no POST_NOTIFICATIONS -> dropped
         } catch (_: Throwable) {
         }
     }
@@ -865,6 +1053,12 @@ class AntiTheftService : Service(), SensorEventListener {
                 addAction(Intent.ACTION_BATTERY_LOW)
                 @Suppress("DEPRECATION")
                 addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+                // grab-guard: SnatchPolicy facts (screen / unlock / charger)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_USER_PRESENT)
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
             }
             sysReceiver = object : BroadcastReceiver() {
                 override fun onReceive(c: Context?, i: Intent?) {
@@ -883,6 +1077,19 @@ class AntiTheftService : Service(), SensorEventListener {
 
     private fun onSystemEvent(i: Intent?) {
         when (i?.action) {
+            // grab-guard: state only — never an event, never a network call
+            Intent.ACTION_SCREEN_ON -> {
+                screenOn = true
+                unlockedNow = screenUnlocked() // no screen lock -> unlocked
+                if (unlockedNow) lastUnlockAt = System.currentTimeMillis()
+            }
+            Intent.ACTION_SCREEN_OFF -> { screenOn = false; unlockedNow = false }
+            Intent.ACTION_USER_PRESENT -> {
+                unlockedNow = true
+                lastUnlockAt = System.currentTimeMillis()
+            }
+            Intent.ACTION_POWER_CONNECTED -> chargingNow = true
+            Intent.ACTION_POWER_DISCONNECTED -> chargingNow = false
             Intent.ACTION_AIRPLANE_MODE_CHANGED -> {
                 val on = i.getBooleanExtra("state", false)
                 if (on) capture("offline", JSONObject().put("reason", "airplane"))

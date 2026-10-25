@@ -20,62 +20,225 @@ int heartbeatIntervalMin(
   return 15;
 }
 
-/// Conservative snatch detector. A "snatch" is a sudden strong jerk (a grab)
-/// immediately followed by sustained motion (running away) WHILE the phone is
-/// unlocked. We deliberately require BOTH halves so an ordinary drop, a bump,
-/// or putting the phone down does not fire — false theft alarms erode trust.
-class SnatchDetector {
-  /// Linear-acceleration magnitude (m/s^2, gravity removed) that counts as a
-  /// sudden grab. ~2.5g. High on purpose: everyday handling rarely reaches it.
-  static const double grabThreshold = 25.0;
+/// grab-guard (owner 25 Oct: "sudden grab" alerts at 01:54 AM while the phone
+/// lay by the bed) — the facts around ONE accelerometer sample that decide
+/// whether a grab may count at all. Mirror of SnatchPolicy.kt (keep in sync).
+class SnatchContext {
+  const SnatchContext({
+    this.charging = false,
+    this.screenOn = false,
+    this.unlocked = false,
+    this.msSinceUnlock,
+    this.hour = 12,
+  });
 
-  /// After a grab, this much sustained motion (average magnitude over the
-  /// follow window) counts as "running away".
-  static const double runThreshold = 6.0;
+  /// On the charger: the owner put it there — never a snatch.
+  final bool charging;
+  final bool screenOn;
 
-  /// Window after a grab in which we look for the run, in milliseconds.
-  static const int followWindowMs = 2500;
+  /// Keyguard dismissed (or no screen lock at all).
+  final bool unlocked;
 
-  /// Minimum fraction of follow-window samples that must be "moving".
-  static const double runSampleFraction = 0.6;
+  /// Milliseconds since the last USER_PRESENT (unlock); null = not seen.
+  final int? msSinceUnlock;
 
-  int? _grabAtMs;
-  int _followSamples = 0;
-  int _movingSamples = 0;
+  /// Local hour 0-23 (night quiet profile).
+  final int hour;
+}
 
-  /// Feed one sample. Returns true exactly once when a snatch pattern
-  /// completes. [unlocked] gates it: a snatch only matters while the screen is
-  /// unlocked (a thief grabbing a phone the owner was using).
-  bool onSample(
-      {required double magnitude, required int tMs, required bool unlocked}) {
-    if (!unlocked) {
-      _reset();
-      return false;
+/// One detection profile: how hard the grab and how sustained the run.
+class SnatchProfile {
+  const SnatchProfile({
+    required this.name,
+    required this.grabThreshold,
+    required this.runThreshold,
+    required this.followWindowMs,
+    required this.runFraction,
+    required this.lateRunFraction,
+    required this.minFollowSamples,
+  });
+
+  final String name;
+
+  /// Linear-acceleration magnitude (m/s^2, gravity removed) of the grab.
+  final double grabThreshold;
+
+  /// A follow-window sample at/above this counts as "moving away".
+  final double runThreshold;
+  final int followWindowMs;
+
+  /// Fraction of ALL follow samples that must be moving …
+  final double runFraction;
+
+  /// … and of the LATER half too (the motion must be sustained — walking /
+  /// running away — not a jolt that settles, like a pick-up or put-down).
+  final double lateRunFraction;
+
+  /// Too few samples (sensor batching / a stalled stream) -> no verdict.
+  final int minFollowSamples;
+}
+
+/// Pure decision rules for the snatch (grab) detector. Mirror of
+/// android_overlay/.../antitheft/SnatchPolicy.kt 1:1 (keep in sync).
+///
+///   * charging                       -> off (the owner plugged it in)
+///   * unlocked < [inHandMs] ago      -> off (picked up to use it)
+///   * night 23:00-06:00              -> ONLY a screen-off phone that was
+///                                       lying still, [night] (strongest)
+///                                       pattern
+///   * day, screen off                -> only if it was lying still
+///                                       (moving in a pocket / bag -> off),
+///                                       [night] (strongest) pattern
+///   * day otherwise                  -> [day] pattern
+/// A grab = two samples >= the grab threshold within [debounceMs]; after a
+/// snatch fired there is a [cooldownMs] pause.
+class SnatchPolicy {
+  SnatchPolicy._();
+
+  static const day = SnatchProfile(
+    name: 'day',
+    grabThreshold: 25.0,
+    runThreshold: 6.0,
+    followWindowMs: 3500,
+    runFraction: 0.6,
+    lateRunFraction: 0.5,
+    minFollowSamples: 15,
+  );
+
+  static const night = SnatchProfile(
+    name: 'night',
+    grabThreshold: 32.0,
+    runThreshold: 7.0,
+    followWindowMs: 5000,
+    runFraction: 0.7,
+    lateRunFraction: 0.6,
+    minFollowSamples: 25,
+  );
+
+  static const inHandMs = 60000;
+  static const nightStartHour = 23;
+  static const nightEndHour = 6;
+  static const restMax = 1.2;
+  static const restMs = 3000;
+  static const debounceMs = 300;
+  static const cooldownMs = 5 * 60000;
+
+  /// The owner gets this long to answer "Was this you?" on his own phone
+  /// before the grab goes to the server (and the family).
+  static const confirmWindowMs = 60000;
+
+  static bool isNight(int hour) =>
+      hour >= nightStartHour || hour < nightEndHour;
+
+  static bool freshUnlock(SnatchContext c) =>
+      c.unlocked && c.msSinceUnlock != null && c.msSinceUnlock! < inHandMs;
+
+  /// The profile a grab NOW must meet, or null = a grab cannot count now.
+  /// [restBefore]: the phone lay still for [restMs] before the jolt.
+  static SnatchProfile? profileFor(SnatchContext c,
+      {required bool restBefore}) {
+    if (c.charging) return null;
+    if (freshUnlock(c)) return null;
+    if (isNight(c.hour)) {
+      if (c.screenOn || !restBefore) return null;
+      return night;
     }
-    if (_grabAtMs == null) {
-      if (magnitude >= grabThreshold) {
-        _grabAtMs = tMs;
-        _followSamples = 0;
-        _movingSamples = 0;
+    if (!c.screenOn) return restBefore ? night : null; // strongest pattern
+    return day;
+  }
+
+  /// Abort an armed grab mid-window (plugged in / unlocked meanwhile).
+  static bool abort(SnatchContext c) => c.charging || freshUnlock(c);
+}
+
+/// Conservative snatch detector (Kotlin mirror: SnatchDetector.kt). A
+/// "snatch" = a sudden strong jerk (two samples over the profile's grab
+/// threshold) followed by SUSTAINED motion (moving away) through the whole
+/// follow window, allowed by [SnatchPolicy] at that moment. An ordinary
+/// pick-up, put-down, bump, in-hand use or charging never fires.
+class SnatchDetector {
+  SnatchProfile? _profile;
+  int? _grabAtMs;
+  int? _spikeAtMs;
+  bool _spikeRest = false;
+  int? _lastActiveMs;
+  int? _firstMs;
+  int? _cooldownUntil;
+  int _early = 0, _earlyMoving = 0, _late = 0, _lateMoving = 0;
+
+  /// Feed one sample. Returns true exactly once when a snatch completes.
+  bool onSample(
+      {required double magnitude,
+      required int tMs,
+      required SnatchContext ctx}) {
+    _firstMs ??= tMs;
+    final restBefore =
+        (tMs - (_lastActiveMs ?? _firstMs!)) >= SnatchPolicy.restMs;
+    if (magnitude >= SnatchPolicy.restMax) _lastActiveMs = tMs;
+
+    final cd = _cooldownUntil;
+    if (cd != null && tMs < cd) return false;
+
+    final p = _profile;
+    if (p != null) {
+      if (SnatchPolicy.abort(ctx)) {
+        reset();
+        return false;
+      }
+      final g = _grabAtMs!;
+      if (tMs - g > p.followWindowMs) {
+        final total = _early + _late;
+        final fired = total >= p.minFollowSamples &&
+            _late > 0 &&
+            (_earlyMoving + _lateMoving) / total >= p.runFraction &&
+            _lateMoving / _late >= p.lateRunFraction;
+        reset();
+        if (fired) _cooldownUntil = tMs + SnatchPolicy.cooldownMs;
+        return fired;
+      }
+      final moving = magnitude >= p.runThreshold;
+      if (tMs - g <= p.followWindowMs ~/ 2) {
+        _early++;
+        if (moving) _earlyMoving++;
+      } else {
+        _late++;
+        if (moving) _lateMoving++;
       }
       return false;
     }
-    // in the follow window
-    if (tMs - _grabAtMs! > followWindowMs) {
-      final fired = _followSamples > 0 &&
-          _movingSamples / _followSamples >= runSampleFraction;
-      _reset();
-      return fired;
+
+    // Not armed: look for a debounced grab (2 strong samples close together).
+    final spike = _spikeAtMs;
+    if (spike != null && tMs - spike > SnatchPolicy.debounceMs) {
+      _spikeAtMs = null;
     }
-    _followSamples++;
-    if (magnitude >= runThreshold) _movingSamples++;
+    final first = _spikeAtMs == null;
+    final want = SnatchPolicy.profileFor(ctx,
+        restBefore: first ? restBefore : _spikeRest);
+    if (want == null || magnitude < want.grabThreshold) return false;
+    if (first) {
+      _spikeAtMs = tMs;
+      _spikeRest = restBefore;
+      return false;
+    }
+    _profile = want;
+    _grabAtMs = tMs;
+    _spikeAtMs = null;
+    _early = 0;
+    _earlyMoving = 0;
+    _late = 0;
+    _lateMoving = 0;
     return false;
   }
 
-  void _reset() {
+  void reset() {
+    _profile = null;
     _grabAtMs = null;
-    _followSamples = 0;
-    _movingSamples = 0;
+    _spikeAtMs = null;
+    _early = 0;
+    _earlyMoving = 0;
+    _late = 0;
+    _lateMoving = 0;
   }
 
   /// Magnitude of a 3-axis linear-acceleration reading.

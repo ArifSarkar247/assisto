@@ -14,6 +14,7 @@ import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
+import '../services/own_device_guard.dart'; // grab-guard
 import '../messaging/msg_notify.dart';
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
 import '../security/secret_store.dart';
@@ -190,6 +191,9 @@ class PushNotifier {
   /// Show [p] (or, for `call_cancel`, dismiss the ring it refers to).
   static Future<void> show(PushPayload p) async {
     try {
+      // grab-guard (owner 25 Oct): the owner's own phone never shows an
+      // anti-theft alert about itself (foreground AND background isolate).
+      if (await OwnDeviceGuard.isOwnPush(p.data)) return;
       if (p.isCallCancel) {
         await _plugin.cancel(p.notificationId);
         return;

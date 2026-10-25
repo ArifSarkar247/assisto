@@ -68,6 +68,9 @@ class AntiTheftService {
             // at-heartbeat: "protection paused, tap to resume" texts
             'resumeTitle': notif['resumeTitle'] ?? '',
             'resumeBody': notif['resumeBody'] ?? '',
+            // grab-guard: the local "Was this you?" notification texts
+            'grabTitle': notif['grabTitle'] ?? '',
+            'grabBody': notif['grabBody'] ?? '',
             'rebaseline': rebaseline,
             // own-device: the engine sends the app's id with its ingest
             'deviceId': DeviceId.now(),
@@ -93,12 +96,47 @@ class AntiTheftService {
             'notifOff': notif['off'] ?? '',
             'resumeTitle': notif['resumeTitle'] ?? '',
             'resumeBody': notif['resumeBody'] ?? '',
+            'grabTitle': notif['grabTitle'] ?? '', // grab-guard
+            'grabBody': notif['grabBody'] ?? '',
             'deviceId': DeviceId.now(), // own-device
           }) ??
           false;
     } catch (_) {
       return false;
     }
+  }
+
+  /// grab-guard: a grab detected on THIS phone waits [SnatchPolicy
+  /// .confirmWindowMs] for the owner's "Was this you?" before it is sent.
+  /// Returns the milliseconds left, or null (nothing pending / error).
+  static Future<int?> grabPendingMs() async {
+    if (!supported) return null;
+    try {
+      final v = await _ch.invokeMethod<int>('grabPending');
+      return (v == null || v < 0) ? null : v;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// grab-guard: the owner confirmed (Security PIN verified by the server)
+  /// it was him — drop the pending grab. True = it was still pending (never
+  /// sent); false = nothing pending / already sent.
+  static Future<bool> grabCancel() async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('grabCancel') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// grab-guard: "No, it wasn't me" — send the pending grab right now.
+  static Future<void> grabSendNow() async {
+    if (!supported) return;
+    try {
+      await _ch.invokeMethod('grabSendNow');
+    } catch (_) {/* ignore */}
   }
 
   /// Stop the foreground service (called after the server disables protection).
