@@ -989,3 +989,11 @@ BN.update({
     "rd_by_model": "ফোন মডেল অনুযায়ী", "rd_none": "গত ৭ দিনে কোনো রিং পুশ নেই।",
 })
 # ---- /ring-everywhere ----
+
+
+# ---- turn-runner (owner 25 Oct) ---- CI runner traffic shown separately
+EN.update({"t9_runner": "Build runner traffic",
+           "t9_runner_note": "Self-hosted CI runner, separate from calls — never counted in the call-relay bandwidth or its alert."})
+BN.update({"t9_runner": "বিল্ড রানারের ট্রাফিক",
+           "t9_runner_note": "নিজস্ব CI রানার, কল থেকে আলাদা — কল-রিলে ব্যান্ডউইথ বা তার সতর্কতায় কখনো গোনা হয় না।"})
+# ---- /turn-runner ----

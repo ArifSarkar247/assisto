@@ -319,8 +319,9 @@ class MonitorTests(TestCase):
                             turn_cpu_pct=20.0, steal_pct=0.0)
         ev = M.evaluate_alerts(s, lim, 0)
         self.assertTrue(ev["alloc"][0])                       # 88/125 = 70.4%
-        self.assertFalse(ev["bw"][0])                         # 32% of budget
-        self.assertIn("whole-box", ev["bw"][1])
+        # no coturn relay figure -> no bandwidth alert at all (never the whole-box NIC,
+        # which counts build-runner traffic: false 97% alert, owner 25 Oct)
+        self.assertNotIn("bw", ev)
         self.assertFalse(ev["quota"][0])
         self.assertFalse(ev["cpu"][0])
         s.allocations, s.relay_out_bps = 87, 22_000_000
@@ -360,7 +361,10 @@ class MonitorTests(TestCase):
             keys = {k for k, kind, _ in sends if kind == "fire"}
             self.assertEqual(keys, {"alloc", "quota"})
             self.assertEqual(no.call_count, 1)
-            self.assertEqual(FamilyAlert.objects.filter(user=owner, kind="turn_capacity").count(), 1)
+            # server alerts go to the Admin category, never Family
+            from .models import NotifEvent
+            self.assertEqual(FamilyAlert.objects.filter(user=owner, kind="turn_capacity").count(), 0)
+            self.assertEqual(NotifEvent.objects.filter(user=owner, type="admin").count(), 1)
             cpu2 = dict(cpu, ticks=160, total=13000, steal=600)
             later = timezone.now() + timedelta(seconds=60)
             st["ts"] = later.timestamp() - 60

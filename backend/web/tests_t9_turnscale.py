@@ -31,7 +31,9 @@ class CallRelayPanelTests(OwnerBase):
                                   turn_cpu_pct=4.5, quota_errors=2, sources="ss,nic")
         r = self.c.get("/owner/calls?lang=en")
         self.assertContains(r, "80%")          # 100 / 125
-        self.assertContains(r, "Whole-server network traffic")
+        # bandwidth tile is coturn-relay only (owner 25 Oct): whole-box NIC is never shown as call traffic
+        self.assertNotContains(r, "Whole-server network traffic")
+        self.assertContains(r, "Build runner traffic")
 
     def test_save_list_validates_and_audits(self):
         self.ready()

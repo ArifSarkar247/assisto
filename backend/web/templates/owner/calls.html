@@ -40,11 +40,12 @@
 {% if summ.stale %}<div class="flash warn">{{ T.t9_stale }} {{ cur.at|date:"Y-m-d H:i" }}</div>{% endif %}
 <div class="tiles">
   <div class="tile"><span>{{ T.t9_allocations }}</span><b>{% if cur.allocations is not None %}{{ cur.allocations }}{% else %}—{% endif %}</b><small>{{ T.t9_limit }} {{ lim.alloc_limit }}{% if pct_alloc is not None %} · {{ pct_alloc }}%{% endif %} · {{ T.t9_peak24 }} {{ summ.peak.alloc|default_if_none:"—" }}</small></div>
-  <div class="tile"><span>{{ T.t9_bandwidth }}</span><b>{% if cur_relay_out is not None %}{{ cur_relay_out }} Mbit/s{% elif cur_nic_out is not None %}{{ cur_nic_out }} Mbit/s*{% else %}—{% endif %}</b><small>{{ T.t9_budget }} {{ budget_mbit }} Mbit/s{% if pct_bw is not None %} · {{ pct_bw }}%{% endif %} · {{ T.t9_peak24 }} {% if peak_relay_out is not None %}{{ peak_relay_out }}{% else %}{{ peak_nic_out|default_if_none:"—" }}*{% endif %}</small></div>
+  <div class="tile"><span>{{ T.t9_bandwidth }}</span><b>{% if cur_relay_out is not None %}{{ cur_relay_out }} Mbit/s{% else %}—{% endif %}</b><small>{{ T.t9_budget }} {{ budget_mbit }} Mbit/s{% if pct_bw is not None %} · {{ pct_bw }}%{% endif %} · {{ T.t9_peak24 }} {{ peak_relay_out|default_if_none:"—" }}</small></div>
+  <div class="tile"><span>{{ T.t9_runner }}</span><b>{% if runner_in is not None %}↓ {{ runner_in }} · ↑ {{ runner_out }} Mbit/s{% else %}—{% endif %}</b><small>{{ T.t9_runner_note }}</small></div>
   <div class="tile"><span>{{ T.t9_cpu }}</span><b>{% if cur.turn_cpu_pct is not None %}{{ cur.turn_cpu_pct }}%{% else %}—{% endif %}</b><small>{{ T.t9_steal }} {{ cur.steal_pct|default_if_none:"—" }}% · {{ T.t9_peak24 }} {{ summ.peak.cpu|default_if_none:"—" }}%</small></div>
   <div class="tile"><span>{{ T.t9_errors24 }}</span><b class="{% if quota24 %}neg{% endif %}">{{ quota24 }}</b><small>{{ T.t9_alloc_err }} {{ summ.peak.ae|default:0 }} · {{ T.t9_auth_err }} {{ summ.peak.au|default:0 }}</small></div>
 </div>
-{% if cur_relay_out is None and cur_nic_out is not None %}<p class="mut small">* {{ T.t9_nic_note }}</p>{% endif %}
+
 <p class="mut small">{{ T.t9_sources }}: {{ cur.sources|default:"—" }}</p>
 {% endif %}
 

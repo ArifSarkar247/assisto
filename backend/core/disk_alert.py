@@ -113,18 +113,21 @@ def check_and_alert(state, now=None, notify=None):
 
 
 def _alert_rows(st):
-    """A FamilyAlert row per owner (the in-app foreground-polled alert), in
-    Bangla + English body. Best-effort."""
+    """An ADMIN notification per owner (notification centre), in Bangla +
+    English. Best-effort."""
     try:
-        from .models import User, FamilyAlert
+        from django.utils import timezone
+        from .models import User, NotifEvent
         t_bn, b_bn = message(st, "bn")
         t_en, b_en = message(st, "en")
+        # owner 25 Oct: an ADMIN notification, not a Family alert
         for o in User.objects.filter(is_superuser=True, is_active=True)[:5]:
-            FamilyAlert.objects.create(
-                user=o, kind="disk_alert", title=t_en[:160],
-                body=b_en, severity="high",
-                payload={"source": "uptime_check", "used_pct": st["used_pct"],
-                         "free_gb": st["free_gb"], "threshold": st["threshold"],
-                         "title_bn": t_bn, "body_bn": b_bn})
+            NotifEvent.objects.create(
+                user=o, type="admin", title_en=t_en[:200], title_bn=t_bn[:200],
+                body_en=b_en, body_bn=b_bn, route="owner",
+                meta={"source": "uptime_check", "kind": "disk_alert",
+                      "used_pct": st["used_pct"], "free_gb": st["free_gb"],
+                      "threshold": st["threshold"]},
+                at=timezone.now())
     except Exception:
         pass

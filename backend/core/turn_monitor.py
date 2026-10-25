@@ -67,9 +67,10 @@ def usage_pcts(sample, lim):
     if getattr(sample, "allocations", None) is not None and lim["alloc_limit"]:
         alloc = 100.0 * sample.allocations / lim["alloc_limit"]
     bw = None
+    # Owner 25 Oct: the bandwidth % is COTURN's relay traffic only (coturn CLI or
+    # coturn.service IPAccounting) — never the whole-box NIC, which also counts
+    # the self-hosted CI runner's downloads (false "97%" alert).
     out = getattr(sample, "relay_out_bps", None)
-    if out is None:
-        out = getattr(sample, "nic_out_bps", None)
     if out is not None and lim["bw_budget"]:
         bw = 100.0 * out / lim["bw_budget"]
     vals = [v for v in (alloc, bw) if v is not None]
@@ -204,11 +205,10 @@ def evaluate_alerts(sample, lim, recent_quota_errors, server_health=None):
                         "TURN allocations %d of %d (%.0f%%)" % (
                             sample.allocations, lim["alloc_limit"], p["alloc"]))
     if p["bw"] is not None:
-        src = "relay" if getattr(sample, "relay_out_bps", None) is not None else "whole-box NIC"
-        out = sample.relay_out_bps if src == "relay" else sample.nic_out_bps
+        out = sample.relay_out_bps
         res["bw"] = (p["bw"] >= t["bw_pct"],
-                     "TURN bandwidth (%s) %.0f Mbit/s of %.0f Mbit/s budget (%.0f%%)" % (
-                         src, out * 8 / 1e6, lim["bw_budget"] * 8 / 1e6, p["bw"]))
+                     "Call relay (coturn) %.0f Mbit/s of %.0f Mbit/s budget (%.0f%%)" % (
+                         out * 8 / 1e6, lim["bw_budget"] * 8 / 1e6, p["bw"]))
     res["quota"] = (recent_quota_errors > 0,
                     "%d TURN '486 quota reached' error(s) in the last %s min — calls are "
                     "being refused" % (recent_quota_errors, t["quota_window_min"]))
@@ -251,18 +251,22 @@ def deliver(sends):
     FamilyAlert row for each superuser (kind turn_capacity)."""
     if not sends:
         return 0
+    from django.utils import timezone
     from .push import notify_owner
-    from .models import FamilyAlert, User
+    from .models import NotifEvent, User
     fires = [m for _k, kind, m in sends if kind == "fire"]
     clears = [m for _k, kind, m in sends if kind == "clear"]
     if fires:
         body = "\n".join(fires) + "\nSee Owner Admin → Call relay. Guide: owner_actions/CALL_SCALING.md"
         notify_owner("Assisto call relay near its limit", body)
+        # owner 25 Oct: an ADMIN notification, not a Family alert
         for o in User.objects.filter(is_superuser=True)[:5]:
-            FamilyAlert.objects.create(user=o, kind="turn_capacity",
-                                       title="Call relay (TURN) near its limit",
-                                       body=body[:2000], severity="high",
-                                       payload={"source": "turn_monitor"})
+            NotifEvent.objects.create(
+                user=o, type="admin", title_en="Call relay (TURN) near its limit",
+                title_bn="কল রিলে (TURN) সীমার কাছে", body_en=body[:2000],
+                body_bn=body[:2000], route="owner",
+                meta={"source": "turn_monitor", "kind": "turn_capacity"},
+                at=timezone.now())
     if clears:
         notify_owner("Assisto call relay back to normal",
                      "Recovered: " + "; ".join(clears))
@@ -320,6 +324,26 @@ def cli_ps(host, port, password, timeout=3):
         return re.sub(rb"\xff[\xfb-\xfe].|\xff.", b"", buf).decode("utf-8", "replace")
     except OSError:
         return None
+
+
+RUNNER_UNIT = "actions.runner.ArifSarkar247-assisto.assisto-box.service"
+
+
+def unit_ip_bytes(unit):
+    """(ingress_bytes, egress_bytes) of a systemd unit with IPAccounting=yes,
+    or (None, None). Read-only `systemctl show`, no root needed."""
+    import subprocess
+    try:
+        out = subprocess.run(["systemctl", "show", unit, "-p", "IPIngressBytes",
+                              "-p", "IPEgressBytes"], capture_output=True, text=True,
+                             timeout=5).stdout
+        vals = dict(l.split("=", 1) for l in out.strip().splitlines() if "=" in l)
+        rx, tx = int(vals.get("IPIngressBytes")), int(vals.get("IPEgressBytes"))
+        if rx >= 2**63 or tx >= 2**63:      # "[no data]" / unset sentinel
+            return None, None
+        return rx, tx
+    except Exception:
+        return None, None
 
 
 def turnserver_pid():
@@ -527,6 +551,22 @@ def run_once(state, now=None, probe=stun_probe, ss_text=None, log_lines=None,
             s.relay_in_bps, s.relay_out_bps = ps["in_bps"], ps["out_bps"]
             srcs.append("cli")
 
+    # systemd IPAccounting per unit (no password needed): coturn = relay
+    # traffic when the coturn CLI is off; the CI runner shown separately.
+    units = state.setdefault("units", {})
+    for key, unit in (("coturn", "coturn.service"), ("runner", RUNNER_UNIT)):
+        rx, tx = unit_ip_bytes(unit)
+        pu = units.get(key) or {}
+        if rx is not None and pu.get("rx") is not None and dt:
+            in_bps, out_bps = rate(pu.get("rx"), rx, dt), rate(pu.get("tx"), tx, dt)
+            if key == "coturn" and getattr(s, "relay_out_bps", None) is None:
+                s.relay_in_bps, s.relay_out_bps = in_bps, out_bps
+                srcs.append("coturn-unit")
+            if key == "runner":
+                state["runner_bps"] = {"in": in_bps, "out": out_bps}
+        if rx is not None:
+            units[key] = {"rx": rx, "tx": tx}
+
     # NIC
     if net_text is None:
         try:
@@ -635,13 +675,23 @@ def panel_summary(now=None):
                          ae=Sum("alloc_errors"), au=Sum("auth_errors"))
     stale = cur is None or (now - cur.at) > timedelta(minutes=5)
     pc = usage_pcts(cur, lim) if cur else {"alloc": None, "bw": None, "max": None}
-    alerts = FamilyAlert.objects.filter(kind="turn_capacity").order_by("-id")[:10]
+    from django.conf import settings
+    from .models import NotifEvent
+    rows = [{"title": n.title_en, "body": n.body_en, "at_dt": n.at}
+            for n in NotifEvent.objects.filter(type="admin", meta__kind="turn_capacity")
+            .order_by("-id")[:10]]
+    rows += [{"title": a.title, "body": a.body, "at_dt": a.created_at}   # legacy rows
+             for a in FamilyAlert.objects.filter(kind="turn_capacity").order_by("-id")[:10]]
+    rows = sorted(rows, key=lambda r: r["at_dt"], reverse=True)[:10]
+    st = load_state(os.path.join(str(settings.BASE_DIR), "logs", "turn_monitor_state.json"))
     return {"cur": cur, "stale": stale, "pct": pc, "peak": peak, "lim": lim,
             "recent": list(TurnSample.objects.order_by("-at")[:30]),
             "alert_state": cfg.alert_state or {}, "health": cfg.health or {},
-            "alerts": [{"title": a.title, "body": a.body,
-                        "at": timezone.localtime(a.created_at).strftime("%Y-%m-%d %H:%M")}
-                       for a in alerts]}
+            # owner 25 Oct: CI runner traffic shown SEPARATELY (never counted as calls)
+            "runner_bps": st.get("runner_bps") or {},
+            "alerts": [{"title": r["title"], "body": r["body"],
+                        "at": timezone.localtime(r["at_dt"]).strftime("%Y-%m-%d %H:%M")}
+                       for r in rows]}
 
 
 def load_state(path):

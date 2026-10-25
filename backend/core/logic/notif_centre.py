@@ -249,11 +249,14 @@ TYPE_BUSINESS = "business"                   # order / lead / due (CRM)
 TYPE_SECURITY = "security"                   # new-device login
 TYPE_PLAN = "plan"                           # plan / points
 TYPE_APP_UPDATE = "app_update"
+# Owner 25 Oct: server/infra alerts for the owner (call relay, disk, uptime)
+# get their OWN category — never "Family".
+TYPE_ADMIN = "admin"
 
 NOTIF_TYPES = (
     TYPE_CIRCLE_REQUEST, TYPE_CIRCLE_ACTIVITY, TYPE_COMMUNITY, TYPE_CHANNEL,
     TYPE_FAMILY_ALERT, TYPE_SAFE_JOURNEY, TYPE_SOS, TYPE_SCAM, TYPE_WATCH,
-    TYPE_BUSINESS, TYPE_SECURITY, TYPE_PLAN, TYPE_APP_UPDATE,
+    TYPE_BUSINESS, TYPE_SECURITY, TYPE_PLAN, TYPE_APP_UPDATE, TYPE_ADMIN,
 )
 
 # Chat-message event types that MUST NOT appear in the notification centre —
@@ -277,6 +280,7 @@ _TYPE_ROUTE = {
     TYPE_SECURITY: "plans",
     TYPE_PLAN: "plans",
     TYPE_APP_UPDATE: "plans",
+    TYPE_ADMIN: "owner",
 }
 
 

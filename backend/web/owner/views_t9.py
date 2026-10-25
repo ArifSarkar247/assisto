@@ -86,6 +86,8 @@ def calls(request):
         "cur_nic_out": _mbit(cur.nic_out_bps) if cur else None,
         "peak_relay_out": _mbit(summ["peak"]["rout"]),
         "peak_nic_out": _mbit(summ["peak"]["nout"]),
+        "runner_in": _mbit((summ.get("runner_bps") or {}).get("in")),
+        "runner_out": _mbit((summ.get("runner_bps") or {}).get("out")),
         "budget_mbit": _mbit(lim["bw_budget"]),
         "pct_alloc": None if summ["pct"]["alloc"] is None else round(summ["pct"]["alloc"]),
         "pct_bw": None if summ["pct"]["bw"] is None else round(summ["pct"]["bw"]),
