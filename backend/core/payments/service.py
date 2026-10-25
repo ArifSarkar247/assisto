@@ -311,13 +311,18 @@ def handle_ipn(body, headers):
     o = order_for_tx(tx)
     if o is None:
         return 404, {"status": "ERROR", "message": "unknown order"}
+    mid = (tx + ":" + ptx)[:128]
     if ptx:
         try:
             with transaction.atomic():
-                WebhookReceipt.objects.create(source="gw_ipn", message_id=(tx + ":" + ptx)[:128])
+                WebhookReceipt.objects.create(source="gw_ipn", message_id=mid)
         except IntegrityError:
             return 200, {"status": "OK", "message": "duplicate"}
     o = complete(o, via="ipn")
+    if ptx and o.status not in ("paid", "refunded"):
+        # not final yet (status API down / still pending): forget the receipt
+        # so the gateway's retry of this IPN is verified again, not "duplicate"
+        WebhookReceipt.objects.filter(source="gw_ipn", message_id=mid).delete()
     return 200, {"status": "OK", "message": "IPN received", "order": o.status}
 
 
