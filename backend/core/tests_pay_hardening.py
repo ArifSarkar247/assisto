@@ -753,14 +753,29 @@ class PlayLifecycleTests(PlayHBase):
         self.assertEqual(r.status_code, 200, r.content)
         return r.json()["outcome"]
 
-    def test_rtdn_other_account_token_is_400_and_grants_nothing(self):
+    def test_rtdn_other_account_token_is_acked_audited_and_grants_nothing(self):
+        # pay-followup: was 400 -> Pub/Sub redelivered forever; now 2xx + audit row
         other = User.objects.create_user(name="Mallory", phone="01811000004", password="x")
         self.verify("t")
         self.g.subs["t"] = T.sub_body(other)            # Google now claims another account
         r = self.rtdn_push(self.sn("t", 2), mid="oa")
-        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["outcome"], "ignored:other_account")
         self.assertEqual(_plan(other), "free")
-        self.assertFalse(WebhookReceipt.objects.filter(message_id="oa").exists())
+        self.assertEqual(PlayPurchase.objects.get().user, self.u)
+        self.assertTrue(PaymentEvent.objects.filter(kind="play.rtdn_other_account").exists())
+        self.assertTrue(WebhookReceipt.objects.filter(message_id="oa").exists())
+        # a redelivery is a duplicate no-op
+        self.assertEqual(self.rtdn_push(self.sn("t", 2), mid="oa").json()["outcome"], "duplicate")
+        # a pack token bound to us but claimed for another account: also acked
+        self.pack("pk")
+        self.verify("pk", kind="pack", product="credits_p20")
+        self.g.products["pk"]["obfuscatedExternalAccountId"] = play.account_id(other)
+        r = self.rtdn_push(self.on("pk"), mid="oa-pack")
+        self.assertEqual((r.status_code, r.json()["outcome"]), (200, "ignored:other_account"))
+        # a real Google outage on RTDN still returns 503 so Pub/Sub retries
+        self.g.fail.append(("/subscriptionsv2/", (500, {})))
+        self.assertEqual(self.rtdn_push(self.sn("t", 2), mid="outage").status_code, 503)
 
     def test_bad_envelopes(self):
         for env in [{}, {"message": {"data": "eyJ"}}, {"message": {"messageId": "1",

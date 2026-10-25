@@ -31,7 +31,7 @@ import json
 import logging
 import threading
 import time
-from datetime import datetime, timezone as dt_tz
+from datetime import datetime, timedelta, timezone as dt_tz
 from decimal import Decimal
 from urllib.parse import quote
 
@@ -392,23 +392,30 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
 
 
 # ----------------------------------------------------------------- refunds / voided
-def revoke_token(token, reason, now=None):
+def revoke_token(token, reason, now=None, order_id=""):
+    """Refund / revoke. `order_id` is the refunded order when Google names it
+    (voidedPurchaseNotification.orderId): a subscription has one order id per
+    renewal (GPA.x, GPA.x..0, GPA.x..1), so the refund reverses THAT order's
+    revenue, not the latest one. Without it (REVOKED RTDN) the latest order
+    is reversed. Each order's revenue is reversed at most once."""
     from ..models import PlayPurchase
     now = now or timezone.now()
     pp = PlayPurchase.objects.filter(token_hash=token_hash(token)).select_related("user").first()
     if pp is None:
         return None
-    if pp.revoked:
-        return pp
-    pp.revoked = True
-    pp.save(update_fields=["revoked", "updated_at"])
-    if pp.kind == "sub":
-        E.revoke_period("play", ref_for(token), reason, now)
-    else:
-        E.revoke_pack(pp.user, channel="play", ref=ref_for(token), reason=reason)
+    if not pp.revoked:
+        pp.revoked = True
+        pp.save(update_fields=["revoked", "updated_at"])
+        if pp.kind == "sub":
+            E.revoke_period("play", ref_for(token), reason, now)
+        else:
+            E.revoke_pack(pp.user, channel="play", ref=ref_for(token), reason=reason)
     # reverse the revenue of the refunded order (once)
     from ..models import PaymentEvent
-    ch = PaymentEvent.objects.filter(kind="play.charge", ref=(pp.order_id or "")[:80]).first()
+    ref = str(order_id or pp.order_id or "")[:80]
+    ch = PaymentEvent.objects.filter(kind="play.charge", ref=ref).first() if ref else None
+    if ch and ch.user_id not in (None, pp.user_id):
+        ch = None                                   # never another account's order
     if ch and not PaymentEvent.objects.filter(kind="play.refund", ref=ch.ref).exists():
         E.event(pp.user, "play.refund", "play", ch.ref, amount=-ch.amount_bdt,
                 net=-ch.net_bdt, reason=reason)
@@ -513,6 +520,15 @@ def handle_rtdn(envelope, now=None):
     return out
 
 
+def _other_account(token):
+    """The token is bound to another account than Google now reports. Retrying
+    can never fix that, so ACK the Pub/Sub message (2xx) with no entitlement
+    change, and leave an audit row for the owner."""
+    log.warning("play: rtdn for a token bound to another account (%s)", ref_for(token))
+    E.event(None, "play.rtdn_other_account", "play", ref_for(token))
+    return "ignored:other_account"
+
+
 def _dispatch(data, now):
     if "testNotification" in data:
         return "test"
@@ -530,6 +546,8 @@ def _dispatch(data, now):
         except PlayError as e:
             if e.reason in ("unknown_account", "not_found"):
                 return "ignored:" + e.reason       # never bought through our app
+            if e.reason == "other_account":
+                return _other_account(token)
             raise
         return "sub:%s:%s" % (NOTIF.get(nt, nt), r["state"])
     on = data.get("oneTimeProductNotification")
@@ -542,10 +560,74 @@ def _dispatch(data, now):
         except PlayError as e:
             if e.reason in ("unknown_account", "not_found", "unknown_product"):
                 return "ignored:" + e.reason
+            if e.reason == "other_account":
+                return _other_account(token)
             raise
         return "pack:purchased"
     vp = data.get("voidedPurchaseNotification")
     if vp:
-        revoke_token(str(vp.get("purchaseToken") or ""), "play_voided", now)
+        revoke_token(str(vp.get("purchaseToken") or ""), "play_voided", now,
+                     order_id=str(vp.get("orderId") or ""))
         return "voided"
     return "ignored"
+
+
+# ----------------------------------------------------------------- ack sweep
+ACK_WINDOW = timedelta(days=3)    # Google refunds unacknowledged purchases after 3 days
+ACK_BACKOFF_MIN = timedelta(minutes=15)
+ACK_BACKOFF_MAX = timedelta(hours=6)
+_NO_ACK_STATES = ("CANCELED", "PENDING", "SUBSCRIPTION_STATE_PENDING",
+                  "SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED", "SUBSCRIPTION_STATE_EXPIRED")
+
+
+def ack_sweep(now=None, limit=200):
+    """Retry acknowledge (subscriptions) / consume (credit packs: consuming
+    acknowledges a consumable) for purchases younger than 3 days whose
+    earlier attempt failed and that got no later RTDN / app verify. Goes
+    through sync_subscription / sync_pack, which re-verify with Google first,
+    so it is idempotent: nothing is granted or counted twice. Exponential
+    backoff per purchase (15 min, 30 min, 1 h ... max 6 h) kept in raw.
+    Never raises: one bad purchase never stops the payments sweep."""
+    from django.db.models import Q
+    from ..models import PlayPurchase
+    now = now or timezone.now()
+    out = {"tried": 0, "acked": 0, "failed": 0, "skipped": 0}
+    if not configured():
+        return out
+    qs = (PlayPurchase.objects.filter(revoked=False, created_at__gte=now - ACK_WINDOW)
+          .filter(Q(kind="sub", acknowledged=False) | Q(kind="pack", consumed=False))
+          .exclude(state__in=_NO_ACK_STATES).select_related("user").order_by("created_at"))
+    for pp in qs[:limit]:
+        meta = dict((pp.raw or {}).get("ack_retry") or {})
+        nxt = _ts(meta.get("next"))
+        if nxt and nxt > now:
+            out["skipped"] += 1
+            continue
+        n = int(meta.get("n", 0) or 0)
+        out["tried"] += 1
+        err = ""
+        try:
+            if pp.kind == "sub":
+                sync_subscription(pp.purchase_token, pp.user, now)
+            else:
+                sync_pack(pp.purchase_token, pp.product_id, pp.user, now)
+        except PlayError as e:
+            err = e.reason
+        except Exception as e:                       # never break the sweep
+            err = type(e).__name__
+        pp.refresh_from_db()
+        if pp.acknowledged if pp.kind == "sub" else pp.consumed:
+            out["acked"] += 1
+            log.info("play: ack sweep %s ok (try %d)", ref_for(pp.purchase_token), n + 1)
+            E.event(pp.user, "play.ack_sweep", "play", ref_for(pp.purchase_token),
+                    result="ok", tries=n + 1)
+            continue
+        out["failed"] += 1
+        delay = min(ACK_BACKOFF_MIN * (2 ** min(n, 10)), ACK_BACKOFF_MAX)
+        raw = dict(pp.raw or {})
+        raw["ack_retry"] = {"n": n + 1, "next": (now + delay).isoformat(), "err": err[:60]}
+        pp.raw = raw
+        pp.save(update_fields=["raw", "updated_at"])
+        log.warning("play: ack sweep %s failed (%s), try %d, next in %s",
+                    ref_for(pp.purchase_token), err or "not_acked", n + 1, delay)
+    return out
