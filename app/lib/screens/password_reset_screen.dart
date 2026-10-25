@@ -7,6 +7,7 @@ import '../widgets/reset_options.dart';
 import 'password_reset_confirm_screen.dart';
 import '../otp_api.dart';
 import 'otp/otp_login_screen.dart';
+import '../theme.dart';
 
 /// Password reset — request step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
@@ -107,10 +108,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.resetTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
-          Text(t.resetIntro, style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 16),
+          Text(t.resetIntro, style: AType.bodyMedium),
+          const SizedBox(height: Gap.lg),
 
           // ---- success (neutral, anti-enumeration) ----
           if (_neutralMessage != null) ...[
@@ -129,7 +130,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 ]),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             OutlinedButton.icon(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const PasswordResetConfirmScreen(token: ''))),
@@ -140,13 +141,13 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             // ---- rate-limit banner (honest 429) ----
             if (_rateLimited) ...[
               const ResetRateLimitBanner(),
-              const SizedBox(height: 12),
+              const SizedBox(height: Gap.md),
             ],
 
             // ---- channel chooser ----
             Text(t.resetChooseChannel,
                 style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             ResetChannelTile(
               channel: RecoveryChannel.email,
               available: true,
@@ -164,7 +165,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => OtpResetScreen(backend: widget.otpBackend))),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
 
             // ---- email entry (the one working channel) ----
             TextField(
@@ -196,7 +197,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 label: Text(_sending ? t.resetSending : t.resetSendLink),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             // "I already have a code/link" shortcut into the confirm screen.
             TextButton.icon(
               onPressed: _sending
@@ -211,7 +212,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
           const SizedBox(height: 20),
           Text(t.resetSecurityNote,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ),
     );

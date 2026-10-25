@@ -369,7 +369,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                 tr.paVisSummary(/* (expired, needs, pending) */
                     '${_countFor(_stExpired)}', '$_needsAttention',
                     '${_countFor(_stPending)}'),
-                style: TextStyle(color: scheme.onSurface, fontSize: 13, height: 1.3),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3),
               ),
             ),
           ]),
@@ -464,25 +464,25 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           Row(children: [
             if (isVip) ...[
               Icon(Icons.star, size: 18, color: Brand.warning),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
             ],
             Expanded(
               child: Text((r['name'] ?? '').toString(),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ),
             _statusPill(status, tr, scheme),
           ]),
           if ((r['reason'] ?? '').toString().trim().isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Text((r['reason']).toString(),
                 style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.md, runSpacing: 4, children: [
+          Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             if (when != null)
               _meta(Icons.event, fmt.format(when.toLocal()), scheme),
             if (hasContact)
@@ -552,7 +552,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text(_statusLabel(tr, status),
-          style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+          style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
     );
   }
 
@@ -560,8 +560,8 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+          const SizedBox(width: Gap.xs),
+          Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       );
 

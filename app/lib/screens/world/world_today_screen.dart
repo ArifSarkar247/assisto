@@ -337,7 +337,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text('${dg((c['temp'] as num?)?.round() ?? '')}°',
-                style: Theme.of(context).textTheme.displaySmall),
+                style: AFonts.figures(Theme.of(context).textTheme.displaySmall)),
             const SizedBox(width: Gap.md),
             Expanded(
                 child: Text('${c['label'] ?? ''}',
@@ -352,7 +352,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               for (final s in next)
                 Text(
                     '${uwWhen(context, '${s['time']}')}: ${dg((s['temp'] as num?)?.round() ?? '')}° ${s['label']}',
-                    style: Theme.of(context).textTheme.bodySmall),
+                    style: AFonts.figures(Theme.of(context).textTheme.bodySmall)),
             ]),
           ],
           UwSourceLine(
@@ -407,13 +407,13 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                               fontWeight: FontWeight.w600, height: 1.35)),
                       if ('${it['snippet'] ?? ''}'.isNotEmpty)
                         Padding(
-                          padding: const EdgeInsets.only(top: 2),
+                          padding: const EdgeInsets.only(top: Gap.xxs),
                           child: Text('${it['snippet']}',
                               style: TextStyle(
                                   color: scheme.onSurfaceVariant,
                                   height: 1.35)),
                         ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(
                         [
                           '${it['source'] ?? ''}',

@@ -441,7 +441,7 @@ class _AnimalTab extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(Radii.sm),
                     child: LinearProgressIndicator(
                       value: total == 0 ? 0 : taken / total,
                       minHeight: 10,
@@ -488,7 +488,7 @@ class _AnimalTab extends StatelessWidget {
                       child: Text('${p.shares}',
                           style: TextStyle(
                               color: scheme.onPrimaryContainer,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
                     ),
                     title: Text(p.name),
                     subtitle: Text(tr.qurbaniSharesCount('${p.shares}')),
@@ -650,7 +650,7 @@ class _ChecklistTab extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.sm),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(Radii.sm),
                   child: LinearProgressIndicator(
                     value: pct / 100,
                     minHeight: 10,
@@ -1045,13 +1045,15 @@ Future<Map<String, dynamic>?> _participantSheet(
             Row(children: [
               Expanded(child: Text(tr.qurbaniShares)),
               IconButton(
+                tooltip: AppLocalizations.of(context).f2Decrease,
                 icon: const Icon(Icons.remove_circle_outline),
                 onPressed:
                     shares > 1 ? () => setSheet(() => shares--) : null,
               ),
               Text('$shares',
-                  style: Theme.of(ctx).textTheme.titleLarge),
+                  style: AFonts.figures(Theme.of(ctx).textTheme.titleLarge)),
               IconButton(
+                tooltip: AppLocalizations.of(context).f2Increase,
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed:
                     shares < free ? () => setSheet(() => shares++) : null,
@@ -1106,10 +1108,12 @@ Future<Map<String, dynamic>?> _meatSheet(
               children: [
                 Expanded(child: Text(label)),
                 IconButton(
+                    tooltip: AppLocalizations.of(context).f2Decrease,
                     icon: const Icon(Icons.remove_circle_outline),
                     onPressed: val > 0 ? () => set(val - 1) : null),
-                Text('$val', style: Theme.of(ctx).textTheme.titleMedium),
+                Text('$val', style: AFonts.figures(Theme.of(ctx).textTheme.titleMedium)),
                 IconButton(
+                    tooltip: AppLocalizations.of(context).f2Increase,
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed: () => set(val + 1)),
               ],

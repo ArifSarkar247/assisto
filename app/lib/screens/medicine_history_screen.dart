@@ -149,7 +149,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
               else
                 Text('${fmtInt(context, pct)}%',
                     style: TextStyle(
-                        fontWeight: FontWeight.w700, color: _pctColor(pct))),
+                        fontWeight: FontWeight.w700, color: _pctColor(pct), fontFeatures: AFonts.tabular)),
             ]),
             if (streak > 0) ...[
               const SizedBox(height: Gap.xs),
@@ -163,8 +163,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
             if (!prn) ...[
               const SizedBox(height: Gap.md),
               Text(t.medWeeklyHeading,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.sm),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -183,9 +182,9 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
   Widget _weekBar(BuildContext context, AppLocalizations t, int n, Map<String, dynamic> w) {
     final pct = (w['pct'] as num?)?.toInt() ?? 0;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
       child: Column(children: [
-        Text('${fmtInt(context, pct)}%', style: const TextStyle(fontSize: 11)),
+        Text('${fmtInt(context, pct)}%', style: AType.labelSmall.copyWith(fontFeatures: AFonts.tabular)),
         const SizedBox(height: Gap.xs),
         Container(
           height: 60,
@@ -202,9 +201,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
         ),
         const SizedBox(height: Gap.xs),
         Text(t.medWeekLabel(fmtInt(context, n)),
-            style: TextStyle(
-                fontSize: 10,
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

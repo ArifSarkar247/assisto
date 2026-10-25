@@ -319,7 +319,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
         ),
       ),
       SizedBox(
-        height: 48,
+        height: Gap.xxxl,
         child: ListView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
@@ -430,7 +430,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                   if (s.rating > 0) _ratingChip(context, s.rating),
                 ]),
                 const SizedBox(height: Gap.xs),
-                Wrap(spacing: Gap.sm, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
                   _tag(context, Icons.category_outlined,
                       _catLabel(tr, s.category)),
                   if (s.location.isNotEmpty)

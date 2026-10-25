@@ -221,7 +221,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.ramadanMethodNote('${tm['method'] ?? 'karachi'}'),
-          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
 
       // other prayer times
@@ -284,14 +284,14 @@ class _RamadanScreenState extends State<RamadanScreen> {
           padding: const EdgeInsets.all(Gap.sm),
           decoration: BoxDecoration(
             color: Colors.grey.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(children: [
             const Icon(Icons.phone_in_talk_outlined, size: 16, color: Colors.grey),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanWakeCallComing,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ),
           ]),
         ),
@@ -314,17 +314,16 @@ class _RamadanScreenState extends State<RamadanScreen> {
         Icon(icon, color: color, size: 28),
         const SizedBox(height: Gap.xs),
         Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Text(time,
-            style: TextStyle(
-                color: color, fontSize: 26, fontWeight: FontWeight.bold)),
+            style: AType.headlineMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
       ]),
     );
   }
 
   Widget _prayerRow(String label, String time) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(label),
         Text(time, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -333,7 +332,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
   }
 
   Widget _sectionTitle(String s) =>
-      Text(s, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15));
+      Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold));
 
   Widget _errorBox(String msg) {
     return Container(

@@ -265,7 +265,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
         children: [
           if (sheets.length > 1) _sheetPicker(sheets, scheme),
           _headerCard(active, tr, scheme),
@@ -289,10 +289,9 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
             for (final kind in _checkKinds)
               if (checks.any((c) => (c['check_kind'] ?? 'equipment').toString() == kind)) ...[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, 0, 2),
+                  padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, 0, Gap.xxs),
                   child: Text(_checkKindLabel(tr, kind),
-                      style: TextStyle(
-                          color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 12.5)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
                 ),
                 for (final c in checks.where((c) => (c['check_kind'] ?? 'equipment').toString() == kind))
                   _checkTile(c, tr, scheme),
@@ -362,7 +361,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
               ],
             ),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             if (callTime.isNotEmpty)
               _meta(Icons.alarm, tr.shootCallTimeValue(callTime), scheme),
@@ -378,21 +377,22 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 15, color: scheme.onSurfaceVariant),
         const SizedBox(width: 3),
-        Text(text, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]);
 
   Widget _sectionHeader(String title, IconData icon, VoidCallback onAdd, ColorScheme scheme) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 2, top: Gap.xs),
+        padding: const EdgeInsets.only(bottom: Gap.xxs, top: Gap.xs),
         child: Row(children: [
           Icon(icon, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(title,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
           IconButton(
+            tooltip: AppLocalizations.of(context).add,
             icon: const Icon(Icons.add_circle_outline),
             color: scheme.primary,
             onPressed: onAdd,
@@ -403,7 +403,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   Widget _empty(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.sm, horizontal: Gap.xs),
         child: Text(text,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
       );
 
   Widget _blockTile(Map<String, dynamic> b, AppLocalizations tr, ColorScheme scheme) {
@@ -417,7 +417,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
       child: ListTile(
         dense: true,
         leading: Text(start.isEmpty ? '—' : start,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
             [_blockKindLabel(tr, kind), if (time.isNotEmpty) time].join(' · '),
@@ -454,6 +454,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
                 color: checked ? scheme.onSurfaceVariant : scheme.onSurface),
             maxLines: 1, overflow: TextOverflow.ellipsis),
         secondary: IconButton(
+          tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           icon: const Icon(Icons.delete_outline),
           onPressed: () {
             if (c['id'] is int) _delete(c['id'] as int);

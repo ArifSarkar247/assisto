@@ -375,15 +375,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.securityFrozenTitle,
-                      style: TextStyle(
-                          color: Brand.danger,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15)),
-                  const SizedBox(height: 2),
+                      style: AType.titleMedium.copyWith(color: Brand.danger, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: Gap.xxs),
                   Text(
                     tr.securityFrozenUntil(_fmtDate(_frozenUntil!)),
-                    style: TextStyle(
-                        color: scheme.onSurface, fontSize: 13, height: 1.3),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3),
                   ),
                   const SizedBox(height: Gap.sm),
                   FalseAlarmButton(onCleared: _load),
@@ -419,14 +415,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         armed
                             ? tr.securityStateArmed
                             : tr.securityStateDisarmed,
-                        style: TextStyle(
-                            color: fg,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16),
+                        style: AType.titleMedium.copyWith(color: fg, fontWeight: FontWeight.w700),
                       ),
                       Text(_statusLabel(tr),
-                          style: TextStyle(
-                              color: scheme.onSurfaceVariant, fontSize: 13)),
+                          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -458,7 +450,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(
                   tr.securityWrongPinCount(fmtInt(context, _wrongPin)),
-                  style: TextStyle(color: Brand.warning, fontSize: 12),
+                  style: AType.bodySmall.copyWith(color: Brand.warning),
                 ),
               ),
           ],
@@ -493,8 +485,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityPinCardTitle,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 ),
                 TextButton(
                   onPressed: _busy ? null : _setPin,
@@ -585,11 +576,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Text(tr.securityArmCardTitle,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(tr.securityArmCardBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.sm),
             SizedBox(
               width: double.infinity,
@@ -628,11 +618,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
           children: [
             Text(tr.securityPendingCardTitle,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(tr.securityPendingCardBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.sm),
             for (final p in _pending) _pendingRow(tr, p),
           ],
@@ -726,15 +715,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityApproverTitle,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
             const SizedBox(height: Gap.xs),
             Text(tr.securityApproverBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.sm),
             if (cands.isEmpty)
               Text(tr.securityApproverNone,
@@ -781,19 +768,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityHonestTitle,
-                      style: TextStyle(
-                          color: scheme.onSecondaryContainer,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
             const SizedBox(height: Gap.sm),
             Text(tr.securityHonestBody,
-                style: TextStyle(
-                    color: scheme.onSecondaryContainer,
-                    fontSize: 13,
-                    height: 1.35)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.35)),
           ],
         ),
       ),

@@ -231,17 +231,16 @@ class _PlanCard extends StatelessWidget {
             Row(children: [
               Expanded(
                 child: Text(p.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 16),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ),
               _statusChip(context, p.status),
             ]),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(_kindLabel(tr, p.kind),
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
             // progress bar (goal-based) or open-ended saved line
             if (p.percent != null) ...[
@@ -258,11 +257,10 @@ class _PlanCard extends StatelessWidget {
               Row(children: [
                 Text('${p.percent}%',
                     style:
-                        TextStyle(fontWeight: FontWeight.w700, color: c)),
+                        TextStyle(fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
                 const Spacer(),
                 Text('${p.savedDisplay} / ${p.goalDisplay}',
-                    style: TextStyle(
-                        fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
               ]),
             ] else ...[
               Row(children: [
@@ -273,8 +271,7 @@ class _PlanCard extends StatelessWidget {
                         fontWeight: FontWeight.w700, color: scheme.onSurface)),
                 const Spacer(),
                 Text(tr.savechalOpenEnded,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ]),
             ],
             const SizedBox(height: Gap.sm),
@@ -299,7 +296,7 @@ class _PlanCard extends StatelessWidget {
       const SizedBox(width: 3),
       Flexible(
         child: Text(text,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
       ),
@@ -377,16 +374,12 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     _statusChip(context, p.status),
                     const SizedBox(height: Gap.sm),
                     Text(p.savedDisplay,
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface)),
+                        style: AType.displaySmall.copyWith(fontWeight: FontWeight.bold, color: scheme.onSurface)),
                     Text(
                         p.goal > 0
                             ? tr.savechalOfGoal(p.goalDisplay)
                             : tr.savechalKindRoundup,
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     if (p.percent != null) ...[
                       const SizedBox(height: Gap.md),
                       ClipRRect(
@@ -401,7 +394,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                       const SizedBox(height: Gap.xs),
                       Text('${p.percent}%',
                           style: TextStyle(
-                              fontWeight: FontWeight.w700, color: c)),
+                              fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
                     ],
                   ]),
             ),
@@ -841,7 +834,7 @@ Widget _statusChip(BuildContext context, String status) {
       borderRadius: BorderRadius.circular(Radii.pill),
     ),
     child: Text(label,
-        style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+        style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
   );
 }
 
@@ -859,15 +852,14 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
           Expanded(
             child: Text(label,
                 style:
-                    TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ),
         ]),
         const SizedBox(height: Gap.xs),
         Text(value,
-            style: TextStyle(
-                fontSize: 17, fontWeight: FontWeight.bold, color: color),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
       ]),
@@ -887,7 +879,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
         Expanded(
           child: Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),

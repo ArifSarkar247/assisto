@@ -280,12 +280,10 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                           Row(children: [
                             Icon(Icons.lock_outline,
                                 size: 14, color: scheme.onSurfaceVariant),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: Gap.xs),
                             Expanded(
                               child: Text(tr.paVipPrivacyNote,
-                                  style: TextStyle(
-                                      color: scheme.onSurfaceVariant,
-                                      fontSize: 12)),
+                                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                             ),
                           ]),
                           const SizedBox(height: Gap.sm),
@@ -372,8 +370,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                           ].join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ]),
               ),
               PopupMenuButton<String>(
@@ -396,10 +393,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                 borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Text(badge.$2,
-                  style: TextStyle(
-                      color: badge.$1,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700)),
+                  style: AType.bodySmall.copyWith(color: badge.$1, fontWeight: FontWeight.w700)),
             ),
           ]),
         ),
@@ -554,7 +548,7 @@ class _VipEditorState extends State<_VipEditor> {
       appBar: AppBar(
           title: Text(widget.existing == null ? tr.paVipNew : tr.paVipEdit)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
         children: [
           TextField(
             controller: _name,
@@ -620,7 +614,7 @@ class _VipEditorState extends State<_VipEditor> {
           // ---- privacy-sensitive: notes
           Row(children: [
             Icon(Icons.lock_outline, size: 16, color: scheme.primary),
-            const SizedBox(width: 4),
+            const SizedBox(width: Gap.xs),
             Text(tr.paVipPrivateSection,
                 style: Theme.of(context)
                     .textTheme
@@ -689,6 +683,7 @@ class _VipEditorState extends State<_VipEditor> {
                     ),
                   ),
                   IconButton(
+                    tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                     icon:
                         Icon(Icons.remove_circle_outline, color: scheme.error),
                     onPressed: () => setState(() => _log.removeAt(i)),
@@ -710,11 +705,10 @@ class _VipEditorState extends State<_VipEditor> {
           const SizedBox(height: Gap.md),
           Row(children: [
             Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 4),
+            const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.paVipPrivacyNote,
-                  style: TextStyle(
-                      color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           ]),
           const SizedBox(height: Gap.lg),
@@ -730,7 +724,7 @@ class _VipEditorState extends State<_VipEditor> {
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paVipNeedName,
-                style: TextStyle(color: scheme.error, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: scheme.error)),
           ],
         ],
       ),

@@ -205,7 +205,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
         if (_error != null) ...[
           const SizedBox(height: Gap.sm),
           Text(t.supportSendFailed(_error!),
-              style: const TextStyle(color: Brand.danger, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         FilledButton.icon(
@@ -217,7 +217,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
                   child: CircularProgressIndicator(strokeWidth: 2))
               : const Icon(Icons.send_outlined),
           label: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: Gap.sm),
             child: Text(_sending ? t.supportSending : t.supportSend),
           ),
         ),

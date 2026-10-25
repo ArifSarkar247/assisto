@@ -470,7 +470,7 @@ class _OfflineBar extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(color: cs.onTertiaryContainer, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: cs.onTertiaryContainer)),
         ),
       ]),
     );

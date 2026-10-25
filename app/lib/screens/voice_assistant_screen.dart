@@ -331,7 +331,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         if (!didPop) _close();
       },
       child: Scaffold(
-      backgroundColor: dark ? const Color(0xFF0A0D18) : const Color(0xFFF5F7FF),
+      backgroundColor: dark ? scheme.surface : scheme.surfaceContainerLowest,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -384,8 +384,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(t.vaLockedNote,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, fontSize: 13))),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
               ]),
             ),
           _bottom(scheme, listening),
@@ -461,7 +460,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             borderRadius: BorderRadius.circular(Radii.lg),
           ),
           child: Text(turn.said,
-              style: TextStyle(color: scheme.onPrimary, fontSize: 16)),
+              style: AType.titleMedium.copyWith(color: scheme.onPrimary)),
         ),
       ),
       if (turn.outcome == null)
@@ -614,7 +613,7 @@ class _MicOrb extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: listening
                         ? const LinearGradient(
-                            colors: [Color(0xFFC62828), Color(0xFF9B4DF0)])
+                            colors: [Brand.dangerFill, Brand.purple])
                         : Brand.gradient,
                     boxShadow: [
                       BoxShadow(
@@ -651,7 +650,7 @@ class _Wave extends StatelessWidget {
       children: [
         for (var i = 0; i < 5; i++)
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2),
+            margin: const EdgeInsets.symmetric(horizontal: Gap.xxs),
             width: 5,
             height: 10 +
                 18 *
@@ -721,8 +720,7 @@ class _ResultCardState extends State<_ResultCard> {
                         const SizedBox(height: Gap.sm),
                         if (o.title != null)
                           Text(o.title!,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 16)),
+                              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                         if (o.subtitle != null)
                           Text(o.subtitle!,
                               style: TextStyle(color: scheme.onSurfaceVariant)),

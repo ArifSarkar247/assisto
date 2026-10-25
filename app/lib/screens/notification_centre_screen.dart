@@ -631,7 +631,7 @@ class _FeedTabState extends State<_FeedTab>
         ),
         // Filter chips by type.
         SizedBox(
-          height: 48,
+          height: Gap.xxxl,
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg),

@@ -229,9 +229,7 @@ class _VoiceAssistantSettingsScreenState
   Widget _statusChip(ColorScheme scheme, String label, {required bool good}) {
     final bg = good ? Brand.success.withValues(alpha: 0.16) : scheme.surfaceContainerHighest;
     final fg = good
-        ? (Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF7BE0B0)
-            : const Color(0xFF1B6E4A))
+        ? AssistoTokens.of(context).success
         : scheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 6),
@@ -257,10 +255,7 @@ class _VoiceAssistantSettingsScreenState
             decoration: BoxDecoration(
                 color: scheme.primaryContainer, shape: BoxShape.circle),
             child: Text('$n',
-                style: TextStyle(
-                    color: scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(text)),
@@ -293,7 +288,7 @@ class _VoiceAssistantSettingsScreenState
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text('${t.vaDefColorOs}\n\n${t.vaDefPowerNote}',
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
           // NO SHOWPIECES: without the native bridge the button could only
           // say "needs an update" -> hide it; the steps above still guide.
@@ -338,8 +333,8 @@ class _VoiceAssistantSettingsScreenState
         title: t.vaWakeTitle2,
         trailing: _busy
             ? const SizedBox(
-                width: 24,
-                height: 24,
+                width: Gap.xl,
+                height: Gap.xl,
                 child: CircularProgressIndicator(strokeWidth: 2))
             : Switch(
                 value: running,
@@ -356,8 +351,7 @@ class _VoiceAssistantSettingsScreenState
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.vaWakeBattery,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 13))),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
           ]),
           const SizedBox(height: Gap.sm),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -365,12 +359,11 @@ class _VoiceAssistantSettingsScreenState
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.vaWakePrivacy,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 13))),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
           ]),
           const SizedBox(height: Gap.sm),
           Text(t.vaWakeRealmeNote,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
@@ -450,7 +443,7 @@ class _VoiceAssistantSettingsScreenState
             ]),
           ),
           Text(t.vaMusicHonest,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]);
   }
 
@@ -484,7 +477,7 @@ class _VoiceAssistantSettingsScreenState
             ),
           const SizedBox(height: Gap.xs),
           Text(t.vaConfirmNote,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]);
   }
 }

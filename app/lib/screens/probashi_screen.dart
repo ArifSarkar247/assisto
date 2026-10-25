@@ -489,13 +489,13 @@ class _ClockTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(label,
-          style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
       Text(time,
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700)),
+          style: AType.displaySmall.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: Gap.xs),
       Text(offset,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -592,14 +592,11 @@ class _DocsTab extends StatelessWidget {
   Widget _count(BuildContext context, String label, int n, Color color) {
     return Column(children: [
       Text('$n',
-          style: TextStyle(
-              fontSize: 26, fontWeight: FontWeight.w700, color: color)),
+          style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
       const SizedBox(height: Gap.xs),
       Text(label,
           textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ]);
   }
 
@@ -656,8 +653,7 @@ Widget _noteCard(BuildContext context, String text) {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant))),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
       ]),
     ),
   );

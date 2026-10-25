@@ -416,12 +416,11 @@ class _Metric extends StatelessWidget {
           Icon(icon, size: 18, color: color),
           const SizedBox(height: Gap.sm),
           Text(value,
-              style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold, color: color),
+              style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold, color: color),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
           Text(label,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
         ]),
@@ -467,7 +466,7 @@ class _StepsWeekCard extends StatelessWidget {
                 : tr.swStepsWeekSummary(
                     _fmtInt(summary.weekStepsTotal),
                     _fmtInt(summary.weekStepsAvg)),
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -497,7 +496,7 @@ class _StepsWeekCard extends StatelessWidget {
                                         : scheme.outlineVariant
                                             .withValues(alpha: 0.4),
                                     borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(4)),
+                                        top: Radius.circular(Radii.xs)),
                                   ),
                                 ),
                               ),
@@ -506,11 +505,9 @@ class _StepsWeekCard extends StatelessWidget {
                           // Per-day letters only read well on the 7-day window;
                           // wider windows show the range in the summary line.
                           if (series.length <= 7) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: Gap.xs),
                             Text(_dayLetter(context, d.date),
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color: scheme.onSurfaceVariant)),
+                                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                           ],
                         ],
                       ),
@@ -556,8 +553,7 @@ class _WindowToggle extends StatelessWidget {
       showSelectedIcon: false,
       style: ButtonStyle(
         visualDensity: VisualDensity.compact,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 11)),
+        textStyle: const WidgetStatePropertyAll(AType.labelSmall),
       ),
       segments: [
         for (final d in _windowDays)
@@ -590,10 +586,9 @@ class _SurfaceLinks extends StatelessWidget {
                 children: [
                   Text(tr.swSurfaceTitle,
                       style: const TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.swSurfaceBody,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
         ]),
@@ -619,7 +614,7 @@ class _PrivacyNote extends StatelessWidget {
           Expanded(
             child: Text(tr.swPrivacyNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),

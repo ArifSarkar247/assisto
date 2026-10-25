@@ -271,12 +271,11 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: Row(children: [
-              const Icon(Icons.cloud_off, size: 16, color: Color(0xFF8A6D00)),
+              Icon(Icons.cloud_off, size: 16, color: Brand.warnInk(context)),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(mStr(context, 'mOffline'),
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF8A6D00))),
+                    style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
               ),
             ]),
           )
@@ -334,8 +333,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
                 list.length == 1
                     ? AppLocalizations.of(ctx).a1MeetCountOne
                     : mStrNum(ctx, 'mCount', list.length),
-                style: TextStyle(
-                    color: Theme.of(ctx).colorScheme.outline, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.outline)),
           );
         }
         final a = list[i - 1];
@@ -390,8 +388,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                       child: Text(_dayHeader(b.date),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
+                          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
                     ),
                     for (final a in b.items)
                       Padding(
@@ -600,10 +597,7 @@ class _AgendaRow extends StatelessWidget {
           SizedBox(
             width: 64,
             child: Text(time,
-                style: TextStyle(
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.primary, fontWeight: FontWeight.w600)),
           ),
           Expanded(
             child: Text('${appt['title']}',
@@ -675,12 +669,7 @@ class _MeetingCard extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Text('${appt['title']}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    decoration: done ? TextDecoration.lineThrough : null,
-                    color: done ? scheme.outline : null,
-                  )),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.outline : null)),
             ),
             if (done)
               _Chip(
@@ -703,13 +692,13 @@ class _MeetingCard extends StatelessWidget {
             if (recurring) ...[
               const SizedBox(width: 6),
               Icon(Icons.repeat, size: 14, color: scheme.outline),
-              const SizedBox(width: 2),
+              const SizedBox(width: Gap.xxs),
               Text(freqLabel(context, freqOf(appt)),
-                  style: TextStyle(fontSize: 11, color: scheme.outline)),
+                  style: AType.labelSmall.copyWith(color: scheme.outline)),
             ],
           ]),
           if (place.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Row(children: [
               Icon(Icons.place_outlined, size: 15, color: scheme.outline),
               const SizedBox(width: 6),
@@ -718,36 +707,35 @@ class _MeetingCard extends StatelessWidget {
             ]),
           ],
           if (people.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(Icons.group_outlined, size: 15, color: scheme.outline),
               const SizedBox(width: 6),
               Expanded(
                   child: Text('${mStr(context, "mWith")}: ${people.join(", ")}',
-                      style: TextStyle(color: scheme.outline, fontSize: 13))),
+                      style: AType.bodyMedium.copyWith(color: scheme.outline))),
             ]),
           ],
           if (note.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(note, style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: Gap.xs),
+            Text(note, style: AType.bodyMedium),
           ],
           if (conflict) ...[
             const SizedBox(height: 6),
             Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
               decoration: BoxDecoration(
                 color: Brand.warning.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.warning_amber_rounded,
-                    size: 15, color: Color(0xFF8A6D00)),
+                Icon(Icons.warning_amber_rounded,
+                    size: 15, color: Brand.warnInk(context)),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(t.meetingsConflict,
-                      style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF8A6D00))),
+                      style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
                 ),
               ]),
             ),
@@ -764,12 +752,9 @@ class _MeetingCard extends StatelessWidget {
             ),
             if (hasEta)
               Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(mStr(context, 'mEtaMockNote'),
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        color: scheme.outline)),
+                    style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.outline)),
               ),
           ],
         ]),
@@ -786,18 +771,17 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(right: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      margin: const EdgeInsets.only(right: Gap.xs),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: color),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text(label,
-            style: TextStyle(
-                fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+            style: AType.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -980,7 +964,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.meetingsAdd,
               style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _title,
@@ -1125,7 +1109,7 @@ class _Empty extends StatelessWidget {
           Text(t.meetingsEmptyTitle,
               textAlign: TextAlign.center,
               style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
           Text(t.meetingsEmptyBody,
               textAlign: TextAlign.center,

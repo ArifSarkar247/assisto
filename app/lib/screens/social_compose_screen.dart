@@ -312,20 +312,14 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           const SizedBox(height: Gap.md),
 
           Text(t.socialHashtags,
-              style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           HashtagChips(tags: _hashtags, onTap: _insert),
 
           if (_emoji.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Text(t.socialEmoji,
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.xs),
             EmojiChips(emoji: _emoji, onTap: _insert),
           ],
@@ -355,7 +349,7 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           if (count.over) ...[
             const SizedBox(height: Gap.sm),
             Text(t.socialOverLimit,
-                style: const TextStyle(color: Brand.danger, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: Brand.danger)),
           ],
         ],
       ],

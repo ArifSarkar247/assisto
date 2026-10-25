@@ -604,14 +604,13 @@ class _TrackerCard extends StatelessWidget {
         ),
         subtitle: Row(children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Text(label,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                style: AType.bodySmall.copyWith(color: color, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: Gap.sm),
           Flexible(
@@ -729,6 +728,7 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
           trailing: _due == null
               ? null
               : IconButton(
+                  tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                   icon: const Icon(Icons.clear),
                   onPressed: () => setState(() => _due = null)),
           onTap: _pickDate,
@@ -847,10 +847,12 @@ class _CgpaTab extends StatelessWidget {
                         : tr.studentCourseNoGrade(_fmtNum(c.credit))),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       IconButton(
+                        tooltip: AppLocalizations.of(context).edit,
                         icon: const Icon(Icons.edit_outlined),
                         onPressed: () => _edit(context, _rawOf(c)),
                       ),
                       IconButton(
+                        tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () async {
                           if (await _confirmDelete(context, _coursePath, c.id,
@@ -907,7 +909,7 @@ class _CgpaTab extends StatelessWidget {
       title: Text(tr.studentScaleTitle,
           style: const TextStyle(fontWeight: FontWeight.w700)),
       subtitle: Text(tr.studentScaleSubtitle,
-          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       children: [
         Table(
           border: TableBorder.all(
@@ -1111,7 +1113,7 @@ class _GoalsTab extends StatelessWidget {
                                     fontWeight: FontWeight.w700)),
                             Text('${p.percent}%',
                                 style:
-                                    TextStyle(color: scheme.primary, fontWeight: FontWeight.w800)),
+                                    TextStyle(color: scheme.primary, fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
                           ],
                         ),
                         const SizedBox(height: Gap.sm),
@@ -1144,6 +1146,7 @@ class _GoalsTab extends StatelessWidget {
                           ),
                         ),
                         trailing: IconButton(
+                          tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () async {
                             if (await _confirmDelete(context, _goalPath,

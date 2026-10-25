@@ -16,7 +16,7 @@ import '../widgets/vault_doc_types.dart';
 import '../widgets/scam_safety_api.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/ladder_common.dart' show fmtInt;
-import '../theme.dart' show Brand; // qa1
+import '../theme.dart' show AType, Brand, Gap, Radii; // qa1
 
 class VaultScreen extends StatefulWidget {
   /// Preview/screenshot: skip the PIN gate and load straight to the list.
@@ -205,7 +205,7 @@ class _VaultScreenState extends State<VaultScreen> {
               items: kVaultDocTypes.map((d) =>
                   DropdownMenuItem(value: d.key,
                       child: Row(children: [
-                        Icon(d.icon, size: 18), const SizedBox(width: 8), Text(d.label(t))
+                        Icon(d.icon, size: 18), const SizedBox(width: Gap.sm), Text(d.label(t))
                       ]))).toList(),
               onChanged: (v) => setD(() => type = v ?? 'other'),
             ),
@@ -217,12 +217,12 @@ class _VaultScreenState extends State<VaultScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Icon(Icons.info_outline, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(dt.helpText(t)!, style: const TextStyle(fontSize: 12.5))),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(child: Text(dt.helpText(t)!, style: AType.bodySmall)),
                 ]),
               ),
               const SizedBox(height: 10),
@@ -333,28 +333,28 @@ class _VaultScreenState extends State<VaultScreen> {
       builder: (ctx) => DraggableScrollableSheet(
         expand: false, initialChildSize: 0.6, maxChildSize: 0.9,
         builder: (ctx, scroll) => ListView(controller: scroll,
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24), children: [
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, Gap.xl), children: [
           Row(children: [
             Icon(dt.icon, size: 26),
             const SizedBox(width: 10),
             Expanded(child: Text(doc['title'] ?? '',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold))),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Text(dt.label(t), style: TextStyle(color: Colors.grey)),
           if (dt.helpText(t) != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.info_outline, size: 18),
-                const SizedBox(width: 8),
-                Expanded(child: Text(dt.helpText(t)!, style: const TextStyle(fontSize: 12.5))),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: Text(dt.helpText(t)!, style: AType.bodySmall)),
               ]),
             ),
           ],
@@ -362,7 +362,7 @@ class _VaultScreenState extends State<VaultScreen> {
           if (decoded.details.isNotEmpty)
             for (final e in decoded.details.entries)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   SizedBox(width: 140, child: Text(_fieldLabel(t, dt, e.key),
                       style: const TextStyle(fontWeight: FontWeight.w600))),
@@ -370,10 +370,10 @@ class _VaultScreenState extends State<VaultScreen> {
                 ]),
               ),
           if (doc['expiry_date'] != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Row(children: [
               const Icon(Icons.event_busy, size: 18),
-              const SizedBox(width: 8),
+              const SizedBox(width: Gap.sm),
               Text('${t.vaultExpiryDate}: '),
               if (_expiryBadge(doc['expiry_date']) != null) _expiryBadge(doc['expiry_date'])!,
             ]),
@@ -383,7 +383,7 @@ class _VaultScreenState extends State<VaultScreen> {
             Text(decoded.note),
           ],
           const SizedBox(height: 18),
-          Wrap(spacing: 8, runSpacing: 8, children: [
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (doc['file_url'] != null)
               FilledButton.tonalIcon(
                 onPressed: () { Navigator.pop(ctx); _viewFile(doc['id']); },
@@ -431,9 +431,9 @@ class _VaultScreenState extends State<VaultScreen> {
     showModalBottomSheet(
       context: context, showDragHandle: true,
       builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.vaultRenewalSteps, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(t.vaultRenewalSteps, style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           if (svc == null)
             Text(t.vaultRenewalUnavailable)
@@ -449,7 +449,7 @@ class _VaultScreenState extends State<VaultScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  CircleAvatar(radius: 11, child: Text('${i + 1}', style: const TextStyle(fontSize: 12))),
+                  CircleAvatar(radius: 11, child: Text('${i + 1}', style: AType.bodySmall)),
                   const SizedBox(width: 10),
                   Expanded(child: Text((svc['steps'] as List)[i].toString())),
                 ]),
@@ -526,7 +526,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 decoration: InputDecoration(hintText: t.vaultQuickLookupHint, prefixIcon: const Icon(Icons.search)),
                 onChanged: (_) => setD(() {}),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Gap.sm),
               if (q.isNotEmpty && matches.isEmpty)
                 Text(t.vaultQuickLookupNone),
               Flexible(
@@ -568,13 +568,13 @@ class _VaultScreenState extends State<VaultScreen> {
     if (days < 0) { c = Colors.red; t = AppLocalizations.of(context).vaultExpired; }
     else if (days <= 7) { c = Colors.red; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
     else if (days <= 30) { c = Colors.orange; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
-    else if (days <= 90) { c = const Color(0xFFB8860B); t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    else if (days <= 90) { c = Brand.warnInk(context); t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
     else { c = Colors.green; t = DateFormat('d MMM yyyy', Localizations.localeOf(context).languageCode).format(d); }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
       decoration: BoxDecoration(color: c.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
       // qa1: orange/green 11px on their own pale tint was ~2.5:1
-      child: Text(t, style: TextStyle(fontSize: 11, color: Brand.onTint(context, c))));
+      child: Text(t, style: AType.labelSmall.copyWith(color: Brand.onTint(context, c))));
   }
 
   // ------------------------------------------------------------------ build
@@ -621,14 +621,14 @@ class _VaultScreenState extends State<VaultScreen> {
                       title: t.vaultEmptyTitle,
                       message: t.vaultEmptyMessage)
                   : ListView(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+                      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
                       children: [
                         for (final doc in filtered)
                           Card(child: ListTile(
                             onTap: () => _openDoc(doc),
                             leading: Icon(vaultTypeOf(doc['doc_type']).icon),
                             title: Text(doc['title'] ?? ''),
-                            subtitle: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+                            subtitle: Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(vaultTypeOf(doc['doc_type']).label(t)),
                                 if (_expiryBadge(doc['expiry_date']) != null)

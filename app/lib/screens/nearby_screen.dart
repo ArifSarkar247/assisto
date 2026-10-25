@@ -211,6 +211,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     suffixIcon: _query.isEmpty
                         ? null
                         : IconButton(
+                            tooltip: AppLocalizations.of(context).f2ClearSearch,
                             icon: const Icon(Icons.close),
                             onPressed: () {
                               _searchCtrl.clear();
@@ -249,7 +250,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         Expanded(
           child: Text(
             _permNeeded ? t.nearbyLocationBanner : t.nearbyMockBanner,
-            style: TextStyle(fontSize: 12, color: scheme.onSurface, height: 1.3),
+            style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3),
           ),
         ),
         if (_permNeeded)

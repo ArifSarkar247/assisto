@@ -6,6 +6,7 @@ import '../../otp_api.dart';
 import '../../state.dart';
 import '../../widgets/password_field.dart';
 import 'otp_verify_screen.dart';
+import '../../theme.dart';
 
 /// o1-otp — phone entry shared by "Sign in with SMS" and "Reset by SMS".
 class _PhoneField extends StatelessWidget {
@@ -106,7 +107,7 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(Gap.xl),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
@@ -128,7 +129,7 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
                     onPressed: _busy ? null : _go,
                     icon: const Icon(Icons.sms_outlined),
                     label: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: Gap.md),
                       child: Text(t.otpSendCode),
                     ),
                   ),
@@ -217,13 +218,13 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
       appBar: AppBar(title: Text(t.otpResetTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Gap.xl),
           children: [
             if (_done != null) ...[
               Card(
                 color: scheme.secondaryContainer,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(Gap.lg),
                   child: Row(children: [
                     Icon(Icons.check_circle_outline,
                         color: scheme.onSecondaryContainer),
@@ -234,7 +235,7 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
                   ]),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: Gap.lg),
               FilledButton(
                 onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Text(t.otpBackToLogin),
@@ -249,17 +250,17 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
                 onPressed: _getCode,
                 icon: const Icon(Icons.sms_outlined),
                 label: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: Gap.md),
                   child: Text(t.otpSendCode),
                 ),
               ),
             ] else ...[
               Row(children: [
                 Icon(Icons.verified_outlined, color: scheme.primary),
-                const SizedBox(width: 8),
+                const SizedBox(width: Gap.sm),
                 Expanded(child: Text(t.otpVerified)),
               ]),
-              const SizedBox(height: 16),
+              const SizedBox(height: Gap.lg),
               ObscureTextField(
                 key: const Key('otp-new-password'),
                 controller: _password,
@@ -275,7 +276,7 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
                 key: const Key('otp-save-password'),
                 onPressed: _busy ? null : _save,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: Gap.md),
                   child: _busy
                       ? const SizedBox(
                           height: 20,

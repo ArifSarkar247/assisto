@@ -214,11 +214,10 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           const SizedBox(height: Gap.lg),
           // --- Tamper check section: compare the IMEI across sources ---
           Text(t.upTamperTitle,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(t.upTamperIntro,
-              style: TextStyle(
-                  height: 1.35, color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(height: 1.35, color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           _ImeiField(
             controller: _imei,
@@ -314,10 +313,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.imeiHonestNote,
-                      style: TextStyle(
-                          fontSize: 12.5,
-                          height: 1.4,
-                          color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
                 ),
               ]),
             ),
@@ -337,8 +333,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(_neirMessage ?? t.upNeirNotAvailable,
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ),
                 ]),
               ),
@@ -357,10 +352,10 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           ),
           const SizedBox(height: Gap.lg),
           Text(t.upCheckFooter,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           Text(t.upHonestFooter,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -418,10 +413,7 @@ class _ResultCard extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(title,
-                    style: TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18)),
+                    style: AType.titleLarge.copyWith(color: color, fontWeight: FontWeight.w800)),
               ),
             ]),
             if (body.isNotEmpty) ...[
@@ -521,10 +513,7 @@ class _TamperWarningCard extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.upTamperWarnTitle,
-                    style: const TextStyle(
-                        color: Brand.danger,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18)),
+                    style: AType.titleLarge.copyWith(color: Brand.danger, fontWeight: FontWeight.w800)),
               ),
             ]),
             const SizedBox(height: Gap.sm),
@@ -582,10 +571,7 @@ class _TacCard extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.upTacUnavailable,
-                  style: TextStyle(
-                      fontSize: 12.5,
-                      height: 1.4,
-                      color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
             ),
           ]),
         ),

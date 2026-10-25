@@ -219,8 +219,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.priceManualNote,
-                style: TextStyle(
-                    fontSize: 12, height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -240,8 +239,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
             Expanded(
               child: Text(
                   '${item.item}  ·  ${_unitLabel(tr, item.unit)}',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 15)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
             IconButton(
               tooltip: tr.priceLogPrice,
@@ -249,7 +247,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
               onPressed: () => onAddHere(item: item.item, unit: item.unit),
             ),
           ]),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(item.latestDisplay,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -259,14 +257,13 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
               _trendPill(context, item)
             else
               Padding(
-                padding: const EdgeInsets.only(bottom: 4),
+                padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Text(tr.priceOneLogOnly,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
           ]),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: 4, children: [
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             _stat(context, tr.priceStatHigh, item.highDisplay),
             _stat(context, tr.priceStatLow, item.lowDisplay),
             _stat(context, tr.priceStatAvg, item.avgDisplay),
@@ -275,10 +272,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           if (item.mixedUnits) ...[
             const SizedBox(height: Gap.sm),
             Text(tr.priceMixedUnitsWarn,
-                style: TextStyle(
-                    fontSize: 11.5,
-                    fontStyle: FontStyle.italic,
-                    color: scheme.error)),
+                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.error)),
           ],
           const Divider(height: Gap.lg),
           ...item.logs.map((l) => ListTile(
@@ -310,20 +304,19 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
     final up = item.up == true;
     final color = up ? scheme.error : scheme.primary;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: Gap.xs),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
               size: 13, color: color),
           const SizedBox(width: 3),
           Text('${item.changePct.abs().toStringAsFixed(1)}%',
-              style: TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+              style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
         ]),
       ),
     );
@@ -339,7 +332,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       ),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(label,
-            style: TextStyle(fontSize: 10.5, color: scheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
         Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
       ]),
     );
@@ -362,8 +355,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.priceFeedSeamBody,
-              style: TextStyle(
-                  fontSize: 12.5, height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -456,6 +448,7 @@ Future<Map<String, dynamic>?> _logSheet(
                     labelText: tr.priceFieldDate,
                     hintText: 'YYYY-MM-DD',
                     suffixIcon: IconButton(
+                      tooltip: MaterialLocalizations.of(context).datePickerHelpText,
                       icon: const Icon(Icons.calendar_today, size: 18),
                       onPressed: () async {
                         final now = DateTime.now();

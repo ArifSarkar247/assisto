@@ -244,7 +244,7 @@ class _ProductTile extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
               const SizedBox(height: Gap.xs),
-              Wrap(spacing: Gap.sm, runSpacing: 4, children: [
+              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 _tag('${t.biz_sell_price}: ${sell.takaIn(context)}',
                     scheme.primaryContainer, scheme.onPrimaryContainer),
                 if (showCost && min > 0)

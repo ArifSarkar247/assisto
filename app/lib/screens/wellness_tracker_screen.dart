@@ -209,8 +209,7 @@ class _TodayCard extends StatelessWidget {
             const Spacer(),
             if (!view.logged)
               Text(tr.wellNotLoggedYet,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
           const SizedBox(height: Gap.md),
           Row(children: [
@@ -285,7 +284,7 @@ class _Ring extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(fontWeight: FontWeight.w700)),
       Text(caption,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -347,7 +346,7 @@ class _StreakCard extends StatelessWidget {
             const SizedBox(width: 6),
             Expanded(
               child: Text(label,
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
             ),
@@ -359,7 +358,7 @@ class _StreakCard extends StatelessWidget {
                   .titleLarge
                   ?.copyWith(fontWeight: FontWeight.bold, color: color)),
           Text(tr.wellBestStreak(best),
-              style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -390,7 +389,7 @@ class _TrendCard extends StatelessWidget {
                 ? tr.wellTrendEmpty
                 : tr.wellTrendAverages(/* (sleep, water) */
                     _fmt(trend.avgSleep), _fmt(trend.avgWater)),
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
           _TrendBars(
@@ -423,9 +422,7 @@ class _TrendCard extends StatelessWidget {
           color: c, borderRadius: BorderRadius.circular(3))),
       const SizedBox(width: 5),
       Text('$metric · $text',
-          style: TextStyle(
-              fontSize: 11.5,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -446,10 +443,7 @@ class _TrendBars extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
       SizedBox(
         height: 72,
@@ -476,16 +470,15 @@ class _TrendBars extends StatelessWidget {
                                     : scheme.outlineVariant
                                         .withValues(alpha: 0.4),
                                 borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(4)),
+                                    top: Radius.circular(Radii.xs)),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: Gap.xs),
                       Text(_dayLetter(context, d.date),
-                          style: TextStyle(
-                              fontSize: 10, color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -559,7 +552,7 @@ class _Disclaimer extends StatelessWidget {
           Expanded(
             child: Text(tr.wellDisclaimer,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -724,15 +717,14 @@ class _StepperRow extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           Text(valueLabel,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ]),
       ),
       IconButton.filledTonal(
+          tooltip: AppLocalizations.of(context).f2Decrease,
           onPressed: onMinus, icon: const Icon(Icons.remove)),
       const SizedBox(width: Gap.sm),
-      IconButton.filledTonal(onPressed: onPlus, icon: const Icon(Icons.add)),
+      IconButton.filledTonal(tooltip: AppLocalizations.of(context).f2Increase, onPressed: onPlus, icon: const Icon(Icons.add)),
     ]);
   }
 }
@@ -755,13 +747,15 @@ class _GoalRow extends StatelessWidget {
       child: Row(children: [
         Expanded(
           child: Text('$label · $valueLabel',
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ),
         IconButton(
+            tooltip: AppLocalizations.of(context).f2Decrease,
             visualDensity: VisualDensity.compact,
             onPressed: onMinus,
             icon: const Icon(Icons.remove, size: 18)),
         IconButton(
+            tooltip: AppLocalizations.of(context).f2Increase,
             visualDensity: VisualDensity.compact,
             onPressed: onPlus,
             icon: const Icon(Icons.add, size: 18)),

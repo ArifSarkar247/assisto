@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../otp_api.dart';
 import '../../widgets/otp_code_input.dart';
 import '../../widgets/subs_common.dart' show fmtInt;
+import '../../theme.dart';
 
 /// o1-otp — the shared "enter the code" step used by every OTP flow
 /// (sign-up, login, forgot password, delete-account, Section 8).
@@ -197,14 +198,14 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(Gap.xl),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: switch (_phase) {
                 _Phase.sending => Column(children: [
                     const SizedBox(height: 40),
                     const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Gap.lg),
                     Text(t.otpSending, textAlign: TextAlign.center),
                   ]),
                 _Phase.smsOff => _SmsOffCard(onClose: () => Navigator.of(context).pop()),
@@ -212,12 +213,12 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Icon(Icons.sms_outlined, size: 48, color: scheme.primary),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: Gap.md),
                       Text(t.otpTitle,
                           textAlign: TextAlign.center,
                           style: textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: Gap.sm),
                       if (widget.intro != null) ...[
                         Text(widget.intro!,
                             textAlign: TextAlign.center,
@@ -229,7 +230,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium
                                 ?.copyWith(color: scheme.onSurfaceVariant)),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: Gap.xl),
                       OtpCodeInput(
                         controller: _code,
                         enabled: _sent && !_busy,
@@ -253,13 +254,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                           ],
                         ),
                       ],
-                      const SizedBox(height: 24),
+                      const SizedBox(height: Gap.xl),
                       FilledButton(
                         onPressed: (_sent && !_busy && _code.text.length == 6)
                             ? () => _verify()
                             : null,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: Gap.md),
                           child: _busy
                               ? const SizedBox(
                                   height: 20,
@@ -268,7 +269,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                               : Text(t.otpVerify),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: Gap.sm),
                       TextButton(
                         key: const Key('otp-resend'),
                         onPressed: (_resendLeft > 0 || _busy) ? null : _send,
@@ -277,7 +278,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             ? t.qa1OtpResendIn(fmtInt(context, _resendLeft))
                             : t.otpResend),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: Gap.sm),
                       Text(t.otpNeverShare,
                           textAlign: TextAlign.center,
                           style: textTheme.bodySmall
@@ -308,7 +309,7 @@ class _SmsOffCard extends StatelessWidget {
         Card(
           color: scheme.secondaryContainer,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Gap.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -322,14 +323,14 @@ class _SmsOffCard extends StatelessWidget {
                             color: scheme.onSecondaryContainer)),
                   ),
                 ]),
-                const SizedBox(height: 8),
+                const SizedBox(height: Gap.sm),
                 Text(t.otpSmsOffBody,
                     style: TextStyle(color: scheme.onSecondaryContainer)),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: Gap.lg),
         OutlinedButton(onPressed: onClose, child: Text(t.otpClose)),
       ],
     );

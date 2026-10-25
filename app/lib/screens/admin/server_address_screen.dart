@@ -126,9 +126,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             ],
             const SizedBox(height: Gap.sm),
             Text(t.srvApplyNote,
-                style: TextStyle(
-                    fontSize: 11.5,
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           ],
         ),
         actions: [
@@ -222,8 +220,8 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
                 onPressed: _probing ? null : _runProbe,
                 icon: _probing
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: Gap.lg,
+                        height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.network_check),
                 label: Text(t.srvTestButton),
@@ -277,7 +275,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
         ]),
         const SizedBox(height: Gap.sm),
         SelectableText(current,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+            style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
       ]),
     );
   }
@@ -322,9 +320,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
                 style: TextStyle(fontWeight: FontWeight.w600, color: color)),
             if (sub != null)
               Text(sub,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
         ),
       ]),

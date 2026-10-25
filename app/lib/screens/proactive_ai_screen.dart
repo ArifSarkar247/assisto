@@ -272,10 +272,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
                     color: Theme.of(ctx).colorScheme.onSurface)),
             const SizedBox(height: Gap.md),
             Text(tr.proWhyRuleNote,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    fontStyle: FontStyle.italic,
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -351,7 +348,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
                   horizontal: Gap.xs, vertical: Gap.xs),
               child: Text(tr.proIntro,
                   style:
-                      TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                      AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ),
             const SizedBox(height: Gap.sm),
             for (final u in _urgencies)
@@ -372,8 +369,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),
                 child: Text(tr.proHiddenCount(fmtInt(context, digest.dismissedCount)),
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             const SizedBox(height: Gap.sm),
             const _HonestNote(),
@@ -409,14 +405,13 @@ class _GroupHeader extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w700, color: color)),
         const SizedBox(width: Gap.sm),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill),
           ),
           child: Text(fmtInt(context, count),
-              style: TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+              style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
         ),
         const Spacer(),
       ]),
@@ -456,15 +451,13 @@ class _NudgeCard extends StatelessWidget {
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, height: 1.3)),
                     if (sug.text.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(sug.text,
-                          style: TextStyle(
-                              fontSize: 13, color: scheme.onSurfaceVariant)),
+                          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                     ],
                     const SizedBox(height: Gap.xs),
                     Text(_whenText(context, tr, sug.daysUntil),
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ]),
             ),
             IconButton(
@@ -524,7 +517,7 @@ class _HonestNote extends StatelessWidget {
           Expanded(
             child: Text(tr.proHonestNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),

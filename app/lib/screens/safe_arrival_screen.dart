@@ -283,25 +283,25 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
       appBar: AppBar(title: Text(AppLocalizations.of(context).aTitle)),
       body: RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           if (_offline)
             Container(
               padding: const EdgeInsets.all(10),
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                 color: Colors.amber.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(children: [
                 Icon(Icons.cloud_off, size: 18, color: Brand.warnInk(context)),
-                const SizedBox(width: 8),
+                const SizedBox(width: Gap.sm),
                 Expanded(child: Text(AppLocalizations.of(context).aOffline,
-                    style: TextStyle(fontSize: 12, color: Brand.warnInk(context)))),
+                    style: AType.bodySmall.copyWith(color: Brand.warnInk(context)))),
                 TextButton(onPressed: _load, child: Text(AppLocalizations.of(context).aRetry)),
               ]),
             ),
           Text(AppLocalizations.of(context).aSubtitle,
-              style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              style: AType.bodyMedium.copyWith(color: Colors.grey)),
           const SizedBox(height: 10),
           ArrivalTargetCard(
             place: _place,
@@ -313,7 +313,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             onArrivedWithPin: () => _markArrived(duress: true),
           ),
           if (_eta != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               onPressed: _shareLastLocation,
               icon: const Icon(Icons.my_location, size: 18),
@@ -321,12 +321,12 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             ),
           ],
           if (_nightMode) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.nightlight_round, size: 16, color: Colors.indigo.shade300),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aNightSafetyOn,
-                  style: const TextStyle(fontSize: 12, color: Colors.indigo))),
+                  style: AType.bodySmall.copyWith(color: Colors.indigo))),
             ]),
           ],
           if (_hasDuress) ...[
@@ -335,7 +335,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
               const Icon(Icons.lock_outline, size: 16, color: Colors.grey),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aDuressHint,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey))),
+                  style: AType.labelSmall.copyWith(color: Colors.grey))),
             ]),
           ],
           const Divider(height: 28),
@@ -343,7 +343,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
           // ---- recurring routine ----
           Row(children: [
             Expanded(child: Text(AppLocalizations.of(context).aRoutineTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))),
             TextButton.icon(
               onPressed: _addRoutine,
               icon: const Icon(Icons.add, size: 18),
@@ -351,22 +351,22 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             ),
           ]),
           Text(AppLocalizations.of(context).aRoutineDesc,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Colors.grey)),
           const SizedBox(height: 6),
           if (_routines.isEmpty)
             Text(AppLocalizations.of(context).aRoutineNone,
-                style: const TextStyle(fontSize: 13, color: Colors.grey))
+                style: AType.bodyMedium.copyWith(color: Colors.grey))
           else
             ..._routines.map(_routineTile),
           const Divider(height: 28),
 
           // ---- history ----
           Text(AppLocalizations.of(context).aHistoryTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 4),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: Gap.xs),
           if (_history.isEmpty)
             Text(AppLocalizations.of(context).aHistoryNone,
-                style: const TextStyle(fontSize: 13, color: Colors.grey))
+                style: AType.bodyMedium.copyWith(color: Colors.grey))
           else
             ..._history.map((h) => ArrivalHistoryTile(
                   place: (h['place'] ?? '').toString(),
@@ -393,7 +393,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
       title: Text('${AppLocalizations.of(context).aRoutineHomeBy}: $time'),
       subtitle: Text(days),
       trailing: Text(enabled ? AppLocalizations.of(context).aRoutineEnabled : '',
-          style: const TextStyle(fontSize: 12, color: Colors.green)),
+          style: AType.bodySmall.copyWith(color: Colors.green)),
     );
   }
 }

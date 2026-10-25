@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/reset_strength_meter.dart';
 import '../widgets/reset_options.dart';
+import '../theme.dart';
 
 /// Password reset — confirm step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
@@ -107,7 +108,7 @@ class _PasswordResetConfirmScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.resetSetNewTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
           if (_done) ...[
             // ---- success ----
@@ -131,7 +132,7 @@ class _PasswordResetConfirmScreenState
                 ]),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
@@ -158,7 +159,7 @@ class _PasswordResetConfirmScreenState
                 ]),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -169,11 +170,11 @@ class _PasswordResetConfirmScreenState
             ),
           ] else ...[
             // ---- form ----
-            Text(t.resetSetNewIntro, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 16),
+            Text(t.resetSetNewIntro, style: AType.bodyMedium),
+            const SizedBox(height: Gap.lg),
             if (_rateLimited) ...[
               const ResetRateLimitBanner(),
-              const SizedBox(height: 12),
+              const SizedBox(height: Gap.md),
             ],
             // Code / link field — pre-filled from a deep link, or pasted.
             TextField(
@@ -186,7 +187,7 @@ class _PasswordResetConfirmScreenState
                 prefixIcon: const Icon(Icons.vpn_key_outlined),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             TextField(
               controller: _pw,
               enabled: !_busy,
@@ -205,10 +206,10 @@ class _PasswordResetConfirmScreenState
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             // Live strength meter (mirrors backend floor; coaches, never blocks).
             ResetStrengthMeter(password: _pw.text),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             TextField(
               controller: _pw2,
               enabled: !_busy,
@@ -220,7 +221,7 @@ class _PasswordResetConfirmScreenState
                 prefixIcon: const Icon(Icons.lock_outline),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             ResetSignOutAllTile(
               value: _signOutAll,
               onChanged: _busy
@@ -231,7 +232,7 @@ class _PasswordResetConfirmScreenState
               const SizedBox(height: 10),
               Text(_fieldError!, style: TextStyle(color: scheme.error)),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(

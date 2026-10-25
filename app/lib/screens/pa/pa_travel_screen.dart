@@ -272,14 +272,13 @@ class _TripCard extends StatelessWidget {
   }
 
   Widget _chip(String label, Color c) => Container(
-        margin: const EdgeInsets.only(top: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        margin: const EdgeInsets.only(top: Gap.xs),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
         decoration: BoxDecoration(
             color: c.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 11.5, fontWeight: FontWeight.w700, color: c)),
+            style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: c)),
       );
 }
 
@@ -594,12 +593,9 @@ class _BookingSeamCard extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paTravelBookingSeamTitle,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(t.paTravelBookingSeamBody,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
-                      height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
             ]),
           ),
         ]),
@@ -624,7 +620,7 @@ class _SectionHeader extends StatelessWidget {
       Expanded(
           child: Text(label,
               style:
-                  const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
           icon: const Icon(Icons.add_circle_outline),
           tooltip: AppLocalizations.of(context).add,
@@ -640,9 +636,7 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       );
 }
 
@@ -763,7 +757,7 @@ class _TripEditorState extends State<_TripEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.paTravelNewTrip : t.edit,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
             controller: _title,
@@ -857,8 +851,7 @@ class _LegEditorState extends State<_LegEditor> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.paTravelLegsHeader,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800)),
+                  style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.md),
               Wrap(spacing: Gap.sm, children: [
                 for (final m in _legModes)
@@ -951,7 +944,7 @@ class _StayEditorState extends State<_StayEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.paTravelStaysHeader,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _name,
@@ -1034,7 +1027,7 @@ class _MeetingEditorState extends State<_MeetingEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.paTravelMeetingsHeader,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _title,
@@ -1097,8 +1090,8 @@ class _ItinerarySummarySheet extends StatelessWidget {
         children: [
           Text('${trip['title'] ?? ''}',
               style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 4),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: Gap.xs),
           Text('${trip['start'] ?? ''} → ${trip['end'] ?? ''}'),
           if (days > 0) Text(t.paTravelDaysCount(days)),
           const Divider(height: Gap.xl),
@@ -1123,9 +1116,7 @@ class _ItinerarySummarySheet extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.md),
           Text(t.paTravelBookingSeamBody,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       ),
     );

@@ -265,6 +265,7 @@ class _EventEditorState extends State<_EventEditor> {
           trailing: _date == null
               ? null
               : IconButton(
+                  tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                   icon: const Icon(Icons.clear),
                   onPressed: () => setState(() => _date = null)),
           onTap: _pickDate,
@@ -330,7 +331,7 @@ class _OverviewTab extends StatelessWidget {
     final tb = WeddingEngine.taskBoard(tasks, DateTime.now());
     final eventName = (event?['title'] ?? '').toString();
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
       children: [
         // countdown hero
         Card(
@@ -348,9 +349,9 @@ class _OverviewTab extends StatelessWidget {
                       fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               Text(_countdownBig(tr, cd),
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  style: AFonts.figures(Theme.of(context).textTheme.displaySmall?.copyWith(
                       color: scheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w800)),
+                      fontWeight: FontWeight.w800))),
               const SizedBox(height: Gap.xs),
               Text(_countdownSub(tr, cd),
                   textAlign: TextAlign.center,
@@ -406,8 +407,7 @@ class _OverviewTab extends StatelessWidget {
                       good: true),
                 const SizedBox(height: Gap.sm),
                 Text(tr.weddingNoMoneyNote,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 12)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -419,7 +419,7 @@ class _OverviewTab extends StatelessWidget {
   Widget _kv(BuildContext context, String k, String v, {bool good = false}) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(k, style: TextStyle(color: scheme.onSurfaceVariant)),
         Text(v,
@@ -509,12 +509,11 @@ class _StatCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: scheme.onSurfaceVariant)),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Text(hint,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  color: tint ?? scheme.onSurfaceVariant, fontSize: 12)),
+              style: AType.bodySmall.copyWith(color: tint ?? scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -576,6 +575,7 @@ class _GuestsTab extends StatelessWidget {
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         subtitle: Text(_guestSub(tr, g)),
                         trailing: IconButton(
+                          tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () async {
                             if (await _confirmDelete(context, _guestPath,
@@ -841,6 +841,7 @@ class _BudgetTab extends StatelessWidget {
                             Icon(Icons.warning_amber_rounded,
                                 size: 18, color: scheme.error),
                           IconButton(
+                            tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () async {
                               if (await _confirmDelete(context, _budgetPath,
@@ -1149,14 +1150,13 @@ class _TaskCard extends StatelessWidget {
         ),
         subtitle: Row(children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Text(label,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                style: AType.bodySmall.copyWith(color: color, fontWeight: FontWeight.w600)),
           ),
           if (status.vendor.isNotEmpty) ...[
             const SizedBox(width: Gap.sm),
@@ -1169,6 +1169,7 @@ class _TaskCard extends StatelessWidget {
           ],
         ]),
         trailing: IconButton(
+          tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           icon: const Icon(Icons.delete_outline),
           onPressed: onDelete,
         ),
@@ -1269,6 +1270,7 @@ class _TaskEditorState extends State<_TaskEditor> {
           trailing: _due == null
               ? null
               : IconButton(
+                  tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                   icon: const Icon(Icons.clear),
                   onPressed: () => setState(() => _due = null)),
           onTap: _pickDate,

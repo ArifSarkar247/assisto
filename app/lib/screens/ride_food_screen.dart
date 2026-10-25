@@ -325,10 +325,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
       child: Row(children: [
         Expanded(
           child: Text(text,
-              style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ),
         if (onClear != null)
           TextButton(onPressed: onClear, child: Text(t.rideFoodClear)),

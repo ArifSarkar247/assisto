@@ -296,13 +296,11 @@ class _MeterCard extends StatelessWidget {
               child:
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(row.name.isEmpty ? '—' : row.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 15),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(row.kind == 'gas' ? tr.meterKindGas : tr.meterKindElec,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ]),
             ),
             PopupMenuButton<String>(
@@ -330,9 +328,8 @@ class _MeterCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(tr.meterEstBalance,
-                        style: TextStyle(
-                            fontSize: 11.5, color: scheme.onSurfaceVariant)),
-                    const SizedBox(height: 2),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    const SizedBox(height: Gap.xxs),
                     Text(row.balanceDisplay,
                         style: Theme.of(context)
                             .textTheme
@@ -343,19 +340,19 @@ class _MeterCard extends StatelessWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(stateIcon, size: 16, color: stateColor),
-                const SizedBox(width: 4),
+                const SizedBox(width: Gap.xs),
                 Text(stateLabel,
                     style: TextStyle(
                         color: stateColor, fontWeight: FontWeight.w600)),
               ]),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(
                 row.daysLeft == null
                     ? tr.meterDaysUnknown
                     : (row.state == 'empty'
                         ? tr.meterRanOut
                         : tr.meterDaysLeft(row.daysLeft!)),
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               ),
             ]),
           ]),
@@ -403,16 +400,16 @@ class _MeterCard extends StatelessWidget {
   Widget _chip(BuildContext context, IconData icon, String label) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: scheme.onSurfaceVariant),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text(label,
-            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -434,7 +431,7 @@ class _TrackerNote extends StatelessWidget {
           Expanded(
             child: Text(tr.meterTrackerNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -550,7 +547,7 @@ class _MeterFormState extends State<_MeterForm> {
             ),
             const SizedBox(height: Gap.xs),
             Text(tr.meterReadingOptional,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             Row(children: [
               Expanded(
@@ -623,7 +620,7 @@ class _RechargeFormState extends State<_RechargeForm> {
           ),
           const SizedBox(height: Gap.md),
           InkWell(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(Radii.sm),
             onTap: () async {
               final now = DateTime.now();
               final picked = await showDatePicker(

@@ -104,6 +104,7 @@ class _NotesTabState extends State<_NotesTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+          tooltip: AppLocalizations.of(context).add,
           onPressed: () => editNote(context), child: const Icon(Icons.add)),
       body: Column(children: [
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
@@ -223,14 +224,13 @@ class _NoteCard extends StatelessWidget {
                 ]),
                 if ((d['body'] ?? '').toString().isNotEmpty &&
                     (d['title'] ?? '').toString().isNotEmpty) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Padding(
                     padding: const EdgeInsets.only(left: 28),
                     child: Text((d['body']).toString(),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, fontSize: 13)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                   ),
                 ],
                 // checklist preview: first 3 lines, tappable to tick
@@ -238,7 +238,7 @@ class _NoteCard extends StatelessWidget {
                   const SizedBox(height: Gap.xs),
                   for (var i = 0; i < checklist.length && i < 3; i++)
                     Padding(
-                      padding: const EdgeInsets.only(left: 24),
+                      padding: const EdgeInsets.only(left: Gap.xl),
                       child: InkWell(
                         onTap: () {
                           final list = [
@@ -264,11 +264,8 @@ class _NoteCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: checklist[i]['done'] == true
-                                  ? TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Theme.of(context).disabledColor,
-                                      fontSize: 13)
-                                  : const TextStyle(fontSize: 13),
+                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: Theme.of(context).disabledColor)
+                                  : AType.bodyMedium,
                             ),
                           ),
                         ]),
@@ -276,10 +273,9 @@ class _NoteCard extends StatelessWidget {
                     ),
                   if (checklist.length > 3)
                     Padding(
-                      padding: const EdgeInsets.only(left: 24, top: 2),
+                      padding: const EdgeInsets.only(left: Gap.xl, top: Gap.xxs),
                       child: Text(t.notesMoreItems(checklist.length - 3),
-                          style: TextStyle(
-                              fontSize: 12, color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ),
                 ],
                 // meta chip row: progress / due / link / tags
@@ -289,10 +285,10 @@ class _NoteCard extends StatelessWidget {
                     tags.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
                   Padding(
-                    padding: const EdgeInsets.only(left: 24),
+                    padding: const EdgeInsets.only(left: Gap.xl),
                     child: Wrap(
                       spacing: Gap.sm,
-                      runSpacing: 2,
+                      runSpacing: Gap.xxs,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (checklist.isNotEmpty)
@@ -324,7 +320,7 @@ class _NoteCard extends StatelessWidget {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: tint),
         const SizedBox(width: 3),
-        Text(label, style: TextStyle(fontSize: 12, color: tint)),
+        Text(label, style: AType.bodySmall.copyWith(color: tint)),
       ]);
 }
 
@@ -349,6 +345,7 @@ class _TodosTab extends StatelessWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+          tooltip: AppLocalizations.of(context).add,
           onPressed: () => editTodo(context), child: const Icon(Icons.add)),
       body: items.isEmpty
           ? StateMessage(
@@ -450,8 +447,8 @@ class _TodoTile extends StatelessWidget {
   Widget _chip(IconData icon, String label, Color tint) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: tint),
-        const SizedBox(width: 2),
-        Text(label, style: TextStyle(fontSize: 11, color: tint)),
+        const SizedBox(width: Gap.xxs),
+        Text(label, style: AType.labelSmall.copyWith(color: tint)),
       ]);
 }
 
@@ -476,6 +473,7 @@ class _SearchBar extends StatelessWidget {
           suffixIcon: controller.text.isEmpty
               ? null
               : IconButton(
+                  tooltip: AppLocalizations.of(context).f2ClearSearch,
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () {
                     controller.clear();

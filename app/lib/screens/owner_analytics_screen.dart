@@ -222,10 +222,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             Text(
               '${t.analyticsDataRange}: '
               '${_digits(rangeStart, loc)} - ${_digits(rangeEnd, loc)}',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 12,
-              ),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           const SizedBox(height: Gap.md),
 
@@ -402,10 +399,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           Center(
             child: Text(
               '${t.analyticsTotalEvents}: ${_int(totalEvents, loc)}',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 12,
-              ),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ],
@@ -437,7 +431,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               const SizedBox(width: Gap.sm),
               Text(
                 '${t.analyticsPaidUsers}: ${_int(totalPaid, loc)}',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
               ),
             ],
           ),
@@ -447,7 +441,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           if (known && totalRevenue != null)
             Text(
               '${t.analyticsRevenueTotal}: ${_int(totalRevenue, loc)}',
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
             )
           else
             _EstimateBadge(text: t.analyticsRevenueUnknown),
@@ -551,10 +545,7 @@ class _ChartCard extends StatelessWidget {
         children: [
           if (title != null) ...[
             Text(title!,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
           ],
           child,
@@ -573,7 +564,7 @@ class _NoChartData extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 48,
+      height: Gap.xxxl,
       child: Row(
         children: [
           Icon(Icons.timeline_outlined,
@@ -581,8 +572,7 @@ class _NoChartData extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(text,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ],
       ),
@@ -600,7 +590,7 @@ class _EstimateBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
         color: Brand.warning.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(Radii.sm),
@@ -612,10 +602,7 @@ class _EstimateBadge extends StatelessWidget {
           const SizedBox(width: Gap.xs),
           Flexible(
             child: Text(text,
-                style: TextStyle(
-                    color: scheme.onSurface,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurface, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -648,11 +635,7 @@ class _Header extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
               ),
             ),
           ]),
@@ -686,10 +669,10 @@ class _SectionTitle extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.w800),
         ),
         if (hint != null) ...[
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Text(
             hint!,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ],
@@ -751,22 +734,15 @@ class _Metric extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-              ),
+              style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800),
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Text(
             label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: scheme.onSurfaceVariant,
-              fontSize: 12,
-              height: 1.2,
-            ),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.2),
           ),
         ],
       ),
@@ -804,7 +780,7 @@ class _FeatureRow extends StatelessWidget {
           ),
           Text(
             trailing,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ),

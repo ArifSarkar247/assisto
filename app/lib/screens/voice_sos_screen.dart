@@ -330,7 +330,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 13, height: 1.4))),
+                style: AType.bodyMedium.copyWith(height: 1.4))),
       ]),
     );
   }
@@ -352,7 +352,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
                   style: const TextStyle(fontWeight: FontWeight.w700))),
         ]),
         const SizedBox(height: Gap.sm),
-        Text(t.vsosMicBlockedBody, style: const TextStyle(fontSize: 13)),
+        Text(t.vsosMicBlockedBody, style: AType.bodyMedium),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           onPressed: openAppSettings,

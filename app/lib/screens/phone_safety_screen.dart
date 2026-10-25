@@ -288,8 +288,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.m3StorageDegraded,
-                      style: TextStyle(
-                          color: scheme.onErrorContainer, fontSize: 13)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onErrorContainer)),
                 ),
               ]),
             ),
@@ -306,8 +305,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.phoneSafeHonestNote,
-                    style: TextStyle(
-                        color: scheme.onTertiaryContainer, fontSize: 13)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onTertiaryContainer)),
               ),
             ]),
           ),
@@ -327,10 +325,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.phoneSafeRealityTitle,
-                        style: TextStyle(
-                            color: scheme.onSecondaryContainer,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
@@ -341,10 +336,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                     .indexed) ...[
                   if (i > 0) const SizedBox(height: Gap.sm),
                   Text(para.trim(),
-                      style: TextStyle(
-                          color: scheme.onSecondaryContainer,
-                          fontSize: 13.5,
-                          height: 1.45)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.45)),
                 ],
               ],
             ),
@@ -392,7 +384,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         ),
         const SizedBox(height: Gap.lg),
         Text(t.phoneSafeFooterNote,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -437,10 +429,7 @@ class _ScoreCard extends StatelessWidget {
                 ),
               ),
               Text(fmtInt(context, score),
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 22,
-                      color: scheme.onSurface)),
+                  style: AType.headlineSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: scheme.onSurface)),
             ]),
           ),
           const SizedBox(width: Gap.lg),
@@ -449,12 +438,12 @@ class _ScoreCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.phoneSafeScoreTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Text(
                   t.phoneSafeScoreSubtitle(
                       fmtInt(context, confirmed), fmtInt(context, total)),
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -497,7 +486,7 @@ class _StepCard extends StatelessWidget {
           title: Text(step.title(t),
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(step.why(t),
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           children: [
@@ -518,10 +507,7 @@ class _StepCard extends StatelessWidget {
                   const SizedBox(width: Gap.xs),
                   Expanded(
                     child: Text(step.availability!(t),
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontStyle: FontStyle.italic,
-                            color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
                   ),
                 ]),
               ),
@@ -538,7 +524,7 @@ class _StepCard extends StatelessWidget {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(t.phoneSafeConfirmLabel,
-                  style: const TextStyle(fontSize: 14)),
+                  style: AType.bodyMedium),
               value: confirmed,
               onChanged: onToggle,
             ),

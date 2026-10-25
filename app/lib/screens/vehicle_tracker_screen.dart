@@ -300,7 +300,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
             Text(label,
-                style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
           ]),
@@ -337,7 +337,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                         ? tr.vehMovingAt(vehNumStr(context, speed))
                         : tr.vehParked)
                     : tr.vehOfflineSince(vehAgo(context, tr, vehDate(t['last_seen_at']))),
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -347,7 +347,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(tr.vehFixAge(vehAgo(context, tr, vehDate(live['at']))),
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -435,7 +435,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.sm),
                 child: Text('${vehNumStr(context, _speedX)}×',
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
               ),
             ),
           ]),
@@ -486,7 +486,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               title: Text(
                 '${vehTime(context, vehDate(tp['start']))} – ${vehTime(context, vehDate(tp['end']))}',
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis, style: const TextStyle(fontFeatures: AFonts.tabular),
               ),
               subtitle: Text(
                 '${tr.vehKm(vehNumStr(context, vehNum(tp['km']) ?? 0, decimals: 1))}  ·  '
@@ -549,7 +549,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ),
           const SizedBox(height: Gap.xs),
           Text(tr.vehEngineRules,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton.icon(
@@ -586,7 +586,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(vehDateTime(context, vehDate(c['created_at'])),
-                    maxLines: 1),
+                    maxLines: 1, style: const TextStyle(fontFeatures: AFonts.tabular)),
                 trailing: ['awaiting_approval', 'queued'].contains('${c['state']}')
                     ? TextButton(
                         onPressed: () => _cancelCommand(c['id'] as int),
@@ -625,7 +625,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   : ('${ai['reason']}' == 'nothing_unusual'
                       ? tr.vehAiNothing
                       : tr.vehAiNoKey),
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
             ),
           ],
           const SizedBox(height: Gap.sm),
@@ -635,7 +635,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               onPressed: _aiBusy ? null : _aiSummary,
               icon: _aiBusy
                   ? const SizedBox(
-                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      width: Gap.lg, height: Gap.lg, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.manage_search),
               label: Text(tr.vehAiCta),
             ),

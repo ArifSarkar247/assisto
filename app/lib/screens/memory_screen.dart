@@ -180,8 +180,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.memOfflineBanner,
-                      style: const TextStyle(
-                          fontSize: 12, color: Brand.warning)),
+                      style: AType.bodySmall.copyWith(color: Brand.warning)),
                 ),
               ]),
             ),
@@ -428,7 +427,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                   leading: const Icon(Icons.lock_outline),
                   title: Text(t.memPrivacyControls),
                   subtitle: Text(t.memPrivacyExplain,
-                      style: const TextStyle(fontSize: 12)),
+                      style: AType.bodySmall),
                   children: [
                     MemSwitchRow(
                       icon: Icons.visibility_off_outlined,
@@ -634,7 +633,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: SelectableText(text,
-                    style: const TextStyle(fontSize: 12, height: 1.4)),
+                    style: AType.bodySmall.copyWith(height: 1.4)),
               ),
             ]),
           ),

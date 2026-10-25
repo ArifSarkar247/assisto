@@ -440,7 +440,7 @@ class _ItemCard extends StatelessWidget {
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(Radii.md)),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
