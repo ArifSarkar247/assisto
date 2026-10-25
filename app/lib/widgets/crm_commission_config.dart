@@ -105,7 +105,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
       padding: const EdgeInsets.all(Gap.md),
       children: [
         // Loud, honest "owner must set" banner — never a guessed rate.
-        NeedsKeyBanner(t.crmCommissionOwnerNote, icon: Icons.verified_user_outlined),
+        NeedsKeyBanner(t.crmCommissionOwnerNote, icon: Icons.verified_user_rounded),
         const SizedBox(height: Gap.sm),
         Text(t.crmCommissionPlan, style: const TextStyle(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
@@ -137,7 +137,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
           for (int i = 0; i < _tiers.length; i++) _tierRow(t, i),
           TextButton.icon(
               onPressed: () => setState(() => _tiers.add(_Tier())),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.crmAddTier)),
         ],
         if (isSet) ...[
@@ -159,7 +159,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           onPressed: _saving ? null : _save,
-          icon: const Icon(Icons.save_outlined),
+          icon: const Icon(Icons.save_rounded),
           label: Text(t.crmSaveCommission),
         ),
         const SizedBox(height: Gap.lg),
@@ -200,7 +200,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
           ),
         ),
         IconButton(
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close_rounded, size: 18),
             onPressed: _tiers.length <= 1
                 ? null
                 : () => setState(() => _tiers.removeAt(i))),

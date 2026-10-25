@@ -189,7 +189,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.cloud_off_outlined,
+                        Icon(Icons.cloud_off_rounded,
                             size: 48, color: scheme.outline),
                         const SizedBox(height: Gap.md),
                         Text(
@@ -200,7 +200,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                         const SizedBox(height: Gap.lg),
                         FilledButton.tonalIcon(
                           onPressed: _load,
-                          icon: const Icon(Icons.refresh),
+                          icon: const Icon(Icons.refresh_rounded),
                           label: Text(_t.retry),
                         ),
                       ],
@@ -220,14 +220,14 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                 const Divider(),
                 _sectionHeader(_t.circlePrivacyReceipts, scheme),
                 CirclePrivacyToggle(
-                  icon: Icons.done_all,
+                  icon: Icons.done_all_rounded,
                   title: _t.circlePrivacyReadReceipts,
                   subtitle: _t.circlePrivacyReadReceiptsHint,
                   value: _readReceipts,
                   onChanged: (v) => _mark(() => _readReceipts = v),
                 ),
                 CirclePrivacyToggle(
-                  icon: Icons.keyboard_outlined,
+                  icon: Icons.keyboard_rounded,
                   title: _t.circlePrivacyTyping,
                   subtitle: _t.circlePrivacyTypingHint,
                   value: _typing,
@@ -242,7 +242,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                 const Divider(),
                 _sectionHeader(_t.circlePrivacyDnd, scheme),
                 CirclePrivacyToggle(
-                  icon: Icons.do_not_disturb_on_outlined,
+                  icon: Icons.do_not_disturb_on_rounded,
                   title: _t.circlePrivacyDndEnable,
                   subtitle: _t.circlePrivacyDndHint,
                   value: _dndEnabled,
@@ -250,7 +250,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                 ),
                 if (_dndEnabled) ...[
                   ListTile(
-                    leading: const Icon(Icons.bedtime_outlined),
+                    leading: const Icon(Icons.bedtime_rounded),
                     title: Text(_t.circlePrivacyDndStart),
                     trailing: Text(_fmt(_dndStart)),
                     onTap: () async {
@@ -260,7 +260,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.wb_sunny_outlined),
+                    leading: const Icon(Icons.wb_sunny_rounded),
                     title: Text(_t.circlePrivacyDndEnd),
                     trailing: Text(_fmt(_dndEnd)),
                     onTap: () async {
@@ -270,7 +270,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                     },
                   ),
                   CirclePrivacyToggle(
-                    icon: Icons.family_restroom_outlined,
+                    icon: Icons.family_restroom_rounded,
                     title: _t.circlePrivacyDndFamilyException,
                     subtitle: _t.circlePrivacyDndFamilyExceptionHint,
                     value: _dndFamilyException,
@@ -282,7 +282,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(
                     children: [
-                      Icon(Icons.verified_user_outlined,
+                      Icon(Icons.verified_user_rounded,
                           size: 18, color: scheme.primary),
                       const SizedBox(width: Gap.sm),
                       Expanded(

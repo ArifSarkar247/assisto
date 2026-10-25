@@ -95,7 +95,7 @@ class _CircleExtrasBroadcastScreenState
             padding: const EdgeInsets.all(Gap.lg),
             child: Row(
               children: [
-                Icon(Icons.campaign_outlined, color: scheme.primary),
+                Icon(Icons.campaign_rounded, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.circleExtrasBroadcastHint,
@@ -158,7 +158,7 @@ class _CircleExtrasBroadcastScreenState
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lock_outline,
+                    Icon(Icons.lock_outline_rounded,
                         size: 13, color: scheme.onSurfaceVariant),
                     const SizedBox(width: Gap.xs),
                     Expanded(

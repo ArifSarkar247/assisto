@@ -200,15 +200,15 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       FinanceField(
           controller: _income,
           label: t.taxFieldTaxableIncome,
-          icon: Icons.payments_outlined),
+          icon: Icons.payments_rounded),
       FinanceField(
           controller: _invest,
           label: t.taxFieldEligibleInvestment,
-          icon: Icons.savings_outlined),
+          icon: Icons.savings_rounded),
       FinanceField(
           controller: _tds,
           label: t.taxFieldTdsPaid,
-          icon: Icons.receipt_long_outlined),
+          icon: Icons.receipt_long_rounded),
       FilledButton(onPressed: () => _calc(t), child: Text(t.taxEstimate)),
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
@@ -253,8 +253,8 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
                       onPressed: () =>
                           setState(() => _showBands = !_showBands),
                       icon: Icon(_showBands
-                          ? Icons.expand_less
-                          : Icons.expand_more),
+                          ? Icons.expand_less_rounded
+                          : Icons.expand_more_rounded),
                       label: Text(_showBands
                           ? t.taxHideBands
                           : t.taxShowBands),
@@ -269,7 +269,7 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
                   child: TextButton.icon(
                     onPressed: () => shareOrCopy(
                         context, _shareText(t, r), t.taxLinkCopied),
-                    icon: const Icon(Icons.ios_share, size: 18),
+                    icon: const Icon(Icons.ios_share_rounded, size: 18),
                     label: Text(t.taxShareEstimate),
                   ),
                 ),
@@ -422,11 +422,11 @@ class _ZakatTabState extends State<_ZakatTab> {
       FinanceField(
           controller: _goldPrice,
           label: t.zakatFieldGoldPricePerGram,
-          icon: Icons.scale_outlined),
+          icon: Icons.scale_rounded),
       FinanceField(
           controller: _silverPrice,
           label: t.zakatFieldSilverPricePerGram,
-          icon: Icons.scale_outlined),
+          icon: Icons.scale_rounded),
       OutlinedButton(
           onPressed: _calcNisab, child: Text(t.zakatCalcNisab)),
       if (n != null) ...[
@@ -507,7 +507,7 @@ class _ZakatTabState extends State<_ZakatTab> {
                   child: TextButton.icon(
                     onPressed: () => shareOrCopy(context,
                         _shareText(t, r), t.taxLinkCopied),
-                    icon: const Icon(Icons.ios_share, size: 18),
+                    icon: const Icon(Icons.ios_share_rounded, size: 18),
                     label: Text(t.zakatShare),
                   ),
                 ),

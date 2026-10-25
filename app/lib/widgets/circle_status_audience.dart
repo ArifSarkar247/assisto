@@ -165,7 +165,7 @@ class CircleStatusAudienceChip extends StatelessWidget {
     final s = AppLocalizations.of(context);
     final mode = '${visibility['mode'] ?? StatusAudience.everyone}';
     return ActionChip(
-      avatar: const Icon(Icons.visibility_outlined, size: 18),
+      avatar: const Icon(Icons.visibility_rounded, size: 18),
       label: Text(_audienceLabel(s, mode)),
       onPressed: onTap,
     );

@@ -24,7 +24,7 @@ class RefLeaderboard extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xl),
         child: Column(children: [
-          Icon(Icons.groups_outlined, size: 44, color: scheme.onSurfaceVariant),
+          Icon(Icons.groups_rounded, size: 44, color: scheme.onSurfaceVariant),
           const SizedBox(height: Gap.sm),
           Text(t.refLeaderboardEmpty,
               textAlign: TextAlign.center,

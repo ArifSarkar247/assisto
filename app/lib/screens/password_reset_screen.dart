@@ -120,7 +120,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
-                  Icon(Icons.mark_email_read_outlined,
+                  Icon(Icons.mark_email_read_rounded,
                       color: scheme.onSecondaryContainer),
                   const SizedBox(width: 10),
                   Expanded(
@@ -134,7 +134,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             OutlinedButton.icon(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const PasswordResetConfirmScreen(token: ''))),
-              icon: const Icon(Icons.vpn_key_outlined),
+              icon: const Icon(Icons.vpn_key_rounded),
               label: Text(t.resetHaveCode),
             ),
           ] else ...[
@@ -179,7 +179,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               decoration: InputDecoration(
                 labelText: t.resetEmailLabel,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.email_outlined),
+                prefixIcon: const Icon(Icons.email_rounded),
                 errorText: _emailError,
               ),
             ),
@@ -193,7 +193,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.send_outlined),
+                    : const Icon(Icons.send_rounded),
                 label: Text(_sending ? t.resetSending : t.resetSendLink),
               ),
             ),
@@ -205,7 +205,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                   : () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) =>
                           const PasswordResetConfirmScreen(token: ''))),
-              icon: const Icon(Icons.vpn_key_outlined),
+              icon: const Icon(Icons.vpn_key_rounded),
               label: Text(t.resetHaveCode),
             ),
           ],

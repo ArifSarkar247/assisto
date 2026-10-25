@@ -166,9 +166,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
           appBar: AppBar(title: Text(t.familyCareTitle), actions: [
             IconButton(
                 onPressed: _scamCheck,
-                icon: const Icon(Icons.shield_outlined),
+                icon: const Icon(Icons.shield_rounded),
                 tooltip: t.familyScamCheckTooltip),
-            IconButton(tooltip: AppLocalizations.of(context).refresh, onPressed: _load, icon: const Icon(Icons.sync)),
+            IconButton(tooltip: AppLocalizations.of(context).refresh, onPressed: _load, icon: const Icon(Icons.sync_rounded)),
           ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
             if (medical) ...[
               Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
@@ -191,7 +191,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ? const SkeletonList()
               : _failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: _t.loadFailed,
                   tint: Brand.danger,
                   action: FilledButton.icon(
@@ -199,7 +199,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                       setState(() => loading = true);
                       _load();
                     },
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(_t.retry),
                   ),
                 )
@@ -232,11 +232,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
       // QA a6: empty state now has a way forward (opens the Medicines tab).
       return Builder(
         builder: (ctx) => StateMessage(
-          icon: Icons.medication_liquid_outlined,
+          icon: Icons.medication_liquid_rounded,
           title: t.familyNoDosesToday,
           action: FilledButton.tonalIcon(
             onPressed: () => DefaultTabController.maybeOf(ctx)?.animateTo(1),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.familyTabMedicines),
           ),
         ),
@@ -321,10 +321,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   : scheme.surfaceContainerHighest,
               child: Icon(
                   taken
-                      ? Icons.check
+                      ? Icons.check_rounded
                       : skipped
-                          ? Icons.remove
-                          : Icons.medication_outlined,
+                          ? Icons.remove_rounded
+                          : Icons.medication_rounded,
                   color: taken ? Brand.success : scheme.onSurfaceVariant),
             ),
             const SizedBox(width: Gap.md),
@@ -580,14 +580,14 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMed, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMed, child: const Icon(Icons.add_rounded)),
       body: meds.isEmpty
           ? StateMessage(
-              icon: Icons.medication_outlined,
+              icon: Icons.medication_rounded,
               title: t.familyAddMedicinesEmpty,
               action: FilledButton.icon(
                   onPressed: _addMed,
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(t.familyAddMedicineTitle)))
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
@@ -627,7 +627,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.medication_outlined),
+              const Icon(Icons.medication_rounded),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -647,11 +647,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
                                 ? Brand.warning
                                 : Brand.danger)),
               IconButton(
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: const Icon(Icons.edit_rounded),
                   tooltip: t.edit,
                   onPressed: () => _addMed(existing: m)),
               IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('medicines', m['id']);
                     _load();
@@ -660,7 +660,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             if (stockText != null) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(Icons.inventory_2_outlined, size: 16, color: stockColor),
+                Icon(Icons.inventory_2_rounded, size: 16, color: stockColor),
                 const SizedBox(width: Gap.xs),
                 Text(stockText, style: TextStyle(color: stockColor)),
               ]),
@@ -668,7 +668,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             if ((m['predicted_refill'] ?? '').toString().isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(Icons.event_repeat_outlined,
+                Icon(Icons.event_repeat_rounded,
                     size: 16, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Text(t.medPredictedRefill(m['predicted_refill'].toString()),
@@ -680,7 +680,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
                 onPressed: () => _showEscalation(m),
-                icon: const Icon(Icons.notifications_active_outlined, size: 18),
+                icon: const Icon(Icons.notifications_active_rounded, size: 18),
                 label: Text(t.medViewEscalation),
               ),
             ),
@@ -698,7 +698,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final pushReady = caregiver?['push_ready'] == true;
     if (people.isEmpty) {
       return StateMessage(
-        icon: Icons.favorite_outline,
+        icon: Icons.favorite_outline_rounded,
         title: t.medCaregiverTitle,
         message: t.medCaregiverEmpty,
       );
@@ -711,7 +711,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
       Card(
         color: scheme.surfaceContainerHighest,
         child: ListTile(
-          leading: const Icon(Icons.picture_as_pdf_outlined),
+          leading: const Icon(Icons.picture_as_pdf_rounded),
           title: Text(t.medDoctorPdf),
           subtitle: Text(t.medDoctorPdfSubtitle),
           onTap: _downloadDoctorPdf,
@@ -721,7 +721,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(children: [
-            Icon(Icons.info_outline, size: 16, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.medPushGatedNote,
@@ -739,7 +739,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Row(children: [
-        const Icon(Icons.volunteer_activism_outlined, color: Colors.white),
+        const Icon(Icons.volunteer_activism_rounded, color: Colors.white),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(title,
@@ -767,7 +767,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Row(children: [
               CircleAvatar(
                 backgroundColor: scheme.secondaryContainer,
-                child: Icon(isSelf ? Icons.person : Icons.elderly,
+                child: Icon(isSelf ? Icons.person_rounded : Icons.elderly_rounded,
                     color: scheme.onSecondaryContainer),
               ),
               const SizedBox(width: Gap.md),
@@ -781,7 +781,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ),
               if ((p['phone']?.toString() ?? '').trim().isNotEmpty)
                 IconButton(
-                  icon: const Icon(Icons.call),
+                  icon: const Icon(Icons.call_rounded),
                   tooltip: t.call,
                   onPressed: () => _call(p['phone'].toString().trim()),
                 ),
@@ -790,13 +790,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
             const SizedBox(height: Gap.md),
             if (pending == 0 && due > 0)
               Row(children: [
-                const Icon(Icons.check_circle_outline, size: 18, color: Brand.success),
+                const Icon(Icons.check_circle_outline_rounded, size: 18, color: Brand.success),
                 const SizedBox(width: Gap.sm),
                 Text(t.medAllDoneToday, style: const TextStyle(color: Brand.success)),
               ])
             else if (nextDue != null)
               Row(children: [
-                Icon(Icons.schedule, size: 18, color: scheme.onSurfaceVariant),
+                Icon(Icons.schedule_rounded, size: 18, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Text(t.medNextDose(nextDue)),
               ]),
@@ -822,7 +822,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         builder: (_) => MedicineHistoryScreen(
                             member: p['member']?.toString() ?? 'self',
                             personName: isSelf ? t.medForSelf : p['name']))),
-                icon: const Icon(Icons.bar_chart_outlined, size: 18),
+                icon: const Icon(Icons.bar_chart_rounded, size: 18),
                 label: Text(t.medHistoryTitle),
               ),
             ),
@@ -1001,20 +1001,20 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton: FloatingActionButton(tooltip: AppLocalizations.of(context).add,
-          onPressed: _addPrescription, child: const Icon(Icons.add)),
+          onPressed: _addPrescription, child: const Icon(Icons.add_rounded)),
       body: prescriptions.isEmpty
           ? StateMessage(
-              icon: Icons.description_outlined,
+              icon: Icons.description_rounded,
               title: t.medPrescriptionsTitle,
               message: t.medPrescriptionsEmpty,
               action: Wrap(spacing: Gap.sm, children: [
                 OutlinedButton.icon(
                     onPressed: _addDoctor,
-                    icon: const Icon(Icons.person_add_alt),
+                    icon: const Icon(Icons.person_add_alt_rounded),
                     label: Text(t.medAddDoctor)),
                 FilledButton.icon(
                     onPressed: _addPrescription,
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(Icons.add_rounded),
                     label: Text(t.medAddPrescription)),
               ]))
           : ListView(
@@ -1024,7 +1024,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton.icon(
                       onPressed: _addDoctor,
-                      icon: const Icon(Icons.person_add_alt, size: 18),
+                      icon: const Icon(Icons.person_add_alt_rounded, size: 18),
                       label: Text(t.medAddDoctor)),
                 ),
                 for (final p in prescriptions) _prescriptionCard(p, t, scheme),
@@ -1042,7 +1042,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.local_hospital_outlined),
+              const Icon(Icons.local_hospital_rounded),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Text(doctor.isEmpty ? t.medNoDoctor : doctor,
@@ -1052,11 +1052,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 Text(p['date'].toString(),
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               IconButton(
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: const Icon(Icons.edit_rounded),
                   tooltip: t.edit,
                   onPressed: () => _addPrescription(existing: p)),
               IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('prescriptions', p['id']);
                     _load();
@@ -1070,7 +1070,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               const SizedBox(height: Gap.sm),
               for (final m in meds)
                 Row(children: [
-                  const Icon(Icons.circle, size: 6),
+                  const Icon(Icons.circle_rounded, size: 6),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                       child: Text((m is Map ? (m['name'] ?? '') : m).toString())),
@@ -1130,16 +1130,16 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMember, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMember, child: const Icon(Icons.add_rounded)),
       body: members.isEmpty
-          ? StateMessage(icon: Icons.group_outlined, title: t.familyAddMemberEmpty)
+          ? StateMessage(icon: Icons.group_rounded, title: t.familyAddMemberEmpty)
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
               children: [
                 for (final m in members)
                   Card(
                       child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
                     title: Text(m['name'] ?? ''),
                     subtitle: Text([(m['relation'] ?? ''), (m['phone'] ?? '')]
                         .where((e) => e.toString().isNotEmpty)
@@ -1147,15 +1147,15 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       if ((m['phone']?.toString() ?? '').trim().isNotEmpty)
                         IconButton(
-                            icon: const Icon(Icons.call),
+                            icon: const Icon(Icons.call_rounded),
                             tooltip: t.call,
                             onPressed: () => _call(m['phone'].toString().trim())),
                       IconButton(
-                          icon: const Icon(Icons.edit_outlined),
+                          icon: const Icon(Icons.edit_rounded),
                           tooltip: t.edit,
                           onPressed: () => _addMember(existing: m)),
                       IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                          icon: const Icon(Icons.delete_outline),
+                          icon: const Icon(Icons.delete_outline_rounded),
                           onPressed: () async {
                             await context.read<AppState>().api.deleteItem('family', m['id']);
                             _load();
@@ -1221,9 +1221,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addSchool, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addSchool, child: const Icon(Icons.add_rounded)),
       body: school.isEmpty
-          ? StateMessage(icon: Icons.school_outlined, title: t.familyAddSchoolEmpty)
+          ? StateMessage(icon: Icons.school_rounded, title: t.familyAddSchoolEmpty)
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
               children: [
@@ -1231,17 +1231,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Card(
                       child: ListTile(
                     leading: Icon({
-                          'fee': Icons.payments_outlined,
-                          'exam': Icons.edit_note_outlined,
-                          'meeting': Icons.groups_outlined,
+                          'fee': Icons.payments_rounded,
+                          'exam': Icons.edit_note_rounded,
+                          'meeting': Icons.groups_rounded,
                         }[s['kind']] ??
-                        Icons.push_pin_outlined),
+                        Icons.push_pin_rounded),
                     title: Text(s['title'] ?? ''),
                     subtitle: Text([(s['child_name'] ?? ''), (s['date'] ?? '')]
                         .where((e) => e.toString().isNotEmpty)
                         .join(' · ')),
                     trailing: IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const Icon(Icons.delete_outline_rounded),
                         onPressed: () async {
                           await context.read<AppState>().api.deleteItem('school', s['id']);
                           _load();

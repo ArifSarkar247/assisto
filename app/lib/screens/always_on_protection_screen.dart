@@ -366,7 +366,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           const SizedBox(height: Gap.xxl),
-          const Icon(Icons.cloud_off_outlined, size: 48),
+          const Icon(Icons.cloud_off_rounded, size: 48),
           const SizedBox(height: Gap.md),
           Text(honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed),
               textAlign: TextAlign.center),
@@ -442,8 +442,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               children: [
                 Icon(
                     !on
-                        ? Icons.gpp_maybe
-                        : (degraded ? Icons.warning_amber : Icons.verified_user),
+                        ? Icons.gpp_maybe_rounded
+                        : (degraded ? Icons.warning_amber_rounded : Icons.verified_user_rounded),
                     color: fg,
                     size: 32),
                 const SizedBox(width: Gap.sm),
@@ -478,11 +478,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                   : (!on
                       ? FilledButton.icon(
                           onPressed: _enable,
-                          icon: const Icon(Icons.shield_outlined),
+                          icon: const Icon(Icons.shield_rounded),
                           label: Text(tr.atTurnOn))
                       : OutlinedButton.icon(
                           onPressed: _disable,
-                          icon: const Icon(Icons.lock_open_outlined),
+                          icon: const Icon(Icons.lock_open_rounded),
                           label: Text(tr.atTurnOff))),
             ),
           ],
@@ -607,10 +607,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
 
   Widget _timelineLink(AppLocalizations tr) => Card(
         child: ListTile(
-          leading: const Icon(Icons.timeline_outlined),
+          leading: const Icon(Icons.timeline_rounded),
           title: Text(tr.atTimelineTitle),
           subtitle: Text(tr.atTimelineBody),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -630,7 +630,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.info_outline, size: 18),
+              const Icon(Icons.info_outline_rounded, size: 18),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(tr.atLimitsTitle,
@@ -656,10 +656,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
 
   Widget _brandLockCard(AppLocalizations tr, ColorScheme scheme) => Card(
         child: ListTile(
-          leading: const Icon(Icons.verified_user_outlined),
+          leading: const Icon(Icons.verified_user_rounded),
           title: Text(tr.atBrandLockTitle),
           subtitle: Text(tr.atBrandLockBody),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PhoneSafetyScreen()),
@@ -726,26 +726,26 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
   IconData _icon(String kind) {
     switch (kind) {
       case 'snatch':
-        return Icons.pan_tool_outlined;
+        return Icons.pan_tool_rounded;
       case 'sim_change':
-        return Icons.sim_card_outlined;
+        return Icons.sim_card_rounded;
       case 'offline':
-        return Icons.signal_wifi_off_outlined;
+        return Icons.signal_wifi_off_rounded;
       case 'online':
-        return Icons.wifi;
+        return Icons.wifi_rounded;
       case 'low_battery':
-        return Icons.battery_alert_outlined;
+        return Icons.battery_alert_rounded;
       case 'shutdown':
-        return Icons.power_settings_new;
+        return Icons.power_settings_new_rounded;
       case 'boot':
-        return Icons.restart_alt;
+        return Icons.restart_alt_rounded;
       case 'failed_unlock':
       case 'intruder_photo':
-        return Icons.lock_outline;
+        return Icons.lock_outline_rounded;
       case 'went_dark':
-        return Icons.visibility_off_outlined;
+        return Icons.visibility_off_rounded;
       default:
-        return Icons.history;
+        return Icons.history_rounded;
     }
   }
 
@@ -813,7 +813,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.visibility_off_outlined,
+                Icon(Icons.visibility_off_rounded,
                     color: Brand.warnInk(context)),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(tr.atWentDarkBanner(_fmt(dark)))),

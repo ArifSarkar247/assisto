@@ -105,7 +105,7 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
       appBar: AppBar(title: Text(_t.circleGroupsTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _create,
-        icon: const Icon(Icons.group_add_outlined),
+        icon: const Icon(Icons.group_add_rounded),
         label: Text(_t.circleGroupCreate),
       ),
       body: _loading
@@ -127,7 +127,7 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(
           children: [
-            Icon(Icons.groups_2_outlined,
+            Icon(Icons.groups_2_rounded,
                 size: 56, color: scheme.primary.withValues(alpha: 0.7)),
             const SizedBox(height: Gap.md),
             Text(_t.circleGroupsEmptyTitle,
@@ -151,14 +151,14 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
       leading: CircleAvatar(
         backgroundColor:
             Theme.of(context).colorScheme.primaryContainer,
-        child: const Icon(Icons.groups_outlined),
+        child: const Icon(Icons.groups_rounded),
       ),
       title: Text(name),
       subtitle: Text(_t.circleGroupMemberCount(notifLocalizeDigits(context, '$count'))),
       trailing: announcementsOnly
           ? Tooltip(
               message: _t.circleGroupAnnouncementsOnly,
-              child: const Icon(Icons.campaign_outlined),
+              child: const Icon(Icons.campaign_rounded),
             )
           : null,
       onTap: () => _open(g),

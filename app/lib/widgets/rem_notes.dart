@@ -61,13 +61,13 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
               ),
               IconButton(
                 tooltip: pinned ? t.notesUnpin : t.notesPin,
-                icon: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined,
+                icon: Icon(pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
                     color: pinned ? Brand.warning : null),
                 onPressed: () => setS(() => pinned = !pinned),
               ),
               IconButton(
                 tooltip: high ? t.remPriorityClear : t.remPrioritySet,
-                icon: Icon(high ? Icons.flag : Icons.outlined_flag,
+                icon: Icon(high ? Icons.flag_rounded : Icons.outlined_flag_rounded,
                     color: high ? Brand.warning : null),
                 onPressed: () => setS(() => high = !high),
               ),
@@ -110,7 +110,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                 ),
                 IconButton(
                   tooltip: t.delete,
-                  icon: const Icon(Icons.close, size: 18),
+                  icon: const Icon(Icons.close_rounded, size: 18),
                   onPressed: () => setS(() => checklist.removeAt(i)),
                 ),
               ]),
@@ -130,7 +130,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 onPressed: () {
                   if (newItem.text.trim().isEmpty) return;
                   setS(() {
@@ -145,7 +145,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                 controller: tags,
                 decoration: InputDecoration(
                     isDense: true,
-                    prefixIcon: const Icon(Icons.label_outline, size: 18),
+                    prefixIcon: const Icon(Icons.label_outline_rounded, size: 18),
                     labelText: t.notesTags,
                     helperText: t.notesTagsHint)),
             const SizedBox(height: Gap.sm),
@@ -153,7 +153,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.event_outlined, size: 18),
+                  icon: const Icon(Icons.event_rounded, size: 18),
                   label: Text(due == null
                       ? t.notesSetDue
                       : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due!)),
@@ -179,7 +179,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                 IconButton(
                     tooltip: t.delete,
                     onPressed: () => setS(() => due = null),
-                    icon: const Icon(Icons.clear)),
+                    icon: const Icon(Icons.clear_rounded)),
             ]),
             const SizedBox(height: Gap.md),
             Row(children: [
@@ -293,7 +293,7 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(t.remPriorityHigh),
-            secondary: Icon(high ? Icons.flag : Icons.outlined_flag,
+            secondary: Icon(high ? Icons.flag_rounded : Icons.outlined_flag_rounded,
                 color: high ? Brand.warning : null),
             value: high,
             onChanged: (v) => setS(() => high = v),
@@ -301,7 +301,7 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.event_outlined, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(due == null
                     ? t.notesSetDue
                     : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due!)),
@@ -326,7 +326,7 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
               IconButton(
                   tooltip: t.delete,
                   onPressed: () => setS(() => due = null),
-                  icon: const Icon(Icons.clear)),
+                  icon: const Icon(Icons.clear_rounded)),
           ]),
         ]),
         actions: [

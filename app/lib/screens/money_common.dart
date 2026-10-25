@@ -66,16 +66,16 @@ Map<String, String> accTypes(AppLocalizations t) => {
 IconData accIcon(String? type) {
   switch (type) {
     case 'bank':
-      return Icons.account_balance_outlined;
+      return Icons.account_balance_rounded;
     case 'card':
-      return Icons.credit_card_outlined;
+      return Icons.credit_card_rounded;
     case 'bkash':
     case 'nagad':
     case 'rocket':
     case 'mobile':
-      return Icons.smartphone_outlined;
+      return Icons.smartphone_rounded;
     default:
-      return Icons.payments_outlined;
+      return Icons.payments_rounded;
   }
 }
 
@@ -125,7 +125,7 @@ Future<void> confirmDelete(BuildContext context, VoidCallback onConfirm) async {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: Gap.md),
         ListTile(
-          leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+          leading: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
           title: Text(t.moneyDeleteConfirm),
         ),
         Padding(
@@ -163,10 +163,10 @@ Widget deltaChip(BuildContext context, double delta, {bool upIsBad = true}) {
   return Row(mainAxisSize: MainAxisSize.min, children: [
     Icon(
         delta == 0
-            ? Icons.remove
+            ? Icons.remove_rounded
             : up
-                ? Icons.arrow_upward
-                : Icons.arrow_downward,
+                ? Icons.arrow_upward_rounded
+                : Icons.arrow_downward_rounded,
         size: 13,
         color: color),
     Text(tkFmt(delta.abs()),

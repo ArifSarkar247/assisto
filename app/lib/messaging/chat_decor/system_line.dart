@@ -97,7 +97,7 @@ String describeTimer(AppLocalizations t, int sec,
 class ChatSystemLine extends StatelessWidget {
   final String text;
   final IconData icon;
-  const ChatSystemLine({super.key, required this.text, this.icon = Icons.info_outline});
+  const ChatSystemLine({super.key, required this.text, this.icon = Icons.info_outline_rounded});
 
   @override
   Widget build(BuildContext context) {

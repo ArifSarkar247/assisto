@@ -153,7 +153,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     }
     if (_installments.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.payments_outlined,
+          icon: Icons.payments_rounded,
           title: t.crmNoCollections,
           message: t.crmNoCollectionsHint);
     }
@@ -183,7 +183,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
           ),
         ),
         const SizedBox(height: Gap.sm),
-        CrmSectionHeader(t.crmInstallments, icon: Icons.receipt_long_outlined),
+        CrmSectionHeader(t.crmInstallments, icon: Icons.receipt_long_rounded),
         for (final inst in _installments) _instCard(t, inst),
       ]),
     );
@@ -217,7 +217,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
               alignment: Alignment.centerRight,
               child: FilledButton.tonalIcon(
                   onPressed: () => _collect(t, inst),
-                  icon: const Icon(Icons.add_card_outlined, size: 18),
+                  icon: const Icon(Icons.add_card_rounded, size: 18),
                   label: Text(t.crmRecordCollection)),
             ),
           ],
@@ -283,7 +283,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
     }
     if (_amcs.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.event_repeat_outlined,
+          icon: Icons.event_repeat_rounded,
           title: t.crmNoAmc,
           message: t.crmNoAmcHint);
     }
@@ -327,13 +327,13 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
             OutlinedButton.icon(
                 onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                     .scheduleReminder((amc['id'] as num).toInt())),
-                icon: const Icon(Icons.notifications_active_outlined, size: 18),
+                icon: const Icon(Icons.notifications_active_rounded, size: 18),
                 label: Text(t.crmScheduleReminder)),
             if (state != 'active')
               FilledButton.tonalIcon(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .renewAmc((amc['id'] as num).toInt(), 365)),
-                  icon: const Icon(Icons.autorenew_outlined, size: 18),
+                  icon: const Icon(Icons.autorenew_rounded, size: 18),
                   label: Text(t.crmRenew)),
           ]),
         ]),
@@ -473,7 +473,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _newComplaint(t),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.crmNewComplaint),
       ),
       body: _loading
@@ -483,7 +483,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
                   error: _error!, title: t.loadFailed, onRetry: _load)
               : _complaints.isEmpty
                   ? CrmStateView.empty(
-                      icon: Icons.support_agent_outlined,
+                      icon: Icons.support_agent_rounded,
                       title: t.crmNoComplaints,
                       message: t.crmNoComplaintsHint)
                   : RefreshIndicator(
@@ -521,7 +521,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                Icon(Icons.timer_off_outlined,
+                Icon(Icons.timer_off_rounded,
                     size: 16, color: Theme.of(context).colorScheme.error),
                 const SizedBox(width: Gap.xs),
                 Text(t.crmSlaBreached,
@@ -669,13 +669,13 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
     final suppressed = _data['suppressed'] == true;
     if (suppressed) {
       return CrmStateView.empty(
-          icon: Icons.pause_circle_outline,
+          icon: Icons.pause_circle_outline_rounded,
           title: t.crmUpsellSuppressed,
           message: t.crmUpsellSuppressedHint);
     }
     if (signals.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.trending_up_outlined,
+          icon: Icons.trending_up_rounded,
           title: t.crmNoUpsell,
           message: t.crmNoUpsellHint);
     }
@@ -683,7 +683,7 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         // Honest note: upsell signals only — the owner sets any price elsewhere.
-        NeedsKeyBanner(t.crmUpsellNoPriceNote, icon: Icons.info_outline),
+        NeedsKeyBanner(t.crmUpsellNoPriceNote, icon: Icons.info_outline_rounded),
         for (final s in signals) _signalCard(t, Map<String, dynamic>.from(s)),
       ]),
     );
@@ -695,7 +695,7 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
     return Card(
       child: ListTile(
         leading: Icon(
-            isRenewal ? Icons.autorenew_outlined : Icons.add_business_outlined,
+            isRenewal ? Icons.autorenew_rounded : Icons.add_business_rounded,
             color: Theme.of(context).colorScheme.primary),
         title: Text(isRenewal
             ? t.crmUpsellRenewal

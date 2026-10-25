@@ -80,7 +80,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           if (all.isNotEmpty)
             IconButton(
               tooltip: t.memClearAll,
-              icon: const Icon(Icons.delete_sweep_outlined,
+              icon: const Icon(Icons.delete_sweep_rounded,
                   color: Brand.danger),
               onPressed: () => _clearAll(context, app, all),
             ),
@@ -96,13 +96,13 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
                   children: [
                     _intro(context, t),
                     const SizedBox(height: Gap.lg),
-                    _statRow(context, Icons.inventory_2_outlined, Brand.blue,
+                    _statRow(context, Icons.inventory_2_rounded, Brand.blue,
                         t.memStatTotal, '${all.length}'),
-                    _statRow(context, Icons.auto_awesome, Brand.cyan,
+                    _statRow(context, Icons.auto_awesome_rounded, Brand.cyan,
                         t.memStatAi, '$aiCount'),
-                    _statRow(context, Icons.cloud_done_outlined, Brand.purple,
+                    _statRow(context, Icons.cloud_done_rounded, Brand.purple,
                         t.memStatSharedAi, '$sharedWithAi'),
-                    _statRow(context, Icons.visibility_off_outlined,
+                    _statRow(context, Icons.visibility_off_rounded,
                         Brand.danger, t.memStatExcluded, '$excluded'),
                     const Divider(height: Gap.xl),
                     for (final c in MemCategories.order)
@@ -121,7 +121,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
 
   // ---- honest empty state --------------------------------------------------
   Widget _empty(BuildContext context, AppLocalizations t) => StateMessage(
-        icon: Icons.visibility_outlined,
+        icon: Icons.visibility_rounded,
         title: t.aiKnowEmptyTitle,
         message: t.aiKnowEmptyBody,
       );
@@ -168,7 +168,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
         childrenPadding:
             const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         leading: Icon(
-            m.isAi ? Icons.auto_awesome : Icons.edit_note,
+            m.isAi ? Icons.auto_awesome_rounded : Icons.edit_note_rounded,
             color: m.isAi ? Brand.cyan : scheme.onSurfaceVariant),
         title: Text(m.title,
             maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -182,7 +182,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           const SizedBox(height: Gap.sm),
           // provenance line — honest "where this came from"
           Row(children: [
-            Icon(m.isAi ? Icons.auto_awesome : Icons.person_outline,
+            Icon(m.isAi ? Icons.auto_awesome_rounded : Icons.person_outline_rounded,
                 size: 14, color: scheme.onSurfaceVariant),
             const SizedBox(width: 6),
             Expanded(
@@ -197,7 +197,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
             alignment: Alignment.centerRight,
             child: TextButton.icon(
               onPressed: () => _deleteItem(context, t, app, m),
-              icon: const Icon(Icons.delete_outline,
+              icon: const Icon(Icons.delete_outline_rounded,
                   size: 18, color: Brand.danger),
               label: Text(t.delete,
                   style: const TextStyle(color: Brand.danger)),
@@ -235,7 +235,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.delete_sweep_outlined, color: Brand.danger),
+        icon: const Icon(Icons.delete_sweep_rounded, color: Brand.danger),
         title: Text(t.memClearAll),
         content: Text(t.memClearAllBody),
         actions: [
@@ -287,7 +287,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          const Icon(Icons.verified_user_outlined,
+          const Icon(Icons.verified_user_rounded,
               size: 18, color: Brand.cyan),
           const SizedBox(width: Gap.sm),
           Expanded(

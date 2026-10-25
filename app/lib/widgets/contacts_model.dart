@@ -164,15 +164,15 @@ String groupLabel(BuildContext c, String code) {
 IconData groupIcon(String code) {
   switch (code) {
     case kGroupFamily:
-      return Icons.family_restroom;
+      return Icons.family_restroom_rounded;
     case kGroupWork:
-      return Icons.work_outline;
+      return Icons.work_outline_rounded;
     case kGroupFriends:
-      return Icons.groups_2_outlined;
+      return Icons.groups_2_rounded;
     case kGroupAcquaintance:
-      return Icons.person_outline;
+      return Icons.person_outline_rounded;
     default:
-      return Icons.label_outline;
+      return Icons.label_outline_rounded;
   }
 }
 

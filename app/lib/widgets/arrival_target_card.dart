@@ -79,7 +79,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(Icons.pin_drop_outlined,
+              Icon(Icons.pin_drop_rounded,
                   color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 10),
               Expanded(
@@ -139,7 +139,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
         padding: const EdgeInsets.all(14),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.flag, color: color),
+            Icon(Icons.flag_rounded, color: color),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -152,13 +152,13 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
             if (widget.nightMode)
               Semantics(
                 label: AppLocalizations.of(context).aNightSafety,
-                child: Icon(Icons.nightlight_round, size: 18, color: Colors.indigo.shade300),
+                child: Icon(Icons.nightlight_round_rounded, size: 18, color: Colors.indigo.shade300),
               ),
           ]),
           const SizedBox(height: 8),
           // live countdown — number + label, never colour alone
           Row(children: [
-            Icon(cd.overdue ? Icons.timelapse : Icons.timer_outlined, size: 18, color: color),
+            Icon(cd.overdue ? Icons.timelapse_rounded : Icons.timer_rounded, size: 18, color: color),
             const SizedBox(width: 6),
             Text(cdText,
                 style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
@@ -168,7 +168,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
           if (reminder && st.state != ArrivalState.overdue) ...[
             const SizedBox(height: 6),
             Row(children: [
-              const Icon(Icons.notifications_active_outlined, size: 16, color: Colors.orange),
+              const Icon(Icons.notifications_active_rounded, size: 16, color: Colors.orange),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aReminderNudge,
                   style: const TextStyle(fontSize: 12, color: Colors.orange))),
@@ -187,7 +187,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
                   backgroundColor: Colors.green,
                   padding: const EdgeInsets.symmetric(vertical: 14)),
               onPressed: widget.onArrived,
-              icon: const Icon(Icons.check),
+              icon: const Icon(Icons.check_rounded),
               label: Text(AppLocalizations.of(context).aArrived,
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
             ),
@@ -196,7 +196,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
             if (widget.hasDuressPin)
               TextButton.icon(
                 onPressed: widget.onArrivedWithPin,
-                icon: const Icon(Icons.lock_outline, size: 16),
+                icon: const Icon(Icons.lock_outline_rounded, size: 16),
                 label: Text(AppLocalizations.of(context).aArrivedWithPin),
               ),
             const Spacer(),

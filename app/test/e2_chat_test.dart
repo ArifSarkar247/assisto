@@ -230,14 +230,14 @@ void main() {
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.enterText(find.byType(TextField).last, 'hi Abul');
-    await tester.tap(find.byIcon(Icons.send));
+    await tester.tap(find.byIcon(Icons.send_rounded));
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
     expect(find.byType(SnackBar), findsNothing);
     expect(find.text(t.circleKeyMissing), findsNothing);
     expect(find.text('hi Abul'), findsOneWidget);
-    expect(find.byIcon(Icons.schedule), findsWidgets); // clock
+    expect(find.byIcon(Icons.schedule_rounded), findsWidgets); // clock
     expect(api.posts('/circle/5/messages'), isEmpty);
     final q = await Outbox.instance.forChat('member', 5);
     expect(q.single.text, 'hi Abul');
@@ -275,7 +275,7 @@ void main() {
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('from before'), findsOneWidget);
-    expect(find.byIcon(Icons.schedule), findsWidgets);
+    expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
     await _dispose(tester);
   });
 

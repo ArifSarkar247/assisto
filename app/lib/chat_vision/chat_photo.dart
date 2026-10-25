@@ -70,12 +70,12 @@ class ChatPhotoAttachButton extends StatelessWidget {
           ),
           const SizedBox(height: Gap.sm),
           ListTile(
-            leading: const Icon(Icons.photo_camera_outlined),
+            leading: const Icon(Icons.photo_camera_rounded),
             title: Text(t.h1PhotoCamera),
             onTap: () => Navigator.pop(ctx, true),
           ),
           ListTile(
-            leading: const Icon(Icons.photo_library_outlined),
+            leading: const Icon(Icons.photo_library_rounded),
             title: Text(t.h1PhotoGallery),
             onTap: () => Navigator.pop(ctx, false),
           ),
@@ -95,7 +95,7 @@ class ChatPhotoAttachButton extends StatelessWidget {
   Widget build(BuildContext context) => IconButton(
         tooltip: AppLocalizations.of(context).h1AttachPhoto,
         onPressed: enabled ? () => _open(context) : null,
-        icon: const Icon(Icons.add_photo_alternate_outlined),
+        icon: const Icon(Icons.add_photo_alternate_rounded),
       );
 }
 
@@ -180,7 +180,7 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
                     errorBuilder: (_, __, ___) => SizedBox(
                         height: 80,
                         child: Center(
-                            child: Icon(Icons.broken_image_outlined,
+                            child: Icon(Icons.broken_image_rounded,
                                 color: scheme.onPrimary)))),
               ),
               if (widget.request.question.trim().isNotEmpty)
@@ -311,7 +311,7 @@ class _AnswerCard extends StatelessWidget {
       ],
       if (a.kind == PhotoKind.medicine) ...[
         const SizedBox(height: Gap.sm),
-        _Note(icon: Icons.medical_information_outlined, text: t.h1MedicineNote),
+        _Note(icon: Icons.medical_information_rounded, text: t.h1MedicineNote),
       ],
     ]);
   }
@@ -346,11 +346,11 @@ class _AnswerCard extends StatelessWidget {
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(c.answer, style: const TextStyle(height: 1.45)),
           const SizedBox(height: Gap.sm),
-          _Note(icon: Icons.lock_outline, text: t.h1PrivacyNote),
+          _Note(icon: Icons.lock_outline_rounded, text: t.h1PrivacyNote),
         ]);
       case CvPhase.refused:
         body = _Note(
-            icon: Icons.privacy_tip_outlined,
+            icon: Icons.privacy_tip_rounded,
             text: c.message.isNotEmpty ? c.message : t.h1FaceRefused);
       case CvPhase.adFailed:
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -417,12 +417,12 @@ class _AnswerCard extends StatelessWidget {
         if (pool != null)
           FilledButton.icon(
               onPressed: () => c.requestDetailed('pool'),
-              icon: const Icon(Icons.auto_awesome, size: 18),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
               label: Text(t.h1DetailedPool('${pool.credits}'))),
         if (ads != null)
           FilledButton.icon(
               onPressed: () => c.requestDetailed('ads'),
-              icon: const Icon(Icons.play_circle_outline, size: 18),
+              icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
               label: Text(t.h1DetailedAds('${ads.ads}'))),
         if (credits != null)
           OutlinedButton(

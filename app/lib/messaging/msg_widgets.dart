@@ -85,7 +85,7 @@ class _SwipeToReplyState extends State<SwipeToReply>
                   child: CircleAvatar(
                     radius: 15,
                     backgroundColor: scheme.primaryContainer,
-                    child: Icon(Icons.reply,
+                    child: Icon(Icons.reply_rounded,
                         size: 18, color: scheme.onPrimaryContainer),
                   ),
                 ),
@@ -223,7 +223,7 @@ class MessageInfoView extends StatelessWidget {
                     key: const Key('t1-info-legacy'),
                     padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                     child: Row(children: [
-                      Icon(Icons.history, size: 18, color: scheme.onSurfaceVariant),
+                      Icon(Icons.history_rounded, size: 18, color: scheme.onSurfaceVariant),
                       const SizedBox(width: Gap.sm),
                       Expanded(
                           child: Text(t.t1InfoLegacy,
@@ -240,7 +240,7 @@ class MessageInfoView extends StatelessWidget {
                     ),
                   _line(
                       context,
-                      Icons.done_all,
+                      Icons.done_all_rounded,
                       r['seen_at'] != null
                           ? readTickColor(context)
                           : scheme.onSurfaceVariant,
@@ -254,7 +254,7 @@ class MessageInfoView extends StatelessWidget {
                                   d['my_read_receipts'] == false
                               ? t.c3InfoReadHidden
                               : t.c3InfoPending)),
-                  _line(context, Icons.done_all, scheme.onSurfaceVariant,
+                  _line(context, Icons.done_all_rounded, scheme.onSurfaceVariant,
                       t.c3InfoDelivered,
                       r['delivered_at'] != null
                           ? _fmt(context, '${r['delivered_at']}')

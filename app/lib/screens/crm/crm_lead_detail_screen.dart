@@ -123,7 +123,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
         actions: [
           IconButton(
             tooltip: AppLocalizations.of(context).edit,
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             onPressed: () async {
               final ok = await Navigator.push<bool>(context,
                   MaterialPageRoute(builder: (_) => CrmLeadFormScreen(org: widget.org, existing: l)));
@@ -134,7 +134,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _logActivity,
-        icon: const Icon(Icons.add_task),
+        icon: const Icon(Icons.add_task_rounded),
         label: Text(t.crmLogActivity),
       ),
       body: RefreshIndicator(
@@ -171,15 +171,15 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           // ---- quick actions (each logged) ----
           const SizedBox(height: Gap.sm),
           Row(children: [
-            Expanded(child: _action(t.crmCall, Icons.call, phone.isNotEmpty,
+            Expanded(child: _action(t.crmCall, Icons.call_rounded, phone.isNotEmpty,
                 () => _quick(t, 'call', 'tel:$phone'))),
             const SizedBox(width: Gap.sm),
             // WhatsApp now opens the official Business Cloud API sheet (send +
             // auto-log + key-gated state) — NOT a wa.me personal deep-link.
-            Expanded(child: _action('WhatsApp', Icons.chat, (wa.isNotEmpty || phone.isNotEmpty),
+            Expanded(child: _action('WhatsApp', Icons.chat_rounded, (wa.isNotEmpty || phone.isNotEmpty),
                 () => _openWhatsApp(l))),
             const SizedBox(width: Gap.sm),
-            Expanded(child: _action(t.email, Icons.mail_outline, email.isNotEmpty,
+            Expanded(child: _action(t.email, Icons.mail_outline_rounded, email.isNotEmpty,
                 () => _quick(t, 'email', 'mailto:$email'))),
           ]),
           // ---- required modules (requirement sheet seed) ----
@@ -210,14 +210,14 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                     child: Row(children: [
-                      const Icon(Icons.event_outlined, size: 16),
+                      const Icon(Icons.event_rounded, size: 16),
                       const SizedBox(width: Gap.xs),
                       Expanded(
                         child: Text((l['next_follow_up'] ?? '').toString().isNotEmpty
                             ? '${t.crmNextFollowUp}: ${crmDate(context, l['next_follow_up'])}'
                             : t.crmNextFollowUp),
                       ),
-                      Icon(Icons.edit_outlined, size: 14, color: scheme.onSurfaceVariant),
+                      Icon(Icons.edit_rounded, size: 14, color: scheme.onSurfaceVariant),
                     ]),
                   ),
                 ),
@@ -240,7 +240,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           FilledButton.tonalIcon(
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => CrmProposalScreen(org: widget.org, lead: l))),
-            icon: const Icon(Icons.description_outlined),
+            icon: const Icon(Icons.description_rounded),
             label: Text(t.crmProposals),
           ),
           const SizedBox(height: Gap.sm),
@@ -248,7 +248,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(
                     builder: (_) => CrmProposalAdvancedScreen(org: widget.org, lead: l))),
-            icon: const Icon(Icons.auto_awesome_motion_outlined),
+            icon: const Icon(Icons.auto_awesome_motion_rounded),
             label: Text(t.crmQuoteVersions),
           ),
           // ---- Won / Lost actions ----
@@ -257,7 +257,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _markWon(t),
-                icon: const Icon(Icons.emoji_events_outlined),
+                icon: const Icon(Icons.emoji_events_rounded),
                 label: Text(t.shopQaMarkWon),
               ),
             ),
@@ -265,7 +265,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _markLost(t),
-                icon: const Icon(Icons.cancel_outlined),
+                icon: const Icon(Icons.cancel_rounded),
                 label: Text(t.crmMarkLost),
               ),
             ),
@@ -277,7 +277,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.auto_awesome_outlined, size: 16),
+                const Icon(Icons.auto_awesome_rounded, size: 16),
                 const SizedBox(width: Gap.xs),
                 Expanded(child: Text(insight, style: TextStyle(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant))),
               ]),
@@ -294,7 +294,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           for (final m in msgs)
             ListTile(
               dense: true,
-              leading: Icon(m['direction'] == 'out' ? Icons.call_made : Icons.call_received, size: 18),
+              leading: Icon(m['direction'] == 'out' ? Icons.call_made_rounded : Icons.call_received_rounded, size: 18),
               title: Text(m['text'] ?? ''),
               subtitle: Text('${m['sentiment']}'),
             ),
@@ -436,19 +436,19 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   IconData _kindIcon(String? k) {
     switch (k) {
       case 'call':
-        return Icons.call;
+        return Icons.call_rounded;
       case 'meeting':
-        return Icons.groups_outlined;
+        return Icons.groups_rounded;
       case 'whatsapp':
-        return Icons.chat;
+        return Icons.chat_rounded;
       case 'email':
-        return Icons.mail_outline;
+        return Icons.mail_outline_rounded;
       case 'note':
-        return Icons.sticky_note_2_outlined;
+        return Icons.sticky_note_2_rounded;
       case 'stage':
-        return Icons.swap_horiz;
+        return Icons.swap_horiz_rounded;
       default:
-        return Icons.circle_outlined;
+        return Icons.circle_rounded;
     }
   }
 }

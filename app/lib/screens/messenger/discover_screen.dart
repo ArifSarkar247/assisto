@@ -144,9 +144,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               onSubmitted: (_) => _search(),
               decoration: InputDecoration(
                 hintText: t.discoverSearchHint,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_forward),
+                    icon: const Icon(Icons.arrow_forward_rounded),
                     onPressed: _search),
               ),
             ),
@@ -224,7 +224,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       return ListView(children: [
         const SizedBox(height: Gap.xxl * 2),
         MsgrEmptyState(
-          icon: Icons.travel_explore,
+          icon: Icons.travel_explore_rounded,
           title: t.discoverEmptyTitle,
           body: _backendReady ? t.discoverEmptyBody : t.checkInternetRetry,
         ),
@@ -266,7 +266,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         children: [
           IconButton(
             tooltip: _t.channelShareLink,
-            icon: const Icon(Icons.ios_share),
+            icon: const Icon(Icons.ios_share_rounded),
             onPressed: () => _shareInvite(ch),
           ),
           MsgrFollowButton(
@@ -339,7 +339,7 @@ class _InviteSheet extends StatelessWidget {
                             content: Text(t.channelLinkCopied)));
                       }
                     },
-                    icon: const Icon(Icons.copy),
+                    icon: const Icon(Icons.copy_rounded),
                     label: Text(t.channelCopyLink),
                   ),
                 ),
@@ -347,7 +347,7 @@ class _InviteSheet extends StatelessWidget {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () => Share.share(url),
-                    icon: const Icon(Icons.ios_share),
+                    icon: const Icon(Icons.ios_share_rounded),
                     label: Text(t.channelShareLink),
                   ),
                 ),

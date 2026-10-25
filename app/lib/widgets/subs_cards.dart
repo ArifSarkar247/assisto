@@ -30,7 +30,7 @@ class SubsSpendHero extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Icon(Icons.autorenew, color: cs.onSecondaryContainer),
+              Icon(Icons.autorenew_rounded, color: cs.onSecondaryContainer),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
@@ -241,7 +241,7 @@ class SubsTile extends StatelessWidget {
             if (!cancelled && !paused)
               IconButton(
                 tooltip: t.subsMarkPaid,
-                icon: const Icon(Icons.check_circle_outline),
+                icon: const Icon(Icons.check_circle_outline_rounded),
                 color: Brand.success,
                 onPressed: onMarkPaid,
               ),

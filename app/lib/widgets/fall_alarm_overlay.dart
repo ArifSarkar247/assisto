@@ -90,7 +90,7 @@ class _FallAlarmOverlayState extends State<FallAlarmOverlay> {
             padding: const EdgeInsets.all(Gap.xl),
             child: Column(children: [
               const Spacer(),
-              const Icon(Icons.personal_injury,
+              const Icon(Icons.personal_injury_rounded,
                   color: Colors.white, size: 72),
               const SizedBox(height: Gap.lg),
               Text(t.fallDetectedTitle,

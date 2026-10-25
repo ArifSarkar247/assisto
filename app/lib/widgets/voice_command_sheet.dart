@@ -179,9 +179,9 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
   Widget _body(ColorScheme scheme) {
     switch (_phase) {
       case _Phase.unavailable:
-        return _iconState(Icons.mic_off_outlined, scheme.error);
+        return _iconState(Icons.mic_off_rounded, scheme.error);
       case _Phase.error:
-        return _iconState(Icons.error_outline, scheme.error);
+        return _iconState(Icons.error_outline_rounded, scheme.error);
       case _Phase.understood:
         return _understood(scheme);
       case _Phase.listening:
@@ -227,7 +227,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
                       ]
                     : null,
               ),
-              child: Icon(listening ? Icons.graphic_eq : Icons.mic,
+              child: Icon(listening ? Icons.graphic_eq_rounded : Icons.mic_rounded,
                   size: 44, color: Colors.white),
             ),
           ),
@@ -254,7 +254,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.check_circle_outline, size: 18, color: scheme.primary),
+          Icon(Icons.check_circle_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(t.voiceUnderstoodLabel,
               style: TextStyle(
@@ -287,12 +287,12 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
       };
 
   IconData _intentIcon(VoiceIntent? i) => switch (i) {
-        VoiceIntent.open => Icons.open_in_new,
-        VoiceIntent.reminder => Icons.alarm,
-        VoiceIntent.expense => Icons.receipt_long_outlined,
-        VoiceIntent.call => Icons.call,
-        VoiceIntent.sos => Icons.emergency_outlined,
-        _ => Icons.send,
+        VoiceIntent.open => Icons.open_in_new_rounded,
+        VoiceIntent.reminder => Icons.alarm_rounded,
+        VoiceIntent.expense => Icons.receipt_long_rounded,
+        VoiceIntent.call => Icons.call_rounded,
+        VoiceIntent.sos => Icons.emergency_rounded,
+        _ => Icons.send_rounded,
       };
 
   Widget _actions(ColorScheme scheme) {
@@ -303,7 +303,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
       case _Phase.listening:
         return FilledButton.icon(
           onPressed: _stopTap,
-          icon: const Icon(Icons.stop_circle_outlined),
+          icon: const Icon(Icons.stop_circle_rounded),
           label: Text(t.voiceStop),
         );
       case _Phase.understood:
@@ -311,7 +311,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
           Expanded(
             child: OutlinedButton.icon(
               onPressed: _startListening,
-              icon: const Icon(Icons.refresh, size: 18),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
               label: Text(t.retry),
             ),
           ),
@@ -319,7 +319,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
           Expanded(
             child: FilledButton.icon(
               onPressed: _confirm,
-              icon: const Icon(Icons.check, size: 18),
+              icon: const Icon(Icons.check_rounded, size: 18),
               label: Text(t.voiceConfirm),
             ),
           ),
@@ -337,7 +337,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
           Expanded(
             child: FilledButton.icon(
               onPressed: _startListening,
-              icon: const Icon(Icons.refresh, size: 18),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
               label: Text(t.retry),
             ),
           ),

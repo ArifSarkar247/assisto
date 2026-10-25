@@ -188,7 +188,7 @@ class _OfflineNote extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_outlined, size: 18, color: Brand.warning),
+          const Icon(Icons.cloud_off_rounded, size: 18, color: Brand.warning),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(
@@ -382,7 +382,7 @@ class _RemindersTabState extends State<_RemindersTab>
           const SizedBox(height: Gap.md),
           if (allClear)
             StateMessage(
-              icon: Icons.check_circle_outline,
+              icon: Icons.check_circle_outline_rounded,
               title: t.notifRemindersAllClear,
               message: t.notifRemindersAllClearBody,
               tint: Brand.success,
@@ -598,7 +598,7 @@ class _FeedTabState extends State<_FeedTab>
             if (_offline) const _OfflineNote(),
             const SizedBox(height: Gap.xxl),
             StateMessage(
-              icon: Icons.notifications_none,
+              icon: Icons.notifications_none_rounded,
               title: t.notifFeedEmpty,
               message: t.notifFeedEmptyBody,
             ),
@@ -623,7 +623,7 @@ class _FeedTabState extends State<_FeedTab>
               const Spacer(),
               TextButton.icon(
                 onPressed: anyUnseen ? _markAllRead : null,
-                icon: const Icon(Icons.done_all, size: 18),
+                icon: const Icon(Icons.done_all_rounded, size: 18),
                 label: Text(t.notifMarkAllRead),
               ),
             ],
@@ -685,13 +685,13 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return StateMessage(
-      icon: Icons.error_outline,
+      icon: Icons.error_outline_rounded,
       title: t.notifErrorTitle,
       message: t.notifErrorBody,
       tint: Brand.danger,
       action: FilledButton.tonalIcon(
         onPressed: onRetry,
-        icon: const Icon(Icons.refresh),
+        icon: const Icon(Icons.refresh_rounded),
         label: Text(t.notifRetry),
       ),
     );

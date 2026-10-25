@@ -42,11 +42,11 @@ String _itemKey(String item) => const {
     }[item]!;
 
 IconData _itemIcon(String item) => const {
-      'location': Icons.location_on_outlined,
-      'medicine': Icons.medication_outlined,
-      'money_summary': Icons.savings_outlined,
-      'documents': Icons.folder_outlined,
-      'safe_journey': Icons.directions_walk_outlined,
+      'location': Icons.location_on_rounded,
+      'medicine': Icons.medication_rounded,
+      'money_summary': Icons.savings_rounded,
+      'documents': Icons.folder_rounded,
+      'safe_journey': Icons.directions_walk_rounded,
     }[item]!;
 
 class FamShareSection extends StatefulWidget {
@@ -190,7 +190,7 @@ class _FamShareSectionState extends State<FamShareSection> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.lock_person_outlined,
+            Icon(Icons.lock_person_rounded,
                 size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(famLabel(context, 'famShareEmpty'),
@@ -210,13 +210,13 @@ class _FamShareSectionState extends State<FamShareSection> {
             key: const ValueKey('q1-famshare-load-failed'),
             color: scheme.errorContainer,
             child: ListTile(
-              leading: Icon(Icons.cloud_off_outlined,
+              leading: Icon(Icons.cloud_off_rounded,
                   color: scheme.onErrorContainer),
               title: Text(AppLocalizations.of(context).q1FamShareLoadFailed,
                   style: TextStyle(color: scheme.onErrorContainer)),
               trailing: IconButton(
                 tooltip: AppLocalizations.of(context).retry,
-                icon: Icon(Icons.refresh, color: scheme.onErrorContainer),
+                icon: Icon(Icons.refresh_rounded, color: scheme.onErrorContainer),
                 onPressed: _loadServer,
               ),
             ),
@@ -230,7 +230,7 @@ class _FamShareSectionState extends State<FamShareSection> {
         const SizedBox(height: Gap.md),
         OutlinedButton.icon(
           onPressed: _totalShared == 0 ? null : _confirmRevokeAll,
-          icon: const Icon(Icons.layers_clear_outlined),
+          icon: const Icon(Icons.layers_clear_rounded),
           style: OutlinedButton.styleFrom(foregroundColor: Brand.danger),
           label: Text(famLabel(context, 'famShareRevokeAll')),
         ),
@@ -246,7 +246,7 @@ class _FamShareSectionState extends State<FamShareSection> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.verified_user_outlined, color: Colors.white),
+            const Icon(Icons.verified_user_rounded, color: Colors.white),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(famLabel(context, 'famShareTitle'),
@@ -276,7 +276,7 @@ class _FamShareSectionState extends State<FamShareSection> {
     final count = _grants[mid]?.length ?? 0;
     return Card(
       child: ExpansionTile(
-        leading: const CircleAvatar(child: Icon(Icons.person)),
+        leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
         title: Text(name),
         subtitle: Text([
           (m['relation'] ?? '').toString(),
@@ -312,7 +312,7 @@ class _FamShareSectionState extends State<FamShareSection> {
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
                 onPressed: () => _confirmRevokeMember(mid, name),
-                icon: const Icon(Icons.person_off_outlined, size: 18),
+                icon: const Icon(Icons.person_off_rounded, size: 18),
                 style: TextButton.styleFrom(foregroundColor: Brand.danger),
                 label: Text(famLabel(context, 'famShareRevokeMember')),
               ),
@@ -323,7 +323,7 @@ class _FamShareSectionState extends State<FamShareSection> {
   }
 
   Widget _serverNote(ColorScheme scheme) => Row(children: [
-        Icon(Icons.shield_outlined, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.shield_rounded, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(famLabel(context, 'famShareServerNote'),
@@ -338,7 +338,7 @@ class _FamShareSectionState extends State<FamShareSection> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.history, size: 18),
+            const Icon(Icons.history_rounded, size: 18),
             const SizedBox(width: Gap.sm),
             Text(famLabel(context, 'famShareAuditTitle'),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -372,7 +372,7 @@ class _FamShareSectionState extends State<FamShareSection> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(children: [
-        Icon(isGrant ? Icons.add_circle_outline : Icons.remove_circle_outline,
+        Icon(isGrant ? Icons.add_circle_outline_rounded : Icons.remove_circle_outline_rounded,
             size: 16, color: isRevoke ? Brand.danger : Brand.success),
         const SizedBox(width: Gap.sm),
         Expanded(

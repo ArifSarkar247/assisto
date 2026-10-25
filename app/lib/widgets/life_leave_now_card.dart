@@ -141,7 +141,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
       return Row(children: [
         Expanded(
           child: OutlinedButton.icon(
-            icon: const Icon(Icons.directions_outlined, size: 16),
+            icon: const Icon(Icons.directions_rounded, size: 16),
             label: Text(t.leaveNowAddTravel),
             onPressed: _setTravel,
           ),
@@ -150,7 +150,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
           const SizedBox(width: Gap.sm),
           IconButton(
             tooltip: t.leaveNowOpenMaps,
-            icon: const Icon(Icons.map_outlined),
+            icon: const Icon(Icons.map_rounded),
             onPressed: _openMaps,
           ),
         ],
@@ -164,7 +164,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
       padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
       child: Row(children: [
-        Icon(isNow ? Icons.directions_run : Icons.timelapse, size: 18, color: fg),
+        Icon(isNow ? Icons.directions_run_rounded : Icons.timelapse_rounded, size: 18, color: fg),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -177,7 +177,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
           FilledButton.icon(
             style: FilledButton.styleFrom(
                 backgroundColor: fg, visualDensity: VisualDensity.compact),
-            icon: const Icon(Icons.map, size: 16),
+            icon: const Icon(Icons.map_rounded, size: 16),
             label: Text(t.leaveNowDirections),
             onPressed: _openMaps,
           ),

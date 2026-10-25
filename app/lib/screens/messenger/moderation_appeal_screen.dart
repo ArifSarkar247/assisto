@@ -108,7 +108,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.gavel_outlined, color: Colors.white),
+                      const Icon(Icons.gavel_rounded, color: Colors.white),
                       const SizedBox(height: Gap.sm),
                       Text(
                         widget.targetLabel?.trim().isNotEmpty == true
@@ -167,7 +167,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                       borderRadius: BorderRadius.circular(Radii.md),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.error_outline,
+                      const Icon(Icons.error_outline_rounded,
                           color: Brand.danger, size: 20),
                       const SizedBox(width: Gap.sm),
                       Expanded(
@@ -215,7 +215,7 @@ class _Submitted extends StatelessWidget {
                 color: Brand.success.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.mark_email_read_outlined,
+              child: const Icon(Icons.mark_email_read_rounded,
                   size: 34, color: Brand.success),
             ),
             const SizedBox(height: Gap.lg),

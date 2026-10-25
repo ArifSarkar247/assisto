@@ -139,13 +139,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.spendTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.spendLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -160,17 +160,17 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _add,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.spendAddCategory),
             ),
       body: _rows.isEmpty
           ? StateMessage(
-              icon: Icons.insights_outlined,
+              icon: Icons.insights_rounded,
               title: tr.spendWelcomeTitle,
               message: tr.spendWelcomeBody,
               action: FilledButton.icon(
                 onPressed: _add,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.spendAddCategory),
               ),
             )
@@ -206,7 +206,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                 ] else ...[
                   // entered rows exist but no positive spend yet
                   StateMessage(
-                    icon: Icons.insights_outlined,
+                    icon: Icons.insights_rounded,
                     title: tr.spendNotEnoughTitle,
                     message: tr.spendNotEnoughBody,
                   ),
@@ -231,7 +231,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.verified_user_outlined,
+          Icon(Icons.verified_user_rounded,
               size: 20, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -263,10 +263,10 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
               Row(children: [
                 Icon(
                     r.totalUp == true
-                        ? Icons.trending_up
+                        ? Icons.trending_up_rounded
                         : (r.totalUp == false
-                            ? Icons.trending_down
-                            : Icons.trending_flat),
+                            ? Icons.trending_down_rounded
+                            : Icons.trending_flat_rounded),
                     size: 18,
                     color: r.totalUp == true ? scheme.error : scheme.primary),
                 const SizedBox(width: 6),
@@ -293,7 +293,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(over ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+          Icon(over ? Icons.warning_amber_rounded : Icons.lightbulb_outline_rounded,
               size: 20, color: over ? scheme.error : scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -395,7 +395,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.auto_awesome_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.spendAiSeamTitle,

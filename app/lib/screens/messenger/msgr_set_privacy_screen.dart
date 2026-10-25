@@ -39,7 +39,7 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
         children: [
           MsgrSetSection(t.msgrSetPrivacyVisibilitySection),
           MsgrSetRow(
-            icon: Icons.visibility_outlined,
+            icon: Icons.visibility_rounded,
             title: t.msgrSetPrivacyWhoCanSee,
             // last seen / online / profile photo / about / status all live in
             // the existing circle privacy screen — no duplication here.
@@ -47,13 +47,13 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
             onTap: () => _open(context, const CirclePrivacyScreen()),
           ),
           MsgrSetRow(
-            icon: Icons.done_all,
+            icon: Icons.done_all_rounded,
             title: t.msgrSetPrivacyReadReceipts,
             subtitle: t.msgrSetPrivacyReadReceiptsSub,
             onTap: () => _open(context, const CirclePrivacyScreen()),
           ),
           MsgrSetRow(
-            icon: Icons.call_outlined,
+            icon: Icons.call_rounded,
             title: t.msgrSetPrivacyWhoCanCall,
             subtitle: t.msgrSetPrivacyWhoCanCallSub,
             onTap: () => _open(context, const CirclePrivacyScreen()),
@@ -62,25 +62,25 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
           MsgrSetSection(t.msgrSetPrivacyContactsSection),
           // NEW (#96): who-can-message default + phone-number-hidden default.
           MsgrSetRow(
-            icon: Icons.forum_outlined,
+            icon: Icons.forum_rounded,
             title: t.msgrSetPrivacyMessageDefaults,
             subtitle: t.msgrSetPrivacyMessageDefaultsSub,
             onTap: () => _open(context, const MsgrSetMessagePrivacyScreen()),
           ),
           MsgrSetRow(
-            icon: Icons.message_outlined,
+            icon: Icons.message_rounded,
             title: t.msgrSetPrivacyWhoCanMessage,
             subtitle: t.msgrSetPrivacyWhoCanMessageSub,
             onTap: () => _open(context, const MsgrSetMessageRequestsScreen()),
           ),
           MsgrSetRow(
-            icon: Icons.block,
+            icon: Icons.block_rounded,
             title: t.msgrSetPrivacyBlocked,
             subtitle: t.msgrSetPrivacyBlockedSub,
             onTap: () => _open(context, const MsgrSetBlockedListScreen()),
           ),
           MsgrSetNote(t.msgrSetPrivacyServerNote,
-              icon: Icons.verified_user_outlined),
+              icon: Icons.verified_user_rounded),
         ],
       ),
     );
@@ -262,7 +262,7 @@ class _MsgrSetMessagePrivacyScreenState
                     const Divider(),
                     MsgrSetSection(t.msgrMsgPrivacyPhoneSection),
                     SwitchListTile(
-                      secondary: const Icon(Icons.phone_disabled_outlined),
+                      secondary: const Icon(Icons.phone_disabled_rounded),
                       // qa1: the Bangla hint was cut with "…" at 3 lines;
                       // explanatory text must never be clipped.
                       title: Text(t.msgrMsgPrivacyPhoneHidden),
@@ -275,7 +275,7 @@ class _MsgrSetMessagePrivacyScreenState
                     ),
                     const Divider(),
                     MsgrSetNote(t.msgrMsgPrivacyServerNote,
-                        icon: Icons.verified_user_outlined),
+                        icon: Icons.verified_user_rounded),
                   ],
                 ),
     );
@@ -370,7 +370,7 @@ class _MsgrSetBlockedListScreenState extends State<MsgrSetBlockedListScreen> {
               ? _ErrorRetry(message: t.msgrSetBlockedLoadFailed, onRetry: _load)
               : (_items.isEmpty
                   ? _EmptyState(
-                      icon: Icons.block,
+                      icon: Icons.block_rounded,
                       text: t.msgrSetBlockedEmpty,
                     )
                   : ListView.separated(
@@ -499,12 +499,12 @@ class _MsgrSetMessageRequestsScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.block),
+              leading: const Icon(Icons.block_rounded),
               title: Text(_t.msgrSetRequestBlock),
               onTap: () => Navigator.pop(ctx, 'block'),
             ),
             ListTile(
-              leading: const Icon(Icons.flag_outlined),
+              leading: const Icon(Icons.flag_rounded),
               title: Text(_t.msgrSetRequestReport),
               onTap: () => Navigator.pop(ctx, 'report'),
             ),
@@ -530,7 +530,7 @@ class _MsgrSetMessageRequestsScreenState
               ? _ErrorRetry(message: t.msgrSetRequestsLoadFailed, onRetry: _load)
               : (_items.isEmpty
                   ? _EmptyState(
-                      icon: Icons.mark_email_read_outlined,
+                      icon: Icons.mark_email_read_rounded,
                       text: t.msgrSetRequestsEmpty,
                       hint: t.msgrSetRequestsEmptyHint,
                     )
@@ -553,17 +553,17 @@ class _MsgrSetMessageRequestsScreenState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.check),
+                                icon: const Icon(Icons.check_rounded),
                                 tooltip: t.msgrSetRequestAccept,
                                 onPressed: () => _act(m, 'accept'),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.close),
+                                icon: const Icon(Icons.close_rounded),
                                 tooltip: t.msgrSetRequestDecline,
                                 onPressed: () => _act(m, 'decline'),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(Icons.more_vert_rounded),
                                 tooltip: t.msgrSetRequestMore,
                                 onPressed: () => _more(m),
                               ),
@@ -596,7 +596,7 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_outlined, size: 48, color: scheme.outline),
+            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.outline),
             const SizedBox(height: Gap.md),
             Text(message,
                 textAlign: TextAlign.center,
@@ -604,7 +604,7 @@ class _ErrorRetry extends StatelessWidget {
             const SizedBox(height: Gap.lg),
             FilledButton.tonalIcon(
               onPressed: () => onRetry(),
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry),
             ),
           ],

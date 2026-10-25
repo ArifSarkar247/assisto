@@ -162,13 +162,13 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.areaCommunityTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.areaLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -184,14 +184,14 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           IconButton(
             tooltip: tr.areaChangeArea,
             onPressed: _changeArea,
-            icon: const Icon(Icons.place_outlined),
+            icon: const Icon(Icons.place_rounded),
           ),
         ],
       ),
       // empty board has its own "Post a notice" CTA: no duplicate FAB
       floatingActionButton: _posts.isEmpty ? null : FloatingActionButton.extended(
         onPressed: _add,
-        icon: const Icon(Icons.campaign_outlined),
+        icon: const Icon(Icons.campaign_rounded),
         label: Text(tr.areaPostNotice),
       ),
       body: Column(
@@ -233,23 +233,23 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
     // "posts exist but the active filter hides them all".
     if (areaTotal > 0 && _filter != 'all') {
       return StateMessage(
-        icon: Icons.filter_alt_off_outlined,
+        icon: Icons.filter_alt_off_rounded,
         title: tr.areaNoneInFilterTitle,
         message: tr.areaNoneInFilterBody(_categoryLabel(tr, _filter)),
         action: FilledButton.tonalIcon(
           onPressed: () => setState(() => _filter = 'all'),
-          icon: const Icon(Icons.clear_all),
+          icon: const Icon(Icons.clear_all_rounded),
           label: Text(tr.areaShowAll),
         ),
       );
     }
     return StateMessage(
-      icon: Icons.holiday_village_outlined,
+      icon: Icons.holiday_village_rounded,
       title: _area.isEmpty ? tr.areaWelcomeTitle : tr.areaEmptyAreaTitle(_area),
       message: _area.isEmpty ? tr.areaWelcomeBody : tr.areaEmptyAreaBody,
       action: FilledButton.icon(
         onPressed: _add,
-        icon: const Icon(Icons.campaign_outlined),
+        icon: const Icon(Icons.campaign_rounded),
         label: Text(tr.areaPostNotice),
       ),
     );
@@ -262,7 +262,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.shield_outlined, size: 18, color: scheme.primary),
+          Icon(Icons.shield_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.areaPrivacyNote,
@@ -289,7 +289,7 @@ class _AreaBar extends StatelessWidget {
       color: scheme.primaryContainer,
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.sm, Gap.sm),
       child: Row(children: [
-        Icon(Icons.place, size: 18, color: scheme.onPrimaryContainer),
+        Icon(Icons.place_rounded, size: 18, color: scheme.onPrimaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -402,11 +402,11 @@ class _PostCard extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 if (post.area.isNotEmpty)
-                  _meta(context, Icons.place_outlined, post.area),
+                  _meta(context, Icons.place_rounded, post.area),
                 if (post.price.isNotEmpty)
-                  _meta(context, Icons.sell_outlined, '৳ ${post.price}'),
+                  _meta(context, Icons.sell_rounded, '৳ ${post.price}'),
                 if (post.contact.isNotEmpty)
-                  _meta(context, Icons.call_outlined, post.contact),
+                  _meta(context, Icons.call_rounded, post.contact),
               ],
             ),
           ],
@@ -471,17 +471,17 @@ String _categoryLabel(AppLocalizations tr, String cat) {
 IconData _categoryIcon(String cat) {
   switch (cat) {
     case 'announcement':
-      return Icons.campaign_outlined;
+      return Icons.campaign_rounded;
     case 'service':
-      return Icons.handyman_outlined;
+      return Icons.handyman_rounded;
     case 'lost_found':
-      return Icons.search_outlined;
+      return Icons.search_rounded;
     case 'event':
-      return Icons.event_outlined;
+      return Icons.event_rounded;
     case 'alert':
-      return Icons.warning_amber_outlined;
+      return Icons.warning_amber_rounded;
     default:
-      return Icons.grid_view_outlined;
+      return Icons.grid_view_rounded;
   }
 }
 

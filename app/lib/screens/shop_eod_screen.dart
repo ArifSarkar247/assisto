@@ -120,13 +120,13 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.shopEodLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
@@ -187,7 +187,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                           ? const SizedBox(
                               width: 18, height: 18,
                               child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.fact_check_outlined),
+                          : const Icon(Icons.fact_check_rounded),
                       label: Text(t.shopEodCheck),
                     ),
                     if (_result != null) ...[
@@ -210,11 +210,11 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
   (Color, IconData, String) _statusLook(AppLocalizations t, ColorScheme scheme, String s) {
     switch (s) {
       case 'short':
-        return (scheme.error, Icons.error_outline, t.shopEodShort);
+        return (scheme.error, Icons.error_outline_rounded, t.shopEodShort);
       case 'over':
-        return (AssistoTokens.of(context).warning, Icons.info_outline, t.shopEodOver);
+        return (AssistoTokens.of(context).warning, Icons.info_outline_rounded, t.shopEodOver);
       default:
-        return (AssistoTokens.of(context).success, Icons.check_circle_outline, t.shopEodOk);
+        return (AssistoTokens.of(context).success, Icons.check_circle_outline_rounded, t.shopEodOk);
     }
   }
 

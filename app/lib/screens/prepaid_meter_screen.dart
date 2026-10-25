@@ -91,13 +91,13 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.meterTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.meterLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -106,13 +106,13 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.meterTitle)),
         body: StateMessage(
-          icon: Icons.bolt_outlined,
+          icon: Icons.bolt_rounded,
           tint: Brand.blue,
           title: tr.meterWelcomeTitle,
           message: tr.meterWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addMeter,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.meterAddMeter),
           ),
         ),
@@ -123,7 +123,7 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
       appBar: AppBar(title: Text(tr.meterTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addMeter,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.meterAddMeter),
       ),
       body: RefreshIndicator(
@@ -268,12 +268,12 @@ class _MeterCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (Color stateColor, IconData stateIcon, String stateLabel) =
         switch (row.state) {
-      'empty' => (scheme.error, Icons.error_outline, tr.meterStateEmpty),
+      'empty' => (scheme.error, Icons.error_outline_rounded, tr.meterStateEmpty),
       'low' => (Brand.warning, Icons.warning_amber_rounded, tr.meterStateLow),
-      'ok' => (Brand.success, Icons.check_circle_outline, tr.meterStateOk),
+      'ok' => (Brand.success, Icons.check_circle_outline_rounded, tr.meterStateOk),
       _ => (
           scheme.onSurfaceVariant,
-          Icons.help_outline,
+          Icons.help_outline_rounded,
           tr.meterStateUnknown
         ),
     };
@@ -287,8 +287,8 @@ class _MeterCard extends StatelessWidget {
               backgroundColor: Brand.blue.withValues(alpha: 0.12),
               child: Icon(
                   row.kind == 'gas'
-                      ? Icons.local_fire_department_outlined
-                      : Icons.bolt_outlined,
+                      ? Icons.local_fire_department_rounded
+                      : Icons.bolt_rounded,
                   color: Brand.blue),
             ),
             const SizedBox(width: Gap.md),
@@ -363,14 +363,14 @@ class _MeterCard extends StatelessWidget {
           child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             _chip(
                 context,
-                Icons.speed_outlined,
+                Icons.speed_rounded,
                 row.state == 'unknown'
                     ? tr.meterRateUnknown
                     : tr.meterRatePerDay(row.rateDisplay)),
             if (row.runoutDate != null)
-              _chip(context, Icons.event_busy_outlined,
+              _chip(context, Icons.event_busy_rounded,
                   tr.meterRunsOutOn(row.runoutDate!)),
-            _chip(context, Icons.payments_outlined,
+            _chip(context, Icons.payments_rounded,
                 tr.meterTotalRecharged(row.totalRechargedDisplay)),
           ]),
         ),
@@ -379,7 +379,7 @@ class _MeterCard extends StatelessWidget {
           Expanded(
             child: TextButton.icon(
               onPressed: onViewRecharges,
-              icon: const Icon(Icons.history, size: 18),
+              icon: const Icon(Icons.history_rounded, size: 18),
               label: Text(tr.meterHistory),
             ),
           ),
@@ -388,7 +388,7 @@ class _MeterCard extends StatelessWidget {
           Expanded(
             child: TextButton.icon(
               onPressed: onRecharge,
-              icon: const Icon(Icons.add_card_outlined, size: 18),
+              icon: const Icon(Icons.add_card_rounded, size: 18),
               label: Text(tr.meterLogRecharge),
             ),
           ),
@@ -426,7 +426,7 @@ class _TrackerNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.meterTrackerNote,
@@ -526,8 +526,8 @@ class _MeterFormState extends State<_MeterForm> {
                 ChoiceChip(
                   avatar: Icon(
                       k == 'gas'
-                          ? Icons.local_fire_department_outlined
-                          : Icons.bolt_outlined,
+                          ? Icons.local_fire_department_rounded
+                          : Icons.bolt_rounded,
                       size: 18),
                   label: Text(k == 'gas' ? tr.meterKindGas : tr.meterKindElec),
                   selected: _kind == k,
@@ -634,7 +634,7 @@ class _RechargeFormState extends State<_RechargeForm> {
             child: InputDecorator(
               decoration: InputDecoration(
                   labelText: tr.meterRechargeDate,
-                  prefixIcon: const Icon(Icons.event_outlined),
+                  prefixIcon: const Icon(Icons.event_rounded),
                   border: const OutlineInputBorder()),
               child: Text(_date.toIso8601String().split('T').first),
             ),
@@ -707,12 +707,12 @@ class _RechargeHistorySheet extends StatelessWidget {
                   final r = sorted[i];
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.add_card_outlined),
+                    leading: const Icon(Icons.add_card_rounded),
                     title: Text(_Meter.fmtPoisha(_Meter.toPoisha(r['amount'])),
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Text((r['date'] ?? '').toString()),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20),
+                      icon: const Icon(Icons.delete_outline_rounded, size: 20),
                       tooltip: tr.delete,
                       onPressed: () => onDelete(r),
                     ),

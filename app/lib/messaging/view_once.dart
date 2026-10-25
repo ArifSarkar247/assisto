@@ -203,7 +203,7 @@ class _ViewOnceViewerState extends State<ViewOnceViewer> {
         leading: IconButton(
           key: const Key('e-vo-close'),
           tooltip: t.md1Cancel,
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(t.eVoViewerTitle, style: const TextStyle(fontSize: 16)),
@@ -218,7 +218,7 @@ class _ViewOnceViewerState extends State<ViewOnceViewer> {
                   fit: BoxFit.contain,
                   gaplessPlayback: true,
                   errorBuilder: (_, __, ___) => const Icon(
-                      Icons.broken_image_outlined,
+                      Icons.broken_image_rounded,
                       color: Colors.white54,
                       size: 64)),
             ),

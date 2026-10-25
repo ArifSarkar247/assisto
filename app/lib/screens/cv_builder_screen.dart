@@ -321,13 +321,13 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.cvTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.cvLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry),
           ),
         ),
@@ -341,7 +341,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           IconButton(
             tooltip: t.cvPreview,
             onPressed: _hasAnyData ? _preview : null,
-            icon: const Icon(Icons.visibility_outlined),
+            icon: const Icon(Icons.visibility_rounded),
           ),
         ],
       ),
@@ -353,7 +353,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.save_outlined),
+                  : const Icon(Icons.save_rounded),
               label: Text(t.save),
             )
           : null,
@@ -368,12 +368,12 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         constraints: BoxConstraints(
             minHeight: MediaQuery.of(context).size.height * 0.7),
         child: StateMessage(
-          icon: Icons.description_outlined,
+          icon: Icons.description_rounded,
           title: t.cvWelcomeTitle,
           message: t.cvWelcomeBody,
           action: FilledButton.icon(
             onPressed: () => setState(() => _started = true),
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             label: Text(t.cvStart),
           ),
         ),
@@ -388,27 +388,27 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       children: [
         // --- contact header card ---
         _SectionCard(
-          icon: Icons.person_outline,
+          icon: Icons.person_outline_rounded,
           title: t.cvContactSection,
           child: Column(children: [
             _field(_name, t.cvFullName,
-                cap: TextCapitalization.words, icon: Icons.badge_outlined),
+                cap: TextCapitalization.words, icon: Icons.badge_rounded),
             const SizedBox(height: Gap.md),
             _field(_headline, t.cvHeadline,
                 cap: TextCapitalization.sentences,
-                icon: Icons.work_outline,
+                icon: Icons.work_outline_rounded,
                 hint: t.cvHeadlineHint),
             const SizedBox(height: Gap.md),
             _field(_phone, t.cvPhone,
-                keyboard: TextInputType.phone, icon: Icons.phone_outlined),
+                keyboard: TextInputType.phone, icon: Icons.phone_rounded),
             const SizedBox(height: Gap.md),
             _field(_email, t.cvEmail,
                 keyboard: TextInputType.emailAddress,
-                icon: Icons.email_outlined),
+                icon: Icons.email_rounded),
             const SizedBox(height: Gap.md),
             _field(_location, t.cvLocation,
                 cap: TextCapitalization.words,
-                icon: Icons.place_outlined,
+                icon: Icons.place_rounded,
                 hint: t.cvLocationHint),
           ]),
         ),
@@ -416,7 +416,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
         // --- education ---
         _SectionCard(
-          icon: Icons.school_outlined,
+          icon: Icons.school_rounded,
           title: t.cvEducationSection,
           onAdd: () => _editEducation(),
           addLabel: t.cvAddEducation,
@@ -446,7 +446,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
         // --- experience ---
         _SectionCard(
-          icon: Icons.business_center_outlined,
+          icon: Icons.business_center_rounded,
           title: t.cvExperienceSection,
           onAdd: () => _editExperience(),
           addLabel: t.cvAddExperience,
@@ -476,7 +476,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
         // --- skills ---
         _SectionCard(
-          icon: Icons.bolt_outlined,
+          icon: Icons.bolt_rounded,
           title: t.cvSkillsSection,
           onAdd: _addSkill,
           addLabel: t.cvAddSkill,
@@ -503,7 +503,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         // --- preview / copy / share actions ---
         FilledButton.icon(
           onPressed: _hasAnyData ? _preview : null,
-          icon: const Icon(Icons.visibility_outlined, size: 18),
+          icon: const Icon(Icons.visibility_rounded, size: 18),
           label: Text(t.cvPreview),
         ),
         const SizedBox(height: Gap.xl),
@@ -581,7 +581,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     ]),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20),
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
                 tooltip: t.delete,
                 onPressed: onDelete,
               ),
@@ -726,7 +726,7 @@ class _SectionCard extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: onAdd,
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: const Icon(Icons.add_rounded, size: 18),
                     label: Text(addLabel ?? ''),
                   ),
                 ),
@@ -1009,7 +1009,7 @@ class _PreviewSheet extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               OutlinedButton.icon(
                 onPressed: () => Share.share(text, subject: t.cvTitle),
-                icon: const Icon(Icons.ios_share, size: 18),
+                icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(t.cvShare),
               ),
             ]),
@@ -1036,7 +1036,7 @@ class _AiPolishCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+        Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(

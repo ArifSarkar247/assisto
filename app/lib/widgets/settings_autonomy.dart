@@ -42,7 +42,7 @@ class SettingsAutonomySection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
           child: Row(
             children: [
-              Icon(Icons.smart_toy_outlined, size: 20, color: cs.primary),
+              Icon(Icons.smart_toy_rounded, size: 20, color: cs.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
@@ -124,7 +124,7 @@ class SettingsAutonomySection extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.tune, size: 18, color: cs.onPrimaryContainer),
+                    Icon(Icons.tune_rounded, size: 18, color: cs.onPrimaryContainer),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
@@ -154,7 +154,7 @@ class SettingsAutonomySection extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.dashboard_customize_outlined,
+              Icon(Icons.dashboard_customize_rounded,
                   size: 16, color: cs.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -172,7 +172,7 @@ class SettingsAutonomySection extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.verified_user_outlined, size: 16, color: cs.primary),
+              Icon(Icons.verified_user_rounded, size: 16, color: cs.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(

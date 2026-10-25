@@ -269,7 +269,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
       appBar: AppBar(title: Text(t.phoneSafetyTitle), actions: [
         IconButton(
           tooltip: t.phoneSafeShareTooltip,
-          icon: const Icon(Icons.ios_share_outlined),
+          icon: const Icon(Icons.ios_share_rounded),
           onPressed: _shareChecklist,
         ),
       ]),
@@ -284,7 +284,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.save_outlined, color: scheme.onErrorContainer, size: 20),
+                Icon(Icons.save_rounded, color: scheme.onErrorContainer, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.m3StorageDegraded,
@@ -301,7 +301,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(Icons.info_outline, color: scheme.onTertiaryContainer, size: 20),
+              Icon(Icons.info_outline_rounded, color: scheme.onTertiaryContainer, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.phoneSafeHonestNote,
@@ -320,7 +320,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  Icon(Icons.shield_outlined,
+                  Icon(Icons.shield_rounded,
                       color: scheme.onSecondaryContainer, size: 20),
                   const SizedBox(width: Gap.sm),
                   Expanded(
@@ -367,7 +367,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            icon: const Icon(Icons.diversity_1_outlined),
+            icon: const Icon(Icons.diversity_1_rounded),
             label: Text(t.phoneSafeCheckFamily),
             onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const MessengerHomeScreen())),
@@ -377,7 +377,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            icon: const Icon(Icons.ios_share_outlined),
+            icon: const Icon(Icons.ios_share_rounded),
             label: Text(t.phoneSafeShareChecklist),
             onPressed: _shareChecklist,
           ),
@@ -480,7 +480,7 @@ class _StepCard extends StatelessWidget {
           shape: const Border(),
           collapsedShape: const Border(),
           leading: Icon(
-            confirmed ? Icons.check_circle : Icons.radio_button_unchecked,
+            confirmed ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
             color: confirmed ? Brand.success : scheme.onSurfaceVariant,
           ),
           title: Text(step.title(t),
@@ -503,7 +503,7 @@ class _StepCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs, bottom: Gap.sm),
                 child: Row(children: [
-                  Icon(Icons.schedule, size: 15, color: scheme.onSurfaceVariant),
+                  Icon(Icons.schedule_rounded, size: 15, color: scheme.onSurfaceVariant),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                     child: Text(step.availability!(t),
@@ -515,7 +515,7 @@ class _StepCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(step.linkLabel?.call(t) ?? t.phoneSafeOpen),
                   onPressed: onLink,
                 ),

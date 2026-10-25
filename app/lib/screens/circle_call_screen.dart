@@ -470,7 +470,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               const Positioned(
                 left: Gap.sm,
                 bottom: Gap.sm,
-                child: Icon(Icons.mic_off, color: CallInk.text, size: 20),
+                child: Icon(Icons.mic_off_rounded, color: CallInk.text, size: 20),
               ),
           ],
         ),
@@ -548,7 +548,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                   key: const Key('call-self-camera-off'),
                   child: Semantics(
                     label: t.b1CallCameraOffSelf,
-                    child: const Icon(Icons.videocam_off_outlined,
+                    child: const Icon(Icons.videocam_off_rounded,
                         color: CallInk.textHint, size: 32),
                   ),
                 ),
@@ -595,7 +595,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         key: const Key('call-pip'),
         tooltip: t.c2CallPip,
         color: CallInk.text,
-        icon: const Icon(Icons.picture_in_picture_alt_outlined),
+        icon: const Icon(Icons.picture_in_picture_alt_rounded),
         onPressed: () => CallNative.enterPip(w: 9, h: 16),
       );
     } else if (live && _owns) {
@@ -604,7 +604,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         key: const Key('call-minimize'),
         tooltip: t.b1CallMinimize,
         color: CallInk.text,
-        icon: const Icon(Icons.keyboard_arrow_down),
+        icon: const Icon(Icons.keyboard_arrow_down_rounded),
         onPressed: () => _handOff(c),
       );
     } else {
@@ -619,7 +619,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_outline,
+                const Icon(Icons.lock_outline_rounded,
                     size: 14, color: CallInk.textHint),
                 const SizedBox(width: Gap.xs),
                 Flexible(
@@ -669,10 +669,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!ended)
-                Icon(_isVideo ? Icons.videocam_outlined : Icons.call_outlined,
+                Icon(_isVideo ? Icons.videocam_rounded : Icons.call_rounded,
                     size: 16, color: CallInk.textSoft),
               if (bad)
-                const Icon(Icons.error_outline,
+                const Icon(Icons.error_outline_rounded,
                     size: 16, color: CallInk.failure),
               const SizedBox(width: Gap.xs),
               Flexible(
@@ -715,13 +715,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live && _isVideo && !c.remoteCameraOn)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: _badge(Icons.videocam_off_outlined,
+              child: _badge(Icons.videocam_off_rounded,
                   t.c2CallRemoteCameraOff, const Key('call-remote-camera-off')),
             ),
           if (live && !c.remoteMicOn)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: _badge(Icons.mic_off, t.b1CallRemoteMuted(_name),
+              child: _badge(Icons.mic_off_rounded, t.b1CallRemoteMuted(_name),
                   const Key('call-remote-muted')),
             ),
         ],
@@ -843,7 +843,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.videocam, color: CallInk.text),
+                    const Icon(Icons.videocam_rounded, color: CallInk.text),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(t.b1CallVideoAsk(_name),
@@ -872,7 +872,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     FilledButton.icon(
                       key: const Key('call-video-accept'),
                       style: Brand.successButton(),
-                      icon: const Icon(Icons.videocam),
+                      icon: const Icon(Icons.videocam_rounded),
                       onPressed: c.acceptVideo,
                       label: Text(t.b1CallVideoAccept),
                     ),
@@ -886,10 +886,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   }
 
   IconData _routeIcon(AudioRoute r) => switch (r) {
-        AudioRoute.earpiece => Icons.phone_in_talk_outlined,
-        AudioRoute.speaker => Icons.volume_up,
-        AudioRoute.bluetooth => Icons.bluetooth_audio,
-        AudioRoute.wired => Icons.headphones,
+        AudioRoute.earpiece => Icons.phone_in_talk_rounded,
+        AudioRoute.speaker => Icons.volume_up_rounded,
+        AudioRoute.bluetooth => Icons.bluetooth_audio_rounded,
+        AudioRoute.wired => Icons.headphones_rounded,
       };
 
   String _routeLabel(AudioRoute r) => switch (r) {
@@ -927,7 +927,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 key: Key('call-route-${r.name}'),
                 leading: Icon(_routeIcon(r)),
                 title: Text(_routeLabel(r)),
-                trailing: r == c.route ? const Icon(Icons.check) : null,
+                trailing: r == c.route ? const Icon(Icons.check_rounded) : null,
                 onTap: () => Navigator.of(ctx).pop(r),
               ),
           ],
@@ -969,8 +969,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                   _CtlButton(
                     key: const Key('call-camera'),
                     icon: (c?.cameraOn ?? true)
-                        ? Icons.videocam_outlined
-                        : Icons.videocam_off_outlined,
+                        ? Icons.videocam_rounded
+                        : Icons.videocam_off_rounded,
                     label: t.circleCallCamera,
                     active: !(c?.cameraOn ?? true),
                     onTap: c == null ? null : c.toggleCamera,
@@ -978,7 +978,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 if (_isVideo)
                   _CtlButton(
                     key: const Key('call-flip'),
-                    icon: Icons.cameraswitch_outlined,
+                    icon: Icons.cameraswitch_rounded,
                     label: t.c2CallFlip,
                     active: false,
                     onTap: c == null || !c.cameraOn ? null : c.switchCamera,
@@ -987,7 +987,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 if (!_isVideo && live)
                   _CtlButton(
                     key: const Key('call-to-video'),
-                    icon: Icons.videocam_outlined,
+                    icon: Icons.videocam_rounded,
                     label: t.b1CallToVideo,
                     active: waitingVideo,
                     onTap: waitingVideo ? null : c.requestVideo,
@@ -995,14 +995,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 if (_isVideo && live)
                   _CtlButton(
                     key: const Key('call-to-voice'),
-                    icon: Icons.phone_outlined,
+                    icon: Icons.phone_rounded,
                     label: t.b1CallToVoice,
                     active: false,
                     onTap: c.switchToVoice,
                   ),
                 _CtlButton(
                   key: const Key('call-mute'),
-                  icon: (c?.muted ?? false) ? Icons.mic_off : Icons.mic_none,
+                  icon: (c?.muted ?? false) ? Icons.mic_off_rounded : Icons.mic_none_rounded,
                   label: t.circleCallMute,
                   active: c?.muted ?? false,
                   onTap: c == null ? null : c.toggleMute,
@@ -1029,7 +1029,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 child: const SizedBox(
                     width: 68,
                     height: 68,
-                    child: Icon(Icons.call_end, color: CallInk.text, size: 32)),
+                    child: Icon(Icons.call_end_rounded, color: CallInk.text, size: 32)),
               ),
             ),
           ),
@@ -1051,7 +1051,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         children: [
           if (denied)
             FilledButton.tonalIcon(
-              icon: const Icon(Icons.settings_outlined),
+              icon: const Icon(Icons.settings_rounded),
               label: Text(t.c2CallOpenSettings),
               onPressed: () => openAppSettings(),
             ),
@@ -1059,7 +1059,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             FilledButton.icon(
               key: const Key('call-again'),
               style: Brand.successButton(), // qa1: white on success was 3.4:1
-              icon: Icon(_startsVideo ? Icons.videocam : Icons.call),
+              icon: Icon(_startsVideo ? Icons.videocam_rounded : Icons.call_rounded),
               label: Text(t.c2CallAgain),
               onPressed: _retry,
             ),
@@ -1085,7 +1085,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.workspace_premium_outlined,
+                Icon(Icons.workspace_premium_rounded,
                     size: 56, color: scheme.primary),
                 const SizedBox(height: Gap.lg),
                 Text(_t.circleCallVideoPremiumTitle,
@@ -1098,13 +1098,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                         Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.xl),
                 FilledButton.icon(
-                  icon: const Icon(Icons.workspace_premium),
+                  icon: const Icon(Icons.workspace_premium_rounded),
                   label: Text(_t.circleCallGetPremium),
                   onPressed: () => Navigator.of(context).pop('upgrade'),
                 ),
                 const SizedBox(height: Gap.sm),
                 OutlinedButton.icon(
-                  icon: const Icon(Icons.redeem_outlined),
+                  icon: const Icon(Icons.redeem_rounded),
                   label: Text(_t.circleCallUnlockWithPoints),
                   onPressed: () => Navigator.of(context).pop('points'),
                 ),

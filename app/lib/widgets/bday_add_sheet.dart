@@ -128,7 +128,7 @@ class _BdayAddSheetState extends State<BdayAddSheet> {
                 ),
                 if (!_isEdit && widget.onImportContacts != null)
                   TextButton.icon(
-                    icon: const Icon(Icons.contacts_outlined, size: 18),
+                    icon: const Icon(Icons.contacts_rounded, size: 18),
                     label: Text(bStr(context, 'bImportContacts')),
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -158,7 +158,7 @@ class _BdayAddSheetState extends State<BdayAddSheet> {
                 ]),
               const SizedBox(height: Gap.md),
               OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, size: 18),
+                icon: const Icon(Icons.calendar_today_rounded, size: 18),
                 label: Text(_date == null
                     ? t.birthdayPickDate
                     : t.birthdayDateChosen(

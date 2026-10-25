@@ -183,7 +183,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                   decoration: InputDecoration(labelText: t.safetyCheckinPlaceLabel)),
               const SizedBox(height: Gap.md),
               OutlinedButton.icon(
-                icon: const Icon(Icons.schedule, size: 18),
+                icon: const Icon(Icons.schedule_rounded, size: 18),
                 label: Text(t.safetyCheckinByTime(time.format(ctx))),
                 onPressed: () async {
                   final picked = await showTimePicker(context: ctx, initialTime: time);
@@ -252,7 +252,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.safetyTitle), actions: [
         IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_rounded),
             tooltip: t.journeySettingsTitle,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneySettingsScreen()))),
@@ -268,7 +268,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Icon(Icons.navigation, color: AssistoTokens.of(context).info),
+                Icon(Icons.navigation_rounded, color: AssistoTokens.of(context).info),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Text(t.journeyHubTitle,
@@ -284,7 +284,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                   style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14)),
                   onPressed: _openJourney,
-                  icon: const Icon(Icons.navigation),
+                  icon: const Icon(Icons.navigation_rounded),
                   label: Text(t.journeyStartButton),
                 ),
               ),
@@ -305,7 +305,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: _triggerSos,
-            icon: const Icon(Icons.call, size: 20),
+            icon: const Icon(Icons.call_rounded, size: 20),
             label: Text(t.safetySosQuickCall),
           ),
         ),
@@ -313,18 +313,18 @@ class _SafetyScreenState extends State<SafetyScreen> {
         ListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.timer_outlined),
+          leading: const Icon(Icons.timer_rounded),
           title: Text(t.safetySosCountdownValue(fmtInt(context, _sosCountdown))), // qa1
           trailing: TextButton(onPressed: _setCountdown, child: Text(t.edit)),
         ),
         // Hands-free Voice SOS (feature #79) — opt-in, OFF by default.
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.record_voice_over_outlined),
+          leading: const Icon(Icons.record_voice_over_rounded),
           title: Text(t.vsosTitle),
           subtitle: Text(t.vsosTileSubtitle,
               style: AType.bodySmall),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const VoiceSosScreen())),
         ),
@@ -390,7 +390,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           ),
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
-            icon: const Icon(Icons.play_circle_outline),
+            icon: const Icon(Icons.play_circle_outline_rounded),
             label: Text(t.safetyFallPreview),
             onPressed: () => _previewFall(t),
           ),
@@ -424,7 +424,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           child: Padding(
             padding: const EdgeInsets.all(Gap.xl),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.personal_injury, color: Colors.white, size: 44),
+              const Icon(Icons.personal_injury_rounded, color: Colors.white, size: 44),
               const SizedBox(height: 10),
               Text(t.safetyFallPromptTitle,
                   textAlign: TextAlign.center,

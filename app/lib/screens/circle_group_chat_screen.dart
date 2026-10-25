@@ -1573,17 +1573,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         actions: [
           IconButton(
             tooltip: _t.circleGroupVoiceCall,
-            icon: const Icon(Icons.call_outlined),
+            icon: const Icon(Icons.call_rounded),
             onPressed: () => _call('voice'),
           ),
           IconButton(
             tooltip: _t.circleGroupVideoCall,
-            icon: const Icon(Icons.videocam_outlined),
+            icon: const Icon(Icons.videocam_rounded),
             onPressed: () => _call('video'),
           ),
           IconButton(
             tooltip: _t.grpMenuMore,
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert_rounded),
             onPressed: _openMenu,
           ),
         ],
@@ -1591,7 +1591,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   PreferredSizeWidget _searchAppBar() => AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => setState(() {
             _searching = false;
@@ -1608,7 +1608,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   PreferredSizeWidget _selectAppBar() => AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: _exitSelect,
         ),
@@ -1616,17 +1616,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         actions: [
           IconButton(
             tooltip: _t.copy,
-            icon: const Icon(Icons.copy_outlined),
+            icon: const Icon(Icons.copy_rounded),
             onPressed: _selected.isEmpty ? null : _copySelected,
           ),
           IconButton(
             tooltip: _t.grpStar,
-            icon: const Icon(Icons.star_border),
+            icon: const Icon(Icons.star_border_rounded),
             onPressed: _selected.isEmpty ? null : _starSelected,
           ),
           IconButton(
             tooltip: _t.grpDelete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             onPressed: _selected.isEmpty ? null : _deleteSelected,
           ),
         ],
@@ -1677,7 +1677,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_outlined,
+            Icon(Icons.cloud_off_rounded,
                 size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(_t.msgLoadFailed,
@@ -1685,7 +1685,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             FilledButton.icon(
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: _load,
               label: Text(_t.grpRetry),
             ),
@@ -1707,7 +1707,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             horizontal: Gap.lg, vertical: Gap.sm),
         child: Row(
           children: [
-            Icon(Icons.error_outline,
+            Icon(Icons.error_outline_rounded,
                 size: 18, color: scheme.onErrorContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -1722,7 +1722,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             ),
             IconButton(
               tooltip: _t.close,
-              icon: Icon(Icons.close,
+              icon: Icon(Icons.close_rounded,
                   size: 18, color: scheme.onErrorContainer),
               onPressed: () => setState(() => _failedText = null),
             ),
@@ -1740,7 +1740,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
       child: Row(
         children: [
-          const Icon(Icons.push_pin_outlined, size: 16),
+          const Icon(Icons.push_pin_rounded, size: 16),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(
@@ -1794,7 +1794,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           // QA a6: match the 1:1 chat's empty state (icon + text).
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(_searching ? Icons.search_off : Icons.forum_outlined,
+            Icon(_searching ? Icons.search_off_rounded : Icons.forum_rounded,
                 size: 44,
                 color: Theme.of(context)
                     .colorScheme
@@ -1946,17 +1946,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final job = msg['md1_job'];
     // cde-chat: theme / nickname changes are centred system lines
     if (job is MediaJob && job.control != null) {
-      return ChatSystemLine(text: _t.cdeThemeSending, icon: Icons.palette_outlined);
+      return ChatSystemLine(text: _t.cdeThemeSending, icon: Icons.palette_rounded);
     }
     final cc = _controlOf(msg);
     if (cc != null) {
       return ChatSystemLine(
           text: _describe(msg, cc),
           icon: cc.isTheme
-              ? Icons.palette_outlined
+              ? Icons.palette_rounded
               : cc.isTimer
-                  ? Icons.timer_outlined
-                  : Icons.badge_outlined);
+                  ? Icons.timer_rounded
+                  : Icons.badge_rounded);
     }
     if (job is MediaJob) {
       // md1: a send still on its way (progress ring + cancel / retry)
@@ -2037,7 +2037,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               Row(
                 children: [
                   if (announcement) ...[
-                    const Icon(Icons.campaign_outlined, size: 16),
+                    const Icon(Icons.campaign_rounded, size: 16),
                     const SizedBox(width: Gap.xs),
                   ],
                   Text(senderName,
@@ -2048,7 +2048,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                               color: Theme.of(context).colorScheme.primary)),
                   if (msg['pinned'] == true) ...[
                     const SizedBox(width: Gap.xs),
-                    const Icon(Icons.push_pin, size: 12),
+                    const Icon(Icons.push_pin_rounded, size: 12),
                   ],
                 ],
               ),
@@ -2058,7 +2058,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   // md2: the WhatsApp "Forwarded" label in groups too
                   padding: const EdgeInsets.only(bottom: Gap.xs),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.forward_outlined,
+                    Icon(Icons.forward_rounded,
                         size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: Gap.xs),
                     Text(
@@ -2199,7 +2199,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.reply_outlined),
+              leading: const Icon(Icons.reply_rounded),
               title: Text(_t.circleReply),
               onTap: () {
                 Navigator.pop(ctx);
@@ -2207,7 +2207,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.copy_outlined),
+              leading: const Icon(Icons.copy_rounded),
               title: Text(_t.copy),
               onTap: () {
                 Clipboard.setData(
@@ -2219,7 +2219,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 (_mediaOf(msg) != null || (_decryptForMe(msg) ?? '').isNotEmpty))
               ListTile(
                 key: const Key('md2-group-forward'),
-                leading: const Icon(Icons.forward_outlined),
+                leading: const Icon(Icons.forward_rounded),
                 title: Text(_t.circleActionForward),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -2229,7 +2229,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             if (msg['mine'] == true)
               ListTile(
                 key: const Key('c3-group-info'),
-                leading: const Icon(Icons.info_outline),
+                leading: const Icon(Icons.info_outline_rounded),
                 title: Text(_t.c3InfoTitle),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -2240,7 +2240,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             if (_myRole == 'admin')
               ListTile(
                 leading: Icon(msg['pinned'] == true
-                    ? Icons.push_pin
+                    ? Icons.push_pin_rounded
                     : Icons.push_pin_outlined),
                 title: Text(msg['pinned'] == true
                     ? _t.circleGroupUnpin
@@ -2262,7 +2262,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
       child: Row(
         children: [
-          const Icon(Icons.reply, size: 16),
+          const Icon(Icons.reply_rounded, size: 16),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(
@@ -2272,7 +2272,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close_rounded, size: 18),
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
             onPressed: () => setState(() => _replyTo = null),
           ),
@@ -2291,7 +2291,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.campaign_outlined, size: 18),
+              const Icon(Icons.campaign_rounded, size: 18),
               const SizedBox(width: Gap.sm),
               Flexible(
                 child: Text(_t.circleGroupOnlyAdminsPost,
@@ -2323,12 +2323,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               IconButton(
                 key: const Key('md1-group-attach'),
                 tooltip: _t.circleAttach,
-                icon: const Icon(Icons.add_circle_outline),
+                icon: const Icon(Icons.add_circle_outline_rounded),
                 onPressed: _attach,
               ),
             IconButton(
               tooltip: _t.circleGroupCreatePoll,
-              icon: const Icon(Icons.poll_outlined),
+              icon: const Icon(Icons.poll_rounded),
               onPressed: _createPoll,
             ),
             Expanded(
@@ -2359,7 +2359,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             // p3: the Assisto button (same actions as typing "@Assisto")
             IconButton(
               key: const ValueKey('p3-assisto-btn'),
-              icon: const Icon(Icons.auto_awesome_outlined),
+              icon: const Icon(Icons.auto_awesome_rounded),
               tooltip: _t.p3Assisto,
               onPressed: () => _openAssisto(),
             ),
@@ -2370,7 +2370,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send),
+                  : const Icon(Icons.send_rounded),
               onPressed: _sending ? null : _send,
             ),
           ],

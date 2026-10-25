@@ -70,7 +70,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
       appBar: AppBar(title: Text(t.shopQaCustomers)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openSheet(),
-        icon: const Icon(Icons.person_add_alt),
+        icon: const Icon(Icons.person_add_alt_rounded),
         label: Text(t.shopQaAddCustomer),
       ),
       body: Column(children: [
@@ -79,7 +79,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           child: TextField(
             decoration: InputDecoration(
               hintText: '${t.biz_customer_name} / ${t.biz_customer_phone}',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
             ),
             onChanged: (v) {
               _q = v.trim();
@@ -96,24 +96,24 @@ class _CustomersScreenState extends State<CustomersScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
     if (_items.isEmpty) {
       return StateMessage(
-        icon: Icons.people_outline,
+        icon: Icons.people_outline_rounded,
         title: t.shopQaNoCustomersTitle,
         message: t.shopQaNoCustomersBody,
         action: FilledButton.icon(
             onPressed: () => _openSheet(),
-            icon: const Icon(Icons.person_add_alt),
+            icon: const Icon(Icons.person_add_alt_rounded),
             label: Text(t.shopQaAddCustomer)),
       );
     }
@@ -135,7 +135,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 CircleAvatar(
                   backgroundColor:
                       vip ? AssistoTokens.of(context).warning.withValues(alpha: 0.2) : scheme.surfaceContainerHighest,
-                  child: Icon(vip ? Icons.star : Icons.person_outline,
+                  child: Icon(vip ? Icons.star_rounded : Icons.person_outline_rounded,
                       color: vip ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant),
                 ),
                 const SizedBox(width: Gap.md),
@@ -176,7 +176,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   ]),
                 IconButton(
                   tooltip: AppLocalizations.of(context).edit,
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: const Icon(Icons.edit_rounded),
                   onPressed: () => _openSheet(c),
                 ),
               ]),
@@ -290,7 +290,7 @@ class _CustomerEditSheetState extends State<CustomerEditSheet> {
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: t.biz_customer_phone,
-                  prefixIcon: const Icon(Icons.phone_outlined),
+                  prefixIcon: const Icon(Icons.phone_rounded),
                 ),
                 validator: (v) {
                   // Phone or name required for a usable record; dedupe is by phone.
@@ -322,7 +322,7 @@ class _CustomerEditSheetState extends State<CustomerEditSheet> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(t.biz_customer_vip),
-                secondary: const Icon(Icons.star_outline),
+                secondary: const Icon(Icons.star_outline_rounded),
                 value: _vip,
                 onChanged: (v) => setState(() => _vip = v),
               ),
@@ -404,19 +404,19 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
             const SkeletonList(count: 4)
           else if (_error != null)
             StateMessage(
-                icon: Icons.cloud_off,
+                icon: Icons.cloud_off_rounded,
                 tint: scheme.error,
                 title: t.loadFailed)
           else if (sales.isEmpty)
             StateMessage(
-                icon: Icons.receipt_long_outlined,
+                icon: Icons.receipt_long_rounded,
                 title: t.biz_purchase_history,
                 message: t.biz_cart_empty)
           else
             for (final s in sales)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.receipt_outlined),
+                leading: const Icon(Icons.receipt_rounded),
                 title: Text((s['date'] ?? s['created_at'] ?? '').toString()),
                 subtitle: Text(
                     '${(s['lines'] as List?)?.length ?? s['items'] ?? 0} · ${(s['payment_method'] ?? '').toString()}'),

@@ -109,7 +109,7 @@ class _VoiceAssistantSettingsScreenState
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.hearing),
+        icon: const Icon(Icons.hearing_rounded),
         title: Text(t.vaWakeConfirmTitle),
         content: SingleChildScrollView(child: Text(t.vaWakeConfirmBody)),
         actions: [
@@ -236,7 +236,7 @@ class _VoiceAssistantSettingsScreenState
       decoration: BoxDecoration(
           color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(good ? Icons.check_circle : Icons.info_outline, size: 16, color: fg),
+        Icon(good ? Icons.check_circle_rounded : Icons.info_outline_rounded, size: 16, color: fg),
         const SizedBox(width: 6),
         Flexible(
             child: Text(label,
@@ -269,7 +269,7 @@ class _VoiceAssistantSettingsScreenState
             _isDefault == false ? t.vaDefNotDefault : t.vaDefUnknown,
             good: false);
     return _card(scheme,
-        icon: Icons.assistant_outlined,
+        icon: Icons.assistant_rounded,
         title: t.vaDefTitle,
         children: [
           Text(t.vaDefBody2,
@@ -301,7 +301,7 @@ class _VoiceAssistantSettingsScreenState
                   final ok = await VaNative.openAssistantSettings();
                   if (!ok) _snack(t.vaSettingsOpenFailed);
                 },
-                icon: const Icon(Icons.open_in_new),
+                icon: const Icon(Icons.open_in_new_rounded),
                 label: Text(t.vaDefOpenSettings),
               ),
             ),
@@ -329,7 +329,7 @@ class _VoiceAssistantSettingsScreenState
       _Wake.error => t.vaWakeStartFailed,
     };
     return _card(scheme,
-        icon: Icons.hearing_outlined,
+        icon: Icons.hearing_rounded,
         title: t.vaWakeTitle2,
         trailing: _busy
             ? const SizedBox(
@@ -346,7 +346,7 @@ class _VoiceAssistantSettingsScreenState
           _statusChip(scheme, note, good: running),
           const SizedBox(height: Gap.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.battery_alert_outlined,
+            Icon(Icons.battery_alert_rounded,
                 size: 18, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -355,7 +355,7 @@ class _VoiceAssistantSettingsScreenState
           ]),
           const SizedBox(height: Gap.sm),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.lock_outline, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.lock_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.vaWakePrivacy,
@@ -371,7 +371,7 @@ class _VoiceAssistantSettingsScreenState
                   context,
                   MaterialPageRoute(
                       builder: (_) => const BatteryGuidanceScreen())),
-              icon: const Icon(Icons.battery_saver_outlined),
+              icon: const Icon(Icons.battery_saver_rounded),
               label: Text(t.vaWakeBatteryGuide),
             ),
           ),
@@ -380,7 +380,7 @@ class _VoiceAssistantSettingsScreenState
 
   Widget _ttsCard(ColorScheme scheme) {
     return _card(scheme,
-        icon: Icons.record_voice_over_outlined,
+        icon: Icons.record_voice_over_rounded,
         title: t.vaTtsTitle,
         trailing: Switch(
           value: _tts,
@@ -399,7 +399,7 @@ class _VoiceAssistantSettingsScreenState
                 final ok = await VaNative.openTtsSettings();
                 if (!ok) _snack(t.vaSettingsOpenFailed);
               },
-              icon: const Icon(Icons.download_outlined),
+              icon: const Icon(Icons.download_rounded),
               label: Text(t.vaTtsInstallBn),
             ),
           ),
@@ -414,7 +414,7 @@ class _VoiceAssistantSettingsScreenState
       ('spotify', 'Spotify', VaNative.pkgSpotify),
     ];
     return _card(scheme,
-        icon: Icons.library_music_outlined,
+        icon: Icons.library_music_rounded,
         title: t.vaMusicTitle,
         children: [
           Text(t.vaMusicBody, style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -463,14 +463,14 @@ class _VoiceAssistantSettingsScreenState
       t.vaExSos,
     ];
     return _card(scheme,
-        icon: Icons.tips_and_updates_outlined,
+        icon: Icons.tips_and_updates_rounded,
         title: t.vaTryTitle,
         children: [
           for (final e in ex)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.mic_none, size: 18, color: scheme.primary),
+                Icon(Icons.mic_none_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text('“$e”')),
               ]),

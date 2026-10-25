@@ -204,18 +204,18 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
               helperMaxLines: 3,
               isDense: true,
               suffixIcon: IconButton(tooltip: AppLocalizations.of(context).open,
-                icon: const Icon(Icons.open_in_new),
+                icon: const Icon(Icons.open_in_new_rounded),
                 onPressed: _openUrl,
               ),
             ),
           ),
           if (urlFlag) ...[
             const SizedBox(height: Gap.xs),
-            _banner(Icons.info_outline, Brand.warning, t.examUrlNotOfficial),
+            _banner(Icons.info_outline_rounded, Brand.warning, t.examUrlNotOfficial),
           ],
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
-            icon: const Icon(Icons.calendar_today, size: 16),
+            icon: const Icon(Icons.calendar_today_rounded, size: 16),
             label: Text(_expected == null
                 ? t.examPickDate
                 : t.examExpectedOn(df.format(_expected!))),
@@ -245,7 +245,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.notifications_active_outlined),
+                  : const Icon(Icons.notifications_active_rounded),
               label: Text(_saving ? t.examSaving : t.examWatch),
               onPressed: _saving ? null : _saveWatcher,
             ),
@@ -346,7 +346,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
 
   Widget _phaseBanner(AppLocalizations t, ({String state, int days}) phase) {
     if (phase.state == 'waiting') {
-      return _banner(Icons.schedule, Brand.blue, t.examWaiting(phase.days));
+      return _banner(Icons.schedule_rounded, Brand.blue, t.examWaiting(phase.days));
     }
     // watching / result day -> traffic-spike note (honest, no fake result)
     return _banner(Icons.warning_amber_rounded, Brand.warning, t.examTrafficSpikeNote);

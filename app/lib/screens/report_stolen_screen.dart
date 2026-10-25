@@ -150,7 +150,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.open_in_new, size: 18),
+              icon: const Icon(Icons.open_in_new_rounded, size: 18),
               label: Text(t.upReportGdOpen),
               onPressed: openOnlineGd,
             ),
@@ -164,14 +164,14 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               helperText: t.upImeiHint,
               helperMaxLines: 3,
               border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.smartphone_outlined),
+              prefixIcon: const Icon(Icons.smartphone_rounded),
             ),
           ),
           if (_hasVaultImei)
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
-                icon: const Icon(Icons.auto_fix_high, size: 18),
+                icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
                 label: Text(t.upPrefillFromVault),
                 onPressed: _prefill,
               ),
@@ -184,7 +184,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               helperText: t.upReportGdHint,
               helperMaxLines: 3,
               border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.description_outlined),
+              prefixIcon: const Icon(Icons.description_rounded),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -193,7 +193,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
             decoration: InputDecoration(
               labelText: t.upFieldModel,
               border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.phone_android_outlined),
+              prefixIcon: const Icon(Icons.phone_android_rounded),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -204,7 +204,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               helperText: t.upReportAreaHint,
               helperMaxLines: 2,
               border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.place_outlined),
+              prefixIcon: const Icon(Icons.place_rounded),
             ),
           ),
           const SizedBox(height: Gap.lg),
@@ -218,7 +218,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
                       height: 18,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.report_outlined),
+                  : const Icon(Icons.report_rounded),
               label: Text(t.upReportButton),
               onPressed: _busy ? null : _report,
             ),
@@ -227,7 +227,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.check_circle_outline),
+              icon: const Icon(Icons.check_circle_outline_rounded),
               label: Text(t.upRecoverButton),
               onPressed: _busy ? null : _recover,
             ),

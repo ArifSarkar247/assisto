@@ -140,8 +140,8 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         appBar: AppBar(
           title: Text(t.statusAdd),
           bottom: TabBar(tabs: [
-            Tab(icon: const Icon(Icons.text_fields), child: Text(t.statusText, maxLines: 1, overflow: TextOverflow.ellipsis)),
-            Tab(icon: const Icon(Icons.photo_outlined), child: Text(t.statusPhoto, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Tab(icon: const Icon(Icons.text_fields_rounded), child: Text(t.statusText, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Tab(icon: const Icon(Icons.photo_rounded), child: Text(t.statusPhoto, maxLines: 1, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [_textTab(t), _photoTab(t)]),
@@ -160,7 +160,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
           Flexible(
             child: ActionChip(
               key: const ValueKey('p3-story-audience'),
-              avatar: const Icon(Icons.lock_person_outlined, size: 18),
+              avatar: const Icon(Icons.lock_person_rounded, size: 18),
               label: Text(privacyLabel(t, _privacy, context), overflow: TextOverflow.ellipsis),
               onPressed: _pickAudience,
             ),
@@ -171,7 +171,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
             onPressed: _posting || !enabled ? null : () => _post(photo: photo),
             icon: _posting
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.send),
+                : const Icon(Icons.send_rounded),
             label: Text(t.statusPost),
           ),
         ]),
@@ -179,9 +179,9 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         Text(_audienceN == 0 ? t.p3AudienceNone : t.p3AudienceN(n),
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.xs),
-        _note(Icons.schedule, t.statusExpiresIn24h, scheme),
+        _note(Icons.schedule_rounded, t.statusExpiresIn24h, scheme),
         const SizedBox(height: Gap.xs),
-        _note(Icons.lock_outline, t.p3StoriesE2e, scheme),
+        _note(Icons.lock_outline_rounded, t.p3StoriesE2e, scheme),
       ],
     );
   }
@@ -259,16 +259,16 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
             child: p == null
                 ? Center(
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.add_photo_alternate_outlined, size: 56, color: scheme.outline),
+                      Icon(Icons.add_photo_alternate_rounded, size: 56, color: scheme.outline),
                       const SizedBox(height: Gap.md),
                       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
                         FilledButton.tonalIcon(
                             onPressed: () => _pickPhoto(false),
-                            icon: const Icon(Icons.photo_library_outlined),
+                            icon: const Icon(Icons.photo_library_rounded),
                             label: Text(t.p3PickGallery)),
                         FilledButton.tonalIcon(
                             onPressed: () => _pickPhoto(true),
-                            icon: const Icon(Icons.photo_camera_outlined),
+                            icon: const Icon(Icons.photo_camera_rounded),
                             label: Text(t.p3PickCamera)),
                       ]),
                     ]),
@@ -284,7 +284,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
                       child: IconButton.filledTonal(
                         tooltip: t.p3RemovePhoto,
                         onPressed: () => setState(() => _photo = null),
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close_rounded),
                       ),
                     ),
                   ]),

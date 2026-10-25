@@ -156,13 +156,13 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.tvTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -172,7 +172,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
       // empty state has its own CTA: no duplicate FAB
       floatingActionButton: _trips.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openTripEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.tvNewTrip),
       ),
       body: _trips.isEmpty
@@ -211,7 +211,7 @@ class _Welcome extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.lg),
       children: [
         const SizedBox(height: Gap.xl),
-        Icon(Icons.luggage, size: 56, color: scheme.primary),
+        Icon(Icons.luggage_rounded, size: 56, color: scheme.primary),
         const SizedBox(height: Gap.md),
         Text(tr.tvWelcomeTitle,
             textAlign: TextAlign.center,
@@ -227,7 +227,7 @@ class _Welcome extends StatelessWidget {
         Center(
           child: FilledButton.icon(
             onPressed: onAdd,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.tvNewTrip),
           ),
         ),
@@ -257,7 +257,7 @@ class _TripCard extends StatelessWidget {
         onTap: onOpen,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.place, color: scheme.onPrimaryContainer),
+          child: Icon(Icons.place_rounded, color: scheme.onPrimaryContainer),
         ),
         title: Text('${trip['destination'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -272,7 +272,7 @@ class _TripCard extends StatelessWidget {
             Wrap(spacing: Gap.sm, children: [
               if (days > 0)
                 _CountChip(
-                    icon: Icons.event_note,
+                    icon: Icons.event_note_rounded,
                     label: tr.tvDaysCount(days),
                     tint: scheme.tertiary),
               _CountdownChip(cd: cd),
@@ -280,7 +280,7 @@ class _TripCard extends StatelessWidget {
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.edit_outlined),
+          icon: const Icon(Icons.edit_rounded),
           tooltip: tr.edit,
           onPressed: onEdit,
         ),
@@ -325,17 +325,17 @@ class _CountdownChip extends StatelessWidget {
     switch (cd.status) {
       case 'ongoing':
         label = tr.tvOngoing(cd.days);
-        icon = Icons.flight_takeoff;
+        icon = Icons.flight_takeoff_rounded;
         tint = scheme.primary;
         break;
       case 'past':
         label = tr.tvPast(cd.days);
-        icon = Icons.history;
+        icon = Icons.history_rounded;
         tint = scheme.onSurfaceVariant;
         break;
       default:
         label = tr.tvCountdown(cd.days);
-        icon = Icons.hourglass_bottom;
+        icon = Icons.hourglass_bottom_rounded;
         tint = scheme.secondary;
     }
     return _CountChip(icon: icon, label: label, tint: tint);
@@ -451,13 +451,13 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
       return Scaffold(
         appBar: AppBar(title: Text('${widget.trip['destination'] ?? ''}')),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -543,7 +543,7 @@ class _ItineraryTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _editDay(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.tvAddDay),
       ),
       body: ListView(
@@ -555,7 +555,7 @@ class _ItineraryTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xl),
               child: StateMessage(
-                icon: Icons.event_note,
+                icon: Icons.event_note_rounded,
                 title: tr.tvNoDaysTitle,
                 message: tr.tvNoDaysBody,
               ),
@@ -619,11 +619,11 @@ class _DayCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
             IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20),
+                icon: const Icon(Icons.edit_rounded, size: 20),
                 tooltip: tr.edit,
                 onPressed: onEdit),
             IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20),
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
                 tooltip: tr.delete,
                 onPressed: onDelete),
           ]),
@@ -642,7 +642,7 @@ class _DayCard extends StatelessWidget {
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.fiber_manual_record,
+                      Icon(Icons.fiber_manual_record_rounded,
                           size: 8, color: scheme.primary),
                       const SizedBox(width: Gap.sm),
                       Expanded(
@@ -719,7 +719,7 @@ class _PackingTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _add(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.tvAddPacking),
       ),
       body: ListView(
@@ -744,7 +744,7 @@ class _PackingTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xl),
               child: StateMessage(
-                icon: Icons.checklist,
+                icon: Icons.checklist_rounded,
                 title: tr.tvNoPackingTitle,
                 message: tr.tvNoPackingBody,
               ),
@@ -766,7 +766,7 @@ class _PackingTab extends StatelessWidget {
                               color: scheme.onSurfaceVariant)
                           : null),
                   secondary: IconButton(
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: tr.delete,
                     onPressed: () =>
                         i['id'] is int ? onDelete(i['id'] as int) : null,
@@ -868,7 +868,7 @@ class _BudgetTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.tvAddBudget),
       ),
       body: ListView(
@@ -909,7 +909,7 @@ class _BudgetTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xl),
               child: StateMessage(
-                icon: Icons.account_balance_wallet_outlined,
+                icon: Icons.account_balance_wallet_rounded,
                 title: tr.tvNoBudgetTitle,
                 message: tr.tvNoBudgetBody,
               ),
@@ -925,7 +925,7 @@ class _BudgetTab extends StatelessWidget {
                       _fmtBdt(_toPoisha(r['actual'])),
                       _fmtBdt(_toPoisha(r['estimate'])))),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: tr.delete,
                     onPressed: () =>
                         r['id'] is int ? onDelete(r['id'] as int) : null,
@@ -963,7 +963,7 @@ class _AiSeamCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     return _SeamCard(
-      icon: Icons.auto_awesome,
+      icon: Icons.auto_awesome_rounded,
       title: tr.tvAiSeamTitle,
       body: tr.tvAiSeamBody,
     );
@@ -976,7 +976,7 @@ class _BookingSeamCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     return _SeamCard(
-      icon: Icons.confirmation_number_outlined,
+      icon: Icons.confirmation_number_rounded,
       title: tr.tvBookingSeamTitle,
       body: tr.tvBookingSeamBody,
     );
@@ -1241,7 +1241,7 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
             child: TextButton.icon(
               onPressed: () => setState(
                   () => _activities.add({'what': '', 'place': '', 'time': ''})),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.tvAddActivity),
             ),
           ),
@@ -1289,7 +1289,7 @@ class _ActivityRow extends StatelessWidget {
           ),
           if (onRemove != null)
             IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
+                icon: const Icon(Icons.remove_circle_outline_rounded),
                 tooltip: tr.delete,
                 onPressed: onRemove),
         ]),

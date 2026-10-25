@@ -94,13 +94,13 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.wellLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -110,13 +110,13 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: ListView(children: [
           StateMessage(
-            icon: Icons.favorite_outline,
+            icon: Icons.favorite_outline_rounded,
             tint: Brand.blue,
             title: tr.wellWelcomeTitle,
             message: tr.wellWelcomeBody,
             action: FilledButton.icon(
               onPressed: _logToday,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.wellLogToday),
             ),
           ),
@@ -136,7 +136,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
       appBar: AppBar(title: Text(tr.wellTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _logToday,
-        icon: Icon(today.logged ? Icons.edit_outlined : Icons.add),
+        icon: Icon(today.logged ? Icons.edit_rounded : Icons.add_rounded),
         label: Text(today.logged ? tr.wellEditToday : tr.wellLogToday),
       ),
       body: RefreshIndicator(
@@ -217,7 +217,7 @@ class _TodayCard extends StatelessWidget {
               child: _Ring(
                 ring: view.water.ring,
                 color: Brand.blue,
-                icon: Icons.water_drop_outlined,
+                icon: Icons.water_drop_rounded,
                 valueLabel: tr.wellGlassesOf(/* (goal, value) */ view.water.goal, view.water.value),
                 caption: tr.wellWater,
                 met: view.water.met,
@@ -227,7 +227,7 @@ class _TodayCard extends StatelessWidget {
               child: _Ring(
                 ring: view.sleep.ring,
                 color: Brand.purple,
-                icon: Icons.bedtime_outlined,
+                icon: Icons.bedtime_rounded,
                 valueLabel: tr.wellHoursOf(/* (goal, value) */
                     _fmt(view.sleep.goal), _fmt(view.sleep.value)),
                 caption: tr.wellSleep,
@@ -275,7 +275,7 @@ class _Ring extends StatelessWidget {
             ),
           ),
           Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(met ? Icons.check : icon, color: color, size: 22),
+            Icon(met ? Icons.check_rounded : icon, color: color, size: 22),
           ]),
         ]),
       ),
@@ -299,7 +299,7 @@ class _StreaksRow extends StatelessWidget {
     return Row(children: [
       Expanded(
         child: _StreakCard(
-          icon: Icons.water_drop_outlined,
+          icon: Icons.water_drop_rounded,
           color: Brand.blue,
           label: tr.wellWaterStreak,
           current: streaks.waterCurrent,
@@ -309,7 +309,7 @@ class _StreaksRow extends StatelessWidget {
       const SizedBox(width: Gap.md),
       Expanded(
         child: _StreakCard(
-          icon: Icons.bedtime_outlined,
+          icon: Icons.bedtime_rounded,
           color: Brand.purple,
           label: tr.wellSleepStreak,
           current: streaks.sleepCurrent,
@@ -522,7 +522,7 @@ class _DietCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.restaurant_outlined, size: 16, color: Brand.success),
+            Icon(Icons.restaurant_rounded, size: 16, color: Brand.success),
             const SizedBox(width: 6),
             Text(tr.wellDietToday,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -547,7 +547,7 @@ class _Disclaimer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.wellDisclaimer,
@@ -615,7 +615,7 @@ class _LogFormState extends State<_LogForm> {
             const SizedBox(height: Gap.lg),
             // WATER stepper
             _StepperRow(
-              icon: Icons.water_drop_outlined,
+              icon: Icons.water_drop_rounded,
               color: Brand.blue,
               label: tr.wellWater,
               valueLabel: tr.wellGlassesOf(/* (goal, value) */ _waterGoal, _water),
@@ -634,7 +634,7 @@ class _LogFormState extends State<_LogForm> {
             const Divider(height: Gap.xl),
             // SLEEP stepper (0.5h steps)
             _StepperRow(
-              icon: Icons.bedtime_outlined,
+              icon: Icons.bedtime_rounded,
               color: Brand.purple,
               label: tr.wellSleep,
               valueLabel: tr.wellHours(_fmt(_sleep)),
@@ -669,7 +669,7 @@ class _LogFormState extends State<_LogForm> {
                   labelText: tr.wellDietNotes,
                   hintText: tr.wellDietHint,
                   alignLabelWithHint: true,
-                  prefixIcon: const Icon(Icons.restaurant_outlined),
+                  prefixIcon: const Icon(Icons.restaurant_rounded),
                   border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.lg),
@@ -722,9 +722,9 @@ class _StepperRow extends StatelessWidget {
       ),
       IconButton.filledTonal(
           tooltip: AppLocalizations.of(context).f2Decrease,
-          onPressed: onMinus, icon: const Icon(Icons.remove)),
+          onPressed: onMinus, icon: const Icon(Icons.remove_rounded)),
       const SizedBox(width: Gap.sm),
-      IconButton.filledTonal(tooltip: AppLocalizations.of(context).f2Increase, onPressed: onPlus, icon: const Icon(Icons.add)),
+      IconButton.filledTonal(tooltip: AppLocalizations.of(context).f2Increase, onPressed: onPlus, icon: const Icon(Icons.add_rounded)),
     ]);
   }
 }
@@ -753,12 +753,12 @@ class _GoalRow extends StatelessWidget {
             tooltip: AppLocalizations.of(context).f2Decrease,
             visualDensity: VisualDensity.compact,
             onPressed: onMinus,
-            icon: const Icon(Icons.remove, size: 18)),
+            icon: const Icon(Icons.remove_rounded, size: 18)),
         IconButton(
             tooltip: AppLocalizations.of(context).f2Increase,
             visualDensity: VisualDensity.compact,
             onPressed: onPlus,
-            icon: const Icon(Icons.add, size: 18)),
+            icon: const Icon(Icons.add_rounded, size: 18)),
       ]),
     );
   }

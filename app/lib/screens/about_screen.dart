@@ -176,7 +176,7 @@ class _AboutScreenState extends State<AboutScreen> {
             onLongPress: _build.isEmpty ? null : _copyForBug,
             borderRadius: BorderRadius.circular(Radii.lg),
             child: _row(t.aboutBuildNumber, _build.isEmpty ? '—' : _build,
-                trailingIcon: Icons.copy_all_outlined),
+                trailingIcon: Icons.copy_all_rounded),
           ),
           if (date.isNotEmpty) ...[
             const Divider(height: 1),
@@ -220,7 +220,7 @@ class _AboutScreenState extends State<AboutScreen> {
           children: [
             FilledButton.icon(
               onPressed: _check,
-              icon: const Icon(Icons.system_update_outlined),
+              icon: const Icon(Icons.system_update_rounded),
               label: Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.aboutCheckUpdates),
@@ -247,23 +247,23 @@ class _AboutScreenState extends State<AboutScreen> {
         );
       case _Chk.upToDate:
         return _statusBox(
-          icon: Icons.verified_outlined,
+          icon: Icons.verified_rounded,
           tint: Brand.success,
           title: t.aboutUpToDate(_build.isEmpty ? '$_buildCode' : _build),
           action: TextButton.icon(
             onPressed: _check,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.updateCheckAgain),
           ),
         );
       case _Chk.failed:
         return _statusBox(
-          icon: Icons.cloud_off_outlined,
+          icon: Icons.cloud_off_rounded,
           tint: Brand.warning,
           title: t.aboutCheckFailed,
           action: FilledButton.icon(
             onPressed: _check,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.updateRetry),
           ),
         );
@@ -315,7 +315,7 @@ class _AboutScreenState extends State<AboutScreen> {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AppUpdateScreen()),
               ),
-              icon: const Icon(Icons.download_outlined),
+              icon: const Icon(Icons.download_rounded),
               label: Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.aboutViewUpdate),

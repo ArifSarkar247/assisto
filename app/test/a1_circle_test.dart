@@ -346,16 +346,16 @@ void main() {
               appBar: AppBar(
                 // the real chat has a back arrow: the narrowest title
                 leading: IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.arrow_back)),
+                    onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
                 titleSpacing: 0,
                 title: ChatHeaderTitle(
                     name: name,
                     status: status(t),
                     avatar: HeaderInitialAvatar(name: name)),
                 actions: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_outlined)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.call_outlined)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_rounded)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.call_rounded)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
                 ],
               ),
             );

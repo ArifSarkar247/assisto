@@ -265,7 +265,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.paAddSlot),
             ),
       body: _body(),
@@ -276,7 +276,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     if (_loading) return const SkeletonList(count: 5);
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.paLoadError,
         message: serverFailText(t, _failCause),
@@ -330,12 +330,12 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xxl),
       child: StateMessage(
-        icon: Icons.event_available_outlined,
+        icon: Icons.event_available_rounded,
         title: t.paEmptyTitle,
         message: t.paEmptyBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(t.paAddFirst),
         ),
       ),
@@ -346,7 +346,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xl),
       child: StateMessage(
-        icon: Icons.free_breakfast_outlined,
+        icon: Icons.free_breakfast_rounded,
         title: t.paNoneWindowTitle,
         message: _scope == _Scope.day ? t.paNoneDayBody : t.paNoneWeekBody,
       ),
@@ -413,7 +413,7 @@ class _OfflineBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off, size: 16, color: Brand.warning),
+        const Icon(Icons.wifi_off_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
@@ -438,7 +438,7 @@ class _NextUpCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.check_circle_outline,
+          Icon(Icons.check_circle_outline_rounded,
               color: Brand.success, size: 22),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -462,7 +462,7 @@ class _NextUpCard extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.upcoming, color: Colors.white, size: 18),
+          const Icon(Icons.upcoming_rounded, color: Colors.white, size: 18),
           const SizedBox(width: Gap.sm),
           Text(t.paNextUp,
               style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
@@ -529,7 +529,7 @@ class _ScopeBar extends StatelessWidget {
       Row(children: [
         IconButton(
             onPressed: onPrev,
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left_rounded),
             tooltip: t.paPrev),
         Expanded(
           child: GestureDetector(
@@ -543,7 +543,7 @@ class _ScopeBar extends StatelessWidget {
         ),
         IconButton(
             onPressed: onNext,
-            icon: const Icon(Icons.chevron_right),
+            icon: const Icon(Icons.chevron_right_rounded),
             tooltip: t.paNext),
       ]),
     ]);
@@ -654,7 +654,7 @@ class _SlotCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.xs),
           Row(children: [
-            Icon(Icons.schedule, size: 14, color: scheme.onSurfaceVariant),
+            Icon(Icons.schedule_rounded, size: 14, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(timeStr,
@@ -668,7 +668,7 @@ class _SlotCard extends StatelessWidget {
           if ('${slot['place'] ?? ''}'.trim().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              Icon(Icons.place_outlined,
+              Icon(Icons.place_rounded,
                   size: 14, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Expanded(
@@ -682,7 +682,7 @@ class _SlotCard extends StatelessWidget {
           if (people.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              Icon(Icons.group_outlined,
+              Icon(Icons.group_rounded,
                   size: 14, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Expanded(
@@ -696,7 +696,7 @@ class _SlotCard extends StatelessWidget {
           if (clash) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              const Icon(Icons.error_outline,
+              const Icon(Icons.error_outline_rounded,
                   size: 14, color: Brand.danger),
               const SizedBox(width: Gap.xs),
               Expanded(
@@ -710,7 +710,7 @@ class _SlotCard extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: OutlinedButton.icon(
               onPressed: onBrief,
-              icon: const Icon(Icons.description_outlined, size: 16),
+              icon: const Icon(Icons.description_rounded, size: 16),
               label: Text(t.paOpenBrief),
               style: OutlinedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
@@ -727,16 +727,16 @@ class _SlotCard extends StatelessWidget {
   IconData _kindIcon(String kind) {
     switch (kind) {
       case kKindCall:
-        return Icons.call_outlined;
+        return Icons.call_rounded;
       case kKindTask:
-        return Icons.task_alt_outlined;
+        return Icons.task_alt_rounded;
       case kKindBlock:
-        return Icons.block_outlined;
+        return Icons.block_rounded;
       case kKindAppointment:
-        return Icons.event_outlined;
+        return Icons.event_rounded;
       case kKindMeeting:
       default:
-        return Icons.groups_outlined;
+        return Icons.groups_rounded;
     }
   }
 }
@@ -788,7 +788,7 @@ class _MenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Icons.more_vert_rounded, size: 20),
       onSelected: (v) {
         switch (v) {
           case 'edit':
@@ -951,7 +951,7 @@ class _SlotEditorState extends State<_SlotEditor> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _pickDate,
-                icon: const Icon(Icons.calendar_today, size: 16),
+                icon: const Icon(Icons.calendar_today_rounded, size: 16),
                 label: Text(DateFormat('d MMM yyyy', loc).format(_start),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
@@ -960,7 +960,7 @@ class _SlotEditorState extends State<_SlotEditor> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _pickTime,
-                icon: const Icon(Icons.access_time, size: 16),
+                icon: const Icon(Icons.access_time_rounded, size: 16),
                 label: Text(DateFormat('HH:mm', loc).format(_start),
                     maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFeatures: AFonts.tabular)),
               ),

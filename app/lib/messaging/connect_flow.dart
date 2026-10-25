@@ -42,7 +42,7 @@ class ConnectedLine extends StatelessWidget {
         key: const Key('conn-connected-line'),
         child: ChatSystemLine(
             text: AppLocalizations.of(context).connConnectedLine,
-            icon: Icons.handshake_outlined),
+            icon: Icons.handshake_rounded),
       );
 }
 
@@ -91,13 +91,13 @@ class ConnectActions extends StatelessWidget {
       key: const Key('conn-actions'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        btn(const Key('conn-message'), Icons.chat_bubble_outline, t.c1Message,
+        btn(const Key('conn-message'), Icons.chat_bubble_outline_rounded, t.c1Message,
             onMessage),
         if (onAudio != null)
-          btn(const Key('conn-audio'), Icons.call_outlined, t.connAudioCall,
+          btn(const Key('conn-audio'), Icons.call_rounded, t.connAudioCall,
               onAudio),
         if (onVideo != null)
-          btn(const Key('conn-video'), Icons.videocam_outlined, t.connVideoCall,
+          btn(const Key('conn-video'), Icons.videocam_rounded, t.connVideoCall,
               onVideo),
       ],
     );

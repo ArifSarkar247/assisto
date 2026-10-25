@@ -208,8 +208,8 @@ class _VaConfirmSheetState extends State<VaConfirmSheet> {
                       child: Row(children: [
                         Icon(
                             i == _sel
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_off,
+                                ? Icons.radio_button_checked_rounded
+                                : Icons.radio_button_off_rounded,
                             color: i == _sel
                                 ? scheme.onPrimaryContainer
                                 : scheme.onSurfaceVariant),
@@ -240,7 +240,7 @@ class _VaConfirmSheetState extends State<VaConfirmSheet> {
             if (_listening) ...[
               const SizedBox(height: Gap.md),
               Row(children: [
-                Icon(Icons.mic, color: scheme.primary, size: 20),
+                Icon(Icons.mic_rounded, color: scheme.primary, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.vaSayYesNo,

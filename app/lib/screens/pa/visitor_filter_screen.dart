@@ -287,20 +287,20 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _loading ? null : () => _addOrEdit(tr),
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
               label: Text(tr.paVisAddRequest),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVisLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -311,12 +311,12 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
 
   // First-use welcome state — explains the feature honestly before any data.
   Widget _welcome(AppLocalizations tr, ColorScheme scheme) => StateMessage(
-        icon: Icons.how_to_reg_outlined,
+        icon: Icons.how_to_reg_rounded,
         title: tr.paVisWelcomeTitle,
         message: tr.paVisWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.person_add_alt_1),
+          icon: const Icon(Icons.person_add_alt_1_rounded),
           label: Text(tr.paVisAddRequest),
         ),
       );
@@ -329,7 +329,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.filter_alt_off_outlined,
+                icon: Icons.filter_alt_off_rounded,
                 title: tr.paVisNoMatchTitle,
                 message: tr.paVisNoMatchBody,
                 action: TextButton(
@@ -362,7 +362,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
-            Icon(Icons.inbox_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.inbox_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
@@ -463,7 +463,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             if (isVip) ...[
-              Icon(Icons.star, size: 18, color: Brand.warning),
+              Icon(Icons.star_rounded, size: 18, color: Brand.warning),
               const SizedBox(width: Gap.xs),
             ],
             Expanded(
@@ -484,9 +484,9 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             if (when != null)
-              _meta(Icons.event, fmt.format(when.toLocal()), scheme),
+              _meta(Icons.event_rounded, fmt.format(when.toLocal()), scheme),
             if (hasContact)
-              _meta(Icons.contact_phone_outlined,
+              _meta(Icons.contact_phone_rounded,
                   tr.paVisContactHidden(hint), scheme),
           ]),
           const Divider(height: Gap.xl),
@@ -494,13 +494,13 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           Row(children: [
             TextButton.icon(
               onPressed: () => _setPriority(r, isVip ? _prNormal : _prVip, tr),
-              icon: Icon(isVip ? Icons.star : Icons.star_border, size: 18),
+              icon: Icon(isVip ? Icons.star_rounded : Icons.star_border_rounded, size: 18),
               label: Text(isVip ? tr.paVisPriorityNormal : tr.paVisMarkVip,
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             const Spacer(),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);
@@ -516,7 +516,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _triage(r, 'decline', tr),
-                  icon: const Icon(Icons.close, size: 18),
+                  icon: const Icon(Icons.close_rounded, size: 18),
                   label: Text(tr.paVisDecline, maxLines: 1, overflow: TextOverflow.ellipsis),
                   style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
                 ),
@@ -525,7 +525,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _triage(r, 'suggest', tr),
-                  icon: const Icon(Icons.schedule, size: 18),
+                  icon: const Icon(Icons.schedule_rounded, size: 18),
                   label: Text(tr.paVisSuggest, maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ),
@@ -533,7 +533,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () => _triage(r, 'approve', tr),
-                  icon: const Icon(Icons.check, size: 18),
+                  icon: const Icon(Icons.check_rounded, size: 18),
                   label: Text(tr.paVisApprove, maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ),
@@ -667,7 +667,7 @@ class _VisitorFormState extends State<_VisitorForm> {
               if (t == null) return;
               setState(() => _when = DateTime(d.year, d.month, d.day, t.hour, t.minute));
             },
-            icon: const Icon(Icons.event),
+            icon: const Icon(Icons.event_rounded),
             label: Text(_when == null ? tr.paVisPickTime : fmt.format(_when!),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
@@ -675,7 +675,7 @@ class _VisitorFormState extends State<_VisitorForm> {
           SegmentedButton<String>(
             segments: [
               ButtonSegment(value: _prNormal, label: Text(tr.paVisPriorityNormal)),
-              ButtonSegment(value: _prVip, label: Text(tr.paVisPriorityVip), icon: const Icon(Icons.star, size: 16)),
+              ButtonSegment(value: _prVip, label: Text(tr.paVisPriorityVip), icon: const Icon(Icons.star_rounded, size: 16)),
             ],
             selected: {_priority},
             onSelectionChanged: (s) => setState(() => _priority = s.first),

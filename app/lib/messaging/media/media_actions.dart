@@ -74,19 +74,19 @@ Future<void> openDocumentSheet(BuildContext context, File f, MediaDescriptor d) 
         ),
         ListTile(
           key: const Key('md1-doc-open'),
-          leading: const Icon(Icons.open_in_new),
+          leading: const Icon(Icons.open_in_new_rounded),
           title: Text(t.md1Open),
           onTap: () => Navigator.pop(ctx, 'open'),
         ),
         ListTile(
           key: const Key('md1-doc-save'),
-          leading: const Icon(Icons.save_alt_outlined),
+          leading: const Icon(Icons.save_alt_rounded),
           title: Text(t.md1Save),
           onTap: () => Navigator.pop(ctx, 'save'),
         ),
         ListTile(
           key: const Key('md1-doc-share'),
-          leading: const Icon(Icons.share_outlined),
+          leading: const Icon(Icons.share_rounded),
           title: Text(t.md1Share),
           onTap: () => Navigator.pop(ctx, 'share'),
         ),

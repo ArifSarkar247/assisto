@@ -125,13 +125,13 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.qurbaniTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.qurbaniLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -141,12 +141,12 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.qurbaniTitle)),
         body: StateMessage(
-          icon: Icons.volunteer_activism_outlined,
+          icon: Icons.volunteer_activism_rounded,
           title: tr.qurbaniWelcomeTitle,
           message: tr.qurbaniWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addPlan,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.qurbaniNewPlan),
           ),
         ),
@@ -161,7 +161,7 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
           actions: [
             if (_plans.length > 1)
               PopupMenuButton<int>(
-                icon: const Icon(Icons.swap_horiz),
+                icon: const Icon(Icons.swap_horiz_rounded),
                 tooltip: tr.qurbaniSwitchPlan,
                 onSelected: (id) => setState(() => _planId = id),
                 itemBuilder: (ctx) => [
@@ -173,7 +173,7 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
                 ],
               ),
             IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               tooltip: tr.qurbaniNewPlan,
               onPressed: _addPlan,
             ),
@@ -386,7 +386,7 @@ class _AnimalTab extends StatelessWidget {
       floatingActionButton: free > 0
           ? FloatingActionButton.extended(
               onPressed: onAddParticipant,
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
               label: Text(tr.qurbaniAddParticipant),
             )
           : null,
@@ -401,7 +401,7 @@ class _AnimalTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Icon(Icons.pets, color: scheme.primary),
+                    Icon(Icons.pets_rounded, color: scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
@@ -413,7 +413,7 @@ class _AnimalTab extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                        icon: const Icon(Icons.edit_outlined),
+                        icon: const Icon(Icons.edit_rounded),
                         tooltip: tr.edit,
                         onPressed: onEditPlan),
                   ]),
@@ -470,12 +470,12 @@ class _AnimalTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.xl),
               child: StateMessage(
-                icon: Icons.group_outlined,
+                icon: Icons.group_rounded,
                 title: tr.qurbaniNoParticipantsTitle,
                 message: tr.qurbaniNoParticipantsBody,
                 action: FilledButton.icon(
                   onPressed: onAddParticipant,
-                  icon: const Icon(Icons.person_add_alt_1),
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
                   label: Text(tr.qurbaniAddParticipant),
                 ),
               ),
@@ -554,7 +554,7 @@ class _MeatTab extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Row(children: [
-              Icon(Icons.info_outline, color: scheme.primary),
+              Icon(Icons.info_outline_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(child: Text(tr.qurbaniMeatNeutralNote)),
             ]),
@@ -574,12 +574,12 @@ class _MeatTab extends StatelessWidget {
         const SizedBox(height: Gap.md),
         if (totalG <= 0)
           StateMessage(
-            icon: Icons.scale_outlined,
+            icon: Icons.scale_rounded,
             title: tr.qurbaniMeatWelcomeTitle,
             message: tr.qurbaniMeatWelcomeBody,
             action: FilledButton.icon(
               onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit_rounded),
               label: Text(tr.qurbaniSetMeatWeight),
             ),
           )
@@ -599,11 +599,11 @@ class _MeatTab extends StatelessWidget {
   IconData _meatIcon(String part) {
     switch (part) {
       case 'family':
-        return Icons.home_outlined;
+        return Icons.home_rounded;
       case 'relatives':
-        return Icons.diversity_3_outlined;
+        return Icons.diversity_3_rounded;
       default:
-        return Icons.volunteer_activism_outlined;
+        return Icons.volunteer_activism_rounded;
     }
   }
 
@@ -1046,7 +1046,7 @@ Future<Map<String, dynamic>?> _participantSheet(
               Expanded(child: Text(tr.qurbaniShares)),
               IconButton(
                 tooltip: AppLocalizations.of(context).f2Decrease,
-                icon: const Icon(Icons.remove_circle_outline),
+                icon: const Icon(Icons.remove_circle_outline_rounded),
                 onPressed:
                     shares > 1 ? () => setSheet(() => shares--) : null,
               ),
@@ -1054,7 +1054,7 @@ Future<Map<String, dynamic>?> _participantSheet(
                   style: AFonts.figures(Theme.of(ctx).textTheme.titleLarge)),
               IconButton(
                 tooltip: AppLocalizations.of(context).f2Increase,
-                icon: const Icon(Icons.add_circle_outline),
+                icon: const Icon(Icons.add_circle_outline_rounded),
                 onPressed:
                     shares < free ? () => setSheet(() => shares++) : null,
               ),
@@ -1109,12 +1109,12 @@ Future<Map<String, dynamic>?> _meatSheet(
                 Expanded(child: Text(label)),
                 IconButton(
                     tooltip: AppLocalizations.of(context).f2Decrease,
-                    icon: const Icon(Icons.remove_circle_outline),
+                    icon: const Icon(Icons.remove_circle_outline_rounded),
                     onPressed: val > 0 ? () => set(val - 1) : null),
                 Text('$val', style: AFonts.figures(Theme.of(ctx).textTheme.titleMedium)),
                 IconButton(
                     tooltip: AppLocalizations.of(context).f2Increase,
-                    icon: const Icon(Icons.add_circle_outline),
+                    icon: const Icon(Icons.add_circle_outline_rounded),
                     onPressed: () => set(val + 1)),
               ],
             );

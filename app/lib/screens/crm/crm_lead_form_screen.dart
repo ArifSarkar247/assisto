@@ -175,9 +175,9 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
         title: Text(editing ? t.crmEditLead : t.crmAddLead),
         actions: [
           if (!editing)
-            IconButton(onPressed: () => _quickAdd(t), icon: const Icon(Icons.bolt_outlined), tooltip: t.crmQuickAdd),
+            IconButton(onPressed: () => _quickAdd(t), icon: const Icon(Icons.bolt_rounded), tooltip: t.crmQuickAdd),
           if (!editing)
-            IconButton(onPressed: () => _paste(t), icon: const Icon(Icons.content_paste_outlined), tooltip: t.crmPasteTitle),
+            IconButton(onPressed: () => _paste(t), icon: const Icon(Icons.content_paste_rounded), tooltip: t.crmPasteTitle),
         ],
       ),
       body: ListView(padding: const EdgeInsets.all(Gap.md), children: [
@@ -232,7 +232,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
           onPressed: _saving ? null : () => _save(t),
           icon: _saving
               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.save_outlined),
+              : const Icon(Icons.save_rounded),
           label: Text(t.save),
         ),
       ]),

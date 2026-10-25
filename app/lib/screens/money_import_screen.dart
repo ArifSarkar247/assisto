@@ -101,7 +101,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                 padding: const EdgeInsets.all(Gap.lg),
                 child: FilledButton.icon(
                     onPressed: _selected.isEmpty ? null : _import,
-                    icon: const Icon(Icons.download_done),
+                    icon: const Icon(Icons.download_done_rounded),
                     label: Text(t.moneyImportSelected(_selected.length))),
               ),
             ),
@@ -126,7 +126,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.auto_awesome),
+                : const Icon(Icons.auto_awesome_rounded),
             label: Text(t.moneyImportParse)),
         if (_error != null) ...[
           const SizedBox(height: Gap.md),
@@ -184,7 +184,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                 InkWell(
                   onTap: () => _editCategory(i),
                   child: Chip(
-                      avatar: const Icon(Icons.label_outline, size: 14),
+                      avatar: const Icon(Icons.label_outline_rounded, size: 14),
                       visualDensity: VisualDensity.compact,
                       label: Text('${p['category_guess']}')),
                 ),

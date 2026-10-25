@@ -46,13 +46,13 @@ class ReferralHistoryTile extends StatelessWidget {
   IconData _iconFor(String? kind, bool positive) {
     switch (kind) {
       case 'redeem':
-        return Icons.workspace_premium;
+        return Icons.workspace_premium_rounded;
       case 'clawback':
-        return Icons.undo;
+        return Icons.undo_rounded;
       case 'bonus':
-        return Icons.card_giftcard;
+        return Icons.card_giftcard_rounded;
       default:
-        return positive ? Icons.group_add : Icons.remove;
+        return positive ? Icons.group_add_rounded : Icons.remove_rounded;
     }
   }
 

@@ -77,26 +77,26 @@ extension DiscoverApi on ApiClient {
 
 /// Icon names the server may send (mirror of `core/logic/discover.py` ICONS).
 const Map<String, IconData> kDiscoverIcons = {
-  'auto_fix_high': Icons.auto_fix_high_outlined,
-  'phonelink_lock': Icons.phonelink_lock_outlined,
-  'near_me': Icons.near_me_outlined,
-  'diversity_3': Icons.diversity_3_outlined,
-  'verified': Icons.verified_outlined,
-  'directions_car': Icons.directions_car_outlined,
-  'security': Icons.security_outlined,
-  'workspace_premium': Icons.workspace_premium_outlined,
-  'storefront': Icons.storefront_outlined,
-  'account_tree': Icons.account_tree_outlined,
-  'campaign': Icons.campaign_outlined,
-  'star': Icons.star_outline,
-  'local_offer': Icons.local_offer_outlined,
-  'shopping_bag': Icons.shopping_bag_outlined,
-  'favorite': Icons.favorite_outline,
-  'school': Icons.school_outlined,
-  'health': Icons.health_and_safety_outlined,
-  'family': Icons.family_restroom_outlined,
-  'money': Icons.account_balance_wallet_outlined,
-  'lightbulb': Icons.lightbulb_outline,
+  'auto_fix_high': Icons.auto_fix_high_rounded,
+  'phonelink_lock': Icons.phonelink_lock_rounded,
+  'near_me': Icons.near_me_rounded,
+  'diversity_3': Icons.diversity_3_rounded,
+  'verified': Icons.verified_rounded,
+  'directions_car': Icons.directions_car_rounded,
+  'security': Icons.security_rounded,
+  'workspace_premium': Icons.workspace_premium_rounded,
+  'storefront': Icons.storefront_rounded,
+  'account_tree': Icons.account_tree_rounded,
+  'campaign': Icons.campaign_rounded,
+  'star': Icons.star_outline_rounded,
+  'local_offer': Icons.local_offer_rounded,
+  'shopping_bag': Icons.shopping_bag_rounded,
+  'favorite': Icons.favorite_outline_rounded,
+  'school': Icons.school_rounded,
+  'health': Icons.health_and_safety_rounded,
+  'family': Icons.family_restroom_rounded,
+  'money': Icons.account_balance_wallet_rounded,
+  'lightbulb': Icons.lightbulb_outline_rounded,
 };
 
 /// One Discover card, from the server or the first-run fallback list.
@@ -191,7 +191,7 @@ class DiscoverItem {
 
   IconData get iconData =>
       kDiscoverIcons[icon] ??
-      (isExternal ? Icons.open_in_new : Icons.auto_awesome_outlined);
+      (isExternal ? Icons.open_in_new_rounded : Icons.auto_awesome_rounded);
 
   /// Absolute image URL (server returns a relative signed `/api/v1/m/...`).
   String? get absoluteImageUrl {

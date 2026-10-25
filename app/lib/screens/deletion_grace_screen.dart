@@ -217,7 +217,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.error_outline, color: scheme.onErrorContainer, size: 18),
+        Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer, size: 18),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(msg, style: TextStyle(color: scheme.onErrorContainer))),
@@ -232,7 +232,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
       key: const Key('dl-grace-choices'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(Icons.event_busy_outlined, Brand.warnInk(context),
+        _header(Icons.event_busy_rounded, Brand.warnInk(context),
             t.dlGraceTitle, t.dlGraceBody(_when(_app.deletionGraceAt))),
         const SizedBox(height: Gap.xl),
         // Choice 1 — Restore (the safe, primary choice).
@@ -247,7 +247,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                 FilledButton.icon(
                   key: const Key('dl-grace-restore'),
                   onPressed: _busy ? null : _restore,
-                  icon: const Icon(Icons.restore),
+                  icon: const Icon(Icons.restore_rounded),
                   label: Text(t.dlGraceRestore),
                   style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52)),
@@ -274,7 +274,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                             _error = null;
                             _confirming = true;
                           }),
-                  icon: Icon(Icons.delete_forever_outlined, color: scheme.error),
+                  icon: Icon(Icons.delete_forever_rounded, color: scheme.error),
                   label: Text(t.dlGraceFresh,
                       style: TextStyle(color: scheme.error)),
                   style: OutlinedButton.styleFrom(
@@ -305,13 +305,13 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
       key: const Key('dl-grace-confirm'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(Icons.delete_forever_outlined, scheme.error, t.dlGraceFreshTitle,
+        _header(Icons.delete_forever_rounded, scheme.error, t.dlGraceFreshTitle,
             t.dlGraceFreshBody),
         const SizedBox(height: Gap.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.sms_outlined, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.sms_rounded, size: 18, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
@@ -329,7 +329,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             labelText: t.dlGracePasswordLabel,
-            prefixIcon: const Icon(Icons.key_outlined),
+            prefixIcon: const Icon(Icons.key_rounded),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -342,7 +342,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             labelText: t.dlGraceTypeToConfirm(confirmWord),
-            prefixIcon: const Icon(Icons.keyboard_outlined),
+            prefixIcon: const Icon(Icons.keyboard_rounded),
           ),
         ),
         if (_error != null) ...[

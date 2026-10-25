@@ -243,7 +243,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     return Scaffold(
       appBar: AppBar(title: Text(t.journeyLiveTitle), actions: [
         IconButton(
-            icon: const Icon(Icons.link),
+            icon: const Icon(Icons.link_rounded),
             tooltip: t.journeyShareLink,
             onPressed: _shareWebLink),
       ]),
@@ -254,7 +254,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               color: Colors.green.withOpacity(0.1),
               borderRadius: BorderRadius.circular(Radii.md)),
           child: Row(children: [
-            const Icon(Icons.navigation, color: Colors.green),
+            const Icon(Icons.navigation_rounded, color: Colors.green),
             const SizedBox(width: 10),
             Expanded(
                 child: Column(
@@ -284,18 +284,18 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
             onPressed: _markArrived,
-            icon: const Icon(Icons.check_circle),
+            icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.journeyImSafe, style: AType.bodyLarge),
           ),
         ),
         const SizedBox(height: Gap.md),
         AdaptiveButtonPair(
           first: OutlinedButton.icon(
-              icon: const Icon(Icons.phone_callback),
+              icon: const Icon(Icons.phone_callback_rounded),
               label: Text(t.fakeCallTitle),
               onPressed: _fakeCall),
           second: OutlinedButton.icon(
-              icon: const Icon(Icons.stop_circle_outlined),
+              icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.journeyStop),
               onPressed: _stop),
         ),

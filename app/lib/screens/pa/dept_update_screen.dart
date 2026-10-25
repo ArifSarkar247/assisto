@@ -184,30 +184,30 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
       appBar: AppBar(title: Text(tr.paDeptTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _open(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.paDeptNew),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paDeptLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _saved.isEmpty
                   ? StateMessage(
-                      icon: Icons.insights_outlined,
+                      icon: Icons.insights_rounded,
                       title: tr.paDeptWelcomeTitle,
                       message: tr.paDeptWelcomeBody,
                       action: FilledButton.icon(
                         onPressed: () => _open(),
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add_rounded),
                         label: Text(tr.paDeptNew),
                       ),
                     )
@@ -241,7 +241,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.summarize_outlined, size: 18, color: scheme.primary),
+          Icon(Icons.summarize_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.paDeptRollupTitle,
@@ -254,20 +254,20 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           _chip(
-              scheme, Icons.business_outlined, tr.paDeptRollReporting(c.depts)),
+              scheme, Icons.business_rounded, tr.paDeptRollReporting(c.depts)),
           _chip(
               scheme,
-              c.blocked > 0 ? Icons.block : Icons.check_circle_outline,
+              c.blocked > 0 ? Icons.block_rounded : Icons.check_circle_outline_rounded,
               c.blocked > 0
                   ? tr.paDeptRollBlocked(c.blocked)
                   : tr.paDeptRollClear,
               danger: c.blocked > 0),
-          _chip(scheme, Icons.star_outline, tr.paDeptRollHighlights(c.hl)),
-          _chip(scheme, Icons.report_outlined, tr.paDeptRollBlockers(c.bl)),
+          _chip(scheme, Icons.star_outline_rounded, tr.paDeptRollHighlights(c.hl)),
+          _chip(scheme, Icons.report_rounded, tr.paDeptRollBlockers(c.bl)),
         ]),
         const SizedBox(height: Gap.sm),
         Row(children: [
-          Icon(Icons.info_outline, size: 14, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 14, color: scheme.onSurfaceVariant),
           const SizedBox(width: 4),
           Expanded(
             child: Text(tr.paAiReviewMarker,
@@ -285,7 +285,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                   ..clearSnackBars()
                   ..showSnackBar(SnackBar(content: Text(tr.copied)));
               },
-              icon: const Icon(Icons.copy_outlined, size: 18),
+              icon: const Icon(Icons.copy_rounded, size: 18),
               label: Text(tr.copy),
             ),
           ),
@@ -293,7 +293,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () => Share.share(rendered),
-              icon: const Icon(Icons.share_outlined, size: 18),
+              icon: const Icon(Icons.share_rounded, size: 18),
               label: Text(tr.share),
             ),
           ),
@@ -453,7 +453,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child:
@@ -609,7 +609,7 @@ class _DeptEditorState extends State<_DeptEditor> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Icon(Icons.query_stats_outlined,
+                Icon(Icons.query_stats_rounded,
                     size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -652,7 +652,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                   ),
                   IconButton(
                     icon:
-                        Icon(Icons.remove_circle_outline, color: scheme.error),
+                        Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
                     onPressed: () => setState(() => _metrics.removeAt(i)),
                   ),
                 ]),
@@ -663,7 +663,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                 child: TextButton.icon(
                   onPressed: () =>
                       setState(() => _metrics.add({'label': '', 'value': ''})),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(tr.paDeptAddMetric),
                 ),
               ),
@@ -671,7 +671,7 @@ class _DeptEditorState extends State<_DeptEditor> {
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
-            Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.paDeptMetricReportedNote,
@@ -685,7 +685,7 @@ class _DeptEditorState extends State<_DeptEditor> {
             child: FilledButton.icon(
               onPressed:
                   (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_outlined, size: 18),
+              icon: const Icon(Icons.save_rounded, size: 18),
               label: Text(tr.save),
             ),
           ),

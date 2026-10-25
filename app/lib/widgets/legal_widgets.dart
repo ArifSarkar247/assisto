@@ -145,12 +145,12 @@ class LegalSearchField extends StatelessWidget {
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
         hintText: t.legalSearchHint,
-        prefixIcon: const Icon(Icons.search),
+        prefixIcon: const Icon(Icons.search_rounded),
         suffixIcon: controller.text.isEmpty
             ? null
             : IconButton(
                 tooltip: t.legalClearSearch,
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.close_rounded),
                 onPressed: () {
                   controller.clear();
                   onChanged('');
@@ -235,7 +235,7 @@ class LegalPageFooter extends StatelessWidget {
       if (page.contact != null && page.contact!.isNotEmpty) ...[
         const SizedBox(height: Gap.sm),
         Row(children: [
-          Icon(Icons.help_outline, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.help_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
           const SizedBox(width: 6),
           Expanded(
             child: Text(page.contact!,
@@ -250,7 +250,7 @@ class LegalPageFooter extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            icon: const Icon(Icons.open_in_new, size: 18),
+            icon: const Icon(Icons.open_in_new_rounded, size: 18),
             label: Text(t.l1LegalOpenWeb, textAlign: TextAlign.center),
             onPressed: () async {
               try {
@@ -267,7 +267,7 @@ class LegalPageFooter extends StatelessWidget {
       Align(
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
-          icon: const Icon(Icons.copy, size: 16),
+          icon: const Icon(Icons.copy_rounded, size: 16),
           label: Text(t.legalCopyPage),
           onPressed: () {
             final text = '${page.title}\n\n${page.stamp}\n\n${page.body}';
@@ -310,14 +310,14 @@ class LegalErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.cloud_off, size: 44),
+          const Icon(Icons.cloud_off_rounded, size: 44),
           const SizedBox(height: Gap.sm),
           Text(honestFailText(t, error, otherwise: t.legalOffline),
               textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ]),
       ),
@@ -335,7 +335,7 @@ class LegalEmptySearch extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.search_off, size: 40, color: scheme.onSurfaceVariant),
+        Icon(Icons.search_off_rounded, size: 40, color: scheme.onSurfaceVariant),
         const SizedBox(height: Gap.sm),
         Text(t.legalNoResults,
             textAlign: TextAlign.center,

@@ -57,7 +57,7 @@ class _SaleVoidDialogState extends State<SaleVoidDialog> {
     final scheme = Theme.of(context).colorScheme;
     final ok = _reason.text.trim().length >= 2;
     return AlertDialog(
-      icon: Icon(Icons.block, color: scheme.error),
+      icon: Icon(Icons.block_rounded, color: scheme.error),
       title: Text(t.shopVoidTitle),
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [

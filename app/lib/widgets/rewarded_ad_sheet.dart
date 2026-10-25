@@ -197,7 +197,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Icon(Icons.ondemand_video_outlined, color: scheme.primary),
+            Icon(Icons.ondemand_video_rounded, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.adUnlockTitle,
@@ -218,7 +218,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Row(children: [
-                Icon(Icons.account_balance_wallet_outlined,
+                Icon(Icons.account_balance_wallet_rounded,
                     size: 20, color: scheme.secondary),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -261,7 +261,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         // reward, and we SAY so plainly.
         return _honestNote(
           scheme,
-          icon: Icons.info_outline,
+          icon: Icons.info_outline_rounded,
           tint: Brand.warning,
           title: t.adNotSetUpTitle,
           body: _error?.isNotEmpty == true ? _error! : t.adNotSetUpBody,
@@ -269,7 +269,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
       case _AdState.capReached:
         return _honestNote(
           scheme,
-          icon: Icons.hourglass_bottom,
+          icon: Icons.hourglass_bottom_rounded,
           tint: scheme.secondary,
           title: t.adCapTitle,
           body: t.adCapBody,
@@ -278,7 +278,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         return Column(children: [
           _honestNote(
             scheme,
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             tint: Brand.danger,
             title: t.loadFailed,
             body: t.adLoadError,
@@ -286,7 +286,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
           const SizedBox(height: Gap.md),
           OutlinedButton.icon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ]);
       case _AdState.ready:
@@ -296,7 +296,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
               padding: const EdgeInsets.only(bottom: Gap.md),
               child: _honestNote(
                 scheme,
-                icon: Icons.info_outline,
+                icon: Icons.info_outline_rounded,
                 tint: scheme.secondary,
                 title: t.adWatchNow,
                 body: _note!,
@@ -307,7 +307,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
               padding: const EdgeInsets.only(bottom: Gap.md),
               child: _honestNote(
                 scheme,
-                icon: Icons.check_circle_outline,
+                icon: Icons.check_circle_outline_rounded,
                 tint: Brand.success,
                 title: t.adRewardedTitle,
                 body: t.adRewardedBody,
@@ -317,7 +317,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _watch,
-              icon: const Icon(Icons.play_circle_outline),
+              icon: const Icon(Icons.play_circle_outline_rounded),
               label: Text(t.adWatchNow),
             ),
           ),

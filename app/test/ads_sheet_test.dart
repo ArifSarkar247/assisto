@@ -120,7 +120,7 @@ void main() {
     RewardedAdSheet.debugBackend = sb;
     final (_, api) = await _pump(tester, configured: true);
     expect(find.textContaining('1'), findsWidgets); // caps parsed (used 1)
-    await tester.tap(find.byIcon(Icons.play_circle_outline));
+    await tester.tap(find.byIcon(Icons.play_circle_outline_rounded));
     await tester.pumpAndSettle();
     expect(b.shown, 1);
     expect(b.customData, 'n1');
@@ -135,7 +135,7 @@ void main() {
     final sb = FakeSponsorBackend();
     RewardedAdSheet.debugBackend = sb;
     final (_, api) = await _pump(tester, configured: true);
-    await tester.tap(find.byIcon(Icons.play_circle_outline));
+    await tester.tap(find.byIcon(Icons.play_circle_outline_rounded));
     await tester.pumpAndSettle();
     expect(api.events, isEmpty);
     expect(sb.ticketReads, 0);
@@ -150,7 +150,7 @@ void main() {
     RewardedAdSheet.debugBackend = FakeSponsorBackend(
         ticket: {'ok': false, 'reason': 'ads_not_configured', 'msg': ''});
     final (_, api) = await _pump(tester, configured: false);
-    await tester.tap(find.byIcon(Icons.play_circle_outline));
+    await tester.tap(find.byIcon(Icons.play_circle_outline_rounded));
     await tester.pumpAndSettle();
     expect(b.shown, 0);
     expect(api.events, isEmpty);
@@ -164,7 +164,7 @@ void main() {
     RewardedAdSheet.debugBackend =
         FakeSponsorBackend(ticket: {'ok': false, 'reason': 'capped'});
     await _pump(tester, configured: true);
-    await tester.tap(find.byIcon(Icons.play_circle_outline));
+    await tester.tap(find.byIcon(Icons.play_circle_outline_rounded));
     await tester.pumpAndSettle();
     expect(b.shown, 0);
     final t = await AppLocalizations.delegate.load(const Locale('en'));

@@ -300,12 +300,12 @@ class _CheckoutSheetState extends State<CheckoutSheet>
           const SizedBox(height: Gap.xl),
         ];
       case _Step.loadFailed:
-        return _state(scheme, Icons.cloud_off, scheme.error, t.payNetwork, '',
+        return _state(scheme, Icons.cloud_off_rounded, scheme.error, t.payNetwork, '',
             [FilledButton.tonal(onPressed: _load, child: Text(t.retry))]);
       case _Step.waitingGateway:
         return _state(
             scheme,
-            Icons.open_in_browser,
+            Icons.open_in_browser_rounded,
             scheme.primary,
             t.payWaitingTitle,
             _msg.isNotEmpty ? _msg : t.payWaitingBody,
@@ -317,7 +317,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.verified_outlined),
+                    : const Icon(Icons.verified_rounded),
                 label: Text(t.payCheckNow),
               ),
               TextButton(
@@ -325,14 +325,14 @@ class _CheckoutSheetState extends State<CheckoutSheet>
                   child: Text(t.payLater)),
             ]);
       case _Step.done:
-        return _state(scheme, Icons.check_circle, Brand.success,
+        return _state(scheme, Icons.check_circle_rounded, Brand.success,
             t.paySuccessTitle, _doneMsg, [
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
               child: Text(t.payDone)),
         ]);
       case _Step.failed:
-        return _state(scheme, Icons.info_outline, Brand.warning,
+        return _state(scheme, Icons.info_outline_rounded, Brand.warning,
             t.payFailedTitle, _msg.isNotEmpty ? _msg : t.payFailedBody, [
           FilledButton.tonal(
               onPressed: () => setState(() {
@@ -393,7 +393,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
       ],
       const SizedBox(height: Gap.md),
       Row(children: [
-        Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(t.paySafeNote,
@@ -427,7 +427,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
                   width: can ? 1.4 : 1),
             ),
             child: Row(children: [
-              Icon(isPlay ? Icons.shop_outlined : Icons.account_balance_wallet_outlined,
+              Icon(isPlay ? Icons.shop_rounded : Icons.account_balance_wallet_rounded,
                   color: can ? scheme.primary : scheme.onSurfaceVariant),
               const SizedBox(width: Gap.md),
               Expanded(

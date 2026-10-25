@@ -76,7 +76,7 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.check_circle_outline, color: Brand.purple),
+            const Icon(Icons.check_circle_outline_rounded, color: Brand.purple),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanFastingTitle,
@@ -118,7 +118,7 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
                     onTap: () => _toggle(n),
                     child: Center(
                       child: on
-                          ? const Icon(Icons.check,
+                          ? const Icon(Icons.check_rounded,
                               size: 20, color: Colors.white)
                           : Text(_localeNum(context, n),
                               style: TextStyle(

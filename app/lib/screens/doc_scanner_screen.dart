@@ -114,12 +114,12 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            leading: const Icon(Icons.photo_camera_outlined),
+            leading: const Icon(Icons.photo_camera_rounded),
             title: Text(AppLocalizations.of(ctx).camera),
             onTap: () => Navigator.pop(ctx, ImageSource.camera),
           ),
           ListTile(
-            leading: const Icon(Icons.photo_library_outlined),
+            leading: const Icon(Icons.photo_library_rounded),
             title: Text(AppLocalizations.of(ctx).gallery),
             onTap: () => Navigator.pop(ctx, ImageSource.gallery),
           ),
@@ -215,7 +215,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                     final p = await _pickImage();
                     if (p != null) setM(() => imageRef = p);
                   },
-                  icon: const Icon(Icons.add_a_photo_outlined, size: 18),
+                  icon: const Icon(Icons.add_a_photo_rounded, size: 18),
                   label: Text(imageRef == null ? t.dsAddImage : t.dsChangeImage),
                 ),
                 if (imageRef != null) ...[
@@ -308,20 +308,20 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add_a_photo_outlined),
+              icon: const Icon(Icons.add_a_photo_rounded),
               label: Text(t.dsAddTitle),
             ),
       body: _loading
           ? const SkeletonList(count: 5)
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.dsLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)),
                 )
               : _body(),
@@ -337,14 +337,14 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           controller: _search,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: t.dsSearchHint,
             isDense: true,
             border: const OutlineInputBorder(),
             suffixIcon: _search.text.isEmpty
                 ? null
                 : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                    icon: const Icon(Icons.clear),
+                    icon: const Icon(Icons.clear_rounded),
                     onPressed: () => setState(() => _search.clear()),
                   ),
           ),
@@ -382,19 +382,19 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     final vis = _visible;
     if (_items.isEmpty) {
       return StateMessage(
-        icon: Icons.document_scanner_outlined,
+        icon: Icons.document_scanner_rounded,
         title: t.dsEmptyTitle,
         message: t.dsEmptyBody,
         action: FilledButton.tonalIcon(
           onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add_a_photo_outlined, size: 18),
+          icon: const Icon(Icons.add_a_photo_rounded, size: 18),
           label: Text(t.dsAddTitle),
         ),
       );
     }
     if (vis.isEmpty) {
       return StateMessage(
-        icon: Icons.search_off,
+        icon: Icons.search_off_rounded,
         title: t.dsNoMatchTitle,
         message: t.dsNoMatchBody,
       );
@@ -436,7 +436,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                     style: TextStyle(color: scheme.onSurfaceVariant)),
                 if (hasImage) ...[
                   const SizedBox(width: Gap.sm),
-                  Icon(Icons.image_outlined,
+                  Icon(Icons.image_rounded,
                       size: 14, color: scheme.onSurfaceVariant),
                 ],
               ]),
@@ -447,7 +447,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           tooltip: t.delete,
           onPressed: () => _delete(d),
         ),
@@ -587,17 +587,17 @@ String _typeLabel(AppLocalizations t, String ty) {
 IconData _typeIcon(String ty) {
   switch (ty) {
     case 'nid':
-      return Icons.badge_outlined;
+      return Icons.badge_rounded;
     case 'passport':
-      return Icons.flight_outlined;
+      return Icons.flight_rounded;
     case 'certificate':
-      return Icons.workspace_premium_outlined;
+      return Icons.workspace_premium_rounded;
     case 'bill':
-      return Icons.receipt_long_outlined;
+      return Icons.receipt_long_rounded;
     case 'receipt':
-      return Icons.receipt_outlined;
+      return Icons.receipt_rounded;
     default:
-      return Icons.description_outlined;
+      return Icons.description_rounded;
   }
 }
 
@@ -618,7 +618,7 @@ class _OcrSeamCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(ready ? Icons.auto_fix_high_outlined : Icons.lock_outline,
+        Icon(ready ? Icons.auto_fix_high_rounded : Icons.lock_outline_rounded,
             size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(

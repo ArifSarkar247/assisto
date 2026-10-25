@@ -95,7 +95,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
       appBar: AppBar(title: Text(t.crmAutomation)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(null),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.crmNewRule),
       ),
       body: _body(t),
@@ -109,12 +109,12 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     }
     if (_rules.isEmpty) {
       return CrmStateView.empty(
-        icon: Icons.bolt_outlined,
+        icon: Icons.bolt_rounded,
         title: t.crmNoRules,
         message: t.crmNoRulesHint,
         action: FilledButton.tonalIcon(
             onPressed: () => _edit(null),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.crmNewRule)),
       );
     }
@@ -123,7 +123,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
       child: ListView(
         padding: const EdgeInsets.all(Gap.md),
         children: [
-          NeedsKeyBanner(t.crmAutomationNote, icon: Icons.verified_user_outlined),
+          NeedsKeyBanner(t.crmAutomationNote, icon: Icons.verified_user_rounded),
           const SizedBox(height: Gap.sm),
           for (final r in _rules) _ruleCard(t, r),
         ],
@@ -139,7 +139,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.bolt,
+            Icon(Icons.bolt_rounded,
                 color: active ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant, size: 20),
             const SizedBox(width: Gap.xs),
             Expanded(
@@ -153,11 +153,11 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
           Row(children: [
             TextButton.icon(
                 onPressed: () => _edit(r),
-                icon: const Icon(Icons.edit_outlined, size: 16),
+                icon: const Icon(Icons.edit_rounded, size: 16),
                 label: Text(t.edit)),
             TextButton.icon(
                 onPressed: () => _delete(r),
-                icon: Icon(Icons.delete_outline, size: 16, color: Theme.of(context).colorScheme.error),
+                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.error),
                 label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.error))),
           ]),
         ]),

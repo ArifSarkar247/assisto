@@ -119,7 +119,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
                 onTap: () => Navigator.pop(ctx, ('report', 'other'))),
             const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.block,
+              leading: Icon(Icons.block_rounded,
                   color: Theme.of(ctx).colorScheme.error),
               title: Text(t.msgrBlock,
                   style:
@@ -176,7 +176,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
       // QA a6: bare text -> icon + text like the other messenger empties.
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(incoming ? Icons.mark_email_unread_outlined : Icons.outbox_outlined,
+          Icon(incoming ? Icons.mark_email_unread_rounded : Icons.outbox_rounded,
               size: 44,
               color: Theme.of(context)
                   .colorScheme
@@ -223,7 +223,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
           ? Row(mainAxisSize: MainAxisSize.min, children: [
               IconButton(
                 tooltip: t.msgrReport,
-                icon: const Icon(Icons.flag_outlined),
+                icon: const Icon(Icons.flag_rounded),
                 onPressed: () => _report(r),
               ),
               TextButton(

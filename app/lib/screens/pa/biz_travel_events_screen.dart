@@ -192,13 +192,13 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.paBizTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paBizLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ),
       );
@@ -208,18 +208,18 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
       appBar: AppBar(title: Text(t.paBizTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEventEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.paBizNewEvent),
       ),
       body: events.isEmpty
           ? StateMessage(
-              icon: Icons.groups_3_outlined,
+              icon: Icons.groups_3_rounded,
               tint: Brand.blue,
               title: t.paBizWelcomeTitle,
               message: t.paBizWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _openEventEditor(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.paBizNewEvent),
               ),
             )
@@ -282,7 +282,7 @@ class _EventCard extends StatelessWidget {
         onTap: onOpen,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.event_available, color: scheme.onPrimaryContainer),
+          child: Icon(Icons.event_available_rounded, color: scheme.onPrimaryContainer),
         ),
         title: Text('${event['name'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -301,7 +301,7 @@ class _EventCard extends StatelessWidget {
           ],
         ),
         trailing: IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             tooltip: t.edit,
             onPressed: onEdit),
       ),
@@ -523,7 +523,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
                   // ---- attendees (coordination) ----
                   _SectionHeader(
-                      icon: Icons.groups_2_outlined,
+                      icon: Icons.groups_2_rounded,
                       label: t.paBizAttendeesHeader,
                       onAdd: () => _editAttendee()),
                   if (attendees.isNotEmpty)
@@ -550,7 +550,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
                   // ---- agenda ----
                   _SectionHeader(
-                      icon: Icons.schedule_outlined,
+                      icon: Icons.schedule_rounded,
                       label: t.paBizAgendaHeader,
                       onAdd: () => _editAgenda()),
                   if (agenda.isEmpty)
@@ -558,7 +558,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   else
                     for (final g in agenda)
                       _TwoLineTile(
-                        icon: Icons.article_outlined,
+                        icon: Icons.article_rounded,
                         title: '${g['title'] ?? ''}',
                         subtitle: [
                           '${g['at'] ?? ''}',
@@ -571,7 +571,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
                   // ---- budget (৳ estimated vs actual) ----
                   _SectionHeader(
-                      icon: Icons.account_balance_wallet_outlined,
+                      icon: Icons.account_balance_wallet_rounded,
                       label: t.paBizBudgetHeader,
                       onAdd: () => _editBudget()),
                   if (budget.isEmpty)
@@ -610,7 +610,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
                   // ---- logistics checklist ----
                   _SectionHeader(
-                      icon: Icons.checklist,
+                      icon: Icons.checklist_rounded,
                       label: t.paBizChecklistHeader,
                       onAdd: () => _addTask()),
                   if (tasks.isNotEmpty)
@@ -645,7 +645,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                             {'kind': 'task', 'label': x['label'], 'done': v}),
                         title: Text('${x['label'] ?? ''}'),
                         secondary: IconButton(
-                            icon: const Icon(Icons.close, size: 18),
+                            icon: const Icon(Icons.close_rounded, size: 18),
                             tooltip: t.delete,
                             onPressed: () => _deleteChild(x['id'] as int)),
                       ),
@@ -653,7 +653,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
                   // ---- printable summary ----
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.summarize_outlined),
+                    icon: const Icon(Icons.summarize_rounded),
                     label: Text(t.paBizSummaryButton),
                     onPressed: () => showModalBottomSheet(
                       context: context,
@@ -747,7 +747,7 @@ class _BookingSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.confirmation_number_outlined,
+          Icon(Icons.confirmation_number_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -817,7 +817,7 @@ class _SectionHeader extends StatelessWidget {
               style:
                   const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
       IconButton(
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
           onPressed: onAdd),
     ]);
@@ -913,7 +913,7 @@ class _AttendeeTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: const Icon(Icons.person_outline),
+      leading: const Icon(Icons.person_outline_rounded),
       title: Row(children: [
         Expanded(
           child: Text(
@@ -961,7 +961,7 @@ class _BudgetTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: const Icon(Icons.receipt_outlined),
+      leading: const Icon(Icons.receipt_rounded),
       title: Text(label.isEmpty ? catLabel : label,
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text('$catLabel · ${t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)}',
@@ -1576,7 +1576,7 @@ class _DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
-      icon: const Icon(Icons.event, size: 18),
+      icon: const Icon(Icons.event_rounded, size: 18),
       label: Align(
         alignment: Alignment.centerLeft,
         child: Text(value.isEmpty ? label : '$label: $value'),

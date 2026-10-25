@@ -128,7 +128,7 @@ class _StickerGifSheetState extends State<StickerGifSheet>
         ],
         const Divider(),
         ListTile(
-          leading: const Icon(Icons.auto_fix_high_outlined),
+          leading: const Icon(Icons.auto_fix_high_rounded),
           title: Text(t.circleExtrasMakeSticker),
           enabled: widget.mediaBytesAvailable,
           subtitle: widget.mediaBytesAvailable
@@ -186,22 +186,22 @@ class _StickerTile extends StatelessWidget {
   }
 
   IconData _iconFor(String id) {
-    if (id.startsWith('heart')) return Icons.favorite;
+    if (id.startsWith('heart')) return Icons.favorite_rounded;
     switch (id) {
       case 'smile':
-        return Icons.sentiment_satisfied_alt;
+        return Icons.sentiment_satisfied_alt_rounded;
       case 'wink':
-        return Icons.sentiment_very_satisfied;
+        return Icons.sentiment_very_satisfied_rounded;
       case 'cry':
-        return Icons.sentiment_very_dissatisfied;
+        return Icons.sentiment_very_dissatisfied_rounded;
       case 'laugh':
-        return Icons.emoji_emotions;
+        return Icons.emoji_emotions_rounded;
       case 'think':
-        return Icons.psychology_alt;
+        return Icons.psychology_alt_rounded;
       case 'sleep':
-        return Icons.bedtime;
+        return Icons.bedtime_rounded;
       default:
-        return Icons.emoji_symbols;
+        return Icons.emoji_symbols_rounded;
     }
   }
 }
@@ -219,7 +219,7 @@ class _GifGatedState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.gif_box_outlined,
+            Icon(Icons.gif_box_rounded,
                 size: 44, color: scheme.primary.withValues(alpha: 0.6)),
             const SizedBox(height: Gap.md),
             Text(message,
@@ -260,7 +260,7 @@ class _GifSearchState extends State<_GifSearch> {
             autofocus: true,
             decoration: InputDecoration(
               hintText: t.circleExtrasGifSearchHint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(Radii.pill)),
               isDense: true,
@@ -272,7 +272,7 @@ class _GifSearchState extends State<_GifSearch> {
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           child: Row(
             children: [
-              Icon(Icons.verified_user_outlined,
+              Icon(Icons.verified_user_rounded,
                   size: 14, color: scheme.primary),
               const SizedBox(width: Gap.xs),
               Text(t.circleExtrasGifFamilySafe,

@@ -14,17 +14,17 @@ class CircleRelation {
 
   /// Picker order matching core.logic.circle.relation_catalog().
   static final List<CircleRelation> catalog = [
-    CircleRelation('father', Icons.man_outlined, (t) => t.circleRelFather),
-    CircleRelation('mother', Icons.woman_outlined, (t) => t.circleRelMother),
-    CircleRelation('child', Icons.child_care_outlined, (t) => t.circleRelChild),
-    CircleRelation('husband', Icons.favorite_outline, (t) => t.circleRelHusband),
-    CircleRelation('wife', Icons.favorite_outline, (t) => t.circleRelWife),
-    CircleRelation('brother', Icons.people_outline, (t) => t.circleRelBrother),
-    CircleRelation('sister', Icons.people_outline, (t) => t.circleRelSister),
-    CircleRelation('relative', Icons.diversity_3_outlined, (t) => t.circleRelRelative),
-    CircleRelation('friend', Icons.group_outlined, (t) => t.circleRelFriend),
-    CircleRelation('colleague', Icons.badge_outlined, (t) => t.circleRelColleague),
-    CircleRelation('custom', Icons.edit_outlined, (t) => t.circleRelCustom),
+    CircleRelation('father', Icons.man_rounded, (t) => t.circleRelFather),
+    CircleRelation('mother', Icons.woman_rounded, (t) => t.circleRelMother),
+    CircleRelation('child', Icons.child_care_rounded, (t) => t.circleRelChild),
+    CircleRelation('husband', Icons.favorite_outline_rounded, (t) => t.circleRelHusband),
+    CircleRelation('wife', Icons.favorite_outline_rounded, (t) => t.circleRelWife),
+    CircleRelation('brother', Icons.people_outline_rounded, (t) => t.circleRelBrother),
+    CircleRelation('sister', Icons.people_outline_rounded, (t) => t.circleRelSister),
+    CircleRelation('relative', Icons.diversity_3_rounded, (t) => t.circleRelRelative),
+    CircleRelation('friend', Icons.group_rounded, (t) => t.circleRelFriend),
+    CircleRelation('colleague', Icons.badge_rounded, (t) => t.circleRelColleague),
+    CircleRelation('custom', Icons.edit_rounded, (t) => t.circleRelCustom),
   ];
 
   static CircleRelation byCode(String code) => catalog.firstWhere(

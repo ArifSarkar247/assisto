@@ -219,12 +219,12 @@ class PlansCompareTable extends StatelessWidget {
           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600));
     }
     if (v == true) {
-      return Icon(Icons.check_circle, size: 18, color: Brand.success);
+      return Icon(Icons.check_circle_rounded, size: 18, color: Brand.success);
     }
     // not included — a muted dash, with a screen-reader label.
     return Semantics(
       label: AppLocalizations.of(context).plansCmpNotIncluded,
-      child: Icon(Icons.remove, size: 16, color: scheme.onSurfaceVariant),
+      child: Icon(Icons.remove_rounded, size: 16, color: scheme.onSurfaceVariant),
     );
   }
 }

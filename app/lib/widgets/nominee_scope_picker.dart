@@ -14,11 +14,11 @@ class NomineeScope {
   final IconData icon;
   const NomineeScope(this.key, this.icon);
 
-  static const emergency = NomineeScope('emergency', Icons.emergency_outlined);
-  static const documents = NomineeScope('documents', Icons.folder_shared_outlined);
-  static const accounts = NomineeScope('accounts', Icons.account_balance_outlined);
-  static const insurance = NomineeScope('insurance', Icons.health_and_safety_outlined);
-  static const wishes = NomineeScope('wishes', Icons.menu_book_outlined);
+  static const emergency = NomineeScope('emergency', Icons.emergency_rounded);
+  static const documents = NomineeScope('documents', Icons.folder_shared_rounded);
+  static const accounts = NomineeScope('accounts', Icons.account_balance_rounded);
+  static const insurance = NomineeScope('insurance', Icons.health_and_safety_rounded);
+  static const wishes = NomineeScope('wishes', Icons.menu_book_rounded);
 
   static const all = <NomineeScope>[
     emergency,
@@ -136,8 +136,8 @@ class NomineeScopePicker extends StatelessWidget {
                   const SizedBox(width: Gap.sm),
                   Icon(
                     selected.contains(s.key)
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
                     color: selected.contains(s.key)
                         ? scheme.primary
                         : scheme.outline,

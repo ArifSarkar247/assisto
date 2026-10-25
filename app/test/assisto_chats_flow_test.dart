@@ -254,7 +254,7 @@ void main() {
     final t = _t(tester);
     expect(find.text(t.voiceChipBn), findsNothing);
     expect(find.text(t.voiceChipEn), findsNothing);
-    expect(find.byIcon(Icons.mic_none), findsOneWidget);
+    expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
     expect(voice.mode, 'auto');
     await tester.binding.setSurfaceSize(null);
   });

@@ -111,7 +111,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
             tooltip: t.aiKnowTitle,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const AiKnowledgeScreen())),
-            icon: const Icon(Icons.visibility_outlined),
+            icon: const Icon(Icons.visibility_rounded),
           ),
           IconButton(
             tooltip: app.syncing ? t.memoryTagSyncing : t.memSync,
@@ -121,7 +121,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.sync),
+                : const Icon(Icons.sync_rounded),
           ),
           PopupMenuButton<String>(
             tooltip: t.memDataRights,
@@ -141,7 +141,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               PopupMenuItem(
                 value: 'export',
                 child: Row(children: [
-                  const Icon(Icons.download_outlined, size: 18),
+                  const Icon(Icons.download_rounded, size: 18),
                   const SizedBox(width: Gap.sm),
                   Text(t.memExport),
                 ]),
@@ -149,7 +149,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               PopupMenuItem(
                 value: 'clear',
                 child: Row(children: [
-                  const Icon(Icons.delete_sweep_outlined,
+                  const Icon(Icons.delete_sweep_rounded,
                       size: 18, color: Brand.danger),
                   const SizedBox(width: Gap.sm),
                   Text(t.memClearAll,
@@ -162,7 +162,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.add),
       ),
       body: Column(
@@ -175,7 +175,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: Gap.md, vertical: Gap.sm),
               child: Row(children: [
-                const Icon(Icons.cloud_off_outlined,
+                const Icon(Icons.cloud_off_rounded,
                     size: 16, color: Brand.warning),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -194,12 +194,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: t.a1MemSearchHint,
-                prefixIcon: const Icon(Icons.psychology_alt_outlined),
+                prefixIcon: const Icon(Icons.psychology_alt_rounded),
                 suffixIcon: _query.isEmpty
                     ? null
                     : IconButton(
                         tooltip: t.close,
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear_rounded),
                         onPressed: () => setState(() {
                           _q.clear();
                           _query = '';
@@ -239,13 +239,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
     // error state — last sync failed and we have nothing cached
     if (app.lastError != null && all.isEmpty && !app.online) {
       return StateMessage(
-        icon: Icons.error_outline,
+        icon: Icons.error_outline_rounded,
         tint: Brand.danger,
         title: t.memErrorTitle,
         message: t.memErrorBody,
         action: FilledButton.icon(
           onPressed: () => app.sync(),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.retry),
         ),
       );
@@ -256,12 +256,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
     // empty state
     if (all.isEmpty && !hasConsent) {
       return StateMessage(
-        icon: Icons.psychology_outlined,
+        icon: Icons.psychology_rounded,
         title: t.memoryEmptyTitle,
         message: t.memoryEmptyHint,
         action: FilledButton.icon(
           onPressed: () => _edit(context),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(t.memAddFirst),
         ),
       );
@@ -270,7 +270,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
     // no search results
     if (ranked.isEmpty && !hasConsent) {
       return StateMessage(
-        icon: Icons.search_off,
+        icon: Icons.search_off_rounded,
         title: t.memoryNoResultsTitle,
         message: hiddenPrivate > 0
             ? t.memNoResultsPrivate
@@ -382,7 +382,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     labelText: t.memoryTitleLabel,
-                    prefixIcon: const Icon(Icons.lightbulb_outline),
+                    prefixIcon: const Icon(Icons.lightbulb_outline_rounded),
                   ),
                 ),
                 const SizedBox(height: Gap.md),
@@ -424,13 +424,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.lock_outline),
+                  leading: const Icon(Icons.lock_outline_rounded),
                   title: Text(t.memPrivacyControls),
                   subtitle: Text(t.memPrivacyExplain,
                       style: AType.bodySmall),
                   children: [
                     MemSwitchRow(
-                      icon: Icons.visibility_off_outlined,
+                      icon: Icons.visibility_off_rounded,
                       color: Brand.danger,
                       title: t.memPrivacyExclude,
                       subtitle: t.memPrivacyExcludeHint,
@@ -439,7 +439,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                           flags = flags.copyWith(excludeFromAi: v)),
                     ),
                     MemSwitchRow(
-                      icon: Icons.shield_outlined,
+                      icon: Icons.shield_rounded,
                       color: Brand.warning,
                       title: t.memPrivacySensitive,
                       subtitle: t.memPrivacySensitiveHint,
@@ -448,7 +448,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                           setSheet(() => flags = flags.copyWith(sensitive: v)),
                     ),
                     MemSwitchRow(
-                      icon: Icons.lock_outline,
+                      icon: Icons.lock_outline_rounded,
                       color: Colors.blueGrey,
                       title: t.memPrivacyPrivate,
                       subtitle: t.memPrivacyPrivateHint,
@@ -527,7 +527,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                       color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
               const SizedBox(height: Gap.md),
               MemSwitchRow(
-                icon: Icons.visibility_off_outlined,
+                icon: Icons.visibility_off_rounded,
                 color: Brand.danger,
                 title: t.memPrivacyExclude,
                 subtitle: t.memPrivacyExcludeHint,
@@ -538,7 +538,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 },
               ),
               MemSwitchRow(
-                icon: Icons.shield_outlined,
+                icon: Icons.shield_rounded,
                 color: Brand.warning,
                 title: t.memPrivacySensitive,
                 subtitle: t.memPrivacySensitiveHint,
@@ -549,7 +549,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 },
               ),
               MemSwitchRow(
-                icon: Icons.lock_outline,
+                icon: Icons.lock_outline_rounded,
                 color: Colors.blueGrey,
                 title: t.memPrivacyPrivate,
                 subtitle: t.memPrivacyPrivateHint,
@@ -653,7 +653,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.delete_sweep_outlined, color: Brand.danger),
+        icon: const Icon(Icons.delete_sweep_rounded, color: Brand.danger),
         title: Text(t.memClearAll),
         content: Text(t.memClearAllBody),
         actions: [

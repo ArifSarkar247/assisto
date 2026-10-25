@@ -174,7 +174,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         title: Text(t.nearby),
         actions: [
           PopupMenuButton<_Sort>(
-            icon: const Icon(Icons.sort),
+            icon: const Icon(Icons.sort_rounded),
             tooltip: t.nearbySortBy,
             onSelected: (s) => setState(() => _sort = s),
             itemBuilder: (_) => [
@@ -207,12 +207,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: t.nearbySearchHint,
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: _query.isEmpty
                         ? null
                         : IconButton(
                             tooltip: AppLocalizations.of(context).f2ClearSearch,
-                            icon: const Icon(Icons.close),
+                            icon: const Icon(Icons.close_rounded),
                             onPressed: () {
                               _searchCtrl.clear();
                               setState(() => _query = '');
@@ -245,7 +245,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       color: Brand.warning.withValues(alpha: 0.12),
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       child: Row(children: [
-        const Icon(Icons.info_outline, size: 16, color: Brand.warning),
+        const Icon(Icons.info_outline_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -263,7 +263,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     final items = _filtered(bn, now);
     if (items.isEmpty) {
       return StateMessage(
-        icon: _showFav ? Icons.star_border : Icons.search_off,
+        icon: _showFav ? Icons.star_border_rounded : Icons.search_off_rounded,
         title: _showFav ? t.nearbyNoFavourites : t.nothingFound,
         message: _showFav ? t.nearbyNoFavouritesHint : null,
       );

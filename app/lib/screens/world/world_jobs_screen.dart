@@ -87,11 +87,11 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
   }
 
   IconData _catIcon(String c) => switch (c) {
-        'govt' => Icons.account_balance_outlined,
-        'bank' => Icons.savings_outlined,
-        'overseas' => Icons.flight_takeoff,
-        'ngo' => Icons.volunteer_activism_outlined,
-        _ => Icons.business_center_outlined,
+        'govt' => Icons.account_balance_rounded,
+        'bank' => Icons.savings_rounded,
+        'overseas' => Icons.flight_takeoff_rounded,
+        'ngo' => Icons.volunteer_activism_rounded,
+        _ => Icons.business_center_rounded,
       };
 
   @override
@@ -104,13 +104,13 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : _body(t, scheme),
     );
@@ -130,7 +130,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
         children: [
           UwNote(
-              icon: Icons.shield_outlined,
+              icon: Icons.shield_rounded,
               text: '${d['safety'] ?? ''}',
               warn: true),
           const SizedBox(height: Gap.md),
@@ -161,7 +161,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
                 subtitle: Text(
                     '${p['desc']}\n${Uri.tryParse('${p['url']}')?.host.replaceFirst('www.', '') ?? ''}'),
                 isThreeLine: true,
-                trailing: Icon(Icons.open_in_new, color: scheme.primary),
+                trailing: Icon(Icons.open_in_new_rounded, color: scheme.primary),
                 onTap: () => uwOpen(context, '${p['url']}'),
               ),
             ),
@@ -169,7 +169,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
           OutlinedButton.icon(
             onPressed: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const JobsScreen())),
-            icon: const Icon(Icons.checklist_rtl),
+            icon: const Icon(Icons.checklist_rtl_rounded),
             label: Text(t.uwTrackApplications),
           ),
           if (alertsReady) ...[

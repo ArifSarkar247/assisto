@@ -60,7 +60,7 @@ Future<CircleMsgAction?> showCircleMessageActions(
                 IconButton(
                   key: const Key('c3-react-more'),
                   tooltip: t.c3ReactMore,
-                  icon: const Icon(Icons.add_reaction_outlined),
+                  icon: const Icon(Icons.add_reaction_rounded),
                   onPressed: () =>
                       Navigator.pop(ctx, CircleMsgAction.moreReactions),
                 ),
@@ -68,22 +68,22 @@ Future<CircleMsgAction?> showCircleMessageActions(
             ),
           ),
           const Divider(height: 1),
-          _tile(ctx, Icons.reply_outlined, t.circleActionReply, CircleMsgAction.reply),
+          _tile(ctx, Icons.reply_rounded, t.circleActionReply, CircleMsgAction.reply),
           if (!protectedContent) ...[
-            _tile(ctx, Icons.copy_outlined, t.copy, CircleMsgAction.copy),
-            _tile(ctx, Icons.forward_outlined, t.circleActionForward, CircleMsgAction.forward),
-            _tile(ctx, isStarred ? Icons.star : Icons.star_border,
+            _tile(ctx, Icons.copy_rounded, t.copy, CircleMsgAction.copy),
+            _tile(ctx, Icons.forward_rounded, t.circleActionForward, CircleMsgAction.forward),
+            _tile(ctx, isStarred ? Icons.star_rounded : Icons.star_border_rounded,
                 isStarred ? t.circleActionUnstar : t.circleActionStar, CircleMsgAction.star),
-            _tile(ctx, isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+            _tile(ctx, isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
                 isPinned ? t.circleActionUnpin : t.circleActionPin, CircleMsgAction.pin),
           ],
           if (mine && canEdit)
-            _tile(ctx, Icons.edit_outlined, t.circleActionEdit, CircleMsgAction.edit),
+            _tile(ctx, Icons.edit_rounded, t.circleActionEdit, CircleMsgAction.edit),
           if (showInfo)
-            _tile(ctx, Icons.info_outline, t.c3InfoTitle, CircleMsgAction.info),
-          _tile(ctx, Icons.delete_outline, t.circleActionDeleteMe, CircleMsgAction.deleteMe),
+            _tile(ctx, Icons.info_outline_rounded, t.c3InfoTitle, CircleMsgAction.info),
+          _tile(ctx, Icons.delete_outline_rounded, t.circleActionDeleteMe, CircleMsgAction.deleteMe),
           if (mine && canDeleteEveryone)
-            _tile(ctx, Icons.delete_forever_outlined, t.circleActionDeleteEveryone,
+            _tile(ctx, Icons.delete_forever_rounded, t.circleActionDeleteEveryone,
                 CircleMsgAction.deleteEveryone,
                 danger: true),
         ],

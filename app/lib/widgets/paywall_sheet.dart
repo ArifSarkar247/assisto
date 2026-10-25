@@ -41,12 +41,12 @@ extension PaywallReasonWire on PaywallReason {
     };
 
 IconData _icon(PaywallReason r) => switch (r) {
-      PaywallReason.outOfCredits => Icons.bolt_outlined,
-      PaywallReason.videoCall => Icons.videocam_outlined,
-      PaywallReason.familyLimit => Icons.diversity_3_outlined,
-      PaywallReason.adFree => Icons.block_outlined,
-      PaywallReason.storageFull => Icons.cloud_outlined,
-      PaywallReason.generic => Icons.workspace_premium_outlined,
+      PaywallReason.outOfCredits => Icons.bolt_rounded,
+      PaywallReason.videoCall => Icons.videocam_rounded,
+      PaywallReason.familyLimit => Icons.diversity_3_rounded,
+      PaywallReason.adFree => Icons.block_rounded,
+      PaywallReason.storageFull => Icons.cloud_rounded,
+      PaywallReason.generic => Icons.workspace_premium_rounded,
     };
 
 class PaywallSheet extends StatefulWidget {
@@ -182,7 +182,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.sm),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(Icons.check_circle, size: 20, color: Brand.success),
+                    Icon(Icons.check_circle_rounded, size: 20, color: Brand.success),
                     const SizedBox(width: Gap.sm),
                     Expanded(child: Text('${b['text'] ?? ''}')),
                   ]),
@@ -205,7 +205,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
                   key: const Key('p2-trial'),
                   onPressed: _busy ? null : _trial,
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                  icon: const Icon(Icons.card_giftcard_outlined),
+                  icon: const Icon(Icons.card_giftcard_rounded),
                   label: Text(t.p2PayTrial(fmtInt(context, _i(o['trial_days'])))),
                 ),
                 const SizedBox(height: Gap.xs),

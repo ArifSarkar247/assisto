@@ -100,7 +100,7 @@ class MsgrNotEncryptedBanner extends StatelessWidget {
       color: cs.secondaryContainer,
       child: Row(
         children: [
-          Icon(Icons.public, size: 18, color: cs.onSecondaryContainer),
+          Icon(Icons.public_rounded, size: 18, color: cs.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(

@@ -101,7 +101,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
         const SizedBox(height: Gap.sm),
         FilledButton.tonalIcon(
           onPressed: _busy ? null : _import,
-          icon: const Icon(Icons.input),
+          icon: const Icon(Icons.input_rounded),
           label: Text(t.crmImport),
         ),
         if (_parsed) ...[
@@ -115,7 +115,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
             if (e.key != 'source')
               ListTile(
                 dense: true,
-                leading: const Icon(Icons.check_circle_outline, color: Brand.success, size: 18),
+                leading: const Icon(Icons.check_circle_outline_rounded, color: Brand.success, size: 18),
                 title: Text(e.key),
                 subtitle: Text(e.value.toString()),
               ),
@@ -126,7 +126,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
             for (final e in _unmapped.entries)
               ListTile(
                 dense: true,
-                leading: const Icon(Icons.help_outline, color: Brand.warning, size: 18),
+                leading: const Icon(Icons.help_outline_rounded, color: Brand.warning, size: 18),
                 title: Text(e.key),
                 subtitle: Text(e.value.toString()),
               ),
@@ -134,7 +134,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
           const SizedBox(height: Gap.md),
           FilledButton.icon(
             onPressed: (_busy || _draft.isEmpty) ? null : _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: Text(t.crmSaveLead),
           ),
         ],

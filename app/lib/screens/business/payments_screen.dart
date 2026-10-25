@@ -60,7 +60,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: tr.bizLoadFailed,
         message: _error,
         action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -72,7 +72,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         // The non-negotiable money note, up top, bilingual via ARB.
-        BizNote(text: tr.bizNeverHoldMoney, icon: Icons.account_balance_outlined),
+        BizNote(text: tr.bizNeverHoldMoney, icon: Icons.account_balance_rounded),
         const SizedBox(height: Gap.md),
         if (hasMerchant) _merchantCard(tr) else _setupCard(tr),
         const SizedBox(height: Gap.md),
@@ -88,7 +88,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     final name = (_qr!['merchant_name'] ?? '').toString();
     return BizCard(
       title: tr.bizYourMerchant,
-      icon: Icons.qr_code_2,
+      icon: Icons.qr_code_2_rounded,
       trailing: TextButton(onPressed: () => _editMerchant(tr), child: Text(tr.bizEdit)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.payMerchantLabel(_providerName(provider)), style: const TextStyle(height: 1.4)),
@@ -104,7 +104,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Icons.qr_code_2, size: 72, color: scheme.onSurfaceVariant),
+              Icon(Icons.qr_code_2_rounded, size: 72, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.sm),
               Text(_providerName(provider),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -121,13 +121,13 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   Widget _setupCard(AppLocalizations tr) {
     return BizCard(
       title: tr.bizYourMerchant,
-      icon: Icons.qr_code_2,
+      icon: Icons.qr_code_2_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.bizAddMerchantBody, style: const TextStyle(height: 1.4)),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           onPressed: () => _editMerchant(tr),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.bizAddMerchant),
         ),
       ]),
@@ -137,7 +137,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   Widget _linkCard(AppLocalizations tr) {
     return BizCard(
       title: tr.bizPaymentLink,
-      icon: Icons.link,
+      icon: Icons.link_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.payLinkLabel, style: const TextStyle(height: 1.4)),
         const SizedBox(height: Gap.md),
@@ -199,7 +199,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
             const SizedBox(height: Gap.sm),
             TextField(controller: name, decoration: InputDecoration(labelText: tr.bizMerchantName)),
             const SizedBox(height: Gap.md),
-            BizNote(text: tr.bizNeverHoldMoney, icon: Icons.account_balance_outlined),
+            BizNote(text: tr.bizNeverHoldMoney, icon: Icons.account_balance_rounded),
             const SizedBox(height: Gap.lg),
             FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.bizSave)),
           ]),

@@ -148,7 +148,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           Wrap(spacing: 8, children: [
             for (final p in _places)
               ActionChip(
-                avatar: const Icon(Icons.place, size: 18),
+                avatar: const Icon(Icons.place_rounded, size: 18),
                 label: Text((p['label'] ?? p['name'] ?? '').toString()),
                 onPressed: () => setState(() {
                   _dest = {
@@ -166,7 +166,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             decoration: InputDecoration(
                 labelText: t.journeyDestLabel,
                 suffixIcon: IconButton(
-                    icon: const Icon(Icons.my_location),
+                    icon: const Icon(Icons.my_location_rounded),
                     tooltip: t.journeyUseCurrent,
                     onPressed: _useCurrentAsDest))),
         const Divider(height: 28),
@@ -175,7 +175,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: Gap.xs),
         OutlinedButton.icon(
-          icon: const Icon(Icons.schedule),
+          icon: const Icon(Icons.schedule_rounded),
           label: Text(t.journeyEtaBy(_eta.format(context))),
           onPressed: () async {
             final picked = await showTimePicker(context: context, initialTime: _eta);
@@ -277,7 +277,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.navigation),
+                : const Icon(Icons.navigation_rounded),
             label: Text(t.journeyStartButton,
                 style: AType.titleLarge),
           ),

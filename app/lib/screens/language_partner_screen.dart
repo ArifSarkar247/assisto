@@ -72,15 +72,15 @@ String _deckLabel(AppLocalizations tr, String? d) {
 IconData _deckIcon(String d) {
   switch (d) {
     case 'daily':
-      return Icons.wb_sunny_outlined;
+      return Icons.wb_sunny_rounded;
     case 'travel':
-      return Icons.directions_bus_outlined;
+      return Icons.directions_bus_rounded;
     case 'shopping':
-      return Icons.shopping_bag_outlined;
+      return Icons.shopping_bag_rounded;
     case 'numbers':
-      return Icons.pin_outlined;
+      return Icons.pin_rounded;
     default:
-      return Icons.waving_hand_outlined;
+      return Icons.waving_hand_rounded;
   }
 }
 
@@ -162,13 +162,13 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.lpTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.lpLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -185,7 +185,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       appBar: AppBar(title: Text(_deckLabel(tr, _deck)), actions: [
         IconButton(
           tooltip: tr.lpChangeDeck,
-          icon: const Icon(Icons.grid_view_outlined),
+          icon: const Icon(Icons.grid_view_rounded),
           onPressed: () => setState(() => _deck = null),
         ),
       ]),
@@ -213,7 +213,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
                 builder: (_) => _QuizScreen(
                     deck: _deck!, direction: _direction),
               )),
-              icon: const Icon(Icons.quiz_outlined),
+              icon: const Icon(Icons.quiz_rounded),
               label: Text(tr.lpStartQuiz),
             ),
             const SizedBox(height: Gap.md),
@@ -241,7 +241,7 @@ class _DeckPicker extends StatelessWidget {
       children: [
         if (progress.isEmpty) ...[
           const SizedBox(height: Gap.lg),
-          Icon(Icons.translate, size: 56, color: scheme.primary),
+          Icon(Icons.translate_rounded, size: 56, color: scheme.primary),
           const SizedBox(height: Gap.md),
           Text(tr.lpWelcomeTitle,
               textAlign: TextAlign.center,
@@ -281,7 +281,7 @@ class _DeckPicker extends StatelessWidget {
                         backgroundColor: Brand.blue.withValues(alpha: 0.15),
                         visualDensity: VisualDensity.compact,
                       )
-                    : const Icon(Icons.chevron_right),
+                    : const Icon(Icons.chevron_right_rounded),
                 onTap: () => onPick(d),
               ),
             );
@@ -331,7 +331,7 @@ class _DeckHeader extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.layers_outlined, color: Brand.purple),
+          Icon(Icons.layers_rounded, color: Brand.purple),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -463,7 +463,7 @@ class _FlashcardPracticeState extends State<_FlashcardPractice> {
                     await widget.onResult(cardId, widget.deck, false);
                     if (mounted) setState(() => _revealed = false);
                   },
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(Icons.replay_rounded),
                   label: Text(tr.lpMissedIt),
                 ),
               ),
@@ -474,7 +474,7 @@ class _FlashcardPracticeState extends State<_FlashcardPractice> {
                     await widget.onResult(cardId, widget.deck, true);
                     if (mounted) setState(() => _revealed = false);
                   },
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: Text(tr.lpGotIt),
                 ),
               ),
@@ -503,7 +503,7 @@ class _PronHint extends StatelessWidget {
     if (hint.isEmpty) return const SizedBox.shrink();
     return Column(children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.volume_up_outlined, size: 16, color: scheme.secondary),
+        Icon(Icons.volume_up_rounded, size: 16, color: scheme.secondary),
         const SizedBox(width: Gap.xs),
         Text('${tr.lpPronHint}: $hint',
             style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic,
@@ -529,7 +529,7 @@ class _LiveSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.forum_outlined, size: 20, color: scheme.secondary),
+          Icon(Icons.forum_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -579,7 +579,7 @@ class _QuizScreenState extends State<_QuizScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.lpQuiz)),
         body: StateMessage(
-          icon: Icons.quiz_outlined,
+          icon: Icons.quiz_rounded,
           title: tr.lpQuiz,
           message: tr.lpDeckDone,
         ),
@@ -595,8 +595,8 @@ class _QuizScreenState extends State<_QuizScreen> {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Icon(
                   g.percent >= 70
-                      ? Icons.celebration_outlined
-                      : Icons.menu_book_outlined,
+                      ? Icons.celebration_rounded
+                      : Icons.menu_book_rounded,
                   size: 56,
                   color: g.percent >= 70 ? Brand.success : scheme.primary),
               const SizedBox(height: Gap.md),
@@ -675,8 +675,8 @@ class _QuizScreenState extends State<_QuizScreen> {
                 });
               },
               icon: Icon(_index + 1 >= qs.length
-                  ? Icons.flag_outlined
-                  : Icons.arrow_forward),
+                  ? Icons.flag_rounded
+                  : Icons.arrow_forward_rounded),
               label: Text(_index + 1 >= qs.length ? tr.lpFinish : tr.lpNext),
             ),
           ],
@@ -703,12 +703,12 @@ class _OptionTile extends StatelessWidget {
     switch (state) {
       case _OptState.correct:
         bg = Brand.success.withValues(alpha: 0.14);
-        icon = Icons.check_circle_outline;
+        icon = Icons.check_circle_outline_rounded;
         fg = Brand.success;
         break;
       case _OptState.wrong:
         bg = Brand.danger.withValues(alpha: 0.14);
-        icon = Icons.cancel_outlined;
+        icon = Icons.cancel_rounded;
         fg = Brand.danger;
         break;
       case _OptState.idle:

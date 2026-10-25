@@ -203,31 +203,31 @@ NotifType notifTypeFrom(String? s) {
     NotifType type, ColorScheme scheme) {
   switch (type) {
     case NotifType.circle:
-      return (icon: Icons.group_outlined, tint: Brand.blue);
+      return (icon: Icons.group_rounded, tint: Brand.blue);
     case NotifType.community:
-      return (icon: Icons.groups_2_outlined, tint: Brand.purple);
+      return (icon: Icons.groups_2_rounded, tint: Brand.purple);
     case NotifType.channel:
-      return (icon: Icons.campaign_outlined, tint: Brand.cyan);
+      return (icon: Icons.campaign_rounded, tint: Brand.cyan);
     case NotifType.family:
-      return (icon: Icons.favorite_outline, tint: Brand.danger);
+      return (icon: Icons.favorite_outline_rounded, tint: Brand.danger);
     case NotifType.scam:
-      return (icon: Icons.gpp_maybe_outlined, tint: Brand.warning);
+      return (icon: Icons.gpp_maybe_rounded, tint: Brand.warning);
     case NotifType.watch:
-      return (icon: Icons.visibility_outlined, tint: Brand.blue);
+      return (icon: Icons.visibility_rounded, tint: Brand.blue);
     case NotifType.business:
-      return (icon: Icons.storefront_outlined, tint: Brand.purple);
+      return (icon: Icons.storefront_rounded, tint: Brand.purple);
     case NotifType.crm:
-      return (icon: Icons.handshake_outlined, tint: Brand.blue);
+      return (icon: Icons.handshake_rounded, tint: Brand.blue);
     case NotifType.security:
-      return (icon: Icons.security_outlined, tint: Brand.danger);
+      return (icon: Icons.security_rounded, tint: Brand.danger);
     case NotifType.plan:
-      return (icon: Icons.workspace_premium_outlined, tint: Brand.cyan);
+      return (icon: Icons.workspace_premium_rounded, tint: Brand.cyan);
     case NotifType.points:
-      return (icon: Icons.stars_outlined, tint: Brand.warning);
+      return (icon: Icons.stars_rounded, tint: Brand.warning);
     case NotifType.update:
-      return (icon: Icons.system_update_outlined, tint: scheme.primary);
+      return (icon: Icons.system_update_rounded, tint: scheme.primary);
     case NotifType.other:
-      return (icon: Icons.notifications_none, tint: scheme.primary);
+      return (icon: Icons.notifications_none_rounded, tint: scheme.primary);
   }
 }
 

@@ -87,7 +87,7 @@ class _E2RestoreScreenState extends State<E2RestoreScreen> {
           child: ListView(
             padding: const EdgeInsets.all(Gap.lg),
             children: [
-              Icon(Icons.lock_reset, size: 56, color: scheme.primary),
+              Icon(Icons.lock_reset_rounded, size: 56, color: scheme.primary),
               const SizedBox(height: Gap.md),
               Text(t.e2rRestoreBody, style: tt.bodyLarge),
               const SizedBox(height: Gap.lg),

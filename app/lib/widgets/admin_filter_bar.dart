@@ -95,7 +95,7 @@ class AdminListHeader extends StatelessWidget {
           ),
           TextButton.icon(
             onPressed: onSort,
-            icon: const Icon(Icons.swap_vert, size: 18),
+            icon: const Icon(Icons.swap_vert_rounded, size: 18),
             label: Text(sortLabel),
           ),
         ],

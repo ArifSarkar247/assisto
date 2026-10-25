@@ -64,7 +64,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     if (d['restricted'] == true) {
       final lang = Localizations.localeOf(context).languageCode;
       return CrmStateView.empty(
-        icon: Icons.lock_outline,
+        icon: Icons.lock_outline_rounded,
         title: t.crmReports,
         message: lang == 'bn'
             ? (d['message_bn'] ?? t.crmOnlyManagers).toString()
@@ -98,14 +98,14 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
             child: ReportStatTile(
                 label: t.crmPipelineValue,
                 value: bdt(context, d['pipeline_value'] as num?),
-                icon: Icons.account_tree_outlined),
+                icon: Icons.account_tree_rounded),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: ReportStatTile(
                 label: t.crmWonValue,
                 value: bdt(context, d['won_value'] as num?),
-                icon: Icons.emoji_events_outlined,
+                icon: Icons.emoji_events_rounded,
                 tint: AssistoTokens.of(context).success),
           ),
           const SizedBox(width: Gap.sm),
@@ -115,7 +115,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 value: winLoss['win_rate'] == null
                     ? '—'
                     : '${winLoss['win_rate']}%',
-                icon: Icons.percent_outlined,
+                icon: Icons.percent_rounded,
                 tint: Brand.blue),
           ),
         ]),
@@ -245,7 +245,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.info_outline, size: 13, color: AssistoTokens.of(context).warning),
+        Icon(Icons.info_outline_rounded, size: 13, color: AssistoTokens.of(context).warning),
         const SizedBox(width: Gap.xs),
         Text(t.crmReportForecastEstimate,
             style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
@@ -258,7 +258,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
-      Icon(Icons.info_outline, color: scheme.onSurfaceVariant, size: 18),
+      Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant, size: 18),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(lang == 'bn'
@@ -274,7 +274,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.cloud_queue_outlined,
+          Icon(Icons.cloud_queue_rounded,
               size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(

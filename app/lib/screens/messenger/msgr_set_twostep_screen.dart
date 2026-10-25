@@ -173,7 +173,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
                           height: 1.35)),
                 ),
                 SwitchListTile(
-                  secondary: const Icon(Icons.pin_outlined),
+                  secondary: const Icon(Icons.pin_rounded),
                   title: Text(t.msgrSetTwoStepEnable),
                   subtitle: Text(_enabled
                       ? t.msgrSetTwoStepStateOn
@@ -185,13 +185,13 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
                 ),
                 if (_enabled)
                   MsgrSetRow(
-                    icon: Icons.password_outlined,
+                    icon: Icons.password_rounded,
                     title: t.msgrSetTwoStepChange,
                     onTap: _busy ? null : _setOrChange,
                   ),
                 if (_lockedSec > 0) MsgrSetNote(t.msgTwoStepLocked),
                 MsgrSetNote(t.msgrSetTwoStepHashNote,
-                    icon: Icons.verified_user_outlined),
+                    icon: Icons.verified_user_rounded),
               ],
             ),
     );

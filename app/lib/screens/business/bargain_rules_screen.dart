@@ -71,7 +71,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     }
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: tr.bizLoadFailed,
         message: _error,
         action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -81,13 +81,13 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         // The core rule, stated plainly.
-        BizNote(text: tr.bizBelowMinImpossible, icon: Icons.lock_outline),
+        BizNote(text: tr.bizBelowMinImpossible, icon: Icons.lock_outline_rounded),
         const SizedBox(height: Gap.md),
         if (_rules.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xl),
             child: StateMessage(
-              icon: Icons.sell_outlined,
+              icon: Icons.sell_rounded,
               title: tr.bizBargainEmptyTitle,
               message: tr.bizBargainEmptyBody,
             ),
@@ -111,10 +111,10 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     final tone = (r['tone'] ?? '').toString();
     return BizCard(
       title: name,
-      icon: Icons.sell_outlined,
+      icon: Icons.sell_rounded,
       trailing: IconButton(
         tooltip: tr.bizEdit,
-        icon: const Icon(Icons.edit_outlined),
+        icon: const Icon(Icons.edit_rounded),
         onPressed: () => _edit(tr, r),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -124,7 +124,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
           Expanded(
             child: Row(children: [
               Expanded(child: _kv(tr.bizMinPriceFloor, '৳$min')),
-              Icon(Icons.lock, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(Icons.lock_rounded, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ]),
           ),
         ]),
@@ -178,7 +178,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
               style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.md),
           // Minimum is NOT editable here — surfaced read-only so it's clear.
-          BizNote(text: tr.bizMinNotEditableHere, icon: Icons.lock_outline),
+          BizNote(text: tr.bizMinNotEditableHere, icon: Icons.lock_outline_rounded),
           const SizedBox(height: Gap.md),
           TextField(controller: steps, decoration: InputDecoration(labelText: tr.bizDiscountSteps)),
           const SizedBox(height: Gap.sm),

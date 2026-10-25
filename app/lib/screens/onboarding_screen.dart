@@ -226,7 +226,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
         OnbHeader(
-          icon: Icons.auto_awesome,
+          icon: Icons.auto_awesome_rounded,
           title: t.onbWelcomeTitle,
           subtitle: t.onbWelcomeSub,
         ),
@@ -253,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final nativeName =
         code == 'bn' ? native.languageBangla : native.languageEnglish;
     return OnbChoiceTile(
-      icon: Icons.translate_outlined,
+      icon: Icons.translate_rounded,
       title: nativeName,
       subtitle: label == nativeName ? '' : label,
       selected: selected,

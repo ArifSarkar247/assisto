@@ -115,7 +115,7 @@ class _ContactCardState extends State<ContactCard> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             for (final p in phones)
               ListTile(
-                leading: const Icon(Icons.call_outlined),
+                leading: const Icon(Icons.call_rounded),
                 title: Text(localDigits(p, lang)),
                 onTap: () => Navigator.pop(ctx, p),
               ),
@@ -183,7 +183,7 @@ class _ContactCardState extends State<ContactCard> {
                 key: const Key('mc2-contact-message'),
                 style: style(),
                 onPressed: () => ContactCardActions.message(context, c),
-                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                 label: Text(t.mc2MessageOnAssisto),
               ),
             if (c.phones.isNotEmpty && !widget.mine)
@@ -194,7 +194,7 @@ class _ContactCardState extends State<ContactCard> {
                   final ok = await ContactCardActions.addToContacts(c);
                   if (!ok && mounted) _snack(t.mc2ActionFailed);
                 },
-                icon: const Icon(Icons.person_add_alt, size: 18),
+                icon: const Icon(Icons.person_add_alt_rounded, size: 18),
                 label: Text(t.mc2AddToContacts),
               ),
             if (c.phones.isNotEmpty)
@@ -202,7 +202,7 @@ class _ContactCardState extends State<ContactCard> {
                 key: const Key('mc2-contact-call'),
                 style: style(),
                 onPressed: _call,
-                icon: const Icon(Icons.call_outlined, size: 18),
+                icon: const Icon(Icons.call_rounded, size: 18),
                 label: Text(t.mc2Call),
               ),
           ]),

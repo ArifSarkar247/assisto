@@ -126,7 +126,7 @@ class _StoryPrivacySheetState extends State<StoryPrivacySheet> {
               ? null
               : IconButton(
                   tooltip: t.p3PrivChoose,
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: const Icon(Icons.edit_rounded),
                   onPressed: onPick),
         );
     return SafeArea(
@@ -166,7 +166,7 @@ class _StoryPrivacySheetState extends State<StoryPrivacySheet> {
             Padding(
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
               child: Row(children: [
-                Icon(Icons.lock_outline, size: 16, color: scheme.primary),
+                Icon(Icons.lock_outline_rounded, size: 16, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(t.p3PrivE2e,

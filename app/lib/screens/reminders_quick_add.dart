@@ -73,7 +73,7 @@ class _QuickAddBarState extends State<QuickAddBar> {
           Row(
             children: [
               const SizedBox(width: Gap.xs),
-              Icon(Icons.auto_awesome, size: 20, color: scheme.primary),
+              Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: TextField(
@@ -137,15 +137,15 @@ class _Preview extends StatelessWidget {
       final label = parsed.dateOnly
           ? DateFormat('d MMM', appDateLocale(context)).format(dt)
           : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt);
-      chips.add(_chip(Icons.schedule, label, scheme.primary));
+      chips.add(_chip(Icons.schedule_rounded, label, scheme.primary));
     }
     if (parsed.recurrence != null) {
       chips.add(_chip(
-          Icons.repeat, recurrenceLabel(t, parsed.recurrence!),
+          Icons.repeat_rounded, recurrenceLabel(t, parsed.recurrence!),
           Brand.onTint(context, Brand.purple)));
     }
     if (link != null) {
-      chips.add(_chip(Icons.link, (link!['label'] ?? '').toString(),
+      chips.add(_chip(Icons.link_rounded, (link!['label'] ?? '').toString(),
           Brand.onTint(context, Brand.blue)));
     }
     return Align(
@@ -166,7 +166,7 @@ class _Preview extends StatelessWidget {
             children: [
               ...chips,
               ActionChip(
-                avatar: const Icon(Icons.add_link, size: 16),
+                avatar: const Icon(Icons.add_link_rounded, size: 16),
                 label: Text(link == null ? t.remLinkAdd : t.remLinkChange),
                 visualDensity: VisualDensity.compact,
                 onPressed: onEditLink,
@@ -245,7 +245,7 @@ Future<Map<String, dynamic>?> pickLink(BuildContext context) async {
               const SizedBox(width: Gap.sm),
               IconButton(
                 tooltip: AppLocalizations.of(context).done,
-                icon: const Icon(Icons.check),
+                icon: const Icon(Icons.check_rounded),
                 onPressed: () {
                   if (custom.text.trim().isEmpty) return;
                   Navigator.pop(ctx,
@@ -263,13 +263,13 @@ Future<Map<String, dynamic>?> pickLink(BuildContext context) async {
 IconData _iconFor(String? type) {
   switch (type) {
     case 'bill':
-      return Icons.receipt_long_outlined;
+      return Icons.receipt_long_rounded;
     case 'document':
-      return Icons.folder_outlined;
+      return Icons.folder_rounded;
     case 'event':
-      return Icons.event_outlined;
+      return Icons.event_rounded;
     default:
-      return Icons.person_outline;
+      return Icons.person_outline_rounded;
   }
 }
 
@@ -384,7 +384,7 @@ Future<void> editReminder(BuildContext context,
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.schedule, size: 18),
+                  icon: const Icon(Icons.schedule_rounded, size: 18),
                   label: Text(due == null
                       ? t.remSetTime
                       : (dateOnly
@@ -415,7 +415,7 @@ Future<void> editReminder(BuildContext context,
                 IconButton(
                     tooltip: AppLocalizations.of(context).f2ClearTime,
                     onPressed: () => setD(() => due = null),
-                    icon: const Icon(Icons.clear)),
+                    icon: const Icon(Icons.clear_rounded)),
             ]),
             const SizedBox(height: Gap.md),
             DropdownButtonFormField<String>(
@@ -496,7 +496,7 @@ Future<void> editReminder(BuildContext context,
               alignment: Alignment.centerLeft,
               child: InputChip(
                 avatar: Icon(
-                    link == null ? Icons.add_link : Icons.link,
+                    link == null ? Icons.add_link_rounded : Icons.link_rounded,
                     size: 18),
                 label: Text(link == null
                     ? t.remLinkAdd
@@ -506,7 +506,7 @@ Future<void> editReminder(BuildContext context,
                   if (l != null) setD(() => link = l);
                 },
                 onDeleted: link == null ? null : () => setD(() => link = null),
-                deleteIcon: link == null ? null : const Icon(Icons.close, size: 16),
+                deleteIcon: link == null ? null : const Icon(Icons.close_rounded, size: 16),
               ),
             ),
           ]),

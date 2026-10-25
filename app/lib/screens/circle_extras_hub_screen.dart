@@ -174,7 +174,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                 // --- disappearing (server-enforced) ---
                 _sectionHeader(t.circleExtrasDisappearing, scheme),
                 ListTile(
-                  leading: const Icon(Icons.timer_outlined),
+                  leading: const Icon(Icons.timer_rounded),
                   title: Text(t.circleExtrasDisappearing),
                   subtitle: Text(t.circleExtrasDisappearingHint,
                       style: const TextStyle(fontSize: 12)),
@@ -187,7 +187,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                 // --- export (on-device, real share sheet) ---
                 ListTile(
                   key: const ValueKey('q1-extras-export'),
-                  leading: const Icon(Icons.ios_share),
+                  leading: const Icon(Icons.ios_share_rounded),
                   title: Text(t.circleExtrasExportChat),
                   subtitle: Text(t.circleExtrasExportHint,
                       style: const TextStyle(fontSize: 12)),
@@ -202,7 +202,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(
                     children: [
-                      Icon(Icons.verified_user_outlined,
+                      Icon(Icons.verified_user_rounded,
                           size: 16, color: scheme.primary),
                       const SizedBox(width: Gap.sm),
                       Expanded(
@@ -242,7 +242,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.tune, color: Colors.white),
+            const Icon(Icons.tune_rounded, color: Colors.white),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(t.circleExtrasHubSubtitle,

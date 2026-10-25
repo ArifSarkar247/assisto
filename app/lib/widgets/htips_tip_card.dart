@@ -80,7 +80,7 @@ class HtipsTipCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.medical_services_outlined,
+                Icon(Icons.medical_services_rounded,
                     size: 16, color: scheme.onErrorContainer),
                 const SizedBox(width: Gap.xs),
                 Expanded(
@@ -108,7 +108,7 @@ class HtipsTipCard extends StatelessWidget {
           if (sourceName.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Row(children: [
-              Icon(Icons.verified_outlined, size: 14, color: scheme.secondary),
+              Icon(Icons.verified_rounded, size: 14, color: scheme.secondary),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
@@ -132,13 +132,13 @@ class HtipsTipCard extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             TextButton.icon(
               onPressed: onToggleSave,
-              icon: Icon(saved ? Icons.bookmark : Icons.bookmark_border, size: 18),
+              icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, size: 18),
               label: Text(saved ? t.htipsSaved : t.htipsSave),
             ),
             const SizedBox(width: Gap.xs),
             TextButton.icon(
               onPressed: () => _share(context),
-              icon: const Icon(Icons.share_outlined, size: 18),
+              icon: const Icon(Icons.share_rounded, size: 18),
               label: Text(t.htipsShare),
             ),
           ]),

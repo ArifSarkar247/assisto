@@ -236,7 +236,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (_error.isNotEmpty) ...[
-              Icon(Icons.mic_off_outlined, color: scheme.error, size: 36),
+              Icon(Icons.mic_off_rounded, color: scheme.error, size: 36),
               const SizedBox(height: Gap.sm),
               Text(_error, textAlign: TextAlign.center),
               const SizedBox(height: Gap.md),
@@ -244,7 +244,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
             ] else ...[
               Row(
                 children: [
-                  Icon(Icons.fiber_manual_record, color: scheme.error, size: 14),
+                  Icon(Icons.fiber_manual_record_rounded, color: scheme.error, size: 14),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.md1VoiceRecording,
@@ -273,14 +273,14 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
                   IconButton(
                     key: const Key('md1-rec-discard'),
                     tooltip: t.md1VoiceDiscard,
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete_outline_rounded),
                     onPressed: _discard,
                   ),
                   const Spacer(),
                   FilledButton.icon(
                     key: const Key('md1-rec-send'),
                     onPressed: _finish,
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send_rounded),
                     label: Text(t.md1VoiceStopSend),
                   ),
                 ],

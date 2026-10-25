@@ -111,7 +111,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
       return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
     if (_stages.isEmpty) {
-      return CrmStateView.empty(icon: Icons.view_kanban_outlined, title: t.crmNoPipeline, message: t.crmNoPipelineHint);
+      return CrmStateView.empty(icon: Icons.view_kanban_rounded, title: t.crmNoPipeline, message: t.crmNoPipelineHint);
     }
     return ListView(
       scrollDirection: Axis.horizontal,
@@ -184,7 +184,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                Icon(Icons.warning_amber_outlined, size: 14, color: AssistoTokens.of(context).warning),
+                Icon(Icons.warning_amber_rounded, size: 14, color: AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text('${t.crmStuck} ${fmtInt(context, stuckDays)}${t.crmDaysShort}',

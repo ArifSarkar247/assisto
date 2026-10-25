@@ -128,7 +128,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
           // Single bounded entry point to the SOCIAL-MEDIA POST & CAPTION
           // composer (#135, §21) — a separate "mini-tool" opened from Studio.
           IconButton(
-            icon: const Icon(Icons.campaign_outlined),
+            icon: const Icon(Icons.campaign_rounded),
             tooltip: t.socialTitle,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const SocialComposeScreen())),
@@ -153,7 +153,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
             ? FloatingActionButton.extended(
                 onPressed: () => _create(Automation(
                     id: DateTime.now().microsecondsSinceEpoch.toString())),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.studioNew),
               )
             : const SizedBox.shrink(),
@@ -172,7 +172,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.studioLoadError,
         // ra1: automations live on this phone (SharedPreferences), so the
@@ -188,7 +188,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
         message: t.studioEmptyBody,
         action: FilledButton.tonalIcon(
           onPressed: () => _tabs.animateTo(1),
-          icon: const Icon(Icons.auto_awesome, size: 18),
+          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
           label: Text(t.studioBrowseTemplates),
         ),
       );
@@ -214,10 +214,10 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
   Widget _templatesTab(AppLocalizations t) {
     final tpls = StudioTemplates.build();
     final icons = {
-      't_bill': Icons.receipt_long_outlined,
-      't_summary': Icons.summarize_outlined,
-      't_followup': Icons.reply_outlined,
-      't_birthday': Icons.cake_outlined,
+      't_bill': Icons.receipt_long_rounded,
+      't_summary': Icons.summarize_rounded,
+      't_followup': Icons.reply_rounded,
+      't_birthday': Icons.cake_rounded,
     };
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
@@ -350,7 +350,7 @@ class _DetailSheetState extends State<_DetailSheet> {
                 const SizedBox(width: Gap.sm),
                 OutlinedButton.icon(
                   onPressed: widget.onEdit,
-                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  icon: const Icon(Icons.edit_rounded, size: 18),
                   label: Text(t.edit),
                 ),
               ]),
@@ -373,7 +373,7 @@ class _DetailSheetState extends State<_DetailSheet> {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   onPressed: widget.onDelete,
-                  icon: Icon(Icons.delete_outline,
+                  icon: Icon(Icons.delete_outline_rounded,
                       size: 18, color: Brand.danger),
                   label: Text(t.delete,
                       style: const TextStyle(color: Brand.danger)),

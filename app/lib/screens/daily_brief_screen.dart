@@ -232,7 +232,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
           ? const SkeletonList(count: 4)
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Brand.danger,
                   title: t.dbLoadError,
                   action: FilledButton.tonal(
@@ -347,19 +347,19 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
     String kindLabel;
     switch (it.kind) {
       case 'payment':
-        icon = Icons.payments_outlined;
+        icon = Icons.payments_rounded;
         kindLabel = t.dbKindPayment;
         break;
       case 'birthday':
-        icon = Icons.cake_outlined;
+        icon = Icons.cake_rounded;
         kindLabel = t.dbKindBirthday;
         break;
       case 'event':
-        icon = Icons.event_outlined;
+        icon = Icons.event_rounded;
         kindLabel = t.dbKindEvent;
         break;
       default:
-        icon = Icons.notifications_outlined;
+        icon = Icons.notifications_rounded;
         kindLabel = t.dbKindReminder;
     }
     final time = _timeOf(it.when);
@@ -402,7 +402,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   }
 
   Widget _emptyCard(String msg) => StateMessage(
-        icon: Icons.wb_sunny_outlined,
+        icon: Icons.wb_sunny_rounded,
         tint: Brand.blue,
         title: msg,
       );
@@ -410,7 +410,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   Widget _weatherSlot(DailyBrief b) {
     if (b.weatherConnected) return const SizedBox.shrink();
     return _KeyGatedChip(
-      icon: Icons.cloud_outlined,
+      icon: Icons.cloud_rounded,
       text: t.dbWeatherNeedsKey,
     );
   }
@@ -418,14 +418,14 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   Widget _newsSlot(DailyBrief b) {
     if (b.newsConnected) return const SizedBox.shrink();
     return _KeyGatedChip(
-      icon: Icons.article_outlined,
+      icon: Icons.article_rounded,
       text: t.dbNewsNeedsKey,
     );
   }
 
   Widget _shareButton(DailyBrief b) => OutlinedButton.icon(
         onPressed: b.empty ? null : () => _share(b),
-        icon: const Icon(Icons.ios_share, size: 18),
+        icon: const Icon(Icons.ios_share_rounded, size: 18),
         label: Text(t.share),
       );
 }

@@ -94,7 +94,7 @@ const Map<String, String> _allowDead = {
   'push_settings|Open': 'A: spec uses probe: false, which disables the OS-settings calls',
   'reminders|tip:Sync': 'A: gallery repos keep the pre-stub ApiClient (no token) so sync() returns early; on device it syncs with a spinner',
   // (B) needs real device machinery
-  'c2_call_video_*|icon:0xef26': 'B: camera flip on the fake media stack; real flip is WebRTC (call-proof workflow)',
+  'c2_call_video_*|icon:0xf613': 'B: camera flip on the fake media stack; real flip is WebRTC (call-proof workflow)',
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',
 };
@@ -447,7 +447,7 @@ bool _alreadySelected(Element e) {
     }
     // Custom option rows (language / theme pickers) mark the current choice
     // with a filled radio / check-circle icon.
-    if (d <= 26 && cw is Icon && (cw.icon == Icons.radio_button_checked || cw.icon == Icons.check_circle)) {
+    if (d <= 26 && cw is Icon && (cw.icon == Icons.radio_button_checked_rounded || cw.icon == Icons.check_circle_rounded)) {
       hit = true;
       return;
     }

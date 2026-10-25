@@ -332,7 +332,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
           const SizedBox(height: Gap.xl),
           Center(
             child: Column(children: [
-              Icon(Icons.contacts_outlined,
+              Icon(Icons.contacts_rounded,
                   size: 48,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: Gap.sm),
@@ -360,7 +360,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
       appBar: AppBar(title: Text(t.birthdaysTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.birthdaysAdd),
       ),
       body: RefreshIndicator(
@@ -383,13 +383,13 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(children: [
             const SizedBox(height: 60),
-            Icon(Icons.cloud_off, size: 48, color: scheme.onSurfaceVariant),
+            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(honestFailText(t, _failCause, otherwise: t.birthdaysLoadError), textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),
             OutlinedButton.icon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry),
             ),
           ]),
@@ -401,7 +401,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 72),
           child: Column(children: [
-            Icon(Icons.cake_outlined, size: 56, color: scheme.primary),
+            Icon(Icons.cake_rounded, size: 56, color: scheme.primary),
             const SizedBox(height: Gap.md),
             Text(t.birthdaysEmptyTitle,
                 style: Theme.of(context).textTheme.titleMedium),
@@ -415,7 +415,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
             const SizedBox(height: Gap.lg),
             OutlinedButton.icon(
               onPressed: _importFromContacts,
-              icon: const Icon(Icons.contacts_outlined),
+              icon: const Icon(Icons.contacts_rounded),
               label: Text(bStr(context, 'bImportContacts')),
             ),
           ]),
@@ -432,7 +432,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         if (_offline) _offlineBanner(scheme),
         if (thisWeek.isNotEmpty) ...[
           _sectionHeader(context, bStr(context, 'bThisWeekHighlight'),
-              Icons.local_fire_department_outlined),
+              Icons.local_fire_department_rounded),
           for (final occ in thisWeek) ...[
             _card(occ),
             const SizedBox(height: Gap.md),
@@ -441,7 +441,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         ],
         if (rest.isNotEmpty) ...[
           _sectionHeader(context, bStr(context, 'bUpcoming'),
-              Icons.event_outlined),
+              Icons.event_rounded),
           for (final occ in rest) ...[
             _card(occ),
             const SizedBox(height: Gap.md),
@@ -467,7 +467,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off, size: 18, color: scheme.onSecondaryContainer),
+          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(bStr(context, 'bOffline'),

@@ -147,7 +147,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: Icon(Icons.check_circle, color: Brand.success, size: 44),
+        icon: Icon(Icons.check_circle_rounded, color: Brand.success, size: 44),
         title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
         content: Text(t.referralRedeemedDays(fmtInt(context, days)),
             textAlign: TextAlign.center,
@@ -181,13 +181,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
             ? const SkeletonList()
             : _error
                 ? StateMessage(
-                    icon: Icons.cloud_off,
+                    icon: Icons.cloud_off_rounded,
                     tint: scheme.error,
                     title: t.loadFailed,
                     message: serverFailText(t, _failCause),
                     action: FilledButton.tonalIcon(
                         onPressed: _load,
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Icons.refresh_rounded),
                         label: Text(t.retry)))
                 : TabBarView(children: [
                     _overviewTab(t, scheme),
@@ -217,7 +217,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
           Expanded(
             child: FilledButton.icon(
               onPressed: _invite,
-              icon: const Icon(Icons.person_add_alt, size: 18),
+              icon: const Icon(Icons.person_add_alt_rounded, size: 18),
               style:
                   FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
               label: Text(t.referralInvite),
@@ -227,7 +227,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
           Expanded(
             child: FilledButton.tonalIcon(
               onPressed: (_busy || !canRedeem) ? null : _redeem,
-              icon: const Icon(Icons.workspace_premium, size: 18),
+              icon: const Icon(Icons.workspace_premium_rounded, size: 18),
               style:
                   FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
               label: Text(t.referralRedeem),
@@ -291,7 +291,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.xl),
             child: Column(children: [
-              Icon(Icons.history, size: 48, color: scheme.onSurfaceVariant),
+              Icon(Icons.history_rounded, size: 48, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.sm),
               Text(t.referralHistoryEmpty,
                   textAlign: TextAlign.center,
@@ -306,10 +306,10 @@ class _ReferralScreenState extends State<ReferralScreen> {
 
   Widget _howItWorks(AppLocalizations t, ColorScheme scheme) {
     final steps = [
-      (Icons.ios_share, t.referralStep1),
-      (Icons.download_done, t.referralStep2),
-      (Icons.handshake, t.referralStep3),
-      (Icons.workspace_premium, t.referralStep4),
+      (Icons.ios_share_rounded, t.referralStep1),
+      (Icons.download_done_rounded, t.referralStep2),
+      (Icons.handshake_rounded, t.referralStep3),
+      (Icons.workspace_premium_rounded, t.referralStep4),
     ];
     return Container(
       padding: const EdgeInsets.all(Gap.lg),

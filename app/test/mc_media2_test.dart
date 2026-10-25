@@ -453,7 +453,7 @@ void main() {
       await tester.tap(find.byKey(const Key('mc2-video-mute')));
       await tester.pump();
       expect(fake.calls.last, 'mute:true');
-      expect(find.byIcon(Icons.volume_off), findsOneWidget);
+      expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
       final slider = tester.widget<Slider>(find.byKey(const Key('mc2-video-seek')));
       slider.onChanged!(30000);
       slider.onChangeEnd!(30000);

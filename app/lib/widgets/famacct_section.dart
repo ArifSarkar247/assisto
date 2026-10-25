@@ -93,11 +93,11 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     if (loading) return const SkeletonList();
     if (errored) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: AppLocalizations.of(context).msgLoadFailed,
         action: FilledButton.icon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(AppLocalizations.of(context).retry)),
       );
     }
@@ -132,7 +132,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Row(children: [
-        const Icon(Icons.diversity_3_outlined, color: Colors.white),
+        const Icon(Icons.diversity_3_rounded, color: Colors.white),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -149,7 +149,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         ),
         IconButton(
             onPressed: _load,
-            icon: const Icon(Icons.sync, color: Colors.white)),
+            icon: const Icon(Icons.sync_rounded, color: Colors.white)),
       ]),
     );
   }
@@ -159,15 +159,15 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          onPressed: _openAddExpense, child: const Icon(Icons.add)),
+          onPressed: _openAddExpense, child: const Icon(Icons.add_rounded)),
       body: expenses.isEmpty
           ? StateMessage(
-              icon: Icons.receipt_long_outlined,
+              icon: Icons.receipt_long_rounded,
               title: AppLocalizations.of(context).faEmptyExpenses,
               message: AppLocalizations.of(context).faEmptyExpensesSub,
               action: FilledButton.icon(
                   onPressed: _openAddExpense,
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(AppLocalizations.of(context).faAddExpense)))
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
@@ -188,7 +188,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.payments_outlined),
+              const Icon(Icons.payments_rounded),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(
@@ -203,7 +203,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
               Text(FamAcctLocal.fmtPoisha(totalP),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               IconButton(
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () => _deleteExpense(e)),
             ]),
             if (aiCaptured) ...[
@@ -216,7 +216,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Row(children: [
-                    const Icon(Icons.circle, size: 6),
+                    const Icon(Icons.circle_rounded, size: 6),
                     const SizedBox(width: Gap.sm),
                     Expanded(child: Text(_name(s['member']))),
                     Text(FamAcctLocal.fmtPoisha(
@@ -238,7 +238,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.auto_awesome, size: 12, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 12, color: scheme.onTertiaryContainer),
         const SizedBox(width: 4),
         Text(AppLocalizations.of(context).faAiCaptured,
             style: TextStyle(
@@ -289,7 +289,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         (summary['settlements'] as List? ?? []).cast<Map<String, dynamic>>();
     if (settlements.isEmpty) {
       return StateMessage(
-        icon: Icons.handshake_outlined,
+        icon: Icons.handshake_rounded,
         title: AppLocalizations.of(context).faSettleEmpty,
         message: AppLocalizations.of(context).faSettleEmptySub,
         tint: Brand.success,
@@ -314,7 +314,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final line = serverMsg?.toString() ?? _owesLine(from, to, amt);
     return Card(
       child: ListTile(
-        leading: const CircleAvatar(child: Icon(Icons.swap_horiz)),
+        leading: const CircleAvatar(child: Icon(Icons.swap_horiz_rounded)),
         title: Text(line),
         trailing: TextButton(
           onPressed: () => _markPaid(s),
@@ -354,12 +354,12 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final target = (pool['target'] as num?)?.toInt() ?? 0;
     if (target <= 0) {
       return StateMessage(
-        icon: Icons.savings_outlined,
+        icon: Icons.savings_rounded,
         title: AppLocalizations.of(context).faPoolNone,
         message: AppLocalizations.of(context).faPoolNoneSub,
         action: FilledButton.icon(
             onPressed: _setPoolTarget,
-            icon: const Icon(Icons.flag_outlined),
+            icon: const Icon(Icons.flag_rounded),
             label: Text(AppLocalizations.of(context).faPoolSetTarget)),
       );
     }
@@ -399,14 +399,14 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         Expanded(
           child: OutlinedButton.icon(
               onPressed: _setPoolTarget,
-              icon: const Icon(Icons.flag_outlined),
+              icon: const Icon(Icons.flag_rounded),
               label: Text(AppLocalizations.of(context).faPoolSetTarget)),
         ),
         const SizedBox(width: Gap.md),
         Expanded(
           child: FilledButton.icon(
               onPressed: _contribute,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(AppLocalizations.of(context).faPoolContribute)),
         ),
       ]),
@@ -444,7 +444,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         (summary['members'] as List? ?? []).cast<Map<String, dynamic>>();
     if (rows.isEmpty) {
       return StateMessage(
-          icon: Icons.groups_outlined,
+          icon: Icons.groups_rounded,
           title: AppLocalizations.of(context).faMembersEmpty);
     }
     return ListView(
@@ -475,7 +475,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         child: Row(children: [
           CircleAvatar(
             backgroundColor: scheme.secondaryContainer,
-            child: Icon(Icons.person, color: scheme.onSecondaryContainer),
+            child: Icon(Icons.person_rounded, color: scheme.onSecondaryContainer),
           ),
           const SizedBox(width: Gap.md),
           Expanded(

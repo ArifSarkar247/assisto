@@ -18,13 +18,13 @@ class HealthBirthdayCard extends StatelessWidget {
   IconData _icon(String kind) {
     switch (kind) {
       case 'anniversary':
-        return Icons.favorite_outline;
+        return Icons.favorite_outline_rounded;
       case 'death_anniversary':
-        return Icons.local_florist_outlined;
+        return Icons.local_florist_rounded;
       case 'memorable':
-        return Icons.star_outline;
+        return Icons.star_outline_rounded;
       default:
-        return Icons.cake_outlined;
+        return Icons.cake_rounded;
     }
   }
 
@@ -75,13 +75,13 @@ class HealthBirthdayCard extends StatelessWidget {
           ),
           IconButton(
             tooltip: t.birthdayWishAction,
-            icon: const Icon(Icons.mail_outline),
+            icon: const Icon(Icons.mail_outline_rounded),
             color: scheme.primary,
             onPressed: onWish,
           ),
           IconButton(
             tooltip: t.delete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             color: scheme.error,
             onPressed: onDelete,
           ),

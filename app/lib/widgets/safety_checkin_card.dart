@@ -80,7 +80,7 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
           // QA a6: the trailing button squeezed the text column to a few
           // words per line (one word at 1.5x font). Button now sits under it.
           ListTile(
-            leading: const Icon(Icons.pin_drop_outlined),
+            leading: const Icon(Icons.pin_drop_rounded),
             title: Text(t.safetyCheckinNone),
             subtitle: Text(t.safetyCheckinNoneDesc),
           ),
@@ -118,7 +118,7 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
         padding: const EdgeInsets.all(14),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.flag, color: color),
+            Icon(Icons.flag_rounded, color: color),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -141,7 +141,7 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1E7E4E), foregroundColor: Colors.white),
                 onPressed: onArrived,
-                icon: const Icon(Icons.check),
+                icon: const Icon(Icons.check_rounded),
                 label: Text(t.safetyArrived),
               ),
             ),
@@ -159,7 +159,7 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
   Widget _advancedLink(BuildContext context) => Align(
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
-          icon: const Icon(Icons.open_in_new, size: 16),
+          icon: const Icon(Icons.open_in_new_rounded, size: 16),
           label: Text(AppLocalizations.of(context).aSetButton),
           onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SafeArrivalScreen())),

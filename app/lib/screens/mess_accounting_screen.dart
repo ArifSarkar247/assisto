@@ -116,13 +116,13 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.messTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.messLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -131,12 +131,12 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.messTitle)),
         body: StateMessage(
-          icon: Icons.groups_2_outlined,
+          icon: Icons.groups_2_rounded,
           title: tr.messWelcomeTitle,
           message: tr.messWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addMember,
-            icon: const Icon(Icons.person_add_alt_1),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
             label: Text(tr.messAddMember),
           ),
         ),
@@ -231,7 +231,7 @@ class _MembersTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: onAdd,
-        icon: const Icon(Icons.person_add_alt_1),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(tr.messAddMember),
       ),
       body: RefreshIndicator(
@@ -257,7 +257,7 @@ class _MembersTab extends StatelessWidget {
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text(tr.messMealsCount(_fmtMeals(meals))),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   tooltip: tr.delete,
                   onPressed: () => _confirmDelete(context, m, onChanged),
                 ),
@@ -378,7 +378,7 @@ class _EntriesTabState extends State<_EntriesTab> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
         children: [
-          _sectionHeader(context, Icons.restaurant_outlined,
+          _sectionHeader(context, Icons.restaurant_rounded,
               tr.messMealsSection, tr.messMealsSectionHint),
           for (final m in widget.members)
             Card(
@@ -394,7 +394,7 @@ class _EntriesTabState extends State<_EntriesTab> {
           const SizedBox(height: Gap.lg),
           _ledgerSection(
             context,
-            icon: Icons.shopping_basket_outlined,
+            icon: Icons.shopping_basket_rounded,
             title: tr.messBazarSection,
             hint: tr.messBazarSectionHint,
             rows: widget.bazar,
@@ -406,7 +406,7 @@ class _EntriesTabState extends State<_EntriesTab> {
           const SizedBox(height: Gap.lg),
           _ledgerSection(
             context,
-            icon: Icons.savings_outlined,
+            icon: Icons.savings_rounded,
             title: tr.messDepositsSection,
             hint: tr.messDepositsSectionHint,
             rows: widget.deposits,
@@ -418,7 +418,7 @@ class _EntriesTabState extends State<_EntriesTab> {
           const SizedBox(height: Gap.lg),
           _ledgerSection(
             context,
-            icon: Icons.receipt_long_outlined,
+            icon: Icons.receipt_long_rounded,
             title: tr.messChargesSection,
             hint: tr.messChargesSectionHint,
             rows: widget.charges,
@@ -478,7 +478,7 @@ class _EntriesTabState extends State<_EntriesTab> {
               Text(_fmtTk(r['amount']),
                   style: Theme.of(context).textTheme.titleSmall),
               IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20),
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
                 tooltip: tr.delete,
                 onPressed: () async {
                   final id = r['id'];
@@ -496,7 +496,7 @@ class _EntriesTabState extends State<_EntriesTab> {
         child: TextButton.icon(
           onPressed: () => _addLedgerRow(
               context, path, withMember, allowCommon, title, onChanged),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.messAddEntry),
         ),
       ),
@@ -558,7 +558,7 @@ class _SummaryTab extends StatelessWidget {
 
     if (bazar.isEmpty && deposits.isEmpty) {
       return StateMessage(
-        icon: Icons.calculate_outlined,
+        icon: Icons.calculate_rounded,
         title: tr.messSummaryEmptyTitle,
         message: tr.messSummaryEmptyBody,
       );
@@ -575,7 +575,7 @@ class _SummaryTab extends StatelessWidget {
                 tr.messMealRate,
                 _MessMath.fmtPoisha(s.mealRate),
                 scheme.primary,
-                Icons.calculate_outlined),
+                Icons.calculate_rounded),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -584,7 +584,7 @@ class _SummaryTab extends StatelessWidget {
                 tr.messTotalBazar,
                 _MessMath.fmtPoisha(s.bazarTotal.toDouble()),
                 Brand.purple,
-                Icons.shopping_basket_outlined),
+                Icons.shopping_basket_rounded),
           ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -595,7 +595,7 @@ class _SummaryTab extends StatelessWidget {
                 tr.messTotalMeals,
                 _fmtMeals(s.mealsTotal),
                 scheme.secondary,
-                Icons.restaurant_outlined),
+                Icons.restaurant_rounded),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -604,7 +604,7 @@ class _SummaryTab extends StatelessWidget {
                 tr.messTotalDeposits,
                 _MessMath.fmtPoisha(s.depositsTotal.toDouble()),
                 Brand.success,
-                Icons.savings_outlined),
+                Icons.savings_rounded),
           ),
         ]),
         const SizedBox(height: Gap.lg),
@@ -618,7 +618,7 @@ class _SummaryTab extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(s.reconciles ? Icons.verified_outlined : Icons.info_outline,
+              Icon(s.reconciles ? Icons.verified_rounded : Icons.info_outline_rounded,
                   size: 18,
                   color:
                       s.reconciles ? Brand.success : scheme.onSurfaceVariant),

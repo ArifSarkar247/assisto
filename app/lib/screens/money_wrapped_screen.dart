@@ -142,12 +142,12 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
   }
 
   Widget _errorState(AppLocalizations t) => StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.wrappedErrorTitle,
         message: honestFailText(t, _failCause, otherwise: t.wrappedErrorHint),
         action: FilledButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.retry),
         ),
       );
@@ -156,7 +156,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
     final need = (_data?['min_txns'] as num?)?.toInt() ?? 5;
     final have = (_data?['txn_count'] as num?)?.toInt() ?? 0;
     return StateMessage(
-      icon: Icons.auto_awesome_outlined,
+      icon: Icons.auto_awesome_rounded,
       title: t.wrappedEmptyTitle,
       // qa1: locale digits (the count had Latin digits in the Bangla UI)
       message: t.wrappedEmptyHint(fmtInt(context, need), fmtInt(context, have)),
@@ -210,7 +210,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: () => _share(t),
-              icon: const Icon(Icons.ios_share),
+              icon: const Icon(Icons.ios_share_rounded),
               label: Text(t.wrappedShare),
             ),
           ),
@@ -247,7 +247,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       child: WrappedBigStat(
         value: monthLbl,
         caption: t.wrappedIntroCaption,
-        icon: Icons.auto_awesome,
+        icon: Icons.auto_awesome_rounded,
       ),
     ));
 
@@ -259,7 +259,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       child: WrappedBigStat(
         value: tkFmt(d['total_spent']),
         caption: t.wrappedSpentCaption,
-        icon: Icons.north_east,
+        icon: Icons.north_east_rounded,
       ),
     ));
 
@@ -271,7 +271,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         eyebrow: t.wrappedEarnedEyebrow,
         footer: monthLbl,
         child: WrappedLineStat(
-          icon: Icons.south_west,
+          icon: Icons.south_west_rounded,
           title: t.wrappedEarnedTitle,
           value: tkFmt(d['total_earned']),
           note: t.wrappedSavedNote(tkFmt(d['total_saved'])),
@@ -299,7 +299,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         eyebrow: t.wrappedTopCategoryEyebrow,
         footer: monthLbl,
         child: WrappedLineStat(
-          icon: Icons.local_fire_department_outlined,
+          icon: Icons.local_fire_department_rounded,
           title: topCat.toString(),
           value: tkFmt(d['top_category_amount']),
           note: t.wrappedTopCategoryNote,
@@ -315,7 +315,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         eyebrow: t.wrappedBiggestEyebrow,
         footer: monthLbl,
         child: WrappedLineStat(
-          icon: Icons.bolt_outlined,
+          icon: Icons.bolt_rounded,
           title: (biggest['category']?.toString().isNotEmpty == true)
               ? biggest['category'].toString()
               : t.wrappedBiggestTitle,
@@ -351,7 +351,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       eyebrow: t.wrappedNoSpendEyebrow,
       footer: monthLbl,
       child: WrappedLineStat(
-        icon: Icons.self_improvement_outlined,
+        icon: Icons.self_improvement_rounded,
         title: t.wrappedNoSpendTitle,
         value: '$noSpend',
         note: t.wrappedNoSpendNote(

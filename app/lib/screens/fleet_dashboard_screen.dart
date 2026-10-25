@@ -64,7 +64,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
       body = const SkeletonList();
     } else if (_notBusiness) {
       body = StateMessage(
-        icon: Icons.local_shipping_outlined,
+        icon: Icons.local_shipping_rounded,
         title: tr.vehFleetBusinessTitle,
         message: tr.vehErrBusinessOnly,
         action: FilledButton(
@@ -75,12 +75,12 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
       );
     } else if (_error || _data == null) {
       body = StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: tr.loadFailed,
         message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
         action: FilledButton.tonalIcon(
-            onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)),
+            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(tr.retry)),
       );
     } else {
       final tot = vehMap(_data!['totals']);
@@ -101,14 +101,14 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
                   2.1 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
               children: [
                 _tile(tr.vehFleetVehicles, vehNumStr(context, vehInt(tot['vehicles']) ?? 0),
-                    Icons.directions_car, Brand.blue),
+                    Icons.directions_car_rounded, Brand.blue),
                 _tile(tr.vehFleetOnline, vehNumStr(context, vehInt(tot['online']) ?? 0),
-                    Icons.wifi_tethering, Brand.success),
+                    Icons.wifi_tethering_rounded, Brand.success),
                 _tile(tr.vehFleetMoving, vehNumStr(context, vehInt(tot['moving']) ?? 0),
-                    Icons.speed, Brand.purple),
+                    Icons.speed_rounded, Brand.purple),
                 _tile(tr.vehFleetKmToday,
                     tr.vehKm(vehNumStr(context, vehNum(tot['km_today']) ?? 0, decimals: 1)),
-                    Icons.straighten, Brand.cyan),
+                    Icons.straighten_rounded, Brand.cyan),
               ],
             ),
             const SizedBox(height: Gap.sm),
@@ -117,7 +117,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
                 margin: EdgeInsets.zero,
                 color: scheme.errorContainer,
                 child: ListTile(
-                  leading: Icon(Icons.notifications_active, color: scheme.onErrorContainer),
+                  leading: Icon(Icons.notifications_active_rounded, color: scheme.onErrorContainer),
                   title: Text(tr.vehFleetAlerts(vehNumStr(context, vehInt(tot['alerts_today'])!)),
                       style: TextStyle(color: scheme.onErrorContainer)),
                 ),
@@ -125,7 +125,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
             const SizedBox(height: Gap.sm),
             if (rows.isEmpty)
               StateMessage(
-                  icon: Icons.gps_not_fixed, title: tr.vehEmptyTitle, message: tr.vehEmptyBody),
+                  icon: Icons.gps_not_fixed_rounded, title: tr.vehEmptyTitle, message: tr.vehEmptyBody),
             for (final v in rows) _row(tr, scheme, v),
           ],
         ),
@@ -178,7 +178,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: (online ? Brand.success : scheme.outline).withValues(alpha: 0.16),
-          child: Icon(Icons.directions_car, color: online ? Brand.success : scheme.outline),
+          child: Icon(Icons.directions_car_rounded, color: online ? Brand.success : scheme.outline),
         ),
         title: Text(name.isEmpty ? tr.vehUnnamedTracker : name,
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -190,8 +190,8 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         trailing: (vehInt(v['alerts_today']) ?? 0) > 0
             ? Badge(
                 label: Text(vehNumStr(context, vehInt(v['alerts_today'])!)),
-                child: const Icon(Icons.notifications_outlined))
-            : const Icon(Icons.chevron_right),
+                child: const Icon(Icons.notifications_rounded))
+            : const Icon(Icons.chevron_right_rounded),
         onTap: v['state'] == 'paired'
             ? () => Navigator.push(
                 context,

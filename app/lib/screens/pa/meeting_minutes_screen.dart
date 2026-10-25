@@ -165,20 +165,20 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
       appBar: AppBar(title: Text(tr.paMinTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.note_add_outlined),
+        icon: const Icon(Icons.note_add_rounded),
         label: Text(tr.paMinAdd),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paMinLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -191,13 +191,13 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           StateMessage(
-            icon: Icons.groups_outlined,
+            icon: Icons.groups_rounded,
             tint: Brand.blue,
             title: tr.paMinWelcomeTitle,
             message: tr.paMinWelcomeBody,
             action: FilledButton.icon(
               onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.note_add_outlined),
+              icon: const Icon(Icons.note_add_rounded),
               label: Text(tr.paMinAdd),
             ),
           ),
@@ -241,7 +241,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.groups_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.groups_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text((s['title'] ?? '').toString(),
@@ -250,7 +250,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
                   overflow: TextOverflow.ellipsis),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);
@@ -264,23 +264,23 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
             if (dateStr.isNotEmpty)
-              _meta(Icons.event, _fmtDate(dateStr, tr), scheme),
-            _meta(Icons.people_outline,
+              _meta(Icons.event_rounded, _fmtDate(dateStr, tr), scheme),
+            _meta(Icons.people_outline_rounded,
                 tr.paMinAttendeeCount('${s['attendee_count']}'), scheme),
             if (actions.isNotEmpty)
-              _meta(Icons.task_alt,
+              _meta(Icons.task_alt_rounded,
                   tr.paMinActionCount(/* (done, open) */ '$done', '$open'), scheme),
           ]),
           if ((s['agenda'] as List).isNotEmpty)
             _section(tr.paMinAgenda, (s['agenda'] as List).cast<String>(),
-                Icons.list_alt, scheme),
+                Icons.list_alt_rounded, scheme),
           if ((s['decisions'] as List).isNotEmpty)
             _section(tr.paMinDecisions,
-                (s['decisions'] as List).cast<String>(), Icons.gavel, scheme),
+                (s['decisions'] as List).cast<String>(), Icons.gavel_rounded, scheme),
           if (actions.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.task_alt, size: 15, color: scheme.secondary),
+              Icon(Icons.task_alt_rounded, size: 15, color: scheme.secondary),
               const SizedBox(width: Gap.xs),
               Text(tr.paMinActions,
                   style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: scheme.secondary)),
@@ -331,10 +331,10 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(
             done
-                ? Icons.check_circle
+                ? Icons.check_circle_rounded
                 : status == _acDoing
-                    ? Icons.timelapse
-                    : Icons.radio_button_unchecked,
+                    ? Icons.timelapse_rounded
+                    : Icons.radio_button_unchecked_rounded,
             size: 15,
             color: color),
         const SizedBox(width: 6),
@@ -416,7 +416,7 @@ class _SttSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(ready ? Icons.auto_awesome : Icons.lock_outline,
+          Icon(ready ? Icons.auto_awesome_rounded : Icons.lock_outline_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -551,7 +551,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
               );
               if (d != null) setState(() => _date = d);
             },
-            icon: const Icon(Icons.event),
+            icon: const Icon(Icons.event_rounded),
             label: Text(_date == null ? tr.paMinSetDate : fmt.format(_date!)),
           ),
           const SizedBox(height: Gap.md),
@@ -568,7 +568,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
             ),
             TextButton.icon(
               onPressed: () => _editAction(),
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(tr.paMinAddAction),
             ),
           ]),
@@ -593,7 +593,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
                 onTap: () => _editAction(_actions.indexOf(a)),
                 trailing: IconButton(
                   tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () => setState(() => _actions.remove(a)),
                 ),
               ),
@@ -705,7 +705,7 @@ class _ActionFormState extends State<_ActionForm> {
                   );
                   if (d != null) setState(() => _due = d);
                 },
-                icon: const Icon(Icons.event),
+                icon: const Icon(Icons.event_rounded),
                 label: Text(_due == null ? tr.paMinSetDue : fmt.format(_due!)),
               ),
               const SizedBox(height: Gap.md),

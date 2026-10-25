@@ -347,7 +347,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
               'other'
             ])
               ListTile(
-                leading: const Icon(Icons.flag_outlined),
+                leading: const Icon(Icons.flag_rounded),
                 title: Text(_reportLabel(r)),
                 onTap: () => Navigator.pop(ctx, r),
               ),
@@ -394,7 +394,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
           if (_isAdmin)
             IconButton(
               tooltip: _t.circleGroupEditInfo,
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit_rounded),
               onPressed: _editInfo,
             ),
         ],
@@ -425,7 +425,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.cloud_off_outlined,
+              Icon(Icons.cloud_off_rounded,
                   size: 48, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.md),
               Text(honestFailText(_t, _failCause, otherwise: _t.grpInfoLoadError),
@@ -433,7 +433,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                   style: TextStyle(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               FilledButton.icon(
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 onPressed: _load,
                 label: Text(_t.grpRetry),
               ),
@@ -448,14 +448,14 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                 const Divider(),
                 if (_isAdmin) ...[
                   SwitchListTile(
-                    secondary: const Icon(Icons.campaign_outlined),
+                    secondary: const Icon(Icons.campaign_rounded),
                     title: Text(_t.circleGroupAnnouncementsOnly),
                     subtitle: Text(_t.circleGroupAnnouncementsHint),
                     value: _group['announcements_only'] == true,
                     onChanged: _toggleAnnouncements,
                   ),
                   ListTile(
-                    leading: const Icon(Icons.people_outline),
+                    leading: const Icon(Icons.people_outline_rounded),
                     title: Text(_t.circleGroupSizeLimit),
                     trailing: Text(notifLocalizeDigits(context, '${_group['size_limit'] ?? 256}')),
                     onTap: _editSizeLimit,
@@ -463,7 +463,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                   const Divider(),
                 ],
                 ListTile(
-                  leading: const Icon(Icons.link_outlined),
+                  leading: const Icon(Icons.link_rounded),
                   title: Text(_t.circleGroupInviteLink),
                   subtitle: Text(_t.circleGroupInviteLinkHint),
                   onTap: _inviteLink,
@@ -485,7 +485,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                       ),
                       if (_isAdmin)
                         TextButton.icon(
-                          icon: const Icon(Icons.person_add_alt_1_outlined),
+                          icon: const Icon(Icons.person_add_alt_1_rounded),
                           label: Text(_t.circleGroupAddMembers),
                           onPressed: _addMembers,
                         ),
@@ -512,12 +512,12 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                     ),
                 const Divider(),
                 ListTile(
-                  leading: Icon(Icons.flag_outlined, color: Brand.warning),
+                  leading: Icon(Icons.flag_rounded, color: Brand.warning),
                   title: Text(_t.circleGroupReport),
                   onTap: _report,
                 ),
                 ListTile(
-                  leading: Icon(Icons.logout, color: Brand.danger),
+                  leading: Icon(Icons.logout_rounded, color: Brand.danger),
                   title: Text(_t.circleGroupLeave,
                       style: const TextStyle(color: Brand.danger)),
                   onTap: _leave,
@@ -533,7 +533,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
             CircleAvatar(
               radius: 40,
               backgroundColor: scheme.primaryContainer,
-              child: const Icon(Icons.groups_outlined, size: 40),
+              child: const Icon(Icons.groups_rounded, size: 40),
             ),
             const SizedBox(height: Gap.md),
             Text('${_group['name'] ?? ''}',

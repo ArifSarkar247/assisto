@@ -159,7 +159,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         actions: [
           IconButton(
             tooltip: t.discoverTitle,
-            icon: const Icon(Icons.explore_outlined),
+            icon: const Icon(Icons.explore_rounded),
             onPressed: () => Navigator.of(context)
                 .push(MaterialPageRoute(
                     builder: (_) => const DiscoverScreen()))
@@ -169,7 +169,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _create,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.channelCreate),
       ),
       body: _loading
@@ -187,12 +187,12 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         children: [
           const SizedBox(height: Gap.xxl * 2),
           MsgrEmptyState(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.channelLoadError,
             body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
             action: FilledButton.icon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry),
             ),
           ),
@@ -204,14 +204,14 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         children: [
           const SizedBox(height: Gap.xxl * 2),
           MsgrEmptyState(
-            icon: Icons.campaign_outlined,
+            icon: Icons.campaign_rounded,
             title: t.channelsEmptyTitle,
             body: _backendReady
                 ? t.channelsEmptyBody
                 : t.checkInternetRetry,
             action: FilledButton.icon(
               onPressed: _create,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.channelCreate),
             ),
           ),

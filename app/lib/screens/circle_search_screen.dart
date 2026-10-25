@@ -187,7 +187,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search, size: 48, color: scheme.primary.withValues(alpha: 0.6)),
+              Icon(Icons.search_rounded, size: 48, color: scheme.primary.withValues(alpha: 0.6)),
               const SizedBox(height: Gap.md),
               Text(_t.circleSearchHint,
                   textAlign: TextAlign.center,

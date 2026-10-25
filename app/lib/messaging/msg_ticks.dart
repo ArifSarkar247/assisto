@@ -41,14 +41,14 @@ MsgTick maxTick(MsgTick a, MsgTick b) {
 IconData tickIcon(MsgTick t) {
   switch (t) {
     case MsgTick.pending:
-      return Icons.schedule;
+      return Icons.schedule_rounded;
     case MsgTick.sent:
-      return Icons.done;
+      return Icons.done_rounded;
     case MsgTick.delivered:
     case MsgTick.read:
-      return Icons.done_all;
+      return Icons.done_all_rounded;
     case MsgTick.failed:
-      return Icons.error_outline;
+      return Icons.error_outline_rounded;
   }
 }
 

@@ -221,7 +221,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             content: SingleChildScrollView(
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
                 OutlinedButton.icon(
-                  icon: const Icon(Icons.schedule),
+                  icon: const Icon(Icons.schedule_rounded),
                   label: Text('${AppLocalizations.of(context).aRoutineHomeBy}: ${time.format(ctx)}'),
                   onPressed: () async {
                     final p = await showTimePicker(context: ctx, initialTime: time);
@@ -293,7 +293,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(children: [
-                Icon(Icons.cloud_off, size: 18, color: Brand.warnInk(context)),
+                Icon(Icons.cloud_off_rounded, size: 18, color: Brand.warnInk(context)),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(AppLocalizations.of(context).aOffline,
                     style: AType.bodySmall.copyWith(color: Brand.warnInk(context)))),
@@ -316,14 +316,14 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               onPressed: _shareLastLocation,
-              icon: const Icon(Icons.my_location, size: 18),
+              icon: const Icon(Icons.my_location_rounded, size: 18),
               label: Text(AppLocalizations.of(context).aShareLastLocation),
             ),
           ],
           if (_nightMode) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.nightlight_round, size: 16, color: Colors.indigo.shade300),
+              Icon(Icons.nightlight_round_rounded, size: 16, color: Colors.indigo.shade300),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aNightSafetyOn,
                   style: AType.bodySmall.copyWith(color: Colors.indigo))),
@@ -332,7 +332,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
           if (_hasDuress) ...[
             const SizedBox(height: 10),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.lock_outline, size: 16, color: Colors.grey),
+              const Icon(Icons.lock_outline_rounded, size: 16, color: Colors.grey),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aDuressHint,
                   style: AType.labelSmall.copyWith(color: Colors.grey))),
@@ -346,7 +346,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
                 style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))),
             TextButton.icon(
               onPressed: _addRoutine,
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(AppLocalizations.of(context).aRoutineAdd),
             ),
           ]),
@@ -388,7 +388,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.repeat,
+      leading: Icon(Icons.repeat_rounded,
           color: enabled ? Theme.of(context).colorScheme.primary : Colors.grey),
       title: Text('${AppLocalizations.of(context).aRoutineHomeBy}: $time'),
       subtitle: Text(days),

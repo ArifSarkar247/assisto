@@ -99,7 +99,7 @@ class SponsorWhySheet extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.check_circle_outline, size: 18, color: scheme.primary),
+                  Icon(Icons.check_circle_outline_rounded, size: 18, color: scheme.primary),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(l, style: const TextStyle(height: 1.35))),
                 ]),
@@ -108,7 +108,7 @@ class SponsorWhySheet extends StatelessWidget {
             if (onHide != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.visibility_off_outlined),
+                leading: const Icon(Icons.visibility_off_rounded),
                 title: Text(t.p2HideAd),
                 onTap: () {
                   Navigator.pop(context);
@@ -118,7 +118,7 @@ class SponsorWhySheet extends StatelessWidget {
             if (onMute != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.block_outlined),
+                leading: const Icon(Icons.block_rounded),
                 title: Text(t.p2MuteBrand(creative.sponsor)),
                 onTap: () {
                   Navigator.pop(context);
@@ -127,7 +127,7 @@ class SponsorWhySheet extends StatelessWidget {
               ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.workspace_premium_outlined),
+              leading: const Icon(Icons.workspace_premium_rounded),
               title: Text(t.p2RemoveAds),
               onTap: () {
                 Navigator.pop(context);
@@ -267,7 +267,7 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
                   child: OutlinedButton.icon(
                     key: const Key('p2-skip'),
                     onPressed: countdown.canSkip ? _close : null,
-                    icon: Icon(countdown.canSkip ? Icons.close : Icons.timer_outlined,
+                    icon: Icon(countdown.canSkip ? Icons.close_rounded : Icons.timer_rounded,
                         size: 18),
                     label: Text(countdown.canSkip
                         ? t.p2Skip
@@ -287,7 +287,7 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
                     color: scheme.surfaceContainerHighest,
                     child: c.imageUrl.isEmpty
                         ? Center(
-                            child: Icon(Icons.local_offer_outlined,
+                            child: Icon(Icons.local_offer_rounded,
                                 size: 72, color: scheme.primary))
                         : _creativeImage(c, fit: BoxFit.contain),
                   ),
@@ -310,7 +310,7 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
                   key: const Key('p2-cta'),
                   onPressed: _open,
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                  icon: const Icon(Icons.open_in_new),
+                  icon: const Icon(Icons.open_in_new_rounded),
                   label: Text(cta),
                 ),
               const SizedBox(height: Gap.sm),
@@ -388,7 +388,7 @@ class SponsoredPostCard extends StatelessWidget {
               ),
             IconButton(
               tooltip: t.p2WhyAd,
-              icon: const Icon(Icons.more_horiz),
+              icon: const Icon(Icons.more_horiz_rounded),
               onPressed: () =>
                   SponsorWhySheet.show(context, c, onHide: onHide, onMute: onMute),
             ),
@@ -423,7 +423,7 @@ class SponsoredPostCard extends StatelessWidget {
                 onClick?.call();
                 if (context.mounted) await openSponsorLink(c, context);
               },
-              icon: const Icon(Icons.open_in_new, size: 18),
+              icon: const Icon(Icons.open_in_new_rounded, size: 18),
               label: Text(cta),
             ),
           )
@@ -544,7 +544,7 @@ class SponsorHeroCard extends StatelessWidget {
           IconButton(
             visualDensity: VisualDensity.compact,
             tooltip: t.p2WhyAd,
-            icon: const Icon(Icons.info_outline, size: 18),
+            icon: const Icon(Icons.info_outline_rounded, size: 18),
             onPressed: () => SponsorWhySheet.show(context, c),
           ),
         ]),

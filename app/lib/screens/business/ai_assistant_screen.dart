@@ -80,7 +80,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         IconButton(
           tooltip: tr.bizRefresh,
           onPressed: _loading ? null : _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
         ),
       ]),
       body: _body(tr),
@@ -94,7 +94,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     }
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: tr.bizLoadFailed,
         message: _error,
         action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -109,18 +109,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       BizCard(
         title: tr.bizConnectChannelsTitle,
-        icon: Icons.hub_outlined,
+        icon: Icons.hub_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.bizConnectChannelsBody, style: const TextStyle(height: 1.4)),
           const SizedBox(height: Gap.md),
-          _channelTile(tr, tr.bizChannelWhatsapp, Icons.chat, 'whatsapp_cloud'),
+          _channelTile(tr, tr.bizChannelWhatsapp, Icons.chat_rounded, 'whatsapp_cloud'),
           const SizedBox(height: Gap.sm),
-          _channelTile(tr, tr.bizChannelMessenger, Icons.forum_outlined, 'messenger'),
+          _channelTile(tr, tr.bizChannelMessenger, Icons.forum_rounded, 'messenger'),
         ]),
       ),
       const SizedBox(height: Gap.md),
       // Hard rule, always visible: official APIs only, never personal WhatsApp.
-      BizNote(text: tr.bizNoPersonalWhatsapp, icon: Icons.verified_user_outlined),
+      BizNote(text: tr.bizNoPersonalWhatsapp, icon: Icons.verified_user_rounded),
       const SizedBox(height: Gap.md),
       BizMockBanner(text: tr.bizChannelsNeedKey),
     ]);
@@ -156,7 +156,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   Widget _inbox(AppLocalizations tr) {
     if (_threads.isEmpty) {
       return StateMessage(
-        icon: Icons.forum_outlined,
+        icon: Icons.forum_rounded,
         title: tr.bizInboxEmptyTitle,
         message: tr.bizInboxEmptyBody,
       );
@@ -173,7 +173,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: BizNote(
                   text: tr.bizNoPersonalWhatsapp,
-                  icon: Icons.verified_user_outlined),
+                  icon: Icons.verified_user_rounded),
             );
           }
           return _threadTile(tr, _threads[i - 1]);
@@ -195,7 +195,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         leading: CircleAvatar(
           backgroundColor: scheme.secondaryContainer,
           child: Icon(
-            channel == 'messenger' ? Icons.forum_outlined : Icons.chat,
+            channel == 'messenger' ? Icons.forum_rounded : Icons.chat_rounded,
             color: scheme.onSecondaryContainer,
             size: 20,
           ),
@@ -367,7 +367,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             ? const SkeletonList()
             : _error != null
                 ? StateMessage(
-                    icon: Icons.cloud_off_outlined,
+                    icon: Icons.cloud_off_rounded,
                     title: tr.bizLoadFailed,
                     message: _error,
                     action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -387,7 +387,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             // Always-on AI disclosure line.
             BizNote(
               text: (_disclosure?['full'] ?? _disclosure?['short'] ?? '').toString(),
-              icon: Icons.smart_toy_outlined,
+              icon: Icons.smart_toy_rounded,
             ),
             const SizedBox(height: Gap.md),
             for (final m in _messages) _bubble(tr, m),
@@ -450,7 +450,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
           if (needsHuman) ...[
             BizNote(
               text: _handoffText(tr, handoffReason),
-              icon: Icons.priority_high,
+              icon: Icons.priority_high_rounded,
               tint: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: Gap.sm),
@@ -458,7 +458,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
           // Confidence read-out for the AI draft.
           if (!_ownerTakeover && conf != null) ...[
             Row(children: [
-              Icon(Icons.insights, size: 16, color: scheme.onSurfaceVariant),
+              Icon(Icons.insights_rounded, size: 16, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Text(tr.bizConfidence('${(conf * 100).round()}'),
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
@@ -478,7 +478,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             Expanded(
               child: FilledButton.icon(
                 onPressed: _busy ? null : _send,
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded),
                 label: Text(_ownerTakeover
                     ? tr.bizSend
                     : tr.bizApproveSend),

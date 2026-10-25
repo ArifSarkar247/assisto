@@ -34,7 +34,7 @@ class ShopSeenPill extends StatelessWidget {
     final on = row['online'] == true;
     final c = on ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(Icons.circle, size: 9, color: c),
+      Icon(Icons.circle_rounded, size: 9, color: c),
       const SizedBox(width: Gap.xs),
       Flexible(
         child: Text(shopSeenLabel(t, context, row),
@@ -86,12 +86,12 @@ class ShopHoursField extends StatelessWidget {
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         OutlinedButton.icon(
           onPressed: () => pick(true),
-          icon: const Icon(Icons.wb_sunny_outlined, size: 18),
+          icon: const Icon(Icons.wb_sunny_rounded, size: 18),
           label: Text(open == null ? t.shopCamOpens : t.shopCamOpensAt(loc.formatTimeOfDay(open))),
         ),
         OutlinedButton.icon(
           onPressed: () => pick(false),
-          icon: const Icon(Icons.nightlight_outlined, size: 18),
+          icon: const Icon(Icons.nightlight_rounded, size: 18),
           label: Text(
               close == null ? t.shopCamCloses : t.shopCamClosesAt(loc.formatTimeOfDay(close))),
         ),
@@ -290,19 +290,19 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
                     : () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => ShopLiveScreen(
                             cameraId: _id, cameraName: _name.text.trim()))),
-                icon: const Icon(Icons.live_tv_outlined),
+                icon: const Icon(Icons.live_tv_rounded),
                 label: Text(t.shopLiveOpen),
               ),
             ),
             const SizedBox(height: Gap.md),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.phone_android),
+              leading: const Icon(Icons.phone_android_rounded),
               title: Text(t.shopCamTokenLabel),
               subtitle: Text(t.shopCamTokenHelp),
               trailing: IconButton(
                 tooltip: t.copy,
-                icon: const Icon(Icons.copy),
+                icon: const Icon(Icons.copy_rounded),
                 onPressed: _token.isEmpty
                     ? null
                     : () async {
@@ -317,13 +317,13 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               TextButton.icon(
                 onPressed: _busy ? null : _rotate,
-                icon: const Icon(Icons.autorenew),
+                icon: const Icon(Icons.autorenew_rounded),
                 label: Text(t.shopCamRotate),
               ),
               TextButton.icon(
                 style: TextButton.styleFrom(foregroundColor: scheme.error),
                 onPressed: _busy ? null : _delete,
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 label: Text(t.shopCamDelete),
               ),
             ]),
@@ -376,7 +376,7 @@ class ShopWebhookCard extends StatelessWidget {
                             ..showSnackBar(SnackBar(content: Text(t.shopHookCopied)));
                         }
                       },
-                icon: const Icon(Icons.copy, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
               ),
             ]),
           ),
@@ -391,7 +391,7 @@ class ShopWebhookCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.settings_input_antenna, size: 18, color: scheme.primary),
+            Icon(Icons.settings_input_antenna_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.shopHookTitle,

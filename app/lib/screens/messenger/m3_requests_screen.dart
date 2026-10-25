@@ -54,7 +54,7 @@ class _M3RequestsScreenState extends State<M3RequestsScreen>
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.inbox_outlined, size: 48, color: scheme.primary),
+            Icon(Icons.inbox_rounded, size: 48, color: scheme.primary),
             const SizedBox(height: Gap.md),
             Text(t.m3NoRequests,
                 textAlign: TextAlign.center,

@@ -77,7 +77,7 @@ void main() {
     expect(find.text(t.baMetaPendingNote), findsOneWidget);
     expect(find.text(t.baBuyNotReady), findsOneWidget);
     // bn label shows Bangla digits (৭ দিন / ১০০টি) — tap by its icon
-    await tester.tap(find.byIcon(Icons.rocket_launch_outlined));
+    await tester.tap(find.byIcon(Icons.rocket_launch_rounded));
     await tester.pump(const Duration(milliseconds: 200));
     expect(p1Posts.any((e) => e.key == '/bizagent/plan/trial'), isTrue);
   });

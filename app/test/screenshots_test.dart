@@ -490,9 +490,9 @@ Map<String, GallerySpec> gallerySpecs() {
       final who = l == 'bn' ? 'আম্মুকে ফোন' : 'Call Mum';
       final amt = l == 'bn' ? '৳৫০০' : '৳500';
       return VoiceAssistantScreen(autoListen: false, debugTurns: [
-        VaTurn(t.vaExReminder, VaOutcome(t.vaReminderSet(who, when), icon: Icons.notifications_active_outlined, title: who, subtitle: when, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
-        VaTurn(t.vaExExpense, VaOutcome(t.vaExpenseLogged(amt, t.vaCatGroceries), icon: Icons.receipt_long_outlined, title: amt, subtitle: t.vaCatGroceries, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
-        VaTurn(t.vaExTorch, VaOutcome(t.vaTorchOn, icon: Icons.flashlight_on, buttons: [VaButton(t.vaTurnOff, Icons.flashlight_off, () async {})])),
+        VaTurn(t.vaExReminder, VaOutcome(t.vaReminderSet(who, when), icon: Icons.notifications_active_rounded, title: who, subtitle: when, buttons: [VaButton(t.vaUndo, Icons.undo_rounded, () async {})])),
+        VaTurn(t.vaExExpense, VaOutcome(t.vaExpenseLogged(amt, t.vaCatGroceries), icon: Icons.receipt_long_rounded, title: amt, subtitle: t.vaCatGroceries, buttons: [VaButton(t.vaUndo, Icons.undo_rounded, () async {})])),
+        VaTurn(t.vaExTorch, VaOutcome(t.vaTorchOn, icon: Icons.flashlight_on_rounded, buttons: [VaButton(t.vaTurnOff, Icons.flashlight_off_rounded, () async {})])),
       ]);
     }), mode: FakeMode.data, full: true),
     'voice_confirm': (build: (l) => Builder(builder: (ctx) {
@@ -501,7 +501,7 @@ Map<String, GallerySpec> gallerySpecs() {
         elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         color: Theme.of(ctx).colorScheme.surfaceContainerLow,
         child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
-          icon: Icons.call, title: t.vaConfirmCallTitle(l == 'bn' ? 'আম্মু' : 'Ammu'),
+          icon: Icons.call_rounded, title: t.vaConfirmCallTitle(l == 'bn' ? 'আম্মু' : 'Ammu'),
           choices: const [{'name': 'Ammu', 'phone': '01711-000000'}, {'name': 'Ammu (office)', 'phone': '01811-000000'}],
           confirmLabel: t.vaCallNow, debugListening: true)))));
     }), mode: FakeMode.data, full: true),
@@ -511,7 +511,7 @@ Map<String, GallerySpec> gallerySpecs() {
         elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         color: Theme.of(ctx).colorScheme.surfaceContainerLow,
         child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
-          icon: Icons.sos, title: t.vaConfirmSosTitle, detail: t.vaConfirmSosBody,
+          icon: Icons.sos_rounded, title: t.vaConfirmSosTitle, detail: t.vaConfirmSosBody,
           confirmLabel: t.vaSendSos, danger: true)))));
     }), mode: FakeMode.data, full: true),
     'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
@@ -859,7 +859,7 @@ void main() {
     }
     if (name.endsWith('_menu')) {
       try {
-        final mv = find.byIcon(Icons.more_vert);
+        final mv = find.byIcon(Icons.more_vert_rounded);
         if (mv.evaluate().isNotEmpty) { await tester.tap(mv.first); await tester.pumpAndSettle(const Duration(milliseconds: 300)); }
       } catch (_) {}
     }

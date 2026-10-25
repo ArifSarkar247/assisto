@@ -44,14 +44,14 @@ class RideDeepLink {
     RideProvider(
       id: 'uber',
       name: 'Uber',
-      icon: Icons.directions_car_filled_outlined,
+      icon: Icons.directions_car_filled_rounded,
       kind: RideFoodKind.ride,
       probeScheme: 'uber://',
     ),
     RideProvider(
       id: 'pathao',
       name: 'Pathao',
-      icon: Icons.two_wheeler_outlined,
+      icon: Icons.two_wheeler_rounded,
       kind: RideFoodKind.ride,
       probeScheme: 'pathao://',
     ),
@@ -61,14 +61,14 @@ class RideDeepLink {
     RideProvider(
       id: 'foodpanda',
       name: 'foodpanda',
-      icon: Icons.delivery_dining_outlined,
+      icon: Icons.delivery_dining_rounded,
       kind: RideFoodKind.food,
       probeScheme: 'foodpanda://',
     ),
     RideProvider(
       id: 'pathao_food',
       name: 'Pathao Food',
-      icon: Icons.fastfood_outlined,
+      icon: Icons.fastfood_rounded,
       kind: RideFoodKind.food,
       probeScheme: 'pathao://',
     ),

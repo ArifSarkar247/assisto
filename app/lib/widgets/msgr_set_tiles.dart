@@ -63,7 +63,7 @@ class MsgrSetRow extends StatelessWidget {
           ? null
           : Text(subtitle!, maxLines: 3, overflow: TextOverflow.ellipsis),
       trailing: value == null
-          ? (onTap == null ? null : const Icon(Icons.chevron_right))
+          ? (onTap == null ? null : const Icon(Icons.chevron_right_rounded))
           : Text(value!,
               style: TextStyle(color: scheme.onSurfaceVariant),
               maxLines: 1,
@@ -85,7 +85,7 @@ class MsgrSetComingSoon extends StatelessWidget {
     super.key,
     required this.title,
     required this.requirement,
-    this.icon = Icons.schedule_outlined,
+    this.icon = Icons.schedule_rounded,
   });
 
   @override
@@ -114,7 +114,7 @@ class MsgrSetComingSoon extends StatelessWidget {
 class MsgrSetNote extends StatelessWidget {
   final String text;
   final IconData icon;
-  const MsgrSetNote(this.text, {super.key, this.icon = Icons.info_outline});
+  const MsgrSetNote(this.text, {super.key, this.icon = Icons.info_outline_rounded});
 
   @override
   Widget build(BuildContext context) {

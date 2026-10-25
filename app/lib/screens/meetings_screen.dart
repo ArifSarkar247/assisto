@@ -232,7 +232,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
         actions: [
           IconButton(
             tooltip: mStr(context, _showPast ? 'mUpcoming' : 'mPast'),
-            icon: Icon(_showPast ? Icons.upcoming_outlined : Icons.history),
+            icon: Icon(_showPast ? Icons.upcoming_rounded : Icons.history_rounded),
             onPressed: () => setState(() => _showPast = !_showPast),
           ),
         ],
@@ -246,7 +246,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.meetingsAdd),
       ),
       body: _body(t),
@@ -271,7 +271,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: Row(children: [
-              Icon(Icons.cloud_off, size: 16, color: Brand.warnInk(context)),
+              Icon(Icons.cloud_off_rounded, size: 16, color: Brand.warnInk(context)),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(mStr(context, 'mOffline'),
@@ -548,7 +548,7 @@ class _AnchorBar extends StatelessWidget {
       child: Row(children: [
         IconButton(
             tooltip: 'Previous',
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left_rounded),
             onPressed: onPrev),
         Expanded(
           child: Text(label,
@@ -557,7 +557,7 @@ class _AnchorBar extends StatelessWidget {
         ),
         IconButton(
             tooltip: 'Next',
-            icon: const Icon(Icons.chevron_right),
+            icon: const Icon(Icons.chevron_right_rounded),
             onPressed: onNext),
         TextButton(onPressed: onToday, child: Text(mStr(context, 'mToday'))),
       ]),
@@ -608,7 +608,7 @@ class _AgendaRow extends StatelessWidget {
                     color: done ? scheme.outline : null)),
           ),
           if (recurring)
-            Icon(Icons.repeat, size: 14, color: scheme.outline),
+            Icon(Icons.repeat_rounded, size: 14, color: scheme.outline),
         ]),
       ),
     );
@@ -675,7 +675,7 @@ class _MeetingCard extends StatelessWidget {
               _Chip(
                   label: mStr(context, 'mStatusDone'),
                   color: Brand.success,
-                  icon: Icons.check_circle),
+                  icon: Icons.check_circle_rounded),
             _OverflowMenu(
               done: done,
               onEdit: onEdit,
@@ -685,13 +685,13 @@ class _MeetingCard extends StatelessWidget {
             ),
           ]),
           Row(children: [
-            Icon(Icons.schedule, size: 15, color: scheme.primary),
+            Icon(Icons.schedule_rounded, size: 15, color: scheme.primary),
             const SizedBox(width: 6),
             Expanded(
                 child: Text(whenLabel, style: TextStyle(color: scheme.primary))),
             if (recurring) ...[
               const SizedBox(width: 6),
-              Icon(Icons.repeat, size: 14, color: scheme.outline),
+              Icon(Icons.repeat_rounded, size: 14, color: scheme.outline),
               const SizedBox(width: Gap.xxs),
               Text(freqLabel(context, freqOf(appt)),
                   style: AType.labelSmall.copyWith(color: scheme.outline)),
@@ -700,7 +700,7 @@ class _MeetingCard extends StatelessWidget {
           if (place.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              Icon(Icons.place_outlined, size: 15, color: scheme.outline),
+              Icon(Icons.place_rounded, size: 15, color: scheme.outline),
               const SizedBox(width: 6),
               Expanded(
                   child: Text(place, style: TextStyle(color: scheme.outline))),
@@ -709,7 +709,7 @@ class _MeetingCard extends StatelessWidget {
           if (people.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.group_outlined, size: 15, color: scheme.outline),
+              Icon(Icons.group_rounded, size: 15, color: scheme.outline),
               const SizedBox(width: 6),
               Expanded(
                   child: Text('${mStr(context, "mWith")}: ${people.join(", ")}',
@@ -806,7 +806,7 @@ class _OverflowMenu extends StatelessWidget {
     final t = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       tooltip: '',
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Icons.more_vert_rounded, size: 20),
       onSelected: (v) {
         switch (v) {
           case 'edit':
@@ -832,24 +832,24 @@ class _OverflowMenu extends StatelessWidget {
       itemBuilder: (ctx) => [
         PopupMenuItem(
             value: 'edit',
-            child: _Row(Icons.edit_outlined, t.edit)),
+            child: _Row(Icons.edit_rounded, t.edit)),
         PopupMenuItem(
             value: 'share',
-            child: _Row(Icons.ios_share, mStr(ctx, 'mShare'))),
+            child: _Row(Icons.ios_share_rounded, mStr(ctx, 'mShare'))),
         if (done)
           PopupMenuItem(
               value: 'reopen',
-              child: _Row(Icons.undo, mStr(ctx, 'mReopen')))
+              child: _Row(Icons.undo_rounded, mStr(ctx, 'mReopen')))
         else
           PopupMenuItem(
               value: 'done',
-              child: _Row(Icons.check_circle_outline, mStr(ctx, 'mMarkDone'))),
+              child: _Row(Icons.check_circle_outline_rounded, mStr(ctx, 'mMarkDone'))),
         PopupMenuItem(
             value: 'cancel',
-            child: _Row(Icons.event_busy, mStr(ctx, 'mMarkCancelled'))),
+            child: _Row(Icons.event_busy_rounded, mStr(ctx, 'mMarkCancelled'))),
         PopupMenuItem(
             value: 'delete',
-            child: _Row(Icons.delete_outline, t.delete)),
+            child: _Row(Icons.delete_outline_rounded, t.delete)),
       ],
     );
   }
@@ -975,7 +975,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, size: 16),
+                icon: const Icon(Icons.calendar_today_rounded, size: 16),
                 label: Text(df.format(_date)),
                 onPressed: () async {
                   final d = await showDatePicker(
@@ -992,7 +992,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.schedule, size: 16),
+                icon: const Icon(Icons.schedule_rounded, size: 16),
                 label: Text(_time.format(context)),
                 onPressed: () async {
                   final p =
@@ -1103,7 +1103,7 @@ class _Empty extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.event_available_outlined,
+          const Icon(Icons.event_available_rounded,
               size: 56, color: Colors.grey),
           const SizedBox(height: Gap.md),
           Text(t.meetingsEmptyTitle,
@@ -1117,7 +1117,7 @@ class _Empty extends StatelessWidget {
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             onPressed: onAdd,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(mStr(context, 'mAddFirst')),
           ),
         ]),
@@ -1133,7 +1133,7 @@ class _EmptyPast extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.history, size: 48, color: Colors.grey),
+          const Icon(Icons.history_rounded, size: 48, color: Colors.grey),
           const SizedBox(height: Gap.md),
           Text(mStr(context, 'mPast'),
               style: TextStyle(color: Theme.of(context).colorScheme.outline)),
@@ -1153,7 +1153,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.error_outline, size: 48, color: Brand.danger),
+          const Icon(Icons.error_outline_rounded, size: 48, color: Brand.danger),
           const SizedBox(height: Gap.md),
           Text(mStr(context, 'mLoadError'),
               textAlign: TextAlign.center,
@@ -1161,7 +1161,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: Gap.md),
           FilledButton.icon(
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry),
           ),
         ]),

@@ -96,13 +96,13 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savedTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.savedLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -116,7 +116,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
       // empty state has its own CTA: no duplicate FAB
       floatingActionButton: result.empty ? null : FloatingActionButton.extended(
         onPressed: _addItem,
-        icon: const Icon(Icons.bookmark_add_outlined),
+        icon: const Icon(Icons.bookmark_add_rounded),
         label: Text(tr.savedAdd),
       ),
       body: result.empty
@@ -132,12 +132,12 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
   Widget _welcome(BuildContext context) {
     final tr = AppLocalizations.of(context);
     return StateMessage(
-      icon: Icons.bookmarks_outlined,
+      icon: Icons.bookmarks_rounded,
       title: tr.savedWelcomeTitle,
       message: tr.savedWelcomeBody,
       action: FilledButton.icon(
         onPressed: _addItem,
-        icon: const Icon(Icons.bookmark_add_outlined),
+        icon: const Icon(Icons.bookmark_add_rounded),
         label: Text(tr.savedAdd),
       ),
     );
@@ -153,11 +153,11 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: tr.savedSearchHint,
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: _query.isEmpty
               ? null
               : IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear_rounded),
                   tooltip: tr.close,
                   onPressed: () {
                     _searchCtl.clear();
@@ -206,7 +206,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     final tr = AppLocalizations.of(context);
     if (result.noResults) {
       return StateMessage(
-        icon: Icons.search_off,
+        icon: Icons.search_off_rounded,
         title: tr.savedNoResultsTitle,
         message: tr.savedNoResultsBody,
         action: OutlinedButton.icon(
@@ -217,7 +217,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
               _tag = '';
             });
           },
-          icon: const Icon(Icons.clear_all),
+          icon: const Icon(Icons.clear_all_rounded),
           label: Text(tr.savedClearFilters),
         ),
       );
@@ -347,7 +347,7 @@ class _SavedCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20),
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
                 tooltip: tr.delete,
                 onPressed: onDelete,
               ),
@@ -362,7 +362,7 @@ class _SavedCard extends StatelessWidget {
             if (ref.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(kind == 'link' ? Icons.link : Icons.description_outlined,
+                Icon(kind == 'link' ? Icons.link_rounded : Icons.description_rounded,
                     size: 14, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Expanded(
@@ -406,13 +406,13 @@ class _SavedCard extends StatelessWidget {
 IconData _kindIcon(String kind) {
   switch (kind) {
     case 'answer':
-      return Icons.chat_bubble_outline;
+      return Icons.chat_bubble_outline_rounded;
     case 'doc':
-      return Icons.description_outlined;
+      return Icons.description_rounded;
     case 'link':
-      return Icons.link;
+      return Icons.link_rounded;
     default:
-      return Icons.sticky_note_2_outlined;
+      return Icons.sticky_note_2_rounded;
   }
 }
 

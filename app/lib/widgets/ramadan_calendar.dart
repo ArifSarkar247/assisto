@@ -90,7 +90,7 @@ class _RamadanCalendarState extends State<RamadanCalendar> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.calendar_month_outlined, color: Brand.blue),
+            const Icon(Icons.calendar_month_rounded, color: Brand.blue),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanCalendarTitle,

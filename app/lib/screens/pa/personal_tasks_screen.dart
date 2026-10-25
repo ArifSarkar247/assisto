@@ -94,7 +94,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.delete_outline, color: Brand.danger),
+        icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger),
         title: Text(t.paTaskDeleteTitle),
         content: Text(t.paTaskDeleteBody(task.title)),
         actions: [
@@ -147,7 +147,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
       floatingActionButton: (_configured && !_loading && _error == null)
           ? FloatingActionButton.extended(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.paTaskAdd),
             )
           : null,
@@ -161,7 +161,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
     if (_loading) return const SkeletonList(count: 5);
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.paTasksLoadError,
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
@@ -170,13 +170,13 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
     if (_tasks.isEmpty) {
       // First-use welcome state.
       return StateMessage(
-        icon: Icons.checklist_rtl,
+        icon: Icons.checklist_rtl_rounded,
         tint: Brand.blue,
         title: t.paTasksWelcomeTitle,
         message: t.paTasksWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(t.paTaskAdd),
         ),
       );
@@ -302,11 +302,11 @@ class _TaskTile extends StatelessWidget {
   IconData _statusIcon() {
     switch (task.status) {
       case statusDoing:
-        return Icons.timelapse;
+        return Icons.timelapse_rounded;
       case statusDone:
-        return Icons.check_circle;
+        return Icons.check_circle_rounded;
       default:
-        return Icons.radio_button_unchecked;
+        return Icons.radio_button_unchecked_rounded;
     }
   }
 
@@ -353,7 +353,7 @@ class _TaskTile extends StatelessWidget {
                       if (task.due.isNotEmpty)
                         _badge(_dueText(task.due),
                             overdue ? Brand.danger : scheme.onSurfaceVariant,
-                            icon: Icons.event),
+                            icon: Icons.event_rounded),
                       if (overdue)
                         _badge(overdueLabel, Brand.danger,
                             icon: Icons.warning_amber_rounded, filled: true),
@@ -547,7 +547,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.event, size: 18),
+                  icon: const Icon(Icons.event_rounded, size: 18),
                   label: Text(_due == null
                       ? t.paTaskSetDue
                       : '${_due!.year}-${_due!.month.toString().padLeft(2, '0')}-${_due!.day.toString().padLeft(2, '0')}'),
@@ -566,7 +566,7 @@ class _TaskEditorState extends State<_TaskEditor> {
               if (_due != null)
                 IconButton(
                   tooltip: t.paTaskClearDue,
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () => setState(() => _due = null),
                 ),
             ]),

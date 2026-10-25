@@ -413,7 +413,7 @@ class E2eNoticeChip extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.lock_outline),
+        icon: const Icon(Icons.lock_outline_rounded),
         title: Text(t.trustE2eTitle, textAlign: TextAlign.center),
         content: Text(t.t1E2eInfoBody),
         actions: [
@@ -450,7 +450,7 @@ class E2eNoticeChip extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.lock_outline, size: 14, color: fg),
+                    Icon(Icons.lock_outline_rounded, size: 14, color: fg),
                     const SizedBox(width: Gap.sm),
                     Flexible(
                       child: Text(t.circleE2eBanner,

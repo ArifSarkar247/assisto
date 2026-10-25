@@ -182,7 +182,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
-          icon: const Icon(Icons.account_balance_wallet_outlined),
+          icon: const Icon(Icons.account_balance_wallet_rounded),
           title: Text(actionLabel(t, action)),
           content: Text(t.plKeyGatedBanner),
           actions: [
@@ -278,20 +278,20 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(_kind == kKindReceivable ? t.plAddReceivable : t.plAddPayable),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.plLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.plLoadFailedBody),
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(t.plRetry),
                   ),
                 )
@@ -308,12 +308,12 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
         children: [
           const SizedBox(height: Gap.xxl),
           StateMessage(
-            icon: receivable ? Icons.volunteer_activism : Icons.receipt_long,
+            icon: receivable ? Icons.volunteer_activism_rounded : Icons.receipt_long_rounded,
             title: receivable ? t.plEmptyReceivableTitle : t.plEmptyPayableTitle,
             message: receivable ? t.plEmptyReceivableBody : t.plEmptyPayablebody,
             action: FilledButton.icon(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(receivable ? t.plAddReceivable : t.plAddPayable),
             ),
           ),
@@ -351,11 +351,11 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
 
         if (dueRows.isNotEmpty) ...[
           LadderSection(
-              icon: Icons.bolt, title: t.plSectionDueNow, tint: Brand.danger),
+              icon: Icons.bolt_rounded, title: t.plSectionDueNow, tint: Brand.danger),
           for (final row in dueRows) _card(row, now),
         ],
 
-        LadderSection(icon: Icons.list_alt, title: t.plSectionAll),
+        LadderSection(icon: Icons.list_alt_rounded, title: t.plSectionAll),
         for (final row in _rows)
           if (!dueRows.contains(row)) _card(row, now),
 
@@ -386,7 +386,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
             color: Theme.of(context).colorScheme.errorContainer,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
-          child: Icon(Icons.delete_outline,
+          child: Icon(Icons.delete_outline_rounded,
               color: Theme.of(context).colorScheme.onErrorContainer),
         ),
         confirmDismiss: (_) async {
@@ -436,7 +436,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
                   Navigator.pop(context);
                   _addOrEdit(row);
                 },
-                icon: const Icon(Icons.edit_outlined),
+                icon: const Icon(Icons.edit_rounded),
                 label: Text(t.plEditLadder),
               ),
             ),
@@ -466,7 +466,7 @@ class _OfflineBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.cloud_off, size: 18, color: cs.onTertiaryContainer),
+        Icon(Icons.cloud_off_rounded, size: 18, color: cs.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
@@ -513,7 +513,7 @@ class _SharePreview extends StatelessWidget {
           // integrator against the app's existing share helper — see the
           // integration md. We never auto-send; the user presses Send themselves.
           onPressed: () => Navigator.pop(context),
-          icon: Icon(whatsapp ? Icons.chat_bubble_outline : Icons.sms_outlined),
+          icon: Icon(whatsapp ? Icons.chat_bubble_outline_rounded : Icons.sms_rounded),
           label: Text(whatsapp ? t.plShareWhatsapp : t.plShareSms),
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         ),

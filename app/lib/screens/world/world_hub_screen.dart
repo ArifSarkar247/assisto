@@ -57,24 +57,24 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
     final scheme = Theme.of(context).colorScheme;
     final tiles = <_Tile>[
       if (_searchReady)
-        _Tile(Icons.travel_explore, t.uwAskTitle, t.uwAskTileSub,
+        _Tile(Icons.travel_explore_rounded, t.uwAskTitle, t.uwAskTileSub,
             () => _go(WorldAskScreen(api: api, credits: _credits))),
-      _Tile(Icons.wb_sunny_outlined, t.uwTodayTitle, t.uwTodayTileSub,
+      _Tile(Icons.wb_sunny_rounded, t.uwTodayTitle, t.uwTodayTileSub,
           () => _go(WorldTodayScreen(api: api))),
-      _Tile(Icons.work_outline, t.uwJobsTitle, t.uwJobsTileSub,
+      _Tile(Icons.work_outline_rounded, t.uwJobsTitle, t.uwJobsTileSub,
           () => _go(WorldJobsScreen(api: api))),
-      _Tile(Icons.flight_takeoff, t.uwHubExpat, t.uwHubExpatSub,
+      _Tile(Icons.flight_takeoff_rounded, t.uwHubExpat, t.uwHubExpatSub,
           () => _go(WorldGuideHubScreen(hubId: 'expat', api: api))),
-      _Tile(Icons.school_outlined, t.uwHubStudents, t.uwHubStudentsSub,
+      _Tile(Icons.school_rounded, t.uwHubStudents, t.uwHubStudentsSub,
           () => _go(WorldGuideHubScreen(hubId: 'students', api: api))),
-      _Tile(Icons.grass_outlined, t.uwHubFarmers, t.uwHubFarmersSub,
+      _Tile(Icons.grass_rounded, t.uwHubFarmers, t.uwHubFarmersSub,
           () => _go(WorldGuideHubScreen(hubId: 'farmers', api: api))),
-      _Tile(Icons.account_balance_outlined, t.uwHubGov, t.uwHubGovSub,
+      _Tile(Icons.account_balance_rounded, t.uwHubGov, t.uwHubGovSub,
           () => _go(WorldGuideHubScreen(hubId: 'gov', api: api))),
       // play-nomed: the Health hub (prescription reader, medicine price) is
       // a medical feature — hidden in the Play flavour.
       if (kMedicalFeaturesAllowed)
-        _Tile(Icons.health_and_safety_outlined, t.uwHubHealth, t.uwHubHealthSub,
+        _Tile(Icons.health_and_safety_rounded, t.uwHubHealth, t.uwHubHealthSub,
           () => _go(WorldGuideHubScreen(hubId: 'health', api: api))),
     ];
     return Scaffold(
@@ -107,14 +107,14 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
                     title: Text(tile.title,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Text(tile.sub),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: tile.onTap,
                   ),
                 ),
               ),
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.mic_none, size: 18, color: scheme.onSurfaceVariant),
+              Icon(Icons.mic_none_rounded, size: 18, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.uwVoiceHint,

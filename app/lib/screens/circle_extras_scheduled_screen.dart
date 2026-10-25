@@ -189,14 +189,14 @@ class _CircleExtrasScheduledScreenState
                             final it = pending[i];
                             return ListTile(
                               leading:
-                                  const Icon(Icons.schedule_send_outlined),
+                                  const Icon(Icons.schedule_send_rounded),
                               title: Text(it.preview,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis),
                               subtitle: Text(
                                   t.circleExtrasStatusPending(_fmt(it.sendAt))),
                               trailing: IconButton(
-                                icon: const Icon(Icons.close),
+                                icon: const Icon(Icons.close_rounded),
                                 tooltip: t.cancel,
                                 onPressed: () => _cancel(it),
                               ),
@@ -240,7 +240,7 @@ class _CircleExtrasScheduledScreenState
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.event, size: 18),
+                    icon: const Icon(Icons.event_rounded, size: 18),
                     label: Text(_when == null
                         ? t.circleExtrasPickDateTime
                         : _fmt(_when!)),

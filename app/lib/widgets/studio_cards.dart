@@ -303,7 +303,7 @@ class TemplateCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: FilledButton.tonalIcon(
               onPressed: onUse,
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(t.studioUseTemplate),
             ),
           ),
@@ -331,7 +331,7 @@ class RunHistoryTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.sm),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(e.manual ? Icons.play_circle_outline : Icons.schedule,
+        Icon(e.manual ? Icons.play_circle_outline_rounded : Icons.schedule_rounded,
             size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -368,7 +368,7 @@ class AiMockBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome,
+        Icon(Icons.auto_awesome_rounded,
             size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(

@@ -160,7 +160,7 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
           child: AppConfig.playStore
               // l1-launch: Play builds never download/install an APK.
               ? StateMessage(
-                  icon: Icons.shop_outlined,
+                  icon: Icons.shop_rounded,
                   title: t.updateTitle,
                   message: t.l1PlayUpdatesViaStore,
                   tint: Brand.blue,
@@ -175,25 +175,25 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
         return _Checking(label: t.updateChecking);
       case _Phase.failed:
         return StateMessage(
-          icon: Icons.cloud_off_outlined,
+          icon: Icons.cloud_off_rounded,
           title: t.updateCheckFailedTitle,
           message: t.updateCheckFailedBody,
           tint: Brand.warning,
           action: FilledButton.icon(
             onPressed: _check,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.updateRetry),
           ),
         );
       case _Phase.upToDate:
         return StateMessage(
-          icon: Icons.verified_outlined,
+          icon: Icons.verified_rounded,
           title: t.updateUpToDateTitle,
           message: t.updateUpToDateBody(_currentLabel),
           tint: Brand.success,
           action: TextButton.icon(
             onPressed: _check,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.updateCheckAgain),
           ),
         );
@@ -273,7 +273,7 @@ class _Available extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.system_update, color: Colors.white, size: 34),
+              const Icon(Icons.system_update_rounded, color: Colors.white, size: 34),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(
@@ -315,7 +315,7 @@ class _Available extends StatelessWidget {
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: onUpdate,
-          icon: const Icon(Icons.download_outlined),
+          icon: const Icon(Icons.download_rounded),
           label: Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.sm),
             child: Text(t.updateDownloadAction),

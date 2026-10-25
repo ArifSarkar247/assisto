@@ -122,21 +122,21 @@ class _MsgrSetNotificationsScreenState
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 MsgrSetSection(t.msgrSetNotifMessagesSection),
-                _toggle(Icons.chat_bubble_outline, 'messages',
+                _toggle(Icons.chat_bubble_outline_rounded, 'messages',
                     t.msgrSetNotifMessages, t.msgrSetNotifMessagesSub),
-                _toggle(Icons.groups_outlined, 'groups',
+                _toggle(Icons.groups_rounded, 'groups',
                     t.msgrSetNotifGroups, t.msgrSetNotifGroupsSub),
-                _toggle(Icons.call_outlined, 'calls', t.msgrSetNotifCalls,
+                _toggle(Icons.call_rounded, 'calls', t.msgrSetNotifCalls,
                     t.msgrSetNotifCallsSub),
                 const Divider(),
                 MsgrSetSection(t.msgrSetNotifInAppSection),
                 // f6 (no showpieces): in-app sound/vibration rows stay hidden
                 // until the app really plays them.
                 if (kInAppSoundBuilt) ...[
-                  _deviceOnly(Icons.volume_up_outlined, t.msgrSetNotifSound),
-                  _deviceOnly(Icons.vibration, t.msgrSetNotifVibrate),
+                  _deviceOnly(Icons.volume_up_rounded, t.msgrSetNotifSound),
+                  _deviceOnly(Icons.vibration_rounded, t.msgrSetNotifVibrate),
                 ],
-                _toggle(Icons.remove_red_eye_outlined, 'show_preview',
+                _toggle(Icons.remove_red_eye_rounded, 'show_preview',
                     t.msgrSetNotifPreview, t.msgrSetNotifPreviewSub),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
                 const Divider(),

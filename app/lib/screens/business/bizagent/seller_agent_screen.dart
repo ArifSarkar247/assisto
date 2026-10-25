@@ -65,13 +65,13 @@ String baChannelLabel(AppLocalizations t, String kind) {
 IconData baChannelIcon(String kind) {
   switch (kind) {
     case 'instagram':
-      return Icons.camera_alt_outlined;
+      return Icons.camera_alt_rounded;
     case 'whatsapp_cloud':
-      return Icons.chat_outlined;
+      return Icons.chat_rounded;
     case 'website':
-      return Icons.language_outlined;
+      return Icons.language_rounded;
     default:
-      return Icons.forum_outlined;
+      return Icons.forum_rounded;
   }
 }
 
@@ -175,7 +175,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
       appBar: AppBar(title: Text(t.baTitle), actions: [
         IconButton(
           tooltip: t.baSetupTitle,
-          icon: const Icon(Icons.tune_outlined),
+          icon: const Icon(Icons.tune_rounded),
           onPressed: _loading ? null : () => _open(const SellerSetupScreen()),
         ),
       ]),
@@ -187,7 +187,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -206,7 +206,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
         const SizedBox(height: Gap.md),
         BizCard(
           title: t.baAgentCardTitle,
-          icon: Icons.smart_toy_outlined,
+          icon: Icons.smart_toy_rounded,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -217,7 +217,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
             ),
             const SizedBox(height: Gap.sm),
             if (connected.isEmpty)
-              BizNote(text: t.baNoChannelNote, icon: Icons.link_off, tint: AssistoTokens.of(context).warning)
+              BizNote(text: t.baNoChannelNote, icon: Icons.link_off_rounded, tint: AssistoTokens.of(context).warning)
             else
               Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final c in channels)
@@ -230,62 +230,62 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               ]),
             if (meta['secret'] != true) ...[
               const SizedBox(height: Gap.sm),
-              BizNote(text: t.baMetaPendingNote, icon: Icons.hourglass_top_outlined),
+              BizNote(text: t.baMetaPendingNote, icon: Icons.hourglass_top_rounded),
             ],
             const SizedBox(height: Gap.sm),
-            BizNote(text: t.baHonestNote, icon: Icons.verified_user_outlined),
+            BizNote(text: t.baHonestNote, icon: Icons.verified_user_rounded),
           ]),
         ),
         const SizedBox(height: Gap.md),
         Card(
           child: Column(children: [
             ListTile(
-              leading: const Icon(Icons.fact_check_outlined),
+              leading: const Icon(Icons.fact_check_rounded),
               title: Text(t.baApprovalsTitle),
               subtitle: Text(bd(context, pending > 0 ? t.baApprovalsPending(pending) : t.baApprovalsNone)),
               trailing: pending > 0
-                  ? Badge(label: Text(bd(context, pending)), child: const Icon(Icons.chevron_right))
-                  : const Icon(Icons.chevron_right),
+                  ? Badge(label: Text(bd(context, pending)), child: const Icon(Icons.chevron_right_rounded))
+                  : const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const ApprovalsScreen()),
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.inbox_outlined),
+              leading: const Icon(Icons.inbox_rounded),
               title: Text(t.baInboxTitle),
               subtitle: Text(t.baInboxSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const SellerInboxScreen()),
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.schedule_outlined),
+              leading: const Icon(Icons.schedule_rounded),
               title: Text(t.g1BehaviourTitle),
               subtitle: Text(t.g1BehaviourSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const AgentBehaviourScreen()),
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.bolt_outlined),
+              leading: const Icon(Icons.bolt_rounded),
               title: Text(t.g1AnswersTitle),
               subtitle: Text(t.g1AnswersSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const AgentAnswersScreen()),
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.insights_outlined),
+              leading: const Icon(Icons.insights_rounded),
               title: Text(t.g1ReportTitle),
               subtitle: Text(t.g1ReportSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const AgentReportScreen()),
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.tune_outlined),
+              leading: const Icon(Icons.tune_rounded),
               title: Text(t.baSetupTitle),
               subtitle: Text(t.baSetupSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const SellerSetupScreen()),
             ),
           ]),
@@ -315,7 +315,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
                 : t.baPlanNone;
     return BizCard(
       title: t.baPlanTitle,
-      icon: Icons.workspace_premium_outlined,
+      icon: Icons.workspace_premium_rounded,
       trailing: BizStatusChip(label: name, color: active ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (active) ...[
@@ -334,13 +334,13 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
         if (trialOk)
           FilledButton.icon(
             onPressed: _busy ? null : _trial,
-            icon: const Icon(Icons.rocket_launch_outlined),
+            icon: const Icon(Icons.rocket_launch_rounded),
             label: Text(bd(context, t.baStartTrial((p['trial_days'] as num?)?.toInt() ?? 7,
                 (p['trial_replies'] as num?)?.toInt() ?? 100))),
           ),
         const SizedBox(height: Gap.sm),
         if (!canBuy && !active)
-          BizNote(text: t.baBuyNotReady, icon: Icons.payments_outlined),
+          BizNote(text: t.baBuyNotReady, icon: Icons.payments_rounded),
         for (final pl in canBuy ? plans : const <Map>[])
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -361,7 +361,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     final low = ((d['low_stock'] as List?) ?? const []).cast<Map>();
     return BizCard(
       title: t.baTodayTitle,
-      icon: Icons.insights_outlined,
+      icon: Icons.insights_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Wrap(spacing: Gap.lg, runSpacing: Gap.sm, children: [
           _stat(t.baStatOrders, '${d['orders'] ?? 0}'),

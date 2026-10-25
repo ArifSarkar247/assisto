@@ -152,7 +152,7 @@ class ExamCountdownChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.hourglass_bottom, size: 16, color: Colors.white),
+        const Icon(Icons.hourglass_bottom_rounded, size: 16, color: Colors.white),
         const SizedBox(width: Gap.xs),
         Text(label,
             style: const TextStyle(

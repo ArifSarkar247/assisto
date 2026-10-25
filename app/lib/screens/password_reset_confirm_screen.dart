@@ -117,7 +117,7 @@ class _PasswordResetConfirmScreenState
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
-                  Icon(Icons.check_circle_outline,
+                  Icon(Icons.check_circle_outline_rounded,
                       color: scheme.onSecondaryContainer),
                   const SizedBox(width: 10),
                   Expanded(
@@ -148,7 +148,7 @@ class _PasswordResetConfirmScreenState
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
-                  Icon(Icons.link_off_outlined,
+                  Icon(Icons.link_off_rounded,
                       color: scheme.onErrorContainer),
                   const SizedBox(width: 10),
                   Expanded(
@@ -164,7 +164,7 @@ class _PasswordResetConfirmScreenState
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.resetRequestNew),
               ),
             ),
@@ -184,7 +184,7 @@ class _PasswordResetConfirmScreenState
                 labelText: t.resetCodeLabel,
                 helperText: t.resetCodeHelper,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.vpn_key_outlined),
+                prefixIcon: const Icon(Icons.vpn_key_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -196,12 +196,12 @@ class _PasswordResetConfirmScreenState
               decoration: InputDecoration(
                 labelText: t.resetNewPassword,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.lock_outline),
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
                 suffixIcon: IconButton(
                   tooltip: _obscure ? t.resetShow : t.resetHide,
                   icon: Icon(_obscure
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined),
+                      ? Icons.visibility_rounded
+                      : Icons.visibility_off_rounded),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
               ),
@@ -218,7 +218,7 @@ class _PasswordResetConfirmScreenState
               decoration: InputDecoration(
                 labelText: t.resetConfirmPassword,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.lock_outline),
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -242,7 +242,7 @@ class _PasswordResetConfirmScreenState
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.lock_reset_outlined),
+                    : const Icon(Icons.lock_reset_rounded),
                 label: Text(_busy ? t.resetSaving : t.resetSetNewTitle),
               ),
             ),

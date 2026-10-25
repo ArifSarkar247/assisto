@@ -105,19 +105,19 @@ class _NotesTabState extends State<_NotesTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context).add,
-          onPressed: () => editNote(context), child: const Icon(Icons.add)),
+          onPressed: () => editNote(context), child: const Icon(Icons.add_rounded)),
       body: Column(children: [
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
         Expanded(
           child: all.isEmpty
               ? StateMessage(
-                  icon: Icons.sticky_note_2_outlined,
+                  icon: Icons.sticky_note_2_rounded,
                   title: t.notesEmptyNotes,
                   message: t.notesEmptyNotesHint,
                 )
               : items.isEmpty
                   ? StateMessage(
-                      icon: Icons.search_off,
+                      icon: Icons.search_off_rounded,
                       title: t.notesNoMatch,
                       message: t.notesNoMatchHint,
                     )
@@ -172,8 +172,8 @@ class _NoteCard extends StatelessWidget {
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Icon(
                       pinned
-                          ? Icons.push_pin
-                          : Icons.sticky_note_2_outlined,
+                          ? Icons.push_pin_rounded
+                          : Icons.sticky_note_2_rounded,
                       size: 20,
                       color: pinned ? Brand.warning : scheme.onSurfaceVariant),
                   const SizedBox(width: Gap.sm),
@@ -189,7 +189,7 @@ class _NoteCard extends StatelessWidget {
                   if (high)
                     const Padding(
                       padding: EdgeInsets.only(left: Gap.xs),
-                      child: Icon(Icons.flag, size: 16, color: Brand.warning),
+                      child: Icon(Icons.flag_rounded, size: 16, color: Brand.warning),
                     ),
                   PopupMenuButton<String>(
                     onSelected: (v) {
@@ -214,7 +214,7 @@ class _NoteCard extends StatelessWidget {
                         PopupMenuItem(
                             value: 'remind',
                             child: Row(children: [
-                              const Icon(Icons.alarm_add, size: 18),
+                              const Icon(Icons.alarm_add_rounded, size: 18),
                               const SizedBox(width: Gap.sm),
                               Text(t.notesMakeReminder),
                             ])),
@@ -251,8 +251,8 @@ class _NoteCard extends StatelessWidget {
                         child: Row(children: [
                           Icon(
                               checklist[i]['done'] == true
-                                  ? Icons.check_box
-                                  : Icons.check_box_outline_blank,
+                                  ? Icons.check_box_rounded
+                                  : Icons.check_box_outline_blank_rounded,
                               size: 18,
                               color: checklist[i]['done'] == true
                                   ? Brand.success
@@ -292,17 +292,17 @@ class _NoteCard extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (checklist.isNotEmpty)
-                          _chip(Icons.checklist, '$done/${checklist.length}',
+                          _chip(Icons.checklist_rounded, '$done/${checklist.length}',
                               Brand.success),
                         if (due != null)
-                          _chip(Icons.event,
+                          _chip(Icons.event_rounded,
                               DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
                               Brand.blue),
                         if (linked)
-                          _chip(Icons.alarm_on, t.notesHasReminder,
+                          _chip(Icons.alarm_on_rounded, t.notesHasReminder,
                               Brand.purple),
                         for (final tag in tags.take(3))
-                          _chip(Icons.label_outline, tag.toString(),
+                          _chip(Icons.label_outline_rounded, tag.toString(),
                               Brand.cyan),
                       ],
                     ),
@@ -346,10 +346,10 @@ class _TodosTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context).add,
-          onPressed: () => editTodo(context), child: const Icon(Icons.add)),
+          onPressed: () => editTodo(context), child: const Icon(Icons.add_rounded)),
       body: items.isEmpty
           ? StateMessage(
-              icon: Icons.checklist_outlined,
+              icon: Icons.checklist_rounded,
               title: t.notesEmptyTasks,
               message: t.notesEmptyTasksHint,
             )
@@ -413,10 +413,10 @@ class _TodoTile extends StatelessWidget {
       subtitle: (due != null || high)
           ? Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
               if (high)
-                _chip(Icons.flag, t.remPriorityHigh, Brand.warning),
+                _chip(Icons.flag_rounded, t.remPriorityHigh, Brand.warning),
               if (due != null)
                 _chip(
-                    Icons.event,
+                    Icons.event_rounded,
                     DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
                     overdue ? Brand.danger : Brand.blue),
               if (overdue) _chip(Icons.warning_amber_rounded, t.remGroupOverdue, Brand.danger),
@@ -425,12 +425,12 @@ class _TodoTile extends StatelessWidget {
       secondary: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(
           tooltip: t.edit,
-          icon: const Icon(Icons.edit_outlined),
+          icon: const Icon(Icons.edit_rounded),
           onPressed: () => editTodo(context, item: item),
         ),
         IconButton(
           tooltip: t.delete,
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           onPressed: () {
             app.todos.remove(item);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -468,13 +468,13 @@ class _SearchBar extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           isDense: true,
-          prefixIcon: const Icon(Icons.search, size: 20),
+          prefixIcon: const Icon(Icons.search_rounded, size: 20),
           hintText: t.notesSearchHint,
           suffixIcon: controller.text.isEmpty
               ? null
               : IconButton(
                   tooltip: AppLocalizations.of(context).f2ClearSearch,
-                  icon: const Icon(Icons.clear, size: 18),
+                  icon: const Icon(Icons.clear_rounded, size: 18),
                   onPressed: () {
                     controller.clear();
                     onChanged('');

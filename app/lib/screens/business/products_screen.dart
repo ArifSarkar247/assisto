@@ -101,7 +101,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           if (!_role.isStaff && kProductImportPickerWired)
             IconButton(
               tooltip: t.biz_import_title,
-              icon: const Icon(Icons.upload_file_outlined),
+              icon: const Icon(Icons.upload_file_rounded),
               onPressed: _openImport,
             ),
         ],
@@ -110,12 +110,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _openSheet(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.shopQaAddProduct),
             ),
       body: Column(children: [
         SellHeader(
-            icon: Icons.inventory_2_outlined,
+            icon: Icons.inventory_2_rounded,
             title: t.shopQaProducts,
             subtitle: null),
         Padding(
@@ -123,7 +123,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           child: TextField(
             decoration: InputDecoration(
               hintText: '${t.biz_product_name} / ${t.biz_product_barcode}',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
             ),
             onSubmitted: (v) {
               _q = v.trim();
@@ -168,26 +168,26 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
     if (_items.isEmpty) {
       return StateMessage(
-        icon: Icons.inventory_2_outlined,
+        icon: Icons.inventory_2_rounded,
         title: t.shopQaNoProductsTitle,
         message: t.shopQaNoProductsBody,
         action: _role.isStaff
             ? null
             : FilledButton.icon(
                 onPressed: () => _openSheet(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.shopQaAddProduct)),
       );
     }
@@ -283,8 +283,8 @@ class _ProductTile extends StatelessWidget {
           ? Image.network(photo,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) =>
-                  Icon(Icons.image_outlined, color: scheme.onSurfaceVariant))
-          : Icon(Icons.inventory_2_outlined, color: scheme.onSurfaceVariant),
+                  Icon(Icons.image_rounded, color: scheme.onSurfaceVariant))
+          : Icon(Icons.inventory_2_rounded, color: scheme.onSurfaceVariant),
     );
   }
 
@@ -507,7 +507,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: t.biz_product_barcode,
-                  prefixIcon: const Icon(Icons.qr_code_2),
+                  prefixIcon: const Icon(Icons.qr_code_2_rounded),
                 ),
               ),
               const SizedBox(height: Gap.md),
@@ -586,7 +586,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add_a_photo_outlined,
+                      Icon(Icons.add_a_photo_rounded,
                           color: scheme.onSurfaceVariant),
                       const SizedBox(height: Gap.sm),
                       Text(t.biz_product_photo,
@@ -607,7 +607,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
             style: const TextStyle(fontWeight: FontWeight.w700)),
         TextButton.icon(
           onPressed: () => setState(() => _variants.add(_VariantDraft())),
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(t.shopQaAddVariant),
         ),
       ]),
@@ -639,7 +639,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).delete,
-            icon: Icon(Icons.delete_outline, color: scheme.error),
+            icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
             onPressed: () => setState(() {
               _variants.removeAt(i).dispose();
             }),
@@ -802,7 +802,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
             onPressed: _busy ? null : _pick,
-            icon: const Icon(Icons.attach_file),
+            icon: const Icon(Icons.attach_file_rounded),
             label: Text(_filePath == null
                 ? t.biz_import_title
                 : _filePath!.split('/').last),
@@ -821,7 +821,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(children: [
-                  Icon(Icons.warning_amber, color: AssistoTokens.of(context).warning),
+                  Icon(Icons.warning_amber_rounded, color: AssistoTokens.of(context).warning),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(
@@ -860,7 +860,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.check_circle_outline, color: AssistoTokens.of(context).success, size: 20),
+      leading: Icon(Icons.check_circle_outline_rounded, color: AssistoTokens.of(context).success, size: 20),
       title: Text((r['name'] ?? '').toString()),
       trailing: Text(sell.takaIn(context),
           style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -871,7 +871,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.error_outline, color: scheme.error, size: 20),
+      leading: Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
       title: Text((r['name'] ?? '').toString()),
       subtitle: Text(reason,
           style: AType.bodySmall.copyWith(color: scheme.error)),

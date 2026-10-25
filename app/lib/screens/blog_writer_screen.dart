@@ -276,7 +276,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: _generate,
-          icon: const Icon(Icons.auto_awesome, size: 18),
+          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
           label: Text(_hasDraft ? t.bwRegenerate : t.bwGenerate),
         ),
         if (_hasDraft) ...[
@@ -302,7 +302,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
             Expanded(
               child: FilledButton.icon(
                 onPressed: _share,
-                icon: const Icon(Icons.ios_share, size: 18),
+                icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(t.bwShare),
               ),
             ),
@@ -316,7 +316,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             onPressed: _saveDraft,
-            icon: const Icon(Icons.bookmark_outline, size: 18),
+            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
             label: Text(t.save),
           ),
           const SizedBox(height: Gap.xl),
@@ -333,24 +333,24 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: honestFailText(t, _failCause, otherwise: t.bwLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
     if (_saved.isEmpty) {
       return StateMessage(
-        icon: Icons.bookmark_border,
+        icon: Icons.bookmark_border_rounded,
         title: t.bwSavedEmptyTitle,
         message: t.bwSavedEmptyBody,
         action: FilledButton.tonalIcon(
           onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.edit_outlined, size: 18),
+          icon: const Icon(Icons.edit_rounded, size: 18),
           label: Text(t.bwTabCompose),
         ),
       );
@@ -389,7 +389,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
                 style: TextStyle(color: scheme.onSurfaceVariant),
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(d),
               ),
@@ -593,13 +593,13 @@ String _formatLabel(AppLocalizations t, String v) {
 IconData _formatIcon(String v) {
   switch (v) {
     case 'script':
-      return Icons.videocam_outlined;
+      return Icons.videocam_rounded;
     case 'caption':
-      return Icons.tag_outlined;
+      return Icons.tag_rounded;
     case 'outline':
-      return Icons.list_alt_outlined;
+      return Icons.list_alt_rounded;
     default:
-      return Icons.article_outlined;
+      return Icons.article_rounded;
   }
 }
 
@@ -666,7 +666,7 @@ class _AiMarkerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -698,7 +698,7 @@ class _FullAiCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+        Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

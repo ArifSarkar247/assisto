@@ -84,8 +84,8 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
             children: [
               _Card(
                 icon: deliveryOk
-                    ? Icons.notifications_active_outlined
-                    : Icons.notifications_paused_outlined,
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_paused_rounded,
                 tint: deliveryOk ? Brand.success : Brand.warning,
                 title: t.pushSetDeliveryTitle,
                 body: deliveryBody,
@@ -93,8 +93,8 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
               const SizedBox(height: Gap.md),
               _Card(
                 icon: _permOn == false
-                    ? Icons.notifications_off_outlined
-                    : Icons.check_circle_outline,
+                    ? Icons.notifications_off_rounded
+                    : Icons.check_circle_outline_rounded,
                 tint: _permOn == false ? Brand.danger : scheme.primary,
                 title: t.pushSetPermTitle,
                 body: _permOn == false ? t.pushSetPermOff : t.pushSetPermOn,
@@ -105,7 +105,7 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
               ),
               const SizedBox(height: Gap.md),
               _Card(
-                icon: Icons.ring_volume_outlined,
+                icon: Icons.ring_volume_rounded,
                 tint: scheme.tertiary,
                 title: t.pushSetFsiTitle,
                 body: t.pushSetFsiBody,
@@ -116,13 +116,13 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
                       await PushNotifier.requestFullScreenIntent();
                     }
                   },
-                  icon: const Icon(Icons.open_in_new),
+                  icon: const Icon(Icons.open_in_new_rounded),
                   label: Text(t.pushSetFsiOpen),
                 ),
               ),
               const SizedBox(height: Gap.md),
               _Card(
-                icon: Icons.battery_alert_outlined,
+                icon: Icons.battery_alert_rounded,
                 tint: scheme.secondary,
                 title: t.pushSetBatteryTitle,
                 body: t.pushSetBatteryBody,
@@ -136,7 +136,7 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
               ),
               const SizedBox(height: Gap.md),
               _Card(
-                icon: Icons.tune,
+                icon: Icons.tune_rounded,
                 tint: scheme.primary,
                 title: t.pushSetChannelsTitle,
                 body: t.pushSetChannelsBody,

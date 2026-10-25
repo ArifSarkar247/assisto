@@ -60,7 +60,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
         leading: _open == null
             ? null
             : IconButton(tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => setState(() => _open = null),
               ),
       ),
@@ -137,27 +137,27 @@ class _Picker extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final groups = <(String, List<_ToolMeta>)>[
       (t.financeCatLoans, const [
-        _ToolMeta(_Tool.emi, Icons.account_balance_outlined),
-        _ToolMeta(_Tool.rateCompare, Icons.compare_arrows),
-        _ToolMeta(_Tool.afford, Icons.shopping_cart_checkout),
+        _ToolMeta(_Tool.emi, Icons.account_balance_rounded),
+        _ToolMeta(_Tool.rateCompare, Icons.compare_arrows_rounded),
+        _ToolMeta(_Tool.afford, Icons.shopping_cart_checkout_rounded),
       ]),
       (t.financeCatSavings, const [
-        _ToolMeta(_Tool.dps, Icons.savings_outlined),
-        _ToolMeta(_Tool.goal, Icons.flag_outlined),
-        _ToolMeta(_Tool.roi, Icons.trending_up),
+        _ToolMeta(_Tool.dps, Icons.savings_rounded),
+        _ToolMeta(_Tool.goal, Icons.flag_rounded),
+        _ToolMeta(_Tool.roi, Icons.trending_up_rounded),
       ]),
       (t.financeCatPlanning, const [
-        _ToolMeta(_Tool.budget, Icons.pie_chart_outline),
-        _ToolMeta(_Tool.netWorth, Icons.account_balance_wallet_outlined),
+        _ToolMeta(_Tool.budget, Icons.pie_chart_outline_rounded),
+        _ToolMeta(_Tool.netWorth, Icons.account_balance_wallet_rounded),
       ]),
       (t.financeCatReligious, const [
-        _ToolMeta(_Tool.zakat, Icons.volunteer_activism_outlined),
+        _ToolMeta(_Tool.zakat, Icons.volunteer_activism_rounded),
       ]),
       (t.financeCatBusiness, const [
-        _ToolMeta(_Tool.breakEven, Icons.balance_outlined),
+        _ToolMeta(_Tool.breakEven, Icons.balance_rounded),
       ]),
       (t.financeCatUtility, const [
-        _ToolMeta(_Tool.convert, Icons.currency_exchange),
+        _ToolMeta(_Tool.convert, Icons.currency_exchange_rounded),
       ]),
     ];
     return ListView(
@@ -174,7 +174,7 @@ class _Picker extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.calculate_outlined,
+                const Icon(Icons.calculate_rounded,
                     color: Colors.white, size: 28),
                 const SizedBox(height: Gap.sm),
                 Text(t.financePickTool,
@@ -208,7 +208,7 @@ class _Picker extends StatelessWidget {
                   title: Text(_title(t, m.tool),
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   subtitle: Text(_subtitle(t, m.tool)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => onPick(m.tool),
                 ),
               )),
@@ -332,17 +332,17 @@ class _EmiCalculatorState extends State<_EmiCalculator> {
       FinanceField(
           controller: _principal,
           label: t.financeFieldPrincipal,
-          icon: Icons.payments_outlined),
+          icon: Icons.payments_rounded),
       FinanceField(
           controller: _rate,
           label: t.financeFieldRate,
           suffix: '%',
-          icon: Icons.percent),
+          icon: Icons.percent_rounded),
       FinanceField(
           controller: _months,
           label: t.financeFieldMonths,
           allowDecimal: false,
-          icon: Icons.event_repeat),
+          icon: Icons.event_repeat_rounded),
       if (widget.flatToggle) ...[
         const SizedBox(height: Gap.xs),
         SegmentedButton<String>(
@@ -388,8 +388,8 @@ class _EmiCalculatorState extends State<_EmiCalculator> {
               TextButton.icon(
                 onPressed: () => setState(() => _showSchedule = !_showSchedule),
                 icon: Icon(_showSchedule
-                    ? Icons.expand_less
-                    : Icons.expand_more),
+                    ? Icons.expand_less_rounded
+                    : Icons.expand_more_rounded),
                 label: Text(_showSchedule
                     ? t.financeHideSchedule
                     : t.financeShowSchedule),
@@ -501,12 +501,12 @@ class _RateCompareState extends State<_RateCompareCalculator> {
       FinanceField(
           controller: _principal,
           label: t.financeFieldPrincipal,
-          icon: Icons.payments_outlined),
+          icon: Icons.payments_rounded),
       FinanceField(
           controller: _months,
           label: t.financeFieldMonths,
           allowDecimal: false,
-          icon: Icons.event_repeat),
+          icon: Icons.event_repeat_rounded),
       FinanceField(controller: _rateA, label: t.financeFieldRateA, suffix: '%'),
       FinanceField(controller: _rateB, label: t.financeFieldRateB, suffix: '%'),
       FilledButton(onPressed: () => _calc(t), child: Text(t.financeCalculate)),
@@ -610,7 +610,7 @@ class _DpsState extends State<_DpsCalculator> {
       FinanceField(
           controller: _monthly,
           label: t.financeFieldMonthlyDeposit,
-          icon: Icons.savings_outlined),
+          icon: Icons.savings_rounded),
       FinanceField(controller: _rate, label: t.financeFieldRate, suffix: '%'),
       FinanceField(
           controller: _months,
@@ -703,7 +703,7 @@ class _GoalState extends State<_GoalCalculator> {
       FinanceField(
           controller: _target,
           label: t.financeFieldTarget,
-          icon: Icons.flag_outlined),
+          icon: Icons.flag_rounded),
       FinanceField(
           controller: _current, label: t.financeFieldCurrentSaved),
       FinanceField(controller: _rate, label: t.financeFieldRate, suffix: '%'),
@@ -867,7 +867,7 @@ class _BudgetState extends State<_BudgetCalculator> {
       FinanceField(
           controller: _income,
           label: t.financeFieldIncome,
-          icon: Icons.payments_outlined),
+          icon: Icons.payments_rounded),
       FilledButton(onPressed: () => _calc(t), child: Text(t.financeCalculate)),
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
@@ -1271,7 +1271,7 @@ class _NetWorthTabState extends State<_NetWorthTab> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off,
+            Icon(Icons.wifi_off_rounded,
                 size: 40, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: Gap.md),
             FilledButton(onPressed: _load, child: Text(t.financeCalculate)),

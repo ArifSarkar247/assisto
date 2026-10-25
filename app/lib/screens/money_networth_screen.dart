@@ -47,13 +47,13 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.moneyNetWorthTitle), actions: [
         IconButton(
-            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync_rounded)),
       ]),
       body: _loading
           ? const SkeletonList(count: 4)
           : _failed
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.moneyNetWorthTitle,
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -86,16 +86,16 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
       ),
       const SizedBox(height: Gap.md),
       statCard(context, t.moneyAssets, tkFmt(assets), AssistoTokens.of(context).success,
-          Icons.account_balance_wallet_outlined),
+          Icons.account_balance_wallet_rounded),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyReceivable, tkFmt(receivable),
-                Theme.of(context).colorScheme.primary, Icons.call_received)),
+                Theme.of(context).colorScheme.primary, Icons.call_received_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyLiabilities, tkFmt(liabilities),
-                Theme.of(context).colorScheme.error, Icons.call_made)),
+                Theme.of(context).colorScheme.error, Icons.call_made_rounded)),
       ]),
       const SizedBox(height: Gap.xl),
       Text(t.moneyNetWorthOverTime,

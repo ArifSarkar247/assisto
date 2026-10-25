@@ -319,7 +319,7 @@ void main() {
         };
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await _settle(tester);
-    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.tap(find.byIcon(Icons.more_vert_rounded));
     await _settle(tester);
     await tester.tap(find.text(t.cdeNickTitle));
     await _settle(tester);
@@ -360,7 +360,7 @@ void main() {
     };
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await _settle(tester);
-    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.tap(find.byIcon(Icons.more_vert_rounded));
     await _settle(tester);
     await tester.tap(find.text(t.msgrChatTheme));
     await tester.pump(const Duration(seconds: 4)); // the AI offer lookup times out
@@ -399,13 +399,13 @@ void main() {
     await sheet(const ChatThemeSheet(currentId: 'love', premium: false));
     expect(find.byKey(const Key('cde-theme-photo')), findsOneWidget);
     expect(find.byKey(const Key('cde-theme-ai')), findsNothing);
-    expect(find.byIcon(Icons.lock_outline), findsWidgets); // premium tiles + photo
+    expect(find.byIcon(Icons.lock_outline_rounded), findsWidgets); // premium tiles + photo
     expect(find.text(t.cdeThemeInUse), findsNothing);
     await sheet(const ChatThemeSheet(
         currentId: 'eid', premium: true, aiAvailable: true, aiCredits: '20'));
     expect(find.byKey(const Key('cde-theme-ai')), findsOneWidget);
     expect(find.text(t.cdeThemeAiHint('20')), findsOneWidget);
-    expect(find.byIcon(Icons.lock_outline, skipOffstage: false), findsNothing);
+    expect(find.byIcon(Icons.lock_outline_rounded, skipOffstage: false), findsNothing);
   });
 
   testWidgets('a free theme: server copy, repaint here, E2E control out', (tester) async {
@@ -421,7 +421,7 @@ void main() {
         };
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await _settle(tester);
-    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.tap(find.byIcon(Icons.more_vert_rounded));
     await _settle(tester);
     await tester.tap(find.text(t.msgrChatTheme));
     await tester.pump(const Duration(seconds: 4));

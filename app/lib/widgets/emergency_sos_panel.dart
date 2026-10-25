@@ -162,7 +162,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
               padding: const EdgeInsets.symmetric(vertical: Gap.xl),
             ),
             onPressed: _busy ? null : _onSos,
-            icon: const Icon(Icons.sos, size: 32),
+            icon: const Icon(Icons.sos_rounded, size: 32),
             // Active-language-only label (never a combined literal).
             label: Text(t.emergencySosBigButton,
                 style: const TextStyle(
@@ -186,7 +186,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
             dense: true,
             value: _loud,
             onChanged: (v) => setState(() => _loud = v),
-            secondary: Icon(_loud ? Icons.volume_up : Icons.volume_off,
+            secondary: Icon(_loud ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                 color: Brand.danger),
             title: Text(t.emergencyLoudMode,
                 style: const TextStyle(fontWeight: FontWeight.w600)),

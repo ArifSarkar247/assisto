@@ -34,7 +34,7 @@ class VaOutcome {
   final List<Map<String, dynamic>> cards; // server agent cards (ChatCard)
   const VaOutcome(
     this.reply, {
-    this.icon = Icons.auto_awesome,
+    this.icon = Icons.auto_awesome_rounded,
     this.title,
     this.subtitle,
     this.ok = true,
@@ -84,7 +84,7 @@ class VaExecutor {
         i.action != VaAction.sos) {
       final ok = await VaNative.requestUnlock();
       if (!ok) {
-        return VaOutcome(t.vaUnlockNeeded, icon: Icons.lock_outline, ok: false);
+        return VaOutcome(t.vaUnlockNeeded, icon: Icons.lock_outline_rounded, ok: false);
       }
       onUnlocked?.call();
     }
@@ -123,7 +123,7 @@ class VaExecutor {
           return await agent(i.raw);
       }
     } catch (_) {
-      return VaOutcome(t.vaErrGeneric, icon: Icons.error_outline, ok: false);
+      return VaOutcome(t.vaErrGeneric, icon: Icons.error_outline_rounded, ok: false);
     }
   }
 
@@ -190,7 +190,7 @@ class VaExecutor {
     if (!st.isGranted) {
       if (!context.mounted) return null;
       final go = await VaConfirmSheet.reason(context,
-          icon: Icons.contacts_outlined, body: t.vaContactsReason);
+          icon: Icons.contacts_rounded, body: t.vaContactsReason);
       if (!go) return null;
       st = await Permission.contacts.request();
       if (!st.isGranted) return null;
@@ -206,25 +206,25 @@ class VaExecutor {
     if (who == null) {
       final ok = await _launch('tel:');
       return VaOutcome(ok ? t.vaDialerOpened : t.vaErrNoApp,
-          icon: Icons.dialpad, ok: ok);
+          icon: Icons.dialpad_rounded, ok: ok);
     }
     final found = await _lookup(who);
     if (found == null) {
       return VaOutcome(t.vaContactsDenied,
-          icon: Icons.contacts_outlined,
+          icon: Icons.contacts_rounded,
           ok: false,
           buttons: [
-            VaButton(t.vaOpenDialer, Icons.dialpad, () async {
+            VaButton(t.vaOpenDialer, Icons.dialpad_rounded, () async {
               await _launch('tel:');
             }),
           ]);
     }
     if (found.isEmpty) {
       return VaOutcome(t.vaNoContact(who),
-          icon: Icons.person_search_outlined,
+          icon: Icons.person_search_rounded,
           ok: false,
           buttons: [
-            VaButton(t.vaOpenDialer, Icons.dialpad, () async {
+            VaButton(t.vaOpenDialer, Icons.dialpad_rounded, () async {
               await _launch('tel:');
             }),
           ]);
@@ -232,14 +232,14 @@ class VaExecutor {
     if (!context.mounted) return VaOutcome(t.vaCancelled);
     final pick = await VaConfirmSheet.show(
       context,
-      icon: Icons.call,
+      icon: Icons.call_rounded,
       title: t.vaConfirmCallTitle(found.first['name'] ?? who),
       choices: found,
       confirmLabel: t.vaCallNow,
       voice: confirmVoice,
       spokenQuestion: t.vaConfirmCallSpoken(found.first['name'] ?? who),
     );
-    if (pick == null) return VaOutcome(t.vaCancelled, icon: Icons.close);
+    if (pick == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
     final name = pick['name'] ?? who;
     final number = pick['phone'] ?? '';
     // Direct call when CALL_PHONE is (or now gets) granted; otherwise the
@@ -254,11 +254,11 @@ class VaExecutor {
     } catch (_) {}
     if (direct) {
       return VaOutcome(t.vaCalling(name),
-          icon: Icons.call, title: name, subtitle: number);
+          icon: Icons.call_rounded, title: name, subtitle: number);
     }
     final ok = await _launch('tel:${Uri.encodeComponent(number)}');
     return VaOutcome(ok ? t.vaDialerReady(name) : t.vaErrNoApp,
-        icon: Icons.dialpad, title: name, subtitle: number, ok: ok);
+        icon: Icons.dialpad_rounded, title: name, subtitle: number, ok: ok);
   }
 
   Future<VaOutcome> _message(VaIntent i, {required bool whatsapp}) async {
@@ -269,16 +269,16 @@ class VaExecutor {
       final found = await _lookup(who);
       if (found == null) {
         return VaOutcome(t.vaContactsDenied,
-            icon: Icons.contacts_outlined, ok: false);
+            icon: Icons.contacts_rounded, ok: false);
       }
       if (found.isEmpty) {
         return VaOutcome(t.vaNoContact(who),
-            icon: Icons.person_search_outlined, ok: false);
+            icon: Icons.person_search_rounded, ok: false);
       }
       if (!context.mounted) return VaOutcome(t.vaCancelled);
       pick = await VaConfirmSheet.show(
         context,
-        icon: whatsapp ? Icons.chat_outlined : Icons.sms_outlined,
+        icon: whatsapp ? Icons.chat_rounded : Icons.sms_rounded,
         title: whatsapp
             ? t.vaConfirmWaTitle(found.first['name'] ?? who)
             : t.vaConfirmSmsTitle(found.first['name'] ?? who),
@@ -290,19 +290,19 @@ class VaExecutor {
             ? t.vaConfirmWaSpoken(found.first['name'] ?? who)
             : t.vaConfirmSmsSpoken(found.first['name'] ?? who),
       );
-      if (pick == null) return VaOutcome(t.vaCancelled, icon: Icons.close);
+      if (pick == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
     } else {
       if (!context.mounted) return VaOutcome(t.vaCancelled);
       final go = await VaConfirmSheet.show(
         context,
-        icon: whatsapp ? Icons.chat_outlined : Icons.sms_outlined,
+        icon: whatsapp ? Icons.chat_rounded : Icons.sms_rounded,
         title: whatsapp ? t.vaConfirmWaAnyone : t.vaConfirmSmsAnyone,
         detail: body.isEmpty ? t.vaNoMessageBody : '“$body”',
         confirmLabel: t.vaOpenDraft,
         voice: confirmVoice,
         spokenQuestion: whatsapp ? t.vaConfirmWaAnyone : t.vaConfirmSmsAnyone,
       );
-      if (go == null) return VaOutcome(t.vaCancelled, icon: Icons.close);
+      if (go == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
     }
     final number = pick?['phone'] ?? '';
     final enc = Uri.encodeComponent(body);
@@ -319,7 +319,7 @@ class VaExecutor {
         ok
             ? (whatsapp ? t.vaWaDraftReady : t.vaSmsDraftReady)
             : (whatsapp ? t.vaErrNoWhatsapp : t.vaErrNoApp),
-        icon: whatsapp ? Icons.chat_outlined : Icons.sms_outlined,
+        icon: whatsapp ? Icons.chat_rounded : Icons.sms_rounded,
         title: name,
         subtitle: body.isEmpty ? null : body,
         ok: ok);
@@ -328,7 +328,7 @@ class VaExecutor {
   Future<VaOutcome> _sos() async {
     final go = await VaConfirmSheet.show(
       context,
-      icon: Icons.sos,
+      icon: Icons.sos_rounded,
       title: t.vaConfirmSosTitle,
       detail: t.vaConfirmSosBody,
       confirmLabel: t.vaSendSos,
@@ -336,7 +336,7 @@ class VaExecutor {
       voice: confirmVoice,
       spokenQuestion: t.vaConfirmSosTitle,
     );
-    if (go == null) return VaOutcome(t.vaCancelled, icon: Icons.close);
+    if (go == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
     if (!context.mounted) return VaOutcome(t.vaCancelled);
     // The EXISTING SOS flow: short cancellable countdown, then the same
     // api.journeySos alert + location as the manual SOS button.
@@ -344,7 +344,7 @@ class VaExecutor {
         context,
         MaterialPageRoute(
             builder: (_) => const JourneySosScreen(countdownSeconds: 5)));
-    return VaOutcome(t.vaSosStarted, icon: Icons.sos, danger: true);
+    return VaOutcome(t.vaSosStarted, icon: Icons.sos_rounded, danger: true);
   }
 
   // ---- media / maps / apps --------------------------------------------------
@@ -361,7 +361,7 @@ class VaExecutor {
       final ok = await VaNative.launchApp(VaNative.pkgYoutube) ||
           await _launch('https://www.youtube.com');
       return VaOutcome(ok ? t.vaOpeningApp('YouTube') : t.vaErrNoApp,
-          icon: Icons.smart_display_outlined, ok: ok);
+          icon: Icons.smart_display_rounded, ok: ok);
     }
     final installed = await VaNative.musicApps();
     var pref = i.app;
@@ -391,7 +391,7 @@ class VaExecutor {
             artist: i.artist, title: i.song);
         if (r == 'ok') {
           return VaOutcome(t.vaPlayingOn(shown, name),
-              icon: Icons.music_note, title: shown, subtitle: name);
+              icon: Icons.music_note_rounded, title: shown, subtitle: name);
         }
       }
       // named app missing / refused: fall through to YouTube, and say why.
@@ -420,7 +420,7 @@ class VaExecutor {
           if (ok) {
             final title = (r['title'] ?? '').toString();
             return VaOutcome(t.vaPlayingOn(shown, 'YouTube'),
-                icon: Icons.smart_display_outlined,
+                icon: Icons.smart_display_rounded,
                 title: title.isEmpty ? shown : title,
                 subtitle: 'YouTube');
           }
@@ -434,7 +434,7 @@ class VaExecutor {
           '${Uri.encodeQueryComponent(q)}');
     }
     return VaOutcome(ok ? t.vaYoutubeSearching(shown) : t.vaErrNoApp,
-        icon: Icons.smart_display_outlined,
+        icon: Icons.smart_display_rounded,
         title: shown,
         subtitle: ok ? t.vaYoutubeTapToPlay : null,
         ok: ok);
@@ -457,7 +457,7 @@ class VaExecutor {
         ok
             ? (navigate ? t.vaNavigating(shown) : t.vaMapSearching(shown))
             : t.vaErrNoApp,
-        icon: navigate ? Icons.navigation_outlined : Icons.map_outlined,
+        icon: navigate ? Icons.navigation_rounded : Icons.map_rounded,
         title: shown,
         ok: ok);
   }
@@ -469,7 +469,7 @@ class VaExecutor {
     if (pkg != null && await VaNative.launchApp(pkg)) {
       final label = apps.firstWhere((a) => a['package'] == pkg,
           orElse: () => {'label': name})['label']!;
-      return VaOutcome(t.vaOpeningApp(label), icon: Icons.apps, title: label);
+      return VaOutcome(t.vaOpeningApp(label), icon: Icons.apps_rounded, title: label);
     }
     // Maybe it is an Assisto screen said in Bangla — the server knows.
     return agent(i.raw, notFoundApp: name);
@@ -477,9 +477,9 @@ class VaExecutor {
 
   VaOutcome _openScreen(String? route) {
     if (route != null && ChatNav.push(context, route)) {
-      return VaOutcome(t.vaOpening, icon: Icons.open_in_new);
+      return VaOutcome(t.vaOpening, icon: Icons.open_in_new_rounded);
     }
-    return VaOutcome(t.vaErrGeneric, icon: Icons.error_outline, ok: false);
+    return VaOutcome(t.vaErrGeneric, icon: Icons.error_outline_rounded, ok: false);
   }
 
   // ---- clock / torch --------------------------------------------------------
@@ -490,7 +490,7 @@ class VaExecutor {
     if (r == 'ok') {
       return VaOutcome(
           at == null ? t.vaAlarmPickTime : t.vaAlarmSet(_clock(at)),
-          icon: Icons.alarm,
+          icon: Icons.alarm_rounded,
           title: at == null ? null : _time(at));
     }
     if (at != null) {
@@ -498,9 +498,9 @@ class VaExecutor {
       // reminder instead, and say so plainly.
       await _createReminder(tUi.vaAlarmLabel, at);
       return VaOutcome(t.vaAlarmFallback(_clock(at)),
-          icon: Icons.notifications_active_outlined);
+          icon: Icons.notifications_active_rounded);
     }
-    return VaOutcome(t.vaErrNoClock, icon: Icons.alarm_off, ok: false);
+    return VaOutcome(t.vaErrNoClock, icon: Icons.alarm_off_rounded, ok: false);
   }
 
   Future<VaOutcome> _timer(VaIntent i) async {
@@ -508,15 +508,15 @@ class VaExecutor {
     final r = await VaNative.setTimer(s, t.vaTimerLabel);
     if (r == 'ok') {
       return VaOutcome(s == null ? t.vaTimerPick : t.vaTimerSet(_duration(s)),
-          icon: Icons.timer_outlined);
+          icon: Icons.timer_rounded);
     }
     if (s != null) {
       final at = DateTime.now().add(Duration(seconds: s));
       await _createReminder(tUi.vaTimerLabel, at);
       return VaOutcome(t.vaAlarmFallback(_clock(at)),
-          icon: Icons.notifications_active_outlined);
+          icon: Icons.notifications_active_rounded);
     }
-    return VaOutcome(t.vaErrNoClock, icon: Icons.timer_off_outlined, ok: false);
+    return VaOutcome(t.vaErrNoClock, icon: Icons.timer_off_rounded, ok: false);
   }
 
   Future<VaOutcome> _torch(bool on) async {
@@ -524,19 +524,19 @@ class VaExecutor {
     switch (r) {
       case 'ok':
         return VaOutcome(on ? t.vaTorchOn : t.vaTorchOff,
-            icon: on ? Icons.flashlight_on : Icons.flashlight_off,
+            icon: on ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded,
             buttons: [
               VaButton(on ? t.vaTurnOff : t.vaTurnOn,
-                  on ? Icons.flashlight_off : Icons.flashlight_on, () async {
+                  on ? Icons.flashlight_off_rounded : Icons.flashlight_on_rounded, () async {
                 await VaNative.torch(!on);
               }),
             ]);
       case 'no_flash':
         return VaOutcome(t.vaTorchNone,
-            icon: Icons.flashlight_off, ok: false);
+            icon: Icons.flashlight_off_rounded, ok: false);
       default:
         return VaOutcome(t.vaTorchError,
-            icon: Icons.flashlight_off, ok: false);
+            icon: Icons.flashlight_off_rounded, ok: false);
     }
   }
 
@@ -587,7 +587,7 @@ class VaExecutor {
         await _createReminder(title, at, rule: parsed.recurrence);
     return VaOutcome(
       at == null ? t.vaReminderSetNoTime(title) : t.vaReminderSet(title, _clock(at)),
-      icon: Icons.notifications_active_outlined,
+      icon: Icons.notifications_active_rounded,
       title: title,
       subtitle: at == null ? t.vaNoTime : _clock(at),
       buttons: [_undoButton(created, reminder: true)],
@@ -637,7 +637,7 @@ class VaExecutor {
     final amount = NumberFormat.decimalPattern(_lang).format(i.amount);
     return VaOutcome(
       t.vaExpenseLogged('৳$amount', catSaid),
-      icon: Icons.receipt_long_outlined,
+      icon: Icons.receipt_long_rounded,
       title: '৳$amount',
       subtitle: catSaid,
       buttons: [_undoButton(created, reminder: false)],
@@ -645,7 +645,7 @@ class VaExecutor {
   }
 
   VaButton _undoButton(Map<String, dynamic> created, {required bool reminder}) {
-    return VaButton(t.vaUndo, Icons.undo, () async {
+    return VaButton(t.vaUndo, Icons.undo_rounded, () async {
       final app = context.read<AppState>();
       try {
         if (reminder) {
@@ -662,14 +662,14 @@ class VaExecutor {
   // ---- server agent fallback ------------------------------------------------
 
   Future<VaOutcome> agentFallback() =>
-      Future.value(VaOutcome(t.vaNotUnderstood, icon: Icons.help_outline, ok: false));
+      Future.value(VaOutcome(t.vaNotUnderstood, icon: Icons.help_outline_rounded, ok: false));
 
   /// Send the words to the Assisto agent (bn/en brain on the server). It may
   /// create the user's own rows (loan, medicine, memory…) and returns cards.
   Future<VaOutcome> agent(String text, {String? notFoundApp}) async {
     final app = context.read<AppState>();
     if (!app.loggedIn) {
-      return VaOutcome(t.vaNotUnderstood, icon: Icons.help_outline, ok: false);
+      return VaOutcome(t.vaNotUnderstood, icon: Icons.help_outline_rounded, ok: false);
     }
     try {
       final sid = await Settings.getString(_agentSessionKey);
@@ -686,21 +686,21 @@ class VaExecutor {
       final route = r['route']?.toString();
       final intent = r['intent']?.toString() ?? '';
       if (notFoundApp != null && route == null && intent == 'ambiguous') {
-        return VaOutcome(t.vaNoApp(notFoundApp), icon: Icons.apps, ok: false);
+        return VaOutcome(t.vaNoApp(notFoundApp), icon: Icons.apps_rounded, ok: false);
       }
       return VaOutcome(
         reply.isEmpty ? t.vaNotUnderstood : reply,
-        icon: Icons.auto_awesome,
+        icon: Icons.auto_awesome_rounded,
         cards: cards,
         buttons: [
           if (route != null && ChatNav.routes.containsKey(route))
-            VaButton(t.vaOpen, Icons.open_in_new, () async {
+            VaButton(t.vaOpen, Icons.open_in_new_rounded, () async {
               if (context.mounted) ChatNav.push(context, route);
             }),
         ],
       );
     } catch (_) {
-      return VaOutcome(t.vaErrOffline, icon: Icons.cloud_off_outlined, ok: false);
+      return VaOutcome(t.vaErrOffline, icon: Icons.cloud_off_rounded, ok: false);
     }
   }
 }

@@ -198,7 +198,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Row(children: [
-          Icon(Icons.auto_awesome, color: scheme.primary, size: 22),
+          Icon(Icons.auto_awesome_rounded, color: scheme.primary, size: 22),
           const SizedBox(width: Gap.sm),
           Flexible(
               child: Text(t.aichatTitle,
@@ -211,7 +211,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
           child: FilledButton.icon(
             key: const ValueKey('chats_new_chat'),
             onPressed: _newChat,
-            icon: const Icon(Icons.add_comment_outlined, size: 20),
+            icon: const Icon(Icons.add_comment_rounded, size: 20),
             label:
                 Text(t.newChat, maxLines: 1, overflow: TextOverflow.ellipsis),
             style: FilledButton.styleFrom(
@@ -229,13 +229,13 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: const Icon(Icons.search, size: 20),
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
               hintText: t.aichatSearchHint,
               suffixIcon: _q.isEmpty
                   ? null
                   : IconButton(
                       tooltip: t.aichatCancel,
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       onPressed: () {
                         _searchCtrl.clear();
                         _onSearch('');
@@ -260,7 +260,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.cloud_off_outlined,
+            Icon(Icons.cloud_off_rounded,
                 size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(honestFailText(t, _failCause, otherwise: t.aichatLoadFailed), textAlign: TextAlign.center),
@@ -282,7 +282,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(searching ? Icons.search_off : Icons.chat_bubble_outline,
+            Icon(searching ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
                 size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(searching ? t.aichatNoSearchResults : t.aichatNoChats,
@@ -344,7 +344,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         radius: 18,
         backgroundColor:
             home ? scheme.secondaryContainer : scheme.primaryContainer,
-        child: Icon(home ? Icons.chat_bubble_outline : Icons.auto_awesome,
+        child: Icon(home ? Icons.chat_bubble_outline_rounded : Icons.auto_awesome_rounded,
             size: 18,
             color:
                 home ? scheme.onSecondaryContainer : scheme.onPrimaryContainer),
@@ -356,11 +356,11 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
       subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
       onTap: () => _open(r),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (pinned) Icon(Icons.push_pin, size: 16, color: scheme.primary),
+        if (pinned) Icon(Icons.push_pin_rounded, size: 16, color: scheme.primary),
         PopupMenuButton<String>(
           key: ValueKey('chat_menu_${r['id']}'),
           tooltip: t.aichatHistory,
-          icon: Icon(Icons.more_vert, color: scheme.onSurfaceVariant),
+          icon: Icon(Icons.more_vert_rounded, color: scheme.onSurfaceVariant),
           onSelected: (v) {
             if (v == 'rename') _rename(r);
             if (v == 'pin') _pin(r);

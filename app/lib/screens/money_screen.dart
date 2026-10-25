@@ -98,10 +98,10 @@ class _MoneyScreenState extends State<MoneyScreen> {
               tooltip: t.moneyImportTitle,
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const MoneyImportScreen())),
-              icon: const Icon(Icons.sms_outlined),
+              icon: const Icon(Icons.sms_rounded),
             ),
             IconButton(
-                tooltip: AppLocalizations.of(context).refresh,onPressed: _refresh, icon: const Icon(Icons.sync)),
+                tooltip: AppLocalizations.of(context).refresh,onPressed: _refresh, icon: const Icon(Icons.sync_rounded)),
           ],
           // Non-scrollable so all 5 tabs always share the 360dp width and none
           // (e.g. Budget/Loans) scroll off-screen in English. Labels wrap to
@@ -187,10 +187,10 @@ class _OverviewTab extends StatelessWidget {
                     fontFeatures: AFonts.tabular)),
             const SizedBox(height: Gap.md),
             Row(children: [
-              _heroPill(Icons.trending_up, t.moneyNetWorthLabel,
+              _heroPill(Icons.trending_up_rounded, t.moneyNetWorthLabel,
                   tk(context, nw['net_worth'])),
               const SizedBox(width: Gap.md),
-              _heroPill(Icons.account_balance_outlined, t.moneyAccountsCount,
+              _heroPill(Icons.account_balance_rounded, t.moneyAccountsCount,
                   fmtInt(context, app.accounts.items.length)),
             ]),
           ]),
@@ -199,24 +199,24 @@ class _OverviewTab extends StatelessWidget {
         // income / expense / net — stacked full-width so the longer EN labels
         // ("Income This Month" / "Expenses This Month") fit without clipping.
         statCard(context, t.moneyMonthIncome,
-            tk(context, s?['month_income'] ?? '0'), AssistoTokens.of(context).success, Icons.south_west),
+            tk(context, s?['month_income'] ?? '0'), AssistoTokens.of(context).success, Icons.south_west_rounded),
         const SizedBox(height: Gap.md),
         statCard(context, t.moneyMonthExpense,
-            tk(context, s?['month_expense'] ?? '0'), Theme.of(context).colorScheme.error, Icons.north_east),
+            tk(context, s?['month_expense'] ?? '0'), Theme.of(context).colorScheme.error, Icons.north_east_rounded),
         const SizedBox(height: Gap.md),
         statCard(
             context,
             t.moneyMonthNet,
             tk(context, s?['month_net'] ?? '0'),
             (dbl(s?['month_net']) >= 0) ? scheme.secondary : Theme.of(context).colorScheme.error,
-            Icons.savings_outlined),
+            Icons.savings_rounded),
         const SizedBox(height: Gap.lg),
         // quick links to drill-down screens
-        _navTile(context, Icons.insights_outlined, t.moneyTrendsTitle,
+        _navTile(context, Icons.insights_rounded, t.moneyTrendsTitle,
             t.moneyTrendsSubtitle,
             () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const MoneyTrendsScreen()))),
-        _navTile(context, Icons.pie_chart_outline, t.moneyNetWorthTitle,
+        _navTile(context, Icons.pie_chart_outline_rounded, t.moneyNetWorthTitle,
             t.moneyNetWorthSubtitle,
             () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const MoneyNetWorthScreen()))),
@@ -262,7 +262,7 @@ class _OverviewTab extends StatelessWidget {
           title: Text(title,
               style: const TextStyle(fontWeight: FontWeight.w600)),
           subtitle: Text(subtitle),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: onTap,
         ),
       );
@@ -390,15 +390,15 @@ class _AccountsTab extends StatelessWidget {
     final items = app.accounts.items;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          onPressed: () => _add(context), child: const Icon(Icons.add)),
+          onPressed: () => _add(context), child: const Icon(Icons.add_rounded)),
       body: items.isEmpty
           ? StateMessage(
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Icons.account_balance_wallet_rounded,
               title: t.moneyAccountsEmpty,
               message: t.moneyAccountsEmptyHint,
               action: FilledButton.icon(
                   onPressed: () => _add(context),
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(t.moneyNewAccount)),
             )
           : ListView(
@@ -516,7 +516,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                             if (picked != null) setD(() => date = picked);
                           },
                           child: Row(children: [
-                            const Icon(Icons.calendar_today_outlined, size: 16),
+                            const Icon(Icons.calendar_today_rounded, size: 16),
                             const SizedBox(width: Gap.xs),
                             Text(DateFormat('d MMM yyyy', appDateLocale(context)).format(date)),
                           ]),
@@ -589,7 +589,7 @@ class _TxnsTabState extends State<_TxnsTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _add(context),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(t.moneyTransactionFallback)),
       body: Column(children: [
         Padding(
@@ -598,7 +598,7 @@ class _TxnsTabState extends State<_TxnsTab> {
             TextField(
               decoration: InputDecoration(
                 hintText: t.moneySearchHint,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search_rounded),
                 isDense: true,
               ),
               onChanged: (v) => setState(() => _query = v),
@@ -624,7 +624,7 @@ class _TxnsTabState extends State<_TxnsTab> {
         Expanded(
           child: items.isEmpty
               ? StateMessage(
-                  icon: Icons.receipt_long_outlined,
+                  icon: Icons.receipt_long_rounded,
                   title: t.moneyNoTransactions,
                   message: t.moneyNoTransactionsHint,
                 )
@@ -636,8 +636,8 @@ class _TxnsTabState extends State<_TxnsTab> {
                         child: ListTile(
                           leading: Icon(
                               it['data']['kind'] == 'income'
-                                  ? Icons.arrow_downward
-                                  : Icons.arrow_upward,
+                                  ? Icons.arrow_downward_rounded
+                                  : Icons.arrow_upward_rounded,
                               color: it['data']['kind'] == 'income'
                                   ? AssistoTokens.of(context).success
                                   : Theme.of(context).colorScheme.error),
@@ -658,7 +658,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                             if (it['data']['source'] == 'notification' ||
                                 it['data']['source'] == 'ai') ...[
                               const SizedBox(width: Gap.sm),
-                              Icon(Icons.auto_awesome,
+                              Icon(Icons.auto_awesome_rounded,
                                   size: 12,
                                   color: Theme.of(context)
                                       .colorScheme
@@ -666,7 +666,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                             ],
                             if (it['data']['split_with'] != null) ...[
                               const SizedBox(width: Gap.sm),
-                              const Icon(Icons.call_split, size: 12),
+                              const Icon(Icons.call_split_rounded, size: 12),
                             ],
                           ]),
                           trailing: Text(
@@ -750,17 +750,17 @@ class _BudgetsTab extends StatelessWidget {
         (summary?['budgets'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          onPressed: () => _add(context), child: const Icon(Icons.add)),
+          onPressed: () => _add(context), child: const Icon(Icons.add_rounded)),
       body: budgets.isEmpty
           ? StateMessage(
-              icon: Icons.donut_large_outlined,
+              icon: Icons.donut_large_rounded,
               title: app.budgets.items.isEmpty
                   ? t.moneyBudgetEmpty
                   : t.moneyBudgetSpendOffline,
               message: t.moneyBudgetEmptyHint,
               action: FilledButton.icon(
                   onPressed: () => _add(context),
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(t.moneyNewBudget)),
             )
           : ListView(
@@ -843,7 +843,7 @@ class _LoansSavingsTab extends StatelessWidget {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         TextButton.icon(
             onPressed: () => _addLoan(context),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.add)),
       ]),
       if (app.loans.items.isEmpty)
@@ -857,8 +857,8 @@ class _LoansSavingsTab extends StatelessWidget {
           child: ListTile(
             leading: Icon(
                 it['data']['kind'] == 'given'
-                    ? Icons.call_made
-                    : Icons.call_received,
+                    ? Icons.call_made_rounded
+                    : Icons.call_received_rounded,
                 color: it['data']['kind'] == 'given'
                     ? AssistoTokens.of(context).warning
                     : Brand.blue),
@@ -866,8 +866,8 @@ class _LoansSavingsTab extends StatelessWidget {
                 '${it['data']['person']} · ${tk(context, it['data']['amount'])}'),
             subtitle: Text(_loanSubtitle(context, it['data'])),
             trailing: it['data']['settled'] == true
-                ? Icon(Icons.check_circle, color: AssistoTokens.of(context).success)
-                : const Icon(Icons.chevron_right),
+                ? Icon(Icons.check_circle_rounded, color: AssistoTokens.of(context).success)
+                : const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -880,7 +880,7 @@ class _LoansSavingsTab extends StatelessWidget {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         TextButton.icon(
             onPressed: () => _addGoal(context),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.add)),
       ]),
       for (final it in app.goals.items)

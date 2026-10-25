@@ -122,14 +122,14 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
           IconButton(
             tooltip: t.paShare,
             onPressed: b.hasCore ? _share : null,
-            icon: const Icon(Icons.ios_share),
+            icon: const Icon(Icons.ios_share_rounded),
           ),
         ],
       ),
       floatingActionButton: _dirty
           ? FloatingActionButton.extended(
               onPressed: _save,
-              icon: const Icon(Icons.check),
+              icon: const Icon(Icons.check_rounded),
               label: Text(t.save),
             )
           : null,
@@ -151,7 +151,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _share,
-                  icon: const Icon(Icons.ios_share, size: 18),
+                  icon: const Icon(Icons.ios_share_rounded, size: 18),
                   label: Text(t.paShare),
                 ),
               ),
@@ -246,7 +246,7 @@ class _DeterministicMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.verified_outlined, size: 18, color: scheme.primary),
+        Icon(Icons.verified_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
@@ -264,7 +264,7 @@ class _IncompleteCore extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xl),
       child: Column(children: [
-        Icon(Icons.event_busy_outlined,
+        Icon(Icons.event_busy_rounded,
             size: 44, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(height: Gap.md),
         Text(text,
@@ -333,12 +333,12 @@ class _BriefPreview extends StatelessWidget {
         Text(brief.title,
             style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.md),
-        _row(context, Icons.schedule, t.paBriefWhen, whenStr),
-        _row(context, Icons.place_outlined, t.paBriefWhere, brief.where,
+        _row(context, Icons.schedule_rounded, t.paBriefWhen, whenStr),
+        _row(context, Icons.place_rounded, t.paBriefWhere, brief.where,
             missing: brief.missing.contains('where'), t: t),
-        _row(context, Icons.group_outlined, t.paBriefWho, brief.who.join(', '),
+        _row(context, Icons.group_rounded, t.paBriefWho, brief.who.join(', '),
             missing: brief.missing.contains('who'), t: t),
-        _row(context, Icons.flag_outlined, t.paBriefWhat, brief.what,
+        _row(context, Icons.flag_rounded, t.paBriefWhat, brief.what,
             missing: brief.missing.contains('what'), t: t),
         const SizedBox(height: Gap.md),
         _bulletBlock(context, t.paBriefAgenda, brief.agenda,
@@ -348,7 +348,7 @@ class _BriefPreview extends StatelessWidget {
             empty: brief.missing.contains('prep'), t: t, check: true),
         if (brief.note.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
-          _row(context, Icons.sticky_note_2_outlined, t.paBriefNote,
+          _row(context, Icons.sticky_note_2_rounded, t.paBriefNote,
               brief.note),
         ],
       ]),
@@ -400,8 +400,8 @@ class _BriefPreview extends StatelessWidget {
                 children: [
                   Icon(
                       check
-                          ? Icons.check_box_outline_blank
-                          : Icons.circle,
+                          ? Icons.check_box_outline_blank_rounded
+                          : Icons.circle_rounded,
                       size: check ? 16 : 7,
                       color: scheme.primary),
                   const SizedBox(width: Gap.sm),
@@ -429,7 +429,7 @@ class _ReminderStatus extends StatelessWidget {
     }
     if (summary.allPast) {
       return Row(children: [
-        const Icon(Icons.history_toggle_off, size: 16, color: Brand.warning),
+        const Icon(Icons.history_toggle_off_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.paReminderAllPast,
@@ -446,7 +446,7 @@ class _ReminderStatus extends StatelessWidget {
         ? ''
         : DateFormat('d MMM, HH:mm', loc).format(summary.next!);
     return Row(children: [
-      const Icon(Icons.notifications_active_outlined,
+      const Icon(Icons.notifications_active_rounded,
           size: 16, color: Brand.success),
       const SizedBox(width: Gap.sm),
       Expanded(
@@ -472,7 +472,7 @@ class _AiSeamCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(children: [
-        Icon(Icons.auto_awesome_outlined,
+        Icon(Icons.auto_awesome_rounded,
             size: 20, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -483,7 +483,7 @@ class _AiSeamCard extends StatelessWidget {
             // Honest: disabled — key-gated seam, not built in this batch.
             TextButton.icon(
               onPressed: null,
-              icon: const Icon(Icons.lock_outline, size: 14),
+              icon: const Icon(Icons.lock_outline_rounded, size: 14),
               label: Text(cta),
               style: TextButton.styleFrom(
                 visualDensity: VisualDensity.compact,

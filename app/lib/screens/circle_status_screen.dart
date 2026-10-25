@@ -185,7 +185,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
       showDragHandle: true,
       builder: (ctx) => SafeArea(
         child: ListTile(
-          leading: Icon(muted ? Icons.notifications_active_outlined : Icons.notifications_off_outlined),
+          leading: Icon(muted ? Icons.notifications_active_rounded : Icons.notifications_off_rounded),
           title: Text(muted ? t.p3UnmuteStories(name) : t.p3MuteStories(name)),
           subtitle: Text(t.p3MuteNote),
           onTap: () => Navigator.pop(ctx, true),
@@ -240,14 +240,14 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
           IconButton(
             key: const ValueKey('p3-privacy-btn'),
             tooltip: t.p3PrivStoryTitle,
-            icon: const Icon(Icons.lock_person_outlined),
+            icon: const Icon(Icons.lock_person_rounded),
             onPressed: _privacy,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openComposer,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.statusAdd),
       ),
       body: _loading
@@ -302,7 +302,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                           label: _initials(myName.isEmpty ? '?' : myName),
                           hasUnseen: false,
                           segments: (_mine?['count'] as num?)?.toInt() ?? 1,
-                          icon: _mine == null ? Icons.add : null,
+                          icon: _mine == null ? Icons.add_rounded : null,
                         ),
                         title: Text(t.statusMine),
                         subtitle: Text(_mine == null
@@ -312,7 +312,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                         onTap: _mine == null ? _openComposer : _openMine,
                         trailing: IconButton(
                           tooltip: t.statusAdd,
-                          icon: const Icon(Icons.add_circle_outline),
+                          icon: const Icon(Icons.add_circle_outline_rounded),
                           onPressed: _openComposer,
                         ),
                       ),
@@ -321,7 +321,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                         Padding(
                           padding: const EdgeInsets.all(Gap.xxl),
                           child: Column(children: [
-                            Icon(Icons.auto_awesome_outlined, size: 48, color: scheme.outline),
+                            Icon(Icons.auto_awesome_rounded, size: 48, color: scheme.outline),
                             const SizedBox(height: Gap.md),
                             Text(t.statusNoUpdates,
                                 textAlign: TextAlign.center,
@@ -344,7 +344,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                       Padding(
                         padding: const EdgeInsets.all(Gap.lg),
                         child: Row(children: [
-                          Icon(Icons.lock_outline, size: 16, color: scheme.primary),
+                          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.primary),
                           const SizedBox(width: Gap.sm),
                           Expanded(
                             child: Text(t.p3StoriesE2e,
@@ -417,7 +417,7 @@ class _NoteBubble extends StatelessWidget {
             radius: 20,
             backgroundColor: scheme.primaryContainer,
             child: placeholder
-                ? Icon(Icons.add, color: scheme.onPrimaryContainer)
+                ? Icon(Icons.add_rounded, color: scheme.onPrimaryContainer)
                 : Text(initials, style: TextStyle(color: scheme.onPrimaryContainer)),
           ),
           const SizedBox(height: 2),
@@ -531,7 +531,7 @@ class _NoteSheetState extends State<NoteSheet> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: ActionChip(
-                  avatar: const Icon(Icons.lock_person_outlined, size: 18),
+                  avatar: const Icon(Icons.lock_person_rounded, size: 18),
                   label: Text(privacyLabel(t, _privacy, context)),
                   onPressed: () async {
                     final p = await showStoryPrivacySheet(context,
@@ -570,12 +570,12 @@ class _ErrorRetry extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xxl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_outlined, size: 48, color: scheme.outline),
+          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.outline),
           const SizedBox(height: Gap.md),
           Text(message, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),
           FilledButton.tonalIcon(
-              onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text(s.retry)),
+              onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: Text(s.retry)),
         ]),
       ),
     );

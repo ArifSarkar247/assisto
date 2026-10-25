@@ -47,13 +47,13 @@ class CatMeta {
 }
 
 const List<CatMeta> kTravelCats = [
-  CatMeta(TravelCat.nature, Icons.forest_outlined, Brand.success),
-  CatMeta(TravelCat.historical, Icons.account_balance_outlined, Brand.blue),
-  CatMeta(TravelCat.beach, Icons.beach_access_outlined, Brand.cyan),
-  CatMeta(TravelCat.hill, Icons.terrain_outlined, Brand.purple),
-  CatMeta(TravelCat.religious, Icons.mosque_outlined, Brand.success),
-  CatMeta(TravelCat.island, Icons.sailing_outlined, Brand.cyan),
-  CatMeta(TravelCat.waterfall, Icons.water_drop_outlined, Brand.blue),
+  CatMeta(TravelCat.nature, Icons.forest_rounded, Brand.success),
+  CatMeta(TravelCat.historical, Icons.account_balance_rounded, Brand.blue),
+  CatMeta(TravelCat.beach, Icons.beach_access_rounded, Brand.cyan),
+  CatMeta(TravelCat.hill, Icons.terrain_rounded, Brand.purple),
+  CatMeta(TravelCat.religious, Icons.mosque_rounded, Brand.success),
+  CatMeta(TravelCat.island, Icons.sailing_rounded, Brand.cyan),
+  CatMeta(TravelCat.waterfall, Icons.water_drop_rounded, Brand.blue),
 ];
 
 CatMeta catMeta(TravelCat c) => kTravelCats.firstWhere((m) => m.cat == c);

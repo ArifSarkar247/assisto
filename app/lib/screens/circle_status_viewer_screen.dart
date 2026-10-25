@@ -175,7 +175,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
               onPressed: () => Navigator.of(ctx).pop(true),
-              icon: const Icon(Icons.send),
+              icon: const Icon(Icons.send_rounded),
               label: Text(t.statusSendReply),
             ),
           ),
@@ -293,7 +293,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  const Icon(Icons.remove_red_eye_outlined),
+                  const Icon(Icons.remove_red_eye_rounded),
                   const SizedBox(width: Gap.sm),
                   Text(count == 0
                           ? s.statusNoViewsYet
@@ -419,7 +419,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
                 ),
                 IconButton(
                   tooltip: s.p3Close,
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: const Icon(Icons.close_rounded, color: Colors.white),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ]),
@@ -486,7 +486,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(48)),
         onPressed: widget.authorKey == null ? null : _reply,
-        icon: const Icon(Icons.reply),
+        icon: const Icon(Icons.reply_rounded),
         label: Text(s.statusReplyPrivately),
       );
 
@@ -500,7 +500,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48)),
       onPressed: _showViewers,
-      icon: const Icon(Icons.remove_red_eye_outlined),
+      icon: const Icon(Icons.remove_red_eye_rounded),
       label: Text(count == 0 ? s.statusNoViewsYet : s.statusSeenBy(notifLocalizeDigits(context, '$count'))),
     );
   }

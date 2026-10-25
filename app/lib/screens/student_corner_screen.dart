@@ -99,13 +99,13 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.studentTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.studentLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -115,12 +115,12 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.studentTitle)),
         body: StateMessage(
-          icon: Icons.school_outlined,
+          icon: Icons.school_rounded,
           title: tr.studentWelcomeTitle,
           message: tr.studentWelcomeBody,
           action: FilledButton.icon(
             onPressed: () => _addCourse(context),
-            icon: const Icon(Icons.calculate_outlined),
+            icon: const Icon(Icons.calculate_rounded),
             label: Text(tr.studentAddCourse),
           ),
         ),
@@ -201,12 +201,12 @@ class _RoutineTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, null),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.studentAddPeriod),
       ),
       body: days.isEmpty
           ? StateMessage(
-              icon: Icons.calendar_view_week_outlined,
+              icon: Icons.calendar_view_week_rounded,
               title: tr.studentRoutineEmptyTitle,
               message: tr.studentRoutineEmptyBody,
             )
@@ -235,14 +235,14 @@ class _RoutineTab extends StatelessWidget {
                       Card(
                         margin: const EdgeInsets.only(bottom: Gap.sm),
                         child: ListTile(
-                          leading: Icon(Icons.schedule,
+                          leading: Icon(Icons.schedule_rounded,
                               color: p.conflict ? scheme.error : scheme.primary),
                           title: Text(
                               p.subject.isEmpty ? tr.studentUntitled : p.subject,
                               maxLines: 1, overflow: TextOverflow.ellipsis),
                           subtitle: Text(_periodSub(tr, p)),
                           trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline),
+                            icon: const Icon(Icons.delete_outline_rounded),
                             tooltip: tr.delete,
                             onPressed: () async {
                               if (await _confirmDelete(context, _routinePath,
@@ -391,7 +391,7 @@ class _PeriodEditorState extends State<_PeriodEditor> {
               onTap: () => _pickTime(_start),
               decoration: InputDecoration(
                   labelText: tr.studentStartLabel,
-                  suffixIcon: const Icon(Icons.schedule)),
+                  suffixIcon: const Icon(Icons.schedule_rounded)),
             ),
           ),
           const SizedBox(width: Gap.md),
@@ -402,7 +402,7 @@ class _PeriodEditorState extends State<_PeriodEditor> {
               onTap: () => _pickTime(_end),
               decoration: InputDecoration(
                   labelText: tr.studentEndLabel,
-                  suffixIcon: const Icon(Icons.schedule)),
+                  suffixIcon: const Icon(Icons.schedule_rounded)),
             ),
           ),
         ]),
@@ -483,12 +483,12 @@ class _TrackerTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, null),
-        icon: const Icon(Icons.add_task),
+        icon: const Icon(Icons.add_task_rounded),
         label: Text(tr.studentAddAssignment),
       ),
       body: board.all.isEmpty
           ? StateMessage(
-              icon: Icons.assignment_outlined,
+              icon: Icons.assignment_rounded,
               title: tr.studentTrackerEmptyTitle,
               message: tr.studentTrackerEmptyBody,
             )
@@ -623,7 +623,7 @@ class _TrackerCard extends StatelessWidget {
           ),
         ]),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           tooltip: tr.delete,
           onPressed: onDelete,
         ),
@@ -721,7 +721,7 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
         const SizedBox(height: Gap.md),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.event),
+          leading: const Icon(Icons.event_rounded),
           title: Text(_due == null
               ? tr.studentNoDue
               : StudentEngine.isoDate(_due!)),
@@ -729,7 +729,7 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
               ? null
               : IconButton(
                   tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear_rounded),
                   onPressed: () => setState(() => _due = null)),
           onTap: _pickDate,
         ),
@@ -792,7 +792,7 @@ class _CgpaTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => onAdd(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.studentAddCourse),
       ),
       body: RefreshIndicator(
@@ -827,7 +827,7 @@ class _CgpaTab extends StatelessWidget {
             const SizedBox(height: Gap.md),
             if (courses.isEmpty)
               StateMessage(
-                icon: Icons.calculate_outlined,
+                icon: Icons.calculate_rounded,
                 title: tr.studentCgpaEmptyTitle,
                 message: tr.studentCgpaEmptyBody,
               )
@@ -848,12 +848,12 @@ class _CgpaTab extends StatelessWidget {
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       IconButton(
                         tooltip: AppLocalizations.of(context).edit,
-                        icon: const Icon(Icons.edit_outlined),
+                        icon: const Icon(Icons.edit_rounded),
                         onPressed: () => _edit(context, _rawOf(c)),
                       ),
                       IconButton(
                         tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const Icon(Icons.delete_outline_rounded),
                         onPressed: () async {
                           if (await _confirmDelete(context, _coursePath, c.id,
                               tr.studentDeleteCourseBody)) {
@@ -1087,12 +1087,12 @@ class _GoalsTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _add(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.studentAddGoal),
       ),
       body: goals.isEmpty
           ? StateMessage(
-              icon: Icons.checklist_rtl_outlined,
+              icon: Icons.checklist_rtl_rounded,
               title: tr.studentGoalsEmptyTitle,
               message: tr.studentGoalsEmptyBody,
             )
@@ -1147,7 +1147,7 @@ class _GoalsTab extends StatelessWidget {
                         ),
                         trailing: IconButton(
                           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                          icon: const Icon(Icons.delete_outline),
+                          icon: const Icon(Icons.delete_outline_rounded),
                           onPressed: () async {
                             if (await _confirmDelete(context, _goalPath,
                                 g['id'], tr.studentDeleteGoalBody)) {

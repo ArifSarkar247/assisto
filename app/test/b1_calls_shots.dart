@@ -85,7 +85,7 @@ class _B1MiniBarDemoState extends State<B1MiniBarDemo> {
                   ? ['আম্মু', 'রাফি', 'নাদিয়া']
                   : ['Mom', 'Rafi', 'Nadia'])
                 ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
                     title: Text(n)),
             ],
           ),

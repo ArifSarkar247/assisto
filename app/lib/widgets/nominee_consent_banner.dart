@@ -28,7 +28,7 @@ class NomineeConsentBanner extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.handshake_outlined,
+          Icon(Icons.handshake_rounded,
               size: 20, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -58,7 +58,7 @@ class _Point extends StatelessWidget {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
           padding: const EdgeInsets.only(top: 3, right: Gap.sm),
-          child: Icon(Icons.check, size: 15, color: scheme.onTertiaryContainer),
+          child: Icon(Icons.check_rounded, size: 15, color: scheme.onTertiaryContainer),
         ),
         Expanded(
           child: Text(text,

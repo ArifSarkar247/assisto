@@ -21,7 +21,7 @@ class RideHonestNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
-        const Icon(Icons.open_in_new, size: 18, color: Brand.blue),
+        const Icon(Icons.open_in_new_rounded, size: 18, color: Brand.blue),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -45,7 +45,7 @@ class RideFareNote extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xs, bottom: Gap.sm),
       child: Row(children: [
-        Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(
@@ -72,7 +72,7 @@ class RideInAppComingNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
-        Icon(Icons.handshake_outlined, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.handshake_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -153,7 +153,7 @@ class RideProviderTile extends StatelessWidget {
           if (install == InstallState.installed)
             Padding(
               padding: const EdgeInsets.only(right: Gap.xs),
-              child: Icon(Icons.check_circle,
+              child: Icon(Icons.check_circle_rounded,
                   size: 14, color: Brand.success),
             ),
           Expanded(
@@ -162,7 +162,7 @@ class RideProviderTile extends StatelessWidget {
           ),
         ]),
         trailing: FilledButton.tonalIcon(
-          icon: const Icon(Icons.open_in_new, size: 16),
+          icon: const Icon(Icons.open_in_new_rounded, size: 16),
           label: Text(t.rideFoodOpen),
           onPressed: onOpen,
         ),
@@ -183,11 +183,11 @@ class RidePlaceChip extends StatelessWidget {
   IconData get _icon {
     switch (place.kind) {
       case SavedPlace.home:
-        return Icons.home_outlined;
+        return Icons.home_rounded;
       case SavedPlace.work:
-        return Icons.work_outline;
+        return Icons.work_outline_rounded;
       default:
-        return Icons.place_outlined;
+        return Icons.place_rounded;
     }
   }
 
@@ -282,7 +282,7 @@ class RideError extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
-        const Icon(Icons.error_outline, size: 18, color: Brand.danger),
+        const Icon(Icons.error_outline_rounded, size: 18, color: Brand.danger),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(message,

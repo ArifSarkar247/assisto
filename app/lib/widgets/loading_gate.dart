@@ -134,7 +134,7 @@ class LoadErrorRetry extends StatelessWidget {
     final retry = FilledButton.tonalIcon(
       key: const Key('load-retry'),
       onPressed: onRetry,
-      icon: const Icon(Icons.refresh),
+      icon: const Icon(Icons.refresh_rounded),
       label: Text(t.retry),
     );
     if (compact) {
@@ -147,7 +147,7 @@ class LoadErrorRetry extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off_outlined, color: scheme.onErrorContainer),
+          Icon(Icons.cloud_off_rounded, color: scheme.onErrorContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(text,
@@ -163,7 +163,7 @@ class LoadErrorRetry extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_outlined, size: 48, color: scheme.error),
+          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
           const SizedBox(height: Gap.md),
           Text(title ?? t.loadFailed,
               textAlign: TextAlign.center,

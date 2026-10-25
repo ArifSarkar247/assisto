@@ -92,7 +92,7 @@ class MsgrCommunityRequestTile extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.mark_email_unread_outlined,
+                  Icon(Icons.mark_email_unread_rounded,
                       size: 15, color: scheme.tertiary),
                   const SizedBox(width: Gap.xs),
                   Expanded(

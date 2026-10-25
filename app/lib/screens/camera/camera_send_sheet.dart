@@ -165,7 +165,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.ios_share, color: scheme.onPrimaryContainer),
+                child: Icon(Icons.ios_share_rounded, color: scheme.onPrimaryContainer),
               ),
               title: Text(t.camShareFile),
               subtitle: Text(t.camShareFileSub,
@@ -174,7 +174,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
             ),
             const SizedBox(height: Gap.xs),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.info_outline,
+              Icon(Icons.info_outline_rounded,
                   size: 16, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Expanded(
@@ -229,7 +229,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.auto_awesome, color: scheme.onPrimaryContainer),
+                child: Icon(Icons.auto_awesome_rounded, color: scheme.onPrimaryContainer),
               ),
               title: Text(t.camPostStatus),
               subtitle: Text(t.camPostStatusSub,
@@ -292,7 +292,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.send),
+                      : const Icon(Icons.send_rounded),
                   label: Text(
                     _selected.isEmpty
                         ? t.camSend

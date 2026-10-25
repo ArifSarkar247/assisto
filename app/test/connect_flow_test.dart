@@ -202,7 +202,7 @@ Future<void> _type(WidgetTester tester, String text) async {
       .removeCurrentSnackBar();
   await tester.pump();
   await tester.enterText(find.byType(TextField).last, text);
-  await tester.tap(find.byIcon(Icons.send));
+  await tester.tap(find.byIcon(Icons.send_rounded));
   await _settle(tester);
 }
 
@@ -247,8 +247,8 @@ void main() {
     // the thread is open at once — no "Request sent" dead end, no search
     expect(find.byType(CircleChatScreen), findsOneWidget);
     expect(find.text(en.connRequestSentBanner), findsOneWidget);
-    expect(find.byIcon(Icons.call_outlined), findsNothing);
-    expect(find.byIcon(Icons.videocam_outlined), findsNothing);
+    expect(find.byIcon(Icons.call_rounded), findsNothing);
+    expect(find.byIcon(Icons.videocam_rounded), findsNothing);
     expect(find.byTooltip(en.circleAttach), findsNothing); // text only
 
     // a link never leaves the phone before accept
@@ -298,7 +298,7 @@ void main() {
     // the pending messages are a normal conversation now
     expect(find.text('Assalamu alaikum'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.byIcon(Icons.call_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.call_rounded), findsOneWidget);
     await _type(tester, 'Walaikum assalam');
     expect(api.posts('/circle/20/messages').length, 1);
     await _dispose(tester);
@@ -321,8 +321,8 @@ void main() {
     expect(find.byKey(const Key('mr1-limit')), findsNothing);
     expect(find.text(en.connRequestSentBanner), findsNothing);
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.byIcon(Icons.call_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.videocam_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.call_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.videocam_rounded), findsOneWidget);
     await _type(tester, 'a 4th text now works');
     expect(s.msgs.length, 4);
     await _dispose(tester);

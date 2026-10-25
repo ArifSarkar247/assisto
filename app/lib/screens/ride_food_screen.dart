@@ -166,7 +166,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           const SizedBox(height: Gap.md),
 
           // ======================= RIDE =======================
-          RideSectionHeader(icon: Icons.local_taxi_outlined, label: t.rideFoodRideSection),
+          RideSectionHeader(icon: Icons.local_taxi_rounded, label: t.rideFoodRideSection),
           TextField(
             controller: _dest,
             textInputAction: TextInputAction.done,
@@ -174,7 +174,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
               labelText: t.rideFoodDestLabel,
               helperText: t.rideFoodDestHelper,
               helperMaxLines: 2,
-              prefixIcon: const Icon(Icons.place_outlined),
+              prefixIcon: const Icon(Icons.place_rounded),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -182,17 +182,17 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           // save current destination as home/work/custom
           Wrap(spacing: Gap.xs, children: [
             ActionChip(
-              avatar: const Icon(Icons.home_outlined, size: 18),
+              avatar: const Icon(Icons.home_rounded, size: 18),
               label: Text(t.rideFoodSaveAsHome),
               onPressed: () => _saveDest(SavedPlace.home),
             ),
             ActionChip(
-              avatar: const Icon(Icons.work_outline, size: 18),
+              avatar: const Icon(Icons.work_outline_rounded, size: 18),
               label: Text(t.rideFoodSaveAsWork),
               onPressed: () => _saveDest(SavedPlace.work),
             ),
             ActionChip(
-              avatar: const Icon(Icons.bookmark_add_outlined, size: 18),
+              avatar: const Icon(Icons.bookmark_add_rounded, size: 18),
               label: Text(t.rideFoodSavePlace),
               onPressed: () => _saveDest(SavedPlace.other),
             ),
@@ -204,7 +204,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           if (_loading)
             const RideLoading()
           else if (_places.isEmpty)
-            RideEmpty(icon: Icons.bookmark_border, message: t.rideFoodNoPlaces)
+            RideEmpty(icon: Icons.bookmark_border_rounded, message: t.rideFoodNoPlaces)
           else
             Wrap(
               spacing: Gap.xs,
@@ -225,7 +225,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           if (_loading)
             const RideLoading()
           else if (_trips.isEmpty)
-            RideEmpty(icon: Icons.history, message: t.rideFoodNoTrips)
+            RideEmpty(icon: Icons.history_rounded, message: t.rideFoodNoTrips)
           else
             Wrap(
               spacing: Gap.xs,
@@ -234,7 +234,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
                 for (final trip in _trips)
                   RideQuickChip(
                     label: trip,
-                    icon: Icons.history,
+                    icon: Icons.history_rounded,
                     onUse: () => setState(() => _dest.text = trip),
                   ),
               ],
@@ -256,7 +256,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           const SizedBox(height: Gap.lg),
 
           // ======================= FOOD =======================
-          RideSectionHeader(icon: Icons.fastfood_outlined, label: t.rideFoodFoodSection),
+          RideSectionHeader(icon: Icons.fastfood_rounded, label: t.rideFoodFoodSection),
           TextField(
             controller: _food,
             textInputAction: TextInputAction.done,
@@ -264,7 +264,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
               labelText: t.rideFoodFoodLabel,
               helperText: t.rideFoodFoodHelper,
               helperMaxLines: 2,
-              prefixIcon: const Icon(Icons.restaurant_outlined),
+              prefixIcon: const Icon(Icons.restaurant_rounded),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -272,7 +272,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: ActionChip(
-              avatar: const Icon(Icons.favorite_border, size: 18),
+              avatar: const Icon(Icons.favorite_border_rounded, size: 18),
               label: Text(t.rideFoodSaveCraving),
               onPressed: _saveCraving,
             ),
@@ -284,7 +284,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
           if (_loading)
             const RideLoading()
           else if (_cravings.isEmpty)
-            RideEmpty(icon: Icons.favorite_border, message: t.rideFoodNoCravings)
+            RideEmpty(icon: Icons.favorite_border_rounded, message: t.rideFoodNoCravings)
           else
             Wrap(
               spacing: Gap.xs,
@@ -293,7 +293,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
                 for (final c in _cravings)
                   RideQuickChip(
                     label: c.query,
-                    icon: Icons.restaurant,
+                    icon: Icons.restaurant_rounded,
                     onUse: () => setState(() => _food.text = c.query),
                     onRemove: () => _removeCraving(c),
                   ),

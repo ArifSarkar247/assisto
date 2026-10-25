@@ -194,26 +194,26 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       case _Phase.review:
         return _reviewPane();
       case _Phase.unavailable:
-        return _message(Icons.mic_off_outlined, t.mvoiceUnavailableTitle,
+        return _message(Icons.mic_off_rounded, t.mvoiceUnavailableTitle,
             t.mvoiceUnavailableBody,
             action: FilledButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(t.mvoiceGotIt)));
       case _Phase.error:
-        return _message(Icons.error_outline, t.mvoiceErrorTitle,
+        return _message(Icons.error_outline_rounded, t.mvoiceErrorTitle,
             t.mvoiceErrorBody,
             action: FilledButton.icon(
                 onPressed: _startListening,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.mvoiceRetry)));
       case _Phase.done:
-        return _message(Icons.check_circle_outline, t.mvoiceDoneTitle,
+        return _message(Icons.check_circle_outline_rounded, t.mvoiceDoneTitle,
             t.mvoiceDoneBody(_savedCount),
             tint: AssistoTokens.of(context).success,
             action: Column(mainAxisSize: MainAxisSize.min, children: [
               FilledButton.icon(
                   onPressed: _reset,
-                  icon: const Icon(Icons.mic),
+                  icon: const Icon(Icons.mic_rounded),
                   label: Text(t.mvoiceSpeakAgain)),
               const SizedBox(height: Gap.sm),
               TextButton(
@@ -262,7 +262,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                           ]
                         : null,
                   ),
-                  child: Icon(listening ? Icons.graphic_eq : Icons.mic,
+                  child: Icon(listening ? Icons.graphic_eq_rounded : Icons.mic_rounded,
                       size: 52, color: Colors.white),
                 ),
               ),
@@ -278,12 +278,12 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
         if (listening)
           FilledButton.icon(
               onPressed: _stopTap,
-              icon: const Icon(Icons.stop_circle_outlined),
+              icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.mvoiceStop))
         else ...[
           // Examples so a first-timer knows what to say (empty state).
           _ExampleCard(
-              icon: Icons.record_voice_over_outlined,
+              icon: Icons.record_voice_over_rounded,
               lines: [t.mvoiceExample1, t.mvoiceExample2, t.mvoiceExample3]),
         ],
       ],
@@ -297,7 +297,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
         child: Row(children: [
-          Icon(Icons.fact_check_outlined, color: scheme.primary),
+          Icon(Icons.fact_check_rounded, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.mvoiceReviewTitle,
@@ -322,7 +322,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Row(children: [
-                Icon(Icons.hearing_outlined,
+                Icon(Icons.hearing_rounded,
                     size: 16, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -369,8 +369,8 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               IconButton(
                 tooltip: d.skip ? t.mvoiceInclude : t.mvoiceSkip,
                 icon: Icon(d.skip
-                    ? Icons.add_circle_outline
-                    : Icons.remove_circle_outline),
+                    ? Icons.add_circle_outline_rounded
+                    : Icons.remove_circle_outline_rounded),
                 onPressed: () => setState(() => d.skip = !d.skip),
               ),
             ]),
@@ -414,7 +414,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                 decoration: InputDecoration(
                     labelText: t.mvoiceFieldPerson,
                     isDense: true,
-                    prefixIcon: const Icon(Icons.person_outline, size: 18)),
+                    prefixIcon: const Icon(Icons.person_outline_rounded, size: 18)),
                 onChanged: (v) => d.counterparty = v.trim().isEmpty ? null : v,
               ),
             ],
@@ -422,7 +422,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               Padding(
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Row(children: [
-                  Icon(Icons.info_outline, size: 14, color: scheme.error),
+                  Icon(Icons.info_outline_rounded, size: 14, color: scheme.error),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                       child: Text(t.mvoiceNeedsInfo,
@@ -448,7 +448,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
         Expanded(
           child: OutlinedButton.icon(
             onPressed: _saving ? null : _reset,
-            icon: const Icon(Icons.refresh, size: 18),
+            icon: const Icon(Icons.refresh_rounded, size: 18),
             label: Text(t.mvoiceSpeakAgain),
           ),
         ),
@@ -462,7 +462,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.check, size: 18),
+                : const Icon(Icons.check_rounded, size: 18),
             label: Text(t.mvoiceConfirmLog),
           ),
         ),
@@ -482,11 +482,11 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
   }
 
   IconData _typeIcon(MoneyVoiceType? ty) => switch (ty) {
-        MoneyVoiceType.income => Icons.south_west,
-        MoneyVoiceType.expense => Icons.north_east,
-        MoneyVoiceType.dueIn => Icons.call_received,
-        MoneyVoiceType.dueOut => Icons.call_made,
-        null => Icons.help_outline,
+        MoneyVoiceType.income => Icons.south_west_rounded,
+        MoneyVoiceType.expense => Icons.north_east_rounded,
+        MoneyVoiceType.dueIn => Icons.call_received_rounded,
+        MoneyVoiceType.dueOut => Icons.call_made_rounded,
+        null => Icons.help_outline_rounded,
       };
 
   Color _typeColor(MoneyVoiceType? ty, ColorScheme scheme) => switch (ty) {

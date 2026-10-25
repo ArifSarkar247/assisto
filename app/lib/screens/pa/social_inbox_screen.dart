@@ -181,7 +181,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(Icons.link, color: scheme.primary),
+              Icon(Icons.link_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(tr.socialInboxConnectTitle,
@@ -199,7 +199,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
                 border: Border.all(color: scheme.outlineVariant),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.shield_outlined, size: 18, color: scheme.primary),
+                Icon(Icons.shield_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.socialInboxConnectKeys,
@@ -233,26 +233,26 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
       appBar: AppBar(title: Text(tr.socialInboxTitle), actions: [
         IconButton(
           tooltip: tr.socialInboxConnectTitle,
-          icon: const Icon(Icons.link),
+          icon: const Icon(Icons.link_rounded),
           onPressed: () => _showConnect(tr),
         ),
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.socialInboxAdd),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.socialInboxLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -266,12 +266,12 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
         children: [
           const SizedBox(height: Gap.xl),
           StateMessage(
-            icon: Icons.forum_outlined,
+            icon: Icons.forum_rounded,
             title: tr.socialInboxWelcomeTitle,
             message: tr.socialInboxWelcomeBody,
             action: FilledButton.icon(
               onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.socialInboxAdd),
             ),
           ),
@@ -287,7 +287,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -307,9 +307,9 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
         child: Row(children: [
-          _stat(Icons.mark_email_unread_outlined, tr.socialInboxStatOpen('$_openCount'), scheme),
+          _stat(Icons.mark_email_unread_rounded, tr.socialInboxStatOpen('$_openCount'), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.priority_high, tr.socialInboxStatUrgent('$_urgentCount'),
+          _stat(Icons.priority_high_rounded, tr.socialInboxStatUrgent('$_urgentCount'),
               scheme, tint: _urgentCount > 0 ? scheme.error : null),
         ]),
       ),
@@ -326,7 +326,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.inbox_outlined,
+                icon: Icons.inbox_rounded,
                 title: tr.socialInboxAllClearTitle,
                 message: tr.socialInboxAllClearBody,
               )
@@ -388,16 +388,16 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
   IconData _platformIcon(String p) {
     switch (p) {
       case 'instagram':
-        return Icons.camera_alt_outlined;
+        return Icons.camera_alt_rounded;
       case 'facebook':
       case 'messenger':
-        return Icons.chat_bubble_outline;
+        return Icons.chat_bubble_outline_rounded;
       case 'twitter':
-        return Icons.alternate_email;
+        return Icons.alternate_email_rounded;
       case 'youtube':
-        return Icons.play_circle_outline;
+        return Icons.play_circle_outline_rounded;
       default:
-        return Icons.public;
+        return Icons.public_rounded;
     }
   }
 
@@ -456,7 +456,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: () => _setStatus(r, _stReplied),
-                  icon: const Icon(Icons.reply, size: 18),
+                  icon: const Icon(Icons.reply_rounded, size: 18),
                   label: Text(tr.socialInboxMarkReplied,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
@@ -468,7 +468,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'archive') _setStatus(r, _stArchived);

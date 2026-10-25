@@ -125,13 +125,13 @@ class _SavingsChallengeScreenState extends State<SavingsChallengeScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savechalTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.savechalLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -140,12 +140,12 @@ class _SavingsChallengeScreenState extends State<SavingsChallengeScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savechalTitle)),
         body: StateMessage(
-          icon: Icons.savings_outlined,
+          icon: Icons.savings_rounded,
           title: tr.savechalWelcomeTitle,
           message: tr.savechalWelcomeBody,
           action: FilledButton.icon(
             onPressed: _addPlan,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.savechalStartChallenge),
           ),
         ),
@@ -155,7 +155,7 @@ class _SavingsChallengeScreenState extends State<SavingsChallengeScreen> {
       appBar: AppBar(title: Text(tr.savechalTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addPlan,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.savechalStartChallenge),
       ),
       body: RefreshIndicator(
@@ -264,7 +264,7 @@ class _PlanCard extends StatelessWidget {
               ]),
             ] else ...[
               Row(children: [
-                Icon(Icons.savings_outlined, size: 16, color: c),
+                Icon(Icons.savings_rounded, size: 16, color: c),
                 const SizedBox(width: Gap.xs),
                 Text(p.savedDisplay,
                     style: TextStyle(
@@ -276,11 +276,11 @@ class _PlanCard extends StatelessWidget {
             ],
             const SizedBox(height: Gap.sm),
             Row(children: [
-              _miniStat(context, Icons.local_fire_department_outlined,
+              _miniStat(context, Icons.local_fire_department_rounded,
                   tr.savechalStreakShort(p.streak)),
               const SizedBox(width: Gap.md),
               if (p.goal > 0)
-                _miniStat(context, Icons.flag_outlined,
+                _miniStat(context, Icons.flag_rounded,
                     tr.savechalProjectedShort(p.projectedDisplay)),
             ]),
           ]),
@@ -349,7 +349,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
         title: Text(p.name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             tooltip: tr.delete,
             onPressed: _confirmDeletePlan,
           ),
@@ -357,7 +357,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _busy ? null : _addDeposit,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.savechalLogDeposit),
       ),
       body: ListView(
@@ -407,7 +407,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     tr.savechalExpectedByNow,
                     p.expectedDisplay,
                     scheme.secondary,
-                    Icons.schedule_outlined)),
+                    Icons.schedule_rounded)),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: _statCard(
@@ -416,8 +416,8 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     _SaveMath.fmtPoisha(p.aheadBy.abs().toDouble()),
                     p.aheadBy >= 0 ? Brand.success : scheme.error,
                     p.aheadBy >= 0
-                        ? Icons.trending_up
-                        : Icons.trending_down)),
+                        ? Icons.trending_up_rounded
+                        : Icons.trending_down_rounded)),
           ]),
           const SizedBox(height: Gap.sm),
           Row(children: [
@@ -427,7 +427,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     tr.savechalStreak,
                     tr.savechalPeriods(p.streak),
                     Brand.purple,
-                    Icons.local_fire_department_outlined)),
+                    Icons.local_fire_department_rounded)),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: _statCard(
@@ -435,7 +435,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     tr.savechalProjected,
                     p.projectedDisplay,
                     scheme.primary,
-                    Icons.flag_outlined)),
+                    Icons.flag_rounded)),
           ]),
           const SizedBox(height: Gap.lg),
           Text(tr.savechalDeposits,
@@ -452,12 +452,12 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
               margin: const EdgeInsets.only(bottom: Gap.sm),
               child: ListTile(
                 dense: true,
-                leading: Icon(Icons.savings_outlined, color: scheme.primary),
+                leading: Icon(Icons.savings_rounded, color: scheme.primary),
                 title: Text(_SaveMath.fmtPoisha(
                     _SaveMath.toPoisha(d['amount']).toDouble())),
                 subtitle: Text((d['date'] ?? '').toString()),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
+                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
                   tooltip: tr.delete,
                   onPressed: () async {
                     final id = d['id'];
@@ -874,7 +874,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.shield_outlined, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.shield_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,

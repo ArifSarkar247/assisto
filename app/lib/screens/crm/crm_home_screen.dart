@@ -86,17 +86,17 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
 
     final org = _org!;
     final tabs = [
-      (icon: Icons.today_outlined, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
-      (icon: Icons.people_alt_outlined, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
-      (icon: Icons.domain_outlined, label: t.crmTabCompanies, child: CrmCompaniesScreen(org: org)),
-      (icon: Icons.view_kanban_outlined, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
-      (icon: Icons.insights_outlined, label: t.crmTabDashboard, child: CrmDashboardScreen(org: org)),
-      (icon: Icons.bar_chart_outlined, label: t.crmTabReports, child: CrmReportsScreen(org: org)),
-      (icon: Icons.groups_outlined, label: t.crmTabTeam, child: CrmTeamScreen(org: org)),
-      (icon: Icons.add_box_outlined, label: t.crmCapture, child: CrmCaptureScreen(org: org)),
-      (icon: Icons.support_agent_outlined, label: t.crmAfterSale, child: CrmAfterSaleScreen(org: org)),
-      (icon: Icons.leaderboard_outlined, label: t.crmTeamManage, child: CrmTeamAdvancedScreen(org: org)),
-      (icon: Icons.bolt_outlined, label: t.crmAutomation, child: CrmAutomationScreen(org: org)),
+      (icon: Icons.today_rounded, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
+      (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
+      (icon: Icons.domain_rounded, label: t.crmTabCompanies, child: CrmCompaniesScreen(org: org)),
+      (icon: Icons.view_kanban_rounded, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
+      (icon: Icons.insights_rounded, label: t.crmTabDashboard, child: CrmDashboardScreen(org: org)),
+      (icon: Icons.bar_chart_rounded, label: t.crmTabReports, child: CrmReportsScreen(org: org)),
+      (icon: Icons.groups_rounded, label: t.crmTabTeam, child: CrmTeamScreen(org: org)),
+      (icon: Icons.add_box_rounded, label: t.crmCapture, child: CrmCaptureScreen(org: org)),
+      (icon: Icons.support_agent_rounded, label: t.crmAfterSale, child: CrmAfterSaleScreen(org: org)),
+      (icon: Icons.leaderboard_rounded, label: t.crmTeamManage, child: CrmTeamAdvancedScreen(org: org)),
+      (icon: Icons.bolt_rounded, label: t.crmAutomation, child: CrmAutomationScreen(org: org)),
     ];
 
     return DefaultTabController(
@@ -107,7 +107,7 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
           actions: [
             if (_orgs.length > 1)
               PopupMenuButton<int>(
-                icon: const Icon(Icons.business_outlined),
+                icon: const Icon(Icons.business_rounded),
                 onSelected: (v) => setState(() => _org = v),
                 itemBuilder: (_) => [
                   for (final o in _orgs)

@@ -99,8 +99,8 @@ class _RemindersScreenState extends State<RemindersScreen>
             tooltip: _calendar ? t.remCalShowList : t.remCalShowCalendar,
             onPressed: () => setState(() => _calendar = !_calendar),
             icon: Icon(_calendar
-                ? Icons.view_agenda_outlined
-                : Icons.calendar_month_outlined),
+                ? Icons.view_agenda_rounded
+                : Icons.calendar_month_rounded),
           ),
           IconButton(
             tooltip: t.remSyncTooltip,
@@ -110,13 +110,13 @@ class _RemindersScreenState extends State<RemindersScreen>
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.sync),
+                : const Icon(Icons.sync_rounded),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => editReminder(context),
-        icon: const Icon(Icons.add_alarm),
+        icon: const Icon(Icons.add_alarm_rounded),
         label: Text(t.add),
       ),
       body: _calendar
@@ -136,7 +136,7 @@ class _RemindersScreenState extends State<RemindersScreen>
                 Expanded(
                   child: items.isEmpty
                       ? StateMessage(
-                          icon: Icons.alarm_on_outlined,
+                          icon: Icons.alarm_on_rounded,
                           title: t.remEmpty,
                           message: t.remEmptyHint,
                         )
@@ -428,7 +428,7 @@ class _ReminderCard extends StatelessWidget {
                       children: [
                         if (next != null)
                           _MetaChip(
-                            icon: Icons.schedule,
+                            icon: Icons.schedule_rounded,
                             label: _whenLabel(context, next, d),
                             tint: group == 'overdue'
                                 ? Theme.of(context).colorScheme.error
@@ -436,7 +436,7 @@ class _ReminderCard extends StatelessWidget {
                           ),
                         if (rule != null)
                           _MetaChip(
-                            icon: Icons.repeat,
+                            icon: Icons.repeat_rounded,
                             label: recurrenceLabel(t, rule),
                             tint: Brand.onTint(context, Brand.purple),
                           ),
@@ -448,13 +448,13 @@ class _ReminderCard extends StatelessWidget {
                           ),
                         if ((d['priority'] ?? 'none') == 'high')
                           _MetaChip(
-                            icon: Icons.flag,
+                            icon: Icons.flag_rounded,
                             label: t.remPriorityHigh,
                             tint: AssistoTokens.of(context).warning,
                           ),
                         if ((d['category'] ?? '').toString().isNotEmpty)
                           _MetaChip(
-                            icon: Icons.label_outline,
+                            icon: Icons.label_outline_rounded,
                             label: (d['category']).toString(),
                             tint: Brand.onTint(context, Brand.cyan),
                           ),
@@ -485,7 +485,7 @@ class _ReminderCard extends StatelessWidget {
                     PopupMenuItem(
                         value: 'snooze',
                         child: Row(children: [
-                          const Icon(Icons.snooze, size: 18),
+                          const Icon(Icons.snooze_rounded, size: 18),
                           const SizedBox(width: Gap.sm),
                           Text(t.remSnooze),
                         ])),
@@ -494,8 +494,8 @@ class _ReminderCard extends StatelessWidget {
                       child: Row(children: [
                         Icon(
                             (d['priority'] ?? 'none') == 'high'
-                                ? Icons.flag
-                                : Icons.outlined_flag,
+                                ? Icons.flag_rounded
+                                : Icons.outlined_flag_rounded,
                             size: 18),
                         const SizedBox(width: Gap.sm),
                         Text((d['priority'] ?? 'none') == 'high'
@@ -505,7 +505,7 @@ class _ReminderCard extends StatelessWidget {
                   PopupMenuItem(
                       value: 'category',
                       child: Row(children: [
-                        const Icon(Icons.label_outline, size: 18),
+                        const Icon(Icons.label_outline_rounded, size: 18),
                         const SizedBox(width: Gap.sm),
                         Text(t.remCategorySet),
                       ])),
@@ -614,15 +614,15 @@ class _ReminderCard extends StatelessWidget {
 IconData _linkIcon(String? type) {
   switch (type) {
     case 'person':
-      return Icons.person_outline;
+      return Icons.person_outline_rounded;
     case 'bill':
-      return Icons.receipt_long_outlined;
+      return Icons.receipt_long_rounded;
     case 'document':
-      return Icons.folder_outlined;
+      return Icons.folder_rounded;
     case 'event':
-      return Icons.event_outlined;
+      return Icons.event_rounded;
     default:
-      return Icons.link;
+      return Icons.link_rounded;
   }
 }
 
@@ -683,7 +683,7 @@ class _NotifPermBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.notifications_off_outlined,
+            Icon(Icons.notifications_off_rounded,
                 size: 18, color: scheme.onErrorContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -702,7 +702,7 @@ class _NotifPermBanner extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: FilledButton.tonalIcon(
                       onPressed: onEnable,
-                      icon: const Icon(Icons.settings_outlined, size: 16),
+                      icon: const Icon(Icons.settings_rounded, size: 16),
                       label: Text(t.remNotifBannerCta),
                       style: FilledButton.styleFrom(
                         visualDensity: VisualDensity.compact,
@@ -720,7 +720,7 @@ class _NotifPermBanner extends StatelessWidget {
               iconSize: 18,
               color: scheme.onErrorContainer,
               onPressed: onDismiss,
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded),
             ),
           ],
         ),
@@ -790,10 +790,10 @@ class _SnoozeSheet extends StatelessWidget {
           controller: free,
           decoration: InputDecoration(
             hintText: t.remSnoozeFreeHint,
-            prefixIcon: const Icon(Icons.edit_calendar_outlined),
+            prefixIcon: const Icon(Icons.edit_calendar_rounded),
             suffixIcon: IconButton(
               tooltip: AppLocalizations.of(context).done,
-              icon: const Icon(Icons.check),
+              icon: const Icon(Icons.check_rounded),
               onPressed: () {
                 final dt = snoozeReminder(current, free.text, now: DateTime.now());
                 if (dt != null) Navigator.pop(context, dt);

@@ -135,7 +135,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final go = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: Icon(cut ? Icons.power_settings_new : Icons.restart_alt),
+        icon: Icon(cut ? Icons.power_settings_new_rounded : Icons.restart_alt_rounded),
         title: Text(cut ? tr.vehCutConfirmTitle : tr.vehRestoreConfirmTitle),
         content: Text(cut ? tr.vehCutConfirmBody : tr.vehRestoreConfirmBody),
         actions: [
@@ -218,7 +218,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           if (t?['is_owner'] == true)
             IconButton(
               tooltip: tr.vehSettingsTitle,
-              icon: const Icon(Icons.tune),
+              icon: const Icon(Icons.tune_rounded),
               onPressed: () async {
                 await Navigator.push(
                     context,
@@ -234,13 +234,13 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: tr.vehLoadError,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : RefreshIndicator(
@@ -263,11 +263,11 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       Card(
                         margin: EdgeInsets.zero,
                         child: ListTile(
-                          leading: const Icon(Icons.car_repair),
+                          leading: const Icon(Icons.car_repair_rounded),
                           title: Text(tr.vehObdTitle),
                           subtitle: Text(tr.vehObdSubtitle,
                               maxLines: 2, overflow: TextOverflow.ellipsis),
-                          trailing: const Icon(Icons.chevron_right),
+                          trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -351,15 +351,15 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            _stat(tr.vehSpeed, tr.vehKmh(vehNumStr(context, speed)), Icons.speed, scheme),
+            _stat(tr.vehSpeed, tr.vehKmh(vehNumStr(context, speed)), Icons.speed_rounded, scheme),
             _stat(
                 tr.vehIgnition,
                 ign == null ? tr.vehUnknown : (ign == true ? tr.vehOn : tr.vehOff),
-                Icons.key,
+                Icons.key_rounded,
                 scheme),
             if (volt != null)
               _stat(tr.vehBattery, tr.vehVolts(vehNumStr(context, volt, decimals: 1)),
-                  Icons.battery_charging_full, scheme),
+                  Icons.battery_charging_full_rounded, scheme),
           ]),
           if (lat != null && lng != null) ...[
             const SizedBox(height: Gap.sm),
@@ -367,7 +367,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               alignment: AlignmentDirectional.centerStart,
               child: OutlinedButton.icon(
                 onPressed: () => _openMaps(lat, lng),
-                icon: const Icon(Icons.map_outlined),
+                icon: const Icon(Icons.map_rounded),
                 label: Text(tr.vehOpenMaps),
               ),
             ),
@@ -412,7 +412,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             IconButton.filledTonal(
               tooltip: _play != null ? tr.vehPause : tr.vehPlay,
               onPressed: pts.length < 2 ? null : _togglePlay,
-              icon: Icon(_play != null ? Icons.pause : Icons.play_arrow),
+              icon: Icon(_play != null ? Icons.pause_rounded : Icons.play_arrow_rounded),
             ),
             Expanded(
               child: Slider(
@@ -466,11 +466,11 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             _stat(tr.vehDistance, tr.vehKm(vehNumStr(context, km, decimals: 1)),
-                Icons.straighten, scheme),
-            _stat(tr.vehTrips, vehNumStr(context, trips.length), Icons.route, scheme),
-            _stat(tr.vehDriving, vehDuration(context, tr, moving), Icons.timer_outlined,
+                Icons.straighten_rounded, scheme),
+            _stat(tr.vehTrips, vehNumStr(context, trips.length), Icons.route_rounded, scheme),
+            _stat(tr.vehDriving, vehDuration(context, tr, moving), Icons.timer_rounded,
                 scheme),
-            _stat(tr.vehTopSpeed, tr.vehKmh(vehNumStr(context, maxSpeed)), Icons.speed,
+            _stat(tr.vehTopSpeed, tr.vehKmh(vehNumStr(context, maxSpeed)), Icons.speed_rounded,
                 scheme),
           ]),
           if (trips.isEmpty)
@@ -481,7 +481,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           for (final tp in trips.reversed.take(8))
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(tp['night'] == true ? Icons.nightlight_round : Icons.route,
+              leading: Icon(tp['night'] == true ? Icons.nightlight_round_rounded : Icons.route_rounded,
                   color: tp['night'] == true ? Brand.purple : scheme.primary),
               title: Text(
                 '${vehTime(context, vehDate(tp['start']))} – ${vehTime(context, vehDate(tp['end']))}',
@@ -533,7 +533,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            Icon(Icons.power_settings_new, color: cut ? scheme.error : scheme.primary),
+            Icon(Icons.power_settings_new_rounded, color: cut ? scheme.error : scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.vehEngineTitle, style: Theme.of(context).textTheme.titleMedium),
@@ -556,12 +556,12 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               style: FilledButton.styleFrom(
                   backgroundColor: scheme.error, foregroundColor: scheme.onError),
               onPressed: (_sending || pending) ? null : () => _command('engine_cut'),
-              icon: const Icon(Icons.block),
+              icon: const Icon(Icons.block_rounded),
               label: Text(tr.vehCutCta),
             ),
             OutlinedButton.icon(
               onPressed: (_sending || pending) ? null : () => _command('engine_restore'),
-              icon: const Icon(Icons.restart_alt),
+              icon: const Icon(Icons.restart_alt_rounded),
               label: Text(tr.vehRestoreCta),
             ),
           ]),
@@ -574,8 +574,8 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 dense: true,
                 leading: Icon(
                   '${c['state']}' == 'acked'
-                      ? Icons.check_circle
-                      : ('${c['state']}' == 'failed' ? Icons.error_outline : Icons.schedule),
+                      ? Icons.check_circle_rounded
+                      : ('${c['state']}' == 'failed' ? Icons.error_outline_rounded : Icons.schedule_rounded),
                   color: '${c['state']}' == 'acked'
                       ? Brand.success
                       : ('${c['state']}' == 'failed' ? scheme.error : Brand.warning),
@@ -607,7 +607,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            const Icon(Icons.auto_awesome, color: Brand.purple),
+            const Icon(Icons.auto_awesome_rounded, color: Brand.purple),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(tr.vehAiTitle, style: Theme.of(context).textTheme.titleMedium)),
@@ -636,7 +636,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               icon: _aiBusy
                   ? const SizedBox(
                       width: Gap.lg, height: Gap.lg, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.manage_search),
+                  : const Icon(Icons.manage_search_rounded),
               label: Text(tr.vehAiCta),
             ),
           ),

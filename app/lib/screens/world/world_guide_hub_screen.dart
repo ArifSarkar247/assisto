@@ -144,13 +144,13 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
@@ -164,14 +164,14 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
       children: [
         if (_fromCache) ...[
-          UwNote(icon: Icons.offline_bolt_outlined, text: t.uwCachedCopy),
+          UwNote(icon: Icons.offline_bolt_rounded, text: t.uwCachedCopy),
           const SizedBox(height: Gap.sm),
         ],
         Text('${d['intro'] ?? ''}',
             style:
                 Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4)),
         const SizedBox(height: Gap.sm),
-        UwNote(text: '${d['verify'] ?? ''}', icon: Icons.verified_outlined),
+        UwNote(text: '${d['verify'] ?? ''}', icon: Icons.verified_rounded),
         // play-nomed: the prescription reader ('rx') is hidden in Play.
         if (photo.isNotEmpty &&
             d['photo_ready'] == true &&
@@ -181,7 +181,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           const SizedBox(height: Gap.md),
           FilledButton.icon(
             onPressed: () => _open(WorldMcqScreen(api: api)),
-            icon: const Icon(Icons.quiz_outlined),
+            icon: const Icon(Icons.quiz_rounded),
             label: Text(t.uwMcqStart),
           ),
         ],
@@ -230,7 +230,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         padding: const EdgeInsets.only(top: Gap.sm),
         child: OutlinedButton.icon(
           onPressed: () => _open(m.$2()),
-          icon: const Icon(Icons.arrow_forward),
+          icon: const Icon(Icons.arrow_forward_rounded),
           label: Text(m.$1),
         ),
       ));
@@ -251,7 +251,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(crop ? Icons.eco_outlined : Icons.receipt_long_outlined,
+              Icon(crop ? Icons.eco_rounded : Icons.receipt_long_rounded,
                   color: scheme.onSecondaryContainer),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -321,7 +321,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.auto_awesome),
+                    : const Icon(Icons.auto_awesome_rounded),
                 label: Text(t.uwAiAsk),
               )),
       const SizedBox(height: Gap.xs),
@@ -389,7 +389,7 @@ class _ItemCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
-        leading: Icon(call ? Icons.call_outlined : Icons.article_outlined,
+        leading: Icon(call ? Icons.call_rounded : Icons.article_rounded,
             color: scheme.primary),
         title: Text('${item['title']}',
             style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -426,7 +426,7 @@ class _ItemCard extends StatelessWidget {
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.check_box_outline_blank,
+                      Icon(Icons.check_box_outline_blank_rounded,
                           size: 18, color: scheme.onSurfaceVariant),
                       const SizedBox(width: Gap.sm),
                       Expanded(child: Text(x)),
@@ -474,7 +474,7 @@ class _ItemCard extends StatelessWidget {
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.lightbulb_outline,
+                      Icon(Icons.lightbulb_outline_rounded,
                           size: 18, color: scheme.tertiary),
                       const SizedBox(width: Gap.sm),
                       Expanded(

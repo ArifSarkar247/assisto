@@ -136,9 +136,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       title: t.msgrModSortTitle,
       selected: _sort,
       options: [
-        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule),
-        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_outlined),
-        AdminChoice('name', t.msgrModSortName, icon: Icons.sort_by_alpha),
+        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule_rounded),
+        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_rounded),
+        AdminChoice('name', t.msgrModSortName, icon: Icons.sort_by_alpha_rounded),
       ],
     );
     if (v != null && v != _sort) setState(() => _sort = v);
@@ -251,7 +251,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               textInputAction: TextInputAction.search,
               onSubmitted: (_) => _load(),
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search_rounded),
                 hintText: t.msgrModUsersSearchHint,
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -259,7 +259,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     if (_search.text.isNotEmpty)
                       IconButton(
                         tooltip: t.msgrModClear,
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close_rounded),
                         onPressed: () {
                           _search.clear();
                           _load();
@@ -270,7 +270,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       label: Text('$activeFilters'),
                       child: IconButton(
                         tooltip: t.msgrModFiltersTitle,
-                        icon: const Icon(Icons.tune),
+                        icon: const Icon(Icons.tune_rounded),
                         onPressed: _openFilters,
                       ),
                     ),
@@ -285,11 +285,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             choices: [
               AdminChoice('all', t.msgrModFilterAll),
               AdminChoice('active', t.msgrModUserStatusActive,
-                  icon: Icons.check_circle_outline),
+                  icon: Icons.check_circle_outline_rounded),
               AdminChoice('suspended', t.msgrModUserStatusSuspended,
-                  icon: Icons.pause_circle_outline),
+                  icon: Icons.pause_circle_outline_rounded),
               AdminChoice('banned', t.msgrModUserStatusBanned,
-                  icon: Icons.block),
+                  icon: Icons.block_rounded),
             ],
           ),
           Padding(
@@ -308,13 +308,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             child: switch (_status) {
               _Status.loading => const SkeletonList(count: 7),
               _Status.adminsOnly => StateMessage(
-                  icon: Icons.admin_panel_settings_outlined,
+                  icon: Icons.admin_panel_settings_rounded,
                   title: t.msgrModOwnerOnlyTitle,
                   message: t.msgrModOwnerOnlyBody,
                   tint: scheme.tertiary,
                 ),
               _Status.error => StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
@@ -328,7 +328,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.5,
                           child: StateMessage(
-                            icon: Icons.person_search_outlined,
+                            icon: Icons.person_search_rounded,
                             title: t.msgrModUsersEmptyTitle,
                             message: t.msgrModUsersEmptyBody,
                           ),
@@ -352,7 +352,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed: () =>
                                       setState(() => _shown += _pageSize),
-                                  icon: const Icon(Icons.expand_more),
+                                  icon: const Icon(Icons.expand_more_rounded),
                                   label: Text(t.msgrModShowMore),
                                 ),
                               ),
@@ -499,25 +499,25 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
               runSpacing: Gap.sm,
               children: [
                 if (!suspended && !banned)
-                  _actionBtn(Icons.pause_circle_outline,
+                  _actionBtn(Icons.pause_circle_outline_rounded,
                       t.msgrModActionSuspend, Brand.warning, () {
                     _act('suspend', t.msgrModActionSuspend,
                         t.msgrModUserSuspendDesc,
                         destructive: true);
                   }),
                 if (suspended)
-                  _actionBtn(Icons.play_circle_outline,
+                  _actionBtn(Icons.play_circle_outline_rounded,
                       t.msgrModActionUnsuspend, Brand.success, () {
                     _act('unsuspend', t.msgrModActionUnsuspend,
                         t.msgrModUserUnsuspendDesc);
                   }),
-                _actionBtn(Icons.logout, t.msgrModActionResetSessions,
+                _actionBtn(Icons.logout_rounded, t.msgrModActionResetSessions,
                     scheme.primary, () {
                   _act('reset_sessions', t.msgrModActionResetSessions,
                       t.msgrModUserResetSessionsDesc);
                 }),
                 if (!banned)
-                  _actionBtn(Icons.block, t.msgrModActionBan, Brand.danger, () {
+                  _actionBtn(Icons.block_rounded, t.msgrModActionBan, Brand.danger, () {
                     _act('ban', t.msgrModActionBan, t.msgrModUserBanDesc,
                         destructive: true);
                   }),
@@ -555,12 +555,12 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             else ...[
               for (final c in _channels)
                 _PublicRow(
-                    icon: Icons.campaign_outlined,
+                    icon: Icons.campaign_rounded,
                     name: (c['name'] ?? '').toString(),
                     status: (c['status'] ?? '').toString()),
               for (final c in _communities)
                 _PublicRow(
-                    icon: Icons.groups_outlined,
+                    icon: Icons.groups_rounded,
                     name: (c['name'] ?? '').toString(),
                     status: (c['status'] ?? '').toString()),
             ],
@@ -601,19 +601,19 @@ class _UserCard extends StatelessWidget {
         return (
           label: t.msgrModUserStatusSuspended,
           color: Brand.warning,
-          icon: Icons.pause_circle_outline
+          icon: Icons.pause_circle_outline_rounded
         );
       case 'banned':
         return (
           label: t.msgrModUserStatusBanned,
           color: Brand.danger,
-          icon: Icons.block
+          icon: Icons.block_rounded
         );
       default:
         return (
           label: t.msgrModUserStatusActive,
           color: Brand.success,
-          icon: Icons.check_circle_outline
+          icon: Icons.check_circle_outline_rounded
         );
     }
   }
@@ -685,7 +685,7 @@ class _UserCard extends StatelessWidget {
                   label: pill.label, color: pill.color, icon: pill.icon),
               if (onTap != null) ...[
                 const SizedBox(width: 4),
-                Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
               ],
             ],
           ),
@@ -695,20 +695,20 @@ class _UserCard extends StatelessWidget {
             runSpacing: 4,
             children: [
               if (plan.isNotEmpty)
-                _meta(scheme, Icons.workspace_premium_outlined,
+                _meta(scheme, Icons.workspace_premium_rounded,
                     t.msgrModUserPlan(plan)),
               _meta(
                   scheme,
-                  Icons.flag_outlined,
+                  Icons.flag_rounded,
                   t.msgrModReportsCount(_digits(reports.toString(), loc))),
               if (signup.isNotEmpty)
-                _meta(scheme, Icons.event_outlined,
+                _meta(scheme, Icons.event_rounded,
                     t.msgrModUserSignup(_digits(signup, loc))),
               if (lastActive.isNotEmpty)
-                _meta(scheme, Icons.schedule_outlined,
+                _meta(scheme, Icons.schedule_rounded,
                     t.msgrModUserLastActive(_digits(lastActive, loc))),
               if (appVersion.isNotEmpty)
-                _meta(scheme, Icons.phone_android_outlined,
+                _meta(scheme, Icons.phone_android_rounded,
                     t.msgrModUserAppVersion(_digits(appVersion, loc))),
             ],
           ),

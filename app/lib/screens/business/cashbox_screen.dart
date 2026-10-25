@@ -129,7 +129,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off_outlined,
+                  icon: Icons.cloud_off_rounded,
                   title: t.cashboxTitle,
                   message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
                   action:
@@ -145,7 +145,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         IconButton(
                             tooltip: AppLocalizations.of(context).f2PrevDay,
                             onPressed: () => _stepDay(-1),
-                            icon: const Icon(Icons.chevron_left)),
+                            icon: const Icon(Icons.chevron_left_rounded)),
                         Expanded(
                           child: Text(
                               DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag())
@@ -156,7 +156,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         IconButton(
                             tooltip: AppLocalizations.of(context).f2NextDay,
                             onPressed: _isToday ? null : () => _stepDay(1),
-                            icon: const Icon(Icons.chevron_right)),
+                            icon: const Icon(Icons.chevron_right_rounded)),
                       ]),
                       const SizedBox(height: Gap.sm),
 
@@ -208,7 +208,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           Expanded(
                             child: FilledButton.icon(
                               style: Brand.successButton(),
-                              icon: const Icon(Icons.add),
+                              icon: const Icon(Icons.add_rounded),
                               label: Text(t.cashboxCashIn),
                               onPressed: () => _addEntry('in'),
                             ),
@@ -217,7 +217,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           Expanded(
                             child: FilledButton.icon(
                               style: Brand.dangerButton(),
-                              icon: const Icon(Icons.remove),
+                              icon: const Icon(Icons.remove_rounded),
                               label: Text(t.cashboxCashOut),
                               onPressed: () => _addEntry('out'),
                             ),
@@ -232,7 +232,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            icon: const Icon(Icons.fact_check_outlined),
+                            icon: const Icon(Icons.fact_check_rounded),
                             label: Text(t.cashboxReconcile),
                             onPressed: _reconcile,
                           ),
@@ -313,10 +313,10 @@ class _ReconciledCard extends StatelessWidget {
         ? AssistoTokens.of(context).success
         : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.error);
     final icon = variancePoisha == 0
-        ? Icons.check_circle_outline
+        ? Icons.check_circle_outline_rounded
         : (variancePoisha > 0
-            ? Icons.trending_up
-            : Icons.trending_down);
+            ? Icons.trending_up_rounded
+            : Icons.trending_down_rounded);
     return Card(
       color: color.withValues(alpha: 0.10),
       child: Padding(
@@ -381,7 +381,7 @@ class _CashEntryTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
-        leading: Icon(isIn ? Icons.south_west : Icons.north_east,
+        leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
             color: isIn ? AssistoTokens.of(context).success : scheme.error),
         title: Text(note.isEmpty
             ? (isIn
@@ -444,7 +444,7 @@ class _CashEntrySheetState extends State<_CashEntrySheet> {
           controller: _note,
           decoration: InputDecoration(
               labelText: t.entryNote,
-              prefixIcon: const Icon(Icons.notes_outlined)),
+              prefixIcon: const Icon(Icons.notes_rounded)),
         ),
         const SizedBox(height: Gap.lg),
         SizedBox(

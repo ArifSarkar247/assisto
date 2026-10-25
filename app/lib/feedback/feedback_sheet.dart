@@ -246,9 +246,9 @@ class _FeedbackFormState extends State<FeedbackForm> {
             Text(t.fbCategoryLabel, style: text.titleSmall),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              _chip('bug', Icons.bug_report_outlined, t.fbCatBug),
-              _chip('idea', Icons.lightbulb_outline, t.fbCatIdea),
-              _chip('other', Icons.chat_bubble_outline, t.fbCatOther),
+              _chip('bug', Icons.bug_report_rounded, t.fbCatBug),
+              _chip('idea', Icons.lightbulb_outline_rounded, t.fbCatIdea),
+              _chip('other', Icons.chat_bubble_outline_rounded, t.fbCatOther),
             ]),
             const SizedBox(height: Gap.lg),
             TextField(
@@ -308,7 +308,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
         height: 44,
         decoration: const BoxDecoration(
             gradient: Brand.gradient, shape: BoxShape.circle),
-        child: const Icon(Icons.rate_review_outlined,
+        child: const Icon(Icons.rate_review_rounded,
             color: Colors.white, size: 22),
       ),
       const SizedBox(width: Gap.md),
@@ -346,7 +346,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
     final muted = text.bodySmall?.copyWith(color: scheme.onSurfaceVariant);
     if (shot == null) {
       return Row(children: [
-        Icon(Icons.hide_image_outlined, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.hide_image_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(t.fbShotNone, style: muted)),
       ]);
@@ -360,7 +360,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.hide_image_outlined, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.hide_image_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(t.fbShotRemoved, style: text.bodyMedium)),
           TextButton(
@@ -390,7 +390,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 gaplessPlayback: true,
                 semanticLabel: t.fbShotTitle,
                 errorBuilder: (_, __, ___) =>
-                    Icon(Icons.image_outlined, color: scheme.onSurfaceVariant)),
+                    Icon(Icons.image_rounded, color: scheme.onSurfaceVariant)),
           ),
         ),
         const SizedBox(width: Gap.md),
@@ -445,7 +445,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.primary),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.fbDetailsTitle,

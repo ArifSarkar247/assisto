@@ -154,7 +154,7 @@ class _JobsScreenState extends State<JobsScreen> {
               icon: Badge(
                 isLabelVisible: _filter.isActive,
                 label: Text('${_filter.activeCount}'),
-                child: const Icon(Icons.tune),
+                child: const Icon(Icons.tune_rounded),
               ),
               tooltip: tr.jobsFiltersTitle,
               onPressed: () => _openFilters(tr),
@@ -172,17 +172,17 @@ class _JobsScreenState extends State<JobsScreen> {
           ]),
         ),
         floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _add(tr), icon: const Icon(Icons.add), label: Text(tr.job)),
+            onPressed: () => _add(tr), icon: const Icon(Icons.add_rounded), label: Text(tr.job)),
         body: _loading
             ? const SkeletonList()
             : _error
                 ? StateMessage(
-                    icon: Icons.cloud_off,
+                    icon: Icons.cloud_off_rounded,
                     tint: scheme.error,
                     title: tr.loadFailed,
                     message: honestFailText(tr, _failCause, otherwise: tr.jobsOfflineSavedHint),
                     action: FilledButton.tonalIcon(
-                        onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)))
+                        onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(tr.retry)))
                 : TabBarView(children: [
                     _discoverTab(tr, scheme),
                     _savedTab(tr, scheme),
@@ -204,10 +204,10 @@ class _JobsScreenState extends State<JobsScreen> {
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             hintText: tr.jobsSearchHint,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _search.text.isEmpty
                 ? null
-                : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip, icon: const Icon(Icons.close),
+                : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip, icon: const Icon(Icons.close_rounded),
                     onPressed: () => setState(() => _search.clear())),
             border: const OutlineInputBorder(),
             isDense: true,
@@ -219,7 +219,7 @@ class _JobsScreenState extends State<JobsScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.search_off,
+                icon: Icons.search_off_rounded,
                 title: tr.jobsNoResultsTitle,
                 message: _filter.isActive || _search.text.isNotEmpty
                     ? tr.jobsNoResultsFilterHint
@@ -254,7 +254,7 @@ class _JobsScreenState extends State<JobsScreen> {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.rss_feed, size: 20, color: scheme.onTertiaryContainer),
+          Icon(Icons.rss_feed_rounded, size: 20, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(tr.f6JobsNoFeedBanner,
               style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, height: 1.3))),
@@ -273,7 +273,7 @@ class _JobsScreenState extends State<JobsScreen> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.payments_outlined, size: 18, color: scheme.primary),
+            Icon(Icons.payments_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Text(tr.jobsSalaryInsight,
                 style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
@@ -295,7 +295,7 @@ class _JobsScreenState extends State<JobsScreen> {
     final list = _savedList;
     if (list.isEmpty) {
       return StateMessage(
-        icon: Icons.bookmark_border,
+        icon: Icons.bookmark_border_rounded,
         title: tr.jobsNoSavedTitle,
         message: tr.jobsNoSavedBody,
       );
@@ -321,11 +321,11 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget _trackerTab(AppLocalizations tr, ColorScheme scheme) {
     if (_jobs.isEmpty) {
       return StateMessage(
-        icon: Icons.work_outline,
+        icon: Icons.work_outline_rounded,
         title: tr.noJobsYet,
         message: tr.addAJobDescriptionI,
         action: FilledButton.icon(
-            onPressed: () => _add(tr), icon: const Icon(Icons.add), label: Text(tr.addJob)),
+            onPressed: () => _add(tr), icon: const Icon(Icons.add_rounded), label: Text(tr.addJob)),
       );
     }
     // group by pipeline stage for a kanban-ish read

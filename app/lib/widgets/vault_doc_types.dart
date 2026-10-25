@@ -112,36 +112,36 @@ class VaultField {
 
 /// The maintained schema. Keep in sync with backend guide keys for renewal.
 const List<VaultDocType> kVaultDocTypes = [
-  VaultDocType('nid', Icons.badge_outlined, [
+  VaultDocType('nid', Icons.badge_rounded, [
     VaultField('number'),
     VaultField('holder_name'),
   ], guideKey: 'nid'),
-  VaultDocType('passport', Icons.menu_book_outlined, [
+  VaultDocType('passport', Icons.menu_book_rounded, [
     VaultField('number'),
     VaultField('holder_name'),
     VaultField('issue_date', isDate: true),
   ], defaultValidityYears: 10, guideKey: 'passport'),
-  VaultDocType('licence', Icons.directions_car_outlined, [
+  VaultDocType('licence', Icons.directions_car_rounded, [
     VaultField('number'),
     VaultField('issue_date', isDate: true),
   ], defaultValidityYears: 10, guideKey: 'driving'),
-  VaultDocType('certificate', Icons.school_outlined, [
+  VaultDocType('certificate', Icons.school_rounded, [
     VaultField('issuing_authority'),
     VaultField('issue_date', isDate: true),
   ]),
-  VaultDocType('insurance', Icons.verified_user_outlined, [
+  VaultDocType('insurance', Icons.verified_user_rounded, [
     VaultField('provider'),
     VaultField('policy_no'),
     VaultField('coverage'),
   ], defaultValidityYears: 1),
-  VaultDocType('warranty', Icons.handyman_outlined, [
+  VaultDocType('warranty', Icons.handyman_rounded, [
     VaultField('seller'),
     VaultField('purchase_date', isDate: true),
   ], defaultValidityYears: 1),
   // Anti-theft phone record. Fields are recorded BY HAND — Android 10+ blocks
   // apps from reading the IMEI (privacy), so the helpText explains how to find
   // it. Box/receipt photos attach via the existing file-attach flow.
-  VaultDocType('device', Icons.smartphone, [
+  VaultDocType('device', Icons.smartphone_rounded, [
     VaultField('imei1'),
     VaultField('imei2'),
     VaultField('serial'),
@@ -150,7 +150,7 @@ const List<VaultDocType> kVaultDocTypes = [
     VaultField('sim2'),
     VaultField('purchase_date', isDate: true),
   ]),
-  VaultDocType('other', Icons.description_outlined, []),
+  VaultDocType('other', Icons.description_rounded, []),
 ];
 
 VaultDocType vaultTypeOf(String? key) =>

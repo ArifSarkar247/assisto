@@ -485,7 +485,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.phonelink_lock_outlined,
+            Icon(Icons.phonelink_lock_rounded,
                 size: 56, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(
@@ -531,7 +531,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(active ? Icons.verified_user : Icons.gpp_maybe,
+                Icon(active ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
                     color: fg, size: 32),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -586,10 +586,10 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       child: Column(
         children: [
           ListTile(
-            leading: const Icon(Icons.shield_moon_outlined),
+            leading: const Icon(Icons.shield_moon_rounded),
             title: Text(tr.atTitle),
             subtitle: Text(tr.atHubSubtitle),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -598,10 +598,10 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.travel_explore_outlined),
+            leading: const Icon(Icons.travel_explore_rounded),
             title: Text(tr.mlpTitle),
             subtitle: Text(tr.mlpSubtitle),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const MyLostPhoneScreen()),
@@ -609,10 +609,10 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.gavel_outlined),
+            leading: const Icon(Icons.gavel_rounded),
             title: Text(tr.mlpRecoveryHelp),
             subtitle: Text(tr.mlpRecoveryHelpBody),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RecoveryScreen()),
@@ -663,7 +663,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   Widget _recoveryPinCard(AppLocalizations tr, ColorScheme scheme) {
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.pin),
+        leading: const Icon(Icons.pin_rounded),
         title: Text(tr.lostStolenRecoveryPin),
         subtitle: Text(
             _hasPin ? tr.lostStolenPinSet : tr.lostStolenPinNotSet),
@@ -720,7 +720,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.lock_outline),
+                    icon: const Icon(Icons.lock_outline_rounded),
                     label: Text(tr.lostStolenTestLock),
                     onPressed: _testLock,
                   ),
@@ -741,7 +741,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.volume_up),
+                    icon: const Icon(Icons.volume_up_rounded),
                     label: Text(tr.lostStolenTestAlarm),
                     onPressed: _testAlarm,
                   ),
@@ -762,7 +762,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: OutlinedButton.icon(
-                    icon: const Icon(Icons.my_location),
+                    icon: const Icon(Icons.my_location_rounded),
                     label: Text(tr.lostStolenReportNow),
                     onPressed: _reportLocation,
                   ),
@@ -808,16 +808,16 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                   style: Theme.of(context).textTheme.titleMedium),
             ),
             row(
-                Icons.lock_outline,
+                Icons.lock_outline_rounded,
                 tr.lostStolenActionLock,
                 _adminActive ? tr.lostStolenActionLockOk : tr.lostStolenNeedsAdmin,
                 tr.lostStolenTestLock,
                 _adminActive ? _testLock : null,
                 const Key('f6-ls-test-lock')),
-            row(Icons.volume_up, tr.lostStolenActionAlarm,
+            row(Icons.volume_up_rounded, tr.lostStolenActionAlarm,
                 tr.lostStolenActionAlarmBody, tr.lostStolenTestAlarm,
                 _testAlarm, const Key('f6-ls-test-alarm')),
-            row(Icons.my_location, tr.lostStolenActionLocate,
+            row(Icons.my_location_rounded, tr.lostStolenActionLocate,
                 tr.lostStolenActionLocateBody, tr.lostStolenReportNow,
                 _reportLocation, const Key('f6-ls-report')),
           ],
@@ -830,7 +830,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     final hasContact = _ownerPhone.isNotEmpty || _lostMsg.isNotEmpty;
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.contact_phone_outlined),
+        leading: const Icon(Icons.contact_phone_rounded),
         title: Text(tr.lostStolenLostMessage),
         subtitle: Text(hasContact
             ? [
@@ -878,7 +878,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           children: [
             Row(
               children: [
-                const Icon(Icons.shield_outlined, size: 20),
+                const Icon(Icons.shield_rounded, size: 20),
                 const SizedBox(width: Gap.xs),
                 Text(tr.lostStolenUninstallTitle,
                     style: Theme.of(context).textTheme.titleSmall),

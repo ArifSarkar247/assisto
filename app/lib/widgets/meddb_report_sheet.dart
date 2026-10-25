@@ -69,7 +69,7 @@ class _MedDbReportSheetState extends State<_MedDbReportSheet> {
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.flag_outlined, color: scheme.primary),
+          Icon(Icons.flag_rounded, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.medicineDbReportTitle,
@@ -101,7 +101,7 @@ class _MedDbReportSheetState extends State<_MedDbReportSheet> {
                     height: 16,
                     width: 16,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.send),
+                : const Icon(Icons.send_rounded),
             label: Text(t.medicineDbReportSend),
           ),
         ),

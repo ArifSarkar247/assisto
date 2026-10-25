@@ -84,7 +84,7 @@ Future<ForwardTarget?> pickForwardTarget(
         key: Key('md2-fwd-${x.kind}-${x.id}'),
         leading: CircleAvatar(
             child: x.isGroup
-                ? const Icon(Icons.groups_outlined)
+                ? const Icon(Icons.groups_rounded)
                 : Text(x.name.isEmpty ? '?' : x.name.characters.first.toUpperCase())),
         title: Text(x.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         onTap: () => Navigator.pop(ctx, x),
