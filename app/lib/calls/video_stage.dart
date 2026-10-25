@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 // cde-chat (order 6 C) — the WhatsApp-style video call stage:
 //   * tap the small view          -> swap big / small (me <-> them)
 //   * drag the small view          -> it snaps to the nearest corner
@@ -92,7 +93,10 @@ class VideoStageState extends State<VideoStage> {
         VideoStage.margin,
         widget.topInset,
         s.width - VideoStage.margin,
-        (s.height - widget.bottomInset).clamp(widget.topInset + VideoStage.tileH, s.height),
+        // never clamp(lo, hi) with lo > hi: a tiny stage (PiP, rotation,
+        // keyboard) threw ArgumentError on OPPO (crash reports, build 10222)
+        (s.height - widget.bottomInset)
+            .clamp(math.min(widget.topInset + VideoStage.tileH, s.height), s.height),
       );
 
   Offset _pos(StageCorner c, Rect a) => switch (c) {
@@ -163,8 +167,8 @@ class VideoStageState extends State<VideoStage> {
                 onPanUpdate: (d) {
                   final p = (_drag ?? _pos(_corner, area)) + d.delta;
                   setState(() => _drag = Offset(
-                        p.dx.clamp(0, size.width - VideoStage.tileW),
-                        p.dy.clamp(0, size.height - VideoStage.tileH),
+                        p.dx.clamp(0, math.max(0, size.width - VideoStage.tileW)),
+                        p.dy.clamp(0, math.max(0, size.height - VideoStage.tileH)),
                       ));
                 },
                 onPanEnd: (_) => setState(() {
