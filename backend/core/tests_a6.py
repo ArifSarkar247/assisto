@@ -135,9 +135,12 @@ class AdmobValidatorTests(SimpleTestCase):
                             ad_caps=P.DEFAULTS()["ad_rewards"])
         self.assertFalse(c["configured"])
         self.assertEqual(c["app_id"], "")
-        self.assertEqual(set(c["units"].values()), {""})
+        # admob (owner 25 Oct): until admob_real_ids the units ARE Google's
+        # test units, never a real one
+        self.assertEqual(c["units"], A.TEST_UNITS)
         self.assertEqual(c["test_units"]["rewarded"], A.TEST_UNITS["rewarded"])
-        self.assertGreaterEqual(c["appopen_min_gap_sec"], 3 * 3600)
+        self.assertEqual(c["appopen_min_gap_sec"], 3600)
+        self.assertFalse(c["rewarded_enabled"])      # SSV needs real units
         for s in ("sos", "payment", "topup", "login", "otp", "call"):
             self.assertIn(s, c["blocked_screens"])
 
@@ -146,10 +149,13 @@ class AdmobValidatorTests(SimpleTestCase):
                             admob_cfg={"app_id": REAL_APP, "app_open_unit": REAL_AO},
                             admob_working=True, flag_rewarded=True,
                             flag_app_open=True,
-                            ad_caps=P.DEFAULTS()["ad_rewards"])
+                            ad_caps=dict(P.DEFAULTS()["ad_rewards"], admob_real_ids=True))
         self.assertTrue(c["configured"])
+        self.assertFalse(c["ads_enabled"])
         self.assertFalse(c["app_open_enabled"])
-        self.assertTrue(c["rewarded_enabled"])      # opt-in only
+        # admob (owner 25 Oct): Premium/Business see ZERO ads, not even rewarded
+        self.assertFalse(c["rewarded_enabled"])
+        self.assertFalse(any(c["placements"].values()))
         self.assertEqual(c["units"]["app_open"], REAL_AO)
 
     def test_gap_never_below_1h(self):
@@ -162,7 +168,7 @@ class AdmobValidatorTests(SimpleTestCase):
         c = A.client_config(plan="free", paid=False, admob_cfg={},
                             admob_working=False, flag_rewarded=True,
                             flag_app_open=True, ad_caps=P.DEFAULTS()["ad_rewards"])
-        self.assertEqual(c["appopen_min_gap_sec"], 3 * 3600)
+        self.assertEqual(c["appopen_min_gap_sec"], 3600)            # admob: 1 h
 
 
 # --------------------------------------------------------------- ads (api)
@@ -208,6 +214,13 @@ class AdsApiTests(APITestCase):
     def test_integration_test_refuses_test_ids_and_accepts_real(self):
         self.assertEqual(self._admob(real=False), "failing")
         self.assertEqual(self._admob(real=True), "working")
+        self.client.force_authenticate(self.free)
+        # admob (owner 25 Oct): saved real ids are served only after the
+        # owner turns admob_real_ids on
+        self.assertFalse(self.client.get("/api/v1/ads/config").data["configured"])
+        self.client.force_authenticate(self.owner)
+        self.client.post("/api/v1/admin/pricing",
+                         {"config": {"ad_rewards": {"admob_real_ids": True}}}, format="json")
         self.client.force_authenticate(self.free)
         r = self.client.get("/api/v1/ads/config")
         self.assertTrue(r.data["configured"])

@@ -927,6 +927,11 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
 
     ad_cfg = cfg()["ad_rewards"]
     today = timezone.localdate()
+    # admob (owner 25 Oct): until the owner turns REAL unit ids on, the app
+    # shows Google TEST ads — an impression of a test ad earns nobody
+    # anything (rewarded is SSV-verified, and only real units call SSV).
+    if kind != "rewarded" and not ad_cfg.get("admob_real_ids", False):
+        ads_on = False
 
     # --- fraud guard: impossible frequency (per user AND per device) ---
     # reject >1 impression of the same kind within 2s from the same user/device.

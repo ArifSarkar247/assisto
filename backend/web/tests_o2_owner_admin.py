@@ -539,26 +539,27 @@ class PricingAdsTests(OwnerBase):
                         data["%s.%s" % (blk, k)] = "on"
                 elif isinstance(v, (int, float)):
                     data["%s.%s" % (blk, k)] = str(v)
-        self.assertFalse(cfg["ad_rewards"]["hero_enabled"])
+        # admob (owner 25 Oct): the home native card is ON by default
+        self.assertTrue(cfg["ad_rewards"]["hero_enabled"])
         self.assertTrue(cfg["ad_rewards"]["hero_start_muted"])   # default ON
-        data["ad_rewards.hero_enabled"] = "on"
+        data.pop("ad_rewards.hero_enabled", None)                 # owner turns it OFF
         if has_ps:
             data["photo_studio.entry_interstitial_gap_min"] = "45"
         r = self.post("/owner/ads", data)
         self.assertEqual(r.status_code, 302, r.content[:400])
         c = billing.cfg()
-        self.assertTrue(c["ad_rewards"]["hero_enabled"])
+        self.assertFalse(c["ad_rewards"]["hero_enabled"])
         self.assertTrue(c["ad_rewards"]["hero_start_muted"])
         if has_ps:
             self.assertEqual(c["photo_studio"]["entry_interstitial_gap_min"], 45)
         a = OwnerAudit.objects.get(action="ads.update")
-        self.assertEqual(a.after["ad_rewards.hero_enabled"], True)
+        self.assertEqual(a.after["ad_rewards.hero_enabled"], False)
         # the app's /ads/config carries it to Free users only
         free = User.objects.create_user(name="F", phone="01710009907", password="x")
         api = APIClient()
         api.force_authenticate(free)
         j = api.get("/api/v1/ads/config").json()
-        self.assertTrue(j["hero_enabled"])
+        self.assertFalse(j["hero_enabled"])
         self.assertTrue(j["hero_start_muted"])
 
     def test_flag_flip_needs_reason(self):

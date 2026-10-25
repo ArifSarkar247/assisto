@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-25"   # AXON Dynamic details (24 Oct) + ads wording (25 Oct)
+LAST_UPDATED = "2026-10-25"   # AXON Dynamic details (24 Oct) + AdMob ads live on the Free plan (25 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -353,6 +353,26 @@ PERMISSIONS = [
                  "Android does not prompt for these."),
         "revoke": ("অ্যাপ আনইনস্টল করলে।", "Uninstall the app."),
     },
+    {
+        # admob (owner 25 Oct): merged in by the Google Mobile Ads SDK
+        "id": "ad_id",
+        "perm": "com.google.android.gms.permission.AD_ID",
+        "name": ("বিজ্ঞাপন আইডি (Advertising ID)", "Advertising ID"),
+        "why": ("শুধু ফ্রি প্ল্যানে Google AdMob-এর বিজ্ঞাপন দেখাতে, একই বিজ্ঞাপন বারবার না দেখাতে, প্রতারণা ঠেকাতে ও "
+                "বিজ্ঞাপনের সমষ্টিগত হিসাবের জন্য Google-এর বিজ্ঞাপন SDK ফোনের রিসেটযোগ্য বিজ্ঞাপন আইডি পড়ে। "
+                "Assisto নিজে এই আইডি সংরক্ষণ করে না।",
+                "Google's ads SDK reads the phone's resettable Advertising ID to show Google AdMob ads on the "
+                "Free plan only, to avoid repeating the same ad, to prevent fraud and for aggregate ad "
+                "reporting. Assisto itself does not store this ID."),
+        "when": ("Android এটির জন্য আলাদা করে জিজ্ঞেস করে না। ইউরোপ/যুক্তরাজ্যে ও যেখানে আইন চায় সেখানে প্রথম "
+                 "বিজ্ঞাপনের আগে Google-এর সম্মতি ফর্ম দেখানো হয়।",
+                 "Android does not prompt for it. In the EEA/UK and wherever the law requires it, Google's "
+                 "consent form is shown before the first ad."),
+        "revoke": ("Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন (Ads) → বিজ্ঞাপন আইডি মুছুন বা রিসেট করুন; "
+                   "অ্যাপের সেটিংস → \"বিজ্ঞাপনের গোপনীয়তা\" থেকেও সম্মতি বদলাতে পারেন (যেখানে দেখায়)।",
+                   "Android Settings → Privacy → Ads → delete or reset the Advertising ID; you can also change "
+                   "your consent in the app's Settings → \"Ad privacy choices\" (where shown)."),
+    },
 ]
 
 
@@ -364,8 +384,8 @@ PRIVACY = [
           "Text messages in your personal and group chats are encrypted on your phone (end-to-end); our server cannot read them."),
          ("Health Connect-এর স্বাস্থ্য তথ্য ফোনেই থাকে, সার্ভারে যায় না। কন্টাক্ট মেলাতে শুধু হ্যাশ কোড যায়।",
           "Health Connect data stays on your phone. Contact matching sends only hash codes."),
-         ("বিজ্ঞাপন (চালু হলে) শুধু ফ্রি প্ল্যানে, শুধু নন-পার্সোনালাইজড, এবং কখনো SOS, নিরাপত্তা, পেমেন্ট, লগইন বা কল স্ক্রিনে নয়।",
-          "Ads (when switched on) appear only on the Free plan, are non-personalised only, and never on SOS, safety, payment, sign-in or call screens."),
+         ("বিজ্ঞাপন (Google AdMob) শুধু ফ্রি প্ল্যানে; প্রিমিয়াম ও বিজনেসে কোনো বিজ্ঞাপন নেই। SOS, নিরাপত্তা, চুরি-সুরক্ষা, পরিবারের সতর্কতা, কল, চ্যাট, পেমেন্ট, লগইন বা অনুমতির স্ক্রিনে কখনো নয়।",
+          "Ads (Google AdMob) appear only on the Free plan; Premium and Business have no ads. Never on SOS, safety, anti-theft, family alert, call, chat, payment, sign-in or permission screens."),
          ("অ্যাপ থেকে (সেটিংস → আমার অ্যাকাউন্ট মুছে ফেলুন) বা <a href=\"/delete-account\">ওয়েব ফর্ম</a> থেকে অ্যাকাউন্ট ও সব ডেটা মুছতে পারেন।",
           "You can delete your account and all data in the app (Settings → Delete my account) or with the <a href=\"/delete-account?lang=en\">web form</a>."))),
     S("who", "আমরা কারা", "Who we are",
@@ -431,22 +451,34 @@ PRIVACY = [
         "The provider may be Anthropic (Claude), OpenAI, Google (Gemini) or, for images, Replicate — whichever we have switched on at the time. They process it under their API terms. "
         "Your end-to-end encrypted messages are never sent to AI. AI can be wrong — check before important decisions.")),
     S("ads", "বিজ্ঞাপন (Google AdMob)", "Advertising (Google AdMob)",
-      P("<b>এখন অ্যাপে কোনো বিজ্ঞাপন নেই এবং কোনো বিজ্ঞাপন SDK নেই</b> — Advertising ID সংগ্রহ করা হয় না। ভবিষ্যতে ফ্রি প্ল্যানে Google AdMob-এর বিজ্ঞাপন চালু হলে আগে এই নীতি নতুন তারিখসহ হালনাগাদ করা হবে; তখন আমরা শুধু <b>নন-পার্সোনালাইজড</b> বিজ্ঞাপন চাইব — অর্থাৎ আপনার আগ্রহ বা ইতিহাস দেখে বিজ্ঞাপন বাছাই করা হবে না। "
-        "তখন বিজ্ঞাপন দেখাতে, সংখ্যা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর SDK কিছু তথ্য সংগ্রহ করবে: ডিভাইসের বিজ্ঞাপন আইডি (Advertising ID), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য এবং বিজ্ঞাপনে ট্যাপ/দেখার তথ্য। "
+      P("ফ্রি প্ল্যানে অ্যাপে <b>Google AdMob</b>-এর বিজ্ঞাপন দেখানো হয় — এভাবেই ফ্রি প্ল্যান চলে। <b>প্রিমিয়াম ও বিজনেস প্ল্যানে কোনো বিজ্ঞাপন নেই।</b> "
+        "বিজ্ঞাপন দেখাতে, একই বিজ্ঞাপন কতবার দেখানো হলো তা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর বিজ্ঞাপন SDK এই তথ্য সংগ্রহ ও Google-কে পাঠায়: "
+        "ডিভাইসের রিসেটযোগ্য বিজ্ঞাপন আইডি (<b>Advertising ID</b>), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য এবং কোন বিজ্ঞাপন দেখা বা ট্যাপ করা হলো। "
+        "Assisto এই আইডি সংরক্ষণ করে না। দৈনিক সীমা ও বিজ্ঞাপন-ক্রেডিটের হিসাবের জন্য আমরা আপনার অ্যাকাউন্টে কয়টি বিজ্ঞাপন দেখানো হলো তা রাখি; আর বিজ্ঞাপনের জায়গা ঠিক করতে শুধু প্রতিটি জায়গার মোট দেখানো/ট্যাপ ও Google-এর জানানো আনুমানিক আয় রাখি — কোনো ব্যবহারকারী বা ডিভাইস আইডি ছাড়া। "
+        "আপনার মেসেজ, কন্টাক্ট, অবস্থান, স্বাস্থ্য তথ্য বা ছবি কখনো বিজ্ঞাপনদাতা বা Google-কে বিজ্ঞাপনের জন্য দেওয়া হয় না। "
         "বিস্তারিত: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">Google কীভাবে বিজ্ঞাপনে তথ্য ব্যবহার করে</a>।",
-        "<b>The app shows no ads today and contains no advertising SDK</b> — no Advertising ID is collected. If Google AdMob ads are switched on for the Free plan later, this policy will be updated first, with a new date; we would then request <b>non-personalised</b> ads only — ads would not be chosen from your interests or history. "
-        "At that point, to show ads, limit how often they appear, prevent fraud and produce aggregate reports, Google's SDK would collect some data: the device Advertising ID, IP address (approximate area), device and app information, and ad taps/views. "
+        "On the Free plan the app shows ads from <b>Google AdMob</b> — that is how the Free plan is paid for. <b>Premium and Business plans have no ads.</b> "
+        "To show ads, limit how often the same ad appears, prevent fraud and produce aggregate reports, Google's ads SDK collects and sends to Google: "
+        "the device's resettable advertising identifier (<b>Advertising ID</b>), IP address (approximate area), device and app information, and which ads were viewed or tapped. "
+        "Assisto does not store this ID. For the daily caps and the ad-credit wallet we keep a count of the ads shown to your account; to tune ad placements we keep only totals per placement (times shown/tapped and the estimated value Google reports) — with no user or device ID. "
+        "Your messages, contacts, location, health data and photos are never given to advertisers or to Google for ads. "
         "Details: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">how Google uses information from ads</a>."),
-      UL(("বিজ্ঞাপন কখনো SOS, নিরাপত্তা, যাত্রা, চুরি-সুরক্ষা, পেমেন্ট/প্ল্যান, লগইন/OTP বা কলের স্ক্রিনে দেখানো হয় না।",
-          "Ads are never shown on SOS, safety, journey, anti-theft, payment/plan, sign-in/OTP or call screens."),
-         ("পেইড প্ল্যানে অ্যাপ খোলার বিজ্ঞাপন নেই। \"বিজ্ঞাপন দেখে ক্রেডিট\" সবসময় ঐচ্ছিক — আপনি নিজে চাপলে তবেই।",
-          "Paid plans get no app-open ads. \"Watch an ad for credits\" is always optional — only when you tap it."),
+      P("<b>সম্মতি (Google UMP):</b> ইউরোপীয় অর্থনৈতিক এলাকা, যুক্তরাজ্য ও সুইজারল্যান্ডে (GDPR) এবং যুক্তরাষ্ট্রের যেসব রাজ্যের গোপনীয়তা আইন চায়, সেখানে প্রথম বিজ্ঞাপনের আগে Google-এর সার্টিফায়েড সম্মতি ফর্ম দেখানো হয়; আপনি সম্মতি দিতে, না দিতে বা আপনার তথ্য বিক্রি/শেয়ার না করতে বলতে পারেন। "
+        "<b>পার্সোনালাইজড বনাম নন-পার্সোনালাইজড:</b> পার্সোনালাইজড বিজ্ঞাপন আপনার আগ্রহ অনুযায়ী বাছাই হয়; নন-পার্সোনালাইজড বিজ্ঞাপন শুধু প্রসঙ্গ (যেমন অ্যাপ ও আনুমানিক এলাকা) দেখে বাছাই হয়। "
+        "Assisto ডিফল্টভাবে শুধু <b>নন-পার্সোনালাইজড</b> বিজ্ঞাপন চায়। কখনো পার্সোনালাইজড বিজ্ঞাপন চালু হলেও তা শুধু সেখানেই হবে যেখানে আপনার সম্মতি সেটা অনুমতি দেয় এবং আপনি বন্ধ করেননি; নন-পার্সোনালাইজড বিজ্ঞাপনেও ফ্রিকোয়েন্সি সীমা ও প্রতারণা ঠেকাতে Advertising ID ব্যবহার হতে পারে।",
+        "<b>Consent (Google UMP):</b> in the European Economic Area, the UK and Switzerland (GDPR), and in US states whose privacy laws require it, Google's certified consent form is shown before the first ad; you can consent, refuse, or opt out of the sale/sharing of your information. "
+        "<b>Personalised vs non-personalised:</b> personalised ads are chosen from your interests; non-personalised ads are chosen only from context (such as the app and your approximate area). "
+        "By default Assisto requests <b>non-personalised</b> ads only. If personalised ads are ever switched on, they are used only where your consent choice allows them and you have not opted out; even non-personalised ads may use the Advertising ID for frequency capping and fraud prevention."),
+      UL(("বিজ্ঞাপন কখনো SOS, নিরাপত্তা, Safe Journey, চুরি-সুরক্ষা, পরিবারের সতর্কতা, কল, চ্যাট ও চ্যাট লক, পেমেন্ট/প্ল্যান, লগইন/OTP, শুরুর ধাপ (অনবোর্ডিং) বা অনুমতির স্ক্রিনে দেখানো হয় না।",
+          "Ads are never shown on SOS, safety, Safe Journey, anti-theft, family alert, call, chat and chat-lock, payment/plan, sign-in/OTP, first-run (onboarding) or permission screens."),
+         ("নোটিফিকেশন, SOS, নিরাপত্তা সতর্কতা, কল, অ্যালার্ম/রিমাইন্ডার, উইজেট বা লিংক থেকে অ্যাপ খুললে অ্যাপ খোলার বিজ্ঞাপন দেখানো হয় না; প্রথমবার অ্যাপ খোলায় বা লগইনের ঠিক পরেও নয়।",
+          "No app-open ad when the app is opened from a notification, SOS, a safety alert, a call, an alarm/reminder, the widget or a link — and never on the very first launch or right after you sign in."),
+         ("\"বিজ্ঞাপন দেখে ক্রেডিট / আনলক\" সবসময় ঐচ্ছিক — আপনি নিজে চাপলে তবেই; পুরস্কার দেওয়া হয় শুধু Google সার্ভার থেকে যাচাই হওয়ার পর।",
+          "\"Watch an ad for credits / an unlock\" is always optional — only when you tap it; the reward is given only after Google's server confirms the ad."),
          ("Discover-এ \"স্পনসরড\" কার্ড সব প্ল্যানে দেখা যেতে পারে এবং সবসময় \"স্পনসরড\" লেখা থাকে।",
           "\"Sponsored\" cards in Discover can appear on every plan and are always labelled \"Sponsored\"."),
-         ("বিজ্ঞাপন আইডি রিসেট বা মুছতে: Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন (Ads)।",
-          "To reset or delete your Advertising ID: Android Settings → Privacy → Ads."),
-         ("আমরা কখনো পার্সোনালাইজড বিজ্ঞাপন চালু করলে আগে আপনার সম্মতি চাইব।",
-          "If we ever switch to personalised ads, we will ask for your consent first."))),
+         ("<b>যেভাবে বন্ধ/বদল করবেন:</b> Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন (Ads) → বিজ্ঞাপন আইডি মুছুন বা রিসেট করুন; অ্যাপের সেটিংস → \"বিজ্ঞাপনের গোপনীয়তা\" থেকে সম্মতি বদলান (যেখানে আইন অনুযায়ী দেখায়); অথবা প্রিমিয়াম/বিজনেস প্ল্যানে কোনো বিজ্ঞাপনই নেই।",
+          "<b>How to opt out or change:</b> Android Settings → Privacy → Ads → delete or reset your Advertising ID; change your consent in the app's Settings → \"Ad privacy choices\" (shown where the law requires it); or use Premium/Business, which have no ads at all."))),
     S("sharing", "কার সাথে তথ্য শেয়ার হয়", "Who we share information with",
       P("আমরা কাউকে আপনার তথ্য বিক্রি করি না, ভাড়াও দিই না। তথ্য শুধু এই ক্ষেত্রে যায়:",
         "We never sell or rent your information. It only goes to:"),
@@ -456,7 +488,7 @@ PRIVACY = [
           "<b>Google Firebase Cloud Messaging:</b> to deliver push notifications (device token and notification text)."),
          ("<b>Google Firebase Crashlytics:</b> অ্যাপ ক্র্যাশ ও ত্রুটির প্রযুক্তিগত তথ্য (ত্রুটির ধরন, কোডের জায়গা, ফোনের মডেল ও Android ভার্সন, একটি ছদ্মনাম আইডি) — শুধু সাইন-ইন ও শুরুর ধাপ শেষ হওয়ার পরে; মেসেজ, নাম বা নম্বর পাঠানো হয় না।",
           "<b>Google Firebase Crashlytics:</b> technical details of app crashes and errors (error type, code location, phone model and Android version, a pseudonymous id) — only after you sign in and finish the first-run steps; never messages, names or numbers."),
-         ("<b>Google AdMob:</b> ফ্রি প্ল্যানের বিজ্ঞাপন, উপরের অংশ দেখুন।", "<b>Google AdMob:</b> Free-plan ads, see above."),
+         ("<b>Google AdMob:</b> শুধু ফ্রি প্ল্যানের বিজ্ঞাপন — Advertising ID, IP ঠিকানা, ডিভাইস তথ্য ও বিজ্ঞাপন দেখা/ট্যাপের তথ্য; উপরের \"বিজ্ঞাপন\" অংশ দেখুন।", "<b>Google AdMob:</b> Free-plan ads only — Advertising ID, IP address, device information and ad views/taps; see \"Advertising\" above."),
          ("<b>AI প্রদানকারী</b> (Anthropic, OpenAI, Google Gemini, Replicate): শুধু আপনি AI ফিচার ব্যবহার করলে।",
           "<b>AI providers</b> (Anthropic, OpenAI, Google Gemini, Replicate): only when you use an AI feature."),
          ("<b>SMS গেটওয়ে</b> (বাংলাদেশি SMS প্রদানকারী): OTP ও SMS সতর্কবার্তা পাঠাতে — আপনার নম্বর ও বার্তার লেখা।",

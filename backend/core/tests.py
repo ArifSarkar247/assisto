@@ -2970,6 +2970,14 @@ class BusinessModelV2Tests(APITestCase):
         from django.utils import timezone as _tz
         from datetime import timedelta as _td
         self._enable("admob")
+        # admob (owner 25 Oct): impressions earn only once REAL ids are served
+        self.assertEqual(billing.ad_event(self.u, "app_open")["reason"],
+                         "ads_not_configured")
+        AdEvent.objects.all().delete()
+        self.client.force_authenticate(self.owner)
+        self.client.post("/api/v1/admin/pricing",
+                         {"config": {"ad_rewards": {"admob_real_ids": True}}},
+                         format="json")
         r1 = billing.ad_event(self.u, "app_open")
         self.assertTrue(r1["ok"])
         # a 2nd app-open immediately after -> rejected (server 3h gap)

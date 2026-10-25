@@ -507,11 +507,17 @@ def _ad_units():
         working = integrations.is_enabled("admob")
     except Exception:
         conf, working = {}, False
-    ok, _ = A.validate_admob_ids(conf)
-    configured = bool(working and ok)
-    out = {"_configured": configured}
-    for field, key in A.UNIT_FIELDS.items():
-        out[key] = str(conf.get(field) or "").strip() if configured else ""
+    try:
+        caps = _cfg()["ad_rewards"]
+    except Exception:
+        caps = {}
+    # admob (owner 25 Oct): REAL units only once the owner turned
+    # `admob_real_ids` on; before that nothing here is "configured" (the
+    # app shows Google TEST ads, which Google's SSV never verifies).
+    real, _app, units = A.serving_units(caps, conf, working)
+    out = {"_configured": real}
+    for key in A.UNIT_FIELDS.values():
+        out[key] = units.get(key, "") if real else ""
     return out
 
 

@@ -53,7 +53,7 @@ class HeroConfigTests(SimpleTestCase):
 
     def test_pricing_ad_rewards_hero_flags(self):
         d = P.DEFAULTS()
-        self.assertFalse(d["ad_rewards"]["hero_enabled"])
+        self.assertTrue(d["ad_rewards"]["hero_enabled"])          # admob: owner 25 Oct
         self.assertTrue(d["ad_rewards"]["hero_start_muted"])
         n = P.normalize({"ad_rewards": {"hero_enabled": True}})
         self.assertTrue(n["ad_rewards"]["hero_enabled"])
@@ -307,17 +307,19 @@ class VisionConfigApiTests(_VBase):
     def test_ads_config_reuses_o2_flags(self):
         self.as_(self.free)
         j = self.client.get("/api/v1/ads/config").json()
-        self.assertFalse(j["hero_enabled"])
+        # admob (owner 25 Oct): the home native card is ON for Free users
+        self.assertTrue(j["hero_enabled"])
         self.assertTrue(j["hero_start_muted"])
+        self.as_(self.prem)
+        self.assertFalse(self.client.get("/api/v1/ads/config").json()["hero_enabled"])
+        self.as_(self.free)
         row = billing.get_config()
         d = dict(row.data)
         ar = dict(d.get("ad_rewards") or {})
-        ar["hero_enabled"] = True
+        ar["hero_enabled"] = False
         d["ad_rewards"] = ar
         row.data = d
         row.save()
-        self.assertTrue(self.client.get("/api/v1/ads/config").json()["hero_enabled"])
-        self.as_(self.prem)
         self.assertFalse(self.client.get("/api/v1/ads/config").json()["hero_enabled"])
 
 

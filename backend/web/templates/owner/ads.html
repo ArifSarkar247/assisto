@@ -1,4 +1,5 @@
 {% extends "owner/base.html" %}
+{% load p5fmt %}
 {% block heading %}{{ T.nav_ads }}{% endblock %}
 {% block content %}
 {% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
@@ -16,6 +17,12 @@
 </form>
 {% endfor %}
 </section>
+<section class="card"><h2>{{ T.adm_stats_title }}</h2>
+<form method="get" class="inline"><label>{{ T.period }} <select name="days"><option value="7" {% if stat_days == 7 %}selected{% endif %}>{{ 7|bnd:lang }} {{ T.days }}</option><option value="30" {% if stat_days == 30 %}selected{% endif %}>{{ 30|bnd:lang }} {{ T.days }}</option></select></label><button class="btn ghost">{{ T.show }}</button></form>
+{% if stats %}<div class="tbl"><table><thead><tr><th>{{ T.adm_placement }}</th><th>{{ T.adm_format }}</th><th>{{ T.adm_impressions }}</th><th>{{ T.adm_clicks }}</th><th>{{ T.adm_ctr }}</th><th>{{ T.adm_revenue }}</th></tr></thead><tbody>
+{% for r in stats %}<tr><th>{{ r.placement }}</th><td>{{ r.format }}</td><td class="num">{{ r.impressions|bnd:lang }}</td><td class="num">{{ r.clicks|bnd:lang }}</td><td class="num">{{ r.ctr_pct|bnd:lang }}%</td><td class="num">{{ r.revenue_text }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="mut">{{ T.adm_stats_none }}</p>{% endif %}
+<p class="mut small">{{ T.adm_stats_note }}</p></section>
 <form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="settings">
   <h2>{{ T.ad_caps }}</h2>
   <div class="kv">{% for k, v, kind, lbl in ar %}<label>{% if k == 'hero_enabled' %}{{ T.hero_enabled }}{% elif k == 'hero_start_muted' %}{{ T.hero_start_muted }}{% elif k == 'consent_debug_eea' %}{{ T.consent_debug_eea }}{% else %}{{ lbl }}{% endif %} {% with name="ad_rewards."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
