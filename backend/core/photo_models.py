@@ -105,8 +105,22 @@ def load_manifest():
     }
 
 
+def realesrgan_allowed():
+    """photo-final (owner 25 Oct): Real-ESRGAN weights are licence-GREY (code
+    BSD-3, weights' terms silent, trained on academic-only datasets) — every
+    use is behind the server flag photo_studio.realesrgan_allowed (default
+    False). Off: no Real-ESRGAN file is used on the server or sent to phones."""
+    try:
+        from . import photo_studio_service as S
+        return bool(S.ps_cfg().get("realesrgan_allowed"))
+    except Exception:
+        return False
+
+
 def server_model(role):
     """Absolute path of a licence-cleared SERVER model file (or None)."""
+    if role == "upscale" and not realesrgan_allowed():
+        return None
     m = load_manifest()
     if not m or not m["licence_cleared"]:
         return None
@@ -119,7 +133,10 @@ def client_manifest(request=None):
     m = load_manifest()
     if not m:
         return {"available": False, "reason": "model_pending", "files": [], "version": ""}
-    if not m["licence_cleared"]:
+    if not m["licence_cleared"] or not realesrgan_allowed():
+        # (Real-ESRGAN not cleared: older apps take the first file as the
+        # upscaler, so the whole on-device AI step is withheld — the app
+        # hides it and keeps its classic non-ML enhance)
         return {"available": False, "reason": "licence_pending", "files": [],
                 "version": m["version"]}
     files = []
@@ -172,7 +189,7 @@ def serve_file(request, name):
     if not m or not m["licence_cleared"]:
         raise Http404
     entry = next((e for e in m["files"] if e["name"] == name and e["role"] in PHONE_ROLES), None)
-    if entry is None:
+    if entry is None or (entry["role"] == "upscale" and not realesrgan_allowed()):
         raise Http404
     path = os.path.join(model_dir(), name)
     size = entry["size"]

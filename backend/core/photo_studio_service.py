@@ -190,16 +190,28 @@ def quote(user, feature, c=None, device_key=""):
             usage.update(PFN.enhance_usage(user, device_key))
     elif usage is None and plan == "free" and feature in PS.TRIAL_FEATURES:
         usage = usage_of(user)
+        if device_key:
+            # photo-final: lifetime free AI images per account AND device
+            usage["gen_lifetime"] = max(usage["gen_lifetime"], _device_gen_gifts(device_key))
     q = PS.funding_options(
         feature=feature, plan=plan, cost_usd=cost_usd, usd_bdt=c["usd_bdt"],
         table_credits=table_credits, net_floor=P.net_floor(c),
         credit_bdt=c["credit_bdt"], ps_cfg=c.get("photo_studio"),
         ad_rewards=c["ad_rewards"], trials_used_today=trials_used_today(user),
         guard_over=_guard_over() if plan == "free" else False,
-        provider_ready=provider_ready, usage=usage)
+        provider_ready=provider_ready, usage=usage,
+        # photo-final: no "watch ads" route while AdMob serves TEST ids
+        ads_live=bool(_ad_units().get("_configured")) if plan == "free" else True)
     q["provider"] = slug
     q["feature"] = feature
     return q
+
+
+def _device_gen_gifts(device_key):
+    from .models import PhotoStudioJob
+    return (PhotoStudioJob.objects.filter(device_key=device_key, feature__in=PS.TRIAL_FEATURES,
+                                          funding="gift")
+            .exclude(status__in=("refused", "expired")).count())
 
 
 # ------------------------------------------------------------------ messages
@@ -257,6 +269,8 @@ def funding_message(reason, lang):
                          "Ultra HD is for Premium / Business plans."),
         "ultra_quota": ("এই মাসের Ultra HD শেষ — আগামী মাসে আবার পাবেন।",
                         "This month's Ultra HD images are used — more next month."),
+        "ads_not_live": ("বিজ্ঞাপন দেখে আনলক এখনো চালু হয়নি — ক্রেডিট বা প্রিমিয়াম দিয়ে চালিয়ে যান।",
+                         "Unlocking with ads isn't switched on yet — continue with credits or Premium."),
     }.get(reason)
     return pick(lang, m[0], m[1]) if m else ""
 
@@ -479,6 +493,12 @@ def issue_ticket(user, job, lang="bn"):
         return 409, {"ok": False, "reason": "not_awaiting_ads"}
     if _verified_count(job) >= job.ads_required:
         return 409, {"ok": False, "reason": "already_funded"}
+    units = _ad_units()
+    if not units.get("_configured"):
+        # photo-final: AdMob on Google TEST ids -> Google's SSV never verifies
+        # the ad, so no ticket (no ad that could never unlock, no fake unlock)
+        return 409, {"ok": False, "reason": "ads_not_live",
+                     "message": funding_message("ads_not_live", lang)}
     c = _cfg()
     ps = ps_cfg(c)
     cutoff = timezone.now() - timedelta(minutes=ps["ticket_ttl_min"])
@@ -492,7 +512,6 @@ def issue_ticket(user, job, lang="bn"):
         t = PhotoAdTicket.objects.create(user=user, job=job, kind="rewarded",
                                          placement="job",
                                          nonce=secrets.token_urlsafe(24))
-    units = _ad_units()
     return 201, {"ok": True, "nonce": t.nonce, "custom_data": t.nonce,
                  "user_id": str(user.pk), "rewarded_unit": units.get("rewarded", ""),
                  "ads_configured": units.get("_configured", False),

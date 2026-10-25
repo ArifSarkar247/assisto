@@ -124,7 +124,7 @@ _DEFAULTS = {
     "ticket_ttl_min": 30,               # an unwatched ad ticket expires
     "provider": "",                     # '' = first connected provider
     # ---- d1-photo v2 pricing (owner order 6; every number editable) ----
-    "free_enhance_per_day": 3,          # free HD enhances per day ...
+    "free_enhance_per_day": 2,          # ad-unlocked free HD enhances per day (photo-final: 2)
     "free_enhance_ads": 1,              # ... each unlocked by this many SSV ads
     "premium_enhance_daily_cap": 100,   # paid fair-use cap (no ads)
     "free_gen_lifetime": 2,             # free AI generations per user, ever
@@ -141,10 +141,22 @@ _DEFAULTS = {
     "rollout_assisto_face": 0,
     "rollout_runpod_serverless": 0,
     "rollout_replicate": 0,
+    "rollout_fal_face": 0,
     "provider_timeout_s": 120,          # then fall back to the previous provider
     "daily_spend_cap_usd": 1.0,         # all paid photo providers together, per day
     "cap_fallback_local": False,        # cap hit: False = job waits in the queue
-    "face_restore_gfpgan": False,       # LEGAL SWITCH (owner decision): GFPGAN weights
+    "face_restore_gfpgan": False,       # LOCKED OFF (owner 25 Oct): GFPGAN weights = FFHQ
+                                        # BY-NC-SA -> never used; normalize forces False
+    # Real-ESRGAN (code BSD-3; weights' licence silent, trained on academic-
+    # only DIV2K/Flickr2K/OST) — OFF until the owner clears it. Off = every
+    # Real-ESRGAN use (server local pipeline, old-photo restore, Replicate
+    # nightmareai/real-esrgan, the RunPod handler, the phone's downloadable
+    # ONNX) is replaced by the clean non-ML path (Lanczos + unsharp + look).
+    "realesrgan_allowed": False,
+    # face provider (owner to choose; commercial-use terms): '' = none,
+    # 'topaz' = fal-ai/topaz/upscale/image, 'crystal' = clarityai/crystal-upscaler.
+    # Runs only with the photo_fal key + its price + rollout_fal_face > 0.
+    "fal_face_model": "",
     "face_blend_natural_pct": 55,       # fidelity blend of a restored face (Natural)
     "face_blend_strong_pct": 70,        # ... (Strong)
     "max_input_mp": 2,                  # every provider gets at most 2 MP
@@ -172,13 +184,16 @@ _BOUNDS = {
     "rollout_assisto_face": (0, 100),
     "rollout_runpod_serverless": (0, 100),
     "rollout_replicate": (0, 100),
+    "rollout_fal_face": (0, 100),
     "provider_timeout_s": (20, 600),
     "face_blend_natural_pct": (0, 100),
     "face_blend_strong_pct": (0, 100),
     "max_input_mp": (1, 8),
     "ultra_hd_budget_pct": (0, 60),
 }
-_BOOL_KEYS = ("entry_interstitial_enabled", "cap_fallback_local", "face_restore_gfpgan")
+_BOOL_KEYS = ("entry_interstitial_enabled", "cap_fallback_local", "face_restore_gfpgan",
+              "realesrgan_allowed")
+FAL_FACE_MODELS = ("", "topaz", "crystal")
 PROVIDERS = ("photo_gemini", "photo_openai", "photo_replicate")
 
 
@@ -211,6 +226,10 @@ def normalize_cfg(raw):
                                                      _DEFAULTS["ad_value_share"])))
     prov = str(raw.get("provider") or "").strip()
     out["provider"] = prov if prov in PROVIDERS else ""
+    # owner decision 25 Oct: GFPGAN never runs, whatever a stored config says
+    out["face_restore_gfpgan"] = False
+    ff = str(raw.get("fal_face_model") or "").strip().lower()
+    out["fal_face_model"] = ff if ff in FAL_FACE_MODELS else ""
     return out
 
 
@@ -223,6 +242,11 @@ def validate_cfg(raw):
     problems = []
     for k, v in raw.items():
         if k in _BOOL_KEYS or k == "provider":
+            continue
+        if k == "fal_face_model":
+            if str(v or "").strip().lower() not in FAL_FACE_MODELS:
+                problems.append("photo_studio_bad")
+                break
             continue
         n = _num(v, None)
         if n is None or n < 0:
@@ -268,8 +292,33 @@ def credits_needed(cost_bdt, table_credits, net_floor, credit_bdt):
 def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
                     net_floor, credit_bdt, ps_cfg, ad_rewards,
                     trials_used_today=0, guard_over=False, provider_ready=True,
-                    usage=None):
+                    usage=None, ads_live=True):
     """Decide how a job can be paid for, BEFORE any work runs.
+
+    photo-final: `ads_live` False (AdMob still on Google TEST ids — Google's
+    SSV never verifies those) marks every "watch ads" option `live: False`:
+    the app shows no ad button (it reads the same server flag), the server
+    issues NO ad ticket for it (photo_studio_service.issue_ticket), so the
+    job can only be unlocked with credits / Premium — never a fake unlock.
+    (The option itself stays: released apps create the free export job as
+    an ads job and then pay it with credits through the gate.)
+    """
+    q = _funding_options(feature=feature, plan=plan, cost_usd=cost_usd, usd_bdt=usd_bdt,
+                         table_credits=table_credits, net_floor=net_floor,
+                         credit_bdt=credit_bdt, ps_cfg=ps_cfg, ad_rewards=ad_rewards,
+                         trials_used_today=trials_used_today, guard_over=guard_over,
+                         provider_ready=provider_ready, usage=usage)
+    if not ads_live and any(o.get("via") == "ads" for o in q.get("options", [])):
+        q = dict(q, options=[dict(o, live=False) if o.get("via") == "ads" else o
+                             for o in q["options"]], ads_off="test_ids")
+    return q
+
+
+def _funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
+                     net_floor, credit_bdt, ps_cfg, ad_rewards,
+                     trials_used_today=0, guard_over=False, provider_ready=True,
+                     usage=None):
+    """The rules behind funding_options (ads assumed live).
 
     Returns {ok, reason, cost_bdt, paid_plan, options:[...]} where each option is
       {"via": "pool"}                       Premium/Business: monthly pool credits

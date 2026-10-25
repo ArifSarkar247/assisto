@@ -281,6 +281,13 @@ class _Base(APITestCase):
         self._keys = mock.patch.object(S, "_ssv_keys", return_value={_SSV_KID: _SSV_PEM})
         self._keys.start()
         self.addCleanup(self._keys.stop)
+        # photo-final: these tests run with AdMob on REAL ids (on test ids no
+        # ads route is offered at all — tests_photo_final.AdsLiveGateTests)
+        self._units = mock.patch.object(S, "_ad_units", return_value={
+            "_configured": True, "rewarded": "ca-app-pub-1234567890123456/1111111111",
+            "interstitial": "ca-app-pub-1234567890123456/2222222222"})
+        self._units.start()
+        self.addCleanup(self._units.stop)
 
     def set_ps(self, **kw):
         row = billing.get_config()

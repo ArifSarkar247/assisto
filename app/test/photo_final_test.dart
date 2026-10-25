@@ -12,9 +12,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'ps1_fakes.dart';
 
 class FinalBackend extends FakePsBackend {
-  FinalBackend({super.free = true, this.blurCap = true, this.ultra = false, this.budgetWait = false})
+  FinalBackend(
+      {super.free = true,
+      this.blurCap = true,
+      this.ultra = false,
+      this.budgetWait = false,
+      this.faceLockCap = true,
+      this.enhanceQuote})
       : super(entryDue: false, restoreReady: true, providerReady: false);
-  final bool blurCap, ultra, budgetWait;
+  final bool blurCap, ultra, budgetWait, faceLockCap;
+
+  /// photo-final 25 Oct: a different enhance_server quote (ads routes).
+  final Map<String, dynamic>? enhanceQuote;
   int? queuedId;
 
   @override
@@ -24,14 +33,15 @@ class FinalBackend extends FakePsBackend {
       'plan': free ? 'free' : 'premium',
       'free': free,
       'features': {
-        'enhance_server': {
-          'ok': true,
-          'reason': 'ok',
-          'free_left': 2,
-          'options': [
-            {'via': 'gift'}
-          ],
-        },
+        'enhance_server': enhanceQuote ??
+            {
+              'ok': true,
+              'reason': 'ok',
+              'free_left': 2,
+              'options': [
+                {'via': 'gift'}
+              ],
+            },
         'ultra_hd': ultra
             ? {
                 'ok': true,
@@ -45,7 +55,7 @@ class FinalBackend extends FakePsBackend {
       },
       'enhance': {
         'bg_blur': blurCap,
-        'face_lock': true,
+        'face_lock': faceLockCap,
         'face_restore': false,
         'providers': <String>[],
         'ultra_hd': {'available': ultra}
@@ -96,8 +106,8 @@ class FinalBackend extends FakePsBackend {
   }
 }
 
-Widget _app(Widget home) => MaterialApp(
-      locale: const Locale('en'),
+Widget _app(Widget home, {String lang = 'en'}) => MaterialApp(
+      locale: Locale(lang),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -198,5 +208,87 @@ void main() {
     await tester.pump();
     expect(find.byKey(const Key('pfUltra')), findsOneWidget);
     expect(find.text('Ultra HD (4 left this month)'), findsOneWidget);
+  });
+
+  // ---------------------------------------------------------------- 25 Oct
+  test('an ads route on Google TEST ids is never offered (live: false)', () {
+    final q = FeatureQuote.fromJson({
+      'ok': true,
+      'reason': 'ok',
+      'options': [
+        {'via': 'ads', 'ads': 2, 'live': false},
+        {'via': 'credits', 'credits': 2}
+      ]
+    });
+    expect(q.ads, isNull);
+    expect(q.credits?.credits, 2);
+    final live = FeatureQuote.fromJson({
+      'ok': true,
+      'reason': 'ok',
+      'options': [
+        {'via': 'ads', 'ads': 2}
+      ]
+    });
+    expect(live.ads?.ads, 2); // older servers (no `live` key) keep working
+  });
+
+  test('Natural is the default preset sent to the server', () async {
+    final b = FinalBackend();
+    final c = PhotoStudioController(fakeDeps(b))..pollEvery = Duration.zero;
+    await c.init();
+    await c.pick(camera: false);
+    await c.runRestore(PsFeature.enhanceServer, ScriptUi([]));
+    expect(b.lastBody['strength'], 'natural');
+    expect(b.lastBody['bg_blur'], isFalse);
+  });
+
+  Future<void> pumpCard(WidgetTester tester, FinalBackend b, {String lang = 'en'}) async {
+    await tester.binding.setSurfaceSize(const Size(360, 3200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final c = PhotoStudioController(fakeDeps(b));
+    await tester.runAsync(() async {
+      await c.init();
+      await c.pick(camera: false);
+    });
+    await tester.pumpWidget(_app(PhotoStudioScreen(controller: c), lang: lang));
+    await tester.pump();
+  }
+
+  Map<String, dynamic> adsQuote(bool live) => {
+        'ok': true,
+        'reason': 'ok',
+        'options': [
+          {'via': 'ads', 'ads': 2, 'live': live}
+        ]
+      };
+
+  testWidgets('test-id ads: no "watch ads" line', (tester) async {
+    await pumpCard(tester, FinalBackend(enhanceQuote: adsQuote(false)));
+    expect(find.byKey(const Key('pfEnhance')), findsOneWidget);
+    expect(find.text('Each HD enhance: watch 2 short ads'), findsNothing);
+  });
+
+  testWidgets('real ad ids: the "watch 2 ads" line is shown', (tester) async {
+    await pumpCard(tester, FinalBackend(enhanceQuote: adsQuote(true)));
+    expect(find.text('Each HD enhance: watch 2 short ads'), findsOneWidget);
+  });
+
+  testWidgets('Bangla card: Bangla digits, Natural/Strong, Face Lock promise (always on)',
+      (tester) async {
+    await pumpCard(tester, FinalBackend(), lang: 'bn');
+    expect(find.text('আর ২টি ফ্রি HD এনহ্যান্স বাকি'), findsOneWidget);
+    expect(find.text('স্বাভাবিক'), findsWidgets);
+    expect(find.textContaining('ফেস লক'), findsWidgets);
+    expect(find.textContaining('2'), findsNothing); // no Latin digit in the bn card text
+  });
+
+  testWidgets('server cannot blur / no Face Lock model -> those lines are hidden, not disabled',
+      (tester) async {
+    await pumpCard(tester, FinalBackend(blurCap: false, faceLockCap: false));
+    expect(find.byKey(const Key('pfBlur')), findsNothing);
+    expect(find.byKey(const Key('pfEnhance')), findsOneWidget);
+    expect(find.textContaining('Face Lock: after every AI result'), findsNothing);
+    expect(find.textContaining('coming soon'), findsNothing);
+    expect(find.byKey(const Key('pfUltra')), findsNothing);
   });
 }

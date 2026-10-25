@@ -102,8 +102,11 @@ def status(feature, lang="bn"):
             return {"ready": False, "where": "server", "cost_usd": 0.0,
                     "needs": pick(lang, "সার্ভারে onnxruntime ইনস্টল করতে হবে (pip install onnxruntime)।",
                                   "Install onnxruntime on the server (pip install onnxruntime).")}
-        need = {"colorize": ("server_colorize",), "old_restore": ("upscale",),
-                "enhance_server": ("upscale", "server_face")}[feature]
+        # photo-final: with Real-ESRGAN not cleared (realesrgan_allowed off)
+        # enhance + old-photo restore run the clean non-ML path instead
+        up = ("upscale",) if PM.realesrgan_allowed() else ()
+        need = {"colorize": ("server_colorize",), "old_restore": up,
+                "enhance_server": up + ("server_face",)}[feature]
         if feature == "enhance_server":
             try:
                 import cv2  # noqa: F401  (YuNet face detection + seamless paste)
@@ -382,6 +385,21 @@ def upscale_x4(rgb, sess, tile=128, pad=8, scale=4):
     return np.clip(out, 0, 1)
 
 
+def clean_upscale(rgb, scale=2, amount=0.6, sigma=1.0):
+    """The commercially CLEAN upscaler (no ML weights at all): Lanczos resize
+    + an unsharp mask on luminance. Used whenever Real-ESRGAN is not cleared
+    (photo_studio.realesrgan_allowed off)."""
+    import numpy as np
+    from PIL import Image, ImageFilter
+    h, w = rgb.shape[:2]
+    tw, th = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    im = Image.fromarray((np.clip(rgb, 0, 1) * 255 + 0.5).astype(np.uint8), "RGB")
+    up = im.resize((tw, th), Image.LANCZOS)
+    sharp = up.filter(ImageFilter.UnsharpMask(radius=max(0.5, sigma * scale / 2),
+                                              percent=int(amount * 100), threshold=2))
+    return np.asarray(sharp, dtype=np.float32) / 255.0
+
+
 def merge_keep_faces(ai, base, faces, face_ai=0.25):
     """Same maths as UpscaleTiler.mergeKeepFaces: colours from `base`, only
     LUMINANCE detail from `ai`, and inside each face ellipse just `face_ai`
@@ -420,8 +438,10 @@ def old_restore_rgb(rgb, *, colorize=True, faces=None, up_sess=None, color_sess=
         src = colorize_rgb(src, color_sess)
         info["colorized"] = True
     if up_sess is None:
-        raise RestoreError("upscale_model_missing")
-    ai = upscale_x4(src, up_sess)
+        # photo-final: Real-ESRGAN not cleared -> clean non-ML detail path
+        ai = clean_upscale(src, 4)
+    else:
+        ai = upscale_x4(src, up_sess)
     h, w = ai.shape[:2]
     if max(w, h) > RESTORE_OUT_LONG:
         f = RESTORE_OUT_LONG / max(w, h)
@@ -522,13 +542,13 @@ def process(feature, raw, paths, *, faces=None, colorize=True, session=None):
         out = colorize_rgb(_fit(rgb, COLOR_OUT_LONG), session(paths["server_colorize"]))
         info = {"colorized": True}
     elif feature == "old_restore":
-        if not paths.get("upscale"):
-            raise RestoreError("upscale_model_missing")
         cs = None
         if colorize and paths.get("server_colorize") and is_grey(_fit(rgb, RESTORE_INPUT_LONG)):
             cs = session(paths["server_colorize"])
+        up = session(paths["upscale"]) if paths.get("upscale") else None
         out, info = old_restore_rgb(rgb, colorize=colorize, faces=faces,
-                                    up_sess=session(paths["upscale"]), color_sess=cs)
+                                    up_sess=up, color_sess=cs)
+        info["upscaler"] = "real-esrgan" if up is not None else "lanczos+unsharp"
     else:
         raise RestoreError("unknown_feature")
     return _encode(out), info

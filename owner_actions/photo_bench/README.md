@@ -47,3 +47,35 @@ Seconds were measured on the 2-vCPU box at `nice 19`, while other agents' Flutte
 - When the face is heavily blurred or tiny (photo 21: a 335 px WhatsApp-quality input), Real-ESRGAN gives a smooth, slightly waxy face and does not "re-imagine" the detail.
 - Closing that gap needs a face-restoration model. GFPGAN is ready behind the owner's legal switch (`.phaseB/MODEL_LICENSES.md`), or Phase 2 would provide our own model.
 - No "better than Remini" claim is made.
+
+## Re-run 25 Oct 2026: `local_clean` (no Real-ESRGAN = the new server default)
+
+`realesrgan_allowed` is now OFF by default (weights licence grey), so the free server pipeline uses
+Lanczos x2 + unsharp + the same look stage + Face Lock, with no ML upscaler. Same 10 photos, same damage,
+`tools/photo_bench/run_bench.py` (provider `local_clean`, nothing downloaded, cost $0). Sheets and numbers:
+`clean_2510/` (sheet = clean original | input | Natural | Strong).
+
+| photo | input px | out px (clean / old Real-ESRGAN) | s N / S | identity N / S (old) | sharpness in → N / S (old N / S) |
+|---|---|---|---|---|---|
+| 01 portrait | 480×639 | 960×1278 / 1225×1631 | 10 / 11 | 0.91 / 0.90 (0.92 / 0.90) | 76 → 24 / 34 (91 / 154) |
+| 04 portrait | 480×600 | 960×1200 / 1264×1581 | 5 / 15 | 0.90 / 0.88 (0.86 / 0.84) | 104 → 30 / 37 (135 / 174) |
+| 21 dark skin | 167×205 | 334×410 / 668×820 | 1 / 2 | 0.65 / 0.58 (0.68 / 0.66) | 116 → 42 / 66 (142 / 216) |
+| 25 dark skin | 158×211 | 316×422 / 632×844 | 2 / 3 | 0.85 / 0.85 (0.83 / 0.83) | 174 → 50 / 59 (161 / 180) |
+| 29 dark skin, low light | 960×1200 | same | 5 / 8 | 0.88 / 0.88 (0.92 / 0.91) | 198 → 808 / 1400 (750 / 1208) |
+| 33 real old (3 faces) | 960×800 | same | 5 / 6 | 0.83 / 0.79 (0.84 / 0.84) | 746 → 1810 / 3085 (1802 / 3052) |
+| 36 real old | 960×1239 | same | 3 / 5 | 0.95 / 0.96 (0.98 / 0.96) | 402 → 1080 / 1184 (1071 / 1167) |
+| 41 group (4) | 480×320 | 960×640 / 1732×1154 | 9 / 10 | 0.00* | 287 → 77 / 114 (291 / 436) |
+| 44 group (15) | 480×346 | 960×692 / 1665×1200 | 22 / 28 | 0.00* | 284 → 89 / 153 (197 / 378) |
+| 47 low light | 960×540 | same | 0.7 / 0.6 | — | 173 → 996 / 2978 (same) |
+
+Honest reading:
+- Big photos (29, 33, 36, 47) are practically the same as before: neither path upscales them; the look
+  stage does the work. Identity stays 0.79–0.96, Face Lock kept every face.
+- Small / WhatsApp photos (01, 04, 21, 25, 41, 44) are now enlarged x2 by Lanczos instead of ~x2.6 by
+  Real-ESRGAN. They are **softer**: no invented detail. (The sharpness number is a Laplacian variance and
+  drops on any enlarged image, so compare it only within the same size.) This is the price of not using
+  licence-grey weights; the owner can turn `realesrgan_allowed` on, or choose a commercial face upscaler
+  (Topaz / Clarity Crystal on fal.ai), to win this back.
+- It is 3–7× faster on our CPU (no tiles).
+- \* Group photos: as before, a tiny face is not re-detected, so Face Lock pastes the original faces back.
+- No "better than Remini" claim.

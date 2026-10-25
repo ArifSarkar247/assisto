@@ -37,6 +37,13 @@ class _Dir:
         self.d = tempfile.mkdtemp()
         self._o = override_settings(PHOTO_MODEL_DIR=self.d)
         self._o.enable()
+        # these tests cover the Real-ESRGAN-ALLOWED world (photo-final flag;
+        # the default-off world is in tests_photo_final.RealEsrganFlagTests)
+        from unittest import mock as _m
+        from core import photo_models as _PM
+        _p = _m.patch.object(_PM, "realesrgan_allowed", return_value=True)
+        _p.start()
+        self.addCleanup(_p.stop)
 
     def tearDown(self):
         self._o.disable()

@@ -9,13 +9,18 @@ The phone NEVER calls an AI provider: it uploads to our Django server, the
 photo worker (deploy/photo_worker) picks the provider from server config:
 
   provider            integration slug          what runs there
-  local_worker        (none — our CPU, cost 0)  YuNet faces -> Real-ESRGAN face
-                                                detail -> skin/tone/bg-blur look
-  replicate           photo_enhance_replicate   Real-ESRGAN x2 (nightmareai) +
-                                                OPTIONAL GFPGAN v1.4 (legal switch
-                                                `face_restore_gfpgan`, OFF) + look
+  local_worker        (none — our CPU, cost 0)  YuNet faces -> (Real-ESRGAN only if
+                                                `realesrgan_allowed`, else Lanczos +
+                                                unsharp) -> skin/tone/bg-blur look
+  replicate           photo_enhance_replicate   Real-ESRGAN x2 (nightmareai) + look —
+                                                only if `realesrgan_allowed`; GFPGAN
+                                                is never called (owner, 25 Oct)
   runpod_serverless   photo_runpod              any handler with our contract
-                                                (tools/photo_train/serve_handler.py)
+                                                (tools/photo_train/serve_handler.py;
+                                                runs Real-ESRGAN -> same flag)
+  fal_face            photo_fal                 the owner's chosen commercial face
+                                                upscaler: Topaz or Clarity Crystal
+                                                (`fal_face_model`, '' = none) + look
   assisto_face        photo_assisto_face        our own fine-tuned model (Phase 2),
                                                 same RunPod contract
   ultra (fal.ai)      photo_fal                 Ultra HD upscaler (Premium only)
@@ -40,7 +45,7 @@ from .logic import photo_final as PF
 SLUGS = {"replicate": "photo_enhance_replicate", "runpod_serverless": "photo_runpod",
          "assisto_face": "photo_assisto_face"}
 ULTRA_SLUG = "photo_fal"
-DEFAULT_ULTRA_MODEL = "fal-ai/crystal-upscaler"
+DEFAULT_ULTRA_MODEL = "clarityai/crystal-upscaler"     # fal.ai endpoint id (checked 25 Oct)
 DATA_URI_MAX = 256 * 1024       # Replicate: bigger inputs go through the Files API
 POLL_EVERY_S = 1.5
 SMALL_PHOTO_PX = 640 * 640      # <= this gets the whole-image Real-ESRGAN on our CPU (<= 25 tiles, ~15 s)
@@ -90,6 +95,10 @@ def _integration(slug):
 def provider_conf(name):
     """Normalised config of a PAID provider, or None when not usable (no key,
     no model/endpoint, or no cost estimate — we never run what we can't price)."""
+    if name in PF.REALESRGAN_PROVIDERS and not _realesrgan_ok():
+        return None             # their pipeline runs Real-ESRGAN weights (licence-grey)
+    if name == "fal_face":
+        return fal_face_conf()
     slug = SLUGS.get(name)
     c = _integration(slug) if slug else None
     if not c:
@@ -100,8 +109,8 @@ def provider_conf(name):
     if name == "replicate":
         if not (c.get("api_token") and c.get("upscale_version")):
             return None
+        # (no face_version: GFPGAN is never requested — owner decision 25 Oct)
         return {"name": name, "token": c["api_token"], "upscale_version": c["upscale_version"].strip(),
-                "face_version": str(c.get("face_version") or "").strip(),
                 "usd_per_s": _num(c.get("usd_per_second")), "est": est,
                 "version": c["upscale_version"].strip()[:40]}
     if not (c.get("api_key") and c.get("endpoint_id")):
@@ -115,6 +124,36 @@ def configured():
     return {n for n in PF.PAID_PROVIDERS if provider_conf(n)}
 
 
+def _realesrgan_ok():
+    from . import photo_models as PM
+    return PM.realesrgan_allowed()
+
+
+def fal_face_conf():
+    """The owner's chosen face upscaler on fal.ai (photo_studio.fal_face_model
+    'topaz' | 'crystal'), or None: no choice yet, no photo_fal key, or no
+    price for THAT model (we never run what we can't price)."""
+    choice = _ps().get("fal_face_model") or ""
+    endpoint = PF.FAL_FACE_ENDPOINTS.get(choice)
+    c = _integration(ULTRA_SLUG) if endpoint else None
+    if not c or not c.get("api_key"):
+        return None
+    ps = _ps()
+    if choice == "topaz":
+        flat, per_mp = _num(c.get("topaz_usd_per_image")), 0.0
+        if flat <= 0:
+            return None
+        est = flat
+    else:
+        flat, per_mp = 0.0, _num(c.get("crystal_usd_per_megapixel"))
+        if per_mp <= 0:
+            return None
+        est = round(ps["max_input_mp"] * 4 * per_mp, 6)      # x2 output of a <= max MP input
+    return {"name": "fal_face", "token": c["api_key"], "endpoint": endpoint, "choice": choice,
+            "flat": flat, "usd_per_mp": per_mp, "est": est, "usd_per_s": 0.0,
+            "version": endpoint[:40]}
+
+
 def ultra_conf():
     c = _integration(ULTRA_SLUG)
     if not c or not c.get("api_key"):
@@ -123,7 +162,10 @@ def ultra_conf():
     flat = _num(c.get("cost_per_image_usd"))
     if per_mp <= 0 and flat <= 0:
         return None
-    return {"token": c["api_key"], "model": str(c.get("model") or DEFAULT_ULTRA_MODEL).strip(),
+    model = str(c.get("model") or DEFAULT_ULTRA_MODEL).strip()
+    if model == "fal-ai/crystal-upscaler":       # old default name -> fal's real endpoint
+        model = DEFAULT_ULTRA_MODEL
+    return {"token": c["api_key"], "model": model,
             "usd_per_mp": per_mp, "flat": flat,
             "scale": int(_num(c.get("scale")) or 2), "in_mp": _num(c.get("input_mp")) or 1.0}
 
@@ -166,7 +208,9 @@ def enhance_usage(user, dkey=""):
     q = Q(user=user)
     if dkey:
         q |= Q(device_key=dkey)
-    today = (PhotoStudioJob.objects.filter(q, feature="enhance_server",
+    # the daily cap counts AD-unlocked enhances only (the lifetime / weekly
+    # free ones have their own counters)
+    today = (PhotoStudioJob.objects.filter(q, feature="enhance_server", funding="ads",
                                            created_at__date=timezone.localdate())
              .exclude(status__in=("refused", "expired")).count())
     return {"lifetime_free": g.filter(flags__free_kind="lifetime").count(),
@@ -270,8 +314,11 @@ def capability(user, lang="bn"):
     return {
         "presets": list(PF.PRESETS),
         "providers": sorted(paid),          # paid providers connected (names only)
-        "face_restore": bool("replicate" in paid and ps["face_restore_gfpgan"]
-                             and (provider_conf("replicate") or {}).get("face_version")),
+        # face restore only through the owner's chosen commercial provider
+        # (fal Topaz / Crystal); GFPGAN / CodeFormer never
+        "face_restore": "fal_face" in paid,
+        "face_provider": (fal_face_conf() or {}).get("choice", "") if "fal_face" in paid else "",
+        "realesrgan": _realesrgan_ok(),
         "bg_blur": _local_models_ok(("segment",)),
         "face_lock": _local_models_ok(("server_face",)),
         "ultra_hd": {"available": bool(conf_u), "premium_only": True,
@@ -327,6 +374,16 @@ def local_enhance(raw, *, preset="natural", blur=False, max_mp=2, paths=None, se
         faces = [{**f, "box": [v * k for v in f["box"]],
                   "pts": [[px * k, py * k] for px, py in f.get("pts") or []]} for f in faces]
         steps["global_ai"] = True
+    elif up is None and rgb.shape[0] * rgb.shape[1] <= SMALL_PHOTO_PX:
+        # Real-ESRGAN not cleared (realesrgan_allowed off): the commercially
+        # clean path — Lanczos x2 + unsharp (no ML weights), then the look stage
+        cl = _fit_mp(R.clean_upscale(rgb, 2), max_mp)
+        k = cl.shape[1] / rgb.shape[1]
+        faces = [{**f, "box": [v * k for v in f["box"]],
+                  "pts": [[px * k, py * k] for px, py in f.get("pts") or []]} for f in faces]
+        out = cl
+        steps["clean_upscale"] = True
+    steps["upscaler"] = "real-esrgan" if up is not None else "lanczos+unsharp"
     seg = session(paths["segment"]) if (blur and paths.get("segment")) else None
     out, rep = LK.apply(out, faces, preset=preset, up_sess=up, seg_sess=seg, blur=blur,
                         upscale_x4=R.upscale_x4 if up is not None else None,
@@ -397,17 +454,6 @@ def _replicate_predict(token, version, inp, timeout):
     return out, sec
 
 
-def _blend_faces(base_rgb, face_rgb, faces, weight):
-    """Fidelity blend: restored face pixels at `weight` inside soft ellipses."""
-    import numpy as np
-    from . import photo_look as LK
-    from . import photo_restore as R
-    if face_rgb.shape[:2] != base_rgb.shape[:2]:
-        face_rgb = R._resize(face_rgb, base_rgb.shape[1], base_rgb.shape[0])
-    m = LK.face_ellipses(base_rgb.shape, faces, grow=1.05)[..., None] * float(weight)
-    return np.clip(base_rgb * (1 - m) + face_rgb * m, 0, 1).astype(np.float32)
-
-
 def _run_replicate(conf, raw, *, preset, blur, ps, timeout):
     from . import photo_facelock as FL
     from . import photo_look as LK
@@ -429,14 +475,8 @@ def _run_replicate(conf, raw, *, preset, blur, ps, timeout):
             faces = FL.detect(up, det)
         except FL.FaceLockUnavailable:
             faces = []
-    if faces and ps["face_restore_gfpgan"] and conf.get("face_version"):
-        url, s = _replicate_predict(conf["token"], conf["face_version"],
-                                    {"img": inp_url, "version": "v1.4", "scale": 2}, timeout)
-        secs += s
-        fr = R._decode(_get_image(url, timeout))
-        w = ps["face_blend_strong_pct" if preset == "strong" else "face_blend_natural_pct"] / 100.0
-        up = _blend_faces(up, fr, faces, w)
-        steps["face_restore"] = "gfpgan v1.4 blend %d%%" % round(w * 100)
+    # (no face-restore call here: GFPGAN / CodeFormer are non-commercial —
+    # owner decision 25 Oct; face restore = the fal_face provider only)
     seg = R._session(PM.server_model("segment")) if (blur and PM.server_model("segment")) else None
     out, rep = LK.apply(up, faces, preset=preset, seg_sess=seg, blur=blur, crisp=False)
     steps.update(rep)
@@ -487,8 +527,61 @@ def _run_runpod(conf, raw, *, preset, blur, ps, timeout):
     return out, cost, secs, {"remote": conf["name"], "steps": (j.get("output") or {}).get("steps")}
 
 
+def _fal_call(token, endpoint, body, timeout):
+    """POST https://fal.run/<endpoint> -> output image bytes (https, decoded)."""
+    r = _http().post("https://fal.run/%s" % endpoint, timeout=timeout,
+                     headers={"Authorization": "Key %s" % token,
+                              "Content-Type": "application/json"},
+                     data=json.dumps(body))
+    if r.status_code != 200:
+        raise ProviderFailed("http_%d" % r.status_code)
+    j = r.json() or {}
+    img = j.get("image") or ((j.get("images") or [None])[0]) or {}
+    return _get_image(img.get("url") if isinstance(img, dict) else None, timeout)
+
+
+def _out_mp(raw):
+    from PIL import Image
+    w, h = Image.open(io.BytesIO(raw)).size        # real size (no decode cap)
+    return w * h / 1e6
+
+
+def _run_fal_face(conf, raw, *, preset, blur, ps, timeout):
+    """The owner's chosen commercial face upscaler on fal.ai (Topaz Standard
+    V2 with face enhancement, creativity 0 — or Clarity Crystal), x2 of a
+    <= max_input_mp input, then our look stage (tone, optional portrait blur).
+    FACE LOCK runs on the result in photo_worker like for every provider."""
+    from . import photo_facelock as FL
+    from . import photo_look as LK
+    from . import photo_models as PM
+    from . import photo_restore as R
+    rgb = _fit_mp(R._decode(raw), ps["max_input_mp"])
+    src = R._encode(rgb)
+    w = ps["face_blend_strong_pct" if preset == "strong" else "face_blend_natural_pct"] / 100.0
+    body = PF.fal_payload(conf["endpoint"], "data:image/jpeg;base64," + base64.b64encode(src).decode(),
+                          scale=2, preset=preset, face_strength=w)
+    t0 = time.monotonic()
+    got = _fal_call(conf["token"], conf["endpoint"], body, timeout)
+    secs = time.monotonic() - t0
+    mp = _out_mp(got)
+    cost = round(max(conf["flat"], mp * conf["usd_per_mp"]), 6)
+    up = R._decode(got)
+    faces = []
+    det = PM.server_model("server_face")
+    if det:
+        try:
+            faces = FL.detect(up, det)
+        except FL.FaceLockUnavailable:
+            faces = []
+    seg = R._session(PM.server_model("segment")) if (blur and PM.server_model("segment")) else None
+    out, rep = LK.apply(up, faces, preset=preset, seg_sess=seg, blur=blur, crisp=False)
+    steps = {"remote": "fal:%s" % conf["choice"], "out_mp": round(mp, 2)}
+    steps.update(rep)
+    return R._encode(out), cost, secs, steps
+
+
 _RUNNERS = {"replicate": _run_replicate, "runpod_serverless": _run_runpod,
-            "assisto_face": _run_runpod}
+            "assisto_face": _run_runpod, "fal_face": _run_fal_face}
 
 
 # ------------------------------------------------------------------ enhance entry
@@ -509,9 +602,8 @@ def run_enhance(job, raw, item=None):
         if prov != PF.LOCAL and conf is None:
             fallback_from = prov
             continue
-        version = conf["version"] if conf else "local-2026.10"
-        if prov == "replicate" and conf and ps["face_restore_gfpgan"] and conf.get("face_version"):
-            version += "+gfpgan"
+        version = conf["version"] if conf else (
+            "local-2026.10" if _realesrgan_ok() else "local-clean-2026.10")
         key = PF.cache_key(photo_hash, preset, prov, version, extra)
         hit, _row = _cached(key)
         if hit:
@@ -581,25 +673,16 @@ def run_ultra(job, raw):
         raise SpendCapWait(_next_midnight())
     t0 = time.monotonic()
     try:
-        r = _http().post("https://fal.run/%s" % conf["model"], timeout=ps["provider_timeout_s"],
-                         headers={"Authorization": "Key %s" % conf["token"],
-                                  "Content-Type": "application/json"},
-                         data=json.dumps({"image_url": "data:image/jpeg;base64,"
-                                          + base64.b64encode(src).decode(),
-                                          "scale_factor": conf["scale"]}))
-        if r.status_code != 200:
-            raise ProviderFailed("http_%d" % r.status_code)
-        j = r.json() or {}
-        img = j.get("image") or ((j.get("images") or [None])[0]) or {}
-        out = _get_image(img.get("url") if isinstance(img, dict) else None, ps["provider_timeout_s"])
+        body = PF.fal_payload(conf["model"], "data:image/jpeg;base64,"
+                              + base64.b64encode(src).decode(), scale=conf["scale"],
+                              preset="natural", face_strength=ps["face_blend_natural_pct"] / 100.0)
+        out = _fal_call(conf["token"], conf["model"], body, ps["provider_timeout_s"])
     except Exception as e:  # noqa: BLE001
         code = e.code if isinstance(e, ProviderFailed) else "crash:%s" % type(e).__name__
         _log(job, "fal", ok=False, seconds=time.monotonic() - t0, error=code,
              version=conf["model"], preset="ultra")
         raise ProviderFailed(code)
-    from PIL import Image
-    w, h = Image.open(io.BytesIO(out)).size        # real size (no decode cap)
-    mp = w * h / 1e6
+    mp = _out_mp(out)
     cost = round(max(conf["flat"], mp * conf["usd_per_mp"]), 6)
     name = S._save_bytes(out, "jpg")
     _log(job, "fal", ok=True, cost=cost, seconds=time.monotonic() - t0, key=key, result=name,

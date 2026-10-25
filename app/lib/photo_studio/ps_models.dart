@@ -74,14 +74,23 @@ String _s(dynamic v) => v == null ? '' : '$v';
 /// One way to pay for a job: `ads` (N rewarded ads), `credits`, `pool`
 /// (Premium/Business monthly credits) or `free` (paid plan, no cost).
 class FundingOption {
-  const FundingOption(this.via, {this.ads = 0, this.credits = 0, this.trial = false});
+  const FundingOption(this.via,
+      {this.ads = 0, this.credits = 0, this.trial = false, this.live = true});
   final String via;
   final int ads;
   final int credits;
   final bool trial;
 
+  /// photo-final: false = an `ads` route while AdMob still serves Google TEST
+  /// ids. Google's SSV never verifies those, the server issues no ad ticket,
+  /// so the studio never offers or advertises "watch ads" for it.
+  final bool live;
+
   factory FundingOption.fromJson(Map j) => FundingOption(_s(j['via']),
-      ads: _i(j['ads']), credits: _i(j['credits']), trial: j['trial'] == true);
+      ads: _i(j['ads']),
+      credits: _i(j['credits']),
+      trial: j['trial'] == true,
+      live: j['live'] != false);
 }
 
 class FeatureQuote {
@@ -108,8 +117,10 @@ class FeatureQuote {
 
   static const none = FeatureQuote(ok: false, reason: 'unknown');
 
+  /// The rewarded-ads route — only when it can really unlock (server: real
+  /// AdMob ids; see [FundingOption.live]).
   FundingOption? get ads =>
-      options.where((o) => o.via == 'ads').firstOrNull;
+      options.where((o) => o.via == 'ads' && o.live).firstOrNull;
   FundingOption? get credits =>
       options.where((o) => o.via == 'credits' || o.via == 'pool').firstOrNull;
   bool get free => options.any((o) => o.via == 'free');

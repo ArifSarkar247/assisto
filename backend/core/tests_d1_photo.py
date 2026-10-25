@@ -61,6 +61,13 @@ class _Dir:
         self.d = tempfile.mkdtemp()
         self._o = override_settings(PHOTO_MODEL_DIR=self.d)
         self._o.enable()
+        # these tests cover the Real-ESRGAN-ALLOWED world (photo-final flag;
+        # the default-off world is in tests_photo_final.RealEsrganFlagTests)
+        from unittest import mock as _m
+        from core import photo_models as _PM
+        _p = _m.patch.object(_PM, "realesrgan_allowed", return_value=True)
+        _p.start()
+        self.addCleanup(_p.stop)
 
     def tearDown(self):
         self._o.disable()
@@ -219,8 +226,12 @@ class RestoreMathTests(SimpleTestCase):
         png2, info2 = R.process("old_restore", _enc(g), {"upscale": "u", "server_colorize": "c"},
                                 colorize=False, session=lambda p: sessions[p])
         self.assertFalse(info2["colorized"])
-        with self.assertRaises(R.RestoreError):
-            R.process("old_restore", _enc(g), {}, session=lambda p: sessions[p])
+        # photo-final: no Real-ESRGAN (realesrgan_allowed off) -> the clean
+        # Lanczos + unsharp path, same x4 output, never an error
+        png3, info3 = R.process("old_restore", _enc(g), {}, colorize=False,
+                                session=lambda p: sessions[p])
+        self.assertEqual(Image.open(io.BytesIO(png3)).size, (1200, 800))
+        self.assertEqual(info3["upscaler"], "lanczos+unsharp")
         with self.assertRaises(R.RestoreError):
             R.process("old_restore", b"not an image", {"upscale": "u"}, session=lambda p: sessions[p])
 
