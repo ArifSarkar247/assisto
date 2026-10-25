@@ -61,7 +61,7 @@ void registerMyCircleAddFlows() {
 
     await f.step('home chat "circle" opens My Circle add (was "no match")', () async {
       await f.enter('circle', label: f.t.inputHint);
-      await f.tap(find.byIcon(Icons.arrow_upward), settleSeconds: 4);
+      await f.tapSend(settleSeconds: 4);
       await f.waitFor(find.byType(M3AddToCircleScreen), seconds: 10,
           what: 'Add to My Circle screen');
       await f.shot('chat-circle-opens-add');
@@ -150,7 +150,7 @@ void registerMyCircleAddFlows() {
         throw TestFailure('chat says the peer key is missing');
       }
       await f.enter(textA, label: f.t.circleMessageHint);
-      await f.tap(find.byIcon(Icons.send), settleSeconds: 3);
+      await f.tapSend(settleSeconds: 3);
       await f.shot('a-sent');
       await f.eventually('C decrypts "$textA"', () async {
         final edge = _rows(await apiC.getJson('/circle/members'))

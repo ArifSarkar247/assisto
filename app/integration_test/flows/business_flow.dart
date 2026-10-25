@@ -86,7 +86,7 @@ void registerBusinessFlows() {
       await f.shot('khata');
     });
     await f.step('add a party', () async {
-      await f.tap(find.byIcon(Icons.person_add_alt_1));
+      await f.tap(find.byTooltip(f.t.khataAddCustomer));
       await f.enter(name, label: f.t.name);
       await f.enter('01700000031', label: f.t.phone);
       await f.shot('party-form');

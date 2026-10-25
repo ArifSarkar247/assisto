@@ -77,6 +77,34 @@ def load(out):
         if fl:
             merged.update({f["id"]: f for f in fl})
             srcs.append(str(p))
+    # rf1: a flow that was RUNNING when the drive died (run_flows.sh writes
+    # device_deaths.txt: "<id>\t<emulator|app>\t<attempt>") and never
+    # produced a verdict in a later attempt keeps that cause, instead of the
+    # generic "never ran". emulator death = D (no verdict, never A);
+    # app death with the device alive = C (the app crashed in that flow).
+    deaths = {}
+    dp = out / "device_deaths.txt"
+    if dp.exists():
+        for line in dp.read_text(errors="replace").splitlines():
+            parts = line.split("\t")
+            if len(parts) >= 2 and parts[0]:
+                deaths.setdefault(parts[0], []).append(parts[1])
+    if deaths:
+        meta = {fid: (sec, feat) for fid, sec, feat in expected_flows()}
+        for fid, kinds in deaths.items():
+            if fid in merged:
+                continue
+            sec, feat = meta.get(fid, ("", ""))
+            n = len(kinds)
+            if "app" in kinds:
+                merged[fid] = {"id": fid, "section": sec, "feature": feat, "status": "fail", "steps": [],
+                               "error": "the app process died during this flow while the emulator stayed up "
+                                        "(see logcat FATAL / drive.log)"}
+            else:
+                merged[fid] = {"id": fid, "section": sec, "feature": feat, "status": "notrun", "steps": [],
+                               "error": f"emulator crashed DURING this flow ({n}x, host-side; no verdict) "
+                                        "- see drive.log + host_diag.log"}
+        srcs.append(str(dp))
     order = {f: i for i, f in enumerate(merged)}
     return sorted(merged.values(), key=lambda f: order[f["id"]]), (" + ".join(srcs) or None)
 

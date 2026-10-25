@@ -146,6 +146,20 @@ class Harness {
     return _out!;
   }
 
+  /// rf1: flow ids a previous attempt (same CI job) already gave a verdict,
+  /// or that crashed the emulator twice. tools/reality/run_flows.sh pushes
+  /// them to <out>/skip_ids.txt before re-running a group after a device
+  /// death, so the retry resumes instead of dying at the same flow again.
+  Future<Set<String>> skipIds() async {
+    try {
+      final f = File('${(await outDir()).path}/skip_ids.txt');
+      if (!await f.exists()) return {};
+      return (await f.readAsLines()).map((l) => l.trim()).where((l) => l.isNotEmpty).toSet();
+    } catch (_) {
+      return {};
+    }
+  }
+
   Future<void> writeResults() async {
     final d = await outDir();
     final body = const JsonEncoder.withIndent(' ').convert({
@@ -238,6 +252,13 @@ void realityFlow(String id, String section, String feature, FlowBody body,
     {Duration timeout = const Duration(minutes: 4), bool boot = true}) {
   testWidgets(id, (tester) async {
     final h = Harness.I;
+    final skips = await tester.runAsync(() => h.skipIds()) ?? const <String>{};
+    if (skips.contains(id)) {
+      // no FlowResult: the earlier attempt's verdict for [id] stands
+      // ignore: avoid_print
+      print('REALITY_SKIPPED $id (verdict from an earlier attempt)');
+      return;
+    }
     final r = FlowResult(id, section, feature);
     h.results.add(r);
     final f = RFlow(h, tester, r);
@@ -431,8 +452,15 @@ class RFlow {
   Future<void> tapTooltip(String tip, {double settleSeconds = 1.5}) =>
       tap(find.byTooltip(tip), settleSeconds: settleSeconds);
 
-  Future<void> tapIcon(IconData icon, {double settleSeconds = 1.5}) =>
-      tap(find.byIcon(icon), settleSeconds: settleSeconds);
+  // rf1: no IconData finders. The f5 icon migration (Material -> Rounded,
+  // 25 Oct) silently broke every byIcon(Icons.send / arrow_upward / ...)
+  // finder (run 40205920547: 5 flows C on "waiting for widget with icon").
+  // Find controls by tooltip / Key / label — what a screen reader sees.
+
+  /// The visible Send button (home chat, AI chat, My Circle chat all carry
+  /// the tooltip "Send").
+  Future<void> tapSend({double settleSeconds = 1.5}) =>
+      tap(find.byTooltip(t.send).hitTestable(), settleSeconds: settleSeconds);
 
   /// Type into the TextField whose label/hint is [label] (or the [index]th
   /// TextField when label is null).

@@ -32,7 +32,7 @@ void registerPersonalFlows() {
           () => _serverHas(f, 'reminders', 'title', 'r$_tag'));
     });
     await f.step('full form (+ button)', () async {
-      await f.tap(find.byIcon(Icons.add_alarm));
+      await f.tap(find.widgetWithText(FloatingActionButton, f.t.add));
       await f.enter(form, label: f.t.remWhatToRemind);
       await f.shot('form');
       await f.tapSave();

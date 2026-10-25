@@ -74,7 +74,7 @@ void registerMyCircleTicksFlows() {
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
       await f.waitFor(find.byType(CircleChatScreen), what: 'chat');
       await f.enter(textA, label: f.t.circleMessageHint);
-      await f.tap(find.byIcon(Icons.send), settleSeconds: 3);
+      await f.tapSend(settleSeconds: 3);
       await f.waitFor(find.byKey(const ValueKey('tick-sent')), seconds: 20, what: 'single tick');
       f.expectHttp('POST', '/circle/');
       await f.eventually('server: A\'s last message is "sent"',

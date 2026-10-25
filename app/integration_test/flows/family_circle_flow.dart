@@ -76,7 +76,7 @@ void registerFamilyCircleFlows() {
         throw TestFailure('chat says the peer key is missing');
       }
       await f.enter(textA, label: f.t.circleMessageHint);
-      await f.tap(find.byIcon(Icons.send), settleSeconds: 3);
+      await f.tapSend(settleSeconds: 3);
       await f.shot('sent');
       f.expectHttp('POST', '/circle/');
     });
@@ -130,7 +130,7 @@ void registerFamilyCircleFlows() {
       f.needsKey('TURN_STATIC_SECRET (coturn) + a second real phone with FCM for a connected call');
     });
     await f.step('hang up returns to the chat', () async {
-      final hang = find.byIcon(Icons.call_end);
+      final hang = find.byKey(const Key('call-hangup'));
       final close = find.text(f.t.close);
       if (hang.evaluate().isNotEmpty) {
         await f.tap(hang, settleSeconds: 3);

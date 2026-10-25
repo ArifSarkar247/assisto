@@ -183,6 +183,11 @@ jobs:
           set +e
           flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt
           grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
+          # rf1: no IconData finders — the f5 icon migration broke 5 flows that
+          # found buttons by Icons.send / arrow_upward (run 40205920547).
+          if grep -rn "byIcon(" integration_test/flows; then
+            echo "::error::find controls by tooltip / Key / text, not by icon"; exit 1
+          fi
           exit 0
       - name: Build the x86_64 debug test APK ONCE (before the emulator; drive installs it)
         working-directory: app
@@ -234,6 +239,14 @@ jobs:
           heap-size: 576M
           cores: 3
           emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          # rf1: a "hardware keyboard" so Android never opens the soft IME
+          # window (run 40205920547: the emulator segfaulted seconds after
+          # the IME opened); run_flows.sh also disables the IME itself.
+          pre-emulator-launch-script: |
+            for c in "$ANDROID_AVD_HOME"/*.avd/config.ini "$HOME"/.android/avd/*.avd/config.ini; do
+              [ -f "$c" ] || continue
+              sed -i '/^hw.keyboard=/d' "$c"; echo 'hw.keyboard=yes' >> "$c"; echo "hw.keyboard=yes -> $c"
+            done
           # /bin/sh one-liner: all logic (and every adb timeout) is in the script
           script: bash tools/reality/run_flows.sh
 
