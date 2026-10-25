@@ -1,5 +1,14 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## ⏳ আপনার অপেক্ষায় (সব এক জায়গায়, ২৬ Oct হালনাগাদ) — এর মধ্যে আমি কাজ চালিয়ে যাচ্ছি
+1. **AdMob কনসোল (আপনি বলেছেন কাল):** Privacy & messaging-এ GDPR বার্তা + US স্টেট বার্তা; Rewarded ইউনিটে SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। (Play Console-এর বিজ্ঞাপন-ঘোষণা ✅ হয়ে গেছে।) আসল বিজ্ঞাপন চালু হবে প্রোডাকশন লঞ্চ ও AdMob অনুমোদনের পর Owner Admin → Ads-এ এক টিকে।
+2. **Play crash/ANR পরিসংখ্যান (১ ক্লিক):** https://console.developers.google.com/apis/api/playdeveloperreporting.googleapis.com/overview?project=216257299894 → **Enable**।
+3. **Business AI Agent চালু করতে:** Meta app-এর App ID + App Secret + verify token → Owner Admin → Integrations → "Meta app"; webhook; নিজের Page token ও WhatsApp স্থায়ী টোকেন; WhatsApp-এর আসল BD রেট — `owner_actions/BUSINESS_AGENT_SETUP_BN.md`।
+4. **ফটো স্টুডিও মুখ-রিস্টোর:** আপনি fal key দিলে তখন Topaz বা Crystal বাছাই; ততক্ষণ বন্ধ ও লুকানো। (Real-ESRGAN বন্ধই থাকবে ✅)
+5. **Test Lab ডিভাইস-ম্যাট্রিক্স:** GCP_TESTLAB_SA সিক্রেট।
+6. **আসল ফোনে একবার দেখে নিন (১০ মিনিট):** দুইটা ফোনে My Circle — চ্যাট মুছুন/খালি করুন, "সবার জন্য মুছুন", মাইক চেপে ধরে ভয়েস নোট; একটা "টান" পরীক্ষা ("এটা কি আপনি ছিলেন?" আসে কি না)।
+- ✅ হয়ে গেছে: রেফারেল অঙ্ক নিশ্চিত, Real-ESRGAN বন্ধ, Play বিজ্ঞাপন-ঘোষণা, রিপো পাবলিক।
+
 ## ✅ versionCode 10240 — Internal + Closed testing-এ গেছে (রিভিউ স্বয়ংক্রিয়, ২৬ Oct)
 - My Circle আরও WhatsApp-এর মতো: একই মানুষের পরপর মেসেজ একসাথে গোছানো; লেখা খালি থাকলে মাইক — চেপে ধরে ভয়েস নোট, ছেড়ে দিলে পাঠানো, বাঁয়ে সরালে বাতিল; ভয়েস নোটে তরঙ্গ ও "এখনো শোনা হয়নি" ফোঁটা; কল-তালিকায় ট্যাপ করলে "কলের তথ্য" (মেসেজ/ভয়েস/ভিডিও কল বোতামসহ)। বিল্ড ও এমুলেটর লঞ্চ-টেস্ট পাস।
 - APK: https://api.lifeassisto.com/dl/TvyWD2B3E7Y_MnXJykBYwGFe/assisto-part7-build240.apk — আসল ফোনে একবার মাইক চেপে ধরে ভয়েস নোট পাঠিয়ে দেখবেন (চাপ-ধরা/সরানোর অনুভূতি এখনো ফোনে পরীক্ষা হয়নি)।
@@ -32,15 +41,6 @@
 - এতে আছে: AdMob (শুধু ফ্রি প্ল্যান, এখন টেস্ট বিজ্ঞাপন), Business AI Agent v2 (নিজের Page/WhatsApp, ইনবক্স, টেকওভার, ছবি থেকে খসড়া অর্ডার), ফটো স্টুডিও শুধু বাণিজ্যিকভাবে পরিষ্কার পথে। বিল্ড ও এমুলেটর লঞ্চ-টেস্ট পাস।
 - APK (এখনই ফোনে বসানো যায়): https://api.lifeassisto.com/dl/IZAFlO9tQ_Gw7s3N9vrlfiHK/assisto-part7-build238.apk
 - **Play-তে পাঠাতে:** `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`-এর ধাপ (Ads = Yes, Advertising ID = Yes, Data safety) শেষ করে আমাকে "ads declared" লিখুন — আমি সাথে সাথে 10238 Internal + Closed testing-এ পাঠাব। Play-তে এখন সর্বশেষ 10236।
-
-## ⏳ আপনার অপেক্ষায় (তালিকা — এর মধ্যে আমি পরের কাজ চালিয়ে যাচ্ছি) — ২৫ Oct
-1. ✅ **Play Console বিজ্ঞাপন-ঘোষণা আপনি করেছেন (২৫ Oct রাত, submission 10)।** বাকি শুধু: AdMob-এ GDPR + US স্টেট বার্তা (আপনি কাল) আর SSV callback URL। আগের নির্দেশনা: Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
-2. **ফটো স্টুডিও:** মুখ-রিস্টোর প্রোভাইডার বাছাই (fal-এ Topaz নাকি Clarity), Real-ESRGAN রাখবেন নাকি বাদ, আর Replicate/fal.ai key (Owner Admin → Integrations) — ততক্ষণ এগুলো বন্ধ ও লুকানো।
-3. ~~রেফারেল পুরস্কারের অঙ্ক~~ — ✅ **আপনি নিশ্চিত করেছেন (২৫ Oct রাত):** ২০/১০ ক্রেডিট, মাসে সর্বোচ্চ ১০, ফাউন্ডিং ৫০০×২০ — লাইভ সার্ভারে ঠিক এই মানই চালু।
-4. **Test Lab ডিভাইস-ম্যাট্রিক্স:** GCP_TESTLAB_SA সিক্রেট (আগে থেকে অপেক্ষায়)।
-7. **Play crash/ANR পরিসংখ্যান (১ ক্লিক):** Google Cloud-এ "Google Play Developer Reporting API" চালু করুন — https://console.developers.google.com/apis/api/playdeveloperreporting.googleapis.com/overview?project=216257299894 → **Enable**। তারপর আমি Play Vitals থেকে ক্র্যাশ/ANR নিজেই পড়ব (এখন শুধু নিজেদের ক্র্যাশ-রিপোর্ট দেখছি)।
-5. **Business AI Agent চালু করতে:** Meta app-এর App ID + App Secret + verify token → Owner Admin → Integrations → "Meta app"; webhook বসান; নিজের Page token ও WhatsApp স্থায়ী টোকেন অ্যাপে দিন; WhatsApp-এর আসল BD রেট Owner Admin → Sellers-এ — ধাপ `owner_actions/BUSINESS_AGENT_SETUP_BN.md`।
-6. **ফটো স্টুডিও:** ✅ Real-ESRGAN **বন্ধই থাকবে** (আপনার সিদ্ধান্ত, লাইভে বন্ধ যাচাই করা)। মুখ-প্রোভাইডার (Topaz/Crystal) — আপনি fal key দিলে তখন বাছাই; ততক্ষণ বন্ধ ও লুকানো। Phase 2 প্রশিক্ষণ স্থগিত।
 
 ## ✅ কাজ ৫ শেষ — কোয়ালিটি সুইপ (২৫ Oct; সার্ভার লাইভ)
 - কল, My Circle, চুরি-সতর্কতা ও পেমেন্টে ১৭১টি নতুন টেস্ট (সার্ভারে মোট ৪,০৮৩টি, সব পাস); কভারেজ: কল ৮৬→৮৮%, My Circle ৭৪→৮৫%, চুরি-সতর্কতা ৮২→৮৭%, পেমেন্ট ৮৫% (আগেই ভালো)। **নিরাপত্তা বাগ ঠিক করে লাইভ:** আপনি যাকে ব্লক করেছেন সে হারানো ফোনের লোকেশন দেখতে পারত ও নিরাপত্তা-সতর্কতা/ইমেইল পেত — এখন আর না; ভুল phone_id-তে সার্ভার-এরর (500) আর হয় না।
