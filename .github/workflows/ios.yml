@@ -40,7 +40,10 @@ jobs:
       # 15.4 compiles the camera plugin cleanly. Bump when upgrading `camera`.
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'   # Firebase 12 pods need Swift 6 (isolation macro) = Xcode 16+
+          # video_player_avfoundation 2.12.x calls iOS 26 SDK APIs (`isolation:`
+          # argument) that Xcode 16.4 / Swift 6.1 cannot compile -> needs Xcode 26.
+          # Firebase 12 pods need Swift 6 too, which Xcode 26 also satisfies.
+          xcode-version: '26'
 
       - uses: subosito/flutter-action@v2
         with:
