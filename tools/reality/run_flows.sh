@@ -164,8 +164,11 @@ done_ids() {  # flow ids whose REALITY_RESULT was printed completely
     | grep -oE 'REALITY_RESULT [A-Za-z0-9_]+ [0-9]+/[0-9]+' \
     | awk '{split($3,a,"/"); if (a[1]==a[2]) print $2}' | sort -u
 }
-running_id() {  # last flow the test runner STARTED in this attempt
-  tr -d '\r' < "$OUT/.attempt.log" 2>/dev/null | grep -oE ' [0-9]+:[0-9]+ \+[0-9]+( -[0-9]+)?: [A-Za-z0-9_]+$' \
+running_id() {  # last flow (or sweep item) STARTED in this attempt
+  # harness prints "REALITY_FLOW_START <id>" (sweep: one per drawer item);
+  # fallback: the test runner's "mm:ss +N: <name>" progress line
+  tr -d '\r' < "$OUT/.attempt.log" 2>/dev/null \
+    | grep -oE 'REALITY_FLOW_START [A-Za-z0-9_]+$| [0-9]+:[0-9]+ \+[0-9]+( -[0-9]+)?: [A-Za-z0-9_]+$' \
     | tail -1 | awk '{print $NF}'
 }
 push_skips() {  # keep the skip list on the device while the drive installs

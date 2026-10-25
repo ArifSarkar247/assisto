@@ -259,6 +259,8 @@ void realityFlow(String id, String section, String feature, FlowBody body,
       print('REALITY_SKIPPED $id (verdict from an earlier attempt)');
       return;
     }
+    // ignore: avoid_print
+    print('REALITY_FLOW_START $id'); // run_flows.sh: which flow a device death hit
     final r = FlowResult(id, section, feature);
     h.results.add(r);
     final f = RFlow(h, tester, r);

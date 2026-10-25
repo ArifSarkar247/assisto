@@ -105,6 +105,21 @@ def load(out):
                                "error": f"emulator crashed DURING this flow ({n}x, host-side; no verdict) "
                                         "- see drive.log + host_diag.log"}
         srcs.append(str(dp))
+    # rf1: the drawer sweep is ONE test; if the device died inside it and no
+    # attempt reached the end, the features after the last S row were never
+    # opened — say so instead of silently listing fewer rows.
+    if any(k[:1] == "S" and k[1:].isdigit() for k in merged):
+        logs = ""
+        for name in ("live_logcat.txt", "drive.log"):
+            p = out / name
+            if p.exists():
+                logs += p.read_text(errors="replace")
+        if "REALITY_SWEEP_DONE" not in logs:
+            last = max(k for k in merged if k[:1] == "S" and k[1:].isdigit())
+            merged["99_drawer_sweep"] = {
+                "id": "99_drawer_sweep", "section": "Sweep", "feature": "drawer sweep finished",
+                "status": "notrun", "steps": [],
+                "error": f"sweep never reached the end (device died); features after {last} were not opened"}
     order = {f: i for i, f in enumerate(merged)}
     return sorted(merged.values(), key=lambda f: order[f["id"]]), (" + ".join(srcs) or None)
 
