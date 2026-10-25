@@ -168,7 +168,7 @@ class _LocationCardState extends State<LocationCard> {
                       child: CustomPaint(
                         painter: _MapCardPainter(
                           live: liveNow,
-                          dark: Theme.of(context).brightness == Brightness.dark,
+                          scheme: Theme.of(context).colorScheme,
                           seed: (s.lat * 1000).round() ^ (s.lng * 1000).round(),
                         ),
                       ),
@@ -179,7 +179,7 @@ class _LocationCardState extends State<LocationCard> {
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Icon(s.live ? Icons.my_location : Icons.location_on,
-                    size: 18, color: liveNow ? const Color(0xFF16A34A) : widget.fg),
+                    size: 18, color: liveNow ? Brand.success : widget.fg),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(title,
@@ -244,16 +244,17 @@ class _LocationCardState extends State<LocationCard> {
 /// nothing downloaded. Deterministic per point so a card never "changes map".
 class _MapCardPainter extends CustomPainter {
   final bool live;
-  final bool dark;
+  final ColorScheme scheme;
   final int seed;
-  _MapCardPainter({required this.live, required this.dark, required this.seed});
+  _MapCardPainter({required this.live, required this.scheme, required this.seed});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bg = dark ? const Color(0xFF1E293B) : const Color(0xFFE8EEF4);
-    final block = dark ? const Color(0xFF273449) : const Color(0xFFD9E3EC);
-    final park = dark ? const Color(0xFF1F3B2F) : const Color(0xFFCDE8D3);
-    final road = dark ? const Color(0xFF475569) : Colors.white;
+    // theme tokens only (light + dark follow the app theme)
+    final bg = scheme.surfaceContainerHighest;
+    final block = scheme.outlineVariant.withValues(alpha: 0.45);
+    final park = Brand.success.withValues(alpha: 0.22);
+    final road = scheme.surface;
     canvas.drawRect(Offset.zero & size, Paint()..color = bg);
     final rnd = math.Random(seed);
     for (var i = 0; i < 7; i++) {
@@ -275,7 +276,7 @@ class _MapCardPainter extends CustomPainter {
       canvas.drawLine(Offset(x, 0), Offset(x + rnd.nextDouble() * 24 - 12, size.height), p);
     }
     final c = Offset(size.width / 2, size.height / 2 + 6);
-    final pin = live ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+    final pin = live ? Brand.success : Brand.danger;
     canvas.drawCircle(c, 22, Paint()..color = pin.withValues(alpha: 0.16));
     canvas.drawCircle(c + const Offset(0, 2), 4, Paint()..color = Colors.black26);
     final path = Path()
@@ -290,5 +291,5 @@ class _MapCardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MapCardPainter old) =>
-      old.live != live || old.dark != dark || old.seed != seed;
+      old.live != live || old.scheme != scheme || old.seed != seed;
 }

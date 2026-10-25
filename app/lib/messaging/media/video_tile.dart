@@ -53,7 +53,7 @@ class VideoTile extends StatelessWidget {
             width: box.width,
             height: box.height,
             child: Stack(fit: StackFit.expand, children: [
-              const ColoredBox(color: Color(0xFF111827)),
+              const ColoredBox(color: Brand.ink),
               thumb,
               const DecoratedBox(
                 decoration: BoxDecoration(

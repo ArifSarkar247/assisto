@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../services/action_feedback.dart';
 import '../../theme.dart';
 import '../date_separators.dart' show localDigits;
 import 'video_ctl.dart';
@@ -96,8 +97,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> _openElsewhere() async {
     try {
-      await OpenFilex.open(widget.file.path, type: 'video/*');
-    } catch (_) {}
+      final r = await OpenFilex.open(widget.file.path, type: 'video/*');
+      if (r.type != ResultType.done && mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).mc2ActionFailed)));
+      }
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'mc2_video_open_with', e);
+    }
   }
 
   @override
