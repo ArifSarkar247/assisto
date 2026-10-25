@@ -545,8 +545,9 @@ _PS_AD_KEYS = ("entry_interstitial_enabled", "entry_interstitial_gap_min", "enha
                # daily spend cap, GFPGAN legal switch, Ultra HD budget
                "free_enhance_lifetime", "enhance_unlock_ads", "free_enhance_per_week_no_ads",
                "rollout_assisto_face", "rollout_runpod_serverless", "rollout_replicate",
+               "rollout_fal_face", "fal_face_model", "realesrgan_allowed",
                "provider_timeout_s", "daily_spend_cap_usd", "cap_fallback_local",
-               "face_restore_gfpgan", "face_blend_natural_pct", "face_blend_strong_pct",
+               "face_blend_natural_pct", "face_blend_strong_pct",
                "max_input_mp", "ultra_hd_budget_pct")
 _AD_FLAGS = ("ads_rewarded", "ads_app_open")
 
@@ -628,7 +629,9 @@ def ads(request):
                 else ("str" if isinstance(cfg["ad_rewards"].get(k), str) else "num"),
                 T.get("ak_" + k, k)) for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
         "ps": [(k, (cfg.get("photo_studio") or {}).get(k),
-                "bool" if isinstance((cfg.get("photo_studio") or {}).get(k), bool) else "num")
+                "bool" if isinstance((cfg.get("photo_studio") or {}).get(k), bool)
+                else ("text" if isinstance((cfg.get("photo_studio") or {}).get(k), str) else "num"),
+                T.get("psk_" + k, k))
                for k in _PS_AD_KEYS if k in (cfg.get("photo_studio") or {})],
         "flags": flags, "admob": admob})
     return page(request, "owner/ads.html", ctx, status=status, nav="ads")

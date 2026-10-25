@@ -13,13 +13,17 @@ Cheap-phone / WhatsApp damage is simulated on the clean originals so the
 upload — the integrator copies it from the server; never committed).
 
 Providers:
-  local_worker   our CPU pipeline (core/photo_final.local_enhance) — FREE,
-                 always run.
-  replicate      only with --paid and env REPLICATE_API_TOKEN +
-                 REPLICATE_ESRGAN_VERSION [+ REPLICATE_GFPGAN_VERSION only
-                 after the owner's legal decision] — costs money.
-  runpod         only with --paid and env RUNPOD_API_KEY + RUNPOD_ENDPOINT_ID.
-  fal_ultra      only with --paid and env FAL_KEY (fal-ai/crystal-upscaler).
+  local_clean    our CPU pipeline WITHOUT Real-ESRGAN (Lanczos + unsharp +
+                 look stage) = the server default while realesrgan_allowed is
+                 off — FREE, always run. Downloads nothing.
+  local_worker   the same pipeline WITH the installed Real-ESRGAN ONNX — only
+                 with --realesrgan (weights licence grey; owner decision).
+  replicate      only with --paid --realesrgan and env REPLICATE_API_TOKEN +
+                 REPLICATE_ESRGAN_VERSION — costs money. GFPGAN never.
+  runpod         only with --paid --realesrgan and env RUNPOD_API_KEY + RUNPOD_ENDPOINT_ID.
+  fal_face       only with --paid and env FAL_KEY + FAL_FACE=topaz|crystal.
+  fal_ultra      only with --paid and env FAL_KEY (clarityai/crystal-upscaler).
+NO non-commercial weights are ever downloaded by this script.
 Every result goes through FACE LOCK (YuNet + AuraFace) like on the server.
 
   backend venv:  python3 tools/photo_bench/run_bench.py --inputs <dir with 01_portrait.jpg …> \
@@ -137,6 +141,8 @@ def main():
     ap.add_argument("--models", default=os.path.join(ROOT, "backend", "core", "photo_models"))
     ap.add_argument("--extra", action="append", default=[])
     ap.add_argument("--paid", action="store_true", help="also run paid providers whose keys are in env")
+    ap.add_argument("--realesrgan", action="store_true",
+                    help="also run the Real-ESRGAN paths (licence-grey weights, owner decision)")
     ap.add_argument("--only", default="", help="comma list of file names")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -149,14 +155,24 @@ def main():
     from core.logic import photo_studio as PS
     yunet, aura = PM.server_model("server_face"), PM.server_model("server_face_id")
     ps = PS.normalize_cfg({})
-    providers = ["local_worker"]
+    providers = ["local_clean"]
+    if a.realesrgan:
+        providers.append("local_worker")
     if a.paid:
-        if os.environ.get("REPLICATE_API_TOKEN") and os.environ.get("REPLICATE_ESRGAN_VERSION"):
+        if a.realesrgan and os.environ.get("REPLICATE_API_TOKEN") and os.environ.get("REPLICATE_ESRGAN_VERSION"):
             providers.append("replicate")
-        if os.environ.get("RUNPOD_API_KEY") and os.environ.get("RUNPOD_ENDPOINT_ID"):
+        if a.realesrgan and os.environ.get("RUNPOD_API_KEY") and os.environ.get("RUNPOD_ENDPOINT_ID"):
             providers.append("runpod")
+        if os.environ.get("FAL_KEY") and os.environ.get("FAL_FACE") in ("topaz", "crystal"):
+            providers.append("fal_face")
         if os.environ.get("FAL_KEY"):
             providers.append("fal_ultra")
+    man = PM.load_manifest() or {"files": []}
+
+    def role_path(role):
+        return next((os.path.join(PM.model_dir(), f["name"]) for f in man["files"]
+                     if f["role"] == role), None)
+    clean_paths = {"upscale": None, "server_face": yunet, "segment": role_path("segment")}
 
     items = [(n, k) for n, k in SET if not a.only or n in a.only.split(",")]
     items += [(p, "extra") for p in a.extra]
@@ -181,18 +197,30 @@ def main():
                 t0 = time.monotonic()
                 cost, err, out = 0.0, "", None
                 try:
-                    if prov == "local_worker":
+                    if prov == "local_clean":
                         ob, steps = PFN.local_enhance(raw, preset=preset, blur=preset == "strong",
-                                                      max_mp=ps["max_input_mp"])
+                                                      max_mp=ps["max_input_mp"], paths=clean_paths)
+                    elif prov == "local_worker":
+                        rg = dict(clean_paths, upscale=role_path("upscale"))
+                        ob, steps = PFN.local_enhance(raw, preset=preset, blur=preset == "strong",
+                                                      max_mp=ps["max_input_mp"], paths=rg)
+                    elif prov == "fal_face":
+                        from core.logic import photo_final as PF
+                        ch = os.environ["FAL_FACE"]
+                        conf = {"name": "fal_face", "token": os.environ["FAL_KEY"], "choice": ch,
+                                "endpoint": PF.FAL_FACE_ENDPOINTS[ch],
+                                "flat": 0.08 if ch == "topaz" else 0.0,
+                                "usd_per_mp": 0.0 if ch == "topaz" else 0.016,
+                                "est": 0.08, "usd_per_s": 0.0, "version": "bench"}
+                        ob, cost, _s, steps = PFN._run_fal_face(conf, raw, preset=preset,
+                                                                blur=preset == "strong", ps=ps, timeout=180)
                     elif prov == "replicate":
                         conf = {"name": "replicate", "token": os.environ["REPLICATE_API_TOKEN"],
                                 "upscale_version": os.environ["REPLICATE_ESRGAN_VERSION"],
-                                "face_version": os.environ.get("REPLICATE_GFPGAN_VERSION", ""),
                                 "usd_per_s": float(os.environ.get("REPLICATE_USD_PER_S", "0.000975")),
                                 "est": 0.01, "version": "bench"}
-                        p2 = dict(ps, face_restore_gfpgan=bool(conf["face_version"]))
                         ob, cost, _s, steps = PFN._run_replicate(conf, raw, preset=preset,
-                                                                 blur=preset == "strong", ps=p2, timeout=180)
+                                                                 blur=preset == "strong", ps=ps, timeout=180)
                     elif prov == "runpod":
                         conf = {"name": "runpod_serverless", "token": os.environ["RUNPOD_API_KEY"],
                                 "endpoint": os.environ["RUNPOD_ENDPOINT_ID"],

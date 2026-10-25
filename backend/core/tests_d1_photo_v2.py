@@ -39,12 +39,13 @@ class PricingRulesTests(SimpleTestCase):
         # 3 lifetime free ones, with AdMob live each enhance = 2 ads, still at
         # most free_enhance_per_day a day (core/tests_photo_final.py has the rest)
         base = {"lifetime_free": 3, "ads_live": True}
-        for used in range(3):
+        # (photo-final: the ad-unlocked daily cap default is 2)
+        for used in range(2):
             q = _opts("enhance_server", usage={**base, "enhance_today": used}, cost_usd=0)
             self.assertTrue(q["ok"])
             self.assertEqual(q["options"], [{"via": "ads", "ads": 2, "trial": False}])
-            self.assertEqual(q["left_today"], 3 - used)
-        q = _opts("enhance_server", usage={**base, "enhance_today": 3}, cost_usd=0)
+            self.assertEqual(q["left_today"], 2 - used)
+        q = _opts("enhance_server", usage={**base, "enhance_today": 2}, cost_usd=0)
         self.assertFalse(q["ok"])
         self.assertEqual(q["reason"], "daily_limit")
         self.assertTrue(q["paywall"])
@@ -210,8 +211,9 @@ class QueueTests(_Base):
         jid = r.json()["job"]["id"]
         r = self.post(self.free, "jobs/%d/run" % jid, {"image_b64": base64.b64encode(_png()).decode()})
         self.assertEqual(r.status_code, 402)                            # no ad yet: no bypass
-        for _ in range(2):
-            PhotoStudioJob.objects.create(user=self.free, feature="enhance_server", status="done")
+        for _ in range(2):      # (the daily cap counts AD-unlocked enhances)
+            PhotoStudioJob.objects.create(user=self.free, feature="enhance_server", status="done",
+                                          funding="ads")
         r = self.post(self.free, "jobs", {"feature": "enhance_server", "via": "ads"})
         self.assertEqual(r.status_code, 409)
         self.assertEqual(r.json()["reason"], "daily_limit")
@@ -254,7 +256,7 @@ class QueueTests(_Base):
     def test_config_carries_templates_limits_and_usage(self):
         self.client.force_authenticate(self.free)
         j = self.client.get("/api/v1/photo-studio/config").json()
-        self.assertEqual(j["limits"]["free_enhance_per_day"], 3)
+        self.assertEqual(j["limits"]["free_enhance_per_day"], 2)
         self.assertIn("enhance_server", j["restore"])
         self.assertEqual(j["usage"]["enhance_today"], 0)
         self.assertTrue(j["templates"])

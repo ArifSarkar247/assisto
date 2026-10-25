@@ -56,6 +56,7 @@
 
 <section class="card" id="providers"><h2>{{ T.ph_prov_title }}</h2>
   <p class="small">{{ T.ph_prov_spent }}: ${{ spend.today|floatformat:4 }} / ${{ spend.cap|floatformat:2 }} · {{ T.ph_prov_connected }}: {% if spend.connected %}{{ spend.connected|join:", " }}{% else %}—{% endif %} · Ultra HD: {% if spend.ultra %}{{ T.ph_worker_on }}{% else %}—{% endif %}</p>
+  <p class="small">{{ T.ph_realesrgan }}: {% if spend.realesrgan %}{{ T.ph_on }}{% else %}{{ T.ph_off_clean }}{% endif %} · {{ T.ph_face_model }}: {% if spend.face_model %}{{ spend.face_model }}{% else %}{{ T.ph_face_none }}{% endif %}</p>
   {% if prov_summary %}<div class="tbl"><table><thead><tr><th>provider</th><th>{{ T.ph_prov_runs }}</th><th>USD</th><th>{{ T.ph_prov_avg }}</th><th>cache</th><th>{{ T.ph_prov_failed }}</th></tr></thead><tbody>
   {% for s in prov_summary %}<tr><td>{{ s.provider }}</td><td>{{ s.runs }}</td><td>{{ s.cost_usd }}</td><td>{{ s.avg_s }}</td><td>{{ s.cache_hits }}</td><td>{{ s.failed }}</td></tr>{% endfor %}
   </tbody></table></div>{% endif %}

@@ -4,7 +4,7 @@ photo_final.py — PURE decisions of the Photo Studio "final" order (owner,
 network, no clock: the stateful side (core/photo_final.py) feeds plain values.
 
 1. PROVIDER SWITCH (server-side only — the app never talks to an AI provider):
-       assisto_face  >  runpod_serverless  >  replicate  >  local_worker
+       assisto_face  >  runpod_serverless  >  fal_face  >  replicate  >  local_worker
    Each paid provider gets an owner-set % of users (`rollout_<slug>` in the
    photo_studio pricing block). A user's bucket (0..99) is a stable hash of
    their id, so the same person always lands on the same provider while the
@@ -24,7 +24,39 @@ network, no clock: the stateful side (core/photo_final.py) feeds plain values.
 import hashlib
 import math
 
-PAID_PROVIDERS = ("assisto_face", "runpod_serverless", "replicate")
+PAID_PROVIDERS = ("assisto_face", "runpod_serverless", "fal_face", "replicate")
+# providers whose remote pipeline runs Real-ESRGAN weights (licence-grey):
+# usable only while photo_studio.realesrgan_allowed is on
+REALESRGAN_PROVIDERS = ("runpod_serverless", "replicate")
+# fal_face = the owner's chosen commercial face upscaler on fal.ai (none
+# until he chooses; photo_studio.fal_face_model)
+FAL_FACE_ENDPOINTS = {"topaz": "fal-ai/topaz/upscale/image",
+                      "crystal": "clarityai/crystal-upscaler"}
+
+
+def fal_model_kind(endpoint):
+    e = str(endpoint or "").lower()
+    if "topaz" in e:
+        return "topaz"
+    if "crystal" in e:
+        return "crystal"
+    return "other"
+
+
+def fal_payload(endpoint, image_url, *, scale=2, preset="natural", face_strength=0.55):
+    """fal.ai request body per model family, identity-safe settings: Topaz
+    'Standard V2' with face creativity 0 (never Wonder/Redefine); Crystal
+    creativity 0 (Natural) / 1 (Strong)."""
+    kind = fal_model_kind(endpoint)
+    if kind == "topaz":
+        return {"image_url": image_url, "model": "Standard V2", "upscale_factor": int(scale),
+                "face_enhancement": True,
+                "face_enhancement_strength": round(max(0.0, min(1.0, float(face_strength))), 2),
+                "face_enhancement_creativity": 0}
+    body = {"image_url": image_url, "scale_factor": int(scale)}
+    if kind == "crystal":
+        body["creativity"] = 1 if preset == "strong" else 0
+    return body
 LOCAL = "local_worker"
 PROVIDERS = PAID_PROVIDERS + (LOCAL,)
 PRESETS = ("natural", "strong")

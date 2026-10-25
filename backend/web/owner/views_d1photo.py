@@ -69,7 +69,9 @@ def photo(request):
     ctx["prov_log"] = PFN.provider_log(50)
     ctx["prov_summary"] = PFN.provider_summary(7)
     ctx["spend"] = {"today": PFN.spent_today_usd(), "cap": S.ps_cfg()["daily_spend_cap_usd"],
-                    "connected": sorted(PFN.configured()), "ultra": bool(PFN.ultra_conf())}
+                    "connected": sorted(PFN.configured()), "ultra": bool(PFN.ultra_conf()),
+                    "realesrgan": PFN._realesrgan_ok(),
+                    "face_model": S.ps_cfg().get("fal_face_model") or ""}
     return page(request, "owner/photo.html", ctx, nav="photo")
 
 

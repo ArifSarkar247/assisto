@@ -23,7 +23,7 @@ from core import photo_studio_service as S
 from core import photo_worker as W
 from core.logic import photo_final as PF
 from core.logic import photo_studio as PS
-from core.models import PhotoProviderRun, PhotoStudioJob, PhotoWorkItem, User
+from core.models import PhotoAdTicket, PhotoProviderRun, PhotoStudioJob, PhotoWorkItem, User
 
 
 def _jpg(w=64, h=48, c=(150, 120, 100)):
@@ -86,7 +86,8 @@ class FreeEnhanceRulesTests(SimpleTestCase):
                               "face_restore_gfpgan": "yes", "cap_fallback_local": True})
         self.assertEqual(c["rollout_replicate"], 100)
         self.assertEqual(c["daily_spend_cap_usd"], 0.0)
-        self.assertFalse(c["face_restore_gfpgan"])            # only a real bool turns it on
+        self.assertFalse(c["face_restore_gfpgan"])            # locked off (owner 25 Oct)
+        self.assertFalse(PS.normalize_cfg({"face_restore_gfpgan": True})["face_restore_gfpgan"])
         self.assertTrue(c["cap_fallback_local"])
         d = PS.normalize_cfg({})
         self.assertEqual((d["daily_spend_cap_usd"], d["free_enhance_lifetime"], d["enhance_unlock_ads"],
@@ -271,6 +272,9 @@ class FreeEnhanceApiTests(_Base):
 
 class ProviderSwitchTests(_Base):
     def _rollout(self, **kw):
+        # (Replicate / RunPod run Real-ESRGAN: these tests are the
+        # owner-allowed world; RealEsrganFlagTests covers the default off)
+        kw.setdefault("realesrgan_allowed", True)
         cfg = S._cfg()
         ps = dict(cfg.get("photo_studio") or {})
         ps.update(kw)
@@ -309,7 +313,7 @@ class ProviderSwitchTests(_Base):
         self.assertEqual([(r.provider, r.cache_hit) for r in runs], [("replicate", False), ("replicate", True)])
         self.assertEqual(runs[0].model_version, "v-esrgan")
 
-    def test_gfpgan_only_with_the_legal_switch_and_version(self):
+    def test_gfpgan_is_never_called_even_if_a_stored_switch_says_on(self):
         self.integ["photo_enhance_replicate"] = {**REP, "face_version": "v-gfpgan"}
         rq = mock.Mock(post=mock.Mock(return_value=_Resp(201, {
             "status": "succeeded", "output": "https://replicate.delivery/x.jpg", "metrics": {"predict_time": 2}})),
@@ -323,9 +327,10 @@ class ProviderSwitchTests(_Base):
                 mock.patch.object(LK, "apply", side_effect=lambda img, faces, **k: (img, {})):
             _o, cost, rep = PFN.run_enhance(self.job(), _jpg())
         versions = [json.loads(c.kwargs["data"])["version"] for c in rq.post.call_args_list]
-        self.assertEqual(versions, ["v-esrgan", "v-gfpgan"])
-        self.assertIn("gfpgan", rep["steps"]["face_restore"])
-        self.assertTrue(PhotoProviderRun.objects.get().model_version.endswith("+gfpgan"))
+        self.assertEqual(versions, ["v-esrgan"])
+        self.assertEqual(rep["steps"]["face_restore"], "off")
+        self.assertFalse(json.loads(rq.post.call_args.kwargs["data"])["input"]["face_enhance"])
+        self.assertNotIn("gfpgan", PhotoProviderRun.objects.get().model_version)
 
     def test_provider_error_falls_back_to_local_and_logs_both(self):
         self.integ["photo_enhance_replicate"] = REP
@@ -414,7 +419,7 @@ class UltraTests(_Base):
         self.assertIn(r.status_code, (200, 202), r.content)
         job = PhotoStudioJob.objects.get(pk=jid)
         self.assertEqual(job.status, "done", job.error)
-        self.assertEqual(rq.post.call_args.args[0], "https://fal.run/fal-ai/crystal-upscaler")
+        self.assertEqual(rq.post.call_args.args[0], "https://fal.run/clarityai/crystal-upscaler")
         run = PhotoProviderRun.objects.get(provider="fal")
         self.assertGreater(run.cost_usd, 0)
         for _ in range(quota):
@@ -435,3 +440,273 @@ class OwnerProviderLogTests(TestCase):
         self.assertContains(r, "v-esrgan")
         self.assertContains(r, 'id="providers"')
         self.assertContains(r, "Enhance providers")
+
+
+# =========================================================================== photo-final 25 Oct
+FAL_TOPAZ = {"api_key": "fal_test", "topaz_usd_per_image": "0.08"}
+FAL_CRYSTAL = {"api_key": "fal_test", "crystal_usd_per_megapixel": "0.016"}
+REAL_UNITS = {"_configured": True, "rewarded": "ca-app-pub-1234567890123456/1111111111"}
+
+
+class RealEsrganFlagTests(_Base):
+    """realesrgan_allowed (default False): no Real-ESRGAN use anywhere."""
+
+    def test_default_off_everywhere(self):
+        from core import photo_models as PM
+        self.assertFalse(PS.normalize_cfg({})["realesrgan_allowed"])
+        self.assertFalse(PM.realesrgan_allowed())
+        self.integ["photo_enhance_replicate"] = REP
+        self.integ["photo_runpod"] = {"api_key": "rp", "endpoint_id": "ep1",
+                                      "cost_per_image_usd": "0.004"}
+        self.assertIsNone(PFN.provider_conf("replicate"))
+        self.assertIsNone(PFN.provider_conf("runpod_serverless"))
+        with mock.patch.object(PM, "load_manifest", return_value={
+                "licence_cleared": True, "version": "v1", "model": "realesr", "licence": "BSD-3",
+                "scale": 4, "tile": 144, "pad": 8, "seg_side": 320,
+                "files": [{"role": "upscale", "name": "r.onnx", "sha256": "0" * 64, "size": 9},
+                          {"role": "server_face", "name": "y.onnx", "sha256": "1" * 64, "size": 9}]}):
+            self.assertIsNone(PM.server_model("upscale"))
+            self.assertTrue(PM.server_model("server_face"))
+            m = PM.client_manifest()
+            self.assertFalse(m["available"])               # the phone's AI step stays hidden
+            self.assertEqual(m["files"], [])
+        self.assertFalse(PFN.capability(self.free)["realesrgan"])
+
+    def test_rollout_to_replicate_without_the_flag_stays_local_and_free(self):
+        self.integ["photo_enhance_replicate"] = REP
+        rq = mock.Mock()
+        ps = PS.normalize_cfg({**(S._cfg().get("photo_studio") or {}), "rollout_replicate": 100})
+        with mock.patch.object(S, "ps_cfg", return_value=ps), \
+                mock.patch.object(PFN, "_http", return_value=rq):
+            _o, cost, rep = PFN.run_enhance(self.job(), _jpg())
+        rq.post.assert_not_called()
+        self.assertEqual((rep["path"], cost), ("local_worker", 0.0))
+        self.assertEqual(PhotoProviderRun.objects.get().model_version, "local-clean-2026.10")
+
+
+class CleanPathTests(SimpleTestCase):
+    @override_settings(PHOTO_WORKER=True)
+    def test_enhance_and_old_restore_ready_without_real_esrgan(self):
+        from core import photo_models as PM
+        face_only = mock.patch.object(PM, "server_model",
+                                      side_effect=lambda r: "/m/y.onnx" if r == "server_face" else None)
+        with mock.patch.object(R, "_runtime_ok", return_value=True), face_only, \
+                mock.patch.object(PM, "realesrgan_allowed", return_value=False):
+            self.assertTrue(R.status("enhance_server", "en")["ready"])
+            self.assertTrue(R.status("old_restore", "en")["ready"])
+        face_only = mock.patch.object(PM, "server_model",
+                                      side_effect=lambda r: "/m/y.onnx" if r == "server_face" else None)
+        with mock.patch.object(R, "_runtime_ok", return_value=True), face_only, \
+                mock.patch.object(PM, "realesrgan_allowed", return_value=True):
+            self.assertFalse(R.status("enhance_server", "en")["ready"])   # allowed but not installed
+
+    def test_clean_local_pipeline_upscales_without_any_weights(self):
+        from PIL import Image
+        out, steps = PFN.local_enhance(_jpg(64, 48), preset="natural",
+                                       paths={"upscale": None, "server_face": None, "segment": None},
+                                       faces=[])
+        self.assertEqual(Image.open(io.BytesIO(out)).size, (128, 96))
+        self.assertEqual(steps["upscaler"], "lanczos+unsharp")
+        self.assertFalse(steps["global_ai"])
+
+    def test_clean_upscale_keeps_colour(self):
+        img = np.full((20, 30, 3), [0.6, 0.45, 0.35], dtype=np.float32)
+        up = R.clean_upscale(img, 2)
+        self.assertEqual(up.shape, (40, 60, 3))
+        self.assertLess(float(np.abs(up.mean(axis=(0, 1)) - img.mean(axis=(0, 1))).max()), 0.02)
+
+    def test_two_megapixel_cap(self):
+        self.assertEqual(PF.fit_mp(4000, 3000, 2), (1632, 1224))
+        self.assertEqual(PF.fit_mp(800, 600, 2), (800, 600))           # never upscaled here
+
+
+class FalFaceProviderTests(_Base):
+    def _ps(self, **kw):
+        ps = dict(S._cfg().get("photo_studio") or {})
+        ps.update(kw)
+        return mock.patch.object(S, "ps_cfg", return_value=PS.normalize_cfg(ps))
+
+    def test_off_until_owner_choice_and_key_and_price(self):
+        self.integ["photo_fal"] = FAL_TOPAZ
+        with self._ps(rollout_fal_face=100):
+            self.assertIsNone(PFN.provider_conf("fal_face"))          # no owner choice yet
+            self.assertNotIn("fal_face", PFN.configured())
+            self.assertFalse(PFN.capability(self.free)["face_restore"])
+        with self._ps(rollout_fal_face=100, fal_face_model="crystal"):
+            self.assertIsNone(PFN.provider_conf("fal_face"))          # no Crystal price
+        self.integ.pop("photo_fal")
+        with self._ps(rollout_fal_face=100, fal_face_model="topaz"):
+            self.assertIsNone(PFN.provider_conf("fal_face"))          # no key
+        self.assertEqual(PS.normalize_cfg({"fal_face_model": "gfpgan"})["fal_face_model"], "")
+        self.assertEqual(PS.validate_cfg({"fal_face_model": "codeformer"}), ["photo_studio_bad"])
+        self.assertEqual(PS.validate_cfg({"fal_face_model": "topaz"}), [])
+
+    def test_topaz_runs_identity_safe_logs_flat_cost_and_caches(self):
+        self.integ["photo_fal"] = FAL_TOPAZ
+        rq = mock.Mock(post=mock.Mock(return_value=_Resp(200, {"image": {"url": "https://fal.media/t.jpg"}})),
+                       get=mock.Mock(return_value=_Resp(200, content=_jpg(128, 96))))
+        with self._ps(rollout_fal_face=100, fal_face_model="topaz"), \
+                mock.patch.object(PFN, "_http", return_value=rq), \
+                mock.patch("core.photo_models.server_model", return_value=None), \
+                mock.patch.object(LK, "apply", side_effect=lambda img, faces, **k: (img, {})):
+            cap = PFN.capability(self.free)
+            self.assertEqual((cap["face_restore"], cap["face_provider"]), (True, "topaz"))
+            _o, cost, rep = PFN.run_enhance(self.job(strength="strong"), _jpg())
+            self.assertEqual((rep["path"], cost), ("fal_face", 0.08))
+            self.assertEqual(rq.post.call_args.args[0], "https://fal.run/fal-ai/topaz/upscale/image")
+            body = json.loads(rq.post.call_args.kwargs["data"])
+            self.assertEqual((body["model"], body["face_enhancement"], body["face_enhancement_creativity"],
+                              body["face_enhancement_strength"], body["upscale_factor"]),
+                             ("Standard V2", True, 0, 0.7, 2))
+            self.assertTrue(body["image_url"].startswith("data:image/jpeg;base64,"))
+            _o2, cost2, rep2 = PFN.run_enhance(self.job(strength="strong"), _jpg())
+        self.assertEqual((cost2, rep2.get("cache_hit")), (0.0, True))
+        self.assertEqual(rq.post.call_count, 1)                   # a cache hit costs nothing
+        runs = list(PhotoProviderRun.objects.order_by("created_at").values_list(
+            "provider", "cost_usd", "cache_hit", "preset"))
+        self.assertEqual(runs, [("fal_face", 0.08, False, "strong"), ("fal_face", 0.0, True, "strong")])
+
+    def test_crystal_cost_per_real_megapixel_and_natural_creativity_zero(self):
+        self.integ["photo_fal"] = FAL_CRYSTAL
+        rq = mock.Mock(post=mock.Mock(return_value=_Resp(200, {"images": [{"url": "https://fal.media/c.jpg"}]})),
+                       get=mock.Mock(return_value=_Resp(200, content=_jpg(1000, 1000))))
+        with self._ps(rollout_fal_face=100, fal_face_model="crystal"), \
+                mock.patch.object(PFN, "_http", return_value=rq), \
+                mock.patch("core.photo_models.server_model", return_value=None), \
+                mock.patch.object(LK, "apply", side_effect=lambda img, faces, **k: (img, {})):
+            self.assertAlmostEqual(PFN.provider_conf("fal_face")["est"], 2 * 4 * 0.016)
+            _o, cost, rep = PFN.run_enhance(self.job(), _jpg())
+        self.assertEqual(rq.post.call_args.args[0], "https://fal.run/clarityai/crystal-upscaler")
+        body = json.loads(rq.post.call_args.kwargs["data"])
+        self.assertEqual((body["scale_factor"], body["creativity"]), (2, 0))
+        self.assertAlmostEqual(cost, 0.016, places=6)              # 1.0 MP real output
+
+    def test_fal_error_falls_back_to_local_free(self):
+        self.integ["photo_fal"] = FAL_TOPAZ
+        rq = mock.Mock(post=mock.Mock(return_value=_Resp(503)))
+        with self._ps(rollout_fal_face=100, fal_face_model="topaz"), \
+                mock.patch.object(PFN, "_http", return_value=rq):
+            _o, cost, rep = PFN.run_enhance(self.job(), _jpg())
+        self.assertEqual((rep["path"], rep["fallback_from"], cost), ("local_worker", "fal_face", 0.0))
+        rows = list(PhotoProviderRun.objects.order_by("created_at").values_list("provider", "ok", "error"))
+        self.assertEqual(rows, [("fal_face", False, "http_503"), ("local_worker", True, "")])
+
+    def test_spend_cap_counts_fal_face_and_queues(self):
+        self.integ["photo_fal"] = FAL_TOPAZ
+        PhotoProviderRun.objects.create(provider="fal_face", ok=True, cost_usd=0.95)
+        rq = mock.Mock()
+        with self._ps(rollout_fal_face=100, fal_face_model="topaz"), \
+                mock.patch.object(PFN, "_http", return_value=rq):
+            with self.assertRaises(PFN.SpendCapWait):
+                PFN.run_enhance(self.job(), _jpg())
+        rq.post.assert_not_called()
+
+    def test_rollout_split_between_paid_providers_is_stable(self):
+        ps = PS.normalize_cfg({"rollout_fal_face": 30, "rollout_replicate": 20})
+        picks = [PF.pick_provider(i, ps, {"fal_face", "replicate"}) for i in range(2000)]
+        self.assertEqual(picks, [PF.pick_provider(i, ps, {"fal_face", "replicate"}) for i in range(2000)])
+        share = {p: picks.count(p) / 2000 for p in set(picks)}
+        self.assertAlmostEqual(share["fal_face"], 0.30, delta=0.05)
+        self.assertAlmostEqual(share["replicate"], 0.20, delta=0.05)
+        self.assertAlmostEqual(share["local_worker"], 0.50, delta=0.05)
+
+
+class AdsLiveGateTests(_Base):
+    """Rewarded unlocks only through Google's SSV, and never on TEST ids."""
+
+    def test_test_ids_never_issue_an_ad_ticket_credits_still_unlock(self):
+        with mock.patch.object(S, "_ad_units", return_value={"_configured": False}):
+            q = S.quote(self.free, "enhance_hd")
+            self.assertEqual(q.get("ads_off"), "test_ids")
+            self.assertTrue(all(o.get("live") is False for o in q["options"] if o["via"] == "ads"))
+            # released apps create the free export job as an ads job ...
+            r = self.post(self.free, "jobs", {"feature": "enhance_hd", "via": "ads"})
+            self.assertEqual(r.status_code, 201, r.content)
+            jid = r.json()["job"]["id"]
+            # ... but no ad ticket exists on test ids (Google's SSV never verifies them)
+            r = self.post(self.free, "jobs/%d/ad-ticket" % jid, {}, HTTP_ACCEPT_LANGUAGE="bn")
+            self.assertEqual((r.status_code, r.json()["reason"]), (409, "ads_not_live"))
+            self.assertTrue(r.json()["message"])
+            self.assertFalse(PhotoAdTicket.objects.filter(job_id=jid).exists())
+            self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "awaiting_funds")
+            # credits still unlock it (the honest route)
+            User.objects.filter(pk=self.free.pk).update(ai_credits=50)
+            r = self.post(self.free, "jobs/%d/fund" % jid, {})
+            self.assertEqual(r.status_code, 200, r.content)
+            self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "funded")
+        with mock.patch.object(S, "_ad_units", return_value=REAL_UNITS):
+            jid2 = self.post(self.free, "jobs", {"feature": "enhance_hd", "via": "ads"}).json()["job"]["id"]
+            r = self.post(self.free, "jobs/%d/ad-ticket" % jid2, {})
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(PhotoStudioJob.objects.get(pk=jid2).status, "awaiting_funds")  # SSV only
+
+    def test_after_three_free_enhances_test_ids_mean_weekly_free_not_ads(self):
+        for _ in range(3):
+            PhotoStudioJob.objects.create(user=self.free, feature="enhance_server", status="done",
+                                          funding="gift", flags={"free_kind": "lifetime"})
+        with mock.patch.object(S, "_ad_units", return_value={"_configured": False}):
+            q = S.quote(self.free, "enhance_server")
+        self.assertEqual((q["free_kind"], q["options"]), ("week", [{"via": "gift", "trial": False}]))
+        with mock.patch.object(S, "_ad_units", return_value=REAL_UNITS):
+            q = S.quote(self.free, "enhance_server")
+        self.assertEqual(q["options"], [{"via": "ads", "ads": 2, "trial": False}])
+        self.assertEqual(q["left_today"], 2)
+
+    def test_pure_rule_marks_ads_not_live_on_test_ids(self):
+        q = PS.funding_options(feature="enhance_hd", plan="free", cost_usd=0, usd_bdt=120,
+                               table_credits=0, net_floor=0.6, credit_bdt=1.0, ps_cfg={},
+                               ad_rewards={"ecpm_bdt": 30}, ads_live=False)
+        self.assertEqual([(o["via"], o.get("live", True)) for o in q["options"]],
+                         [("ads", False), ("credits", True)])
+
+
+class FreeAiImagePerDeviceTests(_Base):
+    def test_lifetime_free_ai_images_counted_per_account_and_device(self):
+        hdr = {"HTTP_X_DEVICE_ID": "android-dev000111222"}
+        with mock.patch.object(S, "_active_provider", return_value=("photo_gemini", {}, 0.04)):
+            for _ in range(2):
+                r = self.post(self.free, "jobs", {"feature": "prompt_edit", "via": "gift",
+                                                  "prompt": "make the sky blue"}, **hdr)
+                self.assertEqual(r.status_code, 201, r.content)
+            other = User.objects.create_user(name="H", phone="01000000404", password="pw")
+            other.plan, other.trial_until = "free", None
+            other.save()
+            r = self.post(other, "jobs", {"feature": "prompt_edit", "via": "gift",
+                                          "prompt": "make the sky blue"}, **hdr)
+            self.assertEqual(r.status_code, 409, r.content)            # same phone: used up
+            r = self.post(other, "jobs", {"feature": "prompt_edit", "via": "gift",
+                                          "prompt": "make the sky blue"},
+                          HTTP_X_DEVICE_ID="android-dev999888777")
+            self.assertEqual(r.status_code, 201, r.content)            # own phone: own gifts
+
+
+class OwnerAdminPhotoFinalTests(TestCase):
+    def test_owner_sets_face_model_and_realesrgan_with_labels(self):
+        from web.tests_o2_owner_admin import OwnerBase
+        from core import billing
+        case = OwnerBase(methodName="setUp")
+        case.setUp()
+        case.ready()
+        r = case.c.get("/owner/ads?lang=bn")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "photo_studio.fal_face_model")
+        self.assertContains(r, "Real-ESRGAN weights চালু")
+        cfg = billing.cfg()
+        data = {"action": "settings", "reason": "owner choice"}
+        for blk in ("ad_rewards", "photo_studio"):
+            for k, v in (cfg.get(blk) or {}).items():
+                if isinstance(v, bool):
+                    if v:
+                        data["%s.%s" % (blk, k)] = "on"
+                elif isinstance(v, (int, float)):
+                    data["%s.%s" % (blk, k)] = str(v)
+        data["photo_studio.fal_face_model"] = "topaz"
+        data["photo_studio.rollout_fal_face"] = "10"
+        data["photo_studio.realesrgan_allowed"] = "on"
+        r = case.post("/owner/ads", data)
+        self.assertEqual(r.status_code, 302, r.content[:400])
+        ps = billing.cfg()["photo_studio"]
+        self.assertEqual((ps["fal_face_model"], ps["rollout_fal_face"], ps["realesrgan_allowed"]),
+                         ("topaz", 10, True))
+        r = case.c.get("/owner/photo?lang=en")
+        self.assertContains(r, "Face upscaler")

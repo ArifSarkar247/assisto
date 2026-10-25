@@ -201,3 +201,20 @@ Clean ways to get a "restored" face: (1) a paid API whose provider takes respons
 | Replicate (optional) | `tencentarc/gfpgan` v1.4 | **grey — see above** | only with the owner's legal switch |
 | RunPod Serverless | our own handler (`tools/photo_train/serve_handler.py`) running Real-ESRGAN / later "Assisto Face" | our code + chosen weights | key-gated `photo_runpod` / `photo_assisto_face` |
 | fal.ai | `fal-ai/crystal-upscaler` (Ultra HD, Premium) | fal API terms ("Commercial use" tag on fal pages) | key-gated `photo_fal` |
+
+### Update 25 Oct 2026 (photo-final, owner decisions)
+
+- **GFPGAN: locked OFF in code** (`photo_studio.face_restore_gfpgan` is forced False by `normalize_cfg`; the Replicate
+  runner never calls a face model; Owner Admin no longer shows the switch). CodeFormer OFF. Real-ESRGAN
+  `face_enhance` is always sent as `false` (it runs GFPGAN).
+- **Real-ESRGAN: GREY, pending owner decision** (code BSD-3; the weights' terms are silent; trained on DIV2K /
+  Flickr2K / OST, academic-only). Server flag `photo_studio.realesrgan_allowed`, **default False**. Off means:
+  `photo_models.server_model("upscale")` returns None; the phone manifest is `available: false`
+  (the app hides its optional AI step, the classic non-ML enhance stays); `serve_file` 404s the upscaler;
+  local HD enhance + old-photo restore use `photo_restore.clean_upscale` (PIL Lanczos + unsharp, no weights);
+  providers `replicate` and `runpod_serverless` (both run Real-ESRGAN) are not usable. The APK ships no model weights.
+- **Face provider: pending owner choice** — `photo_studio.fal_face_model` = '' (default) | `topaz`
+  (`fal-ai/topaz/upscale/image`, Standard V2, face creativity 0) | `crystal` (`clarityai/crystal-upscaler`).
+  Needs the `photo_fal` key + that model's price + `rollout_fal_face` > 0. Both licence positions are in
+  `owner_actions/PHOTO_FACE_PROVIDERS_BN.md` (Topaz EULA output clause unverified; Crystal "Commercial use permitted").
+- Ultra HD default endpoint corrected to `clarityai/crystal-upscaler` (the old `fal-ai/crystal-upscaler` value is mapped).

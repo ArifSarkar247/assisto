@@ -811,6 +811,9 @@ EN.update({
     "ph_prov_spent": "Paid spend today", "ph_prov_connected": "connected", "ph_prov_runs": "runs (7 days)",
     "ph_prov_avg": "avg seconds", "ph_prov_failed": "failed", "ph_prov_fallback": "fallback from",
     "ph_prov_empty": "No provider runs yet.",
+    "ph_realesrgan": "Real-ESRGAN weights", "ph_on": "allowed",
+    "ph_off_clean": "off (clean Lanczos + unsharp path)", "ph_face_model": "Face upscaler",
+    "ph_face_none": "none chosen (Topaz or Crystal: owner decision)",
 })
 BN.update({
     "nav_photo": "ফটো স্টুডিও",
@@ -833,6 +836,9 @@ BN.update({
     "ph_prov_spent": "আজকের পেইড খরচ", "ph_prov_connected": "যুক্ত", "ph_prov_runs": "রান (৭ দিন)",
     "ph_prov_avg": "গড় সেকেন্ড", "ph_prov_failed": "ব্যর্থ", "ph_prov_fallback": "ফলব্যাক:",
     "ph_prov_empty": "এখনো কোনো প্রোভাইডার রান নেই।",
+    "ph_realesrgan": "Real-ESRGAN weights", "ph_on": "অনুমতি আছে",
+    "ph_off_clean": "বন্ধ (পরিষ্কার Lanczos + unsharp পথ)", "ph_face_model": "ফেস-আপস্কেলার",
+    "ph_face_none": "বাছা হয়নি (Topaz না Crystal: মালিকের সিদ্ধান্ত)",
 })
 
 # ---- p5-growth: Owner Admin → Growth funnel + automatic Founding seats ----
@@ -1037,3 +1043,44 @@ BN.update({
     "adm_stats_note": "অ্যাপ গুনেছে (শুধু ফ্রি ব্যবহারকারী; কোনো ব্যবহারকারী বা ডিভাইস আইডি রাখা হয় না)। আয় = প্রতিটি দেখানোর জন্য Google অ্যাপকে যে মূল্য জানায়, AdMob অ্যাকাউন্টের মুদ্রায় — পেমেন্টের আসল হিসাব AdMob কনসোলেই।",
 })
 # ---- /admob ----
+
+# ---- photo-final (owner 24-25 Oct): Photo Studio pricing/provider labels ----
+EN.update({
+    "psk_free_enhance_per_day": "Free HD enhance: ad-unlocked per day (default 2)",
+    "psk_free_enhance_lifetime": "Free HD enhance: free for life per account/device (default 3)",
+    "psk_enhance_unlock_ads": "Free HD enhance: rewarded ads per unlock (SSV-verified, real ids only)",
+    "psk_free_enhance_per_week_no_ads": "Free HD enhance while ads are not live: free per week (default 1)",
+    "psk_rollout_assisto_face": "Provider rollout %: Assisto Face (own model)",
+    "psk_rollout_runpod_serverless": "Provider rollout %: RunPod Serverless (needs Real-ESRGAN allowed)",
+    "psk_rollout_fal_face": "Provider rollout %: fal.ai face upscaler (needs a model choice below)",
+    "psk_rollout_replicate": "Provider rollout %: Replicate (needs Real-ESRGAN allowed)",
+    "psk_fal_face_model": "Face upscaler on fal.ai: empty = none, topaz, or crystal (owner's choice)",
+    "psk_realesrgan_allowed": "Allow Real-ESRGAN weights (licence grey; off = clean Lanczos path and the phone's AI step is hidden)",
+    "psk_provider_timeout_s": "Provider timeout (seconds), then fall back to our own worker",
+    "psk_daily_spend_cap_usd": "Daily spend cap, all paid photo providers (USD; over it jobs wait for tomorrow)",
+    "psk_cap_fallback_local": "When the cap is hit: run on our own worker for free instead of waiting",
+    "psk_face_blend_natural_pct": "Face strength, Natural (%)",
+    "psk_face_blend_strong_pct": "Face strength, Strong (%)",
+    "psk_max_input_mp": "Max input size sent to any provider (megapixels)",
+    "psk_ultra_hd_budget_pct": "Ultra HD budget: share of the plan's net price (%)",
+})
+BN.update({
+    "psk_free_enhance_per_day": "ফ্রি HD এনহ্যান্স: দিনে বিজ্ঞাপন দেখে কয়টা (ডিফল্ট ২)",
+    "psk_free_enhance_lifetime": "ফ্রি HD এনহ্যান্স: অ্যাকাউন্ট/ডিভাইস প্রতি সারা জীবনে ফ্রি (ডিফল্ট ৩)",
+    "psk_enhance_unlock_ads": "ফ্রি HD এনহ্যান্স: প্রতি আনলকে রিওয়ার্ডেড বিজ্ঞাপন (সার্ভারে যাচাই, শুধু আসল আইডি)",
+    "psk_free_enhance_per_week_no_ads": "বিজ্ঞাপন চালু না থাকলে: সপ্তাহে ফ্রি HD এনহ্যান্স (ডিফল্ট ১)",
+    "psk_rollout_assisto_face": "প্রোভাইডার রোলআউট %: Assisto Face (নিজস্ব মডেল)",
+    "psk_rollout_runpod_serverless": "প্রোভাইডার রোলআউট %: RunPod Serverless (Real-ESRGAN অনুমতি লাগবে)",
+    "psk_rollout_fal_face": "প্রোভাইডার রোলআউট %: fal.ai ফেস-আপস্কেলার (নিচে মডেল বাছতে হবে)",
+    "psk_rollout_replicate": "প্রোভাইডার রোলআউট %: Replicate (Real-ESRGAN অনুমতি লাগবে)",
+    "psk_fal_face_model": "fal.ai ফেস-আপস্কেলার: খালি = কোনোটা নয়, topaz, বা crystal (মালিকের সিদ্ধান্ত)",
+    "psk_realesrgan_allowed": "Real-ESRGAN weights চালু (লাইসেন্স ধূসর; বন্ধ = পরিষ্কার Lanczos পথ, ফোনের AI ধাপও লুকানো)",
+    "psk_provider_timeout_s": "প্রোভাইডার টাইমআউট (সেকেন্ড), তারপর আমাদের নিজের ওয়ার্কারে",
+    "psk_daily_spend_cap_usd": "দৈনিক খরচের সীমা, সব পেইড ফটো প্রোভাইডার মিলে (USD; বেশি হলে কাজ কালকের অপেক্ষায়)",
+    "psk_cap_fallback_local": "সীমা শেষ হলে: অপেক্ষার বদলে নিজের ওয়ার্কারে ফ্রি চালাও",
+    "psk_face_blend_natural_pct": "মুখের শক্তি, Natural (%)",
+    "psk_face_blend_strong_pct": "মুখের শক্তি, Strong (%)",
+    "psk_max_input_mp": "যেকোনো প্রোভাইডারে পাঠানো সর্বোচ্চ সাইজ (মেগাপিক্সেল)",
+    "psk_ultra_hd_budget_pct": "Ultra HD বাজেট: প্ল্যানের নেট দামের ভাগ (%)",
+})
+# ---- /photo-final ----
