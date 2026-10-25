@@ -8,7 +8,10 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_relation.dart';
+import '../crypto/identity_vault.dart';
+import 'circle_call_info_screen.dart';
 import 'circle_call_screen.dart';
+import 'circle_chat_screen.dart';
 
 /// Connected Circle call history (M1 item 5): voice/video log with missed
 /// calls, outgoing/incoming direction, duration and one-tap call-back.
@@ -30,6 +33,8 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   bool _loading = true;
   bool _backendReady = true;
   List<Map<String, dynamic>> _calls = [];
+  // wa-polish2: the individual calls behind each grouped row (Call info)
+  Map<String, Map<String, dynamic>> _byId = {};
   bool _missedOnly = false; // wa-polish: All / Missed filter
 
   @override
@@ -51,6 +56,10 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           .map((e) => e.cast<String, dynamic>())
           .toList();
       _calls = r['groups'] is List ? raw : groupCallRows(raw);
+      final singles = ((r['calls'] ?? r['results'] ?? []) as List)
+          .whereType<Map>()
+          .map((e) => e.cast<String, dynamic>());
+      _byId = {for (final c in singles) '${c['id']}': c};
       _backendReady = true;
     } catch (_) {
       _backendReady = false;
@@ -59,15 +68,41 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  Map<String, dynamic> _memberOf(Map<String, dynamic> call) =>
+      (call['member'] as Map?)?.cast<String, dynamic>() ??
+      {
+        'id': call['member_id'],
+        'name': call['name'],
+        'relation': call['relation'],
+        'photo_url': call['photo_url'],
+        'photo_v': call['photo_v'],
+      };
+
+  /// wa-polish2: WhatsApp's Call info for a tapped row.
+  void _openInfo(Map<String, dynamic> call) {
+    final entries = callInfoEntries(call, _byId);
+    final reachable = _memberOf(call)['id'] is int;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CircleCallInfoScreen(
+        call: call,
+        entries: entries,
+        onCall: reachable ? (kind) => _callBack(call, kind) : null,
+        onMessage: reachable ? () => _openChat(call) : null,
+      ),
+    ));
+  }
+
+  Future<void> _openChat(Map<String, dynamic> call) async {
+    final identity = await IdentityVault.instance.get();
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          CircleChatScreen(member: _memberOf(call), identity: identity),
+    ));
+  }
+
   void _callBack(Map<String, dynamic> call, String kind) {
-    final member = (call['member'] as Map?)?.cast<String, dynamic>() ??
-        {
-          'id': call['member_id'],
-          'name': call['name'],
-          'relation': call['relation'],
-          'photo_url': call['photo_url'],
-          'photo_v': call['photo_v'],
-        };
+    final member = _memberOf(call);
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) =>
           CircleCallScreen(member: member, kind: kind, outgoing: true),
@@ -170,6 +205,9 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final dirColor = missed ? scheme.error : scheme.onSurfaceVariant;
 
     return ListTile(
+      key: ValueKey('call-log-row-${call['id']}'),
+      // wa-polish2: tap the row -> Call info (the call button still calls)
+      onTap: () => _openInfo(call),
       leading: CallAvatar(
           name: name,
           photoUrl: '${call['photo_url'] ?? ''}',
@@ -260,6 +298,22 @@ bool isMissedCallRow(Map<String, dynamic> call) {
   return call['outgoing'] != true && (state == 'missed' || state == 'canceled');
 }
 
+/// wa-polish2: the individual calls of a (grouped) log row, newest first —
+/// the server's `ids` looked up in the plain `calls` list; the row itself
+/// when they are not there (older server / client-side grouping).
+List<Map<String, dynamic>> callInfoEntries(
+    Map<String, dynamic> row, Map<String, Map<String, dynamic>> byId) {
+  final ids = row['ids'];
+  if (ids is List) {
+    final out = [
+      for (final id in ids)
+        if (byId['$id'] != null) byId['$id']!
+    ];
+    if (out.isNotEmpty) return out;
+  }
+  return [row];
+}
+
 /// x1-calls A1-g (fallback for a server without `groups`): consecutive rows
 /// (newest first) with the same person, direction, outcome and day collapse
 /// into one row carrying `count` — "T Shanto BD (6)".
@@ -278,9 +332,10 @@ List<Map<String, dynamic>> groupCallRows(List<Map<String, dynamic>> rows) {
     if (k == last && out.isNotEmpty) {
       final g = out.last;
       g['count'] = ((g['count'] as num?)?.toInt() ?? 1) + 1;
+      (g['ids'] as List).add(r['id']); // wa-polish2: for Call info
       continue;
     }
-    out.add({...r, 'count': 1});
+    out.add({...r, 'count': 1, 'ids': [r['id']]});
     last = k;
   }
   return out;

@@ -25,6 +25,7 @@ import 'package:assisto/messaging/outbox.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/screens/circle_group_chat_screen.dart';
 import 'package:assisto/state.dart';
+import 'package:assisto/widgets/circle_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -336,6 +337,63 @@ void main() {
     });
   });
 
+  // wa-polish2: WhatsApp grouping + the composer mic on the REAL screens
+  group('wa-polish2 on the chat screens', () {
+    testWidgets('1:1: a run of the same sender is grouped; empty box = Mic',
+        (tester) async {
+      final api = _Api();
+      final t0 = DateTime.now().subtract(const Duration(minutes: 30));
+      api.replies['/circle/keys/peer/5'] = {'public_key': _peer.publicKeyB64};
+      api.replies['/circle/5/messages'] = () => <String, dynamic>{
+            'results': [
+              _fromPeer(1, 'first', at: t0),
+              _fromPeer(2, 'second', at: t0.add(const Duration(minutes: 1))),
+              _fromPeer(3, 'much later', at: t0.add(const Duration(minutes: 20))),
+            ],
+          };
+      await _host(tester, api, CircleChatScreen(member: _member5(), identity: _me));
+      await tester.pump(const Duration(milliseconds: 500));
+      final byText = {
+        for (final b in tester.widgetList<CircleBubble>(find.byType(CircleBubble)))
+          b.msg.text: b.continued
+      };
+      expect(byText['first'], isFalse);
+      expect(byText['second'], isTrue, reason: 'same sender, a minute later');
+      expect(byText['much later'], isFalse, reason: '20 minutes later');
+      expect(find.byKey(const Key('wa2-mic')), findsOneWidget);
+      expect(find.byIcon(Icons.send_rounded), findsNothing);
+      await tester.enterText(find.byType(TextField).last, 'ok');
+      await tester.pump();
+      expect(find.byKey(const Key('wa2-mic')), findsNothing);
+      expect(find.byIcon(Icons.send_rounded), findsOneWidget);
+      await _dispose(tester);
+    });
+
+    testWidgets('group: the sender name only on the first of a run',
+        (tester) async {
+      final api = _Api();
+      final t0 = DateTime.now().subtract(const Duration(minutes: 30));
+      api.replies['/circle/groups/7/members'] = _roster7();
+      api.replies['/circle/groups/7/messages'] = () => <String, dynamic>{
+            'results': [
+              {..._fromPeer(1, 'g one', at: t0), 'per_recipient': null},
+              {..._fromPeer(2, 'g two', at: t0.add(const Duration(minutes: 1))),
+               'per_recipient': null},
+              {..._fromPeer(3, 'g later', at: t0.add(const Duration(minutes: 15))),
+               'per_recipient': null},
+            ],
+          };
+      await _host(tester, api, CircleGroupChatScreen(group: _group7, identity: _me));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('g two', findRichText: true), findsOneWidget);
+      expect(find.byKey(const ValueKey('wa2-sender-1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('wa2-sender-2')), findsNothing);
+      expect(find.byKey(const ValueKey('wa2-sender-3')), findsOneWidget);
+      expect(find.byKey(const Key('wa2-mic')), findsOneWidget);
+      await _dispose(tester);
+    });
+  });
+
   group('no send-to-poll flicker', () {
     testWidgets('1:1 text: on screen in every frame across the poll boundary',
         (tester) async {
@@ -371,6 +429,7 @@ void main() {
       await _host(tester, api, CircleChatScreen(member: _member5(), identity: _me));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextField).last, 'see you at 5');
+      await tester.pump(); // wa-polish2: Send shows once the box has text
       await tester.tap(find.byIcon(Icons.send_rounded));
       // first poll (7 s) does NOT have it yet; at 10 s the server copy lands;
       // the 14 s poll swaps it in. Present EXACTLY once in every frame.
@@ -423,6 +482,7 @@ void main() {
       await _host(tester, api, CircleGroupChatScreen(group: _group7, identity: _me));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextField).last, 'bring the papers');
+      await tester.pump(); // wa-polish2: Send shows once the box has text
       await tester.tap(find.byIcon(Icons.send_rounded));
       await _frames(tester, const Duration(seconds: 20), (i) {
         expect(find.text('bring the papers', findRichText: true), findsOneWidget,

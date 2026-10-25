@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'media_descriptor.dart';
+import 'voice_played.dart';
 import 'voice_player.dart';
 
 /// Waveform bars (levels 0..31); bars left of [progress] use [played].
@@ -43,6 +44,12 @@ class VoiceNoteBody extends StatelessWidget {
   final Color fg;
   final Widget? leading; // download / progress control when [path] is null
   final void Function(bool ok)? onPlayed;
+
+  /// wa-polish2: a received note not played yet — WhatsApp's dot.
+  final bool unplayed;
+
+  /// wa-polish2: seeds the stand-in bars when [wave] is empty.
+  final int? waveSeed;
   const VoiceNoteBody({
     super.key,
     required this.path,
@@ -51,11 +58,16 @@ class VoiceNoteBody extends StatelessWidget {
     required this.fg,
     this.leading,
     this.onPlayed,
+    this.unplayed = false,
+    this.waveSeed,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    // wa-polish2: no samples (older sender) -> stable seeded bars, not flat
+    final bars = wave.isNotEmpty ? wave : seededWave(waveSeed ?? durationMs);
     return ValueListenableBuilder<VoiceState>(
       valueListenable: VoicePlayer.instance.state,
       builder: (context, s, _) {
@@ -104,7 +116,7 @@ class VoiceNoteBody extends StatelessWidget {
                           width: c.maxWidth,
                           child: CustomPaint(
                             painter: WavePainter(
-                                wave, frac, fg, fg.withValues(alpha: 0.35)),
+                                bars, frac, fg, fg.withValues(alpha: 0.35)),
                           ),
                         ),
                       ),
@@ -115,6 +127,20 @@ class VoiceNoteBody extends StatelessWidget {
                             context, mediaDurationLabel(playing || pos > 0 ? pos : dur)),
                         style: TextStyle(fontSize: 11, color: fg.withValues(alpha: 0.8)),
                       ),
+                      // wa-polish2: WhatsApp's "not played yet" dot
+                      if (unplayed && !mine) ...[
+                        const SizedBox(width: 6),
+                        Semantics(
+                          label: t.wa2VoiceUnplayed,
+                          child: Container(
+                            key: const Key('wa2-voice-unplayed'),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                                color: scheme.primary, shape: BoxShape.circle),
+                          ),
+                        ),
+                      ],
                       // e-gaps: playback speed (shown once this note plays)
                       if (mine && (playing || pos > 0)) ...[
                         const SizedBox(width: 8),

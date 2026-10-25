@@ -45,11 +45,13 @@ import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
 import '../messaging/media/media_send.dart';
+import '../messaging/media/voice_hold_mic.dart'; // wa-polish2
 import '../messaging/media/media_store.dart';
 import '../widgets/circle_attach_sheet.dart';
 import '../messaging/badges_bus.dart';
 import '../messaging/chat_header.dart'; // t1-ticks
 import '../messaging/date_separators.dart'; // t1-ticks
+import '../messaging/bubble_grouping.dart'; // wa-polish2
 import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
@@ -342,6 +344,30 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             ? _rt.recordingStarted('group', _gid)
             : _rt.recordingStopped('group', _gid));
     if (draft == null || !mounted) return;
+    await _queueDraft(draft);
+  }
+
+  // wa-polish2: the composer mic (hold to record) — same voice-note path as
+  // the attach sheet (recorder seam -> MediaDraft -> E2E media outbox).
+  // (Not disposed: a finishing recording may still report after the pop.)
+  final VoiceHoldController _voiceHold = VoiceHoldController();
+  bool get _canVoice =>
+      _canAttach && circleAttachKinds().contains(CircleAttachKind.voice);
+
+  void _voiceSignal(bool on) => on
+      ? _rt.recordingStarted('group', _gid)
+      : _rt.recordingStopped('group', _gid);
+
+  /// Mic tap: the hands-free recorder sheet (the attach sheet's voice note).
+  Future<void> _recordHandsFree() async {
+    final draft = await pickMediaDraft(context, _api, CircleAttachKind.voice,
+        onRecording: _voiceSignal);
+    if (draft == null || !mounted) return;
+    await _queueDraft(draft);
+  }
+
+  Future<void> _queueDraft(MediaDraft draft) async {
+    if (!mounted) return;
     final job = await confirmAndQueueMedia(context, draft,
         chatKind: 'group',
         chatId: _gid,
@@ -1869,7 +1895,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             );
           }
           return buildChatRow<Map<String, dynamic>>(rows[i], (msg) {
-            final item = _messageItem(msg);
+            // wa-polish2: WhatsApp grouping — the sender's name only on the
+            // first of a run of their messages, tight spacing in the run
+            final item = _messageItem(msg,
+                continued: !(showDivider && '${msg['id']}' == _firstUnreadId) &&
+                    continuesOlderRow<Map<String, dynamic>>(rows, i,
+                        senderOf: _runSender, atOf: _runAt));
             if (showDivider && '${msg['id']}' == _firstUnreadId) {
               // reversed: the divider sits ABOVE the first unread message
               return Column(
@@ -1964,7 +1995,23 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
   }
 
-  Widget _messageItem(Map<String, dynamic> msg) {
+  /// wa-polish2: who a bubble belongs to, for grouping; null for anything
+  /// that is not a plain bubble (poll, send in progress, system line, card).
+  String? _runSender(Map<String, dynamic> msg) {
+    if (msg['md1_job'] != null || msg['kind'] == 'poll' || msg['poll'] != null) {
+      return null;
+    }
+    if (_controlOf(msg) != null || _p3Card(msg) != null) return null;
+    if (msg['announcement'] == true) return null;
+    if (msg['mine'] == true) return 'me';
+    final sid = '${msg['sender_id'] ?? ''}';
+    return sid.isEmpty ? null : 'u$sid';
+  }
+
+  DateTime? _runAt(Map<String, dynamic> msg) =>
+      DateTime.tryParse('${msg['created_at'] ?? msg['at'] ?? ''}');
+
+  Widget _messageItem(Map<String, dynamic> msg, {bool continued = false}) {
     final job = msg['md1_job'];
     // cde-chat: theme / nickname changes are centred system lines
     if (job is MediaJob && job.control != null) {
@@ -2050,24 +2097,33 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             : announcement
                 ? Theme.of(context).colorScheme.tertiaryContainer
                 : null,
-        margin: const EdgeInsets.symmetric(vertical: Gap.xs),
+        // wa-polish2: tight inside a run, air above a new sender's run
+        margin: EdgeInsets.only(
+            top: continued ? Gap.xxs / 2 : Gap.sm, bottom: Gap.xxs / 2),
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (!continued || msg['pinned'] == true) ...[
               Row(
                 children: [
                   if (announcement) ...[
                     const Icon(Icons.campaign_rounded, size: 16),
                     const SizedBox(width: Gap.xs),
                   ],
-                  Text(senderName,
+                  if (!continued)
+                  Flexible(
+                    child: Text(senderName,
+                      key: ValueKey('wa2-sender-${msg['id']}'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge
                           ?.copyWith(
                               color: Theme.of(context).colorScheme.primary)),
+                  ),
                   if (msg['pinned'] == true) ...[
                     const SizedBox(width: Gap.xs),
                     const Icon(Icons.push_pin_rounded, size: 12),
@@ -2075,6 +2131,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 ],
               ),
               const SizedBox(height: Gap.xs),
+              ],
               if (msg['forwarded'] == true && '${msg['deleted'] ?? ''}' != 'everyone')
                 Padding(
                   // md2: the WhatsApp "Forwarded" label in groups too
@@ -2341,20 +2398,30 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
         child: Row(
           children: [
-            if (_canAttach)
-              IconButton(
-                key: const Key('md1-group-attach'),
-                tooltip: _t.circleAttach,
-                icon: const Icon(Icons.add_circle_outline_rounded),
-                onPressed: _attach,
-              ),
-            IconButton(
-              tooltip: _t.circleGroupCreatePoll,
-              icon: const Icon(Icons.poll_rounded),
-              onPressed: _createPoll,
+            // wa-polish2: while a held recording runs, the strip gets the
+            // whole width (WhatsApp hides the other buttons too)
+            ListenableBuilder(
+              listenable: _voiceHold,
+              builder: (_, __) => _voiceHold.active
+                  ? const SizedBox(width: Gap.xs)
+                  : Row(mainAxisSize: MainAxisSize.min, children: [
+                      if (_canAttach)
+                        IconButton(
+                          key: const Key('md1-group-attach'),
+                          tooltip: _t.circleAttach,
+                          icon: const Icon(Icons.add_circle_outline_rounded),
+                          onPressed: _attach,
+                        ),
+                      IconButton(
+                        tooltip: _t.circleGroupCreatePoll,
+                        icon: const Icon(Icons.poll_rounded),
+                        onPressed: _createPoll,
+                      ),
+                    ]),
             ),
             Expanded(
-              child: TextField(
+              child: Stack(children: [
+              TextField(
                 controller: _input,
                 focusNode: _inputFocus, // db1
                 minLines: 1,
@@ -2377,23 +2444,47 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       horizontal: Gap.lg, vertical: Gap.sm),
                 ),
               ),
+              // wa-polish2: the held recording covers the box
+              ListenableBuilder(
+                listenable: _voiceHold,
+                builder: (_, __) => _voiceHold.active
+                    ? Positioned.fill(child: VoiceHoldStrip(controller: _voiceHold))
+                    : const SizedBox.shrink(),
+              ),
+              ]),
             ),
             // p3: the Assisto button (same actions as typing "@Assisto")
-            IconButton(
-              key: const ValueKey('p3-assisto-btn'),
-              icon: const Icon(Icons.auto_awesome_rounded),
-              tooltip: _t.p3Assisto,
-              onPressed: () => _openAssisto(),
+            ListenableBuilder(
+              listenable: _voiceHold,
+              builder: (_, __) => _voiceHold.active
+                  ? const SizedBox(width: Gap.xs)
+                  : IconButton(
+                      key: const ValueKey('p3-assisto-btn'),
+                      icon: const Icon(Icons.auto_awesome_rounded),
+                      tooltip: _t.p3Assisto,
+                      onPressed: () => _openAssisto(),
+                    ),
             ),
-            IconButton.filled(
-              tooltip: _t.send,
-              icon: _sending
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send_rounded),
-              onPressed: _sending ? null : _send,
+            // wa-polish2: empty box -> Mic (hold to record), text -> Send
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _input,
+              builder: (_, v, __) => (_canVoice && !_sending && v.text.trim().isEmpty)
+                  ? VoiceHoldMic(
+                      controller: _voiceHold,
+                      onTap: () => unawaited(_recordHandsFree()),
+                      onRecording: _voiceSignal,
+                      onDraft: _queueDraft,
+                    )
+                  : IconButton.filled(
+                      tooltip: _t.send,
+                      icon: _sending
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.send_rounded),
+                      onPressed: _sending ? null : _send,
+                    ),
             ),
           ],
         ),
