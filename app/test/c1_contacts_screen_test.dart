@@ -68,7 +68,7 @@ class _Api extends ApiClient {
   }
 
   final Map<String, Map<String, dynamic>> users = {
-    '+8801865052200': {
+    '+8801711000777': {
       'id': 2,
       'name': 'Rahim Uddin',
       'photo': '',
@@ -176,7 +176,7 @@ AppLocalizations _t(WidgetTester tester) =>
     AppLocalizations.of(tester.element(find.byType(ContactsScreen)));
 
 final _book = [
-  const DeviceContact(name: 'Rahim (office)', numbers: ['+880 1865-052200']),
+  const DeviceContact(name: 'Rahim (office)', numbers: ['+880 1711-000777']),
   const DeviceContact(name: 'Karim', numbers: ['01711-000555']),
   const DeviceContact(name: 'Zara', numbers: ['01999 888777']),
   const DeviceContact(name: 'Broken', numbers: ['12']),
@@ -235,7 +235,7 @@ void main() {
     for (final h in hashes) {
       expect(RegExp(r'^[0-9a-f]{32}$').hasMatch(h), isTrue);
     }
-    expect(api.matchBodies.single.toString().contains('1865052200'), isFalse);
+    expect(api.matchBodies.single.toString().contains('1711000777'), isFalse);
   });
 
   testWidgets('Add to My Circle sends a circle request for that user',
@@ -269,15 +269,15 @@ void main() {
     await tester.tap(notNow); // "Not now" -> straight to search
     await _settle(tester);
     for (final raw in [
-      '+880 1865-052200',
-      '8801865052200',
-      '01865052200',
-      '০১৮৬৫০৫২২০০',
+      '+880 1711-000777',
+      '8801711000777',
+      '01711000777',
+      '০১৭১১০০০৭৭৭',
     ]) {
       await tester.enterText(find.byKey(const Key('c1-search')), raw);
       await tester.tap(find.byKey(const Key('c1-search-go')));
       await _settle(tester);
-      expect(api.lookups.last, '+8801865052200', reason: raw);
+      expect(api.lookups.last, '+8801711000777', reason: raw);
       expect(find.byKey(const Key('c1-search-found')), findsOneWidget);
       expect(find.text('Rahim Uddin'), findsOneWidget);
       expect(find.byKey(const Key('c1-add-2')), findsOneWidget);
@@ -322,7 +322,7 @@ void main() {
     expect(find.byKey(const Key('c1-section-on')), findsNothing);
     expect(api.matchBodies, isEmpty);
     // search still works
-    await tester.enterText(find.byKey(const Key('c1-search')), '01865052200');
+    await tester.enterText(find.byKey(const Key('c1-search')), '01711000777');
     await tester.tap(find.byKey(const Key('c1-search-go')));
     await _settle(tester);
     expect(find.byKey(const Key('c1-search-found')), findsOneWidget);

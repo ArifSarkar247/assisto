@@ -399,7 +399,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'c1_contacts_synced': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
     // m3-circle: My Circle like WhatsApp — Add flow states, New chat, Requests.
     'm3_add_circle': (build: (_) => const M3AddToCircleScreen(), mode: FakeMode.data, full: true),
-    'm3_add_found': (build: (_) => const M3AddToCircleScreen(initialNumber: '+880 1865-052200'), mode: FakeMode.data, full: true),
+    'm3_add_found': (build: (_) => const M3AddToCircleScreen(initialNumber: '+880 1711-000777'), mode: FakeMode.data, full: true),
     'm3_add_notfound': (build: (_) => const M3AddToCircleScreen(initialNumber: '01999 888 777'), mode: FakeMode.data, full: true),
     'm3_new_chat': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return Builder(builder: (ctx) => ContactsScreen(source: const C1GallerySource(), title: AppLocalizations.of(ctx).msgrNewChat, header: M3NewChatActions(onAdd: () {}, onNewGroup: () {}, onNewCommunity: () {}, onInvite: () {}))); }, mode: FakeMode.data, full: true),
     'm3_requests': (build: (_) => const M3RequestsScreen(), mode: FakeMode.data, full: true),

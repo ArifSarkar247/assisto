@@ -8,7 +8,7 @@ import 'package:assisto/services/phone_canon.dart';
 const _salt = 'gallery-salt';
 
 final Map<String, Map<String, dynamic>> _users = {
-  '+8801865052200': {
+  '+8801711000777': {
     'id': 2, 'name': 'Rahim Uddin', 'photo': '',
     'circle': {'state': 'none', 'member_id': null, 'member': null},
   },
@@ -67,7 +67,7 @@ class C1GallerySource implements ContactsSource {
   Future<ContactsPermission> request() async => ContactsPermission.granted;
   @override
   Future<List<DeviceContact>> read() async => const [
-        DeviceContact(name: 'Rahim (office)', numbers: ['+880 1865-052200']),
+        DeviceContact(name: 'Rahim (office)', numbers: ['+880 1711-000777']),
         DeviceContact(name: 'Karim bhai', numbers: ['01711-000555']),
         DeviceContact(name: 'Nasrin', numbers: ['01811000666']),
         DeviceContact(name: 'Ammu', numbers: ['01999 888777']),

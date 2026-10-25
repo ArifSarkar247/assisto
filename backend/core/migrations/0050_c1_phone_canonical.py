@@ -1,7 +1,7 @@
 """c1-contacts — DATA migration: one canonical phone form + backfill hashes.
 
 1. User.phone -> canonical E.164 (core.phone.canonical_phone), e.g.
-   01865052200 / 8801865052200 / "+880 1865-052200" -> +8801865052200.
+   01711000777 / 8801711000777 / "+880 1711-000777" -> +8801711000777.
    COLLISIONS (two accounts whose numbers normalise to the same canonical
    value) are NEVER merged or deleted: every account in the group is left
    exactly as it is and reported in the migration output for the owner.

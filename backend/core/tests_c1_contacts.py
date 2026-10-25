@@ -20,8 +20,8 @@ from . import phone as P
 from .models import (AdminFlagState, CircleMember, PhoneVerification, User,
                      UserPhoneHash)
 
-OWNER_NO = "01865052200"
-CANON = "+8801865052200"
+OWNER_NO = "01711000777"
+CANON = "+8801711000777"
 
 
 def _client(user):
@@ -41,15 +41,15 @@ def _set_flag(fid, value):
 
 class CanonicalPhoneTests(TestCase):
     def test_bd_any_format(self):
-        for raw in (OWNER_NO, "+8801865052200", "8801865052200",
-                    "008801865052200", "+880 1865-052200", "(+880) 1865 052200",
-                    "01865-052200", "018.6505.2200", "1865052200",
-                    "+880 01865052200", "০১৮৬৫০৫২২০০", "+৮৮০ ১৮৬৫-০৫২২০০"):
+        for raw in (OWNER_NO, "+8801711000777", "8801711000777",
+                    "008801711000777", "+880 1711-000777", "(+880) 1711 000777",
+                    "01711-000777", "017.1100.0777", "1711000777",
+                    "+880 01711000777", "০১৭১১০০০৭৭৭", "+৮৮০ ১৭১১-০০০৭৭৭"):
             self.assertEqual(P.canonical_phone(raw), CANON, raw)
 
     def test_rejects_invalid_honestly(self):
-        for raw in ("", "   ", "12345", "0186505220", "018650522001",
-                    "01265052200", "abc01865052200", "+8801234", "++880",
+        for raw in ("", "   ", "12345", "0171100077", "017110007771",
+                    "01211000777", "abc01711000777", "+8801234", "++880",
                     "0000000000"):
             self.assertIsNone(P.canonical_phone(raw), raw)
 
@@ -61,13 +61,13 @@ class CanonicalPhoneTests(TestCase):
 
     def test_variants_cover_legacy_spellings(self):
         v = P.variants(CANON)
-        for legacy in (CANON, "8801865052200", OWNER_NO, "+88001865052200"):
+        for legacy in (CANON, "8801711000777", OWNER_NO, "+88001711000777"):
             self.assertIn(legacy, v)
 
     def test_hash_contract_matches_reference(self):
         from .logic import msg_contacts as mc
         salt = P.match_salt()
-        self.assertEqual(P.hash_raw("+880 1865-052200"),
+        self.assertEqual(P.hash_raw("+880 1711-000777"),
                          mc.hash_phone(mc.normalize_e164(OWNER_NO), salt))
         self.assertEqual(len(P.hash_raw(OWNER_NO)), 32)
         self.assertEqual(P.hash_raw("bad"), "")
@@ -124,7 +124,7 @@ class PhoneHashSyncTests(TestCase):
         u = User.objects.create_user(name="L", phone=OWNER_NO, password="x12345")
         User.objects.filter(pk=u.pk).update(phone=OWNER_NO)  # pre-0050 row
         r = APIClient().post("/api/v1/auth/login",
-                             {"identifier": "+880 1865 052200",
+                             {"identifier": "+880 1711 000777",
                               "password": "x12345"}, format="json")
         self.assertEqual(r.status_code, 200)
 
@@ -138,7 +138,7 @@ class PhoneHashSyncTests(TestCase):
         self.assertEqual(b.phone, "+8801711000444")
         self.assertEqual(UserPhoneHash.objects.get(user=b).phone_hash,
                          P.hash_raw("01711000444"))
-        r = _client(b).patch("/api/v1/me", {"phone": "+880 1865-052200"},
+        r = _client(b).patch("/api/v1/me", {"phone": "+880 1711-000777"},
                              format="json")
         self.assertEqual(r.status_code, 400)
         r = _client(b).patch("/api/v1/me", {"phone": "99"}, format="json")
@@ -147,7 +147,7 @@ class PhoneHashSyncTests(TestCase):
 
 
 class ContactsDiscoveryTests(TestCase):
-    """Two accounts: B registered as 01865052200, A searches for B."""
+    """Two accounts: B registered as 01711000777, A searches for B."""
 
     def setUp(self):
         cache.clear()
@@ -162,8 +162,8 @@ class ContactsDiscoveryTests(TestCase):
                                         {"phone": raw}, format="json")
 
     def test_manual_search_any_format(self):
-        for raw in ("+880 1865-052200", "8801865052200", OWNER_NO,
-                    "০১৮৬৫০৫২২০০", "(01865) 052200"):
+        for raw in ("+880 1711-000777", "8801711000777", OWNER_NO,
+                    "০১৭১১০০০৭৭৭", "(01711) 000777"):
             r = self._lookup(raw)
             self.assertEqual(r.status_code, 200, raw)
             j = r.json()
@@ -208,7 +208,7 @@ class ContactsDiscoveryTests(TestCase):
                         hashlib.sha256).hexdigest()[:c["hash_len"]]
 
     def test_contacts_match_finds_registered_user(self):
-        h = self._client_hash("+880 1865-052200")
+        h = self._client_hash("+880 1711-000777")
         other = self._client_hash("01999888777")  # not on Assisto
         r = self.ca.post("/api/v1/messenger/contacts/match",
                          {"hashes": [h, other], "permission_granted": True},
@@ -244,7 +244,7 @@ class ContactsDiscoveryTests(TestCase):
             "/api/v1/messenger/contacts/contract").json()["unverified_matchable"])
         # B proves the number by OTP -> discoverable again
         PhoneVerification.objects.create(user=self.b, phone=CANON)
-        self.assertTrue(self._lookup("+880 1865-052200").json()["found"])
+        self.assertTrue(self._lookup("+880 1711-000777").json()["found"])
         r = self.ca.post("/api/v1/messenger/contacts/match",
                          {"hashes": [h], "permission_granted": True},
                          format="json")
@@ -258,7 +258,7 @@ class ContactsDiscoveryTests(TestCase):
     def test_circle_request_accept_message_and_call(self):
         # A adds B by a number typed in a different format
         r = self.ca.post("/api/v1/circle/request",
-                         {"phone": "+880 1865-052200", "relation": "friend"},
+                         {"phone": "+880 1711-000777", "relation": "friend"},
                          format="json")
         self.assertEqual(r.status_code, 201, r.content)
         a_edge = r.json()["id"]

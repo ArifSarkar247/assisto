@@ -137,7 +137,7 @@ class _Api extends ApiClient {
     calls.add(('POST', path, body));
     if (path == '/messenger/contacts/lookup') {
       return {
-        'ok': true, 'found': true, 'phone': '+8801865052200',
+        'ok': true, 'found': true, 'phone': '+8801711000777',
         'user': {'id': 2, 'name': 'Nadia Rahman', 'circle': {'state': 'none'}},
       };
     }
@@ -237,7 +237,7 @@ void main() {
     final s = await server(tester);
     final api = _Api(s, 1);
     await _host(tester, api,
-        const M3AddToCircleScreen(initialNumber: '01865-052200'));
+        const M3AddToCircleScreen(initialNumber: '01711-000777'));
     await _settle(tester);
     await tester.tap(find.byKey(const Key('m3-rel-friend')));
     await _settle(tester);

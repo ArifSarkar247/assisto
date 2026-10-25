@@ -33,7 +33,7 @@ def _env(text="x", cmid="", **extra):
 class _Base(TestCase):
     def setUp(self):
         self.a = _register("Amina A", "01711000001")
-        self.b = _register("Owner B", "01865052200")
+        self.b = _register("Owner B", "01711000777")
         self.ca, self.cb = _auth(self.a), _auth(self.b)
         p = mock.patch("core.push.safe_push", return_value=1)
         self.push = p.start()
@@ -43,7 +43,7 @@ class _Base(TestCase):
         self.addCleanup(p2.stop)
 
     def _start(self, c=None, **body):
-        body = body or {"phone": "01865052200"}
+        body = body or {"phone": "01711000777"}
         return (c or self.ca).post("/api/v1/circle/message-request/start",
                                    body, format="json")
 

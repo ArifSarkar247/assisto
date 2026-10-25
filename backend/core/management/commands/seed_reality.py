@@ -3,7 +3,7 @@
     python manage.py seed_reality --settings=assisto_backend.settings_ci [--out f.json]
 
 Creates three demo accounts (A = the phone-under-test, B = the "other phone",
-C = a second "other phone" registered as 01865052200, NOT connected to A),
+C = a second "other phone" registered as 01711000777, NOT connected to A),
 an accepted My-Circle edge between them, family members + emergency card,
 money accounts/transactions/budget, notes/todos/reminders and a business
 (profile, products, khata party). Wherever a REAL API endpoint exists the data
@@ -34,9 +34,9 @@ USERS = {
     "b": {"name": "Reality Karim", "phone": "01700000002",
           "email": "karim@reality.test"},
     # m3-circle: the "second phone" for the WhatsApp-style add flow,
-    # registered as 01865052200 (owner order). NOT connected to A: every seed
+    # registered as 01711000777 (owner order). NOT connected to A: every seed
     # run removes any A<->C edge so the flow always starts from "not added".
-    "c": {"name": "Reality Nadia", "phone": "01865052200",
+    "c": {"name": "Reality Nadia", "phone": os.getenv("REALITY_C_PHONE", "01711000777"),
           "email": "nadia@reality.test"},
 }
 
