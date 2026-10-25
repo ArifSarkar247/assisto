@@ -66,6 +66,17 @@ jobs:
         working-directory: app
         run: flutter create --project-name assisto --org com.assisto --platforms=android .
 
+      - name: Gradle memory fits the self-hosted runner (5 GB cap)
+        working-directory: app
+        run: |
+          # Flutter's template asks for -Xmx8G; on our capped runner that thrashed
+          # (build 231 crawled for 75 min). 2 GB heap + 2 workers fits.
+          f=android/gradle.properties
+          sed -i '/^org.gradle.jvmargs=/d;/^kotlin.daemon.jvm.options=/d;/^org.gradle.workers.max=/d' "$f"
+          printf '%s\n' 'org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError' \
+            'kotlin.daemon.jvm.options=-Xmx768m' 'org.gradle.workers.max=2' >> "$f"
+          cat "$f"
+
       - name: Apply native overlay (custom Kotlin/res for native features)
         working-directory: app
         run: |
