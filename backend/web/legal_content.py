@@ -453,15 +453,15 @@ PRIVACY = [
     S("ads", "বিজ্ঞাপন (Google AdMob)", "Advertising (Google AdMob)",
       P("ফ্রি প্ল্যানে অ্যাপে <b>Google AdMob</b>-এর বিজ্ঞাপন দেখানো হয় — এভাবেই ফ্রি প্ল্যান চলে। <b>প্রিমিয়াম ও বিজনেস প্ল্যানে কোনো বিজ্ঞাপন নেই।</b> "
         "বিজ্ঞাপন দেখাতে, একই বিজ্ঞাপন কতবার দেখানো হলো তা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর বিজ্ঞাপন SDK এই তথ্য সংগ্রহ ও Google-কে পাঠায়: "
-        "ডিভাইসের রিসেটযোগ্য বিজ্ঞাপন আইডি (<b>Advertising ID</b>), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য এবং কোন বিজ্ঞাপন দেখা বা ট্যাপ করা হলো। "
+        "ডিভাইসের রিসেটযোগ্য বিজ্ঞাপন আইডি (<b>Advertising ID</b>), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য, বিজ্ঞাপনের সাথে অ্যাপে কী করা হলো (কোন বিজ্ঞাপন দেখা বা ট্যাপ করা হলো) এবং SDK-র ডায়াগনস্টিক তথ্য (যেমন বিজ্ঞাপন লোডের সময় ও ত্রুটি)। "
         "Assisto এই আইডি সংরক্ষণ করে না। দৈনিক সীমা ও বিজ্ঞাপন-ক্রেডিটের হিসাবের জন্য আমরা আপনার অ্যাকাউন্টে কয়টি বিজ্ঞাপন দেখানো হলো তা রাখি; আর বিজ্ঞাপনের জায়গা ঠিক করতে শুধু প্রতিটি জায়গার মোট দেখানো/ট্যাপ ও Google-এর জানানো আনুমানিক আয় রাখি — কোনো ব্যবহারকারী বা ডিভাইস আইডি ছাড়া। "
-        "আপনার মেসেজ, কন্টাক্ট, অবস্থান, স্বাস্থ্য তথ্য বা ছবি কখনো বিজ্ঞাপনদাতা বা Google-কে বিজ্ঞাপনের জন্য দেওয়া হয় না। "
+        "আপনার মেসেজ, কন্টাক্ট, সুনির্দিষ্ট (GPS) অবস্থান, স্বাস্থ্য তথ্য বা ছবি কখনো বিজ্ঞাপনদাতা বা Google-কে বিজ্ঞাপনের জন্য দেওয়া হয় না। "
         "বিস্তারিত: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">Google কীভাবে বিজ্ঞাপনে তথ্য ব্যবহার করে</a>।",
         "On the Free plan the app shows ads from <b>Google AdMob</b> — that is how the Free plan is paid for. <b>Premium and Business plans have no ads.</b> "
         "To show ads, limit how often the same ad appears, prevent fraud and produce aggregate reports, Google's ads SDK collects and sends to Google: "
-        "the device's resettable advertising identifier (<b>Advertising ID</b>), IP address (approximate area), device and app information, and which ads were viewed or tapped. "
+        "the device's resettable advertising identifier (<b>Advertising ID</b>), IP address (approximate area), device and app information, app interactions with ads (which ads were viewed or tapped) and SDK diagnostics (such as ad load times and errors). "
         "Assisto does not store this ID. For the daily caps and the ad-credit wallet we keep a count of the ads shown to your account; to tune ad placements we keep only totals per placement (times shown/tapped and the estimated value Google reports) — with no user or device ID. "
-        "Your messages, contacts, location, health data and photos are never given to advertisers or to Google for ads. "
+        "Your messages, contacts, precise (GPS) location, health data and photos are never given to advertisers or to Google for ads. "
         "Details: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">how Google uses information from ads</a>."),
       P("<b>সম্মতি (Google UMP):</b> ইউরোপীয় অর্থনৈতিক এলাকা, যুক্তরাজ্য ও সুইজারল্যান্ডে (GDPR) এবং যুক্তরাষ্ট্রের যেসব রাজ্যের গোপনীয়তা আইন চায়, সেখানে প্রথম বিজ্ঞাপনের আগে Google-এর সার্টিফায়েড সম্মতি ফর্ম দেখানো হয়; আপনি সম্মতি দিতে, না দিতে বা আপনার তথ্য বিক্রি/শেয়ার না করতে বলতে পারেন। "
         "<b>পার্সোনালাইজড বনাম নন-পার্সোনালাইজড:</b> পার্সোনালাইজড বিজ্ঞাপন আপনার আগ্রহ অনুযায়ী বাছাই হয়; নন-পার্সোনালাইজড বিজ্ঞাপন শুধু প্রসঙ্গ (যেমন অ্যাপ ও আনুমানিক এলাকা) দেখে বাছাই হয়। "
