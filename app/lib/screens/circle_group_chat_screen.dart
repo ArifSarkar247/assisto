@@ -36,6 +36,7 @@ import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/echo_reconcile.dart'; // md2
 import '../messaging/disappear_sweep.dart'; // e-gaps
+import '../messaging/chat_actions.dart'; // chat-actions
 import '../messaging/chat_lock.dart'; // e-gaps
 import '../messaging/forward.dart'; // md2
 import '../services/action_feedback.dart';
@@ -1023,6 +1024,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _chooseDisappearing() async {
+    // chat-actions (owner 26 Oct): admins set the group timer (server too)
+    if (_myRole != 'admin') {
+      _toast(_t.caGroupTimerAdminOnly);
+      return;
+    }
     final v = await showGroupOptionPicker(
       context,
       title: _t.grpMenuDisappearing,
@@ -1440,26 +1446,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _clearChat() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(_t.grpMenuClearChat),
-        content: Text(_t.grpClearChatConfirm),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(_t.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(_t.grpMenuClearChat)),
-        ],
-      ),
-    );
-    if (ok != true) return;
+    // chat-actions: WhatsApp confirm with "Keep starred messages"
+    final keep = await showClearChatDialog(context);
+    if (keep == null || !mounted) return;
     try {
       // Per-user marker on the server: hidden for me, kept for the others.
-      await _api.groupClear(_groupId);
-      if (mounted) setState(() => _messages = []);
+      await _api.clearChatFor(_chatKey, keepStarred: keep);
+      await wipeChatLocally(_chatKey);
+      if (mounted) {
+        setState(() => _messages = keep
+            ? _messages.where((m) => m['starred'] == true).toList()
+            : []);
+        _toast(_t.caChatCleared);
+      }
     } catch (e) {
       _fail(e);
     }
@@ -1570,6 +1569,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           avatar: HeaderInitialAvatar(
               name: '${widget.group['name'] ?? ''}', group: true),
           onTap: _openInfo,
+          // chat-actions: the group's disappearing timer is on
+          nameBadge: _timerSecOf('${widget.group['disappearing'] ?? 'off'}') > 0
+              ? ChatTimerIcon(
+                  seconds: _timerSecOf('${widget.group['disappearing'] ?? 'off'}'))
+              : null,
         ),
         actions: [
           IconButton(

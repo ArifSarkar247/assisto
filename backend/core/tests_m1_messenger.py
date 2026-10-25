@@ -232,7 +232,7 @@ class GroupMenuTests(_Base):
                                       format="json").status_code, 400)
 
     def test_disappearing_hides_and_purges(self):
-        r = self.cb.post(self.p("disappearing"), {"ttl": "24h"}, format="json")
+        r = self.ca.post(self.p("disappearing"), {"ttl": "24h"}, format="json")
         self.assertEqual(r.json()["disappearing_sec"], 86400)
         old = self.gmsg(self.g, self.a)
         CircleMessage.objects.filter(pk=old.pk).update(
@@ -255,7 +255,7 @@ class GroupMenuTests(_Base):
     def test_disappearing_denied_and_bad(self):
         self.assertEqual(self.cc.post(self.p("disappearing"), {"ttl": "24h"},
                                       format="json").status_code, 404)
-        self.assertEqual(self.cb.post(self.p("disappearing"), {"ttl": "1h"},
+        self.assertEqual(self.ca.post(self.p("disappearing"), {"ttl": "1h"},
                                       format="json").status_code, 400)
 
     def test_theme_and_favourite(self):

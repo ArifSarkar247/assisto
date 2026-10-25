@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import '../../widgets/default_timer_row.dart'; // chat-actions
 import '../circle_privacy_screen.dart';
 
 /// Privacy hub for the full-spec Settings. The field visibility toggles
@@ -79,6 +80,10 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
             subtitle: t.msgrSetPrivacyBlockedSub,
             onTap: () => _open(context, const MsgrSetBlockedListScreen()),
           ),
+          // chat-actions: default disappearing timer for NEW chats
+          const Divider(),
+          MsgrSetSection(t.msgrChatDisappearing),
+          const DefaultTimerRow(),
           MsgrSetNote(t.msgrSetPrivacyServerNote,
               icon: Icons.verified_user_rounded),
         ],

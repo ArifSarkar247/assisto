@@ -3223,6 +3223,11 @@ class MsgChatPref(models.Model):
     wallpaper = models.CharField(max_length=40, blank=True, default="")
     cleared_at = models.DateTimeField(null=True, blank=True)
     disappearing_since = models.DateTimeField(null=True, blank=True)
+    # chat-actions: "Clear chat" may keep this user's starred messages, and
+    # "Delete chat" hides the whole row from MY list until a newer message
+    # arrives (the membership is never touched).
+    cleared_keep_starred = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -3262,6 +3267,9 @@ class MsgUserSettings(models.Model):
     pending_expires = models.DateTimeField(null=True, blank=True)
     pending_attempts = models.IntegerField(default=0)
     pending_sent_at = models.DateTimeField(null=True, blank=True)
+    # chat-actions: Settings > Privacy "Default message timer" for NEW chats
+    # (0 / 86400 / 604800 / 7776000).
+    default_disappearing_sec = models.IntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
 

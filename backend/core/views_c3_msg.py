@@ -568,6 +568,17 @@ def augment_chat_rows(user, out):
     return out
 
 
+def _group_row_prefs(user, g):
+    try:
+        from .views_m1_messenger import chat_pref, group_timer
+        p = chat_pref(user, "group", g.id)
+        t = group_timer(g)
+        return {"favourite": bool(p and p.favourite),
+                "disappearing_sec": (t.disappearing_sec if t else 0) or 0}
+    except Exception:
+        return {"favourite": False, "disappearing_sec": 0}
+
+
 def group_rows(user):
     from .views_m1_messenger import visible_group_messages, organise_muted
     rows = []
@@ -578,6 +589,10 @@ def group_rows(user):
     for gm in mems:
         g = gm.group
         msgs = visible_group_messages(g, user)
+        # chat-actions: a deleted group chat hides until a newer message
+        from . import chat_actions as CA
+        if CA.chat_hidden(user, "group", g.id, msgs):
+            continue
         last = msgs[-1] if msgs else None
         from . import b2_badges as B2   # the ONE shared unread count
         unread = B2.count_unread(user, msgs)
@@ -604,7 +619,9 @@ def group_rows(user):
             "pinned": bool(gorg.get(str(g.id), {}).get("pinned")),
             "pin_at": gorg.get(str(g.id), {}).get("pin_at"),
             "archived": bool(gorg.get(str(g.id), {}).get("archived")),
-            "muted": bool(muted), "favourite": False, "lists": [],
+            "muted": bool(muted), "lists": [],
+            # chat-actions: the viewer's own favourite + the group timer
+            **_group_row_prefs(user, g),
         })
     return rows
 

@@ -994,12 +994,16 @@ class CircleMessagesView(APIView):
         # mr1: the chat learns live when a message request is accepted
         edge = {"state": m.state, "direction": m.direction or "outgoing",
                 "request": _msgreq_info(m), **_connect_fields(m)}
+        # chat-actions: the server's delete-for-everyone window (minutes)
+        from . import chat_actions as CA
+        win = CA.delete_window_min()
         if meta is not None:
             chat_paging.mark_unseen(out, meta["unseen"])
             return Response({"results": out, "has_more": meta["has_more"],
                              "unread_count": meta["unread_count"],
-                             "edge": edge})
-        return Response({"results": out, "edge": edge})
+                             "edge": edge, "delete_window_min": win})
+        return Response({"results": out, "edge": edge,
+                         "delete_window_min": win})
 
     def post(self, request, pk):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
@@ -1114,6 +1118,16 @@ class CircleMessagesView(APIView):
         notify = circle_privacy.should_notify({}, decision["inbox"])
         fh = int(env.get("forward_hops", 0) or 0)
         from . import e_gaps as _eg
+        # chat-actions: Settings > Privacy default timer — a BRAND-NEW
+        # conversation (no message ever) starts with it, before this row.
+        default_timer = 0
+        try:
+            from .views_m1_messenger import conversation_rows as _conv
+            if not _conv(m).exists():
+                from . import chat_actions as CA
+                default_timer = CA.apply_default_timer(request.user, m)
+        except Exception:
+            default_timer = 0
         x = CircleMessage.objects.create(
             member=m, sender=request.user,
             recipient_ids=env.get("recipient_ids", []),
@@ -1151,9 +1165,11 @@ class CircleMessagesView(APIView):
             # FCM (key-gated, async, never raises): name + ids only, no text.
             from . import push
             push.hook_circle_message(request.user, m, x)
-        return Response({"id": x.id, "ok": True, "inbox": decision["inbox"],
-                         "notify": notify},
-                        status=status.HTTP_201_CREATED)
+        body = {"id": x.id, "ok": True, "inbox": decision["inbox"],
+                "notify": notify}
+        if default_timer:
+            body["default_timer_sec"] = default_timer
+        return Response(body, status=status.HTTP_201_CREATED)
 
 
 class CircleMessageActionView(APIView):
@@ -1212,24 +1228,20 @@ class CircleMessageActionView(APIView):
             return Response({"ok": True, "edited_at": x.edited_at.isoformat()})
         if action == "delete":
             scope = str(d.get("scope", "me"))
+            from . import chat_actions as CA
             if scope == "everyone":
+                # chat-actions: sender only, inside the SERVER window.
                 if x.sender_id != mid or not \
-                        circle_messaging.can_delete_for_everyone(env, mid):
-                    return Response({"ok": False, "detail": "delete_window"},
+                        circle_messaging.can_delete_for_everyone(
+                            env, mid, window_min=CA.delete_window_min()):
+                    return Response({"ok": False, "detail": "delete_window",
+                                     "window_min": CA.delete_window_min()},
                                     status=status.HTTP_403_FORBIDDEN)
-                x.deleted = "everyone"
-                x.ciphertext = ""
-                x.nonce = ""
-                x.save(update_fields=["deleted", "ciphertext", "nonce"])
-                if x.blob_ref:   # md1: the encrypted file goes too
-                    from . import circle_blobs as CB
-                    CB.release(x.blob_ref)
-            else:
-                hidden = set(x.hidden_for or [])
-                hidden.add(mid)
-                x.hidden_for = list(hidden)
-                x.save(update_fields=["hidden_for"])
-            return Response({"ok": True, "deleted": x.deleted or "me"})
+                # ciphertext + copies + encrypted blob leave the server
+                CA.delete_for_everyone(x)
+                return Response({"ok": True, "deleted": "everyone"})
+            CA.delete_for_me(request.user, x)   # + real delete when unseen
+            return Response({"ok": True, "deleted": "me"})
         return Response({"detail": "unknown action"},
                         status=status.HTTP_400_BAD_REQUEST)
 

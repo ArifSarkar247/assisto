@@ -84,6 +84,17 @@ class PreviewCache {
     } catch (_) {}
   }
 
+  /// chat-actions: forget [chatKey]'s preview entirely (chat cleared /
+  /// deleted on this phone).
+  Future<void> dropChat(String chatKey) async {
+    final m = await _load();
+    if (m.remove(chatKey) == null) return;
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(_k, jsonEncode(m));
+    } catch (_) {}
+  }
+
   /// Tests only.
   void resetForTest() => _mem = null;
 }

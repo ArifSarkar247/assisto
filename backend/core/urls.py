@@ -1039,3 +1039,15 @@ urlpatterns[:0] = [
     path("circle/calls/missed_pending", ringv.MissedPendingView.as_view()),
 ]
 # ---- /ring-everywhere ----
+
+# ---- chat-actions ---- (owner 26 Oct: WhatsApp-style delete chat, clear
+# keep-starred, default timer). PREPENDED so the literal paths win over the
+# circle/groups/<pk>/<slug:setting> catch-all.
+from . import chat_actions as chact  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/<int:pk>/delete-chat", chact.ChatDeleteView.as_view()),
+    path("circle/groups/<int:pk>/delete-chat",
+         chact.GroupDeleteChatView.as_view()),
+    path("circle/settings/default-timer", chact.DefaultTimerView.as_view()),
+]
+# ---- /chat-actions ----

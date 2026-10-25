@@ -151,7 +151,7 @@ void main() {
     testWidgets('Disappearing -> 7 days', (tester) async {
       final api = _RecApi({...base(),
         '/circle/groups/7/disappearing': {'ok': true, 'disappearing_sec': 604800}});
-      final g = <String, dynamic>{'id': 7, 'name': 'Family'};
+      final g = <String, dynamic>{'id': 7, 'name': 'Family', 'my_role': 'admin'};
       await _pump(tester, api,
           CircleGroupChatScreen(group: g, identity: _identity));
       await openMenu(tester);
@@ -161,6 +161,21 @@ void main() {
       await _settle(tester);
       expect(api.posted('/circle/groups/7/disappearing', {'ttl': '7d'}), isTrue);
       expect(g['disappearing'], '7d');
+      await _dispose(tester);
+    });
+
+    // chat-actions (owner 26 Oct): only group admins change the timer
+    testWidgets('Disappearing: a non-admin is told, nothing is posted',
+        (tester) async {
+      final api = _RecApi({...base()});
+      final g = <String, dynamic>{'id': 7, 'name': 'Family', 'my_role': 'member'};
+      await _pump(tester, api,
+          CircleGroupChatScreen(group: g, identity: _identity));
+      await openMenu(tester);
+      await tester.tap(find.text(t.grpMenuDisappearing));
+      await _settle(tester);
+      expect(find.text(t.caGroupTimerAdminOnly), findsOneWidget);
+      expect(api.posted('/circle/groups/7/disappearing', {'ttl': '7d'}), isFalse);
       await _dispose(tester);
     });
 

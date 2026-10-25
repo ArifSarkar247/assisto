@@ -32,6 +32,9 @@ class ChatHeaderTitle extends StatelessWidget {
   /// a1-circle: true (1:1) = the status is never cut (2 lines / smaller
   /// font). false (group member list) = one line, ellipsized.
   final bool fitStatusLine;
+
+  /// chat-actions: a small glyph after the name (the disappearing timer).
+  final Widget? nameBadge;
   const ChatHeaderTitle(
       {super.key,
       required this.name,
@@ -39,7 +42,8 @@ class ChatHeaderTitle extends StatelessWidget {
       this.statusActive = false,
       this.avatar,
       this.onTap,
-      this.fitStatusLine = true});
+      this.fitStatusLine = true,
+      this.nameBadge});
 
   /// "online" / "typing…" green: the AA success token (both themes).
   static Color activeColor(BuildContext context) =>
@@ -84,18 +88,27 @@ class ChatHeaderTitle extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // a1-circle: the NAME gives way first (ellipsis)…
-                        Text(
-                          name,
-                          key: const Key('t1-header-name'),
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: fit != null && fit.lines != 1 ? 16 : 17,
-                              height: 1.2,
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface),
-                        ),
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          Flexible(
+                            child: Text(
+                              name,
+                              key: const Key('t1-header-name'),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize:
+                                      fit != null && fit.lines != 1 ? 16 : 17,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w600,
+                                  color: scheme.onSurface),
+                            ),
+                          ),
+                          if (nameBadge != null) ...[
+                            const SizedBox(width: 4),
+                            nameBadge!,
+                          ],
+                        ]),
                         // …the status ("last seen today at 10:05 pm") is
                         // NEVER cut: one line when it fits, else two lines,
                         // else a slightly smaller font (see fitStatus).
@@ -194,13 +207,15 @@ class GroupHeaderTitle extends StatelessWidget {
   final String? activity;
   final Widget? avatar;
   final VoidCallback? onTap;
+  final Widget? nameBadge; // chat-actions: disappearing timer
   const GroupHeaderTitle(
       {super.key,
       required this.name,
       this.memberNames = const [],
       this.activity,
       this.avatar,
-      this.onTap});
+      this.onTap,
+      this.nameBadge});
 
   @override
   Widget build(BuildContext context) {
@@ -214,6 +229,7 @@ class GroupHeaderTitle extends StatelessWidget {
       statusActive: act.isNotEmpty,
       avatar: avatar,
       onTap: onTap,
+      nameBadge: nameBadge,
       // the member list is a long, truncatable roster (ellipsis is right)
       fitStatusLine: false,
     );
