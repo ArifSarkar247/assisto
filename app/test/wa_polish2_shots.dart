@@ -104,7 +104,11 @@ class _GroupedState extends State<_Grouped> {
                     icon: Icon(Icons.auto_awesome_rounded, color: scheme.onSurfaceVariant))
               else
                 const SizedBox(width: Gap.xs),
-              VoiceHoldMic(controller: _hold, onTap: () {}, onDraft: (_) async {}),
+              VoiceHoldMic(
+                  controller: _hold,
+                  onTap: () => ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('recorder'))),
+                  onDraft: (_) async {}),
             ]),
           ),
         ),
@@ -128,8 +132,15 @@ Widget _callInfo(String l) {
      'name': _n(bn, 'Nadia', 'নাদিয়া'), 'member_id': 71, 'duration_sec': 65,
      'started_at': now.subtract(const Duration(hours: 2)).toIso8601String()},
   ];
-  return CircleCallInfoScreen(
-      call: rows.first, entries: rows, onCall: (_) {}, onMessage: () {});
+  // gallery demo: actions give visible feedback (dead-button sweep)
+  return Builder(
+      builder: (ctx) => CircleCallInfoScreen(
+          call: rows.first,
+          entries: rows,
+          onCall: (kind) => ScaffoldMessenger.of(ctx)
+              .showSnackBar(SnackBar(content: Text('call:$kind'))),
+          onMessage: () => ScaffoldMessenger.of(ctx)
+              .showSnackBar(const SnackBar(content: Text('message')))));
 }
 
 /// name -> builder(lang). Wired into screenshots_test.dart `specs`.

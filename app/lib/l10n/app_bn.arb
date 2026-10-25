@@ -15083,5 +15083,17 @@
   "caDefaultTimerSaved": "ডিফল্ট টাইমার সেভ হয়েছে",
   "caDefaultTimerHint": "নতুন চ্যাটের মেসেজ এই সময় পরে মুছে যাবে। আগের চ্যাটগুলো বদলাবে না।",
   "caGroupTimerAdminOnly": "শুধু গ্রুপ অ্যাডমিন অদৃশ্য মেসেজ বদলাতে পারেন।",
-  "caDeleteTooLate": "সবার জন্য মোছার সময় পেরিয়ে গেছে। নিজের জন্য এখনও মুছতে পারেন।"
+  "caDeleteTooLate": "সবার জন্য মোছার সময় পেরিয়ে গেছে। নিজের জন্য এখনও মুছতে পারেন।",
+  "wa2MicLabel": "ভয়েস মেসেজ",
+  "wa2MicHint": "রেকর্ড করতে চেপে ধরুন, পাঠাতে ছেড়ে দিন। হাত ছাড়া রেকর্ড করতে ট্যাপ করুন।",
+  "wa2SlideToCancel": "বাতিল করতে বাঁয়ে সরান",
+  "wa2VoiceDiscarded": "ভয়েস মেসেজ বাতিল হয়েছে",
+  "wa2VoiceUnplayed": "এখনও শোনা হয়নি",
+  "wa2CallInfoTitle": "কলের তথ্য",
+  "wa2CallInfoMessage": "মেসেজ",
+  "wa2CallInfoVoice": "ভয়েস কল",
+  "wa2CallInfoVideo": "ভিডিও কল",
+  "wa2CallIncoming": "ইনকামিং",
+  "wa2CallOutgoing": "আউটগোয়িং",
+  "wa2CallMissed": "মিসড"
 }

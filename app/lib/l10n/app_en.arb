@@ -19380,5 +19380,17 @@
   "caDefaultTimerSaved": "Default timer saved",
   "caDefaultTimerHint": "Messages in new chats disappear after this time. Your existing chats don't change.",
   "caGroupTimerAdminOnly": "Only group admins can change disappearing messages.",
-  "caDeleteTooLate": "It's too late to delete this for everyone. You can still delete it for yourself."
+  "caDeleteTooLate": "It's too late to delete this for everyone. You can still delete it for yourself.",
+  "wa2MicLabel": "Voice message",
+  "wa2MicHint": "Hold to record, release to send. Tap to record hands-free.",
+  "wa2SlideToCancel": "Slide to cancel",
+  "wa2VoiceDiscarded": "Voice message discarded",
+  "wa2VoiceUnplayed": "Not played yet",
+  "wa2CallInfoTitle": "Call info",
+  "wa2CallInfoMessage": "Message",
+  "wa2CallInfoVoice": "Voice call",
+  "wa2CallInfoVideo": "Video call",
+  "wa2CallIncoming": "Incoming",
+  "wa2CallOutgoing": "Outgoing",
+  "wa2CallMissed": "Missed"
 }
