@@ -13,6 +13,7 @@ import 'background.dart';
 import 'push/push_service.dart';
 import 'security/secret_store.dart';
 import 'services/error_report.dart';
+import 'services/own_device_guard.dart'; // grab-guard
 import 'crypto/e2e.dart';
 import 'crypto/key_service.dart';
 import 'crypto/identity_vault.dart';
@@ -258,6 +259,7 @@ class AppState extends ChangeNotifier {
     if (t != null) {
       try {
         user = await api.me();
+        unawaited(OwnDeviceGuard.rememberUser(user?.id)); // grab-guard
         await reconcileLanguage();
         await sync();
         _syncAll();
@@ -317,6 +319,7 @@ class AppState extends ChangeNotifier {
       {bool checkGrace = true}) async {
     api.token = token;
     user = signedIn;
+    unawaited(OwnDeviceGuard.rememberUser(signedIn.id)); // grab-guard
     if (!await SecretStore.instance.write('token', token)) {
       reportNonFatal('auth.token_write', SecretStore.instance.lastError);
     }
@@ -386,6 +389,7 @@ class AppState extends ChangeNotifier {
   Future<void> _signOutLocally() async {
     api.token = null;
     user = null;
+    unawaited(OwnDeviceGuard.forget()); // grab-guard
     deletionGraceAt = null;
     deletionGraceOtp = false;
     memory = [];

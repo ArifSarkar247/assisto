@@ -44,6 +44,8 @@ import 'screens/battery_guidance_screen.dart';
 import 'screens/ring_checklist_screen.dart'; // ring-everywhere
 import 'calls/ring_checklist.dart'; // ring-everywhere
 import 'services/antitheft_resume.dart'; // at-heartbeat
+import 'antitheft_api.dart'; // grab-guard
+import 'widgets/grab_check_dialog.dart'; // grab-guard
 import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 
@@ -409,6 +411,14 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
       try {
         final on = await AntiTheftResume.onAppOpen(notif);
+        // grab-guard: a grab detected on THIS phone asks "Was this you?"
+        // (Security PIN) before the family hears — crash-guarded inside;
+        // not tied to the (throttled) resume result.
+        if (loggedIn && nav != null && nav.mounted && mounted) {
+          final api = context.read<AppState>().api;
+          await GrabCheck.maybeShow(nav.context,
+              send: (pin) => api.engineFalseAlarm(pin: pin));
+        }
         if (!on || !loggedIn || nav == null || !mounted) return;
         await AntiTheftResume.maybeShowBatteryGuide(
             nav, () => const BatteryGuidanceScreen(),

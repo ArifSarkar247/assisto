@@ -4,6 +4,7 @@ import 'config.dart';
 import 'feature_gates.dart' show kMedicalFeaturesAllowed;
 import 'crypto/e2e.dart';
 import 'models.dart';
+import 'services/own_device_guard.dart'; // grab-guard
 
 class ApiException implements Exception {
   final String message;
@@ -220,8 +221,11 @@ class ApiClient {
       final all = (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
       // play-nomed: no medicine refill alerts in the Play flavour (watch feed,
       // proactive AI, chat and the foreground poller all read this list).
-      if (kMedicalFeaturesAllowed) return all;
-      return all.where((a) => '${a['type']}' != 'refill').toList();
+      // grab-guard: never an anti-theft row about this user's OWN phone
+      // (every reader — poller, urgent card, watch feed — goes through here).
+      final mine = await OwnDeviceGuard.filterAlerts(all);
+      if (kMedicalFeaturesAllowed) return mine;
+      return mine.where((a) => '${a['type']}' != 'refill').toList();
     }
     _fail(r);
   }
