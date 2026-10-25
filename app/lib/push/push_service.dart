@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../alerts_fg.dart';
 import '../api.dart';
 import '../calls/call_native.dart';
+import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
 import '../config.dart';
 import '../notifications.dart';
@@ -265,16 +266,39 @@ class PushService {
     } catch (_) {}
   }
 
-  ({String kind, int id})? _pendingChat;
+  ({String kind, int id, bool quickReply})? _pendingChat;
 
-  void _openChat(String kind, int id) {
+  void _openChat(String kind, int id, {bool quickReply = false}) {
     final app = _app;
     final nav = _nav?.currentState;
     if (app == null || app.loading || !app.loggedIn || nav == null) {
-      _pendingChat = (kind: kind, id: id);
+      _pendingChat = (kind: kind, id: id, quickReply: quickReply);
       return;
     }
-    unawaited(ChatOpener.open(nav, app.api, kind, id));
+    unawaited(ChatOpener.open(nav, app.api, kind, id, quickReply: quickReply));
+  }
+
+  /// call-reply: an incoming call's Reply (native ring, Dart-drawn ring or
+  /// the in-app incoming screen). The call is DECLINED exactly like Decline
+  /// (server event; the native ring already sent its signed decline ack — a
+  /// second decline is a server no-op), the ring is cleared, then that
+  /// person's chat opens with the quick-reply sheet. Returns false when this
+  /// payload cannot be replied to (group / no chat): it is then a plain
+  /// decline.
+  bool onCallReply(PushPayload p, {bool decline = true}) {
+    AppEntry.mark('call'); // p2-money: never an app-open ad for a call entry
+    if (!p.isCall) return false;
+    if (decline) {
+      unawaited(PushNotifier.declineCall(p.callId, token: _app?.api.token));
+    }
+    unawaited(PushNotifier.cancelCall(p.callId));
+    try {
+      unawaited(CallRuntime.instance.stopRinging());
+    } catch (_) {}
+    final id = CallReply.memberId(p);
+    if (id == null) return false;
+    _openChat('member', id, quickReply: true);
+    return true;
   }
 
   String _lang() {
@@ -315,7 +339,7 @@ class PushService {
     final pc = _pendingChat;
     if (pc != null) {
       _pendingChat = null;
-      _openChat(pc.kind, pc.id);
+      _openChat(pc.kind, pc.id, quickReply: pc.quickReply);
     }
     final p = _pending;
     if (p != null) {
@@ -454,6 +478,10 @@ class PushService {
     }
     final p = PushPayload.decode(r.payload);
     if (p == null) return;
+    if (r.actionId == CallReply.action) {
+      onCallReply(p);
+      return;
+    }
     if (r.actionId == PushNotifier.actionDecline) {
       if (p.isCall) {
         unawaited(PushNotifier.declineCall(p.callId, token: _app?.api.token));
@@ -514,6 +542,15 @@ class PushService {
     }
   }
 
+  /// call-reply tests: the chat waiting for sign-in / the navigator.
+  @visibleForTesting
+  ({String kind, int id, bool quickReply})? get pendingChatForTest =>
+      _pendingChat;
+
+  /// call-reply tests: a notification tap / action as the plugin delivers it.
+  @visibleForTesting
+  void localResponseForTest(NotificationResponse r) => _onLocalResponse(r);
+
   @visibleForTesting
   void resetForTest() {
     for (final s in _subs) {
@@ -525,6 +562,7 @@ class PushService {
     _started = false;
     _realtimeOnly = false;
     _pending = null;
+    _pendingChat = null;
     _registeredToken = null;
     _registeredAt = null;
     _missedFetchedAt = null;

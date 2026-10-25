@@ -135,6 +135,24 @@ jobs:
         working-directory: app
         run: python3 tool/lang_gate.py
 
+      # call-reply: the ring's Reply action runs inside MainActivity's launch
+      # path, so its native body MUST stay crash-guarded (try/catch Throwable)
+      # and the activity must still consult it before the lock-screen policy.
+      - name: Call-reply crash-guard gate
+        working-directory: app
+        run: |
+          python3 - <<'PYCR'
+          import re, sys
+          k = open("android_overlay/app/src/main/kotlin/com/assisto/assisto/calls/IncomingCall.kt").read()
+          m = re.search(r"fun onReplyLaunch\([^)]*\): Boolean \{\s*try \{", k)
+          if not m or "catch (t: Throwable)" not in k[m.end():m.end() + 4000]:
+              sys.exit("::error::IncomingCall.onReplyLaunch body must be wrapped in try/catch(Throwable)")
+          a = open("android_overlay/app/src/main/kotlin/com/assisto/assisto/MainActivity.kt").read()
+          if not re.search(r"try \{\s*com\.assisto\.assisto\.calls\.IncomingCall\.onReplyLaunch", a):
+              sys.exit("::error::MainActivity must call IncomingCall.onReplyLaunch inside try/catch")
+          print("call-reply crash-guard OK")
+          PYCR
+
       # First-run gate: the language picker → "Continue" → enter-app flow must
       # work deterministically (the owner-reported freeze where Continue did
       # nothing shipped because nothing proved this flow). Host-side widget test,

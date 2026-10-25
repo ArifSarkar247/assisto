@@ -1,3 +1,4 @@
+import '../calls/call_reply.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -106,11 +107,16 @@ class CircleChatScreen extends StatefulWidget {
 
   /// When set, forwards this message into the chat on open (forward flow).
   final CircleMessage? forwarding;
+
+  /// call-reply: opened from an incoming call's Reply — show the quick-reply
+  /// sheet once the thread loaded (a preset goes through the normal [_send]).
+  final bool quickReply;
   const CircleChatScreen({
     super.key,
     required this.member,
     required this.identity,
     this.forwarding,
+    this.quickReply = false,
   });
 
   @override
@@ -269,6 +275,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _scroll.addListener(_onScroll);
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
+      if (widget.quickReply && mounted) {
+        unawaited(runCallQuickReply(context,
+            name: _memberName,
+            input: _input,
+            send: _send,
+            focus: _inputFocus.requestFocus));
+      }
     });
     _startPolling();
     // x2-ticks: the server's receipt.update (✓✓ / blue ✓✓) lands here in

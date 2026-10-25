@@ -1,0 +1,23 @@
+{
+  "en": {
+    "callReplyAction": "Reply",
+    "callReplySheetTitle": "Reply with a message",
+    "callReplySheetSubtitle": "The call was declined. Send {name} a quick message.",
+    "@callReplySheetSubtitle": {"placeholders": {"name": {"type": "String"}}},
+    "callReplyPreset1": "Can't talk now. What's up?",
+    "callReplyPreset2": "I'll call you right back.",
+    "callReplyPreset3": "I'll call you later.",
+    "callReplyPreset4": "Can't talk now. Call me later?",
+    "callReplyWriteOwn": "Write your own…"
+  },
+  "bn": {
+    "callReplyAction": "উত্তর লিখুন",
+    "callReplySheetTitle": "মেসেজ দিয়ে উত্তর দিন",
+    "callReplySheetSubtitle": "কলটি কেটে দেওয়া হয়েছে। {name}-কে একটি ছোট মেসেজ পাঠান।",
+    "callReplyPreset1": "এখন কথা বলতে পারছি না। কী খবর?",
+    "callReplyPreset2": "আমি এখনই ফোন করছি।",
+    "callReplyPreset3": "আমি পরে ফোন করব।",
+    "callReplyPreset4": "এখন কথা বলতে পারছি না। পরে ফোন করবেন?",
+    "callReplyWriteOwn": "নিজে লিখুন…"
+  }
+}

@@ -161,6 +161,17 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     private fun applyLockScreenPolicy(i: Intent?) {
+        // call-reply: the ring's Reply button -> declined natively; the chat
+        // it opens never shows over the lock screen, never "answered".
+        val replied = try {
+            com.assisto.assisto.calls.IncomingCall.onReplyLaunch(this, i)
+        } catch (e: Throwable) {
+            false
+        }
+        if (replied) {
+            setOverLockScreen(false)
+            return
+        }
         var callId = ""
         val isCall = try {
             val raw = i?.getStringExtra("payload")
