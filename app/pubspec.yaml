@@ -61,6 +61,11 @@ dependencies:
   # #196 Home-screen widget — pushes next-reminder / today count to a native
   # AppWidgetProvider (see android_overlay/) and opens the app on tap.
   home_widget: ^0.7.0
+  # AdMob (owner 25 Oct) — Free plan only, allowlisted screens only, lazy
+  # (MobileAds.initialize only after the first frame, consent done, Free
+  # user). Google TEST unit ids until the server flag admob_real_ids is on.
+  # The MobileAdsInitProvider is removed in the CI manifest patch.
+  google_mobile_ads: 9.1.0
   # FCM push — key-gated by google-services.json (CI secret
   # GOOGLE_SERVICES_JSON_B64). Lazy init after first frame; the auto-init
   # FirebaseInitProvider is removed in the manifest (ColorOS history).

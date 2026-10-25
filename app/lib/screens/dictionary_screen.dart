@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../theme.dart';
 import '../api.dart';
 import '../l10n/app_localizations.dart';
@@ -165,6 +166,8 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
+      // admob: Free users only, allowlisted page, takes no space without a fill
+      bottomNavigationBar: const AdBannerSlot(screen: 'dictionary'),
       appBar: AppBar(
         title: Text(t.dictionaryTitle),
         bottom: TabBar(

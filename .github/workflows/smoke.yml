@@ -72,6 +72,18 @@ jobs:
           )
           if '<queries>' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + queries, s, count=1)
+          # admob (owner 25 Oct): same as android.yml — the Mobile Ads SDK
+          # crashes at launch without APPLICATION_ID; its startup provider is
+          # removed (lazy MobileAds.initialize in Dart).
+          if 'xmlns:tools' not in s:
+              s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+              s = s.replace('</application>',
+                  '\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"'
+                  ' android:value="ca-app-pub-2506398550427515~5116255919"/>'
+                  '\n        <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider"'
+                  ' android:authorities="${applicationId}.mobileadsinitprovider"'
+                  ' tools:node="remove"/>\n    </application>', 1)
           open(p, "w").write(s)
           print("manifest patched")
           PY
@@ -85,7 +97,7 @@ jobs:
           p, is_kts = (kts, True) if os.path.exists(kts) else (gr, False)
           s = open(p).read()
           s = _re.sub(r'\n[ \t]*minSdk[A-Za-z]*\s*=?[^\n]*', '', s)
-          s = s.replace('defaultConfig {', 'defaultConfig {' + ('\n        minSdk = 23' if is_kts else '\n        minSdkVersion 23'), 1)
+          s = s.replace('defaultConfig {', 'defaultConfig {' + ('\n        minSdk = 26' if is_kts else '\n        minSdkVersion 26'), 1)
           s = _re.sub(r'\n[ \t]*compileSdk[A-Za-z]*\s*=?[^\n]*', '', s)
           s = s.replace('android {', 'android {' + ('\n    compileSdk = 36' if is_kts else '\n    compileSdk 36'), 1)
           if "coreLibraryDesugaring" not in s:

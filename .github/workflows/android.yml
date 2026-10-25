@@ -387,6 +387,33 @@ jobs:
           )
           if 'androidx.startup.InitializationProvider' not in s:
               s = s.replace('</application>', startup_remove + '    </application>', 1)
+          # ---- admob (owner 25 Oct) ----
+          # APPLICATION_ID is REQUIRED (the Mobile Ads SDK crashes at launch
+          # without it): Assisto's REAL AdMob app id (also the publisher in
+          # lifeassisto.com/app-ads.txt). Ads stay on Google TEST unit ids
+          # until the server flag admob_real_ids is on. NO startup
+          # ContentProvider: MobileAdsInitProvider is REMOVED; Dart calls
+          # MobileAds.initialize() lazily (after the launch settled, Free user,
+          # consent done). AD_ID is declared on purpose (Play: Advertising ID
+          # = Yes, purpose Advertising).
+          admob = (
+              '\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"'
+              ' android:value="ca-app-pub-2506398550427515~5116255919"/>'
+              '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"'
+              ' android:value="true"/>'
+              '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"'
+              ' android:value="true"/>'
+              '\n        <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider"'
+              ' android:authorities="${applicationId}.mobileadsinitprovider"'
+              ' tools:node="remove"/>\n'
+          )
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+              s = s.replace('</application>', admob + '    </application>', 1)
+          if 'com.google.android.gms.permission.AD_ID' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>\n',
+                  s, count=1)
+          # ---- /admob ----
           # ---- a6 FCM push ----
           # Full-screen incoming calls (Android 14+: user-grantable special
           # permission; Settings -> Notifications & calls deep-links to it).
@@ -589,6 +616,9 @@ jobs:
                   "NSPhotoLibraryUsageDescription":
                       "Assisto needs your photos so you can pick an existing picture "
                       "or video to share with your circle or post as a status.",
+                  # admob: the iOS SDK aborts without it (no ads on iOS yet;
+                  # Google's public iOS TEST app id)
+                  "GADApplicationIdentifier": "ca-app-pub-3940256099942544~1458002511",
               }
               inject = ""
               for k, v in entries.items():
@@ -885,6 +915,20 @@ jobs:
             fi
           done
           # ---- /play-perm ----
+          # ---- admob ---- launch safety: no SDK startup provider, app id present
+          MAN=$("${BT}aapt2" dump xmltree --file AndroidManifest.xml "$OUT" 2>/dev/null || true)
+          if [ -n "$MAN" ]; then
+            if echo "$MAN" | grep -q "MobileAdsInitProvider"; then
+              echo "::error::MobileAdsInitProvider is in the APK (startup ContentProvider)"; exit 1
+            fi
+            if ! echo "$MAN" | grep -q "com.google.android.gms.ads.APPLICATION_ID"; then
+              echo "::error::AdMob APPLICATION_ID missing (the SDK would crash at launch)"; exit 1
+            fi
+            echo "admob manifest OK (APPLICATION_ID present, no MobileAdsInitProvider)"
+          else
+            echo "::warning::aapt2 xmltree unavailable - admob manifest gate skipped"
+          fi
+          # ---- /admob ----
           ls -la out
           echo "size: $(du -h "$OUT" | cut -f1)"
 

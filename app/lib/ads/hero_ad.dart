@@ -16,9 +16,10 @@
 ///    default ON) and AdMob's own video controls show the speaker toggle.
 ///    Rewarded / interstitial / app-open play WITH sound (normal AdMob).
 ///
-/// No google_mobile_ads import here: the real bridge lives in
-/// `.phaseB/pending_native/h1/admob_hero_bridge.dart.pending` until the
-/// pubspec/manifest part of the AdMob proposal is applied.
+/// No google_mobile_ads import here (pure + testable): the real bridge is
+/// `admob_hero_bridge.dart`, bound in `hero_binding.dart` on Android.
+/// admob (owner 25 Oct): the slot sits BELOW the quick shortcuts (and far
+/// from anything safety related) — home is otherwise unchanged.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -79,14 +80,15 @@ class HeroAdConfig {
     );
   }
 
-  /// REAL unit only when the owner configured real ids AND this APK carries
-  /// the same AdMob app id; otherwise Google's TEST unit in test mode; else
-  /// null (nothing may be served).
-  String? unit({required String builtAppId, required bool testMode}) {
+  /// REAL unit only when the server serves real ids (owner switch
+  /// `admob_real_ids`) AND they belong to this APK's AdMob app; otherwise
+  /// Google's TEST native unit (owner 25 Oct: ship with test ids).
+  /// [testMode] is kept for old callers and no longer matters.
+  String? unit({required String builtAppId, bool testMode = false}) {
     if (configured && nativeUnit.isNotEmpty && appId == builtAppId) {
       return nativeUnit;
     }
-    return testMode ? HeroAdIds.testNative : null;
+    return HeroAdIds.testNative;
   }
 }
 

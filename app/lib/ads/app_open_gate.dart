@@ -21,10 +21,17 @@ class AppEntry {
 
   static const blockedKinds = {
     'notification', 'deeplink', 'call', 'sos', 'share', 'widget', 'assist',
+    // admob (owner 25 Oct)
+    'safety_alert', 'alarm', 'reminder', 'native_launch',
   };
 
   static String _kind = '';
   static DateTime? _at;
+
+  /// admob: "suppress the NEXT app-open" — set by every external entry and
+  /// consumed by the next app-open attempt, however late it comes (a cold
+  /// start from a notification may reach the ad check after [window]).
+  static bool _suppressNext = false;
 
   /// How long after an external entry the app-open ad stays blocked (the
   /// resume event and the tap's own navigation arrive within this window).
@@ -33,6 +40,14 @@ class AppEntry {
   static void mark(String kind, {DateTime? now}) {
     _kind = kind;
     _at = now ?? DateTime.now();
+    if (blockedKinds.contains(kind)) _suppressNext = true;
+  }
+
+  /// true once after an external entry (then cleared).
+  static bool consumeSuppression() {
+    final s = _suppressNext;
+    _suppressNext = false;
+    return s;
   }
 
   /// The entry kind to report to the server ('' = a normal open).
@@ -49,6 +64,46 @@ class AppEntry {
   static void reset() {
     _kind = '';
     _at = null;
+    _suppressNext = false;
+  }
+}
+
+/// admob (owner 25 Oct): the session rules around an app-open ad — pure,
+/// unit-tested. On top of [AppOpenGate] (plan, caps, gap, day-N, screen):
+///  * never on the very first launch of the app, ever;
+///  * never in the session right after a sign-in (or sign-up);
+///  * never after an external entry (notification, SOS, safety alert, call,
+///    alarm, reminder, widget, deep link, assist) — [suppressed];
+///  * on a resume, only after the app was in the background >= [minBackground]
+///    (a quick app switch is not an "app open");
+///  * never while a forbidden screen is on top (only the home root).
+class AppOpenGuard {
+  AppOpenGuard._();
+
+  static AdDecision check({
+    required bool firstLaunchEver,
+    required bool sessionAfterLogin,
+    required bool suppressed,
+    required String screen,
+    required bool resumed,
+    Duration? backgroundFor,
+    Duration minBackground = const Duration(seconds: 30),
+  }) {
+    if (firstLaunchEver) return const AdDecision(false, 'first_launch');
+    if (sessionAfterLogin) return const AdDecision(false, 'after_login');
+    if (suppressed) return const AdDecision(false, 'blocked_entry');
+    if (screen != 'home' || AdRules.isBlockedScreen(screen)) {
+      return const AdDecision(false, 'blocked_screen');
+    }
+    if (resumed) {
+      final min = minBackground < const Duration(seconds: 5)
+          ? const Duration(seconds: 5)
+          : minBackground;
+      if (backgroundFor == null || backgroundFor < min) {
+        return const AdDecision(false, 'short_background');
+      }
+    }
+    return AdDecision.ok;
   }
 }
 

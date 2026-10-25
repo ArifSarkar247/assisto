@@ -2,6 +2,9 @@ import '../ads/ads_bridge.dart' show RewardOutcome;
 
 export '../ads/ads_bridge.dart' show RewardOutcome;
 
+import '../ads/admob_platform.dart';
+import 'admob_photo_bridge.dart';
+
 /// Photo Studio's ad seam (ps1-photo). Reuses the a6 [RewardOutcome]; adds
 /// what the studio needs on top of the a6 bridge:
 ///  * an INTERSTITIAL for the studio entry, and
@@ -10,12 +13,12 @@ export '../ads/ads_bridge.dart' show RewardOutcome;
 ///    SSV callback (`GET /ads/ssv`) can unlock anything — [RewardOutcome.earned]
 ///    alone never does.
 ///
-/// AdMob is NOT linked in this build: [NoopPhotoAdBridge] shows nothing and
-/// reports [RewardOutcome.unavailable], so free users see the honest
-/// "ad couldn't load — try again or use credits" path; there is no bypass.
-/// The real bridge (google_mobile_ads InterstitialAd + RewardedAd with
-/// ServerSideVerificationOptions) is spelled out in
-/// `.phaseB/proposals/ps1-photo.md` and binds in [createPhotoAdBridge].
+/// admob (owner 25 Oct): the real bridge is `admob_photo_bridge.dart`
+/// (RewardedAd + ServerSideVerificationOptions); it is "linked" only while
+/// the server serves REAL unit ids with rewarded on, and it never shows an
+/// entry interstitial (natural breaks only). [NoopPhotoAdBridge] (host tests,
+/// iOS) shows nothing and reports [RewardOutcome.unavailable]; there is no
+/// bypass either way.
 abstract class PhotoAdBridge {
   bool get linked;
 
@@ -39,4 +42,6 @@ class NoopPhotoAdBridge implements PhotoAdBridge {
       RewardOutcome.unavailable;
 }
 
-PhotoAdBridge createPhotoAdBridge() => const NoopPhotoAdBridge();
+/// admob (owner 25 Oct): the real AdMob bridge on Android, no-op elsewhere.
+PhotoAdBridge createPhotoAdBridge() =>
+    admobSupported() ? AdmobPhotoAdBridge() : const NoopPhotoAdBridge();

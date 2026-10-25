@@ -60,6 +60,8 @@ class AssistoWidgetProvider : AppWidgetProvider() {
             val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
             if (launch != null) {
                 launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                // admob: a widget tap never gets an app-open ad (MainActivity)
+                launch.putExtra("assisto_src", "widget")
                 val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 val pending = PendingIntent.getActivity(context, 0, launch, flags)
                 views.setOnClickPendingIntent(R.id.widget_root, pending)

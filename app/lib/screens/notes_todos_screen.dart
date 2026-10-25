@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ads/ad_placements.dart' show AdMoments;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
@@ -403,7 +404,11 @@ class _TodoTile extends StatelessWidget {
 
     return CheckboxListTile(
       value: done,
-      onChanged: (v) => app.todos.update(item, {'done': v ?? false}),
+      onChanged: (v) {
+        app.todos.update(item, {'done': v ?? false});
+        // admob: finishing a task is a natural break (Free only, capped)
+        if (v == true) AdMoments.report('task_done');
+      },
       title: Text((d['title'] ?? '').toString(),
           style: done
               ? TextStyle(

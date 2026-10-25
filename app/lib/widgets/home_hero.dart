@@ -261,7 +261,9 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       final ad = await _bridge
           .load(unit, startMuted: AdSound.startMuted(AdFormat.heroNative,
               heroStartMuted: _cfg.startMuted))
-          .timeout(const Duration(seconds: 12), onTimeout: () => null);
+          // admob: the SDK starts only once the launch settled (~8 s), so
+          // the first load may wait for it; the logo block shows meanwhile
+          .timeout(const Duration(seconds: 45), onTimeout: () => null);
       if (!mounted || widget.collapsed || !_decide().allowed) {
         try {
           ad?.dispose();

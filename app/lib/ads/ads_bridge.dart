@@ -1,11 +1,9 @@
 /// Seam between Assisto's ad rules and the Google Mobile Ads SDK.
 ///
-/// The real implementation is `admob_ads_bridge.dart.pending` (needs the
-/// google_mobile_ads pubspec entry + manifest APPLICATION_ID from
-/// `.phaseB/proposals/a6-leftovers-admob.md`). Until it is bound in
-/// `ads_binding.dart`, [NoopAdsBridge] serves nothing — the rewarded sheet
-/// shows its honest "ads not set up" state and NO reward is ever granted
-/// without a real, completed ad.
+/// The real implementation is `admob_ads_bridge.dart` (google_mobile_ads),
+/// bound in `ads_binding.dart` on Android; [NoopAdsBridge] (host tests, iOS)
+/// serves nothing. NO reward is ever granted from this side: only Google's
+/// signed SSV callback to the server credits anything.
 enum RewardOutcome { earned, dismissed, unavailable }
 
 abstract class AdsBridge {
@@ -26,6 +24,22 @@ abstract class AdsBridge {
       {required String userId, required String customData});
 
   bool get linked;
+}
+
+/// admob (owner 25 Oct): interstitial at a natural break. Separate seam so
+/// existing [AdsBridge] fakes stay valid. true only if it was really shown.
+abstract class InterstitialBridge {
+  bool get linked;
+  Future<bool> showInterstitial(String unitId, {required String placement});
+}
+
+class NoopInterstitialBridge implements InterstitialBridge {
+  const NoopInterstitialBridge();
+  @override
+  bool get linked => false;
+  @override
+  Future<bool> showInterstitial(String unitId, {required String placement}) async =>
+      false;
 }
 
 class NoopAdsBridge implements AdsBridge {
