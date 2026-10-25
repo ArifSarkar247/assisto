@@ -187,6 +187,8 @@ class DiskAlertTests(TestCase):
         self.assertFalse(st["alert"])
         self.assertEqual(n.call_count, 0)
         self.assertFalse(FamilyAlert.objects.filter(kind="disk_alert").exists())
+        from .models import NotifEvent
+        self.assertFalse(NotifEvent.objects.filter(type="admin").exists())
 
     def test_80_percent_alerts_with_pct_and_free_gb(self):
         state = {}
@@ -197,8 +199,11 @@ class DiskAlertTests(TestCase):
         self.assertIn("80.0%", title)
         self.assertIn("20.0 GB free", body)
         self.assertIn("disk_alert_at", state)
-        a = FamilyAlert.objects.get(user=self.owner, kind="disk_alert")
-        self.assertIn("৮০", a.payload["title_bn"])
+        # owner 25 Oct: disk alerts are ADMIN notifications, never Family alerts
+        from .models import NotifEvent
+        self.assertFalse(FamilyAlert.objects.filter(kind="disk_alert").exists())
+        a = NotifEvent.objects.get(user=self.owner, type="admin", meta__kind="disk_alert")
+        self.assertIn("৮০", a.title_bn)
 
     def test_dedupe_once_per_6h_and_rearm_after_recovery(self):
         t0 = datetime(2026, 10, 23, 1, 0, tzinfo=dt_tz.utc)
@@ -214,7 +219,8 @@ class DiskAlertTests(TestCase):
         self.assertNotIn("disk_alert_at", state)
         _, n5 = self._check(81, state, now=t0 + timedelta(hours=6, minutes=4))
         self.assertEqual(n5.call_count, 1)
-        self.assertEqual(FamilyAlert.objects.filter(kind="disk_alert").count(), 3)
+        from .models import NotifEvent
+        self.assertEqual(NotifEvent.objects.filter(type="admin", meta__kind="disk_alert").count(), 3)
 
     def test_threshold_is_admin_editable(self):
         row = billing.get_config()

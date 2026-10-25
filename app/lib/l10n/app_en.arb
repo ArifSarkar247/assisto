@@ -19172,5 +19172,33 @@
       }
     }
   },
-  "mc2VideoSendTitle": "Send this video?"
+  "mc2VideoSendTitle": "Send this video?",
+  "grabAskTitle": "Was this you?",
+  "@grabAskTitle": {
+    "description": "grab-guard: title of the local heads-up notification AND the in-app dialog on the owner's own phone after a sudden grab was detected."
+  },
+  "grabAskNotifBody": "Your phone was suddenly grabbed and moved. If it was you, open Assisto within 1 minute — otherwise your family will be alerted.",
+  "@grabAskNotifBody": {
+    "description": "grab-guard: body of the local 'Was this you?' notification (shown only on the owner's own phone)."
+  },
+  "grabAskBody": "Assisto felt your phone being grabbed and carried away. If it was you, confirm with your Security PIN and no one will be alerted. If not, your family will be alerted in about a minute.",
+  "@grabAskBody": {
+    "description": "grab-guard: body of the in-app 'Was this you?' dialog."
+  },
+  "grabAskYes": "Yes, it was me",
+  "@grabAskYes": {
+    "description": "grab-guard: dialog button — confirm with the Security PIN that the owner moved the phone."
+  },
+  "grabAskNo": "No, alert my family now",
+  "@grabAskNo": {
+    "description": "grab-guard: dialog button — send the grab alert to the family immediately."
+  },
+  "grabCleared": "Okay. No one was alerted.",
+  "@grabCleared": {
+    "description": "grab-guard: snackbar after the PIN was verified and the pending grab was dropped before it was sent."
+  },
+  "grabSentNow": "Your family is being alerted.",
+  "@grabSentNow": {
+    "description": "grab-guard: snackbar after 'No, alert my family now'."
+  }
 }
