@@ -37,6 +37,10 @@ import '../messenger_chat_api.dart'; // e-gaps: clear (forgot lock code)
 import '../messenger_group_api.dart';
 import '../screens/circle_search_screen.dart'; // e-gaps: message search
 import '../messaging/chat_decor/system_line.dart';
+import '../messaging/chat_actions.dart'; // chat-actions
+import '../screens/circle_group_info_screen.dart';
+import '../screens/messenger/contact_info_screen.dart';
+import 'chat_menu_pickers.dart' show showChatReportPicker;
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -102,6 +106,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
 
   /// e-gaps: the "Locked chats" folder (opened after biometric / code).
   bool _showLocked = false;
+
+  /// chat-actions: multi-select mode (long-press ▸ Select chats) — the keys
+  /// of the selected rows ('member:12' / 'group:5').
+  bool _selecting = false;
+  final Set<String> _sel = {};
   AppLifecycleListener? _life;
 
   List<Map<String, dynamic>> _chats = [];
@@ -485,7 +494,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   }
 
   Future<void> _muteChat(Map<String, dynamic> c) async {
-    final choice = await showModalBottomSheet<String>(
+    final choice = await _pickMute();
+    if (choice == null || !mounted) return;
+    await _applyMute(c, choice);
+    if (mounted) _toast(_t.msgrChatMuted);
+  }
+
+  Future<String?> _pickMute() => showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {
@@ -510,12 +525,16 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         );
       },
     );
-    if (choice == null || !mounted) return;
+
+  Future<void> _applyMute(Map<String, dynamic> c, String choice) async {
     setState(() => c['muted'] = true);
-    _toast(_t.msgrChatMuted);
-    final id = _chatId(c);
-    if (id == null) return;
     try {
+      if (_isGroup(c)) {
+        await _api.postJson('/circle/groups/${_groupId(c)}/mute', {'duration': choice});
+        return;
+      }
+      final id = _chatId(c);
+      if (id == null) return;
       await _api.postJson('messenger/chats/$id/mute', {'duration': choice});
     } catch (_) {
       if (mounted) {
@@ -529,8 +548,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     setState(() => c['muted'] = false);
     _toast(_t.msgrChatUnmuted);
     final id = _chatId(c);
-    if (id == null) return;
+    if (id == null && !_isGroup(c)) return;
     try {
+      if (_isGroup(c)) {
+        await _api.postJson('/circle/groups/${_groupId(c)}/mute', {'duration': 'off'});
+        return;
+      }
       await _api.postJson('messenger/chats/$id/mute', {'duration': 'off'});
     } catch (_) {
       if (mounted) {
@@ -574,6 +597,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   void _toast(String msg) => ScaffoldMessenger.of(context)
       .showSnackBar(SnackBar(content: Text(msg)));
 
+  bool _isFavourite(Map<String, dynamic> c) =>
+      c['favourite'] == true || c['is_favourite'] == true;
+
   Future<void> _organiseSheet(Map<String, dynamic> c) async {
     final t = _t;
     final muted = c['muted'] == true;
@@ -581,79 +607,364 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final archived = _isArchived(c);
     final unread = ChatPreview.unreadOf(c);
     final group = _isGroup(c);
+    final fav = _isFavourite(c);
+    final blocked = _memberOf(c)['blocked'] == true;
+    final danger = Theme.of(context).colorScheme.error;
+    void go(BuildContext ctx, void Function() f) {
+      Navigator.pop(ctx);
+      f();
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!archived)
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.85),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              // chat-actions: View contact / Group info first (WhatsApp)
               ListTile(
-                key: const Key('e-org-pin'),
-                leading: Icon(pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined),
-                title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _togglePin(c);
-                },
+                key: const Key('ca-view-contact'),
+                leading: Icon(group ? Icons.info_outline_rounded : Icons.person_outline_rounded),
+                title: Text(group ? t.caGroupInfo : t.caViewContact),
+                onTap: () => go(ctx, () => _viewContact(c)),
               ),
-            if (!archived && !group)
+              if (!archived)
+                ListTile(
+                  key: const Key('e-org-pin'),
+                  leading: Icon(pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined),
+                  title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
+                  onTap: () => go(ctx, () => _togglePin(c)),
+                ),
+              if (!archived)
+                ListTile(
+                  key: const Key('ca-mute'),
+                  leading: Icon(muted
+                      ? Icons.notifications_active_rounded
+                      : Icons.notifications_off_rounded),
+                  title: Text(muted ? t.msgrChatUnmute : t.msgrChatMute),
+                  onTap: () => go(ctx, () => muted ? _unmuteChat(c) : _muteChat(c)),
+                ),
+              if (unread > 0)
+                ListTile(
+                  key: const Key('c3-mark-read'),
+                  leading: const Icon(Icons.mark_chat_read_rounded),
+                  title: Text(t.msgrChatMarkRead),
+                  onTap: () => go(ctx, () => _markRead(c)),
+                )
+              else
+                ListTile(
+                  key: const Key('c3-mark-unread'),
+                  leading: const Icon(Icons.mark_chat_unread_rounded),
+                  title: Text(t.c3MarkUnread),
+                  onTap: () => go(ctx, () => _markUnread(c)),
+                ),
               ListTile(
-                leading: Icon(muted
-                    ? Icons.notifications_active_rounded
-                    : Icons.notifications_off_rounded),
-                title: Text(muted ? t.msgrChatUnmute : t.msgrChatMute),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  muted ? _unmuteChat(c) : _muteChat(c);
-                },
+                key: const Key('ca-favourite'),
+                leading: Icon(fav ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                title: Text(fav ? t.msgrChatRemoveFavourite : t.msgrChatAddFavourite),
+                onTap: () => go(ctx, () => _toggleFavourite(c)),
               ),
-            if (unread > 0)
               ListTile(
-                key: const Key('c3-mark-read'),
-                leading: const Icon(Icons.mark_chat_read_rounded),
-                title: Text(t.msgrChatMarkRead),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _markRead(c);
-                },
-              )
-            else
-              ListTile(
-                key: const Key('c3-mark-unread'),
-                leading: const Icon(Icons.mark_chat_unread_rounded),
-                title: Text(t.c3MarkUnread),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _markUnread(c);
-                },
+                key: const Key('e-org-archive'),
+                leading: Icon(
+                    archived ? Icons.unarchive_rounded : Icons.archive_rounded),
+                title: Text(archived ? t.msgrChatUnarchive : t.msgrChatArchive),
+                onTap: () => go(ctx, () => _toggleArchive(c)),
               ),
-            ListTile(
-              key: const Key('e-org-archive'),
-              leading: Icon(
-                  archived ? Icons.unarchive_rounded : Icons.archive_rounded),
-              title: Text(archived ? t.msgrChatUnarchive : t.msgrChatArchive),
-              onTap: () {
-                Navigator.pop(ctx);
-                _toggleArchive(c);
-              },
-            ),
-            // e-gaps: chat lock (fingerprint / face or this phone's code)
-            ListTile(
-              key: const Key('e-org-lock'),
-              leading: Icon(_isLocked(c) ? Icons.lock_open_rounded : Icons.lock_outline_rounded),
-              title: Text(_isLocked(c) ? t.eLockUnlockChat : t.eLockLockChat),
-              onTap: () {
-                Navigator.pop(ctx);
-                unawaited(toggleChatLock(context, _key(c)));
-              },
-            ),
-          ],
+              // e-gaps: chat lock (fingerprint / face or this phone's code)
+              ListTile(
+                key: const Key('e-org-lock'),
+                leading: Icon(_isLocked(c) ? Icons.lock_open_rounded : Icons.lock_outline_rounded),
+                title: Text(_isLocked(c) ? t.eLockUnlockChat : t.eLockLockChat),
+                onTap: () => go(ctx, () => unawaited(toggleChatLock(context, _key(c)))),
+              ),
+              ListTile(
+                key: const Key('ca-select'),
+                leading: const Icon(Icons.checklist_rounded),
+                title: Text(t.caSelectChats),
+                onTap: () => go(ctx, () => setState(() {
+                      _selecting = true;
+                      _sel
+                        ..clear()
+                        ..add(_key(c));
+                    })),
+              ),
+              const Divider(height: Gap.sm),
+              ListTile(
+                key: const Key('ca-clear'),
+                leading: const Icon(Icons.cleaning_services_rounded),
+                title: Text(t.caClearChat),
+                onTap: () => go(ctx, () => _clearChat(c)),
+              ),
+              ListTile(
+                key: const Key('ca-delete'),
+                leading: Icon(Icons.delete_outline_rounded, color: danger),
+                title: Text(t.caDeleteChat, style: TextStyle(color: danger)),
+                onTap: () => go(ctx, () => _deleteChats([c])),
+              ),
+              if (!group && !blocked)
+                ListTile(
+                  key: const Key('ca-block'),
+                  leading: Icon(Icons.block_rounded, color: danger),
+                  title: Text(t.circleBlock, style: TextStyle(color: danger)),
+                  onTap: () => go(ctx, () => _block(c)),
+                ),
+              ListTile(
+                key: const Key('ca-report'),
+                leading: Icon(Icons.flag_outlined, color: danger),
+                title: Text(t.circleReport, style: TextStyle(color: danger)),
+                onTap: () => go(ctx, () => _report(c)),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // ---- chat-actions --------------------------------------------------------
+
+  Future<void> _viewContact(Map<String, dynamic> c) async {
+    final Widget screen;
+    if (_isGroup(c)) {
+      final identity = widget.identity ?? await IdentityVault.instance.get();
+      if (!mounted) return;
+      final g = Map<String, dynamic>.from((c['group'] as Map?) ?? const {});
+      g['id'] ??= _groupId(c);
+      screen = CircleGroupInfoScreen(
+          group: g, identity: identity, circleMembers: widget.members);
+    } else {
+      screen = ContactInfoScreen(member: _memberOf(c));
+    }
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    if (mounted) unawaited(_load());
+  }
+
+  Future<void> _toggleFavourite(Map<String, dynamic> c) async {
+    final on = !_isFavourite(c);
+    setState(() => c['favourite'] = on);
+    try {
+      if (_isGroup(c)) {
+        await _api.groupSetFavourite('${_groupId(c)}', on);
+      } else {
+        final id = _chatId(c);
+        if (id == null) return;
+        await _api.setFavourite(id, on);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => c['favourite'] = !on);
+        _toast(_t.grpActionFailed);
+      }
+    }
+  }
+
+  Future<void> _clearChat(Map<String, dynamic> c) async {
+    final keep = await showClearChatDialog(context);
+    if (keep == null || !mounted) return;
+    try {
+      await _api.clearChatFor(_key(c), keepStarred: keep);
+      await wipeChatLocally(_key(c));
+      if (!mounted) return;
+      _toast(_t.caChatCleared);
+      unawaited(_load());
+    } catch (_) {
+      if (mounted) _toast(_t.grpActionFailed);
+    }
+  }
+
+  /// Delete one or many chats (per-user hide; nobody leaves My Circle or a
+  /// group). The rows go at once; a failure puts them back honestly.
+  Future<void> _deleteChats(List<Map<String, dynamic>> rows) async {
+    if (rows.isEmpty) return;
+    final media = await showDeleteChatDialog(context,
+        name: _nameOf(rows.first), group: _isGroup(rows.first), count: rows.length);
+    if (media == null || !mounted) return;
+    final keys = rows.map(_key).toSet();
+    setState(() {
+      _chats.removeWhere((c) => keys.contains(_key(c)));
+      _selecting = false;
+      _sel.clear();
+    });
+    var failed = false;
+    for (final c in rows) {
+      try {
+        final r = await _api.deleteChatFor(_key(c), deleteMedia: media);
+        await wipeChatLocally(_key(c),
+            mediaRefs: mediaRefsOf(r), deleteMedia: media);
+      } catch (_) {
+        failed = true;
+      }
+    }
+    if (!mounted) return;
+    _publishUnread();
+    _toast(failed ? _t.grpActionFailed : _t.caChatDeleted);
+    if (failed) unawaited(_load());
+  }
+
+  Future<void> _block(Map<String, dynamic> c) async {
+    final id = _chatId(c);
+    if (id == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        key: const Key('ca-block-dialog'),
+        title: Text(_t.caBlockTitle(_nameOf(c))),
+        content: Text(_t.msgrChatBlockConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(_t.cancel)),
+          FilledButton(
+              key: const Key('ca-block-confirm'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.circleBlock)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await _api.blockContact(id, on: true);
+      if (mounted) _toast(_t.msgrChatBlocked);
+      unawaited(_load());
+    } catch (_) {
+      if (mounted) _toast(_t.grpActionFailed);
+    }
+  }
+
+  Future<void> _report(Map<String, dynamic> c) async {
+    final res = await showChatReportPicker(context);
+    if (res == null || !mounted) return;
+    try {
+      if (_isGroup(c)) {
+        await _api.postJson(
+            '/circle/groups/${_groupId(c)}/report', {'reason': res.reason});
+      } else {
+        final id = _chatId(c);
+        if (id == null) return;
+        // From the list we only hold what this phone already decrypted for
+        // the preview — nothing else leaves the device.
+        final pv = _preview(c);
+        await _api.reportLast5(
+          peerId: id,
+          reason: res.reason,
+          decryptedLastFive: [
+            if (pv.kind == PreviewKind.text && pv.text.isNotEmpty)
+              {'text': pv.text, 'from_me': pv.mine,
+               'at': pv.at?.toUtc().toIso8601String()},
+          ],
+        );
+        if (res.alsoBlock) await _api.blockContact(id, on: true);
+      }
+      if (mounted) _toast(_t.msgrChatReportSent);
+    } catch (_) {
+      if (mounted) _toast(_t.grpActionFailed);
+    }
+  }
+
+  // ---- multi-select ---------------------------------------------------------
+
+  List<Map<String, dynamic>> get _selectedRows =>
+      _chats.where((c) => _sel.contains(_key(c))).toList();
+
+  void _toggleSel(Map<String, dynamic> c) {
+    setState(() {
+      final k = _key(c);
+      if (!_sel.remove(k)) _sel.add(k);
+      if (_sel.isEmpty) _selecting = false;
+    });
+  }
+
+  void _endSelect() => setState(() {
+        _selecting = false;
+        _sel.clear();
+      });
+
+  Future<void> _bulkPin() async {
+    final rows = _selectedRows;
+    final pinAll = rows.any((c) => !_isPinned(c));
+    _endSelect();
+    for (final c in rows) {
+      if (_isPinned(c) == pinAll || _isArchived(c)) continue;
+      if (pinAll && _pinnedCount() >= _pinCap) {
+        _toast(_t.msgrChatPinLimit);
+        break;
+      }
+      await _togglePin(c);
+    }
+  }
+
+  Future<void> _bulkMute() async {
+    final rows = _selectedRows;
+    final choice = await _pickMute();
+    if (choice == null || !mounted) return;
+    _endSelect();
+    for (final c in rows) {
+      await _applyMute(c, choice);
+    }
+    if (mounted) _toast(_t.msgrChatMuted);
+  }
+
+  Future<void> _bulkArchive() async {
+    final rows = _selectedRows;
+    final archive = !_showArchived;
+    _endSelect();
+    for (final c in rows) {
+      if (_isArchived(c) != archive) await _toggleArchive(c);
+    }
+  }
+
+  Future<void> _bulkMarkRead() async {
+    final rows = _selectedRows;
+    _endSelect();
+    for (final c in rows) {
+      if (ChatPreview.unreadOf(c) > 0) await _markRead(c);
+    }
+  }
+
+  Widget _selectionBar() {
+    final t = _t;
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final scheme = Theme.of(context).colorScheme;
+    Widget act(Key k, IconData i, String tip, VoidCallback f, {Color? color}) =>
+        IconButton(key: k, tooltip: tip, icon: Icon(i, color: color), onPressed: f);
+    return Material(
+      key: const Key('ca-selection-bar'),
+      color: scheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.xs, vertical: Gap.xs),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(children: [
+            act(const Key('ca-sel-close'), Icons.close_rounded, t.caExitSelection, _endSelect),
+            Expanded(
+              child: Text(t.caSelectedCount(_bnIf('${_sel.length}', bn)),
+                  key: const Key('ca-sel-count'),
+                  maxLines: 2,
+                  style: AType.titleMedium.copyWith(color: scheme.onSecondaryContainer)),
+            ),
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          if (!_showArchived)
+            act(const Key('ca-bulk-pin'), Icons.push_pin_outlined, t.msgrChatPin, _bulkPin),
+          act(const Key('ca-bulk-mute'), Icons.notifications_off_outlined, t.msgrChatMute, _bulkMute),
+          act(const Key('ca-bulk-archive'),
+              _showArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
+              _showArchived ? t.msgrChatUnarchive : t.msgrChatArchive, _bulkArchive),
+          act(const Key('ca-bulk-read'), Icons.mark_chat_read_outlined, t.msgrChatMarkRead,
+              _bulkMarkRead),
+          act(const Key('ca-bulk-delete'), Icons.delete_outline_rounded, t.caDeleteChat,
+              () => _deleteChats(_selectedRows),
+              color: scheme.error),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  static String _bnIf(String s, bool bn) => bn ? _bnDigits(s) : s;
 
   @override
   Widget build(BuildContext context) {
@@ -674,9 +985,15 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       ]);
     }
     final visible = _visible;
-    return Column(children: [
+    // chat-actions: Back first closes the selection (like WhatsApp)
+    return PopScope(
+      canPop: !_selecting,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _selecting) _endSelect();
+      },
+      child: Column(children: [
       if (widget.header != null) widget.header!,
-      _searchBar(),
+      if (_selecting) _selectionBar() else _searchBar(),
       if (_showLocked)
         _lockedHeader()
       else ...[
@@ -703,7 +1020,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                 ),
               ),
       ),
-    ]);
+    ]),
+    );
   }
 
   /// The archived-view header: a back affordance + title (the user is inside
@@ -930,11 +1248,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     return RoboId(id: 'tl_chat_row',
       child: InkWell(
       key: ValueKey('c3-row-${_key(c)}'),
-      onTap: () => _openChat(c),
-      onLongPress: () => _organiseSheet(c),
+      // chat-actions: in select mode a tap / long-press toggles the row
+      onTap: () => _selecting ? _toggleSel(c) : _openChat(c),
+      onLongPress: () => _selecting ? _toggleSel(c) : _organiseSheet(c),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         child: Row(children: [
+          Stack(clipBehavior: Clip.none, children: [
           group
               ? CircleAvatar(
                   radius: 24,
@@ -945,6 +1265,20 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   name: name,
                   photoUrl: '${m['photo_link'] ?? m['photo'] ?? ''}',
                   photoV: '${m['photo_v'] ?? ''}'), // x2-ticks: cached
+            if (_selecting && _sel.contains(_key(c)))
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: Container(
+                  key: const Key('ca-row-selected'),
+                  decoration: BoxDecoration(
+                      color: scheme.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: scheme.surface, width: 2)),
+                  child: Icon(Icons.check_rounded, size: 16, color: scheme.onPrimary),
+                ),
+              ),
+          ]),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -1001,6 +1335,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                             ? _notOnAppLine(scheme, t)
                             : _previewLine(pv, scheme, t),
                   ),
+                  // chat-actions: disappearing messages are on
+                  if (((c['disappearing_sec'] as num?)?.toInt() ?? 0) > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(left: Gap.sm),
+                      child: ChatTimerIcon(
+                          seconds: (c['disappearing_sec'] as num).toInt()),
+                    ),
                   if (muted)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.sm),

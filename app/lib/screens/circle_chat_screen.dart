@@ -78,6 +78,7 @@ import '../messaging/share/share_payload.dart'
     show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/paywall_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../messaging/chat_actions.dart'; // chat-actions
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -117,7 +118,8 @@ class CircleChatScreen extends StatefulWidget {
 // Edit window (minutes) — mirrors circle_messaging.EDIT_WINDOW_MIN.
 const int _kEditWindowMin = 15;
 // Delete-for-everyone window — mirrors circle_messaging.DELETE_EVERYONE_WINDOW_MIN.
-const int _kDeleteEveryoneWindowMin = 60 * 24 * 2;
+// chat-actions: the SERVER's window wins (GET messages → delete_window_min).
+int _kDeleteEveryoneWindowMin = 60 * 24 * 2;
 // Pin cap per chat — mirrors circle_messaging.PIN_CAP_PER_CHAT.
 const int _kPinCap = 3;
 
@@ -728,6 +730,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _messages = [...fetched, ...keep];
       _applyEdge(r['edge']); // mr1
       _hasMore = r['has_more'] == true;
+      final win = (r['delete_window_min'] as num?)?.toInt();
+      if (win != null && win > 0) _kDeleteEveryoneWindowMin = win;
       // item 2: the first message I have not SEEN yet -> divider.
       final unseen = raw.where((e) => e['unseen'] == true).toList();
       _unreadAtOpen = unseen.length;
@@ -1288,6 +1292,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         });
       }
       ReceiptBus.instance.expect();
+      unawaited(_adoptDefaultTimer(sent)); // chat-actions
       if (mounted) _countRequestSend(); // mr1: pre-accept budget
     } catch (e) {
       // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
@@ -1649,7 +1654,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.postJson('/circle/messages/${m.id}/delete', {'scope': scope});
       return true;
-    } catch (_) {
+    } catch (e) {
+      // chat-actions: the SERVER enforces the delete-for-everyone window
+      if (scope == 'everyone' && e is ApiException && e.status == 403) {
+        if (mounted) {
+          setState(() => _messages = before);
+          _toast(_t.caDeleteTooLate);
+        }
+        return false;
+      }
       _undo(before);
       return false;
     }
@@ -2040,6 +2053,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
   }
 
+  /// chat-actions: my Settings ▸ Privacy default timer started this NEW
+  /// chat on the server — show it and post the E2E system line.
+  Future<void> _adoptDefaultTimer(Map<String, dynamic> sent) async {
+    final sec = (sent['default_timer_sec'] as num?)?.toInt() ?? 0;
+    if (sec <= 0 || !mounted || _disappearingSec == sec) return;
+    setState(() => _disappearingSec = sec);
+    try {
+      await _sendControl(
+          ChatControl.timer(sec, at: DateTime.now().millisecondsSinceEpoch));
+      await _reloadTimer();
+    } catch (_) {}
+  }
+
   // ---- Disappearing (server + device enforced) ----------------------------
   Future<void> _disappearingFlow() async {
     final sec = await showDisappearingPicker(context, _disappearingSec);
@@ -2424,22 +2450,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _clearChatFlow() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(_t.msgrChatClear),
-        content: Text(_t.msgrChatClearConfirm),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(_t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(_t.msgrChatClear)),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
+    // chat-actions: WhatsApp confirm with "Keep starred messages"
+    final keep = await showClearChatDialog(context);
+    if (keep == null || !mounted) return;
     try {
       // Per-user marker on the server: hidden for me only, the peer keeps theirs.
-      await _api.clearChat(_memberId ?? 0);
-      if (mounted) setState(() => _messages = []);
+      await _api.clearChatFor(_chatKey, keepStarred: keep);
+      await wipeChatLocally(_chatKey);
+      if (mounted) {
+        setState(() => _messages =
+            keep ? _messages.where((m) => m.starred).toList() : []);
+        _toast(_t.caChatCleared);
+      }
     } catch (e) {
       _toast(e is ApiException && e.message.isNotEmpty
           ? e.message
@@ -2896,6 +2918,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         name: DecorStore.instance.peerName(_chatKey, _memberName),
         status: _presence,
         statusActive: _peerTyping,
+        // chat-actions: the disappearing timer is on
+        nameBadge: _disappearingSec > 0
+            ? ChatTimerIcon(seconds: _disappearingSec)
+            : null,
         // mr1: a request I have not accepted shows no contact info
         onTap: _reqIn ? null : _openContactInfo,
         // x2-ticks (A3): the contact's real photo (cached, refreshed on
