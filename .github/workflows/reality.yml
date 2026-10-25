@@ -258,11 +258,8 @@ jobs:
           # rf1: a "hardware keyboard" so Android never opens the soft IME
           # window (run 40205920547: the emulator segfaulted seconds after
           # the IME opened); run_flows.sh also disables the IME itself.
-          pre-emulator-launch-script: |
-            for c in "$ANDROID_AVD_HOME"/*.avd/config.ini "$HOME"/.android/avd/*.avd/config.ini; do
-              [ -f "$c" ] || continue
-              sed -i '/^hw.keyboard=/d' "$c"; echo 'hw.keyboard=yes' >> "$c"; echo "hw.keyboard=yes -> $c"
-            done
+          # ONE line: the action runs every line as its own `sh -c`.
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c" && echo "hw.keyboard=yes -> $c"; done; true
           # /bin/sh one-liner: all logic (and every adb timeout) is in the script
           script: bash tools/reality/run_flows.sh
 
