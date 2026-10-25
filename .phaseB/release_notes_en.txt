@@ -1,1 +1,1 @@
-Build 236: Your own phone no longer shows theft alerts about itself; far fewer false "grab" alarms (never while charging, right after unlocking, or a bump at night); after a grab your phone first asks "Was this you?" and your Security PIN cancels it within 60 seconds; refreshed icons across the app.
+Build 237: Free plan now shows a few clearly labelled ads (Google test ads for now) — never on SOS, safety, anti-theft, calls, chats, payment or login screens; Premium and Business see no ads; ad privacy choices in Settings.
