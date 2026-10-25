@@ -153,7 +153,7 @@ run_group() {  # $1 = group, $2 = attempt label
 #    reads <ext files>/reality/skip_ids.txt) and a flow that killed the
 #    emulator twice — summarize.py reports it as D "crashed DURING this flow",
 #    never as passed. Start flows (01-03) always re-run (they log in).
-ATTEMPTS="${REALITY_ATTEMPTS:-4}"
+ATTEMPTS="${REALITY_ATTEMPTS:-6}"
 SKIP_LOCAL="$OUT/skip_ids.txt"
 : > "$SKIP_LOCAL"
 : > "$OUT/device_deaths.txt"

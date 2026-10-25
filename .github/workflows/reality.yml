@@ -20,6 +20,10 @@ on:
         description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep); empty = all"
         required: false
         default: ""
+      impeller:
+        description: "Impeller in the CI test APK (false = Skia; release builds are unaffected)"
+        required: false
+        default: "false"
       emu_gpu:
         description: "Emulator -gpu mode(s), comma list = one job per group per mode (swiftshader_indirect, swangle_indirect, guest)"
         required: false
@@ -90,6 +94,7 @@ jobs:
       # "start+personal" = one drive: Start flows log in, then the group.
       REALITY_DRIVE: ${{ matrix.group == 'start' && 'start' || format('start+{0}', matrix.group) }}
       REALITY_GPU: ${{ matrix.gpu }}
+      REALITY_IMPELLER: ${{ github.event.inputs.impeller || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -169,11 +174,22 @@ jobs:
         run: |
           # src/debug/ only: the release manifest is untouched.
           python3 - <<'PY'
+          import os
           p = "android/app/src/debug/AndroidManifest.xml"
           s = open(p).read()
           if "usesCleartextTraffic" not in s:
+              # rf1: Skia instead of Impeller for the CI TEST APK only (debug
+              # manifest; release keeps Impeller). Run 40212748312: with no
+              # IME at all the host emulator still died "RenderThread:
+              # segfault" seconds after the first text-field focus (an 18 s
+              # Impeller-GLES frame), in BOTH swiftshader_indirect and guest
+              # modes. REALITY_IMPELLER=true keeps Impeller.
+              imp = os.environ.get("REALITY_IMPELLER", "false")
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="%s"/>\n' % imp)
               s = s.replace("</manifest>",
-                  '    <application android:usesCleartextTraffic="true"/>\n</manifest>', 1)
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
               open(p, "w").write(s)
           print(open(p).read())
           PY
