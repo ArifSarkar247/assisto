@@ -157,7 +157,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
 
     if (_sent) {
       return StateMessage(
-        icon: Icons.check_circle_outline,
+        icon: Icons.check_circle_outline_rounded,
         title: t.supportSentTitle,
         message: t.supportSentBody,
         tint: Brand.success,
@@ -215,7 +215,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.send_outlined),
+              : const Icon(Icons.send_rounded),
           label: Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.sm),
             child: Text(_sending ? t.supportSending : t.supportSend),
@@ -248,17 +248,17 @@ class _GetHelpTabState extends State<_GetHelpTab> {
           margin: EdgeInsets.zero,
           child: Column(children: [
             ListTile(
-              leading: Icon(Icons.email_outlined, color: scheme.primary),
+              leading: Icon(Icons.email_rounded, color: scheme.primary),
               title: Text(t.supportContactEmailTitle),
               subtitle: Text(t.supportContactEmail),
-              trailing: const Icon(Icons.open_in_new, size: 18),
+              trailing: const Icon(Icons.open_in_new_rounded, size: 18),
               onTap: _contactEmail,
             ),
             const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.gavel_outlined, color: scheme.primary),
+              leading: Icon(Icons.gavel_rounded, color: scheme.primary),
               title: Text(t.supportContactLegal),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const LegalScreen())),
             ),
@@ -317,20 +317,20 @@ class _MyTicketsTabState extends State<_MyTicketsTab> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.supportTicketsErrorTitle,
         message: honestFailText(t, _failCause, otherwise: t.supportTicketsErrorBody),
         tint: Brand.warning,
         action: FilledButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.updateRetry),
         ),
       );
     }
     if (_tickets.isEmpty) {
       return StateMessage(
-        icon: Icons.inbox_outlined,
+        icon: Icons.inbox_rounded,
         title: t.supportTicketsEmptyTitle,
         message: t.supportTicketsEmptyBody,
       );

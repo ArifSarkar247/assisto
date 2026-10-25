@@ -30,15 +30,15 @@ String platformLabel(AppLocalizations t, String id) {
 IconData platformIcon(String id) {
   switch (id) {
     case 'facebook':
-      return Icons.facebook;
+      return Icons.facebook_rounded;
     case 'instagram':
-      return Icons.photo_camera_outlined;
+      return Icons.photo_camera_rounded;
     case 'linkedin':
-      return Icons.work_outline;
+      return Icons.work_outline_rounded;
     case 'whatsapp':
-      return Icons.chat_bubble_outline;
+      return Icons.chat_bubble_outline_rounded;
   }
-  return Icons.public;
+  return Icons.public_rounded;
 }
 
 String toneLabel(AppLocalizations t, String id) {
@@ -115,7 +115,7 @@ class AiDraftMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -208,7 +208,7 @@ class CharCounter extends StatelessWidget {
         ? Brand.danger
         : (near ? Brand.warning : scheme.onSurfaceVariant);
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-      if (over) Icon(Icons.error_outline, size: 14, color: color),
+      if (over) Icon(Icons.error_outline_rounded, size: 14, color: color),
       if (over) const SizedBox(width: 4),
       Text('${count.used} / ${count.limit}',
           style: TextStyle(
@@ -308,7 +308,7 @@ class SavedDraftTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
         trailing: IconButton(
-          icon: Icon(Icons.delete_outline, size: 20, color: Brand.danger),
+          icon: Icon(Icons.delete_outline_rounded, size: 20, color: Brand.danger),
           tooltip: t.delete,
           onPressed: onDelete,
         ),

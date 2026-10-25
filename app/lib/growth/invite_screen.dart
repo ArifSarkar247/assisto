@@ -161,9 +161,9 @@ class _InviteScreenState extends State<InviteScreen> {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(t.p5Copied)));
               }),
-              _whiteButton(Icons.share_outlined, t.p5ShareInvite,
+              _whiteButton(Icons.share_rounded, t.p5ShareInvite,
                   () => Share.share(shareText)),
-              _whiteButton(Icons.image_outlined, t.p5ShareAsImage,
+              _whiteButton(Icons.image_rounded, t.p5ShareAsImage,
                   () => showBrandedShare(context,
                       body: shareText, label: t.p5InviteTitle)),
             ]),
@@ -174,14 +174,14 @@ class _InviteScreenState extends State<InviteScreen> {
         _section(t.p5HowTitle, [
           _bullet(Icons.download_rounded,
               t.p5HowStep1(n(rules['claim_days']))),
-          _bullet(Icons.event_available_outlined,
+          _bullet(Icons.event_available_rounded,
               t.p5HowStep2(n(rules['activation_days']), n(rules['inviter_credits']),
                   n(rules['invitee_credits']))),
-          _bullet(Icons.phone_android_outlined,
+          _bullet(Icons.phone_android_rounded,
               rules['phone_otp'] == true ? t.p5HowPhoneOtp : t.p5HowPhone),
-          _bullet(Icons.calendar_month_outlined,
+          _bullet(Icons.calendar_month_rounded,
               t.p5HowCap(n(rules['monthly_cap']))),
-          _bullet(Icons.info_outline, t.p5CreditsNotCash),
+          _bullet(Icons.info_outline_rounded, t.p5CreditsNotCash),
         ]),
         const SizedBox(height: 12),
         // ---- my invites ----

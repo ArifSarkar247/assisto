@@ -45,25 +45,25 @@ class OnbFirstWin extends StatelessWidget {
       if (kMedicalFeaturesAllowed)
         (
           OnbWin.medicine,
-          Icons.medication_outlined,
+          Icons.medication_rounded,
           t.onbWinMedicineTitle,
           t.onbWinMedicineSub
         ),
       (
         OnbWin.bill,
-        Icons.receipt_long_outlined,
+        Icons.receipt_long_rounded,
         t.onbWinBillTitle,
         t.onbWinBillSub
       ),
       (
         OnbWin.journey,
-        Icons.directions_walk_outlined,
+        Icons.directions_walk_rounded,
         t.onbWinJourneyTitle,
         t.onbWinJourneySub
       ),
       (
         OnbWin.expense,
-        Icons.payments_outlined,
+        Icons.payments_rounded,
         t.onbWinExpenseTitle,
         t.onbWinExpenseSub
       ),
@@ -81,7 +81,7 @@ class OnbFirstWin extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
         OnbHeader(
-          icon: Icons.bolt_outlined,
+          icon: Icons.bolt_rounded,
           title: t.onbFirstWinTitle,
           subtitle: t.onbFirstWinSub,
           iconSize: 72,

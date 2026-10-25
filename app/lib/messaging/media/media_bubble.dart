@@ -204,7 +204,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(st != null ? Icons.refresh : Icons.download_rounded,
+            Icon(st != null ? Icons.refresh_rounded : Icons.download_rounded,
                 size: 18, color: st != null && onImage ? scheme.onErrorContainer : fg),
             const SizedBox(width: Gap.xs),
             Flexible(
@@ -246,7 +246,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
                 child: CircularProgressIndicator(
                     value: progress, strokeWidth: 3, color: fg),
               ),
-              Icon(Icons.close, size: 18, color: fg),
+              Icon(Icons.close_rounded, size: 18, color: fg),
             ]),
           ),
         ),
@@ -271,7 +271,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
         leading = IconButton(
           key: Key('md1-dl-${d.ref}'),
           tooltip: t.md1Download(notifLocalizeDigits(context, mediaSizeLabel(d.size))),
-          icon: Icon(st != null ? Icons.refresh : Icons.download_for_offline,
+          icon: Icon(st != null ? Icons.refresh_rounded : Icons.download_for_offline_rounded,
               size: 36, color: widget.fg),
           onPressed: _download,
         );
@@ -363,7 +363,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
           key: Key('md1-doc-${d.ref}'),
           name: d.name,
           size: d.plainSize,
-          trailing: Icon(Icons.open_in_new, size: 18, color: widget.fg),
+          trailing: Icon(Icons.open_in_new_rounded, size: 18, color: widget.fg),
           onTap: () => widget.onOpen?.call(file, d));
     }
     final Widget trailing;
@@ -376,7 +376,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
           tooltip: t.md1Cancel,
           onTap: () => MediaCache.instance.cancel(d.ref));
     } else {
-      trailing = Icon(st != null ? Icons.refresh : Icons.download_rounded,
+      trailing = Icon(st != null ? Icons.refresh_rounded : Icons.download_rounded,
           size: 22, color: widget.fg);
     }
     return Column(
@@ -456,7 +456,7 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
             body = _docRow(context,
                 name: job.name,
                 size: job.plainSize,
-                trailing: ring ?? Icon(Icons.error_outline, color: scheme.error));
+                trailing: ring ?? Icon(Icons.error_outline_rounded, color: scheme.error));
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,9 +466,9 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
             const SizedBox(height: 4),
             Row(mainAxisSize: MainAxisSize.min, children: [
               if (job.failed)
-                Icon(Icons.error_outline, size: 14, color: scheme.error)
+                Icon(Icons.error_outline_rounded, size: 14, color: scheme.error)
               else
-                Icon(Icons.schedule, size: 13, color: widget.fg.withValues(alpha: 0.8)),
+                Icon(Icons.schedule_rounded, size: 13, color: widget.fg.withValues(alpha: 0.8)),
               const SizedBox(width: 4),
               Flexible(
                 child: Text(status.isEmpty ? t.md1SendFailed : status,

@@ -59,7 +59,7 @@ class NearbyCategoryBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),
             child: FilterChip(
-              avatar: const Icon(Icons.star, size: 16, color: Brand.gold),
+              avatar: const Icon(Icons.star_rounded, size: 16, color: Brand.gold),
               label: Text(t.nearbyFavourites),
               selected: showFavourites,
               onSelected: (_) => onToggleFavView(),

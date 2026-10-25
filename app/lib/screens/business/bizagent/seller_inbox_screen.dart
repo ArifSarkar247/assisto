@@ -60,7 +60,7 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -68,7 +68,7 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     }
     if (_threads.isEmpty) {
       return StateMessage(
-          icon: Icons.inbox_outlined, title: t.baInboxEmptyTitle, message: t.baInboxEmptyBody);
+          icon: Icons.inbox_rounded, title: t.baInboxEmptyTitle, message: t.baInboxEmptyBody);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -235,7 +235,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -260,11 +260,11 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
               segments: [
                 ButtonSegment(
                     value: 'ai',
-                    icon: const Icon(Icons.smart_toy_outlined),
+                    icon: const Icon(Icons.smart_toy_rounded),
                     label: Text(t.g1LetAiReply)),
                 ButtonSegment(
                     value: 'human',
-                    icon: const Icon(Icons.support_agent),
+                    icon: const Icon(Icons.support_agent_rounded),
                     label: Text(t.g1IWillReply)),
               ],
               selected: {handover ? 'human' : 'ai'},
@@ -292,7 +292,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
           child: BizCard(
             title: bd(context, t.g1PaymentPendingTitle('${o['id']}')),
-            icon: Icons.receipt_long_outlined,
+            icon: Icons.receipt_long_rounded,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.g1PaymentPendingBody, style: const TextStyle(height: 1.4)),
               const SizedBox(height: Gap.sm),
@@ -313,7 +313,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
           child: BizNote(
               text: bd(context, t.g1CourierTestNote('${o['id']}', '${o['tracking']}')),
-              icon: Icons.science_outlined,
+              icon: Icons.science_rounded,
               tint: AssistoTokens.of(context).warning),
         ),
       if (draft.isNotEmpty && draft['product'] != null)
@@ -322,7 +322,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           child: BizNote(
             text: bd(context, t.baOrderDraft('${draft['product']}', '${draft['qty'] ?? 1}',
                 '${draft['phone'] ?? '—'}', '${draft['address'] ?? '—'}')),
-            icon: Icons.shopping_bag_outlined,
+            icon: Icons.shopping_bag_rounded,
           ),
         ),
       Expanded(
@@ -337,7 +337,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
           child: BizNote(
               text: th['channel'] == 'whatsapp_cloud' ? t.baWindowClosedWa : t.baWindowClosed,
-              icon: Icons.timer_off_outlined, tint: AssistoTokens.of(context).warning),
+              icon: Icons.timer_off_rounded, tint: AssistoTokens.of(context).warning),
         ),
       SafeArea(
         top: false,
@@ -357,7 +357,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             IconButton.filled(
               tooltip: t.baSend,
               onPressed: _busy || _c.text.trim().isEmpty ? null : _send,
-              icon: const Icon(Icons.send),
+              icon: const Icon(Icons.send_rounded),
             ),
           ]),
         ),
@@ -403,7 +403,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(kind == 'image' ? Icons.image_outlined : Icons.mic_none_outlined,
+                  Icon(kind == 'image' ? Icons.image_rounded : Icons.mic_none_rounded,
                       size: 16, color: scheme.onSurfaceVariant),
                   const SizedBox(width: Gap.xs),
                   Flexible(
@@ -418,7 +418,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(Radii.sm),
                   child: Image.network(image, height: 140, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
+                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_rounded)),
                 ),
               ),
             if ('${m['text'] ?? ''}'.isNotEmpty || kind != 'image')

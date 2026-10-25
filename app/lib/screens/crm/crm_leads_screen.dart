@@ -51,7 +51,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
               MaterialPageRoute(builder: (_) => CrmLeadFormScreen(org: widget.org)));
           if (added == true) _load();
         },
-        icon: const Icon(Icons.person_add_alt),
+        icon: const Icon(Icons.person_add_alt_rounded),
         label: Text(t.crmAddLead),
       ),
       body: Column(children: [
@@ -59,7 +59,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
           child: TextField(
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
               hintText: t.search,
               isDense: true,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.pill)),
@@ -106,7 +106,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                       error: _error!, title: t.loadFailed, onRetry: _load)
                   : _list.isEmpty
                       ? CrmStateView.empty(
-                          icon: Icons.people_outline,
+                          icon: Icons.people_outline_rounded,
                           title: t.crmNoLeads,
                           message: t.crmNoLeadsHint)
                       : RefreshIndicator(
@@ -170,12 +170,12 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         tooltip: t.crmCall,
-        icon: const Icon(Icons.call),
+        icon: const Icon(Icons.call_rounded),
         onPressed: () => crmQuickCall(context, id, phone),
       ),
       IconButton(
         tooltip: t.cWhatsapp,
-        icon: const Icon(Icons.chat),
+        icon: const Icon(Icons.chat_rounded),
         onPressed: () async {
           final sent = await crmQuickWhatsApp(context, id, name);
           if (sent) _load();

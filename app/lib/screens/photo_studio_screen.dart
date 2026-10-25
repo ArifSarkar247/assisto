@@ -156,7 +156,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsTool.upscale2x => Icons.zoom_in_rounded,
         PsTool.upscale4x => Icons.zoom_out_map_rounded,
         PsTool.denoise => Icons.grain_rounded,
-        PsTool.lowLight => Icons.light_mode_outlined,
+        PsTool.lowLight => Icons.light_mode_rounded,
         PsTool.bgBlur => Icons.blur_on_rounded,
       };
 
@@ -216,13 +216,13 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsPhase.loading => const SkeletonList(),
         PsPhase.entryAd => _entryTransition(t),
         PsPhase.error => StateMessage(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.loadFailed,
             message: t.loadFailedBody,
             tint: Theme.of(context).colorScheme.error,
             action: FilledButton.icon(
                 onPressed: _c.init,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.retry)),
           ),
         PsPhase.open => _studio(t),
@@ -238,7 +238,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             decoration: const BoxDecoration(
                 gradient: Brand.gradient, shape: BoxShape.circle),
             child:
-                const Icon(Icons.auto_awesome, color: Colors.white, size: 34),
+                const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 34),
           ),
           const SizedBox(height: Gap.lg),
           Text(t.psOpening, style: Theme.of(context).textTheme.titleMedium),
@@ -366,7 +366,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     final list = [for (final x in PsTool.values) if (av.has(x)) x];
     final dl = (av.needsUpscaleModel ? _c.enhance.aiBytes : 0) +
         (av.needsMaskModel ? (_c.config.aiModel.segment?.size ?? 0) : 0);
-    return _card(icon: Icons.handyman_outlined, title: t.d1psToolsTitle, children: [
+    return _card(icon: Icons.handyman_rounded, title: t.d1psToolsTitle, children: [
       Text(t.d1psToolsBody, style: TextStyle(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -380,7 +380,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             onPressed: _c.busy ? null : () => _c.runTool(tool),
           ),
       ]),
-      if (dl > 0) _infoLine(Icons.download_outlined, t.d1psFirstDownload(_mb(dl))),
+      if (dl > 0) _infoLine(Icons.download_rounded, t.d1psFirstDownload(_mb(dl))),
       if (_c.free) ...[
         const SizedBox(height: Gap.sm),
         _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
@@ -395,7 +395,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     const feats = [PsFeature.oldRestore, PsFeature.colorize, PsFeature.deblur];
     final ready = [for (final f in feats) if (_c.config.restoreReady(f)) f];
     final owner = _c.config.isOwner;
-    return _card(icon: Icons.auto_fix_normal_outlined, title: t.d1psRestoreTitle, children: [
+    return _card(icon: Icons.auto_fix_normal_rounded, title: t.d1psRestoreTitle, children: [
       Text(t.d1psRestoreBody, style: TextStyle(color: scheme.onSurfaceVariant)),
       if (ready.isNotEmpty) ...[
         const SizedBox(height: Gap.md),
@@ -408,7 +408,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   ? null
                   : () => _c.runRestore(
                       f, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
-              icon: const Icon(Icons.cloud_upload_outlined),
+              icon: const Icon(Icons.cloud_upload_rounded),
               label: Text(_restoreLabel(t, f)),
             ),
           ),
@@ -429,10 +429,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         for (final f in feats)
           if (!_c.config.restoreReady(f))
             _infoLine(
-                Icons.key_outlined,
+                Icons.key_rounded,
                 t.d1psOwnerRestoreNeeds(_restoreLabel(t, f),
                     _c.config.restoreNeeds[f.wire] ?? _c.config.quote(f).message)),
-        _infoLine(Icons.face_outlined, t.d1psOwnerNoFaceModel),
+        _infoLine(Icons.face_rounded, t.d1psOwnerNoFaceModel),
       ],
     ]);
   }
@@ -452,7 +452,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     final uq = _c.config.quote(PsFeature.ultraHd);
     final cap = _c.config.enhanceCap;
     final gate = SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null);
-    return _card(icon: Icons.hd_outlined, title: t.pfTitle, children: [
+    return _card(icon: Icons.hd_rounded, title: t.pfTitle, children: [
       Text(t.pfBody, style: TextStyle(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
       SizedBox(
@@ -484,15 +484,15 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           child: FilledButton.icon(
             key: const Key('pfEnhance'),
             onPressed: _c.busy ? null : () => _c.runRestore(PsFeature.enhanceServer, gate),
-            icon: const Icon(Icons.auto_awesome),
+            icon: const Icon(Icons.auto_awesome_rounded),
             label: Text(t.pfEnhanceButton),
           ),
         ),
-      if (!q.ok && q.message.isNotEmpty) _infoLine(Icons.info_outline, q.message),
+      if (!q.ok && q.message.isNotEmpty) _infoLine(Icons.info_outline_rounded, q.message),
       if (q.freeLeft != null)
-        _infoLine(Icons.card_giftcard_outlined, t.pfFreeLeft(fmtInt(context, q.freeLeft!)))
+        _infoLine(Icons.card_giftcard_rounded, t.pfFreeLeft(fmtInt(context, q.freeLeft!)))
       else if (q.ads != null)
-        _infoLine(Icons.ondemand_video_outlined, t.pfAdsEach(fmtInt(context, q.ads!.ads))),
+        _infoLine(Icons.ondemand_video_rounded, t.pfAdsEach(fmtInt(context, q.ads!.ads))),
       if (_c.config.restoreReady(PsFeature.ultraHd)) ...[
         const SizedBox(height: Gap.sm),
         SizedBox(
@@ -500,12 +500,12 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           child: OutlinedButton.icon(
             key: const Key('pfUltra'),
             onPressed: _c.busy ? null : () => _c.runRestore(PsFeature.ultraHd, gate),
-            icon: const Icon(Icons.four_k_outlined),
+            icon: const Icon(Icons.four_k_rounded),
             label: Text(t.pfUltraButton(fmtInt(context, uq.leftMonth ?? 0))),
           ),
         ),
       ],
-      if (cap.faceLock) _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),
+      if (cap.faceLock) _infoLine(Icons.lock_person_rounded, t.d1psFaceLockPromise),
     ]);
   }
 
@@ -522,7 +522,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     final scheme = Theme.of(context).colorScheme;
     final lim = _c.config.limits, use = _c.config.usage;
     final gifts = ((lim['free_gen_lifetime'] ?? 0) - (use['gen_lifetime'] ?? 0)).clamp(0, 99);
-    return _card(icon: Icons.bolt_outlined, title: t.d1psTemplatesTitle, children: [
+    return _card(icon: Icons.bolt_rounded, title: t.d1psTemplatesTitle, children: [
       Text(t.d1psTemplatesBody, style: TextStyle(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -531,8 +531,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             key: Key('psTpl_${tp.id}'),
             avatar: Icon(
                 tp.feature == PsFeature.enhanceServer
-                    ? Icons.hd_outlined
-                    : (tp.feature.isRestore ? Icons.history_edu_outlined : Icons.auto_awesome_outlined),
+                    ? Icons.hd_rounded
+                    : (tp.feature.isRestore ? Icons.history_edu_rounded : Icons.auto_awesome_rounded),
                 size: 18,
                 color: scheme.primary),
             label: Text(tp.label),
@@ -545,9 +545,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       if (_c.free) ...[
         const SizedBox(height: Gap.sm),
         // photo-final: free HD enhance counts live in the HD enhance card
-        if (gifts > 0) _infoLine(Icons.card_giftcard_outlined, t.d1psFreeAiLeft(fmtInt(context, gifts))),
+        if (gifts > 0) _infoLine(Icons.card_giftcard_rounded, t.d1psFreeAiLeft(fmtInt(context, gifts))),
       ],
-      _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),
+      _infoLine(Icons.lock_person_rounded, t.d1psFaceLockPromise),
     ]);
   }
 
@@ -600,17 +600,17 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         };
     final running = _c.batchRunning;
     return _card(
-        icon: Icons.burst_mode_outlined,
+        icon: Icons.burst_mode_rounded,
         title: t.d1psBatchTitle(fmtInt(context, _c.batch.length)),
         children: [
           Text(t.d1psBatchBody, style: TextStyle(color: scheme.onSurfaceVariant)),
-          _infoLine(Icons.info_outline, t.d1psBatchLimit(fmtInt(context, PhotoStudioController.batchMax))),
+          _infoLine(Icons.info_outline_rounded, t.d1psBatchLimit(fmtInt(context, PhotoStudioController.batchMax))),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton.icon(
               key: const Key('psBatchEnhance'),
               onPressed: running || _c.busy ? null : () => _c.runBatch(),
-              icon: const Icon(Icons.auto_awesome, size: 18),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
               label: Text(t.d1psBatchEnhance),
             ),
             for (final tool in const [PsTool.lowLight, PsTool.denoise, PsTool.bgBlur])
@@ -687,7 +687,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           height: 52,
           decoration: const BoxDecoration(
               gradient: Brand.gradient, shape: BoxShape.circle),
-          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 26),
+          child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 26),
         ),
         const SizedBox(height: Gap.md),
         Text(t.psTagline,
@@ -703,25 +703,25 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           FilledButton.icon(
             key: const Key('psPickGallery'),
             onPressed: () => _c.pick(camera: false),
-            icon: const Icon(Icons.photo_library_outlined),
+            icon: const Icon(Icons.photo_library_rounded),
             label: Text(t.psPickGallery),
           ),
           OutlinedButton.icon(
             onPressed: () => _c.pick(camera: true),
-            icon: const Icon(Icons.photo_camera_outlined),
+            icon: const Icon(Icons.photo_camera_rounded),
             label: Text(t.psPickCamera),
           ),
           if (_c.enhance.ready)
             OutlinedButton.icon(
               key: const Key('psPickBatch'),
               onPressed: _c.busy ? null : _c.pickBatch,
-              icon: const Icon(Icons.burst_mode_outlined),
+              icon: const Icon(Icons.burst_mode_rounded),
               label: Text(t.d1psBatchButton),
             ),
         ]),
         if (!_c.free) ...[
           const SizedBox(height: Gap.md),
-          _pill(Icons.workspace_premium_outlined, t.psPremiumClean,
+          _pill(Icons.workspace_premium_rounded, t.psPremiumClean,
               AssistoTokens.of(context).success),
         ],
       ]),
@@ -796,7 +796,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           child: Container(
             key: const Key('psFaceLock'),
             child: _pill(
-                Icons.lock_person_outlined,
+                Icons.lock_person_rounded,
                 fl.restored > 0
                     ? t.d1psFaceLockRestored
                     : (fl.score == null
@@ -813,7 +813,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           child: TextButton.icon(
             key: const Key('psReportAi'),
             onPressed: _c.busy ? null : () => _reportSheet(t),
-            icon: const Icon(Icons.flag_outlined, size: 18),
+            icon: const Icon(Icons.flag_rounded, size: 18),
             label: Text(t.d1psReportAi),
           ),
         ),
@@ -823,18 +823,18 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           runSpacing: Gap.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            _pill(Icons.verified_outlined, t.psOriginalKept, AssistoTokens.of(context).success),
+            _pill(Icons.verified_rounded, t.psOriginalKept, AssistoTokens.of(context).success),
             TextButton.icon(
               onPressed: () => _c.pick(camera: false),
-              icon: const Icon(Icons.swap_horiz, size: 18),
+              icon: const Icon(Icons.swap_horiz_rounded, size: 18),
               label: Text(t.psChangePhoto),
             ),
           ]),
       if (_c.free) ...[
         const SizedBox(height: Gap.xs),
-        _infoLine(Icons.lock_outline, t.psPreviewNote),
+        _infoLine(Icons.lock_outline_rounded, t.psPreviewNote),
         if (_c.secureActive)
-          _infoLine(Icons.no_photography_outlined, t.psSecureOn),
+          _infoLine(Icons.no_photography_rounded, t.psSecureOn),
       ],
     ]);
   }
@@ -843,7 +843,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   Widget _webCard(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     return _card(
-        icon: Icons.badge_outlined,
+        icon: Icons.badge_rounded,
         title: t.psWebTitle,
         children: [
           if (_c.webLabel.isNotEmpty) ...[
@@ -858,7 +858,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           OutlinedButton.icon(
             key: const Key('psWebPickOriginal'),
             onPressed: () => _c.pick(camera: false),
-            icon: const Icon(Icons.photo_library_outlined),
+            icon: const Icon(Icons.photo_library_rounded),
             label: Text(t.psWebPickOriginal),
           ),
         ]);
@@ -949,18 +949,18 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             child: FilledButton.icon(
               key: const Key('psEnhance'),
               onPressed: _c.busy ? null : _c.runEnhance,
-              icon: const Icon(Icons.auto_awesome),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(t.psEnhanceButton),
             ),
           ),
           const SizedBox(height: Gap.xs),
-          _infoLine(Icons.face_retouching_natural, t.psEnhanceHow),
+          _infoLine(Icons.face_retouching_natural_rounded, t.psEnhanceHow),
           if (_c.lastReport.aiUsed && _c.session?.edited == true) ...[
             const SizedBox(height: Gap.sm),
-            _pill(Icons.verified_user_outlined, t.psAiUsed, AssistoTokens.of(context).success),
+            _pill(Icons.verified_user_rounded, t.psAiUsed, AssistoTokens.of(context).success),
           ],
           if (_c.lastReport.aiRejected && _c.session?.edited == true)
-            _infoLine(Icons.info_outline, t.psAiFellBack),
+            _infoLine(Icons.info_outline_rounded, t.psAiFellBack),
           if (_c.free) ...[
             const SizedBox(height: Gap.sm),
             _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
@@ -995,7 +995,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       SwitchListTile(
         key: const Key('psAiSwitch'),
         contentPadding: EdgeInsets.zero,
-        secondary: Icon(Icons.auto_fix_high_outlined, color: scheme.primary),
+        secondary: Icon(Icons.auto_fix_high_rounded, color: scheme.primary),
         title: Text(t.psAiTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(planLine == null ? sub : '$sub\n$planLine',
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
@@ -1010,7 +1010,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           child: TextButton.icon(
             key: const Key('psAiRetry'),
             onPressed: _c.busy ? null : _c.prepareEnhance,
-            icon: const Icon(Icons.refresh, size: 18),
+            icon: const Icon(Icons.refresh_rounded, size: 18),
             label: Text(t.retry),
           ),
         ),
@@ -1025,7 +1025,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   /// p2-photo d): owner-only note when no cloud image-AI key is connected.
   Widget _ownerKeyNote(AppLocalizations t) => Container(
         key: const Key('psOwnerKeyNote'),
-        child: _statusBox(Icons.key_outlined, t.psOwnerAddKey,
+        child: _statusBox(Icons.key_rounded, t.psOwnerAddKey,
             Theme.of(context).colorScheme.onSurfaceVariant),
       );
 
@@ -1060,7 +1060,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     }
     if (parts.isEmpty) return const SizedBox.shrink();
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Icon(Icons.toll_outlined, size: 16, color: scheme.onSurfaceVariant),
+      Icon(Icons.toll_rounded, size: 16, color: scheme.onSurfaceVariant),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: Text(parts.join('  ·  '),
@@ -1154,7 +1154,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   ),
               ]),
               const SizedBox(height: Gap.sm),
-              _infoLine(Icons.face_retouching_natural, t.psBeautyRule),
+              _infoLine(Icons.face_retouching_natural_rounded, t.psBeautyRule),
             ],
             const SizedBox(height: Gap.sm),
             _switch(t.psHasPeople, _c.hasPeople, _c.setHasPeople,
@@ -1167,10 +1167,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             _switch(
                 t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
             if (_c.othersInPhoto)
-              _statusBox(Icons.handshake_outlined, t.psConsent, scheme.primary),
+              _statusBox(Icons.handshake_rounded, t.psConsent, scheme.primary),
             if (_c.childInPhoto) ...[
               const SizedBox(height: Gap.sm),
-              _statusBox(Icons.child_care_outlined, t.psChildCaution,
+              _statusBox(Icons.child_care_rounded, t.psChildCaution,
                   Brand.warnInk(context)),
             ],
           ],
@@ -1194,7 +1194,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                       SheetGateUi(context,
                           forRun: true,
                           onPremium: _c.free ? _openPlans : null)),
-              icon: const Icon(Icons.auto_awesome_outlined),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(hasPhoto ? t.psRunEdit : t.psRunGenerate),
             ),
           ),
@@ -1222,7 +1222,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.45)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.shield_outlined, color: Theme.of(context).colorScheme.error),
+        Icon(Icons.shield_rounded, color: Theme.of(context).colorScheme.error),
         const SizedBox(width: Gap.md),
         Expanded(
           child:
@@ -1271,14 +1271,14 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           if (_c.free) ...[
             const SizedBox(height: Gap.sm),
             _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
-            _infoLine(Icons.branding_watermark_outlined, t.psCornerNote),
+            _infoLine(Icons.branding_watermark_rounded, t.psCornerNote),
           ],
         ]);
   }
 
   Widget _footNotes(AppLocalizations t) => Column(children: [
-        _infoLine(Icons.shield_moon_outlined, t.psSafetyNote),
-        _infoLine(Icons.info_outline, t.psAiMetaNote),
+        _infoLine(Icons.shield_moon_rounded, t.psSafetyNote),
+        _infoLine(Icons.info_outline_rounded, t.psAiMetaNote),
       ]);
 
   Future<void> _history() async {
@@ -1310,7 +1310,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   ? t.psVersionOriginal
                   : t.psVersionEdit(fmtInt(context, i))),
               trailing: i == s.index
-                  ? Icon(Icons.check_circle, color: AssistoTokens.of(context).success)
+                  ? Icon(Icons.check_circle_rounded, color: AssistoTokens.of(context).success)
                   : null,
               onTap: () {
                 s.select(i);

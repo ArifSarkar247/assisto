@@ -194,7 +194,7 @@ class _BookTabState extends State<_BookTab> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.khataTitle,
         message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
         action: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -204,13 +204,13 @@ class _BookTabState extends State<_BookTab> {
       floatingActionButton: _selecting
           ? FloatingActionButton.extended(
               onPressed: _bulkTagada,
-              icon: const Icon(Icons.campaign_outlined),
+              icon: const Icon(Icons.campaign_rounded),
               label: Text(t.tagadaSendAll),
             )
           : FloatingActionButton(
               tooltip: _isCustomer ? t.khataAddCustomer : t.khataAddSupplier,
               onPressed: _addParty,
-              child: const Icon(Icons.person_add_alt_1)),
+              child: const Icon(Icons.person_add_alt_1_rounded)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: _parties.isEmpty
@@ -219,15 +219,15 @@ class _BookTabState extends State<_BookTab> {
                   height: MediaQuery.of(context).size.height * 0.6,
                   child: StateMessage(
                     icon: _isCustomer
-                        ? Icons.people_outline
-                        : Icons.local_shipping_outlined,
+                        ? Icons.people_outline_rounded
+                        : Icons.local_shipping_rounded,
                     title: _isCustomer
                         ? t.khataNoCustomers
                         : t.khataNoSuppliers,
                     message: t.khataAddPartyHint,
                     action: FilledButton.icon(
                       onPressed: _addParty,
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Icons.add_rounded),
                       label: Text(_isCustomer
                           ? t.khataAddCustomer
                           : t.khataAddSupplier),
@@ -257,7 +257,7 @@ class _BookTabState extends State<_BookTab> {
                     if (_isCustomer)
                       TextButton.icon(
                         icon: Icon(
-                            _selecting ? Icons.close : Icons.campaign_outlined,
+                            _selecting ? Icons.close_rounded : Icons.campaign_rounded,
                             size: 18),
                         label: Text(_selecting
                             ? t.cancel
@@ -352,8 +352,8 @@ class _NetHeaderState extends State<_NetHeader> {
       padding: const EdgeInsets.all(Gap.lg),
       child: Row(children: [
         Icon(widget.isCustomer
-            ? Icons.call_received
-            : Icons.call_made),
+            ? Icons.call_received_rounded
+            : Icons.call_made_rounded),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -363,7 +363,7 @@ class _NetHeaderState extends State<_NetHeader> {
                 style: AType.headlineSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ]),
         ),
-        Icon(Icons.circle, size: 10, color: color.withValues(alpha: 0.9)),
+        Icon(Icons.circle_rounded, size: 10, color: color.withValues(alpha: 0.9)),
       ]),
     );
   }
@@ -422,7 +422,7 @@ class _PartyTile extends StatelessWidget {
           ),
           if (vip) ...[
             const SizedBox(width: Gap.xs),
-            Icon(Icons.star, size: 14, color: AssistoTokens.of(context).warning),
+            Icon(Icons.star_rounded, size: 14, color: AssistoTokens.of(context).warning),
           ],
         ]),
         subtitle: balanceStatus.isEmpty ? null : Text(balanceStatus),
@@ -503,19 +503,19 @@ class _AddPartySheetState extends State<_AddPartySheet> {
             autofocus: true,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-                labelText: t.name, prefixIcon: const Icon(Icons.person_outline))),
+                labelText: t.name, prefixIcon: const Icon(Icons.person_outline_rounded))),
         const SizedBox(height: Gap.md),
         TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-                labelText: t.phone, prefixIcon: const Icon(Icons.call_outlined))),
+                labelText: t.phone, prefixIcon: const Icon(Icons.call_rounded))),
         const SizedBox(height: Gap.md),
         TextField(
             controller: _area,
             decoration: InputDecoration(
                 labelText: t.khataPartyArea,
-                prefixIcon: const Icon(Icons.location_on_outlined))),
+                prefixIcon: const Icon(Icons.location_on_rounded))),
         const SizedBox(height: Gap.sm),
         if (isCustomer)
           SwitchListTile(
@@ -620,7 +620,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
           if (_isCustomer)
             IconButton(
               tooltip: t.tagadaSendReminder,
-              icon: const Icon(Icons.campaign_outlined),
+              icon: const Icon(Icons.campaign_rounded),
               onPressed: _tagada,
             ),
         ],
@@ -631,7 +631,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
           child: Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.entryAddCredit),
                 onPressed: () => _addEntry(isDue: true),
               ),
@@ -639,7 +639,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
             const SizedBox(width: Gap.md),
             Expanded(
               child: FilledButton.icon(
-                icon: const Icon(Icons.payments_outlined),
+                icon: const Icon(Icons.payments_rounded),
                 label: Text(_isCustomer
                     ? t.entryReceivePayment
                     : t.entryMakePayment),
@@ -692,15 +692,15 @@ class _StatementBody extends StatelessWidget {
         if ((party['phone'] ?? '').toString().isNotEmpty)
           Card(
             child: ListTile(
-              leading: const Icon(Icons.call_outlined),
+              leading: const Icon(Icons.call_rounded),
               title: Text((party['phone'] ?? '').toString()),
-              trailing: Icon(Icons.call, color: AssistoTokens.of(context).success),
+              trailing: Icon(Icons.call_rounded, color: AssistoTokens.of(context).success),
               onTap: () => launchUrl(Uri.parse('tel:${party['phone']}')),
             ),
           ),
         const SizedBox(height: Gap.lg),
         Row(children: [
-          const Icon(Icons.history, size: 18),
+          const Icon(Icons.history_rounded, size: 18),
           const SizedBox(width: Gap.sm),
           Text(t.stmtParticulars,
               style: Theme.of(context).textTheme.titleMedium),
@@ -735,7 +735,7 @@ class _StatementRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(isDebit ? Icons.north_east : Icons.south_west,
+          Icon(isDebit ? Icons.north_east_rounded : Icons.south_west_rounded,
               size: 18, color: isDebit ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).success),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -880,12 +880,12 @@ class _EntrySheetState extends State<_EntrySheet> {
           controller: _note,
           decoration: InputDecoration(
               labelText: t.entryNote,
-              prefixIcon: const Icon(Icons.notes_outlined)),
+              prefixIcon: const Icon(Icons.notes_rounded)),
         ),
         const SizedBox(height: Gap.sm),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.event_outlined),
+          leading: const Icon(Icons.event_rounded),
           title: Text(t.entryDate),
           // qa1: localized date (was ISO "2026-10-22" in both languages)
           trailing: Text(DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
@@ -938,13 +938,13 @@ Future<String?> _pickTone(BuildContext context) {
                 style: Theme.of(ctx).textTheme.titleMedium),
           ),
         ),
-        _toneTile(ctx, 'polite', Icons.volunteer_activism_outlined,
+        _toneTile(ctx, 'polite', Icons.volunteer_activism_rounded,
             t.tagadaTonePolite),
-        _toneTile(ctx, 'reminder', Icons.notifications_outlined,
+        _toneTile(ctx, 'reminder', Icons.notifications_rounded,
             t.tagadaToneReminder),
-        _toneTile(ctx, 'firm', Icons.gavel_outlined, t.tagadaToneFirm),
+        _toneTile(ctx, 'firm', Icons.gavel_rounded, t.tagadaToneFirm),
         _toneTile(
-            ctx, 'thanks', Icons.favorite_outline, t.tagadaToneThanks),
+            ctx, 'thanks', Icons.favorite_outline_rounded, t.tagadaToneThanks),
         const SizedBox(height: Gap.sm),
       ]),
     ),
@@ -996,7 +996,7 @@ Future<void> _showTagadaShare(BuildContext context, Map<String, dynamic> party,
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              icon: const Icon(Icons.chat),
+              icon: const Icon(Icons.chat_rounded),
               label: Text(t.tagadaShareWhatsApp),
               onPressed: () {
                 Navigator.pop(ctx);
@@ -1020,7 +1020,7 @@ Future<void> _showTagadaShare(BuildContext context, Map<String, dynamic> party,
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.sms_outlined),
+              icon: const Icon(Icons.sms_rounded),
               label: Text(smsAvailable
                   ? t.tagadaShareSms
                   : t.tagadaSmsUnavailable),
@@ -1038,7 +1038,7 @@ Future<void> _showTagadaShare(BuildContext context, Map<String, dynamic> party,
           ),
           const SizedBox(height: Gap.sm),
           TextButton.icon(
-            icon: const Icon(Icons.ios_share),
+            icon: const Icon(Icons.ios_share_rounded),
             label: Text(t.stmtShareStatement),
             onPressed: () {
               Navigator.pop(ctx);

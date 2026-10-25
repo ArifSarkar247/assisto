@@ -70,7 +70,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.volunteer_activism_outlined, color: Brand.blue),
+            const Icon(Icons.volunteer_activism_rounded, color: Brand.blue),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanZakat,
@@ -95,7 +95,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
-              icon: const Icon(Icons.calculate_outlined, size: 16),
+              icon: const Icon(Icons.calculate_rounded, size: 16),
               label: Text(t.ramadanZakatCalc),
               onPressed: _calc,
             ),

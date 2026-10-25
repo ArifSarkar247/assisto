@@ -43,7 +43,7 @@ class ReferralBalanceCard extends StatelessWidget {
         ]),
         const SizedBox(height: Gap.sm),
         Row(children: [
-          const Icon(Icons.workspace_premium, color: Colors.white, size: 18),
+          const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 18),
           const SizedBox(width: 6),
           Expanded(
             child: Text(t.referralRedeemableDays(fmtInt(context, redeemableDays)),

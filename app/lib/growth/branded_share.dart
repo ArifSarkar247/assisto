@@ -254,13 +254,13 @@ class _BrandedShareSheetState extends State<BrandedShareSheet> {
             const SizedBox(height: 8),
             FilledButton.icon(
               onPressed: _busy ? null : () => _shareImage(t),
-              icon: const Icon(Icons.image_outlined),
+              icon: const Icon(Icons.image_rounded),
               label: Text(t.p5ShareImage),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: _busy ? null : () => _shareText(t),
-              icon: const Icon(Icons.notes_outlined),
+              icon: const Icon(Icons.notes_rounded),
               label: Text(t.p5ShareText),
             ),
           ],

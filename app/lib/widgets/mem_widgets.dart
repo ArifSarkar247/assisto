@@ -80,7 +80,7 @@ class MemCategoryBar extends StatelessWidget {
         children: [
           _chip(
             context,
-            icon: Icons.apps_outlined,
+            icon: Icons.apps_rounded,
             label: '${t.all} ($total)',
             color: Brand.blue,
             on: selected == null,
@@ -152,7 +152,7 @@ class MemConsentCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.auto_awesome, size: 18, color: Brand.cyan),
+            const Icon(Icons.auto_awesome_rounded, size: 18, color: Brand.cyan),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.memConsentTitle,
@@ -171,7 +171,7 @@ class MemConsentCard extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: onDismiss,
-                icon: const Icon(Icons.close, size: 16),
+                icon: const Icon(Icons.close_rounded, size: 16),
                 // one line, scaled to fit: never breaks mid-word at large font
                 label: FittedBox(
                     fit: BoxFit.scaleDown,
@@ -182,7 +182,7 @@ class MemConsentCard extends StatelessWidget {
             Expanded(
               child: FilledButton.icon(
                 onPressed: onConfirm,
-                icon: const Icon(Icons.check, size: 16),
+                icon: const Icon(Icons.check_rounded, size: 16),
                 label: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(t.memConsentYes, maxLines: 1)),
@@ -255,28 +255,28 @@ class MemItemCard extends StatelessWidget {
                     text: memCatLabel(t, category),
                     color: catColor),
                 MemTag(
-                  icon: item.isAi ? Icons.auto_awesome : Icons.edit_outlined,
+                  icon: item.isAi ? Icons.auto_awesome_rounded : Icons.edit_rounded,
                   text: item.isAi ? t.memoryTagAi : t.memoryTagManual,
                   color: item.isAi ? Brand.cyan : Brand.blue,
                 ),
                 if (flags.excludeFromAi)
                   MemTag(
-                      icon: Icons.visibility_off_outlined,
+                      icon: Icons.visibility_off_rounded,
                       text: t.memPrivacyExcludeShort,
                       color: Brand.danger),
                 if (flags.sensitive)
                   MemTag(
-                      icon: Icons.shield_outlined,
+                      icon: Icons.shield_rounded,
                       text: t.memPrivacySensitive,
                       color: Brand.warning),
                 if (flags.private)
                   MemTag(
-                      icon: Icons.lock_outline,
+                      icon: Icons.lock_outline_rounded,
                       text: t.memPrivacyPrivate,
                       color: Colors.blueGrey),
                 if (item.pendingOp != 'none')
                   MemTag(
-                      icon: Icons.sync,
+                      icon: Icons.sync_rounded,
                       text: t.memoryTagSyncing,
                       color: Brand.warning),
               ]),
@@ -293,12 +293,12 @@ class MemItemCard extends StatelessWidget {
             itemBuilder: (_) => [
               PopupMenuItem(
                   value: 'edit',
-                  child: _mi(Icons.edit_outlined, t.edit)),
+                  child: _mi(Icons.edit_rounded, t.edit)),
               PopupMenuItem(
                   value: 'privacy',
-                  child: _mi(Icons.lock_outline, t.memPrivacyControls)),
+                  child: _mi(Icons.lock_outline_rounded, t.memPrivacyControls)),
               PopupMenuItem(
-                  value: 'del', child: _mi(Icons.delete_outline, t.delete)),
+                  value: 'del', child: _mi(Icons.delete_outline_rounded, t.delete)),
             ],
           ),
         ),

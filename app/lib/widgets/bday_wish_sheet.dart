@@ -193,24 +193,24 @@ class _ActionRow extends StatelessWidget {
     final hasPhone = phone.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty;
     return Wrap(spacing: Gap.xs, runSpacing: 0, children: [
       TextButton.icon(
-        icon: const Icon(Icons.chat, size: 16),
+        icon: const Icon(Icons.chat_rounded, size: 16),
         label: Text(bStr(context, 'bSendWhatsApp')),
         onPressed: () => onOpen(bWhatsAppUri(text, phone: phone)),
       ),
       if (hasPhone)
         TextButton.icon(
-          icon: const Icon(Icons.sms_outlined, size: 16),
+          icon: const Icon(Icons.sms_rounded, size: 16),
           label: Text(bStr(context, 'bSendSms')),
           onPressed: () => onOpen(bSmsUri(text, phone)),
         ),
       if (hasPhone)
         TextButton.icon(
-          icon: const Icon(Icons.call_outlined, size: 16),
+          icon: const Icon(Icons.call_rounded, size: 16),
           label: Text(bStr(context, 'bSendCall')),
           onPressed: () => onOpen(bCallUri(phone)),
         ),
       TextButton.icon(
-        icon: const Icon(Icons.copy, size: 16),
+        icon: const Icon(Icons.copy_rounded, size: 16),
         label: Text(t.copy),
         onPressed: () {
           Clipboard.setData(ClipboardData(text: text));
@@ -219,7 +219,7 @@ class _ActionRow extends StatelessWidget {
         },
       ),
       TextButton.icon(
-        icon: const Icon(Icons.share, size: 16),
+        icon: const Icon(Icons.share_rounded, size: 16),
         label: Text(t.birthdayShare),
         onPressed: () => Share.share(text),
       ),
@@ -254,7 +254,7 @@ class _AiBlock extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.auto_awesome, size: 16, color: scheme.primary),
+            Icon(Icons.auto_awesome_rounded, size: 16, color: scheme.primary),
             const SizedBox(width: 6),
             Text(bStr(context, 'bAiWish'),
                 style: TextStyle(
@@ -279,7 +279,7 @@ class _AiBlock extends StatelessWidget {
                       width: 14,
                       height: 14,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.auto_awesome, size: 16),
+                  : const Icon(Icons.auto_awesome_rounded, size: 16),
               label: Text(bStr(context, 'bAiGenerate')),
               onPressed: loading ? null : onGenerate,
             )

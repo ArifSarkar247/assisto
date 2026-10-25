@@ -134,12 +134,12 @@ class _VaultScreenState extends State<VaultScreen> {
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            leading: const Icon(Icons.photo_camera_outlined),
+            leading: const Icon(Icons.photo_camera_rounded),
             title: Text(AppLocalizations.of(context).camera),
             onTap: () => Navigator.pop(ctx, ImageSource.camera),
           ),
           ListTile(
-            leading: const Icon(Icons.photo_library_outlined),
+            leading: const Icon(Icons.photo_library_rounded),
             title: Text(AppLocalizations.of(context).gallery),
             onTap: () => Navigator.pop(ctx, ImageSource.gallery),
           ),
@@ -220,7 +220,7 @@ class _VaultScreenState extends State<VaultScreen> {
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Icon(Icons.info_outline, size: 18),
+                  const Icon(Icons.info_outline_rounded, size: 18),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(dt.helpText(t)!, style: AType.bodySmall)),
                 ]),
@@ -233,7 +233,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: f.isDate
                     ? OutlinedButton.icon(
-                        icon: const Icon(Icons.event, size: 18),
+                        icon: const Icon(Icons.event_rounded, size: 18),
                         label: Text(detailDates[f.key] == null
                             ? f.label(t)
                             : '${f.label(t)}: ${DateFormat('d MMM yyyy', Localizations.localeOf(ctx).languageCode).format(detailDates[f.key]!)}'),
@@ -260,7 +260,7 @@ class _VaultScreenState extends State<VaultScreen> {
                       ),
               ),
             OutlinedButton.icon(
-              icon: const Icon(Icons.event, size: 18),
+              icon: const Icon(Icons.event_rounded, size: 18),
               label: Text(expiry == null ? t.vaultExpiryDate
                   : '${t.vaultExpiryDate}: ${DateFormat('d MMM yyyy', Localizations.localeOf(ctx).languageCode).format(expiry!)}'),
               onPressed: () async {
@@ -271,7 +271,7 @@ class _VaultScreenState extends State<VaultScreen> {
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
+              icon: Icon(filePath == null ? Icons.attach_file_rounded : Icons.check_circle_rounded,
                   size: 18, color: filePath == null ? null : Colors.green),
               label: Text(filePath == null ? t.vaultAttachImage : t.vaultImageAttached),
               onPressed: () async {
@@ -352,7 +352,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.info_outline, size: 18),
+                const Icon(Icons.info_outline_rounded, size: 18),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(dt.helpText(t)!, style: AType.bodySmall)),
               ]),
@@ -372,7 +372,7 @@ class _VaultScreenState extends State<VaultScreen> {
           if (doc['expiry_date'] != null) ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              const Icon(Icons.event_busy, size: 18),
+              const Icon(Icons.event_busy_rounded, size: 18),
               const SizedBox(width: Gap.sm),
               Text('${t.vaultExpiryDate}: '),
               if (_expiryBadge(doc['expiry_date']) != null) _expiryBadge(doc['expiry_date'])!,
@@ -387,21 +387,21 @@ class _VaultScreenState extends State<VaultScreen> {
             if (doc['file_url'] != null)
               FilledButton.tonalIcon(
                 onPressed: () { Navigator.pop(ctx); _viewFile(doc['id']); },
-                icon: const Icon(Icons.visibility_outlined), label: Text(t.view)),
+                icon: const Icon(Icons.visibility_rounded), label: Text(t.view)),
             FilledButton.tonalIcon(
               onPressed: () { Navigator.pop(ctx); _shareToNominee(doc); },
-              icon: const Icon(Icons.ios_share), label: Text(t.vaultShareToNominee)),
+              icon: const Icon(Icons.ios_share_rounded), label: Text(t.vaultShareToNominee)),
             if (dt.guideKey != null)
               FilledButton.tonalIcon(
                 onPressed: () { Navigator.pop(ctx); _showRenewal(dt); },
-                icon: const Icon(Icons.autorenew), label: Text(t.vaultRenewalSteps)),
+                icon: const Icon(Icons.autorenew_rounded), label: Text(t.vaultRenewalSteps)),
             OutlinedButton.icon(
               onPressed: () async {
                 Navigator.pop(ctx);
                 await context.read<AppState>().api.deleteDocument(doc['id']);
                 _load();
               },
-              icon: const Icon(Icons.delete_outline), label: Text(t.delete)),
+              icon: const Icon(Icons.delete_outline_rounded), label: Text(t.delete)),
           ]),
         ]),
       ),
@@ -440,7 +440,7 @@ class _VaultScreenState extends State<VaultScreen> {
           else ...[
             if (svc['portal'] != null) ...[
               Row(children: [
-                const Icon(Icons.public, size: 16), const SizedBox(width: 6),
+                const Icon(Icons.public_rounded, size: 16), const SizedBox(width: 6),
                 SelectableText(svc['portal'].toString()),
               ]),
               const SizedBox(height: 10),
@@ -523,7 +523,7 @@ class _VaultScreenState extends State<VaultScreen> {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               TextField(
                 controller: ctrl, autofocus: true,
-                decoration: InputDecoration(hintText: t.vaultQuickLookupHint, prefixIcon: const Icon(Icons.search)),
+                decoration: InputDecoration(hintText: t.vaultQuickLookupHint, prefixIcon: const Icon(Icons.search_rounded)),
                 onChanged: (_) => setD(() {}),
               ),
               const SizedBox(height: Gap.sm),
@@ -596,28 +596,28 @@ class _VaultScreenState extends State<VaultScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.vaultTitle), actions: [
         IconButton(
-          icon: const Icon(Icons.search),
+          icon: const Icon(Icons.search_rounded),
           tooltip: t.vaultQuickLookup,
           onPressed: _quickLookup,
         ),
       ]),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add, icon: const Icon(Icons.add), label: Text(t.add)),
+          onPressed: _add, icon: const Icon(Icons.add_rounded), label: Text(t.add)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : _docs.isEmpty
                   ? StateMessage(
-                      icon: Icons.folder_open_outlined,
+                      icon: Icons.folder_open_rounded,
                       title: t.vaultEmptyTitle,
                       message: t.vaultEmptyMessage)
                   : ListView(
@@ -634,7 +634,7 @@ class _VaultScreenState extends State<VaultScreen> {
                                 if (_expiryBadge(doc['expiry_date']) != null)
                                   _expiryBadge(doc['expiry_date'])!,
                               ]),
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: const Icon(Icons.chevron_right_rounded),
                           )),
                       ],
                     ),

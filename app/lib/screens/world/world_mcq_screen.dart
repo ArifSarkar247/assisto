@@ -105,13 +105,13 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : ListView(
                   padding:
@@ -140,7 +140,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           dense: true,
-                          leading: const Icon(Icons.history),
+                          leading: const Icon(Icons.history_rounded),
                           title: Text(t.uwMcqScore(
                               uwDigits(context, h['correct'] ?? 0),
                               uwDigits(context, h['total'] ?? 0))),
@@ -202,8 +202,8 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                 tileColor: _choice[id] == k ? scheme.primaryContainer : null,
                 leading: Icon(
                     _choice[id] == k
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
+                        ? Icons.radio_button_checked_rounded
+                        : Icons.radio_button_off_rounded,
                     color: _choice[id] == k
                         ? scheme.primary
                         : scheme.onSurfaceVariant),
@@ -242,7 +242,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: Row(children: [
-            Icon(Icons.emoji_events_outlined,
+            Icon(Icons.emoji_events_rounded,
                 color: scheme.onPrimaryContainer, size: 36),
             const SizedBox(width: Gap.md),
             Expanded(
@@ -266,7 +266,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(x['correct'] == true ? Icons.check_circle : Icons.cancel,
+                Icon(x['correct'] == true ? Icons.check_circle_rounded : Icons.cancel_rounded,
                     color: x['correct'] == true
                         ? Colors.green.shade600
                         : scheme.error),
@@ -287,7 +287,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
         ),
       FilledButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.uwMcqAgain)),
     ];
   }

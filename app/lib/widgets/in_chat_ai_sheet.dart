@@ -112,7 +112,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.auto_awesome, color: Brand.cyan),
+              const Icon(Icons.auto_awesome_rounded, color: Brand.cyan),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.inChatAiTitle,
@@ -183,7 +183,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: _run,
-                icon: const Icon(Icons.auto_fix_high),
+                icon: const Icon(Icons.auto_fix_high_rounded),
                 label: Text(t.inChatAiGenerate),
               ),
             ),
@@ -209,7 +209,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.forum_outlined, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.forum_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -226,7 +226,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
     // honest input problems first (empty text / empty thread)
     if (out.problems.isNotEmpty) {
       return _notice(
-        icon: Icons.info_outline,
+        icon: Icons.info_outline_rounded,
         tint: Brand.warning,
         text: out.problems.contains('empty_thread')
             ? t.inChatAiThreadEmpty
@@ -259,7 +259,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
     } else {
       // translate — honest key-gated state; never a fabricated translation
       body.add(_notice(
-        icon: Icons.vpn_key_outlined,
+        icon: Icons.vpn_key_rounded,
         tint: Brand.blue,
         text: out.direction == 'bn2en'
             ? t.inChatAiTranslateBnEn
@@ -271,7 +271,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
       body.add(SelectableText(out.source, style: const TextStyle(height: 1.4)));
       body.add(const SizedBox(height: Gap.sm));
       body.add(_notice(
-        icon: Icons.lock_outline,
+        icon: Icons.lock_outline_rounded,
         tint: Brand.warning,
         text: t.inChatAiNeedsKey,
       ));
@@ -298,7 +298,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // honest AI marker — always present on AI output
         Row(children: [
-          const Icon(Icons.auto_awesome, size: 14, color: Brand.cyan),
+          const Icon(Icons.auto_awesome_rounded, size: 14, color: Brand.cyan),
           const SizedBox(width: 6),
           Expanded(
             child: Text(t.inChatAiMarker,
@@ -321,7 +321,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
                   ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(t.inChatAiCopied)));
                 },
-                icon: const Icon(Icons.copy, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
                 label: Text(t.inChatAiCopy),
               ),
             ),
@@ -329,7 +329,7 @@ class _InChatAiSheetState extends State<_InChatAiSheet> {
             Expanded(
               child: FilledButton.icon(
                 onPressed: () => Navigator.pop(context, insertable),
-                icon: const Icon(Icons.input, size: 18),
+                icon: const Icon(Icons.input_rounded, size: 18),
                 label: Text(t.inChatAiInsert),
               ),
             ),

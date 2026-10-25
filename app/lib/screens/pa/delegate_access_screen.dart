@@ -120,7 +120,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.lock_outline, color: Brand.warning),
+        icon: const Icon(Icons.lock_outline_rounded, color: Brand.warning),
         title: Text(t.paGrantConfirmTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -254,7 +254,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     if (_loading) return const SkeletonList(count: 6);
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.paDelegateLoadError,
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
@@ -263,7 +263,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     if (!_configured) {
       // First-use welcome state — nothing is delegated yet.
       return StateMessage(
-        icon: Icons.verified_user_outlined,
+        icon: Icons.verified_user_rounded,
         tint: Brand.blue,
         title: t.paDelegateWelcomeTitle,
         message: t.paDelegateWelcomeBody,
@@ -287,7 +287,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
-            const Icon(Icons.shield_outlined, size: 20),
+            const Icon(Icons.shield_rounded, size: 20),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.paDelegateLeastPrivilegeNote,
@@ -321,7 +321,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_audit.isEmpty) {
       return StateMessage(
-        icon: Icons.history,
+        icon: Icons.history_rounded,
         title: t.paAuditEmptyTitle,
         message: t.paAuditEmptyBody,
       );
@@ -353,7 +353,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
           contentPadding:
               const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 2),
           leading: Icon(
-            e.allowed ? Icons.check_circle_outline : Icons.block,
+            e.allowed ? Icons.check_circle_outline_rounded : Icons.block_rounded,
             color: e.allowed
                 ? (e.sensitive ? Brand.warning : Brand.success)
                 : Brand.danger,

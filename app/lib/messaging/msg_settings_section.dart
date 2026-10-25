@@ -51,7 +51,7 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
         MsgrSetSection(t.c3SetOnThisPhone),
         SwitchListTile(
           key: const Key('c3-hide-content'),
-          secondary: const Icon(Icons.visibility_off_outlined),
+          secondary: const Icon(Icons.visibility_off_rounded),
           title: Text(t.c3SetHideContent),
           subtitle: Text(t.c3SetHideContentSub),
           value: _hide,
@@ -64,7 +64,7 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
         if (_bubblesSupported) ...[
           SwitchListTile(
             key: const Key('c3-bubbles-global'),
-            secondary: const Icon(Icons.bubble_chart_outlined),
+            secondary: const Icon(Icons.bubble_chart_rounded),
             title: Text(t.c3SetBubbles),
             subtitle: Text(t.c3SetBubblesSub),
             value: _bubbles,
@@ -74,7 +74,7 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.open_in_new),
+            leading: const Icon(Icons.open_in_new_rounded),
             title: Text(t.c3SetBubblesSystem),
             onTap: MsgNative.openBubbleSettings,
           ),

@@ -188,13 +188,13 @@ class _PlansScreenState extends State<PlansScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: serverFailText(t, _failCause),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
@@ -245,7 +245,7 @@ class _PlansScreenState extends State<PlansScreen> {
       OutlinedButton.icon(
         onPressed: () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const CreditsScreen())),
-        icon: const Icon(Icons.bolt, size: 18),
+        icon: const Icon(Icons.bolt_rounded, size: 18),
         label: Text(t.plansManageCredits),
         style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46)),
       ),
@@ -270,7 +270,7 @@ class _PlansScreenState extends State<PlansScreen> {
             border: Border.all(color: scheme.outlineVariant),
           ),
           child: Row(children: [
-            Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.md),
             Expanded(child: Text(t.plansEmptyState)),
           ]),
@@ -338,7 +338,7 @@ class _PlansScreenState extends State<PlansScreen> {
             border: Border.all(color: Brand.warning.withValues(alpha: 0.4)),
           ),
           child: Row(children: [
-            Icon(Icons.wifi_off, size: 20, color: Brand.warning),
+            Icon(Icons.wifi_off_rounded, size: 20, color: Brand.warning),
             const SizedBox(width: Gap.md),
             Expanded(
                 child: Text(t.plansOfflineNote,
@@ -399,7 +399,7 @@ class _PlansScreenState extends State<PlansScreen> {
           ),
         const SizedBox(height: Gap.md),
         Row(children: [
-          const Icon(Icons.bolt, color: Colors.white, size: 20),
+          const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 6),
           Text(t.aiCreditsCount(credits),
               style: const TextStyle(
@@ -409,7 +409,7 @@ class _PlansScreenState extends State<PlansScreen> {
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
             onPressed: _busy ? null : _rewarded,
-            icon: const Icon(Icons.ondemand_video, size: 18),
+            icon: const Icon(Icons.ondemand_video_rounded, size: 18),
             label: Text(t.watchAnAd1Credit),
           ),
         ],
@@ -425,7 +425,7 @@ class _PlansScreenState extends State<PlansScreen> {
     if (p['managed_by_play'] == true) {
       return [
         const SizedBox(height: Gap.md),
-        _note(scheme, Icons.shop_outlined, t.payManagedByPlay),
+        _note(scheme, Icons.shop_rounded, t.payManagedByPlay),
       ];
     }
     if (renew == null) return const [];
@@ -447,7 +447,7 @@ class _PlansScreenState extends State<PlansScreen> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.event_repeat,
+            Icon(Icons.event_repeat_rounded,
                 size: 20, color: soon ? Brand.warning : scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(t.payRenewBanner(plan, date))),
@@ -458,7 +458,7 @@ class _PlansScreenState extends State<PlansScreen> {
             FilledButton.tonalIcon(
               key: const ValueKey('pay-renew'),
               onPressed: () => _buy('${renew['sku']}'),
-              icon: const Icon(Icons.autorenew, size: 18),
+              icon: const Icon(Icons.autorenew_rounded, size: 18),
               label: Text(t.payRenewAction),
             ),
           ],
@@ -501,7 +501,7 @@ class _PlansScreenState extends State<PlansScreen> {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline, color: scheme.primary, size: 20),
+        Icon(Icons.info_outline_rounded, color: scheme.primary, size: 20),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -536,7 +536,7 @@ class _PlansScreenState extends State<PlansScreen> {
         border: Border.all(color: Brand.success.withValues(alpha: 0.35)),
       ),
       child: Row(children: [
-        Icon(Icons.verified_user_outlined, color: Brand.success, size: 22),
+        Icon(Icons.verified_user_rounded, color: Brand.success, size: 22),
         const SizedBox(width: Gap.md),
         Expanded(
           child:
@@ -614,7 +614,7 @@ class _PlansScreenState extends State<PlansScreen> {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.calendar_month, size: 16, color: scheme.primary),
+                Icon(Icons.calendar_month_rounded, size: 16, color: scheme.primary),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -651,7 +651,7 @@ class _PlansScreenState extends State<PlansScreen> {
             FilledButton.icon(
               key: ValueKey('plan-buy-$id'),
               onPressed: () => _buy(_skuFor(id)),
-              icon: const Icon(Icons.lock_open_outlined, size: 18),
+              icon: const Icon(Icons.lock_open_rounded, size: 18),
               style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
                   backgroundColor:
@@ -668,7 +668,7 @@ class _PlansScreenState extends State<PlansScreen> {
   Widget _benefitRow(ColorScheme scheme, String text) => Padding(
         padding: const EdgeInsets.only(bottom: 6),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.check_circle, size: 17, color: Brand.success),
+          Icon(Icons.check_circle_rounded, size: 17, color: Brand.success),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(text,

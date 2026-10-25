@@ -131,7 +131,7 @@ class _StudioBuilderSheetState extends State<StudioBuilderSheet> {
                 _section(
                     a.match == 'any' ? t.studioIfAny : t.studioIfAll,
                     Brand.warning,
-                    Icons.filter_alt_outlined,
+                    Icons.filter_alt_rounded,
                     trailing: a.conditions.length > 1
                         ? _matchToggle(t)
                         : null,
@@ -210,7 +210,7 @@ class _StudioBuilderSheetState extends State<StudioBuilderSheet> {
         if (trailing != null) trailing,
         IconButton(
           onPressed: onAdd,
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
         ),
       ]),
@@ -538,7 +538,7 @@ Widget _rowCard(BuildContext context,
       if (onRemove != null)
         IconButton(
           onPressed: onRemove,
-          icon: Icon(Icons.close, size: 18, color: scheme.onSurfaceVariant),
+          icon: Icon(Icons.close_rounded, size: 18, color: scheme.onSurfaceVariant),
           tooltip: AppLocalizations.of(context).delete,
         ),
     ]),

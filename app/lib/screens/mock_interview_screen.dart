@@ -169,13 +169,13 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.miTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.miLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -193,7 +193,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
       appBar: AppBar(title: Text(tr.miTitle), actions: [
         IconButton(
           tooltip: tr.miChangeCategory,
-          icon: const Icon(Icons.category_outlined),
+          icon: const Icon(Icons.category_rounded),
           onPressed: () => setState(() => _category = null),
         ),
       ]),
@@ -213,7 +213,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _getFeedback,
-                    icon: const Icon(Icons.rate_review_outlined),
+                    icon: const Icon(Icons.rate_review_rounded),
                     label: Text(tr.miGetFeedback),
                   ),
                 ),
@@ -221,7 +221,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _nextQuestion,
-                    icon: const Icon(Icons.skip_next_outlined),
+                    icon: const Icon(Icons.skip_next_rounded),
                     label: Text(tr.miNextQuestion),
                   ),
                 ),
@@ -266,7 +266,7 @@ class _CategoryPicker extends StatelessWidget {
       children: [
         if (sessions.isEmpty) ...[
           const SizedBox(height: Gap.lg),
-          Icon(Icons.record_voice_over_outlined,
+          Icon(Icons.record_voice_over_rounded,
               size: 56, color: scheme.primary),
           const SizedBox(height: Gap.md),
           Text(tr.miWelcomeTitle,
@@ -293,7 +293,7 @@ class _CategoryPicker extends StatelessWidget {
                 child: Icon(_catIcon(c), color: scheme.onPrimaryContainer),
               ),
               title: Text(_catLabel(tr, c)),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => onPick(c),
             ),
           ),
@@ -304,13 +304,13 @@ class _CategoryPicker extends StatelessWidget {
   IconData _catIcon(String c) {
     switch (c) {
       case 'hr':
-        return Icons.people_outline;
+        return Icons.people_outline_rounded;
       case 'technical':
-        return Icons.code;
+        return Icons.code_rounded;
       case 'viva':
-        return Icons.school_outlined;
+        return Icons.school_rounded;
       default:
-        return Icons.work_outline;
+        return Icons.work_outline_rounded;
     }
   }
 }
@@ -331,7 +331,7 @@ class _ProgressHeader extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.flag_outlined, color: Brand.blue),
+          Icon(Icons.flag_rounded, color: Brand.blue),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -420,7 +420,7 @@ class _FeedbackCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.rate_review_outlined, color: c),
+            Icon(Icons.rate_review_rounded, color: c),
             const SizedBox(width: Gap.sm),
             Text(tr.miFeedbackTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -430,7 +430,7 @@ class _FeedbackCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           // honest marker: rule-based, not an AI grade
           Row(children: [
-            Icon(Icons.info_outline, size: 14, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 14, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.miFbMarker,
@@ -439,8 +439,8 @@ class _FeedbackCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            _stat(context, Icons.notes, tr.miWordsCount(feedback.words)),
-            _stat(context, Icons.key_outlined,
+            _stat(context, Icons.notes_rounded, tr.miWordsCount(feedback.words)),
+            _stat(context, Icons.key_rounded,
                 tr.miCoveragePct((feedback.coverage * 100).round())),
           ]),
           const SizedBox(height: Gap.md),
@@ -448,7 +448,7 @@ class _FeedbackCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.chevron_right, size: 18, color: c),
+                Icon(Icons.chevron_right_rounded, size: 18, color: c),
                 Expanded(child: Text(_tipText(tr, t))),
               ]),
             ),
@@ -557,9 +557,9 @@ class _OutlineSection extends StatelessWidget {
     return Card(
       child: Column(children: [
         ListTile(
-          leading: Icon(Icons.lightbulb_outline, color: scheme.tertiary),
+          leading: Icon(Icons.lightbulb_outline_rounded, color: scheme.tertiary),
           title: Text(tr.miShowOutline),
-          trailing: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+          trailing: Icon(expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded),
           onTap: onToggle,
         ),
         if (expanded)
@@ -596,7 +596,7 @@ class _LiveSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome_outlined, size: 20, color: scheme.secondary),
+          Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -641,7 +641,7 @@ class _HistorySection extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
             dense: true,
-            leading: Icon(Icons.history, color: scheme.primary),
+            leading: Icon(Icons.history_rounded, color: scheme.primary),
             title: Text(_catLabel(tr, s['category'] as String?)),
             subtitle: Text([
               (s['date'] ?? '').toString(),
@@ -650,7 +650,7 @@ class _HistorySection extends StatelessWidget {
                 _levelShort(tr, s['level'] as String?),
             ].where((e) => e.isNotEmpty).join('  ·  ')),
             trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, size: 20),
+              icon: const Icon(Icons.delete_outline_rounded, size: 20),
               tooltip: tr.delete,
               onPressed: () async {
                 final id = s['id'];

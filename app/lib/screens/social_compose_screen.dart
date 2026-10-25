@@ -278,7 +278,7 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
 
         FilledButton.icon(
           onPressed: _generate,
-          icon: const Icon(Icons.auto_awesome, size: 18),
+          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
           label: Text(_hasDraft ? t.socialRegenerate : t.socialGenerate),
         ),
 
@@ -329,7 +329,7 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
             Expanded(
               child: FilledButton.icon(
                 onPressed: count.over ? null : _share,
-                icon: const Icon(Icons.ios_share, size: 18),
+                icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(t.socialShare),
               ),
             ),
@@ -343,7 +343,7 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             onPressed: _saveDraft,
-            icon: const Icon(Icons.bookmark_outline, size: 18),
+            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
             label: Text(t.save),
           ),
           if (count.over) ...[
@@ -362,7 +362,7 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
     if (_loading) return const SkeletonList(count: 4);
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.socialLoadError,
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
@@ -370,12 +370,12 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
     }
     if (_saved.isEmpty) {
       return StateMessage(
-        icon: Icons.bookmark_border,
+        icon: Icons.bookmark_border_rounded,
         title: t.socialSavedEmptyTitle,
         message: t.socialSavedEmptyBody,
         action: FilledButton.tonalIcon(
           onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.edit_outlined, size: 18),
+          icon: const Icon(Icons.edit_rounded, size: 18),
           label: Text(t.socialTabCompose),
         ),
       );

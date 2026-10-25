@@ -74,14 +74,14 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
   IconData _iconFor(String kind) {
     switch (kind) {
       case 'video':
-        return Icons.videocam_outlined;
+        return Icons.videocam_rounded;
       case 'doc':
       case 'file':
-        return Icons.description_outlined;
+        return Icons.description_rounded;
       case 'audio':
-        return Icons.audiotrack_outlined;
+        return Icons.audiotrack_rounded;
       default:
-        return Icons.image_outlined;
+        return Icons.image_rounded;
     }
   }
 
@@ -150,8 +150,8 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
                             children: [
                               Icon(
                                 m['cached_locally'] == true
-                                    ? Icons.download_done_outlined
-                                    : Icons.download_outlined,
+                                    ? Icons.download_done_rounded
+                                    : Icons.download_rounded,
                                 size: 12,
                                 color: scheme.outline,
                               ),
@@ -182,7 +182,7 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.cloud_off_outlined,
+              Icon(Icons.cloud_off_rounded,
                   size: 48, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.md),
               Text(honestFailText(_t, _failCause, otherwise: _t.grpMediaLoadFailed),
@@ -190,7 +190,7 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
                   style: TextStyle(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               FilledButton.icon(
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 onPressed: _load,
                 label: Text(_t.grpRetry),
               ),

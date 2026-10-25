@@ -242,7 +242,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 if (ctx.mounted) m3Snack(ctx, t.msgrInviteFailed, error: true);
               }
             },
-            icon: const Icon(Icons.share_outlined, size: 18),
+            icon: const Icon(Icons.share_rounded, size: 18),
             label: Text(t.m3InviteShare),
           ),
         ],
@@ -337,7 +337,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 hintMaxLines: 2,
                 errorText: _fieldError,
                 errorMaxLines: 3,
-                prefixIcon: const Icon(Icons.phone_outlined),
+                prefixIcon: const Icon(Icons.phone_rounded),
               ),
             ),
           ),
@@ -365,7 +365,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
           child: Column(children: [
             ListTile(
               key: const Key('m3-pick-contacts'),
-              leading: const Icon(Icons.contacts_outlined),
+              leading: const Icon(Icons.contacts_rounded),
               title: Text(t.m3PickContacts),
               subtitle: Text(t.m3PickContactsSub),
               onTap: _pickContact,
@@ -373,7 +373,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
             const Divider(height: 1),
             ListTile(
               key: const Key('m3-my-qr'),
-              leading: const Icon(Icons.qr_code_2),
+              leading: const Icon(Icons.qr_code_2_rounded),
               title: Text(t.m3MyQr),
               subtitle: Text(t.m3MyQrSub),
               onTap: _showMyQr,
@@ -381,7 +381,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
             const Divider(height: 1),
             ListTile(
               key: const Key('m3-paste'),
-              leading: const Icon(Icons.link),
+              leading: const Icon(Icons.link_rounded),
               title: Text(t.m3PasteLink),
               subtitle: Text(t.m3PasteLinkSub),
               onTap: _pasteLink,
@@ -413,7 +413,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.error_outline, color: scheme.onErrorContainer),
+                Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_error ?? t.c1SearchFailed,
@@ -441,7 +441,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Icon(Icons.person_off_outlined, color: scheme.primary),
+                  Icon(Icons.person_off_rounded, color: scheme.primary),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.m3NotOnAssisto(local),
@@ -507,7 +507,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                   FilledButton.icon(
                     key: const Key('m3-accept-found'),
                     onPressed: _sending ? null : _acceptIncoming,
-                    icon: const Icon(Icons.check),
+                    icon: const Icon(Icons.check_rounded),
                     label: Text(t.circleAccept),
                   ),
                 ] else ...[
@@ -538,7 +538,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.send),
+                        : const Icon(Icons.send_rounded),
                     label: Text(t.msgrSendRequest),
                   ),
                   if (_error != null)
@@ -600,7 +600,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 if (ok) _changed = true;
                 setState(() => _opening = false);
               },
-        icon: const Icon(Icons.chat_bubble_outline),
+        icon: const Icon(Icons.chat_bubble_outline_rounded),
         label: Text(_t.c1Message),
       );
 
@@ -617,7 +617,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
           CircleAvatar(
             radius: 36,
             backgroundColor: AssistoTokens.of(context).success,
-            child: Icon(Icons.check,
+            child: Icon(Icons.check_rounded,
                 color: AssistoTokens.of(context).onSuccess, size: 40),
           ),
           const SizedBox(height: Gap.lg),

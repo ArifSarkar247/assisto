@@ -338,7 +338,7 @@ void main() {
     await _pump(tester, const ProductsScreen(businessId: 1),
         FakeApi(mode: FakeMode.data, lang: 'en'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.byIcon(Icons.upload_file_outlined), findsNothing);
+    expect(find.byIcon(Icons.upload_file_rounded), findsNothing);
     await _drain(tester);
   });
 }

@@ -111,13 +111,13 @@ class _InboxScreenState extends State<InboxScreen> {
       showDragHandle: true,
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(title: Text(tr.inboxSnooze1h), leading: const Icon(Icons.snooze),
+          ListTile(title: Text(tr.inboxSnooze1h), leading: const Icon(Icons.snooze_rounded),
               onTap: () => Navigator.pop(context, 1)),
-          ListTile(title: Text(tr.inboxSnooze3h), leading: const Icon(Icons.snooze),
+          ListTile(title: Text(tr.inboxSnooze3h), leading: const Icon(Icons.snooze_rounded),
               onTap: () => Navigator.pop(context, 3)),
-          ListTile(title: Text(tr.inboxSnooze1d), leading: const Icon(Icons.snooze),
+          ListTile(title: Text(tr.inboxSnooze1d), leading: const Icon(Icons.snooze_rounded),
               onTap: () => Navigator.pop(context, 24)),
-          ListTile(title: Text(tr.inboxSnooze3d), leading: const Icon(Icons.snooze),
+          ListTile(title: Text(tr.inboxSnooze3d), leading: const Icon(Icons.snooze_rounded),
               onTap: () => Navigator.pop(context, 72)),
         ]),
       ),
@@ -175,7 +175,7 @@ class _InboxScreenState extends State<InboxScreen> {
           if (!_loading && !_error)
             IconButton(
               tooltip: _selectMode ? tr.inboxCancelSelect : tr.inboxSelect,
-              icon: Icon(_selectMode ? Icons.close : Icons.checklist),
+              icon: Icon(_selectMode ? Icons.close_rounded : Icons.checklist_rounded),
               onPressed: () => setState(() {
                 _selectMode = !_selectMode;
                 _selected.clear();
@@ -230,13 +230,13 @@ class _InboxScreenState extends State<InboxScreen> {
                         background: _SwipeBg(
                           align: Alignment.centerLeft,
                           color: Brand.success,
-                          icon: Icons.check_circle_outline,
+                          icon: Icons.check_circle_outline_rounded,
                           label: tr.inboxMarkDone,
                         ),
                         secondaryBackground: _SwipeBg(
                           align: Alignment.centerRight,
                           color: Brand.warning,
-                          icon: Icons.snooze,
+                          icon: Icons.snooze_rounded,
                           label: tr.inboxSnooze,
                         ),
                         // Done is synchronous (with undo) so we confirm the
@@ -338,7 +338,7 @@ class _ConnectBanner extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(connected ? Icons.mark_email_read_outlined : Icons.link,
+        Icon(connected ? Icons.mark_email_read_rounded : Icons.link_rounded,
             size: 20, color: onColor),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -365,7 +365,7 @@ class _BulkBar extends StatelessWidget {
         child: Row(children: [
           Expanded(
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.snooze),
+              icon: const Icon(Icons.snooze_rounded),
               label: Text(tr.inboxSnooze),
               onPressed: onSnooze,
             ),
@@ -373,7 +373,7 @@ class _BulkBar extends StatelessWidget {
           const SizedBox(width: Gap.md),
           Expanded(
             child: FilledButton.icon(
-              icon: const Icon(Icons.check_circle_outline),
+              icon: const Icon(Icons.check_circle_outline_rounded),
               label: Text(tr.inboxMarkDone),
               onPressed: onDone,
             ),
@@ -397,7 +397,7 @@ class _EmptyState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(filtered ? Icons.filter_alt_off : Icons.inbox_outlined,
+          Icon(filtered ? Icons.filter_alt_off_rounded : Icons.inbox_rounded,
               size: 56, color: scheme.onSurfaceVariant),
           const SizedBox(height: Gap.md),
           Text(filtered ? tr.inboxNoneInFilter
@@ -428,7 +428,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off, size: 56, color: scheme.error),
+          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.error),
           const SizedBox(height: Gap.md),
           Text(tr.inboxLoadFailed,
               textAlign: TextAlign.center,
@@ -439,7 +439,7 @@ class _ErrorState extends StatelessWidget {
               style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
             onPressed: onRetry,
           ),

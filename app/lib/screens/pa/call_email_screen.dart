@@ -246,20 +246,20 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
       appBar: AppBar(title: Text(tr.paCeTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.paCeAdd),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paCeLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -269,12 +269,12 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   }
 
   Widget _welcome(AppLocalizations tr) => StateMessage(
-        icon: Icons.contact_phone_outlined,
+        icon: Icons.contact_phone_rounded,
         title: tr.paCeWelcomeTitle,
         message: tr.paCeWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.paCeAdd),
         ),
       );
@@ -287,7 +287,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.filter_alt_off_outlined,
+                icon: Icons.filter_alt_off_rounded,
                 title: tr.paCeNoMatchTitle,
                 message: tr.paCeNoMatchBody,
                 action: TextButton(
@@ -314,11 +314,11 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   Widget _countsBar(AppLocalizations tr, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
         child: Row(children: [
-          _stat(Icons.call_outlined, tr.paCeStatCalls('$_openCalls'), scheme),
+          _stat(Icons.call_rounded, tr.paCeStatCalls('$_openCalls'), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.mail_outline, tr.paCeStatEmails('$_openEmails'), scheme),
+          _stat(Icons.mail_outline_rounded, tr.paCeStatEmails('$_openEmails'), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.check_circle_outline, tr.paCeStatDone('$_doneCount'), scheme),
+          _stat(Icons.check_circle_outline_rounded, tr.paCeStatDone('$_doneCount'), scheme),
         ]),
       );
 
@@ -406,7 +406,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(channel == _chCall ? Icons.call_outlined : Icons.mail_outline,
+            Icon(channel == _chCall ? Icons.call_rounded : Icons.mail_outline_rounded,
                 size: 18, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -439,13 +439,13 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           Row(children: [
             TextButton.icon(
               onPressed: () => _openDraft(r, tr),
-              icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
               label: Text(tr.paCeDraftReply,
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             const Spacer(),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);
@@ -461,12 +461,12 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
             child: done
                 ? OutlinedButton.icon(
                     onPressed: () => _toggleDone(r, tr),
-                    icon: const Icon(Icons.undo, size: 18),
+                    icon: const Icon(Icons.undo_rounded, size: 18),
                     label: Text(tr.paCeMarkTodo),
                   )
                 : FilledButton.icon(
                     onPressed: () => _toggleDone(r, tr),
-                    icon: const Icon(Icons.check_circle_outline, size: 18),
+                    icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
                     label: Text(tr.paCeMarkDone),
                   ),
           ),
@@ -577,7 +577,7 @@ class _DraftSheetState extends State<_DraftSheet> {
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
                 },
-                icon: const Icon(Icons.copy_outlined, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
                 label: Text(tr.copy),
               ),
             ),
@@ -585,7 +585,7 @@ class _DraftSheetState extends State<_DraftSheet> {
             Expanded(
               child: FilledButton.icon(
                 onPressed: () => Share.share(_body.text),
-                icon: const Icon(Icons.share_outlined, size: 18),
+                icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(tr.share),
               ),
             ),
@@ -599,7 +599,7 @@ class _DraftSheetState extends State<_DraftSheet> {
   }
 
   Widget _marker(AppLocalizations tr, ColorScheme scheme) => Row(children: [
-        Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
         const SizedBox(width: 4),
         Expanded(
           child: Text(tr.paAiReviewMarker,
@@ -614,7 +614,7 @@ class _DraftSheetState extends State<_DraftSheet> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

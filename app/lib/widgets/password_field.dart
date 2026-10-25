@@ -62,8 +62,8 @@ class _ObscureTextFieldState extends State<ObscureTextField> {
     final toggle = IconButton(
       tooltip: _obscure ? t.pwShow : t.pwHide,
       icon: Icon(_obscure
-          ? Icons.visibility_outlined
-          : Icons.visibility_off_outlined),
+          ? Icons.visibility_rounded
+          : Icons.visibility_off_rounded),
       onPressed: () => setState(() => _obscure = !_obscure),
     );
 

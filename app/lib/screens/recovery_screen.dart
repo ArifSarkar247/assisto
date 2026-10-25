@@ -72,7 +72,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
         ),
         actions: [
           TextButton.icon(
-            icon: const Icon(Icons.copy, size: 18),
+            icon: const Icon(Icons.copy_rounded, size: 18),
             label: Text(t.copy),
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: text));
@@ -80,7 +80,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             },
           ),
           TextButton.icon(
-            icon: const Icon(Icons.share, size: 18),
+            icon: const Icon(Icons.share_rounded, size: 18),
             label: Text(t.share),
             onPressed: () => Share.share(text),
           ),
@@ -224,7 +224,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.description_outlined),
+              const Icon(Icons.description_rounded),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.recGdTitle,
@@ -238,7 +238,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
               spacing: Gap.sm,
               children: [
                 FilledButton.tonalIcon(
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(t.recGdOpen),
                   onPressed: () => _openText(
                     load: _api.recoveryGdDraft,
@@ -247,7 +247,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
                   ),
                 ),
                 OutlinedButton.icon(
-                  icon: const Icon(Icons.public, size: 18),
+                  icon: const Icon(Icons.public_rounded, size: 18),
                   label: Text(t.recGdOnline),
                   onPressed: () => _open('https://gd.police.gov.bd'),
                 ),
@@ -267,7 +267,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.local_police_outlined),
+              const Icon(Icons.local_police_rounded),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.recSpTitle,
@@ -280,7 +280,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: FilledButton.tonalIcon(
-                icon: const Icon(Icons.open_in_new, size: 18),
+                icon: const Icon(Icons.open_in_new_rounded, size: 18),
                 label: Text(t.recSpOpen),
                 onPressed: () => _openText(
                   load: _api.recoverySpLetter,
@@ -302,7 +302,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.picture_as_pdf_outlined),
+              const Icon(Icons.picture_as_pdf_rounded),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.recEvidenceTitle,
@@ -321,7 +321,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
                         width: Gap.lg,
                         height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.download, size: 18),
+                    : const Icon(Icons.download_rounded, size: 18),
                 label: Text(t.recEvidenceShare),
                 onPressed: _busyEvidence ? null : _shareEvidence,
               ),
@@ -341,7 +341,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.location_city_outlined),
+              const Icon(Icons.location_city_rounded),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.recStationsTitle,
@@ -360,7 +360,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
                         width: Gap.lg,
                         height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.my_location, size: 18),
+                    : const Icon(Icons.my_location_rounded, size: 18),
                 label: Text(t.recStationsFind),
                 onPressed: _busyStations ? null : _findStations,
               ),
@@ -386,20 +386,20 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
                 return ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.local_police_outlined),
+                  leading: const Icon(Icons.local_police_rounded),
                   title: Text(name.isEmpty ? '—' : name),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (phone.isNotEmpty)
                         IconButton(
-                          icon: const Icon(Icons.call),
+                          icon: const Icon(Icons.call_rounded),
                           tooltip: t.recStationCall,
                           onPressed: () => _call(phone),
                         ),
                       if (lat != null && lng != null)
                         IconButton(
-                          icon: const Icon(Icons.directions),
+                          icon: const Icon(Icons.directions_rounded),
                           tooltip: t.recStationDirections,
                           onPressed: () =>
                               _open('https://maps.google.com/?q=$lat,$lng'),
@@ -423,7 +423,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.sim_card_outlined),
+              const Icon(Icons.sim_card_rounded),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.recEsimTitle,

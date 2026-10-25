@@ -80,7 +80,7 @@ class ScamWarningBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.gpp_maybe_outlined, size: 18, color: ink),
+            Icon(Icons.gpp_maybe_rounded, size: 18, color: ink),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(

@@ -129,7 +129,7 @@ class _MsgrSetChangeNumberScreenState
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           MsgrSetNote(t.msgrSetChangeNumberIntro,
-              icon: Icons.swap_horiz_outlined),
+              icon: Icons.swap_horiz_rounded),
           const SizedBox(height: Gap.sm),
           if (_statusLoading)
             const Center(child: CircularProgressIndicator())
@@ -140,7 +140,7 @@ class _MsgrSetChangeNumberScreenState
           ] else if (!_smsEnabled)
             // Honest disabled state: no SMS service on the server, so no code
             // can be sent. The form is not shown at all.
-            MsgrSetNote(t.msgChangeNumberSmsOff, icon: Icons.sms_failed_outlined)
+            MsgrSetNote(t.msgChangeNumberSmsOff, icon: Icons.sms_failed_rounded)
           else if (_step == 0) ...[
             TextField(
               controller: _phone,
@@ -152,7 +152,7 @@ class _MsgrSetChangeNumberScreenState
                 labelText: t.msgrSetChangeNumberNew,
                 border: const OutlineInputBorder(),
                 errorText: _error,
-                prefixIcon: const Icon(Icons.phone_outlined),
+                prefixIcon: const Icon(Icons.phone_rounded),
               ),
             ),
             const SizedBox(height: Gap.lg),

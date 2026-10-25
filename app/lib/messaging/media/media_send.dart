@@ -240,7 +240,7 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
         foregroundColor: Colors.white,
         leading: IconButton(
           tooltip: t.md1Cancel,
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -253,7 +253,7 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                   fit: BoxFit.contain,
                   cacheWidth: 1080,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.broken_image_outlined, color: Colors.white54, size: 64)),
+                      const Icon(Icons.broken_image_rounded, color: Colors.white54, size: 64)),
             ),
           ),
         ),
@@ -323,7 +323,7 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                 tooltip: t.md1Send,
                 onPressed: () => Navigator.pop(
                     context, PhotoSendChoice(_caption.text, viewOnce: _viewOnce)),
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded),
               ),
             ]),
           ),

@@ -591,7 +591,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             if (!archived)
               ListTile(
                 key: const Key('e-org-pin'),
-                leading: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                leading: Icon(pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined),
                 title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -601,8 +601,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             if (!archived && !group)
               ListTile(
                 leading: Icon(muted
-                    ? Icons.notifications_active_outlined
-                    : Icons.notifications_off_outlined),
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_off_rounded),
                 title: Text(muted ? t.msgrChatUnmute : t.msgrChatMute),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -612,7 +612,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             if (unread > 0)
               ListTile(
                 key: const Key('c3-mark-read'),
-                leading: const Icon(Icons.mark_chat_read_outlined),
+                leading: const Icon(Icons.mark_chat_read_rounded),
                 title: Text(t.msgrChatMarkRead),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -622,7 +622,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             else
               ListTile(
                 key: const Key('c3-mark-unread'),
-                leading: const Icon(Icons.mark_chat_unread_outlined),
+                leading: const Icon(Icons.mark_chat_unread_rounded),
                 title: Text(t.c3MarkUnread),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -632,7 +632,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             ListTile(
               key: const Key('e-org-archive'),
               leading: Icon(
-                  archived ? Icons.unarchive_outlined : Icons.archive_outlined),
+                  archived ? Icons.unarchive_rounded : Icons.archive_rounded),
               title: Text(archived ? t.msgrChatUnarchive : t.msgrChatArchive),
               onTap: () {
                 Navigator.pop(ctx);
@@ -642,7 +642,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             // e-gaps: chat lock (fingerprint / face or this phone's code)
             ListTile(
               key: const Key('e-org-lock'),
-              leading: Icon(_isLocked(c) ? Icons.lock_open_outlined : Icons.lock_outline),
+              leading: Icon(_isLocked(c) ? Icons.lock_open_rounded : Icons.lock_outline_rounded),
               title: Text(_isLocked(c) ? t.eLockUnlockChat : t.eLockLockChat),
               onTap: () {
                 Navigator.pop(ctx);
@@ -715,7 +715,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       child: ListTile(
         dense: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => setState(() => _showArchived = false),
         ),
@@ -740,7 +740,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 12),
         child: Row(children: [
-          Icon(Icons.lock_outline, size: 20, color: scheme.onSurfaceVariant),
+          Icon(Icons.lock_outline_rounded, size: 20, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(_t.eLockFolder, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -757,7 +757,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
           dense: true,
           leading: IconButton(
             key: const Key('e-locked-back'),
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_rounded),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () {
               ChatLockSession.end(); // leaving the folder locks it again
@@ -774,7 +774,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     return ListTile(
       key: const Key('e-search-messages'),
       dense: true,
-      leading: Icon(Icons.manage_search, color: scheme.primary),
+      leading: Icon(Icons.manage_search_rounded, color: scheme.primary),
       title: Text(_t.eSearchMessagesFor(q), maxLines: 2, overflow: TextOverflow.ellipsis),
       onTap: () {
         final id = widget.identity;
@@ -794,7 +794,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 12),
         child: Row(children: [
-          Icon(Icons.archive_outlined, size: 20, color: scheme.onSurfaceVariant),
+          Icon(Icons.archive_rounded, size: 20, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(_t.msgrChatArchived,
@@ -811,7 +811,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: Gap.xxxl + Gap.xl),
-      Icon(Icons.search_off_outlined,
+      Icon(Icons.search_off_rounded,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
       Center(
@@ -834,7 +834,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Icons.search, size: 20),
+            prefixIcon: const Icon(Icons.search_rounded, size: 20),
             hintText: _t.msgrHubSearchHint,
           ),
         ),
@@ -875,7 +875,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final archived = _showArchived;
     return ListView(children: [
       const SizedBox(height: Gap.xxxl + Gap.xl),
-      Icon(archived ? Icons.archive_outlined : Icons.forum_outlined,
+      Icon(archived ? Icons.archive_rounded : Icons.forum_rounded,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
       Center(
@@ -897,7 +897,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             child: FilledButton.icon(
               key: const Key('m3-empty-add'),
               onPressed: widget.onAdd,
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
               label: Text(t.m3AddToCircle),
             ),
           ),
@@ -939,7 +939,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
               ? CircleAvatar(
                   radius: 24,
                   backgroundColor: scheme.secondaryContainer,
-                  child: Icon(Icons.groups_2_outlined,
+                  child: Icon(Icons.groups_2_rounded,
                       color: scheme.onSecondaryContainer))
               : MsgrAvatar(
                   name: name,
@@ -1004,14 +1004,14 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   if (muted)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.sm),
-                      child: Icon(Icons.notifications_off,
+                      child: Icon(Icons.notifications_off_rounded,
                           size: 16, color: scheme.onSurfaceVariant),
                     ),
                   if (pinned)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.xs),
                       child:
-                          Icon(Icons.push_pin, size: 16, color: scheme.primary),
+                          Icon(Icons.push_pin_rounded, size: 16, color: scheme.primary),
                     ),
                   if (unread > 0)
                     Padding(
@@ -1090,11 +1090,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         italic = true;
       case PreviewKind.deleted:
         body = t.circleDeletedPlaceholder;
-        lead = Icons.block;
+        lead = Icons.block_rounded;
         italic = true;
       case PreviewKind.encrypted:
         body = t.c3PreviewEncrypted;
-        lead = Icons.lock_outline;
+        lead = Icons.lock_outline_rounded;
         italic = true;
       case PreviewKind.media:
         // md2: a photo caption / the document name when decrypted here
@@ -1112,7 +1112,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
           mine: pv.mine,
           actor: pv.senderName,
           peerName: pv.senderName);
-      lead = cc.isTheme ? Icons.palette_outlined : Icons.badge_outlined;
+      lead = cc.isTheme ? Icons.palette_rounded : Icons.badge_rounded;
     }
     final prefix = pv.kind == PreviewKind.empty || ctrlLine
         ? ''
@@ -1183,16 +1183,16 @@ String mediaPreviewLabel(AppLocalizations t, String ct) {
 }
 
 IconData mediaPreviewIcon(String ct) => const {
-      'photo': Icons.photo_outlined,
-      'image': Icons.photo_outlined,
-      'video': Icons.videocam_outlined,
-      'voice': Icons.mic_none_outlined,
-      'audio': Icons.mic_none_outlined,
-      'document': Icons.insert_drive_file_outlined,
-      'contact': Icons.contact_page_outlined,
-      'location': Icons.location_on_outlined,
+      'photo': Icons.photo_rounded,
+      'image': Icons.photo_rounded,
+      'video': Icons.videocam_rounded,
+      'voice': Icons.mic_none_rounded,
+      'audio': Icons.mic_none_rounded,
+      'document': Icons.insert_drive_file_rounded,
+      'contact': Icons.contact_page_rounded,
+      'location': Icons.location_on_rounded,
     }[ct] ??
-    Icons.attachment_outlined;
+    Icons.attachment_rounded;
 
 /// A neutral count pill (archived count) — brand-neutral surface, our own glyph.
 class _CountPill extends StatelessWidget {

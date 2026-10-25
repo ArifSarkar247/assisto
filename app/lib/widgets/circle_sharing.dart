@@ -36,17 +36,17 @@ class CircleSharingEditor extends StatelessWidget {
   IconData _icon(String scope) {
     switch (scope) {
       case 'medicines':
-        return Icons.medication_outlined;
+        return Icons.medication_rounded;
       case 'location':
-        return Icons.place_outlined;
+        return Icons.place_rounded;
       case 'documents':
-        return Icons.lock_outline;
+        return Icons.lock_outline_rounded;
       case 'money':
-        return Icons.account_balance_wallet_outlined;
+        return Icons.account_balance_wallet_rounded;
       case 'profile':
-        return Icons.person_outline;
+        return Icons.person_outline_rounded;
       default:
-        return Icons.tune;
+        return Icons.tune_rounded;
     }
   }
 

@@ -154,7 +154,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
 
   void _showKeyGate(AppLocalizations tr) {
     showDialog(context: context, builder: (_) => AlertDialog(
-      icon: const Icon(Icons.vpn_key_outlined),
+      icon: const Icon(Icons.vpn_key_rounded),
       title: Text(tr.jobsAiNeededTitle),
       content: Text(tr.availableWhenAnAiKey2),
       actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(tr.ok))],
@@ -242,7 +242,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(color: scheme.errorContainer, borderRadius: BorderRadius.circular(12)),
             child: Row(children: [
-              Icon(Icons.flag_outlined, color: scheme.onErrorContainer, size: 18),
+              Icon(Icons.flag_rounded, color: scheme.onErrorContainer, size: 18),
               const SizedBox(width: Gap.sm),
               Expanded(child: Text(
                   status == kStageRejected ? tr.jobsStageRejected : tr.jobsStageWithdrawn,
@@ -253,7 +253,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
 
         // tracker actions
         if (!widget.isServerJob)
-          _InfoNote(icon: Icons.info_outline, text: tr.jobsSampleTrackHint)
+          _InfoNote(icon: Icons.info_outline_rounded, text: tr.jobsSampleTrackHint)
         else ...[
           Text(tr.jobsMoveStage, style: _h(scheme)),
           const SizedBox(height: Gap.sm),
@@ -278,7 +278,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
         FilledButton.tonalIcon(
           onPressed: _busy ? null : () => _tailor(tr),
           icon: _busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.auto_awesome),
+                      : const Icon(Icons.auto_awesome_rounded),
           label: Text(tr.jobsTailorCvCover),
         ),
         Padding(padding: const EdgeInsets.only(top: 4, left: 4),
@@ -286,7 +286,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
         const SizedBox(height: Gap.lg),
 
         // interview prep checklist
-        _collapsibleHeader(tr.jobsInterviewPrep, Icons.checklist_rtl, scheme),
+        _collapsibleHeader(tr.jobsInterviewPrep, Icons.checklist_rtl_rounded, scheme),
         for (int i = 0; i < _prepTexts(tr).length; i++)
           CheckboxListTile(
             dense: true,
@@ -311,11 +311,11 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
 
         // job description
         if (jd.isNotEmpty) ...[
-          _collapsibleHeader(tr.jobDescription, Icons.description_outlined, scheme),
+          _collapsibleHeader(tr.jobDescription, Icons.description_rounded, scheme),
           Text(jd, style: TextStyle(height: 1.4, color: scheme.onSurface)),
         ],
         const SizedBox(height: Gap.lg),
-        _InfoNote(icon: Icons.verified_user_outlined, text: tr.iNeverAutoApplyYou),
+        _InfoNote(icon: Icons.verified_user_rounded, text: tr.iNeverAutoApplyYou),
       ],
     );
   }
@@ -331,7 +331,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
-        Icon(overdue ? Icons.notifications_active : Icons.schedule,
+        Icon(overdue ? Icons.notifications_active_rounded : Icons.schedule_rounded,
             color: overdue ? scheme.onErrorContainer : scheme.onSecondaryContainer, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(
@@ -379,7 +379,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
           Expanded(child: Text(title, style: _h(scheme))),
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.edit_outlined, size: 18),
+            icon: const Icon(Icons.edit_rounded, size: 18),
             onPressed: widget.isServerJob ? onEdit : null,
             tooltip: tr.edit,
           ),
@@ -404,14 +404,14 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
       TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: scheme.onSurface);
 
   IconData _stageIcon(String s) => {
-        kStageSaved: Icons.bookmark_added_outlined,
-        kStageApplied: Icons.send_outlined,
-        kStageInterview: Icons.event_available_outlined,
-        kStageOffer: Icons.celebration_outlined,
-        kStageRejected: Icons.cancel_outlined,
-        kStageWithdrawn: Icons.undo,
-        kStageMatched: Icons.replay,
-      }[s] ?? Icons.arrow_forward;
+        kStageSaved: Icons.bookmark_added_rounded,
+        kStageApplied: Icons.send_rounded,
+        kStageInterview: Icons.event_available_rounded,
+        kStageOffer: Icons.celebration_rounded,
+        kStageRejected: Icons.cancel_rounded,
+        kStageWithdrawn: Icons.undo_rounded,
+        kStageMatched: Icons.replay_rounded,
+      }[s] ?? Icons.arrow_forward_rounded;
 
   String _stageLabel(AppLocalizations tr, String s) => {
         kStageMatched: tr.jobsStageMatched,
@@ -447,9 +447,9 @@ class _PipelineSpine extends StatelessWidget {
               color: i <= index ? scheme.primary : scheme.surfaceContainerHighest,
             ),
             child: i < index
-                ? Icon(Icons.check, size: 14, color: scheme.onPrimary)
+                ? Icon(Icons.check_rounded, size: 14, color: scheme.onPrimary)
                 : i == index
-                    ? Icon(Icons.circle, size: 10, color: scheme.onPrimary)
+                    ? Icon(Icons.circle_rounded, size: 10, color: scheme.onPrimary)
                     : null,
           ),
           const SizedBox(height: 4),

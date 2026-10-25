@@ -232,7 +232,7 @@ class HeaderInitialAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: 18,
       child: group && n.isEmpty
-          ? const Icon(Icons.group_outlined, size: 20)
+          ? const Icon(Icons.group_rounded, size: 20)
           : Text(n.isEmpty ? '?' : n.characters.first.toUpperCase()),
     );
   }

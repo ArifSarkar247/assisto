@@ -30,7 +30,7 @@ class TaxDisclaimerBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.gavel_outlined,
+          Icon(Icons.gavel_rounded,
               size: 18, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -58,7 +58,7 @@ class TaxSourceNote extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.xs),
           Expanded(
             child: Text('${t.taxVerifyNbr}  ($source)',
@@ -141,7 +141,7 @@ class EReturnReminderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Icon(Icons.event_available_outlined,
+              Icon(Icons.event_available_rounded,
                   color: scheme.onSecondaryContainer),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -160,13 +160,13 @@ class EReturnReminderCard extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: () =>
                       openExternal(context, nbrEReturnUrl, t.taxLinkCopied),
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(t.taxEReturnOpen),
                 ),
                 OutlinedButton.icon(
                   onPressed: () =>
                       openExternal(context, nbrHomeUrl, t.taxLinkCopied),
-                  icon: const Icon(Icons.public, size: 18),
+                  icon: const Icon(Icons.public_rounded, size: 18),
                   label: Text(t.taxNbrHome),
                 ),
               ],

@@ -89,7 +89,7 @@ class EmergencyCardView extends StatelessWidget {
                 BorderRadius.vertical(top: Radius.circular(Radii.sm)),
           ),
           child: Row(children: [
-            Icon(med ? Icons.medical_services : Icons.emergency,
+            Icon(med ? Icons.medical_services_rounded : Icons.emergency_rounded,
                 color: Colors.white),
             const SizedBox(width: Gap.sm),
             Expanded(

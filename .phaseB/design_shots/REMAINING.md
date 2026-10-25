@@ -88,15 +88,21 @@ the Bangla font decision, the no-clip / tap-target / contrast test
    **Settings** (`settings_screen.dart`, `messenger_settings*`),
    **Business tools** (`screens/business/*`, CRM, shop box).
 4. **Everything else** (the remaining ~280 screens) — sweep.
-5. **Icon migration** — one style everywhere. Decision prepared: use Flutter's
-   built-in *Material Icons Rounded* (`Icons.*_rounded`, same MaterialIcons
-   font that is already bundled + tree-shaken, +0 KB) instead of the
-   `material_symbols_icons` package (pub archive 34.6 MB; its Rounded variable
-   font alone is 14.8 MB in debug/test builds, `symbols.dart` 7.4 MB of Dart).
-   Mapping rule: `X` → `X_rounded`; `X_outlined` → `X_outline_rounded` if it
-   exists else `X_rounded`; keep toggles distinct (`star`/`star_border`).
-   808 distinct icon names / ~4,950 uses in lib + tests must move together
-   (tests use `find.byIcon(Icons.x)`). Not started.
+5. ~~**Icon migration**~~ — done in f5 (branch `agent/f5-icons`): Material
+   Icons Rounded everywhere (+0 KB, same bundled font), via
+   `app/tool/icons_to_rounded.py` (reads the SDK `icons.dart`, idempotent).
+   799 distinct names / 5,129 uses in lib + test moved together. Toggle pairs
+   (ternary or `icon:`/`selectedIcon:`) that would collapse keep the outlined
+   "off" glyph: `push_pin_outlined` (6 files), `shield_outlined`
+   (fall_detect), `filter_alt_outlined` (task_manager), messenger nav tabs
+   (`forum/auto_awesome/groups_2/call_outlined`). Still open:
+   - no rounded variant in the SDK: `Icons.outgoing_mail` (community_list,
+     moderation_appeal), `Icons.workspaces_outline` (subs_common);
+   - skipped on purpose (home frozen): `home_screen.dart`,
+     `home_quick_buttons.dart` (42 icon uses) and `test/b2_badges_test.dart`
+     (finds the home bell / My Circle icons) — run the script with those
+     removed from `SKIP` when the owner opens the home look.
+   Proof: `.phaseB/design_shots/f5/`.
 6. **Hard-coded colour/size sweep** — 173 `Color(0x…)` literals and 1,806
    `fontSize:` in `lib/`; replace with tokens, then add the guard test that
    fails on a NEW `Color(0x…)` outside `theme.dart` (allowlist the call-screen

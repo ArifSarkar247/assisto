@@ -78,7 +78,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         if (picked != null) setD(() => date = picked);
                       },
                       child: Row(children: [
-                        const Icon(Icons.calendar_today_outlined, size: 16),
+                        const Icon(Icons.calendar_today_rounded, size: 16),
                         const SizedBox(width: Gap.xs),
                         Text(DateFormat('d MMM yyyy', appDateLocale(context)).format(date)),
                       ]),
@@ -137,7 +137,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _addRepayment,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.moneyAddRepayment)),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Card(
@@ -147,7 +147,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Icon(given ? Icons.call_made : Icons.call_received,
+                    Icon(given ? Icons.call_made_rounded : Icons.call_received_rounded,
                         color: given ? AssistoTokens.of(context).warning : scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Text(given ? t.moneyLoanGiven : t.moneyLoanTaken,
@@ -155,7 +155,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                     const Spacer(),
                     if (_settled)
                       Chip(
-                          avatar: Icon(Icons.check_circle,
+                          avatar: Icon(Icons.check_circle_rounded,
                               color: AssistoTokens.of(context).success, size: 18),
                           label: Text(t.moneyLoanSettled)),
                   ]),
@@ -185,7 +185,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
               _data['settled'] = true;
               await _persist();
             },
-            icon: const Icon(Icons.done_all),
+            icon: const Icon(Icons.done_all_rounded),
             label: Text(t.moneyMarkSettled),
           ),
         const SizedBox(height: Gap.lg),
@@ -197,8 +197,8 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
             child: ListTile(
               leading: Icon(
                   e['type'] == 'principal'
-                      ? Icons.flag_outlined
-                      : Icons.payments_outlined,
+                      ? Icons.flag_rounded
+                      : Icons.payments_rounded,
                   color: e['type'] == 'principal'
                       ? scheme.primary
                       : AssistoTokens.of(context).success),

@@ -226,7 +226,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
           final hasReason = ctrl.text.trim().isNotEmpty;
           return AlertDialog(
             title: Row(children: [
-              Icon(isCost ? Icons.payments_outlined : Icons.flag_outlined,
+              Icon(isCost ? Icons.payments_rounded : Icons.flag_rounded,
                   color: danger ? Brand.danger : scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(child: Text(title)),
@@ -288,7 +288,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
           if (_status == _Status.ok)
             IconButton(
               tooltip: t.refresh,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: _load,
             ),
         ],
@@ -296,19 +296,19 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
       body: switch (_status) {
         _Status.loading => const SkeletonList(),
         _Status.ownerOnly => StateMessage(
-            icon: Icons.admin_panel_settings_outlined,
+            icon: Icons.admin_panel_settings_rounded,
             title: t.flagOwnerOnlyTitle,
             message: t.flagOwnerOnlyBody,
             tint: Brand.warning,
           ),
         _Status.error => StateMessage(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.flagLoadErrorTitle,
             message: _error.isEmpty ? t.flagLoadErrorBody : _error,
             tint: Brand.danger,
             action: FilledButton.icon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry),
             ),
           ),
@@ -320,12 +320,12 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
   Widget _buildBody(AppLocalizations t) {
     if (_flags.isEmpty) {
       return StateMessage(
-        icon: Icons.toggle_off_outlined,
+        icon: Icons.toggle_off_rounded,
         title: t.flagEmptyTitle,
         message: t.flagEmptyBody,
         action: FilledButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.refresh),
         ),
       );
@@ -412,7 +412,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.sm, Gap.sm),
         child: Row(children: [
-          Icon(isCost ? Icons.payments_outlined : Icons.flag_outlined,
+          Icon(isCost ? Icons.payments_rounded : Icons.flag_rounded,
               size: 20, color: isCost ? Brand.warning : scheme.primary),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -467,7 +467,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
     final fmt = DateFormat('d MMM, h:mm a');
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Icon(Icons.history, size: 18, color: scheme.primary),
+        Icon(Icons.history_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Text(t.flagAuditTitle,
             style: Theme.of(context)
@@ -497,7 +497,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
     final label = _flagLabel(t, id);
     final newVal = a['new'] == true;
     final color = newVal ? Brand.success : Brand.danger;
-    final icon = newVal ? Icons.toggle_on_outlined : Icons.toggle_off_outlined;
+    final icon = newVal ? Icons.toggle_on_rounded : Icons.toggle_off_rounded;
     String whenMeta;
     final at = a['at'];
     DateTime? dt;

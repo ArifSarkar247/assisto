@@ -175,7 +175,7 @@ class AssistoMenuSheetState extends State<AssistoMenuSheet> {
                   width: 32,
                   height: 32,
                   decoration: const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
-                  child: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+                  child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
                 ),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -188,20 +188,20 @@ class AssistoMenuSheetState extends State<AssistoMenuSheet> {
               child: Text(t.p3MenuPrivacy,
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
             ),
-            tile(Icons.summarize_outlined, t.p3ActSummarize,
+            tile(Icons.summarize_rounded, t.p3ActSummarize,
                 unreadN > 0
                     ? t.p3ActSummarizeSubN(notifLocalizeDigits(context, '$unreadN'))
                     : t.p3ActSummarizeSub,
                 cost('summarize'), const _Pick(action: AssistoAction.summarize)),
-            tile(Icons.alarm_add_outlined, t.p3ActRemind, t.p3ActRemindSub, t.p3Free,
+            tile(Icons.alarm_add_rounded, t.p3ActRemind, t.p3ActRemindSub, t.p3Free,
                 const _Pick(action: AssistoAction.remind)),
-            tile(Icons.call_split, t.p3ActSplit, t.p3ActSplitSub, t.p3Free,
+            tile(Icons.call_split_rounded, t.p3ActSplit, t.p3ActSplitSub, t.p3Free,
                 const _Pick(action: AssistoAction.split)),
-            tile(Icons.checklist, t.p3ActList, t.p3ActListSub, t.p3Free,
+            tile(Icons.checklist_rounded, t.p3ActList, t.p3ActListSub, t.p3Free,
                 const _Pick(action: AssistoAction.list)),
-            tile(Icons.translate, t.p3ActTranslate, t.p3ActTranslateSub,
+            tile(Icons.translate_rounded, t.p3ActTranslate, t.p3ActTranslateSub,
                 cost('translate'), const _Pick(action: AssistoAction.translate)),
-            tile(Icons.help_outline, t.p3ActAsk, t.p3ActAskSub, cost('ask'),
+            tile(Icons.help_outline_rounded, t.p3ActAsk, t.p3ActAskSub, cost('ask'),
                 const _Pick(action: AssistoAction.ask)),
             const Divider(),
             Padding(
@@ -209,15 +209,15 @@ class AssistoMenuSheetState extends State<AssistoMenuSheet> {
               child: Text(t.p3SafetyTitle,
                   style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
             ),
-            tile(Icons.where_to_vote_outlined, t.p3SafeArrived, t.p3SafeArrivedSub, t.p3Free,
+            tile(Icons.where_to_vote_rounded, t.p3SafeArrived, t.p3SafeArrivedSub, t.p3Free,
                 const _Pick(safety: SafetyAction.arrived), tone: Brand.onTint(context, Brand.successFill)),
-            tile(Icons.sos, t.p3SafeSos, t.p3SafeSosSub, t.p3Free,
+            tile(Icons.sos_rounded, t.p3SafeSos, t.p3SafeSosSub, t.p3Free,
                 const _Pick(safety: SafetyAction.sos), tone: Brand.dangerFill),
             // play-nomed: no "medicine update" (missed-dose) card in Play.
             if (kMedicalFeaturesAllowed)
-              tile(Icons.medication_outlined, t.p3SafeMed, t.p3SafeMedSub, t.p3Free,
+              tile(Icons.medication_rounded, t.p3SafeMed, t.p3SafeMedSub, t.p3Free,
                   const _Pick(safety: SafetyAction.med)),
-            tile(Icons.phonelink_erase, t.p3SafeLost, t.p3SafeLostSub, t.p3Free,
+            tile(Icons.phonelink_erase_rounded, t.p3SafeLost, t.p3SafeLostSub, t.p3Free,
                 const _Pick(safety: SafetyAction.lost), tone: Brand.warnInk(context)),
             const SizedBox(height: Gap.sm),
           ],
@@ -348,7 +348,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
         return StatefulBuilder(builder: (ctx, setD) {
           return AlertDialog(
             key: const ValueKey('p3-consent'),
-            icon: const Icon(Icons.lock_open_outlined),
+            icon: const Icon(Icons.lock_open_rounded),
             title: Text(t.p3ConsentTitle),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -575,14 +575,14 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
       out.add(Text(t.p3QuoteFailed, style: muted));
       out.add(const SizedBox(height: Gap.xs));
       out.add(OutlinedButton.icon(
-          onPressed: _loadQuote, icon: const Icon(Icons.refresh), label: Text(t.retry)));
+          onPressed: _loadQuote, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)));
     } else if (q != null && !q.aiAvailable) {
       out.add(Text(t.p3AiOff, style: muted));
     } else {
       out.add(FilledButton.icon(
         key: const ValueKey('p3-ai-run'),
         onPressed: _canRun && (q?.aiAvailable ?? false) ? _run : null,
-        icon: const Icon(Icons.auto_awesome),
+        icon: const Icon(Icons.auto_awesome_rounded),
         label: Text(q == null ? t.p3CheckingCredits : t.p3RunFor(cost)),
       ));
       if (q != null) {
@@ -613,14 +613,14 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
               widget.port.setDraft(_result);
               Navigator.of(context).pop();
             },
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             label: Text(t.p3UseInMessage),
           ),
         const SizedBox(height: Gap.xs),
         OutlinedButton.icon(
           key: const ValueKey('p3-ai-share'),
           onPressed: _share,
-          icon: const Icon(Icons.send_outlined),
+          icon: const Icon(Icons.send_rounded),
           label: Text(t.p3ShareInChat),
         ),
         const SizedBox(height: Gap.xs),
@@ -631,7 +631,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(t.p3Copied)));
           },
-          icon: const Icon(Icons.copy),
+          icon: const Icon(Icons.copy_rounded),
           label: Text(t.p3Copy),
         ),
       ];
@@ -647,7 +647,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
     };
     return [
       Row(children: [
-        Icon(Icons.info_outline, color: scheme.error),
+        Icon(Icons.info_outline_rounded, color: scheme.error),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(msg)),
       ]),
@@ -659,13 +659,13 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
           key: const ValueKey('p3-get-credits'),
           onPressed: () => Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => const CreditsScreen())),
-          icon: const Icon(Icons.bolt),
+          icon: const Icon(Icons.bolt_rounded),
           label: Text(t.p3GetCredits),
         )
       else
         OutlinedButton.icon(
           onPressed: () => setState(() => _stage = _AiStage.input),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.retry),
         ),
     ];
@@ -799,25 +799,25 @@ class _ReminderComposerState extends State<ReminderComposer> {
                 Expanded(
                   child: OutlinedButton.icon(
                       onPressed: _pickDate,
-                      icon: const Icon(Icons.event),
+                      icon: const Icon(Icons.event_rounded),
                       label: Text(l.formatMediumDate(_at), overflow: TextOverflow.ellipsis)),
                 ),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: OutlinedButton.icon(
                       onPressed: _pickTime,
-                      icon: const Icon(Icons.schedule),
+                      icon: const Icon(Icons.schedule_rounded),
                       label: Text(l.formatTimeOfDay(TimeOfDay.fromDateTime(_at)))),
                 ),
               ]),
               const SizedBox(height: Gap.md),
               SegmentedButton<bool>(
                 segments: [
-                  ButtonSegment(value: false, label: Text(t.p3ForMe), icon: const Icon(Icons.person_outline)),
+                  ButtonSegment(value: false, label: Text(t.p3ForMe), icon: const Icon(Icons.person_outline_rounded)),
                   ButtonSegment(
                       value: true,
                       label: Text(widget.port.isGroup ? t.p3ForEveryone : t.p3ForBoth),
-                      icon: const Icon(Icons.groups_outlined)),
+                      icon: const Icon(Icons.groups_rounded)),
                 ],
                 selected: {_everyone},
                 onSelectionChanged: (s) => setState(() => _everyone = s.first),
@@ -829,7 +829,7 @@ class _ReminderComposerState extends State<ReminderComposer> {
               FilledButton.icon(
                 key: const ValueKey('p3-rem-save'),
                 onPressed: _title.text.trim().isEmpty || _busy ? null : _save,
-                icon: Icon(_everyone ? Icons.send : Icons.alarm_add),
+                icon: Icon(_everyone ? Icons.send_rounded : Icons.alarm_add_rounded),
                 label: Text(_everyone ? t.p3SendReminder : t.p3SaveReminder),
               ),
             ],
@@ -984,7 +984,7 @@ class _SplitComposerState extends State<SplitComposer> {
               FilledButton.icon(
                 key: const ValueKey('p3-split-send'),
                 onPressed: _poisha > 0 && names.isNotEmpty && !_busy ? _send : null,
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded),
                 label: Text(t.p3SplitSend),
               ),
             ],
@@ -1083,7 +1083,7 @@ class _ListComposerState extends State<ListComposer> {
               FilledButton.icon(
                 key: const ValueKey('p3-list-send'),
                 onPressed: _list.isEmpty || _busy ? null : _send,
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded),
                 label: Text(t.p3ListSend(notifLocalizeDigits(context, '${_list.length}'))),
               ),
             ],
@@ -1145,7 +1145,7 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
         context: context,
         builder: (ctx) => AlertDialog(
           key: const ValueKey('p3-sos-confirm'),
-          icon: const Icon(Icons.sos, color: Brand.dangerFill),
+          icon: const Icon(Icons.sos_rounded, color: Brand.dangerFill),
           title: Text(t.p3SosConfirmTitle),
           content: Text(t.p3SosConfirmBody(port.chatName)),
           actions: [
@@ -1195,7 +1195,7 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          icon: Icon(Icons.phonelink_erase, color: Brand.warnInk(ctx)),
+          icon: Icon(Icons.phonelink_erase_rounded, color: Brand.warnInk(ctx)),
           title: Text(t.p3LostConfirmTitle),
           content: Text(t.p3LostAdvice),
           actions: [
@@ -1311,7 +1311,7 @@ class _MedSheetState extends State<_MedSheet> {
             else if (_failed) ...[
               Text(t.p3MedLoadFailed),
               const SizedBox(height: Gap.sm),
-              OutlinedButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)),
+              OutlinedButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
             ] else if (_missed.isEmpty && _taken.isEmpty)
               Text(t.p3MedNone)
             else ...[
@@ -1328,7 +1328,7 @@ class _MedSheetState extends State<_MedSheet> {
               Text(t.p3MedNote(widget.port.chatName),
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.md),
-              FilledButton.icon(onPressed: _send, icon: const Icon(Icons.send), label: Text(t.p3SendToChat)),
+              FilledButton.icon(onPressed: _send, icon: const Icon(Icons.send_rounded), label: Text(t.p3SendToChat)),
             ],
           ],
         ),
@@ -1381,13 +1381,13 @@ class AssistoMentionHint extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
           child: Row(children: [
-            Icon(Icons.auto_awesome, size: 18, color: scheme.onPrimaryContainer),
+            Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onPrimaryContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.p3MentionHint,
                   style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600)),
             ),
-            Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
+            Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
           ]),
         ),
       ),

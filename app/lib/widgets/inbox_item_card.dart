@@ -48,13 +48,13 @@ class InboxItemCard extends StatelessWidget {
   static IconData categoryIcon(InboxCategory c) {
     switch (c) {
       case InboxCategory.urgent:
-        return Icons.priority_high;
+        return Icons.priority_high_rounded;
       case InboxCategory.action:
-        return Icons.reply;
+        return Icons.reply_rounded;
       case InboxCategory.fyi:
-        return Icons.info_outline;
+        return Icons.info_outline_rounded;
       case InboxCategory.promo:
-        return Icons.local_offer_outlined;
+        return Icons.local_offer_rounded;
     }
   }
 
@@ -74,11 +74,11 @@ class InboxItemCard extends StatelessWidget {
   static IconData sourceIcon(InboxSource s) {
     switch (s) {
       case InboxSource.email:
-        return Icons.mail_outline;
+        return Icons.mail_outline_rounded;
       case InboxSource.notification:
-        return Icons.notifications_none;
+        return Icons.notifications_none_rounded;
       case InboxSource.message:
-        return Icons.chat_bubble_outline;
+        return Icons.chat_bubble_outline_rounded;
     }
   }
 
@@ -160,13 +160,13 @@ class InboxItemCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: Gap.sm),
                             child: _Pill(
-                              icon: Icons.mark_email_unread_outlined,
+                              icon: Icons.mark_email_unread_rounded,
                               label: tr.inboxNeedsReply,
                               color: scheme.primary,
                             ),
                           ),
                         if (item.snoozedUntil != null)
-                          _Pill(icon: Icons.snooze, label: tr.inboxSnoozed,
+                          _Pill(icon: Icons.snooze_rounded, label: tr.inboxSnoozed,
                               color: scheme.onSurfaceVariant),
                       ]),
                       if (!selectMode) ...[
@@ -255,11 +255,11 @@ class _ActionRow extends StatelessWidget {
           ),
         );
     return Wrap(spacing: 2, children: [
-      if (!hideReply) btn(Icons.reply, tr.inboxQuickReply, onReply),
-      btn(Icons.snooze, tr.inboxSnooze, onSnooze),
-      btn(Icons.check_circle_outline, tr.inboxMarkDone, onDone),
-      btn(Icons.task_alt, tr.inboxConvertTask, onTask),
-      btn(Icons.alarm_add, tr.inboxConvertReminder, onReminder),
+      if (!hideReply) btn(Icons.reply_rounded, tr.inboxQuickReply, onReply),
+      btn(Icons.snooze_rounded, tr.inboxSnooze, onSnooze),
+      btn(Icons.check_circle_outline_rounded, tr.inboxMarkDone, onDone),
+      btn(Icons.task_alt_rounded, tr.inboxConvertTask, onTask),
+      btn(Icons.alarm_add_rounded, tr.inboxConvertReminder, onReminder),
     ]);
   }
 }

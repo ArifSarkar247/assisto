@@ -37,7 +37,7 @@ class RefProgressCard extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.flag_outlined, size: 18, color: scheme.primary),
+          Icon(Icons.flag_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.refProgressTitle,

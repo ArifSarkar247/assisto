@@ -423,7 +423,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 for (final e in entries)
                   ListTile(
                     dense: true,
-                    leading: const Icon(Icons.delete_outline, size: 20),
+                    leading: const Icon(Icons.delete_outline_rounded, size: 20),
                     title: Text(e.key),
                     trailing: Text(fmtInt(context, e.value),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -435,7 +435,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         // Prominent "Download my data first" — always offered; nudge if not done.
         OutlinedButton.icon(
           onPressed: _busy ? null : _downloadMyData,
-          icon: const Icon(Icons.download_outlined),
+          icon: const Icon(Icons.download_rounded),
           label: Text(t.delAcctDownloadFirst),
         ),
         if (!_exportDownloaded) ...[
@@ -448,7 +448,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         ] else ...[
           const SizedBox(height: Gap.xs),
           Row(children: [
-            const Icon(Icons.check_circle, color: Brand.success, size: 16),
+            const Icon(Icons.check_circle_rounded, color: Brand.success, size: 16),
             const SizedBox(width: 6),
             Text(t.delAcctExportDone,
                 style: Theme.of(context).textTheme.bodySmall),
@@ -465,7 +465,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           // Preview failed to load — offer a retry instead of continuing.
           OutlinedButton.icon(
             onPressed: _busy ? null : _loadPreview,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.delAcctTryAgain),
           )
         else
@@ -494,7 +494,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _warnCard(
-          icon: Icons.lock_outline,
+          icon: Icons.lock_outline_rounded,
           color: Brand.blue,
           title: t.delAcctVerifyTitle,
           body: t.delAcctVerifyBody,
@@ -510,7 +510,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             labelText: t.delAcctPasswordLabel,
-            prefixIcon: const Icon(Icons.key_outlined),
+            prefixIcon: const Icon(Icons.key_rounded),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -519,7 +519,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.sms_outlined,
+            Icon(Icons.sms_rounded,
                 size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -536,8 +536,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             child: ListTile(
               leading: Icon(
                 _securityPin != null
-                    ? Icons.verified_user
-                    : Icons.fingerprint,
+                    ? Icons.verified_user_rounded
+                    : Icons.fingerprint_rounded,
                 color: _securityPin != null ? Brand.success : null,
               ),
               title: Text(t.delAcctPinTitle),
@@ -600,7 +600,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  const Icon(Icons.schedule, color: Brand.warning),
+                  const Icon(Icons.schedule_rounded, color: Brand.warning),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.delAcctScheduledTitle,
@@ -628,7 +628,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         FilledButton.icon(
           key: const Key('del-acct-cancel'),
           onPressed: _busy ? null : _cancel,
-          icon: const Icon(Icons.undo),
+          icon: const Icon(Icons.undo_rounded),
           label: Text(t.delAcctCancelDeletion),
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52)),
@@ -649,7 +649,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _warnCard(
-          icon: Icons.shield_outlined,
+          icon: Icons.shield_rounded,
           color: Brand.blue,
           title: t.delAcctBlockedTitle,
           body: frozen ? t.delAcctBlockedFrozen : t.delAcctBlockedTheft,
@@ -685,7 +685,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.support_agent_outlined,
+                Icon(Icons.support_agent_rounded,
                     color: scheme.onSecondaryContainer),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -716,7 +716,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   key: const Key('del-acct-feedback'),
                   onPressed: () =>
                       FeedbackSheet.open(context, route: 'account_delete'),
-                  icon: const Icon(Icons.feedback_outlined),
+                  icon: const Icon(Icons.feedback_rounded),
                   label: Text(t.delAcctSendFeedback),
                 ),
                 OutlinedButton.icon(
@@ -725,7 +725,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (_) => const SupportScreen())),
-                  icon: const Icon(Icons.help_outline),
+                  icon: const Icon(Icons.help_outline_rounded),
                   label: Text(t.delAcctContactSupport),
                 ),
               ],
@@ -780,7 +780,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(children: [
-          const Icon(Icons.error_outline, color: Brand.danger, size: 18),
+          const Icon(Icons.error_outline_rounded, color: Brand.danger, size: 18),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(msg, style: const TextStyle(color: Brand.danger))),

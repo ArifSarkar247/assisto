@@ -65,7 +65,7 @@ class _VaOnboardingStepState extends State<VaOnboardingStep>
         Center(
           child: ShaderMask(
             shaderCallback: (r) => Brand.gradient.createShader(r),
-            child: const Icon(Icons.graphic_eq, size: 48, color: Colors.white),
+            child: const Icon(Icons.graphic_eq_rounded, size: 48, color: Colors.white),
           ),
         ),
         const SizedBox(height: Gap.sm),
@@ -89,7 +89,7 @@ class _VaOnboardingStepState extends State<VaOnboardingStep>
         const SizedBox(height: Gap.lg),
         if (_isDefault == true)
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.check_circle, color: Brand.success),
+            const Icon(Icons.check_circle_rounded, color: Brand.success),
             const SizedBox(width: Gap.sm),
             Flexible(child: Text(t.vaDefIsDefault)),
           ])
@@ -103,7 +103,7 @@ class _VaOnboardingStepState extends State<VaOnboardingStep>
                     ?.showSnackBar(SnackBar(content: Text(t.vaSettingsOpenFailed)));
               }
             },
-            icon: const Icon(Icons.assistant_outlined),
+            icon: const Icon(Icons.assistant_rounded),
             label: Text(t.vaDefOpenSettings),
           ),
         const SizedBox(height: Gap.sm),

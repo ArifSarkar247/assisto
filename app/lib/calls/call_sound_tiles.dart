@@ -133,17 +133,17 @@ class _SoundPickTileState extends State<SoundPickTile> {
     return ListTile(
       key: Key('sound-${widget.kind.name}'),
       leading: Icon(widget.kind == SoundPickKind.message
-          ? Icons.notifications_active_outlined
-          : Icons.music_note_outlined),
+          ? Icons.notifications_active_rounded
+          : Icons.music_note_rounded),
       title: Text(title),
       subtitle: Text(value, maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: _set
           ? IconButton(
               tooltip: t.c2SoundReset,
-              icon: const Icon(Icons.restart_alt),
+              icon: const Icon(Icons.restart_alt_rounded),
               onPressed: _reset,
             )
-          : const Icon(Icons.chevron_right),
+          : const Icon(Icons.chevron_right_rounded),
       onTap: _pick,
     );
   }
@@ -236,7 +236,7 @@ class _AssistoSignatureTileState extends State<AssistoSignatureTile> {
       secondary: IconButton(
         tooltip: t.c2SoundPreview,
         icon: Icon(
-            _playing ? Icons.stop_circle_outlined : Icons.play_circle_outline),
+            _playing ? Icons.stop_circle_rounded : Icons.play_circle_outline_rounded),
         onPressed: _preview,
       ),
       title: Text(t.c2SoundSignature),

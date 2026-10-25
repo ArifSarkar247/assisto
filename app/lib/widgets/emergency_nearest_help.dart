@@ -123,8 +123,8 @@ class _EmergencyNearestHelpState extends State<EmergencyNearestHelp> {
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
             leading: Icon(p['kind'] == 'pharmacy'
-                ? Icons.local_pharmacy
-                : Icons.local_hospital),
+                ? Icons.local_pharmacy_rounded
+                : Icons.local_hospital_rounded),
             title: Text('${p['name'] ?? ''}'),
             subtitle: Text(
               [
@@ -140,18 +140,18 @@ class _EmergencyNearestHelpState extends State<EmergencyNearestHelp> {
               if ((p['phone'] ?? '').toString().trim().isNotEmpty)
                 IconButton(
                     tooltip: t.call,
-                    icon: const Icon(Icons.call, color: Brand.success),
+                    icon: const Icon(Icons.call_rounded, color: Brand.success),
                     onPressed: () => _call('${p['phone']}')),
               IconButton(
                   tooltip: t.emergencyDirections,
-                  icon: const Icon(Icons.directions),
+                  icon: const Icon(Icons.directions_rounded),
                   onPressed: () => _directions(p)),
             ]),
           ),
         ),
       FilledButton.tonalIcon(
         onPressed: _find,
-        icon: const Icon(Icons.search),
+        icon: const Icon(Icons.search_rounded),
         label: Text(_places.isEmpty
             ? t.emergencyFindNearest
             : t.emergencyRefreshNearest),

@@ -67,7 +67,7 @@ class _SafetySosCountdownState extends State<SafetySosCountdown> {
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.sos, color: Colors.white, size: 48),
+          const Icon(Icons.sos_rounded, color: Colors.white, size: 48),
           const SizedBox(height: 12),
           Text(t.sosSending,
               textAlign: TextAlign.center,

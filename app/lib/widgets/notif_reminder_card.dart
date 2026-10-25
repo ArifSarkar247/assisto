@@ -57,8 +57,8 @@ class NotifReminderCard extends StatelessWidget {
                     ),
                     child: Icon(
                       overdue
-                          ? Icons.notification_important_outlined
-                          : Icons.alarm_outlined,
+                          ? Icons.notification_important_rounded
+                          : Icons.alarm_rounded,
                       size: 22,
                       color: overdue ? Brand.danger : scheme.primary,
                     ),
@@ -99,13 +99,13 @@ class NotifReminderCard extends StatelessWidget {
                 children: [
                   FilledButton.tonalIcon(
                     onPressed: onDone,
-                    icon: const Icon(Icons.check, size: 18),
+                    icon: const Icon(Icons.check_rounded, size: 18),
                     label: Text(t.notifDone),
                   ),
                   _SnoozeMenu(onSelected: onSnooze),
                   TextButton.icon(
                     onPressed: canOpen ? onOpen : null,
-                    icon: const Icon(Icons.open_in_new, size: 18),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
                     label: Text(t.notifOpen),
                   ),
                 ],
@@ -144,10 +144,10 @@ class _SnoozeMenu extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.snooze_outlined, size: 18),
+            const Icon(Icons.snooze_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Text(t.notifSnooze),
-            const Icon(Icons.arrow_drop_down, size: 20),
+            const Icon(Icons.arrow_drop_down_rounded, size: 20),
           ],
         ),
       ),

@@ -33,7 +33,7 @@ class SettingsThemeSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
           child: Row(
             children: [
-              Icon(Icons.palette_outlined, size: 20, color: cs.primary),
+              Icon(Icons.palette_rounded, size: 20, color: cs.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
@@ -136,8 +136,8 @@ class _ThemeCard extends StatelessWidget {
                 // instead of truncating.
                 Icon(
                   selected
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.radio_button_unchecked_rounded,
                   size: 16,
                   color: selected ? cs.primary : cs.onSurfaceVariant,
                 ),

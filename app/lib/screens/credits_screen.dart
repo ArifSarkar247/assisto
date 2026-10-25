@@ -138,7 +138,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           if (!_loading && !_error)
             IconButton(
                 tooltip: t.refresh,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 onPressed: _load),
         ],
       ),
@@ -146,13 +146,13 @@ class _CreditsScreenState extends State<CreditsScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
@@ -195,7 +195,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           FilledButton.tonalIcon(
             key: const Key('p2-credits-paywall'),
             onPressed: () => PaywallSheet.show(context, PaywallReason.outOfCredits),
-            icon: const Icon(Icons.workspace_premium_outlined),
+            icon: const Icon(Icons.workspace_premium_rounded),
             label: Text(t.p2GetPremium),
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
           ),
@@ -214,7 +214,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         const SizedBox(height: Gap.lg),
 
         // Top-up packs.
-        _sectionTitle(t.creditsPacksTitle, Icons.shopping_cart_outlined, scheme),
+        _sectionTitle(t.creditsPacksTitle, Icons.shopping_cart_rounded, scheme),
         const SizedBox(height: Gap.sm),
         if (_packs.isEmpty)
           _infoStrip(scheme, t.creditsPacksEmpty)
@@ -226,7 +226,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             onPressed: _buying ? null : _watchAds,
-            icon: const Icon(Icons.ondemand_video_outlined, size: 18),
+            icon: const Icon(Icons.ondemand_video_rounded, size: 18),
             label: Text(t.adEarnCredits),
             style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(46)),
@@ -237,10 +237,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
           Card(
             margin: EdgeInsets.zero,
             child: ListTile(
-              leading: const Icon(Icons.ondemand_video_outlined),
+              leading: const Icon(Icons.ondemand_video_rounded),
               title: Text(t.adsPaidOptInTitle),
               subtitle: Text(t.adsPaidOptInSub),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: _buying ? null : _watchAds,
             ),
           ),
@@ -249,7 +249,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         // This month by action.
         if (usageRows.isNotEmpty) ...[
           const SizedBox(height: Gap.xl),
-          _sectionTitle(t.creditsThisMonthTitle, Icons.insights_outlined, scheme),
+          _sectionTitle(t.creditsThisMonthTitle, Icons.insights_rounded, scheme),
           const SizedBox(height: Gap.sm),
           _usageCard(t, scheme, usageRows, monthTotal),
         ],
@@ -257,7 +257,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         // Expiry buckets (validity).
         if (buckets.isNotEmpty) ...[
           const SizedBox(height: Gap.xl),
-          _sectionTitle(t.creditsExpiryTitle, Icons.schedule_outlined, scheme),
+          _sectionTitle(t.creditsExpiryTitle, Icons.schedule_rounded, scheme),
           const SizedBox(height: Gap.sm),
           for (final b in buckets) _bucketRow(t, scheme, b),
         ],
@@ -265,7 +265,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         // Ledger.
         if (ledger.isNotEmpty) ...[
           const SizedBox(height: Gap.xl),
-          _sectionTitle(t.creditsHistoryTitle, Icons.receipt_long_outlined, scheme),
+          _sectionTitle(t.creditsHistoryTitle, Icons.receipt_long_rounded, scheme),
           const SizedBox(height: Gap.sm),
           for (final it in ledger) _ledgerRow(t, scheme, it),
         ],
@@ -284,7 +284,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         Text(t.creditsBalanceLabel,
             style: AType.bodySmall.copyWith(color: Colors.white70)),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Icon(Icons.bolt, color: Colors.white, size: 30),
+          Icon(Icons.bolt_rounded, color: Colors.white, size: 30),
           const SizedBox(width: Gap.xs),
           Text(fmtInt(context, balance),
               style: AType.displayMedium.copyWith(color: Colors.white,
@@ -298,11 +298,11 @@ class _CreditsScreenState extends State<CreditsScreen> {
         ]),
         const SizedBox(height: Gap.md),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          _heroPill(Icons.calendar_month,
+          _heroPill(Icons.calendar_month_rounded,
               t.creditsIncludedPool(fmtInt(context, pool))),
-          _heroPill(Icons.ondemand_video_outlined,
+          _heroPill(Icons.ondemand_video_rounded,
               t.creditsAdWallet(fmtInt(context, adWallet))),
-          _heroPill(Icons.trending_up,
+          _heroPill(Icons.trending_up_rounded,
               t.creditsUsedThisMonth(fmtInt(context, monthTotal))),
         ]),
       ]),
@@ -336,7 +336,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         border: Border.all(color: tint.withValues(alpha: 0.35)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(usedUp ? Icons.battery_alert_outlined : Icons.info_outline,
+        Icon(usedUp ? Icons.battery_alert_rounded : Icons.info_outline_rounded,
             color: tint, size: 22),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -377,7 +377,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
             decoration: BoxDecoration(
                 color: scheme.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(Radii.sm)),
-            child: Icon(Icons.bolt, color: scheme.primary),
+            child: Icon(Icons.bolt_rounded, color: scheme.primary),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -463,7 +463,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(children: [
-        Icon(Icons.schedule, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.schedule_rounded, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(t.creditsExpiresOn(label),
@@ -489,7 +489,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(children: [
-        Icon(credit ? Icons.add_circle_outline : Icons.remove_circle_outline,
+        Icon(credit ? Icons.add_circle_outline_rounded : Icons.remove_circle_outline_rounded,
             size: 18, color: credit ? Brand.success : scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -570,7 +570,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(children: [
-          Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(child: Text(text)),
         ]),

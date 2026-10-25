@@ -182,13 +182,13 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.supTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.supLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -212,8 +212,8 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
             IconButton(
               tooltip: _compareMode ? tr.supCompareDone : tr.supCompare,
               icon: Icon(_compareMode
-                  ? Icons.check_circle_outline
-                  : Icons.compare_arrows),
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.compare_arrows_rounded),
               onPressed: () => setState(() {
                 _compareMode = !_compareMode;
                 if (!_compareMode) _compareIds.clear();
@@ -226,7 +226,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
               onPressed: _compareIds.length >= 2
                   ? () => _openCompare(result)
                   : null,
-              icon: const Icon(Icons.compare_arrows),
+              icon: const Icon(Icons.compare_arrows_rounded),
               label: Text(tr.supCompareN(_compareIds.length)),
               backgroundColor: _compareIds.length >= 2 ? null : scheme.surfaceContainerHighest,
             )
@@ -234,17 +234,17 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
               ? null // qa1: the empty state's CTA is the same action
               : FloatingActionButton.extended(
                   onPressed: _add,
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: Text(tr.supAddSupplier),
                 ),
       body: _rows.isEmpty
           ? StateMessage(
-              icon: Icons.inventory_2_outlined,
+              icon: Icons.inventory_2_rounded,
               title: tr.supWelcomeTitle,
               message: tr.supWelcomeBody,
               action: FilledButton.icon(
                 onPressed: _add,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.supAddSupplier),
               ),
             )
@@ -254,7 +254,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 Expanded(
                   child: result.suppliers.isEmpty
                       ? StateMessage(
-                          icon: Icons.search_off,
+                          icon: Icons.search_off_rounded,
                           title: tr.supNoMatchTitle,
                           message: tr.supNoMatchBody,
                           action: TextButton(
@@ -311,7 +311,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: tr.supSearchHint,
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.md)),
@@ -328,7 +328,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
               padding: const EdgeInsets.only(top: Gap.sm, right: Gap.sm),
               child: FilterChip(
                 label: Text(tr.supReorderOnly),
-                avatar: const Icon(Icons.shopping_cart_outlined, size: 16),
+                avatar: const Icon(Icons.shopping_cart_rounded, size: 16),
                 selected: _reorderOnly,
                 onSelected: (v) => setState(() => _reorderOnly = v),
               ),
@@ -337,7 +337,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
               padding: const EdgeInsets.only(top: Gap.sm, right: Gap.sm),
               child: FilterChip(
                 label: Text(tr.supRatedMin4),
-                avatar: const Icon(Icons.star_outline, size: 16),
+                avatar: const Icon(Icons.star_outline_rounded, size: 16),
                 selected: _minRating >= 4,
                 onSelected: (v) => setState(() => _minRating = v ? 4 : 0),
               ),
@@ -377,7 +377,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.primary),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.supManualNote,
@@ -415,8 +415,8 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                       padding: const EdgeInsets.only(right: Gap.sm),
                       child: Icon(
                           selected
-                              ? Icons.check_box
-                              : Icons.check_box_outline_blank,
+                              ? Icons.check_box_rounded
+                              : Icons.check_box_outline_blank_rounded,
                           color: selected
                               ? scheme.primary
                               : scheme.onSurfaceVariant),
@@ -431,10 +431,10 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 ]),
                 const SizedBox(height: Gap.xs),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                  _tag(context, Icons.category_outlined,
+                  _tag(context, Icons.category_rounded,
                       _catLabel(tr, s.category)),
                   if (s.location.isNotEmpty)
-                    _tag(context, Icons.place_outlined, s.location),
+                    _tag(context, Icons.place_rounded, s.location),
                 ]),
                 if (s.productsDisplay.isNotEmpty) ...[
                   const SizedBox(height: Gap.sm),
@@ -444,7 +444,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 if (s.priceNote.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(Icons.sell_outlined,
+                    Icon(Icons.sell_rounded,
                         size: 15, color: scheme.onSurfaceVariant),
                     const SizedBox(width: Gap.xs),
                     Expanded(
@@ -459,7 +459,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                     if (s.contact.isNotEmpty)
                       Expanded(
                         child: Row(children: [
-                          Icon(Icons.call_outlined,
+                          Icon(Icons.call_rounded,
                               size: 15, color: scheme.primary),
                           const SizedBox(width: Gap.xs),
                           Expanded(
@@ -475,7 +475,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                     Tooltip(
                       message: tr.supReorderToggle,
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.shopping_cart_outlined,
+                        Icon(Icons.shopping_cart_rounded,
                             size: 16, color: scheme.onSurfaceVariant),
                         Switch(
                           value: s.reorder,
@@ -488,13 +488,13 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                     IconButton(
                       tooltip: AppLocalizations.of(context).edit,
                       visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      icon: const Icon(Icons.edit_rounded, size: 18),
                       onPressed: () => _edit(s.raw),
                     ),
                     IconButton(
                       tooltip: AppLocalizations.of(context).delete,
                       visualDensity: VisualDensity.compact,
-                      icon: Icon(Icons.delete_outline,
+                      icon: Icon(Icons.delete_outline_rounded,
                           size: 18, color: scheme.error),
                       onPressed: () => _delete(s.raw),
                     ),
@@ -514,7 +514,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.star, size: 13, color: AssistoTokens.of(context).warning),
+        Icon(Icons.star_rounded, size: 13, color: AssistoTokens.of(context).warning),
         const SizedBox(width: 3),
         Text('$rating',
             style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700,
@@ -548,7 +548,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.hub_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.hub_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.supPartnerSeamTitle,
@@ -632,7 +632,7 @@ class _CompareScreen extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: Gap.sm),
                           child: Row(children: [
-                            Icon(Icons.shopping_cart_outlined,
+                            Icon(Icons.shopping_cart_rounded,
                                 size: 15, color: scheme.primary),
                             const SizedBox(width: Gap.xs),
                             Text(tr.supOnReorderList,
@@ -785,7 +785,7 @@ Future<Map<String, dynamic>?> _supplierSheet(
                   IconButton(
                     tooltip: AppLocalizations.of(context).f2RateStars(i),
                     icon: Icon(
-                        i <= rating ? Icons.star : Icons.star_border,
+                        i <= rating ? Icons.star_rounded : Icons.star_border_rounded,
                         color: AssistoTokens.of(context).warning),
                     onPressed: () => setSheet(() {
                       rating = (rating == i) ? i - 1 : i; // tap same star clears

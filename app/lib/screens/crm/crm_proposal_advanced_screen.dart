@@ -182,7 +182,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               if (!rendered) ...[
                 const SizedBox(height: Gap.sm),
                 NeedsKeyBanner(t.crmPdfNoLibNote,
-                    icon: Icons.picture_as_pdf_outlined),
+                    icon: Icons.picture_as_pdf_rounded),
               ],
               const SizedBox(height: Gap.sm),
               Text((m['brand']?['name'] ?? '').toString(),
@@ -202,7 +202,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               if (m['tax_review_required'] == true) ...[
                 const SizedBox(height: Gap.sm),
                 NeedsKeyBanner(t.crmTaxToReview,
-                    icon: Icons.flag_outlined),
+                    icon: Icons.flag_rounded),
               ],
             ],
           ),
@@ -228,7 +228,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                   error: _error!, title: t.loadFailed, onRetry: _load)
               : _versions.isEmpty
                   ? CrmStateView.empty(
-                      icon: Icons.history_outlined,
+                      icon: Icons.history_rounded,
                       title: t.crmNoVersions,
                       message: t.crmNoVersionsHint)
                   : ListView(
@@ -267,7 +267,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Row(children: [
-              Icon(Icons.event_outlined,
+              Icon(Icons.event_rounded,
                   size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Expanded(
@@ -289,7 +289,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                Icon(Icons.verified_user_outlined,
+                Icon(Icons.verified_user_rounded,
                     size: 16,
                     color: discountApproved ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
@@ -318,17 +318,17 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
           Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
             OutlinedButton.icon(
                 onPressed: () => _setValidity(t, p),
-                icon: const Icon(Icons.event_outlined, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(t.crmQuoteValidity)),
             OutlinedButton.icon(
                 onPressed: () => _showPdfPreview(t, p),
-                icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
+                icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
                 label: Text(t.crmBrandedPdf)),
             if (discountNeedsApproval && !discountApproved)
               FilledButton.tonalIcon(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .approveDiscount((p['id'] as num).toInt())),
-                  icon: const Icon(Icons.gavel_outlined, size: 18),
+                  icon: const Icon(Icons.gavel_rounded, size: 18),
                   label: Text(t.crmApproveDiscount)),
             // q1-seams: hidden — the server hands back a RELATIVE JSON API
             // path (/api/crm/accept/<token>/), not a page a customer can open,
@@ -337,13 +337,13 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                 (status == 'sent' || status == 'viewed' || status == 'approved'))
               OutlinedButton.icon(
                   onPressed: () => _showAcceptanceLink(t, p),
-                  icon: const Icon(Icons.link_outlined, size: 18),
+                  icon: const Icon(Icons.link_rounded, size: 18),
                   label: Text(t.crmAcceptanceLink)),
             if (status == 'accepted' && !expired)
               FilledButton.icon(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .convertToOrder((p['id'] as num).toInt())),
-                  icon: const Icon(Icons.shopping_cart_checkout_outlined, size: 18),
+                  icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 18),
                   label: Text(t.crmConvertToOrder)),
           ]),
         ]),

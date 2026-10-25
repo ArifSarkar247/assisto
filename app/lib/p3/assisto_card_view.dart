@@ -48,17 +48,17 @@ class AssistoCardView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final who = mine ? t.p3You : (senderName.isEmpty ? t.p3Someone : senderName);
     final (IconData icon, String label, Color tone) = switch (card.type) {
-      CardType.summary => (Icons.summarize_outlined, t.p3CardSummary, scheme.primary),
-      CardType.answer => (Icons.help_outline, t.p3CardAnswer, scheme.primary),
-      CardType.translate => (Icons.translate, t.p3CardTranslate, scheme.primary),
-      CardType.reminder => (Icons.alarm, t.p3CardReminder, scheme.primary),
-      CardType.split => (Icons.call_split, t.p3CardSplit, scheme.primary),
-      CardType.list => (Icons.checklist, t.p3CardList, scheme.primary),
-      CardType.arrived => (Icons.where_to_vote_outlined, t.p3CardArrived, Brand.successFill),
-      CardType.sos => (Icons.sos, t.p3CardSos, Brand.dangerFill),
-      CardType.med => (Icons.medication_outlined, t.p3CardMed, scheme.primary),
-      CardType.lost => (Icons.phonelink_erase, t.p3CardLost, Brand.warnInk(context)),
-      _ => (Icons.auto_awesome, t.p3Assisto, scheme.primary),
+      CardType.summary => (Icons.summarize_rounded, t.p3CardSummary, scheme.primary),
+      CardType.answer => (Icons.help_outline_rounded, t.p3CardAnswer, scheme.primary),
+      CardType.translate => (Icons.translate_rounded, t.p3CardTranslate, scheme.primary),
+      CardType.reminder => (Icons.alarm_rounded, t.p3CardReminder, scheme.primary),
+      CardType.split => (Icons.call_split_rounded, t.p3CardSplit, scheme.primary),
+      CardType.list => (Icons.checklist_rounded, t.p3CardList, scheme.primary),
+      CardType.arrived => (Icons.where_to_vote_rounded, t.p3CardArrived, Brand.successFill),
+      CardType.sos => (Icons.sos_rounded, t.p3CardSos, Brand.dangerFill),
+      CardType.med => (Icons.medication_rounded, t.p3CardMed, scheme.primary),
+      CardType.lost => (Icons.phonelink_erase_rounded, t.p3CardLost, Brand.warnInk(context)),
+      _ => (Icons.auto_awesome_rounded, t.p3Assisto, scheme.primary),
     };
     final urgent = card.type == CardType.sos;
     final width = MediaQuery.sizeOf(context).width;
@@ -171,7 +171,7 @@ class AssistoCardView extends StatelessWidget {
             FilledButton.icon(
               style: Brand.dangerButton(),
               onPressed: () => openForUser(context, Uri.parse(link), where: 'p3.sos.map'),
-              icon: const Icon(Icons.location_on_outlined),
+              icon: const Icon(Icons.location_on_rounded),
               label: Text(t.p3OpenLocation),
             )
           else
@@ -210,7 +210,7 @@ class AssistoCardView extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               onPressed: () => openForUser(context, Uri.parse(link), where: 'p3.lost.map'),
-              icon: const Icon(Icons.location_on_outlined),
+              icon: const Icon(Icons.location_on_rounded),
               label: Text(t.p3LastSeenPlace),
             ),
           ],
@@ -234,7 +234,7 @@ class AssistoCardView extends StatelessWidget {
       const SizedBox(height: Gap.sm),
       if (added)
         Row(children: [
-          Icon(Icons.check_circle, size: 18, color: Brand.onTint(context, Brand.successFill)),
+          Icon(Icons.check_circle_rounded, size: 18, color: Brand.onTint(context, Brand.successFill)),
           const SizedBox(width: Gap.xs),
           Expanded(child: Text(t.p3InYourReminders, style: muted)),
         ])
@@ -242,7 +242,7 @@ class AssistoCardView extends StatelessWidget {
         FilledButton.icon(
           key: ValueKey('p3-rem-add-${card.id}'),
           onPressed: onAddReminder == null ? null : () => onAddReminder!(card),
-          icon: const Icon(Icons.add_alarm),
+          icon: const Icon(Icons.add_alarm_rounded),
           label: Text(t.p3AddToMyReminders),
         ),
     ];
@@ -290,7 +290,7 @@ class AssistoCardView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(st.done ? Icons.check_box : Icons.check_box_outline_blank,
+                Icon(st.done ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
                     size: 22, color: st.done ? scheme.primary : scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -323,7 +323,7 @@ class _AssistoChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.auto_awesome, size: 12, color: scheme.onPrimaryContainer),
+          Icon(Icons.auto_awesome_rounded, size: 12, color: scheme.onPrimaryContainer),
           const SizedBox(width: 3),
           Text(label, style: TextStyle(fontSize: 11, color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600)),
         ]),

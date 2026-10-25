@@ -130,7 +130,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
                 builder: (_, v, __) => IconButton.filled(
                   tooltip: t.uwAskSend,
                   onPressed: (_busy || v.text.trim().length < 3) ? null : _send,
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send_rounded),
                 ),
               ),
             ]),
@@ -143,7 +143,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
   Widget _welcome(AppLocalizations t, ColorScheme scheme) => ListView(
         padding: const EdgeInsets.all(Gap.xl),
         children: [
-          Icon(Icons.travel_explore, size: 56, color: scheme.primary),
+          Icon(Icons.travel_explore_rounded, size: 56, color: scheme.primary),
           const SizedBox(height: Gap.md),
           Text(t.uwAskWelcomeTitle,
               textAlign: TextAlign.center,
@@ -155,7 +155,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
           const SizedBox(height: Gap.md),
           if (widget.credits > 0)
             UwNote(
-                icon: Icons.toll_outlined,
+                icon: Icons.toll_rounded,
                 text: t.uwAskCost(uwDigits(context, widget.credits))),
           const SizedBox(height: Gap.md),
           Wrap(
@@ -284,7 +284,7 @@ class _TurnCard extends StatelessWidget {
                               const SizedBox(height: Gap.sm),
                               UwNote(
                                   text: c,
-                                  icon: Icons.health_and_safety_outlined,
+                                  icon: Icons.health_and_safety_rounded,
                                   warn: true),
                             ],
                             const SizedBox(height: Gap.sm),

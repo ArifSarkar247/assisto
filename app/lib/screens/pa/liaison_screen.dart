@@ -268,20 +268,20 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.paLiaAdd),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLiaLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -291,12 +291,12 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
   }
 
   Widget _welcome(AppLocalizations tr, ColorScheme scheme) => StateMessage(
-        icon: Icons.contact_mail_outlined,
+        icon: Icons.contact_mail_rounded,
         title: tr.paLiaWelcomeTitle,
         message: tr.paLiaWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.paLiaAdd),
         ),
       );
@@ -309,7 +309,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
       Expanded(
         child: list.isEmpty
             ? StateMessage(
-                icon: Icons.filter_alt_off_outlined,
+                icon: Icons.filter_alt_off_rounded,
                 title: tr.paLiaNoMatchTitle,
                 message: tr.paLiaNoMatchBody,
                 action: TextButton(
@@ -478,16 +478,16 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.md, runSpacing: 4, children: [
             if (dueText != null)
-              _meta(overdue ? Icons.event_busy : Icons.event, dueText,
+              _meta(overdue ? Icons.event_busy_rounded : Icons.event_rounded, dueText,
                   overdue ? scheme.error : scheme.onSurfaceVariant),
             if (nudge != 'off' && nxt != null)
-              _meta(Icons.notifications_active_outlined,
+              _meta(Icons.notifications_active_rounded,
                   tr.paLiaNextNudge(DateFormat('d MMM', tr.localeName).format(nxt.toLocal())),
                   scheme.onSurfaceVariant),
             if (nudge == 'off')
-              _meta(Icons.notifications_off_outlined, tr.paLiaNudgeOff, scheme.onSurfaceVariant),
+              _meta(Icons.notifications_off_rounded, tr.paLiaNudgeOff, scheme.onSurfaceVariant),
             if (hasContact)
-              _meta(Icons.contact_phone_outlined,
+              _meta(Icons.contact_phone_rounded,
                   tr.paLiaContactHidden(_maskContact(raw)), scheme.onSurfaceVariant),
           ]),
           const Divider(height: Gap.xl),
@@ -495,18 +495,18 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
             if (status != _stReplied && status != _stDone)
               TextButton.icon(
                 onPressed: () => _setStatus(r, _stReplied, tr),
-                icon: const Icon(Icons.reply, size: 18),
+                icon: const Icon(Icons.reply_rounded, size: 18),
                 label: Text(tr.paLiaMarkReplied, maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             if (status == _stReplied)
               TextButton.icon(
                 onPressed: () => _setStatus(r, _stWaiting, tr),
-                icon: const Icon(Icons.hourglass_empty, size: 18),
+                icon: const Icon(Icons.hourglass_empty_rounded, size: 18),
                 label: Text(tr.paLiaMarkWaiting, maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             const Spacer(),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);
@@ -525,7 +525,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () => _setStatus(r, _stDone, tr),
-                icon: const Icon(Icons.check_circle_outline, size: 18),
+                icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
                 label: Text(tr.paLiaMarkDone),
               ),
             ),
@@ -664,7 +664,7 @@ class _FollowupFormState extends State<_FollowupForm> {
               if (d == null) return;
               setState(() => _due = DateTime(d.year, d.month, d.day, 9));
             },
-            icon: const Icon(Icons.event),
+            icon: const Icon(Icons.event_rounded),
             label: Text(_due == null ? tr.paLiaPickDue : fmt.format(_due!),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ),

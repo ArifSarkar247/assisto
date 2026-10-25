@@ -518,12 +518,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
         actions: [
           IconButton(
             tooltip: t.aichatHistory,
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.history_rounded),
             onPressed: _openHistory,
           ),
           IconButton(
             tooltip: t.aichatNewChat,
-            icon: const Icon(Icons.add_comment_outlined),
+            icon: const Icon(Icons.add_comment_rounded),
             onPressed: _newChat,
           ),
         ],
@@ -574,7 +574,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child:
-                const Icon(Icons.auto_awesome, color: Colors.white, size: 38),
+                const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 38),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -591,10 +591,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         const SizedBox(height: Gap.xl),
         // Premium QA: welcome state offers real starting points (tap = send).
         for (final (icon, text) in [
-          (Icons.edit_note_outlined, t.a1AiSugLeave),
-          (Icons.summarize_outlined, t.a1AiSugWeek),
-          (Icons.campaign_outlined, t.a1AiSugShop),
-          (Icons.receipt_long_outlined, t.a1AiSugBill),
+          (Icons.edit_note_rounded, t.a1AiSugLeave),
+          (Icons.summarize_rounded, t.a1AiSugWeek),
+          (Icons.campaign_rounded, t.a1AiSugShop),
+          (Icons.receipt_long_rounded, t.a1AiSugBill),
         ])
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -667,7 +667,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               if (isLastUserEditable)
                 TextButton.icon(
                   onPressed: _editLastUser,
-                  icon: const Icon(Icons.edit_outlined, size: 15),
+                  icon: const Icon(Icons.edit_rounded, size: 15),
                   label: Text(t.aichatEdit),
                   style: TextButton.styleFrom(
                       visualDensity: VisualDensity.compact,
@@ -701,7 +701,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           gradient: Brand.gradient,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
-        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
+        child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16),
       );
 
   Widget _offlineChip(ColorScheme scheme) => Padding(
@@ -716,7 +716,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.cloud_off_outlined,
+              Icon(Icons.cloud_off_rounded,
                   size: 13, color: scheme.onSecondaryContainer),
               const SizedBox(width: Gap.xs),
               Text(t.aichatOfflineAnswer,
@@ -736,17 +736,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Wrap(children: [
       TextButton.icon(
           onPressed: () => _copy(m),
-          icon: const Icon(Icons.copy_outlined, size: 15),
+          icon: const Icon(Icons.copy_rounded, size: 15),
           label: Text(t.aichatCopy),
           style: style),
       TextButton.icon(
           onPressed: () => _share(m),
-          icon: const Icon(Icons.ios_share, size: 15),
+          icon: const Icon(Icons.ios_share_rounded, size: 15),
           label: Text(t.aichatShare),
           style: style),
       TextButton.icon(
           onPressed: _sending ? null : () => _regenerate(m),
-          icon: const Icon(Icons.refresh, size: 15),
+          icon: const Icon(Icons.refresh_rounded, size: 15),
           label: Text(t.aichatRegenerate),
           style: style),
     ]);
@@ -838,12 +838,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
               ? IconButton.filled(
                   onPressed: _stop,
                   tooltip: t.aichatStop,
-                  icon: const Icon(Icons.stop),
+                  icon: const Icon(Icons.stop_rounded),
                 )
               : IconButton.filled(
                   onPressed: () => _send(),
                   tooltip: t.aichatSend,
-                  icon: const Icon(Icons.arrow_upward)),
+                  icon: const Icon(Icons.arrow_upward_rounded)),
         ]),
       ),
     );
@@ -1053,7 +1053,7 @@ class _HistorySheetState extends State<_HistorySheet> {
               FilledButton.tonalIcon(
                 onPressed: () =>
                     Navigator.pop(context, _Session('', '', false, '', '')),
-                icon: const Icon(Icons.add_comment_outlined, size: 18),
+                icon: const Icon(Icons.add_comment_rounded, size: 18),
                 label: Text(t.aichatNewChat),
               ),
             ]),
@@ -1065,7 +1065,7 @@ class _HistorySheetState extends State<_HistorySheet> {
               onChanged: _onSearch,
               decoration: InputDecoration(
                 isDense: true,
-                prefixIcon: const Icon(Icons.search, size: 20),
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 hintText: t.aichatSearchHint,
               ),
             ),
@@ -1094,7 +1094,7 @@ class _HistorySheetState extends State<_HistorySheet> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(searching ? Icons.search_off : Icons.chat_bubble_outline,
+            Icon(searching ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
                 size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(searching ? t.aichatNoSearchResults : t.aichatNoChats,
@@ -1117,7 +1117,7 @@ class _HistorySheetState extends State<_HistorySheet> {
         return ListTile(
           selected: active,
           selectedTileColor: scheme.secondaryContainer.withValues(alpha: 0.4),
-          leading: Icon(s.pinned ? Icons.push_pin : Icons.chat_bubble_outline,
+          leading: Icon(s.pinned ? Icons.push_pin_rounded : Icons.chat_bubble_outline_rounded,
               color: s.pinned ? scheme.primary : scheme.onSurfaceVariant),
           title: Text(s.title.isEmpty ? t.aichatUntitled : s.title,
               maxLines: 1, overflow: TextOverflow.ellipsis),

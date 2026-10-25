@@ -73,7 +73,7 @@ class BudgetCard extends StatelessWidget {
               if (rollover)
                 Padding(
                   padding: const EdgeInsets.only(left: Gap.xs),
-                  child: Icon(Icons.autorenew, size: 14, color: scheme.secondary),
+                  child: Icon(Icons.autorenew_rounded, size: 14, color: scheme.secondary),
                 ),
               const SizedBox(width: Gap.sm),
               Text('$pct%',
@@ -99,7 +99,7 @@ class BudgetCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Row(children: [
-                  const Icon(Icons.error_outline, size: 14, color: Brand.danger),
+                  const Icon(Icons.error_outline_rounded, size: 14, color: Brand.danger),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                     child: Text(t.budgetOverBy(tkFmt(line['over_by'])),
@@ -179,7 +179,7 @@ class BudgetTotalHeader extends StatelessWidget {
         if (unbudgeted > 0) ...[
           const SizedBox(height: Gap.md),
           Row(children: [
-            const Icon(Icons.info_outline, size: 14, color: Colors.white70),
+            const Icon(Icons.info_outline_rounded, size: 14, color: Colors.white70),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(

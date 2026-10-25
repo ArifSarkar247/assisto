@@ -61,7 +61,7 @@ class ExamStudentWatch extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
           onPressed: students.length >= 25 ? null : onAdd,
-          icon: const Icon(Icons.person_add_alt, size: 18),
+          icon: const Icon(Icons.person_add_alt_rounded, size: 18),
           label: Text(t.examAddStudent),
         ),
       ),
@@ -74,7 +74,7 @@ class ExamStudentWatch extends StatelessWidget {
             borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.groups_2_outlined,
+            Icon(Icons.groups_2_rounded,
                 size: 16, color: scheme.onSecondaryContainer),
             const SizedBox(width: Gap.xs),
             Expanded(
@@ -127,7 +127,7 @@ class _StudentRow extends StatelessWidget {
       ),
       if (onRemove != null)
         IconButton(
-          icon: const Icon(Icons.close, size: 18),
+          icon: const Icon(Icons.close_rounded, size: 18),
           onPressed: onRemove,
           tooltip: t.examRemoveStudent,
         ),

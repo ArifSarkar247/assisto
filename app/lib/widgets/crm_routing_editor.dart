@@ -45,13 +45,13 @@ class CrmRoutingEditor extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _add(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.crmAddRule),
       ),
       body: ListView(
         padding: const EdgeInsets.all(Gap.md),
         children: [
-          NeedsKeyBanner(t.crmRoutingNote, icon: Icons.alt_route_outlined),
+          NeedsKeyBanner(t.crmRoutingNote, icon: Icons.alt_route_rounded),
           const SizedBox(height: Gap.sm),
           if (rules.isEmpty)
             Padding(

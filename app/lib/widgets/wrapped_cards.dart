@@ -297,7 +297,7 @@ class WrappedTrend extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Row(
           children: [
-            Icon(up ? Icons.trending_up : Icons.trending_down,
+            Icon(up ? Icons.trending_up_rounded : Icons.trending_down_rounded,
                 color: Colors.white, size: 44),
             const SizedBox(width: Gap.sm),
             Text(

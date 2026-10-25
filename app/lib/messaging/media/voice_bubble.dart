@@ -72,7 +72,7 @@ class VoiceNoteBody extends StatelessWidget {
                   IconButton(
                     key: const Key('md1-voice-play'),
                     tooltip: playing ? t.md1Pause : t.md1Play,
-                    icon: Icon(playing ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                    icon: Icon(playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
                         size: 36, color: fg),
                     onPressed: path == null
                         ? null

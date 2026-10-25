@@ -40,7 +40,7 @@ class CmDisclosure extends StatelessWidget {
             height: 72,
             decoration: const BoxDecoration(
                 shape: BoxShape.circle, gradient: Brand.gradient),
-            child: const Icon(Icons.contacts_outlined,
+            child: const Icon(Icons.contacts_rounded,
                 color: Colors.white, size: 36),
           ),
         ),
@@ -52,24 +52,24 @@ class CmDisclosure extends StatelessWidget {
         // The four prominent disclosure facts (why / sent / never-stored /
         // control) — Play requires a clear in-context disclosure before the
         // runtime permission prompt.
-        _fact(context, Icons.help_outline, 'cmDiscWhyTitle', 'cmDiscWhyBody',
+        _fact(context, Icons.help_outline_rounded, 'cmDiscWhyTitle', 'cmDiscWhyBody',
             scheme.primary),
-        _fact(context, Icons.lock_outline, 'cmDiscSendTitle', 'cmDiscSendBody',
+        _fact(context, Icons.lock_outline_rounded, 'cmDiscSendTitle', 'cmDiscSendBody',
             scheme.primary),
-        _fact(context, Icons.delete_outline, 'cmDiscStoreTitle',
+        _fact(context, Icons.delete_outline_rounded, 'cmDiscStoreTitle',
             'cmDiscStoreBody', Brand.success),
-        _fact(context, Icons.tune, 'cmDiscControlTitle', 'cmDiscControlBody',
+        _fact(context, Icons.tune_rounded, 'cmDiscControlTitle', 'cmDiscControlBody',
             scheme.primary),
         const SizedBox(height: Gap.sm),
         TextButton.icon(
           onPressed: onPrivacy,
-          icon: const Icon(Icons.shield_outlined, size: 18),
+          icon: const Icon(Icons.shield_rounded, size: 18),
           label: Text(cmLabel(context, 'cmPrivacyLearnMore')),
         ),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           onPressed: onAllow,
-          icon: const Icon(Icons.verified_user_outlined),
+          icon: const Icon(Icons.verified_user_rounded),
           label: Text(t.msgrContactsAllow),
         ),
         const SizedBox(height: Gap.xs),
@@ -117,7 +117,7 @@ Future<void> showCmPrivacyExplainer(BuildContext context) {
       Widget step(String key) => Padding(
             padding: const EdgeInsets.only(bottom: Gap.md),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.check_circle_outline,
+              Icon(Icons.check_circle_outline_rounded,
                   size: 20, color: Brand.success),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -135,7 +135,7 @@ Future<void> showCmPrivacyExplainer(BuildContext context) {
               height: 56,
               decoration:
                   const BoxDecoration(shape: BoxShape.circle, gradient: Brand.gradient),
-              child: const Icon(Icons.shield_outlined,
+              child: const Icon(Icons.shield_rounded,
                   color: Colors.white, size: 28),
             ),
             const SizedBox(height: Gap.md),
@@ -199,7 +199,7 @@ class CmLoading extends StatelessWidget {
           ],
           const SizedBox(height: Gap.md),
           Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.lock_outline, size: 14, color: scheme.primary),
+            Icon(Icons.lock_outline_rounded, size: 14, color: scheme.primary),
             const SizedBox(width: 4),
             Text(cmLabel(context, 'cmDiscSendTitle'),
                 style: TextStyle(color: scheme.primary, fontSize: 12)),
@@ -335,7 +335,7 @@ class CmInviteCardView extends StatelessWidget {
           padding: const EdgeInsets.all(Gap.lg),
           decoration: const BoxDecoration(gradient: Brand.gradient),
           child: Row(children: [
-            const Icon(Icons.auto_awesome, color: Colors.white),
+            const Icon(Icons.auto_awesome_rounded, color: Colors.white),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
@@ -359,7 +359,7 @@ class CmInviteCardView extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             if (card.hasReferral) ...[
               Row(children: [
-                Icon(Icons.card_giftcard, size: 18, color: scheme.primary),
+                Icon(Icons.card_giftcard_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(
@@ -381,17 +381,17 @@ class CmInviteCardView extends StatelessWidget {
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               FilledButton.icon(
                 onPressed: onShare,
-                icon: const Icon(Icons.ios_share, size: 18),
+                icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(t.msgrInviteShareLink),
               ),
               OutlinedButton.icon(
                 onPressed: onSms,
-                icon: const Icon(Icons.sms_outlined, size: 18),
+                icon: const Icon(Icons.sms_rounded, size: 18),
                 label: Text(t.msgrInviteSms),
               ),
               TextButton.icon(
                 onPressed: onCopy,
-                icon: const Icon(Icons.link, size: 18),
+                icon: const Icon(Icons.link_rounded, size: 18),
                 label: Text(cmLabel(context, 'cmInviteCopyLink')),
               ),
             ]),
@@ -400,13 +400,13 @@ class CmInviteCardView extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   onPressed: onSeeReferral,
-                  icon: const Icon(Icons.stars_outlined, size: 18),
+                  icon: const Icon(Icons.stars_rounded, size: 18),
                   label: Text(cmLabel(context, 'cmInviteCardSeeReferral')),
                 ),
               ),
             // own-SIM honesty note
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.info_outline,
+              Icon(Icons.info_outline_rounded,
                   size: 14, color: scheme.onSurfaceVariant),
               const SizedBox(width: 4),
               Expanded(

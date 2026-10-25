@@ -51,13 +51,13 @@ class ChatCard extends StatelessWidget {
     // this type today; if it ever does, show it as information only — never
     // buttons that pretend to act.
     if (c['type'] == 'approval') {
-      return _actionCard(context, c, Icons.verified_user_outlined, const []);
+      return _actionCard(context, c, Icons.verified_user_rounded, const []);
     }
     if (c['type'] == 'music') {
-      return _actionCard(context, c, Icons.music_note, [
+      return _actionCard(context, c, Icons.music_note_rounded, [
         FilledButton.icon(
             onPressed: () => _launch(context, c['youtube'] ?? ''),
-            icon: const Icon(Icons.play_arrow, size: 18),
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
             label: const Text('YouTube')),
         if (c['spotify'] != null)
           OutlinedButton(
@@ -66,32 +66,32 @@ class ChatCard extends StatelessWidget {
       ]);
     }
     if (c['type'] == 'navigate') {
-      return _actionCard(context, c, Icons.navigation_outlined, [
+      return _actionCard(context, c, Icons.navigation_rounded, [
         FilledButton.icon(
             onPressed: () => _launch(context, c['maps'] ?? ''),
-            icon: const Icon(Icons.map_outlined, size: 18),
+            icon: const Icon(Icons.map_rounded, size: 18),
             label: Text(t.open)),
       ]);
     }
     if (c['type'] == 'call') {
       final phone = (c['phone'] ?? '').toString();
-      return _actionCard(context, c, Icons.call, [
+      return _actionCard(context, c, Icons.call_rounded, [
         FilledButton.icon(
             onPressed:
                 phone.isEmpty ? null : () => _launch(context, 'tel:$phone', external: false),
-            icon: const Icon(Icons.call, size: 18),
+            icon: const Icon(Icons.call_rounded, size: 18),
             label: Text(t.call)),
       ]);
     }
     if (c['type'] == 'nearby') {
-      return _actionCard(context, c, Icons.place_outlined, [
+      return _actionCard(context, c, Icons.place_rounded, [
         FilledButton.icon(
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (_) => NearbyScreen(
                         placeType: c['place_type'] ?? 'restaurant'))),
-            icon: const Icon(Icons.search, size: 18),
+            icon: const Icon(Icons.search_rounded, size: 18),
             label: Text(t.open)),
       ]);
     }
@@ -127,7 +127,7 @@ class ChatCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton.icon(
               onPressed: () => onUndo!(c),
-              icon: const Icon(Icons.undo, size: 16),
+              icon: const Icon(Icons.undo_rounded, size: 16),
               label: Text(t.undo),
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
             ),

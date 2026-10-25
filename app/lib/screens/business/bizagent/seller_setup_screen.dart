@@ -162,7 +162,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
                 padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md),
                 child: FilledButton.icon(
                   onPressed: _saving ? null : _save,
-                  icon: const Icon(Icons.save_outlined),
+                  icon: const Icon(Icons.save_rounded),
                   label: Text(t.baSaveSettings),
                 ),
               ),
@@ -174,7 +174,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -187,7 +187,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.baDeliveryTitle,
-        icon: Icons.local_shipping_outlined,
+        icon: Icons.local_shipping_rounded,
         child: Column(children: [
           _money(_inside, t.baDeliveryInside),
           const SizedBox(height: Gap.sm),
@@ -199,7 +199,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.baPoliciesTitle,
-        icon: Icons.policy_outlined,
+        icon: Icons.policy_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(
             controller: _returns,
@@ -244,7 +244,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     final kill = (_s['kill'] as Map?) ?? const {};
     return BizCard(
       title: t.baChannelsTitle,
-      icon: Icons.hub_outlined,
+      icon: Icons.hub_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.baChannelsBody, style: const TextStyle(height: 1.4)),
         const SizedBox(height: Gap.sm),
@@ -259,7 +259,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             ),
         ]),
         const SizedBox(height: Gap.sm),
-        BizNote(text: t.baOfficialOnly, icon: Icons.verified_outlined),
+        BizNote(text: t.baOfficialOnly, icon: Icons.verified_rounded),
       ]),
     );
   }
@@ -286,7 +286,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         ),
         IconButton(
           tooltip: t.baDisconnect,
-          icon: const Icon(Icons.link_off),
+          icon: const Icon(Icons.link_off_rounded),
           onPressed: () => _disconnect((c['id'] as num).toInt()),
         ),
       ]),
@@ -348,18 +348,18 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     final low = ((c['low_stock'] as List?) ?? const []).cast<Map>();
     return BizCard(
       title: t.baCatalogTitle,
-      icon: Icons.inventory_2_outlined,
+      icon: Icons.inventory_2_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(bd(context, t.baCatalogLine(n, (c['priced'] as num?)?.toInt() ?? 0,
             (c['in_stock'] as num?)?.toInt() ?? 0))),
         if (n == 0) ...[
           const SizedBox(height: Gap.sm),
-          BizNote(text: t.baCatalogEmpty, icon: Icons.warning_amber_outlined, tint: AssistoTokens.of(context).warning),
+          BizNote(text: t.baCatalogEmpty, icon: Icons.warning_amber_rounded, tint: AssistoTokens.of(context).warning),
         ],
         if (missing.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
           BizNote(text: bd(context, t.baCatalogMissingPrice(missing.join(', '))),
-              icon: Icons.warning_amber_outlined, tint: AssistoTokens.of(context).warning),
+              icon: Icons.warning_amber_rounded, tint: AssistoTokens.of(context).warning),
         ],
         if (low.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
@@ -368,7 +368,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             Text(bd(context, t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0))),
         ],
         const SizedBox(height: Gap.sm),
-        BizNote(text: t.baCatalogTruth, icon: Icons.price_check_outlined),
+        BizNote(text: t.baCatalogTruth, icon: Icons.price_check_rounded),
       ]),
     );
   }
@@ -376,7 +376,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
   Widget _aiCard(AppLocalizations t) {
     return BizCard(
       title: t.baAiTitle,
-      icon: Icons.smart_toy_outlined,
+      icon: Icons.smart_toy_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.baTone, style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
@@ -401,12 +401,12 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             OutlinedButton.icon(
               onPressed: () => _pickTime(true),
-              icon: const Icon(Icons.schedule, size: 18),
+              icon: const Icon(Icons.schedule_rounded, size: 18),
               label: Text(bd(context, t.baHoursFrom(_hm(_start)))),
             ),
             OutlinedButton.icon(
               onPressed: () => _pickTime(false),
-              icon: const Icon(Icons.schedule, size: 18),
+              icon: const Icon(Icons.schedule_rounded, size: 18),
               label: Text(bd(context, t.baHoursTo(_hm(_end)))),
             ),
           ]),
@@ -429,7 +429,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
           title: Text(t.baDailyReport),
           onChanged: (v) => setState(() => _daily = v),
         ),
-        BizNote(text: t.baRiskyNote, icon: Icons.shield_outlined),
+        BizNote(text: t.baRiskyNote, icon: Icons.shield_rounded),
       ]),
     );
   }
@@ -438,7 +438,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     final cs = (_s['couriers'] as Map?) ?? const {};
     return BizCard(
       title: t.baCouriersTitle,
-      icon: Icons.local_shipping_outlined,
+      icon: Icons.local_shipping_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.baCouriersBody, style: const TextStyle(height: 1.4)),
         for (final c in _courierFields.keys)
@@ -651,7 +651,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
                 onPressed: _busy ? null : _go, child: Text(t.baConnectCheck)),
           ),
           const SizedBox(height: Gap.sm),
-          BizNote(text: t.baTokenSafe, icon: Icons.lock_outline),
+          BizNote(text: t.baTokenSafe, icon: Icons.lock_outline_rounded),
         ]),
       ),
     );

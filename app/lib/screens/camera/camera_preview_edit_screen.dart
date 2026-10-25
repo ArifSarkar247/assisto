@@ -184,7 +184,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           tooltip: t.close,
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -193,13 +193,13 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
             : [
                 IconButton(
                   tooltip: t.camCrop,
-                  icon: const Icon(Icons.crop_rotate),
+                  icon: const Icon(Icons.crop_rotate_rounded),
                   onPressed: _cropRotate,
                 ),
                 IconButton(
                   tooltip: t.camDraw,
                   icon: Icon(
-                    Icons.brush_outlined,
+                    Icons.brush_rounded,
                     color: _tool == _EditTool.draw ? Brand.cyan : Colors.white,
                   ),
                   onPressed: () => setState(() => _tool =
@@ -207,7 +207,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
                 ),
                 IconButton(
                   tooltip: t.camAddText,
-                  icon: const Icon(Icons.title),
+                  icon: const Icon(Icons.title_rounded),
                   onPressed: _addText,
                 ),
               ],
@@ -228,7 +228,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.movie_outlined,
+            Icon(Icons.movie_rounded,
                 size: 72, color: Colors.white.withValues(alpha: 0.8)),
             const SizedBox(height: Gap.md),
             Text(t.camVideoReady,
@@ -337,7 +337,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
           if (_tool == _EditTool.draw && _strokes.isNotEmpty)
             IconButton(
               tooltip: _t.camUndo,
-              icon: const Icon(Icons.undo, color: Colors.white),
+              icon: const Icon(Icons.undo_rounded, color: Colors.white),
               onPressed: () => setState(() => _strokes.removeLast()),
             ),
         ],
@@ -373,7 +373,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
             FloatingActionButton(tooltip: AppLocalizations.of(context).send,
               heroTag: 'cam_send',
               onPressed: _send,
-              child: const Icon(Icons.send),
+              child: const Icon(Icons.send_rounded),
             ),
           ],
         ),

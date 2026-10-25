@@ -126,14 +126,14 @@ Color priorityColor(BuildContext c, String p) {
 IconData priorityIcon(String p) {
   switch (p) {
     case kPriorityUrgent:
-      return Icons.priority_high;
+      return Icons.priority_high_rounded;
     case kPriorityHigh:
-      return Icons.keyboard_double_arrow_up;
+      return Icons.keyboard_double_arrow_up_rounded;
     case kPriorityLow:
-      return Icons.keyboard_arrow_down;
+      return Icons.keyboard_arrow_down_rounded;
     case kPriorityNormal:
     default:
-      return Icons.drag_handle;
+      return Icons.drag_handle_rounded;
   }
 }
 

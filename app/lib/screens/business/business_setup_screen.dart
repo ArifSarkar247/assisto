@@ -47,19 +47,19 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
   (IconData, String) _typeMeta(AppLocalizations t, String type) {
     switch (type) {
       case 'online_seller':
-        return (Icons.shopping_bag_outlined, t.bizTypeOnlineSeller);
+        return (Icons.shopping_bag_rounded, t.bizTypeOnlineSeller);
       case 'small_shop':
-        return (Icons.storefront_outlined, t.bizTypeSmallShop);
+        return (Icons.storefront_rounded, t.bizTypeSmallShop);
       case 'service':
-        return (Icons.handyman_outlined, t.bizTypeService);
+        return (Icons.handyman_rounded, t.bizTypeService);
       case 'food':
-        return (Icons.restaurant_outlined, t.bizTypeFood);
+        return (Icons.restaurant_rounded, t.bizTypeFood);
       case 'wholesaler':
-        return (Icons.warehouse_outlined, t.bizTypeWholesaler);
+        return (Icons.warehouse_rounded, t.bizTypeWholesaler);
       case 'b2b':
-        return (Icons.business_center_outlined, t.bizTypeB2b);
+        return (Icons.business_center_rounded, t.bizTypeB2b);
       default:
-        return (Icons.store_outlined, t.business);
+        return (Icons.store_rounded, t.business);
     }
   }
 
@@ -152,7 +152,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
                 labelText: t.businessNameLabel,
-                prefixIcon: const Icon(Icons.badge_outlined)),
+                prefixIcon: const Icon(Icons.badge_rounded)),
           ),
           const SizedBox(height: Gap.md),
 
@@ -162,7 +162,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
               decoration: InputDecoration(
                   labelText: t.businessDeliveryLabel,
                   helperText: t.businessDeliveryHelp,
-                  prefixIcon: const Icon(Icons.local_shipping_outlined)),
+                  prefixIcon: const Icon(Icons.local_shipping_rounded)),
             ),
             const SizedBox(height: Gap.md),
           ],
@@ -212,7 +212,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.check),
+                  : const Icon(Icons.check_rounded),
               label: Text(t.businessCreate),
             ),
           ),

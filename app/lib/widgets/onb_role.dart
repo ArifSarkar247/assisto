@@ -28,22 +28,22 @@ class OnbRoleStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final items = <(OnbRole, IconData, String, String)>[
-      (OnbRole.self, Icons.person_outline, t.onbRoleSelf, t.onbRoleSelfSub),
+      (OnbRole.self, Icons.person_outline_rounded, t.onbRoleSelf, t.onbRoleSelfSub),
       (
         OnbRole.parent,
-        Icons.elderly_outlined,
+        Icons.elderly_rounded,
         t.onbRoleParent,
         t.onbRoleParentSub
       ),
       (
         OnbRole.family,
-        Icons.diversity_1_outlined,
+        Icons.diversity_1_rounded,
         t.onbRoleFamily,
         t.onbRoleFamilySub
       ),
       (
         OnbRole.business,
-        Icons.storefront_outlined,
+        Icons.storefront_rounded,
         t.onbRoleBusiness,
         t.onbRoleBusinessSub
       ),
@@ -53,7 +53,7 @@ class OnbRoleStep extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
         OnbHeader(
-          icon: Icons.waving_hand_outlined,
+          icon: Icons.waving_hand_rounded,
           title: t.onbWhoTitle,
           subtitle: t.onbWhoSub,
           iconSize: 72,

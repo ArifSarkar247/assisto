@@ -192,13 +192,13 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.paProjTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paProjLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ),
       );
@@ -266,18 +266,18 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
       appBar: AppBar(title: Text(t.paProjTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openProjectEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.paProjNewProject),
       ),
       body: projects.isEmpty
           ? StateMessage(
-              icon: Icons.account_tree_outlined,
+              icon: Icons.account_tree_rounded,
               tint: Brand.blue,
               title: t.paProjWelcomeTitle,
               message: t.paProjWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _openProjectEditor(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.paProjNewProject),
               ),
             )
@@ -344,7 +344,7 @@ class _PortfolioCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.insights_outlined, size: 18, color: scheme.primary),
+            Icon(Icons.insights_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.paProjPortfolioTitle,
@@ -405,7 +405,7 @@ class _AiSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome_outlined,
+          Icon(Icons.auto_awesome_rounded,
               size: 20, color: scheme.tertiary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -506,7 +506,7 @@ class _ProjectCard extends StatelessWidget {
                   ),
                   IconButton(
                       visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      icon: const Icon(Icons.edit_rounded, size: 20),
                       tooltip: t.edit,
                       onPressed: onEdit),
                 ]),
@@ -704,7 +704,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
 
                   // ---- milestones ----
                   _SectionHeader(
-                      icon: Icons.flag_outlined,
+                      icon: Icons.flag_rounded,
                       label: t.paProjMilestonesHeader,
                       onAdd: () => _editMilestone()),
                   if (milestones.isNotEmpty)
@@ -741,7 +741,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
 
                   // ---- risks / issues ----
                   _SectionHeader(
-                      icon: Icons.warning_amber_outlined,
+                      icon: Icons.warning_amber_rounded,
                       label: t.paProjRisksHeader,
                       onAdd: () => _editRisk()),
                   if (_risks.isEmpty)
@@ -814,15 +814,15 @@ class _MilestoneTile extends StatelessWidget {
     switch (status) {
       case 'done':
         sc = Brand.success;
-        icon = Icons.check_circle_outline;
+        icon = Icons.check_circle_outline_rounded;
         break;
       case 'missed':
         sc = scheme.error;
-        icon = Icons.cancel_outlined;
+        icon = Icons.cancel_rounded;
         break;
       default:
         sc = Brand.warning;
-        icon = Icons.radio_button_unchecked;
+        icon = Icons.radio_button_unchecked_rounded;
     }
     final date = '${milestone['date'] ?? ''}'.trim();
     return ListTile(
@@ -875,7 +875,7 @@ class _RiskTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: Icon(Icons.report_problem_outlined, color: sc),
+      leading: Icon(Icons.report_problem_rounded, color: sc),
       title: Text('${risk['label'] ?? ''}',
           maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text('$sevLabel · $statusText',
@@ -908,7 +908,7 @@ class _SectionHeader extends StatelessWidget {
               style:
                   AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
           onPressed: onAdd),
     ]);
@@ -1262,7 +1262,7 @@ class _DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
-      icon: const Icon(Icons.event, size: 18),
+      icon: const Icon(Icons.event_rounded, size: 18),
       label: Align(
         alignment: Alignment.centerLeft,
         child: Text(value.isEmpty ? label : '$label: $value'),

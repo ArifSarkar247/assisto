@@ -148,7 +148,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.card_giftcard_outlined, color: Brand.warning),
+            const Icon(Icons.card_giftcard_rounded, color: Brand.warning),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanSalamiTitle,
@@ -157,7 +157,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
             ),
             IconButton(
               tooltip: t.ramadanSalamiAdd,
-              icon: const Icon(Icons.add_circle_outline),
+              icon: const Icon(Icons.add_circle_outline_rounded),
               onPressed: _add,
             ),
           ]),
@@ -185,7 +185,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
                 contentPadding: EdgeInsets.zero,
                 dense: true,
                 leading: Icon(
-                    recv ? Icons.south_west : Icons.north_east,
+                    recv ? Icons.south_west_rounded : Icons.north_east_rounded,
                     color: recv ? Brand.blue : Brand.warning,
                     size: 18),
                 title: Text(it.name.isEmpty ? '—' : it.name),
@@ -196,7 +196,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
                   Text(_money(it.amount),
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(Icons.close_rounded, size: 16),
                     onPressed: () => _remove(e.key),
                   ),
                 ]),

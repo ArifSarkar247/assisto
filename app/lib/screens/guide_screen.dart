@@ -154,13 +154,13 @@ class _GuideScreenState extends State<GuideScreen> {
           ? const SkeletonList()
           : (_error || _data == null)
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: tr.guideErrorBody,
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(tr.retry),
                   ),
                 )
@@ -181,12 +181,12 @@ class _GuideScreenState extends State<GuideScreen> {
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
             hintText: tr.guideSearchHint,
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
-                    icon: const Icon(Icons.clear),
+                    icon: const Icon(Icons.clear_rounded),
                     tooltip: tr.guideClear,
                     onPressed: () {
                       _searchCtrl.clear();
@@ -214,7 +214,7 @@ class _GuideScreenState extends State<GuideScreen> {
             ),
             _chip(
               label: tr.guideSaved,
-              icon: Icons.bookmark,
+              icon: Icons.bookmark_rounded,
               selected: _onlySaved,
               onTap: () => setState(() {
                 _onlySaved = !_onlySaved;
@@ -239,7 +239,7 @@ class _GuideScreenState extends State<GuideScreen> {
       // ---- offline / cache banner (honest) ----
       if (_fromCache)
         _Banner(
-          icon: Icons.offline_bolt_outlined,
+          icon: Icons.offline_bolt_rounded,
           text: tr.guideOfflineBanner,
           action: context.watch<AppState>().online ? tr.retry : null,
           onAction: _load,
@@ -290,8 +290,8 @@ class _GuideScreenState extends State<GuideScreen> {
           constraints: BoxConstraints(minHeight: c.maxHeight),
           child: StateMessage(
             icon: _onlySaved
-                ? Icons.bookmark_border
-                : (searching ? Icons.search_off : Icons.description_outlined),
+                ? Icons.bookmark_border_rounded
+                : (searching ? Icons.search_off_rounded : Icons.description_rounded),
             title: _onlySaved
                 ? tr.guideNoSavedTitle
                 : (searching ? tr.guideNoResultsTitle : tr.guideWelcomeTitle),
@@ -308,7 +308,7 @@ class _GuideScreenState extends State<GuideScreen> {
                         _onlySaved = false;
                       });
                     },
-                    icon: const Icon(Icons.clear_all),
+                    icon: const Icon(Icons.clear_all_rounded),
                     label: Text(tr.guideClearFilters),
                   )
                 : null,
@@ -385,7 +385,7 @@ class _DisclaimerStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Icon(Icons.verified_outlined, size: 15, color: scheme.tertiary),
+      Icon(Icons.verified_rounded, size: 15, color: scheme.tertiary),
       const SizedBox(width: 6),
       Expanded(
         child: Text(text,

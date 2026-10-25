@@ -94,15 +94,15 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
       };
 
   IconData _cardIcon(String id) => switch (id) {
-        'prayer' => Icons.mosque_outlined,
-        'weather' => Icons.wb_cloudy_outlined,
-        'currency' => Icons.currency_exchange,
-        'gold' => Icons.diamond_outlined,
-        'fuel' => Icons.local_gas_station_outlined,
-        'news_bd' => Icons.newspaper,
-        'news_world' => Icons.public,
-        'cricket' => Icons.sports_cricket,
-        _ => Icons.sports_soccer,
+        'prayer' => Icons.mosque_rounded,
+        'weather' => Icons.wb_cloudy_rounded,
+        'currency' => Icons.currency_exchange_rounded,
+        'gold' => Icons.diamond_rounded,
+        'fuel' => Icons.local_gas_station_rounded,
+        'news_bd' => Icons.newspaper_rounded,
+        'news_world' => Icons.public_rounded,
+        'cricket' => Icons.sports_cricket_rounded,
+        _ => Icons.sports_soccer_rounded,
       };
 
   Future<void> _customize() async {
@@ -207,20 +207,20 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         IconButton(
           tooltip: t.uwCustomize,
           onPressed: _data == null ? null : _customize,
-          icon: const Icon(Icons.tune),
+          icon: const Icon(Icons.tune_rounded),
         ),
       ]),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)),
                 )
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
@@ -236,14 +236,14 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
       children: [
         if (_fromCache) ...[
-          UwNote(icon: Icons.offline_bolt_outlined, text: t.uwCachedCopy),
+          UwNote(icon: Icons.offline_bolt_rounded, text: t.uwCachedCopy),
           const SizedBox(height: Gap.sm),
         ],
         if ('${city['name'] ?? ''}'.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(children: [
-              Icon(Icons.place_outlined,
+              Icon(Icons.place_rounded,
                   size: 18, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Text('${city['name']}',
@@ -254,7 +254,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xl),
             child: StateMessage(
-                icon: Icons.dashboard_customize_outlined,
+                icon: Icons.dashboard_customize_rounded,
                 title: t.uwNoCardsTitle,
                 message: t.uwNoCardsBody),
           ),

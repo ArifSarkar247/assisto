@@ -342,7 +342,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _circleButton(
-                      icon: Icons.close,
+                      icon: Icons.close_rounded,
                       tooltip: t.close,
                       onTap: () => Navigator.of(context).maybePop(),
                     ),
@@ -408,7 +408,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                       width: 56,
                       height: 56,
                       color: Colors.white12,
-                      child: const Icon(Icons.image_outlined,
+                      child: const Icon(Icons.image_rounded,
                           color: Colors.white54, size: 20),
                     ),
                   ),
@@ -416,7 +416,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                     const Positioned(
                       right: 2,
                       bottom: 2,
-                      child: Icon(Icons.play_circle_fill,
+                      child: Icon(Icons.play_circle_fill_rounded,
                           color: Colors.white, size: 16),
                     ),
                 ],
@@ -466,13 +466,13 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
             mainAxisSize: MainAxisSize.min,
             children: [
               _circleButton(
-                icon: Icons.photo_library_outlined,
+                icon: Icons.photo_library_rounded,
                 tooltip: t.camGallery,
                 onTap: _openGallery,
               ),
               const SizedBox(width: Gap.sm),
               _circleButton(
-                icon: Icons.auto_fix_high_outlined,
+                icon: Icons.auto_fix_high_rounded,
                 tooltip: t.camEnhance,
                 onTap: () => _snack(t.camEnhanceHint),
               ),
@@ -480,7 +480,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
           ),
           _shutter(),
           _circleButton(
-            icon: Icons.cameraswitch_outlined,
+            icon: Icons.cameraswitch_rounded,
             tooltip: t.camSwitch,
             onTap: _switchCamera,
           ),
@@ -543,7 +543,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.fiber_manual_record, color: Brand.danger, size: 12),
+          const Icon(Icons.fiber_manual_record_rounded, color: Brand.danger, size: 12),
           const SizedBox(width: Gap.xs),
           Text('$m:$s',
               style: AType.bodyMedium.copyWith(color: Colors.white)),
@@ -577,11 +577,11 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   IconData _flashIcon() {
     switch (_flash) {
       case FlashMode.always:
-        return Icons.flash_on;
+        return Icons.flash_on_rounded;
       case FlashMode.auto:
-        return Icons.flash_auto;
+        return Icons.flash_auto_rounded;
       default:
-        return Icons.flash_off;
+        return Icons.flash_off_rounded;
     }
   }
 }

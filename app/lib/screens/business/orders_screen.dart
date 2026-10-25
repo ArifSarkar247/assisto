@@ -105,7 +105,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: tr.bizLoadFailed,
         message: _error,
         action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -113,7 +113,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
     if (_orders.isEmpty) {
       return StateMessage(
-          icon: Icons.receipt_long_outlined, title: tr.noOrdersYet);
+          icon: Icons.receipt_long_rounded, title: tr.noOrdersYet);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -242,7 +242,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           for (final c in const ['pathao', 'steadfast', 'redx'])
             ListTile(
-              leading: const Icon(Icons.local_shipping_outlined),
+              leading: const Icon(Icons.local_shipping_rounded),
               title: Text(_courierName(c)),
               onTap: () => Navigator.pop(ctx, c),
             ),
@@ -288,7 +288,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ? const SkeletonList()
             : _error != null
                 ? StateMessage(
-                    icon: Icons.cloud_off_outlined,
+                    icon: Icons.cloud_off_rounded,
                     title: tr.bizLoadFailed,
                     message: _error,
                     action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
@@ -309,7 +309,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       // Parcel status line ("where is my parcel?").
       BizCard(
         title: tr.bizParcelStatus,
-        icon: Icons.local_shipping_outlined,
+        icon: Icons.local_shipping_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             BizStatusChip(label: statusChipLabel(tr, _status), color: statusColor(_status)),
@@ -337,7 +337,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       // Items.
       BizCard(
         title: tr.bizItems,
-        icon: Icons.inventory_2_outlined,
+        icon: Icons.inventory_2_rounded,
         child: Column(children: [
           for (final it in items)
             Padding(
@@ -356,7 +356,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ]),
           if (cod) ...[
             const SizedBox(height: Gap.sm),
-            BizNote(text: tr.bizCodCollect(_takaFmt(context, _order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: AssistoTokens.of(context).warning),
+            BizNote(text: tr.bizCodCollect(_takaFmt(context, _order['cod_amount'] ?? _order['total'])), icon: Icons.payments_rounded, tint: AssistoTokens.of(context).warning),
           ],
         ]),
       ),
@@ -370,21 +370,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final isTerminal = _status == 'delivered' || _status == 'returned' || _status == 'cancelled';
     return BizCard(
       title: tr.bizUpdateStatus,
-      icon: Icons.sync_alt,
+      icon: Icons.sync_alt_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (next != null)
           FilledButton.icon(
             onPressed: _busy
                 ? null
                 : () => next == 'shipped' ? _ship() : _advance(next),
-            icon: const Icon(Icons.arrow_forward),
+            icon: const Icon(Icons.arrow_forward_rounded),
             label: Text(tr.bizAdvanceTo(statusLabel(tr, next))),
           ),
         if (_status == 'shipped') ...[
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             onPressed: _busy ? null : () => _advance('returned'),
-            icon: const Icon(Icons.undo),
+            icon: const Icon(Icons.undo_rounded),
             label: Text(tr.bizMarkReturned),
           ),
         ],

@@ -342,24 +342,24 @@ IconData actionIcon(String? a) {
   switch (a) {
     case 'remind_gentle':
     case 'heads_up':
-      return Icons.notifications_none;
+      return Icons.notifications_none_rounded;
     case 'remind_firm':
     case 'due_today':
-      return Icons.notifications_active_outlined;
+      return Icons.notifications_active_rounded;
     case 'final_notice':
     case 'final_warning':
-      return Icons.priority_high;
+      return Icons.priority_high_rounded;
     case 'escalate_owner':
-      return Icons.campaign_outlined;
+      return Icons.campaign_rounded;
     case 'pause_service':
-      return Icons.pause_circle_outline;
+      return Icons.pause_circle_outline_rounded;
     case 'overdue':
-      return Icons.error_outline;
+      return Icons.error_outline_rounded;
     case 'pay_key':
     case 'pay_manual':
-      return Icons.account_balance_wallet_outlined;
+      return Icons.account_balance_wallet_rounded;
     default:
-      return Icons.notifications_none;
+      return Icons.notifications_none_rounded;
   }
 }
 
@@ -398,11 +398,11 @@ String channelLabel(AppLocalizations t, String? c) {
 IconData channelIcon(String? c) {
   switch (c) {
     case 'whatsapp_share':
-      return Icons.chat_bubble_outline;
+      return Icons.chat_bubble_outline_rounded;
     case 'sms':
-      return Icons.sms_outlined;
+      return Icons.sms_rounded;
     default:
-      return Icons.notifications_none;
+      return Icons.notifications_none_rounded;
   }
 }
 

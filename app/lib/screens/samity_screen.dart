@@ -114,20 +114,20 @@ class _SamityScreenState extends State<SamityScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _addOrEditGroup(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.samityNew),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh_rounded),
                     label: Text(t.retry),
                   ),
                 )
@@ -140,12 +140,12 @@ class _SamityScreenState extends State<SamityScreen> {
       return ListView(children: [
         const SizedBox(height: Gap.xxl),
         StateMessage(
-          icon: Icons.groups_2_outlined,
+          icon: Icons.groups_2_rounded,
           title: t.samityEmptyTitle,
           message: t.samityEmptyBody,
           action: FilledButton.icon(
             onPressed: () => _addOrEditGroup(),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.samityNew),
           ),
         ),
@@ -205,7 +205,7 @@ class _SamityCard extends StatelessWidget {
             Row(children: [
               CircleAvatar(
                 backgroundColor: Brand.blue.withValues(alpha: 0.15),
-                child: const Icon(Icons.groups_2, color: Brand.blue),
+                child: const Icon(Icons.groups_2_rounded, color: Brand.blue),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -227,11 +227,11 @@ class _SamityCard extends StatelessWidget {
             ]),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              _chip(context, Icons.payments_outlined,
+              _chip(context, Icons.payments_rounded,
                   t.samityPerMemberChip(taka(context, per))),
-              _chip(context, Icons.people_outline,
+              _chip(context, Icons.people_outline_rounded,
                   t.samityMembersChip(fmtInt(context, active.length))),
-              _chip(context, Icons.event_repeat, _periodLabel(t, group['period'])),
+              _chip(context, Icons.event_repeat_rounded, _periodLabel(t, group['period'])),
             ]),
           ]),
         ),
@@ -399,7 +399,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.volunteer_activism_outlined),
+        icon: const Icon(Icons.volunteer_activism_rounded),
         title: Text(t.samityRecordPayoutTitle),
         // (cycle, name): generated signature order
         content: Text(t.samityRecordPayoutBody(
@@ -442,13 +442,13 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)),
                 )
               : RefreshIndicator(onRefresh: _load, child: _body(t)),
@@ -461,12 +461,12 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
       return ListView(children: [
         const SizedBox(height: Gap.xxl),
         StateMessage(
-          icon: Icons.person_add_alt_1_outlined,
+          icon: Icons.person_add_alt_1_rounded,
           title: t.samityNeedMembersTitle,
           message: t.samityNeedMembersBody,
           action: FilledButton.icon(
             onPressed: _addMember,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.samityAddMember),
           ),
         ),
@@ -534,7 +534,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
           ),
           TextButton.icon(
             onPressed: _addMember,
-            icon: const Icon(Icons.person_add_alt, size: 18),
+            icon: const Icon(Icons.person_add_alt_rounded, size: 18),
             label: Text(t.samityAddMember),
           ),
         ]),
@@ -591,7 +591,7 @@ class _CyclePicker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        IconButton(tooltip: MaterialLocalizations.of(context).previousPageTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
+        IconButton(tooltip: MaterialLocalizations.of(context).previousPageTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left_rounded)),
         Expanded(
           child: Text(
             t.samityCycleOf(fmtInt(context, cycle), fmtInt(context, total)),
@@ -599,7 +599,7 @@ class _CyclePicker extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
-        IconButton(tooltip: MaterialLocalizations.of(context).nextPageTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right)),
+        IconButton(tooltip: MaterialLocalizations.of(context).nextPageTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right_rounded)),
       ]),
     );
   }
@@ -679,7 +679,7 @@ class _PayoutCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.redeem,
+        Icon(Icons.redeem_rounded,
             color: done ? Brand.success : scheme.secondary, size: 28),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -698,7 +698,7 @@ class _PayoutCard extends StatelessWidget {
           StatusPill(
               text: t.samityHandedOver,
               color: Brand.success,
-              icon: Icons.check_circle)
+              icon: Icons.check_circle_rounded)
         else
           FilledButton.tonal(
             onPressed: onRecord,
@@ -741,7 +741,7 @@ class _MemberRow extends StatelessWidget {
               ),
               if (isRecipient) ...[
                 const SizedBox(width: 6),
-                Icon(Icons.star, size: 14, color: scheme.secondary),
+                Icon(Icons.star_rounded, size: 14, color: scheme.secondary),
               ],
             ]),
             Text(
@@ -754,7 +754,7 @@ class _MemberRow extends StatelessWidget {
         ),
         IconButton(
           onPressed: onRemove,
-          icon: Icon(Icons.close, size: 18, color: scheme.onSurfaceVariant),
+          icon: Icon(Icons.close_rounded, size: 18, color: scheme.onSurfaceVariant),
           tooltip: t.delete,
         ),
       ]),
@@ -791,7 +791,7 @@ class _RotationList extends StatelessWidget {
               ),
               if (samityPayoutDone(payouts, i + 1))
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.check_circle,
+                  const Icon(Icons.check_circle_rounded,
                       size: 15, color: Brand.success),
                   const SizedBox(width: Gap.xs),
                   Text(t.samityReceived,
@@ -913,7 +913,7 @@ class _OfflineBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off, size: 16, color: Brand.warning),
+        const Icon(Icons.wifi_off_rounded, size: 16, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,

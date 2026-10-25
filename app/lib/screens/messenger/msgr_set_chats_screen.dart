@@ -137,13 +137,13 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
           const Divider(),
           MsgrSetSection(t.msgrSetChatsBackupSection),
           MsgrSetRow(
-            icon: Icons.backup_outlined,
+            icon: Icons.backup_rounded,
             title: t.msgrSetChatBackup,
             subtitle: t.msgrSetChatBackupSub,
             onTap: _openBackup,
           ),
           MsgrSetRow(
-            icon: Icons.restore_outlined,
+            icon: Icons.restore_rounded,
             title: t.msgrSetChatRestore,
             subtitle: t.msgrSetChatRestoreSub,
             onTap: _openRestore,
@@ -151,7 +151,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
           const Divider(),
           MsgrSetSection(t.msgrSetChatsHistorySection),
           MsgrSetRow(
-            icon: Icons.delete_sweep_outlined,
+            icon: Icons.delete_sweep_rounded,
             title: t.msgrSetChatHistoryClear,
             subtitle: t.msgrSetChatHistoryClearSub,
             onTap: _clearHistory,

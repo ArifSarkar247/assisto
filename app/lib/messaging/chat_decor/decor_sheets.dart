@@ -96,7 +96,7 @@ class ChatThemeSheet extends StatelessWidget {
           const SizedBox(height: Gap.md),
           _ActionRow(
             key: const Key('cde-theme-photo'),
-            icon: Icons.photo_outlined,
+            icon: Icons.photo_rounded,
             title: t.cdeThemeFromPhoto,
             subtitle: t.cdeThemeFromPhotoHint,
             locked: !premium,
@@ -106,7 +106,7 @@ class ChatThemeSheet extends StatelessWidget {
           if (aiAvailable)
             _ActionRow(
               key: const Key('cde-theme-ai'),
-              icon: Icons.auto_awesome_outlined,
+              icon: Icons.auto_awesome_rounded,
               title: t.cdeThemeAiCreate,
               subtitle: aiCredits.isEmpty ? t.cdeThemeAiFaceLock : t.cdeThemeAiHint(aiCredits),
               locked: !premium,
@@ -161,7 +161,7 @@ class _Tile extends StatelessWidget {
                       Positioned(
                         right: 6,
                         top: 6,
-                        child: _Badge(icon: Icons.lock_outline, text: t.premium),
+                        child: _Badge(icon: Icons.lock_outline_rounded, text: t.premium),
                       ),
                     if (selected)
                       Positioned(
@@ -170,7 +170,7 @@ class _Tile extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 11,
                           backgroundColor: scheme.primary,
-                          child: Icon(Icons.check, size: 15, color: scheme.onPrimary),
+                          child: Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary),
                         ),
                       ),
                   ],
@@ -252,10 +252,10 @@ class _ActionRow extends StatelessWidget {
       trailing: locked
           ? Chip(
               visualDensity: VisualDensity.compact,
-              avatar: const Icon(Icons.lock_outline, size: 14),
+              avatar: const Icon(Icons.lock_outline_rounded, size: 14),
               label: Text(t.premium),
             )
-          : (selected ? Icon(Icons.check_circle, color: scheme.primary) : null),
+          : (selected ? Icon(Icons.check_circle_rounded, color: scheme.primary) : null),
       onTap: onTap,
     );
   }
@@ -347,7 +347,7 @@ class NicknamesSheet extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: const Icon(Icons.edit_outlined),
+              trailing: const Icon(Icons.edit_rounded),
               onTap: () => Navigator.pop(context, r),
             ),
         ],
@@ -419,7 +419,7 @@ Future<String?> showAiThemePrompt(BuildContext context, {required String credits
           Text(t.cdeThemeAiHint(credits), style: const TextStyle(height: 1.3)),
           const SizedBox(height: Gap.xs),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.verified_user_outlined,
+            Icon(Icons.verified_user_rounded,
                 size: 16, color: Theme.of(ctx).colorScheme.primary),
             const SizedBox(width: Gap.xs),
             Expanded(child: Text(t.cdeThemeAiFaceLock, style: const TextStyle(height: 1.3))),

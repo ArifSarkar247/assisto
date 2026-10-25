@@ -106,7 +106,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
             ListTile(title: Text(tr.vehBtPick, style: Theme.of(ctx).textTheme.titleMedium)),
             for (final d in devices)
               ListTile(
-                leading: const Icon(Icons.bluetooth),
+                leading: const Icon(Icons.bluetooth_rounded),
                 title: Text(d['name']!.isEmpty ? d['address']! : d['name']!,
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text(d['address']!),
@@ -159,7 +159,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
     if (dtc.isEmpty) {
       return ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.check_circle, color: Brand.success),
+        leading: const Icon(Icons.check_circle_rounded, color: Brand.success),
         title: Text(tr.vehNoDtc),
       );
     }
@@ -217,21 +217,21 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                         obd['coolant_temp_c'] == null
                             ? null
                             : tr.vehCelsius(vehNumStr(context, vehNum(obd['coolant_temp_c'])!)),
-                        Icons.thermostat),
+                        Icons.thermostat_rounded),
                     _metric(tr.vehBattery,
                         vehNum(_tracker!['battery_v']) == null
                             ? null
                             : tr.vehVolts(vehNumStr(context, vehNum(_tracker!['battery_v'])!,
                                 decimals: 1)),
-                        Icons.battery_charging_full),
+                        Icons.battery_charging_full_rounded),
                     _metric(tr.vehFuel,
                         obd['fuel_level_pct'] == null
                             ? null
                             : tr.vehPercent(vehNumStr(context, vehNum(obd['fuel_level_pct'])!)),
-                        Icons.local_gas_station),
+                        Icons.local_gas_station_rounded),
                     _metric(tr.vehRpm,
                         obd['rpm'] == null ? null : vehNumStr(context, vehNum(obd['rpm'])!),
-                        Icons.speed),
+                        Icons.speed_rounded),
                     const SizedBox(height: Gap.xs),
                     Text(tr.vehDtcTitle, style: Theme.of(context).textTheme.labelLarge),
                     _dtcList(vehList(_tracker!['dtc'])),
@@ -257,7 +257,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.bluetooth_searching),
+                      : const Icon(Icons.bluetooth_searching_rounded),
                   label: Text(_btBusy ? tr.vehBtReading : tr.vehBtRead),
                 ),
                 if (_btMsg != null) ...[
@@ -271,21 +271,21 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                       bt.coolantC == null
                           ? null
                           : tr.vehCelsius(vehNumStr(context, bt.coolantC!)),
-                      Icons.thermostat),
+                      Icons.thermostat_rounded),
                   _metric(
                       tr.vehBattery,
                       bt.batteryV == null
                           ? null
                           : tr.vehVolts(vehNumStr(context, bt.batteryV!, decimals: 1)),
-                      Icons.battery_charging_full),
+                      Icons.battery_charging_full_rounded),
                   _metric(
                       tr.vehFuel,
                       bt.fuelPct == null
                           ? null
                           : tr.vehPercent(vehNumStr(context, bt.fuelPct!)),
-                      Icons.local_gas_station),
+                      Icons.local_gas_station_rounded),
                   _metric(tr.vehRpm, bt.rpm == null ? null : vehNumStr(context, bt.rpm!),
-                      Icons.speed),
+                      Icons.speed_rounded),
                   const SizedBox(height: Gap.xs),
                   Text(tr.vehDtcTitle, style: Theme.of(context).textTheme.labelLarge),
                   _dtcList(_btDtc.isNotEmpty || bt.dtcs.isEmpty

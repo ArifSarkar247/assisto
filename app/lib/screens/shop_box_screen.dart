@@ -176,7 +176,7 @@ class _UpsellBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
       children: [
-        Icon(Icons.storefront_outlined, size: 56, color: scheme.primary),
+        Icon(Icons.storefront_rounded, size: 56, color: scheme.primary),
         const SizedBox(height: Gap.md),
         Text(t.shopBoxUpsellTitle,
             textAlign: TextAlign.center,
@@ -189,17 +189,17 @@ class _UpsellBody extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.lg),
-        _bullet(context, Icons.privacy_tip_outlined, t.shopBoxWhatSignals),
-        _bullet(context, Icons.notifications_active_outlined,
+        _bullet(context, Icons.privacy_tip_rounded, t.shopBoxWhatSignals),
+        _bullet(context, Icons.notifications_active_rounded,
             t.shopBoxWhatAlerts),
-        _bullet(context, Icons.assessment_outlined, t.shopBoxWhatReport),
+        _bullet(context, Icons.assessment_rounded, t.shopBoxWhatReport),
         const SizedBox(height: Gap.lg),
         Card(
           color: scheme.surfaceContainerHighest,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(Icons.verified_outlined, size: 20, color: scheme.primary),
+              Icon(Icons.verified_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.shopBoxUpsellPlanNote,
@@ -211,7 +211,7 @@ class _UpsellBody extends StatelessWidget {
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: onSeePlans,
-          icon: const Icon(Icons.workspace_premium_outlined),
+          icon: const Icon(Icons.workspace_premium_rounded),
           label: Text(t.shopBoxSeePlans),
         ),
       ],
@@ -282,7 +282,7 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
     color: scheme.surfaceContainerHighest,
     padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
     child: Row(children: [
-      Icon(Icons.store_outlined, size: 16, color: scheme.onSurfaceVariant),
+      Icon(Icons.store_rounded, size: 16, color: scheme.onSurfaceVariant),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(
@@ -300,7 +300,7 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
 Widget _noSiteState(BuildContext context) {
   final t = AppLocalizations.of(context);
   return StateMessage(
-    icon: Icons.store_mall_directory_outlined,
+    icon: Icons.store_mall_directory_rounded,
     title: t.shopBoxNoSiteTitle,
     message: t.shopBoxNoSiteBody,
   );
@@ -407,13 +407,13 @@ class _SitesTab extends StatelessWidget {
     if (loading) return const SkeletonList();
     if (error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: t.shopBoxSitesLoadError,
         action: FilledButton.tonalIcon(
             onPressed: onReload,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
@@ -421,16 +421,16 @@ class _SitesTab extends StatelessWidget {
       return Scaffold(
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _createSite(context),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(t.shopBoxAddSite),
         ),
         body: StateMessage(
-          icon: Icons.storefront_outlined,
+          icon: Icons.storefront_rounded,
           title: t.shopBoxSitesEmptyTitle,
           message: t.shopBoxSitesEmptyBody,
           action: FilledButton.icon(
             onPressed: () => _createSite(context),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(t.shopBoxAddSite),
           ),
         ),
@@ -439,7 +439,7 @@ class _SitesTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createSite(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.shopBoxAddSite),
       ),
       body: RefreshIndicator(
@@ -468,11 +468,11 @@ class _SitesTab extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        leading: Icon(Icons.phone_android, color: scheme.primary),
+        leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
         title: Text(t.shopModeEntryTitle,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(t.shopModeEntrySub, maxLines: 2, overflow: TextOverflow.ellipsis),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
       ),
@@ -498,7 +498,7 @@ class _SitesTab extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.privacy_tip_outlined, size: 18, color: scheme.primary),
+          Icon(Icons.privacy_tip_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.shopBoxPrivacyNote,
@@ -537,7 +537,7 @@ class _SitesTab extends StatelessWidget {
                 Row(children: [
                   CircleAvatar(
                     backgroundColor: scheme.primaryContainer,
-                    child: Icon(Icons.storefront_outlined,
+                    child: Icon(Icons.storefront_rounded,
                         color: scheme.onPrimaryContainer),
                   ),
                   const SizedBox(width: Gap.md),
@@ -561,7 +561,7 @@ class _SitesTab extends StatelessWidget {
                         ]),
                   ),
                   if (selected)
-                    Icon(Icons.check_circle, color: scheme.primary, size: 20),
+                    Icon(Icons.check_circle_rounded, color: scheme.primary, size: 20),
                 ]),
                 const SizedBox(height: Gap.xs),
                 ShopSeenPill(row: s),
@@ -569,12 +569,12 @@ class _SitesTab extends StatelessWidget {
                 Wrap(spacing: Gap.xs, children: [
                   TextButton.icon(
                     onPressed: () => _editSite(context, s),
-                    icon: const Icon(Icons.vpn_key_outlined, size: 18),
+                    icon: const Icon(Icons.vpn_key_rounded, size: 18),
                     label: Text(t.shopBoxEditAndToken),
                   ),
                   TextButton.icon(
                     onPressed: () => _editHours(context, s),
-                    icon: const Icon(Icons.schedule, size: 18),
+                    icon: const Icon(Icons.schedule_rounded, size: 18),
                     label: Text(t.shopSiteHoursButton),
                   ),
                 ]),
@@ -629,7 +629,7 @@ class _EnrollmentSheet extends StatelessWidget {
                     await Clipboard.setData(ClipboardData(text: token));
                     onToast(t.shopBoxTokenCopied);
                   },
-                  icon: const Icon(Icons.copy),
+                  icon: const Icon(Icons.copy_rounded),
                   label: Text(t.copy),
                 ),
               ),
@@ -872,20 +872,20 @@ class _CamerasTabState extends State<_CamerasTab> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: honestFailText(t, _failCause, otherwise: t.shopBoxCamerasLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addCamera,
-        icon: const Icon(Icons.add_a_photo_outlined),
+        icon: const Icon(Icons.add_a_photo_rounded),
         label: Text(t.shopBoxAddCamera),
       ),
       body: RefreshIndicator(
@@ -902,7 +902,7 @@ class _CamerasTabState extends State<_CamerasTab> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
-                  Icon(Icons.videocam_outlined,
+                  Icon(Icons.videocam_rounded,
                       size: 20, color: scheme.primary),
                   const SizedBox(width: Gap.sm),
                   Expanded(
@@ -920,7 +920,7 @@ class _CamerasTabState extends State<_CamerasTab> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xl),
                 child: StateMessage(
-                  icon: Icons.videocam_off_outlined,
+                  icon: Icons.videocam_off_rounded,
                   title: t.shopBoxCamerasEmptyTitle,
                   message: t.shopBoxCamerasEmptyBody,
                 ),
@@ -950,7 +950,7 @@ class _CamerasTabState extends State<_CamerasTab> {
         onTap: () => _openSettings(c),
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.videocam_outlined,
+          child: Icon(Icons.videocam_rounded,
               color: scheme.onPrimaryContainer),
         ),
         title: Text(name.isEmpty ? t.shopBoxUnnamedCamera : name,
@@ -968,7 +968,7 @@ class _CamerasTabState extends State<_CamerasTab> {
               ShopSeenPill(row: c),
             ]),
         trailing: Icon(
-          enabled ? Icons.tune : Icons.pause_circle_outline,
+          enabled ? Icons.tune_rounded : Icons.pause_circle_outline_rounded,
           color: enabled ? scheme.primary : scheme.onSurfaceVariant,
         ),
       ),
@@ -1102,13 +1102,13 @@ class _AlertsTabState extends State<_AlertsTab> {
             ? const SkeletonList()
             : _error
                 ? StateMessage(
-                    icon: Icons.cloud_off,
+                    icon: Icons.cloud_off_rounded,
                     tint: scheme.error,
                     title: t.loadFailed,
                     message: honestFailText(t, _failCause, otherwise: t.shopBoxAlertsLoadError),
                     action: FilledButton.tonalIcon(
                         onPressed: _load,
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Icons.refresh_rounded),
                         label: Text(t.retry)),
                   )
                 : RefreshIndicator(
@@ -1117,7 +1117,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                         ? ListView(children: [
                             const SizedBox(height: Gap.xxl),
                             StateMessage(
-                              icon: Icons.notifications_none,
+                              icon: Icons.notifications_none_rounded,
                               tint: AssistoTokens.of(context).success,
                               title: t.shopBoxAlertsEmptyTitle,
                               message: t.shopBoxAlertsEmptyBody,
@@ -1183,7 +1183,7 @@ class _AlertsTabState extends State<_AlertsTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.photo_camera_outlined,
+                Icon(Icons.photo_camera_rounded,
                     color: scheme.primary, size: 22),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -1222,7 +1222,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                       height: 160,
                       color: scheme.surfaceContainerHighest,
                       alignment: Alignment.center,
-                      child: Icon(Icons.image_not_supported_outlined,
+                      child: Icon(Icons.image_not_supported_rounded,
                           color: scheme.onSurfaceVariant),
                     ),
                     loadingBuilder: (c, child, p) => p == null
@@ -1241,12 +1241,12 @@ class _AlertsTabState extends State<_AlertsTab> {
                 Builder(builder: (context) {
                   final checked = FilledButton.tonalIcon(
                     onPressed: () => _mark(e, 'checked'),
-                    icon: const Icon(Icons.check, size: 18),
+                    icon: const Icon(Icons.check_rounded, size: 18),
                     label: Text(t.shopBoxMarkChecked),
                   );
                   final falseAlarm = OutlinedButton.icon(
                     onPressed: () => _mark(e, 'false_alarm'),
-                    icon: const Icon(Icons.not_interested, size: 18),
+                    icon: const Icon(Icons.not_interested_rounded, size: 18),
                     label: Text(t.shopBoxMarkFalseAlarm),
                   );
                   // large font: stack full-width so labels stay on one line
@@ -1335,13 +1335,13 @@ class _ReportTabState extends State<_ReportTab> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: t.loadFailed,
         message: honestFailText(t, _failCause, otherwise: t.shopBoxReportLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry)),
       );
     }
@@ -1367,12 +1367,12 @@ class _ReportTabState extends State<_ReportTab> {
           Card(
             margin: EdgeInsets.zero,
             child: ListTile(
-              leading: Icon(Icons.point_of_sale_outlined, color: scheme.primary),
+              leading: Icon(Icons.point_of_sale_rounded, color: scheme.primary),
               title: Text(t.shopEodTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: Text(t.shopEodEntrySub, maxLines: 2,
                   overflow: TextOverflow.ellipsis),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => ShopEodScreen(
                       siteId: widget.site!['id'] as int,
@@ -1428,7 +1428,7 @@ class _ReportTabState extends State<_ReportTab> {
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline,
+                      Icon(Icons.info_outline_rounded,
                           size: 18, color: scheme.onSurfaceVariant),
                       const SizedBox(width: Gap.sm),
                       Expanded(

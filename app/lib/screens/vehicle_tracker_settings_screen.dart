@@ -327,12 +327,12 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           for (final f in _fences)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.radio_button_checked, color: Brand.purple),
+              leading: const Icon(Icons.radio_button_checked_rounded, color: Brand.purple),
               title: Text('${f['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(tr.vehMeters(vehNumStr(context, vehInt(f['radius_m']) ?? 300))),
               trailing: IconButton(
                 tooltip: tr.delete,
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(Icons.delete_outline_rounded),
                 onPressed: () => setState(() => _fences = [..._fences]..remove(f)),
               ),
             ),
@@ -340,7 +340,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
               onPressed: _fences.length >= 10 ? null : _addFenceHere,
-              icon: const Icon(Icons.add_location_alt_outlined),
+              icon: const Icon(Icons.add_location_alt_rounded),
               label: Text(tr.vehFenceAddHere),
             ),
           ),
@@ -402,12 +402,12 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           for (final g in _grants)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(g['can_command'] == true ? Icons.admin_panel_settings : Icons.visibility),
+              leading: Icon(g['can_command'] == true ? Icons.admin_panel_settings_rounded : Icons.visibility_rounded),
               title: Text('${g['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(g['can_command'] == true ? tr.vehShareCanControl : tr.vehShareViewOnly),
               trailing: IconButton(
                 tooltip: tr.vehShareRevoke,
-                icon: const Icon(Icons.person_remove_outlined),
+                icon: const Icon(Icons.person_remove_rounded),
                 onPressed: () => _revoke(g['id'] as int),
               ),
             ),
@@ -415,7 +415,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
               onPressed: _addGrant,
-              icon: const Icon(Icons.person_add_alt),
+              icon: const Icon(Icons.person_add_alt_rounded),
               label: Text(tr.vehShareCta),
             ),
           ),
@@ -423,7 +423,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
             onPressed: _remove,
-            icon: const Icon(Icons.link_off),
+            icon: const Icon(Icons.link_off_rounded),
             label: Text(tr.vehRemoveTitle),
           ),
           const SizedBox(height: Gap.xl),

@@ -63,7 +63,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
         const SizedBox(height: Gap.sm),
         OutlinedButton.icon(
           onPressed: _shareImage,
-          icon: const Icon(Icons.image_outlined),
+          icon: const Icon(Icons.image_rounded),
           label: Text(famLabel(context, 'famProbashiShareCard')),
         ),
       ],
@@ -78,7 +78,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.public, color: Colors.white),
+            const Icon(Icons.public_rounded, color: Colors.white),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(famLabel(context, 'famProbashiTitle'),
@@ -168,7 +168,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.schedule_outlined, size: 18),
+            const Icon(Icons.schedule_rounded, size: 18),
             const SizedBox(width: Gap.sm),
             Text(famLabel(context, 'famProbashiCallsTitle'),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -184,7 +184,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
             for (final utc in slots) _slotRow(utc, scheme),
           const SizedBox(height: Gap.xs),
           Row(children: [
-            Icon(Icons.info_outline, size: 14, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 14, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(famLabel(context, 'famProbashiScheduleNote'),
@@ -204,7 +204,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: const Icon(Icons.call_outlined, size: 18),
+      leading: const Icon(Icons.call_rounded, size: 18),
       title: Text('${famLabel(context, 'famProbashiMyTime')} ${hm(my)}'
           '  ·  ${famLabel(context, 'famProbashiBdTime')} ${hm(bd)}'),
       trailing: TextButton(
@@ -249,7 +249,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.volunteer_activism_outlined, size: 18),
+            const Icon(Icons.volunteer_activism_rounded, size: 18),
             const SizedBox(width: Gap.sm),
             Text(famLabel(context, 'famProbashiRemitTitle'),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -291,7 +291,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
             alignment: Alignment.centerLeft,
             child: FilledButton.tonalIcon(
               onPressed: () => setState(() => _lastSent = DateTime.now()),
-              icon: const Icon(Icons.check, size: 18),
+              icon: const Icon(Icons.check_rounded, size: 18),
               label: Text(famLabel(context, 'famProbashiRemitMarkSent')),
             ),
           ),
@@ -304,7 +304,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Row(children: [
-              const Icon(Icons.account_balance_wallet_outlined,
+              const Icon(Icons.account_balance_wallet_rounded,
                   size: 16, color: Brand.warning),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -340,7 +340,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.lg)),
           ),
           child: Row(children: [
-            const Icon(Icons.public, color: Colors.white),
+            const Icon(Icons.public_rounded, color: Colors.white),
             const SizedBox(width: Gap.md),
             Text(famLabel(context, 'famProbashiTitle'),
                 style: const TextStyle(
@@ -363,7 +363,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
                         fontWeight: FontWeight.w700)),
               ]),
             ),
-            const Icon(Icons.swap_horiz, color: Colors.black38),
+            const Icon(Icons.swap_horiz_rounded, color: Colors.black38),
             Expanded(
               child: Column(children: [
                 Text(famLabel(context, 'famProbashiBdTime'),

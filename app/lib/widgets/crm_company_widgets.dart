@@ -99,7 +99,7 @@ class PrimaryContactBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.star, size: 14, color: Brand.warning),
+      const Icon(Icons.star_rounded, size: 14, color: Brand.warning),
       const SizedBox(width: 3),
       Text(t.crmPrimary,
           style: const TextStyle(
@@ -138,7 +138,7 @@ class CrmTagChip extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.sell_outlined,
+            Icon(Icons.sell_rounded,
                 size: 13, color: selected ? Colors.white : c),
             const SizedBox(width: 4),
             Text(name,
@@ -219,21 +219,21 @@ class CrmSectionHeader extends StatelessWidget {
 IconData activityKindIcon(String? kind) {
   switch (kind) {
     case 'call':
-      return Icons.call_outlined;
+      return Icons.call_rounded;
     case 'meeting':
-      return Icons.groups_outlined;
+      return Icons.groups_rounded;
     case 'task':
-      return Icons.check_circle_outline;
+      return Icons.check_circle_outline_rounded;
     case 'email':
-      return Icons.mail_outline;
+      return Icons.mail_outline_rounded;
     case 'whatsapp':
-      return Icons.chat_outlined;
+      return Icons.chat_rounded;
     case 'stage':
-      return Icons.timeline_outlined;
+      return Icons.timeline_rounded;
     case 'system':
-      return Icons.settings_suggest_outlined;
+      return Icons.settings_suggest_rounded;
     default:
-      return Icons.sticky_note_2_outlined;
+      return Icons.sticky_note_2_rounded;
   }
 }
 

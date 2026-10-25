@@ -50,7 +50,7 @@ class _FamCardSectionState extends State<FamCardSection> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.badge_outlined,
+            Icon(Icons.badge_rounded,
                 size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
             Text(famLabel(context, 'famCardEmpty'),
@@ -87,17 +87,17 @@ class _FamCardSectionState extends State<FamCardSection> {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
             onPressed: _shareImage,
-            icon: const Icon(Icons.image_outlined),
+            icon: const Icon(Icons.image_rounded),
             label: Text(famLabel(context, 'famCardShareImage')),
           ),
           OutlinedButton.icon(
             onPressed: _shareImage, // print/export = same PNG the user can save/print
-            icon: const Icon(Icons.print_outlined),
+            icon: const Icon(Icons.print_rounded),
             label: Text(famLabel(context, 'famCardPrint')),
           ),
           OutlinedButton.icon(
             onPressed: _editEmergency,
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_rounded),
             label: Text(famLabel(context, 'famCardEditEmergency')),
           ),
         ]),
@@ -130,7 +130,7 @@ class _FamCardSectionState extends State<FamCardSection> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(Radii.lg)),
           ),
           child: Row(children: [
-            const Icon(Icons.family_restroom, color: Colors.white),
+            const Icon(Icons.family_restroom_rounded, color: Colors.white),
             const SizedBox(width: Gap.md),
             Text(famLabel(context, 'famCardMyFamily'),
                 style: const TextStyle(
@@ -177,7 +177,7 @@ class _FamCardSectionState extends State<FamCardSection> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(children: [
-        Icon(Icons.person_outline, size: 18, color: sub),
+        Icon(Icons.person_outline_rounded, size: 18, color: sub),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

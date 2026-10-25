@@ -172,13 +172,13 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.tnTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.tnLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -189,7 +189,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
       // empty state has its own CTA: no duplicate FAB
       floatingActionButton: _notes.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openEditor(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.tnAddNote),
       ),
       body: _notes.isEmpty
@@ -205,7 +205,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
                   const SizedBox(height: Gap.md),
                   TextField(
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search_rounded),
                       hintText: tr.tnSearchHint,
                       border: const OutlineInputBorder(),
                       isDense: true,
@@ -217,7 +217,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: Gap.xl),
                       child: StateMessage(
-                        icon: Icons.search_off,
+                        icon: Icons.search_off_rounded,
                         title: tr.tnNoResultsTitle,
                         message: tr.tnNoResultsBody,
                       ),
@@ -248,7 +248,7 @@ class _Welcome extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.lg),
       children: [
         const SizedBox(height: Gap.xl),
-        Icon(Icons.graphic_eq, size: 56, color: scheme.primary),
+        Icon(Icons.graphic_eq_rounded, size: 56, color: scheme.primary),
         const SizedBox(height: Gap.md),
         Text(tr.tnWelcomeTitle,
             textAlign: TextAlign.center,
@@ -266,7 +266,7 @@ class _Welcome extends StatelessWidget {
         Center(
           child: FilledButton.icon(
             onPressed: onAdd,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.tnAddNote),
           ),
         ),
@@ -342,7 +342,7 @@ class _SttSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome, size: 20, color: scheme.secondary),
+          Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(
@@ -383,7 +383,7 @@ class _NoteCard extends StatelessWidget {
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.mic_none, color: scheme.onPrimaryContainer),
+          child: Icon(Icons.mic_none_rounded, color: scheme.onPrimaryContainer),
         ),
         title: Text('${note['title'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -393,11 +393,11 @@ class _NoteCard extends StatelessWidget {
             const SizedBox(height: Gap.xxs),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               if (dur > 0)
-                _Chip(icon: Icons.schedule, label: _fmtDuration(dur)),
-              if (date.isNotEmpty) _Chip(icon: Icons.event, label: date),
+                _Chip(icon: Icons.schedule_rounded, label: _fmtDuration(dur)),
+              if (date.isNotEmpty) _Chip(icon: Icons.event_rounded, label: date),
               if (hasTranscript)
                 _Chip(
-                  icon: source == 'auto' ? Icons.auto_awesome : Icons.edit_note,
+                  icon: source == 'auto' ? Icons.auto_awesome_rounded : Icons.edit_note_rounded,
                   label: source == 'auto'
                       ? tr.tnSourceAuto
                       : tr.tnSourceManual,
@@ -405,7 +405,7 @@ class _NoteCard extends StatelessWidget {
                 )
               else
                 _Chip(
-                    icon: Icons.pending_outlined,
+                    icon: Icons.pending_rounded,
                     label: tr.tnNoTranscript,
                     tint: scheme.onSurfaceVariant),
             ]),
@@ -419,7 +419,7 @@ class _NoteCard extends StatelessWidget {
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           tooltip: tr.delete,
           onPressed: onDelete,
         ),

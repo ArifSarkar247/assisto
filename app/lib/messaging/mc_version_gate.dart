@@ -111,7 +111,7 @@ class McUpdateScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.system_update_outlined,
+                Icon(Icons.system_update_rounded,
                     size: 64, color: scheme.primary),
                 const SizedBox(height: Gap.lg),
                 Text(t.t1UpdateTitle,
@@ -126,7 +126,7 @@ class McUpdateScreen extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton.icon(
                     key: const Key('t1-update-now'),
-                    icon: const Icon(Icons.download_outlined),
+                    icon: const Icon(Icons.download_rounded),
                     label: Text(t.t1UpdateButton),
                     onPressed: () => openAssistoUpdate(context),
                   ),
@@ -226,7 +226,7 @@ class _McVersionBannerState extends State<McVersionBanner> {
       return _bar(
         context,
         key: const Key('t1-me-outdated'),
-        icon: Icons.system_update_outlined,
+        icon: Icons.system_update_rounded,
         text: t.t1UpdateTitle,
         action: TextButton(
           onPressed: () => openAssistoUpdate(context),
@@ -241,7 +241,7 @@ class _McVersionBannerState extends State<McVersionBanner> {
     if (peer == null) return const SizedBox.shrink();
     return _bar(context,
         key: const Key('t1-peer-outdated'),
-        icon: Icons.info_outline,
+        icon: Icons.info_outline_rounded,
         text: peer,
         color: scheme.secondaryContainer,
         onColor: scheme.onSecondaryContainer);

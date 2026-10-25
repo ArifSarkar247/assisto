@@ -61,7 +61,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         child: ListView(children: [
           const SizedBox(height: 80),
           CrmStateView.empty(
-              icon: Icons.wb_sunny_outlined,
+              icon: Icons.wb_sunny_rounded,
               title: t.crmTodayClear,
               message: t.crmTodayClearHint),
         ]),
@@ -72,7 +72,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         if (high.isNotEmpty) ...[
-          _header(t.crmTodayHotLeads, Icons.local_fire_department_outlined, Theme.of(context).colorScheme.error),
+          _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.error),
           for (final l in high)
             Card(
               child: ListTile(
@@ -89,11 +89,11 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (fu.isNotEmpty) ...[
-          _header(t.crmTodayFollowups, Icons.event_outlined, AssistoTokens.of(context).warning),
+          _header(t.crmTodayFollowups, Icons.event_rounded, AssistoTokens.of(context).warning),
           for (final l in fu)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.schedule),
+                leading: const Icon(Icons.schedule_rounded),
                 title: Text(l['name']?.toString().isNotEmpty == true
                     ? l['name']
                     : (l['company'] ?? t.crmLead)),
@@ -104,11 +104,11 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (overdue.isNotEmpty) ...[
-          _header(t.crmTodayOverdueSteps, Icons.warning_amber_outlined, Theme.of(context).colorScheme.error),
+          _header(t.crmTodayOverdueSteps, Icons.warning_amber_rounded, Theme.of(context).colorScheme.error),
           for (final s in overdue)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.flag_outlined),
+                leading: const Icon(Icons.flag_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text('${s['next_step']} · ${t.crmDue}: ${_date(s['due'])}'),
                 trailing: _rescheduleAction(t, s),
@@ -117,11 +117,11 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (missing.isNotEmpty) ...[
-          _header(t.crmTodayMissingStep, Icons.help_outline, scheme.onSurfaceVariant),
+          _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.onSurfaceVariant),
           for (final s in missing)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.remove_circle_outline),
+                leading: const Icon(Icons.remove_circle_outline_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text(t.crmNoNextStep),
                 trailing: _rescheduleAction(t, s),
@@ -130,11 +130,11 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (stuck.isNotEmpty) ...[
-          _header(t.crmTodayStuck, Icons.hourglass_bottom_outlined, AssistoTokens.of(context).warning),
+          _header(t.crmTodayStuck, Icons.hourglass_bottom_rounded, AssistoTokens.of(context).warning),
           for (final s in stuck)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.timelapse),
+                leading: const Icon(Icons.timelapse_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text('${s['stage']} · ${fmtInt(context, (s['days'] as num?)?.toInt() ?? 0)} ${t.crmDaysStuck}'),
                 trailing: _rescheduleAction(t, s),
@@ -186,12 +186,12 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         tooltip: t.crmCall,
-        icon: const Icon(Icons.call),
+        icon: const Icon(Icons.call_rounded),
         onPressed: () => crmQuickCall(context, id, phone),
       ),
       IconButton(
         tooltip: t.cWhatsapp,
-        icon: const Icon(Icons.chat),
+        icon: const Icon(Icons.chat_rounded),
         onPressed: () async {
           final sent = await crmQuickWhatsApp(context, id, _nameOf(l, t));
           if (sent) _load();
@@ -208,7 +208,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
     if (id == null) return null;
     return IconButton(
       tooltip: t.remCalReschedule,
-      icon: const Icon(Icons.event_repeat_outlined),
+      icon: const Icon(Icons.event_repeat_rounded),
       onPressed: () => _reschedule(id),
     );
   }

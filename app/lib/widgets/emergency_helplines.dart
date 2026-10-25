@@ -63,13 +63,13 @@ class EmergencyHelpline {
   }
 
   static const all = <EmergencyHelpline>[
-    EmergencyHelpline('national', '999', Icons.emergency, primary: true),
-    EmergencyHelpline('women_child', '109', Icons.female),
-    EmergencyHelpline('govt_info', '333', Icons.info_outline),
-    EmergencyHelpline('fire', '102', Icons.local_fire_department),
-    EmergencyHelpline('ambulance', '199', Icons.local_hospital),
-    EmergencyHelpline('police', '100', Icons.local_police),
-    EmergencyHelpline('disaster', '1090', Icons.cyclone),
+    EmergencyHelpline('national', '999', Icons.emergency_rounded, primary: true),
+    EmergencyHelpline('women_child', '109', Icons.female_rounded),
+    EmergencyHelpline('govt_info', '333', Icons.info_outline_rounded),
+    EmergencyHelpline('fire', '102', Icons.local_fire_department_rounded),
+    EmergencyHelpline('ambulance', '199', Icons.local_hospital_rounded),
+    EmergencyHelpline('police', '100', Icons.local_police_rounded),
+    EmergencyHelpline('disaster', '1090', Icons.cyclone_rounded),
   ];
 }
 
@@ -118,7 +118,7 @@ class EmergencyHelplineList extends StatelessWidget {
                 minimumSize: const Size(0, 48),
               ),
               onPressed: () => onCall(h.number),
-              icon: const Icon(Icons.call, size: 18),
+              icon: const Icon(Icons.call_rounded, size: 18),
               label: Text(localeDigits(h.number)),
             ),
           ),

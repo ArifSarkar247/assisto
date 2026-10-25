@@ -55,7 +55,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
     }
     if (_groups.isEmpty) {
       return CrmStateView.empty(
-          icon: Icons.verified_outlined,
+          icon: Icons.verified_rounded,
           title: t.crmNoDuplicates,
           message: t.crmNoDuplicatesHint);
     }
@@ -75,7 +75,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.content_copy_outlined, size: 18),
+            const Icon(Icons.content_copy_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Text('${t.crmMatchedOn}: ${g['match_on']}',
                 style: const TextStyle(fontWeight: FontWeight.w800)),
@@ -87,7 +87,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             alignment: Alignment.centerRight,
             child: FilledButton.tonalIcon(
               onPressed: () => _startMerge(t, ids),
-              icon: const Icon(Icons.merge_type),
+              icon: const Icon(Icons.merge_type_rounded),
               label: Text(t.crmMerge),
             ),
           ),
@@ -102,7 +102,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(children: [
-        Icon(Icons.person_outline, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.person_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(
@@ -167,7 +167,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             Text('${t.crmWillDelete}: ${dupIds.map((e) => '#$e').join(', ')}'),
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(safe ? Icons.verified : Icons.error_outline,
+              Icon(safe ? Icons.verified_rounded : Icons.error_outline_rounded,
                   color: safe ? Brand.success : Brand.danger, size: 18),
               const SizedBox(width: Gap.xs),
               Expanded(

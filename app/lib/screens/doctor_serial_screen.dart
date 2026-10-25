@@ -157,13 +157,13 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.doctorSerialTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.doctorLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -189,7 +189,7 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
             ? null
             : FloatingActionButton.extended(
                 onPressed: _add,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.doctorAddAppt),
               ),
         body: TabBarView(children: [
@@ -232,12 +232,12 @@ class _UpcomingTab extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     if (org.upcoming.isEmpty) {
       return StateMessage(
-        icon: Icons.event_available_outlined,
+        icon: Icons.event_available_rounded,
         title: tr.doctorUpcomingWelcomeTitle,
         message: tr.doctorUpcomingWelcomeBody,
         action: FilledButton.icon(
           onPressed: onAdd,
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.doctorAddAppt),
         ),
       );
@@ -270,7 +270,7 @@ class _UpcomingTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.notifications_active_outlined,
+        Icon(Icons.notifications_active_rounded,
             color: scheme.onPrimaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -302,7 +302,7 @@ class _PastTab extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     if (org.past.isEmpty) {
       return StateMessage(
-        icon: Icons.history,
+        icon: Icons.history_rounded,
         title: tr.doctorPastWelcomeTitle,
         message: tr.doctorPastWelcomeBody,
       );
@@ -348,7 +348,7 @@ class _ApptCard extends StatelessWidget {
             Row(children: [
               CircleAvatar(
                 backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.medical_services_outlined,
+                child: Icon(Icons.medical_services_rounded,
                     color: scheme.onPrimaryContainer, size: 20),
               ),
               const SizedBox(width: Gap.sm),
@@ -395,11 +395,11 @@ class _ApptCard extends StatelessWidget {
                 if (appt.reminderDue)
                   _reminderPill(context, tr),
                 if (appt.whenLabel.isNotEmpty)
-                  _meta(context, Icons.schedule, appt.whenLabel),
+                  _meta(context, Icons.schedule_rounded, appt.whenLabel),
                 if (appt.place.isNotEmpty)
-                  _meta(context, Icons.local_hospital_outlined, appt.place),
+                  _meta(context, Icons.local_hospital_rounded, appt.place),
                 if (appt.serial.isNotEmpty)
-                  _meta(context, Icons.confirmation_number_outlined,
+                  _meta(context, Icons.confirmation_number_rounded,
                       tr.doctorSerialNo(appt.serial)),
               ],
             ),
@@ -431,7 +431,7 @@ class _ApptCard extends StatelessWidget {
   Widget _reminderPill(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(Icons.notifications_active_outlined,
+      Icon(Icons.notifications_active_rounded,
           size: 14, color: scheme.primary),
       const SizedBox(width: Gap.xs),
       Text(tr.doctorSoon,
@@ -461,7 +461,7 @@ Widget _trackerNote(BuildContext context, AppLocalizations tr) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.info_outline, size: 18, color: scheme.primary),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(tr.doctorTrackerNote,
@@ -481,7 +481,7 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.link_off, color: scheme.onSurfaceVariant),
+        Icon(Icons.link_off_rounded, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(
@@ -643,7 +643,7 @@ Future<Map<String, dynamic>?> _apptSheet(
                 Expanded(
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.event),
+                    leading: const Icon(Icons.event_rounded),
                     title: Text(tr.doctorDate),
                     subtitle: Text(date == null ? tr.doctorPickDate : d(date!)),
                     onTap: () async {
@@ -660,7 +660,7 @@ Future<Map<String, dynamic>?> _apptSheet(
               ]),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.schedule),
+                leading: const Icon(Icons.schedule_rounded),
                 title: Text(tr.doctorTime),
                 subtitle: Text(time == null ? tr.doctorTimeOptional : t(time!)),
                 trailing: TextButton(

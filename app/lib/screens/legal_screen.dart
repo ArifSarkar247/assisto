@@ -99,13 +99,13 @@ class _LegalScreenState extends State<LegalScreen> {
                             Card(
                               child: ListTile(
                                 leading:
-                                    const Icon(Icons.description_outlined),
+                                    const Icon(Icons.description_rounded),
                                 title: Text(p['title'] as String? ?? ''),
                                 subtitle: Text(
                                   p['stamp'] as String? ?? '',
                                   style: AType.bodySmall,
                                 ),
-                                trailing: const Icon(Icons.chevron_right),
+                                trailing: const Icon(Icons.chevron_right_rounded),
                                 onTap: () => _open(p['key'] as String),
                               ),
                             ),

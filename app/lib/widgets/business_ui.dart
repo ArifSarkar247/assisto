@@ -59,7 +59,7 @@ class BizNote extends StatelessWidget {
   final String text;
   final IconData icon;
   final Color? tint;
-  const BizNote({super.key, required this.text, this.icon = Icons.info_outline, this.tint});
+  const BizNote({super.key, required this.text, this.icon = Icons.info_outline_rounded, this.tint});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class BizMockBanner extends StatelessWidget {
   const BizMockBanner({super.key, required this.text});
   @override
   Widget build(BuildContext context) =>
-      BizNote(text: text, icon: Icons.construction_outlined, tint: Brand.warning);
+      BizNote(text: text, icon: Icons.construction_rounded, tint: Brand.warning);
 }
 
 /// A chip that shows a status with a dot; colour is semantic.
@@ -162,7 +162,7 @@ class BizPremiumGate extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.lg),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Icon(Icons.auto_awesome, color: Colors.white, size: 30),
+          const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 30),
           const SizedBox(height: Gap.md),
           Text(tr.bizPlanPaidTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -175,13 +175,13 @@ class BizPremiumGate extends StatelessWidget {
       const SizedBox(height: Gap.lg),
       BizCard(
         title: tr.bizPlanWhatsIncluded,
-        icon: Icons.workspace_premium_outlined,
+        icon: Icons.workspace_premium_rounded,
         child: Column(children: [
           for (final b in benefits)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.check_circle, size: 18, color: scheme.primary),
+                Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(b, style: const TextStyle(height: 1.4))),
               ]),
@@ -190,11 +190,11 @@ class BizPremiumGate extends StatelessWidget {
       ),
       const SizedBox(height: Gap.md),
       // Honest: pricing is owner-review (placeholder, no invented numbers).
-      BizNote(text: tr.f6BizPlanPriceOnPlans, icon: Icons.sell_outlined), // f6: real prices live on Plans
+      BizNote(text: tr.f6BizPlanPriceOnPlans, icon: Icons.sell_rounded), // f6: real prices live on Plans
       const SizedBox(height: Gap.lg),
       FilledButton.icon(
         onPressed: onUpgrade,
-        icon: const Icon(Icons.arrow_forward),
+        icon: const Icon(Icons.arrow_forward_rounded),
         label: Text(tr.bizPlanUpgradeCta),
       ),
     ]);

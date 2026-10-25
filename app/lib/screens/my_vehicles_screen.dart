@@ -199,7 +199,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
             // v1-vehicle: live GPS tracking of paired hardware trackers
             IconButton(
               tooltip: tr.vehTrackingTitle,
-              icon: const Icon(Icons.gps_fixed),
+              icon: const Icon(Icons.gps_fixed_rounded),
               onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -223,13 +223,13 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     if (_loading) return const SkeletonList();
     if (_error) {
       return StateMessage(
-        icon: Icons.cloud_off,
+        icon: Icons.cloud_off_rounded,
         tint: scheme.error,
         title: tr.loadFailed,
         message: honestFailText(tr, _failCause, otherwise: tr.vehiclesLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry)),
       );
     }
@@ -237,12 +237,12 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       // empty state has its own CTA: no duplicate FAB
       return Scaffold(
         body: StateMessage(
-          icon: Icons.directions_car_outlined,
+          icon: Icons.directions_car_rounded,
           title: tr.vehiclesEmptyTitle,
           message: tr.vehiclesEmptyBody,
           action: FilledButton.icon(
             onPressed: () => _addOrEdit(),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(tr.vehiclesAdd),
           ),
         ),
@@ -251,7 +251,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.vehiclesAdd),
       ),
       body: RefreshIndicator(
@@ -282,8 +282,8 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
               backgroundColor: scheme.primaryContainer,
               child: Icon(
                   isBike
-                      ? Icons.two_wheeler_outlined
-                      : Icons.directions_car_outlined,
+                      ? Icons.two_wheeler_rounded
+                      : Icons.directions_car_rounded,
                   color: scheme.onPrimaryContainer),
             ),
             const SizedBox(width: Gap.md),
@@ -304,12 +304,12 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   ]),
             ),
             IconButton(
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit_rounded),
               tooltip: tr.edit,
               onPressed: () => _addOrEdit(v),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               tooltip: tr.delete,
               onPressed: () => _confirmDelete(v),
             ),
@@ -437,13 +437,13 @@ class _VehicleFormState extends State<_VehicleForm> {
               Wrap(spacing: Gap.sm, children: [
                 ChoiceChip(
                   label: Text(tr.vehiclesTypeCar),
-                  avatar: const Icon(Icons.directions_car_outlined, size: 18),
+                  avatar: const Icon(Icons.directions_car_rounded, size: 18),
                   selected: _type == 'car',
                   onSelected: (_) => setState(() => _type = 'car'),
                 ),
                 ChoiceChip(
                   label: Text(tr.vehiclesTypeBike),
-                  avatar: const Icon(Icons.two_wheeler_outlined, size: 18),
+                  avatar: const Icon(Icons.two_wheeler_rounded, size: 18),
                   selected: _type == 'motorcycle',
                   onSelected: (_) => setState(() => _type = 'motorcycle'),
                 ),
@@ -485,19 +485,19 @@ class _VehicleFormState extends State<_VehicleForm> {
                   style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: Gap.sm),
               OutlinedButton.icon(
-                icon: const Icon(Icons.event, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(_dateLabel(tr.vehiclesTaxToken, _tax, tr)),
                 onPressed: () => _pickDate(_tax, (d) => _tax = d),
               ),
               const SizedBox(height: Gap.sm),
               OutlinedButton.icon(
-                icon: const Icon(Icons.event, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(_dateLabel(tr.vehiclesFitness, _fitness, tr)),
                 onPressed: () => _pickDate(_fitness, (d) => _fitness = d),
               ),
               const SizedBox(height: Gap.sm),
               OutlinedButton.icon(
-                icon: const Icon(Icons.event, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 label: Text(_dateLabel(tr.vehiclesInsurance, _insurance, tr)),
                 onPressed: () => _pickDate(_insurance, (d) => _insurance = d),
               ),
@@ -566,7 +566,7 @@ class _BuyingGuideTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Icon(Icons.info_outline, size: 18, color: scheme.primary),
+                    Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(tr.vehGuideTrackingNow,
@@ -579,7 +579,7 @@ class _BuyingGuideTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const VehicleTrackingScreen())),
-                    icon: const Icon(Icons.gps_fixed),
+                    icon: const Icon(Icons.gps_fixed_rounded),
                     label: Text(tr.vehTrackingTitle),
                   ),
                 ]),
@@ -588,11 +588,11 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(height: Gap.lg),
 
         // SIM GPS vs Bluetooth tag comparison.
-        _header(context, Icons.compare_arrows_outlined, tr.vehiclesCompareTitle),
+        _header(context, Icons.compare_arrows_rounded, tr.vehiclesCompareTitle),
         const SizedBox(height: Gap.sm),
         _compareCard(
           context,
-          icon: Icons.sim_card_outlined,
+          icon: Icons.sim_card_rounded,
           title: tr.vehiclesSimTitle,
           lines: [
             tr.vehiclesSimHow,
@@ -604,7 +604,7 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         _compareCard(
           context,
-          icon: Icons.bluetooth_outlined,
+          icon: Icons.bluetooth_rounded,
           title: tr.vehiclesBtTitle,
           lines: [
             tr.vehiclesBtHow,
@@ -616,7 +616,7 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(height: Gap.lg),
 
         // What to look for checklist.
-        _header(context, Icons.checklist_outlined, tr.vehiclesChecklistTitle),
+        _header(context, Icons.checklist_rounded, tr.vehiclesChecklistTitle),
         const SizedBox(height: Gap.sm),
         _bullet(context, tr.vehiclesCheckCutoff),
         _bullet(context, tr.vehiclesCheckBackupBattery),
@@ -626,7 +626,7 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(height: Gap.lg),
 
         // Installation tips.
-        _header(context, Icons.build_outlined, tr.vehiclesInstallTitle),
+        _header(context, Icons.build_rounded, tr.vehiclesInstallTitle),
         const SizedBox(height: Gap.sm),
         _bullet(context, tr.vehiclesInstallHidden),
         _bullet(context, tr.vehiclesInstallPower),
@@ -634,7 +634,7 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(height: Gap.lg),
 
         // Prices — honest: no hardcoded numbers, just a live search.
-        _header(context, Icons.payments_outlined, tr.vehiclesPriceTitle),
+        _header(context, Icons.payments_rounded, tr.vehiclesPriceTitle),
         const SizedBox(height: Gap.sm),
         Text(tr.vehiclesPriceNote,
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
@@ -642,12 +642,12 @@ class _BuyingGuideTab extends StatelessWidget {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.tonalIcon(
             onPressed: () => _openSearch(tr.vehiclesPriceQueryGps),
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search_rounded),
             label: Text(tr.vehiclesPriceCheckGps),
           ),
           FilledButton.tonalIcon(
             onPressed: () => _openSearch(tr.vehiclesPriceQueryBt),
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search_rounded),
             label: Text(tr.vehiclesPriceCheckBt),
           ),
         ]),
@@ -695,7 +695,7 @@ class _BuyingGuideTab extends StatelessWidget {
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 3, right: Gap.sm),
-                  child: Icon(Icons.chevron_right,
+                  child: Icon(Icons.chevron_right_rounded,
                       size: 15, color: scheme.onSurfaceVariant),
                 ),
                 Expanded(
@@ -712,7 +712,7 @@ class _BuyingGuideTab extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.check_circle_outline, size: 18, color: Brand.success),
+        Icon(Icons.check_circle_outline_rounded, size: 18, color: Brand.success),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,

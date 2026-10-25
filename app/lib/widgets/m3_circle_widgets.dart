@@ -243,7 +243,7 @@ class _RelationSheetState extends State<_RelationSheet> {
             ),
             FilledButton.icon(
               key: const Key('m3-sheet-send'),
-              icon: const Icon(Icons.send),
+              icon: const Icon(Icons.send_rounded),
               label: Text(t.msgrSendRequest),
               onPressed: () {
                 if (_rel == null) {
@@ -334,19 +334,19 @@ class M3InviteButtons extends StatelessWidget {
       FilledButton.tonalIcon(
         key: const Key('m3-invite-sms'),
         onPressed: () => m3Invite(context, M3InviteVia.sms, phone: phone),
-        icon: const Icon(Icons.sms_outlined, size: 18),
+        icon: const Icon(Icons.sms_rounded, size: 18),
         label: Text(t.m3InviteSms),
       ),
       FilledButton.tonalIcon(
         key: const Key('m3-invite-whatsapp'),
         onPressed: () => m3Invite(context, M3InviteVia.whatsapp, phone: phone),
-        icon: const Icon(Icons.chat_outlined, size: 18),
+        icon: const Icon(Icons.chat_rounded, size: 18),
         label: Text(t.m3InviteWhatsapp),
       ),
       OutlinedButton.icon(
         key: const Key('m3-invite-share'),
         onPressed: () => m3Invite(context, M3InviteVia.share, phone: phone),
-        icon: const Icon(Icons.share_outlined, size: 18),
+        icon: const Icon(Icons.share_rounded, size: 18),
         label: Text(t.m3InviteShare),
       ),
     ]);
@@ -389,12 +389,12 @@ class M3NewChatActions extends StatelessWidget {
           onTap: onTap,
         );
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      tile(const Key('m3-new-add'), Icons.person_add_alt_1, t.m3AddToCircle, onAdd),
-      tile(const Key('m3-new-group'), Icons.group_add_outlined,
+      tile(const Key('m3-new-add'), Icons.person_add_alt_1_rounded, t.m3AddToCircle, onAdd),
+      tile(const Key('m3-new-group'), Icons.group_add_rounded,
           t.msgrHubNewGroup, onNewGroup),
-      tile(const Key('m3-new-community'), Icons.groups_2_outlined,
+      tile(const Key('m3-new-community'), Icons.groups_2_rounded,
           t.msgrHubNewCommunity, onNewCommunity),
-      tile(const Key('m3-new-invite'), Icons.share_outlined, t.m3InviteFriend,
+      tile(const Key('m3-new-invite'), Icons.share_rounded, t.m3InviteFriend,
           onInvite),
       const Divider(height: Gap.md),
     ]);
@@ -481,7 +481,7 @@ class M3RequestTile extends StatelessWidget {
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.check, size: 18),
+                          : const Icon(Icons.check_rounded, size: 18),
                       label: Text(t.circleAccept),
                     ),
                   ]
@@ -489,7 +489,7 @@ class M3RequestTile extends StatelessWidget {
                     OutlinedButton.icon(
                       key: Key('m3-cancel-${r['id']}'),
                       onPressed: busy ? null : onCancel,
-                      icon: const Icon(Icons.close, size: 18),
+                      icon: const Icon(Icons.close_rounded, size: 18),
                       label: Text(t.circleCancelRequest),
                     ),
                   ],
@@ -660,7 +660,7 @@ class M3RequestsBannerState extends State<M3RequestsBanner>
           child: Row(children: [
             Badge(
               label: Text('${inc.length}'),
-              child: Icon(Icons.person_add_alt_1, color: scheme.primary),
+              child: Icon(Icons.person_add_alt_1_rounded, color: scheme.primary),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

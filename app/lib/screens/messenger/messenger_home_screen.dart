@@ -312,7 +312,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           // list fallback) so the top-bar camera always does something real.
           IconButton(
             tooltip: t.msgrHubCameraTooltip,
-            icon: const Icon(Icons.photo_camera_outlined),
+            icon: const Icon(Icons.photo_camera_rounded),
             onPressed: _openCamera,
           ),
           // ⋮ hub overflow (exact spec order). Every row navigates somewhere
@@ -324,7 +324,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
             icon: Badge(
               isLabelVisible: _incoming > 0,
               label: Text('$_incoming'),
-              child: const Icon(Icons.more_vert),
+              child: const Icon(Icons.more_vert_rounded),
             ),
             itemBuilder: (_) => [
               // m3-circle: adding people lives INSIDE My Circle.
@@ -395,7 +395,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
               heroTag: 'm3-fab',
               tooltip: t.msgrNewChat,
               onPressed: _openNewChat,
-              child: const Icon(Icons.chat_outlined),
+              child: const Icon(Icons.chat_rounded),
             )
           : null,
       // Clamp text scaling + use a compact label style so all FOUR short
@@ -419,22 +419,22 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
               // UnreadStore (clears the moment a chat is opened).
               NavigationDestination(
                 icon: _chatsBadge(const Icon(Icons.forum_outlined)),
-                selectedIcon: _chatsBadge(const Icon(Icons.forum)),
+                selectedIcon: _chatsBadge(const Icon(Icons.forum_rounded)),
                 label: t.msgrTabChats,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.auto_awesome_outlined),
-                selectedIcon: const Icon(Icons.auto_awesome),
+                selectedIcon: const Icon(Icons.auto_awesome_rounded),
                 label: t.msgrTabUpdates,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.groups_2_outlined),
-                selectedIcon: const Icon(Icons.groups_2),
+                selectedIcon: const Icon(Icons.groups_2_rounded),
                 label: t.msgrTabCommunity,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.call_outlined),
-                selectedIcon: const Icon(Icons.call),
+                selectedIcon: const Icon(Icons.call_rounded),
                 label: t.msgrTabCalls,
               ),
             ],
@@ -472,7 +472,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// honest "setting up encryption" state until the on-device identity exists.
   Widget _updatesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.auto_awesome_outlined, _t.c3KeysNotReady);
+      return _placeholder(Icons.auto_awesome_rounded, _t.c3KeysNotReady);
     }
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
@@ -483,12 +483,12 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: scheme.primaryContainer,
-              child: Icon(Icons.add, color: scheme.onPrimaryContainer),
+              child: Icon(Icons.add_rounded, color: scheme.onPrimaryContainer),
             ),
             title: Text(t.statusTitle),
             trailing: IconButton(
               tooltip: t.discoverTitle,
-              icon: const Icon(Icons.explore_outlined),
+              icon: const Icon(Icons.explore_rounded),
               onPressed: _openDiscover,
             ),
             onTap: _openStatus,
@@ -504,7 +504,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// identity; shows the honest "setting up encryption" state until then.
   Widget _communitiesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.groups_2_outlined, _t.c3KeysNotReady);
+      return _placeholder(Icons.groups_2_rounded, _t.c3KeysNotReady);
     }
     return CommunityListScreen(identity: _identity!);
   }

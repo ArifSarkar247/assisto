@@ -71,26 +71,26 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           if (_status == _Status.ok)
             IconButton(
                 tooltip: t.refresh,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 onPressed: _load),
         ],
       ),
       body: switch (_status) {
         _Status.loading => const SkeletonList(),
         _Status.ownerOnly => StateMessage(
-            icon: Icons.admin_panel_settings_outlined,
+            icon: Icons.admin_panel_settings_rounded,
             title: t.pnlOwnerOnlyTitle,
             message: t.pnlOwnerOnlyBody,
             tint: Brand.warning,
           ),
         _Status.error => StateMessage(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.loadFailed,
             message: t.loadFailedBody,
             tint: Brand.danger,
             action: FilledButton.icon(
                 onPressed: _load,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.retry)),
           ),
         _Status.ok => _body(t),
@@ -136,7 +136,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           const SizedBox(height: Gap.md),
           if (!hasData)
             StateMessage(
-              icon: Icons.insights_outlined,
+              icon: Icons.insights_rounded,
               title: t.pnlEmptyTitle,
               message: t.pnlEmptyBody,
             )
@@ -147,7 +147,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
             _totalsCard(t, totals),
             const SizedBox(height: Gap.lg),
             if (series.isNotEmpty) ...[
-              _sectionTitle(t.pnlDailyTitle, Icons.show_chart, scheme),
+              _sectionTitle(t.pnlDailyTitle, Icons.show_chart_rounded, scheme),
               const SizedBox(height: Gap.sm),
               _chart(scheme, series),
               const SizedBox(height: Gap.lg),
@@ -155,19 +155,19 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
             _breakEvenCard(t, scheme, breakEven),
             if (segments.isNotEmpty) ...[
               const SizedBox(height: Gap.lg),
-              _sectionTitle(t.pnlSegmentsTitle, Icons.pie_chart_outline, scheme),
+              _sectionTitle(t.pnlSegmentsTitle, Icons.pie_chart_outline_rounded, scheme),
               const SizedBox(height: Gap.sm),
               for (final s in segments) _marginRow(t, scheme, s, isSegment: true),
             ],
             if (margins.isNotEmpty) ...[
               const SizedBox(height: Gap.lg),
-              _sectionTitle(t.pnlMarginTitle, Icons.bar_chart, scheme),
+              _sectionTitle(t.pnlMarginTitle, Icons.bar_chart_rounded, scheme),
               const SizedBox(height: Gap.sm),
               for (final m in margins) _marginRow(t, scheme, m),
             ],
             // ps1-photo: Photo Studio ad revenue vs cost, per feature
             const SizedBox(height: Gap.lg),
-            _sectionTitle(t.psOwnerPnlTitle, Icons.auto_awesome_outlined, scheme),
+            _sectionTitle(t.psOwnerPnlTitle, Icons.auto_awesome_rounded, scheme),
             const SizedBox(height: Gap.sm),
             ..._photoStudioRows(t, scheme),
           ],
@@ -200,15 +200,15 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
     final (tint, icon, title) = switch (state) {
       'alarm' || 'loss' || 'critical' => (
           Brand.danger,
-          Icons.error_outline,
+          Icons.error_outline_rounded,
           t.pnlGuardLoss
         ),
       'warn' || 'thin' => (
           Brand.warning,
-          Icons.warning_amber_outlined,
+          Icons.warning_amber_rounded,
           t.pnlGuardThin
         ),
-      _ => (Brand.success, Icons.verified_outlined, t.pnlGuardHealthy),
+      _ => (Brand.success, Icons.verified_rounded, t.pnlGuardHealthy),
     };
     final msg = (guard['message'] ?? '').toString();
     return Container(
@@ -247,7 +247,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.circle, size: 9, color: tint),
+        Icon(Icons.circle_rounded, size: 9, color: tint),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text((a['message'] ?? '').toString(),
@@ -390,7 +390,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.flag_outlined, color: scheme.onSecondaryContainer),
+        Icon(Icons.flag_rounded, color: scheme.onSecondaryContainer),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

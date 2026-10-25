@@ -52,7 +52,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
     if (d['restricted'] == true) {
       final lang = Localizations.localeOf(context).languageCode;
       return CrmStateView.empty(
-        icon: Icons.lock_outline,
+        icon: Icons.lock_outline_rounded,
         title: t.crmDashboardRestricted,
         message: lang == 'bn'
             ? (d['message_bn'] ?? t.crmDashboardRestrictedHint).toString()
@@ -69,9 +69,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         Row(children: [
-          Expanded(child: _metric(t.crmPipelineValue, bdt(context, d['pipeline_value'] as num?), Icons.account_tree_outlined)),
+          Expanded(child: _metric(t.crmPipelineValue, bdt(context, d['pipeline_value'] as num?), Icons.account_tree_rounded)),
           const SizedBox(width: Gap.sm),
-          Expanded(child: _metric(t.crmWonValue, bdt(context, d['won_value'] as num?), Icons.emoji_events_outlined)),
+          Expanded(child: _metric(t.crmWonValue, bdt(context, d['won_value'] as num?), Icons.emoji_events_rounded)),
         ]),
         const SizedBox(height: Gap.md),
         // ---- weighted forecast with method shown ----
@@ -93,7 +93,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                         style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                   ])
                 : Row(children: [
-                    Icon(Icons.info_outline, color: scheme.onSurfaceVariant, size: 18),
+                    Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant, size: 18),
                     const SizedBox(width: Gap.sm),
                     Expanded(child: Text(lang == 'bn'
                         ? (forecast['message_bn'] ?? t.crmNotEnoughData).toString()

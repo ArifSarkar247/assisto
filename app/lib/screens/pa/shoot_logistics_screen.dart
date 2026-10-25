@@ -217,7 +217,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
         if (!_loading && !_error && _sheets.isNotEmpty)
           IconButton(
             tooltip: tr.shootNewSheet,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             onPressed: () => _newSheet(tr),
           ),
       ]),
@@ -225,13 +225,13 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.shootLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _sheets.isEmpty
@@ -241,12 +241,12 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Widget _welcome(AppLocalizations tr) => StateMessage(
-        icon: Icons.video_camera_front_outlined,
+        icon: Icons.video_camera_front_rounded,
         title: tr.shootWelcomeTitle,
         message: tr.shootWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _newSheet(tr),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.shootNewSheet),
         ),
       );
@@ -271,7 +271,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           _headerCard(active, tr, scheme),
           const SizedBox(height: Gap.md),
           // schedule
-          _sectionHeader(tr.shootSchedule, Icons.schedule,
+          _sectionHeader(tr.shootSchedule, Icons.schedule_rounded,
               () => _addBlock(sheetId, tr), scheme),
           if (blocks.isEmpty)
             _empty(tr.shootNoBlocks, scheme)
@@ -282,7 +282,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           _sectionHeader(
               tr.shootChecklistProgress(/* (checked, pct, total) */
                   '$checked', '$pct', '${checks.length}'),
-              Icons.checklist, () => _addCheck(sheetId, tr), scheme),
+              Icons.checklist_rounded, () => _addCheck(sheetId, tr), scheme),
           if (checks.isEmpty)
             _empty(tr.shootNoChecks, scheme)
           else ...[
@@ -299,7 +299,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           ],
           const SizedBox(height: Gap.md),
           // contacts
-          _sectionHeader(tr.shootContacts, Icons.contacts_outlined,
+          _sectionHeader(tr.shootContacts, Icons.contacts_rounded,
               () => _addContact(sheetId, tr), scheme),
           if (contacts.isEmpty)
             _empty(tr.shootNoContacts, scheme)
@@ -350,7 +350,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
                       ?.copyWith(fontWeight: FontWeight.w700)),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _editSheet(s, tr);
                 if (v == 'delete' && s['id'] is int) _delete(s['id'] as int);
@@ -364,9 +364,9 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             if (callTime.isNotEmpty)
-              _meta(Icons.alarm, tr.shootCallTimeValue(callTime), scheme),
-            if (date.isNotEmpty) _meta(Icons.event, date, scheme),
-            if (location.isNotEmpty) _meta(Icons.place_outlined, location, scheme),
+              _meta(Icons.alarm_rounded, tr.shootCallTimeValue(callTime), scheme),
+            if (date.isNotEmpty) _meta(Icons.event_rounded, date, scheme),
+            if (location.isNotEmpty) _meta(Icons.place_rounded, location, scheme),
           ]),
         ]),
       ),
@@ -393,7 +393,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).add,
-            icon: const Icon(Icons.add_circle_outline),
+            icon: const Icon(Icons.add_circle_outline_rounded),
             color: scheme.primary,
             onPressed: onAdd,
           ),
@@ -423,7 +423,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
             [_blockKindLabel(tr, kind), if (time.isNotEmpty) time].join(' · '),
             maxLines: 1, overflow: TextOverflow.ellipsis),
         trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(Icons.more_vert_rounded),
           onSelected: (v) {
             if (v == 'edit') _addBlock(b['sheet_id'] as int, tr, existing: b);
             if (v == 'delete' && b['id'] is int) _delete(b['id'] as int);
@@ -455,7 +455,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
             maxLines: 1, overflow: TextOverflow.ellipsis),
         secondary: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
           onPressed: () {
             if (c['id'] is int) _delete(c['id'] as int);
           },
@@ -473,12 +473,12 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
       margin: const EdgeInsets.only(bottom: Gap.xs),
       child: ListTile(
         dense: true,
-        leading: const Icon(Icons.person_outline),
+        leading: const Icon(Icons.person_outline_rounded),
         title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text([role, phone].where((e) => e.isNotEmpty).join(' · '),
             maxLines: 1, overflow: TextOverflow.ellipsis),
         trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(Icons.more_vert_rounded),
           onSelected: (v) {
             if (v == 'edit') _addContact(c['sheet_id'] as int, tr, existing: c);
             if (v == 'delete' && c['id'] is int) _delete(c['id'] as int);

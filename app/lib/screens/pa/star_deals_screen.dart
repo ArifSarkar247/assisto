@@ -233,20 +233,20 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _loading ? null : () => _addOrEdit(tr),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.starDealsAdd),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.starDealsLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _rows.isEmpty
@@ -256,14 +256,14 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
   }
 
   Widget _welcome(AppLocalizations tr) => StateMessage(
-        icon: Icons.handshake_outlined,
+        icon: Icons.handshake_rounded,
         title: tr.starDealsWelcomeTitle,
         // The arrow (U+2192) used as a stage separator renders as a tofu box in
         // the app font; swap it for the bullet the app already uses elsewhere.
         message: tr.starDealsWelcomeBody.replaceAll('\u2192', ' \u2022 '),
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.starDealsAdd),
         ),
       );
@@ -304,7 +304,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             if (_overdueCount > 0) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(Icons.error_outline, size: 16, color: scheme.error),
+                Icon(Icons.error_outline_rounded, size: 16, color: scheme.error),
                 const SizedBox(width: Gap.xs),
                 Flexible(
                   child: Text(tr.starDealsOverdue('$_overdueCount'),
@@ -400,7 +400,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           if (deadline.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.event_outlined,
+              Icon(Icons.event_rounded,
                   size: 15, color: overdue ? scheme.error : scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Flexible(
@@ -417,7 +417,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: () => _advance(r, tr),
-                  icon: const Icon(Icons.arrow_forward, size: 18),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                   label: Text(tr.starDealsAdvance(_stageLabel(tr, _stages[_stages.indexOf(stage) + 1])),
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
@@ -428,7 +428,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
                     style: AType.bodyMedium.copyWith(color: Brand.success, fontWeight: FontWeight.w600)),
               ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (v) {
                 if (v == 'edit') _addOrEdit(tr, existing: r);
                 if (v == 'delete') _delete(r, tr);

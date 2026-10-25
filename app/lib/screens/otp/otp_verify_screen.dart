@@ -212,7 +212,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                 _Phase.entering => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(Icons.sms_outlined, size: 48, color: scheme.primary),
+                      Icon(Icons.sms_rounded, size: 48, color: scheme.primary),
                       const SizedBox(height: Gap.md),
                       Text(t.otpTitle,
                           textAlign: TextAlign.center,
@@ -244,7 +244,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.error_outline, size: 18, color: scheme.error),
+                            Icon(Icons.error_outline_rounded, size: 18, color: scheme.error),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(_error!,
@@ -314,7 +314,7 @@ class _SmsOffCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  Icon(Icons.sms_failed_outlined, color: scheme.onSecondaryContainer),
+                  Icon(Icons.sms_failed_rounded, color: scheme.onSecondaryContainer),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(t.otpSmsOffTitle,

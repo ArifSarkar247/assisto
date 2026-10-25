@@ -129,7 +129,7 @@ class _StorageMeterState extends State<StorageMeter> {
       return _shell(
         scheme,
         child: Row(children: [
-          Icon(Icons.cloud_off_outlined, size: 20, color: scheme.onSurfaceVariant),
+          Icon(Icons.cloud_off_rounded, size: 20, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(
               child: Text(honestFailText(t, _failCause, otherwise: t.storageLoadError),
@@ -164,7 +164,7 @@ class _StorageMeterState extends State<StorageMeter> {
       border: full ? Brand.danger.withValues(alpha: 0.5) : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(full ? Icons.sd_card_alert_outlined : Icons.cloud_outlined,
+          Icon(full ? Icons.sd_card_alert_rounded : Icons.cloud_rounded,
               size: 20, color: barColor),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -211,7 +211,7 @@ class _StorageMeterState extends State<StorageMeter> {
                   // without navigating (keeps this widget dependency-free); the
                   // honest message already tells the user to delete items.
                 },
-                icon: const Icon(Icons.delete_outline, size: 18),
+                icon: const Icon(Icons.delete_outline_rounded, size: 18),
                 label: Text(t.storageDeleteItems),
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(42)),
@@ -222,7 +222,7 @@ class _StorageMeterState extends State<StorageMeter> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: widget.onBuyStorage,
-                  icon: const Icon(Icons.add_shopping_cart_outlined, size: 18),
+                  icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
                   label: Text(t.storageBuyMore),
                   style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(42)),

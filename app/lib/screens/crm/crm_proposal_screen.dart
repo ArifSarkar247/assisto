@@ -99,7 +99,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
       appBar: AppBar(title: Text(t.crmProposals)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _draftWithAi(t),
-        icon: const Icon(Icons.auto_awesome_outlined),
+        icon: const Icon(Icons.auto_awesome_rounded),
         label: Text(t.crmDraftWithAi),
       ),
       body: _loading
@@ -109,16 +109,16 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
               : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                   // Price-book awareness note (never invent prices/tax).
                   if (_products.any((p) => p['price_reviewed'] != true))
-                    NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_outlined),
+                    NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_rounded),
                   // G6: in-app quote builder — select products → line items → totals.
                   OutlinedButton.icon(
                     onPressed: () => _openQuoteBuilder(t),
-                    icon: const Icon(Icons.calculate_outlined),
+                    icon: const Icon(Icons.calculate_rounded),
                     label: Text(t.crmBuildQuote),
                   ),
                   const SizedBox(height: Gap.sm),
                   if (_proposals.isEmpty)
-                    CrmStateView.empty(icon: Icons.description_outlined, title: t.crmNoProposals, message: t.crmNoProposalsHint)
+                    CrmStateView.empty(icon: Icons.description_rounded, title: t.crmNoProposals, message: t.crmNoProposalsHint)
                   else
                     for (final p in _proposals) _proposalCard(t, p),
                 ]),
@@ -150,7 +150,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                Icon(Icons.flag_outlined, size: 16, color: AssistoTokens.of(context).warning),
+                Icon(Icons.flag_rounded, size: 16, color: AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
                 Text(t.crmToReview, style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
               ]),
@@ -312,10 +312,10 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.crmBuildQuote)),
       body: _active.isEmpty
-          ? CrmStateView.empty(icon: Icons.inventory_2_outlined, title: t.crmNoProducts, message: t.crmNoProductsHint)
+          ? CrmStateView.empty(icon: Icons.inventory_2_rounded, title: t.crmNoProducts, message: t.crmNoProductsHint)
           : ListView(padding: const EdgeInsets.all(Gap.md), children: [
               if (!_allReviewed)
-                NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_outlined),
+                NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_rounded),
               _sectionTitle(t.crmSelectProducts),
               for (final p in _active) _productRow(t, p),
               const SizedBox(height: Gap.md),
@@ -353,7 +353,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: Gap.xs),
                         child: Row(children: [
-                          Icon(Icons.flag_outlined, size: 16, color: AssistoTokens.of(context).warning),
+                          Icon(Icons.flag_rounded, size: 16, color: AssistoTokens.of(context).warning),
                           const SizedBox(width: Gap.xs),
                           Expanded(child: Text(t.crmToReview, style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700))),
                         ]),
@@ -366,7 +366,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                 onPressed: (!_hasSelection || _saving) ? null : () => _create(t),
                 icon: _saving
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.check),
+                    : const Icon(Icons.check_rounded),
                 label: Text(t.crmCreateProposal),
               ),
               const SizedBox(height: Gap.xs),
@@ -395,13 +395,13 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).f2Decrease,
-            icon: const Icon(Icons.remove_circle_outline),
+            icon: const Icon(Icons.remove_circle_outline_rounded),
             onPressed: q > 0 ? () => setState(() => _qty[sku] = q - 1) : null,
           ),
           Text('$q', style: const TextStyle(fontWeight: FontWeight.w800)),
           IconButton(
             tooltip: AppLocalizations.of(context).f2Increase,
-            icon: const Icon(Icons.add_circle_outline),
+            icon: const Icon(Icons.add_circle_outline_rounded),
             onPressed: () => setState(() => _qty[sku] = q + 1),
           ),
         ]),

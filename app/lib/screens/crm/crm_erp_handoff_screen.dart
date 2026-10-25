@@ -77,7 +77,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
     final actions = _nextActions(state);
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       if (!erpLinked)
-        NeedsKeyBanner(t.crmErpNotLinked, icon: Icons.link_off_outlined),
+        NeedsKeyBanner(t.crmErpNotLinked, icon: Icons.link_off_rounded),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
@@ -89,7 +89,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
               CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
             ]),
             const SizedBox(height: Gap.sm),
-            CrmSectionHeader(t.crmErpModules, icon: Icons.widgets_outlined),
+            CrmSectionHeader(t.crmErpModules, icon: Icons.widgets_rounded),
             Wrap(spacing: Gap.xs, children: [
               for (final m in modules)
                 Chip(label: Text(m.toString())),

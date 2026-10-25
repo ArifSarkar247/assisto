@@ -307,7 +307,7 @@ void main() {
       await _settle(tester);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byTooltip(en.circleAttach), findsNothing);
-      expect(find.byIcon(Icons.add_circle_outline), findsNothing);
+      expect(find.byIcon(Icons.add_circle_outline_rounded), findsNothing);
       expect(find.text(en.circleMediaGenericGated), findsNothing);
       await _dispose(tester);
     });
@@ -376,17 +376,17 @@ void main() {
       expect(find.byKey(const Key('mr1-request-bar')), findsOneWidget);
       expect(find.text(en.mr1NotInContacts), findsOneWidget);
       expect(find.byType(TextField), findsNothing); // read-only
-      expect(find.byIcon(Icons.call_outlined), findsNothing);
-      expect(find.byIcon(Icons.videocam_outlined), findsNothing);
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(Icons.call_rounded), findsNothing);
+      expect(find.byIcon(Icons.videocam_rounded), findsNothing);
+      expect(find.byIcon(Icons.more_vert_rounded), findsNothing);
       await tester.tap(find.byKey(const Key('mr1-accept')));
       await _settle(tester);
       expect(api.posts('/circle/request/5/act').single['event'], 'accept');
       expect(find.text(en.mr1AcceptedToast('Nadia Rahman')), findsOneWidget);
       expect(find.byKey(const Key('mr1-request-bar')), findsNothing);
       expect(find.byType(TextField), findsOneWidget); // text right away
-      expect(find.byIcon(Icons.call_outlined), findsOneWidget); // and call
-      expect(find.byIcon(Icons.videocam_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.call_rounded), findsOneWidget); // and call
+      expect(find.byIcon(Icons.videocam_rounded), findsOneWidget);
       await _dispose(tester);
     });
 
@@ -454,8 +454,8 @@ void main() {
       expect(find.byKey(const Key('mr1-waiting')), findsOneWidget);
       expect(find.text(en.connRequestSentBanner), findsOneWidget); // connect-flow
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.byIcon(Icons.call_outlined), findsNothing);
-      expect(find.byIcon(Icons.videocam_outlined), findsNothing);
+      expect(find.byIcon(Icons.call_rounded), findsNothing);
+      expect(find.byIcon(Icons.videocam_rounded), findsNothing);
       await _dispose(tester);
     });
 
@@ -486,7 +486,7 @@ void main() {
           identity: _me));
       await _settle(tester);
       expect(find.byKey(const Key('mr1-waiting')), findsNothing);
-      expect(find.byIcon(Icons.call_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.call_rounded), findsOneWidget);
       await _dispose(tester);
     });
 

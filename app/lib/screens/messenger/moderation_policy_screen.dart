@@ -27,19 +27,19 @@ class ModerationPolicyScreen extends StatelessWidget {
         return (
           title: t.msgrModPolicyContentTitle,
           intro: t.msgrModPolicyContentIntro,
-          icon: Icons.policy_outlined,
+          icon: Icons.policy_rounded,
         );
       case MsgrModPolicyKind.communityGuidelines:
         return (
           title: t.msgrModPolicyGuidelinesTitle,
           intro: t.msgrModPolicyGuidelinesIntro,
-          icon: Icons.handshake_outlined,
+          icon: Icons.handshake_rounded,
         );
       case MsgrModPolicyKind.adultContent:
         return (
           title: t.msgrModPolicyAdultTitle,
           intro: t.msgrModPolicyAdultIntro,
-          icon: Icons.no_adult_content,
+          icon: Icons.no_adult_content_rounded,
         );
     }
   }
@@ -89,7 +89,7 @@ class ModerationPolicyScreen extends StatelessWidget {
               border: Border.all(color: Brand.warning.withValues(alpha: 0.5)),
             ),
             child: Row(children: [
-              const Icon(Icons.rate_review_outlined,
+              const Icon(Icons.rate_review_rounded,
                   color: Brand.warning, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(

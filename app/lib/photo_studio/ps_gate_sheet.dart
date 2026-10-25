@@ -71,14 +71,14 @@ class PsGateSheet extends StatelessWidget {
             ],
             if (adsBlocked) ...[
               const SizedBox(height: Gap.md),
-              _note(context, Icons.info_outline, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
+              _note(context, Icons.info_outline_rounded, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
             ],
             const SizedBox(height: Gap.lg),
             if (adsPossible)
               FilledButton.icon(
                 key: const Key('psGateWatch'),
                 onPressed: () => Navigator.of(context).pop(FundChoice.ads),
-                icon: const Icon(Icons.play_circle_outline),
+                icon: const Icon(Icons.play_circle_outline_rounded),
                 label: Text(need.lastAdFailed ? t.psGateRetry : t.psGateWatch),
               ),
             if (need.credits != null) ...[
@@ -86,7 +86,7 @@ class PsGateSheet extends StatelessWidget {
               OutlinedButton.icon(
                 key: const Key('psGateCredits'),
                 onPressed: () => Navigator.of(context).pop(FundChoice.credits),
-                icon: const Icon(Icons.toll_outlined),
+                icon: const Icon(Icons.toll_rounded),
                 label: Text(t.psGateUseCredits(fmtInt(context, need.credits!))),
               ),
             ],
@@ -97,7 +97,7 @@ class PsGateSheet extends StatelessWidget {
                   Navigator.of(context).pop();
                   onPremium!();
                 },
-                icon: const Icon(Icons.workspace_premium_outlined),
+                icon: const Icon(Icons.workspace_premium_rounded),
                 label: Text(t.psGatePremium),
               ),
             ],

@@ -45,7 +45,7 @@ class RefAchievementCard extends StatelessWidget {
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Icon(Icons.emoji_events, color: Colors.white, size: 22),
+              const Icon(Icons.emoji_events_rounded, color: Colors.white, size: 22),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.refCardTitle,
@@ -96,7 +96,7 @@ class RefAchievementCard extends StatelessWidget {
           final ok = await WrappedShare.shareAsImage(boundaryKey, caption);
           if (!ok) await WrappedShare.shareAsText(caption);
         },
-        icon: const Icon(Icons.ios_share, size: 18),
+        icon: const Icon(Icons.ios_share_rounded, size: 18),
         label: Text(t.refCardShare),
       ),
     ]);

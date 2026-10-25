@@ -278,7 +278,7 @@ class _OffersSettingsScreenState extends State<OffersSettingsScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (_) => OffersFeedScreen(backend: widget.backend))),
-                    icon: const Icon(Icons.local_offer_outlined),
+                    icon: const Icon(Icons.local_offer_rounded),
                     label: Text(t.p2OffersFeedOpen),
                   ),
                 ]),
@@ -389,7 +389,7 @@ class _OnbOffersStepState extends State<OnbOffersStep> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
-        Icon(Icons.local_offer_outlined, size: 40, color: scheme.primary),
+        Icon(Icons.local_offer_rounded, size: 40, color: scheme.primary),
         const SizedBox(height: Gap.md),
         Text(t.p2OnbOffersTitle,
             style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w700)),

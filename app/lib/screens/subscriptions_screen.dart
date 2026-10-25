@@ -249,28 +249,28 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _add,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.addSubscription)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.retry)))
               : _subs.isEmpty
                   ? StateMessage(
-                      icon: Icons.autorenew,
+                      icon: Icons.autorenew_rounded,
                       title: t.subscriptions,
                       message: t.subscriptionsEmpty,
                       action: FilledButton.icon(
                           onPressed: _add,
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(Icons.add_rounded),
                           label: Text(t.addSubscription)))
                   : RefreshIndicator(
                       onRefresh: _load,
@@ -312,7 +312,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         for (final s in trials) ...[
           const SizedBox(height: Gap.sm),
           SubsAlertBanner(
-            icon: Icons.hourglass_bottom,
+            icon: Icons.hourglass_bottom_rounded,
             tint: Brand.warning,
             title: t.subsTrialAlertTitle('${s['name']}'),
             body: t.subsTrialAlertBody(
@@ -327,7 +327,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         for (final s in nudges.take(2)) ...[
           const SizedBox(height: Gap.sm),
           SubsAlertBanner(
-            icon: Icons.savings_outlined,
+            icon: Icons.savings_rounded,
             tint: Brand.success,
             title: t.subsNudgeTitle('${s['name']}'),
             body: t.subsNudgeBody(
@@ -350,19 +350,19 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
         // Upcoming next 7 days.
         if (up7.isNotEmpty) ...[
-          SubsSection(icon: Icons.event_available, title: t.subsUpcoming7),
+          SubsSection(icon: Icons.event_available_rounded, title: t.subsUpcoming7),
           for (final s in up7) _tile(s),
         ],
 
         // Upcoming 8–30 days.
         if (up30.length > up7.length) ...[
-          SubsSection(icon: Icons.calendar_month, title: t.subsUpcoming30),
+          SubsSection(icon: Icons.calendar_month_rounded, title: t.subsUpcoming30),
           for (final s in up30.where((e) => !up7.contains(e))) _tile(s),
         ],
 
         // By category.
         if (cats.length > 1) ...[
-          SubsSection(icon: Icons.category_outlined, title: t.subsByCategory),
+          SubsSection(icon: Icons.category_rounded, title: t.subsByCategory),
           _breakdown(cats, (b) => categoryIcon(b.key),
               (b) => categoryLabel(t, b.key)),
         ],
@@ -370,7 +370,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         // By payment method.
         if (pays.length > 1) ...[
           SubsSection(
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Icons.account_balance_wallet_rounded,
               title: t.subsByPayment),
           _breakdown(pays, (b) => paymentIcon(b.key),
               (b) => paymentLabel(t, b.key)),
@@ -379,14 +379,14 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         // Most expensive.
         if (expensive.length > 1) ...[
           SubsSection(
-              icon: Icons.trending_up,
+              icon: Icons.trending_up_rounded,
               title: t.subsMostExpensive,
               tint: Brand.warning),
           for (final s in expensive.take(3)) _tile(s),
         ],
 
         // Everything (incl. paused / cancelled) with delete via long-swipe.
-        SubsSection(icon: Icons.list_alt, title: t.subsAll),
+        SubsSection(icon: Icons.list_alt_rounded, title: t.subsAll),
         for (final s in _subs) _dismissibleTile(s),
 
         const SizedBox(height: Gap.lg),
@@ -422,7 +422,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
             color: Theme.of(context).colorScheme.errorContainer,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
-          child: Icon(Icons.delete_outline,
+          child: Icon(Icons.delete_outline_rounded,
               color: Theme.of(context).colorScheme.onErrorContainer),
         ),
         confirmDismiss: (_) async {

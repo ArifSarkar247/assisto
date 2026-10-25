@@ -83,7 +83,7 @@ class ScamResultCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Icon(Icons.flag,
+                  Icon(Icons.flag_rounded,
                       size: 16, color: _verdictColor(p['level'] == 'high'
                           ? 'scam'
                           : p['level'] == 'medium'
@@ -102,7 +102,7 @@ class ScamResultCard extends StatelessWidget {
                 if (p['do'] != null) ...[
                   const SizedBox(height: 6),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Icon(Icons.check_circle_outline, size: 15, color: Colors.green),
+                    const Icon(Icons.check_circle_outline_rounded, size: 15, color: Colors.green),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(p['do'],

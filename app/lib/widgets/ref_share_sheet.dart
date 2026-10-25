@@ -63,21 +63,21 @@ class RefShareSheet extends StatelessWidget {
             if (hasCode) _codeChip(context, t, scheme),
             const SizedBox(height: Gap.md),
             _tile(context,
-                icon: Icons.ios_share,
+                icon: Icons.ios_share_rounded,
                 title: t.refShareLink,
                 onTap: () async {
                   Navigator.pop(context);
                   await Share.share(_shareText);
                 }),
             _tile(context,
-                icon: Icons.qr_code_2,
+                icon: Icons.qr_code_2_rounded,
                 title: t.refShareQr,
                 onTap: () {
                   Navigator.pop(context);
                   _showQr(context, t, scheme);
                 }),
             _tile(context,
-                icon: Icons.sms_outlined,
+                icon: Icons.sms_rounded,
                 title: t.refShareSms,
                 subtitle: t.refShareSmsNote,
                 onTap: () async {
@@ -115,7 +115,7 @@ class RefShareSheet extends StatelessWidget {
                   letterSpacing: 1.5,
                   fontSize: 16)),
           const SizedBox(width: Gap.sm),
-          Icon(Icons.copy_outlined, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.copy_rounded, size: 16, color: scheme.onSurfaceVariant),
         ]),
       ),
     );
@@ -137,7 +137,7 @@ class RefShareSheet extends StatelessWidget {
       subtitle: subtitle == null
           ? null
           : Text(subtitle, style: const TextStyle(fontSize: 12)),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right_rounded),
       onTap: onTap,
     );
   }
@@ -169,7 +169,7 @@ class RefShareSheet extends StatelessWidget {
         actions: [
           if (value.isNotEmpty)
             TextButton.icon(
-              icon: const Icon(Icons.copy_outlined),
+              icon: const Icon(Icons.copy_rounded),
               label: Text(t.copy),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: value));

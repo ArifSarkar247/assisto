@@ -101,13 +101,13 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.chalTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.chalLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(tr.retry)),
         ),
       );
@@ -124,7 +124,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
         title: Text(tr.chalTitle),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.history_rounded),
             tooltip: tr.chalHistory,
             onPressed: _progress.isEmpty ? null : _openHistory,
           ),
@@ -141,7 +141,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
             const SizedBox(height: Gap.md),
             if (item == null)
               StateMessage(
-                icon: Icons.event_busy_outlined,
+                icon: Icons.event_busy_rounded,
                 title: tr.chalNoneTitle,
                 message: tr.chalNoneBody,
               )
@@ -206,7 +206,7 @@ class _WelcomeBanner extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(children: [
-          Icon(Icons.emoji_events_outlined, size: 32, color: scheme.primary),
+          Icon(Icons.emoji_events_rounded, size: 32, color: scheme.primary),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -234,17 +234,17 @@ class _StatsStrip extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     return Row(children: [
       Expanded(
-          child: _stat(context, Icons.local_fire_department_outlined,
+          child: _stat(context, Icons.local_fire_department_rounded,
               tr.chalStreak, '${summary.currentStreak}', Brand.purple)),
       const SizedBox(width: Gap.sm),
       Expanded(
-          child: _stat(context, Icons.star_outline, tr.chalPoints,
+          child: _stat(context, Icons.star_outline_rounded, tr.chalPoints,
               '${summary.totalPoints}', Brand.warning)),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: _stat(
               context,
-              Icons.task_alt,
+              Icons.task_alt_rounded,
               tr.chalDone,
               '${summary.totalCompleted}',
               Theme.of(context).colorScheme.primary)),
@@ -335,8 +335,8 @@ class _TodayCardState extends State<_TodayCard> {
                     ? null
                     : _submit,
                 icon: Icon(item.kind == 'task'
-                    ? Icons.check_circle_outline
-                    : Icons.send_outlined),
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.send_rounded),
                 label: Text(item.kind == 'task'
                     ? tr.chalMarkDone
                     : tr.chalSubmitAnswer),
@@ -388,13 +388,13 @@ class _TodayCardState extends State<_TodayCard> {
                   Icon(
                     done
                         ? (isCorrect
-                            ? Icons.check_circle
+                            ? Icons.check_circle_rounded
                             : (isWrongPick
-                                ? Icons.cancel
-                                : Icons.radio_button_unchecked))
+                                ? Icons.cancel_rounded
+                                : Icons.radio_button_unchecked_rounded))
                         : (_selected == i
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked),
+                            ? Icons.radio_button_checked_rounded
+                            : Icons.radio_button_unchecked_rounded),
                     size: 20,
                     color: isCorrect
                         ? Brand.success
@@ -428,7 +428,7 @@ class _TodayCardState extends State<_TodayCard> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(done ? Icons.check_circle : Icons.flag_outlined,
+        Icon(done ? Icons.check_circle_rounded : Icons.flag_rounded,
             color: done ? Brand.success : scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -451,7 +451,7 @@ class _TodayCardState extends State<_TodayCard> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.lightbulb_outline, size: 16, color: scheme.secondary),
+          Icon(Icons.lightbulb_outline_rounded, size: 16, color: scheme.secondary),
           const SizedBox(width: Gap.xs),
           Text(tr.chalWhy,
               style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
@@ -489,7 +489,7 @@ class _HistoryScreen extends StatelessWidget {
       appBar: AppBar(title: Text(tr.chalHistory)),
       body: rows.isEmpty
           ? StateMessage(
-              icon: Icons.history,
+              icon: Icons.history_rounded,
               title: tr.chalHistoryEmptyTitle,
               message: tr.chalHistoryEmptyBody,
             )
@@ -507,10 +507,10 @@ class _HistoryScreen extends StatelessWidget {
                       child: ListTile(
                         leading: Icon(
                           kind == 'task'
-                              ? Icons.flag_circle_outlined
+                              ? Icons.flag_circle_rounded
                               : (correct
-                                  ? Icons.check_circle
-                                  : Icons.cancel_outlined),
+                                  ? Icons.check_circle_rounded
+                                  : Icons.cancel_rounded),
                           color: kind == 'task'
                               ? scheme.primary
                               : (correct ? Brand.success : scheme.error),
@@ -572,7 +572,7 @@ Widget _pointsNote(BuildContext context, String text) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,

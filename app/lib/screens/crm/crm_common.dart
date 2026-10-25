@@ -324,7 +324,7 @@ class CrmStateView extends StatelessWidget {
     }
     // ---- error: message + reference code chip + retry ----
     return StateMessage(
-      icon: Icons.cloud_off,
+      icon: Icons.cloud_off_rounded,
       tint: scheme.error,
       title: title ?? t.loadFailed,
       message: error == null ? t.shopQaLoadFailedBody : error!._honest(t),
@@ -334,7 +334,7 @@ class CrmStateView extends StatelessWidget {
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ],
       ]),
@@ -360,7 +360,7 @@ class RefCodeChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.tag, size: 14, color: scheme.onSurfaceVariant),
+        Icon(Icons.tag_rounded, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: 6),
         Text('${t.crmRefCode}: ',
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
@@ -412,7 +412,7 @@ class ScoreBadge extends StatelessWidget {
 class NeedsKeyBanner extends StatelessWidget {
   final String message;
   final IconData icon;
-  const NeedsKeyBanner(this.message, {super.key, this.icon = Icons.lock_outline});
+  const NeedsKeyBanner(this.message, {super.key, this.icon = Icons.lock_outline_rounded});
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -438,13 +438,13 @@ class NeedsKeyBanner extends StatelessWidget {
 IconData industryIcon(String? code) {
   switch (code) {
     case 'rmg':
-      return Icons.checkroom_outlined;
+      return Icons.checkroom_rounded;
     case 'pharma':
-      return Icons.medication_outlined;
+      return Icons.medication_rounded;
     case 'retail':
-      return Icons.storefront_outlined;
+      return Icons.storefront_rounded;
     default:
-      return Icons.business_outlined;
+      return Icons.business_rounded;
   }
 }
 
@@ -452,15 +452,15 @@ IconData industryIcon(String? code) {
 IconData sourceIcon(String? code) {
   switch (code) {
     case 'whatsapp':
-      return Icons.chat_outlined;
+      return Icons.chat_rounded;
     case 'messenger':
-      return Icons.forum_outlined;
+      return Icons.forum_rounded;
     case 'linkedin':
-      return Icons.business_center_outlined;
+      return Icons.business_center_rounded;
     case 'email':
-      return Icons.mail_outline;
+      return Icons.mail_outline_rounded;
     default:
-      return Icons.edit_outlined;
+      return Icons.edit_rounded;
   }
 }
 

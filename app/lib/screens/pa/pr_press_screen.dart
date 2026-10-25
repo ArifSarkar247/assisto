@@ -176,20 +176,20 @@ class _PrPressScreenState extends State<PrPressScreen>
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(
                   tr, [_kCoverage, _kInterview, _kTalkingPoint][_tabs.index]),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.prPressAdd),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.prPressLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : TabBarView(controller: _tabs, children: [
@@ -205,12 +205,12 @@ class _PrPressScreenState extends State<PrPressScreen>
     final list = _coverage;
     if (list.isEmpty) {
       return StateMessage(
-        icon: Icons.newspaper_outlined,
+        icon: Icons.newspaper_rounded,
         title: tr.prPressWelcomeTitle,
         message: tr.prPressWelcomeBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr, _kCoverage),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.prPressAdd),
         ),
       );
@@ -314,12 +314,12 @@ class _PrPressScreenState extends State<PrPressScreen>
     final list = _interviews;
     if (list.isEmpty) {
       return StateMessage(
-        icon: Icons.mic_none_outlined,
+        icon: Icons.mic_none_rounded,
         title: tr.prPressNoInterviewsTitle,
         message: tr.prPressNoInterviewsBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr, _kInterview),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.prPressAdd),
         ),
       );
@@ -384,9 +384,9 @@ class _PrPressScreenState extends State<PrPressScreen>
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, children: [
             if (at.isNotEmpty)
-              _iconText(Icons.schedule, at, scheme),
+              _iconText(Icons.schedule_rounded, at, scheme),
             if (place.isNotEmpty)
-              _iconText(Icons.place_outlined, place, scheme),
+              _iconText(Icons.place_rounded, place, scheme),
           ]),
         ]),
       ),
@@ -398,12 +398,12 @@ class _PrPressScreenState extends State<PrPressScreen>
     final list = _talkingPoints;
     if (list.isEmpty) {
       return StateMessage(
-        icon: Icons.sticky_note_2_outlined,
+        icon: Icons.sticky_note_2_rounded,
         title: tr.prPressNoPointsTitle,
         message: tr.prPressNoPointsBody,
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr, _kTalkingPoint),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(tr.prPressAdd),
         ),
       );
@@ -445,7 +445,7 @@ class _PrPressScreenState extends State<PrPressScreen>
   // ---- shared widgets ------------------------------------------------------
   Widget _rowMenu(Map<String, dynamic> r, AppLocalizations tr, String kind) =>
       PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert),
+        icon: const Icon(Icons.more_vert_rounded),
         onSelected: (v) {
           if (v == 'edit') _addOrEdit(tr, kind, existing: r);
           if (v == 'delete') _delete(r, tr);

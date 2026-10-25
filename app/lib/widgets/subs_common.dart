@@ -216,21 +216,21 @@ const kCategories = [
 IconData categoryIcon(String? c) {
   switch (c) {
     case 'streaming':
-      return Icons.play_circle_outline;
+      return Icons.play_circle_outline_rounded;
     case 'internet':
-      return Icons.wifi;
+      return Icons.wifi_rounded;
     case 'mobile':
-      return Icons.smartphone;
+      return Icons.smartphone_rounded;
     case 'utility':
-      return Icons.bolt_outlined;
+      return Icons.bolt_rounded;
     case 'fitness':
-      return Icons.fitness_center;
+      return Icons.fitness_center_rounded;
     case 'shopping':
-      return Icons.shopping_bag_outlined;
+      return Icons.shopping_bag_rounded;
     case 'productivity':
       return Icons.workspaces_outline;
     default:
-      return Icons.subscriptions_outlined;
+      return Icons.subscriptions_rounded;
   }
 }
 
@@ -277,13 +277,13 @@ String paymentLabel(AppLocalizations t, String? p) {
 IconData paymentIcon(String? p) {
   switch (p) {
     case 'card':
-      return Icons.credit_card;
+      return Icons.credit_card_rounded;
     case 'bank':
-      return Icons.account_balance;
+      return Icons.account_balance_rounded;
     case 'cash':
-      return Icons.payments_outlined;
+      return Icons.payments_rounded;
     default:
-      return Icons.account_balance_wallet_outlined;
+      return Icons.account_balance_wallet_rounded;
   }
 }
 

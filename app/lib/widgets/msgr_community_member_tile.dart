@@ -75,7 +75,7 @@ class MsgrCommunityMemberTile extends StatelessWidget {
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12))
             : Row(
                 children: [
-                  Icon(Icons.lock_outline,
+                  Icon(Icons.lock_outline_rounded,
                       size: 13, color: scheme.onSurfaceVariant),
                   const SizedBox(width: 4),
                   Text(t.communityPhoneHidden,
@@ -93,7 +93,7 @@ class MsgrCommunityMemberTile extends StatelessWidget {
     if (onMessage != null) {
       items.add(IconButton(
         tooltip: t.communityMemberMessage,
-        icon: const Icon(Icons.chat_bubble_outline),
+        icon: const Icon(Icons.chat_bubble_outline_rounded),
         onPressed: onMessage,
       ));
     }

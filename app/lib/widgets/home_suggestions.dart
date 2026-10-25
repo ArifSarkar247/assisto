@@ -521,7 +521,7 @@ class DiscoverCardTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(item.isExternal ? Icons.open_in_new : Icons.north_east,
+            Icon(item.isExternal ? Icons.open_in_new_rounded : Icons.north_east_rounded,
                 size: 16, color: scheme.onSurfaceVariant),
           ]),
         ),

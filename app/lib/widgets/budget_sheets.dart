@@ -145,7 +145,7 @@ Future<String?> showTemplateSheet(
                 in (preview!['buckets'] as List? ?? []).cast<Map>())
               ListTile(
                 dense: true,
-                leading: const Icon(Icons.pie_chart_outline),
+                leading: const Icon(Icons.pie_chart_outline_rounded),
                 title: Text('${_label(b['bucket']?.toString() ?? '')}'
                     ' · ${b['percent']}%'),
                 trailing: Text(tkFmt(b['amount']),

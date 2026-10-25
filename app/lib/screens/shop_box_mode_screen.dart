@@ -553,9 +553,9 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
   List<Widget> _pairView(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     return [
-      _infoCard(Icons.phone_android, t.shopModeIntroTitle, t.shopModeIntroBody),
+      _infoCard(Icons.phone_android_rounded, t.shopModeIntroTitle, t.shopModeIntroBody),
       const SizedBox(height: Gap.md),
-      _infoCard(Icons.privacy_tip_outlined, t.shopModePrivacyTitle, t.shopModePrivacyBody),
+      _infoCard(Icons.privacy_tip_rounded, t.shopModePrivacyTitle, t.shopModePrivacyBody),
       const SizedBox(height: Gap.lg),
       Text(t.shopModePairTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: Gap.xs),
@@ -573,7 +573,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
           border: const OutlineInputBorder(),
           suffixIcon: IconButton(
             tooltip: t.shopModePaste,
-            icon: const Icon(Icons.content_paste),
+            icon: const Icon(Icons.content_paste_rounded),
             onPressed: () async {
               final d = await Clipboard.getData('text/plain');
               if (d?.text != null) _tokenField.text = d!.text!.trim();
@@ -586,7 +586,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
         onPressed: _checking ? null : _pair,
         icon: _checking
             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.link),
+            : const Icon(Icons.link_rounded),
         label: Text(t.shopModePair),
       ),
       const SizedBox(height: Gap.sm),
@@ -607,7 +607,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             Row(children: [
               CircleAvatar(
                 backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.videocam_outlined, color: scheme.onPrimaryContainer),
+                child: Icon(Icons.videocam_rounded, color: scheme.onPrimaryContainer),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -633,7 +633,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             ),
             if (_status.isNotEmpty)
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(_statusIsError ? Icons.error_outline : Icons.radio_button_checked,
+                Icon(_statusIsError ? Icons.error_outline_rounded : Icons.radio_button_checked_rounded,
                     size: 18, color: _statusIsError ? scheme.error : AssistoTokens.of(context).success),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -686,15 +686,15 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       const SizedBox(height: Gap.md),
       ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.crop_free),
+        leading: const Icon(Icons.crop_free_rounded),
         title: Text(t.shopModeZone),
         subtitle: Text(z == null ? t.shopModeZoneNone : t.shopModeZoneSet),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right_rounded),
         onTap: _editZone,
       ),
       const SizedBox(height: Gap.sm),
       _infoCard(
-          Icons.battery_charging_full,
+          Icons.battery_charging_full_rounded,
           t.shopModeGuideTitle,
           [
             if (_charging == false) t.shopModeNotCharging,
@@ -703,12 +703,12 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
           ].join('\n\n'),
           tint: _charging == false ? AssistoTokens.of(context).warning : null),
       const SizedBox(height: Gap.md),
-      _infoCard(Icons.privacy_tip_outlined, t.shopModePrivacyTitle, t.shopModePrivacyBody),
+      _infoCard(Icons.privacy_tip_rounded, t.shopModePrivacyTitle, t.shopModePrivacyBody),
       const SizedBox(height: Gap.md),
       TextButton.icon(
         style: TextButton.styleFrom(foregroundColor: scheme.error),
         onPressed: _unpair,
-        icon: const Icon(Icons.logout),
+        icon: const Icon(Icons.logout_rounded),
         label: Text(t.shopModeUnpair),
       ),
     ];

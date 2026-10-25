@@ -43,7 +43,7 @@ class ActionTransparencyBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.verified_user_outlined,
+              Icon(Icons.verified_user_rounded,
                   size: 18, color: cs.onPrimaryContainer),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -156,7 +156,7 @@ class PendingActionCard extends StatelessWidget {
             // Why it's waiting — ties the queue to the autonomy level.
             Row(
               children: [
-                Icon(Icons.tune, size: 14, color: cs.onSurfaceVariant),
+                Icon(Icons.tune_rounded, size: 14, color: cs.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(
@@ -179,7 +179,7 @@ class PendingActionCard extends StatelessWidget {
                   Expanded(
                     child: FilledButton.icon(
                       onPressed: onApprove,
-                      icon: const Icon(Icons.check, size: 18),
+                      icon: const Icon(Icons.check_rounded, size: 18),
                       label: Text(t.actionApprove),
                     ),
                   ),
@@ -238,7 +238,7 @@ class DoneActionTile extends StatelessWidget {
       trailing: undoable
           ? TextButton.icon(
               onPressed: onUndo,
-              icon: const Icon(Icons.undo, size: 16),
+              icon: const Icon(Icons.undo_rounded, size: 16),
               label: Text(t.actionUndo),
             )
           : null,

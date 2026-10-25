@@ -119,7 +119,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.family_restroom, color: Brand.blue),
+        icon: const Icon(Icons.family_restroom_rounded, color: Brand.blue),
         title: Text(t.fallParentPermissionTitle),
         content: Text(t.fallParentPermissionBody),
         actions: [
@@ -140,7 +140,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.battery_alert_outlined, color: Brand.warning),
+        icon: const Icon(Icons.battery_alert_rounded, color: Brand.warning),
         title: Text(t.fallBatteryDisclosureTitle),
         content: Text(t.fallBatteryDisclosureBody),
         actions: [
@@ -245,13 +245,13 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.campaign, color: Brand.danger, size: 36),
+        icon: const Icon(Icons.campaign_rounded, color: Brand.danger, size: 36),
         title: Text(t.fallAlertingTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.fallAlertingBody, textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
-          _resultRow(ctx, Icons.group, t.fallAlertSentFamily, _family.isNotEmpty),
-          _resultRow(ctx, Icons.location_on, t.fallAlertSharedLocation,
+          _resultRow(ctx, Icons.group_rounded, t.fallAlertSentFamily, _family.isNotEmpty),
+          _resultRow(ctx, Icons.location_on_rounded, t.fallAlertSharedLocation,
               sharedLocation),
         ]),
         actions: [
@@ -267,7 +267,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
               Navigator.pop(ctx);
               _call('999');
             },
-            icon: const Icon(Icons.call),
+            icon: const Icon(Icons.call_rounded),
             label: Text(t.fallCall999),
           ),
         ],
@@ -280,7 +280,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(children: [
-        Icon(done ? Icons.check_circle : Icons.remove_circle_outline,
+        Icon(done ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded,
             size: 18, color: done ? Brand.success : scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Icon(icon, size: 16, color: scheme.onSurfaceVariant),
@@ -346,7 +346,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         // No-family guidance (we must know who to alert).
         if (_family.isEmpty) ...[
           const SizedBox(height: Gap.md),
-          _infoCard(scheme, Brand.warning, Icons.group_add,
+          _infoCard(scheme, Brand.warning, Icons.group_add_rounded,
               t.fallNoFamily, t.fallNoFamilyHelp),
         ],
 
@@ -363,7 +363,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                   ? t.fallStatusOn
                   : t.fallEnableSubtitle),
               secondary: Icon(
-                  _enabled ? Icons.shield : Icons.shield_outlined,
+                  _enabled ? Icons.shield_rounded : Icons.shield_outlined,
                   color: _enabled ? Brand.success : scheme.onSurfaceVariant),
               value: _enabled,
               onChanged: _toggleEnabled,
@@ -371,7 +371,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
             if (_enabled) ...[
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.timer_outlined),
+                leading: const Icon(Icons.timer_rounded),
                 title: Text(t.fallCountdownLabel),
                 subtitle:
                     Text(t.fallCountdownValue(_windowSec % 60, _windowSec ~/ 60) /* (seconds, minutes) */),
@@ -380,7 +380,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
               ),
               const Divider(height: 1),
               SwitchListTile(
-                secondary: const Icon(Icons.volume_up_outlined),
+                secondary: const Icon(Icons.volume_up_rounded),
                 title: Text(t.fallAlarmLabel),
                 value: _alarm,
                 onChanged: (v) async {
@@ -389,7 +389,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                 },
               ),
               SwitchListTile(
-                secondary: const Icon(Icons.vibration),
+                secondary: const Icon(Icons.vibration_rounded),
                 title: Text(t.fallVibrationLabel),
                 value: _vibration,
                 onChanged: (v) async {
@@ -422,7 +422,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _simulateFall,
-                      icon: const Icon(Icons.bolt),
+                      icon: const Icon(Icons.bolt_rounded),
                       label: Text(t.fallSimulateButton),
                     ),
                   ),
@@ -446,7 +446,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.personal_injury, color: Colors.white, size: 30),
+          const Icon(Icons.personal_injury_rounded, color: Colors.white, size: 30),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -475,7 +475,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         border: Border.all(color: Brand.warning.withValues(alpha: 0.5)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.sensors_off, color: Brand.warnInk(context)),
+        Icon(Icons.sensors_off_rounded, color: Brand.warnInk(context)),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(

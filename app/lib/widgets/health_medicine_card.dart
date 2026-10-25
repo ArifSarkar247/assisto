@@ -41,10 +41,10 @@ class HealthMedicineCard extends StatelessWidget {
           const SizedBox(height: Gap.xs),
           // generic + form + manufacturer
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            _Chip(icon: Icons.science_outlined, text: generic),
-            if (form.isNotEmpty) _Chip(icon: Icons.medication_outlined, text: form),
+            _Chip(icon: Icons.science_rounded, text: generic),
+            if (form.isNotEmpty) _Chip(icon: Icons.medication_rounded, text: form),
             if (manufacturer.isNotEmpty)
-              _Chip(icon: Icons.factory_outlined, text: manufacturer),
+              _Chip(icon: Icons.factory_rounded, text: manufacturer),
           ]),
           if (uses.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
@@ -86,7 +86,7 @@ class HealthMedicineCard extends StatelessWidget {
                     ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.swap_horiz, size: 18),
+                      leading: const Icon(Icons.swap_horiz_rounded, size: 18),
                       title: Text('${a['brand']}  ${a['strength']}'.trim()),
                       subtitle: Text(
                           '${a['manufacturer'] ?? ''}'

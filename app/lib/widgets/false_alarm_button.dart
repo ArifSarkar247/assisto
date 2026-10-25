@@ -121,7 +121,7 @@ class _FalseAlarmButtonState extends State<FalseAlarmButton> {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.verified_user_outlined),
+              : const Icon(Icons.verified_user_rounded),
           label: Text(tr.atfaButton, softWrap: true),
         ),
       ],

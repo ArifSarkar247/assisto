@@ -202,7 +202,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.sos, color: Colors.white, size: 56),
+                  const Icon(Icons.sos_rounded, color: Colors.white, size: 56),
                   const SizedBox(height: Gap.lg),
                   Text(t.sosSending,
                       style: AType.headlineSmall.copyWith(color: Colors.white,
@@ -258,7 +258,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(Radii.md)),
           child: Row(children: [
-            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.error),
+            Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.error),
             const SizedBox(width: 10),
             Expanded(
                 child: Text(t.sosSentBody,
@@ -271,7 +271,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
         const SizedBox(height: 6),
         ..._helplines.map((h) => Card(
               child: ListTile(
-                leading: Icon(Icons.call, color: Theme.of(context).colorScheme.error),
+                leading: Icon(Icons.call_rounded, color: Theme.of(context).colorScheme.error),
                 title: Text(h['number'].toString()),
                 subtitle:
                     h['label'] != null ? Text(h['label'].toString()) : null,
@@ -291,8 +291,8 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
               child: ListTile(
                 leading: Icon(
                     (p['type'] == 'hospital')
-                        ? Icons.local_hospital
-                        : Icons.local_police,
+                        ? Icons.local_hospital_rounded
+                        : Icons.local_police_rounded,
                     color: Colors.indigo),
                 title: Text((p['name'] ?? '').toString()),
                 subtitle: p['distance_m'] != null
@@ -301,11 +301,11 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   if ((p['phone'] ?? '').toString().isNotEmpty)
                     IconButton(tooltip: AppLocalizations.of(context).call,
-                        icon: const Icon(Icons.call),
+                        icon: const Icon(Icons.call_rounded),
                         onPressed: () => _call(p['phone'].toString())),
                   if ((p['directions'] ?? '').toString().isNotEmpty)
                     IconButton(tooltip: AppLocalizations.of(context).emergencyDirections,
-                        icon: const Icon(Icons.directions),
+                        icon: const Icon(Icons.directions_rounded),
                         onPressed: () =>
                             _directions(p['directions'].toString())),
                 ]),

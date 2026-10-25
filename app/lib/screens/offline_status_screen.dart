@@ -111,7 +111,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
           IconButton(
             tooltip: oStr(context, 'offClearAll'),
             onPressed: _loading ? null : _clearAll,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: const Icon(Icons.delete_sweep_rounded),
           ),
         ],
       ),
@@ -151,7 +151,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
                   ),
                   const SizedBox(height: Gap.md),
                   Row(children: [
-                    Icon(Icons.lock_outline,
+                    Icon(Icons.lock_outline_rounded,
                         size: 14, color: scheme.onSurfaceVariant),
                     const SizedBox(width: Gap.xs),
                     Expanded(
@@ -185,7 +185,7 @@ class _LiveStatusCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(good ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
+        Icon(good ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
             color: fg),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -217,7 +217,7 @@ class _DataUsageCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.data_usage_outlined, size: 18, color: scheme.primary),
+            Icon(Icons.data_usage_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Text(oStr(context, 'offDataUsage'),
                 style: Theme.of(context).textTheme.titleMedium),
@@ -233,7 +233,7 @@ class _DataUsageCard extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: onClearAll,
-              icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+              icon: const Icon(Icons.delete_sweep_rounded, size: 18),
               label: Text(oStr(context, 'offClearAll')),
             ),
           ),

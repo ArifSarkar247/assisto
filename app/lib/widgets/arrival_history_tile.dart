@@ -25,7 +25,7 @@ class ArrivalHistoryTile extends StatelessWidget {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(arrived ? Icons.check_circle : Icons.error_outline, color: color),
+      leading: Icon(arrived ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color),
       title: Text(place == null || place!.isEmpty
           ? when
           : '${place!} - $when'),

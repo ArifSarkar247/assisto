@@ -75,12 +75,12 @@ class FirstAidCard {
   }
 
   static const all = <FirstAidCard>[
-    FirstAidCard('cpr', Icons.favorite),
-    FirstAidCard('bleeding', Icons.bloodtype),
-    FirstAidCard('choking', Icons.air),
-    FirstAidCard('burns', Icons.local_fire_department),
-    FirstAidCard('faint', Icons.airline_seat_flat),
-    FirstAidCard('snakebite', Icons.pest_control),
+    FirstAidCard('cpr', Icons.favorite_rounded),
+    FirstAidCard('bleeding', Icons.bloodtype_rounded),
+    FirstAidCard('choking', Icons.air_rounded),
+    FirstAidCard('burns', Icons.local_fire_department_rounded),
+    FirstAidCard('faint', Icons.airline_seat_flat_rounded),
+    FirstAidCard('snakebite', Icons.pest_control_rounded),
   ];
 }
 
@@ -101,7 +101,7 @@ class FirstAidList extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: Brand.warnInk(context)),
+          Icon(Icons.info_outline_rounded, size: 18, color: Brand.warnInk(context)),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.firstAidDisclaimer,

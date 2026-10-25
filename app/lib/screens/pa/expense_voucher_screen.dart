@@ -213,13 +213,13 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(t.paVoucherTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paVoucherLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(t.retry)),
         ),
       );
@@ -232,18 +232,18 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _openVoucherEditor(),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.paVoucherNew),
             ),
       body: vouchers.isEmpty
           ? StateMessage(
-              icon: Icons.receipt_long,
+              icon: Icons.receipt_long_rounded,
               tint: Brand.blue,
               title: t.paVoucherWelcomeTitle,
               message: t.paVoucherWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _openVoucherEditor(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(t.paVoucherNew),
               ),
             )
@@ -267,7 +267,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
                         leading: CircleAvatar(
                           backgroundColor:
                               _statusColor('${v['status']}').withValues(alpha: 0.18),
-                          child: Icon(Icons.description_outlined,
+                          child: Icon(Icons.description_rounded,
                               color: _statusColor('${v['status']}')),
                         ),
                         title: Text('${v['title'] ?? ''}',
@@ -301,7 +301,7 @@ class _OcrSeamCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.document_scanner_outlined,
+          Icon(Icons.document_scanner_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -457,7 +457,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEditLine(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(t.paVoucherAddLine),
       ),
       body: _loading
@@ -506,7 +506,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
-                      icon: const Icon(Icons.arrow_forward, size: 16),
+                      icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                       label: Text(_status == 'draft'
                           ? t.paVoucherSubmit
                           : t.paVoucherApprove),
@@ -531,7 +531,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       dense: true,
-                      leading: const Icon(Icons.payments_outlined),
+                      leading: const Icon(Icons.payments_rounded),
                       title: Text(_fmtBdt(_toPoisha(l['amount'])),
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       subtitle: Text([
@@ -713,7 +713,7 @@ class _LineEditorState extends State<_LineEditor> {
               ]),
               const SizedBox(height: Gap.md),
               OutlinedButton.icon(
-                icon: const Icon(Icons.event, size: 18),
+                icon: const Icon(Icons.event_rounded, size: 18),
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     alignment: Alignment.centerLeft),

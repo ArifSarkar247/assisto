@@ -160,30 +160,30 @@ class _LettersScreenState extends State<LettersScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _open(tr),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.paLetNew),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLetLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : _saved.isEmpty
                   ? StateMessage(
-                      icon: Icons.description_outlined,
+                      icon: Icons.description_rounded,
                       title: tr.paLetWelcomeTitle,
                       message: tr.paLetWelcomeBody,
                       action: FilledButton.icon(
                         onPressed: () => _open(tr),
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add_rounded),
                         label: Text(tr.paLetNew),
                       ),
                     )
@@ -227,13 +227,13 @@ class _LettersScreenState extends State<LettersScreen> {
   IconData _typeIcon(String t) {
     switch (t) {
       case _tNotice:
-        return Icons.campaign_outlined;
+        return Icons.campaign_rounded;
       case _tMemo:
-        return Icons.sticky_note_2_outlined;
+        return Icons.sticky_note_2_rounded;
       case _tApplication:
-        return Icons.assignment_outlined;
+        return Icons.assignment_rounded;
       default:
-        return Icons.mail_outline;
+        return Icons.mail_outline_rounded;
     }
   }
 }
@@ -518,7 +518,7 @@ class _LetterEditorState extends State<_LetterEditor> {
           _aiSeamCard(tr, scheme),
           const SizedBox(height: Gap.lg),
           Row(children: [
-            Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.paAiReviewMarker,
@@ -556,7 +556,7 @@ class _LetterEditorState extends State<_LetterEditor> {
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
                 },
-                icon: const Icon(Icons.copy_outlined, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
                 label: Text(tr.copy),
               ),
             ),
@@ -564,7 +564,7 @@ class _LetterEditorState extends State<_LetterEditor> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => Share.share(rendered),
-                icon: const Icon(Icons.share_outlined, size: 18),
+                icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(tr.share),
               ),
             ),
@@ -574,7 +574,7 @@ class _LetterEditorState extends State<_LetterEditor> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_outlined, size: 18),
+              icon: const Icon(Icons.save_rounded, size: 18),
               label: Text(tr.save),
             ),
           ),
@@ -599,7 +599,7 @@ class _LetterEditorState extends State<_LetterEditor> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_outline, size: 18, color: scheme.primary),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

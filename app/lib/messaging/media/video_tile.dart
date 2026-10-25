@@ -85,7 +85,7 @@ class VideoTile extends StatelessWidget {
                 bottom: Gap.xs,
                 right: Gap.sm,
                 child: Row(children: [
-                  const Icon(Icons.videocam, size: 16, color: Colors.white),
+                  const Icon(Icons.videocam_rounded, size: 16, color: Colors.white),
                   const SizedBox(width: Gap.xs),
                   Flexible(
                     child: Text(notifLocalizeDigits(context, badge),

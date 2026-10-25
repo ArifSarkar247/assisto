@@ -30,7 +30,7 @@ class LifeProviderTile extends StatelessWidget {
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
         trailing: FilledButton.tonalIcon(
-          icon: const Icon(Icons.open_in_new, size: 16),
+          icon: const Icon(Icons.open_in_new_rounded, size: 16),
           label: Text(t.rideFoodOpen),
           onPressed: onOpen,
         ),

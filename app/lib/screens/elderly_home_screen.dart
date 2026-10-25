@@ -121,7 +121,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.call, color: Brand.success, size: 32),
+        icon: const Icon(Icons.call_rounded, color: Brand.success, size: 32),
         title: Text(t.elderlyCallConfirmTitle(who),
             style: AType.headlineSmall),
         content:
@@ -132,7 +132,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               child: Text(t.cancel, style: AType.titleLarge)),
           FilledButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.call),
+            icon: const Icon(Icons.call_rounded),
             label: Text(t.elderlyCallNow, style: AType.titleLarge),
           ),
         ],
@@ -176,7 +176,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.elderly, color: Brand.blue),
+        icon: const Icon(Icons.elderly_rounded, color: Brand.blue),
         title: Text(t.elderlyExitConfirmTitle),
         content: Text(t.elderlyExitConfirmBody),
         actions: [
@@ -203,7 +203,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
-          icon: const Icon(Icons.person_add_alt, color: Brand.blue, size: 32),
+          icon: const Icon(Icons.person_add_alt_rounded, color: Brand.blue, size: 32),
           title: Text(t.elderlyNoContactTitle, style: AType.headlineSmall),
           content:
               Text(t.elderlyNoContactBody, style: AType.titleLarge),
@@ -251,7 +251,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                   leading: const CircleAvatar(
                       radius: 26,
                       backgroundColor: Brand.success,
-                      child: Icon(Icons.call, color: Colors.white, size: 28)),
+                      child: Icon(Icons.call_rounded, color: Colors.white, size: 28)),
                   title: Text(_who(c),
                       style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w600)),
                   subtitle:
@@ -300,7 +300,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             padding: const EdgeInsets.only(right: Gap.sm),
             child: TextButton.icon(
               onPressed: _exit,
-              icon: const Icon(Icons.close, size: 26),
+              icon: const Icon(Icons.close_rounded, size: 26),
               label:
                   Text(t.elderlyExitCta, style: AType.titleLarge),
             ),
@@ -338,7 +338,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
           if (_offline) _offlineBanner(t),
           // SOS always first, always one tap, full width, alarm red.
           ElderlyTile(
-            icon: Icons.sos,
+            icon: Icons.sos_rounded,
             label: t.elderlyTileSos,
             sublabel: t.elderlyTileSosSub,
             color: Brand.dangerFill, // white 5.6:1 — AAA at these large sizes
@@ -355,7 +355,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             physics: const NeverScrollableScrollPhysics(),
             children: [
               ElderlyTile(
-                icon: Icons.call,
+                icon: Icons.call_rounded,
                 label: t.elderlyTileCall,
                 sublabel: _callSub(t),
                 color: Brand.successFill,
@@ -364,7 +364,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               // play-nomed: no medicine tile in the Play flavour — the same
               // slot becomes a plain Reminders tile (2x2 grid unchanged).
               ElderlyTile(
-                icon: kMedicalFeaturesAllowed ? Icons.medication : Icons.alarm,
+                icon: kMedicalFeaturesAllowed ? Icons.medication_rounded : Icons.alarm_rounded,
                 label: kMedicalFeaturesAllowed
                     ? t.elderlyTileMeds
                     : t.navReminders,
@@ -378,13 +378,13 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                     kMedicalFeaturesAllowed ? 'medicine_db' : 'reminders'),
               ),
               ElderlyTile(
-                icon: Icons.chat_bubble,
+                icon: Icons.chat_bubble_rounded,
                 label: t.elderlyTileMessages,
                 color: const Color(0xFF4A148C),
                 onTap: () => _open('messages'),
               ),
               ElderlyTile(
-                icon: Icons.account_balance_wallet,
+                icon: Icons.account_balance_wallet_rounded,
                 label: t.elderlyTileMoney,
                 color: const Color(0xFF004D40),
                 onTap: () => _open('money'),
@@ -394,7 +394,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
           const SizedBox(height: Gap.lg),
           // Help spans full width.
           ElderlyTile(
-            icon: Icons.help_outline,
+            icon: Icons.help_outline_rounded,
             label: t.elderlyTileHelp,
             sublabel: t.elderlyTileHelpSub,
             color: const Color(0xFF37474F),
@@ -440,7 +440,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                   onTap: _voice,
                   child: const Padding(
                     padding: EdgeInsets.all(26),
-                    child: Icon(Icons.mic, size: 56, color: Colors.white),
+                    child: Icon(Icons.mic_rounded, size: 56, color: Colors.white),
                   ),
                 ),
               ),
@@ -462,7 +462,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
         ),
         child: Row(
           children: [
-            const Icon(Icons.wifi_off, size: 28, color: Brand.warning),
+            const Icon(Icons.wifi_off_rounded, size: 28, color: Brand.warning),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(t.elderlyOffline,
@@ -488,7 +488,7 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off, size: 64, color: Brand.danger),
+            const Icon(Icons.cloud_off_rounded, size: 64, color: Brand.danger),
             const SizedBox(height: Gap.lg),
             Text(message,
                 textAlign: TextAlign.center,
@@ -498,7 +498,7 @@ class _ErrorRetry extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 56, minWidth: 180),
               child: FilledButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh, size: 26),
+                icon: const Icon(Icons.refresh_rounded, size: 26),
                 label: Text(cta, style: AType.titleLarge),
               ),
             ),

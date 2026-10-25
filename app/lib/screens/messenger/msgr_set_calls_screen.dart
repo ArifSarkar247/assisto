@@ -92,7 +92,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.call_received_outlined),
+                  secondary: const Icon(Icons.call_received_rounded),
                   title: Text(t.msgrSetCallsIncoming),
                   subtitle: Text(t.msgrSetCallsIncomingSub),
                   value: _incoming,
@@ -102,7 +102,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                   },
                 ),
                 SwitchListTile(
-                  secondary: const Icon(Icons.phone_disabled_outlined),
+                  secondary: const Icon(Icons.phone_disabled_rounded),
                   title: Text(t.msgrSetCallsSilenceUnknown),
                   subtitle: Text(t.msgrSetCallsSilenceUnknownSub),
                   value: _silenceUnknown,
@@ -113,7 +113,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                 ),
                 const Divider(),
                 MsgrSetRow(
-                  icon: Icons.lock_outline,
+                  icon: Icons.lock_outline_rounded,
                   title: t.msgrSetCallsWhoCanCall,
                   subtitle: t.msgrSetCallsWhoCanCallSub,
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(

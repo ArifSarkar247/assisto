@@ -108,7 +108,7 @@ class NameAboutBrandStory extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      NameAboutSectionTitle(text: t.nameAboutStoryTitle, icon: Icons.auto_stories_outlined),
+      NameAboutSectionTitle(text: t.nameAboutStoryTitle, icon: Icons.auto_stories_rounded),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
@@ -144,7 +144,7 @@ class NameAboutStatusCard extends StatelessWidget {
         border: Border.all(color: Brand.warning.withValues(alpha: 0.35)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.hourglass_bottom, color: Brand.warning),
+        const Icon(Icons.hourglass_bottom_rounded, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(text, style: const TextStyle(height: 1.45))),
       ]),
@@ -217,7 +217,7 @@ class NameAboutSourceNote extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      NameAboutSectionTitle(text: t.nameAboutSourcesTitle, icon: Icons.verified_outlined),
+      NameAboutSectionTitle(text: t.nameAboutSourcesTitle, icon: Icons.verified_rounded),
       Text(t.nameAboutSourcesBody,
           style: TextStyle(color: scheme.onSurfaceVariant, height: 1.5, fontSize: 13)),
       const SizedBox(height: Gap.sm),
@@ -258,7 +258,7 @@ class _SourceTile extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(Icons.open_in_new, size: 18, color: scheme.primary),
+              Icon(Icons.open_in_new_rounded, size: 18, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -271,7 +271,7 @@ class _SourceTile extends StatelessWidget {
               ),
               IconButton(
                 tooltip: t.copy,
-                icon: const Icon(Icons.copy, size: 18),
+                icon: const Icon(Icons.copy_rounded, size: 18),
                 onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: url));
                   if (context.mounted) {
@@ -321,7 +321,7 @@ class NameAboutFaq extends StatelessWidget {
       [t.nameAboutFaqChangeQ, t.nameAboutFaqChangeA],
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      NameAboutSectionTitle(text: t.nameAboutFaqTitle, icon: Icons.help_outline),
+      NameAboutSectionTitle(text: t.nameAboutFaqTitle, icon: Icons.help_outline_rounded),
       Card(
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -331,7 +331,7 @@ class NameAboutFaq extends StatelessWidget {
               ExpansionTile(
                 shape: const Border(),
                 collapsedShape: const Border(),
-                leading: const Icon(Icons.question_answer_outlined),
+                leading: const Icon(Icons.question_answer_rounded),
                 title: Text(items[i][0],
                     style: const TextStyle(fontWeight: FontWeight.w600)),
                 childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),

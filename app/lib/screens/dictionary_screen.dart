@@ -200,12 +200,12 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             onChanged: _onChanged,
             onSubmitted: _submit,
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
               hintText: t.dictionarySearchHint,
               suffixIcon: _ctrl.text.isEmpty
                   ? null
                   : IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: const Icon(Icons.clear_rounded),
                       tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                       onPressed: () {
                         _ctrl.clear();
@@ -245,7 +245,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error) {
       return DictStateView(
-        icon: Icons.error_outline,
+        icon: Icons.error_outline_rounded,
         iconColor: Brand.danger,
         title: t.dictErrorTitle,
         body: t.dictErrorBody,
@@ -258,7 +258,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       // empty query → intro (word of the day + recent searches), OR offline-no-cache
       if (_offline) {
         return DictStateView(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           iconColor: Brand.warning,
           title: t.dictOfflineNoCache,
           body: t.dictOfflineNoCacheBody,
@@ -272,7 +272,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     final results = _entriesFrom(r['results']);
     if (results.isEmpty) {
       return DictStateView(
-        icon: Icons.search_off,
+        icon: Icons.search_off_rounded,
         title: t.dictionaryNotFound('${r['query'] ?? _ctrl.text}'),
       );
     }
@@ -286,7 +286,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           const SizedBox(height: Gap.sm),
           DictChipRow(
             title: t.dictSuggestions,
-            icon: Icons.lightbulb_outline,
+            icon: Icons.lightbulb_outline_rounded,
             words: _suggestions
                 .map((e) => _directionValue == 'bn2en' || (_directionValue == 'auto' && e.bn.isNotEmpty && !_isAscii(_ctrl.text))
                     ? e.bn
@@ -313,7 +313,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         ],
         DictChipRow(
           title: t.dictRecentlySearched,
-          icon: Icons.history,
+          icon: Icons.history_rounded,
           words: _history.take(12).toList(),
           onTap: _submit,
           onClear: _history.isEmpty ? null : () async {
@@ -324,7 +324,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         ),
         if (_history.isEmpty) ...[
           const SizedBox(height: Gap.xl),
-          Icon(Icons.menu_book_outlined, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(Icons.menu_book_rounded, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(height: Gap.sm),
           Text(t.dictionaryIntroTitle,
               textAlign: TextAlign.center,
@@ -374,7 +374,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         final saved = snap.data ?? [];
         if (saved.isEmpty) {
           return DictStateView(
-            icon: Icons.star_border,
+            icon: Icons.star_border_rounded,
             title: t.dictSavedEmptyTitle,
             body: t.dictSavedEmptyBody,
           );
@@ -403,7 +403,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   Widget _historyTab(AppLocalizations t) {
     if (_history.isEmpty) {
       return DictStateView(
-        icon: Icons.history,
+        icon: Icons.history_rounded,
         title: t.dictHistoryEmptyTitle,
         body: t.dictHistoryEmptyBody,
       );
@@ -421,7 +421,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
               await _store.clearHistory();
               await _loadLocal();
             },
-            icon: const Icon(Icons.delete_outline, size: 18),
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
             label: Text(t.dictClearHistory),
           ),
         ]),
@@ -433,9 +433,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           itemBuilder: (context, i) {
             final w = _history[i];
             return ListTile(
-              leading: const Icon(Icons.history),
+              leading: const Icon(Icons.history_rounded),
               title: Text(w),
-              trailing: const Icon(Icons.north_west, size: 16),
+              trailing: const Icon(Icons.north_west_rounded, size: 16),
               onTap: () {
                 _tabs.animateTo(0);
                 _submit(w);
@@ -458,7 +458,7 @@ class _NeedsData extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.hourglass_empty, size: 48, color: Brand.warnInk(context)),
+          Icon(Icons.hourglass_empty_rounded, size: 48, color: Brand.warnInk(context)),
           const SizedBox(height: Gap.md),
           Container(
             padding: const EdgeInsets.all(Gap.md),

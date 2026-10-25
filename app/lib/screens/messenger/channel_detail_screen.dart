@@ -274,7 +274,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         actions: [
           IconButton(
             tooltip: t.channelShareLink,
-            icon: const Icon(Icons.share_outlined),
+            icon: const Icon(Icons.share_rounded),
             onPressed: _share,
           ),
           // Unified channel ⋮ — only the actions that apply to this viewer.
@@ -338,12 +338,12 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       children: [
         const SizedBox(height: Gap.xxl * 2),
         MsgrEmptyState(
-          icon: Icons.cloud_off_outlined,
+          icon: Icons.cloud_off_rounded,
           title: t.channelLoadError,
           body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
           action: FilledButton.icon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry),
           ),
         ),
@@ -361,7 +361,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
           child: Row(
             children: [
-              Icon(Icons.info_outline,
+              Icon(Icons.info_outline_rounded,
                   size: 16,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
@@ -379,7 +379,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xxl),
             child: MsgrEmptyState(
-              icon: Icons.campaign_outlined,
+              icon: Icons.campaign_rounded,
               title: t.channelNoPostsTitle,
               body: _backendReady
                   ? t.channelNoPostsBody
@@ -477,15 +477,15 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           OutlinedButton.icon(
             onPressed: _toggleMute,
             icon: Icon(_channel['my_muted'] == true
-                ? Icons.notifications_off_outlined
-                : Icons.notifications_active_outlined),
+                ? Icons.notifications_off_rounded
+                : Icons.notifications_active_rounded),
             label: Text(
                 _channel['my_muted'] == true ? t.channelUnmute : t.channelMute),
           ),
           const SizedBox(width: Gap.sm),
           OutlinedButton.icon(
             onPressed: _editMyVisibility,
-            icon: const Icon(Icons.visibility_outlined),
+            icon: const Icon(Icons.visibility_rounded),
             label: Text(t.channelMyVisibility),
           ),
         ],
@@ -506,7 +506,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           _toast(t.channelActionFailed);
         }
       },
-      icon: const Icon(Icons.add),
+      icon: const Icon(Icons.add_rounded),
       label: Text(t.channelFollow),
     );
   }

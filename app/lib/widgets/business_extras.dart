@@ -53,7 +53,7 @@ class _MorningSummaryCardState extends State<MorningSummaryCard> {
       ),
       padding: const EdgeInsets.all(Gap.lg),
       child: Row(children: [
-        const Icon(Icons.wb_sunny_outlined, color: Colors.white),
+        const Icon(Icons.wb_sunny_rounded, color: Colors.white),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(text,
@@ -189,7 +189,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.md),
         if (_locked)
-          BizNote(text: tr.bizAiGateLine, icon: Icons.auto_awesome)
+          BizNote(text: tr.bizAiGateLine, icon: Icons.auto_awesome_rounded)
         else ...[
           if (_mockNote(tr).isNotEmpty) ...[
             BizMockBanner(text: _mockNote(tr)),
@@ -206,7 +206,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
           ],
           if (_result != null) _reviewResult(tr),
           if (_error != null) ...[
-            BizNote(text: _error!, icon: Icons.error_outline, tint: Brand.danger),
+            BizNote(text: _error!, icon: Icons.error_outline_rounded, tint: Brand.danger),
             const SizedBox(height: Gap.md),
           ],
           Row(children: [
@@ -233,7 +233,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       BizCard(
         title: tr.bizReviewDraft,
-        icon: Icons.fact_check_outlined,
+        icon: Icons.fact_check_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (text.isNotEmpty) Text(text, style: const TextStyle(height: 1.4)),
           for (final row in rows)

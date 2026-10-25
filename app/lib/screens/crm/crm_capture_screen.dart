@@ -26,9 +26,9 @@ class CrmCaptureScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(t.crmCapture),
           bottom: TabBar(tabs: [
-            Tab(icon: const Icon(Icons.badge_outlined), child: Text(t.crmScanCard, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(icon: const Icon(Icons.dynamic_form_outlined), child: Text(t.crmImportForm, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(icon: const Icon(Icons.merge_type), child: Text(t.crmDedupe, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(icon: const Icon(Icons.badge_rounded), child: Text(t.crmScanCard, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(icon: const Icon(Icons.dynamic_form_rounded), child: Text(t.crmImportForm, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(icon: const Icon(Icons.merge_type_rounded), child: Text(t.crmDedupe, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [

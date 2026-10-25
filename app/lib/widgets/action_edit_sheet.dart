@@ -117,7 +117,7 @@ class _ActionEditSheetState extends State<_ActionEditSheet> {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  icon: const Icon(Icons.check, size: 18),
+                  icon: const Icon(Icons.check_rounded, size: 18),
                   label: Text(t.actionApproveRun),
                   onPressed: () {
                     final edit = (_key != null && _ctl.text != widget.item.detail[_key])

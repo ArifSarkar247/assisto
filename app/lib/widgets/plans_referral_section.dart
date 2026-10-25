@@ -106,7 +106,7 @@ class PlansReferralSection extends StatelessWidget {
         Expanded(
           child: FilledButton.icon(
             onPressed: onInvite,
-            icon: const Icon(Icons.person_add_alt, size: 18),
+            icon: const Icon(Icons.person_add_alt_rounded, size: 18),
             style:
                 FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
             label: Text(t.referralInvite),
@@ -116,7 +116,7 @@ class PlansReferralSection extends StatelessWidget {
         Expanded(
           child: FilledButton.tonalIcon(
             onPressed: (busy || !canRedeem) ? null : onRedeem,
-            icon: const Icon(Icons.workspace_premium, size: 18),
+            icon: const Icon(Icons.workspace_premium_rounded, size: 18),
             style:
                 FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
             label: Text(t.plansRedeemForDays),
@@ -132,14 +132,14 @@ class PlansReferralSection extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.xs),
           child: Row(children: [
-            Icon(Icons.history, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.history_rounded, size: 18, color: scheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.referralHistoryTitle,
                   style: const TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 14)),
             ),
-            Icon(showHistory ? Icons.expand_less : Icons.expand_more,
+            Icon(showHistory ? Icons.expand_less_rounded : Icons.expand_more_rounded,
                 color: scheme.onSurfaceVariant),
           ]),
         ),
@@ -149,7 +149,7 @@ class PlansReferralSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.md),
             child: Row(children: [
-              Icon(Icons.inbox_outlined,
+              Icon(Icons.inbox_rounded,
                   size: 20, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -178,7 +178,7 @@ class PlansReferralSection extends StatelessWidget {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(children: [
-          Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(child: Text(t.plansReferralLoadFailed)),
         ]),

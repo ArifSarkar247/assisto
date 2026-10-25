@@ -154,13 +154,13 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.demandTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.demandLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -173,17 +173,17 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
       appBar: AppBar(title: Text(tr.demandTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _add(),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(tr.demandLogSignal),
       ),
       body: _rows.isEmpty
           ? StateMessage(
-              icon: Icons.insights_outlined,
+              icon: Icons.insights_rounded,
               title: tr.demandWelcomeTitle,
               message: tr.demandWelcomeBody,
               action: FilledButton.icon(
                 onPressed: () => _add(),
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.demandLogSignal),
               ),
             )
@@ -240,7 +240,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.primary),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.demandManualNote,
@@ -269,7 +269,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 context,
                 tr.demandHottestProduct,
                 h.hottestProduct ?? '—',
-                Icons.local_fire_department_outlined,
+                Icons.local_fire_department_rounded,
               ),
             ),
             Expanded(
@@ -277,7 +277,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 context,
                 tr.demandHottestArea,
                 h.hottestArea ?? '—',
-                Icons.place_outlined,
+                Icons.place_rounded,
               ),
             ),
           ]),
@@ -379,7 +379,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: color.withValues(alpha: 0.16),
-              child: Icon(Icons.trending_up, color: color, size: 20),
+              child: Icon(Icons.trending_up_rounded, color: color, size: 20),
             ),
             title: Text(
                 sig.product.isEmpty ? sig.area : sig.product,
@@ -421,7 +421,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.public_outlined, size: 20, color: scheme.primary),
+            Icon(Icons.public_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.demandTradeSeamTitle,

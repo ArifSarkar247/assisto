@@ -178,14 +178,14 @@ class ExamOfficialCheck extends StatelessWidget {
       SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          icon: const Icon(Icons.verified_outlined, size: 18),
+          icon: const Icon(Icons.verified_rounded, size: 18),
           label: Text(t.examCheckOfficial),
           onPressed: () => _open(context),
         ),
       ),
       const SizedBox(height: Gap.xs),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.shield_outlined, size: 14, color: scheme.secondary),
+        Icon(Icons.shield_rounded, size: 14, color: scheme.secondary),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(

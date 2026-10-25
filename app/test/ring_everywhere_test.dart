@@ -325,7 +325,7 @@ void main() {
       await tester.pumpWidget(_app(const Scaffold(
           body: Column(children: [
         RingCheckBanner(),
-        RingCheckBadge(child: Icon(Icons.settings)),
+        RingCheckBadge(child: Icon(Icons.settings_rounded)),
       ]))));
       await _settle(tester);
       expect(find.byKey(const Key('ring-check-banner')), findsOneWidget);

@@ -87,43 +87,43 @@ String typeOf(String action) {
 IconData actionIcon(String module) {
   switch (module) {
     case 'agent':
-      return Icons.smart_toy_outlined;
+      return Icons.smart_toy_rounded;
     case 'reminder':
     case 'reminders':
-      return Icons.alarm;
+      return Icons.alarm_rounded;
     case 'message':
     case 'messenger':
     case 'circle':
-      return Icons.send_outlined;
+      return Icons.send_rounded;
     case 'memory':
-      return Icons.psychology_outlined;
+      return Icons.psychology_rounded;
     case 'money':
     case 'autopay':
     case 'ladder':
-      return Icons.account_balance_wallet_outlined;
+      return Icons.account_balance_wallet_rounded;
     case 'medicine':
     case 'prescription':
-      return Icons.medication_outlined;
+      return Icons.medication_rounded;
     case 'scam':
-      return Icons.shield_outlined;
+      return Icons.shield_rounded;
     case 'safety':
-      return Icons.health_and_safety_outlined;
+      return Icons.health_and_safety_rounded;
     case 'document':
     case 'export':
-      return Icons.description_outlined;
+      return Icons.description_rounded;
     case 'nominee':
-      return Icons.family_restroom_outlined;
+      return Icons.family_restroom_rounded;
     case 'job':
-      return Icons.work_outline;
+      return Icons.work_outline_rounded;
     case 'account':
     case 'profile':
-      return Icons.person_outline;
+      return Icons.person_outline_rounded;
     case 'integration':
-      return Icons.hub_outlined;
+      return Icons.hub_rounded;
     case 'source':
-      return Icons.tune;
+      return Icons.tune_rounded;
     default:
-      return Icons.history_toggle_off;
+      return Icons.history_toggle_off_rounded;
   }
 }
 

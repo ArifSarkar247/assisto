@@ -83,10 +83,10 @@ class OfflineModuleTile extends StatelessWidget {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(
           pureLocal
-              ? Icons.offline_bolt_outlined
+              ? Icons.offline_bolt_rounded
               : (status.hasData
-                  ? Icons.offline_pin_outlined
-                  : Icons.cloud_queue_outlined),
+                  ? Icons.offline_pin_rounded
+                  : Icons.cloud_queue_rounded),
           size: 22,
           color: status.hasData || pureLocal
               ? scheme.secondary

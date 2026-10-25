@@ -131,7 +131,7 @@ class _ScamScreenState extends State<ScamScreen> {
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
-            const Icon(Icons.shield_outlined),
+            const Icon(Icons.shield_rounded),
             const SizedBox(width: 10),
             Expanded(child: Text(t.scamIntro, style: AType.bodyMedium)),
           ]),
@@ -147,7 +147,7 @@ class _ScamScreenState extends State<ScamScreen> {
             alignLabelWithHint: true,
             suffixIcon: IconButton(
               tooltip: t.scamPasteButton,
-              icon: const Icon(Icons.content_paste),
+              icon: const Icon(Icons.content_paste_rounded),
               onPressed: _pasteFromClipboard,
             ),
           ),
@@ -160,7 +160,7 @@ class _ScamScreenState extends State<ScamScreen> {
             icon: _checking
                 ? const SizedBox(
                     height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.search),
+                : const Icon(Icons.search_rounded),
             label: Text(t.scamCheckButton),
           ),
         ),
@@ -173,7 +173,7 @@ class _ScamScreenState extends State<ScamScreen> {
           const SizedBox(height: 14),
           OutlinedButton.icon(
             onPressed: _reportToFamily,
-            icon: const Icon(Icons.family_restroom),
+            icon: const Icon(Icons.family_restroom_rounded),
             label: Text(t.scamReportToFamily),
           ),
           const SizedBox(height: 6),
@@ -194,7 +194,7 @@ class _ScamScreenState extends State<ScamScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.cloud_off, size: 40),
+            const Icon(Icons.cloud_off_rounded, size: 40),
             const SizedBox(height: Gap.sm),
             Text(t.scamLibraryOffline, textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),

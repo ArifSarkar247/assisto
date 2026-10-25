@@ -224,7 +224,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           IconButton(
             tooltip: t.disRefresh,
             onPressed: _loading ? null : _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
@@ -232,13 +232,13 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: t.disErrorTitle,
                   message: honestFailText(t, _failCause, otherwise: t.disErrorBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.disRetry)),
                 )
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
@@ -278,7 +278,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     if (_feedState == 'empty') {
       return _bannerCard(
         Brand.success,
-        Icons.verified_outlined,
+        Icons.verified_rounded,
         t.disFeedEmptyTitle,
         t.disFeedEmptyBody,
       );
@@ -286,7 +286,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     if (noKey) {
       return _bannerCard(
         Brand.warning,
-        Icons.link_off,
+        Icons.link_off_rounded,
         t.disFeedNoKeyTitle,
         kShowSampleDisasterWarnings ? t.disFeedNoKeyBody : t.f6DisFeedNoKeyBody,
       );
@@ -325,7 +325,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     final list = active ? _warnings : _sampleWarnings();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionHeader(
-        Icons.campaign_outlined,
+        Icons.campaign_rounded,
         active ? t.disActiveTitle : t.disSampleSectionTitle,
         scheme.primary,
       ),
@@ -363,7 +363,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     matched.sort((a, b) => dSevRank(b.warning.severity).compareTo(dSevRank(a.warning.severity)));
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _sectionHeader(Icons.diversity_3_outlined, t.disFamilyTitle, Brand.purple),
+      _sectionHeader(Icons.diversity_3_rounded, t.disFamilyTitle, Brand.purple),
       const SizedBox(height: Gap.xxs),
       Padding(
         padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
@@ -371,10 +371,10 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
       if (_family.isEmpty)
-        _tile(Icons.person_add_alt, t.disFamilyNone, scheme,
+        _tile(Icons.person_add_alt_rounded, t.disFamilyNone, scheme,
             onTap: () => ChatNav.push(context, 'family'))
       else if (matched.isEmpty)
-        _tile(Icons.check_circle_outline, t.disFamilyAllSafe, scheme,
+        _tile(Icons.check_circle_outline_rounded, t.disFamilyAllSafe, scheme,
             tint: Brand.success)
       else
         for (final a in matched)
@@ -394,7 +394,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
                   dSevLabel(context, a.warning.severity))),
               trailing: IconButton(
                 tooltip: t.disOpenFamily,
-                icon: const Icon(Icons.chevron_right),
+                icon: const Icon(Icons.chevron_right_rounded),
                 onPressed: () => ChatNav.push(context, 'family'),
               ),
             ),
@@ -405,7 +405,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
   // ---- safety library: steps for every kind, always available offline -------
   Widget _safetyLibrary(AppLocalizations t, ColorScheme scheme) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _sectionHeader(Icons.menu_book_outlined, t.disSafetyLibTitle, Brand.blue),
+      _sectionHeader(Icons.menu_book_rounded, t.disSafetyLibTitle, Brand.blue),
       const SizedBox(height: Gap.sm),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         for (final kind in kDisasterKinds)
@@ -424,7 +424,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       t.disPrep1, t.disPrep2, t.disPrep3, t.disPrep4, t.disPrep5, t.disPrep6, t.disPrep7,
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _sectionHeader(Icons.inventory_2_outlined, t.disPrepTitle, scheme.secondary),
+      _sectionHeader(Icons.inventory_2_rounded, t.disPrepTitle, scheme.secondary),
       const SizedBox(height: Gap.sm),
       Card(
         child: Padding(
@@ -434,7 +434,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.check_box_outline_blank,
+                  Icon(Icons.check_box_outline_blank_rounded,
                       size: 18, color: scheme.onSurfaceVariant),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(it, style: const TextStyle(height: 1.4))),
@@ -452,13 +452,13 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
   // ---- emergency contacts (999 + disaster hotline 1090) ---------------------
   Widget _emergencyContacts(AppLocalizations t, ColorScheme scheme) {
     final rows = [
-      _Hotline('national', kHotlineEmergency, Icons.emergency,
+      _Hotline('national', kHotlineEmergency, Icons.emergency_rounded,
           t.disHotlineNational, t.disHotlineNationalNote, primary: true),
-      _Hotline('disaster', kHotlineDisaster, Icons.cyclone,
+      _Hotline('disaster', kHotlineDisaster, Icons.cyclone_rounded,
           t.disHotlineDisaster, t.disHotlineDisasterNote),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _sectionHeader(Icons.call_outlined, t.disContactsTitle, Brand.danger),
+      _sectionHeader(Icons.call_rounded, t.disContactsTitle, Brand.danger),
       const SizedBox(height: Gap.sm),
       for (final h in rows)
         Card(
@@ -480,7 +480,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
                 minimumSize: const Size(0, 44),
               ),
               onPressed: () => _call(h.number),
-              icon: const Icon(Icons.call, size: 18),
+              icon: const Icon(Icons.call_rounded, size: 18),
               label: Text(dNum(context, int.parse(h.number))),
             ),
           ),
@@ -506,7 +506,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       child: ListTile(
         leading: Icon(icon, color: tint ?? scheme.onSurfaceVariant),
         title: Text(text),
-        trailing: onTap == null ? null : const Icon(Icons.chevron_right),
+        trailing: onTap == null ? null : const Icon(Icons.chevron_right_rounded),
         onTap: onTap,
       ),
     );

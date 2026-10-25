@@ -209,20 +209,20 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _checkIn,
-        icon: Icon(todayRow != null ? Icons.edit_outlined : Icons.mood),
+        icon: Icon(todayRow != null ? Icons.edit_rounded : Icons.mood_rounded),
         label: Text(
             todayRow != null ? tr.moodEditToday : tr.moodCheckIn),
       ),
       body: _logs.isEmpty
           ? ListView(children: [
               StateMessage(
-                icon: Icons.self_improvement,
+                icon: Icons.self_improvement_rounded,
                 tint: Brand.purple,
                 title: tr.moodWelcomeTitle,
                 message: tr.moodWelcomeBody,
                 action: FilledButton.icon(
                   onPressed: _checkIn,
-                  icon: const Icon(Icons.mood),
+                  icon: const Icon(Icons.mood_rounded),
                   label: Text(tr.moodCheckIn),
                 ),
               ),
@@ -274,7 +274,7 @@ class _OptInGate extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           const SizedBox(height: Gap.sm),
-          Icon(Icons.self_improvement, size: 56, color: Brand.purple),
+          Icon(Icons.self_improvement_rounded, size: 56, color: Brand.purple),
           const SizedBox(height: Gap.md),
           Text(tr.moodOptInTitle,
               textAlign: TextAlign.center,
@@ -287,14 +287,14 @@ class _OptInGate extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
           const SizedBox(height: Gap.lg),
-          _Bullet(icon: Icons.phonelink_lock, text: tr.moodOptInPoint1),
-          _Bullet(icon: Icons.mic_off, text: tr.moodOptInPoint2),
-          _Bullet(icon: Icons.delete_outline, text: tr.moodOptInPoint3),
-          _Bullet(icon: Icons.medical_services_outlined, text: tr.moodOptInPoint4),
+          _Bullet(icon: Icons.phonelink_lock_rounded, text: tr.moodOptInPoint1),
+          _Bullet(icon: Icons.mic_off_rounded, text: tr.moodOptInPoint2),
+          _Bullet(icon: Icons.delete_outline_rounded, text: tr.moodOptInPoint3),
+          _Bullet(icon: Icons.medical_services_rounded, text: tr.moodOptInPoint4),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             onPressed: onOptIn,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: Text(tr.moodOptInButton),
           ),
           const SizedBox(height: Gap.md),
@@ -473,7 +473,7 @@ class _SuggestionsCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.favorite_outline, size: 18, color: Brand.purple),
+            Icon(Icons.favorite_outline_rounded, size: 18, color: Brand.purple),
             const SizedBox(width: Gap.sm),
             Text(tr.moodSuggestionsTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -485,7 +485,7 @@ class _SuggestionsCard extends StatelessWidget {
               child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.circle, size: 7, color: scheme.onSurfaceVariant),
+                    Icon(Icons.circle_rounded, size: 7, color: scheme.onSurfaceVariant),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                         child: Text(_suggestionText(tr, k),
@@ -515,7 +515,7 @@ class _HelplineCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.volunteer_activism, color: scheme.onSecondaryContainer),
+          Icon(Icons.volunteer_activism_rounded, color: scheme.onSecondaryContainer),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -550,7 +550,7 @@ class _PrivacyNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.phonelink_lock, size: 18, color: Brand.blue),
+          Icon(Icons.phonelink_lock_rounded, size: 18, color: Brand.blue),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.moodPrivacyNote,
@@ -575,7 +575,7 @@ class _SafetyNote extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.moodSafetyNote,
@@ -635,15 +635,15 @@ class _CheckInSheetState extends State<_CheckInSheet> {
             InkWell(
               onTap: () => setState(() => _voiceExpanded = !_voiceExpanded),
               child: Row(children: [
-                Icon(Icons.mic_none, size: 20, color: Brand.blue),
+                Icon(Icons.mic_none_rounded, size: 20, color: Brand.blue),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.moodVoiceToggle,
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                 ),
                 Icon(_voiceExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more),
+                    ? Icons.expand_less_rounded
+                    : Icons.expand_more_rounded),
               ]),
             ),
             if (_voiceExpanded) ...[

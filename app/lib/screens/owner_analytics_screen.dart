@@ -131,7 +131,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           if (_status == _Status.ok)
             IconButton(
               tooltip: t.analyticsExport,
-              icon: const Icon(Icons.ios_share_outlined),
+              icon: const Icon(Icons.ios_share_rounded),
               onPressed: () => _export(t),
             ),
         ],
@@ -139,13 +139,13 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
       body: switch (_status) {
         _Status.loading => const SkeletonList(count: 7),
         _Status.ownerOnly => StateMessage(
-            icon: Icons.lock_outline,
+            icon: Icons.lock_outline_rounded,
             title: t.analyticsOwnerOnlyTitle,
             message: t.analyticsOwnerOnlyBody,
             tint: Theme.of(context).colorScheme.tertiary,
           ),
         _Status.error => StateMessage(
-            icon: Icons.cloud_off_outlined,
+            icon: Icons.cloud_off_rounded,
             title: t.analyticsErrorTitle,
             message: t.analyticsErrorBody,
             tint: Brand.danger,
@@ -180,7 +180,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: StateMessage(
-                icon: Icons.insights_outlined,
+                icon: Icons.insights_rounded,
                 title: t.analyticsEmptyTitle,
                 message: t.analyticsEmptyBody,
               ),
@@ -246,22 +246,22 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             _Metric(
               label: t.analyticsDau,
               value: _int(active['dau'] as num?, loc),
-              icon: Icons.today_outlined,
+              icon: Icons.today_rounded,
             ),
             _Metric(
               label: t.analyticsWau,
               value: _int(active['wau'] as num?, loc),
-              icon: Icons.date_range_outlined,
+              icon: Icons.date_range_rounded,
             ),
             _Metric(
               label: t.analyticsMau,
               value: _int(active['mau'] as num?, loc),
-              icon: Icons.calendar_month_outlined,
+              icon: Icons.calendar_month_rounded,
             ),
             _Metric(
               label: t.analyticsNewUsers,
               value: _int(retention['new_users'] as num?, loc),
-              icon: Icons.person_add_alt_1_outlined,
+              icon: Icons.person_add_alt_1_rounded,
             ),
           ]),
           const SizedBox(height: Gap.md),
@@ -300,22 +300,22 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             _Metric(
               label: t.analyticsRetentionD1,
               value: _pct(d1['pct'] as num?, loc),
-              icon: Icons.looks_one_outlined,
+              icon: Icons.looks_one_rounded,
             ),
             _Metric(
               label: t.analyticsRetentionD7,
               value: _pct(d7['pct'] as num?, loc),
-              icon: Icons.looks_two_outlined,
+              icon: Icons.looks_two_rounded,
             ),
             _Metric(
               label: t.analyticsRetentionD30,
               value: _pct(d30['pct'] as num?, loc),
-              icon: Icons.filter_3_outlined,
+              icon: Icons.filter_3_rounded,
             ),
             _Metric(
               label: t.analyticsRetentionD1Base,
               value: _int(d1['eligible'] as num?, loc),
-              icon: Icons.groups_outlined,
+              icon: Icons.groups_rounded,
             ),
           ]),
           const SizedBox(height: Gap.xl),
@@ -327,17 +327,17 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             _Metric(
               label: t.analyticsInvitesSent,
               value: _int(invites['sent'] as num?, loc),
-              icon: Icons.send_outlined,
+              icon: Icons.send_rounded,
             ),
             _Metric(
               label: t.analyticsInvitesAccepted,
               value: _int(invites['accepted'] as num?, loc),
-              icon: Icons.how_to_reg_outlined,
+              icon: Icons.how_to_reg_rounded,
             ),
             _Metric(
               label: t.analyticsInvitesRate,
               value: _pct(invites['accept_rate_pct'] as num?, loc),
-              icon: Icons.percent_outlined,
+              icon: Icons.percent_rounded,
             ),
           ]),
           const SizedBox(height: Gap.xl),
@@ -426,7 +426,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           // Total paid users is always a real count.
           Row(
             children: [
-              Icon(Icons.workspace_premium_outlined,
+              Icon(Icons.workspace_premium_rounded,
                   size: 18, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: Gap.sm),
               Text(
@@ -567,7 +567,7 @@ class _NoChartData extends StatelessWidget {
       height: Gap.xxxl,
       child: Row(
         children: [
-          Icon(Icons.timeline_outlined,
+          Icon(Icons.timeline_rounded,
               size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -598,7 +598,7 @@ class _EstimateBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.info_outline, size: 14, color: Brand.warning),
+          const Icon(Icons.info_outline_rounded, size: 14, color: Brand.warning),
           const SizedBox(width: Gap.xs),
           Flexible(
             child: Text(text,
@@ -630,7 +630,7 @@ class _Header extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.insights, color: Colors.white),
+            const Icon(Icons.insights_rounded, color: Colors.white),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(

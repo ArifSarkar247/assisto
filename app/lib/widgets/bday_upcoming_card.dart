@@ -105,14 +105,14 @@ class BdayUpcomingCard extends StatelessWidget {
                     Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
                       if (thisWeek)
                         _Badge(
-                          icon: Icons.local_fire_department_outlined,
+                          icon: Icons.local_fire_department_rounded,
                           text: bStr(context, 'bThisWeek'),
                           fg: scheme.onPrimary,
                           bg: scheme.primary,
                         ),
                       if (linked)
                         _Badge(
-                          icon: Icons.link,
+                          icon: Icons.link_rounded,
                           text: bStr(context, 'bLinked'),
                           fg: scheme.onSecondaryContainer,
                           bg: scheme.secondaryContainer,
@@ -123,7 +123,7 @@ class BdayUpcomingCard extends StatelessWidget {
           ),
           IconButton(
             tooltip: t.birthdayWishAction,
-            icon: const Icon(Icons.mail_outline),
+            icon: const Icon(Icons.mail_outline_rounded),
             color: scheme.primary,
             onPressed: onWish,
           ),
@@ -137,13 +137,13 @@ class BdayUpcomingCard extends StatelessWidget {
                   value: 'edit',
                   child: ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.edit_outlined),
+                      leading: const Icon(Icons.edit_rounded),
                       title: Text(bStr(context, 'bEdit')))),
               PopupMenuItem(
                   value: 'delete',
                   child: ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.delete_outline, color: scheme.error),
+                      leading: Icon(Icons.delete_outline_rounded, color: scheme.error),
                       title: Text(t.delete))),
             ],
           ),

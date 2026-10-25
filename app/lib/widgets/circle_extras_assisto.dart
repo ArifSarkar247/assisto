@@ -51,7 +51,7 @@ class AssistoActionSheet extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.auto_awesome, color: scheme.primary),
+                Icon(Icons.auto_awesome_rounded, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Text(t.circleExtrasAssistoTitle,
                     style: Theme.of(context).textTheme.titleMedium),
@@ -90,19 +90,19 @@ class _ActionTile extends StatelessWidget {
     late final String detail;
     switch (action.type) {
       case 'expense':
-        icon = Icons.receipt_long_outlined;
+        icon = Icons.receipt_long_rounded;
         title = t.circleExtrasMakeExpense;
         final amt = '${action.payload['amount'] ?? ''}';
         // ৳ (taka) sign is explicitly allowed in .dart.
         detail = amt.isEmpty ? '' : '৳$amt';
         break;
       case 'event':
-        icon = Icons.event_outlined;
+        icon = Icons.event_rounded;
         title = t.circleExtrasMakeEvent;
         detail = '${action.payload['datetime'] ?? action.payload['title'] ?? ''}';
         break;
       default:
-        icon = Icons.notifications_active_outlined;
+        icon = Icons.notifications_active_rounded;
         title = t.circleExtrasMakeReminder;
         detail = '${action.payload['datetime'] ?? action.payload['title'] ?? ''}';
     }

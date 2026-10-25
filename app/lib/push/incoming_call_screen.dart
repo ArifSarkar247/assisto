@@ -155,14 +155,14 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                       _RoundAction(
                         key: const Key('incoming-decline'),
                         color: Brand.danger,
-                        icon: Icons.call_end,
+                        icon: Icons.call_end_rounded,
                         label: t.pushCallDecline,
                         onTap: _decline,
                       ),
                       _RoundAction(
                         key: const Key('incoming-accept'),
                         color: Brand.success,
-                        icon: p.isVideo ? Icons.videocam : Icons.call,
+                        icon: p.isVideo ? Icons.videocam_rounded : Icons.call_rounded,
                         label: t.pushCallAccept,
                         onTap: _accept,
                       ),

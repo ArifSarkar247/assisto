@@ -605,12 +605,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
         actions: [
           IconButton(
             tooltip: cmLabel(context, 'cmPrivacyLearnMore'),
-            icon: const Icon(Icons.shield_outlined),
+            icon: const Icon(Icons.shield_rounded),
             onPressed: () => showCmPrivacyExplainer(context),
           ),
           IconButton(
             tooltip: t.msgrConnectTitle,
-            icon: const Icon(Icons.how_to_reg_outlined),
+            icon: const Icon(Icons.how_to_reg_rounded),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const ConnectionRequestsScreen())),
           ),
@@ -624,7 +624,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         CmStage.matching => CmLoading(progress: _progress),
         CmStage.denied => CmStateView(
-            icon: Icons.contacts_outlined,
+            icon: Icons.contacts_rounded,
             title: cmLabel(context, 'cmDeniedTitle'),
             body: cmLabel(context, 'cmDeniedBody'),
             tone: Theme.of(context).colorScheme.error,
@@ -638,7 +638,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             onSecondary: () => setState(() => _stage = CmStage.results),
           ),
         CmStage.offline => CmStateView(
-            icon: Icons.wifi_off_outlined,
+            icon: Icons.wifi_off_rounded,
             title: cmLabel(context, 'cmOfflineTitle'),
             body: cmLabel(context, 'cmOfflineBody'),
             tone: Theme.of(context).colorScheme.error,
@@ -678,7 +678,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             ],
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: const Icon(Icons.search, size: 20),
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
               hintText: t.c1SearchHint,
               hintMaxLines: 2,
               errorText: _searchError,
@@ -696,7 +696,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.person_search),
+              : const Icon(Icons.person_search_rounded),
         ),
       ]),
     );
@@ -738,12 +738,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               FilledButton.tonalIcon(
                 onPressed: () => _inviteSms(canon),
-                icon: const Icon(Icons.sms_outlined, size: 18),
+                icon: const Icon(Icons.sms_rounded, size: 18),
                 label: Text(t.c1Invite),
               ),
               OutlinedButton.icon(
                 onPressed: _shareInvite,
-                icon: const Icon(Icons.share_outlined, size: 18),
+                icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(cmLabel(context, 'cmShareCard')),
               ),
             ]),
@@ -785,7 +785,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (!_source.available || _cantRead)
         C1InfoBanner(
           key: const Key('c1-unavailable'),
-          icon: Icons.contacts_outlined,
+          icon: Icons.contacts_rounded,
           title: t.c1PhonebookCantReadTitle,
           body: t.c1PhonebookCantReadBody,
         ),
@@ -794,7 +794,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
           child: OutlinedButton.icon(
             onPressed: () => setState(() => _stage = CmStage.disclosure),
-            icon: const Icon(Icons.contacts_outlined),
+            icon: const Icon(Icons.contacts_rounded),
             label: Text(t.msgrContactsAllow),
           ),
         ),

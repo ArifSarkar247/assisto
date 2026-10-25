@@ -94,7 +94,7 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
       appBar: AppBar(title: Text(t.msgrBroadcastTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _compose,
-        icon: const Icon(Icons.campaign_outlined),
+        icon: const Icon(Icons.campaign_rounded),
         label: Text(t.msgrBroadcastNew),
       ),
       body: _loading
@@ -126,12 +126,12 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
     final t = _t;
     final count = (l['count'] as int?) ?? (l['recipients'] as List?)?.length ?? 0;
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.campaign_outlined)),
+      leading: const CircleAvatar(child: Icon(Icons.campaign_rounded)),
       title: Text('${l['name'] ?? ''}',
           maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text('${t.msgrBroadcastRecipients}: ${_digits(count)}',
           maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right_rounded),
       onTap: _compose,
     );
   }
@@ -143,7 +143,7 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_t.msgrBroadcastNote,
@@ -156,20 +156,20 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
   }
 
   Widget _empty() => _centeredState(
-      Icons.campaign_outlined, _t.msgrBroadcastEmptyTitle,
+      Icons.campaign_rounded, _t.msgrBroadcastEmptyTitle,
       _t.msgrBroadcastEmptyBody);
 
   Widget _error() {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
           serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(
           onPressed: _load,
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           label: Text(t.msgrRetry),
         ),
       ),

@@ -205,7 +205,7 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Row(children: [
-              Icon(Icons.info_outline, size: 16, color: scheme.onSecondaryContainer),
+              Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSecondaryContainer),
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.crmNoAutoSendNote,

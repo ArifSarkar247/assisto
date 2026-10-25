@@ -172,7 +172,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
               decoration: InputDecoration(
                 labelText: t.plParty,
                 hintText: _receivable ? t.plPartyHintReceivable : t.plPartyHintPayable,
-                prefixIcon: const Icon(Icons.person_outline),
+                prefixIcon: const Icon(Icons.person_outline_rounded),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -186,7 +186,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
                   decoration: InputDecoration(
                     labelText: t.plAmount,
                     hintText: t.plAmountHint,
-                    prefixIcon: const Icon(Icons.payments_outlined),
+                    prefixIcon: const Icon(Icons.payments_rounded),
                   ),
                 ),
               ),
@@ -217,7 +217,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
               child: InputDecorator(
                 decoration: InputDecoration(
                   labelText: t.plDueDate,
-                  prefixIcon: const Icon(Icons.event),
+                  prefixIcon: const Icon(Icons.event_rounded),
                 ),
                 child: Text(_dueDate != null ? iso(_dueDate!) : t.plPickDate),
               ),
@@ -232,7 +232,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
                 decoration: InputDecoration(
                   labelText: t.plRecurring,
                   hintText: t.plRecurringHint,
-                  prefixIcon: const Icon(Icons.repeat),
+                  prefixIcon: const Icon(Icons.repeat_rounded),
                 ),
               ),
             if (!_receivable) const SizedBox(height: Gap.md),
@@ -257,7 +257,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
               ),
               TextButton.icon(
                 onPressed: _useDefault,
-                icon: const Icon(Icons.auto_fix_high, size: 18),
+                icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
                 label: Text(t.plUseDefault),
               ),
             ]),
@@ -268,7 +268,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               onPressed: _addStep,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.plAddStep),
             ),
 
@@ -316,7 +316,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
               IconButton(
                 tooltip: t.plRemoveStep,
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.close, size: 18),
+                icon: const Icon(Icons.close_rounded, size: 18),
                 onPressed: () => setState(() => _steps.removeAt(i)),
               ),
           ]),

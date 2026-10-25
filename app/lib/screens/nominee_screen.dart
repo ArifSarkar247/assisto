@@ -301,19 +301,19 @@ class _NomineeScreenState extends State<NomineeScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _saving ? null : () => _edit(tr),
-              icon: const Icon(Icons.person_add_alt),
+              icon: const Icon(Icons.person_add_alt_rounded),
               label: Text(tr.nominee2)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.checkInternetRetry),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)))
               : _list.isEmpty
                   ? _EmptyState(onAdd: () => _edit(tr))
@@ -351,12 +351,12 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     return StateMessage(
-      icon: Icons.family_restroom,
+      icon: Icons.family_restroom_rounded,
       title: tr.noNomineesYet,
       message: tr.addATrustedPersonWho,
       action: FilledButton.icon(
           onPressed: onAdd,
-          icon: const Icon(Icons.person_add_alt),
+          icon: const Icon(Icons.person_add_alt_rounded),
           label: Text(tr.addNominee)),
     );
   }
@@ -376,7 +376,7 @@ class _SafetyHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(Icons.verified_user_outlined,
+        Icon(Icons.verified_user_rounded,
             color: scheme.onSecondaryContainer, size: 22),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -427,7 +427,7 @@ class _StepperField extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(
           tooltip: AppLocalizations.of(context).f2Decrease,
-          icon: const Icon(Icons.remove),
+          icon: const Icon(Icons.remove_rounded),
           onPressed: value > min ? () => onChanged(value - step) : null,
         ),
         SizedBox(
@@ -438,7 +438,7 @@ class _StepperField extends StatelessWidget {
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).f2Increase,
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           onPressed: value < max ? () => onChanged(value + step) : null,
         ),
       ]),

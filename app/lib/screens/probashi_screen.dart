@@ -126,13 +126,13 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
       return Scaffold(
         appBar: AppBar(title: Text(tr.probashiTitle)),
         body: StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.probashiLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(tr.retry),
           ),
         ),
@@ -313,17 +313,17 @@ class _RemitTab extends StatelessWidget {
           ? null
           : FloatingActionButton.extended(
               onPressed: onAdd,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.probashiLogSend),
             ),
       body: remits.isEmpty
           ? StateMessage(
-              icon: Icons.send_outlined,
+              icon: Icons.send_rounded,
               title: tr.probashiRemitWelcomeTitle,
               message: tr.probashiRemitWelcomeBody,
               action: FilledButton.icon(
                 onPressed: onAdd,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.probashiLogSend),
               ),
             )
@@ -367,7 +367,7 @@ class _RemitTab extends StatelessWidget {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: scheme.primaryContainer,
-                          child: Icon(Icons.arrow_upward,
+                          child: Icon(Icons.arrow_upward_rounded,
                               color: scheme.onPrimaryContainer),
                         ),
                         title: Text(
@@ -463,7 +463,7 @@ class _ClockTab extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Card(
           child: ListTile(
-            leading: const Icon(Icons.public),
+            leading: const Icon(Icons.public_rounded),
             title: Text(tr.probashiAbroadZone),
             subtitle: Text(pair.abroadOffsetDisplay),
             trailing: FilledButton.tonal(
@@ -524,17 +524,17 @@ class _DocsTab extends StatelessWidget {
           ? null
           : FloatingActionButton.extended(
               onPressed: onAdd,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.probashiAddDoc),
             ),
       body: docs.isEmpty
           ? StateMessage(
-              icon: Icons.badge_outlined,
+              icon: Icons.badge_rounded,
               title: tr.probashiDocsWelcomeTitle,
               message: tr.f6ProbashiDocsWelcomeBody,
               action: FilledButton.icon(
                 onPressed: onAdd,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
                 label: Text(tr.probashiAddDoc),
               ),
             )
@@ -603,13 +603,13 @@ class _DocsTab extends StatelessWidget {
   IconData _statusIcon(String status) {
     switch (status) {
       case 'expired':
-        return Icons.error_outline;
+        return Icons.error_outline_rounded;
       case 'expiring':
-        return Icons.warning_amber_outlined;
+        return Icons.warning_amber_rounded;
       case 'valid':
-        return Icons.check_circle_outline;
+        return Icons.check_circle_outline_rounded;
       default:
-        return Icons.help_outline;
+        return Icons.help_outline_rounded;
     }
   }
 
@@ -649,7 +649,7 @@ Widget _noteCard(BuildContext context, String text) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.info_outline, size: 18, color: scheme.primary),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
@@ -957,7 +957,7 @@ Future<Map<String, dynamic>?> _remitSheet(
               const SizedBox(height: Gap.md),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event),
+                leading: const Icon(Icons.event_rounded),
                 title: Text(tr.probashiDate),
                 subtitle: Text(d(date)),
                 trailing: TextButton(
@@ -1065,7 +1065,7 @@ Future<Map<String, dynamic>?> _docSheet(
               const SizedBox(height: Gap.md),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event_busy),
+                leading: const Icon(Icons.event_busy_rounded),
                 title: Text(tr.probashiExpiryDate),
                 subtitle:
                     Text(expiry == null ? tr.probashiNoExpiry : d(expiry!)),

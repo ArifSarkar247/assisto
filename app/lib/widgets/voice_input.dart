@@ -403,7 +403,7 @@ class VoiceMicButton extends StatelessWidget {
                 ? _MicPulse(onTap: voice.stop)
                 : IconButton(
                     onPressed: () => voice.toggle(context, input),
-                    icon: Icon(Icons.mic_none,
+                    icon: Icon(Icons.mic_none_rounded,
                         color: scheme.onSurfaceVariant,
                         // f2: the outer Tooltip labels the gesture, not
                         // this button's own semantics node.
@@ -446,7 +446,7 @@ class _MicPulseState extends State<_MicPulse>
         animation: _c,
         builder: (_, child) =>
             Transform.scale(scale: 1 + _c.value * 0.18, child: child),
-        child: const Icon(Icons.stop_circle, color: Brand.danger),
+        child: const Icon(Icons.stop_circle_rounded, color: Brand.danger),
       ),
     );
   }

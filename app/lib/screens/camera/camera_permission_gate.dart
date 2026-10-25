@@ -103,7 +103,7 @@ class CameraPermissionScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           tooltip: t.close,
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -124,7 +124,7 @@ class CameraPermissionScreen extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Icon(
-                    denied ? Icons.no_photography_outlined : Icons.photo_camera_outlined,
+                    denied ? Icons.no_photography_rounded : Icons.photo_camera_rounded,
                     size: 44,
                     color: Colors.white,
                   ),
@@ -152,7 +152,7 @@ class CameraPermissionScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: Gap.md),
                     ),
                     onPressed: denied ? openAppSettings : onPrimary,
-                    icon: Icon(denied ? Icons.settings_outlined : Icons.check),
+                    icon: Icon(denied ? Icons.settings_rounded : Icons.check_rounded),
                     label: Text(
                       denied ? t.camPermOpenSettings : t.continueWord,
                       maxLines: 1,

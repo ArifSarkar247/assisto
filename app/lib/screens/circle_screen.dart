@@ -148,7 +148,7 @@ class _CircleScreenState extends State<CircleScreen> {
           children: [
             for (final r in const ['spam', 'harassment', 'scam', 'impersonation', 'other'])
               ListTile(
-                leading: const Icon(Icons.flag_outlined),
+                leading: const Icon(Icons.flag_rounded),
                 title: Text(_reportLabel(r)),
                 onTap: () => Navigator.pop(ctx, r),
               ),
@@ -277,17 +277,17 @@ class _CircleScreenState extends State<CircleScreen> {
         actions: [
           IconButton(
             tooltip: _t.statusTitle,
-            icon: const Icon(Icons.auto_awesome_outlined),
+            icon: const Icon(Icons.auto_awesome_rounded),
             onPressed: _openStatus,
           ),
           IconButton(
             tooltip: _t.circleGroupsTitle,
-            icon: const Icon(Icons.groups_outlined),
+            icon: const Icon(Icons.groups_rounded),
             onPressed: _openGroups,
           ),
           IconButton(
             tooltip: _t.circleSearchAll,
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search_rounded),
             onPressed: _members.isEmpty
                 ? null
                 : () {
@@ -303,7 +303,7 @@ class _CircleScreenState extends State<CircleScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFlow,
-        icon: const Icon(Icons.person_add_alt_1_outlined),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(_t.circleAdd),
       ),
       body: _loading
@@ -345,7 +345,7 @@ class _CircleScreenState extends State<CircleScreen> {
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(
           children: [
-            Icon(Icons.diversity_1_outlined,
+            Icon(Icons.diversity_1_rounded,
                 size: 56, color: scheme.primary.withValues(alpha: 0.7)),
             const SizedBox(height: Gap.md),
             // QA a6: a failed load used to read "Your circle is empty";
@@ -369,7 +369,7 @@ class _CircleScreenState extends State<CircleScreen> {
                   setState(() => _loading = true);
                   _load();
                 },
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded),
                 label: Text(_t.retry),
               ),
             ],
@@ -456,7 +456,7 @@ class _CircleScreenState extends State<CircleScreen> {
                     child: Text(_t.circleDecline),
                   ),
                   FilledButton.icon(
-                    icon: const Icon(Icons.check, size: 18),
+                    icon: const Icon(Icons.check_rounded, size: 18),
                     label: Text(_t.circleAccept),
                     style: Brand.successButton(),
                     onPressed: () => _act(r, 'accept'),
@@ -469,7 +469,7 @@ class _CircleScreenState extends State<CircleScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.close, size: 18),
+                    icon: const Icon(Icons.close_rounded, size: 18),
                     label: Text(_t.circleCancelRequest),
                     onPressed: () => _act(r, 'cancel'),
                   ),

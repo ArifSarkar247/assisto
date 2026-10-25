@@ -234,7 +234,7 @@ void main() {
       final t = await AppLocalizations.delegate.load(const Locale('en'));
       expect(find.text(t.p2Sponsored), findsOneWidget);
       expect(b.events, ['impression:tok-7']);
-      await tester.tap(find.byIcon(Icons.more_horiz));
+      await tester.tap(find.byIcon(Icons.more_horiz_rounded));
       await tester.pumpAndSettle();
       await tester.tap(find.text(t.p2HideAd));
       await tester.pumpAndSettle();

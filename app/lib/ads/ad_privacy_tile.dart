@@ -48,7 +48,7 @@ class _AdPrivacyTileState extends State<AdPrivacyTile> {
         final t = AppLocalizations.of(context);
         return ListTile(
           key: const Key('settings-ad-privacy'),
-          leading: const Icon(Icons.privacy_tip_outlined),
+          leading: const Icon(Icons.privacy_tip_rounded),
           title: Text(t.l3AdPrivacyTitle),
           subtitle: Text(t.l3AdPrivacySub),
           onTap: _open,

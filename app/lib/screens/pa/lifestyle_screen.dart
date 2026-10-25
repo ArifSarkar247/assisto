@@ -163,20 +163,20 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(
                   tr, [_kAppt, _kPref, _kRoutine][_tabs.index]),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.lifestyleAdd),
             ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.lifestyleLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh_rounded),
                       label: Text(tr.retry)),
                 )
               : TabBarView(controller: _tabs, children: [
@@ -191,7 +191,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _apptsTab(AppLocalizations tr, ColorScheme scheme) {
     final list = _appts;
     if (list.isEmpty) {
-      return _welcome(tr, Icons.spa_outlined, tr.lifestyleWelcomeTitle,
+      return _welcome(tr, Icons.spa_rounded, tr.lifestyleWelcomeTitle,
           tr.lifestyleWelcomeBody, _kAppt, true);
     }
     final now = DateTime.now();
@@ -231,7 +231,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(children: [
-          Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.lifestylePrivacyNote,
@@ -267,8 +267,8 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           ]),
           const SizedBox(height: 2),
           Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
-            if (at.isNotEmpty) _meta(Icons.schedule, at, scheme),
-            if (place.isNotEmpty) _meta(Icons.place_outlined, place, scheme),
+            if (at.isNotEmpty) _meta(Icons.schedule_rounded, at, scheme),
+            if (place.isNotEmpty) _meta(Icons.place_rounded, place, scheme),
           ]),
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -285,7 +285,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _prefsTab(AppLocalizations tr, ColorScheme scheme) {
     final list = _prefs;
     if (list.isEmpty) {
-      return _welcome(tr, Icons.favorite_outline, tr.lifestyleNoPrefsTitle,
+      return _welcome(tr, Icons.favorite_outline_rounded, tr.lifestyleNoPrefsTitle,
           tr.lifestyleNoPrefsBody, _kPref, false);
     }
     // group by topic
@@ -307,7 +307,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
                 margin: const EdgeInsets.only(bottom: Gap.xs),
                 child: ListTile(
                   dense: true,
-                  leading: const Icon(Icons.check_circle_outline),
+                  leading: const Icon(Icons.check_circle_outline_rounded),
                   title: Text((r['text'] ?? '').toString()),
                   trailing: _menu(r, tr, _kPref),
                 ),
@@ -322,7 +322,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _routinesTab(AppLocalizations tr, ColorScheme scheme) {
     final list = _routines;
     if (list.isEmpty) {
-      return _welcome(tr, Icons.schedule_outlined, tr.lifestyleNoRoutinesTitle,
+      return _welcome(tr, Icons.schedule_rounded, tr.lifestyleNoRoutinesTitle,
           tr.lifestyleNoRoutinesBody, _kRoutine, false);
     }
     final buckets = <String, List<Map<String, dynamic>>>{for (final s in _slots) s: []};
@@ -380,7 +380,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
             message: body,
             action: FilledButton.icon(
               onPressed: () => _addOrEdit(tr, kind),
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(tr.lifestyleAdd),
             ),
           ),
@@ -393,7 +393,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
 
   Widget _menu(Map<String, dynamic> r, AppLocalizations tr, String kind) =>
       PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert),
+        icon: const Icon(Icons.more_vert_rounded),
         onSelected: (v) {
           if (v == 'edit') _addOrEdit(tr, kind, existing: r);
           if (v == 'delete') _delete(r, tr);
@@ -435,17 +435,17 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   IconData _catIcon(String c) {
     switch (c) {
       case 'salon':
-        return Icons.content_cut;
+        return Icons.content_cut_rounded;
       case 'gym':
-        return Icons.fitness_center;
+        return Icons.fitness_center_rounded;
       case 'wellness':
-        return Icons.self_improvement;
+        return Icons.self_improvement_rounded;
       case 'stylist':
-        return Icons.checkroom;
+        return Icons.checkroom_rounded;
       case 'spa':
-        return Icons.spa_outlined;
+        return Icons.spa_rounded;
       default:
-        return Icons.event_outlined;
+        return Icons.event_rounded;
     }
   }
 

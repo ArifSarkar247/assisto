@@ -233,7 +233,7 @@ class FakeSurface implements CallVideoSurface {
           gradient:
               LinearGradient(colors: [Color(0xFF3A4F7A), Color(0xFF6C8CC7)])),
       child:
-          Center(child: Icon(Icons.person, color: Colors.white70, size: 48)));
+          Center(child: Icon(Icons.person_rounded, color: Colors.white70, size: 48)));
   @override
   Widget remoteView() => const DecoratedBox(
       decoration: BoxDecoration(
@@ -242,7 +242,7 @@ class FakeSurface implements CallVideoSurface {
               end: Alignment.bottomCenter,
               colors: [Color(0xFF6B4E3D), Color(0xFF2D3A4A)])),
       child:
-          Center(child: Icon(Icons.face_3, color: Colors.white54, size: 160)));
+          Center(child: Icon(Icons.face_3_rounded, color: Colors.white54, size: 160)));
 }
 
 /// A controller frozen in [phase] (gallery).

@@ -94,7 +94,7 @@ class RefAudit extends StatelessWidget {
         CircleAvatar(
           radius: 18,
           backgroundColor: scheme.primary.withValues(alpha: 0.12),
-          child: Icon(Icons.workspace_premium,
+          child: Icon(Icons.workspace_premium_rounded,
               size: 18, color: scheme.primary),
         ),
         const SizedBox(width: Gap.md),

@@ -120,7 +120,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
                     color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(Radii.md),
                   ),
-                  child: Icon(Icons.qr_code_2,
+                  child: Icon(Icons.qr_code_2_rounded,
                       size: 120, color: scheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: Gap.md),
@@ -131,7 +131,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
               ]),
               actions: [
                 TextButton.icon(
-                  icon: const Icon(Icons.copy_outlined),
+                  icon: const Icon(Icons.copy_rounded),
                   label: Text(t.onbInviteCopy),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: _invite(t)));
@@ -165,7 +165,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
-        Icon(Icons.favorite, size: 40, color: scheme.primary),
+        Icon(Icons.favorite_rounded, size: 40, color: scheme.primary),
         const SizedBox(height: Gap.sm),
         Text(t.onbLinkParentTitle,
             textAlign: TextAlign.center,
@@ -187,7 +187,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
           decoration: InputDecoration(
             labelText: t.onbParentPhoneLabel,
             hintText: t.onbLinkParentPhoneHint,
-            prefixIcon: const Icon(Icons.phone_outlined),
+            prefixIcon: const Icon(Icons.phone_rounded),
             errorText: _error,
           ),
         ),
@@ -235,16 +235,16 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
         Row(children: [
           Expanded(
             child: _inviteBtn(
-                scheme, Icons.call_outlined, t.onbInviteCall, () => _tel(t)),
+                scheme, Icons.call_rounded, t.onbInviteCall, () => _tel(t)),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: _inviteBtn(
-                scheme, Icons.sms_outlined, t.onbInviteSms, () => _sms(t)),
+                scheme, Icons.sms_rounded, t.onbInviteSms, () => _sms(t)),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
-            child: _inviteBtn(scheme, Icons.qr_code_2_outlined,
+            child: _inviteBtn(scheme, Icons.qr_code_2_rounded,
                 t.onbInviteShowQr, () => _showQr(t)),
           ),
         ]),
@@ -253,7 +253,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
         // behind validate so the link targets a real invite).
         TextButton.icon(
           onPressed: () => _copyLink(t),
-          icon: const Icon(Icons.link_outlined, size: 18),
+          icon: const Icon(Icons.link_rounded, size: 18),
           label: Text(t.onbInviteCopy),
         ),
         const SizedBox(height: Gap.md),
@@ -264,7 +264,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
 
         FilledButton.icon(
           onPressed: widget.onOpenFamily,
-          icon: const Icon(Icons.diversity_1_outlined),
+          icon: const Icon(Icons.diversity_1_rounded),
           style:
               FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
           label: Text(t.onbManageFamily),
@@ -307,7 +307,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(children: [
-          Icon(Icons.phone_in_talk_outlined,
+          Icon(Icons.phone_in_talk_rounded,
               size: 20, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -323,7 +323,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
                           color: scheme.onSurfaceVariant)),
                 ]),
           ),
-          Icon(enabled ? Icons.chevron_right : Icons.lock_clock_outlined,
+          Icon(enabled ? Icons.chevron_right_rounded : Icons.lock_clock_rounded,
               size: 18, color: scheme.onSurfaceVariant),
         ]),
       ),

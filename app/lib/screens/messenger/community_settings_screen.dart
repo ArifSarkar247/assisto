@@ -102,7 +102,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                 const Divider(),
                 _sectionHeader(_t.communityPhoneTitle, scheme),
                 SwitchListTile(
-                  secondary: const Icon(Icons.phone_outlined),
+                  secondary: const Icon(Icons.phone_rounded),
                   title: Text(_t.communityShowPhone),
                   subtitle: Text(_t.communityShowPhoneHint),
                   value: _showPhone,
@@ -113,7 +113,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(
                     children: [
-                      Icon(Icons.verified_user_outlined,
+                      Icon(Icons.verified_user_rounded,
                           size: 18, color: scheme.primary),
                       const SizedBox(width: Gap.sm),
                       Expanded(

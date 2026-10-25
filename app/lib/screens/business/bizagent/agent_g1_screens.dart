@@ -161,7 +161,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -179,7 +179,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       BizCard(
         title: t.g1ModeTitle,
-        icon: Icons.schedule_outlined,
+        icon: Icons.schedule_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           RadioGroup<String>(
             groupValue: mode,
@@ -205,13 +205,13 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             ]),
           ),
           if (mode == 'outside_hours' && hours['start'] == null)
-            BizNote(text: t.g1ModeNeedsHours, icon: Icons.info_outline, tint: AssistoTokens.of(context).warning),
+            BizNote(text: t.g1ModeNeedsHours, icon: Icons.info_outline_rounded, tint: AssistoTokens.of(context).warning),
         ]),
       ),
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1ResumeTitle,
-        icon: Icons.support_agent,
+        icon: Icons.support_agent_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(bd(context, t.g1ResumeSub(resumeMin)), style: const TextStyle(height: 1.4)),
           const SizedBox(height: Gap.md),
@@ -237,7 +237,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1QuietTitle,
-        icon: Icons.bedtime_outlined,
+        icon: Icons.bedtime_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -252,12 +252,12 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               OutlinedButton.icon(
                 onPressed: _busy ? null : () => _pickTime('quiet_hours', 'start'),
-                icon: const Icon(Icons.nights_stay_outlined),
+                icon: const Icon(Icons.nights_stay_rounded),
                 label: Text('${t.g1From} ${_hhmm(context, '${quiet['start']}')}'),
               ),
               OutlinedButton.icon(
                 onPressed: _busy ? null : () => _pickTime('quiet_hours', 'end'),
-                icon: const Icon(Icons.wb_sunny_outlined),
+                icon: const Icon(Icons.wb_sunny_rounded),
                 label: Text('${t.g1To} ${_hhmm(context, '${quiet['end']}')}'),
               ),
             ]),
@@ -278,7 +278,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1SalesTitle,
-        icon: Icons.sell_outlined,
+        icon: Icons.sell_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _switch('followups_enabled', t.g1FollowTitle, t.g1FollowSub),
           _switch('upsell_enabled', t.g1UpsellTitle, t.g1UpsellSub),
@@ -328,23 +328,23 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1UnderstandTitle,
-        icon: Icons.photo_camera_outlined,
+        icon: Icons.photo_camera_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _switch('vision_enabled', t.g1VisionTitle,
               t.g1VisionSub((_g1['vision_credits'] as num?)?.toInt() ?? 0)),
-          if (!visionReady) BizNote(text: t.g1VisionNotReady, icon: Icons.key_off_outlined),
+          if (!visionReady) BizNote(text: t.g1VisionNotReady, icon: Icons.key_off_rounded),
           _switch('voice_enabled', t.g1VoiceTitle,
               t.g1VoiceSub((_g1['voice_credits'] as num?)?.toInt() ?? 0)),
-          if (!voiceReady) BizNote(text: t.g1VoiceNotReady, icon: Icons.key_off_outlined),
+          if (!voiceReady) BizNote(text: t.g1VoiceNotReady, icon: Icons.key_off_rounded),
           _switch('comment_dm', t.g1CommentTitle, t.g1CommentSub),
           const SizedBox(height: Gap.sm),
-          BizNote(text: t.g1PaymentNote, icon: Icons.verified_user_outlined),
+          BizNote(text: t.g1PaymentNote, icon: Icons.verified_user_rounded),
         ]),
       ),
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1WidgetTitle,
-        icon: Icons.language_outlined,
+        icon: Icons.language_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.g1WidgetSub),
           SwitchListTile(
@@ -392,7 +392,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
                 Clipboard.setData(ClipboardData(text: snippet));
                 _snack(t.g1Copied);
               },
-              icon: const Icon(Icons.copy_outlined),
+              icon: const Icon(Icons.copy_rounded),
               label: Text(t.g1Copy),
             ),
             Text(t.g1WidgetNewKeyNote, style: Theme.of(context).textTheme.bodySmall),
@@ -574,7 +574,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _busy ? null : _addFaq,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(t.g1FaqAdd),
             ),
       body: _body(t),
@@ -585,7 +585,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -599,7 +599,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
       child: ListView(padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96), children: [
         BizCard(
           title: t.g1RulesCardTitle,
-          icon: Icons.bolt_outlined,
+          icon: Icons.bolt_rounded,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(bd(context, t.g1RuleShare('$pct')),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.4)),
@@ -609,17 +609,17 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
             Text(bd(context, t.g1Saved30((_rules['saved_seller_credits'] as num?)?.toInt() ?? 0)),
                 style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: Gap.sm),
-            BizNote(text: t.g1RulesNote, icon: Icons.info_outline),
+            BizNote(text: t.g1RulesNote, icon: Icons.info_outline_rounded),
           ]),
         ),
         const SizedBox(height: Gap.md),
         BizCard(
           title: t.g1FaqTitle,
-          icon: Icons.quiz_outlined,
+          icon: Icons.quiz_rounded,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             OutlinedButton.icon(
               onPressed: _busy ? null : _learn,
-              icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
               label: Text(t.g1FaqLearn),
             ),
             const SizedBox(height: Gap.sm),
@@ -631,23 +631,23 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
         const SizedBox(height: Gap.md),
         BizCard(
           title: t.g1PostLinksTitle,
-          icon: Icons.comment_outlined,
+          icon: Icons.comment_rounded,
           trailing: IconButton(
             tooltip: t.g1PostLinksAdd,
             onPressed: _busy ? null : _addLink,
-            icon: const Icon(Icons.add_link),
+            icon: const Icon(Icons.add_link_rounded),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.g1PostLinksSub, style: const TextStyle(height: 1.4)),
             for (final l in _links)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.link),
+                leading: const Icon(Icons.link_rounded),
                 title: Text(bd(context, '${l['product']}')),
                 subtitle: Text(bd(context, '${l['post_id']}')),
                 trailing: IconButton(
                   tooltip: t.g1Delete,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: _busy
                       ? null
                       : () => _run(() async {
@@ -780,7 +780,7 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
     if (_loading) return const SkeletonList();
     if (_error != null) {
       return StateMessage(
-        icon: Icons.cloud_off_outlined,
+        icon: Icons.cloud_off_rounded,
         title: t.bizLoadFailed,
         message: baErrorText(t, _error!),
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
@@ -804,7 +804,7 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1ReportByAgent,
-        icon: Icons.insights_outlined,
+        icon: Icons.insights_rounded,
         child: Wrap(spacing: Gap.lg, children: [
           _stat(t.g1RChats, '${r['chats'] ?? 0}'),
           _stat(t.g1ROrders, '${r['orders'] ?? 0}'),
@@ -818,7 +818,7 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
       const SizedBox(height: Gap.md),
       BizCard(
         title: t.g1RulesCardTitle,
-        icon: Icons.bolt_outlined,
+        icon: Icons.bolt_rounded,
         child: Wrap(spacing: Gap.lg, children: [
           _stat(t.g1RRuleReplies, '${r['rule_replies'] ?? 0}'),
           _stat(t.g1RAiReplies, '${r['ai_replies'] ?? 0}'),
@@ -828,10 +828,10 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
       ),
       if (r['cost_known'] != true) ...[
         const SizedBox(height: Gap.md),
-        BizNote(text: t.g1ReportCostUnknown, icon: Icons.info_outline),
+        BizNote(text: t.g1ReportCostUnknown, icon: Icons.info_outline_rounded),
       ],
       const SizedBox(height: Gap.md),
-      BizNote(text: t.g1ReportNote, icon: Icons.verified_user_outlined),
+      BizNote(text: t.g1ReportNote, icon: Icons.verified_user_rounded),
     ]);
   }
 }

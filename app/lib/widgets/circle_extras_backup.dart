@@ -92,7 +92,7 @@ class _BackupSheetState extends State<BackupSheet> {
             Row(
               children: [
                 TextButton.icon(
-                  icon: const Icon(Icons.copy, size: 16),
+                  icon: const Icon(Icons.copy_rounded, size: 16),
                   label: Text(t.circleExtrasCopyCode),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: _code));
@@ -101,7 +101,7 @@ class _BackupSheetState extends State<BackupSheet> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.refresh, size: 18),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
                   tooltip: t.circleExtrasRecoveryCode,
                   onPressed: () =>
                       setState(() => _code = KeyBackup.generateRecoveryCode()),
@@ -238,10 +238,10 @@ class LinkedDevicesCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          leading: Icon(Icons.phone_android, color: scheme.primary),
+          leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
           title: Text(t.circleExtrasThisDevice),
           subtitle: Text(thisDeviceName),
-          trailing: const Icon(Icons.check_circle, color: Brand.success),
+          trailing: const Icon(Icons.check_circle_rounded, color: Brand.success),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
@@ -250,7 +250,7 @@ class LinkedDevicesCard extends StatelessWidget {
         ),
         const SizedBox(height: Gap.sm),
         ListTile(
-          leading: const Icon(Icons.add_link),
+          leading: const Icon(Icons.add_link_rounded),
           title: Text(t.circleExtrasLinkDevice),
           onTap: onLink,
         ),

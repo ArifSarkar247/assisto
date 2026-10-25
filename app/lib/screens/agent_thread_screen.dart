@@ -511,7 +511,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               : IconButton.filled(
                   tooltip: AppLocalizations.of(context).send,
                   onPressed: () => _send(),
-                  icon: const Icon(Icons.arrow_upward)),
+                  icon: const Icon(Icons.arrow_upward_rounded)),
         ]),
       ),
     );

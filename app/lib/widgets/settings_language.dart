@@ -38,7 +38,7 @@ class SettingsLanguageSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
           child: Row(
             children: [
-              Icon(Icons.translate, size: 20, color: cs.primary),
+              Icon(Icons.translate_rounded, size: 20, color: cs.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
@@ -64,7 +64,7 @@ class SettingsLanguageSection extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.check_circle,
+                Icon(Icons.check_circle_rounded,
                     size: 18, color: cs.onPrimaryContainer),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -185,8 +185,8 @@ class _LangCard extends StatelessWidget {
                     const SizedBox(width: Gap.xs),
                     Icon(
                       selected
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
+                          ? Icons.radio_button_checked_rounded
+                          : Icons.radio_button_unchecked_rounded,
                       size: 20,
                       color: selected ? cs.primary : cs.onSurfaceVariant,
                     ),

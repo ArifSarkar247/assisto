@@ -141,11 +141,11 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
       body: TabBarView(controller: _tabs, children: [
         _buildSearch(t),
         _buildSavedOrRecent(t, _saved,
-            emptyIcon: Icons.star_border,
+            emptyIcon: Icons.star_border_rounded,
             emptyTitle: t.medicineDbSavedEmptyTitle,
             emptyBody: t.medicineDbSavedEmptyBody),
         _buildSavedOrRecent(t, _recent,
-            emptyIcon: Icons.history,
+            emptyIcon: Icons.history_rounded,
             emptyTitle: t.medicineDbRecentEmptyTitle,
             emptyBody: t.medicineDbRecentEmptyBody,
             onClear: _recent.isEmpty
@@ -171,10 +171,10 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
         controller: _search,
         decoration: InputDecoration(
           hintText: t.medicineDbSearchHint,
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: IconButton(
             tooltip: MaterialLocalizations.of(context).searchFieldLabel,
-            icon: const Icon(Icons.arrow_forward),
+            icon: const Icon(Icons.arrow_forward_rounded),
             onPressed: _run,
           ),
         ),
@@ -187,12 +187,12 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
 
       // honest source line (always, once results exist)
       if (_searched && !_offline && sourceLabel.isNotEmpty)
-        _noticeRow(Icons.verified_outlined, sourceLabel,
+        _noticeRow(Icons.verified_rounded, sourceLabel,
             AssistoTokens.of(context).info, scheme),
 
       // sample-data badge
       if (_searched && !_offline && isSample && sampleNotice.isNotEmpty)
-        _noticeRow(Icons.science_outlined, sampleNotice,
+        _noticeRow(Icons.science_rounded, sampleNotice,
             Brand.warnInk(context), scheme,
             bg: Brand.warning.withValues(alpha: 0.15)),
 
@@ -210,25 +210,25 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
                     )))
       else if (_error)
         StateMessage(
-          icon: Icons.cloud_off,
+          icon: Icons.cloud_off_rounded,
           tint: scheme.error,
           title: t.medicineDbLoadError,
           message: _offline ? t.medicineDbOfflineNoCache : null,
           action: OutlinedButton.icon(
             onPressed: _run,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(t.retry),
           ),
         )
       else if (!_searched)
         StateMessage(
-          icon: Icons.medication_outlined,
+          icon: Icons.medication_rounded,
           title: t.medicineDbIntroTitle,
           message: t.medicineDbIntroBody,
         )
       else if (_results.isEmpty)
         StateMessage(
-          icon: Icons.inventory_2_outlined,
+          icon: Icons.inventory_2_rounded,
           tint: scheme.onSurfaceVariant,
           title: t.medicineDbNeedsDataTitle,
           message: t.medicineDbNeedsDataBody,
@@ -268,7 +268,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           alignment: Alignment.centerRight,
           child: TextButton.icon(
             onPressed: onClear,
-            icon: const Icon(Icons.delete_outline, size: 18),
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
             label: Text(t.medicineDbClearRecent),
           ),
         ),
@@ -292,7 +292,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.medicineDbOfflineBanner,

@@ -178,17 +178,17 @@ class MemCategories {
   static IconData icon(MemCat c) {
     switch (c) {
       case MemCat.family:
-        return Icons.family_restroom_outlined;
+        return Icons.family_restroom_rounded;
       case MemCat.health:
-        return Icons.favorite_outline;
+        return Icons.favorite_outline_rounded;
       case MemCat.preferences:
-        return Icons.tune_outlined;
+        return Icons.tune_rounded;
       case MemCat.work:
-        return Icons.work_outline;
+        return Icons.work_outline_rounded;
       case MemCat.dates:
-        return Icons.event_outlined;
+        return Icons.event_rounded;
       case MemCat.other:
-        return Icons.label_outline;
+        return Icons.label_outline_rounded;
     }
   }
 

@@ -75,7 +75,7 @@ class GuideServiceCard extends StatelessWidget {
               ),
         trailing: IconButton(
           tooltip: bookmarked ? tr.guideRemoveBookmark : tr.guideSave,
-          icon: Icon(bookmarked ? Icons.bookmark : Icons.bookmark_border,
+          icon: Icon(bookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
               color: bookmarked ? scheme.primary : scheme.onSurfaceVariant),
           onPressed: onToggleBookmark,
         ),
@@ -85,7 +85,7 @@ class GuideServiceCard extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: onWhatDoINeed,
-                icon: const Icon(Icons.checklist_rtl, size: 18),
+                icon: const Icon(Icons.checklist_rtl_rounded, size: 18),
                 label: Text(tr.guideWhatDoINeed,
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
@@ -95,7 +95,7 @@ class GuideServiceCard extends StatelessWidget {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: () => onOpenLink(service.url),
-                  icon: const Icon(Icons.open_in_new, size: 18),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: Text(tr.guideOfficialSite,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
@@ -105,21 +105,21 @@ class GuideServiceCard extends StatelessWidget {
           const SizedBox(height: Gap.md),
 
           // ---- steps ----
-          _Section(icon: Icons.format_list_numbered, title: tr.guideSteps),
+          _Section(icon: Icons.format_list_numbered_rounded, title: tr.guideSteps),
           for (int i = 0; i < service.steps.length; i++)
             _StepRow(index: i + 1, text: service.steps[i]),
 
           // ---- required documents checklist ----
           if (service.docs.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
-            _Section(icon: Icons.fact_check_outlined, title: tr.guideRequiredDocs),
+            _Section(icon: Icons.fact_check_rounded, title: tr.guideRequiredDocs),
             for (final d in service.docs) _CheckRow(text: d),
           ],
 
           // ---- fee / office / time facts ----
           const SizedBox(height: Gap.md),
           _FactRow(
-            icon: Icons.payments_outlined,
+            icon: Icons.payments_rounded,
             label: tr.guideFees,
             value: service.fee,
             verifyNote: service.verifyFee ? tr.guideVerifyOnPortal : null,
@@ -127,14 +127,14 @@ class GuideServiceCard extends StatelessWidget {
           ),
           if (service.office.isNotEmpty)
             _FactRow(
-              icon: Icons.place_outlined,
+              icon: Icons.place_rounded,
               label: tr.guideWhereOffice,
               value: service.office,
               tint: scheme,
             ),
           if (service.time.isNotEmpty)
             _FactRow(
-              icon: Icons.schedule_outlined,
+              icon: Icons.schedule_rounded,
               label: tr.guideProcessingTime,
               value: service.time,
               verifyNote: service.verifyTime ? tr.guideVerifyOnPortal : null,
@@ -223,7 +223,7 @@ class _CheckRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.check_circle_outline, size: 18, color: scheme.secondary),
+        Icon(Icons.check_circle_outline_rounded, size: 18, color: scheme.secondary),
         const SizedBox(width: Gap.md),
         Expanded(child: Text(text, style: const TextStyle(height: 1.35))),
       ]),
@@ -242,7 +242,7 @@ class _BulletRow extends StatelessWidget {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Icon(Icons.circle, size: 6, color: color),
+          child: Icon(Icons.circle_rounded, size: 6, color: color),
         ),
         const SizedBox(width: Gap.md),
         Expanded(child: Text(text, style: const TextStyle(height: 1.35))),
@@ -282,7 +282,7 @@ class _FactRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 3),
                 child: Row(children: [
-                  Icon(Icons.verified_outlined, size: 13, color: tint.tertiary),
+                  Icon(Icons.verified_rounded, size: 13, color: tint.tertiary),
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(verifyNote!,
@@ -321,7 +321,7 @@ class _DisclaimerBox extends StatelessWidget {
                   fontSize: 12, fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
         if (source.isNotEmpty) const SizedBox(height: 4),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline, size: 15, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
           const SizedBox(width: 6),
           Expanded(
             child: Text(disclaimer,

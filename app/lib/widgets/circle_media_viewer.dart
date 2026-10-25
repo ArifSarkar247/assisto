@@ -82,7 +82,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
             IconButton(
               key: const Key('mv-save'),
               tooltip: t.circleActionSave,
-              icon: const Icon(Icons.save_alt_outlined),
+              icon: const Icon(Icons.save_alt_rounded),
               onPressed: () => widget.onSave!.call(item),
             ),
           if (item != null && !item.gated && item.bytes != null &&
@@ -90,7 +90,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
             IconButton(
               key: const Key('mv-share'),
               tooltip: t.md1Share,
-              icon: const Icon(Icons.share_outlined),
+              icon: const Icon(Icons.share_rounded),
               onPressed: () => widget.onShare!.call(item),
             ),
           if (item != null && !item.gated && item.bytes != null &&
@@ -98,7 +98,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
             IconButton(
               key: const Key('mv-forward'),
               tooltip: t.circleActionForward,
-              icon: const Icon(Icons.forward_outlined),
+              icon: const Icon(Icons.forward_rounded),
               onPressed: () => widget.onForward!.call(item),
             ),
         ],
@@ -120,11 +120,11 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_download_outlined,
+            const Icon(Icons.cloud_download_rounded,
                 color: Colors.white70, size: 56),
             const SizedBox(height: Gap.md),
             FilledButton.icon(
-              icon: const Icon(Icons.download_outlined),
+              icon: const Icon(Icons.download_rounded),
               onPressed: item.onDownload,
               label: Text(t.circleActionDownload),
             ),
@@ -136,7 +136,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.lock_clock_outlined, color: Colors.white70, size: 56),
+            const Icon(Icons.lock_clock_rounded, color: Colors.white70, size: 56),
             const SizedBox(height: Gap.md),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
@@ -156,7 +156,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
           child: item.isVideo
               ? Stack(alignment: Alignment.center, children: [
                   img,
-                  const Icon(Icons.play_circle_outline, color: Colors.white, size: 72),
+                  const Icon(Icons.play_circle_outline_rounded, color: Colors.white, size: 72),
                 ])
               : img,
         ),

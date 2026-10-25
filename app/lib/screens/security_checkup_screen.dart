@@ -153,7 +153,7 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
           if (!_loading)
             IconButton(
               tooltip: t.secResetTitle,
-              icon: const Icon(Icons.restart_alt),
+              icon: const Icon(Icons.restart_alt_rounded),
               onPressed: _resetConfirm,
             ),
         ],
@@ -343,7 +343,7 @@ class _SelfReportedBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 20, color: cs.onSecondaryContainer),
+          Icon(Icons.info_outline_rounded, size: 20, color: cs.onSecondaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.secSelfReportedNote,
@@ -374,7 +374,7 @@ class _WeakAreasCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.priority_high, color: Brand.warning),
+              const Icon(Icons.priority_high_rounded, color: Brand.warning),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.secWeakHeading,
@@ -435,7 +435,7 @@ class _SecItemTile extends StatelessWidget {
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           leading: Icon(
-            done ? Icons.check_circle : Icons.radio_button_unchecked,
+            done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
             color: done ? Brand.success : cs.onSurfaceVariant,
           ),
           title: Text(secItemTitle(t, item.id),
@@ -475,7 +475,7 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_outlined,
+            Icon(Icons.cloud_off_rounded,
                 size: 48,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
