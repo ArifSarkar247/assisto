@@ -230,6 +230,7 @@ void main() {
     await _host(tester, api, CircleChatScreen(member: _member(), identity: _me));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.enterText(find.byType(TextField).last, 'hi Abul');
+    await tester.pump(); // wa-polish2: Send shows once the box has text
     await tester.tap(find.byIcon(Icons.send_rounded));
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 50));

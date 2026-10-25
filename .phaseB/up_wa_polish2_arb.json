@@ -1,0 +1,30 @@
+{
+  "en": {
+    "wa2MicLabel": "Voice message",
+    "wa2MicHint": "Hold to record, release to send. Tap to record hands-free.",
+    "wa2SlideToCancel": "Slide to cancel",
+    "wa2VoiceDiscarded": "Voice message discarded",
+    "wa2VoiceUnplayed": "Not played yet",
+    "wa2CallInfoTitle": "Call info",
+    "wa2CallInfoMessage": "Message",
+    "wa2CallInfoVoice": "Voice call",
+    "wa2CallInfoVideo": "Video call",
+    "wa2CallIncoming": "Incoming",
+    "wa2CallOutgoing": "Outgoing",
+    "wa2CallMissed": "Missed"
+  },
+  "bn": {
+    "wa2MicLabel": "ভয়েস মেসেজ",
+    "wa2MicHint": "রেকর্ড করতে চেপে ধরুন, পাঠাতে ছেড়ে দিন। হাত ছাড়া রেকর্ড করতে ট্যাপ করুন।",
+    "wa2SlideToCancel": "বাতিল করতে বাঁয়ে সরান",
+    "wa2VoiceDiscarded": "ভয়েস মেসেজ বাতিল হয়েছে",
+    "wa2VoiceUnplayed": "এখনও শোনা হয়নি",
+    "wa2CallInfoTitle": "কলের তথ্য",
+    "wa2CallInfoMessage": "মেসেজ",
+    "wa2CallInfoVoice": "ভয়েস কল",
+    "wa2CallInfoVideo": "ভিডিও কল",
+    "wa2CallIncoming": "ইনকামিং",
+    "wa2CallOutgoing": "আউটগোয়িং",
+    "wa2CallMissed": "মিসড"
+  }
+}

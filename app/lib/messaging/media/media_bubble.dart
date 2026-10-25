@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -13,6 +14,7 @@ import 'media_outbox.dart';
 import 'media_store.dart';
 import 'video_tile.dart';
 import 'voice_bubble.dart';
+import 'voice_played.dart';
 
 /// md1 — the media part of a My Circle bubble (photo / voice / document),
 /// for a received or sent message ([desc]) or a send still on its way
@@ -48,6 +50,10 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
   void initState() {
     super.initState();
     _resolve();
+    // wa-polish2: the played-notes list, lazily on the first voice bubble
+    if (widget.desc?.kind == 'voice' && !widget.mine) {
+      unawaited(VoicePlayedStore.instance.ensureLoaded());
+    }
   }
 
   @override
@@ -281,18 +287,25 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        VoiceNoteBody(
-          path: file?.path,
-          durationMs: d.durationMs ?? 0,
-          wave: d.wave,
-          fg: widget.fg,
-          leading: leading,
-          onPlayed: (ok) {
-            if (!ok && context.mounted) {
-              ScaffoldMessenger.maybeOf(context)
-                  ?.showSnackBar(SnackBar(content: Text(t.md1PlayFailed)));
-            }
-          },
+        // wa-polish2: the "not played yet" dot on a received note
+        ValueListenableBuilder<Set<String>?>(
+          valueListenable: VoicePlayedStore.instance.played,
+          builder: (context, played, _) => VoiceNoteBody(
+            path: file?.path,
+            durationMs: d.durationMs ?? 0,
+            wave: d.wave,
+            waveSeed: d.ref.hashCode,
+            fg: widget.fg,
+            leading: leading,
+            unplayed: !widget.mine && played != null && !played.contains(d.ref),
+            onPlayed: (ok) {
+              if (ok) unawaited(VoicePlayedStore.instance.mark(d.ref));
+              if (!ok && context.mounted) {
+                ScaffoldMessenger.maybeOf(context)
+                    ?.showSnackBar(SnackBar(content: Text(t.md1PlayFailed)));
+              }
+            },
+          ),
         ),
         if (st != null && st.error.isNotEmpty)
           Padding(

@@ -114,6 +114,19 @@ class CircleMessage {
       );
 }
 
+/// wa-polish2: the bubble shape — the first bubble of a run has the "tail"
+/// (a sharp top corner on the sender's side), the rest are fully rounded.
+BorderRadius bubbleRadius({required bool mine, required bool continued}) {
+  const round = Radius.circular(Radii.lg);
+  const tail = Radius.zero; // a crisp corner reads as the tail
+  return BorderRadius.only(
+    topLeft: !mine && !continued ? tail : round,
+    topRight: mine && !continued ? tail : round,
+    bottomLeft: round,
+    bottomRight: round,
+  );
+}
+
 /// e2e-recover: the one grey line for a message this phone can't open yet.
 String e2rWaitingText(AppLocalizations t, String name) =>
     name.trim().isEmpty ? t.e2rWaitingGeneric : t.e2rWaiting(name.trim());
@@ -141,9 +154,15 @@ class CircleBubble extends StatelessWidget {
 
   /// wa-polish: resend MY failed message (null = no retry line).
   final VoidCallback? onRetry;
+
+  /// wa-polish2: this bubble continues a run of messages from the same
+  /// sender (see messaging/bubble_grouping.dart) — tight spacing and no
+  /// tail; only the run's first bubble has the tail.
+  final bool continued;
   const CircleBubble(
       {super.key,
       required this.msg,
+      this.continued = false,
       this.waitingName = '',
       this.onRetry,
       this.onLongPress,
@@ -174,7 +193,10 @@ class CircleBubble extends StatelessWidget {
       child: GestureDetector(
         onLongPress: deleted ? null : onLongPress,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: Gap.xs, horizontal: Gap.sm),
+          // wa-polish2: a run's bubbles sit close together; a new run
+          // (other sender / a few minutes later) gets air above it.
+          margin: EdgeInsets.fromLTRB(
+              Gap.sm, continued ? Gap.xxs / 2 : Gap.sm, Gap.sm, Gap.xxs / 2),
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
           child: Column(
             crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -186,12 +208,9 @@ class CircleBubble extends StatelessWidget {
                   // the user caused — normal bubble + lock line (WhatsApp),
                   // not a saturated red block.
                   color: bg,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(Radii.lg),
-                    topRight: const Radius.circular(Radii.lg),
-                    bottomLeft: Radius.circular(mine ? Radii.lg : Radii.xs),
-                    bottomRight: Radius.circular(mine ? Radii.xs : Radii.lg),
-                  ),
+                  // wa-polish2: WhatsApp's tail — the sharp top corner on
+                  // the sender's side, on the FIRST bubble of a run only.
+                  borderRadius: bubbleRadius(mine: mine, continued: continued),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

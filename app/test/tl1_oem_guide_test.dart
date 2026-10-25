@@ -401,6 +401,10 @@ void main() {
       await _settle(tester);
       expect(_byIdentifier(tester, 'tl_chat_input')!.getSemanticsData()
           .hasAction(SemanticsAction.setText), isTrue);
+      // wa-polish2: an empty box shows the Mic (hold to record); Send comes
+      // with text — the Robo script types its message before tapping Send.
+      await tester.enterText(find.byType(TextField).last, 'robo');
+      await _settle(tester);
       for (final k in ['tl_chat_send', 'tl_chat_voice_call']) {
         final n = _byIdentifier(tester, k);
         expect(n, isNotNull, reason: k);

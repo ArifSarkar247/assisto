@@ -202,6 +202,7 @@ Future<void> _type(WidgetTester tester, String text) async {
       .removeCurrentSnackBar();
   await tester.pump();
   await tester.enterText(find.byType(TextField).last, text);
+  await tester.pump(); // wa-polish2: Send shows once the box has text
   await tester.tap(find.byIcon(Icons.send_rounded));
   await _settle(tester);
 }

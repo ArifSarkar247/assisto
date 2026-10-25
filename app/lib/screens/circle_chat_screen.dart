@@ -23,6 +23,7 @@ import '../widgets/chat_menu_pickers.dart';
 import '../widgets/chat_menu_sheet.dart';
 import '../widgets/circle_attach_sheet.dart';
 import '../widgets/circle_bubble.dart';
+import '../messaging/bubble_grouping.dart';
 import '../widgets/chat_jump_to_latest.dart'; // wa-polish
 import '../widgets/msgr_avatar.dart';
 import '../widgets/circle_media_viewer.dart';
@@ -50,6 +51,7 @@ import '../messaging/media/media_actions.dart'; // md1
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
 import '../messaging/media/media_send.dart';
+import '../messaging/media/voice_hold_mic.dart'; // wa-polish2
 import '../messaging/media/media_store.dart';
 import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
@@ -1846,6 +1848,34 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             ? _rt.recordingStarted('member', id)
             : _rt.recordingStopped('member', id));
     if (draft == null || !mounted) return;
+    await _queueDraft(draft);
+  }
+
+  // wa-polish2: the composer mic (hold to record) — same voice-note path as
+  // the attach sheet (recorder seam -> MediaDraft -> E2E media outbox).
+  final VoiceHoldController _voiceHold = VoiceHoldController();
+  bool get _canVoice =>
+      _canAttach && circleAttachKinds().contains(CircleAttachKind.voice);
+
+  ValueChanged<bool>? get _voiceSignal {
+    final id = _memberId;
+    if (id == null) return null;
+    return (on) => on
+        ? _rt.recordingStarted('member', id)
+        : _rt.recordingStopped('member', id);
+  }
+
+  /// Mic tap: the hands-free recorder sheet (the attach sheet's voice note).
+  Future<void> _recordHandsFree() async {
+    final draft = await pickMediaDraft(context, _api, CircleAttachKind.voice,
+        onRecording: _voiceSignal);
+    if (draft == null || !mounted) return;
+    await _queueDraft(draft);
+  }
+
+  Future<void> _queueDraft(MediaDraft draft) async {
+    final id = _memberId;
+    if (id == null || !mounted) return;
     final job = await confirmAndQueueMedia(context, draft,
         chatKind: 'member', chatId: id, replyTo: _replyTo?.id);
     if (job == null || !mounted) return;
@@ -2685,6 +2715,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           final bubble0 = CircleBubble(
                             key: key,
                             msg: m,
+                            // wa-polish2: WhatsApp grouping — same sender
+                            // within a few minutes = tight, tail on the first
+                            continued: continuesOlderRow<_ChatRow>(dated, ri,
+                                senderOf: _runSender, atOf: (r) => r.at),
                             waitingName: _memberName, // e2e-recover
                             // wa-polish: visible "Not sent · Tap to retry"
                             onRetry: (_selecting ||
@@ -2906,6 +2940,17 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   String? get _presence => presenceLabel(_t, _live,
       lang: Localizations.localeOf(context).languageCode,
       use24h: MediaQuery.of(context).alwaysUse24HourFormat);
+
+  /// wa-polish2: who a row's bubble belongs to, for bubble grouping; null
+  /// for anything that is not a plain bubble (call chip, divider, security
+  /// note, system line, Assisto card) — those break a run.
+  String? _runSender(_ChatRow r) {
+    final m = r.msg;
+    if (m == null || r.divider || r.connected || r.call != null) return null;
+    if (m.mediaJob?.control != null || _controlOf(m) != null) return null;
+    if (_p3Card(m) != null) return null;
+    return m.mine ? 'me' : 'peer';
+  }
 
   PreferredSizeWidget _normalAppBar(ColorScheme scheme, String relation) {
     if (_selecting) return _selectionAppBar(scheme);
@@ -3217,16 +3262,23 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.sm),
           child: Row(
             children: [
-              if (_canAttach)
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline_rounded),
-                  tooltip: _t.circleAttach,
-                  onPressed: _attach,
-                )
-              else
-                const SizedBox(width: Gap.sm),
+              // wa-polish2: while a held recording runs, the strip gets the
+              // whole width (WhatsApp hides the other buttons too)
+              ListenableBuilder(
+                listenable: _voiceHold,
+                builder: (_, __) => _voiceHold.active
+                    ? const SizedBox(width: Gap.sm)
+                    : _canAttach
+                        ? IconButton(
+                            icon: const Icon(Icons.add_circle_outline_rounded),
+                            tooltip: _t.circleAttach,
+                            onPressed: _attach,
+                          )
+                        : const SizedBox(width: Gap.sm),
+              ),
               Expanded(
-                child: RoboId(id: 'tl_chat_input', // tl1: Test Lab Robo target
+                child: Stack(children: [
+                RoboId(id: 'tl_chat_input', // tl1: Test Lab Robo target
                   child: TextField(
                   controller: _input,
                   focusNode: _inputFocus, // db1
@@ -3246,20 +3298,49 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   decoration: InputDecoration(hintText: _t.circleMessageHint),
                 ),
                 ),
+                // wa-polish2: the held recording covers the box
+                ListenableBuilder(
+                  listenable: _voiceHold,
+                  builder: (_, __) => _voiceHold.active
+                      ? Positioned.fill(
+                          child: VoiceHoldStrip(controller: _voiceHold))
+                      : const SizedBox.shrink(),
+                ),
+                ]),
               ),
               // p3: the Assisto button (same actions as typing "@Assisto")
-              IconButton(
-                key: const ValueKey('p3-assisto-btn'),
-                icon: const Icon(Icons.auto_awesome_rounded),
-                tooltip: _t.p3Assisto,
-                onPressed: _reqIn ? null : () => _openAssisto(),
+              ListenableBuilder(
+                listenable: _voiceHold,
+                builder: (_, __) => _voiceHold.active
+                    ? const SizedBox(width: Gap.xs)
+                    : IconButton(
+                        key: const ValueKey('p3-assisto-btn'),
+                        icon: const Icon(Icons.auto_awesome_rounded),
+                        tooltip: _t.p3Assisto,
+                        onPressed: _reqIn ? null : () => _openAssisto(),
+                      ),
               ),
-              RoboId(id: 'tl_chat_send',
-                child: IconButton.filled(
-                  tooltip: _editing != null ? _t.save : _t.send,
-                  onPressed: _sending ? null : _send,
-                  icon: Icon(_editing != null ? Icons.check_rounded : Icons.send_rounded),
-                ),
+              // wa-polish2: empty box -> Mic (hold to record), text -> Send
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _input,
+                builder: (_, v, __) => (_canVoice &&
+                        _editing == null &&
+                        v.text.trim().isEmpty)
+                    ? RoboId(id: 'tl_chat_mic',
+                        child: VoiceHoldMic(
+                          controller: _voiceHold,
+                          enabled: !_sending,
+                          onTap: () => unawaited(_recordHandsFree()),
+                          onRecording: _voiceSignal,
+                          onDraft: _queueDraft,
+                        ))
+                    : RoboId(id: 'tl_chat_send',
+                        child: IconButton.filled(
+                          tooltip: _editing != null ? _t.save : _t.send,
+                          onPressed: _sending ? null : _send,
+                          icon: Icon(_editing != null ? Icons.check_rounded : Icons.send_rounded),
+                        ),
+                      ),
               ),
             ],
           ),
