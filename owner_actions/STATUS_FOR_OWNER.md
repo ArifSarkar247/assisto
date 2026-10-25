@@ -1,5 +1,10 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## 🟡 বিল্ড 238 তৈরি (versionCode হবে **10238**) — Play-তে পাঠানো **আটকে রাখা হয়েছে** আপনার বিজ্ঞাপন-ঘোষণার জন্য (২৫ Oct)
+- এতে আছে: AdMob (শুধু ফ্রি প্ল্যান, এখন টেস্ট বিজ্ঞাপন), Business AI Agent v2 (নিজের Page/WhatsApp, ইনবক্স, টেকওভার, ছবি থেকে খসড়া অর্ডার), ফটো স্টুডিও শুধু বাণিজ্যিকভাবে পরিষ্কার পথে। বিল্ড ও এমুলেটর লঞ্চ-টেস্ট পাস।
+- APK (এখনই ফোনে বসানো যায়): https://api.lifeassisto.com/dl/IZAFlO9tQ_Gw7s3N9vrlfiHK/assisto-part7-build238.apk
+- **Play-তে পাঠাতে:** `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`-এর ধাপ (Ads = Yes, Advertising ID = Yes, Data safety) শেষ করে আমাকে "ads declared" লিখুন — আমি সাথে সাথে 10238 Internal + Closed testing-এ পাঠাব। Play-তে এখন সর্বশেষ 10236।
+
 ## ⏳ আপনার অপেক্ষায় (তালিকা — এর মধ্যে আমি পরের কাজ চালিয়ে যাচ্ছি) — ২৫ Oct
 1. **AdMob বিল্ড Play-তে পাঠানোর আগে Play Console:** Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
 2. **ফটো স্টুডিও:** মুখ-রিস্টোর প্রোভাইডার বাছাই (fal-এ Topaz নাকি Clarity), Real-ESRGAN রাখবেন নাকি বাদ, আর Replicate/fal.ai key (Owner Admin → Integrations) — ততক্ষণ এগুলো বন্ধ ও লুকানো।
