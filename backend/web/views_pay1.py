@@ -40,6 +40,7 @@ TXT = {
         "ok_h": "পেমেন্ট সফল", "ok_b": "আপনার কেনাকাটা চালু হয়েছে — অ্যাপে এখনই দেখা যাবে।",
         "pending_h": "পেমেন্ট যাচাই হচ্ছে", "pending_b": "কয়েক মিনিটের মধ্যে নিশ্চিত হবে। টাকা কাটা হলে কিছুই হারাবে না।",
         "fail_h": "পেমেন্ট হয়নি", "fail_b": "টাকা কাটা হয়নি বা পেমেন্ট বাতিল হয়েছে। আবার চেষ্টা করতে পারেন।",
+        "neutral_h": "ধন্যবাদ — পেমেন্টের তথ্য পাওয়া গেছে", "neutral_b": "যাচাই শেষ হলে প্ল্যান অ্যাপে দেখা যাবে। টাকা কাটা হলে কিছুই হারাবে না।",
         "unknown_h": "অর্ডার পাওয়া যায়নি", "open_app": "অ্যাপে ফিরে যান", "back": "প্রিমিয়াম পেজে ফিরুন",
         "managed_by_play": "আপনার সাবস্ক্রিপশন Google Play থেকে চলছে — সেখান থেকেই পরিবর্তন করুন।",
         "gateway_error": "পেমেন্ট শুরু করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
@@ -64,6 +65,7 @@ TXT = {
         "ok_h": "Payment received", "ok_b": "Your purchase is active — you will see it in the app right away.",
         "pending_h": "Checking your payment", "pending_b": "It will be confirmed within a few minutes. If money was taken, nothing is lost.",
         "fail_h": "Payment not completed", "fail_b": "No money was taken or the payment was cancelled. You can try again.",
+        "neutral_h": "Thanks — we got your payment details", "neutral_b": "Once it is confirmed you will see your plan in the app. If money was taken, nothing is lost.",
         "unknown_h": "Order not found", "open_app": "Back to the app", "back": "Back to Premium",
         "managed_by_play": "Your subscription runs through Google Play — change it there.",
         "gateway_error": "Could not start the payment. Please try again shortly.",
@@ -216,17 +218,27 @@ def pay_return(request):
     from core.payments import service as S
     lang = _lang(request)
     o = S.handle_return(request.GET)
-    if o is None and request.GET.get("o", "").isdigit():
-        u = _user(request)
-        if u is not None:
-            from core.models import PaymentOrder
-            o = PaymentOrder.objects.filter(pk=int(request.GET["o"]), user=u).first()
+    u = _user(request)
+    if o is None and request.GET.get("o", "").isdigit() and u is not None:
+        from core.models import PaymentOrder
+        o = PaymentOrder.objects.filter(pk=int(request.GET["o"]), user=u).first()
+    # Order number, amount and result only for the signed-in owner or the
+    # browser carrying the signed return token we gave the gateway; anyone
+    # else holding just a (guessable) tx id gets a neutral page.
+    allowed = o is not None and (
+        (u is not None and o.user_id == u.pk) or
+        S.return_token_ok(o.merchant_tx_id, request.GET.get("t", "")))
     state = "unknown"
-    if o is not None:
+    if o is not None and allowed:
         state = {"paid": "ok", "pending": "pending", "created": "pending"}.get(o.status, "fail")
+    elif o is not None or request.GET.get("MerchantTransactionId") or \
+            request.GET.get("merchantTransactionId"):
+        state = "neutral"
+    shown = o if allowed else None
     resp = render(request, "web/pay_return.html",
-                  _ctx(request, order=o, state=state,
-                       deep_link="assisto://payments/done?order=%d" % o.pk if o else ""))
+                  _ctx(request, order=shown, state=state,
+                       deep_link="assisto://payments/done?order=%d" % o.pk if shown else
+                       "assisto://payments/done"))
     resp["Cache-Control"] = "no-store"
     resp["Referrer-Policy"] = "no-referrer"
     return resp

@@ -68,10 +68,36 @@ def api_base():
     return getattr(settings, "PUBLIC_API_BASE", "https://api.lifeassisto.com").rstrip("/")
 
 
-def urls():
+RETURN_TOKEN_MAX_AGE_S = 6 * 3600
+_RETURN_SALT = "assisto.pay.return"
+
+
+def return_token(tx):
+    """Short-lived signed token put in the gateway's return URLs: only the
+    browser that went through checkout (or the signed-in owner) sees the
+    order number and amount on /pay/return. The merchant tx id alone is
+    time-based and guessable, so it is never enough."""
+    from django.core import signing
+    return signing.TimestampSigner(salt=_RETURN_SALT).sign(str(tx)).split(":", 1)[1]
+
+
+def return_token_ok(tx, token):
+    from django.core import signing
+    if not tx or not token:
+        return False
+    try:
+        signing.TimestampSigner(salt=_RETURN_SALT).unsign(
+            "%s:%s" % (tx, str(token)[:80]), max_age=RETURN_TOKEN_MAX_AGE_S)
+        return True
+    except signing.BadSignature:
+        return False
+
+
+def urls(order=None):
     s = site()
-    return {"success": s + "/pay/return?r=success", "fail": s + "/pay/return?r=fail",
-            "cancel": s + "/pay/return?r=cancel",
+    t = ("&t=" + return_token(order.merchant_tx_id)) if order is not None else ""
+    return {"success": s + "/pay/return?r=success" + t, "fail": s + "/pay/return?r=fail" + t,
+            "cancel": s + "/pay/return?r=cancel" + t,
             "ipn": api_base() + "/api/v1/payments/gateway/ipn"}
 
 
@@ -183,7 +209,7 @@ def checkout(user, sku, *, source="app", idem="", flavour="apk", ip="", lang="bn
     cust = {"name": (user.name or "")[:60], "email": (user.email or "")[:80],
             "phone": (user.phone or "")[:20], "ip": ip, "product": product}
     try:
-        sess = gw.create_session(order, cust, urls())
+        sess = gw.create_session(order, cust, urls(order))
     except G.GatewayError as e:
         order.status, order.detail = "failed", ("init: %s %s" % (e.reason, e.detail))[:200]
         order.save(update_fields=["status", "detail", "updated_at"])
@@ -396,7 +422,8 @@ def _remind(period, days, now):
 
 
 def sweep(now=None):
-    """Hourly: expire/recompute, renew reminders, re-verify stale orders."""
+    """Hourly: expire/recompute, renew reminders, re-verify stale orders,
+    retry failed Google Play acknowledgements."""
     from ..models import PaymentOrder, PlanPeriod, PaymentAccount, User
     now = now or timezone.now()
     out = {"recomputed": 0, "reminders": 0, "reverified": 0, "expired_orders": 0}
@@ -440,6 +467,13 @@ def sweep(now=None):
             o.status = "expired"
             o.save(update_fields=["status", "updated_at"])
             out["expired_orders"] += 1
+    # 4) Google Play: retry failed acknowledge / consume (< 3 days old), or
+    #    Google auto-refunds the purchase
+    try:
+        from . import play
+        out["play_ack"] = play.ack_sweep(now)
+    except Exception:
+        log.exception("payments sweep: play ack sweep failed")
     return out
 
 

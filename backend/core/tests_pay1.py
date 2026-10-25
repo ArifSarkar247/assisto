@@ -340,7 +340,9 @@ class GatewayFlowTests(PayBase):
         self.u.refresh_from_db()
         self.assertEqual(self.u.plan, "free")
         self.fake.pay(o.merchant_tx_id)
-        r = self.client.get("/pay/return", {"r": "success", "lang": "en",
+        # EPS sends the browser to our successUrl (carries the signed ?t=)
+        t = parse_qs(urlparse(self.fake.sessions[o.merchant_tx_id]["body"]["successUrl"]).query)["t"][0]
+        r = self.client.get("/pay/return", {"r": "success", "lang": "en", "t": t,
                                             "MerchantTransactionId": o.merchant_tx_id})
         self.assertContains(r, "Payment received")
         self.assertContains(r, "assisto://payments/done?order=%d" % o.pk)
