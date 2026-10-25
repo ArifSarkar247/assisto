@@ -138,10 +138,14 @@ class CircleBubble extends StatelessWidget {
   /// e2e-recover: who to ask when this phone cannot open the message yet
   /// ('' = "the sender").
   final String waitingName;
+
+  /// wa-polish: resend MY failed message (null = no retry line).
+  final VoidCallback? onRetry;
   const CircleBubble(
       {super.key,
       required this.msg,
       this.waitingName = '',
+      this.onRetry,
       this.onLongPress,
       this.onTapMedia,
       this.onOpenFile,
@@ -207,6 +211,10 @@ class CircleBubble extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 2),
                   child: CircleReactionChips(counts: msg.reactions, onTap: onLongPress),
                 ),
+              // wa-polish: WhatsApp's visible "not sent — tap to retry"
+              // (was only reachable by a long-press nobody discovers).
+              if (mine && msg.status == 'failed' && !deleted && onRetry != null)
+                _retryLine(context, t, scheme),
             ],
           ),
         ),
@@ -214,6 +222,32 @@ class CircleBubble extends StatelessWidget {
       ),
     );
   }
+
+  Widget _retryLine(BuildContext context, AppLocalizations t, ColorScheme scheme) =>
+      Semantics(
+        button: true,
+        child: InkWell(
+          key: ValueKey('wa-retry-${msg.id}'),
+          borderRadius: BorderRadius.circular(Radii.sm),
+          onTap: onRetry,
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(minHeight: kMinInteractiveDimension),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.error_rounded, size: 18, color: scheme.error),
+                const SizedBox(width: Gap.xs),
+                Flexible(
+                  child: Text(t.waNotSentRetry,
+                      style: AType.labelMedium.copyWith(
+                          color: scheme.error, fontWeight: FontWeight.w600)),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      );
 
   Widget _bodyText(BuildContext context, AppLocalizations t, Color fg, bool deleted) {
     final show = deleted

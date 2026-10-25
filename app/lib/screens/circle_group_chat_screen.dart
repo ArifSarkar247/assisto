@@ -21,6 +21,7 @@ import '../api.dart';
 import '../config.dart';
 import '../crypto/e2e.dart';
 import '../widgets/circle_bubble.dart' show e2rWaitingText; // e2e-recover
+import '../widgets/chat_jump_to_latest.dart'; // wa-polish
 import '../crypto/group_decrypt.dart'; // e2e-groups
 import '../crypto/history_reshare.dart'; // e2e-groups
 import '../crypto/identity_vault.dart'; // e2e-recover
@@ -1657,7 +1658,24 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       McVersionBanner(api: _api, kind: 'group', chatId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
-                    Expanded(child: _themed(_messageList())), // cde-chat
+                    Expanded(
+                      child: Stack(children: [
+                        Positioned.fill(
+                            child: _themed(_messageList())), // cde-chat
+                        // wa-polish: round "go to latest" + new-message count
+                        if (!_selecting)
+                          Positioned(
+                            right: Gap.md,
+                            bottom: Gap.md,
+                            child: ChatJumpToLatest(
+                              controller: _scroll,
+                              incomingIds: _messages
+                                  .where((m) => m['mine'] != true)
+                                  .map((m) => '${m['id']}'),
+                            ),
+                          ),
+                      ]),
+                    ),
                     if (_failedText != null && !_searching && !_selecting)
                       _failedSendBanner(),
                     if (_replyTo != null && !_searching && !_selecting)

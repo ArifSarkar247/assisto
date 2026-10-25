@@ -424,8 +424,16 @@ class CallController extends ChangeNotifier {
   bool get isLive =>
       phase == CallPhase.connected || phase == CallPhase.reconnecting;
 
-  Duration get elapsed =>
-      connectedAt == null ? Duration.zero : now().difference(connectedAt!);
+  /// wa-polish: when the call ended — the talk time freezes here, so the
+  /// "Call ended · 04:07" summary never keeps counting.
+  DateTime? endedAt;
+
+  Duration get elapsed => connectedAt == null
+      ? Duration.zero
+      : (endedAt ?? now()).difference(connectedAt!);
+
+  /// wa-polish: how long we actually talked (null = never connected).
+  Duration? get talkTime => connectedAt == null ? null : elapsed;
 
   void _set(CallPhase p) {
     if (_disposed || phase == p || phase == CallPhase.ended) return;
@@ -1444,6 +1452,7 @@ class CallController extends ChangeNotifier {
     if (phase == CallPhase.ended) return;
     endReason = reason;
     phase = CallPhase.ended;
+    endedAt = now();
     log.add('ended:${reason.name}');
     _stopTimers();
     signaling.setFast(false);

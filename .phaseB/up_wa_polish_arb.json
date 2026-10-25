@@ -1,0 +1,22 @@
+{
+  "en": {
+    "waJumpToLatest": "Go to latest messages",
+    "waJumpToLatestNew": "{count} new messages — go to latest",
+    "@waJumpToLatestNew": {"placeholders": {"count": {"type": "String"}}},
+    "waNotSentRetry": "Not sent · Tap to retry",
+    "waCallsFilterAll": "All",
+    "waCallsFilterMissed": "Missed",
+    "waCallsNoMissed": "No missed calls",
+    "waCallEndedAfter": "Call ended · {time}",
+    "@waCallEndedAfter": {"placeholders": {"time": {"type": "String"}}}
+  },
+  "bn": {
+    "waJumpToLatest": "সর্বশেষ মেসেজে যান",
+    "waJumpToLatestNew": "{count}টি নতুন মেসেজ — সর্বশেষে যান",
+    "waNotSentRetry": "পাঠানো যায়নি · আবার চেষ্টা করতে ট্যাপ করুন",
+    "waCallsFilterAll": "সব",
+    "waCallsFilterMissed": "মিসড",
+    "waCallsNoMissed": "কোনো মিসড কল নেই",
+    "waCallEndedAfter": "কল শেষ · {time}"
+  }
+}

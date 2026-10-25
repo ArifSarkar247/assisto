@@ -30,6 +30,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   bool _loading = true;
   bool _backendReady = true;
   List<Map<String, dynamic>> _calls = [];
+  bool _missedOnly = false; // wa-polish: All / Missed filter
 
   @override
   void initState() {
@@ -84,14 +85,54 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
               onRefresh: _load,
               child: _calls.isEmpty
                   ? _empty(scheme)
-                  : ListView.separated(
-                      itemCount: _calls.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (_, i) => _callTile(_calls[i], scheme),
-                    ),
+                  : _list(scheme),
             ),
     );
   }
+
+  /// wa-polish: WhatsApp's All / Missed filter over the call log.
+  Widget _list(ColorScheme scheme) {
+    final rows =
+        _missedOnly ? _calls.where(isMissedCallRow).toList() : _calls;
+    return ListView.separated(
+      key: const Key('call-log-list'),
+      itemCount: rows.length + 1 + (rows.isEmpty ? 1 : 0),
+      separatorBuilder: (_, i) =>
+          i == 0 ? const SizedBox.shrink() : const Divider(height: 1),
+      itemBuilder: (_, i) {
+        if (i == 0) return _filters();
+        if (rows.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.lg, vertical: Gap.xxl),
+            child: Text(_t.waCallsNoMissed,
+                key: const Key('call-log-no-missed'),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          );
+        }
+        return _callTile(rows[i - 1], scheme);
+      },
+    );
+  }
+
+  Widget _filters() => Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+        child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+          ChoiceChip(
+            key: const Key('call-filter-all'),
+            label: Text(_t.waCallsFilterAll),
+            selected: !_missedOnly,
+            onSelected: (_) => setState(() => _missedOnly = false),
+          ),
+          ChoiceChip(
+            key: const Key('call-filter-missed'),
+            label: Text(_t.waCallsFilterMissed),
+            selected: _missedOnly,
+            onSelected: (_) => setState(() => _missedOnly = true),
+          ),
+        ]),
+      );
 
   Widget _empty(ColorScheme scheme) => ListView(
         children: [
@@ -118,7 +159,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final outgoing = call['outgoing'] == true;
     // c2-calls: only an INCOMING call can be "missed" (an outgoing one that
     // rang out is "No answer" / "Busy" / "Offline" — the server label).
-    final missed = !outgoing && (state == 'missed' || state == 'canceled');
+    final missed = isMissedCallRow(call);
     final declined = state == 'declined';
     // Server provides the localized outcome label; fall back to a direction cue.
     final outcome = '${call['outcome'] ?? ''}';
@@ -211,6 +252,13 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   }
 }
 
+
+/// c2-calls: only an INCOMING call can be "missed" (an outgoing one that rang
+/// out is "No answer" / "Busy" / "Offline" — the server label).
+bool isMissedCallRow(Map<String, dynamic> call) {
+  final state = '${call['state'] ?? 'ended'}';
+  return call['outgoing'] != true && (state == 'missed' || state == 'canceled');
+}
 
 /// x1-calls A1-g (fallback for a server without `groups`): consecutive rows
 /// (newest first) with the same person, direction, outcome and day collapse

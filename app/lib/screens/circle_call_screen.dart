@@ -425,6 +425,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       case CallPhase.reconnecting:
         return t.circleCallReconnecting;
       case CallPhase.ended:
+        // wa-polish: a call that really connected ends with its talk time
+        // ("Call ended · 04:07"), like WhatsApp's call-ended summary.
+        final talk = c.talkTime;
+        if (talk != null &&
+            talk.inSeconds > 0 &&
+            (c.endReason == CallEndReason.hangup ||
+                c.endReason == CallEndReason.none)) {
+          return t.waCallEndedAfter(_fmt(talk));
+        }
         return endReasonLabel(t, c.endReason, outgoing: c.outgoing);
     }
   }

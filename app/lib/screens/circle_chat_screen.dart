@@ -23,6 +23,7 @@ import '../widgets/chat_menu_pickers.dart';
 import '../widgets/chat_menu_sheet.dart';
 import '../widgets/circle_attach_sheet.dart';
 import '../widgets/circle_bubble.dart';
+import '../widgets/chat_jump_to_latest.dart'; // wa-polish
 import '../widgets/msgr_avatar.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
@@ -1463,13 +1464,34 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // -------------------------------------------------------------------------
   // Message actions (long-press)
   // -------------------------------------------------------------------------
+  /// wa-polish: resend MY failed text without losing what the user is
+  /// typing now (the old path overwrote the draft and its reply quote).
+  Future<void> _retryFailed(CircleMessage m) async {
+    if (_sending || !(m.mine && m.status == 'failed')) return;
+    final draft = _input.value;
+    final reply = _replyTo;
+    final editing = _editing;
+    setState(() {
+      _messages = _messages.where((x) => x.id != m.id).toList();
+      _replyTo = null;
+      _editing = null;
+    });
+    _input.text = m.text;
+    await _send();
+    if (!mounted) return;
+    if (draft.text.isNotEmpty && _input.text.isEmpty) {
+      _input.value = draft;
+      setState(() {
+        _replyTo = reply;
+        _editing = editing;
+      });
+    }
+  }
+
   Future<void> _onLongPress(CircleMessage m) async {
     if (m.deleted == 'everyone') return;
     if (m.mine && m.status == 'failed') {
-      // resend the failed message
-      setState(() => _messages = _messages.where((x) => x.id != m.id).toList());
-      _input.text = m.text;
-      await _send();
+      await _retryFailed(m); // resend the failed message
       return;
     }
     final pinnedCount = _messages.where((x) => x.pinned).length;
@@ -2555,7 +2577,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 chatId: int.parse('${widget.member['id']}')),
           if (pinned.isNotEmpty && !_searching) _pinnedStrip(pinned, scheme),
           Expanded(
-            child: _themed(_loading
+            child: Stack(children: [
+            Positioned.fill(child: _themed(_loading
                 ? const Center(child: CircularProgressIndicator())
                 : rows.isEmpty
                     ? Column(children: [ // t1-ticks: E2E notice first
@@ -2641,6 +2664,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                             key: key,
                             msg: m,
                             waitingName: _memberName, // e2e-recover
+                            // wa-polish: visible "Not sent · Tap to retry"
+                            onRetry: (_selecting ||
+                                    m.contentType != 'text' ||
+                                    m.mediaJob != null)
+                                ? null
+                                : () => unawaited(_retryFailed(m)),
                             highlighted: _highlightId == m.id,
                             onTapReply: () => _jumpTo(m.replyToId),
                             // mr1: a request I have not accepted is read-only
@@ -2703,7 +2732,20 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           });
                         },
                       )), // t1-ticks: /ChatDateScope
-                    )),
+                    ))),
+            // wa-polish: round "go to latest" button + new-message count
+            if (!_loading && !_selecting)
+              Positioned(
+                right: Gap.md,
+                bottom: Gap.md,
+                child: ChatJumpToLatest(
+                  controller: _scroll,
+                  incomingIds: _messages
+                      .where((m) => !m.mine && !m.pending)
+                      .map((m) => m.id),
+                ),
+              ),
+            ]),
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
           if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
