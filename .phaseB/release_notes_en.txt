@@ -1,1 +1,1 @@
-Build: My Circle can share your location (and live location while Assisto is open), contact cards, and play videos inside the chat; cleaner My Circle and call screens; calls ring natively even when Assisto is closed; after sending a request the chat opens straight away.
+Build 235: Calls ring natively like a normal phone call even when Assisto is closed; after sending a My Circle request the chat opens straight away (up to 3 texts before they accept); share your location, contact cards and videos in My Circle chats; cleaner My Circle and call screens.
