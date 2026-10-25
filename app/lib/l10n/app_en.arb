@@ -19319,5 +19319,66 @@
         "type": "String"
       }
     }
-  }
+  },
+  "caDeleteChat": "Delete chat",
+  "caDeleteChatTitle": "Delete this chat?",
+  "caDeleteChatBody": "Messages are removed from your list and this phone only. {name} stays in your My Circle.",
+  "@caDeleteChatBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "caDeleteGroupChatBody": "Messages are removed from your list and this phone only. You stay in the group.",
+  "caAlsoDeleteMedia": "Also delete media from this phone",
+  "caChatDeleted": "Chat deleted",
+  "caClearChat": "Clear chat",
+  "caClearChatTitle": "Clear this chat?",
+  "caClearChatBody": "All messages are removed for you. The chat stays in your list.",
+  "caKeepStarred": "Keep starred messages",
+  "caChatCleared": "Chat cleared",
+  "caViewContact": "View contact",
+  "caGroupInfo": "Group info",
+  "caSelectChats": "Select chats",
+  "caSelectedCount": "{count} selected",
+  "@caSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "caDeleteChatsTitle": "Delete {count} chats?",
+  "@caDeleteChatsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "caDeleteChatsBody": "Messages are removed from your list and this phone only. Nobody is removed from your My Circle or groups.",
+  "caBlockTitle": "Block {name}?",
+  "@caBlockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "caExitSelection": "Close selection",
+  "caTimerOn": "Disappearing messages on",
+  "caDefaultTimer": "Default message timer",
+  "caDefaultTimerSub": "New chats you start: {label}",
+  "@caDefaultTimerSub": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "caDefaultTimerSaved": "Default timer saved",
+  "caDefaultTimerHint": "Messages in new chats disappear after this time. Your existing chats don't change.",
+  "caGroupTimerAdminOnly": "Only group admins can change disappearing messages.",
+  "caDeleteTooLate": "It's too late to delete this for everyone. You can still delete it for yourself."
 }
