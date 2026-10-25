@@ -85,7 +85,7 @@ sha256sum "$BUNDLE" | tee "${BUNDLE}.sha256"
 echo "DONE: $BUNDLE ($(du -h "$BUNDLE" | cut -f1))"
 
 # --- retention: keep the newest $KEEP bundles locally ---
-KEEP="${BACKUP_KEEP:-14}"
+KEEP="${BACKUP_KEEP:-7}"   # owner 25 Oct: keep the last 7
 ls -1t "$OUT"/assisto_backup_*.tar.gz.enc 2>/dev/null | tail -n +"$((KEEP + 1))" | while read -r old; do
   rm -f "$old" "${old}.sha256"
 done
