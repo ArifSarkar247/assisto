@@ -216,13 +216,15 @@ class OneRecordPerPersonTests(_Base):
         before = FamilyAlert.objects.filter(kind="antitheft").count()
         with mock.patch("core.push.safe_push") as sp:
             self._ingest([{"id": "sn-1", "kind": "snatch"}])
-        for u in (self.owner, self.family):
-            self.assertEqual(NotifEvent.objects.filter(
-                user=u, meta__antitheft_kind="snatch").count(), 1)
+        # owner 25 Oct: the owner never gets alerts about his own phone
+        self.assertEqual(NotifEvent.objects.filter(
+            user=self.owner, meta__antitheft_kind="snatch").count(), 0)
+        self.assertEqual(NotifEvent.objects.filter(
+            user=self.family, meta__antitheft_kind="snatch").count(), 1)
         self.assertEqual(FamilyAlert.objects.filter(kind="antitheft").count(),
                          before)
         pushed = sorted(c.args[0].pk for c in sp.call_args_list)
-        self.assertEqual(pushed, sorted([self.owner.pk, self.family.pk]))
+        self.assertEqual(pushed, [self.family.pk])
 
     def test_notif_feed_shows_the_alert_once(self):
         self._ingest([{"id": "sn-2", "kind": "snatch"}])

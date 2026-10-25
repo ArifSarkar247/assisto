@@ -78,8 +78,8 @@ class EnableDisableTests(_Base):
         eng = AntiTheftEngine.objects.get(phone=self.phone)
         self.assertTrue(eng.enabled)
         self.assertEqual(eng.token_hash, at.hash_token(self.token))
-        # owner + approved family both get a "protection on" alert
-        self.assertTrue(NotifEvent.objects.filter(
+        # owner 25 Oct: only approved family get alerts about the owner's phone
+        self.assertFalse(NotifEvent.objects.filter(
             user=self.owner, meta__has_key="antitheft_kind").exists())
         self.assertTrue(NotifEvent.objects.filter(
             user=self.family, meta__has_key="antitheft_kind").exists())
@@ -185,10 +185,12 @@ class IngestionTests(_Base):
     def test_sim_change_alert_is_honest_about_number(self):
         self._ingest([{"id": "sim-1", "kind": "sim_change",
                        "data": {"state": "inserted", "carrier": "Robi", "v": 2}}])
-        fa = NotifEvent.objects.filter(user=self.owner,
+        self.assertFalse(NotifEvent.objects.filter(
+            user=self.owner, meta__antitheft_kind="sim_change").exists())
+        fa = NotifEvent.objects.filter(user=self.family,
                                         meta__antitheft_kind="sim_change").first()
         self.assertIsNotNone(fa)
-        # owner lang is bn → honest Bangla line that the number is not readable
+        # honest Bangla line that the number is not readable
         self.assertIn("নতুন নম্বর পড়তে দেয় না", fa.body_bn)
 
     def test_failed_unlock_below_threshold_does_not_alert(self):

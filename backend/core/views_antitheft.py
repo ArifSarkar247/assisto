@@ -131,9 +131,14 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
     meta.update({"phone_id": phone.id, "owner_id": phone.owner_id,
                  "antitheft_kind": kind})
     owner = phone.owner
-    recips = [] if family_only else [owner]
-    if not owner_only:
-        recips += approved_family_users(phone)
+    # Owner 25 Oct: the device owner NEVER gets an anti-theft/safety alert about
+    # his OWN phone (battery, offline, grab, SIM, went dark … every kind) — only
+    # approved family do. The one exception is an owner-only kind (the "test"
+    # alarm he pressed himself). family_only is kept for callers' clarity.
+    if owner_only:
+        recips = [owner]
+    else:
+        recips = list(approved_family_users(phone))
     now = timezone.now()
     sent = 0
     seen = set()
