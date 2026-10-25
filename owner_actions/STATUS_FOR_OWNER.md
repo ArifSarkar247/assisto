@@ -1,5 +1,10 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## 🌙 ২৫ Oct রাত — আপনার আদেশ অনুযায়ী
+- **10236 টেস্টারদের হাতে:** Play-তে Internal ও Closed testing দুটোতেই **10236 — completed**। কল পৌঁছানো (Owner Admin → Calls, শেষ ৭ দিন): ২১টি কলের ১৮টি বেজেছে (**৮৬%**); Realme RMX3491 ৩/৩, OPPO CPH2637 (Android 16) ১/১, Realme RMX3195 ২/৩ (৩ বার আবার পাঠাতে হয়েছে); ১৪টি পুরনো বিল্ড থেকে (ফোনের তথ্য নেই) — টেস্টাররা 10236-এ গেলে পরিসংখ্যান পরিষ্কার হবে।
+- **ক্র্যাশ ও মতামত:** Play-তে কোনো রিভিউ নেই; Play Vitals API বন্ধ (অপেক্ষার তালিকা ৭)। নিজেদের রিপোর্টে শেষ ৩ দিনে ২টি ত্রুটি (ক্র্যাশ ০) — দুটিই OPPO-তে **ভিডিও কলের ছোট পর্দায় লেআউট-এরর**; ঠিক করা হয়েছে + টেস্ট (পুরনো কোডে ত্রুটি হুবহু ধরা পড়ে, নতুনে পাস) — পরের বিল্ডে যাবে।
+- **চলছে:** My Circle ও কলের UX WhatsApp-এর মতো করা (এজেন্ট), আর রিয়ালিটি-অডিটের টেস্ট ঠিক করা (এজেন্ট)। **পরের বিল্ড** = 238-এর সব (AdMob, Business AI Agent v2, ফটো স্টুডিও) + এই ঠিকগুলো একসাথে — আপনি "ads declared" লিখলেই Internal + Closed testing-এ যাবে।
+
 ## 🔎 প্রথম আসল "রিয়ালিটি অডিট" (এমুলেটরে আসল ব্যবহারকারীর মতো চালানো, ২৫ Oct)
 - ৩১টি ফ্লো: ১৮টি পুরো কাজ করে (A), ৭টি আংশিক (C), ৬টি চলার আগেই এমুলেটর বন্ধ হয়ে যায় (D) — C-গুলোর বেশিরভাগ আজকের নতুন আইকনের কারণে টেস্ট-স্ক্রিপ্ট বোতাম খুঁজে পায়নি; এজেন্ট এখন ঠিক করছে, আর আসল বাগ থাকলে সেটাও ঠিক করবে।
 
@@ -9,12 +14,13 @@
 - **Play-তে পাঠাতে:** `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`-এর ধাপ (Ads = Yes, Advertising ID = Yes, Data safety) শেষ করে আমাকে "ads declared" লিখুন — আমি সাথে সাথে 10238 Internal + Closed testing-এ পাঠাব। Play-তে এখন সর্বশেষ 10236।
 
 ## ⏳ আপনার অপেক্ষায় (তালিকা — এর মধ্যে আমি পরের কাজ চালিয়ে যাচ্ছি) — ২৫ Oct
-1. **AdMob বিল্ড Play-তে পাঠানোর আগে Play Console:** Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
+1. **(আপনি কাল সকালে করবেন) AdMob বিল্ড Play-তে পাঠানোর আগে Play Console:** Ads = Yes, Advertising ID = Yes, Data safety হালনাগাদ, AdMob Privacy & messaging-এ GDPR + US স্টেট বার্তা, AdMob-এ SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। হয়ে গেলে আমাকে "ads declared" লিখুন; ততক্ষণ বিজ্ঞাপনওয়ালা বিল্ড Play-তে যাবে না (APK লিংক কাজ করবে)।
 2. **ফটো স্টুডিও:** মুখ-রিস্টোর প্রোভাইডার বাছাই (fal-এ Topaz নাকি Clarity), Real-ESRGAN রাখবেন নাকি বাদ, আর Replicate/fal.ai key (Owner Admin → Integrations) — ততক্ষণ এগুলো বন্ধ ও লুকানো।
-3. **রেফারেল পুরস্কারের অঙ্ক** (২০/১০ ক্রেডিট, মাসে ১০, ফাউন্ডিং ৫০০×২০) — ঠিক আছে?
+3. ~~রেফারেল পুরস্কারের অঙ্ক~~ — ✅ **আপনি নিশ্চিত করেছেন (২৫ Oct রাত):** ২০/১০ ক্রেডিট, মাসে সর্বোচ্চ ১০, ফাউন্ডিং ৫০০×২০ — লাইভ সার্ভারে ঠিক এই মানই চালু।
 4. **Test Lab ডিভাইস-ম্যাট্রিক্স:** GCP_TESTLAB_SA সিক্রেট (আগে থেকে অপেক্ষায়)।
+7. **Play crash/ANR পরিসংখ্যান (১ ক্লিক):** Google Cloud-এ "Google Play Developer Reporting API" চালু করুন — https://console.developers.google.com/apis/api/playdeveloperreporting.googleapis.com/overview?project=216257299894 → **Enable**। তারপর আমি Play Vitals থেকে ক্র্যাশ/ANR নিজেই পড়ব (এখন শুধু নিজেদের ক্র্যাশ-রিপোর্ট দেখছি)।
 5. **Business AI Agent চালু করতে:** Meta app-এর App ID + App Secret + verify token → Owner Admin → Integrations → "Meta app"; webhook বসান; নিজের Page token ও WhatsApp স্থায়ী টোকেন অ্যাপে দিন; WhatsApp-এর আসল BD রেট Owner Admin → Sellers-এ — ধাপ `owner_actions/BUSINESS_AGENT_SETUP_BN.md`।
-6. **ফটো স্টুডিও (আরও পরিষ্কার করে):** (ক) Real-ESRGAN চালু করবেন কি না (এখন বন্ধ — লাইসেন্স অস্পষ্ট; বন্ধ থাকায় ফোনের AI-এনহ্যান্স ধাপ ও ফোনের পোর্ট্রেট-ব্লার লুকানো, ছোট/WhatsApp ছবি একটু নরম), (খ) Topaz নাকি Crystal, (গ) fal key, (ঘ) Phase 2 নিজস্ব মডেল প্রশিক্ষণ (স্থগিত, সর্বোচ্চ ~$৫০ অনুমান)।
+6. **ফটো স্টুডিও:** ✅ Real-ESRGAN **বন্ধই থাকবে** (আপনার সিদ্ধান্ত, লাইভে বন্ধ যাচাই করা)। মুখ-প্রোভাইডার (Topaz/Crystal) — আপনি fal key দিলে তখন বাছাই; ততক্ষণ বন্ধ ও লুকানো। Phase 2 প্রশিক্ষণ স্থগিত।
 
 ## ✅ কাজ ৫ শেষ — কোয়ালিটি সুইপ (২৫ Oct; সার্ভার লাইভ)
 - কল, My Circle, চুরি-সতর্কতা ও পেমেন্টে ১৭১টি নতুন টেস্ট (সার্ভারে মোট ৪,০৮৩টি, সব পাস); কভারেজ: কল ৮৬→৮৮%, My Circle ৭৪→৮৫%, চুরি-সতর্কতা ৮২→৮৭%, পেমেন্ট ৮৫% (আগেই ভালো)। **নিরাপত্তা বাগ ঠিক করে লাইভ:** আপনি যাকে ব্লক করেছেন সে হারানো ফোনের লোকেশন দেখতে পারত ও নিরাপত্তা-সতর্কতা/ইমেইল পেত — এখন আর না; ভুল phone_id-তে সার্ভার-এরর (500) আর হয় না।
