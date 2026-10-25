@@ -11,7 +11,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 # Canonical secrets file (chmod 600, never in git). Added keys (e.g.
 # ANTHROPIC_API_KEY) turn features on with just a service restart.
-load_dotenv("/home/ubuntu/.assisto_secrets.env", override=False)
+# Self-hosted CI runner (user ghrunner) cannot read the server's secrets file
+# -> skip it instead of crashing; CI uses settings_test / settings_ci anyway.
+_secrets = "/home/ubuntu/.assisto_secrets.env"
+if os.access(_secrets, os.R_OK):
+    load_dotenv(_secrets, override=False)
 
 
 def env_bool(key, default=False):
