@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0084_connect_flow'),
+        ('core', '0085_admob_placement_stats'),
     ]
 
     operations = [

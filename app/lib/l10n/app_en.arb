@@ -19200,5 +19200,103 @@
   "grabSentNow": "Your family is being alerted.",
   "@grabSentNow": {
     "description": "grab-guard: snackbar after 'No, alert my family now'."
-  }
+  },
+  "bv2InboxTitle": "Business inbox",
+  "bv2InboxSub": "Every Page and WhatsApp chat in one place",
+  "bv2FilterAll": "All ({count})",
+  "@bv2FilterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2FilterAgent": "Agent ({count})",
+  "@bv2FilterAgent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2FilterOwner": "You ({count})",
+  "@bv2FilterOwner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2FilterAttention": "Needs you ({count})",
+  "@bv2FilterAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2FilterUnread": "Unread ({count})",
+  "@bv2FilterUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2SearchHint": "Search name, number or message",
+  "bv2NoMatch": "No chats match this filter.",
+  "bv2StatusAgent": "Agent replying",
+  "bv2StatusOwner": "You are replying",
+  "bv2StatusAttention": "Needs you",
+  "bv2DraftTitle": "Draft order #{id}",
+  "@bv2DraftTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "bv2DraftBody": "Made from the customer's photo. Stock changes only after you confirm.",
+  "bv2DraftLine": "{name} × {qty} — ৳{price}",
+  "@bv2DraftLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "bv2DraftConfirm": "Confirm order",
+  "bv2DraftCancel": "Cancel draft",
+  "bv2DraftConfirmed": "Order confirmed.",
+  "bv2DraftCancelled": "Draft cancelled.",
+  "bv2HandbackAt": "If you stay silent, the agent replies again at {time}.",
+  "@bv2HandbackAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bv2LimitsTitle": "Takeover and limits",
+  "bv2IdleLabel": "Give the chat back to the agent after my silence (minutes, 0 = never)",
+  "bv2DailyCapLabel": "Most paid AI replies per day",
+  "bv2ThreadCapLabel": "Most agent replies per chat per day",
+  "bv2AiToday": "Today: {used} of {cap} paid AI replies used",
+  "@bv2AiToday": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
+  "bv2LimitsNote": "Over a limit, the agent still answers from your price list and FAQs; every other question comes to you."
 }

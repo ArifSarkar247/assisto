@@ -1,1 +1,1 @@
-Build 237: Free plan now shows a few clearly labelled ads (Google test ads for now) — never on SOS, safety, anti-theft, calls, chats, payment or login screens; Premium and Business see no ads; ad privacy choices in Settings.
+Build 238: Business AI agent replies 24/7 on your own Facebook Page and WhatsApp number with owner takeover, a Business inbox and draft orders from customer photos; Free plan shows a few clearly labelled ads (Google test ads for now), never on SOS, safety, calls, chats, payment or login screens.

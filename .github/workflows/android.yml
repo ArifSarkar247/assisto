@@ -65,6 +65,9 @@ jobs:
         run: flutter create --project-name assisto --org com.assisto --platforms=android .
 
       - name: Gradle memory fits the self-hosted runner (5 GB cap)
+        # self-hosted only: on GitHub-hosted (16 GB) the 2 GB heap made build 237
+        # (AdMob SDK added) hang 75+ min in the release APK step
+        if: runner.environment == 'self-hosted'
         working-directory: app
         run: |
           # Flutter's template asks for -Xmx8G; on our capped runner that thrashed
