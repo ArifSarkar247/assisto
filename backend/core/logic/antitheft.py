@@ -209,7 +209,7 @@ def i_or_none(v):
         return None
     try:
         return int(float(v))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):   # qs: "inf" was a 500
         return None
 
 

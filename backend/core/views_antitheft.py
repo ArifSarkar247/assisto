@@ -916,7 +916,10 @@ class EngineTimelineView(APIView):
     def get(self, request):
         pid = request.query_params.get("phone_id")
         if pid:
-            phone = ProtectedPhone.objects.filter(pk=pid).first()
+            # qs: a non-numeric id was a 500; same 404 as an unknown phone.
+            pid = at.i_or_none(pid)
+            phone = (ProtectedPhone.objects.filter(pk=pid).first()
+                     if pid is not None else None)
         else:
             phone = _primary_phone(request.user)
         if phone is None or not can_view(phone, request.user):
