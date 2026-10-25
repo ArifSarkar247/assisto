@@ -29,6 +29,7 @@ SELLER (signed-in business owner; staff may read threads/approvals):
   GET  plan, POST plan/trial, POST plan/checkout {plan}
 """
 import json
+from datetime import timedelta
 import logging
 
 from django.http import HttpResponse, JsonResponse
@@ -37,6 +38,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from . import bizagent_guard as GD
 from . import bizagent_service as S
 from .business_views import _require_business, _owner_only, _err
 from .i18n import req_lang
@@ -147,6 +149,9 @@ def _settings_row(a, prof):
             "upsell_enabled": a.upsell_enabled, "bundle_rules": a.bundle_rules or [],
             "auto_courier": a.auto_courier, "vision_enabled": a.vision_enabled,
             "voice_enabled": a.voice_enabled, "comment_dm": a.comment_dm,
+            # ---- biz-v2 ----
+            "takeover_idle_minutes": a.takeover_idle_minutes, "daily_ai_cap": a.daily_ai_cap,
+            "thread_daily_cap": a.thread_daily_cap,
             "delivery_inside": str(pol.delivery_inside) if pol else "0",
             "delivery_outside": str(pol.delivery_outside) if pol else "0",
             "free_over": str(pol.free_delivery_over) if pol and pol.free_delivery_over else "",
@@ -177,6 +182,9 @@ class SetupView(APIView):
             "pending_approvals": prof.chat_threads.filter(
                 messages__status="pending_approval").count(),
             "g1": _g1_state(a),
+            # ---- biz-v2: what the app may show + today's paid AI calls ----
+            "features": GD.features(prof, meta_ready(), _g1_state(a)["vision_ready"]),
+            "ai_today": {"used": GD.ai_calls_today(prof), "cap": a.daily_ai_cap},
         })
 
 
@@ -220,7 +228,11 @@ class SettingsView(APIView):
                 return _err(lang, "অজানা মোড।", "Unknown mode.", status=422, code="bad_mode")
             a.ai_mode = d["ai_mode"]
         for k, lo, hi in (("resume_minutes", 1, G1.MAX_RESUME_MIN), ("morning_hour", 0, 23),
-                          ("followup_after_hours", 1, 20), ("followup_max", 0, 3)):
+                          ("followup_after_hours", 1, 20), ("followup_max", 0, 3),
+                          # biz-v2 (0 idle = the agent waits until handed back)
+                          ("takeover_idle_minutes", 0, GD.IDLE_MAX_MIN),
+                          ("daily_ai_cap", 0, GD.DAILY_AI_CAP_MAX),
+                          ("thread_daily_cap", 1, GD.THREAD_CAP_MAX)):
             if k in d:
                 setattr(a, k, G1.clamp_int(d.get(k), lo, hi, getattr(a, k)))
         for k in ("rules_enabled", "morning_summary", "followups_enabled", "upsell_enabled",
@@ -321,6 +333,8 @@ class ChannelsView(APIView):
             ch.status_detail = r.get("error", "")[:200]
             ch.display_name = (d.get("display_name") or ext)[:120]
         ch.save()
+        GD.audit(prof, "channel_connect", actor=request.user, kind=kind, channel_id=ch.id,
+                 status=ch.status)
         return Response({"ok": ch.status == "connected", "channel": _channel_row(ch)},
                         status=201 if ch.status == "connected" else 200)
 
@@ -335,6 +349,8 @@ class ChannelToggleView(APIView):
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
         ch.enabled = bool(request.data.get("enabled", True))
         ch.save(update_fields=["enabled"])
+        GD.audit(prof, "channel_on" if ch.enabled else "channel_off", actor=request.user,
+                 channel_id=ch.id)
         return Response({"ok": True, "channel": _channel_row(ch)})
 
 
@@ -346,6 +362,7 @@ class ChannelDeleteView(APIView):
         ch = prof.seller_channels.filter(pk=pk).first()
         if not ch:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        GD.audit(prof, "channel_disconnect", actor=request.user, kind=ch.kind, channel_id=ch.id)
         ch.delete()
         if not prof.seller_channels.filter(status="connected").exists() and a.ai_enabled:
             a.ai_enabled = False
@@ -391,6 +408,9 @@ def _thread_row(t):
             "paused_until": paused.isoformat() if paused else None,
             "paused_by": t.paused_by if paused else "",
             "opted_out": t.opted_out,
+            # biz-v2: inbox status (agent / owner / attention) + unread
+            "status": GD.thread_status(t, now), "unread": GD.unread(t),
+            "takeover_at": t.takeover_at.isoformat() if t.takeover_at else None,
             "last_text": last.text[:120] if last else "",
             "last_at": (t.last_message_at or t.created_at).isoformat(),
             "pending": t.messages.filter(status="pending_approval").count(),
@@ -479,12 +499,19 @@ class ThreadDetailView(APIView):
         t = _thread(prof, pk)
         if not t:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        GD.mark_read(t)     # biz-v2: the owner opened the chat
         msgs = [_msg_row(m) for m in t.messages.order_by("created_at", "id")]
         orders = [{"id": o.id, "status": o.status, "total": str(o.total),
                    "tracking": o.tracking, "courier": o.courier,
-                   "courier_live": o.courier_live, "payment_status": o.payment_status}
+                   "courier_live": o.courier_live, "payment_status": o.payment_status,
+                   "items": o.items or [], "draft": o.status == "new" and o.via_agent}
                   for o in t.orders.all()]
-        return Response({"thread": _thread_row(t), "messages": msgs, "orders": orders})
+        row = _thread_row(t)
+        # biz-v2: when an idle takeover hands the chat back to the agent
+        idle = GD.clamp(a.takeover_idle_minutes, 0, GD.IDLE_MAX_MIN, 60)
+        row["handback_at"] = ((t.takeover_at + timedelta(minutes=idle)).isoformat()
+                              if t.owner_takeover and t.takeover_at and idle > 0 else None)
+        return Response({"thread": row, "messages": msgs, "orders": orders})
 
 
 class ThreadHandoverView(APIView):
@@ -495,8 +522,10 @@ class ThreadHandoverView(APIView):
         t = _thread(prof, pk)
         if not t:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
-        from . import bizagent_g1_service as G1S
-        G1S.set_reply_mode(t, "human" if bool(request.data.get("on", True)) else "ai")
+        if bool(request.data.get("on", True)):
+            GD.take_over(t, actor=request.user)
+        else:
+            GD.hand_back(t, actor=request.user)
         return Response({"ok": True, "handover": t.owner_takeover})
 
 

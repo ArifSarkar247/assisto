@@ -940,6 +940,15 @@ urlpatterns += [
     path("bizagent/widget/<str:key>/send", g1.widget_send),
     path("bizagent/widget/<str:key>/messages", g1.widget_messages),
 ]
+# ---- biz-v2 ---- Business inbox, image draft orders, audit
+from . import views_bizagent_v2 as bv2  # noqa: E402
+urlpatterns += [
+    path("bizagent/inbox", bv2.InboxView.as_view()),
+    path("bizagent/threads/<int:pk>/read", bv2.ThreadReadView.as_view()),
+    path("bizagent/orders/<int:pk>/confirm", bv2.DraftConfirmView.as_view()),
+    path("bizagent/orders/<int:pk>/cancel", bv2.DraftCancelView.as_view()),
+    path("bizagent/audit", bv2.AuditView.as_view()),
+]
 # ---- /p1-bizagent ----
 
 # ---- p2-money ---- sponsors / app-open / offers / rewarded SSV / trial

@@ -45,6 +45,11 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
   final _bundleQty = TextEditingController();
   final _bundlePct = TextEditingController();
   final _origins = TextEditingController();
+  // biz-v2: takeover idle hand-back + daily caps
+  final _idle = TextEditingController();
+  final _dailyCap = TextEditingController();
+  final _threadCap = TextEditingController();
+  Map<String, dynamic> _aiToday = const {};
 
   @override
   void initState() {
@@ -58,6 +63,9 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
     _bundleQty.dispose();
     _bundlePct.dispose();
     _origins.dispose();
+    _idle.dispose();
+    _dailyCap.dispose();
+    _threadCap.dispose();
     super.dispose();
   }
 
@@ -86,6 +94,10 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
         _bundleQty.text = bundle.isEmpty ? '' : bd(context, bundle.first['min_qty']);
         _bundlePct.text = bundle.isEmpty ? '' : bd(context, bundle.first['off_pct']);
         _origins.text = '${w['origins'] ?? ''}';
+        _idle.text = bd(context, s['takeover_idle_minutes'] ?? 60);
+        _dailyCap.text = bd(context, s['daily_ai_cap'] ?? 300);
+        _threadCap.text = bd(context, s['thread_daily_cap'] ?? 50);
+        _aiToday = Map<String, dynamic>.from((setup['ai_today'] as Map?) ?? const {});
         _loading = false;
       });
     } catch (e) {
@@ -147,6 +159,48 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(appBar: AppBar(title: Text(t.g1BehaviourTitle)), body: _body(t));
+  }
+
+  Widget _numRow(AppLocalizations t, TextEditingController c, String label, String key,
+          int fallback) =>
+      Padding(
+        padding: const EdgeInsets.only(top: Gap.md),
+        child: Row(children: [
+          Expanded(
+            child: TextField(
+              controller: c,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                  helperText: label, helperMaxLines: 3, border: const OutlineInputBorder()),
+            ),
+          ),
+          const SizedBox(width: Gap.sm),
+          FilledButton(
+            onPressed: _busy
+                ? null
+                : () => _save({key: int.tryParse(asciiDigits(c.text.trim())) ?? fallback}),
+            child: Text(t.g1Save),
+          ),
+        ]),
+      );
+
+  /// biz-v2: owner takeover idle timeout + Asalify-proven daily caps.
+  Widget _limitsCard(AppLocalizations t) {
+    final used = (_aiToday['used'] as num?)?.toInt() ?? 0;
+    final cap = (_s['daily_ai_cap'] as num?)?.toInt() ?? 300;
+    return BizCard(
+      title: t.bv2LimitsTitle,
+      icon: Icons.shield_moon_rounded,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(bd(context, t.bv2AiToday(used, cap)),
+            style: Theme.of(context).textTheme.titleSmall),
+        _numRow(t, _idle, t.bv2IdleLabel, 'takeover_idle_minutes', 60),
+        _numRow(t, _dailyCap, t.bv2DailyCapLabel, 'daily_ai_cap', 300),
+        _numRow(t, _threadCap, t.bv2ThreadCapLabel, 'thread_daily_cap', 50),
+        const SizedBox(height: Gap.md),
+        BizNote(text: t.bv2LimitsNote, icon: Icons.info_outline_rounded),
+      ]),
+    );
   }
 
   Widget _switch(String key, String title, String sub, {bool enabled = true}) => SwitchListTile(
@@ -399,6 +453,8 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
           ],
         ]),
       ),
+      const SizedBox(height: Gap.md),
+      _limitsCard(t),
     ]);
   }
 }

@@ -57,7 +57,11 @@ class ThreadModeView(APIView):
         if mode not in ("human", "ai"):
             return _err(lang, "human অথবা ai দিন।", "Use human or ai.", status=422,
                         code="bad_mode")
-        G1S.set_reply_mode(t, mode)
+        from . import bizagent_guard as GD
+        if mode == "human":
+            GD.take_over(t, actor=request.user)
+        else:
+            GD.hand_back(t, actor=request.user)
         return Response({"ok": True, "reply_mode": mode, "handover": t.owner_takeover})
 
 

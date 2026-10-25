@@ -779,6 +779,15 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
         return {"text": BZ.holding_message(lang, risk, hours), "kind": "holding", "risk": risk,
                 "proposal": proposal, "confidence": 0.0}
 
+    # ---- biz-v2: per-business daily cap on PAID AI calls. Over the cap the
+    # customer gets the honest "I'll ask the owner" line (never invented). ----
+    from . import ai as _ai
+    from . import bizagent_guard as GD
+    if _ai.key_present() and not GD.ai_budget_ok(agent):
+        GD.note_cap_hit(agent, "daily_ai", thread)
+        return {"text": BZ.holding_message(lang, BZ.RISK_LOW_CONF, hours), "kind": "holding",
+                "risk": "daily_ai_cap", "proposal": "", "confidence": 0.0, "source": "rule"}
+
     # ---- free reply: LLM (key) or deterministic mock, then POST-CHECK ----
     ctx = context_for(business, agent, lang, only=matched or None)
     d = _llm_draft(ctx, lang, agent.tone, text, _history(thread))
@@ -950,6 +959,9 @@ def respond(ch, t, text, lang, comment_id="", *, media=None, inbound=None, resum
     agent = agent_for(biz)
     if _channel_off(ch, cfg):
         return "channel_off"
+    # biz-v2: a takeover the owner left idle past the timeout → agent resumes
+    from . import bizagent_guard as GD
+    GD.maybe_auto_handback(agent, t)
     allowed, why = G1S.ai_state(agent, t)
     if not allowed:
         notify_seller(biz, "inbox", "নতুন মেসেজ", "New message",
@@ -957,6 +969,10 @@ def respond(ch, t, text, lang, comment_id="", *, media=None, inbound=None, resum
                       (t.customer_name or "") + ": " + (text or "[media]")[:80],
                       data={"thread_id": str(t.pk)})
         return "paused" if why == "paused" else "human"
+    # biz-v2: per-chat daily cap + burst limiter (Asalify-proven anti-loop)
+    capped = GD.gate(agent, t)
+    if capped:
+        return capped
     if not G1S.acquire(t):
         # another worker is replying in this chat: it picks this message up
         if inbound is not None:
@@ -1164,9 +1180,12 @@ def seller_send(thread, text):
     """Seller/staff types a reply in the app (human, not billed as AI). g1:
     the AI pauses in THIS chat for the resume timeout."""
     from . import bizagent_g1_service as G1S
+    from . import bizagent_guard as GD
     m = send_text(thread, text, kind="text", is_ai=False, source="human")
     if m.status in ("sent", "queued"):
         G1S.pause_for_human(thread, "app")
+        GD.touch_takeover(thread)
+    GD.audit(thread.business, "owner_reply", thread=thread, status=m.status)
     return m
 
 
@@ -1205,18 +1224,26 @@ def confirm_order(thread, agent, lang):
     item = {"product_id": draft["product_id"], "name": priced["product"]
             + ((" " + draft["variant_label"]) if draft.get("variant_label") else ""),
             "qty": priced["qty"], "price": str(priced["unit"]), "variant": draft.get("variant", "")}
+    from . import bizagent_guard as GD
+    image_draft = GD.open_draft(thread)     # biz-v2: a photo draft becomes THE order
+    fields = dict(customer_name=draft["name"][:120], customer_phone=draft["phone"],
+                  address=draft["address"], items=[item], total=priced["total"],
+                  delivery_charge=priced["delivery"], area=draft["area"], status="confirmed",
+                  payment="cod", channel=thread.channel, via_agent=True,
+                  payment_status="pending_verification" if draft.get("payment_proof") else "")
     with transaction.atomic():
         if not _decrement_stock(item):
             transaction.set_rollback(True)
             ok = False
         else:
             ok = True
-            o = Order.objects.create(
-                user=biz.user, business=biz, thread=thread, customer_name=draft["name"][:120],
-                customer_phone=draft["phone"], address=draft["address"], items=[item],
-                total=priced["total"], delivery_charge=priced["delivery"], area=draft["area"],
-                status="confirmed", payment="cod", channel=thread.channel, via_agent=True,
-                payment_status="pending_verification" if draft.get("payment_proof") else "")
+            if image_draft is not None:
+                o = image_draft
+                for k, v in fields.items():
+                    setattr(o, k, v)
+                o.save()
+            else:
+                o = Order.objects.create(user=biz.user, business=biz, thread=thread, **fields)
     if not ok:
         fresh = BZ.price_order(draft, catalog_for(biz), delivery_for(biz))
         return _deliver_ai(thread, agent, BZ.out_of_stock_line(

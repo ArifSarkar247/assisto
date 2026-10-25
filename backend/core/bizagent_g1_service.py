@@ -30,6 +30,7 @@ from .logic import bizagent as BZ
 from .logic import bizagent_g1 as G1
 from .logic import bizagent_rules as R
 from .logic import business_ai as bai
+from . import bizagent_guard as GD
 
 log = logging.getLogger(__name__)
 
@@ -218,7 +219,8 @@ def run_sweeps(now=None):
     G1: human pause ran out → answer the waiting customer; leftover deferred
     messages; follow-ups; the morning summary."""
     out = {}
-    for name, fn in (("resumed", resume_waiting), ("deferred", process_deferred),
+    from . import bizagent_guard as GD
+    for name, fn in (("idle_handback", GD.sweep_idle_takeovers), ("resumed", resume_waiting), ("deferred", process_deferred),
                      ("followups", run_followups), ("morning", run_morning)):
         try:
             out[name] = fn(now)
@@ -379,11 +381,16 @@ def compose_image(business, agent, thread, data, mime, caption, lang):
         p = next((x for x in catalog if x["id"] == best[1]), None)
         if p:
             _remember_product(thread, p)
-            return {"text": G1.matched_reply(lang, p, R.product_card(lang, p)), "kind": "text",
+            return {"text": _with_draft(thread, p, lang, G1.matched_reply(
+                        lang, p, R.product_card(lang, p))), "kind": "text",
                     "risk": None, "confidence": 1.0, "source": "rule", "rule": "image_match",
                     "meta": meta, "product_id": p["id"]}
     parsed, info = (None, {"error": "vision_off", "charged": 0, "cost_bdt": 0.0})
-    if agent.vision_enabled:
+    if agent.vision_enabled and not GD.ai_budget_ok(agent):
+        # biz-v2: the daily AI cap also covers paid vision
+        GD.note_cap_hit(agent, "daily_ai", thread)
+        info = {"error": "daily_ai_cap", "charged": 0, "cost_bdt": 0.0}
+    elif agent.vision_enabled:
         parsed, info = M.describe(business.user, data, mime, lang, [p["name"] for p in catalog])
     meta.update({"vision": info.get("provider", ""), "vision_error": info.get("error", "")})
     cost = {"credits": info.get("charged", 0), "cost_bdt": info.get("cost_bdt", 0.0)}
@@ -444,13 +451,22 @@ def compose_image(business, agent, thread, data, mime, caption, lang):
             (len(combined) < 2 or combined[0][0] - combined[1][0] >= 0.15):
         p = combined[0][1]
         _remember_product(thread, p)
-        return dict({"text": G1.matched_reply(lang, p, R.product_card(lang, p)), "kind": "text",
+        return dict({"text": _with_draft(thread, p, lang, G1.matched_reply(
+                         lang, p, R.product_card(lang, p))), "kind": "text",
                      "risk": None, "confidence": 0.9, "source": "ai", "rule": "image_vision",
                      "meta": meta, "product_id": p["id"], "charged_vision": True}, **cost)
     close = [p for s, p in combined if s > 0][:3]
     return dict({"text": G1.closest_reply(lang, close), "kind": "text", "risk": None,
                  "confidence": 0.7, "source": "ai", "rule": "image_closest", "meta": meta,
                  "photos": [p["id"] for p in close], "charged_vision": True}, **cost)
+
+
+def _with_draft(thread, p, lang, text):
+    """biz-v2 image → order: a sure catalogue match becomes a DRAFT order the
+    owner confirms (stock untouched until then). No price → no draft."""
+    if GD.image_draft_order(thread, p) is None:
+        return text
+    return text + "\n" + GD.draft_line(lang)
 
 
 def _remember_product(thread, p):
