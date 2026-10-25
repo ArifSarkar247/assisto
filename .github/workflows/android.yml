@@ -981,6 +981,11 @@ jobs:
           #    .aab — apksigner is for APKs). Passwords via env, never argv.
           zip -q -d "$AAB" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.EC' \
               'META-INF/*.DSA' 'META-INF/MANIFEST.MF' 2>/dev/null || true
+          # build 232 (self-hosted): no `zip` on the box -> debug signature stayed
+          # and Play refused "signed with multiple certificate chains". Never again:
+          if unzip -l "$AAB" | grep -qE 'META-INF/.*\.(SF|RSA|EC|DSA)$'; then
+            echo "::error::debug signature still in the AAB (is zip installed on the runner?)"; exit 1
+          fi
           jarsigner -keystore /tmp/aab.p12 -storetype PKCS12 \
             -storepass:env SP -keypass:env KP -digestalg SHA-256 \
             "$AAB" "$ALIAS" > /dev/null
