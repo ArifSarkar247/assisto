@@ -519,9 +519,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     // QA a6: amber title on cream was ~2.5:1 and the trailing button
     // squeezed the text to 2–3 words per line. Readable ink + button below.
     final fg = active
-        ? (Theme.of(context).brightness == Brightness.dark
-            ? Brand.success
-            : const Color(0xFF1E7E4E))
+        ? AssistoTokens.of(context).success
         : Brand.warnInk(context);
     return Card(
       color: bg,
@@ -549,7 +547,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                             .titleMedium
                             ?.copyWith(color: fg, fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(
                         active
                             ? tr.lostStolenStateActiveBody
@@ -652,7 +650,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   }
 
   Widget _bullet(String text) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../state.dart';
@@ -139,10 +140,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(t.journeyStartTitle)),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Text(t.journeyDestSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.sm),
         if (_places.isNotEmpty)
           Wrap(spacing: 8, children: [
             for (final p in _places)
@@ -159,7 +160,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 }),
               ),
           ]),
-        const SizedBox(height: 8),
+        const SizedBox(height: Gap.sm),
         TextField(
             controller: _destName,
             decoration: InputDecoration(
@@ -171,8 +172,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         const Divider(height: 28),
 
         Text(t.journeyEtaSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 4),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.xs),
         OutlinedButton.icon(
           icon: const Icon(Icons.schedule),
           label: Text(t.journeyEtaBy(_eta.format(context))),
@@ -184,8 +185,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         const Divider(height: 28),
 
         Text(t.journeyWatchersSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 4),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.xs),
         if (_watchers.isEmpty)
           Text(t.journeyNoWatchers, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ..._watchers.map((m) {
@@ -224,7 +225,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               ],
               onChanged: (v) => setState(() => _mode = v),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             TextField(
                 controller: _plate,
                 decoration: InputDecoration(labelText: t.journeyPlateLabel)),
@@ -261,7 +262,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 label: '$_retentionHours',
                 onChanged: (v) => setState(() => _retentionHours = v.round())),
             Text(t.journeyRetentionNote,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
         const SizedBox(height: 20),
@@ -269,7 +270,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           width: double.infinity,
           child: FilledButton.icon(
             style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16)),
+                padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
             onPressed: _starting ? null : _start,
             icon: _starting
                 ? const SizedBox(
@@ -278,7 +279,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.navigation),
             label: Text(t.journeyStartButton,
-                style: const TextStyle(fontSize: 18)),
+                style: AType.titleLarge),
           ),
         ),
       ]),

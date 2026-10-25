@@ -173,10 +173,10 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
           ],
           const SizedBox(height: Gap.sm),
           Text(t.noteExactMenuNamesVary,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xs),
           Text(t.oemGuideReopenHint,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           if (widget.firstRun) ...[
             const SizedBox(height: Gap.lg),
             RoboId(id: 'tl_oem_done',
@@ -227,7 +227,7 @@ class _StepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final note = TextStyle(fontSize: 13, color: scheme.onSurfaceVariant);
+    final note = AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
@@ -240,15 +240,14 @@ class _StepCard extends StatelessWidget {
                     radius: 14,
                     backgroundColor: scheme.primaryContainer,
                     child: Text('$index',
-                        style: TextStyle(
-                            color: scheme.onPrimaryContainer, fontSize: 13)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                   ),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(body),
               const SizedBox(height: Gap.sm),

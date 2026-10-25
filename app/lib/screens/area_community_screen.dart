@@ -266,8 +266,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.areaPrivacyNote,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -389,8 +388,7 @@ class _PostCard extends StatelessWidget {
               ),
             ]),
             Text(post.title,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 16)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             if (post.body.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(post.body,
@@ -421,9 +419,9 @@ class _PostCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: scheme.onSurfaceVariant),
-      const SizedBox(width: 4),
+      const SizedBox(width: Gap.xs),
       Text(text,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -444,10 +442,9 @@ class _CategoryPill extends StatelessWidget {
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(_categoryIcon(category), size: 14, color: c),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text(_categoryLabel(tr, category),
-            style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700, color: c)),
+            style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700, color: c)),
       ]),
     );
   }

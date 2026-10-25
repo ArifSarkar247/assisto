@@ -289,8 +289,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.bwPlaceholderHint,
-              style: TextStyle(
-                  color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _body,
@@ -672,16 +671,12 @@ class _AiMarkerCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.f6BwTemplateMarker, // f6: a template draft, not AI
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,
-                    fontSize: 12.5,
                     height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.bwNeverAutoPost,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
-                    fontSize: 12,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     height: 1.4)),
           ]),
         ),
@@ -710,11 +705,9 @@ class _FullAiCard extends StatelessWidget {
             Text(t.bwFullAiTitle,
                 style:
                     const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.bwFullAiBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 12.5,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.4)),
           ]),
         ),
@@ -743,9 +736,7 @@ class _ChipsRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
+          style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
               color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.sm),
       Wrap(

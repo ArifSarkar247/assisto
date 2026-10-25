@@ -512,8 +512,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         const _AiPolishCard(),
         const SizedBox(height: Gap.lg),
         Text(t.cvPrivacyNote,
-            style: TextStyle(
-                color: scheme.onSurfaceVariant, fontSize: 12, height: 1.4)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
       ],
     );
   }
@@ -540,8 +539,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Text(msg,
-          style: TextStyle(
-              color: scheme.onSurfaceVariant, fontSize: 13, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
     );
   }
 
@@ -574,13 +572,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                           style:
                               const TextStyle(fontWeight: FontWeight.w700)),
                       if (subtitle.trim().isNotEmpty) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: Gap.xxs),
                         Text(subtitle,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: scheme.onSurfaceVariant,
-                                fontSize: 12.5)),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                       ],
                     ]),
               ),
@@ -989,8 +985,7 @@ class _PreviewSheet extends StatelessWidget {
                   controller: scroll,
                   child: SelectableText(
                     text,
-                    style: const TextStyle(
-                        fontFamily: 'monospace', fontSize: 13, height: 1.5),
+                    style: AType.bodyMedium.copyWith(fontFamily: 'monospace', height: 1.5),
                   ),
                 ),
               ),
@@ -1050,11 +1045,9 @@ class _AiPolishCard extends StatelessWidget {
                 Text(t.cvAiPolishTitle,
                     style: const TextStyle(
                         fontWeight: FontWeight.w700, height: 1.4)),
-                const SizedBox(height: 2),
+                const SizedBox(height: Gap.xxs),
                 Text(t.cvAiPolishBody,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: 12.5,
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                         height: 1.4)),
               ]),
         ),

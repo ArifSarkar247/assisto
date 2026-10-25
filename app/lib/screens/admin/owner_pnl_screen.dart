@@ -177,7 +177,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
   }
 
   Widget _rangeToggle(AppLocalizations t, ColorScheme scheme) {
-    const seg = TextStyle(fontSize: 12);
+    const seg = AType.bodySmall;
     return SegmentedButton<int>(
       showSelectedIcon: false,
       segments: [
@@ -226,10 +226,9 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
             if (msg.isNotEmpty) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(msg,
-                  style: TextStyle(
-                      fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ]),
         ),
@@ -252,7 +251,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text((a['message'] ?? '').toString(),
-                style: TextStyle(fontSize: 12.5, color: scheme.onSurface))),
+                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
       ]),
     );
   }
@@ -271,7 +270,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
       padding: const EdgeInsets.all(Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.pnlRangeTotals(fmtInt(context, _days)),
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: Colors.white70)),
         const SizedBox(height: Gap.sm),
         Row(children: [
           _totalCell(t.pnlRevenue, taka(context, rev), Colors.white),
@@ -279,7 +278,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           _totalCell(
               t.pnlProfit,
               '${profitPositive ? '' : '-'}${taka(context, profit.abs())}',
-              profitPositive ? Colors.white : const Color(0xFFFFD2D7)),
+              profitPositive ? Colors.white : CallInk.failure),
         ]),
       ]),
     );
@@ -288,13 +287,11 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
   Widget _totalCell(String label, String value, Color valueColor) => Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label,
-              style: const TextStyle(color: Colors.white70, fontSize: 11)),
-          const SizedBox(height: 2),
+              style: AType.labelSmall.copyWith(color: Colors.white70)),
+          const SizedBox(height: Gap.xxs),
           Text(value,
-              style: TextStyle(
-                  color: valueColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800)),
+              style: AType.titleLarge.copyWith(color: valueColor,
+                  fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
         ]),
       );
 
@@ -325,7 +322,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
               for (final p in pts)
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.xxs),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -336,7 +333,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
                               Expanded(
                                   child: _bar(_int(p['revenue']) / maxV,
                                       scheme.primary)),
-                              const SizedBox(width: 2),
+                              const SizedBox(width: Gap.xxs),
                               Expanded(
                                   child: _bar(
                                       _int(p['cost']) / maxV, Brand.warning)),
@@ -375,7 +372,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         children: [
           Container(width: 10, height: 10, color: color),
           const SizedBox(width: 6),
-          Text(text, style: const TextStyle(fontSize: 12)),
+          Text(text, style: AType.bodySmall),
         ],
       );
 
@@ -399,15 +396,13 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.pnlBreakEvenTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(
               atBreakEven
                   ? t.pnlBreakEvenReached
                   : t.pnlBreakEvenBody( // (adrev, users) per signature
                       taka(context, adRev), fmtInt(context, users)),
-              style: TextStyle(
-                  fontSize: 12.5,
-                  color: scheme.onSurfaceVariant,
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                   height: 1.35),
             ),
           ]),
@@ -449,13 +444,16 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
               '${pct != null ? ' (${fmtInt(context, (pct * 100).round())}%)' : ''}',
               style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: positive ? Brand.success : Brand.danger),
+                  fontFeatures: AFonts.tabular,
+                  color: positive
+                      ? AssistoTokens.of(context).success
+                      : Theme.of(context).colorScheme.error),
             ),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Text(
             t.pnlRevCost(taka(context, cost), taka(context, rev)), // (cost, rev)
-            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
         ]),
       ),
@@ -504,7 +502,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           Icon(icon, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(text,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
         ],
       );
 }

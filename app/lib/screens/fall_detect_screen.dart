@@ -180,9 +180,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
               onChanged: (x) => setD(() => v = _clampWindow(x.round())),
             ),
             Text(t.fallCountdownHelp,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           ]),
           actions: [
             TextButton(
@@ -287,7 +285,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         const SizedBox(width: Gap.sm),
         Icon(icon, size: 16, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.xs),
-        Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
+        Expanded(child: Text(label, style: AType.bodyMedium)),
       ]),
     );
   }
@@ -418,8 +416,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   Text(t.fallSimulateHelp,
-                      style: TextStyle(
-                          fontSize: 13, color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                   const SizedBox(height: Gap.md),
                   SizedBox(
                     width: double.infinity,
@@ -435,7 +432,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
 
         const SizedBox(height: Gap.xl),
         Text(t.fallFooterNote,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -456,18 +453,14 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.fallDetectSubtitle,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                      style: AType.titleMedium.copyWith(color: Colors.white,
                           fontWeight: FontWeight.w700)),
                 ]),
           ),
         ]),
         const SizedBox(height: Gap.sm),
         Text(t.fallHeroCaption,
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.92),
-                fontSize: 13,
+            style: AType.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92),
                 height: 1.4)),
       ]),
     );
@@ -494,8 +487,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                         color: Brand.warnInk(context))),
                 const SizedBox(height: Gap.xs),
                 Text(t.fallSensorGatedBody,
-                    style: TextStyle(
-                        fontSize: 12, color: Brand.warnInk(context))),
+                    style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
               ]),
         ),
       ]),
@@ -521,8 +513,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Text(body,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ]),
         ),
       ]),

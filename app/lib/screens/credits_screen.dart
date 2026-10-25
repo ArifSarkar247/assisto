@@ -282,20 +282,18 @@ class _CreditsScreenState extends State<CreditsScreen> {
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.creditsBalanceLabel,
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: Colors.white70)),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Icon(Icons.bolt, color: Colors.white, size: 30),
-          const SizedBox(width: 4),
+          const SizedBox(width: Gap.xs),
           Text(fmtInt(context, balance),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800)),
+              style: AType.displayMedium.copyWith(color: Colors.white,
+                  fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
           const SizedBox(width: 6),
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Text(t.creditsUnit,
-                style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: Colors.white70)),
           ),
         ]),
         const SizedBox(height: Gap.md),
@@ -321,9 +319,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           const SizedBox(width: 6),
           Flexible( // qa1: wraps at large font
             child: Text(text,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
+                style: AType.bodySmall.copyWith(color: Colors.white,
                     fontWeight: FontWeight.w600)),
           ),
         ]),
@@ -347,14 +343,12 @@ class _CreditsScreenState extends State<CreditsScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(usedUp ? t.creditsPoolUsedUpTitle : t.creditsNothingUnlimited,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(
                 usedUp
                     ? t.creditsPoolUsedUpBody
                     : t.creditsNothingUnlimitedBody(fmtInt(context, pool)),
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.35)),
           ]),
         ),
@@ -390,11 +384,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.creditsPackCredits(fmtInt(context, credits)),
                   style:
-                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 2),
+                      AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: Gap.xxs),
               Text(t.creditsPackValidity(fmtInt(context, months)),
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ),
           const SizedBox(width: Gap.sm),
@@ -430,9 +423,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             Text(fmtInt(context, _int(r['credits'])),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           ClipRRect(
             borderRadius: BorderRadius.circular(Radii.pill),
             child: LinearProgressIndicator(
@@ -473,9 +467,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(t.creditsExpiresOn(label),
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant))),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
         Text(t.creditsPackCredits(fmtInt(context, credits)),
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -493,7 +487,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
     }
     final color = credit ? Brand.success : scheme.onSurface;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(children: [
         Icon(credit ? Icons.add_circle_outline : Icons.remove_circle_outline,
             size: 18, color: credit ? Brand.success : scheme.onSurfaceVariant),
@@ -504,12 +498,12 @@ class _CreditsScreenState extends State<CreditsScreen> {
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             if (when.isNotEmpty)
               Text(when,
-                  style: TextStyle(
-                      fontSize: 11, color: scheme.onSurfaceVariant)),
+                  style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ),
         Text('${credit ? '+' : ''}${fmtInt(context, delta)}',
-            style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+            style: TextStyle(
+                fontWeight: FontWeight.w700, color: color, fontFeatures: AFonts.tabular)),
       ]),
     );
   }
@@ -564,7 +558,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           Icon(icon, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(text,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
         ],
       );
 

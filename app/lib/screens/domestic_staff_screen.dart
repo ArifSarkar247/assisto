@@ -238,9 +238,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                           overflow: TextOverflow.ellipsis),
                       Text(
                           '${_roleLabel(tr, s.role)} · ${_StaffMath.fmtPoisha(s.salary.toDouble())}${tr.staffPerMonthSuffix}',
-                          style: TextStyle(
-                              fontSize: 12.5,
-                              color: scheme.onSurfaceVariant),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ]),
@@ -259,16 +257,14 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                 ),
                 child: Text(
                     '$badge ${_StaffMath.fmtPoisha(s.netDues.abs().toDouble())}',
-                    style: TextStyle(
-                        color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+                    style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
               ),
               const Spacer(),
               if (s.advanceBalance != 0)
                 Text(
                     tr.staffAdvanceHeld(
                         _StaffMath.fmtPoisha(s.advanceBalance.toDouble())),
-                    style: TextStyle(
-                        fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ]),
         ),
@@ -404,15 +400,12 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                             color: c, fontWeight: FontWeight.w700)),
                     const SizedBox(height: Gap.xs),
                     Text(_StaffMath.fmtPoisha(s.netDues.abs().toDouble()),
-                        style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface)),
+                        style: AType.headlineLarge.copyWith(fontWeight: FontWeight.bold,
+                            fontFeatures: AFonts.tabular, color: scheme.onSurface)),
                     const SizedBox(height: Gap.xs),
                     Text(
                         '${_roleLabel(tr, (widget.person['role'] ?? '').toString())} · ${_StaffMath.fmtPoisha(s.salary.toDouble())}${tr.staffPerMonthSuffix}',
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ]),
             ),
           ),
@@ -480,8 +473,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
               ),
               child: Text(
                   '$badge ${_StaffMath.fmtPoisha(m.outstanding.abs().toDouble())}',
-                  style: TextStyle(
-                      color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+                  style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: Gap.xs),
@@ -509,7 +501,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     return RichText(
       text: TextSpan(
-        style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
         children: [
           TextSpan(text: '$k '),
           TextSpan(
@@ -785,9 +777,7 @@ class _PaymentFormState extends State<_PaymentForm> {
               if (_kind == 'salary') ...[
                 const SizedBox(height: Gap.md),
                 Text(tr.staffAttendanceOptional,
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        color:
+                    style: AType.bodySmall.copyWith(color:
                             Theme.of(context).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.sm),
                 Row(children: [
@@ -863,15 +853,14 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
           Expanded(
             child: Text(label,
                 style:
-                    TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ),
         ]),
         const SizedBox(height: Gap.xs),
         Text(value,
-            style: TextStyle(
-                fontSize: 17, fontWeight: FontWeight.bold, color: color),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
       ]),
@@ -891,7 +880,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
         Expanded(
           child: Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),

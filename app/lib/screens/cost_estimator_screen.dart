@@ -333,7 +333,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         ),
         const SizedBox(height: Gap.lg),
         Text(t.ceComponents,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         ..._rows.asMap().entries.map((entry) => _ComponentCard(
               key: ValueKey(entry.value),
@@ -503,9 +503,7 @@ class _ComponentCard extends StatelessWidget {
         Row(children: [
           Expanded(
             child: Text(t.ceComponentN(fmtInt(context, index)),
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12.5,
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                     color: scheme.onSurfaceVariant)),
           ),
           if (canRemove)
@@ -620,15 +618,14 @@ class _TotalsCard extends StatelessWidget {
           child: Row(children: [
             Expanded(
               child: Text(label,
-                  style: TextStyle(
+                  style: (strong ? AType.titleMedium : AType.bodyMedium).copyWith(
                       color: scheme.onSurfaceVariant,
-                      fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-                      fontSize: strong ? 15 : 13)),
+                      fontWeight: strong ? FontWeight.w800 : FontWeight.w500)),
             ),
             Text(value,
-                style: TextStyle(
+                style: (strong ? AType.titleMedium : AType.bodyMedium).copyWith(
                     fontWeight: strong ? FontWeight.w800 : FontWeight.w600,
-                    fontSize: strong ? 16 : 13.5,
+                    fontFeatures: AFonts.tabular,
                     color: strong ? scheme.primary : null)),
           ]),
         );
@@ -647,7 +644,7 @@ class _TotalsCard extends StatelessWidget {
         if (contingencyPct > 0) line(t.ceContingencyLine(fmtInt(context, contingencyPct)), contingency),
         const Divider(height: Gap.lg),
         line(t.ceTotalCost, totalCost, strong: true),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         line(t.ceTotalTime, totalTime),
         line(t.ceBand, band),
         const SizedBox(height: Gap.md),
@@ -689,16 +686,12 @@ class _HonestMarker extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ceMarker,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,
-                    fontSize: 12.5,
                     height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.ceMarkerSub,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
-                    fontSize: 12,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     height: 1.4)),
           ]),
         ),
@@ -726,10 +719,9 @@ class _AiEstimateCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ceAiTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.ceAiBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           ]),
         ),
       ]),
@@ -754,9 +746,7 @@ class _DisclaimerCard extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 12.5,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.4))),
       ]),
     );

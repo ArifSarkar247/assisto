@@ -287,12 +287,9 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
         },
         child: Text(
           s.text,
-          style: TextStyle(
-            color: s.color,
-            fontSize: 22,
+          style: AType.headlineSmall.copyWith(color: s.color,
             fontWeight: FontWeight.w800,
-            shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
-          ),
+            shadows: const [Shadow(color: Colors.black54, blurRadius: 4)]),
         ),
       ),
     );
@@ -373,7 +370,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
               ),
             ),
             const SizedBox(width: Gap.sm),
-            FloatingActionButton(
+            FloatingActionButton(tooltip: AppLocalizations.of(context).send,
               heroTag: 'cam_send',
               onPressed: _send,
               child: const Icon(Icons.send),

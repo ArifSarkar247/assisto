@@ -216,9 +216,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           children: [
             Text(t.disTitle),
             Text(t.disSubtitle,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400,
                     color: scheme.onSurfaceVariant)),
           ],
         ),
@@ -269,7 +267,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
         _emergencyContacts(t, scheme),
         const SizedBox(height: Gap.xl),
         Text(t.disOfficialOnlyFooter,
-            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ],
     );
   }
@@ -313,8 +311,8 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: tint)),
-              const SizedBox(height: 2),
-              Text(body, style: const TextStyle(fontSize: 12.5, height: 1.35)),
+              const SizedBox(height: Gap.xxs),
+              Text(body, style: AType.bodySmall.copyWith(height: 1.35)),
             ]),
           ),
         ]),
@@ -366,11 +364,11 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionHeader(Icons.diversity_3_outlined, t.disFamilyTitle, Brand.purple),
-      const SizedBox(height: 2),
+      const SizedBox(height: Gap.xxs),
       Padding(
         padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
         child: Text(t.disFamilyHint,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
       if (_family.isEmpty)
         _tile(Icons.person_add_alt, t.disFamilyNone, scheme,
@@ -444,7 +442,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
               ),
             const SizedBox(height: Gap.xs),
             Text(t.disSourceLine(t.disPrepSource),
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ),
       ),
@@ -475,7 +473,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             title: Text(h.label,
                 style: TextStyle(
                     fontWeight: h.primary ? FontWeight.w800 : FontWeight.w600)),
-            subtitle: Text(h.note, style: const TextStyle(fontSize: 12)),
+            subtitle: Text(h.note, style: AType.bodySmall),
             trailing: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: h.primary ? Brand.danger : null,
@@ -488,7 +486,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           ),
         ),
       Text(t.disContactsSource,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 

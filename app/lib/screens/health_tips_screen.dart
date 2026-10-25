@@ -171,7 +171,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(_disclaimer,
-                        style: TextStyle(fontSize: 12, color: scheme.onTertiaryContainer)),
+                        style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer)),
                   ),
                 ]),
               ),
@@ -271,7 +271,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           if (_sources.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(t.healthTipsSourcesLine(_sources.join(', ')),
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ]),
       ),
@@ -352,7 +352,7 @@ class _EmergencyCheckBox extends StatelessWidget {
               Icon(Icons.check_circle_outline, size: 16, color: scheme.secondary),
               const SizedBox(width: Gap.xs),
               Expanded(child: Text(safeText,
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
             ]),
           ],
         ]),

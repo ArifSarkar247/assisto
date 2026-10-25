@@ -151,11 +151,11 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(value,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(label,
-                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ]),

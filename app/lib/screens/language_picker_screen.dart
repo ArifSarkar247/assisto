@@ -58,7 +58,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                   ? AppLocalizations.of(context).chooseLanguageSub
                   : 'You can change this later in Settings.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
             ),
           ]),
         ),
@@ -88,8 +88,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-              Text(sub, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+              Text(sub, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ),
           Icon(selected ? Icons.check_circle : Icons.circle_outlined,

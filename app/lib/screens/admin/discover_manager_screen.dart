@@ -233,7 +233,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
       header: Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text('${t.discoverMgrReorderHint}\n${t.qa2DiscoverPaidNote}',
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
       itemCount: _cards.length,
       onReorderItem: _reorder,
@@ -269,7 +269,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Wrap(spacing: Gap.xs, runSpacing: 2, children: [
                         _chip(_typeLabel(t, item.type), scheme.primary),
                         _chip(_audLabel(t, '${c['audience'] ?? 'all'}'),
@@ -280,13 +280,12 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                                 : (live ? t.discoverMgrLive : t.discoverMgrNotLive),
                             live ? Brand.success : scheme.onSurfaceVariant),
                       ]),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(
                         t.discoverMgrStats(_i(stats['impressions']),
                             _i(stats['clicks']), '${stats['ctr'] ?? 0}'),
                         maxLines: 2,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, fontSize: 12),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -326,8 +325,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
           borderRadius: BorderRadius.circular(Radii.xs),
         ),
         child: Text(label,
-            style: TextStyle(
-                color: color, fontSize: 11, fontWeight: FontWeight.w700)),
+            style: AType.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
       );
 }
 
@@ -659,10 +657,8 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
           padding: const EdgeInsets.all(Gap.lg),
           children: [
             Text(t.discoverMgrPreview,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13)),
+                style: AType.titleSmall.copyWith(color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             if (_isAdmob)
               Text(t.discoverMgrAdmobNote,
@@ -689,8 +685,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.qa2DiscoverPaidNote,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 12)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             if (!_isAdmob) ...[
               const SizedBox(height: Gap.lg + Gap.xs),
@@ -802,7 +797,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   keyboard: const TextInputType.numberWithOptions(decimal: true)),
               Text(t.discoverMgrSponsorNote,
                   style:
-                      TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                      AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ],
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -1004,8 +999,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     Text(t.discoverMgrUniqueNote,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, fontSize: 12)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     const SizedBox(height: Gap.sm),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                       OutlinedButton.icon(

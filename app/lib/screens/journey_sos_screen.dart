@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -194,7 +195,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
     final t = AppLocalizations.of(context);
     if (_phase == _Phase.counting) {
       return Scaffold(
-        backgroundColor: const Color(0xFFC62828),
+        backgroundColor: Brand.dangerFill,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(28),
@@ -202,17 +203,16 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.sos, color: Colors.white, size: 56),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: Gap.lg),
                   Text(t.sosSending,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
+                      style: AType.headlineSmall.copyWith(color: Colors.white,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Text('$_remaining',
                       style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 80,
+                          fontSize: 80, // countdown hero digit, above the scale
+                          fontFeatures: AFonts.tabular,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   SwitchListTile(
@@ -228,18 +228,17 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                     child: FilledButton(
                       style: FilledButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFFC62828),
+                          foregroundColor: Brand.dangerFill,
                           padding: const EdgeInsets.symmetric(vertical: 18)),
                       onPressed: _attemptCancel,
                       child: Text(t.sosCancel,
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
+                          style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold)),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Gap.sm),
                   Text(t.sosCancelNeedsPin,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      style: AType.bodyMedium.copyWith(color: Colors.white)),
                 ]),
           ),
         ),
@@ -249,17 +248,17 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
     // fired: alert sent, show help + helplines
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: const Color(0xFFC62828),
+          backgroundColor: Brand.dangerFill,
           foregroundColor: Colors.white,
           title: Text(t.sosSentTitle)),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-              color: const Color(0xFFC62828).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12)),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(Radii.md)),
           child: Row(children: [
-            const Icon(Icons.check_circle, color: Color(0xFFC62828)),
+            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.error),
             const SizedBox(width: 10),
             Expanded(
                 child: Text(t.sosSentBody,
@@ -268,11 +267,11 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
         ),
         const SizedBox(height: 20),
         Text(t.sosHelplines,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         ..._helplines.map((h) => Card(
               child: ListTile(
-                leading: const Icon(Icons.call, color: Color(0xFFC62828)),
+                leading: Icon(Icons.call, color: Theme.of(context).colorScheme.error),
                 title: Text(h['number'].toString()),
                 subtitle:
                     h['label'] != null ? Text(h['label'].toString()) : null,
@@ -281,9 +280,9 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                     child: Text(t.sosCallNow)),
               ),
             )),
-        const SizedBox(height: 16),
+        const SizedBox(height: Gap.lg),
         Text(t.sosNearestHelp,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         if (_help.isEmpty)
           Text(t.sosNearestHelpLoading,
@@ -301,18 +300,18 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                     : null,
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   if ((p['phone'] ?? '').toString().isNotEmpty)
-                    IconButton(
+                    IconButton(tooltip: AppLocalizations.of(context).call,
                         icon: const Icon(Icons.call),
                         onPressed: () => _call(p['phone'].toString())),
                   if ((p['directions'] ?? '').toString().isNotEmpty)
-                    IconButton(
+                    IconButton(tooltip: AppLocalizations.of(context).emergencyDirections,
                         icon: const Icon(Icons.directions),
                         onPressed: () =>
                             _directions(p['directions'].toString())),
                 ]),
               ),
             )),
-        const SizedBox(height: 24),
+        const SizedBox(height: Gap.xl),
         OutlinedButton(
             onPressed: () => Navigator.of(context).maybePop(),
             child: Text(t.close)),

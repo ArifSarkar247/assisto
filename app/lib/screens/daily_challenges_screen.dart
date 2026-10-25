@@ -133,7 +133,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
           children: [
             // first-use welcome banner (only before anything is done)
             if (summary.totalCompleted == 0) _WelcomeBanner(),
@@ -213,12 +213,10 @@ class _WelcomeBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.chalWelcomeTitle,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
-                  const SizedBox(height: 2),
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.chalWelcomeBody,
-                      style: TextStyle(
-                          fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
         ]),
@@ -264,12 +262,11 @@ class _StatsStrip extends StatelessWidget {
           Icon(icon, color: color, size: 20),
           const SizedBox(height: Gap.xs),
           Text(value,
-              style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 2),
+              style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold, color: color)),
+          const SizedBox(height: Gap.xxs),
           Text(label,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
         ]),
@@ -311,15 +308,12 @@ class _TodayCardState extends State<_TodayCard> {
             const Spacer(),
             Text(
                 item.kind == 'task' ? tr.chalKindTask : tr.chalKindQuiz,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
                     color: scheme.onSurfaceVariant)),
           ]),
           const SizedBox(height: Gap.md),
           Text(item.question,
-              style: const TextStyle(
-                  fontSize: 17, fontWeight: FontWeight.w700, height: 1.35)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, height: 1.35)),
           const SizedBox(height: Gap.lg),
 
           if (item.kind == 'quiz')
@@ -413,7 +407,7 @@ class _TodayCardState extends State<_TodayCard> {
                   const SizedBox(width: Gap.md),
                   Expanded(
                     child: Text(item.options[i],
-                        style: const TextStyle(fontSize: 14.5, height: 1.3)),
+                        style: AType.bodyMedium.copyWith(height: 1.3)),
                   ),
                 ]),
               ),
@@ -439,7 +433,7 @@ class _TodayCardState extends State<_TodayCard> {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(done ? tr.chalTaskCompleted : tr.chalTaskHint,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     );
@@ -460,14 +454,12 @@ class _TodayCardState extends State<_TodayCard> {
           Icon(Icons.lightbulb_outline, size: 16, color: scheme.secondary),
           const SizedBox(width: Gap.xs),
           Text(tr.chalWhy,
-              style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                   color: scheme.secondary)),
         ]),
         const SizedBox(height: Gap.xs),
         Text(item.explain,
-            style: const TextStyle(fontSize: 13.5, height: 1.4)),
+            style: AType.bodyMedium.copyWith(height: 1.4)),
       ]),
     );
   }
@@ -502,7 +494,7 @@ class _HistoryScreen extends StatelessWidget {
               message: tr.chalHistoryEmptyBody,
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
               children: [
                 for (final r in rows)
                   () {
@@ -569,7 +561,7 @@ Widget _catChip(BuildContext context, String cat) {
       borderRadius: BorderRadius.circular(Radii.pill),
     ),
     child: Text(label,
-        style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+        style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
   );
 }
 
@@ -584,7 +576,7 @@ Widget _pointsNote(BuildContext context, String text) {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),

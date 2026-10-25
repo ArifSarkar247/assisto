@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
@@ -84,8 +85,8 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(t.duressTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(t.duressExplain, style: const TextStyle(fontSize: 13)),
-          const SizedBox(height: 12),
+          Text(t.duressExplain, style: AType.bodyMedium),
+          const SizedBox(height: Gap.md),
           ObscureTextField(
               controller: pin,
               keyboardType: TextInputType.number,
@@ -141,10 +142,10 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(t.journeySettingsTitle)),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         // SOS
         Text(t.sosSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(t.safetySosCountdownValue(fmtInt(context, _sosCountdown)))), // qa1
@@ -171,7 +172,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
 
         // Duress PIN
         Text(t.duressSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(_hasDuress ? Icons.lock : Icons.lock_open,
@@ -186,10 +187,10 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
 
         // Wellness check (parents living alone)
         Text(t.wellnessSection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         Text(t.wellnessIntro,
-            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        const SizedBox(height: 4),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.xs),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(t.wellnessEnable),
@@ -247,10 +248,10 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
 
         // privacy
         Text(t.journeyPrivacySection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         Text(t.journeyPrivacyStatement,
-            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

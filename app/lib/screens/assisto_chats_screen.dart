@@ -324,9 +324,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         child: Text(text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
+            style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
                 color: scheme.onSurfaceVariant)),
       );

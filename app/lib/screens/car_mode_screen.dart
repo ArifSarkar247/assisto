@@ -299,8 +299,7 @@ class _BigButton extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.w700, color: scheme.onSurface)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurface)),
           ]),
         ),
       ),

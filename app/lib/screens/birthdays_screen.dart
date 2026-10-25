@@ -328,9 +328,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.xs),
           Text(bStr(context, 'bImportSubtitle'),
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xl),
           Center(
             child: Column(children: [
@@ -473,8 +471,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(bStr(context, 'bOffline'),
-                style: TextStyle(
-                    fontSize: 12.5, color: scheme.onSecondaryContainer)),
+                style: AType.bodySmall.copyWith(color: scheme.onSecondaryContainer)),
           ),
         ]),
       );
@@ -482,14 +479,12 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
   Widget _sectionHeader(BuildContext context, String text, IconData icon) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: Gap.sm, left: 2),
+      padding: const EdgeInsets.only(bottom: Gap.sm, left: Gap.xxs),
       child: Row(children: [
         Icon(icon, size: 16, color: scheme.primary),
         const SizedBox(width: 6),
         Text(text,
-            style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                 color: scheme.primary,
                 letterSpacing: 0.3)),
       ]),

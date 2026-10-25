@@ -370,7 +370,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
         title: Text(it.title,
             maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Text(time == null ? kindLabel : '$kindLabel · $time',
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
     );
   }
@@ -387,7 +387,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(t.dbCompletion(/* (done, pct, total) */ done, pct, done + open),
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: Gap.xs),
       ClipRRect(
         borderRadius: BorderRadius.circular(Radii.pill),
@@ -443,7 +443,7 @@ class _Header extends StatelessWidget {
               .textTheme
               .headlineSmall
               ?.copyWith(fontWeight: FontWeight.w800)),
-      const SizedBox(height: 2),
+      const SizedBox(height: Gap.xxs),
       Text(subtitle, style: TextStyle(color: scheme.onSurfaceVariant)),
     ]);
   }
@@ -468,8 +468,7 @@ class _KeyGatedChip extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(
-                  color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
         ),
       ]),
     );

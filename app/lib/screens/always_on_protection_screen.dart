@@ -419,9 +419,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         ? Brand.warnInk(context)
         : (degraded
             ? Brand.warnInk(context)
-            : (Theme.of(context).brightness == Brightness.dark
-                ? Brand.success
-                : const Color(0xFF1E7E4E)));
+            : AssistoTokens.of(context).success);
     final title = !on
         ? tr.atStateOff
         : (degraded ? tr.atStateDegraded : tr.atStateOn);
@@ -454,7 +452,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                               .textTheme
                               .titleMedium
                               ?.copyWith(color: fg, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(body,
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
@@ -512,7 +510,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       );
 
   Widget _bullet(String t) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('•  '),
           Expanded(child: Text(t)),
@@ -569,7 +567,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           children: [
             Text(tr.atWhoAlertsTitle,
                 style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(tr.atWhoAlertsBody,
                 style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: Gap.sm),

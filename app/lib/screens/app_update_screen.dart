@@ -280,14 +280,11 @@ class _Available extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(t.updateAvailableTitle,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 17)),
-                    const SizedBox(height: 2),
+                        style: AType.titleMedium.copyWith(color: Colors.white,
+                            fontWeight: FontWeight.w700)),
+                    const SizedBox(height: Gap.xxs),
                     Text(t.updateVersionLine(latest, current) /* (n=latest, v=current) */,
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 13)),
+                        style: AType.bodyMedium.copyWith(color: Colors.white)),
                   ],
                 ),
               ),
@@ -307,21 +304,20 @@ class _Available extends StatelessWidget {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text(changelog, style: const TextStyle(height: 1.5)),
           ),
           const SizedBox(height: Gap.lg),
         ],
         Text(t.updateManualNotice,
-            style: TextStyle(
-                fontSize: 12, color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: onUpdate,
           icon: const Icon(Icons.download_outlined),
           label: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: Gap.sm),
             child: Text(t.updateDownloadAction),
           ),
         ),

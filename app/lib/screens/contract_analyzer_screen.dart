@@ -497,7 +497,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
 
       // flags
       Text(t.caFlagsTitle,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
       const SizedBox(height: Gap.sm),
       if (r.flags.isEmpty)
         Container(
@@ -529,7 +529,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
       Row(children: [
         Expanded(
           child: Text(t.caChecklistTitle,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
         ),
         TextButton.icon(
           onPressed: _copyChecklist,
@@ -566,9 +566,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.caDisclaimer,
-                  style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: 12.5,
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                       height: 1.4))),
         ]),
       ),
@@ -652,16 +650,12 @@ class _HonestMarker extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.caMarker,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,
-                    fontSize: 12.5,
                     height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.caMarkerSub,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
-                    fontSize: 12,
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     height: 1.4)),
           ]),
         ),
@@ -689,10 +683,9 @@ class _DeeperAiCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.caDeeperTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.caDeeperBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           ]),
         ),
       ]),
@@ -716,10 +709,8 @@ class _CountChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text('$count · $label',
-          style: TextStyle(
-              color: dim ? Theme.of(context).colorScheme.onSurfaceVariant : color,
-              fontWeight: FontWeight.w700,
-              fontSize: 12.5)),
+          style: AType.bodySmall.copyWith(color: dim ? Theme.of(context).colorScheme.onSurfaceVariant : color,
+              fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -751,22 +742,19 @@ class _FlagCard extends StatelessWidget {
           ),
           Container(
             padding:
-                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Text(severity,
-                style: TextStyle(
-                    color: color, fontWeight: FontWeight.w700, fontSize: 11)),
+                style: AType.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
           ),
         ]),
         if (snippet.isNotEmpty) ...[
           const SizedBox(height: Gap.xs),
           Text(snippet,
-              style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: 12.5,
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                   height: 1.4,
                   fontStyle: FontStyle.italic)),
         ],

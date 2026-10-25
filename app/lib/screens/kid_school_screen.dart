@@ -278,15 +278,12 @@ class _ChildCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text((row['name'] ?? '').toString(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 16),
+                          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                       if (klass.isNotEmpty)
                         Text(klass,
-                            style: TextStyle(
-                                fontSize: 12.5,
-                                color: scheme.onSurfaceVariant),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                     ]),
@@ -309,16 +306,13 @@ class _ChildCard extends StatelessWidget {
                       (next['title'] ?? '').toString().isEmpty
                           ? _typeLabel(tr, next['type'] as String?)
                           : (next['title']).toString(),
-                      style: TextStyle(
-                          fontSize: 13, color: scheme.onSurfaceVariant),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                 ),
                 const SizedBox(width: Gap.sm),
                 Text(_dueLabel(tr, next),
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
+                    style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
                         color: (next['state'] == 'overdue')
                             ? scheme.error
                             : scheme.primary)),
@@ -338,7 +332,7 @@ class _ChildCard extends StatelessWidget {
         ),
         child: Text(text,
             style:
-                TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+                AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 }
 
@@ -467,7 +461,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
         const SizedBox(width: Gap.xs),
         Text(text,
             style:
-                TextStyle(color: c, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -594,35 +588,29 @@ class _NoticeCard extends StatelessWidget {
                           color: done ? scheme.outline : scheme.onSurface),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Row(children: [
                     Text(_typeLabel(tr, type),
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     if (type == 'fee' &&
                         amount != null &&
                         amount.toString().trim().isNotEmpty) ...[
                       Text('  ·  ',
                           style: TextStyle(color: scheme.onSurfaceVariant)),
                       Text('৳${amount.toString()}',
-                          style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
+                          style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                               color: scheme.onSurface)),
                     ],
                   ]),
                   if (!done && state != 'no_date') ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: Gap.xxs),
                     Text(_dueLabel(tr, status),
-                        style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
+                        style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
                             color: c)),
                   ],
                   if (state == 'no_date')
                     Text(tr.kidNoDate,
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
           Column(children: [
@@ -679,9 +667,7 @@ class _ChildFormState extends State<_ChildForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.kidPrivacyNote,
-                  style: TextStyle(
-                      fontSize: 12.5,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               TextField(
                 controller: _name,
@@ -779,8 +765,7 @@ class _NoticeFormState extends State<_NoticeForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.kidNoticeHelp,
-                  style: TextStyle(
-                      fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               TextField(
                 controller: _title,
@@ -901,7 +886,7 @@ Widget _infoNote(BuildContext context, IconData icon, String text) {
         Expanded(
           child: Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),

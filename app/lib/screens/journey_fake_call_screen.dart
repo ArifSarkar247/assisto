@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme.dart';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 
@@ -65,10 +66,10 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.phone_in_talk, color: Colors.white54, size: 48),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             Text(t.fakeCallArmed(widget.delaySeconds),
                 style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             TextButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 child: Text(t.cancel,
@@ -80,7 +81,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
     final mm = (_talkSeconds ~/ 60).toString().padLeft(2, '0');
     final ss = (_talkSeconds % 60).toString().padLeft(2, '0');
     return Scaffold(
-      backgroundColor: const Color(0xFF101418),
+      backgroundColor: Brand.ink,
       body: SafeArea(
         child: Column(children: [
           const Spacer(flex: 2),
@@ -90,30 +91,30 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
               child: Icon(Icons.person, size: 60, color: Colors.white)),
           const SizedBox(height: 20),
           Text(widget.caller,
-              style: const TextStyle(
-                  color: Colors.white, fontSize: 30, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
+              style: AType.displaySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
+          const SizedBox(height: Gap.sm),
           Text(_answered ? '$mm:$ss' : t.fakeCallIncoming,
-              style: const TextStyle(color: Colors.white70, fontSize: 16)),
+              style: AType.bodyLarge.copyWith(
+                  color: Colors.white70, fontFeatures: AFonts.tabular)),
           const Spacer(flex: 3),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
             child: _answered
                 ? Center(
                     child: _CallBtn(
-                        color: Colors.red,
+                        color: Brand.dangerFill,
                         icon: Icons.call_end,
                         label: t.fakeCallEnd,
                         onTap: _hangUp),
                   )
                 : Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                     _CallBtn(
-                        color: Colors.red,
+                        color: Brand.dangerFill,
                         icon: Icons.call_end,
                         label: t.fakeCallDecline,
                         onTap: _hangUp),
                     _CallBtn(
-                        color: Colors.green,
+                        color: Brand.successFill,
                         icon: Icons.call,
                         label: t.fakeCallAnswer,
                         onTap: _answer),
@@ -138,14 +139,18 @@ class _CallBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
+    // One button node: "Answer"/"Decline" read with the circle's tap action.
+    return MergeSemantics(
+        child: Semantics(
+            button: true,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
       GestureDetector(
         onTap: onTap,
         child: CircleAvatar(
             radius: 36, backgroundColor: color, child: Icon(icon, color: Colors.white, size: 32)),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: Gap.sm),
       Text(label, style: const TextStyle(color: Colors.white70)),
-    ]);
+    ])));
   }
 }

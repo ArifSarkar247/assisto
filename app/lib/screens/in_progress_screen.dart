@@ -65,7 +65,7 @@ class InProgressScreen extends StatelessWidget {
           Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: Gap.sm),
           Text(label,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 

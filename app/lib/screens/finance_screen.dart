@@ -59,7 +59,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
         title: Text(_open == null ? t.financeAdvTitle : _title(t, _open!)),
         leading: _open == null
             ? null
-            : IconButton(
+            : IconButton(tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => setState(() => _open = null),
               ),
@@ -178,8 +178,7 @@ class _Picker extends StatelessWidget {
                     color: Colors.white, size: 28),
                 const SizedBox(height: Gap.sm),
                 Text(t.financePickTool,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.xs),
                 Text(t.financePickToolBody,
                     style: const TextStyle(height: 1.4)),

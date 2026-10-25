@@ -357,12 +357,10 @@ class _ApptCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(appt.doctor,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16)),
+                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                     if (appt.specialty.isNotEmpty)
                       Text(_specialtyLabel(tr, appt.specialty),
-                          style: TextStyle(
-                              fontSize: 12, color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -426,8 +424,7 @@ class _ApptCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Text(_statusLabel(tr, status),
-          style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w700, color: color)),
+          style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700, color: color)),
     );
   }
 
@@ -436,11 +433,9 @@ class _ApptCard extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.notifications_active_outlined,
           size: 14, color: scheme.primary),
-      const SizedBox(width: 4),
+      const SizedBox(width: Gap.xs),
       Text(tr.doctorSoon,
-          style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+          style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
               color: scheme.primary)),
     ]);
   }
@@ -449,10 +444,10 @@ class _ApptCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: scheme.onSurfaceVariant),
-      const SizedBox(width: 4),
+      const SizedBox(width: Gap.xs),
       Flexible(
         child: Text(text,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
     ]);
   }
@@ -471,7 +466,7 @@ Widget _trackerNote(BuildContext context, AppLocalizations tr) {
         Expanded(
           child: Text(tr.doctorTrackerNote,
               style:
-                  TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),
@@ -494,10 +489,9 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
             children: [
               Text(tr.doctorBookingSeamTitle,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(tr.doctorBookingSeamBody,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ),
         ),

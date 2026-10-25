@@ -258,7 +258,7 @@ class _FilterBar extends StatelessWidget {
             prefixIcon: const Icon(Icons.search),
             suffixIcon: search.text.isEmpty
                 ? null
-                : IconButton(
+                : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                     icon: const Icon(Icons.clear, size: 18),
                     onPressed: () {
                       search.clear();
@@ -362,7 +362,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, Gap.md, 2, Gap.xs),
+      padding: const EdgeInsets.fromLTRB(Gap.xxs, Gap.md, Gap.xxs, Gap.xs),
       child: Row(children: [
         Text(label,
             style: Theme.of(context)
@@ -371,15 +371,13 @@ class _SectionHeader extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w700, color: Brand.blue)),
         const SizedBox(width: Gap.sm),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
           decoration: BoxDecoration(
             color: Brand.blue.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text('$count',
-              style: TextStyle(
-                  fontSize: 11,
-                  color: scheme.onSurfaceVariant,
+              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600)),
         ),
       ]),
@@ -441,20 +439,19 @@ class _EventCard extends StatelessWidget {
                         dateStr == null
                             ? tr.htlUndated
                             : _HealthView.dateLabel(context, dateStr),
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     ]),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: Gap.xxs),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 7, vertical: 2),
+                          horizontal: 7, vertical: Gap.xxs),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(_catLabel(tr, cat),
-                          style: TextStyle(fontSize: 11, color: color)),
+                          style: AType.labelSmall.copyWith(color: color)),
                     ),
                     if (doctor.isNotEmpty || place.isNotEmpty) ...[
                       const SizedBox(height: Gap.xs),
@@ -465,9 +462,7 @@ class _EventCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(doctor,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: scheme.onSurfaceVariant),
+                                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -479,9 +474,7 @@ class _EventCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(place,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: scheme.onSurfaceVariant),
+                                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -491,8 +484,7 @@ class _EventCard extends StatelessWidget {
                     if (notes.isNotEmpty) ...[
                       const SizedBox(height: Gap.xs),
                       Text(notes,
-                          style: TextStyle(
-                              fontSize: 13, color: scheme.onSurface)),
+                          style: AType.bodyMedium.copyWith(color: scheme.onSurface)),
                     ],
                   ]),
             ),
@@ -520,7 +512,7 @@ class _Disclaimer extends StatelessWidget {
           Expanded(
             child: Text(tr.htlDisclaimer,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -608,9 +600,7 @@ class _EventFormState extends State<_EventForm> {
                   label: Text(_catLabel(tr, c)),
                   selected: _category == c,
                   selectedColor: _catColor(c),
-                  labelStyle: TextStyle(
-                      color: _category == c ? Colors.white : null,
-                      fontSize: 13),
+                  labelStyle: AType.bodyMedium.copyWith(color: _category == c ? Colors.white : null),
                   onSelected: (_) => setState(() => _category = c),
                 ),
             ]),
@@ -627,7 +617,7 @@ class _EventFormState extends State<_EventForm> {
             ),
             const SizedBox(height: Gap.md),
             InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(Radii.sm),
               onTap: () async {
                 final now = DateTime.now();
                 final picked = await showDatePicker(
@@ -650,7 +640,7 @@ class _EventFormState extends State<_EventForm> {
                         : _date!.toIso8601String().split('T').first),
                   ),
                   if (_date != null)
-                    IconButton(
+                    IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                       icon: const Icon(Icons.clear, size: 18),
                       onPressed: () => setState(() => _date = null),
                     ),
@@ -689,9 +679,7 @@ class _EventFormState extends State<_EventForm> {
             ),
             const SizedBox(height: Gap.md),
             Text(tr.htlDisclaimer,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             Row(children: [
               if (editing)

@@ -168,7 +168,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 onPressed: _scamCheck,
                 icon: const Icon(Icons.shield_outlined),
                 tooltip: t.familyScamCheckTooltip),
-            IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
+            IconButton(tooltip: AppLocalizations.of(context).refresh, onPressed: _load, icon: const Icon(Icons.sync)),
           ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
             if (medical) ...[
               Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
@@ -249,9 +249,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Text(t.familyCheckToConfirm,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
         ]);
   }
 
@@ -457,8 +455,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(t.familyReminderFollowupHeading,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 13)))),
+                                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)))),
                     TextField(
                         controller: repeat,
                         keyboardType: TextInputType.number,
@@ -569,9 +566,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: Gap.sm),
                     child: Text(t.medPushGatedNote,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
               ]),
               actions: [
@@ -585,7 +580,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(onPressed: _addMed, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMed, child: const Icon(Icons.add)),
       body: meds.isEmpty
           ? StateMessage(
               icon: Icons.medication_outlined,
@@ -655,7 +650,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   icon: const Icon(Icons.edit_outlined),
                   tooltip: t.edit,
                   onPressed: () => _addMed(existing: m)),
-              IconButton(
+              IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('medicines', m['id']);
@@ -677,8 +672,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     size: 16, color: scheme.onSurfaceVariant),
                 const SizedBox(width: Gap.xs),
                 Text(t.medPredictedRefill(m['predicted_refill'].toString()),
-                    style: TextStyle(
-                        fontSize: 13, color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               ]),
             ],
             const SizedBox(height: Gap.xs),
@@ -731,7 +725,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.medPushGatedNote,
-                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
           ]),
         ),
     ]);
@@ -749,8 +743,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(title,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+              style: AType.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
         ),
       ]),
     );
@@ -810,16 +803,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
             if (lowStock.isNotEmpty) ...[
               const SizedBox(height: Gap.sm),
               Text(t.medLowStockHeading,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600, color: Brand.warning)),
+                  style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: Brand.warning)),
               for (final ls in lowStock)
                 Text(
                   ls['status'] == 'out'
                       ? t.medOutOfStockOne(ls['name'] ?? '')
                       : t.medLowStockOne(ls['name'] ?? '', ls['days_left'] ?? 0),
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: ls['status'] == 'out' ? Brand.danger : Brand.warning),
+                  style: AType.bodyMedium.copyWith(color: ls['status'] == 'out' ? Brand.danger : Brand.warning),
                 ),
             ],
             const SizedBox(height: Gap.sm),
@@ -1010,7 +1000,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(tooltip: AppLocalizations.of(context).add,
           onPressed: _addPrescription, child: const Icon(Icons.add)),
       body: prescriptions.isEmpty
           ? StateMessage(
@@ -1060,12 +1050,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ),
               if (p['date'] != null)
                 Text(p['date'].toString(),
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   tooltip: t.edit,
                   onPressed: () => _addPrescription(existing: p)),
-              IconButton(
+              IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('prescriptions', p['id']);
@@ -1140,7 +1130,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(onPressed: _addMember, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMember, child: const Icon(Icons.add)),
       body: members.isEmpty
           ? StateMessage(icon: Icons.group_outlined, title: t.familyAddMemberEmpty)
           : ListView(
@@ -1164,7 +1154,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                           icon: const Icon(Icons.edit_outlined),
                           tooltip: t.edit,
                           onPressed: () => _addMember(existing: m)),
-                      IconButton(
+                      IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () async {
                             await context.read<AppState>().api.deleteItem('family', m['id']);
@@ -1231,7 +1221,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     return Scaffold(
       floatingActionButton:
-          FloatingActionButton(onPressed: _addSchool, child: const Icon(Icons.add)),
+          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addSchool, child: const Icon(Icons.add)),
       body: school.isEmpty
           ? StateMessage(icon: Icons.school_outlined, title: t.familyAddSchoolEmpty)
           : ListView(
@@ -1250,7 +1240,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     subtitle: Text([(s['child_name'] ?? ''), (s['date'] ?? '')]
                         .where((e) => e.toString().isNotEmpty)
                         .join(' · ')),
-                    trailing: IconButton(
+                    trailing: IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () async {
                           await context.read<AppState>().api.deleteItem('school', s['id']);

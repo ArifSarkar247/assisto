@@ -438,11 +438,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: active ? Brand.cyan : Colors.white70,
-              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              fontSize: 14,
-            ),
+            style: AType.bodyMedium.copyWith(color: active ? Brand.cyan : Colors.white70,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500),
           ),
         ),
       );
@@ -549,7 +546,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
           const Icon(Icons.fiber_manual_record, color: Brand.danger, size: 12),
           const SizedBox(width: Gap.xs),
           Text('$m:$s',
-              style: const TextStyle(color: Colors.white, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: Colors.white)),
         ],
       ),
     );

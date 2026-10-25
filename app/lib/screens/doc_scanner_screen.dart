@@ -162,8 +162,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
               child:
                   Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(existing == null ? t.dsAddTitle : t.dsEditTitle,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.lg),
                 TextField(
                   controller: title,
@@ -182,9 +181,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 ),
                 const SizedBox(height: Gap.lg),
                 Text(t.dsType,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                         color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.sm),
                 Wrap(
@@ -224,9 +221,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 if (imageRef != null) ...[
                   const SizedBox(height: Gap.xs),
                   Text(t.dsImageAttached,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(ctx).colorScheme.primary)),
+                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.primary)),
                 ],
                 const SizedBox(height: Gap.lg),
                 // honest key-gated OCR seam
@@ -348,7 +343,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
             border: const OutlineInputBorder(),
             suffixIcon: _search.text.isEmpty
                 ? null
-                : IconButton(
+                : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                     icon: const Icon(Icons.clear),
                     onPressed: () => setState(() => _search.clear()),
                   ),
@@ -449,8 +444,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 Text(notes,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
@@ -632,11 +626,9 @@ class _OcrSeamCard extends StatelessWidget {
             Text(ready ? t.dsOcrReadyTitle : t.dsOcrLockedTitle,
                 style:
                     const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(ready ? t.dsOcrReadyBody : t.dsOcrLockedBody,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 12.5,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.4)),
           ]),
         ),

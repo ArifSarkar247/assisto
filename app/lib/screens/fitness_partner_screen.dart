@@ -368,16 +368,13 @@ class _GoalHeadline extends StatelessWidget {
               Row(children: [
                 Expanded(
                   child: Text(_kindLabel(tr, progress.kind),
-                      style: TextStyle(
-                          fontSize: 13, color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                 ),
                 _statusChip(context, progress.status),
               ]),
               const SizedBox(height: Gap.sm),
               Text(_headlineValue(tr),
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+                  style: AType.displaySmall.copyWith(fontWeight: FontWeight.bold,
                       color: scheme.onSurface)),
               const SizedBox(height: Gap.md),
               ClipRRect(
@@ -462,10 +459,9 @@ class _CoachTip extends StatelessWidget {
                 children: [
                   Text(_tip(tr, status),
                       style: const TextStyle(fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.fitCoachingSeam,
-                      style: TextStyle(
-                          fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
         ]),
@@ -532,9 +528,7 @@ class _GoalFormState extends State<_GoalForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.fitGoalHelp,
-                  style: TextStyle(
-                      fontSize: 12.5,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               DropdownButtonFormField<String>(
                 initialValue: _kind,
@@ -779,7 +773,7 @@ Widget _statusChip(BuildContext context, String status) {
       borderRadius: BorderRadius.circular(Radii.pill),
     ),
     child: Text(label,
-        style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+        style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
   );
 }
 
@@ -794,12 +788,11 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
         Icon(icon, size: 16, color: color),
         const SizedBox(height: Gap.xs),
         Text(value,
-            style: TextStyle(
-                fontSize: 17, fontWeight: FontWeight.bold, color: color),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
         Text(label,
-            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
             maxLines: 2,
             overflow: TextOverflow.ellipsis),
       ]),
@@ -819,7 +812,7 @@ Widget _nonMedicalNote(BuildContext context, String text) {
         Expanded(
           child: Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
       ]),
     ),

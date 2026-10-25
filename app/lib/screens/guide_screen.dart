@@ -362,14 +362,14 @@ class _Banner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       decoration: BoxDecoration(
         color: Brand.warning.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
         Icon(icon, size: 18, color: Brand.warning),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurface, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3)),
         ),
         if (action != null)
           TextButton(onPressed: onAction, child: Text(action!)),
@@ -389,9 +389,7 @@ class _DisclaimerStrip extends StatelessWidget {
       const SizedBox(width: 6),
       Expanded(
         child: Text(text,
-            style: TextStyle(
-                fontSize: 12,
-                height: 1.35,
+            style: AType.bodySmall.copyWith(height: 1.35,
                 fontStyle: FontStyle.italic,
                 color: scheme.onSurfaceVariant)),
       ),

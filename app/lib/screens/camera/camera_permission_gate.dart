@@ -133,22 +133,16 @@ class CameraPermissionScreen extends StatelessWidget {
                 Text(
                   denied ? t.camPermBlockedTitle : t.camPermTitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
+                  style: AType.titleLarge.copyWith(color: Colors.white,
                     fontWeight: FontWeight.w700,
-                    height: 1.3,
-                  ),
+                    height: 1.3),
                 ),
                 const SizedBox(height: Gap.md),
                 Text(
                   denied ? t.camPermBlockedBody : t.camPermBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.82),
-                    fontSize: 15,
-                    height: 1.5,
-                  ),
+                  style: AType.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.82),
+                    height: 1.5),
                 ),
                 const SizedBox(height: Gap.xl),
                 SizedBox(

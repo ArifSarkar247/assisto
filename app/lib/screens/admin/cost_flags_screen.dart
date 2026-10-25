@@ -252,8 +252,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                 ),
                 const SizedBox(height: Gap.sm),
                 Text(t.flagAuditedNote,
-                    style: TextStyle(
-                        fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ],
             ),
             actions: [
@@ -347,7 +346,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
           const SizedBox(height: Gap.lg),
           for (final entry in groups.entries) ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(2, Gap.sm, 0, Gap.xs),
+              padding: const EdgeInsets.fromLTRB(Gap.xxs, Gap.sm, 0, Gap.xs),
               child: Text(_groupLabel(t, entry.key),
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.primary)),
@@ -374,9 +373,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.flagSummaryCostLine('$costOn', '$costTotal'),
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
-        const SizedBox(height: 4),
+            style: AType.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+        const SizedBox(height: Gap.xs),
         Text(
             featOff == 0
                 ? t.flagSummaryAllFeaturesOn
@@ -402,7 +400,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         ? (value ? t.flagPillSpending : t.flagPillOff)
         : (value ? t.flagPillOn : t.flagPillDisabled);
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.md),
         side: BorderSide(
@@ -423,26 +421,23 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
               children: [
                 Text(_flagLabel(t, id),
                     style: const TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
+                const SizedBox(height: Gap.xs),
                 Row(children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: Gap.sm, vertical: 2),
+                        horizontal: Gap.sm, vertical: Gap.xxs),
                     decoration: BoxDecoration(
                       color: pillColor.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(Radii.pill),
                     ),
                     child: Text(pillText,
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                        style: AType.labelSmall.copyWith(fontWeight: FontWeight.w600,
                             color: pillColor)),
                   ),
                   if (isCost) ...[
                     const SizedBox(width: Gap.sm),
                     Text(t.flagCostTag,
-                        style: TextStyle(
-                            fontSize: 11, color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                   ],
                 ]),
               ],
@@ -480,9 +475,9 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                 .titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700)),
       ]),
-      const SizedBox(height: 4),
+      const SizedBox(height: Gap.xs),
       Text(t.flagAuditAppendOnly,
-          style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
       if (_audit.isEmpty)
         Padding(

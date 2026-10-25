@@ -123,17 +123,17 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.call, color: Brand.success, size: 32),
         title: Text(t.elderlyCallConfirmTitle(who),
-            style: const TextStyle(fontSize: 22)),
+            style: AType.headlineSmall),
         content:
-            Text(t.elderlyCallConfirmBody(who), style: const TextStyle(fontSize: 18)),
+            Text(t.elderlyCallConfirmBody(who), style: AType.titleLarge),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t.cancel, style: const TextStyle(fontSize: 18))),
+              child: Text(t.cancel, style: AType.titleLarge)),
           FilledButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
             icon: const Icon(Icons.call),
-            label: Text(t.elderlyCallNow, style: const TextStyle(fontSize: 18)),
+            label: Text(t.elderlyCallNow, style: AType.titleLarge),
           ),
         ],
       ),
@@ -204,20 +204,20 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
         context: context,
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.person_add_alt, color: Brand.blue, size: 32),
-          title: Text(t.elderlyNoContactTitle, style: const TextStyle(fontSize: 22)),
+          title: Text(t.elderlyNoContactTitle, style: AType.headlineSmall),
           content:
-              Text(t.elderlyNoContactBody, style: const TextStyle(fontSize: 18)),
+              Text(t.elderlyNoContactBody, style: AType.titleLarge),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text(t.cancel, style: const TextStyle(fontSize: 18))),
+                child: Text(t.cancel, style: AType.titleLarge)),
             FilledButton(
               onPressed: () {
                 Navigator.pop(ctx);
                 _open('emergency');
               },
               child:
-                  Text(t.elderlyAddContactCta, style: const TextStyle(fontSize: 18)),
+                  Text(t.elderlyAddContactCta, style: AType.titleLarge),
             ),
           ],
         ),
@@ -240,10 +240,9 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, Gap.xs, 20, Gap.md),
               child: Text(t.elderlyChooseWhoToCall,
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold)),
+                  style: AType.headlineSmall.copyWith(fontWeight: FontWeight.bold)),
             ),
             for (final c in _contacts)
               ConstrainedBox(
@@ -254,17 +253,16 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                       backgroundColor: Brand.success,
                       child: Icon(Icons.call, color: Colors.white, size: 28)),
                   title: Text(_who(c),
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w600)),
+                      style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w600)),
                   subtitle:
-                      Text('${c['phone']}', style: const TextStyle(fontSize: 18)),
+                      Text('${c['phone']}', style: AType.titleLarge),
                   onTap: () {
                     Navigator.pop(ctx);
                     _call('${c['phone']}', _who(c));
                   },
                 ),
               ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
           ],
         ),
       ),
@@ -295,16 +293,16 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             child: Text(t.elderlyHomeTitle,
                 maxLines: 1,
                 style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.bold))),
+                    AType.headlineMedium.copyWith(fontWeight: FontWeight.bold))),
         actions: [
           // The large, always-present way OUT of simple mode.
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: Gap.sm),
             child: TextButton.icon(
               onPressed: _exit,
               icon: const Icon(Icons.close, size: 26),
               label:
-                  Text(t.elderlyExitCta, style: const TextStyle(fontSize: 18)),
+                  Text(t.elderlyExitCta, style: AType.titleLarge),
             ),
           ),
         ],
@@ -316,11 +314,11 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
   Widget _body(AppLocalizations t) {
     if (_loading) {
       return const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(Gap.lg),
         child: Column(
           children: [
             Skeleton(height: 110),
-            SizedBox(height: 16),
+            SizedBox(height: Gap.lg),
             Skeleton(height: 320),
           ],
         ),
@@ -335,7 +333,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 28),
         children: [
           if (_offline) _offlineBanner(t),
           // SOS always first, always one tap, full width, alarm red.
@@ -343,11 +341,11 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             icon: Icons.sos,
             label: t.elderlyTileSos,
             sublabel: t.elderlyTileSosSub,
-            color: const Color(0xFFB71C1C), // AAA vs white at these sizes
+            color: Brand.dangerFill, // white 5.6:1 — AAA at these large sizes
             wide: true,
             onTap: () => _open('emergency'),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Gap.lg),
           GridView.count(
             crossAxisCount: 2,
             mainAxisSpacing: 16,
@@ -360,7 +358,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                 icon: Icons.call,
                 label: t.elderlyTileCall,
                 sublabel: _callSub(t),
-                color: const Color(0xFF1B5E20),
+                color: Brand.successFill,
                 onTap: _callFamily,
               ),
               // play-nomed: no medicine tile in the Play flavour — the same
@@ -375,7 +373,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                     : _medsDueToday > 0
                         ? t.elderlyMedsDue(_digits(_medsDueToday))
                         : t.elderlyMedsNoneDue,
-                color: const Color(0xFF0D47A1),
+                color: Brand.blueDeep,
                 onTap: () => _open(
                     kMedicalFeaturesAllowed ? 'medicine_db' : 'reminders'),
               ),
@@ -393,7 +391,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Gap.lg),
           // Help spans full width.
           ElderlyTile(
             icon: Icons.help_outline,
@@ -403,7 +401,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             wide: true,
             onTap: () => _open('guide'),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: Gap.xl),
           _voiceButton(t),
         ],
       ),
@@ -449,13 +447,13 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
             ),
             const SizedBox(height: 10),
             Text(t.elderlyVoice,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                style: AType.titleLarge.copyWith(fontWeight: FontWeight.w600)),
           ],
         ),
       );
 
   Widget _offlineBanner(AppLocalizations t) => Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: Gap.lg),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Brand.warning.withValues(alpha: 0.15),
@@ -465,10 +463,10 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
         child: Row(
           children: [
             const Icon(Icons.wifi_off, size: 28, color: Brand.warning),
-            const SizedBox(width: 12),
+            const SizedBox(width: Gap.md),
             Expanded(
               child: Text(t.elderlyOffline,
-                  style: const TextStyle(fontSize: 18, height: 1.2)),
+                  style: AType.titleLarge.copyWith(height: 1.2)),
             ),
           ],
         ),
@@ -491,17 +489,17 @@ class _ErrorRetry extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.cloud_off, size: 64, color: Brand.danger),
-            const SizedBox(height: 16),
+            const SizedBox(height: Gap.lg),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 20, height: 1.3)),
+                style: AType.titleLarge.copyWith(height: 1.3)),
             const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56, minWidth: 180),
               child: FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh, size: 26),
-                label: Text(cta, style: const TextStyle(fontSize: 20)),
+                label: Text(cta, style: AType.titleLarge),
               ),
             ),
           ],

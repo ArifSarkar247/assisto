@@ -203,7 +203,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
               helperText: t.examUrlHelper,
               helperMaxLines: 3,
               isDense: true,
-              suffixIcon: IconButton(
+              suffixIcon: IconButton(tooltip: AppLocalizations.of(context).open,
                 icon: const Icon(Icons.open_in_new),
                 onPressed: _openUrl,
               ),
@@ -266,7 +266,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examStudentsSection),
           const SizedBox(height: Gap.xs),
           Text(t.examStudentsNote,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Colors.grey)),
           const SizedBox(height: Gap.sm),
           ExamStudentWatch(
             students: _students,
@@ -292,7 +292,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examCardSection),
           const SizedBox(height: Gap.xs),
           Text(t.examCardNote,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Colors.grey)),
           const SizedBox(height: Gap.sm),
           TextField(controller: _name, decoration: InputDecoration(labelText: t.examFieldName, isDense: true)),
           const SizedBox(height: Gap.xs),
@@ -362,13 +362,13 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       child: Row(children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(msg, style: TextStyle(color: color, fontSize: 13))),
+        Expanded(child: Text(msg, style: AType.bodyMedium.copyWith(color: color))),
       ]),
     );
   }
 
   Widget _sectionTitle(String s) =>
-      Text(s, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15));
+      Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold));
 }
 
 /// f6: stable local-notification id for a watcher (re-saving overwrites).

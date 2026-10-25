@@ -49,7 +49,7 @@ class AccessibilityModeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(0, Gap.sm, 0, 32),
+        padding: const EdgeInsets.fromLTRB(0, Gap.sm, 0, Gap.xxl),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
@@ -78,7 +78,7 @@ class AccessibilityModeScreen extends StatelessWidget {
                   Text(t.a11yPreviewLabel,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Gap.xs),
                   Text(t.a11yPreviewSample,
                       style: Theme.of(context).textTheme.bodyLarge),
                 ],
@@ -187,7 +187,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 4),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
       child: Text(label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
@@ -269,7 +269,7 @@ class _TextScaleTile extends StatelessWidget {
           ),
           Row(children: [
             Text(t.a11yTextSmallMark,
-                style: const TextStyle(fontSize: 13)),
+                style: AType.bodyMedium),
             Expanded(
               child: Slider(
                 value: current.toDouble(),
@@ -284,7 +284,7 @@ class _TextScaleTile extends StatelessWidget {
               ),
             ),
             Text(t.a11yTextLargeMark,
-                style: const TextStyle(fontSize: 22)),
+                style: AType.headlineSmall),
           ]),
         ],
       ),

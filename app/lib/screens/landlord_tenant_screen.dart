@@ -308,18 +308,17 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.rentArrearsWindow(monthLabel(context, start),
                 monthLabel(context, _month)),
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12)),
-            const SizedBox(height: 4),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.xs),
             Text(t.rentTotalArrears,
-                style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 2),
+                style: AType.bodyMedium),
+            const SizedBox(height: Gap.xxs),
             Text(taka(context, grand),
-                style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: grand > 0 ? Brand.danger : Brand.success)),
+                style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w800,
+                    fontFeatures: AFonts.tabular,
+                    color: grand > 0
+                        ? Theme.of(context).colorScheme.error
+                        : AssistoTokens.of(context).success)),
           ]),
         ),
         const SizedBox(height: Gap.md),
@@ -357,21 +356,20 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                             Text('${r['tenant_name']}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context)
+                                style: AType.bodySmall.copyWith(color: Theme.of(context)
                                         .colorScheme
                                         .onSurfaceVariant)),
                           Text(
                               t.rentMonthsInArrears(fmtInt(
                                   context, r['months_in_arrears'] as int)),
-                              style: const TextStyle(
-                                  fontSize: 12, color: Brand.danger)),
+                              style: AType.bodySmall.copyWith(color: Brand.danger)),
                         ]),
                   ),
                   Text(taka(context, r['outstanding_poisha'] as int),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, color: Brand.danger)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontFeatures: AFonts.tabular,
+                          color: Theme.of(context).colorScheme.error)),
                 ]),
               ),
             ),
@@ -401,11 +399,11 @@ class _MonthHero extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.rentCollectedThisMonth,
-            style: const TextStyle(color: Colors.white70, fontSize: 13)),
-        const SizedBox(height: 4),
+            style: AType.bodyMedium.copyWith(color: Colors.white70)),
+        const SizedBox(height: Gap.xs),
         Text(taka(context, collected),
-            style: const TextStyle(
-                color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+            style: AType.displaySmall.copyWith(color: Colors.white,
+                fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         ClipRRect(
           borderRadius: BorderRadius.circular(999),
@@ -419,21 +417,19 @@ class _MonthHero extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Wrap(alignment: WrapAlignment.spaceBetween, spacing: Gap.md, children: [ // qa1
           Text(t.rentBilledLabel(taka(context, billed)),
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              style: AType.bodySmall.copyWith(color: Colors.white70)),
           Text(t.rentDueLabel(taka(context, outstanding)),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
+              style: AType.bodySmall.copyWith(color: Colors.white,
                   fontWeight: FontWeight.w700)),
         ]),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Text(
           // args follow the generated signature (ARB metadata order), not the text order
           t.rentStatusCounts(
               fmtInt(context, summary['due_count'] as int),
               fmtInt(context, summary['paid_count'] as int),
               fmtInt(context, summary['partial_count'] as int)),
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: AType.bodySmall.copyWith(color: Colors.white70),
         ),
       ]),
     );
@@ -451,19 +447,19 @@ class _MonthPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        IconButton(onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
+        IconButton(tooltip: MaterialLocalizations.of(context).previousMonthTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
         Expanded(
           child: Text(monthLabel(context, month),
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w700)),
         ),
-        IconButton(onPressed: onNext, icon: const Icon(Icons.chevron_right)),
+        IconButton(tooltip: MaterialLocalizations.of(context).nextMonthTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right)),
       ]),
     );
   }
@@ -505,7 +501,7 @@ class _UnitCard extends StatelessWidget {
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             tilePadding:
-                const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 2),
+                const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xxs),
             childrenPadding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
             title: Row(children: [
               Expanded(
@@ -521,9 +517,7 @@ class _UnitCard extends StatelessWidget {
                         Text('${data['tenant_name']}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ]),
               ),
               StatusPill(
@@ -545,7 +539,7 @@ class _UnitCard extends StatelessWidget {
               child: Text(
                 t.rentBillPaid(taka(context, data['bill_poisha'] as int),
                     taka(context, data['paid_poisha'] as int)), // (bill, paid) per signature
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
               ),
             ),
             children: [
@@ -669,13 +663,11 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
                     .titleSmall
                     ?.copyWith(fontWeight: FontWeight.w700)),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(t.rentUtilitiesHint,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           const SizedBox(height: Gap.sm),
           for (var i = 0; i < _utils.length; i++) _utilRow(t, i),
@@ -741,7 +733,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
             onChanged: (v) => u['amount_poisha'] = takaToPoisha(v),
           ),
         ),
-        IconButton(
+        IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           onPressed: () => setState(() => _utils.removeAt(i)),
           icon: const Icon(Icons.close, size: 18),
         ),
@@ -872,7 +864,7 @@ class _OfflineBar extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(color: scheme.onSurface, fontSize: 12))),
+                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
       ]),
     );
   }

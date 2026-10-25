@@ -150,7 +150,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 .textTheme
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Text(t.aboutAppTagline,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -165,7 +165,7 @@ class _AboutScreenState extends State<AboutScreen> {
     return Container(
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Column(
         children: [
@@ -174,7 +174,7 @@ class _AboutScreenState extends State<AboutScreen> {
           // Long-press copies device info for a bug report.
           InkWell(
             onLongPress: _build.isEmpty ? null : _copyForBug,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Radii.lg),
             child: _row(t.aboutBuildNumber, _build.isEmpty ? '—' : _build,
                 trailingIcon: Icons.copy_all_outlined),
           ),
@@ -222,15 +222,14 @@ class _AboutScreenState extends State<AboutScreen> {
               onPressed: _check,
               icon: const Icon(Icons.system_update_outlined),
               label: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.aboutCheckUpdates),
               ),
             ),
             const SizedBox(height: Gap.sm),
             Text(t.aboutCopyHint,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           ],
         );
       case _Chk.checking:
@@ -276,22 +275,20 @@ class _AboutScreenState extends State<AboutScreen> {
               padding: const EdgeInsets.all(Gap.lg),
               decoration: BoxDecoration(
                 gradient: Brand.gradient,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(Radii.lg),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.aboutUpdateFound('$_latestCode'),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16)),
-                  const SizedBox(height: 4),
+                      style: AType.titleMedium.copyWith(color: Colors.white,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: Gap.xs),
                   Text(
                       t.aboutCurrentToNew(
                           _build.isEmpty ? '$_buildCode' : _build,
                           '$_latestCode'),
-                      style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      style: AType.bodyMedium.copyWith(color: Colors.white)),
                 ],
               ),
             ),
@@ -308,7 +305,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 padding: const EdgeInsets.all(Gap.md),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(Radii.md),
                 ),
                 child: Text(_changelog, style: const TextStyle(height: 1.5)),
               ),
@@ -320,7 +317,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ),
               icon: const Icon(Icons.download_outlined),
               label: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.aboutViewUpdate),
               ),
             ),
@@ -339,7 +336,7 @@ class _AboutScreenState extends State<AboutScreen> {
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
         color: tint.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Column(
         children: [

@@ -207,7 +207,7 @@ class _JobsScreenState extends State<JobsScreen> {
             prefixIcon: const Icon(Icons.search),
             suffixIcon: _search.text.isEmpty
                 ? null
-                : IconButton(icon: const Icon(Icons.close),
+                : IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip, icon: const Icon(Icons.close),
                     onPressed: () => setState(() => _search.clear())),
             border: const OutlineInputBorder(),
             isDense: true,
@@ -251,13 +251,13 @@ class _JobsScreenState extends State<JobsScreen> {
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           color: scheme.tertiaryContainer,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
           Icon(Icons.rss_feed, size: 20, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(tr.f6JobsNoFeedBanner,
-              style: TextStyle(fontSize: 12.5, color: scheme.onTertiaryContainer, height: 1.3))),
+              style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, height: 1.3))),
         ]),
       );
 
@@ -269,7 +269,7 @@ class _JobsScreenState extends State<JobsScreen> {
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -278,7 +278,7 @@ class _JobsScreenState extends State<JobsScreen> {
             Text(tr.jobsSalaryInsight,
                 style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           // NB: generated signature order is (median, min, max, count) even
           // though the rendered string reads "min – median – max". Pass values
           // in the SIGNATURE order so each placeholder gets its intended value
@@ -286,7 +286,7 @@ class _JobsScreenState extends State<JobsScreen> {
           Text(tr.jobsSalaryRange(_n(ins['median']), _n(ins['min']), _n(ins['max']), _n(ins['count'])),
               style: TextStyle(color: scheme.onSurface)),
           Text(tr.jobsSalarySourceNote,
-              style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       );
 
@@ -338,14 +338,14 @@ class _JobsScreenState extends State<JobsScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: Gap.sm, left: 4),
+          padding: const EdgeInsets.only(bottom: Gap.sm, left: Gap.xs),
           child: Text(tr.iNeverAutoApplyYou,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
         for (final stage in order)
           if ((byStage[stage] ?? []).isNotEmpty) ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, Gap.sm, 4, Gap.sm),
+              padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, Gap.xs, Gap.sm),
               child: Row(children: [
                 StageBadge(status: stage),
                 const SizedBox(width: Gap.sm),

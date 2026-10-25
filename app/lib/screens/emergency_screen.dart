@@ -346,7 +346,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.emergencyOfflineBadge,
-                      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                      style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ]),
           ),
 
@@ -414,13 +414,13 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
         const SizedBox(height: Gap.lg),
         Text(t.emergencyFooterNote,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }
 
   Widget _sectionTitle(String s) =>
-      Text(s, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16));
+      Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700));
 
   Widget _preview(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -513,10 +513,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             subtitle:
                 Text('${_contacts[i]['phone']} · ${_contacts[i]['relation'] ?? ''}'),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-              IconButton(
+              IconButton(tooltip: AppLocalizations.of(context).call,
                   icon: const Icon(Icons.call, color: Brand.success),
                   onPressed: () => _call('${_contacts[i]['phone']}')),
-              IconButton(
+              IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () =>
                       setState(() => _contacts.removeAt(i))),

@@ -192,7 +192,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
           children: [
             _DirectionToggle(
               direction: _direction,
@@ -277,7 +277,7 @@ class _DeckPicker extends StatelessWidget {
                 trailing: due > 0
                     ? Chip(
                         label: Text('$due',
-                            style: const TextStyle(fontSize: 12)),
+                            style: AType.bodySmall),
                         backgroundColor: Brand.blue.withValues(alpha: 0.15),
                         visualDensity: VisualDensity.compact,
                       )
@@ -339,11 +339,10 @@ class _DeckHeader extends StatelessWidget {
                 children: [
                   Text(due > 0 ? tr.lpDueCount(due) : tr.lpNoDue,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(
                       '${tr.lpDeckProgress(dp.started, dp.total)}  ·  ${tr.lpMasteredCount(dp.mastered)}',
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
         ]),
@@ -415,8 +414,7 @@ class _FlashcardPracticeState extends State<_FlashcardPractice> {
                 style: Theme.of(context).textTheme.titleMedium),
             const Spacer(),
             Text(tr.lpBoxLabel(box),
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
           const SizedBox(height: Gap.lg),
           GestureDetector(
@@ -442,17 +440,14 @@ class _FlashcardPracticeState extends State<_FlashcardPractice> {
                   const SizedBox(height: Gap.sm),
                   Text(_lpCardText(tr, cardId, pa.answerSide),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                      style: AType.titleLarge.copyWith(fontWeight: FontWeight.w600,
                           color: scheme.primary)),
                   const SizedBox(height: Gap.md),
                   _PronHint(hint: pa.hint),
                 ] else ...[
                   const SizedBox(height: Gap.sm),
                   Text(tr.lpTapToReveal,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ],
               ]),
             ),
@@ -488,7 +483,7 @@ class _FlashcardPracticeState extends State<_FlashcardPractice> {
             Text(
               _LpEngine.nextDueHint(tr, box),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
             ),
         ]),
       ),
@@ -509,16 +504,14 @@ class _PronHint extends StatelessWidget {
     return Column(children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.volume_up_outlined, size: 16, color: scheme.secondary),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text('${tr.lpPronHint}: $hint',
-            style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
+            style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic,
                 color: scheme.secondary)),
       ]),
-      const SizedBox(height: 2),
+      const SizedBox(height: Gap.xxs),
       Text(tr.lpHintMarker,
-          style: TextStyle(fontSize: 10.5, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -544,11 +537,9 @@ class _LiveSeamCard extends StatelessWidget {
                 children: [
                   Text(tr.lpLiveSeamTitle,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.lpLiveSeamBody,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                           height: 1.35)),
                 ]),
           ),
@@ -616,9 +607,7 @@ class _QuizScreenState extends State<_QuizScreen> {
                       ?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
               Text('${g.percent}%',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                  style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700,
                       color: g.percent >= 70 ? Brand.success : Brand.blue)),
               if (g.wrongCardIds.isNotEmpty) ...[
                 const SizedBox(height: Gap.md),

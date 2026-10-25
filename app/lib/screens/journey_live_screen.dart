@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme.dart';
 import 'package:flutter/material.dart';
 import '../widgets/adaptive_button_pair.dart';
 import 'package:provider/provider.dart';
@@ -246,12 +247,12 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             tooltip: t.journeyShareLink,
             onPressed: _shareWebLink),
       ]),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
               color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12)),
+              borderRadius: BorderRadius.circular(Radii.md)),
           child: Row(children: [
             const Icon(Icons.navigation, color: Colors.green),
             const SizedBox(width: 10),
@@ -263,31 +264,31 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   if (dest != null && dest.isNotEmpty)
                     Text(t.journeyToward(dest),
-                        style: const TextStyle(fontSize: 13)),
+                        style: AType.bodyMedium),
                 ])),
           ]),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: Gap.md),
         if (loc != null && loc['at'] != null)
           Text(t.journeyLastFix(loc['at'].toString()),
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        const SizedBox(height: 16),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.lg),
         SosButton(label: t.emergencySosButton, onPressed: _openSos),
-        const SizedBox(height: 16),
+        const SizedBox(height: Gap.lg),
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
             style: FilledButton.styleFrom(
                 // QA a6: white on Colors.green was 2.8:1 — deeper green 5:1.
-                backgroundColor: const Color(0xFF1E7E4E),
+                backgroundColor: Brand.successFill,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16)),
+                padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
             onPressed: _markArrived,
             icon: const Icon(Icons.check_circle),
-            label: Text(t.journeyImSafe, style: const TextStyle(fontSize: 17)),
+            label: Text(t.journeyImSafe, style: AType.bodyLarge),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: Gap.md),
         AdaptiveButtonPair(
           first: OutlinedButton.icon(
               icon: const Icon(Icons.phone_callback),
@@ -300,7 +301,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         ),
         const SizedBox(height: 20),
         Text(t.journeyLiveFooter,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

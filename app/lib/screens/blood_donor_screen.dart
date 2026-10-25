@@ -210,12 +210,10 @@ class _RegistryTab extends StatelessWidget {
                   .textTheme
                   .headlineSmall
                   ?.copyWith(fontWeight: FontWeight.bold, color: Brand.blue)),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Text(label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ]),
       );
 
@@ -308,13 +306,12 @@ class _SearchTabState extends State<_SearchTab> {
               )
             : ListView(
                 padding:
-                    const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 24),
+                    const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.xl),
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: Gap.sm),
                     child: Text(tr.bloodResultCount(results.length),
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ),
                   for (final c in results) _DonorCard(card: c),
                   const SizedBox(height: Gap.sm),
@@ -351,10 +348,8 @@ class _DonorCard extends StatelessWidget {
             CircleAvatar(
               backgroundColor: Brand.blue.withValues(alpha: 0.12),
               child: Text(card.group ?? '?',
-                  style: const TextStyle(
-                      color: Brand.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13)),
+                  style: AType.titleSmall.copyWith(color: Brand.blue,
+                      fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
@@ -367,7 +362,7 @@ class _DonorCard extends StatelessWidget {
                 if (card.area.isNotEmpty)
                   Text(card.area,
                       style:
-                          TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                          AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
               ]),
@@ -401,15 +396,15 @@ class _DonorCard extends StatelessWidget {
 
   Widget _chip(BuildContext context, IconData icon, String label, Color c) =>
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
           color: c.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 13, color: c),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 11.5, color: c)),
+          const SizedBox(width: Gap.xs),
+          Text(label, style: AType.bodySmall.copyWith(color: c)),
         ]),
       );
 
@@ -451,7 +446,7 @@ class _ContactRow extends StatelessWidget {
       const SizedBox(width: 6),
       Expanded(
         child: Text(tr.bloodContactHidden,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
     ]);
   }
@@ -473,7 +468,7 @@ class _PrivacyNote extends StatelessWidget {
           Expanded(
             child: Text(tr.bloodPrivacyNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -592,7 +587,7 @@ class _DonorFormState extends State<_DonorForm> {
             const SizedBox(height: Gap.md),
             // Last donation date (optional)
             InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(Radii.sm),
               onTap: () async {
                 final now = DateTime.now();
                 final picked = await showDatePicker(
@@ -620,7 +615,7 @@ class _DonorFormState extends State<_DonorForm> {
                     ),
                   ),
                   if (_lastDonation != null)
-                    IconButton(
+                    IconButton(tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
                       icon: const Icon(Icons.clear, size: 18),
                       onPressed: () => setState(() => _lastDonation = null),
                     ),
@@ -651,8 +646,7 @@ class _DonorFormState extends State<_DonorForm> {
               onChanged: (v) => setState(() => _share = v),
               title: Text(tr.bloodShareContact),
               subtitle: Text(tr.bloodShareContactHint,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
             if (_share) ...[
               const SizedBox(height: Gap.xs),

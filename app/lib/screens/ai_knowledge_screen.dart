@@ -92,7 +92,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           : all.isEmpty
               ? _empty(context, t)
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+                  padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
                   children: [
                     _intro(context, t),
                     const SizedBox(height: Gap.lg),
@@ -144,9 +144,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(width: Gap.xs),
           Text('($n)',
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ]),
       );
 
@@ -166,7 +164,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ExpansionTile(
         tilePadding:
-            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 2),
+            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xxs),
         childrenPadding:
             const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         leading: Icon(
@@ -190,8 +188,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
             Expanded(
               child: Text(
                 m.isAi ? t.aiKnowSourceAi : t.aiKnowSourceManual,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               ),
             ),
           ]),
@@ -212,14 +209,13 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
   }
 
   Widget _badge(String text, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Text(text,
-            style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+            style: AType.labelSmall.copyWith(fontWeight: FontWeight.w600, color: color)),
       );
 
   Future<void> _deleteItem(BuildContext context, AppLocalizations t,
@@ -280,7 +276,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           Expanded(child: Text(label)),
           Text(value,
               style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 
@@ -296,7 +292,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.memTransparencyPromise,
-                style: const TextStyle(fontSize: 13, height: 1.4)),
+                style: AType.bodyMedium.copyWith(height: 1.4)),
           ),
         ]),
       );

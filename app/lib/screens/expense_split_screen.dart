@@ -341,7 +341,7 @@ class _ExpensesTab extends StatelessWidget {
                       ),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         Text(_SplitMath.fmtPoisha(total),
-                            style: Theme.of(context).textTheme.titleSmall),
+                            style: AFonts.figures(Theme.of(context).textTheme.titleSmall)),
                         PopupMenuButton<String>(
                           onSelected: (v) {
                             if (v == 'edit') _addOrEdit(context, existing: e);
@@ -451,7 +451,7 @@ class _SettleTab extends StatelessWidget {
     }
     final s = _SplitMath.groupSummary(people, expenses);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
       children: [
         Card(
           margin: EdgeInsets.zero,
@@ -487,7 +487,7 @@ class _SettleTab extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
           child: Text(tr.splitSettleUpHint,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
         if (s.settlements.isEmpty)
           Card(
@@ -510,7 +510,9 @@ class _SettleTab extends StatelessWidget {
               ),
               trailing: Text(_SplitMath.fmtPoisha(t.amount),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Brand.blue, fontWeight: FontWeight.bold)),
+                      color: Brand.onTint(context, Brand.blue),
+                      fontFeatures: AFonts.tabular,
+                      fontWeight: FontWeight.bold)),
             ),
           ),
         const SizedBox(height: Gap.md),
@@ -526,8 +528,7 @@ class _SettleTab extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(tr.splitNoMoneyNote,
-                    style: TextStyle(
-                        fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             ]),
           ),
@@ -557,12 +558,12 @@ class _SettleTab extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(
                   tr.splitPaidShare(_SplitMath.fmtPoisha(r.paid),
                       _SplitMath.fmtPoisha(r.share)),
                   style:
-                      TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                      AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
             ]),
@@ -570,8 +571,9 @@ class _SettleTab extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(_SplitMath.fmtPoisha(r.net.abs()),
-                style: TextStyle(color: c, fontWeight: FontWeight.bold)),
-            Text(badge, style: TextStyle(color: c, fontSize: 11)),
+                style: TextStyle(
+                    color: c, fontWeight: FontWeight.bold, fontFeatures: AFonts.tabular)),
+            Text(badge, style: AType.labelSmall.copyWith(color: c)),
           ]),
         ]),
       ),
@@ -803,9 +805,7 @@ class _ExpenseFormState extends State<_ExpenseForm> {
   Widget _sharesPicker(AppLocalizations tr) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(tr.splitSharesHint,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
       for (final p in widget.people)
         Padding(
@@ -835,9 +835,7 @@ class _ExpenseFormState extends State<_ExpenseForm> {
         _exact.values.fold<int>(0, (a, c) => a + _SplitMath.toPoisha(c.text));
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(tr.splitExactHint,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
       for (final p in widget.people)
         Padding(

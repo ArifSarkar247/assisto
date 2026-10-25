@@ -103,7 +103,7 @@ class _LegalScreenState extends State<LegalScreen> {
                                 title: Text(p['title'] as String? ?? ''),
                                 subtitle: Text(
                                   p['stamp'] as String? ?? '',
-                                  style: const TextStyle(fontSize: 12),
+                                  style: AType.bodySmall,
                                 ),
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () => _open(p['key'] as String),

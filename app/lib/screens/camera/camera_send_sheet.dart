@@ -179,9 +179,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.camCircleTextOnly,
-                    style: TextStyle(
-                        fontSize: 12,
-                        height: 1.3,
+                    style: AType.bodySmall.copyWith(height: 1.3,
                         color: scheme.onSurfaceVariant)),
               ),
             ]),

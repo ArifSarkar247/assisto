@@ -344,7 +344,7 @@ class _ConnectBanner extends StatelessWidget {
         Expanded(
           child: Text(
             connected ? tr.inboxConnectedLive : tr.realityInboxConnectNeeded,
-            style: TextStyle(fontSize: 12.5, color: onColor),
+            style: AType.bodySmall.copyWith(color: onColor),
           ),
         ),
       ]),
@@ -403,12 +403,12 @@ class _EmptyState extends StatelessWidget {
           Text(filtered ? tr.inboxNoneInFilter
               : (connected ? tr.inboxAllClear : tr.realityInboxNotConnectedTitle),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(filtered ? tr.inboxTryAnotherFilter
               : (connected ? tr.inboxAllClearHint : tr.realityInboxNotConnectedHint),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -432,11 +432,11 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: Gap.md),
           Text(tr.inboxLoadFailed,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(honestFailText(tr, error, otherwise: tr.checkInternetRetry),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             icon: const Icon(Icons.refresh),

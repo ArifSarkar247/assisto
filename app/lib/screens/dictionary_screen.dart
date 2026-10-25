@@ -212,7 +212,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                         _onChanged('');
                       },
                     ),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.md)),
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -328,7 +328,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           const SizedBox(height: Gap.sm),
           Text(t.dictionaryIntroTitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
           Text(t.dictionaryIntroBody,
               textAlign: TextAlign.center,
@@ -342,19 +342,19 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     final cs = Theme.of(context).colorScheme;
     return Row(children: [
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
         decoration: BoxDecoration(
           color: cs.secondaryContainer,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(sample ? t.dictSampleBadge : t.dictOpenLicenceBadge,
-            style: TextStyle(fontSize: 10, color: cs.onSecondaryContainer)),
+            style: AType.labelSmall.copyWith(color: cs.onSecondaryContainer)),
       ),
-      const SizedBox(width: 8),
+      const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(
           sample ? t.dictionarySampleNote : t.dictionarySourceNote(source),
-          style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          style: AType.labelSmall.copyWith(color: cs.onSurfaceVariant),
         ),
       ),
     ]);
@@ -385,7 +385,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(t.dictSavedCount(saved.length),
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ),
             for (final e in saved)
               DictEntryCard(
@@ -458,7 +458,7 @@ class _NeedsData extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.hourglass_empty, size: 48, color: Color(0xFF8A6D00)),
+          Icon(Icons.hourglass_empty, size: 48, color: Brand.warnInk(context)),
           const SizedBox(height: Gap.md),
           Container(
             padding: const EdgeInsets.all(Gap.md),
@@ -469,13 +469,13 @@ class _NeedsData extends StatelessWidget {
             child: Text(
               t.dictionaryNeedsOpenData,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF8A6D00)),
+              style: TextStyle(color: Brand.warnInk(context)),
             ),
           ),
           const SizedBox(height: Gap.md),
           Text(t.dictionarySampleNote,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Colors.grey)),
         ]),
       ),
     );
