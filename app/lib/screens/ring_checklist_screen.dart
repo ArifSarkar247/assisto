@@ -160,7 +160,7 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
               ),
           const SizedBox(height: Gap.sm),
           Text(t.ringCheckFooter,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           if (widget.firstRun) ...[
             const SizedBox(height: Gap.lg),
             FilledButton(
@@ -202,7 +202,7 @@ class _RowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final note = TextStyle(fontSize: 13, color: scheme.onSurfaceVariant);
+    final note = AType.bodySmall.copyWith(color: scheme.onSurfaceVariant);
     final (IconData icon, Color color, String label) = switch (row.state) {
       RingCheckState.ok => (Icons.check_circle, scheme.primary, t.ringCheckStatusOk),
       RingCheckState.missing => (Icons.error, scheme.error, t.ringCheckStatusMissing),
@@ -223,7 +223,7 @@ class _RowCard extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(label,
                   key: Key('ring-state-${row.key}'),

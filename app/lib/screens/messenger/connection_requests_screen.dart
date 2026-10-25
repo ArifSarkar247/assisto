@@ -5,6 +5,7 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_api.dart';
 import '../../state.dart';
+import '../../theme.dart';
 import '../../widgets/msgr_avatar.dart';
 
 /// Personal connection requests — the Sent/Cancel vs Requests/Accept-Decline
@@ -181,7 +182,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
                   .colorScheme
                   .primary
                   .withValues(alpha: 0.7)),
-          const SizedBox(height: 12),
+          const SizedBox(height: Gap.md),
           Text(incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
               textAlign: TextAlign.center,
               style: TextStyle(

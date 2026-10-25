@@ -137,18 +137,15 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 26,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700)),
+                    style: AType.headlineMedium.copyWith(
+                        color: CallInk.text, fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.sm),
                 Text(
                   _ended
                       ? t.pushCallEnded
                       : (p.isVideo ? t.pushIncomingVideo : t.pushIncomingVoice),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 16, color: Colors.white.withValues(alpha: 0.8)),
+                  style: AType.bodyLarge.copyWith(color: CallInk.textSoft),
                 ),
                 const Spacer(flex: 2),
                 if (!_ended)
@@ -212,7 +209,7 @@ class _RoundAction extends StatelessWidget {
               child: SizedBox(
                   width: 72,
                   height: 72,
-                  child: Icon(icon, color: Colors.white, size: 32)),
+                  child: Icon(icon, color: CallInk.text, size: 32)),
             ),
           ),
         ),
@@ -220,7 +217,7 @@ class _RoundAction extends StatelessWidget {
         Text(label,
             textAlign: TextAlign.center,
             maxLines: 2,
-            style: const TextStyle(color: Colors.white, fontSize: 14)),
+            style: AType.bodyMedium.copyWith(color: CallInk.text)),
       ]),
     );
   }

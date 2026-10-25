@@ -212,6 +212,7 @@ import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'p4_world_shots.dart'; // p4-world
 import 'c2_calls_shots.dart'; // c2-calls
 import 'b1_calls_shots.dart'; // b1-calls
+import 'f3_shots.dart'; // f3-design
 import 'cde_shots.dart'; // cde-chat
 import 'e_gaps_shots.dart'; // e-gaps
 import 'package:assisto/screens/unseen_world_screen.dart';
@@ -631,6 +632,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     for (final e in b1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // b1-calls
+    for (final e in f3Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // f3-design
     for (final e in cdeShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cde-chat
     for (final e in eGapsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // e-gaps
     // h1-home: home ad hero (free / premium) + image in chat

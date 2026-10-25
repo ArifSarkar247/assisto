@@ -810,7 +810,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final scheme = Theme.of(context).colorScheme;
     final t = _t;
     return ListView(children: [
-      const SizedBox(height: 72),
+      const SizedBox(height: Gap.xxxl + Gap.xl),
       Icon(Icons.search_off_outlined,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
@@ -850,22 +850,22 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       for (final l in _lists)
         (id: 'list:${l['id']}', label: '${l['name'] ?? ''}'),
     ];
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
-        itemCount: chips.length,
-        separatorBuilder: (_, __) => const SizedBox(width: Gap.sm),
-        itemBuilder: (_, i) {
-          final c = chips[i];
-          return ChoiceChip(
-            label: Text(c.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-            selected: _filter == c.id,
-            onSelected: (_) => setState(() => _filter = c.id),
-          );
-        },
-      ),
+    // f3: the row takes the chips' own height (48 dp tap targets; at 200 %
+    // text a fixed 44 dp row clipped the labels).
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+      child: Row(children: [
+        for (var i = 0; i < chips.length; i++) ...[
+          if (i > 0) const SizedBox(width: Gap.sm),
+          ChoiceChip(
+            label: Text(chips[i].label,
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+            selected: _filter == chips[i].id,
+            onSelected: (_) => setState(() => _filter = chips[i].id),
+          ),
+        ],
+      ]),
     );
   }
 
@@ -874,7 +874,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final t = _t;
     final archived = _showArchived;
     return ListView(children: [
-      const SizedBox(height: 72),
+      const SizedBox(height: Gap.xxxl + Gap.xl),
       Icon(archived ? Icons.archive_outlined : Icons.forum_outlined,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
@@ -933,7 +933,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       onTap: () => _openChat(c),
       onLongPress: () => _organiseSheet(c),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         child: Row(children: [
           group
               ? CircleAvatar(
@@ -955,22 +955,20 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                     child: Text(name.isEmpty ? '?' : name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: AType.titleMedium.copyWith(
                             fontWeight:
-                                unread > 0 ? FontWeight.w800 : FontWeight.w700,
-                            fontSize: 15)),
+                                unread > 0 ? FontWeight.w800 : FontWeight.w700)),
                   ),
                   // a1-circle: two DIFFERENT people with the same name get a
                   // subtle second identifier (label / "...888"), like WhatsApp.
                   if (hint.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(left: 6),
+                      padding: const EdgeInsets.only(left: Gap.sm),
                       child: Text(hint,
                           key: const Key('a1-same-name-hint'),
                           maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 12.5,
-                              color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall
+                              .copyWith(color: scheme.onSurfaceVariant)),
                     ),
                   const Spacer(),
                   if (pv.at != null)
@@ -978,8 +976,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                       padding: const EdgeInsets.only(left: Gap.sm),
                       child: Text(chatListTime(t, pv.at!, lang),
                           key: const Key('c3-row-time'),
-                          style: TextStyle(
-                              fontSize: 12,
+                          style: AType.labelMedium.copyWith(
+                              fontFeatures: AFonts.tabular,
                               fontWeight: unread > 0
                                   ? FontWeight.w700
                                   : FontWeight.w400,
@@ -988,7 +986,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                                   : scheme.onSurfaceVariant)),
                     ),
                 ]),
-                const SizedBox(height: 3),
+                const SizedBox(height: Gap.xxs),
                 Row(children: [
                   Expanded(
                     child: activity != null
@@ -996,8 +994,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                             key: const Key('c3-row-activity'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 13,
+                            style: AType.bodyMedium.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: typingGreen(context)))
                         : notOnApp
@@ -1049,23 +1046,21 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             key: const Key('a1-not-on-app'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontSize: 13,
+            style: AType.bodyMedium.copyWith(
                 color: scheme.onSurfaceVariant,
                 fontStyle: FontStyle.italic)),
       ),
-      const SizedBox(width: 6),
+      const SizedBox(width: Gap.xs),
       InkWell(
         key: const Key('a1-invite'),
         borderRadius: BorderRadius.circular(Radii.pill),
         onTap: () => m3Invite(context, M3InviteVia.share),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          padding: const EdgeInsets.symmetric(
+              horizontal: Gap.xs, vertical: Gap.xxs),
           child: Text(t.a1Invite,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.primary)),
+              style: AType.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w700, color: scheme.primary)),
         ),
       ),
     ]);
@@ -1129,19 +1124,18 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     return Row(children: [
       if (pv.mine && pv.tick != null) ...[
         TickIcon(tick: pv.tick!, baseColor: muted, size: 16),
-        const SizedBox(width: 3),
+        const SizedBox(width: Gap.xs),
       ],
       if (lead != null) ...[
         Icon(lead, size: 14, color: muted),
-        const SizedBox(width: 3),
+        const SizedBox(width: Gap.xs),
       ],
       Expanded(
         child: Text('$prefix$body',
             key: const Key('c3-row-preview'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontSize: 13,
+            style: AType.bodyMedium.copyWith(
                 color: muted,
                 fontStyle: italic ? FontStyle.italic : FontStyle.normal)),
       ),
@@ -1165,10 +1159,7 @@ String chatListTime(AppLocalizations t, DateTime at, String lang,
 }
 
 /// The live "typing…" green (readable in light + dark).
-Color typingGreen(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xFF4ADE80)
-        : const Color(0xFF15803D);
+Color typingGreen(BuildContext context) => AssistoTokens.of(context).success;
 
 String mediaPreviewLabel(AppLocalizations t, String ct) {
   switch (ct) {
@@ -1214,17 +1205,16 @@ class _CountPill extends StatelessWidget {
     final bn = Localizations.localeOf(context).languageCode == 'bn';
     final label = _bn(count > 99 ? '99+' : '$count', bn);
     return Container(
-      constraints: const BoxConstraints(minWidth: 20),
-      height: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm - Gap.xxs),
       decoration: BoxDecoration(
           color: scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(Radii.pill)),
       alignment: Alignment.center,
       child: Text(label,
-          style: TextStyle(
+          style: AFonts.figures(AType.labelSmall)!.copyWith(
+              height: 1.2,
               color: scheme.onSurfaceVariant,
-              fontSize: 11,
               fontWeight: FontWeight.w700)),
     );
   }
@@ -1251,17 +1241,16 @@ class _UnreadBadge extends StatelessWidget {
     final bn = Localizations.localeOf(context).languageCode == 'bn';
     final label = _bn(count > 99 ? '99+' : '$count', bn);
     return Container(
-      constraints: const BoxConstraints(minWidth: 20),
-      height: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm - Gap.xxs),
       decoration: BoxDecoration(
           color: scheme.primary,
           borderRadius: BorderRadius.circular(Radii.pill)),
       alignment: Alignment.center,
       child: Text(label,
-          style: TextStyle(
+          style: AFonts.figures(AType.labelSmall)!.copyWith(
+              height: 1.2,
               color: scheme.onPrimary,
-              fontSize: 11,
               fontWeight: FontWeight.w700)),
     );
   }

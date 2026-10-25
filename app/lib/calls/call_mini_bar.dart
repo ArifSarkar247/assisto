@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'call_controller.dart';
 import 'call_runtime.dart';
@@ -94,20 +95,19 @@ class _CallMiniBarState extends State<CallMiniBar> {
         : c.isLive
             ? _time(context)
             : t.circleCallConnecting;
-    // WCAG: white on #146C43 is 6.4:1
-    const bg = Color(0xFF146C43);
+    // WCAG: white on CallInk.miniBar is 6.4:1
     return Material(
-      color: bg,
+      color: CallInk.miniBar,
       child: InkWell(
         key: const Key('call-mini-bar'),
         onTap: CallRuntime.instance.restoreOngoing,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(16, top + 6, 4, 6),
+          padding: EdgeInsets.fromLTRB(Gap.lg, top + 6, Gap.xs, 6),
           child: Row(
             children: [
               Icon(c.videoOn ? Icons.videocam : Icons.call,
-                  color: Colors.white, size: 20),
-              const SizedBox(width: 10),
+                  color: CallInk.text, size: 20),
+              const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,25 +117,24 @@ class _CallMiniBarState extends State<CallMiniBar> {
                       '${widget.call.name} · $status',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      // the live timer: tabular figures (no jitter)
+                      style: AType.titleSmall.copyWith(
+                          color: CallInk.text,
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          fontFeatures: [FontFeature.tabularFigures()]),
+                          fontFeatures: AFonts.tabular),
                     ),
                     Text(t.b1CallOngoingTap,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 12)),
+                        style: AType.bodySmall.copyWith(color: CallInk.text)),
                   ],
                 ),
               ),
               if (c.muted)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
                   child: Icon(Icons.mic_off,
-                      color: Colors.white, size: 18, semanticLabel: t.circleCallMute),
+                      color: CallInk.text, size: 18, semanticLabel: t.circleCallMute),
                 ),
               // no Tooltip: the bar sits ABOVE the Navigator (no Overlay)
               Semantics(
@@ -146,9 +145,9 @@ class _CallMiniBarState extends State<CallMiniBar> {
                   radius: 24,
                   onTap: () => unawaited(c.hangup()),
                   child: const SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Icon(Icons.call_end, color: Color(0xFFFFD6DA))),
+                      width: Gap.xxxl,
+                      height: Gap.xxxl,
+                      child: Icon(Icons.call_end, color: CallInk.miniHangup)),
                 ),
               ),
             ],

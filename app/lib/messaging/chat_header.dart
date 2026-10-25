@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme.dart';
 
 /// t1-ticks — WhatsApp-standard chat header title (1:1 and groups).
 ///
@@ -40,10 +41,9 @@ class ChatHeaderTitle extends StatelessWidget {
       this.onTap,
       this.fitStatusLine = true});
 
+  /// "online" / "typing…" green: the AA success token (both themes).
   static Color activeColor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF4ADE80)
-          : const Color(0xFF15803D);
+      AssistoTokens.of(context).success;
 
   @override
   Widget build(BuildContext context) {
