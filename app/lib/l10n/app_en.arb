@@ -19298,5 +19298,26 @@
       }
     }
   },
-  "bv2LimitsNote": "Over a limit, the agent still answers from your price list and FAQs; every other question comes to you."
+  "bv2LimitsNote": "Over a limit, the agent still answers from your price list and FAQs; every other question comes to you.",
+  "waJumpToLatest": "Go to latest messages",
+  "waJumpToLatestNew": "{count} new messages — go to latest",
+  "@waJumpToLatestNew": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "waNotSentRetry": "Not sent · Tap to retry",
+  "waCallsFilterAll": "All",
+  "waCallsFilterMissed": "Missed",
+  "waCallsNoMissed": "No missed calls",
+  "waCallEndedAfter": "Call ended · {time}",
+  "@waCallEndedAfter": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }
