@@ -6,9 +6,10 @@
   {% if state == "ok" %}<div style="font-size:44px">✅</div><h1>{{ P.ok_h }}</h1><p>{{ P.ok_b }}</p>
   {% elif state == "pending" %}<div style="font-size:44px">⏳</div><h1>{{ P.pending_h }}</h1><p>{{ P.pending_b }}</p>
   {% elif state == "fail" %}<div style="font-size:44px">⚠️</div><h1>{{ P.fail_h }}</h1><p>{{ P.fail_b }}</p>
+  {% elif state == "neutral" %}<div style="font-size:44px">⏳</div><h1>{{ P.neutral_h }}</h1><p>{{ P.neutral_b }}</p>
   {% else %}<h1>{{ P.unknown_h }}</h1>{% endif %}
   {% if order %}<p class="muted">#{{ order.pk }} · ৳{{ order.amount_bdt }}</p>{% endif %}
-  {% if order and order.source == "app" %}<p><a class="btn" href="{{ deep_link }}">{{ P.open_app }}</a></p>{% endif %}
+  {% if order and order.source == "app" or state == "neutral" %}<p><a class="btn" href="{{ deep_link }}">{{ P.open_app }}</a></p>{% endif %}
   <p><a class="btn ghost" href="/premium{{ qlang }}">{{ P.back }}</a></p>
 </div>
 {% endblock %}

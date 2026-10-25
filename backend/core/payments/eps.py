@@ -46,7 +46,7 @@ import json
 import logging
 import threading
 import time
-from datetime import datetime, timezone as dt_tz
+from datetime import datetime, timedelta, timezone as dt_tz
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlparse
 
@@ -58,6 +58,7 @@ BASE = {"sandbox": "https://sandboxpgapi.eps.com.bd", "live": "https://pgapi.eps
 REDIRECT_HOSTS = ("eps.com.bd",)
 HTTP_TIMEOUT_S = 25
 IPN_MAX_AGE_S = 30 * 60
+DHAKA = dt_tz(timedelta(hours=6), "Asia/Dhaka")   # Bangladesh: UTC+6, no DST
 
 _tok_lock = threading.Lock()
 _tok_cache = {}
@@ -97,6 +98,22 @@ def reset_cache():
         _tok_cache.clear()
 
 
+def drop_token(c):
+    """Forget the cached auth token for this merchant (EPS revoked it early)."""
+    with _tok_lock:
+        _tok_cache.pop((c.get("username", ""), _mode(c)), None)
+
+
+def _token_rejected(st, js):
+    """EPS refused our Bearer token: HTTP 401, or an error code / message
+    about the token (EPS publishes no code list; its messages say 'token')."""
+    js = js if isinstance(js, dict) else {}
+    if st == 401 or str(js.get("ErrorCode") or "").strip() == "401":
+        return True
+    msg = str(js.get("ErrorMessage") or js.get("errorMessage") or "").lower()
+    return "token" in msg and any(w in msg for w in ("invalid", "expired", "unauthor"))
+
+
 def _token(c, force=False):
     key = (c.get("username", ""), _mode(c))
     with _tok_lock:
@@ -123,6 +140,21 @@ def _token(c, force=False):
     with _tok_lock:
         _tok_cache[key] = (tok, exp)
     return tok
+
+
+def ipn_fresh(d, now=None):
+    """IPN timestamp within +-IPN_MAX_AGE_S of now. EPS does not document the
+    time zone of an offset-less timestamp: it may be UTC or Bangladesh local
+    time (Asia/Dhaka, UTC+6, no DST). A naive value is accepted if it is fresh
+    read EITHER way — the two readings are 6 h apart, so the window is still
+    +-30 min around one of them (the IPN is only a trigger; every payment is
+    verified with the status API before anything is granted)."""
+    now = time.time() if now is None else now
+    if d.tzinfo is not None:
+        cands = [d]
+    else:
+        cands = [d.replace(tzinfo=dt_tz.utc), d.replace(tzinfo=DHAKA)]
+    return any(abs(now - c.timestamp()) <= IPN_MAX_AGE_S for c in cands)
 
 
 def map_status(s):
@@ -194,10 +226,20 @@ class EpsGateway(PaymentGateway):
         return all(str(c.get(k, "")).strip() for k in
                    ("merchant_id", "store_id", "username", "password", "hash_key"))
 
-    def _auth_headers(self, value):
+    def _auth_headers(self, value, force=False):
         return {"Content-Type": "application/json",
                 "x-hash": x_hash(value, self.c.get("hash_key", "")),
-                "Authorization": "Bearer " + _token(self.c)}
+                "Authorization": "Bearer " + _token(self.c, force=force)}
+
+    def _call(self, method, url, body, value):
+        """Authorised EPS call. If EPS rejects the cached token (revoked before
+        its expiry), drop it and retry ONCE with a fresh one."""
+        st, js = _http(method, url, body, self._auth_headers(value))
+        if _token_rejected(st, js):
+            log.warning("eps: token rejected (%s), refreshing once", st)
+            drop_token(self.c)
+            st, js = _http(method, url, body, self._auth_headers(value, force=True))
+        return st, js
 
     def create_session(self, order, customer, urls):
         if not self.configured():
@@ -225,8 +267,8 @@ class EpsGateway(PaymentGateway):
             "ProductList": [],
         }
         try:
-            st, js = _http("POST", BASE[_mode(self.c)] + "/v1/EPSEngine/InitializeEPS",
-                           body, self._auth_headers(tx))
+            st, js = self._call("POST", BASE[_mode(self.c)] + "/v1/EPSEngine/InitializeEPS",
+                                body, tx)
         except GatewayError:
             raise
         except Exception as e:  # network
@@ -244,9 +286,9 @@ class EpsGateway(PaymentGateway):
             raise GatewayError("not_configured")
         tx = order.merchant_tx_id
         try:
-            st, js = _http("GET", BASE[_mode(self.c)] +
-                           "/v1/EPSEngine/CheckMerchantTransactionStatus"
-                           "?merchantTransactionId=" + tx, None, self._auth_headers(tx))
+            st, js = self._call("GET", BASE[_mode(self.c)] +
+                                "/v1/EPSEngine/CheckMerchantTransactionStatus"
+                                "?merchantTransactionId=" + tx, None, tx)
         except GatewayError:
             raise
         except Exception as e:
@@ -295,12 +337,10 @@ class EpsGateway(PaymentGateway):
         if ts:
             try:
                 d = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
-                if d.tzinfo is None:
-                    d = d.replace(tzinfo=dt_tz.utc)
-                if abs(time.time() - d.timestamp()) > IPN_MAX_AGE_S:
-                    raise GatewayError("stale")
             except ValueError:
                 raise GatewayError("bad_payload")
+            if not ipn_fresh(d):
+                raise GatewayError("stale")
         tx = str(js.get("merchant_transaction_id") or js.get("MerchantTransactionId")
                  or "").strip()
         if not tx:
