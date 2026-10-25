@@ -414,7 +414,7 @@ void main() {
     expect(find.text(t.msgStorageBackups), findsOneWidget);
     expect(find.text(t.msgStorageQuota), findsOneWidget);
     expect(find.text(t.msgrSetStorageAutoDlSection), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsNWidgets(4));
+    expect(find.byType(SwitchListTile), findsNWidgets(5)); // Wi-Fi + photo, voice, document, video (mc-media2)
     expect(await MediaPrefs.mobileAuto('photo'), isFalse);
     await tester.tap(find.byKey(const Key('md1-auto-mobile-photo')));
     await tester.pump();
