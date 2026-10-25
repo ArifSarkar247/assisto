@@ -250,6 +250,9 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         const SizedBox(height: Gap.sm),
         for (final c in chans) _channelRow(t, c, kill['${c['kind']}'] == true),
         const SizedBox(height: Gap.sm),
+        // biz-v2: Page / WhatsApp connect only while the server's Meta app
+        // is configured (features.own_channels) — hidden, not "coming soon".
+        if (((_s['features'] as Map?) ?? const {})['own_channels'] != false)
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           for (final k in const ['messenger', 'instagram', 'whatsapp_cloud'])
             OutlinedButton.icon(

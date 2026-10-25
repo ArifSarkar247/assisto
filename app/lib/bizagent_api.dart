@@ -122,4 +122,33 @@ extension BizAgentApi on ApiClient {
   /// their own wallet — a screenshot never confirms a payment.
   Future<Map<String, dynamic>> bizAgentVerifyPayment(int orderId, String status) =>
       postJson('/bizagent/orders/$orderId/payment', {'status': status});
+
+  // ---------------------------------------------------------------- biz-v2
+  // Server: backend/core/views_bizagent_v2.py.
+
+  /// Business inbox across every connected channel. status: agent | owner |
+  /// attention ('' = all); q searches name, number and message text.
+  /// → {threads, counts: {all, agent, owner, attention, unread}, features}
+  Future<Map<String, dynamic>> bizAgentInbox(
+      {String status = '', String channel = '', String q = '', bool unread = false}) {
+    final qp = <String, String>{
+      if (status.isNotEmpty) 'status': status,
+      if (channel.isNotEmpty) 'channel': channel,
+      if (q.trim().isNotEmpty) 'q': q.trim(),
+      if (unread) 'unread': '1',
+    };
+    final qs = qp.isEmpty ? '' : '?${Uri(queryParameters: qp).query}';
+    return getJson('/bizagent/inbox$qs');
+  }
+
+  Future<Map<String, dynamic>> bizAgentMarkRead(int threadId) =>
+      postJson('/bizagent/threads/$threadId/read');
+
+  /// The owner confirms / cancels a DRAFT order the agent made from a
+  /// customer's photo (stock changes only on confirm).
+  Future<Map<String, dynamic>> bizAgentConfirmDraft(int orderId) =>
+      postJson('/bizagent/orders/$orderId/confirm');
+
+  Future<Map<String, dynamic>> bizAgentCancelDraft(int orderId) =>
+      postJson('/bizagent/orders/$orderId/cancel');
 }

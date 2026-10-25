@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,18 +12,48 @@ import '../../../widgets/skeleton.dart';
 import 'approvals_screen.dart' show baRiskLabel;
 import 'seller_agent_screen.dart' show baChannelIcon, baErrorText, bd;
 
-/// P1 — the seller's inbox of customer chats from the connected Page,
-/// Instagram and WhatsApp number.
+/// The Business inbox: every customer chat from the owner's own Facebook
+/// Page and WhatsApp number (plus Instagram / website when connected) in one
+/// list, with who is replying (agent / you / needs you), unread counts,
+/// filters and search. Server: GET /bizagent/inbox (views_bizagent_v2.py).
 class SellerInboxScreen extends StatefulWidget {
   const SellerInboxScreen({super.key});
   @override
   State<SellerInboxScreen> createState() => _SellerInboxScreenState();
 }
 
+/// Status chip label for one chat (server: bizagent_guard.thread_status).
+String bv2StatusLabel(AppLocalizations t, String s) {
+  switch (s) {
+    case 'owner':
+      return t.bv2StatusOwner;
+    case 'attention':
+      return t.bv2StatusAttention;
+    default:
+      return t.bv2StatusAgent;
+  }
+}
+
+Color bv2StatusColor(BuildContext c, String s) {
+  switch (s) {
+    case 'owner':
+      return Theme.of(c).colorScheme.primary;
+    case 'attention':
+      return AssistoTokens.of(c).warning;
+    default:
+      return AssistoTokens.of(c).success;
+  }
+}
+
 class _SellerInboxScreenState extends State<SellerInboxScreen> {
   bool _loading = true;
   Object? _error;
   List<Map<String, dynamic>> _threads = const [];
+  Map<String, dynamic> _counts = const {};
+  String _status = '';
+  bool _unread = false;
+  final _q = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -29,16 +61,27 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _q.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     setState(() {
-      _loading = true;
+      _loading = _threads.isEmpty;
       _error = null;
     });
     try {
-      final r = await context.read<AppState>().api.bizAgentThreads();
+      final r = await context
+          .read<AppState>()
+          .api
+          .bizAgentInbox(status: _status, q: _q.text, unread: _unread);
       if (!mounted) return;
       setState(() {
-        _threads = r;
+        _threads = ((r['threads'] ?? const []) as List).cast<Map<String, dynamic>>();
+        _counts = Map<String, dynamic>.from((r['counts'] as Map?) ?? const {});
         _loading = false;
       });
     } catch (e) {
@@ -50,10 +93,51 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     }
   }
 
+  void _onSearch(String _) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), _load);
+  }
+
+  void _pick(String status, bool unread) {
+    setState(() {
+      _status = status;
+      _unread = unread;
+    });
+    _load();
+  }
+
+  int _n(String k) => (_counts[k] as num?)?.toInt() ?? 0;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return Scaffold(appBar: AppBar(title: Text(t.baInboxTitle)), body: _body(t));
+    return Scaffold(appBar: AppBar(title: Text(t.bv2InboxTitle)), body: _body(t));
+  }
+
+  Widget _filters(AppLocalizations t) {
+    Widget chip(String label, String status, bool unread) {
+      final sel = _status == status && _unread == unread;
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(end: Gap.sm),
+        child: ChoiceChip(
+          label: Text(bd(context, label)),
+          selected: sel,
+          onSelected: (_) => _pick(status, unread),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+      child: Row(children: [
+        chip(t.bv2FilterAll(_n('all')), '', false),
+        chip(t.bv2FilterAttention(_n('attention')), 'attention', false),
+        chip(t.bv2FilterUnread(_n('unread')), '', true),
+        chip(t.bv2FilterAgent(_n('agent')), 'agent', false),
+        chip(t.bv2FilterOwner(_n('owner')), 'owner', false),
+      ]),
+    );
   }
 
   Widget _body(AppLocalizations t) {
@@ -66,37 +150,71 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
         action: FilledButton(onPressed: _load, child: Text(t.bizRetry)),
       );
     }
-    if (_threads.isEmpty) {
+    final filtered = _status.isNotEmpty || _unread || _q.text.trim().isNotEmpty;
+    if (_threads.isEmpty && !filtered) {
       return StateMessage(
           icon: Icons.inbox_rounded, title: t.baInboxEmptyTitle, message: t.baInboxEmptyBody);
     }
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView.separated(
-        itemCount: _threads.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (_, i) {
-          final th = _threads[i];
-          final pending = (th['pending'] as num?)?.toInt() ?? 0;
-          return ListTile(
-            leading: CircleAvatar(child: Icon(baChannelIcon('${th['channel']}'), size: 20)),
-            title: Text(bd(context, th['customer_name']), maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text(bd(context,
-              th['handover'] == true
-                  ? '${t.baHandoverOnShort} · ${th['last_text'] ?? ''}'
-                  : '${th['last_text'] ?? ''}'),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: pending > 0 ? Badge(label: Text(bd(context, pending))) : null,
-            onTap: () async {
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => SellerChatScreen(threadId: (th['id'] as num).toInt())));
-              if (mounted) _load();
-            },
-          );
-        },
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
+        child: TextField(
+          controller: _q,
+          onChanged: _onSearch,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: t.bv2SearchHint,
+            prefixIcon: const Icon(Icons.search_rounded),
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+        ),
       ),
+      _filters(t),
+      const SizedBox(height: Gap.sm),
+      Expanded(
+        child: RefreshIndicator(
+          onRefresh: _load,
+          child: _threads.isEmpty
+              ? ListView(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(Gap.xl),
+                    child: Text(t.bv2NoMatch, textAlign: TextAlign.center),
+                  ),
+                ])
+              : ListView.separated(
+                  itemCount: _threads.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (_, i) => _row(t, _threads[i]),
+                ),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _row(AppLocalizations t, Map<String, dynamic> th) {
+    final pending = (th['pending'] as num?)?.toInt() ?? 0;
+    final unread = (th['unread'] as num?)?.toInt() ?? 0;
+    final status = '${th['status'] ?? 'agent'}';
+    return ListTile(
+      leading: CircleAvatar(child: Icon(baChannelIcon('${th['channel']}'), size: 20)),
+      title: Text(bd(context, th['customer_name']),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: unread > 0 ? const TextStyle(fontWeight: FontWeight.w700) : null),
+      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(bd(context, '${th['last_text'] ?? ''}'),
+            maxLines: 2, overflow: TextOverflow.ellipsis),
+        const SizedBox(height: Gap.xs),
+        BizStatusChip(label: bv2StatusLabel(t, status), color: bv2StatusColor(context, status)),
+      ]),
+      isThreeLine: true,
+      trailing: (unread + pending) > 0 ? Badge(label: Text(bd(context, unread + pending))) : null,
+      onTap: () async {
+        await Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => SellerChatScreen(threadId: (th['id'] as num).toInt())));
+        if (mounted) _load();
+      },
     );
   }
 }
@@ -174,6 +292,23 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     try {
       await context.read<AppState>().api.bizAgentVerifyPayment(orderId, status);
       _snack(status == 'verified' ? t.g1PaymentVerifiedDone : t.g1PaymentRejectedDone);
+    } catch (e) {
+      _snack(baErrorText(t, e));
+    }
+    await _load();
+  }
+
+  /// biz-v2: the owner confirms / cancels the agent's photo DRAFT order.
+  Future<void> _draft(int orderId, bool confirm) async {
+    final t = AppLocalizations.of(context);
+    final api = context.read<AppState>().api;
+    try {
+      if (confirm) {
+        await api.bizAgentConfirmDraft(orderId);
+      } else {
+        await api.bizAgentCancelDraft(orderId);
+      }
+      _snack(confirm ? t.bv2DraftConfirmed : t.bv2DraftCancelled);
     } catch (e) {
       _snack(baErrorText(t, e));
     }
@@ -273,7 +408,9 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             const SizedBox(height: Gap.xs),
             Text(
               bd(context, handover
-                  ? t.baHandoverOnSub
+                  ? ('${th['handback_at'] ?? ''}'.isNotEmpty
+                      ? '${t.baHandoverOnSub} ${t.bv2HandbackAt(_clock('${th['handback_at']}'))}'
+                      : t.baHandoverOnSub)
                   : pausedUntil.isNotEmpty
                       ? t.g1PausedNote(_clock(pausedUntil))
                       : t.g1AiRepliesNote),
@@ -287,6 +424,30 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           ]),
         ),
       ),
+      for (final o in orders.where((o) => o['draft'] == true))
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
+          child: BizCard(
+            title: bd(context, t.bv2DraftTitle('${o['id']}')),
+            icon: Icons.add_shopping_cart_rounded,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              for (final it in ((o['items'] as List?) ?? const []).cast<Map>())
+                Text(bd(context, t.bv2DraftLine('${it['name'] ?? ''}', '${it['qty'] ?? 1}',
+                    '${it['price'] ?? ''}'))),
+              const SizedBox(height: Gap.xs),
+              Text(t.bv2DraftBody, style: const TextStyle(height: 1.4)),
+              const SizedBox(height: Gap.sm),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                FilledButton.tonal(
+                    onPressed: () => _draft((o['id'] as num).toInt(), true),
+                    child: Text(t.bv2DraftConfirm)),
+                TextButton(
+                    onPressed: () => _draft((o['id'] as num).toInt(), false),
+                    child: Text(t.bv2DraftCancel)),
+              ]),
+            ]),
+          ),
+        ),
       for (final o in orders.where((o) => o['payment_status'] == 'pending_verification'))
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),

@@ -165,8 +165,60 @@ void main() {
 
   testWidgets('inbox lists chats; bn + dark render without overflow', (tester) async {
     final t = await _pump(tester, const SellerInboxScreen(), lang: 'bn', dark: true);
-    expect(find.textContaining(t.baHandoverOnShort), findsOneWidget);
+    expect(find.text(t.bv2StatusOwner), findsOneWidget); // biz-v2 status chip
     expect(tester.takeException(), isNull);
+  });
+
+  // ---- biz-v2: Business inbox (status filters, unread, search) ----
+  for (final lang in const ['en', 'bn']) {
+    testWidgets('$lang: business inbox filters + status chips', (tester) async {
+      final t = await _pump(tester, const SellerInboxScreen(), lang: lang);
+      expect(find.text(t.bv2InboxTitle), findsOneWidget);
+      expect(find.text(t.bv2StatusAgent), findsOneWidget);
+      expect(find.text(t.bv2StatusOwner), findsOneWidget);
+      expect(find.text(t.bv2StatusAttention), findsWidgets);
+      expect(find.text(t.bv2SearchHint), findsOneWidget);
+      // the "Needs you" filter narrows the list to that one chat
+      await tester.tap(find.byType(ChoiceChip).at(1));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.text(t.bv2StatusOwner), findsNothing);
+      expect(find.text(t.bv2StatusAttention), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('business inbox hidden on agent home with no channel', (tester) async {
+    p1Connected = false;
+    final t = await _pump(tester, const SellerAgentScreen());
+    expect(find.text(t.bv2InboxTitle), findsNothing);
+  });
+
+  testWidgets('business inbox shown on agent home once a channel is connected',
+      (tester) async {
+    final t = await _pump(tester, const SellerAgentScreen());
+    expect(find.text(t.bv2InboxTitle), findsOneWidget);
+  });
+
+  testWidgets('chat: photo draft order → owner confirms; idle hand-back note', (tester) async {
+    final t = await _pump(tester, const SellerChatScreen(threadId: 8));
+    expect(find.text(t.bv2DraftTitle('52')), findsOneWidget);
+    expect(find.textContaining(t.bv2HandbackAt('').split(' ').first), findsWidgets);
+    await tester.tap(find.text(t.bv2DraftConfirm));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(p1Posts.last.key, '/bizagent/orders/52/confirm');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('bn: no ASCII digits on draft-order chat', (tester) async {
+    await _pump(tester, const SellerChatScreen(threadId: 8), lang: 'bn');
+    final bad = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((w) => w.data ?? w.textSpan?.toPlainText() ?? '')
+        .where((s) => RegExp(r'[0-9]').hasMatch(s))
+        .toList();
+    expect(bad, isEmpty, reason: 'ASCII digits in bn UI: $bad');
   });
 
   // Strict bn: no ASCII digit may be rendered on any p1 screen in Bangla

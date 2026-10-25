@@ -199,6 +199,8 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     final pending = (_setup['pending_approvals'] as num?)?.toInt() ?? 0;
     final meta = (_setup['meta_ready'] as Map?) ?? const {};
     final aiOn = settings['ai_enabled'] == true;
+    final features = (_setup['features'] as Map?) ??
+        {'inbox': connected.isNotEmpty, 'own_channels': meta['secret'] == true};
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
@@ -248,14 +250,18 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
                   : const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const ApprovalsScreen()),
             ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.inbox_rounded),
-              title: Text(t.baInboxTitle),
-              subtitle: Text(t.baInboxSub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const SellerInboxScreen()),
-            ),
+            // biz-v2: the Business inbox shows only once a channel is
+            // connected (server features.inbox) — never an empty showpiece.
+            if (features['inbox'] == true) ...[
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.inbox_rounded),
+                title: Text(t.bv2InboxTitle),
+                subtitle: Text(t.bv2InboxSub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _open(const SellerInboxScreen()),
+              ),
+            ],
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.schedule_rounded),

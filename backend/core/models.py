@@ -1932,6 +1932,9 @@ class ChatThread(models.Model):
     last_followup_at = models.DateTimeField(null=True, blank=True)
     opted_out = models.BooleanField(default=False)
     upsell_done = models.BooleanField(default=False)
+    # ---- biz-v2 ---- Business inbox read marker + owner takeover idle clock
+    owner_read_at = models.DateTimeField(null=True, blank=True)    # owner opened the chat
+    takeover_at = models.DateTimeField(null=True, blank=True)      # last owner activity in takeover
 
     class Meta:
         ordering = ["-created_at"]
@@ -4564,6 +4567,10 @@ class SellerAgent(models.Model):
     widget_key = models.CharField(max_length=48, blank=True, default="", db_index=True)
     widget_origins = models.TextField(blank=True, default="")
     # ---- /g1-bizagent ----
+    # ---- biz-v2 ---- owner takeover idle hand-back + Asalify-proven caps
+    takeover_idle_minutes = models.IntegerField(default=60)   # 0 = until handed back
+    daily_ai_cap = models.IntegerField(default=300)           # paid AI calls / business / day
+    thread_daily_cap = models.IntegerField(default=50)        # agent replies / chat / day
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -4675,6 +4682,25 @@ class BizProductSig(models.Model):
     hist = models.JSONField(default=list, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /g1-bizagent ----
+# ---- biz-v2 ---- Business AI Agent audit log (who did what, when)
+class BizAuditLog(models.Model):
+    """One row per agent/owner action worth reviewing: takeover, hand-back
+    (manual or idle), owner reply, channel connect/disconnect, caps hit,
+    image draft orders. Never stores tokens or message bodies."""
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="biz_audit")
+    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    action = models.CharField(max_length=32)
+    thread = models.ForeignKey("ChatThread", null=True, blank=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    detail = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["business", "created_at"], name="bizv2_audit_day")]
+# ---- /biz-v2 ----
 # ---- /p1-bizagent ----
 # ---- p2-money ---- direct sponsors, brand offers, ad exposure (monetization)
 class Sponsor(models.Model):

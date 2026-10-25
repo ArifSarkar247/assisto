@@ -190,6 +190,46 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
        'last_text': bn ? 'টাকা ফেরত চাই' : 'I want a refund'},
     ]};
   }
+  if (p == '/bizagent/inbox') {
+    // biz-v2: Business inbox (views_bizagent_v2.InboxView)
+    final all = mode == FakeMode.empty
+        ? <Map<String, dynamic>>[]
+        : <Map<String, dynamic>>[
+            {..._thread(bn), 'status': 'agent', 'unread': 0},
+            {..._thread(bn, handover: true), 'id': 6, 'channel': 'whatsapp_cloud',
+             'customer_name': bn ? 'রহিম' : 'Rahim', 'pending': 0, 'status': 'owner',
+             'unread': 2, 'last_text': bn ? 'লাল শাড়িটা আছে?' : 'Is the red saree there?'},
+            {..._thread(bn), 'id': 8, 'customer_name': bn ? 'তানিয়া' : 'Tania',
+             'status': 'attention', 'unread': 1, 'pending': 1,
+             'last_text': bn ? '[ছবি]' : '[image]'},
+          ];
+    final qp = Uri.parse(path).queryParameters;
+    final st = qp['status'] ?? '';
+    final rows = all.where((r) => st.isEmpty || r['status'] == st).where(
+        (r) => qp['unread'] != '1' || ((r['unread'] as int) > 0)).toList();
+    return {
+      'threads': rows,
+      'counts': {'all': all.length, 'agent': all.isEmpty ? 0 : 1, 'owner': all.isEmpty ? 0 : 1,
+                 'attention': all.isEmpty ? 0 : 1, 'unread': all.isEmpty ? 0 : 2},
+      'features': {'own_channels': true, 'inbox': all.isNotEmpty, 'image_order': true,
+                   'vision': false},
+    };
+  }
+  if (p == '/bizagent/threads/8') {
+    final d = _g1ImageThread(bn);
+    return {
+      ...d,
+      'thread': {...(d['thread'] as Map<String, dynamic>), 'id': 8, 'handover': true,
+                 'handback_at': '2026-10-24T02:40:00+06:00'},
+      'messages': (d['messages'] as List).take(2).toList(),
+      'orders': [
+        {'id': 52, 'status': 'new', 'total': '1200.00', 'tracking': '', 'courier': '',
+         'courier_live': false, 'payment_status': '', 'draft': true,
+         'items': [{'product_id': 1, 'name': bn ? 'সুতি পাঞ্জাবি' : 'Cotton panjabi',
+                    'qty': 1, 'price': '1200'}]},
+      ],
+    };
+  }
   if (p == '/bizagent/threads/7') return _g1ImageThread(bn);
   if (p == '/bizagent/faqs') {
     return {'faqs': mode == FakeMode.empty ? [] : _faqs(bn), 'rules_enabled': true};
