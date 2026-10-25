@@ -459,6 +459,18 @@ class RFlow {
   // finder (run 40205920547: 5 flows C on "waiting for widget with icon").
   // Find controls by tooltip / Key / label — what a screen reader sees.
 
+  /// rf1: scroll the screen's main list until [f] is BUILT (a lazy ListView
+  /// does not build a Save button at the bottom until the user scrolls —
+  /// run 40216392274, CRM lead form). Drags like a finger, 300 px a time.
+  Future<void> scrollTo(Finder f, {int maxDrags = 25}) async {
+    for (var i = 0; i < maxDrags && f.evaluate().isEmpty; i++) {
+      final sc = find.byType(Scrollable).hitTestable();
+      if (sc.evaluate().isEmpty) break;
+      await tester.drag(sc.first, const Offset(0, -300), warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 350));
+    }
+  }
+
   /// The visible Send button (home chat, AI chat, My Circle chat all carry
   /// the tooltip "Send").
   Future<void> tapSend({double settleSeconds = 1.5}) =>

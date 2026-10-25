@@ -122,6 +122,7 @@ void registerBusinessFlows() {
       await f.enter(lead, label: f.t.name);
       await f.enter('01700000041', label: f.t.phone);
       await f.shot('lead-form');
+      await f.scrollTo(find.text(f.t.save));
       await f.tap(find.text(f.t.save), settleSeconds: 4);
       await f.shot('lead-saved');
       await f.eventually('lead on server', () async {
