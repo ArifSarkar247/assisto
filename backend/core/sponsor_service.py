@@ -37,13 +37,29 @@ def is_paid(user):
         return False
 
 
-def admob_ready():
-    """AdMob may fill a slot only when the owner linked REAL ids."""
+def admob_ready(placement="app_open"):
+    """AdMob may fill an EMPTY slot of `placement` (owner 25 Oct): with
+    Google's TEST units until the owner turns `admob_real_ids` on, then with
+    the real units. Only the app-open and the home native (hero) slots have
+    an AdMob fill; the app still applies every placement rule (allowlist,
+    Free only, caps)."""
     try:
-        from . import integrations
-        from .logic import ads as A
-        ok, _ = A.validate_admob_ids(integrations.get("admob"))
-        return bool(integrations.is_enabled("admob") and ok)
+        c = ad_cfg()
+        if placement == "app_open":
+            return bool(c.get("place_app_open", True))
+        if placement == "hero":
+            return bool(c.get("hero_enabled", False))
+        return False
+    except Exception:
+        return False
+
+
+def admob_real():
+    """REAL AdMob unit ids are being served (owner switch `admob_real_ids`):
+    only then can Google's SSV verify a rewarded ad, so only then is a
+    rewarded ad offered or any ad value credited."""
+    try:
+        return bool(ad_cfg().get("admob_real_ids", False))
     except Exception:
         return False
 
@@ -301,7 +317,7 @@ def slot(user, placement, *, screen="home", entry="", ctx_kind="", ctx_id=None,
         if not caps.get("hero_enabled", False):
             return {**base, "reason": "disabled"}
     c, ctx = pick(user, placement, now)
-    src = SP.slot_source(c, admob_ready())
+    src = SP.slot_source(c, admob_ready(placement))
     if src == "direct":
         return {**base, "show": True, "source": "direct", "reason": "ok",
                 "creative": creative(user, c, placement, ctx)}
@@ -699,7 +715,7 @@ def placement_pnl(days=30, today=None):
     c = ad_cfg()
     out = SP.placement_pnl(direct, admob, c.get("ecpm_bdt", 0), c.get("revenue_share", 0))
     out.update({"days": days, "from": d_from.isoformat(), "to": today.isoformat(),
-                "admob_linked": admob_ready()})
+                "admob_linked": admob_real()})
     return out
 
 

@@ -396,6 +396,29 @@ class AdEventView(APIView):
         from datetime import timedelta as _td
         d = request.data or {}
         kind = str(d.get("kind", ""))[:14]
+        # admob (owner 25 Oct): the tuning log — {placement, format, kind:
+        # impression|click|paid}. An impression of an app-open / native /
+        # interstitial ALSO goes through the old wallet path below (caps,
+        # fraud guard; credits only once REAL ids are on).
+        if kind in ("impression", "click", "paid"):
+            from . import admob_service as AS
+            code, body = AS.record_event(request.user, d)
+            fmt = str(d.get("format", ""))[:14]
+            if code == 200 and body.get("ok") and kind == "impression" and \
+                    fmt in ("app_open", "native", "interstitial"):
+                try:
+                    res = billing.ad_event(request.user, fmt,
+                                           device_id=str(d.get("device_id", ""))[:64],
+                                           ad_id=str(d.get("ad_id", ""))[:80])
+                    body["wallet"] = {k: res.get(k) for k in
+                                      ("ok", "reason", "credited_credits")}
+                    if res.get("reason") not in ("fraud", "bad_kind", "not_free"):
+                        from . import sponsor_service as SS
+                        SS.add_exposure(request.user,
+                                        {"native": "hero"}.get(fmt, fmt), "admob")
+                except Exception:
+                    pass
+            return Response(body, status=code)
         ad_id = str(d.get("ad_id", ""))[:80]
         device_id = str(d.get("device_id", ""))[:64]
         # coarse per-user abuse throttle: <=120 ad events / hour

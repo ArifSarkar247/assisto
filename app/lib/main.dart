@@ -445,9 +445,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (app.locale == null) {
+      AdsService.instance.rootScreen = 'language_picker'; // admob: no ads
       return const LanguagePickerScreen();
     }
     if (!app.loggedIn) {
+      // admob: the session right after a sign-in never gets an app-open ad
+      AdsService.instance.rootScreen = 'login';
+      AdsService.instance.noteSignedOut();
       // Signed out (logout, delete account, expired session): drop every
       // pushed screen (e.g. Settings) so the login screen is really visible.
       if (_wasLoggedIn) {
@@ -460,8 +464,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     _wasLoggedIn = true;
     // dl1: signed in during a deletion grace period -> decide first.
-    if (app.deletionGraceAt != null) return const DeletionGraceScreen();
+    if (app.deletionGraceAt != null) {
+      AdsService.instance.rootScreen = 'deletion_grace';
+      return const DeletionGraceScreen();
+    }
     if (!app.onboarded) {
+      AdsService.instance.rootScreen = 'onboarding';
       return OnboardingScreen(onDone: app.markOnboarded);
     }
     // w1-webphoto: a website-photo link that arrived signed out opens now.
@@ -500,8 +508,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       });
     }
     if (_elderly) {
+      AdsService.instance.rootScreen = 'elderly_home';
       return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
     }
+    AdsService.instance.rootScreen = 'home';
     return const HomeScreen();
   }
 }

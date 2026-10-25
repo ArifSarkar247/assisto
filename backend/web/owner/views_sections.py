@@ -522,9 +522,14 @@ def pnl(request):
 
 
 # ====================================================================== ads
-_AD_REWARD_KEYS = ("ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_daily_cap",
-                   "appopen_start_day", "appopen_skip_after_s",
-                   "rewarded_daily_cap", "interstitial_daily_cap", "native_daily_cap",
+_AD_REWARD_KEYS = (# admob (owner 25 Oct): real-id switch + per-placement on/off
+                   "admob_real_ids", "admob_personalized",
+                   "place_app_open", "place_banner", "place_interstitial",
+                   "place_rewarded", "banner_screens", "interstitial_moments",
+                   "ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_daily_cap",
+                   "appopen_start_day", "appopen_skip_after_s", "appopen_min_bg_sec",
+                   "rewarded_daily_cap", "interstitial_daily_cap",
+                   "interstitial_min_gap_sec", "native_daily_cap",
                    "hero_enabled", "hero_start_muted", "consent_debug_eea",
                    # p2-money
                    "sponsors_enabled", "community_sponsored_enabled",
@@ -609,9 +614,19 @@ def ads(request):
         admob = I.is_enabled("admob")
     except Exception:
         admob = False
+    # admob: placement x impressions x clicks x revenue (7 or 30 days)
+    stat_days = 30 if request.GET.get("days") == "30" else 7
+    try:
+        from core import admob_service
+        stats = admob_service.placement_stats(stat_days)
+    except Exception:
+        stats = []
     ctx.update({
-        "ar": [(k, cfg["ad_rewards"].get(k), "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
-                else "num", T.get("ak_" + k, k)) for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
+        "stats": stats, "stat_days": stat_days,
+        "ar": [(k, cfg["ad_rewards"].get(k),
+                "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
+                else ("str" if isinstance(cfg["ad_rewards"].get(k), str) else "num"),
+                T.get("ak_" + k, k)) for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
         "ps": [(k, (cfg.get("photo_studio") or {}).get(k),
                 "bool" if isinstance((cfg.get("photo_studio") or {}).get(k), bool) else "num")
                for k in _PS_AD_KEYS if k in (cfg.get("photo_studio") or {})],

@@ -43,7 +43,8 @@ class CvController extends ChangeNotifier {
     this.pollTries = 15,
     this.answerTimeout = const Duration(seconds: 90),
   })  : onDevice = onDevice ?? createOnDeviceVision(),
-        ads = ads ?? createPhotoAdBridge();
+        // admob (owner 25 Oct): no ad of any kind inside a chat conversation
+        ads = ads ?? const NoopPhotoAdBridge();
 
   final CvBackend backend;
   final Uint8List bytes;

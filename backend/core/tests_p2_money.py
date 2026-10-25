@@ -41,7 +41,9 @@ class AppOpenRuleTests(SimpleTestCase):
         return SP.appopen_decision(**base)
 
     def test_owner_defaults(self):
-        self.assertEqual(CAPS["appopen_daily_cap"], 3)
+        # admob (owner 25 Oct): max 6 a day, at most once per hour
+        self.assertEqual(CAPS["appopen_daily_cap"], 6)
+        self.assertEqual(CAPS["appopen_min_gap_sec"], 3600)
         self.assertEqual(CAPS["appopen_start_day"], 2)
         self.assertEqual(CAPS["appopen_skip_after_s"], 5)
         self.assertEqual(SP.skip_after_s(CAPS), 5)
@@ -51,10 +53,10 @@ class AppOpenRuleTests(SimpleTestCase):
         self.assertEqual(self.dec(), (True, "ok"))
 
     def test_daily_cap_and_gap(self):
-        self.assertEqual(self.dec(shown_today=3), (False, "daily_cap"))
-        self.assertEqual(self.dec(shown_today=2), (True, "ok"))
-        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 10)), (False, "too_soon"))
-        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 8, 59)), (True, "ok"))
+        self.assertEqual(self.dec(shown_today=6), (False, "daily_cap"))
+        self.assertEqual(self.dec(shown_today=5), (True, "ok"))
+        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 11, 30)), (False, "too_soon"))
+        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 10, 59)), (True, "ok"))
 
     def test_free_only_and_switch(self):
         self.assertEqual(self.dec(paid=True), (False, "paid_plan"))
@@ -283,8 +285,8 @@ class AppOpenApiTests(_Base):
         self.assertEqual(SponsorDailyStat.objects.get(campaign=c).impressions, 1)
         # min gap: the next one is too soon
         self.assertEqual(self.slot()["reason"], "too_soon")
-        # 3/day cap even without the gap
-        AdExposure.objects.filter(user=self.free).update(count=3,
+        # 6/day cap even without the gap
+        AdExposure.objects.filter(user=self.free).update(count=6,
                                                          last_at=timezone.now() - timedelta(hours=5))
         self.assertEqual(self.slot()["reason"], "daily_cap")
 
@@ -301,9 +303,22 @@ class AppOpenApiTests(_Base):
 
     def test_no_campaign_no_admob_is_no_fill(self):
         self.as_(self.free)
-        r = self.slot()
+        with mock.patch.object(SS, "admob_ready", return_value=False):
+            r = self.slot()
         self.assertFalse(r["show"])
         self.assertEqual(r["reason"], "no_fill")
+
+    def test_admob_fills_empty_app_open_by_default_with_test_ids(self):
+        # admob (owner 25 Oct): AdMob fills an empty app-open slot (TEST units
+        # until admob_real_ids); the owner switch place_app_open turns it off
+        self.as_(self.free)
+        self.assertEqual(self.slot()["source"], "admob")
+        row = billing.get_config()
+        d = dict(row.data or {})
+        d["ad_rewards"] = dict(d.get("ad_rewards") or {}, place_app_open=False)
+        row.data = d
+        row.save()
+        self.assertEqual(self.slot()["reason"], "no_fill")
 
     def test_admob_fills_empty_slot_when_linked(self):
         self.as_(self.free)
@@ -326,7 +341,8 @@ class AppOpenApiTests(_Base):
         self.client.post("/api/v1/ads/sponsor/event", {"token": tok, "kind": "mute"}, format="json")
         self.assertIn(self.sp.id, OfferPrefs.objects.get(user=self.free).muted_brands)
         AdExposure.objects.all().delete()
-        self.assertEqual(self.slot()["reason"], "no_fill")
+        with mock.patch.object(SS, "admob_ready", return_value=False):
+            self.assertEqual(self.slot()["reason"], "no_fill")
         why = self.client.get("/api/v1/ads/why?" + urlencode({"token": tok})).json()
         self.assertEqual(why["sponsor"], "Brand A")
         # a token from another user is refused
@@ -431,6 +447,12 @@ class RewardedSsvTests(_Base):
                   mock.patch("core.integrations.get", side_effect=get)):
             t.start()
             self.addCleanup(t.stop)
+        # admob (owner 25 Oct): rewarded is offered only on REAL unit ids
+        row = billing.get_config()
+        d = dict(row.data or {})
+        d["ad_rewards"] = dict(d.get("ad_rewards") or {}, admob_real_ids=True)
+        row.data = d
+        row.save()
 
     def test_honest_when_admob_not_linked(self):
         self.as_(self.free)
@@ -518,7 +540,7 @@ class TrialAndPaywallTests(_Base):
     def test_ads_config_carries_new_caps(self):
         self.as_(self.free)
         j = self.client.get("/api/v1/ads/config").json()
-        self.assertEqual(j["appopen_daily_cap"], 3)
+        self.assertEqual(j["appopen_daily_cap"], 6)
         self.assertEqual(j["appopen_start_day"], 2)
         self.assertEqual(j["appopen_skip_after_s"], 5)
         self.assertIn("notification", j["blocked_entries"])

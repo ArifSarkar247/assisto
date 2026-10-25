@@ -148,14 +148,27 @@ def _privacy(lang):
              "We do not sell your data, we build no advertising profile from "
              "it, and we store no name/phone/email in an analytics event."),
         _sec(lang, "বিজ্ঞাপন", "Ads",
-             "এখন অ্যাপে কোনো বিজ্ঞাপন বা বিজ্ঞাপন SDK নেই, Advertising ID নেওয়া হয় না। "
-             "ভবিষ্যতে চালু হলে (শুধু ফ্রি প্ল্যানে Google AdMob-এর নন-পার্সোনালাইজড "
-             "বিজ্ঞাপন; SOS, নিরাপত্তা, পেমেন্ট, লগইন বা কলের স্ক্রিনে কখনো নয়) আগে "
-             "এই নীতি হালনাগাদ হবে।",
-             "The app shows no ads today and contains no advertising SDK; no "
-             "Advertising ID is collected. If ads are added later (Google AdMob "
-             "non-personalised ads on the Free plan only; never on SOS, safety, "
-             "payment, sign-in or call screens), this policy is updated first."),
+             "ফ্রি প্ল্যানে Google AdMob-এর বিজ্ঞাপন দেখানো হয়; প্রিমিয়াম ও বিজনেসে কোনো "
+             "বিজ্ঞাপন নেই। বিজ্ঞাপন দেখাতে, সীমা রাখতে ও প্রতারণা ঠেকাতে Google-এর SDK "
+             "ফোনের Advertising ID, IP ঠিকানা, ডিভাইস তথ্য ও বিজ্ঞাপন দেখা/ট্যাপের তথ্য "
+             "Google-কে পাঠায়। ইউরোপ/যুক্তরাজ্য ও যুক্তরাষ্ট্রের যেসব রাজ্যে আইন চায়, "
+             "সেখানে প্রথম বিজ্ঞাপনের আগে Google-এর সম্মতি ফর্ম (UMP) দেখানো হয়। "
+             "ডিফল্টভাবে শুধু নন-পার্সোনালাইজড বিজ্ঞাপন; পার্সোনালাইজড বিজ্ঞাপন কখনো "
+             "চালু হলেও শুধু আপনার সম্মতি থাকলে। SOS, নিরাপত্তা, চুরি-সুরক্ষা, পরিবারের "
+             "সতর্কতা, কল, চ্যাট, পেমেন্ট, লগইন বা অনুমতির স্ক্রিনে কখনো বিজ্ঞাপন নেই। "
+             "বন্ধ/বদল: Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন → বিজ্ঞাপন আইডি মুছুন বা "
+             "রিসেট করুন, অথবা অ্যাপের সেটিংস → \"বিজ্ঞাপনের গোপনীয়তা\" (যেখানে দেখায়)।",
+             "The Free plan shows Google AdMob ads; Premium and Business have no "
+             "ads. To show ads, cap them and prevent fraud, Google's SDK sends "
+             "the phone's Advertising ID, IP address, device information and ad "
+             "views/taps to Google. In the EEA/UK and in US states whose laws "
+             "require it, Google's consent form (UMP) is shown before the first "
+             "ad. Non-personalised ads by default; personalised ads, if ever "
+             "switched on, only with your consent. Never any ad on SOS, safety, "
+             "anti-theft, family alert, call, chat, payment, sign-in or "
+             "permission screens. Opt out or change: Android Settings → Privacy "
+             "→ Ads → delete or reset the Advertising ID, or the app's Settings "
+             "→ \"Ad privacy choices\" (where shown)."),
         _sec(lang, "পরিসংখ্যান", "Analytics",
              "ব্যবহারের পরিসংখ্যান বেনামি ও সম্মতিভিত্তিক — আপনি সেটিংস থেকে "
              "যেকোনো সময় বন্ধ করতে পারেন।",
@@ -285,13 +298,17 @@ def _data_safety(lang):
              "User-entered content and account info, for app functionality and "
              "account management."),
         _sec(lang, "ভাগাভাগি", "Sharing",
-             "ডেটা বিক্রি হয় না। বিজ্ঞাপন চালু হলে Google AdMob ডিভাইস আইডি ও "
-             "বিজ্ঞাপনের তথ্য পায় (শুধু নন-পার্সোনালাইজড বিজ্ঞাপন)।",
-             "Data is never sold. When ads are on, Google AdMob receives the "
-             "device ID and ad interaction data (non-personalised ads only)."),
+             "ডেটা বিক্রি হয় না। ফ্রি প্ল্যানে Google AdMob বিজ্ঞাপনের জন্য ডিভাইসের "
+             "Advertising ID ও বিজ্ঞাপন দেখা/ট্যাপের তথ্য পায়।",
+             "Data is never sold. On the Free plan, Google AdMob receives the "
+             "device Advertising ID and ad interaction data, for advertising."),
         _sec(lang, "বিজ্ঞাপন", "Ads",
-             "শুধু ফ্রি প্ল্যানে, নন-পার্সোনালাইজড (Google AdMob)।",
-             "Free plan only, non-personalised (Google AdMob)."),
+             "শুধু ফ্রি প্ল্যানে (Google AdMob); ডিফল্টভাবে নন-পার্সোনালাইজড, "
+             "সম্মতি ফর্ম Google UMP। নিরাপত্তা, কল, চ্যাট, পেমেন্ট ও লগইনের "
+             "স্ক্রিনে কখনো নয়।",
+             "Free plan only (Google AdMob); non-personalised by default, "
+             "consent via Google UMP. Never on safety, call, chat, payment or "
+             "sign-in screens."),
         _sec(lang, "এনক্রিপশন", "Encryption",
              "ডেটা ট্রানজিটে এনক্রিপ্ট করা হয়।",
              "Data is encrypted in transit."),

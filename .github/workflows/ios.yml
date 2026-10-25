@@ -113,6 +113,11 @@ jobs:
                   "Assisto does not write to Health; this is declared only because "
                   "the Health framework requires it to be present.",
           }
+          # admob (owner 25 Oct): google_mobile_ads is a dependency; the iOS
+          # SDK aborts without GADApplicationIdentifier. iOS shows no ads in
+          # this release (Dart binds no-op bridges off Android), so Google's
+          # public iOS TEST app id keeps the build safe.
+          entries["GADApplicationIdentifier"] = "ca-app-pub-3940256099942544~1458002511"
           inject = ""
           for k, v in entries.items():
               if k not in s:

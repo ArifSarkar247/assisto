@@ -100,7 +100,13 @@ class RewardTicketView(APIView):
         from .photo_studio_service import _ad_units
         lang = req_lang(request)
         user = request.user
-        if not (SS.admob_ready() and billing.flag_on("ads_rewarded")):
+        # admob (owner 25 Oct): Premium/Business see zero ads — no ticket.
+        if SS.is_paid(user):
+            return Response({"ok": False, "reason": "paid_plan",
+                             "msg": pick(lang, "আপনার প্ল্যানে কোনো বিজ্ঞাপন নেই।",
+                                         "Your plan has no ads.")})
+        # a rewarded ad can only be verified (SSV) on REAL unit ids
+        if not (SS.admob_real() and billing.flag_on("ads_rewarded")):
             return Response({"ok": False, "reason": "ads_not_configured",
                              "msg": pick(lang, "এখন কোনো বিজ্ঞাপন নেই — AdMob যুক্ত হলে চালু হবে।",
                                          "No ads available yet — this starts once AdMob is linked.")})

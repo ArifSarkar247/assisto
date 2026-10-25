@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../ads/ad_placements.dart' show AdMoments;
 import 'ps_ads.dart';
 import 'ps_backend.dart';
 import 'ps_engines.dart';
@@ -971,6 +972,11 @@ class PhotoStudioController extends ChangeNotifier {
           generated: v.feature == 'generate');
       final name = 'assisto_${DateTime.now().millisecondsSinceEpoch}.png';
       final d = await deps.sink.deliver(kind, png, name);
+      // admob: a saved photo is a natural break (Free only, capped, never
+      // within 5 min of another full-screen ad)
+      if (d == DeliverResult.done && kind == ExportKind.save) {
+        AdMoments.report('photo_saved');
+      }
       _say(switch (d) {
         DeliverResult.done => kind == ExportKind.share
             ? PsNotice.shared

@@ -88,7 +88,7 @@ void main() {
       expect(HeroAdConfig.fromJson(null).enabled, isFalse);
     });
 
-    test('unit: real only when configured + same app id; else test unit in test mode', () {
+    test('unit: real only when configured + same app id; else the Google test unit', () {
       final c = HeroAdConfig.fromJson({
         ...heroConfig(),
         'configured': true,
@@ -96,7 +96,7 @@ void main() {
         'units': {'native': 'ca-app-pub-1/3'}
       });
       expect(c.unit(builtAppId: 'ca-app-pub-1~2', testMode: false), 'ca-app-pub-1/3');
-      expect(c.unit(builtAppId: 'other', testMode: false), isNull);
+      expect(c.unit(builtAppId: 'other', testMode: false), HeroAdIds.testNative);
       expect(c.unit(builtAppId: 'other', testMode: true), HeroAdIds.testNative);
     });
 

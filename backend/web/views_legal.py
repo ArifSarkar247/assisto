@@ -86,7 +86,10 @@ def admob_publisher_id():
         m = _PUB_RE.search(str(raw or "").strip())
         if m and m.group(1) != "pub-3940256099942544":   # Google's sample/test publisher
             return m.group(1)
-    return ""
+    # admob (owner 25 Oct): Assisto's own AdMob account (the App ID in the
+    # APK manifest belongs to it), so the file is never empty.
+    from core.logic.ads import OWNER_PUBLISHER
+    return OWNER_PUBLISHER
 
 
 def app_ads_txt(request):

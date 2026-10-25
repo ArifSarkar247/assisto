@@ -153,14 +153,15 @@ class AppAdsTxtTests(TestCase):
     def setUp(self):
         self.c = Client()
 
-    def test_unset_serves_honest_comment_only(self):
+    def test_default_is_assisto_admob_publisher(self):
+        # admob (owner 25 Oct): lifeassisto.com/app-ads.txt, text/plain
         r = self.c.get("/app-ads.txt")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r["Content-Type"].startswith("text/plain"))
         body = r.content.decode()
-        self.assertIn("not configured", body)
-        for line in body.splitlines():
-            self.assertTrue(line.startswith("#") or not line.strip(), line)
+        self.assertIn("google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0\n", body)
+        lines = [l for l in body.splitlines() if l.strip() and not l.startswith("#")]
+        self.assertEqual(lines, ["google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0"])
 
     @override_settings(ADMOB_PUBLISHER_ID="pub-1234567890123456")
     def test_set_by_setting(self):
@@ -185,7 +186,8 @@ class AppAdsTxtTests(TestCase):
                     {"publisher_id": "pub-123"}, {"publisher_id": "hello"}):
             with mock.patch("core.integrations.get", return_value=cfg):
                 body = self.c.get("/app-ads.txt").content.decode()
-            self.assertIn("not configured", body, cfg)
+            self.assertIn("pub-2506398550427515", body, cfg)       # owner default
+            self.assertNotIn("3940256099942544", body, cfg)
 
     def test_admob_registry_has_publisher_field(self):
         from core.integrations import REGISTRY

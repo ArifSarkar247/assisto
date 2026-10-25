@@ -5,23 +5,23 @@
 /// gate in front of EVERY AdMob request (app-open, rewarded, home hero native,
 /// Photo Studio):
 ///
-///  * OFF without an AdMob app id: the flow exists only when this APK was
-///    built with a REAL AdMob app id (`--dart-define=ADMOB_APP_ID=` from the
-///    CI secret, the same value as the manifest APPLICATION_ID). Today there
-///    is none, so [allowsAds] returns true at once (only Google's TEST ads can
-///    play, in debug / QA test mode — the rule engine already guarantees
-///    that) and NO consent call, network request or UI ever happens.
-///  * LAZY: nothing here runs at launch. The first call is made right before
-///    the first ad request (and on Settings for a Free user, to know whether
-///    the "Ad privacy choices" entry is required). No ContentProvider, no
+///  * ON for the Android APK (admob, owner 25 Oct): it carries Assisto's REAL
+///    AdMob app id (manifest APPLICATION_ID = [AdIds.ownerAppId]), so UMP
+///    runs before the first ad — GDPR message in the EEA/UK/CH and the US
+///    state-regulations message, both configured in AdMob -> Privacy &
+///    messaging. Host tests / iOS: no AdMob -> inactive, nothing runs.
+///  * LAZY: nothing here runs at launch. The first call is made after the
+///    first frame by AdsService (Free users only), or right before the first
+///    ad request, and on Settings for a Free user (to know whether the "Ad
+///    privacy choices" entry is required). No ContentProvider, no
 ///    WorkManager, no plugin work before the first frame.
 ///  * FAIL CLOSED: a real app id with no linked UMP SDK, an error, or
 ///    `canRequestAds() == false` -> no ad request at all.
 ///  * CRASH-GUARDED: every bridge call is try/caught and time-boxed.
 ///
 /// The UMP SDK ships inside google_mobile_ads; the real [ConsentBridge] is
-/// `admob_consent_bridge.dart.pending` and is bound in `consent_binding.dart`
-/// by the same apply script as the AdMob bridge (they go live together).
+/// `admob_consent_bridge.dart`, bound in `consent_binding.dart` wherever the
+/// AdMob bridge is (they always go live together).
 library;
 
 import 'dart:async';
@@ -29,6 +29,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'ad_rules.dart' show AdIds;
+import 'admob_platform.dart';
 import 'consent_binding.dart';
 
 /// Mirror of UMP's PrivacyOptionsRequirementStatus (no plugin import here).
@@ -81,8 +82,13 @@ class AdConsent {
   AdConsent._();
   static final AdConsent instance = AdConsent._();
 
-  static const _builtAppId =
-      String.fromEnvironment('ADMOB_APP_ID', defaultValue: AdIds.testAppId);
+  /// admob (owner 25 Oct): the APK carries Assisto's REAL AdMob app id in
+  /// its manifest, so on Android the UMP consent flow is live. Elsewhere
+  /// (host tests, iOS) there is no AdMob -> Google's test id -> inactive.
+  static const _defineAppId = String.fromEnvironment('ADMOB_APP_ID');
+  static String get _builtAppId => _defineAppId.isNotEmpty
+      ? _defineAppId
+      : (admobSupported() ? AdIds.ownerAppId : AdIds.testAppId);
 
   static final _appIdRe = RegExp(r'^ca-app-pub-\d{16}~\d{6,12}$');
   static const _testPublisher = 'ca-app-pub-3940256099942544';

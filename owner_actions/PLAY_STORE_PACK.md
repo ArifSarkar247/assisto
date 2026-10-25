@@ -111,7 +111,7 @@ PRIVACY FIRST
 • Delete your account and all data from Settings at any time, or request it at lifeassisto.com/delete-account.
 
 PLANS
-• Free plan with optional, non-personalised ads (never on SOS, safety, payment or call screens). Paid plans remove app-open ads and add more AI credits.
+• Free plan with ads (never on SOS, safety, anti-theft, call, chat, payment or sign-in screens). Premium and Business have no ads and add more AI credits.
 
 Assisto is for people aged 18 and over. It does not give medical, legal or financial advice, and it is not a replacement for emergency services — in an emergency call 999.
 
@@ -245,15 +245,18 @@ is whatever IARC returns.
 
 **"Does your app contain ads?" → Yes.** Two reasons:
 1. Discover shows owner-sold **"Sponsored"** cards on every plan (always labelled).
-2. Google AdMob on the Free plan once the AdMob proposal (`.phaseB/proposals/a6-leftovers-admob.md`) ships.
+2. Google AdMob on the Free plan (in the app since the AdMob build, 25 Oct;
+   Google TEST units until Owner Admin -> Ads -> "Serve REAL AdMob unit ids").
 
-Even before AdMob ships, (1) alone means "Yes". Ads are never shown on SOS,
-safety, payment, sign-in or call screens (enforced in `app/lib/ads/ad_rules.dart`).
+Ads appear only on an allowlist of screens and never on SOS, safety,
+anti-theft, family alert, call, chat, chat-lock, payment, sign-in, onboarding
+or permission screens (`app/lib/ads/ad_placements.dart` + `ad_rules.dart`).
+Premium and Business see zero ads.
 
-**Advertising ID** (App content → Advertising ID): once google_mobile_ads is in
-the build it adds `com.google.android.gms.permission.AD_ID` → answer **Yes**,
-purposes: Advertising, Analytics (Google's), Fraud prevention. Before that
-build: No.
+**Advertising ID** (App content → Advertising ID): google_mobile_ads adds
+`com.google.android.gms.permission.AD_ID` → answer **Yes**, purposes:
+Advertising or marketing, Fraud prevention. Step-by-step (Bangla):
+`owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`.
 
 ---
 
@@ -340,12 +343,10 @@ finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**:
   saved real AdMob App ID (`ca-app-pub-XXXXXXXXXXXXXXXX~…` → `pub-XXXXXXXXXXXXXXXX`).
   You can paste the bare `pub-…`, the `ca-app-pub-…` form or the whole line.
   Google's public test publisher is never served.
-- Once set, the file is exactly:
-  `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`
-- Until set, it is a valid file with comment lines only (`# …not configured
-  yet`). That authorises no seller — honest. AdMob will show the app as
-  "app-ads.txt: not verified / no matching entry" until you set the ID; ads can
-  still serve meanwhile, but unverified inventory may get less demand.
+- Default (nothing set): Assisto's own AdMob account —
+  `google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0` (admob, 25 Oct).
+- A different ID set above replaces it; the file is always exactly one line
+  `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0` plus a comment.
 - AdMob crawls the **developer website from the Play listing** (root domain),
   so the listing's Website must be `https://lifeassisto.com`. After setting the
   ID, AdMob → Apps → your app → app-ads.txt → "Check for updates" (it re-crawls

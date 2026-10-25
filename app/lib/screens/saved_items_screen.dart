@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/saved_logic.dart';
@@ -113,6 +114,8 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.savedTitle)),
+      // admob: Free users only, allowlisted page, takes no space without a fill
+      bottomNavigationBar: const AdBannerSlot(screen: 'saved_items'),
       // empty state has its own CTA: no duplicate FAB
       floatingActionButton: result.empty ? null : FloatingActionButton.extended(
         onPressed: _addItem,

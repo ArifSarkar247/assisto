@@ -133,9 +133,10 @@ void main() {
       expect(appOpen(paid()).reason, 'paid_plan');
     });
 
-    test('paid plans may opt into rewarded; never without opt-in', () {
-      expect(rewarded(paid()).allowed, isTrue);
-      expect(rewarded(paid(), optIn: false).reason, 'not_opted_in');
+    test('paid plans get ZERO ads, not even rewarded; never without opt-in', () {
+      // admob (owner 25 Oct): Premium and Business see zero ads
+      expect(rewarded(paid()).reason, 'paid_plan');
+      expect(rewarded(paid(), optIn: false).reason, 'paid_plan');
       expect(rewarded(free(), optIn: false).reason, 'not_opted_in');
     });
 
@@ -157,21 +158,22 @@ void main() {
     test('real ids only when configured AND the APK app id matches', () {
       expect(free().unitFor(AdKind.rewarded, builtAppId: built, testMode: false),
           'ca-app-pub-1234567890123456/1111111111');
-      // APK built with the TEST app id -> never real units
+      // APK built with another AdMob app id -> never real units: the
+      // Google TEST unit instead (admob, owner 25 Oct)
       expect(
           free().unitFor(AdKind.rewarded,
               builtAppId: AdIds.testAppId, testMode: false),
-          isNull);
+          AdIds.testRewarded);
     });
 
-    test('unconfigured: Google TEST units in test mode, nothing otherwise', () {
+    test('unconfigured: Google TEST units in every build (ship with test ids)', () {
       final c = free(configured: false);
       expect(c.unitFor(AdKind.appOpen, builtAppId: built, testMode: true),
           AdIds.testAppOpen);
       expect(c.unitFor(AdKind.rewarded, builtAppId: built, testMode: true),
           AdIds.testRewarded);
       expect(c.unitFor(AdKind.rewarded, builtAppId: built, testMode: false),
-          isNull);
+          AdIds.testRewarded);
     });
 
     test('test ids are Google\'s public sample publisher', () {

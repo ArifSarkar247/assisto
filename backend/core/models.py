@@ -2600,6 +2600,27 @@ class AdEvent(models.Model):
                    models.Index(fields=["device_id", "kind", "at"])]
 
 
+class AdPlacementStat(models.Model):
+    """admob: one DAILY counter row per (placement, format, currency) for
+    tuning — impressions / clicks from the app, and the per-impression value
+    Google reports in onPaidEvent (micros, account currency). No user id, no
+    device id: an aggregate, not a tracking log. Impression/click rows have
+    currency ''; paid rows carry the currency."""
+    date = models.DateField()
+    placement = models.CharField(max_length=40)
+    fmt = models.CharField(max_length=14)
+    currency = models.CharField(max_length=3, blank=True, default="")
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    paid_events = models.PositiveIntegerField(default=0)
+    precise_events = models.PositiveIntegerField(default=0)
+    revenue_micros = models.BigIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("date", "placement", "fmt", "currency")]
+        indexes = [models.Index(fields=["date", "placement"])]
+
+
 class DailyLedger(models.Model):
     """Append-only DAILY P&L row (one per local date). The profit guard compares
     trailing-7-day variable cost against <=60% of trailing-7-day NET revenue.

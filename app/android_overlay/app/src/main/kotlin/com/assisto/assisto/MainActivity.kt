@@ -43,6 +43,8 @@ import io.flutter.plugin.common.MethodChannel
  *   startAlarm()               -> Bool (loud alarm-stream sound + vibrate)
  *   stopAlarm()                -> Bool
  *   openAdminSettings()        -> Bool (so the user can DEACTIVATE/uninstall)
+ *   adLaunchSuppressed()       -> Bool (admob: last launch/resume was NOT the
+ *                                 plain launcher icon; read once, then cleared)
  *
  * Every call that needs admin re-checks isAdminActive() so Dart can never fake
  * a protection that the OS hasn't actually granted.
@@ -67,6 +69,7 @@ class MainActivity : FlutterFragmentActivity() {
     // screen (onStop). SOS alerts ring loudly but need an unlock to open.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        markAdLaunchSource(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
     }
@@ -74,6 +77,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        markAdLaunchSource(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
         // c3-msg: conversation shortcut tapped while Assisto is running.
@@ -114,6 +118,28 @@ class MainActivity : FlutterFragmentActivity() {
         try {
             com.assisto.assisto.voice.AssistoVoiceChannel.applyLaunchIntent(this, i)
         } catch (e: Throwable) {
+        }
+    }
+
+    // ---- admob (owner 25 Oct): NO app-open ad when Assisto was opened by
+    // anything but the plain launcher icon — a notification / SOS / safety
+    // alert / call (full-screen intent "payload"), an alarm or reminder
+    // notification, the home-screen widget ("assisto_src"), a deep link
+    // (data URI), a foreground-service button, an assist/voice launch. Dart
+    // reads (and clears) the flag through "adLaunchSuppressed" right before
+    // it would show an app-open ad. Plain field, no I/O: never slows launch.
+    private var adSuppress = false
+
+    private fun markAdLaunchSource(i: Intent?) {
+        try {
+            if (i == null) return
+            val plainLauncher = i.action == Intent.ACTION_MAIN &&
+                (i.categories?.contains(Intent.CATEGORY_LAUNCHER) == true) &&
+                i.data == null &&
+                (i.extras == null || i.extras!!.isEmpty())
+            if (!plainLauncher) adSuppress = true
+        } catch (e: Throwable) {
+            adSuppress = true
         }
     }
 
@@ -300,6 +326,14 @@ class MainActivity : FlutterFragmentActivity() {
                     // one feature screen and exercise its real native plugins.
                     // Null for normal launches — Dart only reads it in debug.
                     "aoSmokeOpen" -> result.success(intent?.getStringExtra("ao_open"))
+
+                    // admob: was this launch / resume from a notification,
+                    // call, alarm, widget, deep link...? Read once, then cleared.
+                    "adLaunchSuppressed" -> {
+                        val v = adSuppress
+                        adSuppress = false
+                        result.success(v)
+                    }
 
                     // play-fgs: a foreground-service notification button asked
                     // to open one screen (allow-listed in Dart). Read once.

@@ -365,19 +365,42 @@ def DEFAULTS():
         "ad_rewards": {
             "ecpm_bdt": 30.0,          # BD eCPM floor (৳ per 1000 impressions)
             "revenue_share": 0.70,     # credit the user at <=70% of the floor
-            "appopen_min_gap_sec": 3 * 3600,   # app-open >= 3h apart
-            # p2-money (owner order): app-open from day 2 after sign-up, at
-            # most 3 a day, skippable after 5 s. All bounded (AD_BOUNDS).
-            "appopen_daily_cap": 3,
+            # admob (owner 25 Oct): app-open at most once per hour and at
+            # most 6 a day (the AdMob console caps it at 1/hour too), from
+            # day 2 after sign-up, skippable after 5 s. Bounded (AD_BOUNDS).
+            "appopen_min_gap_sec": 3600,
+            "appopen_daily_cap": 6,
             "appopen_start_day": 2,
             "appopen_skip_after_s": 5,
+            # only on a return from the background after >= N seconds
+            "appopen_min_bg_sec": 30,
             "rewarded_daily_cap": 5,
-            "interstitial_daily_cap": 10,
+            # interstitial: natural breaks only, >= 5 min apart, max 6 a day
+            "interstitial_daily_cap": 6,
+            "interstitial_min_gap_sec": 300,
             "native_daily_cap": 20,
-            # o2-admin: Discover/home HERO ad slot (Free plan only, AdMob
-            # key-gated like every ad). OFF until the owner turns it on in
-            # /owner/ads; when shown, video starts MUTED by default.
-            "hero_enabled": False,
+            # admob (owner 25 Oct): the home native card (the h1 hero slot,
+            # BELOW the shortcuts) is ON for Free users, always with an "Ad"
+            # label; video starts MUTED by default.
+            "hero_enabled": True,
+            # ---- admob ---- server switches. The app ships with Google TEST
+            # unit ids; the REAL unit ids are sent only after the owner turns
+            # admob_real_ids on (after production launch + AdMob app
+            # approval) — no app update needed.
+            "admob_real_ids": False,
+            # personalised ads OFF by default (non-personalised requests
+            # only); when ON, Google UMP consent still decides per user.
+            "admob_personalized": False,
+            "place_app_open": True,
+            "place_banner": True,
+            "place_interstitial": True,
+            "place_rewarded": True,
+            # which of the app's banner-ready list pages may show a banner
+            # (comma separated; names the app does not allow are dropped)
+            "banner_screens": "saved_items,dictionary,health_tips",
+            # which natural breaks may show an interstitial
+            "interstitial_moments": "photo_saved,task_done",
+            # ---- /admob ----
             "hero_start_muted": True,
             # l3-ump: force Google UMP's EEA debug geography (testing only;
             # Google honours it only on the AdMob integration's UMP test
@@ -724,6 +747,8 @@ AD_BOUNDS = {
     "appopen_skip_after_s": (5, 15),
     "rewarded_daily_cap": (0, 20),
     "interstitial_daily_cap": (0, 20),
+    "interstitial_min_gap_sec": (300, 86400),
+    "appopen_min_bg_sec": (5, 3600),
     "native_daily_cap": (0, 50),
     "community_sponsored_min_members": (50, 10000000),
     "community_sponsored_daily_cap": (0, 20),
@@ -731,7 +756,31 @@ AD_BOUNDS = {
 }
 AD_BOOLS = ("hero_enabled", "hero_start_muted", "consent_debug_eea",
             "sponsors_enabled", "community_sponsored_enabled",
-            "offers_enabled", "offers_premium_notifs")
+            "offers_enabled", "offers_premium_notifs",
+            # admob
+            "admob_real_ids", "admob_personalized", "place_app_open",
+            "place_banner", "place_interstitial", "place_rewarded")
+
+# admob: the app's banner-ready list pages and interstitial natural breaks
+# (mirrors app/lib/ads/ad_placements.dart). The server can switch each one
+# off; it can never add a screen the app does not allow.
+BANNER_SCREENS = ("saved_items", "dictionary", "health_tips")
+INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
+AD_LISTS = {"banner_screens": BANNER_SCREENS,
+            "interstitial_moments": INTERSTITIAL_MOMENTS}
+
+
+def _norm_ad_list(raw, allowed, fallback):
+    """'a, b' / ['a','b'] -> 'a,b' keeping only names the app allows."""
+    if raw is None:
+        return fallback
+    parts = raw if isinstance(raw, (list, tuple)) else str(raw).replace(";", ",").split(",")
+    out = []
+    for p in parts:
+        p = str(p).strip().lower()
+        if p in allowed and p not in out:
+            out.append(p)
+    return ",".join(out)
 
 
 def _norm_ad_rewards(raw, base):
@@ -747,6 +796,8 @@ def _norm_ad_rewards(raw, base):
         out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
     for k in AD_BOOLS:
         out[k] = _bool(raw.get(k), base[k])
+    for k, allowed in AD_LISTS.items():
+        out[k] = _norm_ad_list(raw.get(k), allowed, base[k])
     return out
 
 
