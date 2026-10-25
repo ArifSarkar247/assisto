@@ -286,6 +286,8 @@ class EpsGateway(PaymentGateway):
                 js = decrypt_ipn(js["Data"], key)
             except Exception:
                 raise GatewayError("bad_signature")
+            if not isinstance(js, dict):
+                raise GatewayError("bad_payload")
         elif key:
             # an IPN key is set: unencrypted notifications are refused
             raise GatewayError("bad_signature")
