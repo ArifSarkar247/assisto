@@ -21,7 +21,8 @@ jobs:
   build-apk:
     # Owner 25 Oct: repo private -> builds run on OUR self-hosted runner
     # (assisto-box, systemd, nice 19 / ionice idle / CPUWeight 20 / 1.7 CPU /
-    # 5 GB caps) so calls + API keep priority. ANDROID_HOME/JAVA_HOME come from
+    # 5 GB caps) so calls + API keep priority (settings.py skips the server
+    # secrets file the runner user cannot read). ANDROID_HOME/JAVA_HOME come from
     # the runner's .env.
     runs-on: [self-hosted, assisto-box]
     steps:
