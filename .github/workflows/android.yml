@@ -19,7 +19,11 @@ concurrency:
 
 jobs:
   build-apk:
-    runs-on: ubuntu-latest
+    # Owner 25 Oct: repo private -> builds run on OUR self-hosted runner
+    # (assisto-box, systemd, nice 19 / ionice idle / CPUWeight 20 / 1.7 CPU /
+    # 5 GB caps) so calls + API keep priority. ANDROID_HOME/JAVA_HOME come from
+    # the runner's .env.
+    runs-on: [self-hosted, assisto-box]
     steps:
       - uses: actions/checkout@v4
 
@@ -987,6 +991,9 @@ jobs:
   # never publishes a broken-launch build. (Added after the build-99 launch ANR.)
   launch-smoke-test:
     needs: build-apk
+    # No /dev/kvm on the self-hosted box (EC2 t3) -> no emulator here; the
+    # GitHub-hosted emulator needs paid minutes on a private repo. Manual only.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     # A hung adb call once held runs for 6h (builds 145/146: `adb logcat -d`
     # never returned). Healthy runs finish in ~5 min; cap the job.
