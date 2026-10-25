@@ -31,7 +31,7 @@ concurrency:
 jobs:
   ios-compile-check:
     # macOS runner is REQUIRED for any iOS/Xcode build. Linux cannot build iOS.
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -40,7 +40,7 @@ jobs:
       # 15.4 compiles the camera plugin cleanly. Bump when upgrading `camera`.
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.4'   # Firebase 12 pods need Swift 6 (isolation macro) = Xcode 16+
 
       - uses: subosito/flutter-action@v2
         with:
