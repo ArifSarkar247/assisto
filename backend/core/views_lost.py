@@ -340,7 +340,9 @@ class LostPhoneView(APIView):
     def get(self, request):
         pid = request.query_params.get("phone_id")
         if pid:
-            phone = ProtectedPhone.objects.filter(pk=pid).first()
+            # qs: a non-numeric id was a 500; same 404 as an unknown phone.
+            phone = (ProtectedPhone.objects.filter(pk=_i(pid)).first()
+                     if _i(pid) is not None else None)
             if phone is None:
                 return Response({"ok": False, "reason": "not_found"},
                                 status=status.HTTP_404_NOT_FOUND)
@@ -360,10 +362,16 @@ class LostPhoneView(APIView):
             if not active:
                 return Response({"ok": False, "reason": "not_active"},
                                 status=status.HTTP_403_FORBIDDEN)
+            # qs: a contact the owner BLOCKED (state stays "accepted",
+            # blocked=True) must never read the location trail, and the
+            # family approver must still be an accepted, unblocked member.
             is_member = CircleMember.objects.filter(
-                user=phone.owner, peer_user=request.user, state="accepted").exists()
-            is_approver = (phone.family_approver_id is not None
-                           and phone.family_approver.peer_user_id == request.user.id)
+                user=phone.owner, peer_user=request.user, state="accepted",
+                blocked=False).exists()
+            appr = phone.family_approver if phone.family_approver_id else None
+            is_approver = (appr is not None
+                           and appr.peer_user_id == request.user.id
+                           and appr.state == "accepted" and not appr.blocked)
             if not (is_member or is_approver):
                 return Response({"ok": False, "reason": "forbidden"},
                                 status=status.HTTP_403_FORBIDDEN)

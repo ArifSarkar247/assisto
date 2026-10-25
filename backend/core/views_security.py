@@ -41,7 +41,11 @@ def _primary_phone(user, create=True):
 
 
 def _accepted_members(user):
-    return list(CircleMember.objects.filter(user=user, state="accepted"))
+    # qs: a BLOCKED contact keeps state="accepted" (blocked=True); it must not
+    # get security alerts/emails or be offered as family approver (push's
+    # circle_family_users already skipped it).
+    return list(CircleMember.objects.filter(user=user, state="accepted",
+                                            blocked=False))
 
 
 def _notify_owner_and_circle(user, title, body, kind="security", ntype="security",
