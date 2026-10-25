@@ -61,7 +61,7 @@ void registerMyCircleAddFlows() {
 
     await f.step('home chat "circle" opens My Circle add (was "no match")', () async {
       await f.enter('circle', label: f.t.inputHint);
-      await f.tap(find.byIcon(Icons.arrow_upward), settleSeconds: 4);
+      await f.tapSend(settleSeconds: 4);
       await f.waitFor(find.byType(M3AddToCircleScreen), seconds: 10,
           what: 'Add to My Circle screen');
       await f.shot('chat-circle-opens-add');
@@ -105,16 +105,29 @@ void registerMyCircleAddFlows() {
     }
 
     if (!already && !pending)
-    await f.step('relation Friend -> Send request -> clear success', () async {
+    await f.step('relation Friend -> Send request -> chat opens with "Request sent"', () async {
       await f.tap(find.byKey(const Key('m3-rel-friend')), settleSeconds: 1);
       await f.shot('relation');
       await f.tap(find.byKey(const Key('m3-send')), settleSeconds: 3);
-      await f.waitFor(find.byKey(const Key('m3-sent')), what: 'success view');
       f.expectHttp('POST', '/circle/request');
-      f.expectVisible(find.text(f.t.m3RequestSentTo(_nameC)), 'success text');
+      // connect-flow (owner order 25 Oct, 5ba32e6): no dead-end success page
+      // any more — the chat with C opens at once with the "Request sent —
+      // they can reply after accepting" banner. The old success view
+      // (m3-sent) is still shown when the server returns no member id.
+      final banner = find.text(f.t.connRequestSentBanner);
+      final sentView = find.byKey(const Key('m3-sent'));
+      await f.waitFor(find.byWidgetPredicate((_) =>
+              banner.evaluate().isNotEmpty || sentView.evaluate().isNotEmpty),
+          what: 'chat with the "Request sent" banner (or the sent view)');
       await f.shot('request-sent');
-      await f.tap(find.byKey(const Key('m3-done')), settleSeconds: 2);
+      if (sentView.evaluate().isNotEmpty) {
+        f.expectVisible(find.text(f.t.m3RequestSentTo(_nameC)), 'success text');
+        await f.tap(find.byKey(const Key('m3-done')), settleSeconds: 2);
+      } else {
+        f.expectVisible(find.text(_nameC), 'chat header shows C');
+      }
     });
+    await f.backToHome();
     if (already || pending) await f.backToHome();
 
     if (!already)
@@ -150,7 +163,7 @@ void registerMyCircleAddFlows() {
         throw TestFailure('chat says the peer key is missing');
       }
       await f.enter(textA, label: f.t.circleMessageHint);
-      await f.tap(find.byIcon(Icons.send), settleSeconds: 3);
+      await f.tapSend(settleSeconds: 3);
       await f.shot('a-sent');
       await f.eventually('C decrypts "$textA"', () async {
         final edge = _rows(await apiC.getJson('/circle/members'))

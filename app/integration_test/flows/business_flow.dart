@@ -86,7 +86,7 @@ void registerBusinessFlows() {
       await f.shot('khata');
     });
     await f.step('add a party', () async {
-      await f.tap(find.byIcon(Icons.person_add_alt_1));
+      await f.tap(find.byTooltip(f.t.khataAddCustomer));
       await f.enter(name, label: f.t.name);
       await f.enter('01700000031', label: f.t.phone);
       await f.shot('party-form');
@@ -122,6 +122,7 @@ void registerBusinessFlows() {
       await f.enter(lead, label: f.t.name);
       await f.enter('01700000041', label: f.t.phone);
       await f.shot('lead-form');
+      await f.scrollTo(find.text(f.t.save));
       await f.tap(find.text(f.t.save), settleSeconds: 4);
       await f.shot('lead-saved');
       await f.eventually('lead on server', () async {

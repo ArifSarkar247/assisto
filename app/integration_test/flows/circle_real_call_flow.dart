@@ -137,8 +137,20 @@ void registerCircleRealCallFlows() {
       if (!_timer.hasMatch(_status(f))) {
         throw TestFailure('A never showed the call timer (status "${_status(f)}")');
       }
-      final st = await f.net(() => apiB.getJson('/circle/calls/${callId()}'));
-      if (st['phase'] != 'connected') throw TestFailure('server phase: $st');
+      // rf1: each client POSTs its "connected" event only AFTER reading its
+      // WebRTC stats (relayed or not), so the server lags the on-screen
+      // timer by a moment. Run 40216392274 read it once, too early
+      // ("phase: accepted"). Poll; a server that never records the connect
+      // (duration 0 in the call log) still fails here.
+      Map<String, dynamic> st = const {};
+      try {
+        await f.eventually('server records the call as connected', () async {
+          st = await apiB.getJson('/circle/calls/${callId()}');
+          return st['phase'] == 'connected';
+        }, seconds: 15);
+      } on TestFailure {
+        throw TestFailure('server phase: $st');
+      }
       await f.tester.pump(const Duration(seconds: 2));
       await f.shot('voice-connected');
       f.note('voice: ICE connected both sides (host candidates, one emulator)');

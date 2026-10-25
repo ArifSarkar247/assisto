@@ -33,6 +33,19 @@ A() { timeout "${T:-60}" adb "$@"; }
 alive() { [ "$(T=10 A shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; }
 
 prep_device() {
+  # rf1: NO soft keyboard. Run 40205920547: 4 of 6 emulator deaths came seconds
+  # after "showSoftInput ... show(ime())" (the IME window + the app's viewport
+  # resize -> 6-18 s frames -> host emulator Segmentation fault under
+  # swiftshader). The flows type with tester.enterText (framework-side), so
+  # the IME window is never needed; without it the layout is also the full
+  # screen a user sees before tapping a field.
+  for ime in $(T=10 A shell ime list -s 2>/dev/null | tr -d '\r'); do
+    T=10 A shell ime disable "$ime" >/dev/null 2>&1 || true
+  done
+  T=10 A shell pm disable-user --user 0 com.android.inputmethod.latin >/dev/null 2>&1 || true
+  T=10 A shell settings put secure show_ime_with_hard_keyboard 0 >/dev/null 2>&1 || true
+  { echo "== IME state $(date +%T)"; T=10 A shell ime list -s; T=10 A shell settings get secure default_input_method; } \
+    >> "$OUT/ime_state.txt" 2>&1 || true
   A shell settings put global window_animation_scale 0 || true
   A shell settings put global transition_animation_scale 0 || true
   A shell settings put global animator_duration_scale 0 || true
@@ -131,19 +144,67 @@ run_group() {  # $1 = group, $2 = attempt label
   return $rc
 }
 
+# rf1: resumable retries. Before, a retry re-ran the WHOLE group and died at
+# the same spot (run 40205920547: every retry of family/circle/business/
+# personal hit the same flow again, so 6 flows never got a verdict). Now:
+#  * the flow that was running when the drive died is recorded in
+#    device_deaths.txt (emulator gone = "emulator", device alive = "app");
+#  * the next attempt skips every flow that already has a verdict (the app
+#    reads <ext files>/reality/skip_ids.txt) and a flow that killed the
+#    emulator twice — summarize.py reports it as D "crashed DURING this flow",
+#    never as passed. Start flows (01-03) always re-run (they log in).
+ATTEMPTS="${REALITY_ATTEMPTS:-6}"
+SKIP_LOCAL="$OUT/skip_ids.txt"
+: > "$SKIP_LOCAL"
+: > "$OUT/device_deaths.txt"
+T=10 A shell rm -f "$DEV/skip_ids.txt" >/dev/null 2>&1 || true
+
+done_ids() {  # flow ids whose REALITY_RESULT was printed completely
+  cat "$OUT/live_logcat.txt" "$OUT/drive.log" 2>/dev/null \
+    | grep -oE 'REALITY_RESULT [A-Za-z0-9_]+ [0-9]+/[0-9]+' \
+    | awk '{split($3,a,"/"); if (a[1]==a[2]) print $2}' | sort -u
+}
+running_id() {  # last flow (or sweep item) STARTED in this attempt
+  # harness prints "REALITY_FLOW_START <id>" (sweep: one per drawer item);
+  # fallback: the test runner's "mm:ss +N: <name>" progress line
+  tr -d '\r' < "$OUT/.attempt.log" 2>/dev/null \
+    | grep -oE 'REALITY_FLOW_START [A-Za-z0-9_]+$| [0-9]+:[0-9]+ \+[0-9]+( -[0-9]+)?: [A-Za-z0-9_]+$' \
+    | tail -1 | awk '{print $NF}'
+}
+push_skips() {  # keep the skip list on the device while the drive installs
+  ( for _ in $(seq 1 40); do
+      timeout 10 adb shell "mkdir -p $DEV" >/dev/null 2>&1
+      timeout 10 adb push "$SKIP_LOCAL" "$DEV/skip_ids.txt" >/dev/null 2>&1
+      sleep 3
+    done ) &
+}
+
 for g in $GROUPS_RUN; do
-  run_group "$g" ""
-  rc=$?
-  [ "$rc" -eq 2 ] && break
-  # rt1: the hosted emulator sometimes dies mid-group (run 39859999833: the
-  # business group, "Service has disappeared"). That is the device, not the
-  # app — restart it and give the group ONE more run (verdicts of the retry
-  # replace the first attempt's per flow id in summarize.py).
-  if [ "$rc" -ne 0 ] && ! alive; then
-    echo "== emulator died during group $g — one retry" | tee -a "$OUT/drive.log"
-    run_group "$g" " (retry)"
-    [ $? -eq 2 ] && break
-  fi
+  n=1
+  while :; do
+    run_group "$g" "$( [ $n -gt 1 ] && echo " (attempt $n)" )"
+    rc=$?
+    [ "$rc" -eq 2 ] && break 2
+    [ "$rc" -eq 0 ] && break
+    kind=app; alive || kind=emulator
+    rid=$(running_id)
+    if [ -n "$rid" ] && ! done_ids | grep -qx "$rid"; then
+      printf '%s\t%s\t%s\n' "$rid" "$kind" "$n" >> "$OUT/device_deaths.txt"
+      echo "== drive died during flow $rid ($kind, attempt $n)" | tee -a "$OUT/drive.log"
+    fi
+    # nothing started at all on a live device = a real infrastructure fault
+    [ -z "$rid" ] && [ "$kind" = app ] && break
+    n=$((n + 1))
+    [ "$n" -gt "$ATTEMPTS" ] && { echo "== group $g: $ATTEMPTS attempts used" | tee -a "$OUT/drive.log"; break; }
+    {
+      done_ids | grep -vE '^0[123]_'
+      # an app crash is a verdict (C); an emulator crash gets ONE more try
+      awk -F'\t' '$2=="app"{print $1} $2=="emulator"{c[$1]++} END{for(k in c) if(c[k]>=2) print k}' "$OUT/device_deaths.txt"
+    } | sort -u > "$SKIP_LOCAL"
+    echo "== group $g attempt $n skips: $(tr '\n' ' ' < "$SKIP_LOCAL")" | tee -a "$OUT/drive.log"
+    if ! alive; then restart_emulator || break 2; fi
+    push_skips
+  done
 done
 tail -40 "$OUT/drive.log" || true
 

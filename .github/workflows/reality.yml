@@ -20,6 +20,10 @@ on:
         description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep); empty = all"
         required: false
         default: ""
+      impeller:
+        description: "Impeller in the CI test APK (false = Skia; release builds are unaffected)"
+        required: false
+        default: "false"
       emu_gpu:
         description: "Emulator -gpu mode(s), comma list = one job per group per mode (swiftshader_indirect, swangle_indirect, guest)"
         required: false
@@ -90,6 +94,7 @@ jobs:
       # "start+personal" = one drive: Start flows log in, then the group.
       REALITY_DRIVE: ${{ matrix.group == 'start' && 'start' || format('start+{0}', matrix.group) }}
       REALITY_GPU: ${{ matrix.gpu }}
+      REALITY_IMPELLER: ${{ github.event.inputs.impeller || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -169,11 +174,22 @@ jobs:
         run: |
           # src/debug/ only: the release manifest is untouched.
           python3 - <<'PY'
+          import os
           p = "android/app/src/debug/AndroidManifest.xml"
           s = open(p).read()
           if "usesCleartextTraffic" not in s:
+              # rf1: Skia instead of Impeller for the CI TEST APK only (debug
+              # manifest; release keeps Impeller). Run 40212748312: with no
+              # IME at all the host emulator still died "RenderThread:
+              # segfault" seconds after the first text-field focus (an 18 s
+              # Impeller-GLES frame), in BOTH swiftshader_indirect and guest
+              # modes. REALITY_IMPELLER=true keeps Impeller.
+              imp = os.environ.get("REALITY_IMPELLER", "false")
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="%s"/>\n' % imp)
               s = s.replace("</manifest>",
-                  '    <application android:usesCleartextTraffic="true"/>\n</manifest>', 1)
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
               open(p, "w").write(s)
           print(open(p).read())
           PY
@@ -183,6 +199,11 @@ jobs:
           set +e
           flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt
           grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
+          # rf1: no IconData finders — the f5 icon migration broke 5 flows that
+          # found buttons by Icons.send / arrow_upward (run 40205920547).
+          if grep -rn "byIcon(" integration_test/flows; then
+            echo "::error::find controls by tooltip / Key / text, not by icon"; exit 1
+          fi
           exit 0
       - name: Build the x86_64 debug test APK ONCE (before the emulator; drive installs it)
         working-directory: app
@@ -234,6 +255,11 @@ jobs:
           heap-size: 576M
           cores: 3
           emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          # rf1: a "hardware keyboard" so Android never opens the soft IME
+          # window (run 40205920547: the emulator segfaulted seconds after
+          # the IME opened); run_flows.sh also disables the IME itself.
+          # ONE line: the action runs every line as its own `sh -c`.
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c" && echo "hw.keyboard=yes -> $c"; done; true
           # /bin/sh one-liner: all logic (and every adb timeout) is in the script
           script: bash tools/reality/run_flows.sh
 

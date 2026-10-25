@@ -19,7 +19,7 @@ void registerHomeFlows() {
     await f.step('type + send in the home chat', () async {
       await f.shot('home');
       await f.enter(_ping, label: f.t.inputHint);
-      await f.tap(find.byIcon(Icons.arrow_upward), settleSeconds: 6);
+      await f.tapSend(settleSeconds: 6);
       await f.shot('after-send');
       await f.waitFor(find.textContaining(_ping), what: 'my message bubble');
     });

@@ -31,12 +31,19 @@ void registerSweepFlow() {
       return;
     }
     final t = h.t;
+    // rf1: resume after a device death — items with a verdict are skipped,
+    // and each item announces itself so a crash is pinned to ONE feature.
+    final skips = await tester.runAsync(() => h.skipIds()) ?? const <String>{};
     final errorTexts = [t.loadFailed, t.checkInternetRetry, 'Something went wrong'];
     var n = 0;
     for (final section in SidebarSections.all) {
       for (final item in section.items) {
         n++;
         final label = item.label(t);
+        final sid = 'S${n.toString().padLeft(3, '0')}';
+        if (skips.contains(sid)) continue;
+        // ignore: avoid_print
+        print('REALITY_FLOW_START $sid');
         final r = FlowResult('S${n.toString().padLeft(3, '0')}', section.title(t), label);
         h.results.add(r);
         final f = RFlow(h, tester, r);
@@ -82,5 +89,8 @@ void registerSweepFlow() {
         }
       }
     }
+    // summarize.py: without this marker the sweep is reported unfinished (D)
+    // ignore: avoid_print
+    print('REALITY_SWEEP_DONE $n items');
   }, timeout: const Timeout(Duration(minutes: 25)));
 }
