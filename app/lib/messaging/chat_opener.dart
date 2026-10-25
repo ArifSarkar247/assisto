@@ -24,7 +24,9 @@ class ChatOpener {
     return (kind: key.substring(0, i) == 'group' ? 'group' : 'member', id: id);
   }
 
-  static Future<void> open(NavigatorState nav, ApiClient api, String kind, int id) async {
+  /// [quickReply] (call-reply): the 1:1 chat opens with the quick-reply sheet.
+  static Future<void> open(NavigatorState nav, ApiClient api, String kind, int id,
+      {bool quickReply = false}) async {
     try {
       final identity = await loadStoredIdentity()
           .timeout(const Duration(seconds: 6), onTimeout: () => null);
@@ -41,7 +43,8 @@ class ChatOpener {
           .map((m) => m.cast<String, dynamic>());
       final member = list.firstWhere((m) => '${m['id']}' == '$id');
       nav.push(MaterialPageRoute(
-          builder: (_) => CircleChatScreen(member: member, identity: identity)));
+          builder: (_) => CircleChatScreen(
+              member: member, identity: identity, quickReply: quickReply)));
     } catch (_) {
       nav.push(MaterialPageRoute(builder: (_) => const MessengerHomeScreen()));
     }

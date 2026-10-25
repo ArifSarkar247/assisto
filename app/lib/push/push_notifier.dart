@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import '../calls/call_avatar.dart';
 import '../calls/call_log.dart';
+import '../calls/call_reply.dart';
 import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
@@ -149,6 +150,11 @@ class PushNotifier {
             actions: [
               AndroidNotificationAction(actionDecline, t.pushCallDecline,
                   cancelNotification: true, showsUserInterface: false),
+              // call-reply: decline + open the chat with quick replies
+              // (opens the app: the phone asks to unlock first)
+              if (CallReply.canReply(p))
+                AndroidNotificationAction(CallReply.action, t.callReplyAction,
+                    cancelNotification: true, showsUserInterface: true),
               AndroidNotificationAction(actionAccept, t.pushCallAccept,
                   cancelNotification: true, showsUserInterface: true),
             ]),

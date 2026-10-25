@@ -63,6 +63,7 @@ object IncomingCall {
     private const val FLN_CANCEL = "cancelNotification"
     const val ACTION_ACCEPT = "accept"   // PushNotifier.actionAccept
     const val ACTION_DECLINE = "decline" // PushNotifier.actionDecline
+    const val ACTION_REPLY = "call_reply" // CallReply.action (Dart)
 
     const val RING_TIMEOUT_MS = 45_000L
     private const val FLAG_INSISTENT = Notification.FLAG_INSISTENT
@@ -201,6 +202,68 @@ object IncomingCall {
     @JvmStatic
     fun sigFor(callId: String): String = live[callId]?.get("ack_sig") ?: ""
 
+    // ------------------------------------------------------------ call-reply
+    /** Reply is offered for a 1:1 ring with a known chat (member id); a
+     *  payload with a group marker hides it. Mirrors CallReply.canReply. */
+    @JvmStatic
+    fun canReply(d: Map<String, String>): Boolean {
+        return try {
+            if (d["chat_kind"] == "group" || !d["group_id"].isNullOrBlank()) return false
+            val id = (d["chat_id"] ?: "").trim().toLongOrNull()
+            id != null && id > 0
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** MainActivity onCreate / onNewIntent: was this launch the ring's Reply
+     *  button (native or Dart-drawn ring, same flutter_local_notifications
+     *  contract)? Then decline exactly like Decline (stop ring + Telecom,
+     *  signed server ack) and answer true, so the activity does NOT show
+     *  over the lock screen and does NOT mark the call answered. Dart then
+     *  opens the chat with the quick-reply sheet (it also sends its own
+     *  decline event; the server ignores the second one).
+     *  Crash-guarded: any failure falls back to a plain decline. */
+    @JvmStatic
+    fun onReplyLaunch(ctx: Context, i: Intent?): Boolean {
+        try {
+            if (i == null || i.getStringExtra(FLN_ACTION_ID) != ACTION_REPLY) return false
+            // reopened from Recents: the old Reply intent is redelivered —
+            // never decline again, just keep it off the lock screen.
+            if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return true
+            var callId = ""
+            var sig = ""
+            try {
+                val raw = i.getStringExtra(FLN_PAYLOAD)
+                val js = if (raw != null) JSONObject(raw) else null
+                callId = js?.optString("call_id") ?: ""
+                sig = js?.optString("ack_sig") ?: ""
+            } catch (_: Throwable) {
+            }
+            if (callId.isEmpty()) return true
+            val app = ctx.applicationContext
+            val s = sig.ifEmpty { sigFor(callId) }
+            cancel(app, callId)
+            Thread {
+                try {
+                    CallAck.post(app, callId, s, "decline")
+                } catch (_: Throwable) {
+                }
+            }.start()
+            Log.i(TAG, "REPLY_DECLINED")
+            return true
+        } catch (t: Throwable) {
+            Log.w(TAG, "reply launch failed: ${t.javaClass.simpleName}")
+            return try {
+                val id = JSONObject(i?.getStringExtra(FLN_PAYLOAD) ?: "{}").optString("call_id")
+                if (id.isNotEmpty()) decline(ctx.applicationContext, id)
+                id.isNotEmpty()
+            } catch (_: Throwable) {
+                false
+            }
+        }
+    }
+
     // ------------------------------------------------------------ drawing
     private fun nm(ctx: Context): NotificationManager? =
         ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
@@ -332,6 +395,19 @@ object IncomingCall {
                 .putExtra(CallActionReceiver.EXTRA_CALL_ID, callId)
                 .putExtra(CallActionReceiver.EXTRA_SIG, d["ack_sig"] ?: ""),
             piFlags())
+        // call-reply: an ACTIVITY intent (Android 12+ forbids starting an
+        // activity from a broadcast trampoline). MainActivity declines
+        // natively via onReplyLaunch; a locked phone asks to unlock first.
+        val reply: PendingIntent? = try {
+            if (canReply(d)) PendingIntent.getActivity(ctx, nid * 16 + 3,
+                launchIntent(ctx, FLN_SELECT_FG, nid, d)
+                    .putExtra(FLN_ACTION_ID, ACTION_REPLY)
+                    .putExtra(FLN_CANCEL, true), piFlags()) else null
+        } catch (t: Throwable) {
+            Log.w(TAG, "reply action skipped: ${t.javaClass.simpleName}")
+            null
+        }
+        val replyLabel = if (lang == "en") "Reply" else "উত্তর লিখুন"
 
         fun base(): Notification.Builder = Notification.Builder(ctx, channel)
             .setSmallIcon(icon)
@@ -349,10 +425,14 @@ object IncomingCall {
         fun plain(): Notification {
             val declineLabel = if (lang == "en") "Decline" else "কেটে দিন"
             val acceptLabel = if (lang == "en") "Accept" else "ধরুন"
-            return base()
+            val b = base()
                 .addAction(Notification.Action.Builder(
                     Icon.createWithResource(ctx, icon), declineLabel, decline).build())
-                .addAction(Notification.Action.Builder(
+            if (reply != null) {
+                b.addAction(Notification.Action.Builder(
+                    Icon.createWithResource(ctx, icon), replyLabel, reply).build())
+            }
+            return b.addAction(Notification.Action.Builder(
                     Icon.createWithResource(ctx, icon), acceptLabel, answer).build())
                 .build()
         }
@@ -360,9 +440,15 @@ object IncomingCall {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 val person = Person.Builder().setName(name).setImportant(true).build()
-                val n = base()
+                val cb = base()
                     .setStyle(Notification.CallStyle.forIncomingCall(person, decline, answer))
-                    .build()
+                // call-reply: CallStyle shows one extra action between
+                // Decline and Answer (max 3 buttons in total).
+                if (reply != null) {
+                    cb.addAction(Notification.Action.Builder(
+                        Icon.createWithResource(ctx, icon), replyLabel, reply).build())
+                }
+                val n = cb.build()
                 n.flags = n.flags or FLAG_INSISTENT
                 m.notify(nid, n)
                 Log.i(TAG, "RING_SHOWN style=call id=$nid")

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../calls/call_avatar.dart';
+import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/circle_call_screen.dart';
@@ -18,7 +19,10 @@ import 'push_service.dart';
 /// itself on `call_cancel` or after the ring window.
 class IncomingCallScreen extends StatefulWidget {
   const IncomingCallScreen(
-      {super.key, required this.payload, this.ringInApp = false});
+      {super.key,
+      required this.payload,
+      this.ringInApp = false,
+      this.onReply});
 
   final PushPayload payload;
 
@@ -26,6 +30,10 @@ class IncomingCallScreen extends StatefulWidget {
   /// foreground push): we ring with the chosen ringtone natively. false when
   /// launched from the call notification, which is already ringing.
   final bool ringInApp;
+
+  /// call-reply: what Reply does AFTER the normal decline (tests inject it).
+  /// Default: [PushService.onCallReply] opens the chat + quick-reply sheet.
+  final void Function(PushPayload p)? onReply;
 
   @override
   State<IncomingCallScreen> createState() => _IncomingCallScreenState();
@@ -105,6 +113,17 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     Navigator.of(context).maybePop();
   }
 
+  /// call-reply: exactly Decline (same server path, caller sees declined),
+  /// then that person's chat opens with the quick-reply sheet.
+  void _reply() {
+    _decline();
+    final cb = widget.onReply ??
+        (PushPayload x) => PushService.instance.onCallReply(x, decline: false);
+    try {
+      cb(p);
+    } catch (_) {}
+  }
+
   // Release the lock screen as the pop STARTS (decline, ring timeout or the
   // system back gesture), so the screen underneath never shows on a locked
   // phone. Accept replaces this route; the call screen releases later.
@@ -159,6 +178,14 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                         label: t.pushCallDecline,
                         onTap: _decline,
                       ),
+                      if (CallReply.canReply(p))
+                        _RoundAction(
+                          key: const Key('incoming-reply'),
+                          color: CallInk.glassHigh,
+                          icon: Icons.message_rounded,
+                          label: t.callReplyAction,
+                          onTap: _reply,
+                        ),
                       _RoundAction(
                         key: const Key('incoming-accept'),
                         color: Brand.success,
