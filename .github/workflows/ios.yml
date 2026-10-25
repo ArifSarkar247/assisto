@@ -55,7 +55,12 @@ jobs:
 
       - name: Generate iOS platform files
         working-directory: app
-        run: flutter create --project-name assisto --org com.assisto --platforms=ios .
+        # SPM must be OFF before `flutter create` (its implicit pub get rsyncs plugin
+        # packages into build/ios/SourcePackages and fails: firebase_crashlytics mkdir).
+        run: |
+          flutter config --no-enable-swift-package-manager
+          mkdir -p build/ios/SourcePackages
+          flutter create --project-name assisto --org com.assisto --platforms=ios .
 
       - name: Pub get
         working-directory: app
