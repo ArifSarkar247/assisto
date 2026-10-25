@@ -40,7 +40,10 @@ jobs:
       # 15.4 compiles the camera plugin cleanly. Bump when upgrading `camera`.
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'   # Firebase 12 pods need Swift 6 (isolation macro) = Xcode 16+
+          # video_player_avfoundation 2.12.x calls iOS 26 SDK APIs (`isolation:`
+          # argument) that Xcode 16.4 / Swift 6.1 cannot compile -> needs Xcode 26.
+          # Firebase 12 pods need Swift 6 too, which Xcode 26 also satisfies.
+          xcode-version: '26'
 
       - uses: subosito/flutter-action@v2
         with:
@@ -161,8 +164,33 @@ jobs:
                          "platform :ios, '15.0'", s, count=1, flags=re.M)
           else:
               s = "platform :ios, '15.0'\n" + s
+          # google_mobile_ads 9.x (GoogleMobileAds 12 xcframework) fails on
+          # Xcode 26 with "Include of non-modular header inside framework
+          # module 'google_mobile_ads.FLTAd_Internal'". Allow non-modular
+          # includes for every pod AND the Runner target (the module is also
+          # compiled where GeneratedPluginRegistrant imports it).
+          hook = (
+              "    target.build_configurations.each do |bc|\n"
+              "      bc.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'\n"
+              "    end\n")
+          anchor = "flutter_additional_ios_build_settings(target)\n"
+          if anchor not in s:
+              raise SystemExit("ERROR: Podfile post_install anchor not found")
+          s = s.replace(anchor, anchor + hook, 1)
+          runner = (
+              "  installer.aggregate_targets.each do |agg|\n"
+              "    agg.user_project.native_targets.each do |nt|\n"
+              "      nt.build_configurations.each do |bc|\n"
+              "        bc.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'\n"
+              "      end\n"
+              "    end\n"
+              "    agg.user_project.save\n"
+              "  end\n")
+          s = re.sub(r"(post_install do \|installer\|\n)", lambda m: m.group(1) + runner,
+                     s, count=1)
           open(p, "w").write(s)
-          print("Podfile platform set to iOS 15.0")
+          print("Podfile platform set to iOS 15.0 + non-modular includes allowed")
+          print(s)
           PY
 
       - name: Precache iOS artifacts
