@@ -342,8 +342,7 @@ class _SavedCard extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text((item['title'] ?? '').toString(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 15),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis),
               ),
@@ -356,7 +355,7 @@ class _SavedCard extends StatelessWidget {
             if (note.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(note,
-                  style: TextStyle(fontSize: 13.5, color: scheme.onSurfaceVariant),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis),
             ],
@@ -365,13 +364,10 @@ class _SavedCard extends StatelessWidget {
               Row(children: [
                 Icon(kind == 'link' ? Icons.link : Icons.description_outlined,
                     size: 14, color: scheme.onSurfaceVariant),
-                const SizedBox(width: 4),
+                const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(ref,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.primary,
-                          decoration: kind == 'link'
+                      style: AType.bodySmall.copyWith(color: scheme.primary, decoration: kind == 'link'
                               ? TextDecoration.underline
                               : null),
                       maxLines: 1,
@@ -386,21 +382,19 @@ class _SavedCard extends StatelessWidget {
                 const SizedBox(width: Gap.xs),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                      const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Text('#$tag',
-                      style: TextStyle(
-                          fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ),
               ],
               const Spacer(),
               if ((item['created'] ?? '').toString().isNotEmpty)
                 Text((item['created']).toString(),
-                    style: TextStyle(
-                        fontSize: 11, color: scheme.onSurfaceVariant)),
+                    style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ]),
         ),
@@ -439,16 +433,13 @@ Widget _kindChip(BuildContext context, String kind) {
   final tr = AppLocalizations.of(context);
   final scheme = Theme.of(context).colorScheme;
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+    padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
     decoration: BoxDecoration(
       color: scheme.secondaryContainer.withValues(alpha: 0.5),
       borderRadius: BorderRadius.circular(Radii.pill),
     ),
     child: Text(_kindLabel(tr, kind),
-        style: TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
-            color: scheme.onSecondaryContainer)),
+        style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.onSecondaryContainer)),
   );
 }
 

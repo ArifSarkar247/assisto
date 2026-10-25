@@ -46,14 +46,13 @@ import '../widgets/chatnav.dart';
 class TrustPageScreen extends StatelessWidget {
   const TrustPageScreen({super.key});
 
-  // honest accent colours (high contrast on both themes)
-  static const Color _good = Color(0xFF1B5E20);
-  static const Color _never = Color(0xFFB71C1C);
-
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // honest accent colours (AA on both themes)
+    final good = AssistoTokens.of(context).success;
+    final never = scheme.error;
     return Scaffold(
       appBar: AppBar(
         title: FittedBox(
@@ -63,7 +62,7 @@ class TrustPageScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 28),
         children: [
           // ---- header / integrity statement ----
           Container(
@@ -75,7 +74,7 @@ class TrustPageScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(Radii.lg),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,11 +82,10 @@ class TrustPageScreen extends StatelessWidget {
                 const Icon(Icons.verified_user, color: Colors.white, size: 36),
                 const SizedBox(height: 10),
                 Text(t.trustHeadline,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
+                    style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                const SizedBox(height: Gap.sm),
                 Text(t.trustIntro,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4)),
+                    style: AType.titleMedium.copyWith(color: Colors.white, height: 1.4)),
               ],
             ),
           ),
@@ -97,37 +95,37 @@ class TrustPageScreen extends StatelessWidget {
           _SectionHeader(text: t.trustWhatWeDo),
           _ClaimTile(
             icon: Icons.account_balance_wallet,
-            tint: _good,
+            tint: good,
             title: t.trustMoneyTitle,
             body: t.trustMoneyBody,
           ),
           _ClaimTile(
             icon: Icons.lock,
-            tint: _good,
+            tint: good,
             title: t.trustE2eTitle,
             body: t.trustE2eBody,
           ),
           _ClaimTile(
             icon: Icons.smart_toy,
-            tint: _good,
+            tint: good,
             title: t.trustAiTitle,
             body: t.trustAiBody,
           ),
           _ClaimTile(
             icon: Icons.privacy_tip,
-            tint: _good,
+            tint: good,
             title: t.trustSellTitle,
             body: t.trustSellBody,
           ),
           _ClaimTile(
             icon: Icons.download_done,
-            tint: _good,
+            tint: good,
             title: t.trustControlTitle,
             body: t.trustControlBody,
           ),
           _ClaimTile(
             icon: Icons.dns,
-            tint: _good,
+            tint: good,
             title: t.trustDataLocationTitle,
             body: t.trustDataLocationBody,
           ),
@@ -136,11 +134,11 @@ class TrustPageScreen extends StatelessWidget {
 
           // ---- WHAT WE DO NOT DO ----
           _SectionHeader(text: t.trustWhatWeDont),
-          _NeverTile(text: t.trustNeverHoldMoney, tint: _never),
-          _NeverTile(text: t.trustNeverSell, tint: _never),
-          _NeverTile(text: t.trustNeverReadChats, tint: _never),
-          _NeverTile(text: t.trustNeverAutoAct, tint: _never),
-          _NeverTile(text: t.trustNeverTrackers, tint: _never),
+          _NeverTile(text: t.trustNeverHoldMoney, tint: never),
+          _NeverTile(text: t.trustNeverSell, tint: never),
+          _NeverTile(text: t.trustNeverReadChats, tint: never),
+          _NeverTile(text: t.trustNeverAutoAct, tint: never),
+          _NeverTile(text: t.trustNeverTrackers, tint: never),
 
           const SizedBox(height: 20),
 
@@ -150,22 +148,21 @@ class TrustPageScreen extends StatelessWidget {
             margin: EdgeInsets.zero,
             color: scheme.surfaceContainerHighest,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
                     Icon(Icons.gavel, size: 22, color: scheme.onSurfaceVariant),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(t.trustLicenseTitle,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w700)),
+                          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                     ),
                   ]),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Gap.sm),
                   Text(t.trustLicenseBody,
-                      style: const TextStyle(fontSize: 14, height: 1.4)),
+                      style: AType.bodyMedium.copyWith(height: 1.4)),
                 ],
               ),
             ),
@@ -190,8 +187,7 @@ class TrustPageScreen extends StatelessWidget {
           Center(
             child: Text(t.trustFooter,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 13, color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           ),
         ],
       ),
@@ -204,12 +200,9 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.text});
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10, top: 2),
+        padding: const EdgeInsets.only(bottom: 10, top: Gap.xxs),
         child: Text(text,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
       );
 }
 
@@ -224,9 +217,9 @@ class _ClaimTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Gap.lg),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -235,7 +228,7 @@ class _ClaimTile extends StatelessWidget {
               width: 44,
               decoration: BoxDecoration(
                 color: tint.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Icon(icon, color: tint, size: 24),
             ),
@@ -245,9 +238,9 @@ class _ClaimTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(body, style: const TextStyle(fontSize: 14, height: 1.4)),
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: Gap.xs),
+                  Text(body, style: AType.bodyMedium.copyWith(height: 1.4)),
                 ],
               ),
             ),
@@ -269,8 +262,8 @@ class _NeverTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.block, size: 22, color: tint),
-            const SizedBox(width: 12),
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 15, height: 1.35))),
+            const SizedBox(width: Gap.md),
+            Expanded(child: Text(text, style: AType.titleMedium.copyWith(height: 1.35))),
           ],
         ),
       );
@@ -287,9 +280,9 @@ class _LinkTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         leading: Icon(icon, color: scheme.primary),
-        title: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        title: Text(label, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),

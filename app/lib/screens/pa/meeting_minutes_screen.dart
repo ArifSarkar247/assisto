@@ -245,8 +245,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text((s['title'] ?? '').toString(),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ),
@@ -262,8 +261,8 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
               ],
             ),
           ]),
-          const SizedBox(height: 4),
-          Wrap(spacing: Gap.sm, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          const SizedBox(height: Gap.xs),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
             if (dateStr.isNotEmpty)
               _meta(Icons.event, _fmtDate(dateStr, tr), scheme),
             _meta(Icons.people_outline,
@@ -282,14 +281,11 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
             const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.task_alt, size: 15, color: scheme.secondary),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Text(tr.paMinActions,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: scheme.secondary)),
+                  style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: scheme.secondary)),
             ]),
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             for (final a in actions) _actionRow(a, tr, scheme),
           ],
         ]),
@@ -304,19 +300,16 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(icon, size: 15, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 4),
+          const SizedBox(width: Gap.xs),
           Text(label,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
         ]),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         for (final it in items)
           Padding(
             padding: const EdgeInsets.only(left: 19, top: 1),
             child: Text('•  $it',
-                style: TextStyle(fontSize: 13, color: scheme.onSurface, height: 1.3)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3)),
           ),
       ]),
     );
@@ -348,18 +341,14 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text((a['title'] ?? '').toString(),
-                style: TextStyle(
-                    fontSize: 13,
-                    height: 1.3,
-                    decoration: done ? TextDecoration.lineThrough : null,
-                    color: done ? scheme.onSurfaceVariant : scheme.onSurface)),
+                style: AType.bodyMedium.copyWith(height: 1.3, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.onSurfaceVariant : scheme.onSurface)),
             if (owner.isNotEmpty || due.isNotEmpty)
               Text(
                 [
                   if (owner.isNotEmpty) tr.paMinOwnerHint(owner),
                   if (due.isNotEmpty) tr.paMinDueHint(_fmtDate(due, tr)),
                 ].join('  ·  '),
-                style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               ),
           ]),
         ),
@@ -371,13 +360,13 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
   Widget _statusPill(AppLocalizations tr, String status, Color c) {
     return Container(
       margin: const EdgeInsets.only(left: 6),
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text(_statusLabel(tr, status),
-          style: TextStyle(color: c, fontSize: 10.5, fontWeight: FontWeight.w700)),
+          style: AType.labelSmall.copyWith(color: c, fontWeight: FontWeight.w700)),
     );
   }
 
@@ -402,10 +391,10 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 4),
+          const SizedBox(width: Gap.xs),
           Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       );
 }
@@ -436,12 +425,9 @@ class _SttSeamCard extends StatelessWidget {
                 children: [
                   Text(ready ? tr.paMinSttReadyTitle : tr.paMinSttSeamTitle,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(ready ? tr.paMinSttReadyBody : tr.paMinSttSeamBody,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
-                          height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
         ]),
@@ -606,6 +592,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
                 ].join('  ·  ')),
                 onTap: () => _editAction(_actions.indexOf(a)),
                 trailing: IconButton(
+                  tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () => setState(() => _actions.remove(a)),
                 ),

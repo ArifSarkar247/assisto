@@ -236,10 +236,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.spendDisclaimer,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    height: 1.4,
-                    color: scheme.onTertiaryContainer)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onTertiaryContainer)),
           ),
         ]),
       ),
@@ -257,7 +254,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           children: [
             Text(tr.spendTotalSpent,
                 style: TextStyle(color: scheme.onSurfaceVariant)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(notifLocalizeDigits(context, r.totalSpentDisplay),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800, color: scheme.primary)),
@@ -346,7 +343,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          Wrap(spacing: Gap.sm, runSpacing: 4, children: [
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             _chip(context, tr.spendShareChip(c.sharePct), scheme.primary),
             if (c.budgetDisplay != null)
               _chip(
@@ -407,10 +404,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.spendAiSeamBody,
-              style: TextStyle(
-                  fontSize: 12.5,
-                  height: 1.4,
-                  color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -418,14 +412,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
   Widget _chip(BuildContext context, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Text(notifLocalizeDigits(context, label),
-          style: TextStyle(
-              fontSize: 11.5, fontWeight: FontWeight.w600, color: color)),
+          style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: color)),
     );
   }
 }
@@ -537,7 +530,7 @@ Future<Map<String, dynamic>?> _entrySheet(
           const SizedBox(height: Gap.sm),
           Text(tr.spendEntryNote,
               style:
-                  TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),
           SizedBox(
             width: double.infinity,

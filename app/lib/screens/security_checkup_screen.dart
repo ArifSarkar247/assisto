@@ -176,7 +176,7 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 32),
+                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
                     children: [
                       _SecScoreCard(score: score, t: t),
                       const SizedBox(height: Gap.md),
@@ -228,7 +228,7 @@ class _SecScoreCard extends StatelessWidget {
       case 'strong':
         return Brand.success;
       case 'good':
-        return const Color(0xFF4CAF50);
+        return AssistoTokens.of(context).success;
       case 'fair':
         return Brand.warning;
       default:
@@ -278,10 +278,10 @@ class _SecScoreCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('${score.percent}%',
-                          style: Theme.of(context)
+                          style: AFonts.figures(Theme.of(context)
                               .textTheme
                               .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800)),
+                              ?.copyWith(fontWeight: FontWeight.w800))),
                     ],
                   ),
                 ],
@@ -294,7 +294,7 @@ class _SecScoreCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: Gap.md, vertical: 4),
+                        horizontal: Gap.md, vertical: Gap.xs),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(Radii.pill),
@@ -308,7 +308,7 @@ class _SecScoreCard extends StatelessWidget {
                     t.secDoneOfTotal(score.doneCount, score.totalCount),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(
                     t.secGradeHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -431,7 +431,7 @@ class _SecItemTile extends StatelessWidget {
             .copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           tilePadding:
-              const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 2),
+              const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xxs),
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           leading: Icon(

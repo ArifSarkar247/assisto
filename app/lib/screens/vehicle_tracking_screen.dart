@@ -230,7 +230,7 @@ class _TrackerCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   Text(status,
-                      style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: AType.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w600),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                 ]),
@@ -422,7 +422,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
           margin: const EdgeInsets.only(top: Gap.xs),
           child: ListTile(
             title: Text(l.trim(),
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+                style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
             trailing: IconButton(
               tooltip: tr.vehCopy,
               icon: const Icon(Icons.copy),
@@ -437,7 +437,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         ),
       const SizedBox(height: Gap.sm),
       Text(tr.vehSetupSmsNote,
-          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.35)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
       const SizedBox(height: Gap.md),
       FilledButton(
           onPressed: () => Navigator.pop(context, true), child: Text(tr.vehDone)),

@@ -156,8 +156,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(oStr(context, 'offServerSafeNote'),
-                          style: TextStyle(
-                              fontSize: 11, color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                     ),
                   ]),
                 ],
@@ -194,11 +193,11 @@ class _LiveStatusCard extends StatelessWidget {
             Text(
                 oStr(context, good ? 'offStatusOnline' : 'offStatusOffline'),
                 style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(
                 oStr(context,
                     good ? 'offStatusOnlineSub' : 'offStatusOfflineSub'),
-                style: TextStyle(fontSize: 12, color: fg)),
+                style: AType.bodySmall.copyWith(color: fg)),
           ]),
         ),
       ]),
@@ -228,7 +227,7 @@ class _DataUsageCard extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface)),
           const SizedBox(height: Gap.xs),
           Text(oStr(context, 'offDataUsageNote'),
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,

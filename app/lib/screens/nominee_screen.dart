@@ -131,9 +131,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                     style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.nomineeScopeHint,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.sm),
                 NomineeScopePicker(
                   selected: scopes,
@@ -144,9 +142,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                     style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.nomineeTriggerHint,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.sm),
                 RadioListTile<String>(
                   contentPadding: EdgeInsets.zero,
@@ -385,10 +381,7 @@ class _SafetyHeader extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(tr.nomineeAccessNeverSilent,
-              style: TextStyle(
-                  fontSize: 13,
-                  height: 1.4,
-                  color: scheme.onSecondaryContainer)),
+              style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.onSecondaryContainer)),
         ),
       ]),
     );
@@ -433,6 +426,7 @@ class _StepperField extends StatelessWidget {
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(
+          tooltip: AppLocalizations.of(context).f2Decrease,
           icon: const Icon(Icons.remove),
           onPressed: value > min ? () => onChanged(value - step) : null,
         ),
@@ -440,9 +434,10 @@ class _StepperField extends StatelessWidget {
           width: 36,
           child: Text(localeDigits(value, locale),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
         ),
         IconButton(
+          tooltip: AppLocalizations.of(context).f2Increase,
           icon: const Icon(Icons.add),
           onPressed: value < max ? () => onChanged(value + step) : null,
         ),

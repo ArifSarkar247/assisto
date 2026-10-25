@@ -120,7 +120,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
                     counterText: '',
                     isDense: true,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24)),
+                        borderRadius: BorderRadius.circular(Radii.xl)),
                   ),
                 ),
               ),

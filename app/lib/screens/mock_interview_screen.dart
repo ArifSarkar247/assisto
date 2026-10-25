@@ -339,15 +339,13 @@ class _ProgressHeader extends StatelessWidget {
                 children: [
                   Text(_catLabel(tr, category),
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.miProgressLabel(p.done, p.total),
-                      style: TextStyle(
-                          fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
           Text('${p.percent}%',
-              style: TextStyle(
-                  fontWeight: FontWeight.w800, color: Brand.blue, fontSize: 18)),
+              style: AType.titleLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: Brand.blue)),
         ]),
       ),
     );
@@ -368,11 +366,7 @@ class _QuestionCard extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.miQuestionLabel.toUpperCase(),
-              style: TextStyle(
-                  fontSize: 11,
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.primary)),
+              style: AType.labelSmall.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: scheme.primary)),
           const SizedBox(height: Gap.sm),
           Text(_miQuestionText(tr, question.id),
               style: Theme.of(context)
@@ -437,13 +431,10 @@ class _FeedbackCard extends StatelessWidget {
           // honest marker: rule-based, not an AI grade
           Row(children: [
             Icon(Icons.info_outline, size: 14, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 4),
+            const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.miFbMarker,
-                  style: TextStyle(
-                      fontSize: 11.5,
-                      fontStyle: FontStyle.italic,
-                      color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
             ),
           ]),
           const SizedBox(height: Gap.md),
@@ -464,15 +455,12 @@ class _FeedbackCard extends StatelessWidget {
           if (feedback.missing.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.miMissingLabel,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: scheme.onSurfaceVariant)),
-            const SizedBox(height: 4),
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.xs),
             Wrap(spacing: 6, runSpacing: 6, children: [
               for (final k in feedback.missing)
                 Chip(
-                  label: Text(k, style: const TextStyle(fontSize: 11)),
+                  label: Text(k, style: AType.labelSmall),
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -480,7 +468,7 @@ class _FeedbackCard extends StatelessWidget {
           ],
           const SizedBox(height: Gap.md),
           Text(tr.miSelfScore,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xs),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -523,12 +511,12 @@ Widget _levelChip(BuildContext context, String level) {
       ? tr.miLevelTooShort
       : (level == 'strong' ? tr.miLevelStrong : tr.miLevelOk);
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: Gap.xs),
     decoration: BoxDecoration(
         color: c.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(Radii.pill)),
     child: Text(label,
-        style: TextStyle(color: c, fontWeight: FontWeight.w700, fontSize: 12)),
+        style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
   );
 }
 
@@ -547,8 +535,8 @@ Widget _stat(BuildContext context, IconData icon, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Row(mainAxisSize: MainAxisSize.min, children: [
     Icon(icon, size: 16, color: scheme.onSurfaceVariant),
-    const SizedBox(width: 4),
-    Text(text, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+    const SizedBox(width: Gap.xs),
+    Text(text, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
   ]);
 }
 
@@ -587,10 +575,7 @@ class _OutlineSection extends StatelessWidget {
                       style: const TextStyle(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   Text(tr.miOutlineNote,
-                      style: TextStyle(
-                          fontSize: 11.5,
-                          fontStyle: FontStyle.italic,
-                          color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
                 ]),
           ),
       ]),
@@ -619,11 +604,9 @@ class _LiveSeamCard extends StatelessWidget {
                 children: [
                   Text(tr.miLiveSeamTitle,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.miLiveSeamBody,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant,
-                          height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
         ]),

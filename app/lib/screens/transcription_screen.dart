@@ -320,11 +320,11 @@ class _Stat extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-      const SizedBox(height: 2),
+          style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+      const SizedBox(height: Gap.xxs),
       Text(label,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -350,12 +350,9 @@ class _SttSeamCard extends StatelessWidget {
                 children: [
                   Text(tr.tnSttSeamTitle,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(tr.tnSttSeamBody,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
-                          height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
         ]),
@@ -393,8 +390,8 @@ class _NoteCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 2),
-            Wrap(spacing: Gap.sm, runSpacing: 4, children: [
+            const SizedBox(height: Gap.xxs),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               if (dur > 0)
                 _Chip(icon: Icons.schedule, label: _fmtDuration(dur)),
               if (date.isNotEmpty) _Chip(icon: Icons.event, label: date),
@@ -413,7 +410,7 @@ class _NoteCard extends StatelessWidget {
                     tint: scheme.onSurfaceVariant),
             ]),
             if (hasTranscript) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: Gap.xs),
               Text(transcript,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -444,7 +441,7 @@ class _Chip extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 13, color: c),
       const SizedBox(width: 3),
-      Text(label, style: TextStyle(fontSize: 11, color: c)),
+      Text(label, style: AType.labelSmall.copyWith(color: c)),
     ]);
   }
 }
@@ -595,9 +592,9 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
             contentPadding: EdgeInsets.zero,
             value: _consentAck,
             onChanged: (v) => setState(() => _consentAck = v ?? false),
-            title: Text(tr.tnConsentLabel, style: const TextStyle(fontSize: 13)),
+            title: Text(tr.tnConsentLabel, style: AType.bodyMedium),
             subtitle:
-                Text(tr.tnConsentBody, style: const TextStyle(fontSize: 11)),
+                Text(tr.tnConsentBody, style: AType.labelSmall),
             controlAffinity: ListTileControlAffinity.leading,
           ),
           const SizedBox(height: Gap.sm),
@@ -624,8 +621,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
           ),
           const SizedBox(height: Gap.sm),
           Text(tr.tnSttSeamBody,
-              style: TextStyle(
-                  fontSize: 11, color: scheme.onSurfaceVariant, height: 1.3)),
+              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(

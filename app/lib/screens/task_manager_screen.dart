@@ -311,7 +311,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
       children: [
-        const SizedBox(height: 48),
+        const SizedBox(height: Gap.xxxl),
         Center(
           child: Container(
             height: 84,
@@ -473,8 +473,8 @@ class _ProjectCard extends StatelessWidget {
     final color = tint ?? Theme.of(c).colorScheme.onSurfaceVariant;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: color),
-      const SizedBox(width: 4),
-      Text(label, style: TextStyle(color: color, fontSize: 12.5)),
+      const SizedBox(width: Gap.xs),
+      Text(label, style: AType.bodySmall.copyWith(color: color)),
     ]);
   }
 }
@@ -666,7 +666,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
           const SizedBox(width: Gap.md),
           const Icon(Icons.warning_amber_rounded,
               size: 16, color: Brand.danger),
-          const SizedBox(width: 4),
+          const SizedBox(width: Gap.xs),
           Text(tmNum(context, s.overdue),
               style: const TextStyle(
                   color: Brand.danger, fontWeight: FontWeight.w700)),
@@ -730,7 +730,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
         PopupMenuItem(
             enabled: false,
             child: Text(tmStr(context, 'tmByStatus'),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700))),
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700))),
         for (final s in kBoardColumns)
           CheckedPopupMenuItem(
               value: 's:$s',
@@ -742,7 +742,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
               enabled: false,
               child: Text(tmStr(context, 'tmByAssignee'),
                   style:
-                      const TextStyle(fontSize: 12, fontWeight: FontWeight.w700))),
+                      AType.bodySmall.copyWith(fontWeight: FontWeight.w700))),
           if (hasUnassigned)
             CheckedPopupMenuItem(
                 value: 'a:unassigned',
@@ -1032,19 +1032,19 @@ class _TaskTile extends StatelessWidget {
     final scheme = Theme.of(c).colorScheme;
     final color = tint ?? scheme.onSurfaceVariant;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: color),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 150),
           child: Text(label,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: color, fontSize: 12)),
+              style: AType.bodySmall.copyWith(color: color)),
         ),
       ]),
     );

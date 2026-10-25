@@ -364,14 +364,10 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
           padding: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm),
           child: Row(children: [
             Text(label,
-                style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    color: scheme.primary)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, color: scheme.primary)),
             const SizedBox(width: Gap.sm),
             Text(t.paSlotCount(d.items.length),
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ),
         ...d.items.map((it) => Padding(
@@ -421,7 +417,7 @@ class _OfflineBanner extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 12.5, height: 1.3))),
+                style: AType.bodySmall.copyWith(height: 1.3))),
       ]),
     );
   }
@@ -469,11 +465,7 @@ class _NextUpCard extends StatelessWidget {
           const Icon(Icons.upcoming, color: Colors.white, size: 18),
           const SizedBox(width: Gap.sm),
           Text(t.paNextUp,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12.5,
-                  letterSpacing: 0.3)),
+              style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
           const Spacer(),
           Container(
             padding:
@@ -485,21 +477,15 @@ class _NextUpCard extends StatelessWidget {
             child: Text(sub,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ]),
         const SizedBox(height: Gap.sm),
         Text('${slot['title'] ?? ''}',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 18)),
-        const SizedBox(height: 2),
+            style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+        const SizedBox(height: Gap.xxs),
         Text(timeStr,
             style: TextStyle(color: Colors.white.withValues(alpha: 0.92))),
       ]),
@@ -591,10 +577,7 @@ class _ConflictSummary extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.paConflictSummary(count),
-              style: const TextStyle(
-                  color: Brand.danger,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600)),
+              style: AType.bodySmall.copyWith(color: Brand.danger, fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -658,13 +641,9 @@ class _SlotCard extends StatelessWidget {
               child: Text('${slot['title'] ?? ''}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15.5,
-                      decoration: (done || cancelled)
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, decoration: (done || cancelled)
                           ? TextDecoration.lineThrough
-                          : null,
-                      color: cancelled ? scheme.onSurfaceVariant : null)),
+                          : null, color: cancelled ? scheme.onSurfaceVariant : null)),
             ),
             _MenuButton(
               status: status,
@@ -676,44 +655,41 @@ class _SlotCard extends StatelessWidget {
           const SizedBox(height: Gap.xs),
           Row(children: [
             Icon(Icons.schedule, size: 14, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 4),
+            const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(timeStr,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: scheme.onSurfaceVariant, fontSize: 13)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ),
             const SizedBox(width: Gap.sm),
             _StatusChip(status: status),
           ]),
           if ('${slot['place'] ?? ''}'.trim().isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Row(children: [
               Icon(Icons.place_outlined,
                   size: 14, color: scheme.onSurfaceVariant),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text('${slot['place']}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 13)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               ),
             ]),
           ],
           if (people.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Row(children: [
               Icon(Icons.group_outlined,
                   size: 14, color: scheme.onSurfaceVariant),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(people.join(', '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 13)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               ),
             ]),
           ],
@@ -722,13 +698,10 @@ class _SlotCard extends StatelessWidget {
             Row(children: [
               const Icon(Icons.error_outline,
                   size: 14, color: Brand.danger),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.paClashBadge,
-                    style: const TextStyle(
-                        color: Brand.danger,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                    style: AType.bodySmall.copyWith(color: Brand.danger, fontWeight: FontWeight.w600)),
               ),
             ]),
           ],
@@ -742,7 +715,7 @@ class _SlotCard extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: Gap.md, vertical: 2),
+                    horizontal: Gap.md, vertical: Gap.xxs),
               ),
             ),
           ),
@@ -789,14 +762,13 @@ class _StatusChip extends StatelessWidget {
         c = Brand.blue;
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text(statusLabel(t, status),
-          style: TextStyle(
-              color: c, fontSize: 11, fontWeight: FontWeight.w700)),
+          style: AType.labelSmall.copyWith(color: c, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -953,8 +925,7 @@ class _SlotEditorState extends State<_SlotEditor> {
       child: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.paAddSlot : t.paEditSlot,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w800, fontSize: 17)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
             controller: _title,
@@ -991,7 +962,7 @@ class _SlotEditorState extends State<_SlotEditor> {
                 onPressed: _pickTime,
                 icon: const Icon(Icons.access_time, size: 16),
                 label: Text(DateFormat('HH:mm', loc).format(_start),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                    maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFeatures: AFonts.tabular)),
               ),
             ),
           ]),

@@ -220,8 +220,8 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
                 onPressed: _probing ? null : _runProbe,
                 icon: _probing
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: Gap.lg,
+                        height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.network_check),
                 label: Text(t.srvTestButton),

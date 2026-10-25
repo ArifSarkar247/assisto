@@ -226,7 +226,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                               .textTheme
                               .titleMedium
                               ?.copyWith(color: fg, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text(body,
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
@@ -283,7 +283,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         padding: const EdgeInsets.all(Gap.sm),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +300,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                           .labelLarge
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   if (when.isNotEmpty) Text(t.mlpLastSeen(when)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(t.mlpWentDarkBody,
                       style: Theme.of(context).textTheme.bodySmall),
                 ],
@@ -406,7 +406,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
           children: [
             Text(t.mlpPhotosTitle,
                 style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.mlpPhotosBody, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: Gap.sm),
             if (photoEvents.isEmpty)
@@ -550,7 +550,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
   }
 
   Widget _kv(String k, String v) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -708,7 +708,7 @@ class _IntruderPhotoState extends State<_IntruderPhoto> {
       );
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(Radii.sm),
       child: Container(
         color: scheme.surfaceContainerHighest,
         child: AspectRatio(aspectRatio: 1, child: child),

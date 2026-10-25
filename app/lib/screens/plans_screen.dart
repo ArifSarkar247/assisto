@@ -254,7 +254,7 @@ class _PlansScreenState extends State<PlansScreen> {
         Expanded(
           child: Text(t.plansChooseYourPlan,
               style:
-                  const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         ),
         if (annualPlan.isNotEmpty) _billingToggle(t, scheme),
       ]),
@@ -285,10 +285,10 @@ class _PlansScreenState extends State<PlansScreen> {
         // ---- Per-feature "what you get" comparison matrix (Section 21) ----
         const SizedBox(height: Gap.lg),
         Text(t.plansCompareTitle,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-        const SizedBox(height: 2),
+            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: Gap.xxs),
         Text(t.plansCompareSubtitle,
-            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),
         PlansCompareTable(plans: _all, current: current),
       ],
@@ -298,7 +298,7 @@ class _PlansScreenState extends State<PlansScreen> {
       if (_payCfg?.anyUsable(payFlavour()) ?? false) ...[
         const SizedBox(height: Gap.sm),
         Text(t.paySafeNote,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ],
 
       // ---- Earn Premium days by inviting (referral) ----
@@ -342,7 +342,7 @@ class _PlansScreenState extends State<PlansScreen> {
             const SizedBox(width: Gap.md),
             Expanded(
                 child: Text(t.plansOfflineNote,
-                    style: const TextStyle(fontSize: 13))),
+                    style: AType.bodyMedium)),
           ]),
         ),
       );
@@ -355,7 +355,7 @@ class _PlansScreenState extends State<PlansScreen> {
     // the button) so they keep inheriting the app font family — a plain
     // TextStyle(fontSize:) on the button strips the family and the labels fall
     // back to a glyph-less font (rendering as empty boxes/bars).
-    const seg = TextStyle(fontSize: 12);
+    const seg = AType.bodySmall;
     return SegmentedButton<bool>(
       showSelectedIcon: false,
       style: const ButtonStyle(
@@ -383,15 +383,14 @@ class _PlansScreenState extends State<PlansScreen> {
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.currentPlan,
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: Colors.white70)),
         Text(_planLabel(p),
-            style: const TextStyle(
-                color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
+            style: AType.headlineMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
         if ((p['desc'] ?? '').toString().isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: Gap.xxs),
             child: Text('${p['desc']}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: Colors.white70)),
           ),
         if (trial)
           Padding(
@@ -478,18 +477,17 @@ class _PlansScreenState extends State<PlansScreen> {
         child: Row(children: [
           Icon(icon, size: 20, color: scheme.primary),
           const SizedBox(width: Gap.md),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
+          Expanded(child: Text(text, style: AType.bodyMedium)),
         ]),
       );
 
   Widget _pill(String text) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
         decoration: BoxDecoration(
             color: Colors.white24,
             borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(text,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+            style: AType.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
       );
 
   /// "Nothing is unlimited" honesty line — paid plans ship a MONTHLY credit
@@ -509,12 +507,9 @@ class _PlansScreenState extends State<PlansScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.plansNothingUnlimitedTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.plansNothingUnlimitedBody,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: scheme.onSurfaceVariant,
-                    height: 1.35)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
           ]),
         ),
       ]),
@@ -548,10 +543,10 @@ class _PlansScreenState extends State<PlansScreen> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.plansSafetyAlwaysFreeTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.plansSafetyAlwaysFreeBody,
                 style:
-                    TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ),
       ]),
@@ -584,33 +579,29 @@ class _PlansScreenState extends State<PlansScreen> {
           Row(children: [
             Expanded(
               child: Text(_planLabel(p),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 17)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
             if (highlighted && !isCurrent)
               _tag(scheme, t.plansMostPopular, scheme.primary),
             if (isCurrent) _tag(scheme, t.plansCurrentTag, Brand.success),
           ]),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(_priceLabel(p),
-                style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 22,
-                    color: scheme.primary)),
-            const SizedBox(width: 4),
+                style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800, color: scheme.primary)),
+            const SizedBox(width: Gap.xs),
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Text(_periodLabel(t, p),
                   style:
-                      TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                      AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           ]),
           if ((p['desc'] ?? '').toString().isNotEmpty) ...[
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text('${p['desc']}',
                 style:
-                    TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                    AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ],
           // Monthly allowance (included credit pool). Free plans show no pool.
           if (!isFree && _includedPool(p) > 0) ...[
@@ -629,10 +620,7 @@ class _PlansScreenState extends State<PlansScreen> {
                   child: Text(
                       t.plansMonthlyAllowance(
                           fmtInt(context, _includedPool(p))),
-                      style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: scheme.primary)),
+                      style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.primary)),
                 ),
               ]),
             ),
@@ -642,10 +630,7 @@ class _PlansScreenState extends State<PlansScreen> {
           if (isBusiness) ...[
             const SizedBox(height: Gap.sm),
             Text(t.plansCrmSeatsReview,
-                style: TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
           ],
           const SizedBox(height: Gap.md),
           if (isFree)
@@ -687,7 +672,7 @@ class _PlansScreenState extends State<PlansScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(text,
-                  style: const TextStyle(fontSize: 13, height: 1.35))),
+                  style: AType.bodyMedium.copyWith(height: 1.35))),
         ]),
       );
 
@@ -697,8 +682,7 @@ class _PlansScreenState extends State<PlansScreen> {
             color: color.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(text,
-            style: TextStyle(
-                color: color, fontSize: 11, fontWeight: FontWeight.w700)),
+            style: AType.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
       );
 
   String _priceLabel(Map<String, dynamic> p) {
@@ -762,7 +746,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Text(t.referralRedeemPickDays,
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
             Text(t.referralRedeemDaysChosen(_days),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -775,7 +759,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
               onChanged: (v) => setState(() => _days = v.round()),
             ),
             Text(t.referralRedeemCost(cost),
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,

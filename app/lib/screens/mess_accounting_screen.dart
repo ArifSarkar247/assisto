@@ -376,7 +376,7 @@ class _EntriesTabState extends State<_EntriesTab> {
     return RefreshIndicator(
       onRefresh: widget.onChanged,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
         children: [
           _sectionHeader(context, Icons.restaurant_outlined,
               tr.messMealsSection, tr.messMealsSectionHint),
@@ -565,7 +565,7 @@ class _SummaryTab extends StatelessWidget {
     }
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
       children: [
         // top stat row: meal rate + totals
         Row(children: [
@@ -625,8 +625,7 @@ class _SummaryTab extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(tr.messNoMoneyNote,
-                    style: TextStyle(
-                        fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             ]),
           ),
@@ -664,13 +663,12 @@ class _SummaryTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Text('$badge ${_MessMath.fmtPoisha(r.balance.toDouble())}',
-                  style: TextStyle(
-                      color: c, fontSize: 12, fontWeight: FontWeight.w700)),
+                  style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: Gap.xs),
           // transparent breakdown: meals × rate = cost; deposits; charges
-          Wrap(spacing: Gap.md, runSpacing: 2, children: [
+          Wrap(spacing: Gap.md, runSpacing: Gap.xxs, children: [
             _kv(context, tr.messMeals, _fmtMeals(r.meals)),
             _kv(context, tr.messMealCost,
                 _MessMath.fmtPoisha(r.mealCost.toDouble())),
@@ -689,7 +687,7 @@ class _SummaryTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return RichText(
       text: TextSpan(
-        style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
         children: [
           TextSpan(text: '$k '),
           TextSpan(
@@ -717,15 +715,14 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
           Expanded(
             child: Text(label,
                 style:
-                    TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
           ),
         ]),
         const SizedBox(height: Gap.xs),
         Text(value,
-            style: TextStyle(
-                fontSize: 17, fontWeight: FontWeight.bold, color: color),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
       ]),
@@ -750,9 +747,9 @@ Widget _sectionHeader(
         ),
       ]),
       Padding(
-        padding: const EdgeInsets.only(left: 26, top: 2),
+        padding: const EdgeInsets.only(left: 26, top: Gap.xxs),
         child: Text(hint,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ),
     ]),
   );

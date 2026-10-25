@@ -173,6 +173,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           hintText: t.medicineDbSearchHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: IconButton(
+            tooltip: MaterialLocalizations.of(context).searchFieldLabel,
             icon: const Icon(Icons.arrow_forward),
             onPressed: _run,
           ),
@@ -187,12 +188,12 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
       // honest source line (always, once results exist)
       if (_searched && !_offline && sourceLabel.isNotEmpty)
         _noticeRow(Icons.verified_outlined, sourceLabel,
-            const Color(0xFF3B6EF6), scheme),
+            AssistoTokens.of(context).info, scheme),
 
       // sample-data badge
       if (_searched && !_offline && isSample && sampleNotice.isNotEmpty)
         _noticeRow(Icons.science_outlined, sampleNotice,
-            const Color(0xFF8A6D00), scheme,
+            Brand.warnInk(context), scheme,
             bg: Brand.warning.withValues(alpha: 0.15)),
 
       // mandatory switch-warning (always, once results exist)
@@ -295,8 +296,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.medicineDbOfflineBanner,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
         ]),
       );
 
@@ -314,7 +314,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
               child:
-                  Text(text, style: TextStyle(fontSize: 12, color: fg))),
+                  Text(text, style: AType.bodySmall.copyWith(color: fg))),
         ]),
       );
 
@@ -325,10 +325,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
           const SizedBox(width: Gap.xs),
           Expanded(
               child: Text(text,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.error,
-                      fontWeight: FontWeight.w600))),
+                  style: AType.bodySmall.copyWith(color: scheme.error, fontWeight: FontWeight.w600))),
         ]),
       );
 }

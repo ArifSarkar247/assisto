@@ -194,7 +194,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: ListTile(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(Radii.md),
                     side: BorderSide(
                         color: _choice[id] == k
                             ? scheme.primary
@@ -278,7 +278,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
               const SizedBox(height: Gap.xs),
               Text(t.uwMcqRightAnswer(
                   '${(x['options'] as List?)?[(x['answer'] as num?)?.toInt() ?? 0] ?? ''}')),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text('${x['why'] ?? ''}',
                   style:
                       TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),

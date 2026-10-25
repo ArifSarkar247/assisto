@@ -370,7 +370,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(tr.vehIntervalNote,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
           section(tr.vehApprovalSection),
           SwitchListTile(

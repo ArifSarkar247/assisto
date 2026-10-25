@@ -245,12 +245,12 @@ class _SamityCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: scheme.surface,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: 5),
-        Text(text, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -585,13 +585,13 @@ class _CyclePicker extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        IconButton(onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
+        IconButton(tooltip: MaterialLocalizations.of(context).previousPageTooltip, onPressed: onPrev, icon: const Icon(Icons.chevron_left)),
         Expanded(
           child: Text(
             t.samityCycleOf(fmtInt(context, cycle), fmtInt(context, total)),
@@ -599,7 +599,7 @@ class _CyclePicker extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
-        IconButton(onPressed: onNext, icon: const Icon(Icons.chevron_right)),
+        IconButton(tooltip: MaterialLocalizations.of(context).nextPageTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right)),
       ]),
     );
   }
@@ -624,16 +624,13 @@ class _CollectedHero extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.samityCollectedThisCycle,
-            style: const TextStyle(color: Colors.white70, fontSize: 13)),
-        const SizedBox(height: 4),
+            style: AType.bodyMedium.copyWith(color: Colors.white70)),
+        const SizedBox(height: Gap.xs),
         Text(taka(context, collected),
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.w800)),
+            style: AType.displaySmall.copyWith(fontFeatures: AFonts.tabular, color: Colors.white, fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         ClipRRect(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(Radii.pill),
           child: LinearProgressIndicator(
             value: pct.clamp(0.0, 1.0),
             minHeight: 8,
@@ -644,19 +641,16 @@ class _CollectedHero extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(t.samityExpectedLabel(taka(context, expected)),
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              style: AType.bodySmall.copyWith(color: Colors.white70)),
           Text(t.samityPendingLabel(taka(context, pending)),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700)),
+              style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
         ]),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Text(
           t.samityPaidCount(
               fmtInt(context, status['paid_count'] as int),
               fmtInt(context, status['member_count'] as int)),
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: AType.bodySmall.copyWith(color: Colors.white70),
         ),
       ]),
     );
@@ -691,14 +685,12 @@ class _PayoutCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.samityTurnLabel,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 12)),
-            const SizedBox(height: 2),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.xxs),
             Text('${recipient?['name'] ?? ''}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 16)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
         ),
         const SizedBox(width: Gap.sm),
@@ -756,9 +748,7 @@ class _MemberRow extends StatelessWidget {
               paid
                   ? t.samityPaidFull(taka(context, row['paid_poisha'] as int))
                   : t.samityDueAmount(taka(context, row['due_poisha'] as int)),
-              style: TextStyle(
-                  fontSize: 12,
-                  color: paid ? Brand.success : scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: paid ? Brand.success : scheme.onSurfaceVariant),
             ),
           ]),
         ),
@@ -792,8 +782,7 @@ class _RotationList extends StatelessWidget {
                 radius: 13,
                 backgroundColor: scheme.surfaceContainerHighest,
                 child: Text(fmtInt(context, i + 1),
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700)),
+                    style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -804,12 +793,9 @@ class _RotationList extends StatelessWidget {
                 Row(mainAxisSize: MainAxisSize.min, children: [
                   const Icon(Icons.check_circle,
                       size: 15, color: Brand.success),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: Gap.xs),
                   Text(t.samityReceived,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: Brand.success,
-                          fontWeight: FontWeight.w600)),
+                      style: AType.bodySmall.copyWith(color: Brand.success, fontWeight: FontWeight.w600)),
                 ]),
             ]),
           ),
@@ -931,7 +917,7 @@ class _OfflineBar extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(color: scheme.onSurface, fontSize: 12))),
+                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
       ]),
     );
   }

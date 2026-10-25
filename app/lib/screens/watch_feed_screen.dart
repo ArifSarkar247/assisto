@@ -392,10 +392,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           children: [
             Text(t.watchFeedTitle),
             Text(t.watchFeedSubtitle,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400, color: scheme.onSurfaceVariant)),
           ],
         ),
         actions: [
@@ -422,8 +419,8 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
                   const SizedBox(
-                      height: 16,
-                      width: 16,
+                      height: Gap.lg,
+                      width: Gap.lg,
                       child: CircularProgressIndicator(strokeWidth: 2)),
                   const SizedBox(width: Gap.sm),
                   Flexible( // qa1: wraps at large font
@@ -527,8 +524,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                 Expanded(
                   child: Text(
                     t.watchEnableToSee(watchSourceLabel(t, s)),
-                    style: TextStyle(
-                        color: scheme.onSurfaceVariant, fontSize: 12),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                   ),
                 ),
                 TextButton(
@@ -555,13 +551,11 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           Text(title,
               style: TextStyle(fontWeight: FontWeight.w700, color: tint)),
         ]),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Padding(
           padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
           child: Text(hint,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ),
         if (items.isEmpty)
           Padding(

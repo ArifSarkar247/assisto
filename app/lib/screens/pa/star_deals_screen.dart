@@ -278,7 +278,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           _pipelineCard(tr, scheme),
           const SizedBox(height: Gap.md),
           Text(tr.starDealsNoHold,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
           const SizedBox(height: Gap.md),
           for (final r in list) ...[
             _card(r, tr, scheme),
@@ -305,31 +305,31 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
               const SizedBox(height: Gap.xs),
               Row(children: [
                 Icon(Icons.error_outline, size: 16, color: scheme.error),
-                const SizedBox(width: 4),
+                const SizedBox(width: Gap.xs),
                 Flexible(
                   child: Text(tr.starDealsOverdue('$_overdueCount'),
-                      style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600, fontSize: 13)),
+                      style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
                 ),
               ]),
             ],
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Text(tr.starDealsExpectedNote,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 11.5, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
           ]),
         ),
       );
 
   Widget _kv(String k, String v, ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(children: [
           Expanded(
             child: Text(k,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: Gap.sm),
           Text(v,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 
@@ -375,15 +375,14 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           Row(children: [
             Expanded(
               child: Text(brand,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _pill(_stageLabel(tr, stage), _stageColor(stage, scheme)),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Text(_money(_value(r)),
-              style: TextStyle(
-                  color: scheme.onSurface, fontWeight: FontWeight.w600, fontSize: 14)),
+              style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurface, fontWeight: FontWeight.w600)),
           if (deliverables.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Wrap(
@@ -391,7 +390,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
               runSpacing: Gap.xs,
               children: deliverables
                   .map((d) => Chip(
-                        label: Text(d, style: const TextStyle(fontSize: 11.5)),
+                        label: Text(d, style: AType.bodySmall),
                         visualDensity: VisualDensity.compact,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ))
@@ -403,14 +402,11 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             Row(children: [
               Icon(Icons.event_outlined,
                   size: 15, color: overdue ? scheme.error : scheme.onSurfaceVariant),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Flexible(
                 child: Text(
                     overdue ? tr.starDealsDeadlineOverdue(deadline) : tr.starDealsDeadline(deadline),
-                    style: TextStyle(
-                        color: overdue ? scheme.error : scheme.onSurfaceVariant,
-                        fontWeight: overdue ? FontWeight.w700 : FontWeight.w400,
-                        fontSize: 12.5),
+                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.onSurfaceVariant, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ]),
@@ -429,7 +425,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             else
               Expanded(
                 child: Text(tr.starDealsFullyPaid,
-                    style: TextStyle(color: Brand.success, fontWeight: FontWeight.w600, fontSize: 13)),
+                    style: AType.bodyMedium.copyWith(color: Brand.success, fontWeight: FontWeight.w600)),
               ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
@@ -455,7 +451,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 }
 

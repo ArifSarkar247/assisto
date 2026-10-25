@@ -264,11 +264,11 @@ class _TripCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             if (start.isNotEmpty && end.isNotEmpty)
               Text('$start → $end',
                   style: TextStyle(color: scheme.onSurfaceVariant)),
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Wrap(spacing: Gap.sm, children: [
               if (days > 0)
                 _CountChip(
@@ -354,8 +354,7 @@ class _CountChip extends StatelessWidget {
       Icon(icon, size: 14, color: tint),
       const SizedBox(width: 3),
       Text(label,
-          style: TextStyle(
-              fontSize: 12, color: tint, fontWeight: FontWeight.w600)),
+          style: AType.bodySmall.copyWith(color: tint, fontWeight: FontWeight.w600)),
     ]);
   }
 }
@@ -630,7 +629,7 @@ class _DayCard extends StatelessWidget {
           ]),
           if (acts.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 40, top: 4),
+              padding: const EdgeInsets.only(left: 40, top: Gap.xs),
               child: Text(tr.tvNoActivities,
                   style: TextStyle(
                       color: scheme.onSurfaceVariant,
@@ -658,9 +657,7 @@ class _DayCard extends StatelessWidget {
                                       '${a['time'] ?? ''}'.trim(),
                                       '${a['place'] ?? ''}'.trim(),
                                     ].where((e) => e.isNotEmpty).join(' · '),
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: scheme.onSurfaceVariant)),
+                                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                             ]),
                       ),
                     ]),
@@ -734,7 +731,7 @@ class _PackingTab extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: pct / 100,
                   minHeight: 8,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(Radii.xs),
                 ),
               ),
               const SizedBox(width: Gap.sm),
@@ -755,7 +752,7 @@ class _PackingTab extends StatelessWidget {
           else
             for (final i in rows)
               Card(
-                margin: const EdgeInsets.only(bottom: 4),
+                margin: const EdgeInsets.only(bottom: Gap.xs),
                 child: CheckboxListTile(
                   value: i['checked'] == true,
                   onChanged: (v) => i['id'] is int
@@ -900,10 +897,7 @@ class _BudgetTab extends StatelessWidget {
                 if (overspent) ...[
                   const SizedBox(height: Gap.sm),
                   Text(tr.tvOverspent,
-                      style: TextStyle(
-                          color: scheme.error,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600)),
+                      style: AType.bodySmall.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
                 ],
               ]),
             ),
@@ -923,7 +917,7 @@ class _BudgetTab extends StatelessWidget {
           else
             for (final r in rows)
               Card(
-                margin: const EdgeInsets.only(bottom: 4),
+                margin: const EdgeInsets.only(bottom: Gap.xs),
                 child: ListTile(
                   onTap: () => _edit(context, r),
                   title: Text(_catLabel(tr, '${r['category'] ?? 'other'}')),
@@ -953,12 +947,11 @@ class _BudgetStat extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(value,
-          style: TextStyle(
-              fontSize: 15, fontWeight: FontWeight.w700, color: tint)),
-      const SizedBox(height: 2),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: tint)),
+      const SizedBox(height: Gap.xxs),
       Text(label,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
 }
@@ -1011,12 +1004,9 @@ class _SeamCard extends StatelessWidget {
                 children: [
                   Text(title,
                       style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(body,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
-                          height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
         ]),
@@ -1303,7 +1293,7 @@ class _ActivityRow extends StatelessWidget {
                 tooltip: tr.delete,
                 onPressed: onRemove),
         ]),
-        const SizedBox(height: 4),
+        const SizedBox(height: Gap.xs),
         Row(children: [
           Expanded(
             child: TextField(
@@ -1432,9 +1422,7 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(tr.tvBudgetEstimateNote,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ),
         const SizedBox(height: Gap.lg),
         Row(children: [

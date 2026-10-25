@@ -298,8 +298,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     Text(
                         '${isBike ? tr.vehiclesTypeBike : tr.vehiclesTypeCar}'
                         '${reg.isEmpty ? '' : '  ·  $reg'}',
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                   ]),
@@ -356,14 +355,14 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   }
 
   Widget _chip(String text, Color c) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
           color: c.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
             style:
-                TextStyle(fontSize: 11.5, color: c, fontWeight: FontWeight.w600)),
+                AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w600)),
       );
 }
 
@@ -555,7 +554,7 @@ class _BuyingGuideTab extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
       children: [
         // v1-vehicle: Assisto live tracking now works with GT06 / Teltonika
         // trackers — say so honestly and link to it.
@@ -571,8 +570,7 @@ class _BuyingGuideTab extends StatelessWidget {
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(tr.vehGuideTrackingNow,
-                          style: TextStyle(
-                              fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ),
                   ]),
                   const SizedBox(height: Gap.xs),
@@ -639,7 +637,7 @@ class _BuyingGuideTab extends StatelessWidget {
         _header(context, Icons.payments_outlined, tr.vehiclesPriceTitle),
         const SizedBox(height: Gap.sm),
         Text(tr.vehiclesPriceNote,
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.tonalIcon(
@@ -655,10 +653,7 @@ class _BuyingGuideTab extends StatelessWidget {
         ]),
         const SizedBox(height: Gap.lg),
         Text(tr.vehiclesPriceDisclaimer,
-            style: TextStyle(
-                fontSize: 11.5,
-                fontStyle: FontStyle.italic,
-                color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
       ],
     );
   }
@@ -704,7 +699,7 @@ class _BuyingGuideTab extends StatelessWidget {
                       size: 15, color: scheme.onSurfaceVariant),
                 ),
                 Expanded(
-                    child: Text(l, style: const TextStyle(fontSize: 13))),
+                    child: Text(l, style: AType.bodyMedium)),
               ]),
             ),
         ]),
@@ -721,7 +716,7 @@ class _BuyingGuideTab extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(fontSize: 13, color: scheme.onSurface))),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurface))),
       ]),
     );
   }

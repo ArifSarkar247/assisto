@@ -317,7 +317,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           _sectionTitle(t.upReceiptTitle),
           const SizedBox(height: Gap.xs),
           Text(t.upReceiptIntro,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           _receiptForm(t),
           if (_token != null && _token!.isNotEmpty) ...[
@@ -328,7 +328,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           _sectionTitle(t.upBuyerAcceptTitle),
           const SizedBox(height: Gap.xs),
           Text(t.upBuyerAcceptIntro,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           _buyerAccept(t),
           const SizedBox(height: Gap.xl),
@@ -348,7 +348,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           ),
           const SizedBox(height: Gap.sm),
           Text(t.upHonestFooter,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -359,13 +359,11 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           Expanded(
             child: Text(text,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                    AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           ),
           if (trailing != null)
             Text(trailing,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       );
 
@@ -386,7 +384,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           title: Text(s.title(t),
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(s.why(t),
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           children: [
@@ -425,7 +423,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title:
-                  Text(t.upStepConfirm, style: const TextStyle(fontSize: 14)),
+                  Text(t.upStepConfirm, style: AType.bodyMedium),
               value: done,
               onChanged: (v) => _toggle(s.id, v),
             ),
@@ -521,7 +519,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             Text(t.upTokenTitle,
                 style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.sm),
-            Text(t.upTokenHint, style: const TextStyle(fontSize: 12.5)),
+            Text(t.upTokenHint, style: AType.bodySmall),
             const SizedBox(height: Gap.md),
             // DISPLAY-ONLY QR (pure Dart). White background so any scanner app
             // reads it reliably regardless of theme.
@@ -549,8 +547,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             if (_saleState != null && _saleState!.isNotEmpty)
               Text(t.upStateLabel(_saleStateLabel(t, _saleState!)),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 12.5, color: scheme.onSecondaryContainer)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSecondaryContainer)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               icon: const Icon(Icons.copy, size: 18),
@@ -564,7 +561,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             Text(t.upAuthorizeTitle,
                 style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
-            Text(t.upAuthorizeIntro, style: const TextStyle(fontSize: 12.5)),
+            Text(t.upAuthorizeIntro, style: AType.bodySmall),
             const SizedBox(height: Gap.md),
             FilledButton.icon(
               icon: _authorizing
@@ -647,10 +644,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(text,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ),
       );
 

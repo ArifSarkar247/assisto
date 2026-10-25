@@ -221,10 +221,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(t.paProgressDone(p.percentDone),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800)),
+              style: AType.headlineSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(Radii.pill),
@@ -262,8 +259,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text(text,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
+          style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
           maxLines: 1,
           overflow: TextOverflow.ellipsis),
     );
@@ -343,18 +339,13 @@ class _TaskTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     task.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      decoration:
-                          done ? TextDecoration.lineThrough : null,
-                      color: done ? scheme.onSurfaceVariant : null,
-                    ),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, decoration:
+                          done ? TextDecoration.lineThrough : null, color: done ? scheme.onSurfaceVariant : null),
                   ),
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
-                    runSpacing: 4,
+                    runSpacing: Gap.xs,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       _badge(priorityLabel, _priorityColor()),
@@ -371,8 +362,7 @@ class _TaskTile extends StatelessWidget {
                   if (task.note.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(task.note,
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ],
                 ],
               ),
@@ -407,7 +397,7 @@ class _TaskTile extends StatelessWidget {
   Widget _badge(String text, Color color,
       {IconData? icon, bool filled = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: filled ? 0.9 : 0.12),
         borderRadius: BorderRadius.circular(Radii.pill),
@@ -418,10 +408,7 @@ class _TaskTile extends StatelessWidget {
           const SizedBox(width: 3),
         ],
         Text(text,
-            style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-                color: filled ? Colors.white : color)),
+            style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: filled ? Colors.white : color)),
       ]),
     );
   }
@@ -514,8 +501,7 @@ class _TaskEditorState extends State<_TaskEditor> {
                 widget.existing == null
                     ? t.paTaskAdd
                     : t.paTaskEditTitle,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w800)),
+                style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.lg),
             TextField(
               controller: _title,

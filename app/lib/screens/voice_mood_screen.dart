@@ -352,19 +352,17 @@ class _TodayCard extends StatelessWidget {
                 style: TextStyle(color: scheme.onSurfaceVariant))
           else
             Row(children: [
-              Text(_Mood.emoji(mood), style: const TextStyle(fontSize: 40)),
+              Text(_Mood.emoji(mood), style: AType.displayLarge),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(_moodLabel(tr, mood),
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w700)),
+                          style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
                       if (energy > 0)
                         Text(tr.moodEnergyValue(/* (max, value) */ 5, energy),
-                            style: TextStyle(
-                                fontSize: 13, color: scheme.onSurfaceVariant)),
+                            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                     ]),
               ),
             ]),
@@ -397,7 +395,7 @@ class _TrendCard extends StatelessWidget {
             trend.loggedDays == 0
                 ? tr.moodTrendEmpty
                 : tr.moodTrendSummary(/* (days, logged) */ trend.days, trend.loggedDays),
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -414,8 +412,8 @@ class _TrendCard extends StatelessWidget {
                         children: [
                           if (d.logged)
                             Text(_Mood.emoji(d.mood!),
-                                style: const TextStyle(fontSize: 14)),
-                          const SizedBox(height: 2),
+                                style: AType.bodyMedium),
+                          const SizedBox(height: Gap.xxs),
                           Expanded(
                             child: Align(
                               alignment: Alignment.bottomCenter,
@@ -430,17 +428,15 @@ class _TrendCard extends StatelessWidget {
                                         : scheme.outlineVariant
                                             .withValues(alpha: 0.4),
                                     borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(4)),
+                                        top: Radius.circular(Radii.xs)),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: Gap.xs),
                           Text(_dayLetter(context, d.date),
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: scheme.onSurfaceVariant)),
+                              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                         ],
                       ),
                     ),
@@ -499,10 +495,7 @@ class _SuggestionsCard extends StatelessWidget {
             ),
           const SizedBox(height: Gap.xs),
           Text(tr.moodSuggestionsNote,
-              style: TextStyle(
-                  fontSize: 11.5,
-                  fontStyle: FontStyle.italic,
-                  color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -562,7 +555,7 @@ class _PrivacyNote extends StatelessWidget {
           Expanded(
             child: Text(tr.moodPrivacyNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -587,7 +580,7 @@ class _SafetyNote extends StatelessWidget {
           Expanded(
             child: Text(tr.moodSafetyNote,
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -656,8 +649,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
             if (_voiceExpanded) ...[
               const SizedBox(height: Gap.xs),
               Text(tr.moodVoiceExplain,
-                  style: TextStyle(
-                      fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Expanded(
@@ -669,7 +661,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                         ? tr.moodEnergyUnrated
                         : tr.moodEnergyValue(/* (max, value) */ 5, _energy),
                     style:
-                        TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                        AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               ]),
               Slider(
                 value: _energy.toDouble(),
@@ -682,10 +674,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 onChanged: (v) => setState(() => _energy = v.round()),
               ),
               Text(tr.moodVoicePrivacy,
-                  style: TextStyle(
-                      fontSize: 11.5,
-                      fontStyle: FontStyle.italic,
-                      color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
             ],
             const SizedBox(height: Gap.lg),
             Row(children: [
@@ -730,7 +719,7 @@ class _MoodChoice extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
+          margin: const EdgeInsets.symmetric(horizontal: Gap.xxs),
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           decoration: BoxDecoration(
             color: selected
@@ -742,16 +731,13 @@ class _MoodChoice extends StatelessWidget {
                 width: selected ? 2 : 1),
           ),
           child: Column(children: [
-            Text(emoji, style: const TextStyle(fontSize: 26)),
-            const SizedBox(height: 2),
+            Text(emoji, style: AType.headlineMedium),
+            const SizedBox(height: Gap.xxs),
             Text(label,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected ? Brand.purple : scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? Brand.purple : scheme.onSurfaceVariant)),
           ]),
         ),
       ),

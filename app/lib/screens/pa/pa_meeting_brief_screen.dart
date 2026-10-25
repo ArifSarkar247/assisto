@@ -205,8 +205,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
           _SectionLabel(text: t.paReminderHeading),
           const SizedBox(height: Gap.sm),
           Text(t.paReminderHint,
-              style: TextStyle(
-                  color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
           const SizedBox(height: Gap.md),
           Wrap(
             spacing: Gap.sm,
@@ -251,7 +250,7 @@ class _DeterministicMarker extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 12.5, height: 1.35))),
+                style: AType.bodySmall.copyWith(height: 1.35))),
       ]),
     );
   }
@@ -289,7 +288,7 @@ class _CompletenessMeter extends StatelessWidget {
       Row(children: [
         Expanded(
           child: Text(t.paBriefReady(pct),
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ),
       ]),
       const SizedBox(height: Gap.xs),
@@ -332,7 +331,7 @@ class _BriefPreview extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(brief.title,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.md),
         _row(context, Icons.schedule, t.paBriefWhen, whenStr),
         _row(context, Icons.place_outlined, t.paBriefWhere, brief.where,
@@ -368,19 +367,12 @@ class _BriefPreview extends StatelessWidget {
         SizedBox(
           width: 70,
           child: Text(label,
-              style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
         ),
         Expanded(
           child: Text(
             showValue ? value : (t?.paBriefMissing ?? ''),
-            style: TextStyle(
-                fontSize: 14,
-                height: 1.35,
-                fontStyle: showValue ? null : FontStyle.italic,
-                color: showValue
+            style: AType.bodyMedium.copyWith(height: 1.35, fontStyle: showValue ? null : FontStyle.italic, color: showValue
                     ? null
                     : scheme.onSurfaceVariant.withValues(alpha: 0.7)),
           ),
@@ -395,17 +387,14 @@ class _BriefPreview extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: Gap.xs),
       if (empty)
         Text(t.paBriefSectionEmpty,
-            style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 13,
-                color: scheme.onSurfaceVariant.withValues(alpha: 0.7)))
+            style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant.withValues(alpha: 0.7)))
       else
         ...items.map((x) => Padding(
-              padding: const EdgeInsets.only(top: 2, bottom: 2),
+              padding: const EdgeInsets.only(top: Gap.xxs, bottom: Gap.xxs),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -418,7 +407,7 @@ class _BriefPreview extends StatelessWidget {
                   const SizedBox(width: Gap.sm),
                   Expanded(
                       child: Text(x,
-                          style: const TextStyle(fontSize: 14, height: 1.35))),
+                          style: AType.bodyMedium.copyWith(height: 1.35))),
                 ],
               ),
             )),
@@ -436,10 +425,7 @@ class _ReminderStatus extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     if (!hasCore) {
       return Text(t.paReminderNoTime,
-          style: TextStyle(
-              color: scheme.onSurfaceVariant,
-              fontSize: 12.5,
-              fontStyle: FontStyle.italic));
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontStyle: FontStyle.italic));
     }
     if (summary.allPast) {
       return Row(children: [
@@ -447,14 +433,13 @@ class _ReminderStatus extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.paReminderAllPast,
-              style: const TextStyle(color: Brand.warning, fontSize: 12.5)),
+              style: AType.bodySmall.copyWith(color: Brand.warning)),
         ),
       ]);
     }
     if (summary.count == 0) {
       return Text(t.paReminderNone,
-          style: TextStyle(
-              color: scheme.onSurfaceVariant, fontSize: 12.5));
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant));
     }
     final loc = Localizations.localeOf(context).toString();
     final nextStr = summary.next == null
@@ -466,7 +451,7 @@ class _ReminderStatus extends StatelessWidget {
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(t.paReminderNext(summary.count, nextStr),
-            style: const TextStyle(fontSize: 12.5)),
+            style: AType.bodySmall),
       ),
     ]);
   }
@@ -493,10 +478,7 @@ class _AiSeamCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(text,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    height: 1.3,
-                    color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.3, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.xs),
             // Honest: disabled — key-gated seam, not built in this batch.
             TextButton.icon(
@@ -521,6 +503,6 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text,
-        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15));
+        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800));
   }
 }

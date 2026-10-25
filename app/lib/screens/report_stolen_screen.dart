@@ -234,7 +234,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
           ),
           const SizedBox(height: Gap.lg),
           Text(t.upHonestFooter,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ),
     );

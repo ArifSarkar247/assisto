@@ -132,13 +132,10 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
                       color: Colors.white, fontWeight: FontWeight.w600)),
               const SizedBox(height: Gap.xs),
               Text(name,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800)),
+                  style: AType.headlineLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
               Text(t.nameAboutStatusPending,
-                  style: const TextStyle(color: Colors.white, height: 1.4, fontSize: 13)),
+                  style: AType.bodyMedium.copyWith(color: Colors.white, height: 1.4)),
             ]),
           ),
           const SizedBox(height: Gap.lg),
@@ -162,8 +159,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
             NameAboutSectionTitle(
                 text: t.nameAboutClassesLabel, icon: Icons.category_outlined),
             Text(t.nameAboutClassesHint,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, fontSize: 13, height: 1.45)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.45)),
             const SizedBox(height: Gap.sm),
             ...classWidgets,
             const SizedBox(height: Gap.lg),
@@ -188,11 +184,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
           if (serverDisclaimer.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Text(serverDisclaimer,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 12,
-                    height: 1.5,
-                    fontStyle: FontStyle.italic)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.5, fontStyle: FontStyle.italic)),
           ],
         ],
       ),

@@ -5,6 +5,7 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/scam_result_card.dart';
 import '../widgets/scam_safety_api.dart';
+import '../theme.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -121,18 +122,18 @@ class _ScamScreenState extends State<ScamScreen> {
   // ---- detector tab ----
   Widget _checkTab(AppLocalizations t) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Gap.lg),
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
             const Icon(Icons.shield_outlined),
             const SizedBox(width: 10),
-            Expanded(child: Text(t.scamIntro, style: const TextStyle(fontSize: 13))),
+            Expanded(child: Text(t.scamIntro, style: AType.bodyMedium)),
           ]),
         ),
         const SizedBox(height: 14),
@@ -151,7 +152,7 @@ class _ScamScreenState extends State<ScamScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: Gap.md),
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
@@ -163,7 +164,7 @@ class _ScamScreenState extends State<ScamScreen> {
             label: Text(t.scamCheckButton),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: Gap.lg),
         if (_error)
           Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
               style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -177,7 +178,7 @@ class _ScamScreenState extends State<ScamScreen> {
           ),
           const SizedBox(height: 6),
           Text(t.scamReportToFamilyNote,
-              style: TextStyle(fontSize: 12, color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Colors.grey)),
         ],
       ],
     );
@@ -191,12 +192,12 @@ class _ScamScreenState extends State<ScamScreen> {
     if (_libError) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.cloud_off, size: 40),
-            const SizedBox(height: 8),
+            const SizedBox(height: Gap.sm),
             Text(t.scamLibraryOffline, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             FilledButton.tonal(onPressed: _loadLibrary, child: Text(t.retry)),
           ]),
         ),
@@ -206,21 +207,21 @@ class _ScamScreenState extends State<ScamScreen> {
       return Center(child: Text(t.scamLibraryEmpty));
     }
     return ListView(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(Gap.md),
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 4, 4, 10),
-          child: Text(t.scamLearnIntro, style: const TextStyle(fontSize: 13)),
+          padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.xs, Gap.xs, 10),
+          child: Text(t.scamLearnIntro, style: AType.bodyMedium),
         ),
         for (final p in _library)
           Card(
             child: ExpansionTile(
               leading: _levelDot(p['level']),
               title: Text(p['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, 14),
               children: [
                 _labelled(t.scamWhyLabel, p['why']),
-                const SizedBox(height: 8),
+                const SizedBox(height: Gap.sm),
                 _labelled(t.scamDoLabel, p['do']),
               ],
             ),
@@ -231,9 +232,9 @@ class _ScamScreenState extends State<ScamScreen> {
 
   Widget _labelled(String label, String? body) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-      const SizedBox(height: 2),
-      Text(body ?? '', style: const TextStyle(fontSize: 13)),
+      Text(label, style: AType.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+      const SizedBox(height: Gap.xxs),
+      Text(body ?? '', style: AType.bodyMedium),
     ]);
   }
 

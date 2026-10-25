@@ -203,13 +203,13 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.socialInboxConnectKeys,
-                      style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
                 ),
               ]),
             ),
             const SizedBox(height: Gap.md),
             Text(tr.socialInboxNeverFabricate,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
             const SizedBox(height: Gap.md),
             SizedBox(
               width: double.infinity,
@@ -293,9 +293,9 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.socialInboxConnectTitle,
                   style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(tr.socialInboxConnectBody,
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
             ]),
           ),
         ]),
@@ -353,11 +353,11 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 16, color: tint ?? scheme.onSurfaceVariant),
-            const SizedBox(width: 4),
+            const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(text,
                   maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12.5, color: tint ?? scheme.onSurface)),
+                  style: AType.bodySmall.copyWith(color: tint ?? scheme.onSurface)),
             ),
           ]),
         ),
@@ -436,20 +436,18 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(from.isEmpty ? _platformLabel(tr, platform) : from,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 14,
-                      color: handled ? scheme.onSurfaceVariant : scheme.onSurface),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: handled ? scheme.onSurfaceVariant : scheme.onSurface),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             _pill(_priorityLabel(tr, priority), _priorityColor(priority, scheme)),
           ]),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           Text(_platformLabel(tr, platform),
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 11.5)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           if (message.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(message,
-                style: TextStyle(color: scheme.onSurface, fontSize: 13, height: 1.35),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.35),
                 maxLines: 4, overflow: TextOverflow.ellipsis),
           ],
           const Divider(height: Gap.xl),
@@ -467,7 +465,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
               Expanded(
                 child: Text(
                     status == _stReplied ? tr.socialInboxStatusReplied : tr.socialInboxStatusArchived,
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
@@ -499,7 +497,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 }
 

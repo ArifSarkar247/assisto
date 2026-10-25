@@ -202,12 +202,9 @@ class _AiSeamCard extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paResearchAiSeamTitle,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(t.paResearchAiSeamBody,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
-                      height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
             ]),
           ),
         ]),
@@ -523,13 +520,12 @@ class _ExportSheetState extends State<_ExportSheet> {
             child: Row(children: [
               Expanded(
                 child: Text(t.paResearchExportTitle,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
               ),
               if (widget.hasSources)
                 Row(children: [
                   Text(t.paResearchIncludeSources,
-                      style: const TextStyle(fontSize: 12)),
+                      style: AType.bodySmall),
                   Switch(
                       value: _withSources,
                       onChanged: (v) => setState(() => _withSources = v)),
@@ -587,7 +583,7 @@ class _SectionHeader extends StatelessWidget {
       Expanded(
           child: Text(label,
               style:
-                  const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
           icon: const Icon(Icons.add_circle_outline),
           tooltip: AppLocalizations.of(context).add,
@@ -603,9 +599,7 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       );
 }
 
@@ -682,7 +676,7 @@ class _TopicEditorState extends State<_TopicEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.paResearchNewTopic : t.edit,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
               controller: _title,
@@ -760,7 +754,7 @@ class _ItemEditorState extends State<_ItemEditor> {
                   ? t.paResearchSourcesHeader
                   : t.paResearchNotesHeader,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
               controller: _text,
@@ -839,7 +833,7 @@ class _SectionEditorState extends State<_SectionEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.paResearchOutlineHeader,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
               controller: _heading,

@@ -19,6 +19,7 @@ import 'journey_settings_screen.dart';
 import '../widgets/journey_api.dart';
 import 'fall_detect_screen.dart';
 import '../widgets/subs_common.dart' show fmtInt;
+import '../theme.dart';
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -155,7 +156,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                 label: '$v',
                 onChanged: (x) => setD(() => v = x.round()),
               ),
-              Text(t.safetySosCountdownNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Text(t.safetySosCountdownNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ]),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
@@ -180,7 +181,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
             content: Column(mainAxisSize: MainAxisSize.min, children: [
               TextField(controller: place,
                   decoration: InputDecoration(labelText: t.safetyCheckinPlaceLabel)),
-              const SizedBox(height: 12),
+              const SizedBox(height: Gap.md),
               OutlinedButton.icon(
                 icon: const Icon(Icons.schedule, size: 18),
                 label: Text(t.safetyCheckinByTime(time.format(ctx))),
@@ -256,18 +257,18 @@ class _SafetyScreenState extends State<SafetyScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneySettingsScreen()))),
       ]),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         // ---- Safe Journey (top-priority feature) ----
         Text(t.journeySection,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.sm),
         Card(
-          color: const Color(0xFF1976D2).withOpacity(0.06),
+          color: Brand.info.withOpacity(0.06),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                const Icon(Icons.navigation, color: Color(0xFF1976D2)),
+                Icon(Icons.navigation, color: AssistoTokens.of(context).info),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Text(t.journeyHubTitle,
@@ -275,11 +276,8 @@ class _SafetyScreenState extends State<SafetyScreen> {
               ]),
               const SizedBox(height: 6),
               Text(t.journeyHubDesc,
-                  style: TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-              const SizedBox(height: 12),
+                  style: AType.bodyMedium.copyWith(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              const SizedBox(height: Gap.md),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -301,7 +299,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: Gap.sm),
         // Legacy quick-call SOS (dials the first contact) kept as a fallback.
         SizedBox(
           width: double.infinity,
@@ -325,7 +323,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           leading: const Icon(Icons.record_voice_over_outlined),
           title: Text(t.vsosTitle),
           subtitle: Text(t.vsosTileSubtitle,
-              style: const TextStyle(fontSize: 12)),
+              style: AType.bodySmall),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const VoiceSosScreen())),
@@ -333,8 +331,8 @@ class _SafetyScreenState extends State<SafetyScreen> {
         const Divider(height: 28),
 
         // Safe-arrival check-in
-        Text(t.safetyCheckinSection, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
+        Text(t.safetyCheckinSection, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.sm),
         SafetyCheckinCard(
           place: _checkinPlace,
           eta: _checkinEta,
@@ -347,8 +345,8 @@ class _SafetyScreenState extends State<SafetyScreen> {
         // engine ships (FallDetectScreen.engineShipped).
         if (_sensorAvailable) ...[
         // Fall / accident detection
-        Text(t.safetyFallSection, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 4),
+        Text(t.safetyFallSection, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: Gap.xs),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(t.safetyFallEnable),
@@ -390,7 +388,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
               await Settings.setBool('safety_fall_vib', v);
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             icon: const Icon(Icons.play_circle_outline),
             label: Text(t.safetyFallPreview),
@@ -399,7 +397,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
         ],
         ],
         const SizedBox(height: 20),
-        Text(t.safetyFooterNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -424,17 +422,17 @@ class _SafetyScreenState extends State<SafetyScreen> {
         return Dialog(
           backgroundColor: Colors.orange.shade800,
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(Gap.xl),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               const Icon(Icons.personal_injury, color: Colors.white, size: 44),
               const SizedBox(height: 10),
               Text(t.safetyFallPromptTitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+                  style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+              const SizedBox(height: Gap.sm),
               Text(t.safetyFallPromptBody(remaining),
                   textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
-              const SizedBox(height: 16),
+              const SizedBox(height: Gap.lg),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -445,7 +443,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                     timer?.cancel();
                     Navigator.pop(ctx, true);
                   },
-                  child: Text(t.safetyImOk, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  child: Text(t.safetyImOk, style: AType.headlineSmall.copyWith(fontWeight: FontWeight.bold)),
                 ),
               ),
             ]),

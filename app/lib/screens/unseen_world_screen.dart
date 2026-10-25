@@ -265,6 +265,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
+                    tooltip: AppLocalizations.of(context).f2ClearSearch,
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       _searchCtrl.clear();
@@ -302,7 +303,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         Expanded(
           child: Text(
             _attribution ?? t.unseenAttribution,
-            style: TextStyle(fontSize: 12, color: scheme.onSurface, height: 1.3),
+            style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3),
           ),
         ),
       ]),
@@ -321,7 +322,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         Expanded(
           child: Text(t.unseenLocationBanner,
               style:
-                  TextStyle(fontSize: 12, color: scheme.onSurface, height: 1.3)),
+                  AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3)),
         ),
         TextButton(
             onPressed: () async {
@@ -372,13 +373,13 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
   Widget _sectionHeader(IconData icon, String label) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, Gap.md, 0, Gap.sm),
+      padding: const EdgeInsets.fromLTRB(Gap.xxs, Gap.md, 0, Gap.sm),
       child: Row(children: [
         Icon(icon, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(label,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
       ]),
     );
@@ -411,10 +412,10 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         title: Text(stops.map((s) => s.name).join(' → '),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(
             '${t.unseenTripDays(trip.days)}  •  ${t.unseenApproxCost}: ${t.unseenCostRange('$lo', '$hi')}',
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.md, Gap.sm),
         children: [
           for (final s in stops)
@@ -423,18 +424,15 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(catMeta(s.cat).icon,
                   size: 18, color: catMeta(s.cat).tint),
-              title: Text(s.name, style: const TextStyle(fontSize: 13)),
+              title: Text(s.name, style: AType.bodyMedium),
               subtitle: Text('${s.bestTime}  •  ${s.source.label}',
                   style:
-                      TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                      AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(t.unseenApproxNote,
-                style: TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
           ),
         ],
       ),

@@ -351,8 +351,7 @@ class _OffersFeedScreenState extends State<OffersFeedScreen> {
                                 ? Text(
                                     t.p2OffersEnds(DateFormat.yMMMd(appDateLocale(context))
                                         .format(DateTime.parse(c.endsAt).toLocal())),
-                                    style: TextStyle(
-                                        fontSize: 12, color: scheme.onSurfaceVariant))
+                                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))
                                 : null,
                             onClick: () => unawaited(_b.event(c.token, 'click')),
                             onHide: () {
@@ -393,7 +392,7 @@ class _OnbOffersStepState extends State<OnbOffersStep> {
         Icon(Icons.local_offer_outlined, size: 40, color: scheme.primary),
         const SizedBox(height: Gap.md),
         Text(t.p2OnbOffersTitle,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+            style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         Text(t.p2OnbOffersSub,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),

@@ -348,12 +348,10 @@ class _PortfolioCard extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.paProjPortfolioTitle,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 15)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
             Text(t.paProjPortfolioCount(total),
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: 6, runSpacing: 6, children: [
@@ -391,8 +389,7 @@ class _PortfolioCard extends StatelessWidget {
             color: c.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w700, color: c)),
+            style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: c)),
       );
 }
 
@@ -416,12 +413,9 @@ class _AiSeamCard extends StatelessWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paProjAiSeamTitle,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(t.paProjAiSeamBody,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
-                      height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
             ]),
           ),
         ]),
@@ -499,8 +493,7 @@ class _ProjectCard extends StatelessWidget {
                     child: Text('${project['name'] ?? ''}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 15.5)),
+                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
                   ),
                   Container(
                     padding:
@@ -509,8 +502,7 @@ class _ProjectCard extends StatelessWidget {
                         color: hc.withValues(alpha: 0.16),
                         borderRadius: BorderRadius.circular(Radii.pill)),
                     child: Text(hLabel,
-                        style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w800, color: hc)),
+                        style: AType.labelSmall.copyWith(fontWeight: FontWeight.w800, color: hc)),
                   ),
                   IconButton(
                       visualDensity: VisualDensity.compact,
@@ -520,7 +512,7 @@ class _ProjectCard extends StatelessWidget {
                 ]),
                 if (owner.isNotEmpty || due.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: Gap.xs),
                     child: Text(
                         [
                           if (owner.isNotEmpty) t.paProjOwnerPrefix(owner),
@@ -529,8 +521,7 @@ class _ProjectCard extends StatelessWidget {
                         ].join(' · '),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ),
                 Row(children: [
                   Expanded(
@@ -544,8 +535,7 @@ class _ProjectCard extends StatelessWidget {
                   ),
                   const SizedBox(width: Gap.sm),
                   Text('$pct%',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 12.5)),
+                      style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700)),
                 ]),
               ]),
         ),
@@ -916,7 +906,7 @@ class _SectionHeader extends StatelessWidget {
       Expanded(
           child: Text(label,
               style:
-                  const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
       IconButton(
           icon: const Icon(Icons.add_circle_outline),
           tooltip: AppLocalizations.of(context).add,
@@ -932,9 +922,7 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       );
 }
 
@@ -1014,8 +1002,7 @@ class _ProjectEditorState extends State<_ProjectEditor> {
               Center(
                 child: Text(
                     widget.existing == null ? t.paProjNewProject : t.edit,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
               ),
               const SizedBox(height: Gap.lg),
               TextField(
@@ -1050,7 +1037,7 @@ class _ProjectEditorState extends State<_ProjectEditor> {
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text('${_percent.round()}%',
-                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
               ]),
               Slider(
                 value: _percent,
@@ -1133,8 +1120,7 @@ class _MilestoneEditorState extends State<_MilestoneEditor> {
             children: [
               Center(
                 child: Text(t.paProjMilestonesHeader,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
               ),
               const SizedBox(height: Gap.md),
               TextField(
@@ -1221,8 +1207,7 @@ class _RiskEditorState extends State<_RiskEditor> {
             children: [
               Center(
                 child: Text(t.paProjRisksHeader,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
               ),
               const SizedBox(height: Gap.md),
               TextField(

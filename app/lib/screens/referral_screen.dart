@@ -256,7 +256,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         _howItWorks(t, scheme),
         const SizedBox(height: Gap.md),
         Text(t.referralRateReviewNote,
-            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -267,7 +267,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Text(t.refFriendsTitle,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         RefLeaderboard(rows: rows),
       ]),
@@ -285,7 +285,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
           const SizedBox(height: Gap.lg),
         ],
         Text(t.referralHistoryTitle,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         if (_history.isEmpty)
           Padding(
@@ -330,7 +330,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
               const SizedBox(width: Gap.md),
               Expanded(
                   child: Text(s.$2,
-                      style: const TextStyle(fontSize: 13, height: 1.35))),
+                      style: AType.bodyMedium.copyWith(height: 1.35))),
             ]),
           ),
       ]),
@@ -367,7 +367,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Text(t.referralRedeemPickDays,
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
             Text(t.referralRedeemDaysChosen(fmtInt(context, _days)),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -380,7 +380,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
               onChanged: (v) => setState(() => _days = v.round()),
             ),
             Text(t.referralRedeemCost(fmtInt(context, cost)),
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,

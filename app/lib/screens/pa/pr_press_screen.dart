@@ -250,9 +250,7 @@ class _PrPressScreenState extends State<PrPressScreen>
                 _netSentiment >= 0
                     ? tr.prPressNetPositive('$_netSentiment')
                     : tr.prPressNetNegative('${-_netSentiment}'),
-                style: TextStyle(
-                    color: _netSentiment >= 0 ? Brand.success : scheme.error,
-                    fontWeight: FontWeight.w700, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: _netSentiment >= 0 ? Brand.success : scheme.error, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               for (final t in _types)
@@ -277,29 +275,29 @@ class _PrPressScreenState extends State<PrPressScreen>
           Row(children: [
             Expanded(
               child: Text(outlet,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _dot(_sentColor(sent, scheme)),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, children: [
             Text(_typeLabel(tr, _type(r)),
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             if (date.isNotEmpty)
               Text('· $date',
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
           if (link.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Text(link,
-                style: TextStyle(color: scheme.primary, fontSize: 12.5),
+                style: AType.bodySmall.copyWith(color: scheme.primary),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(note,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3),
                 maxLines: 3, overflow: TextOverflow.ellipsis),
           ],
           Align(
@@ -374,18 +372,16 @@ class _PrPressScreenState extends State<PrPressScreen>
           Row(children: [
             Expanded(
               child: Text(outlet,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 15,
-                      color: past ? scheme.onSurfaceVariant : scheme.onSurface),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: past ? scheme.onSurfaceVariant : scheme.onSurface),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _rowMenu(r, tr, _kInterview),
           ]),
           if (topic.isNotEmpty)
             Text(topic,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
                 maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, children: [
             if (at.isNotEmpty)
               _iconText(Icons.schedule, at, scheme),
@@ -430,14 +426,14 @@ class _PrPressScreenState extends State<PrPressScreen>
                 Row(children: [
                   Expanded(
                     child: Text(topic.isEmpty ? tr.prPressTabTalkingPoints : topic,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                         maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
                   _rowMenu(r, tr, _kTalkingPoint),
                 ]),
                 if (text.isNotEmpty)
                   Text(text,
-                      style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13, height: 1.35)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
               ]),
             ),
           );
@@ -461,17 +457,16 @@ class _PrPressScreenState extends State<PrPressScreen>
       );
 
   Widget _sectionLabel(String text, ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.only(bottom: Gap.sm, top: 2),
+        padding: const EdgeInsets.only(bottom: Gap.sm, top: Gap.xxs),
         child: Text(text,
-            style: TextStyle(
-                color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 13)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
       );
 
   Widget _iconText(IconData icon, String text, ColorScheme scheme) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: 3),
-        Text(text, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]);
 
   Widget _chip(String text, Color c) => Container(
@@ -481,7 +476,7 @@ class _PrPressScreenState extends State<PrPressScreen>
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.bodySmall.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 
   Widget _dot(Color c) =>

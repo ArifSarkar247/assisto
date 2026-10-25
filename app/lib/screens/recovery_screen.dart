@@ -318,8 +318,8 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
               child: FilledButton.tonalIcon(
                 icon: _busyEvidence
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: Gap.lg,
+                        height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.download, size: 18),
                 label: Text(t.recEvidenceShare),
@@ -357,8 +357,8 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
               child: FilledButton.tonalIcon(
                 icon: _busyStations
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: Gap.lg,
+                        height: Gap.lg,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.my_location, size: 18),
                 label: Text(t.recStationsFind),
@@ -457,7 +457,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           children: [
             Text(t.recChancesTitle,
                 style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(t.recChancesBody,
                 style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: Gap.sm),
@@ -475,12 +475,12 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.only(top: 2),
+            margin: const EdgeInsets.only(top: Gap.xxs),
             padding:
-                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
             decoration: BoxDecoration(
               color: r.color.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Text(r.chip,
                 style: Theme.of(context)

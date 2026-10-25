@@ -174,13 +174,13 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('${d['code']}',
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
               if (d['bn'] != null || d['en'] != null) ...[
-                const SizedBox(height: 2),
+                const SizedBox(height: Gap.xxs),
                 Text('${bn ? d['bn'] : d['en']}', style: const TextStyle(height: 1.35)),
-                const SizedBox(height: 4),
+                const SizedBox(height: Gap.xs),
                 Text('${bn ? d['advice_bn'] : d['advice_en']}',
-                    style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ],
             ]),
           ),
@@ -294,8 +294,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 ],
                 const SizedBox(height: Gap.sm),
                 Text(tr.vehObdHonest,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant, height: 1.35)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
               ]),
             ),
           ),

@@ -279,8 +279,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
               if (_result!.action == 'translate' && _result!.phraseHit) ...[
                 const SizedBox(height: Gap.sm),
                 Text(t.qtPhraseFallbackNote,
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ],
               const SizedBox(height: Gap.lg),
               Row(children: [
@@ -332,17 +331,10 @@ class _AiMarker extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(text,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12.5,
-                    height: 1.4)),
-            const SizedBox(height: 2),
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700, height: 1.4)),
+            const SizedBox(height: Gap.xxs),
             Text(note,
-                style: TextStyle(
-                    color: scheme.onTertiaryContainer,
-                    fontSize: 12,
-                    height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, height: 1.4)),
           ]),
         ),
       ]),
