@@ -350,6 +350,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                     ChoiceChip(
                       key: ValueKey('rmt_ch_$c'),
                       materialTapTargetSize: MaterialTapTargetSize.padded,
+                      showCheckmark: false,
                       avatar: Icon(rmChannelIcon(c), size: 18),
                       label: Text(rmChannel(t, c)),
                       selected: _channel == c,
@@ -372,6 +373,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                     for (final m in _members)
                       ChoiceChip(
                         materialTapTargetSize: MaterialTapTargetSize.padded,
+                        showCheckmark: false,
                         avatar: const Icon(Icons.diversity_3, size: 18),
                         label: Text('${m['name'] ?? ''}'),
                         selected: _memberId != null && '$_memberId' == '${m['id']}',

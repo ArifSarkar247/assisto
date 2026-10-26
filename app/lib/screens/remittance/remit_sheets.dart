@@ -186,6 +186,7 @@ class _SpendSheetState extends State<_SpendSheet> {
               ChoiceChip(
                 key: ValueKey('rmt_spend_$k'),
                 materialTapTargetSize: MaterialTapTargetSize.padded,
+                showCheckmark: false,
                 avatar: Icon(rmCategoryIcon(k), size: 18),
                 label: Text(rmCategory(t, k)),
                 selected: _cat == k,
