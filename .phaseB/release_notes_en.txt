@@ -1,1 +1,1 @@
-Build 241: Reply to an incoming call with a message, like WhatsApp — tap Reply, the call is declined and the chat opens with ready replies ("Can't talk now. What's up?", "I'll call you right back."…) or write your own.
+Build 244: Easier to use for everyone — bigger tap targets (48dp), screen-reader labels on buttons and switches, clearer text contrast, and no cut-off text with larger fonts, checked on every screen.

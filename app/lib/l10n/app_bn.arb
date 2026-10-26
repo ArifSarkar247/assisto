@@ -15103,5 +15103,6 @@
   "callReplyPreset2": "আমি এখনই ফোন করছি।",
   "callReplyPreset3": "আমি পরে ফোন করব।",
   "callReplyPreset4": "এখন কথা বলতে পারছি না। পরে ফোন করবেন?",
-  "callReplyWriteOwn": "নিজে লিখুন…"
+  "callReplyWriteOwn": "নিজে লিখুন…",
+  "a11yVoiceSeek": "ভয়েস মেসেজের অবস্থান। ট্যাপ করে যেকোনো জায়গায় যান"
 }

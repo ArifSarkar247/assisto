@@ -19407,5 +19407,6 @@
   "callReplyPreset2": "I'll call you right back.",
   "callReplyPreset3": "I'll call you later.",
   "callReplyPreset4": "Can't talk now. Call me later?",
-  "callReplyWriteOwn": "Write your own…"
+  "callReplyWriteOwn": "Write your own…",
+  "a11yVoiceSeek": "Voice message position. Tap to jump"
 }
