@@ -463,8 +463,7 @@ class _NudgeCard extends StatelessWidget {
             IconButton(
               onPressed: onDismiss,
               icon: const Icon(Icons.close_rounded, size: 20),
-              tooltip: tr.proDismiss,
-              visualDensity: VisualDensity.compact,
+              tooltip: tr.proDismiss, // a11y1: standard density = 48 dp target
             ),
           ]),
           Row(children: [
@@ -473,16 +472,13 @@ class _NudgeCard extends StatelessWidget {
               icon: const Icon(Icons.help_outline_rounded, size: 16),
               label: Text(tr.proWhy),
               style: TextButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  foregroundColor: scheme.onSurfaceVariant),
+                  foregroundColor: scheme.onSurfaceVariant), // a11y1: 48 dp
             ),
             const Spacer(),
             if (onOpen != null)
               FilledButton.tonal(
                 onPressed: onOpen,
-                style: FilledButton.styleFrom(
-                    visualDensity: VisualDensity.compact),
-                child: Text(tr.proOpen),
+                child: Text(tr.proOpen), // a11y1: theme 48 dp (no compact)
               ),
           ]),
         ]),

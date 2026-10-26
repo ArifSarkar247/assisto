@@ -268,6 +268,7 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                   controller: _caption,
                   minLines: 1,
                   maxLines: 4,
+                  textAlignVertical: TextAlignVertical.center, // a11y1
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: t.md1CaptionHint,
@@ -277,6 +278,8 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                     border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(Radii.pill)),
                         borderSide: BorderSide.none),
+                    // a11y1: 48 dp tall field (was 40).
+                    constraints: const BoxConstraints(minHeight: kMinTap),
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
                   ),
@@ -300,8 +303,8 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
                             content: Text(_viewOnce ? t.eVoOnHint : t.eVoOffHint)));
                       },
                       child: Container(
-                        width: 44,
-                        height: 44,
+                        width: kMinTap, // a11y1: was 44
+                        height: kMinTap,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,

@@ -95,14 +95,20 @@ class CircleAttachGrid extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-      child: GridView.count(
-        crossAxisCount: 4,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
-        childAspectRatio: 0.68,
-        children: [for (final k in kinds) cell(k)],
-      ),
+      child: LayoutBuilder(builder: (context, c) {
+        // a11y1: the two label lines grow with the phone's font size; give
+        // the cell that extra height (identical at 1.0, overflowed at 1.3).
+        final cellW = c.maxWidth / 4;
+        final grow = (MediaQuery.textScalerOf(context).scale(12) - 12) * 2 * 1.7;
+        return GridView.count(
+          crossAxisCount: 4,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
+          childAspectRatio: cellW / (cellW / 0.68 + (grow > 0 ? grow : 0)),
+          children: [for (final k in kinds) cell(k)],
+        );
+      }),
     );
   }
 }

@@ -761,33 +761,115 @@ Map<String, GallerySpec> gallerySpecs() {
   };
 }
 
+/// a11y1: the gallery's one-time test setup (no-network, anti-theft channel
+/// mock, fonts), shared with the a11y sweep (a11y_guidelines_test.dart).
+Future<void> gallerySetUpAll() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Screens like SafetyScreen/EmergencyScreen read SharedPreferences in
+  // initState; provide an in-memory store so the gallery renders them.
+  SharedPreferences.setMockInitialValues({});
+  HttpOverrides.global = _NoNet();
+  // b6-antitheft: the engine channel answers like a running Realme engine
+  // (an unanswered channel left the protection screen on its spinner).
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel('com.assisto/antitheft'),
+          (call) async {
+    switch (call.method) {
+      case 'capabilities':
+        return {'sdk': 33, 'brand': 'realme', 'canCamera': true,
+                'canReadSimNumber': false};
+      case 'isRunning':
+        return true;
+      default:
+        return null;
+    }
+  });
+  await loadAppFonts(); // f1-design: Inter + Noto Sans Bengali
+  final root = Platform.environment['FLUTTER_ROOT'] ??
+      '${Platform.environment['HOME']}/assisto/tools/flutter';
+  final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
+  if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
+}
+
+/// a11y1: pumps gallery spec [name] exactly like the screenshot gallery
+/// (360x800, or 360x1800 for `_bottom`), shared with the a11y sweep.
+Future<void> galleryPump(WidgetTester tester, String name, String lang,
+    Brightness brightness, Widget screen, FakeMode mode,
+    {required GlobalKey key, double textScale = 1.0}) async {
+  galleryPrime(name); // db1
+  final tall = name.endsWith('_bottom');
+  await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
+  final app = _stub(lang: lang, mode: mode);
+  if (name.startsWith('fm_')) app.user = f1Founder(app.user!); // f1-founders
+  FakeApi.delPending = name.startsWith('dl1_') && name.contains('pending'); // dl1
+  if (name.startsWith('dl1_grace')) app.deletionGraceAt = DateTime(2026, 10, 29); // dl1
+  final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
+  await tester.pumpWidget(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<AppState>.value(value: app),
+      ChangeNotifierProvider<Updater>(create: (_) => Updater()),
+    ],
+    child: RepaintBoundary(
+      key: key,
+      child: MediaQuery(
+        data: MediaQueryData(size: Size(360, tall ? 1800 : 800), textScaler: TextScaler.linear(textScale)),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: Locale(lang),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            BnDayPeriods.delegate, // qa1
+          ],
+          theme: AssistoTheme.light,
+          darkTheme: AssistoTheme.dark,
+          themeMode: mode2,
+          home: Builder(builder: (_) => screen),
+        ),
+      ),
+    ),
+  ));
+  await tester.runAsync(() async {
+    for (final el in find.byType(Image).evaluate()) {
+      final img = el.widget as Image;
+      await precacheImage(img.image, el)
+          .timeout(const Duration(seconds: 5), onTimeout: () {});
+    }
+    await Future.delayed(const Duration(milliseconds: 250));
+  });
+  for (var i = 0; i < 4; i++) {
+    await tester.pump(const Duration(milliseconds: 60));
+  }
+  if (name.startsWith('ps_')) {
+    // order5: media bubbles add their Image.file after the first frames —
+    // decode those too so the store shot shows the real photo.
+    for (var pass = 0; pass < 6; pass++) {
+      await tester.runAsync(() async {
+        for (final el in find.byType(Image).evaluate()) {
+          final img = el.widget as Image;
+          await precacheImage(img.image, el)
+              .timeout(const Duration(seconds: 5), onTimeout: () {});
+        }
+        await Future.delayed(const Duration(milliseconds: 1500));
+      });
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+  if (name.endsWith('_menu')) {
+    try {
+      final mv = find.byIcon(Icons.more_vert_rounded);
+      if (mv.evaluate().isNotEmpty) { await tester.tap(mv.first); await tester.pumpAndSettle(const Duration(milliseconds: 300)); }
+    } catch (_) {}
+  }
+}
+
 void main() {
   setUpAll(() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    // Screens like SafetyScreen/EmergencyScreen read SharedPreferences in
-    // initState; provide an in-memory store so the gallery renders them.
-    SharedPreferences.setMockInitialValues({});
-    HttpOverrides.global = _NoNet();
-    // b6-antitheft: the engine channel answers like a running Realme engine
-    // (an unanswered channel left the protection screen on its spinner).
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(const MethodChannel('com.assisto/antitheft'),
-            (call) async {
-      switch (call.method) {
-        case 'capabilities':
-          return {'sdk': 33, 'brand': 'realme', 'canCamera': true,
-                  'canReadSimNumber': false};
-        case 'isRunning':
-          return true;
-        default:
-          return null;
-      }
-    });
-    await loadAppFonts(); // f1-design: Inter + Noto Sans Bengali
-    final root = Platform.environment['FLUTTER_ROOT'] ??
-        '${Platform.environment['HOME']}/assisto/tools/flutter';
-    final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
-    if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
+    await gallerySetUpAll();
     Directory(_outDir).createSync(recursive: true);
   });
 
@@ -799,76 +881,9 @@ void main() {
     // Real elevation shadows (flutter_test draws them as solid black outlines
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
-    galleryPrime(name); // db1
-    final tall = name.endsWith('_bottom');
-    await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();
-    final app = _stub(lang: lang, mode: mode);
-    if (name.startsWith('fm_')) app.user = f1Founder(app.user!); // f1-founders
-    FakeApi.delPending = name.startsWith('dl1_') && name.contains('pending'); // dl1
-    if (name.startsWith('dl1_grace')) app.deletionGraceAt = DateTime(2026, 10, 29); // dl1
-    final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AppState>.value(value: app),
-        ChangeNotifierProvider<Updater>(create: (_) => Updater()),
-      ],
-      child: RepaintBoundary(
-        key: key,
-        child: MediaQuery(
-          data: MediaQueryData(size: Size(360, tall ? 1800 : 800), textScaler: TextScaler.linear(_textScale)),
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            locale: Locale(lang),
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              BnDayPeriods.delegate, // qa1
-            ],
-            theme: AssistoTheme.light,
-            darkTheme: AssistoTheme.dark,
-            themeMode: mode2,
-            home: Builder(builder: (_) => screen),
-          ),
-        ),
-      ),
-    ));
-    await tester.runAsync(() async {
-      for (final el in find.byType(Image).evaluate()) {
-        final img = el.widget as Image;
-        await precacheImage(img.image, el)
-            .timeout(const Duration(seconds: 5), onTimeout: () {});
-      }
-      await Future.delayed(const Duration(milliseconds: 250));
-    });
-    for (var i = 0; i < 4; i++) {
-      await tester.pump(const Duration(milliseconds: 60));
-    }
-    if (name.startsWith('ps_')) {
-      // order5: media bubbles add their Image.file after the first frames —
-      // decode those too so the store shot shows the real photo.
-      for (var pass = 0; pass < 6; pass++) {
-        await tester.runAsync(() async {
-          for (final el in find.byType(Image).evaluate()) {
-            final img = el.widget as Image;
-            await precacheImage(img.image, el)
-                .timeout(const Duration(seconds: 5), onTimeout: () {});
-          }
-          await Future.delayed(const Duration(milliseconds: 1500));
-        });
-        await tester.pump(const Duration(milliseconds: 100));
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-    }
-    if (name.endsWith('_menu')) {
-      try {
-        final mv = find.byIcon(Icons.more_vert_rounded);
-        if (mv.evaluate().isNotEmpty) { await tester.tap(mv.first); await tester.pumpAndSettle(const Duration(milliseconds: 300)); }
-      } catch (_) {}
-    }
+    await galleryPump(tester, name, lang, brightness, screen, mode,
+        key: key, textScale: _textScale);
     if (_a11y) await _a11yAudit(tester, name, lang, brightness); // f2-design
     final boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;

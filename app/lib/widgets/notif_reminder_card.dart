@@ -138,17 +138,21 @@ class _SnoozeMenu extends StatelessWidget {
         PopupMenuItem(
             value: SnoozePreset.custom, child: Text(t.notifSnoozeCustom)),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: Gap.md, vertical: Gap.sm),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.snooze_rounded, size: 18),
-            const SizedBox(width: Gap.xs),
-            Text(t.notifSnooze),
-            const Icon(Icons.arrow_drop_down_rounded, size: 20),
-          ],
+      // a11y1: 48 dp tall hit area (no background, so nothing visible moves).
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinTap),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: Gap.md, vertical: Gap.sm),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.snooze_rounded, size: 18),
+              const SizedBox(width: Gap.xs),
+              Text(t.notifSnooze),
+              const Icon(Icons.arrow_drop_down_rounded, size: 20),
+            ],
+          ),
         ),
       ),
     );

@@ -174,9 +174,8 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white70
-                    : Colors.black54)),
+                // a11y1: black54 on the SOS tint was 4.45:1.
+                color: Theme.of(context).colorScheme.onSurfaceVariant)),
         // Wrapped in a transparent Material so the tile's ink splash paints
         // above the decorated red SOS surface (it otherwise would be hidden).
         Material(

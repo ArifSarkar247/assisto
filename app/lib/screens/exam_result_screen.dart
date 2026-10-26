@@ -266,7 +266,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examStudentsSection),
           const SizedBox(height: Gap.xs),
           Text(t.examStudentsNote,
-              style: AType.bodySmall.copyWith(color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           ExamStudentWatch(
             students: _students,
@@ -292,7 +292,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examCardSection),
           const SizedBox(height: Gap.xs),
           Text(t.examCardNote,
-              style: AType.bodySmall.copyWith(color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           TextField(controller: _name, decoration: InputDecoration(labelText: t.examFieldName, isDense: true)),
           const SizedBox(height: Gap.xs),
@@ -362,7 +362,8 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       child: Row(children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(msg, style: AType.bodyMedium.copyWith(color: color))),
+        // a11y1: the raw amber on its own tint was 1.95:1.
+        Expanded(child: Text(msg, style: AType.bodyMedium.copyWith(color: Brand.onTint(context, color)))),
       ]),
     );
   }

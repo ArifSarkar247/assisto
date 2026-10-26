@@ -374,7 +374,8 @@ class VoiceHoldStrip extends StatelessWidget {
                         child: Text(t.wa2SlideToCancel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: scheme.onSurfaceVariant)),
+                            // a11y1: onSurfaceVariant on this strip was 4.45:1.
+                            style: TextStyle(color: scheme.onSurface)),
                       ),
                     ],
                   ),

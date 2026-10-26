@@ -283,9 +283,15 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
                 : (detail.isNotEmpty ? t.baConnectError(detail) : t.baNotConnected)),
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        Switch(
-          value: c['enabled'] == true,
-          onChanged: (v) => _toggle((c['id'] as num).toInt(), v),
+        // a11y1: TalkBack reads which channel the switch turns on/off.
+        MergeSemantics(
+          child: Semantics(
+            label: bd(context, c['display_name'] ?? c['external_id']),
+            child: Switch(
+              value: c['enabled'] == true,
+              onChanged: (v) => _toggle((c['id'] as num).toInt(), v),
+            ),
+          ),
         ),
         IconButton(
           tooltip: t.baDisconnect,

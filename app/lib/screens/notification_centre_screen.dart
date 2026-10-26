@@ -449,7 +449,7 @@ class _Section extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: overdue ? Brand.danger : scheme.onSurface,
+                  color: overdue ? scheme.error : scheme.onSurface, // a11y1: AA red
                 ),
           ),
         ),

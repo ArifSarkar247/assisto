@@ -13,13 +13,18 @@ import 'package:assisto/realtime/realtime_channel.dart';
 
 String _n(String l, String en, String bn) => l == 'bn' ? bn : en;
 
+/// a11y1: fixture header action with the same tooltip as the real chat header.
+Widget _act(IconData icon, String Function(AppLocalizations) tip) => Builder(
+    builder: (ctx) => IconButton(
+        onPressed: () {}, tooltip: tip(AppLocalizations.of(ctx)), icon: Icon(icon)));
+
 PreferredSizeWidget _bar(Widget title) => AppBar(
       titleSpacing: 0,
       title: title,
       actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_rounded)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.call_rounded)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
+        _act(Icons.videocam_rounded, (t) => t.circleVideo),
+        _act(Icons.call_rounded, (t) => t.circleVoiceCall),
+        _act(Icons.more_vert_rounded, (t) => t.msgrChatMore),
       ],
     );
 

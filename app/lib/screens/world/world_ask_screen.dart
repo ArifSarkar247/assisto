@@ -254,29 +254,35 @@ class _TurnCard extends StatelessWidget {
                               for (final s in sources)
                                 InkWell(
                                   onTap: () => uwOpen(context, '${s['url']}'),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: Gap.xs),
-                                    child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                              '[${uwDigits(context, s['n'] ?? '')}] ',
-                                              style: TextStyle(
-                                                  color: scheme.primary,
-                                                  fontWeight: FontWeight.w700)),
-                                          Expanded(
-                                            child: Text(
-                                                '${s['title']} — ${s['site']}',
+                                  // a11y1: each source row is >= 48 dp tall.
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                        minHeight: kMinTap),
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: Gap.xs),
+                                      child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                '[${uwDigits(context, s['n'] ?? '')}] ',
                                                 style: TextStyle(
                                                     color: scheme.primary,
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                    decorationColor:
-                                                        scheme.primary)),
-                                          ),
-                                        ]),
+                                                    fontWeight: FontWeight.w700)),
+                                            Expanded(
+                                              child: Text(
+                                                  '${s['title']} — ${s['site']}',
+                                                  style: TextStyle(
+                                                      color: scheme.primary,
+                                                      decoration: TextDecoration
+                                                          .underline,
+                                                      decorationColor:
+                                                          scheme.primary)),
+                                            ),
+                                          ]),
+                                    ),
                                   ),
                                 ),
                             ],

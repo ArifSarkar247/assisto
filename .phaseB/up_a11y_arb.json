@@ -1,0 +1,9 @@
+{
+  "_comment": "a11y1 (accessibility sweep, app/test/a11y_guidelines_test.dart): TalkBack name for the voice-message seek strip. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_a11y_arb.json",
+  "en": {
+    "a11yVoiceSeek": "Voice message position. Tap to jump"
+  },
+  "bn": {
+    "a11yVoiceSeek": "ভয়েস মেসেজের অবস্থান। ট্যাপ করে যেকোনো জায়গায় যান"
+  }
+}

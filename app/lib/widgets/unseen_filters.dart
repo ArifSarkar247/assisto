@@ -95,7 +95,8 @@ class UnseenCategoryBar extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected ? c : scheme.onSurface)),
+                    // a11y1: the tint's own ink (raw primary was 4.44:1).
+                    color: selected ? Brand.onTint(context, c) : scheme.onSurface)),
           ]),
         ),
       ),

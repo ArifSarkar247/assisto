@@ -408,7 +408,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
               label: Text(t.fbShotRemove),
               style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
-                  foregroundColor: scheme.error),
+                  foregroundColor: Brand.onTint(context, scheme.error)), // a11y1
             ),
           ]),
         ),

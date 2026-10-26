@@ -707,6 +707,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             label: Text(t.psPickGallery),
           ),
           OutlinedButton.icon(
+            // a11y1: primary on the tinted hero was 4.45:1.
+            style: OutlinedButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
             onPressed: () => _c.pick(camera: true),
             icon: const Icon(Icons.photo_camera_rounded),
             label: Text(t.psPickCamera),

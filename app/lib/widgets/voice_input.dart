@@ -394,21 +394,26 @@ class VoiceMicButton extends StatelessWidget {
       listenable: voice,
       builder: (context, _) {
         final live = voice.listening || debugListening;
-        return Tooltip(
-          message: live ? t.voiceReleaseToStop : t.voiceHoldToTalk,
-          child: GestureDetector(
-            onLongPressStart: (_) => voice.start(context, input),
-            onLongPressEnd: (_) => voice.stop(),
-            child: live
-                ? _MicPulse(onTap: voice.stop)
-                : IconButton(
-                    onPressed: () => voice.toggle(context, input),
-                    icon: Icon(Icons.mic_none_rounded,
-                        color: scheme.onSurfaceVariant,
-                        // f2: the outer Tooltip labels the gesture, not
-                        // this button's own semantics node.
-                        semanticLabel: t.voiceHoldToTalk),
-                  ),
+        // a11y1: ONE node for TalkBack (label + tap + long-press). Separate
+        // tooltip/button nodes left an invisible child node behind when the
+        // field scrolled off screen at large text (Flutter asserts on it).
+        return MergeSemantics(
+          child: Tooltip(
+            message: live ? t.voiceReleaseToStop : t.voiceHoldToTalk,
+            child: GestureDetector(
+              onLongPressStart: (_) => voice.start(context, input),
+              onLongPressEnd: (_) => voice.stop(),
+              child: live
+                  ? _MicPulse(onTap: voice.stop)
+                  : IconButton(
+                      onPressed: () => voice.toggle(context, input),
+                      icon: Icon(Icons.mic_none_rounded,
+                          color: scheme.onSurfaceVariant,
+                          // f2: the outer Tooltip labels the gesture, not
+                          // this button's own semantics node.
+                          semanticLabel: t.voiceHoldToTalk),
+                    ),
+            ),
           ),
         );
       },

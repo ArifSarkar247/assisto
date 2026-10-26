@@ -333,7 +333,8 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
                 list.length == 1
                     ? AppLocalizations.of(ctx).a1MeetCountOne
                     : mStrNum(ctx, 'mCount', list.length),
-                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.outline)),
+                // a11y1: outline is a border token (4.29:1 as text).
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           );
         }
         final a = list[i - 1];
@@ -547,7 +548,7 @@ class _AnchorBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
       child: Row(children: [
         IconButton(
-            tooltip: 'Previous',
+            tooltip: AppLocalizations.of(context).remCalPrev,
             icon: const Icon(Icons.chevron_left_rounded),
             onPressed: onPrev),
         Expanded(
@@ -556,7 +557,7 @@ class _AnchorBar extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w600)),
         ),
         IconButton(
-            tooltip: 'Next',
+            tooltip: AppLocalizations.of(context).remCalNext,
             icon: const Icon(Icons.chevron_right_rounded),
             onPressed: onNext),
         TextButton(onPressed: onToday, child: Text(mStr(context, 'mToday'))),
@@ -805,7 +806,7 @@ class _OverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return PopupMenuButton<String>(
-      tooltip: '',
+      tooltip: t.msgrChatMore, // a11y1: TalkBack needs a name
       icon: const Icon(Icons.more_vert_rounded, size: 20),
       onSelected: (v) {
         switch (v) {

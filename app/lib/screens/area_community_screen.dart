@@ -301,7 +301,11 @@ class _AreaBar extends StatelessWidget {
                 fontWeight: FontWeight.w700),
           ),
         ),
-        TextButton(onPressed: onChange, child: Text(tr.areaChangeArea)),
+        TextButton(
+            onPressed: onChange,
+            // a11y1: on primaryContainer, the container's own ink is AA.
+            style: TextButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
+            child: Text(tr.areaChangeArea)),
       ]),
     );
   }
