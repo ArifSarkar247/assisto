@@ -20702,5 +20702,13 @@
         "type": "String"
       }
     }
+  },
+  "hv2CircleSub": "Chat & call",
+  "@hv2CircleSub": {
+    "description": "Home v2 pinned My Circle tile: one-line subtitle under the title (owner 26 Oct)."
+  },
+  "hv2CircleA11y": "My Circle, chat and call",
+  "@hv2CircleA11y": {
+    "description": "Home v2 pinned My Circle tile: screen-reader name (unread count is appended)."
   }
 }

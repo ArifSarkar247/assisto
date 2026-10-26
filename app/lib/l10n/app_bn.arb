@@ -15879,5 +15879,7 @@
   "hv2GreetName": "{greeting}, {name}!",
   "hv2GreetPlain": "{greeting}!",
   "hv2PickHint": "{count}/১১ বাছাই হয়েছে · টেনে ক্রম বদলান",
-  "hv2NotifA11y": "নোটিফিকেশন, {count}টি নতুন"
+  "hv2NotifA11y": "নোটিফিকেশন, {count}টি নতুন",
+  "hv2CircleSub": "চ্যাট ও কল",
+  "hv2CircleA11y": "আমার সার্কেল, চ্যাট ও কল"
 }
