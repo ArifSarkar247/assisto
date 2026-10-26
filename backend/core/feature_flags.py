@@ -118,6 +118,7 @@ REGISTRY = (
     ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ()),
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
+    ('retention_auto', 'business', 'Retention automation (thank-you, we-miss-you, due, back-in-stock, birthday)', 'রিটেনশন অটোমেশন (ধন্যবাদ, ফিরে আসুন, বাকি, স্টকে এসেছে, জন্মদিন)', False, ('retention_auto', 'retention_inbox')),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
     ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),

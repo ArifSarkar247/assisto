@@ -1,0 +1,4 @@
+# retention1: Retention automation scheduler. Install (main session): append to
+# the ubuntu crontab on the Assisto box. Quiet hours (21:00-09:00 Asia/Dhaka)
+# are enforced in code, so the tick may run all day.
+*/15 * * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py retention_run >> /home/ubuntu/assisto/logs/retention_run.log 2>&1

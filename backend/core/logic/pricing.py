@@ -142,7 +142,47 @@ _ACTION_DEFAULTS = {
     # this estimate and the provider's own cost field (Profit Guard).
     "ai_sales_vision":     {"provider_cost": 0.012, "credits": 6},
     "ai_sales_voice":      {"provider_cost": 0.006, "credits": 3},
+    # retention1: one automated in-app (Assisto) message from a business to
+    # its own customer. No provider cost (push + one row) -> 0 credits, but
+    # capped per customer / per business per day (pricing "retention" block).
+    # SMS automations use the "sms" row per SMS part; WhatsApp templates are
+    # charged by Meta category through seller_agent.wa_cost_bdt (webhook).
+    "retention_in_app":    {"provider_cost": 0.0,   "credits": 0},
 }
+
+# retention1: retention-automation server maximums (admin-editable via
+# /admin/pricing "retention" block). The owner of a business may only LOWER
+# the caps; these bounds keep an edit from ever making them unlimited.
+_RETENTION_DEFAULTS = {
+    "max_per_customer_day": 1,     # automated messages per customer per day
+    "max_per_customer_week": 2,    # ... per customer per 7 days
+    "max_business_daily": 100,     # ... per business per day (all customers)
+    "attribution_days": 7,         # a purchase within N days counts for the message
+    "max_automations": 10,         # per business
+    "max_audience_scan": 5000,     # customers examined per automation per run
+}
+_RETENTION_BOUNDS = {
+    "max_per_customer_day": (1, 1),
+    "max_per_customer_week": (1, 2),
+    "max_business_daily": (1, 1000),
+    "attribution_days": (1, 30),
+    "max_automations": (1, 20),
+    "max_audience_scan": (100, 20000),
+}
+
+
+def _norm_retention(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k, dflt in base.items():
+        lo, hi = _RETENTION_BOUNDS[k]
+        out[k] = max(lo, min(hi, _int(raw.get(k), dflt)))
+    return out
+
+
+def retention_cfg(cfg):
+    """The normalized retention-automation block of a pricing config."""
+    return normalize(cfg)["retention"]
 
 # p4-world: Unseen World knobs (admin-editable via /admin/pricing "world").
 _WORLD_DEFAULTS = {
@@ -510,6 +550,7 @@ def DEFAULTS():
         # WhatsApp per-message cost, per-channel kill switches
         "seller_agent": _BA.cfg_defaults(),
         "world": dict(_WORLD_DEFAULTS),   # p4-world
+        "retention": dict(_RETENTION_DEFAULTS),   # retention1
     }
 
 
@@ -635,6 +676,7 @@ def normalize(data):
         "payments": _PAY.normalize(d.get("payments")),   # pay1
         "seller_agent": _BA.cfg_normalize(d.get("seller_agent")),   # p1
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
+        "retention": _norm_retention(d.get("retention"), base["retention"]),
     }
 
 
@@ -995,7 +1037,7 @@ def validate_edit(data):
                     v = _num(g.get(k), None)
                     if v is None or v < lo or v > hi:
                         problems.append("bad_guarantee")
-    for sect in ("limits", "referral", "vehicle"):
+    for sect in ("limits", "referral", "vehicle", "retention"):
         sv = d.get(sect)
         if sv is None:
             continue

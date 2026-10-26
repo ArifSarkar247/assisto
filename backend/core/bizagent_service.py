@@ -926,6 +926,13 @@ def handle_message(ch, e):
     inbound = Message.objects.create(thread=t, direction="in", text=text or ("[%s]" % kind if atts else ""),
                                      external_id=e.get("event_id", ""), status="received",
                                      kind=kind, meta=meta)
+    # retention1: a reply to an automated message counts as "replied"; a STOP
+    # here opts the customer out of every retention automation of the shop
+    try:
+        from . import retention_service as RS
+        RS.on_inbound(t, text)
+    except Exception:
+        pass
     # g1: opt-out of follow-ups ("stop") is honoured at once
     from .logic import bizagent_g1 as G1
     if text and G1.is_opt_out(text):

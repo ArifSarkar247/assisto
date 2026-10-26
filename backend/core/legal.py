@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman section
+LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman; retention1: shop messages
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -162,6 +162,26 @@ def _privacy(lang):
              "server. Only you and the family members you add can see it. No "
              "face recognition, no sound recording; live view goes straight to "
              "your phone and is never recorded."),
+        _sec(lang, "দোকানের স্বয়ংক্রিয় মেসেজ", "Automatic messages from shops",
+             "বিজনেস প্ল্যানের দোকান শুধু তার নিজের গ্রাহককে (যিনি কিনেছেন, খাতায় "
+             "আছেন বা কোনো পণ্য চেয়েছেন) ধন্যবাদ, ফিরে আসার আমন্ত্রণ, বাকির ভদ্র "
+             "রিমাইন্ডার, পণ্য আবার আসার খবর বা জন্মদিনের শুভেচ্ছা পাঠাতে পারে। এর "
+             "জন্য দোকানের নিজের রাখা নাম, ফোন, কেনাকাটা, খাতা ও (গ্রাহক দিলে) "
+             "জন্মদিন ব্যবহার হয় — এই তথ্য শুধু সেই দোকানের, অন্য কারো সাথে ভাগ হয় "
+             "না, কেনা তালিকা বা অপরিচিত কাউকে মেসেজ পাঠানো যায় না। সীমা: একজন "
+             "গ্রাহককে দিনে ১টি ও সপ্তাহে ২টির বেশি নয়, রাত ৯টা থেকে সকাল ৯টা কোনো "
+             "মেসেজ নয়। প্রতিটি মেসেজে \"বন্ধ করুন\"/STOP থাকে; একবার বন্ধ করলে সেই "
+             "দোকানের সব স্বয়ংক্রিয় মেসেজ সাথে সাথে বন্ধ হয়।",
+             "A shop on the Business plan can send its OWN customers (people who "
+             "bought, are in its khata or asked for a product) a thank-you, a "
+             "we-miss-you note, a polite due reminder, a back-in-stock note or a "
+             "birthday wish. This uses the name, phone, purchases, khata and (if "
+             "the customer gave it) birthday the shop itself keeps — that data "
+             "stays with that shop and is never shared; bought lists and "
+             "strangers cannot be messaged. Limits: at most 1 message a day and "
+             "2 a week per customer, nothing between 9 pm and 9 am. Every message "
+             "carries Stop/STOP; stopping once ends every automatic message from "
+             "that shop at once."),
         _sec(lang, "আমরা কী করি না", "What we do NOT do",
              "আপনার ডেটা বিক্রি করি না, আপনার তথ্য দিয়ে বিজ্ঞাপনের প্রোফাইল "
              "বানাই না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",
