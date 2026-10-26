@@ -1,6 +1,7 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
 ## ⏳ আপনার অপেক্ষায় (সব এক জায়গায়, ২৬ Oct হালনাগাদ) — এর মধ্যে আমি কাজ চালিয়ে যাচ্ছি
+0. 🔴 **জরুরি আইনি/টাকার সিদ্ধান্ত (৮ নভেম্বরের আগে):** Owner Admin → Payments-এ **"Play বিল্ডের ভেতরেও গেটওয়ে" (gateway_on_play) এখন চালু।** ফলে Play থেকে নামানো অ্যাপেও Premium ও ক্রেডিট কিনতে bKash/Nagad/কার্ড (EPS) দেখায়, আর Seller Agent প্ল্যান শুধু EPS দিয়েই বিক্রি হয়। Google Play-এর পেমেন্ট নীতি সাধারণত ডিজিটাল জিনিসের জন্য Play Billing বাধ্যতামূলক করে — প্রোডাকশন আবেদনে এটা রিজেক্টের কারণ হতে পারে। **আমার সুপারিশ: প্রোডাকশন জমার আগে এটা বন্ধ করুন** (ওয়েবসাইট lifeassisto.com/premium ও ওয়েবসাইটের APK-তে EPS চলতেই থাকবে)। Play Console-এ আপনার অ্যাকাউন্টে "user choice billing" চালু থাকলে জানাবেন — তাহলে ভিন্ন পথ আছে। আপনি "বন্ধ করো" বললে আমি বন্ধ করব; Seller Agent প্ল্যানের জন্য Play-তে বিকল্প পথ এজেন্ট তৈরি করছে।
 1. **AdMob কনসোল (আপনি বলেছেন কাল):** Privacy & messaging-এ GDPR বার্তা + US স্টেট বার্তা; Rewarded ইউনিটে SSV callback URL — ধাপ `owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md`। (Play Console-এর বিজ্ঞাপন-ঘোষণা ✅ হয়ে গেছে।) আসল বিজ্ঞাপন চালু হবে প্রোডাকশন লঞ্চ ও AdMob অনুমোদনের পর Owner Admin → Ads-এ এক টিকে।
 2. ✅ **Play crash/ANR API চালু করেছেন** — সার্ভিস অ্যাকাউন্টের অনুমতি আগেই ছিল, ডেটা পড়া যাচ্ছে।
 3. **Business AI Agent চালু করতে:** Meta app-এর App ID + App Secret + verify token → Owner Admin → Integrations → "Meta app"; webhook; নিজের Page token ও WhatsApp স্থায়ী টোকেন; WhatsApp-এর আসল BD রেট — `owner_actions/BUSINESS_AGENT_SETUP_BN.md`।
@@ -12,11 +13,21 @@
 - ✅ হয়ে গেছে: রেফারেল অঙ্ক নিশ্চিত, Real-ESRGAN বন্ধ, Play বিজ্ঞাপন-ঘোষণা, রিপো পাবলিক।
 
 
+
+## 💳 পেমেন্ট — Play Console-এ আপনাকে যা তৈরি করতে হবে (হুবহু ID; বিস্তারিত `owner_actions/PLAY_PRODUCTS_SETUP_BN.md`, পরের বিল্ডের সাথে আসছে)
+- **সাবস্ক্রিপশন:** `assisto_premium` ও `assisto_business` — প্রতিটিতে base plan `monthly` ও `yearly`। দাম: Premium ৳১৯৯ / ৳২১৭৩, Business ৳৪৯৯ / ৳৫৮০৮ (Owner Admin → Payments-এর লাইভ দামের সাথে মিলিয়ে নিন)। Grace period মাসিক ৭ দিন, বার্ষিক ১৪ দিন; Account hold চালু; কোনো offer নয়; Pause বন্ধ; Activate।
+- **ক্রেডিট প্যাক (one-time, consumable):** `credits_p20` ৳২০, `credits_p50` ৳৫০, `credits_p100` ৳১০০, `credits_p200` ৳২০০।
+- **সার্ভিস অ্যাকাউন্ট (Play Console → Users and permissions):** "View financial data" + "Manage orders and subscriptions"।
+- **RTDN:** Google Cloud Pub/Sub topic `play-rtdn` → push subscription URL `https://api.lifeassisto.com/api/v1/payments/play/rtdn` (OIDC, audience একই) → Owner Admin-এ `rtdn_audience`, `rtdn_sa_email`; Play Console → Monetization setup-এ topic বসান।
+- **License testing:** টেস্টারদের Gmail যোগ করুন (টাকা কাটে না)।
+- **EPS (ওয়েবসাইটের জন্য):** Owner Admin → Integrations-এ merchant_id, store_id, username, password, hash_key, ipn_key, mode।
+- **অডিটে ঠিক হলো (পরের বিল্ডে):** বার্ষিক কিনতে গেলে ভুলে মাসিক কাটার ঝুঁকি; মাসিক↔বার্ষিক ও ডাউনগ্রেড আটকে যেত; "কেনাকাটা ফিরিয়ে আনুন" (নতুন ফোন/রিইনস্টল) ছিলই না; grace/hold/বাতিলের বার্তা + "পেমেন্ট ঠিক করুন" ছিল না; টাকা কাটার পর নেট গেলে ভুলে "টাকা কাটেনি" বলত; ডাবল-ট্যাপে দুবার কেনা। অন্য Assisto অ্যাকাউন্টে কখনো দ্বিতীয়বার চালু হয় না (দুই-অ্যাকাউন্ট টেস্ট)। Business বার্ষিক কেনার বোতাম যোগ হচ্ছে।
+
 ## 📋 ফিচার-টেবিল (সৎ অবস্থা — "সম্পন্ন" মানে ৯টি শর্তের ৯টিই পাস; `DEFINITION_OF_DONE_BN.md`) — ২৬ Oct
 | ফিচার | অবস্থা | কতটা | কী বাকি |
 |---|---|---|---|
-| ট্র্যাক ০: পেমেন্ট শুরু-থেকে-শেষ | 🔧 চলছে (এজেন্ট) | — | যাচাই + Play Console প্রোডাক্টের তালিকা |
-| ট্র্যাক ০: কল ≥৯৫% প্রতি ব্র্যান্ডে | 🔧 চলছে (এজেন্ট) | এখন ৮৬% (৭ দিন) | কারণ বিশ্লেষণ + ঠিক + দুই-ফোন পরীক্ষা |
+| ট্র্যাক ০: পেমেন্ট শুরু-থেকে-শেষ | 🔧 ৮৫% | — | Business বার্ষিক বোতাম (চলছে); আসল ফোনে Play-কেনা পরীক্ষা; gateway_on_play সিদ্ধান্ত (আপনার) |
+| ট্র্যাক ০: কল ≥৯৫% প্রতি ব্র্যান্ডে | 🔧 ৮০% (কোড তৈরি, পরের বিল্ডে) | এখন ৮৬% (৭ দিন; ৩ মিসের ২টি পুরনো বিল্ডে) | টেস্টাররা নতুন বিল্ডে গেলে আসল কলে ৯৫% প্রমাণ; দুই-ফোন পরীক্ষা |
 | ট্র্যাক ০: Play ক্র্যাশ/ANR প্রতিদিন | ✅ লাইভ | — | — |
 | ফিচার-সুইচ + Play-লুকানো ব্যবস্থা | 🔧 চলছে (এজেন্ট) | — | সব ফিচার ৯ শর্তে যাচাইয়ের তালিকা |
 | A CCTV ওয়াচম্যান | 🙈 লুকানো হবে / 🔧 পরের | ~৭০% (কোড) | Imou/ONVIF, জোন আঁকা, ফোন-গেটওয়ে এআই, আচরণ শনাক্ত, ক্লিপ |
