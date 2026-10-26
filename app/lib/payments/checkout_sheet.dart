@@ -130,6 +130,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
   // ------------------------------------------------------------ gateway
   Future<void> _payGateway() async {
     final t = AppLocalizations.of(context);
+    if (_step != _Step.choose) return; // pay-e2e: double tap
     setState(() => _step = _Step.busy);
     final r = await widget.backend.checkout(widget.sku, _idem, widget.flavour);
     if (!mounted) return;
@@ -179,7 +180,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
   Future<void> _payPlay() async {
     final t = AppLocalizations.of(context);
     final p = _product('play');
-    if (p == null) return;
+    if (p == null || _step != _Step.choose) return; // pay-e2e: double tap
     setState(() => _step = _Step.busy);
     final pre = await widget.backend.playPrecheck(widget.sku);
     if (!mounted) return;
@@ -194,7 +195,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
     if (!mounted) return;
     if (billing == null) {
       setState(() {
-        _msg = t.payPlayUnavailable;
+        _msg = _playUnavailable(t);
         _step = _Step.failed;
       });
       return;
@@ -226,7 +227,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
       case StoreBuyStatus.error:
         setState(() {
           _msg = res.status == StoreBuyStatus.unavailable
-              ? t.payPlayUnavailable
+              ? _playUnavailable(t)
               : t.payFailedBody;
           _step = _Step.failed;
         });
@@ -234,10 +235,19 @@ class _CheckoutSheetState extends State<CheckoutSheet>
       case StoreBuyStatus.purchased:
         break;
     }
-    final v = await widget.backend.playVerify(
+    Future<PayResult> verify() => widget.backend.playVerify(
         kind: p.isSub ? 'sub' : 'pack',
         productId: p.playProductId,
         purchaseToken: res.purchaseToken);
+    var v = await verify();
+    // pay-e2e: Google already took the money — a dropped connection must
+    // not lose it. Retry a little; if still offline, say "being confirmed"
+    // (the server also gets it from Google's RTDN and the next restore).
+    for (var i = 0; i < 2 && !v.ok && v.reason == 'network'; i++) {
+      await Future<void>.delayed(Duration(seconds: 2 * (i + 1)));
+      if (!mounted) return;
+      v = await verify();
+    }
     if (!mounted) return;
     final good = v.ok &&
         (v.data['entitled'] == true || v.data['state'] == 'granted');
@@ -252,10 +262,19 @@ class _CheckoutSheetState extends State<CheckoutSheet>
       return _success(t, v.data);
     }
     setState(() {
-      _msg = v.data['state'] == 'pending' ? t.payPlayPending : _err(t, v);
+      _msg = (v.data['state'] == 'pending' || v.reason == 'network')
+          ? t.payPlayPending
+          : _err(t, v);
       _step = _Step.failed;
     });
   }
+
+  /// pay-e2e: "use bKash / Nagad / Card instead" only when this sheet really
+  /// offers the gateway (owner switch); otherwise no other method is named.
+  String _playUnavailable(AppLocalizations t) =>
+      _channels.any((c) => c.id == 'gateway')
+          ? t.payPlayUnavailable
+          : t.payPlayUnavailableNoAlt;
 
   void _success(AppLocalizations t, Map<String, dynamic>? data) {
     final p = _product('gateway') ?? _product('play');

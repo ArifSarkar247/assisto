@@ -14,6 +14,8 @@ import '../payments/checkout_sheet.dart'; // pay1
 import '../services/error_kind.dart' show serverFailText; // qa2
 import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
+import '../payments/play_restore.dart'; // pay-e2e
+import '../payments/store_billing.dart'; // pay-e2e
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -95,6 +97,7 @@ class _PlansScreenState extends State<PlansScreen> {
     } catch (_) {
       _payCfg = null;
     }
+    _reconcileOnce();
     // Referral loads separately so a referral outage never blanks the paywall.
     try {
       final r = await Future.wait([api.referralBalance(), api.referralHistory()]);
@@ -115,6 +118,31 @@ class _PlansScreenState extends State<PlansScreen> {
     await Navigator.push(
         context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
     if (mounted) await _load();
+  }
+
+  /// pay-e2e: true on the Play build while Google Play is really live.
+  bool get _playLive =>
+      payFlavour() == 'play' && (_payCfg?.channel('play')?.usable ?? false);
+
+  /// pay-e2e: once per app run, quietly hand every purchase Play still holds
+  /// to the server — a purchase that finished while the app was killed, a
+  /// slow-card purchase that completed later, or a new phone. The server
+  /// grants each token once, to its own account only.
+  static bool _reconciled = false;
+  Future<void> _reconcileOnce() async {
+    final cfg = _payCfg;
+    if (_reconciled || cfg == null || !_playLive) return;
+    _reconciled = true;
+    try {
+      final b = await StoreBilling.forThisBuild();
+      if (b == null || !mounted) return;
+      final api = context.read<AppState>().api;
+      final o = await restorePlayPurchases(ApiPaymentsBackend(api), b, cfg);
+      if (o.restored > 0 && mounted) {
+        final st = await api.getJson('/payments/state');
+        if (mounted) setState(() => _pay = st);
+      }
+    } catch (_) {}
   }
 
   /// pay1: the sku the tapped card shows the price of.
@@ -419,13 +447,37 @@ class _PlansScreenState extends State<PlansScreen> {
     final p = _pay;
     if (p == null) return const [];
     final renew = (p['renew'] as Map?)?.cast<String, dynamic>();
+    final restore = <Widget>[
+      if (_playLive && _payCfg != null)
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: RestorePurchasesButton(
+              backend: ApiPaymentsBackend(context.read<AppState>().api),
+              cfg: _payCfg!,
+              onRestored: _load),
+        ),
+    ];
+    // pay-e2e: Play status (grace / on hold / paused / cancelled) + deep link.
+    final play = (p['play'] as Map?)?.cast<String, dynamic>();
+    if (play != null) {
+      return [
+        const SizedBox(height: Gap.md),
+        PlayStatusCard(play: play),
+        ...restore,
+      ];
+    }
     if (p['managed_by_play'] == true) {
       return [
         const SizedBox(height: Gap.md),
         _note(scheme, Icons.shop_rounded, t.payManagedByPlay),
+        ...restore,
       ];
     }
-    if (renew == null) return const [];
+    if (renew == null) {
+      return restore.isEmpty
+          ? const []
+          : [const SizedBox(height: Gap.sm), ...restore];
+    }
     final ends = DateTime.tryParse('${renew['ends_at'] ?? ''}')?.toLocal();
     if (ends == null) return const [];
     final soon = ends.difference(DateTime.now()).inDays <= 7;

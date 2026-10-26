@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../payments/payments_api.dart' show payFlavour; // pay-e2e
 
 /// Lower-paywall trust block for the Plans screen (Section 21): an honest
 /// "manage / cancel + billing" note, an annual-vs-monthly explainer, and a
@@ -20,6 +21,9 @@ class PlansFaq extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // pay-e2e: billing is live — the copy follows the build (the Play build
+    // never names another payment method; the website APK is prepaid).
+    final play = payFlavour() == 'play';
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       // Annual vs monthly — computed from real prices, shown only if we can.
@@ -38,7 +42,7 @@ class PlansFaq extends StatelessWidget {
         scheme,
         icon: Icons.receipt_long_rounded,
         title: t.plansManageTitle,
-        body: t.plansManageBody,
+        body: play ? t.plansManageBodyPlay : t.plansManageBodyApk,
       ),
       const SizedBox(height: Gap.lg),
 
@@ -47,10 +51,11 @@ class PlansFaq extends StatelessWidget {
       const SizedBox(height: Gap.sm),
       _faq(t.plansFaqQCancelQ, t.plansFaqQCancelA),
       _faq(t.plansFaqQSafetyQ, t.plansFaqQSafetyA),
-      _faq(t.plansFaqQSwitchQ, t.plansFaqQSwitchA),
+      _faq(t.plansFaqQSwitchQ, t.plansFaqSwitchALive),
       _faq(t.plansFaqQFamilyQ, t.plansFaqQFamilyA),
       _faq(t.plansFaqQPointsQ, t.plansFaqQPointsA),
-      _faq(t.plansFaqQRefundQ, t.plansFaqQRefundA),
+      _faq(t.plansFaqQRefundQ,
+          play ? t.plansFaqRefundAPlay : t.plansFaqRefundAApk),
     ]);
   }
 

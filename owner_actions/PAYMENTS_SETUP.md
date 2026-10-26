@@ -99,9 +99,9 @@ EPS-এর প্রকাশ্য স্যান্ডবক্সে আস�
 | Subscription ID | Base plan ID | মেয়াদ | দাম (এখনকার মূল দাম) |
 |---|---|---|---|
 | `assisto_premium` | `monthly` | ১ মাস, auto-renew | ৳১৯৯ |
-| `assisto_premium` | `yearly` | ১ বছর, auto-renew | ৳১৯১০ |
+| `assisto_premium` | `yearly` | ১ বছর, auto-renew | ৳২১৭৩ |
 | `assisto_business` | `monthly` | ১ মাস, auto-renew | ৳৪৯৯ |
-| `assisto_business` | `yearly` | ১ বছর, auto-renew | ৳৪৭৯০ |
+| `assisto_business` | `yearly` | ১ বছর, auto-renew | ৳৫৮০৮ |
 
 প্রতিটি base plan-এ **Grace period** (যেমন ৭ দিন) ও **Account hold** চালু রাখুন — আমাদের সার্ভার
 দুটোই ঠিকভাবে সামলায় (grace-এ Premium থাকে, hold-এ বন্ধ হয়, পেমেন্ট ঠিক হলে আবার চালু)।

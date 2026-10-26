@@ -49,6 +49,9 @@ class FakePaymentsBackend implements PaymentsBackend {
       const PayResult(ok: true, data: {'ok': true, 'play_account_id': 'u7-abc'});
   PayResult verifyResult = const PayResult(
       ok: true, data: {'ok': true, 'entitled': true, 'state': 'SUBSCRIPTION_STATE_ACTIVE'});
+  /// pay-e2e: per-token verify answers (restore tests); falls back to
+  /// [verifyResult]. A list is consumed one answer per call.
+  final verifyByToken = <String, List<PayResult>>{};
   final calls = <String>[];
 
   FakePaymentsBackend({PayConfig? cfg, this.failConfig = false})
@@ -87,6 +90,8 @@ class FakePaymentsBackend implements PaymentsBackend {
       required String productId,
       required String purchaseToken}) async {
     calls.add('verify:$kind:$productId:$purchaseToken');
+    final l = verifyByToken[purchaseToken];
+    if (l != null && l.isNotEmpty) return l.length == 1 ? l.first : l.removeAt(0);
     return verifyResult;
   }
 }
@@ -110,4 +115,9 @@ class FakeStoreBilling implements StoreBilling {
 
   @override
   Future<void> finish(String purchaseToken) async => finished.add(purchaseToken);
+
+  /// pay-e2e: what Play still holds for this Google account.
+  List<StoreOwned> ownedList = [];
+  @override
+  Future<List<StoreOwned>> owned() async => ownedList;
 }

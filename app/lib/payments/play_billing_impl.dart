@@ -16,7 +16,10 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 import 'store_billing.dart';
 
-StoreBilling createPlayBilling() => _PlayBilling();
+// pay-e2e: ONE client per app run — a new instance per tap used to add
+// another purchaseStream listener every time.
+_PlayBilling? _instance;
+StoreBilling createPlayBilling() => _instance ??= _PlayBilling();
 
 class _PlayBilling implements StoreBilling {
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -101,7 +104,7 @@ class _PlayBilling implements StoreBilling {
         return const StoreBuyResult(StoreBuyStatus.unavailable,
             error: 'product not found in Play Console');
       }
-      ProductDetails pick = resp.productDetails.first;
+      ProductDetails? pick = isSubscription ? null : resp.productDetails.first;
       if (isSubscription) {
         for (final d in resp.productDetails) {
           if (d is GooglePlayProductDetails) {
@@ -118,13 +121,23 @@ class _PlayBilling implements StoreBilling {
           }
         }
       }
+      // pay-e2e: never fall back to another base plan (a "yearly" tap must
+      // never charge "monthly" when the yearly base plan is missing/inactive).
+      if (pick == null) {
+        return const StoreBuyResult(StoreBuyStatus.unavailable,
+            error: 'base plan not active in Play Console');
+      }
       ChangeSubscriptionParam? change;
       if (isSubscription) {
         final old = await _activeSubscription(productId);
         if (old != null) {
           change = ChangeSubscriptionParam(
               oldPurchaseDetails: old,
-              replacementMode: ReplacementMode.chargeProratedPrice);
+              // pay-e2e: CHARGE_PRORATED_PRICE is valid for upgrades only
+              // (Play refuses it for a downgrade or a monthly<->yearly
+              // change). WITH_TIME_PRORATION works for every change: the
+              // switch is immediate and unused time is credited.
+              replacementMode: ReplacementMode.withTimeProration);
         }
       }
       final param = GooglePlayPurchaseParam(
@@ -141,6 +154,30 @@ class _PlayBilling implements StoreBilling {
           onTimeout: () => const StoreBuyResult(StoreBuyStatus.pending));
     } catch (e) {
       return StoreBuyResult(StoreBuyStatus.error, error: '$e');
+    }
+  }
+
+  @override
+  Future<List<StoreOwned>> owned() async {
+    try {
+      if (!await _iap.isAvailable()) return const [];
+      final add =
+          _iap.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+      // ignore: deprecated_member_use
+      final r = await add.queryPastPurchases();
+      final out = <StoreOwned>[];
+      for (final p in r.pastPurchases) {
+        if (p.billingClientPurchase.purchaseState !=
+            PurchaseStateWrapper.purchased) {
+          continue; // pending (slow card): the server/RTDN grants it later
+        }
+        final token = p.verificationData.serverVerificationData;
+        if (token.isEmpty) continue;
+        out.add(StoreOwned(p.productID, token));
+      }
+      return out;
+    } catch (_) {
+      return const [];
     }
   }
 
