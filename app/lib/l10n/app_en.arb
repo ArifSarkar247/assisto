@@ -21097,5 +21097,13 @@
   "rmtDeleteAllTitle": "Delete everything in Budget and Remittance?",
   "rmtDeleteAllBody": "All money received, bills, the expected amount, the family plan, spending written here and the savings goal are deleted from our server for good. Download a copy first if you need it.",
   "rmtDeleteAllYes": "Delete all",
-  "rmtDeleteAllDone": "Everything here was deleted"
+  "rmtDeleteAllDone": "Everything here was deleted",
+  "callsAFloatLabel": "Video call with {name}. Tap to return to the call. Drag to move",
+  "@callsAFloatLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
