@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -389,9 +390,9 @@ class _ZonePainter extends CustomPainter {
   _ZonePainter(this.zones, this.draft, this.tool);
 
   static Color colorOf(String type) => switch (type) {
-        'cash' => const Color(0xFFE0A500),
-        'entry_line' => const Color(0xFF22D3EE),
-        _ => const Color(0xFFE0485A),
+        'cash' => Brand.warning,
+        'entry_line' => Brand.cyan,
+        _ => Brand.danger,
       };
 
   void _shape(Canvas c, Size s, String type, List<Offset> pts, {bool closed = true}) {

@@ -1,1 +1,1 @@
-Build 245: My Circle is now the first home shortcut (chat and call with friends, with unread and missed-call badges); reminders survive a phone restart again; more reliable incoming calls; bigger Edit button; Play purchases fixed (Business yearly, restore, payment-hold messages).
+Build 246: Correct yearly plan prices (Premium ৳2490, Business ৳4990) with the Play "annual" plan; behind-the-scenes groundwork for home & shop camera alerts (not visible yet); stability fixes.
