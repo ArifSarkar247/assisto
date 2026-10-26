@@ -14,19 +14,27 @@
 8. **বড় সপ্তাহের জন্য আপনার যা লাগবে (বিস্তারিত `owner_actions/BIG_WEEK_PLAN_BN.md`):** Imou Open Platform অ্যাকাউন্ট (appId/appSecret) + একটি Imou ক্যামেরা; একটি পুরনো Android ফোন; দোকানের জন্য একটি Windows পিসি; মিটিংয়ের জন্য আলাদা SFU সার্ভারের অনুমোদন (~$৬০–৯০/মাস); ইমেইল প্রদানকারী + ডোমেইন DNS; ম্যাপ টাইল key; অ্যাফিলিয়েট অ্যাকাউন্ট; Meta টেমপ্লেট — কোনো খরচ আপনার অনুমোদন ছাড়া শুরু হবে না।
 9. 🟡 **ক্রেডিট ফুরোলে কী দেখে — আপনার প্রশ্ন (২৬ Oct):** কোডে পুরো পথ যাচাই ও ঠিক করা চলছে (প্রতিটি AI জায়গায় এক ট্যাপে ক্রেডিট কেনার শিট, Play-এর ৪টি প্যাক credits_p20/p50/p100/p200, অনুমতি থাকলে বিজ্ঞাপন দেখে ক্রেডিট, কেনার পরে লেখা না হারিয়ে কাজ আবার চলবে, বারবার কেনা যাবে)। ফলাফল নিচে আলাদা অংশে আসবে। **আসল কেনা যাচাই আমি সার্ভার থেকে করতে পারি না — লাগবে আপনার:** Play Console → Settings → **License testing**-এ আপনার টেস্ট Gmail যোগ করুন, আর Play Console-এ ৪টি ক্রেডিট প্যাক তৈরি/Active আছে কি না দেখুন (উপরের 💳 অংশ)। ১০ মিনিটের ধাপ `owner_actions/CREDITS_OUT_FLOW_BN.md`-এ দেব।
 10. ✅ **আপনার সিদ্ধান্ত মানা হয়েছে (লাইভ, ব্যাকআপের পর):** প্যাক A — p20=২০, p50=৫০, p100=১০০, p200=২০০ ক্রেডিট (৳১ = ১ ক্রেডিট); বিজনেস মাসে ২০০ ক্রেডিট; Profit Guard-এ ১৫% VAT। আগে যারা কিনেছেন তাদের ক্রেডিট যেমন ছিল তেমনই থাকবে।
-11. 🔴 **play-verifier — ৩ ঘণ্টা ধরে প্রতি ১০ মিনিটে দেখেছি, এখনো 401 "insufficient permissions"** (শেষ ১৫:১২ UTC)। শুধু দেরি হলে সাধারণত এতক্ষণে চালু হয়ে যায়, তাই সম্ভবত Play Console-এ সেটিং বাকি। দয়া করে: Play Console → **Users and permissions** → play-verifier@assisto-play.iam.gserviceaccount.com → (ক) **App permissions** ট্যাবে "Add app" → Assisto → সেখানে **View financial data** ও **Manage orders and subscriptions** টিক → Apply; অথবা (খ) **Account permissions** ট্যাবে ওই দুইটা টিক → **Invite user / Save changes**। ইমেইলের বানান হুবহু মিলিয়ে নিন। তারপর Owner Admin → Integrations → Google Play Billing → **Test** চাপুন — 10247 থেকে Test এখন অনুমতিও দেখে: ঠিক হলে "token + purchases permission OK" দেখাবে। আমি প্রতি ঘণ্টায় নিজেও দেখছি; ঠিক হলেই এখানে ✅।
+11. ✅ **play-verifier কাজ করছে** — আপনার Test ২১:৫১-এ "token + purchases permission OK"; আমিও নিজে কেনা-যাচাই API ডেকে মিলিয়েছি (সাবস্ক্রিপশন ও এককালীন — দুটোতেই অনুমতি আছে)। সমাধান ছিল: App permissions-এ Assisto অ্যাপ যোগ করা (শুধু অ্যাকাউন্ট-লেভেলের টিক যথেষ্ট ছিল না)। uploader কী ব্যবহার হয়নি ✅।
 - ✅ হয়ে গেছে: রেফারেল অঙ্ক নিশ্চিত, Real-ESRGAN বন্ধ, Play বিজ্ঞাপন-ঘোষণা, রিপো পাবলিক।
 
 
 
-## 💳 পেমেন্ট — Play Console-এ আপনাকে যা তৈরি করতে হবে (হুবহু ID; বিস্তারিত `owner_actions/PLAY_PRODUCTS_SETUP_BN.md`, পরের বিল্ডের সাথে আসছে)
-- **সাবস্ক্রিপশন:** `assisto_premium` ও `assisto_business` — প্রতিটিতে base plan `monthly` ও `yearly`। দাম: Premium ৳১৯৯ / ৳২১৭৩, Business ৳৪৯৯ / ৳৫৮০৮ (Owner Admin → Payments-এর লাইভ দামের সাথে মিলিয়ে নিন)। Grace period মাসিক ৭ দিন, বার্ষিক ১৪ দিন; Account hold চালু; কোনো offer নয়; Pause বন্ধ; Activate।
-- **ক্রেডিট প্যাক (one-time, consumable):** `credits_p20` ৳২০, `credits_p50` ৳৫০, `credits_p100` ৳১০০, `credits_p200` ৳২০০।
-- **সার্ভিস অ্যাকাউন্ট (Play Console → Users and permissions):** "View financial data" + "Manage orders and subscriptions"।
-- **RTDN:** Google Cloud Pub/Sub topic `play-rtdn` → push subscription URL `https://api.lifeassisto.com/api/v1/payments/play/rtdn` (OIDC, audience একই) → Owner Admin-এ `rtdn_audience`, `rtdn_sa_email`; Play Console → Monetization setup-এ topic বসান।
-- **License testing:** টেস্টারদের Gmail যোগ করুন (টাকা কাটে না)।
-- **EPS (ওয়েবসাইটের জন্য):** Owner Admin → Integrations-এ merchant_id, store_id, username, password, hash_key, ipn_key, mode।
-- **অডিটে ঠিক হলো (পরের বিল্ডে):** বার্ষিক কিনতে গেলে ভুলে মাসিক কাটার ঝুঁকি; মাসিক↔বার্ষিক ও ডাউনগ্রেড আটকে যেত; "কেনাকাটা ফিরিয়ে আনুন" (নতুন ফোন/রিইনস্টল) ছিলই না; grace/hold/বাতিলের বার্তা + "পেমেন্ট ঠিক করুন" ছিল না; টাকা কাটার পর নেট গেলে ভুলে "টাকা কাটেনি" বলত; ডাবল-ট্যাপে দুবার কেনা। অন্য Assisto অ্যাকাউন্টে কখনো দ্বিতীয়বার চালু হয় না (দুই-অ্যাকাউন্ট টেস্ট)। Business বার্ষিক কেনার বোতাম যোগ হয়েছে (`assisto_business` → `yearly` এখন **অবশ্যই** তৈরি করতে হবে)। **আপনার সিদ্ধান্ত অনুযায়ী:** Play বিল্ডে সব ডিজিটাল জিনিস শুধু Google Play Billing দিয়ে — সার্ভারের সুইচ ভুলে চালু থাকলেও অ্যাপ নিজেই Play বিল্ডে কখনো EPS দেখায় না (টেস্ট আছে); Seller Agent প্ল্যান Play বিল্ডে আপাতত বিক্রি হয় না (সৎ বার্তা, বাইরের লিংক নেই — পরে চাইলে `assisto_seller` Play প্রোডাক্ট বানানো যাবে, এখন তৈরি করবেন না)।
+## 💳 পেমেন্ট — লাইভ অবস্থা (২৬ Oct হালনাগাদ)
+- **সাবস্ক্রিপশন (Play Console-এ চালু, আমি API দিয়ে মিলিয়েছি):** `assisto_premium` — base plan `monthly` ৳২৪৯ ও **`annual` ৳২৪৯০ (১ বছর)**; `assisto_business` — `monthly` ৳৪৯৯ ও **`annual` ৳৪৯৯০**। বার্ষিকের base plan ID **annual**; assisto_premium-এর পুরনো "yearly" বন্ধ আছে, কখনো ব্যবহার হয় না (টেস্টে প্রমাণ)। একই দাম ওয়েবসাইট/APK-এর EPS-এও।
+- **ক্রেডিট প্যাক (one-time, বারবার কেনা যায়):** `credits_p20` ৳২০ = ২০ ক্রেডিট, `credits_p50` ৳৫০ = ৫০, `credits_p100` ৳১০০ = ১০০, `credits_p200` ৳২০০ = ২০০ (আপনার সিদ্ধান্ত A)। বিজনেসে মাসে ২০০ ক্রেডিট; Profit Guard-এ ১৫% VAT।
+- **Play বিল্ডে দাম:** সবসময় Google Play থেকে (10247 থেকে), কোডে লেখা টাকা নয়।
+- **সার্ভার যাচাই:** play-verifier কী (শুধু View financial data + Manage orders and subscriptions, App permissions-এ Assisto) ✅; RTDN ✅ (OIDC পাস)।
+- **আপনার নিয়ম:** Play বিল্ডে সব ডিজিটাল জিনিস শুধু Google Play Billing; EPS শুধু ওয়েবসাইট APK আর বাস্তব পণ্য/সেবা। Seller Agent প্ল্যান Play বিল্ডে আপাতত বিক্রি হয় না (সৎ বার্তা)।
+- **RTDN সেটিং একবার দেখে নিন:** Play Console → Monetization setup → Real-time developer notifications → Notification content = **"Subscriptions, voided purchases, and all one-time products"** (রিফান্ডের খবর "voided purchases" থেকেই আসে)।
+
+### 🧪 License tester দিয়ে পুরো পরীক্ষা — 10248 বা পরের বিল্ডে (আপনার ফোনে, ~২০ মিনিট; প্রতিটা ধাপের পরে আমি সার্ভারে মিলিয়ে এখানে ✅/❌ লিখব)
+লাইসেন্স টেস্টারে টাকা কাটে না, আর টেস্ট সাবস্ক্রিপশন দ্রুত নবায়ন হয় (মাসিক ≈ ৫ মিনিট, বার্ষিক ≈ ৩০ মিনিট)। প্রতিটা ধাপের সময় (মোটামুটি) লিখে রাখুন বা আমাকে বলুন "ধাপ ১ শেষ"।
+1. **প্রিমিয়াম মাসিক কিনুন** → অ্যাপে "প্রিমিয়াম" দেখায়, বিজ্ঞাপন চলে যায়। (আমি দেখব: কেনা যাচাই + acknowledge + RTDN "PURCHASED")
+2. **মাসিক → বার্ষিক আপগ্রেড** (প্ল্যান পাতা → বার্ষিক) → একটাই সক্রিয় সাবস্ক্রিপশন থাকে। (আমি দেখব: পুরনো টোকেন বদলে নতুন, দুইটা একসাথে সক্রিয় নয়, RTDN)
+3. **ক্রেডিট প্যাক দুবার কিনুন** (p20 দুবার) → ক্রেডিট ২০ + ২০ = ৪০ বাড়ে। (আমি দেখব: দুই টোকেন, দুবার ক্রেডিট, দুটোই consume, RTDN one-time)
+4. **অ্যাপ মুছে আবার ইনস্টল → লগইন → "কেনাকাটা ফিরিয়ে আনুন"** → প্রিমিয়াম ফিরে আসে; প্যাকের ক্রেডিট দ্বিগুণ হয় না।
+5. **বাতিল:** Play Store → Payments & subscriptions → Assisto → Cancel → অ্যাপে "বাতিল — মেয়াদ শেষ পর্যন্ত চালু" দেখায়। (আমি দেখব: RTDN "CANCELED", মেয়াদ পর্যন্ত চালু থাকে)
+6. **রিফান্ড:** Play Console → Order management → ধাপ ৩-এর একটা প্যাক অর্ডার → Refund (এবং চাইলে সাবস্ক্রিপশন অর্ডার Refund + revoke) → সেই ক্রেডিট/প্রিমিয়াম সরানো হয়। (আমি দেখব: RTDN "voided" → সার্ভারে বাতিল)
 
 ## 📋 ফিচার-টেবিল (সৎ অবস্থা — "সম্পন্ন" মানে ৯টি শর্তের ৯টিই পাস; `DEFINITION_OF_DONE_BN.md`) — ২৬ Oct
 | ফিচার | অবস্থা | কতটা | কী বাকি |
