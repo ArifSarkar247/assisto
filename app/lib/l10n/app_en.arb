@@ -19886,5 +19886,82 @@
   "wmNoticeTitle": "Camera notice",
   "wmNoticeWhy": "Tell staff, helpers and visitors that cameras are in use. Share or print this notice.",
   "wmNoticeShare": "Share",
-  "wmNoticeUnavailable": "The notice could not be loaded. Try again with internet."
+  "wmNoticeUnavailable": "The notice could not be loaded. Try again with internet.",
+  "credoutTitle": "You're out of AI credits",
+  "@credoutTitle": {
+    "description": "credout: title of the shared buy-credits sheet that opens when an AI task runs out of credits"
+  },
+  "credoutBodyDraft": "Your text is kept. Add credits and Assisto sends it again — nothing was charged.",
+  "@credoutBodyDraft": {
+    "description": "credout: sheet body when the user's typed request is kept and will be retried after buying"
+  },
+  "credoutBody": "Add credits to keep using Assisto AI.",
+  "@credoutBody": {
+    "description": "credout: sheet body when there is no typed request to retry"
+  },
+  "credoutCancelledKept": "Payment cancelled. Your text is still there.",
+  "@credoutCancelledKept": {
+    "description": "credout: note after the user cancelled the Play/gateway purchase; the draft is kept"
+  },
+  "credoutPendingKept": "Google Play is still processing this payment. The credits are added as soon as Google confirms — your text is still there.",
+  "@credoutPendingKept": {
+    "description": "credout: note for a pending Play purchase (e.g. slow card / cash payment)"
+  },
+  "credoutFailedKept": "The payment did not go through and no money was taken. Your text is still there — you can try again.",
+  "@credoutFailedKept": {
+    "description": "credout: note after a failed purchase; the draft is kept"
+  },
+  "credoutNoCash": "Credits are only for Assisto AI. They can't be withdrawn as cash and no plan is unlimited.",
+  "@credoutNoCash": {
+    "description": "credout: honesty line at the bottom of the buy-credits sheet"
+  },
+  "credoutPlayNote": "Paid through Google Play. You can buy any pack again whenever you need more.",
+  "@credoutPlayNote": {
+    "description": "credout: under the pack list in the Google Play build (packs are consumable)"
+  },
+  "credoutGatewayNote": "Pay with bKash, Nagad or card. You can buy any pack again whenever you need more.",
+  "@credoutGatewayNote": {
+    "description": "credout: under the pack list in the website APK build"
+  },
+  "credoutBuySemantic": "Buy {credits} for {price}",
+  "@credoutBuySemantic": {
+    "description": "credout: screen-reader label of one pack row",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "credoutBonus": "+{count} bonus",
+  "@credoutBonus": {
+    "description": "credout: extra credits a bigger pack gives (digits already localized)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "credoutWatchAd": "Watch a short ad for free credits",
+  "@credoutWatchAd": {
+    "description": "credout: rewarded-ad row, Free users only, where ads are allowed"
+  },
+  "credoutGetCredits": "Add credits",
+  "@credoutGetCredits": {
+    "description": "credout: button that opens the buy-credits sheet"
+  },
+  "credoutAddedRetry": "Credits added. Sending it again…",
+  "@credoutAddedRetry": {
+    "description": "credout: snackbar after a verified purchase/reward when the same request is sent again"
+  },
+  "credoutAdded": "Credits added.",
+  "@credoutAdded": {
+    "description": "credout: snackbar after a verified purchase/reward"
+  },
+  "payPriceUnavailable": "Price unavailable — try again",
+  "@payPriceUnavailable": {
+    "description": "credout: Play build — Google Play's own price could not be loaded; buying is disabled until a retry works"
+  }
 }
