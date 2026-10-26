@@ -1,0 +1,16 @@
+{
+  "_comment": "calls-a (owner 27 Oct: answer from outside the app + use Assisto during a call): TalkBack name of the floating video window shown over the app while a video call is minimized (app/lib/calls/call_mini_bar.dart CallFloatingVideo). All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_callsA_arb.json",
+  "en": {
+    "callsAFloatLabel": "Video call with {name}. Tap to return to the call. Drag to move",
+    "@callsAFloatLabel": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "callsAFloatLabel": "{name}-এর সাথে ভিডিও কল। কলে ফিরতে ট্যাপ করুন। সরাতে টেনে নিন"
+  }
+}

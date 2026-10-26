@@ -18,12 +18,28 @@ class CallNative {
   /// true while the activity is in picture-in-picture.
   static final ValueNotifier<bool> inPip = ValueNotifier<bool>(false);
 
+  /// calls-a: a warm call launch from MainActivity.onNewIntent
+  /// ({action, call_id, payload}); main.dart points it at CallLaunchRouter.
+  static void Function(Map<dynamic, dynamic>? args)? onCallLaunch;
+
+  /// calls-a: install the Dart-side handler (no native call — safe before
+  /// the first frame) so a warm call launch is never dropped.
+  static void listen() => _ensureHandler();
+
   static void _ensureHandler() {
     if (_handlerSet) return;
     _handlerSet = true;
     try {
       _ch.setMethodCallHandler((call) async {
         if (call.method == 'pipChanged') inPip.value = call.arguments == true;
+        if (call.method == 'callLaunch') {
+          final a = call.arguments;
+          try {
+            onCallLaunch?.call(a is Map ? a : null);
+          } catch (e) {
+            callLog('call_native#2', e);
+          }
+        }
         if (call.method == 'networkChanged') {
           final c = _net;
           if (c != null && !c.isClosed) c.add('${call.arguments ?? 'other'}');

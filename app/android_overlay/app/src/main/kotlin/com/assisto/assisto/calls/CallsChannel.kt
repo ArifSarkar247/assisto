@@ -487,6 +487,8 @@ object CallsChannel {
                     PictureInPictureParams.Builder()
                         .setAspectRatio(Rational(pipW, pipH))
                         .setAutoEnterEnabled(on)
+                        // video content: no seamless resize (no stretched frame)
+                        .setSeamlessResizeEnabled(!on)
                         .build()
                 )
             } else {
@@ -500,6 +502,8 @@ object CallsChannel {
 
     private fun hookLeaveHint(a: Activity) {
         if (leaveHintHooked) return
+        // calls-a: MainActivity forwards onUserLeaveHint itself (no reflection)
+        if (a is com.assisto.assisto.MainActivity) return
         try {
             val m = a.javaClass.getMethod("addOnUserLeaveHintListener", Runnable::class.java)
             m.invoke(a, Runnable {
@@ -568,6 +572,27 @@ object CallsChannel {
             netCb = null
             false
         }
+    }
+
+    /** calls-a: a warm call launch (MainActivity.onNewIntent) -> Dart
+     *  "callLaunch" {action, call_id, payload}. Dart de-duplicates it against
+     *  flutter_local_notifications' copy by call id. */
+    fun sendCallLaunch(action: String, callId: String, payload: String) {
+        main.post {
+            try {
+                channel?.invokeMethod("callLaunch", mapOf(
+                    "action" to action, "call_id" to callId, "payload" to payload))
+            } catch (ignored: Throwable) {}
+        }
+    }
+
+    /** calls-a: MainActivity.onUserLeaveHint (Home / Recents on API 26-30):
+     *  a live video call shrinks into system picture-in-picture. API 31+
+     *  uses setAutoEnterEnabled instead (smoother, no flash). */
+    fun onUserLeaveHint() {
+        try {
+            if (autoPip && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) enterPip(pipW, pipH)
+        } catch (ignored: Throwable) {}
     }
 
     /** MainActivity forwards onPictureInPictureModeChanged here. */

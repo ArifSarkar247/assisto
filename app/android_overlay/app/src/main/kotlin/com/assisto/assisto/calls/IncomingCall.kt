@@ -177,7 +177,7 @@ object IncomingCall {
     fun answerFromSystem(ctx: Context, callId: String) {
         try {
             val d = live[callId] ?: return
-            val i = launchIntent(ctx, FLN_SELECT_FG, notificationId(callId), d)
+            val i = launchIntent(ctx, FLN_SELECT_FG, notificationId(callId), d, entry = true)
                 .putExtra(FLN_ACTION_ID, ACTION_ACCEPT)
                 .putExtra(FLN_CANCEL, true)
             ctx.startActivity(i)
@@ -201,6 +201,18 @@ object IncomingCall {
 
     @JvmStatic
     fun sigFor(callId: String): String = live[callId]?.get("ack_sig") ?: ""
+
+    /** calls-a: answered on THIS phone (CallLaunch.answeredHere): the ring
+     *  is over and a re-sent ring push for it must never ring again. The
+     *  Telecom call is NOT ended here (MainActivity marks it answered). */
+    @JvmStatic
+    fun markAnswered(callId: String) {
+        try {
+            ended[callId] = System.currentTimeMillis()
+            live.remove(callId)
+        } catch (_: Throwable) {
+        }
+    }
 
     // ------------------------------------------------------------ call-reply
     /** Reply is offered for a 1:1 ring with a known chat (member id); a
@@ -352,8 +364,11 @@ object IncomingCall {
     }
 
     private fun launchIntent(ctx: Context, action: String, nid: Int,
-                             d: Map<String, String>): Intent {
-        val base = try {
+                             d: Map<String, String>, entry: Boolean = false): Intent {
+        // calls-a: Accept + tap / full-screen go through CallEntryActivity
+        // (manifest showWhenLocked + turnScreenOn) so the lock screen opens
+        // the call at once; Reply keeps MainActivity (asks to unlock).
+        val base = (if (entry) Intent(ctx, CallEntryActivity::class.java) else null) ?: try {
             ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
         } catch (_: Throwable) {
             null
@@ -384,9 +399,9 @@ object IncomingCall {
         val icon = smallIcon(ctx)
 
         val content = PendingIntent.getActivity(ctx, nid,
-            launchIntent(ctx, FLN_SELECT, nid, d), piFlags())
+            launchIntent(ctx, FLN_SELECT, nid, d, entry = true), piFlags())
         val answer = PendingIntent.getActivity(ctx, nid * 16 + 1,
-            launchIntent(ctx, FLN_SELECT_FG, nid, d)
+            launchIntent(ctx, FLN_SELECT_FG, nid, d, entry = true)
                 .putExtra(FLN_ACTION_ID, ACTION_ACCEPT)
                 .putExtra(FLN_CANCEL, true), piFlags())
         val decline = PendingIntent.getBroadcast(ctx, nid * 16 + 2,

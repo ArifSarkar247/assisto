@@ -520,6 +520,16 @@ jobs:
               '\n        </service>'
               '\n        <receiver android:name="com.assisto.assisto.calls.CallActionReceiver"'
               ' android:exported="false"/>'
+              # calls-a: the ring's Accept / full-screen target. Invisible
+              # trampoline (forwards the call intent to MainActivity and
+              # finishes) whose MANIFEST flags let a locked phone open the call
+              # at once; MainActivity itself stays without showWhenLocked.
+              '\n        <activity android:name="com.assisto.assisto.calls.CallEntryActivity"'
+              ' android:exported="false" android:excludeFromRecents="true"'
+              ' android:noHistory="true" android:showWhenLocked="true"'
+              ' android:turnScreenOn="true"'
+              ' android:taskAffinity="com.assisto.assisto.callentry"'
+              ' android:theme="@android:style/Theme.Translucent.NoTitleBar"/>'
               '\n        <receiver android:name="com.assisto.assisto.calls.RingTestReceiver"'
               ' android:permission="android.permission.DUMP"'
               ' android:exported="true">'
@@ -1283,9 +1293,11 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 600
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          # calls-a: + accept_proof.sh — Accept on a cold app / warm app /
+          # lock screen must open the CALL screen first (no home flash).
           script: |
             sleep 60
-            bash tools/ringproof/ring_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}
+            bash tools/ringproof/ring_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; r=$?; bash tools/ringproof/accept_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; a=$?; exit $((r | a))
       - name: Upload ring proof (always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -1294,6 +1306,8 @@ jobs:
           path: |
             ring_*.png
             ring_*.txt
+            accept_*.png
+            accept_*.txt
           retention-days: 30
           if-no-files-found: warn
   # ---- /ring-everywhere ----
