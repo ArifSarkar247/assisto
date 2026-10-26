@@ -144,6 +144,9 @@ _A = {
     "marketing": ("FFFFFFFFF", "hide", "~10%: not built.", "~১০%: তৈরি হয়নি।"),
     "retention": ("FFFFFFFFF", "hide", "~35% server parts; no user entry yet.", "~৩৫% সার্ভার অংশ; ব্যবহারকারীর এন্ট্রি নেই।"),
     "booking": ("FFFFFFFFF", "hide", "~15%: not built.", "~১৫%: তৈরি হয়নি।"),
+    # ---- App shell
+    "home_v2": ("?PP???P??", "show", "New home (owner design v6): widget tests + bn/en/light/dark/200% screenshot gallery; old home stays as the OFF fallback for one week; real-phone 2 GB timing and the owner's 10-minute check pending.",
+                "নতুন হোম (মালিকের ডিজাইন v6): উইজেট টেস্ট + বাংলা/ইংরেজি/লাইট/ডার্ক/২০০% স্ক্রিনশট; এক সপ্তাহ পুরনো হোম বন্ধ-সুইচের বিকল্প; আসল ২ GB ফোনে সময় ও মালিকের ১০ মিনিটের পরীক্ষা বাকি।"),
 }
 
 AUDIT = {

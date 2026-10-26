@@ -60,6 +60,7 @@ void registerMyCircleAddFlows() {
     });
 
     await f.step('home chat "circle" opens My Circle add (was "no match")', () async {
+      await f.openHomeChat(); // home_v2: the chat has its own screen
       await f.enter('circle', label: f.t.inputHint);
       await f.tapSend(settleSeconds: 4);
       await f.waitFor(find.byType(M3AddToCircleScreen), seconds: 10,

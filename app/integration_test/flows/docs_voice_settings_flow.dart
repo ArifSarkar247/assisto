@@ -81,7 +81,7 @@ void registerDocsVoiceSettingsFlows() {
     final bn = lookupAppLocalizations(const Locale('bn'));
     await f.step('open Settings', () async {
       // Settings sits at the bottom of the drawer (not in the search index)
-      await f.tap(find.byTooltip('Open navigation menu'), settleSeconds: 2);
+      await f.openDrawer();
       final tile = find.descendant(of: find.byType(Drawer), matching: find.text(f.t.settingsTitle));
       await f.tester.scrollUntilVisible(tile, 300,
           scrollable: find.descendant(of: find.byType(Drawer), matching: find.byType(Scrollable)).first);

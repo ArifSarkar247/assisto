@@ -480,14 +480,32 @@ class HomeCircleTile extends StatelessWidget {
 
 /// Bottom sheet to choose + order the 6 home shortcuts. Returns the new list,
 /// or null when cancelled.
+///
+/// home_v2 reuses the same sheet for its 11 (My Circle + 11): [max],
+/// [catalog], [lookup], [title], [hint] and [requireFull] override the old
+/// home's values; left out, the sheet behaves exactly as before.
 Future<List<String>?> showQuickButtonsPicker(
     BuildContext context, List<String> current,
-    {List<String>? resetTo}) {
+    {List<String>? resetTo,
+    int? max,
+    List<QuickShortcut>? catalog,
+    QuickShortcut? Function(String route)? lookup,
+    String Function(AppLocalizations t)? title,
+    String Function(AppLocalizations t, int count)? hint,
+    bool requireFull = true}) {
   return showModalBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => QuickButtonsPicker(current: current, resetTo: resetTo),
+    builder: (_) => QuickButtonsPicker(
+        current: current,
+        resetTo: resetTo,
+        max: max,
+        catalog: catalog,
+        lookup: lookup,
+        title: title,
+        hint: hint,
+        requireFull: requireFull),
   );
 }
 
@@ -497,7 +515,24 @@ class QuickButtonsPicker extends StatefulWidget {
 
   /// What "Reset" restores — the owner default (falls back to shipped).
   final List<String>? resetTo;
-  const QuickButtonsPicker({super.key, required this.current, this.resetTo});
+
+  /// home_v2 overrides (null = the old home's six).
+  final int? max;
+  final List<QuickShortcut>? catalog;
+  final QuickShortcut? Function(String route)? lookup;
+  final String Function(AppLocalizations t)? title;
+  final String Function(AppLocalizations t, int count)? hint;
+  final bool requireFull;
+  const QuickButtonsPicker(
+      {super.key,
+      required this.current,
+      this.resetTo,
+      this.max,
+      this.catalog,
+      this.lookup,
+      this.title,
+      this.hint,
+      this.requireFull = true});
   @override
   State<QuickButtonsPicker> createState() => QuickButtonsPickerState();
 }
@@ -506,11 +541,15 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
   late final List<String> _sel = List.of(widget.current);
   String _q = '';
 
+  int get _max => widget.max ?? HomeQuickButtons.count;
+  QuickShortcut? _by(String r) =>
+      (widget.lookup ?? HomeQuickButtons.byRoute)(r);
+
   void _toggle(String r) {
     setState(() {
       if (_sel.contains(r)) {
         _sel.remove(r);
-      } else if (_sel.length < HomeQuickButtons.count) {
+      } else if (_sel.length < _max) {
         _sel.add(r);
       }
     });
@@ -521,10 +560,11 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final q = _q.trim().toLowerCase();
-    final options = HomeQuickButtons.catalog
+    final options = (widget.catalog ?? HomeQuickButtons.catalog)
         .where((s) => q.isEmpty || s.label(t).toLowerCase().contains(q))
         .toList();
-    final full = _sel.length == HomeQuickButtons.count;
+    final full = _sel.length == _max;
+    final canSave = widget.requireFull ? full : _sel.isNotEmpty;
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.85,
@@ -533,13 +573,15 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
             padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(t.quickPickTitle,
+              Text(widget.title?.call(t) ?? t.quickPickTitle,
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
                       ?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text(t.quickPickHint(_sel.length),
+              Text(
+                  widget.hint?.call(t, _sel.length) ??
+                      t.quickPickHint(_sel.length),
                   style:
                       TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
             ]),
@@ -549,7 +591,11 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
           ListTile(
             key: const ValueKey('quick_pinned_circle'),
             dense: true,
-            leading: Icon(Icons.diversity_3_outlined, color: scheme.primary),
+            leading: Icon(
+                widget.catalog != null
+                    ? Icons.diversity_3
+                    : Icons.diversity_3_outlined,
+                color: scheme.primary),
             title: Text(t.sidebarMyCircle,
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(t.hcPinned,
@@ -575,8 +621,8 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                     key: ValueKey('sel_$r'),
                     padding: const EdgeInsetsDirectional.only(end: Gap.xs),
                     child: InputChip(
-                      avatar: Icon(HomeQuickButtons.byRoute(r)!.icon, size: 18),
-                      label: Text(HomeQuickButtons.byRoute(r)!.label(t)),
+                      avatar: Icon(_by(r)!.icon, size: 18),
+                      label: Text(_by(r)!.label(t)),
                       onDeleted: () => _toggle(r),
                     ),
                   ),
@@ -618,8 +664,10 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                 onPressed: () => setState(() {
                   _sel
                     ..clear()
-                    ..addAll(HomeQuickButtons.sanitize(
-                        widget.resetTo ?? HomeQuickButtons.defaults));
+                    ..addAll(widget.catalog != null
+                        ? (widget.resetTo ?? const <String>[])
+                        : HomeQuickButtons.sanitize(
+                            widget.resetTo ?? HomeQuickButtons.defaults));
                 }),
                 child: Text(t.quickReset),
               ),
@@ -632,7 +680,7 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                     fit: BoxFit.scaleDown,
                     child: FilledButton(
                       onPressed:
-                          full ? () => Navigator.pop(context, List.of(_sel)) : null,
+                          canSave ? () => Navigator.pop(context, List.of(_sel)) : null,
                       child: Text(t.aichatSave),
                     ),
                   ),

@@ -100,6 +100,7 @@ const Map<String, bool> kFeatureDefaults = {
   'marketing': false,
   'retention': false,
   'booking': false,
+  'home_v2': true,
 };
 
 /// ChatNav route -> the feature that owns it. Routes not listed here (core
@@ -167,9 +168,13 @@ const Map<String, String> kRouteFeature = {
   'resume': 'cv_builder',
   'inbox': 'ai_inbox',
   'business': 'business',
+  'khata': 'business',
   'bargain_rules': 'business',
   'business_plans': 'business',
   'crm': 'crm',
   'offers': 'offers',
   'referral': 'referral',
+  'sales_agent': 'business_agent',
+  'prepaid_meter': 'prepaid_meter',
+  'contract': 'contract_analyzer',
 };

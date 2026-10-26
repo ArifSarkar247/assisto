@@ -14,6 +14,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'chatnav.dart';
 import '../services/action_feedback.dart'; // db1
+import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 
 /// HOME "Discover" spotlight — an auto-rotating, swipeable PageView of
 /// spotlight cards.
@@ -45,7 +46,13 @@ class HomeSuggestions extends StatefulWidget {
   final void Function(HomeSuggestion s)? onRun;
   final void Function(Future<void> Function() refresh)? onReady;
 
-  const HomeSuggestions({super.key, this.onRun, this.onReady});
+  /// home_v2: the owner's restyle (slim gradient cards, glass icon box,
+  /// white round arrow, next card peeking, dots beside the title). Data,
+  /// cache, rotation, swipe, labels and impression/click tracking are the
+  /// SAME code path as the old home.
+  final bool v2;
+
+  const HomeSuggestions({super.key, this.onRun, this.onReady, this.v2 = false});
 
   /// SharedPreferences key holding the last server card set (JSON list).
   static const cacheKey = 'discover_cards_cache_v1';
@@ -186,7 +193,11 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   static int? _buildNumber; // resolved once per process
   static bool _buildResolved = false;
 
-  final _page = PageController(viewportFraction: 0.92);
+  late final _page = PageController(
+      viewportFraction: widget.v2
+          ? (HV2.discoverMainW + HV2.discoverPeekGap) /
+              (HV2.skylineW - 2 * HV2.pagePad)
+          : 0.92);
   final _rotate = ValueNotifier<int>(0);
   Timer? _autoRotate;
 
@@ -364,6 +375,7 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   Widget _buildBody() {
     final scheme = Theme.of(context).colorScheme;
     if (_cards.isEmpty) return const SizedBox.shrink();
+    if (widget.v2) return _buildV2();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -401,6 +413,120 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
         const SizedBox(height: Gap.sm),
         _dots(_cards.length, scheme),
       ],
+    );
+  }
+
+  // home_v2 layout: title + dots on one row, then the slim peeking cards.
+  Widget _buildV2() {
+    final p = HomeV2Palette.of(context);
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(t.discoverTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: HV2.sectionTitleSize,
+                      fontWeight: FontWeight.w700,
+                      color: p.sectionTitle)),
+            ),
+          ),
+          ExcludeSemantics(child: _dotsV2(_cards.length, p)),
+        ]),
+        const SizedBox(height: HV2.sectionGap),
+        LayoutBuilder(builder: (context, box) => SizedBox(
+          height: _v2Height(box.maxWidth, scale),
+          child: PageView(
+            controller: _page,
+            padEnds: false,
+            clipBehavior: Clip.none,
+            onPageChanged: (i) {
+              _index = i;
+              _rotate.value = i;
+              _impression(i);
+            },
+            children: [
+              for (final c in _cards)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                      end: HV2.discoverPeekGap),
+                  child: DiscoverCardV2(item: c, onTap: () => _tap(c)),
+                ),
+            ],
+          ),
+        )),
+      ],
+    );
+  }
+
+  /// Card height for this width + font: the reference 98 dp, or taller when
+  /// the longest card's title + description need more room (large font) —
+  /// measured, so no card ever cuts its text off.
+  double _v2Height(double width, double scale) {
+    final base = HV2.discoverHeight(1);
+    if (scale <= 1.0) return base;
+    try {
+      final cardW = width * _page.viewportFraction - HV2.discoverPeekGap;
+      final textW = cardW -
+          2 * HV2.discoverPadH -
+          HV2.glassBox -
+          2 * HV2.discoverInnerGap -
+          HV2.goBtn;
+      if (textW <= 40) return HV2.discoverHeight(scale);
+      final lang =
+          Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en';
+      final scaler = MediaQuery.textScalerOf(context);
+      final dts = DefaultTextStyle.of(context).style;
+      double h(String s, TextStyle st) {
+        final tp = TextPainter(
+            text: TextSpan(text: s, style: dts.merge(st)),
+            textDirection: Directionality.of(context),
+            textScaler: scaler)
+          ..layout(maxWidth: textW);
+        final v = tp.height;
+        tp.dispose();
+        return v;
+      }
+      var need = 0.0;
+      for (final c in _cards) {
+        final badge = c.isProduct || c.isSponsored ? 10 * 1.5 * scale + 4 : 0;
+        final v = badge +
+            h(c.title(t, lang), DiscoverCardV2.titleStyle) +
+            h(c.description(t, lang), DiscoverCardV2.descStyle);
+        if (v > need) need = v;
+      }
+      final full = need + 2 * HV2.discoverPadV + 6;
+      return full > base ? full : base;
+    } catch (_) {
+      return HV2.discoverHeight(scale);
+    }
+  }
+
+  Widget _dotsV2(int count, HomeV2Palette p) {
+    return ValueListenableBuilder<int>(
+      valueListenable: _rotate,
+      builder: (_, active, __) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < count; i++)
+            AnimatedContainer(
+              duration: Motion.fast,
+              margin: EdgeInsetsDirectional.only(
+                  start: i == 0 ? 0 : HV2.dotGap),
+              width: i == active ? HV2.dotOn : HV2.dot,
+              height: HV2.dot,
+              decoration: BoxDecoration(
+                color: i == active ? p.dotOn : p.dotOff,
+                borderRadius: BorderRadius.circular(Radii.pill),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -543,4 +669,163 @@ class DiscoverCardTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// home_v2 Discover card (owner reference .card): ~98 dp tall (grows with the
+/// font), its own premium gradient, a glass icon box, title + 2-line
+/// description and a white round arrow button. "Our products" / "Sponsored"
+/// keep their labels (glass pill above the title).
+class DiscoverCardV2 extends StatelessWidget {
+  final DiscoverItem item;
+  final VoidCallback? onTap;
+  const DiscoverCardV2({super.key, required this.item, this.onTap});
+
+  static const titleStyle = TextStyle(
+      color: HomeV2Palette.onColor,
+      fontSize: HV2.discoverTitle,
+      height: 1.3,
+      fontWeight: FontWeight.w700);
+  static const descStyle = TextStyle(
+      color: HomeV2Palette.discoverSub,
+      fontSize: HV2.discoverDesc,
+      height: 1.4);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final lang =
+        Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en';
+    final p = HomeV2Palette.of(context);
+    final colors = HomeV2Palette.discoverGradient(item.key);
+    final (begin, end) = HV2.cssAngle(HV2.discoverAngleDeg);
+    final radius = BorderRadius.circular(HV2.discoverRadius);
+    final img = item.absoluteImageUrl;
+    final title = item.title(t, lang);
+    final desc = item.description(t, lang);
+    final badge = item.isProduct
+        ? t.discoverOurProducts
+        : item.isSponsored
+            ? t.discoverSponsored
+            : null;
+    final icon = Icon(item.iconData,
+        color: HomeV2Palette.onColor, size: HV2.glassIcon);
+    // normal font: the reference's 1 + 2 lines; large font: the card is
+    // measured tall enough for the whole text (home_suggestions _v2Height)
+    final big = MediaQuery.textScalerOf(context).scale(1) > 1.0;
+    return Semantics(
+      button: true,
+      label: [if (badge != null) badge, title, desc].join('. '),
+      excludeSemantics: true,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          gradient: LinearGradient(
+              begin: begin, end: end, colors: colors, stops: const [0, 0.6, 1]),
+          boxShadow: [
+            BoxShadow(
+                color: p.discoverShadow,
+                blurRadius: 22,
+                offset: const Offset(0, 10)),
+          ],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            key: ValueKey('discover_v2_${item.key}'),
+            borderRadius: radius,
+            onTap: onTap,
+            child: ClipRRect(
+              borderRadius: radius,
+              child: Stack(children: [
+                const Positioned(
+                  right: -40,
+                  top: -60,
+                  child: _Blob(size: HV2.blobDiscover),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: HV2.discoverPadH, vertical: HV2.discoverPadV),
+                  child: Row(children: [
+                    Container(
+                      width: HV2.glassBox,
+                      height: HV2.glassBox,
+                      decoration: BoxDecoration(
+                        color: HomeV2Palette.glass,
+                        borderRadius: BorderRadius.circular(HV2.glassRadius),
+                        border: Border.all(color: HomeV2Palette.glassBorder),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: img != null
+                          ? Image.network(img,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Center(child: icon))
+                          : Center(child: icon),
+                    ),
+                    const SizedBox(width: HV2.discoverInnerGap),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (badge != null)
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: HomeV2Palette.glass,
+                                borderRadius: BorderRadius.circular(Radii.xs),
+                              ),
+                              child: Text(badge,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                      color: HomeV2Palette.onColor,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800)),
+                            ),
+                          Text(title,
+                              maxLines: big ? 4 : 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: titleStyle),
+                          Text(desc,
+                              maxLines: big ? 8 : (badge == null ? 2 : 1),
+                              overflow: TextOverflow.ellipsis,
+                              style: descStyle),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: HV2.discoverInnerGap),
+                    Container(
+                      width: HV2.goBtn,
+                      height: HV2.goBtn,
+                      decoration: const BoxDecoration(
+                          color: HomeV2Palette.onColor, shape: BoxShape.circle),
+                      child: Icon(
+                          item.isExternal
+                              ? Icons.open_in_new_rounded
+                              : Icons.chevron_right_rounded,
+                          size: HV2.goIcon,
+                          color: colors.first),
+                    ),
+                  ]),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Blob extends StatelessWidget {
+  final double size;
+  const _Blob({required this.size});
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(
+            color: HomeV2Palette.blob, shape: BoxShape.circle),
+      );
 }

@@ -654,3 +654,230 @@ class AssistoTheme {
     );
   }
 }
+
+/// home_v2 (owner final home design, 26 Oct — owner_actions/design/
+/// home_v6_bn.html): EVERY colour of the new home lives here (the design guard
+/// forbids colour literals elsewhere). Light values are copied 1:1 from the
+/// owner's HTML; the dark set is designed for the same hierarchy (not an
+/// inversion): the navy header and the coloured gradients stay, the surfaces
+/// become deep navy-slate and every text tone keeps ≥ 4.5:1.
+/// Sizes / radii / spacing live in lib/screens/home_v2/home_v2_tokens.dart.
+class HomeV2Palette {
+  const HomeV2Palette._({
+    required this.dark,
+    required this.headerGradient,
+    required this.body,
+    required this.sectionTitle,
+    required this.dotOff,
+    required this.dotOn,
+    required this.tile,
+    required this.tileBorder,
+    required this.tileShadow,
+    required this.tileLabel,
+    required this.pinBorder,
+    required this.pinTop,
+    required this.chip,
+    required this.chipBorder,
+    required this.chipInk,
+    required this.askGradient,
+    required this.askShadow,
+    required this.nav,
+    required this.navBorder,
+    required this.navInk,
+    required this.navActive,
+    required this.voiceRing,
+    required this.voiceLabel,
+    required this.missedRing,
+    required this.discoverShadow,
+  });
+
+  final bool dark;
+  final List<Color> headerGradient;
+  final Color body;
+  final Color sectionTitle;
+  final Color dotOff;
+  final Color dotOn;
+  final Color tile;
+  final Color tileBorder;
+  final Color tileShadow;
+  final Color tileLabel;
+  final Color pinBorder;
+  final Color pinTop;
+  final Color chip;
+  final Color chipBorder;
+  final Color chipInk;
+  final List<Color> askGradient;
+  final Color askShadow;
+  final Color nav;
+  final Color navBorder;
+  final Color navInk;
+  final Color navActive;
+  final Color voiceRing;
+  final Color voiceLabel;
+  final Color missedRing;
+  final Color discoverShadow;
+
+  static HomeV2Palette of(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? darkSet : light;
+
+  static const light = HomeV2Palette._(
+    dark: false,
+    headerGradient: [Color(0xFF0A1A3F), Color(0xFF13306E), Color(0xFF1E4FB8)],
+    body: Color(0xFFF4F6FA),
+    sectionTitle: Color(0xFF0F172A),
+    dotOff: Color(0xFFCBD5E1),
+    dotOn: Color(0xFF0A84FF),
+    tile: Colors.white,
+    tileBorder: Color(0xFFEBEEF4),
+    tileShadow: Color(0x0D0F172A), // rgba(15,23,42,.05)
+    tileLabel: Color(0xFF0F172A),
+    pinBorder: Color(0xFFA5B4FC),
+    pinTop: Color(0xFFEEF2FF),
+    chip: Colors.white,
+    chipBorder: Color(0xFFE2E8F0),
+    chipInk: Color(0xFF1E293B),
+    askGradient: [Color(0xFF0B2560), Color(0xFF1D4ED8), Color(0xFF3B82F6)],
+    askShadow: Color(0x471D4ED8), // rgba(29,78,216,.28)
+    nav: Colors.white,
+    navBorder: Color(0xFFE5E9F0),
+    navInk: Color(0xFF475569),
+    navActive: Color(0xFF1D4ED8),
+    voiceRing: Colors.white,
+    voiceLabel: Color(0xFF0F172A),
+    missedRing: Colors.white,
+    discoverShadow: Color(0x4D4F46E5), // rgba(79,70,229,.30)
+  );
+
+  static const darkSet = HomeV2Palette._(
+    dark: true,
+    headerGradient: [Color(0xFF060F29), Color(0xFF0D2252), Color(0xFF173F96)],
+    body: Color(0xFF0B1120),
+    sectionTitle: Color(0xFFE8EDF6),
+    dotOff: Color(0xFF334155),
+    dotOn: Color(0xFF4DA3FF),
+    tile: Color(0xFF141C2F),
+    tileBorder: Color(0xFF222D45),
+    tileShadow: Color(0x33000000),
+    tileLabel: Color(0xFFE2E8F0),
+    pinBorder: Color(0xFF6366F1),
+    pinTop: Color(0xFF1E1B4B),
+    chip: Color(0xFF141C2F),
+    chipBorder: Color(0xFF2A3650),
+    chipInk: Color(0xFFE2E8F0),
+    askGradient: [Color(0xFF0A1F52), Color(0xFF1A44BE), Color(0xFF2F6FE0)],
+    askShadow: Color(0x40000000),
+    nav: Color(0xFF0F172A),
+    navBorder: Color(0xFF1E293B),
+    navInk: Color(0xFFA3B1C6),
+    navActive: Color(0xFF7CB4FF),
+    voiceRing: Color(0xFF0F172A),
+    voiceLabel: Color(0xFFE8EDF6),
+    missedRing: Color(0xFF141C2F),
+    discoverShadow: Color(0x40000000),
+  );
+
+  // ---- shared by both themes (always on a coloured / navy ground) ----
+  static const onColor = Colors.white;
+  static const headerSoft = Color(0xFFD3DEF7); // tagline
+  static const headerGlass = Color(0x1FFFFFFF); // rgba(255,255,255,.12)
+  static const skyline = Color(0x12FFFFFF); // rgba(255,255,255,.07)
+  static const tagLine = Color(0xFF4ADE80);
+  static const badgeRed = Color(0xFFF43F5E);
+  static const badgeGreen = Color(0xFF22C55E);
+  static const badgeRing = Color(0xFF13306E);
+  static const logoRing = Color(0x59FFFFFF); // rgba(255,255,255,.35)
+  static const glass = Color(0x29FFFFFF); // rgba(255,255,255,.16)
+  static const glassBorder = Color(0x47FFFFFF); // rgba(255,255,255,.28)
+  static const blob = Color(0x1AFFFFFF); // rgba(255,255,255,.10)
+  static const discoverSub = Color(0xFFE0E7FF);
+  static const discoverGo = Color(0xFF4338CA);
+  static const gloss = Color(0x38FFFFFF); // rgba(255,255,255,.22)
+  static const glossEnd = Color(0x00FFFFFF);
+  static const countPill = Color(0xFF4F46E5);
+  static const missedDot = Color(0xFFEF4444);
+  static const askSub = Color(0xFFDBE6FF);
+  static const askEm = Color(0xFFBFD0F5);
+  static const askBtnInk = Color(0xFF0F2A6B);
+  static const askBtnIcon = Color(0xFF22C55E);
+  static const askOnline = Color(0xFF22C55E);
+  static const voiceGradient = [
+    Color(0xFF0A84FF),
+    Color(0xFF0EA5B7),
+    Color(0xFF14C27A),
+  ];
+  static const voiceShadow = Color(0x590A84FF); // rgba(10,132,255,.35)
+
+  /// Discover: one premium gradient per card (picked by the card key, so a
+  /// card keeps its colour across sessions). First = the HTML's main card.
+  static const discoverGradients = <List<Color>>[
+    [Color(0xFF4338CA), Color(0xFF6D28D9), Color(0xFF9333EA)],
+    [Color(0xFF0F766E), Color(0xFF0E7490), Color(0xFF0E7490)],
+    [Color(0xFFBE123C), Color(0xFFDB2777), Color(0xFFF472B6)],
+    [Color(0xFF1D4ED8), Color(0xFF2563EB), Color(0xFF0EA5E9)],
+    [Color(0xFFB45309), Color(0xFFD97706), Color(0xFFF59E0B)],
+    [Color(0xFF047857), Color(0xFF059669), Color(0xFF10B981)],
+    [Color(0xFF334155), Color(0xFF1E3A8A), Color(0xFF4338CA)],
+  ];
+
+  /// Shortcut squircle gradients (145°) — the HTML's per-tile pairs, keyed
+  /// by ChatNav route; [tileFallback] colours every other pinnable feature.
+  static const tileGradients = <String, List<Color>>{
+    'circle': [Color(0xFF6366F1), Color(0xFF4338CA)],
+    'family': [Color(0xFFFB7185), Color(0xFFE11D48)],
+    'journey': [Color(0xFF10B981), Color(0xFF047857)],
+    'khata': [Color(0xFF0EA5E9), Color(0xFF0369A1)],
+    'sales_agent': [Color(0xFFA855F7), Color(0xFF7E22CE)],
+    'watchman': [Color(0xFF06B6D4), Color(0xFF0E7490)],
+    'vehicle_tracking': [Color(0xFFF97316), Color(0xFFC2410C)],
+    'jobs': [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+    'lost_stolen': [Color(0xFF475569), Color(0xFF1E293B)],
+    'prepaid_meter': [Color(0xFFF59E0B), Color(0xFFB45309)],
+    'budget': [Color(0xFF22C55E), Color(0xFF15803D)],
+    'contract': [Color(0xFFEC4899), Color(0xFFBE185D)],
+  };
+  static const tileFallback = <List<Color>>[
+    [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+    [Color(0xFF10B981), Color(0xFF047857)],
+    [Color(0xFFF97316), Color(0xFFC2410C)],
+    [Color(0xFFA855F7), Color(0xFF7E22CE)],
+    [Color(0xFF0EA5E9), Color(0xFF0369A1)],
+    [Color(0xFFEC4899), Color(0xFFBE185D)],
+    [Color(0xFFF59E0B), Color(0xFFB45309)],
+    [Color(0xFF06B6D4), Color(0xFF0E7490)],
+  ];
+
+  static List<Color> tileGradient(String route) {
+    final g = tileGradients[route];
+    if (g != null) return g;
+    var h = 0;
+    for (final c in route.codeUnits) {
+      h = (h * 31 + c) & 0x7fffffff;
+    }
+    return tileFallback[h % tileFallback.length];
+  }
+
+  /// The seeded cards keep the order of the owner's mockup (Photo Studio
+  /// violet, then Phone safety teal, ...); any other card hashes its key.
+  static const _discoverSeed = <String, int>{
+    'photo_enhance': 0,
+    'phone_safety': 1,
+    'journey': 5,
+    'messages': 3,
+    'used_phone_check': 6,
+    'vehicles': 4,
+    'security': 2,
+    'plans': 0,
+    'asalify': 4,
+    'axon': 3,
+  };
+
+  static List<Color> discoverGradient(String key) {
+    final seeded = _discoverSeed[key];
+    if (seeded != null) return discoverGradients[seeded];
+    var h = 0;
+    for (final c in key.codeUnits) {
+      h = (h * 31 + c) & 0x7fffffff;
+    }
+    return discoverGradients[h % discoverGradients.length];
+  }
+}
