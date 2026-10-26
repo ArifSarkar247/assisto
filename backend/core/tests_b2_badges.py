@@ -186,7 +186,8 @@ class MyCircleBadgeTests(_Base):
 class RepairCommandTests(_Base):
     def setUp(self):
         super().setUp()
-        self.cut = timezone.now() + timedelta(seconds=1)
+        # an hour of slack: a slow box must not push setUp rows past the cut
+        self.cut = timezone.now() + timedelta(hours=1)
         # chat 1 (A opened it: A replied once): 13 old incoming from B
         self.old = [self.send(self.cb, self.ba, "o%d" % i) for i in range(13)]
         self.send(self.ca, self.ab, "my-reply")
