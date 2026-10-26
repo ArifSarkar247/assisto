@@ -96,7 +96,7 @@ void main() {
     await _settle(tester, 20);
     expect(src.calls, contains('setup:home:pc'));
     // the pairing sheet opens with the code
-    expect(find.text('tok_ABCDEF123456'), findsOneWidget);
+    expect(find.text('PAIR-CODE-FAKE-1'), findsOneWidget);
   });
 
   testWidgets('shop needs Business: Next stays disabled for shop', (tester) async {

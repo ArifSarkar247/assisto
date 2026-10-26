@@ -13,7 +13,7 @@ import 'package:assisto/screens/watchman/watchman_zones.dart';
 import 'cctv1_fakes.dart';
 
 final _site = {'id': 1, 'name': 'Dhanmondi flat', 'kind': 'home', 'gateway': 'pc',
-               'enrollment_token': 'tok_ABCDEF123456'};
+               'enrollment_token': 'PAIR-CODE-FAKE-1'};
 const _limits = {'included_cameras': 0, 'credits_per_extra_camera': 30, 'period_days': 30};
 
 final Map<String, Widget Function(String)> cctv1Shots = {

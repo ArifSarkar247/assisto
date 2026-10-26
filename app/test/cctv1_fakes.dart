@@ -32,7 +32,7 @@ class FakeWatchman implements WatchmanSource {
   Map<String, dynamic> _site(int id, String kind, String gateway, {bool online = true, String role = 'owner'}) => {
         'id': id, 'name': kind == 'home' ? 'Dhanmondi flat' : 'Mirpur shop', 'kind': kind,
         'gateway': gateway, 'role': role, 'snapshot_retention_days': 3,
-        'enrollment_token': role == 'owner' ? 'tok_ABCDEF123456' : null,
+        'enrollment_token': role == 'owner' ? 'PAIR-CODE-FAKE-1' : null,
         'owner_name': role == 'owner' ? '' : 'Rahim',
         'gateway_state': {
           'online': online,
