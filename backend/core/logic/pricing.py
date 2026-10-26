@@ -868,9 +868,11 @@ def storage_quota_bytes(plan_id, cfg):
 
 def net_fraction(cfg):
     """The fraction of a plan's gross price the business keeps after store cut,
-    gateway fee and VAT: (1 - play_fee - gateway_fee - vat), clamped to >0."""
+    gateway fee and VAT. BD prices INCLUDE VAT (Google remits it; the fee is
+    taken on the VAT-free amount), so: (1 - play_fee - gateway_fee) / (1 + vat).
+    Owner 26 Oct: vat 0.15 -> ~0.72 (both fees counted: the worst route)."""
     cfg = normalize(cfg)
-    keep = 1.0 - cfg["play_fee"] - cfg["gateway_fee"] - cfg["vat"]
+    keep = (1.0 - cfg["play_fee"] - cfg["gateway_fee"]) / (1.0 + cfg["vat"])
     return max(0.0001, keep)
 
 

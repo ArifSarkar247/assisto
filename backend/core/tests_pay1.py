@@ -1071,3 +1071,14 @@ class FixedAnnualPriceTests(TestCase):
         self.assertEqual(P.annual_price("premium", cfg),
                          P.annual_price_at("premium", cfg,
                                            P.effective_annual_discount_pct("premium", cfg)))
+
+
+class VatInclusiveNetTests(TestCase):
+    """owner 26 Oct: BD prices include 15% VAT; Profit Guard counts it."""
+
+    def test_net_fraction_is_vat_inclusive(self):
+        from core.logic import pricing as P
+        nf = P.net_fraction({"play_fee": 0.15, "gateway_fee": 0.0, "vat": 0.15})
+        self.assertAlmostEqual(nf, 0.85 / 1.15, places=4)       # ~0.739
+        self.assertAlmostEqual(P.net_fraction({"play_fee": 0.15, "gateway_fee": 0.02,
+                                               "vat": 0.0}), 0.83, places=4)

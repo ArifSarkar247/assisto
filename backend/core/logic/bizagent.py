@@ -944,8 +944,9 @@ def plan_margin_rows(pricing_cfg):
     rows = []
     for pid, p in sa["plans"].items():
         cost = p["replies"] * per
-        net_gw = p["price"] * (1 - gw - vat)
-        net_play = p["price"] * (1 - play - vat)
+        # prices include VAT (owner 26 Oct): net = price * (1 - fee) / (1 + vat)
+        net_gw = p["price"] * (1 - gw) / (1 + vat)
+        net_play = p["price"] * (1 - play) / (1 + vat)
         m_gw = (1 - cost / net_gw) if net_gw > 0 else None
         m_play = (1 - cost / net_play) if net_play > 0 else None
         rows.append({"plan": pid, "price": p["price"], "replies": p["replies"],
