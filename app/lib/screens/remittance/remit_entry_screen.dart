@@ -100,7 +100,9 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
     final t = AppLocalizations.of(context);
     setState(() {
       if (d.amount != null) _amount.text = rmPlain(d.amount!);
-      if (d.currency != null) _currency = d.currency!;
+      // No currency word: the sentence is about taka (a bKash / Nagad /
+      // Rocket transfer always is) — never silently the last foreign one.
+      _currency = d.currency ?? (d.amount != null ? 'BDT' : _currency);
       if (d.channel != null) _channel = d.channel!;
       if (d.rate != null) _rate.text = rmPlain(d.rate!);
       if (d.date != null) _date = d.date!;

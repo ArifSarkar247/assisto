@@ -159,15 +159,25 @@ void main() {
       expect('${b['client_id']}'.length, inInclusiveRange(8, 36));
     });
 
-    testWidgets('a relation with no member becomes the sender name', (tester) async {
+    testWidgets('a relation with no member becomes the sender name; no currency word = taka', (tester) async {
       _phone(tester, height: 2000);
       final f = FakeRemit('data');
+      f.prefs[kRmLastCurrency] = 'SAR'; // last entry was in riyal
       final d = RemitParser.parse('আম্মা ৫০০০ টাকা পাঠাইছে নগদে', now: _now);
       await tester.pumpWidget(
           _app(RemitEntryScreen(source: f, queue: RemitQueue(f), draft: d, members: const [])));
       await _settle(tester);
       expect(tester.widget<TextFormField>(find.byKey(const ValueKey('rmt_sender'))).controller!.text,
           en.rmtRelMother);
+      final d2 = RemitParser.parse('ভাই ২০ হাজার বিকাশে', now: _now);
+      expect(d2.currency, isNull);
+      await tester.pumpWidget(
+          _app(RemitEntryScreen(source: f, queue: RemitQueue(f), draft: d2, members: const [])));
+      await _settle(tester);
+      await tester.ensureVisible(find.byKey(const ValueKey('rmt_save')));
+      await tester.tap(find.byKey(const ValueKey('rmt_save')));
+      await _settle(tester);
+      expect(f.created.last['currency'], 'BDT');
     });
 
     testWidgets('foreign money: taka comes from the rate the user got', (tester) async {

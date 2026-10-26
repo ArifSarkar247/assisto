@@ -115,7 +115,7 @@ def _month_card(user, month, lang, mark_alert=False):
     rows = list(RemittanceEntry.objects.filter(user=user, month=month))
     entries = [S.entry_dict(r) for r in rows]
     received = L.entries_total(entries)
-    lines = L.plan_vs_actual(S.plan(user), S.money_txns(user), month)
+    lines = L.plan_vs_actual(S.plan(user), S.money_txns(user, month), month)
     exp_p = to_poisha(pd.get("expected_taka"))
     exp_day = int(pd.get("expected_day") or 0)
     status = L.expected_status(S.today(), month, exp_p, exp_day, received)
@@ -221,7 +221,8 @@ class PlanView(_Gated):
             else:
                 Budget.objects.update_or_create(user=request.user, category=k,
                                                 defaults={"monthly_limit": amt})
-        lines = L.plan_vs_actual(S.plan(request.user), S.money_txns(request.user), _month(request))
+        m = _month(request)
+        lines = L.plan_vs_actual(S.plan(request.user), S.money_txns(request.user, m), m)
         return Response({"lines": _lines_out(lines)})
 
     post = put
@@ -350,7 +351,7 @@ class ReportView(_Gated):
         lang = "en" if lang == "en" else "bn"
         month = _month(request)
         p, _, card = _month_card(request.user, month, lang)
-        lines = L.plan_vs_actual(S.plan(request.user), S.money_txns(request.user), month)
+        lines = L.plan_vs_actual(S.plan(request.user), S.money_txns(request.user, month), month)
         goal = None
         if card["goal"]:
             goal = {"title": card["goal"]["title"], "target_p": to_poisha(card["goal"]["target"]),

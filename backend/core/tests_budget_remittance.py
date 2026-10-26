@@ -455,3 +455,37 @@ class LimitTests(_Base):
             self.assertIn(k, P._SHOP_DEFAULTS)
             self.assertIn(k, P._SHOP_BOUNDS)
             self.assertEqual(P._SHOP_DEFAULTS[k], S.KNOBS[k])
+
+
+class SpeedTests(_Base):
+    def test_overview_and_year_fast_with_long_history(self):
+        """DoD 4 (server side): a heavy user — 3 years of Money expenses and
+        a full year of remittances — still gets the month card and the year
+        view well under 0.3 s each (p95 target), decryption included."""
+        import time
+        from core.models import Account
+        acc = Account.objects.create(user=self.u, name="Cash")
+        d0 = S.today()
+        Transaction.objects.bulk_create([
+            Transaction(user=self.u, account=acc, kind="expense", amount=Decimal("120"),
+                        category=("food", "rent", "খাবার", "shopping")[i % 4],
+                        date=d0 - timedelta(days=i % 1000)) for i in range(3000)])
+        rows = []
+        for i in range(120):
+            d = d0 - timedelta(days=i * 3)
+            rows.append(RemittanceEntry(user=self.u, client_id="speed-%04d" % i, received_on=d,
+                                        month=L.month_key(d), enc=S.seal({
+                                            "amount": "500", "currency": "SAR", "rate": "32",
+                                            "taka": "16000", "channel": "bank", "sender_name": "Bhai"})))
+        RemittanceEntry.objects.bulk_create(rows)
+        self.a.get("/api/v1/remit/overview")      # warm caches (flags)
+        times = []
+        for path in ("overview", "year", "report"):
+            for _ in range(5):
+                t0 = time.perf_counter()
+                r = self.a.get("/api/v1/remit/" + path)
+                times.append(time.perf_counter() - t0)
+                self.assertEqual(r.status_code, 200)
+        times.sort()
+        p95 = times[int(len(times) * 0.95) - 1]
+        self.assertLess(p95, 0.3, "p95 %.3fs" % p95)

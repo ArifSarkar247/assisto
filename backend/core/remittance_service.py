@@ -412,9 +412,15 @@ def add_spending(user, lang, body):
     return t, True
 
 
-def money_txns(user):
-    return [{"kind": t.kind, "amount": t.amount, "category": t.category, "date": t.date}
-            for t in user.txns.all().only("kind", "amount", "category", "date")]
+def money_txns(user, month=None):
+    """The user's expenses (only the month asked for, so a long Money history
+    never slows the screen)."""
+    qs = user.txns.filter(kind="expense")
+    if month:
+        first, nxt = L.month_bounds(month)
+        qs = qs.filter(date__gte=first, date__lt=nxt)
+    return [{"kind": "expense", "amount": a, "category": c, "date": d}
+            for a, c, d in qs.values_list("amount", "category", "date")]
 
 
 def plan(user):
@@ -428,11 +434,11 @@ def savings_by_month(user, year=None):
     qs = user.txns.filter(kind="expense")
     if year:
         qs = qs.filter(date__year=year)
-    for t in qs.only("amount", "category", "date"):
-        if L.category_of(t.category) != "savings":
+    for amount, category, d in qs.values_list("amount", "category", "date"):
+        if L.category_of(category) != "savings":
             continue
-        k = L.month_key(t.date)
-        out[k] = out.get(k, 0) + to_poisha(t.amount)
+        k = L.month_key(d)
+        out[k] = out.get(k, 0) + to_poisha(amount)
     return out
 
 
