@@ -1,0 +1,12 @@
+{
+  "en": {
+    "ffUnavailableTitle": "Not available",
+    "ffUnavailableBody": "This feature isn't available in your app right now. We'll let you know when it's ready.",
+    "ffUnavailableBack": "Go back"
+  },
+  "bn": {
+    "ffUnavailableTitle": "এখন পাওয়া যাচ্ছে না",
+    "ffUnavailableBody": "এই ফিচারটি এখন আপনার অ্যাপে নেই। তৈরি হলে আমরা জানিয়ে দেব।",
+    "ffUnavailableBack": "ফিরে যান"
+  }
+}

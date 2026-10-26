@@ -539,6 +539,27 @@ class ApiClient {
     _fail(r);
   }
 
+  /// feature-flags: conditional GET. Sends If-None-Match when [etag] is set;
+  /// a 304 comes back as (status: 304, body: null). Other errors throw.
+  Future<({int status, Map<String, dynamic>? body, String? etag})>
+      getJsonEtag(String path, String? etag) async {
+    final r = await _c.get(AppConfig.api(path), headers: {
+      ..._headers(),
+      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
+    });
+    if (r.statusCode == 304) {
+      return (status: 304, body: null, etag: r.headers['etag'] ?? etag);
+    }
+    if (r.statusCode == 200) {
+      return (
+        status: 200,
+        body: jsonDecode(r.body) as Map<String, dynamic>,
+        etag: r.headers['etag'],
+      );
+    }
+    _fail(r);
+  }
+
   // ---- o1-otp ----
   /// POST that never throws on an HTTP error status: returns the parsed body
   /// with `_status` merged in (OTP endpoints carry reason / retry_after /

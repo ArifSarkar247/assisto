@@ -1,0 +1,344 @@
+"""feature-flags: ONE server switch per user-facing feature (owner rule 26 Oct,
+owner_actions/DEFINITION_OF_DONE_BN.md): a feature is visible only when all
+9 Definition-of-Done checks pass; until then it sits behind its flag — and the
+Google Play build can hide it separately, so the Play production application
+(8 Nov) is never blocked by a half-done feature.
+
+Registry (here) -> DB rows (core.models.FeatureFlag, edited in Owner Admin →
+Features) -> GET /api/v1/features (per user + flavour) -> the app's ONE
+central check (app/lib/feature_flags.dart) used by the drawer, ChatNav
+routes, deep links / pushes, home quick buttons and every other entry point.
+
+Resolution for one feature, one request:
+  * on  = enabled_all AND (enabled_play when the request is the Play build)
+          AND the user falls inside rollout_pct (stable hash of key:user id);
+  * an owner (superuser) / staff account or a user id on the feature's
+    allow-list ALWAYS sees it ("preview") — so the owner can test a hidden
+    feature on a real phone, Play build included.
+A missing DB row = the registry default below. Registry defaults keep TODAY's
+behaviour: everything visible today stays visible on deploy; features that
+are not visible today (code-gated showpieces, upcoming big-week features)
+start hidden.
+
+The Dart mirror (app/lib/feature_registry.dart) carries the same keys, routes
+and defaults for a first run with no network; core.tests_feature_flags checks
+both files stay in lock-step.
+
+Medical features are NOT here: the Play build hides them at compile time
+(app/lib/feature_gates.dart kMedicalFeaturesAllowed), unchanged.
+"""
+import hashlib
+import json
+import time
+
+# (key, section, label EN, label BN, default visible, app routes it owns)
+REGISTRY = (
+    ('my_circle', 'circle', 'My Circle', 'আমার সার্কেল', True, ('circle', 'circle_add', 'messages', 'groups', 'status', 'circle_privacy')),
+    ('calls', 'circle', 'Circle calls', 'সার্কেল কল', True, ('circle_calls',)),
+    ('reminders', 'reminders_memory', 'Reminders', 'রিমাইন্ডার', True, ('reminders',)),
+    ('birthdays', 'reminders_memory', 'Birthdays & memorable days', 'জন্মদিন ও স্মরণীয় দিন', True, ('birthdays',)),
+    ('meetings', 'reminders_memory', 'Meetings & appointments', 'মিটিং ও অ্যাপয়েন্টমেন্ট', True, ('meetings',)),
+    ('notes', 'reminders_memory', 'Notes/Tasks', 'নোট/কাজ', True, ('notes',)),
+    ('memory', 'reminders_memory', 'AI knows', 'AI জানে', True, ('memory',)),
+    ('saved_items', 'reminders_memory', 'Saved', 'সংরক্ষিত', True, ()),
+    ('money', 'my_account', 'Account & Finance', 'হিসাব ও অর্থ', True, ('money',)),
+    ('budget', 'my_account', 'Budget', 'বাজেট', True, ('budget',)),
+    ('tax_zakat', 'my_account', 'Tax & Zakat', 'কর ও যাকাত', True, ('tax',)),
+    ('money_wrapped', 'my_account', 'Money Wrapped', 'টাকার রিক্যাপ', True, ('wrapped',)),
+    ('money_voice', 'my_account', 'Money by voice', 'মুখে বলে খরচ লেখা', True, ('money_voice',)),
+    ('subscriptions', 'my_account', 'Subscriptions', 'সাবস্ক্রিপশন', True, ('subscriptions',)),
+    ('finance_tools', 'my_account', 'Finance tools', 'ফিন্যান্স টুল', True, ('finance',)),
+    ('payment_ladder', 'my_account', 'Payment Ladder', 'পেমেন্ট ল্যাডার', True, ('payment_ladder',)),
+    ('mess_accounting', 'my_account', 'Mess & bachelor accounting', 'মেস ও ব্যাচেলর হিসাব', True, ()),
+    ('expense_split', 'my_account', 'Split expenses', 'খরচ ভাগাভাগি', True, ()),
+    ('samity', 'my_account', 'Samity', 'সমিতি', True, ()),
+    ('house_rent', 'my_account', 'House rent', 'বাড়ি ভাড়া', True, ()),
+    ('prepaid_meter', 'my_account', 'Prepaid meters', 'প্রিপেইড মিটার', True, ()),
+    ('domestic_staff', 'my_account', 'Household staff & driver', 'গৃহকর্মী ও ড্রাইভার', True, ()),
+    ('savings_challenge', 'my_account', 'Savings challenge', 'সঞ্চয় চ্যালেঞ্জ', True, ()),
+    ('spending_advice', 'my_account', 'AI spending insights', 'এআই খরচ পর্যবেক্ষণ', True, ()),
+    ('price_radar', 'my_account', 'Market price radar', 'বাজার দাম রাডার', True, ()),
+    ('family', 'family_safety', 'Family', 'ফ্যামিলি', True, ('family',)),
+    ('nominee', 'family_safety', 'Nominee access', 'নমিনি অ্যাক্সেস', True, ('nominee',)),
+    ('safe_journey', 'family_safety', 'Safe Journey', 'নিরাপদ যাত্রা', True, ('journey', 'safety')),
+    ('emergency', 'family_safety', 'Emergency', 'ইমার্জেন্সি', True, ('emergency', 'voice_sos')),
+    ('scam_check', 'family_safety', 'Scam protection', 'প্রতারণা সুরক্ষা', True, ('scam',)),
+    ('fall_detect', 'family_safety', 'Accident / fall detection', 'দুর্ঘটনা/পতন শনাক্তকরণ', False, ('fall_detect',)),
+    ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
+    ('cctv_watchman', 'family_safety', 'CCTV watchman (Shop Box)', 'সিসিটিভি ওয়াচম্যান (শপ বক্স)', True, ('shop_box',)),
+    ('disaster_alerts', 'family_safety', 'Disaster alerts', 'দুর্যোগ সতর্কতা', True, ('disaster',)),
+    ('blood_donor', 'family_safety', 'Blood donors', 'রক্তদাতা নেটওয়ার্ক', True, ()),
+    ('kid_school', 'family_safety', 'School corner', 'স্কুল কর্নার', True, ()),
+    ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
+    ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
+    ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
+    ('service_guide', 'daily_life', 'Service guide', 'সেবা গাইড', True, ('guide',)),
+    ('nearby', 'daily_life', 'Nearby', 'কাছেপিঠে', True, ('nearby',)),
+    ('unseen_world', 'daily_life', 'Unseen World', 'অদেখা দুনিয়া', True, ()),
+    ('unseen_bangladesh', 'daily_life', 'Unseen Bangladesh', 'অদেখা বাংলাদেশ', True, ('unseen',)),
+    ('dictionary', 'daily_life', 'Dictionary', 'অভিধান', True, ('dictionary',)),
+    ('ramadan', 'daily_life', 'Ramadan mode', 'রমজান মোড', True, ('ramadan',)),
+    ('watch_feed', 'daily_life', 'Watch feed', 'ওয়াচ ফিড', True, ('watch_feed',)),
+    ('exam_result', 'daily_life', 'Exam result', 'পরীক্ষার ফলাফল', True, ('exam',)),
+    ('photo_studio', 'daily_life', 'Photo Studio', 'ফটো স্টুডিও', True, ('photo_studio', 'photo_enhance')),
+    ('ride_food', 'daily_life', 'Ride & food', 'রাইড ও খাবার', True, ('ride_food',)),
+    ('vehicles', 'daily_life', 'My Vehicles', 'আমার গাড়ি', True, ('vehicles',)),
+    ('vehicle_tracking', 'daily_life', 'Live tracking', 'লাইভ ট্র্যাকিং', True, ('vehicle_tracking', 'car_mode')),
+    ('student_corner', 'daily_life', 'Student corner', 'স্টুডেন্ট কর্নার', True, ()),
+    ('wedding_events', 'daily_life', 'Wedding & events', 'বিয়ে ও অনুষ্ঠান', True, ()),
+    ('qurbani', 'daily_life', 'Qurbani & Eid planner', 'কোরবানি ও ঈদ পরিকল্পনা', True, ()),
+    ('probashi', 'daily_life', 'Probashi corner', 'প্রবাসী কর্নার', True, ()),
+    ('farmer_mode', 'daily_life', 'Farmer mode', 'কৃষক মোড', True, ()),
+    ('wellness', 'daily_life', 'Water, sleep & diet', 'পানি, ঘুম ও খাবার', True, ()),
+    ('fitness', 'daily_life', 'Fitness partner', 'ফিটনেস সঙ্গী', True, ()),
+    ('smartwatch', 'daily_life', 'Smartwatch & fitness', 'স্মার্টওয়াচ ও ফিটনেস', True, ()),
+    ('daily_challenges', 'daily_life', 'Daily challenge', 'দৈনিক চ্যালেঞ্জ', True, ()),
+    ('contract_analyzer', 'daily_life', 'Contract analyzer', 'চুক্তি বিশ্লেষক', True, ()),
+    ('language_partner', 'daily_life', 'Language partner', 'ভাষা শেখার সঙ্গী', True, ()),
+    ('daily_brief', 'daily_life', 'Daily brief', 'দৈনিক ব্রিফ', True, ()),
+    ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
+    ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),
+    ('travel_planner', 'daily_life', 'Travel planner', 'ভ্রমণ পরিকল্পনা', True, ()),
+    ('voice_mood', 'daily_life', 'Mood & energy', 'মন ও প্রাণশক্তি', True, ()),
+    ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
+    ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
+    ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
+    ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ()),
+    ('cost_estimator', 'work', 'Cost & time estimator', 'খরচ ও সময় হিসাব', True, ()),
+    ('mock_interview', 'work', 'Mock interview', 'মক ইন্টারভিউ', True, ()),
+    ('quick_tools', 'work', 'Quick tools', 'কুইক টুলস', True, ()),
+    ('blog_writer', 'work', 'Blog & script writing', 'ব্লগ ও স্ক্রিপ্ট লেখা', True, ()),
+    ('jobs', 'work', 'Job hunter', 'জব হান্টার', True, ('jobs',)),
+    ('cv_builder', 'work', 'CV Builder', 'সিভি বিল্ডার', True, ('cv', 'resume')),
+    ('ai_inbox', 'work', 'AI Inbox', 'AI ইনবক্স', True, ('inbox',)),
+    ('pa_secretary', 'work', 'PA Secretary', 'পিএ সেক্রেটারি', True, ()),
+    ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans')),
+    ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
+    ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ()),
+    ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
+    ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
+    ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
+    ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
+    ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
+    ('retention', 'upcoming', 'Retention automation', 'রিটেনশন অটোমেশন', False, ()),
+    ('booking', 'upcoming', 'Appointment booking bot', 'অ্যাপয়েন্টমেন্ট বুকিং বট', False, ()),
+)
+
+SECTIONS = (
+    ("circle", "My Circle", "আমার সার্কেল"),
+    ("reminders_memory", "Reminders & Memory", "রিমাইন্ডার ও মেমোরি"),
+    ("my_account", "Account & Finance", "হিসাব ও অর্থ"),
+    ("family_safety", "Family & Safety", "পরিবার ও নিরাপত্তা"),
+    ("contacts", "Contacts", "কন্টাক্টস"),
+    ("daily_life", "Daily Life", "দৈনন্দিন জীবন"),
+    ("work", "Work", "কাজ"),
+    ("business", "Business", "ব্যবসা"),
+    ("upcoming", "Upcoming (big-week plan)", "আসছে (বড় সপ্তাহের পরিকল্পনা)"),
+)
+
+# The 9 Definition-of-Done checks, in the order of DEFINITION_OF_DONE_BN.md.
+DOD_CHECKS = (
+    ("Full real journey on two accounts (first run, empty, errors, retry, offline, slow net)",
+     "দুই অ্যাকাউন্টে পুরো আসল যাত্রা (প্রথমবার, খালি, ত্রুটি, আবার চেষ্টা, ইন্টারনেট নেই, ধীর ইন্টারনেট)"),
+    ("Every button really works (no placeholder, no 'coming soon')",
+     "প্রতিটি বোতাম আসল কাজ করে (জায়গা-রাখা লেখা বা 'শীঘ্রই আসছে' নেই)"),
+    ("Bangla + English complete, 200% font, dark mode, 48dp buttons",
+     "বাংলা ও ইংরেজি সম্পূর্ণ, ২০০% ফন্ট, ডার্ক মোড, ৪৮dp বোতাম"),
+    ("Runs on a 2 GB phone, every screen under 1 second",
+     "২ GB ফোনে চলে, প্রতিটি স্ক্রিন ১ সেকেন্ডের কম"),
+    ("Server limits, cost and abuse guards (rate limit, daily cap, credits / Profit Guard)",
+     "সার্ভারে সীমা, খরচ ও অপব্যবহার-রোধ (রেট লিমিট, দৈনিক সীমা, ক্রেডিট / Profit Guard)"),
+    ("Privacy, permissions and Play declarations ready",
+     "গোপনীয়তা, অনুমতি ও Play-ঘোষণা তৈরি"),
+    ("Automated tests + reality-audit flow pass",
+     "স্বয়ংক্রিয় টেস্ট + রিয়ালিটি-অডিট ফ্লো পাস"),
+    ("Short in-app guide (a new user understands in 30 seconds)",
+     "ছোট অ্যাপ-ভেতরের গাইড (নতুন ব্যবহারকারী ৩০ সেকেন্ডে বোঝেন)"),
+    ("Owner can test it in 10 minutes (Bangla steps in STATUS)",
+     "মালিক ১০ মিনিটে পরীক্ষা করতে পারেন (STATUS-এ বাংলায় ধাপ)"),
+)
+N_CHECKS = len(DOD_CHECKS)
+STATUSES = ("done", "in_progress", "hidden")
+MAX_ALLOW = 200            # tester ids per feature
+CACHE_TTL = 30             # seconds; the saving worker drops its copy at once
+
+KEYS = tuple(r[0] for r in REGISTRY)
+_BY_KEY = {r[0]: r for r in REGISTRY}
+ROUTE_FEATURE = {route: r[0] for r in REGISTRY for route in r[5]}
+
+
+def is_known(key):
+    return key in _BY_KEY
+
+
+def meta(key):
+    k, section, en, bn, on, routes = _BY_KEY[key]
+    return {"key": k, "section": section, "label_en": en, "label_bn": bn,
+            "default_on": on, "routes": list(routes)}
+
+
+def default_row(key):
+    """The registry default for a feature that has no DB row yet."""
+    on = _BY_KEY[key][4]
+    return {"enabled_all": on, "enabled_play": on, "rollout_pct": 100,
+            "allow_user_ids": [], "dod_status": "in_progress" if on else "hidden"}
+
+
+# ------------------------------------------------------------------ rows
+_cache = {"at": 0.0, "rows": None}
+
+
+def invalidate():
+    _cache["at"], _cache["rows"] = 0.0, None
+
+
+def _clean_ids(v):
+    out = []
+    for x in (v or []):
+        try:
+            i = int(x)
+        except (TypeError, ValueError):
+            continue
+        if i > 0 and i not in out:
+            out.append(i)
+    return out[:MAX_ALLOW]
+
+
+def rows():
+    """{key: resolved row dict} for every registry key (DB row or default),
+    cached per process for CACHE_TTL seconds."""
+    now = time.monotonic()
+    if _cache["rows"] is not None and now - _cache["at"] < CACHE_TTL:
+        return _cache["rows"]
+    from .models import FeatureFlag
+    out = {k: default_row(k) for k in KEYS}
+    try:
+        for f in FeatureFlag.objects.filter(key__in=KEYS):
+            out[f.key] = {"enabled_all": f.enabled_all, "enabled_play": f.enabled_play,
+                          "rollout_pct": max(0, min(100, f.rollout_pct)),
+                          "allow_user_ids": _clean_ids(f.allow_user_ids),
+                          "dod_status": f.dod_status}
+    except Exception:
+        # DB trouble must never take features away: serve the defaults
+        # (today's behaviour) and retry on the next request.
+        return out
+    _cache["at"], _cache["rows"] = now, out
+    return out
+
+
+def ensure_seeded():
+    """Create the missing rows with their registry defaults + the proposed
+    DoD audit (core.feature_audit). Never changes an existing row."""
+    from .models import FeatureFlag
+    from . import feature_audit as FA
+    have = set(FeatureFlag.objects.values_list("key", flat=True))
+    new = []
+    for k in KEYS:
+        if k in have:
+            continue
+        d = default_row(k)
+        a = FA.AUDIT.get(k) or {}
+        new.append(FeatureFlag(
+            key=k, enabled_all=d["enabled_all"], enabled_play=d["enabled_play"],
+            rollout_pct=100, allow_user_ids=[], dod_status=d["dod_status"],
+            dod_checks=FA.checks_bools(k),
+            note=a.get("note_en", ""), note_bn=a.get("note_bn", "")))
+    if new:
+        FeatureFlag.objects.bulk_create(new, ignore_conflicts=True)
+        invalidate()
+    return len(new)
+
+
+# ------------------------------------------------------------ resolution
+def in_rollout(key, user_id, pct):
+    if pct >= 100:
+        return True
+    if pct <= 0 or not user_id:
+        return False
+    h = hashlib.sha256(("%s:%s" % (key, user_id)).encode()).hexdigest()
+    return int(h[:8], 16) % 100 < pct
+
+
+def is_privileged(user):
+    return bool(getattr(user, "is_authenticated", False) and user.is_active
+                and (user.is_superuser or user.is_staff))
+
+
+def resolve(user=None, play=False):
+    """(features {key: bool}, preview [keys visible ONLY because the user is
+    the owner / staff / an allow-listed tester])."""
+    authed = getattr(user, "is_authenticated", False)
+    uid = getattr(user, "pk", None) if authed else None
+    priv = is_privileged(user)
+    feats, preview = {}, []
+    for k, r in rows().items():
+        on = (r["enabled_all"] and (r["enabled_play"] or not play)
+              and in_rollout(k, uid, r["rollout_pct"]))
+        if not on and (priv or (uid and uid in r["allow_user_ids"])):
+            on = True
+            preview.append(k)
+        feats[k] = on
+    return feats, preview
+
+
+def is_on(key, user=None, play=False):
+    """Server-side check for other code (unknown key -> True: a typo never
+    hides a feature)."""
+    if key not in _BY_KEY:
+        return True
+    return resolve(user, play)[0][key]
+
+
+def payload(user=None, play=False):
+    feats, preview = resolve(user, play)
+    return {"v": 1, "flavour": "play" if play else "apk",
+            "features": feats, "preview": sorted(preview)}
+
+
+def etag(body):
+    raw = json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
+    return '"ff-%s"' % hashlib.sha256(raw).hexdigest()[:20]
+
+
+# ------------------------------------------------------------ owner edits
+def status_pct(checks):
+    c = [bool(x) for x in (checks or [])][:N_CHECKS]
+    return round(100 * sum(c) / N_CHECKS)
+
+
+def validate(form):
+    """Owner form -> (clean dict, problems list). Pure."""
+    problems = []
+    try:
+        pct = int(str(form.get("rollout_pct", "100")).strip())
+    except (TypeError, ValueError):
+        pct = -1
+    if not 0 <= pct <= 100:
+        problems.append("rollout_pct")
+    ids = []
+    raw = str(form.get("allow_user_ids", "") or "")
+    for part in raw.replace("\n", ",").replace(" ", ",").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if not part.isdigit() or int(part) <= 0:
+            problems.append("allow_user_ids")
+            break
+        if int(part) not in ids:
+            ids.append(int(part))
+    if len(ids) > MAX_ALLOW:
+        problems.append("allow_user_ids")
+    checks = [bool(form.get("dod_%d" % i)) for i in range(N_CHECKS)]
+    status = form.get("dod_status") or "in_progress"
+    if status not in STATUSES:
+        problems.append("dod_status")
+    elif status == "done" and not all(checks):
+        # owner rule: never DONE before all 9 checks pass
+        problems.append("dod_not_complete")
+    clean = {"enabled_all": bool(form.get("enabled_all")),
+             "enabled_play": bool(form.get("enabled_play")),
+             "rollout_pct": max(0, min(100, pct)), "allow_user_ids": ids,
+             "dod_status": status, "dod_checks": checks,
+             "note": str(form.get("note", "") or "")[:2000],
+             "note_bn": str(form.get("note_bn", "") or "")[:2000]}
+    return clean, problems

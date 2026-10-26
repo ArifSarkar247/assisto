@@ -1,3 +1,4 @@
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -69,7 +70,9 @@ class _AppDrawerState extends State<AppDrawer> {
     // the fixed quick-link ABOVE the search box, not a section, so a search
     // for it found nothing and printed "No matching modules". It is now a
     // search result too (label in the current language + English synonyms).
-    final circleHit = searching && _matchesCircle(t, _q);
+    // feature-flags: My Circle has its own flag (my_circle).
+    final circleOn = FeatureFlags.instance.isOn('my_circle');
+    final circleHit = circleOn && searching && _matchesCircle(t, _q);
 
     return Drawer(
       child: Column(children: [
@@ -130,6 +133,7 @@ class _AppDrawerState extends State<AppDrawer> {
         // Communities · Calls). Labelled "My Circle" — the old expandable
         // "My Circle" sidebar group is gone; circle management (people,
         // privacy, calls) now lives INSIDE the hub (OWNER UI FIX v2 §1–2).
+        if (circleOn)
         RoboId(id: 'tl_drawer_my_circle', // tl1: Test Lab Robo target
           child: ListTile(
             dense: true,

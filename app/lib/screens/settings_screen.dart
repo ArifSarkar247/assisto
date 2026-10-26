@@ -1,3 +1,4 @@
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -247,6 +248,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           // Part 3: Assisto Voice — default digital assistant, optional
           // "Hey Assisto" wake word (off by default), spoken replies.
+          if (FeatureFlags.instance.isOn('voice_assistant')) // feature-flags
           ListTile(
             leading: const Icon(Icons.graphic_eq_rounded),
             title: Text(t.vaSettingsTitle),
@@ -349,6 +351,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           // p2-money: brand offers by interest (categories, mute brands,
           // offer notifications max N/day).
+          if (FeatureFlags.instance.isOn('offers')) // feature-flags
           ListTile(
             key: const Key('settings-offers'),
             leading: const Icon(Icons.local_offer_rounded),
@@ -357,6 +360,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
           ),
+          if (FeatureFlags.instance.isOn('subscriptions')) // feature-flags
           ListTile(
             leading: const Icon(Icons.autorenew_rounded),
             title: Text(t.subscriptions),

@@ -1,0 +1,76 @@
+{% extends "owner/base.html" %}
+{% load p5fmt %}
+{% block heading %}{{ T.nav_features }}{% endblock %}
+{% block content %}
+<section class="card">
+  <p>{{ T.ff_intro }}</p>
+  <p class="mut small">{{ T.ff_rule }}</p>
+  <div class="tiles">
+    <div class="tile"><span>{{ T.ff_total }}</span><b>{{ totals.all|bnd:lang }}</b></div>
+    <div class="tile"><span>{{ T.ff_on_all }}</span><b>{{ totals.on|bnd:lang }}</b></div>
+    <div class="tile"><span>{{ T.ff_hidden_play }}</span><b>{{ totals.play_hidden|bnd:lang }}</b></div>
+    <div class="tile"><span>{{ T.ff_done }}</span><b>{{ totals.done|bnd:lang }}</b><small>{{ T.ff_done_note }}</small></div>
+  </div>
+  <form method="get" class="inline">{% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+    <label>{{ T.ff_section }} <select name="section"><option value="">{{ T.ff_all_sections }}</option>{% for sid, st in section_choices %}<option value="{{ sid }}" {% if sid == section %}selected{% endif %}>{{ st }}</option>{% endfor %}</select></label>
+    <label>{{ T.ff_search }} <input type="text" name="q" value="{{ q }}"></label>
+    <button class="btn ghost">{{ T.show }}</button>
+  </form>
+  <p class="mut small">{{ T.ff_legend }}</p>
+</section>
+
+{% for s in sections %}
+<section class="card" id="sec-{{ s.id }}"><h2>{{ s.title }}</h2>
+<div class="tbl"><table><thead><tr>
+  <th>{{ T.ff_feature }}</th><th>{{ T.ff_status }}</th><th>{{ T.ff_dod }}</th>
+  <th>{{ T.ff_everyone }}</th><th>{{ T.ff_play }}</th><th>{{ T.ff_rollout }}</th>
+  <th>{{ T.ff_testers }}</th><th>{{ T.ff_proposed }}</th>
+</tr></thead><tbody>
+{% for it in s.items %}
+<tr id="ff-{{ it.key }}">
+  <td><b>{{ it.label }}</b><br><small class="mut"><code>{{ it.key }}</code>{% if it.routes %} · {{ it.routes }}{% endif %}</small>
+    <details><summary class="small">{{ T.ff_edit }}</summary>
+    <form method="post" action="/owner/features/{{ it.key }}">{% include "owner/_csrf.html" %}
+      {% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+      <input type="hidden" name="section" value="{{ section }}">
+      <p><label><input type="checkbox" name="enabled_all" value="1" {% if it.f.enabled_all %}checked{% endif %}> {{ T.ff_on_everyone }}</label><br>
+         <label><input type="checkbox" name="enabled_play" value="1" {% if it.f.enabled_play %}checked{% endif %}> {{ T.ff_on_play }}</label></p>
+      <p><label>{{ T.ff_rollout }} <input type="number" name="rollout_pct" min="0" max="100" value="{{ it.f.rollout_pct }}"></label></p>
+      <p><label>{{ T.ff_allow }}<br><input type="text" name="allow_user_ids" value="{{ it.allow }}" placeholder="12, 345"></label><br><small class="mut">{{ T.ff_allow_note }}</small></p>
+      <p><label>{{ T.ff_status }} <select name="dod_status">
+        <option value="in_progress" {% if it.f.dod_status == 'in_progress' %}selected{% endif %}>{{ T.ff_st_in_progress }}</option>
+        <option value="hidden" {% if it.f.dod_status == 'hidden' %}selected{% endif %}>{{ T.ff_st_hidden }}</option>
+        <option value="done" {% if it.f.dod_status == 'done' %}selected{% endif %}>{{ T.ff_st_done }}</option>
+      </select></label><br><small class="mut">{{ T.ff_done_rule }}</small></p>
+      <fieldset><legend>{{ T.ff_dod_checks }}</legend>
+      {% for i, lbl, on in it.checks %}<label class="small"><input type="checkbox" name="dod_{{ i }}" value="1" {% if on %}checked{% endif %}> {{ forloop.counter|bnd:lang }}. {{ lbl }}</label><br>{% endfor %}
+      </fieldset>
+      <p><label>{{ T.ff_note_en }}<br><textarea name="note" rows="2">{{ it.f.note }}</textarea></label></p>
+      <p><label>{{ T.ff_note_bn }}<br><textarea name="note_bn" rows="2">{{ it.f.note_bn }}</textarea></label></p>
+      <button class="btn">{{ T.save }}</button>
+    </form></details>
+  </td>
+  <td>{% if it.f.dod_status == 'done' %}<span class="pill ok">{{ T.ff_st_done }}</span>{% elif it.f.dod_status == 'hidden' %}<span class="pill off">{{ T.ff_st_hidden }}</span>{% else %}<span class="pill spons">{{ T.ff_st_in_progress }} {{ it.pct|bnd:lang }}%</span>{% endif %}</td>
+  <td class="num">{{ it.passed|bnd:lang }}/{{ n_checks|bnd:lang }}</td>
+  <td>{% if it.f.enabled_all %}<span class="pill ok">{{ T.ff_on }}</span>{% else %}<span class="pill bad">{{ T.ff_off }}</span>{% endif %}</td>
+  <td>{% if it.f.enabled_all and it.f.enabled_play %}<span class="pill ok">{{ T.ff_on }}</span>{% else %}<span class="pill bad">{{ T.ff_off }}</span>{% endif %}</td>
+  <td class="num">{{ it.f.rollout_pct|bnd:lang }}%</td>
+  <td class="num">{{ it.testers|bnd:lang }}</td>
+  <td>{% if it.proposed == 'show' %}<span class="pill ok">{{ T.ff_prop_show }}</span>{% elif it.proposed == 'hide' %}<span class="pill bad">{{ T.ff_prop_hide }}</span>{% endif %}<br><small class="mut">{{ it.reason }}</small>
+    {% if it.f.note or it.f.note_bn %}<br><small>{% if lang == 'en' %}{{ it.f.note|default:it.f.note_bn }}{% else %}{{ it.f.note_bn|default:it.f.note }}{% endif %}</small>{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody></table></div>
+</section>
+{% empty %}
+<section class="card"><p class="empty">{{ T.ff_no_match }}</p></section>
+{% endfor %}
+
+<section class="card"><h2>{{ T.ff_log }}</h2>
+{% if log %}<div class="tbl"><table><thead><tr><th>{{ T.ff_when }}</th><th>{{ T.ff_who }}</th><th>{{ T.ff_feature }}</th><th>{{ T.ff_before }}</th><th>{{ T.ff_after }}</th></tr></thead><tbody>
+{% for e in log %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td>{{ e.actor.name|default:"—" }}</td><td><code>{{ e.target }}</code>{% if not e.ok %} <span class="pill bad">{{ T.ff_rejected }}</span>{% endif %}</td>
+<td><small>{% for k, v in e.before.items %}{{ k }} = {{ v }}<br>{% endfor %}</small></td>
+<td><small>{% for k, v in e.after.items %}{{ k }} = {{ v }}<br>{% endfor %}</small></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.ff_no_log }}</p>{% endif %}
+</section>
+{% endblock %}

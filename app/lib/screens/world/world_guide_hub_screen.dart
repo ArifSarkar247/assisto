@@ -20,6 +20,7 @@ import '../../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../probashi_screen.dart';
 import '../student_corner_screen.dart';
 import 'world_mcq_screen.dart';
+import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 
 /// p4-world GUIDE HUBS — Expats, Students, Farmers, Government services and
 /// Health helpers. Content is Assisto's own bilingual guide text with OFFICIAL
@@ -225,7 +226,8 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
             : null,
         _ => null,
       };
-      if (m == null) continue;
+      // feature-flags: never link to a module whose flag is off.
+      if (m == null || !FeatureFlags.instance.isOn(id)) continue;
       out.add(Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
         child: OutlinedButton.icon(

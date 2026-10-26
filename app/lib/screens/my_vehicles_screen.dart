@@ -1,3 +1,4 @@
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -197,6 +198,8 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
           title: Text(tr.vehiclesTitle),
           actions: [
             // v1-vehicle: live GPS tracking of paired hardware trackers
+            // (feature-flags: its own flag, vehicle_tracking)
+            if (FeatureFlags.instance.isOn('vehicle_tracking'))
             IconButton(
               tooltip: tr.vehTrackingTitle,
               icon: const Icon(Icons.gps_fixed_rounded),
@@ -558,6 +561,7 @@ class _BuyingGuideTab extends StatelessWidget {
       children: [
         // v1-vehicle: Assisto live tracking now works with GT06 / Teltonika
         // trackers — say so honestly and link to it.
+        if (FeatureFlags.instance.isOn('vehicle_tracking')) // feature-flags
         Card(
           color: scheme.surfaceContainerHighest,
           child: Padding(

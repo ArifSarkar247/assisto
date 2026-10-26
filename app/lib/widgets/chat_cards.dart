@@ -1,3 +1,4 @@
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
@@ -85,6 +86,7 @@ class ChatCard extends StatelessWidget {
     }
     if (c['type'] == 'nearby') {
       return _actionCard(context, c, Icons.place_rounded, [
+        if (FeatureFlags.instance.isOn('nearby')) // feature-flags
         FilledButton.icon(
             onPressed: () => Navigator.push(
                 context,
