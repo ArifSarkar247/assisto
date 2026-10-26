@@ -252,12 +252,19 @@ _VEHICLE_BOUNDS = {
 #   booking_biz_per_day       online bookings one business accepts per day
 #   booking_sms_per_biz_day   SMS reminders per business per day (paid: "sms")
 #   booking_max_reminders     reminders per booking (24 h + 2 h = 2 max)
+#   budget-remittance limits (flag budget_remittance; all bounded):
+#   remit_entries_per_day     remittance + spending entries one user may add per day
+#   remit_entries_max         remittance entries kept per user
+#   remit_bills_max           bills paid from remittance per user
+#   remit_exports_per_day     CSV / text exports per user per day
 _SHOP_DEFAULTS = {"eod_tolerance_poisha": 5000, "live_max_session_s": 600,
                   "watchman_group_min": 10, "watchman_daily_alert_cap": 30,
                   "watchman_tasks_per_hour": 20, "watchman_snapshot_kb": 1024,
                   "booking_ip_per_hour": 10, "booking_phone_per_day": 5,
                   "booking_biz_per_day": 200, "booking_sms_per_biz_day": 50,
-                  "booking_max_reminders": 2}
+                  "booking_max_reminders": 2,
+                  "remit_entries_per_day": 40, "remit_entries_max": 5000,
+                  "remit_bills_max": 30, "remit_exports_per_day": 10}
 _SHOP_BOUNDS = {"watchman_group_min": (1, 120),
                 "watchman_daily_alert_cap": (1, 500),
                 "watchman_tasks_per_hour": (1, 200),
@@ -266,7 +273,11 @@ _SHOP_BOUNDS = {"watchman_group_min": (1, 120),
                 "booking_phone_per_day": (1, 20),
                 "booking_biz_per_day": (1, 2000),
                 "booking_sms_per_biz_day": (0, 500),
-                "booking_max_reminders": (0, 2)}
+                "booking_max_reminders": (0, 2),
+                "remit_entries_per_day": (5, 500),
+                "remit_entries_max": (100, 20000),
+                "remit_bills_max": (1, 100),
+                "remit_exports_per_day": (1, 50)}
 
 # Business plan includes this many edge cameras at no credit cost; beyond it,
 # each camera is charged `shop_extra_camera`. Non-Business plans get 0 included.

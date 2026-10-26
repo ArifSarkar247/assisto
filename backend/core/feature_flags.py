@@ -43,6 +43,7 @@ REGISTRY = (
     ('saved_items', 'reminders_memory', 'Saved', 'সংরক্ষিত', True, ()),
     ('money', 'my_account', 'Account & Finance', 'হিসাব ও অর্থ', True, ('money',)),
     ('budget', 'my_account', 'Budget', 'বাজেট', True, ('budget',)),
+    ('budget_remittance', 'my_account', 'Budget and Remittance (money from abroad)', 'বাজেট ও রেমিট্যান্স (বিদেশ থেকে আসা টাকা)', False, ('remittance',)),
     ('tax_zakat', 'my_account', 'Tax & Zakat', 'কর ও যাকাত', True, ('tax',)),
     ('money_wrapped', 'my_account', 'Money Wrapped', 'টাকার রিক্যাপ', True, ('wrapped',)),
     ('money_voice', 'my_account', 'Money by voice', 'মুখে বলে খরচ লেখা', True, ('money_voice',)),

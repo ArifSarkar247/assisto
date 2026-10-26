@@ -1780,6 +1780,11 @@ class ExportView(APIView):
             "memories": MemoryItemSerializer(u.memories.all(), many=True).data,
             "audit": AuditLogSerializer(u.audit.all()[:1000], many=True).data,
         }
+        # budget-remittance: the user's own (decrypted) remittance entries.
+        from .models import RemittanceEntry
+        if RemittanceEntry.objects.filter(user=u).exists():
+            from . import remittance_service as _rs
+            data["remittance"] = _rs.decrypted_entries(u)
         log(u, "account.export")
         _mark_export_downloaded(u)
         resp = Response(data)

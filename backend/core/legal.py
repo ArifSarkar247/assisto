@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman; booking-bot: bookings; retention1: shop messages
+LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman; booking-bot: bookings; retention1: shop messages; budget-remittance
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -175,6 +175,26 @@ def _privacy(lang):
              "the number. We only message you about your booking (confirmed, "
              "moved, cancelled and at most 2 reminders — never between 10 pm "
              "and 8 am); no ads or marketing. Reply STOP to stop reminders."),
+        _sec(lang, "বাজেট ও রেমিট্যান্স", "Budget and Remittance",
+             "বিদেশ থেকে আসা টাকা (পরিমাণ, মুদ্রা, আপনার পাওয়া রেট, টাকায় কত, "
+             "তারিখ, কে পাঠাল, কোন বৈধ পথে) আর পরিবারের বাজেট আপনি নিজে লিখলে তবেই "
+             "রাখা হয় — শুধু আমাদের সার্ভারে। টাকার অংশ ও প্রেরকের নাম ডাটাবেসে "
+             "এনক্রিপ্ট করে রাখা হয় (চাবি একই সার্ভারে, তাই এটা ডাটাবেস বা ব্যাকআপ "
+             "ফাঁস থেকে রক্ষা করে)। SMS পড়া হয় না; মুখে বললে লেখায় বদলানো ফোনেই "
+             "হয়, অডিও সার্ভারে যায় না। এই তথ্য বিজ্ঞাপন, পরিসংখ্যান বা AI-তে "
+             "কখনো ব্যবহার হয় না, কারো সাথে শেয়ার হয় না; মাসিক রিপোর্ট শুধু আপনি "
+             "\"শেয়ার\" চাপলে আপনার বেছে নেওয়া My Circle সদস্যের কাছে যায়। "
+             "অ্যাপ থেকেই সব ডাউনলোড (CSV/লেখা) ও সব মুছতে পারবেন।",
+             "Money you receive from abroad (amount, currency, the rate you got, "
+             "taka, date, who sent it, which legal channel) and your family "
+             "budget are kept only when you write them down — on our server only. "
+             "Amounts and sender names are encrypted in the database (the key is "
+             "on the same server, so this protects against a leaked database or "
+             "backup). No SMS is read; voice is turned into text on your phone and "
+             "no audio reaches the server. This data is never used for ads, "
+             "analytics or AI and never shared; the monthly report goes to the My "
+             "Circle member you choose only when you tap Share. You can download "
+             "everything (CSV / text) and delete all of it from the app."),
         _sec(lang, "দোকানের স্বয়ংক্রিয় মেসেজ", "Automatic messages from shops",
              "বিজনেস প্ল্যানের দোকান শুধু তার নিজের গ্রাহককে (যিনি কিনেছেন, খাতায় "
              "আছেন বা কোনো পণ্য চেয়েছেন) ধন্যবাদ, ফিরে আসার আমন্ত্রণ, বাকির ভদ্র "
@@ -350,6 +370,13 @@ def _data_safety(lang):
              "ও অ্যাকাউন্ট তথ্য।",
              "User-entered content and account info, for app functionality and "
              "account management."),
+        _sec(lang, "আর্থিক তথ্য (ঐচ্ছিক)", "Financial info (optional)",
+             "বাজেট ও রেমিট্যান্স ব্যবহার করলে: ব্যবহারকারীর নিজে লেখা পাওয়া টাকা ও "
+             "পরিবারের বাজেট — শুধু অ্যাপ কার্যকারিতার জন্য, শেয়ার হয় না, "
+             "ডাটাবেসে এনক্রিপ্ট করা, ব্যবহারকারী মুছতে পারেন।",
+             "When Budget and Remittance is used: money received and the family "
+             "budget the user writes down — app functionality only, not shared, "
+             "encrypted in the database, deletable by the user."),
         _sec(lang, "ভাগাভাগি", "Sharing",
              "ডেটা বিক্রি হয় না। ফ্রি প্ল্যানে Google AdMob বিজ্ঞাপনের জন্য ডিভাইসের "
              "Advertising ID ও বিজ্ঞাপন দেখা/ট্যাপের তথ্য পায়।",

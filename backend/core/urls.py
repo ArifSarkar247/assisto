@@ -1121,3 +1121,24 @@ urlpatterns += [
     path("retention/u/<str:token>", retv.PublicStopView.as_view()),
 ]
 # ---- /retention1 ----
+
+# ---- budget-remittance ---- (flag budget_remittance, default OFF)
+from . import remittance_views as rmv  # noqa: E402
+urlpatterns += [
+    path("remit/overview", rmv.OverviewView.as_view()),
+    path("remit/entries", rmv.EntriesView.as_view()),
+    path("remit/entries/<int:pk>", rmv.EntryView.as_view()),
+    path("remit/settings", rmv.SettingsView.as_view()),
+    path("remit/plan", rmv.PlanView.as_view()),
+    path("remit/spend", rmv.SpendView.as_view()),
+    path("remit/goal", rmv.GoalView.as_view()),
+    path("remit/goal/add", rmv.GoalAddView.as_view()),
+    path("remit/bills", rmv.BillsView.as_view()),
+    path("remit/bills/<int:bid>", rmv.BillView.as_view()),
+    path("remit/bills/<int:bid>/paid", rmv.BillPaidView.as_view()),
+    path("remit/report", rmv.ReportView.as_view()),
+    path("remit/year", rmv.YearView.as_view()),
+    path("remit/export", rmv.ExportView.as_view()),
+    path("remit/delete-all", rmv.DeleteAllView.as_view()),
+]
+# ---- /budget-remittance ----

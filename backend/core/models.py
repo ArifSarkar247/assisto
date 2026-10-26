@@ -5619,3 +5619,42 @@ class RetentionStockAsk(models.Model):
         constraints = [models.UniqueConstraint(fields=["product", "customer"],
                                                name="stock_ask_once")]
 # ---- /retention1 ----
+
+
+# ---- budget-remittance ---- (flag budget_remittance, default OFF)
+# The RECEIVER side of remittance: money a family in Bangladesh gets from a
+# relative abroad, and the family budget made from it. Financial values
+# (amounts, rate, taka, sender, channel, notes, bills, expected amount) are
+# ENCRYPTED at the application level (Fernet; core.remittance_service) in
+# `enc`. In clear only what queries need: user, client id, date, month.
+# Honest: the key lives on the same server — this protects DB dumps and
+# backups, not a fully taken-over server.
+class RemittanceEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="remittances")
+    client_id = models.CharField(max_length=36)     # idempotent offline sync
+    received_on = models.DateField()
+    month = models.CharField(max_length=7)          # YYYY-MM (Asia/Dhaka)
+    enc = models.TextField(blank=True, default="")  # Fernet(JSON)
+    source = models.CharField(max_length=8, default="manual")  # manual|voice|text
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-received_on", "-id"]
+        constraints = [models.UniqueConstraint(fields=["user", "client_id"],
+                                               name="remit_client_once")]
+        indexes = [models.Index(fields=["user", "month"])]
+
+
+class RemittanceProfile(models.Model):
+    """One per user: expected monthly remittance, bills paid from it (all in
+    `enc`), the linked savings goal (the existing SavingsGoal) and the
+    once-per-month 'not arrived yet' bookkeeping."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="remit_profile")
+    enc = models.TextField(blank=True, default="")
+    goal = models.ForeignKey(SavingsGoal, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    guide_done = models.BooleanField(default=False)
+    missing_alert_month = models.CharField(max_length=7, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /budget-remittance ----

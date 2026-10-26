@@ -39,6 +39,8 @@ _A = {
     # ---- Account & Finance
     "money": ("?P???PP?F", "show", "Flow 11 A; report export fixed.", "ফ্লো ১১ A; রিপোর্ট এক্সপোর্ট ঠিক করা হয়েছে।"),
     "budget": ("?P???PP?F", "show", "Flow 12 A.", "ফ্লো ১২ A।"),
+    "budget_remittance": ("?PP?PF?PF", "hide", "Budget and Remittance (receiver side): two-account server tests (privacy, encryption at rest, export, delete-all, year maths, reminder logic, flag off) + app widget tests (parser, form, plan, goal, share-on-tap, offline queue, 200% bn/en light/dark) pass; reality flow 30_budget_remittance written but not yet run in CI; 2 GB speed not measured; Play Data safety 'Other financial info' not yet entered by the owner; 10-minute test is in BUDGET_REMITTANCE_BN.md (not yet in STATUS).",
+                          "বাজেট ও রেমিট্যান্স (যাঁরা টাকা পান): দুই-অ্যাকাউন্টের সার্ভার-টেস্ট (গোপনীয়তা, ডাটাবেসে এনক্রিপশন, এক্সপোর্ট, সব মুছুন, বছরের হিসাব, রিমাইন্ডার) ও অ্যাপ টেস্ট (বাংলা বাক্য বোঝা, ফর্ম, পরিকল্পনা, সঞ্চয়, শুধু চাপলে শেয়ার, অফলাইন সারি, ২০০% বাংলা/ইংরেজি আলো/অন্ধকার) পাস; রিয়ালিটি ফ্লো ৩০ লেখা হয়েছে কিন্তু CI-তে এখনো চলেনি; ২ GB গতি মাপা হয়নি; Play Data safety-তে 'Other financial info' মালিক এখনো বসাননি; ১০ মিনিটের পরীক্ষা BUDGET_REMITTANCE_BN.md-তে (STATUS-এ এখনো নয়)।"),
     "tax_zakat": ("?P???P??F", "show", "Sweep A?; on-device calculators.", "সুইপ A?; ফোনেই হিসাব।"),
     "money_wrapped": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "money_voice": ("?P???P??F", "show", "Sweep A?; speech needs a real phone.", "সুইপ A?; কথা চেনা আসল ফোনে দেখতে হবে।"),
