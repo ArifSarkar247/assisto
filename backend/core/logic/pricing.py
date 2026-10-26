@@ -558,6 +558,9 @@ def normalize(data):
             "family": max(0, _int(raw.get("family"), pdef["family"])),
             "storage_bytes": max(0, _int(raw.get("storage_bytes"),
                                          pdef["storage_bytes"])),
+            # owner 26 Oct: an explicit yearly price (৳2490 / ৳4990, the
+            # Play Console "annual" base plan). 0 = derive from the discount.
+            "annual_price": max(0, _int(raw.get("annual_price"), 0)),
         }
 
     # topup packs — keep the known shape; owner may edit price/credits/validity.
@@ -1104,24 +1107,39 @@ def annual_price_at(plan_id, cfg, disc):
     return int(round(row["price"] * 12 * (100 - disc) / 100.0))
 
 
+def _fixed_annual(plan_id, cfg):
+    """The owner's explicit yearly price for a plan, or 0 (= derive)."""
+    row = normalize(cfg)["plans"].get(plan_id) or {}
+    return int(row.get("annual_price") or 0)
+
+
 def stored_annual_price(plan_id, cfg):
     """The yearly price at the owner's STORED discount (what the margin report
-    checks — may be unsafe; never what we sell)."""
-    return annual_price_at(plan_id, cfg, normalize(cfg)["annual_discount_pct"])
+    checks — may be unsafe; never what we sell). An explicit annual_price is
+    the owner's own number and is checked as-is."""
+    return _fixed_annual(plan_id, cfg) or annual_price_at(
+        plan_id, cfg, normalize(cfg)["annual_discount_pct"])
 
 
 def effective_annual_discount_pct(plan_id, cfg):
     """p2-money: the discount we actually OFFER = the owner's stored discount
     clamped to max_safe_annual_discount_pct. The stored value is never
-    changed; Owner Admin shows the warning while it is above the safe max."""
+    changed; Owner Admin shows the warning while it is above the safe max.
+    With an explicit annual_price it is that price's real (floored) saving."""
     cfg = normalize(cfg)
+    fixed = _fixed_annual(plan_id, cfg)
+    if fixed:
+        full = cfg["plans"][plan_id]["price"] * 12
+        return max(0, int(100 * (full - fixed) // full)) if full else 0
     return min(cfg["annual_discount_pct"], max_safe_annual_discount_pct(plan_id, cfg))
 
 
 def annual_price(plan_id, cfg):
-    """Yearly price (whole ৳) we SELL = monthly * 12 * (1 - discount), where the
-    discount is ALWAYS clamped to the safe-margin maximum (p2-money)."""
-    return annual_price_at(plan_id, cfg, effective_annual_discount_pct(plan_id, cfg))
+    """Yearly price (whole ৳) we SELL = the owner's explicit annual_price when
+    set, else monthly * 12 * (1 - discount), where the discount is ALWAYS
+    clamped to the safe-margin maximum (p2-money)."""
+    return _fixed_annual(plan_id, cfg) or annual_price_at(
+        plan_id, cfg, effective_annual_discount_pct(plan_id, cfg))
 
 
 def _storage_cost_month(row, cfg):

@@ -32,11 +32,14 @@ Keys
 
 SUB_SKUS = ("premium_monthly", "premium_yearly", "business_monthly", "business_yearly")
 
+# owner 26 Oct: the yearly base plan id in Play Console is "annual" on BOTH
+# subscriptions. A base plan named "yearly" exists on assisto_premium but is
+# INACTIVE and wrongly monthly — never sell or map it.
 _PLAY_PRODUCTS = {
     "premium_monthly": {"product_id": "assisto_premium", "base_plan": "monthly"},
-    "premium_yearly": {"product_id": "assisto_premium", "base_plan": "yearly"},
+    "premium_yearly": {"product_id": "assisto_premium", "base_plan": "annual"},
     "business_monthly": {"product_id": "assisto_business", "base_plan": "monthly"},
-    "business_yearly": {"product_id": "assisto_business", "base_plan": "yearly"},
+    "business_yearly": {"product_id": "assisto_business", "base_plan": "annual"},
 }
 
 

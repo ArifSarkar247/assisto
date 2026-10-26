@@ -154,7 +154,7 @@ class CatalogTests(TestCase):
         self.assertEqual(catalog.net(100, "pack_p20", "gateway"), Decimal("98.00"))
 
     def test_play_product_mapping(self):
-        self.assertEqual(catalog.play_product("premium_yearly"), ("assisto_premium", "yearly"))
+        self.assertEqual(catalog.play_product("premium_yearly"), ("assisto_premium", "annual"))
         self.assertEqual(catalog.sku_for_play("assisto_business", "monthly"), "business_monthly")
         self.assertEqual(catalog.sku_for_play("credits_p100"), "pack_p100")
         self.assertEqual(catalog.sku_for_play("somebody_else"), "")
@@ -1030,3 +1030,44 @@ class WebsiteCheckoutTests(PayBase):
         self.client.post("/premium", {"action": "logout"})
         r = self.client.post("/premium", {"action": "buy", "sku": "premium_monthly"})
         self.assertEqual(r.status_code, 401)
+
+
+class AnnualBasePlanTests(TestCase):
+    """owner 26 Oct: Play yearly base plan id is "annual"; the inactive
+    "yearly" base plan on assisto_premium must never map to a sku."""
+
+    def test_annual_maps_both_ways_and_yearly_never_maps(self):
+        self.assertEqual(catalog.play_product("business_yearly"),
+                         ("assisto_business", "annual"))
+        self.assertEqual(catalog.sku_for_play("assisto_premium", "annual"),
+                         "premium_yearly")
+        self.assertEqual(catalog.sku_for_play("assisto_business", "annual"),
+                         "business_yearly")
+        self.assertEqual(catalog.sku_for_play("assisto_premium", "yearly"), "")
+        self.assertEqual(catalog.sku_for_play("assisto_premium", "monthly"),
+                         "premium_monthly")
+
+
+class FixedAnnualPriceTests(TestCase):
+    """owner 26 Oct: Premium ৳249/৳2490, Business ৳499/৳4990 — the yearly
+    price is the owner's number, not a derived discount."""
+
+    def test_explicit_annual_price_wins_everywhere(self):
+        from core.logic import pricing as P
+        cfg = P.normalize({"plans": {
+            "premium": {"price": 249, "annual_price": 2490},
+            "business": {"price": 499, "annual_price": 4990}}})
+        self.assertEqual(P.annual_price("premium", cfg), 2490)
+        self.assertEqual(P.annual_price("business", cfg), 4990)
+        self.assertEqual(P.effective_annual_discount_pct("premium", cfg), 16)
+        self.assertEqual(catalog.price("premium_yearly", "play", cfg), 2490)
+        self.assertEqual(catalog.price("business_yearly", "gateway", cfg), 4990)
+        annual = [p for p in P.plan_public("en", cfg) if p["id"] == "annual"][0]
+        self.assertEqual(annual["price"], 2490)
+
+    def test_unset_annual_price_keeps_the_derived_discount(self):
+        from core.logic import pricing as P
+        cfg = P.normalize({"plans": {"premium": {"price": 249}}})
+        self.assertEqual(P.annual_price("premium", cfg),
+                         P.annual_price_at("premium", cfg,
+                                           P.effective_annual_discount_pct("premium", cfg)))
