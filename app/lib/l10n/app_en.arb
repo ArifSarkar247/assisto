@@ -19520,5 +19520,371 @@
   },
   "hcMissed": "Missed call",
   "hcPinned": "Pinned · always first",
-  "hcPinnedA11y": "Pinned. Can't be moved or removed"
+  "hcPinnedA11y": "Pinned. Can't be moved or removed",
+  "wmTitle": "Home & shop watchman",
+  "wmHowItWorks": "How it works",
+  "wmFeatureOffTitle": "Not available yet",
+  "wmFeatureOffBody": "The camera watchman is not switched on for your account.",
+  "wmLoadErrorTitle": "Could not load",
+  "wmLoadErrorBody": "Check your internet and try again.",
+  "wmRetry": "Try again",
+  "wmGenericError": "Something went wrong. Please try again.",
+  "wmGuideTitle": "How the watchman works",
+  "wmGuide1Title": "1. A gateway at your place",
+  "wmGuide1Body": "An old Android phone, the Shop Box PC or your own computer watches the cameras right there.",
+  "wmGuide2Title": "2. Add cameras and draw zones",
+  "wmGuide2Body": "We check each camera works, then you mark the areas and hours to guard.",
+  "wmGuide3Title": "3. One photo when something looks odd",
+  "wmGuide3Body": "You get \"Suspicious — please check\" with one photo. Tap Correct or Wrong and it learns.",
+  "wmGuidePrivacy": "Video never leaves your place — only small photos reach our server. No face recognition, no sound.",
+  "wmGuideGotIt": "Got it",
+  "wmWelcomeTitle": "Watch your home or shop",
+  "wmWelcomeBody": "Use the cameras you already have — Imou, Hikvision, Dahua, Tapo, EZVIZ — or an old phone's camera. Setup takes about 5 minutes.",
+  "wmStartSetup": "Start setup",
+  "wmAddPlace": "Add another place",
+  "wmSharedBy": "Shared with you by {name}",
+  "@wmSharedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wmGatewayOnline": "online",
+  "wmGatewayNever": "not connected yet",
+  "wmGatewayOfflineSince": "offline since {time}",
+  "@wmGatewayOfflineSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "wmGatewayNeverHelp": "Connect the gateway so cameras can be checked and watched.",
+  "wmGatewayOfflineHelp": "No alerts arrive while the gateway is off. Check it has power and internet.",
+  "wmGwPhone": "Old Android phone",
+  "wmGwShopbox": "Shop Box PC",
+  "wmGwPc": "My own computer",
+  "wmGwNone": "Gateway",
+  "wmGwPhoneBody": "Its own camera watches one spot. Keep it plugged in with the Shop Box mode screen open. Imou cameras can also send their own alarms.",
+  "wmGwShopboxBody": "A small Windows PC at the shop that watches all your network cameras with on-device AI.",
+  "wmGwPcBody": "A Windows computer that is already on at your place runs the same Shop Box program.",
+  "wmGwWhy": "Why a gateway? Your cameras are on your home Wi-Fi; nothing on the internet can reach them safely, so a device at your place does the watching.",
+  "wmSetupTitle": "Set up the watchman",
+  "wmStepOf": "Step {n} of {total}",
+  "@wmStepOf": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "wmStepKind": "What do you want to protect?",
+  "wmStepGateway": "Which device will watch the cameras?",
+  "wmStepName": "Name this place",
+  "wmKindHome": "My home",
+  "wmKindHomeBody": "Works on any plan.",
+  "wmKindShop": "My shop or business",
+  "wmKindShopBody": "Included in your Business plan.",
+  "wmKindShopNeedsBusiness": "Needs the Business plan. You can protect your home on any plan.",
+  "wmBack": "Back",
+  "wmNext": "Next",
+  "wmCreatePlace": "Create",
+  "wmPlaceName": "Name",
+  "wmPlaceNameHomeHint": "e.g. Dhanmondi flat",
+  "wmPlaceNameShopHint": "e.g. Mirpur shop",
+  "wmRetentionNote": "Alert photos are kept for 3 days, then deleted. You can change this from 0 to 30 days.",
+  "wmPairTitle": "Connect: {gateway}",
+  "@wmPairTitle": {
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "wmPairPhone1": "On the old phone, install Assisto and sign in with this same account.",
+  "wmPairPhone2": "Open menu → Shop Box → Shop Box mode, then scan or paste the code below.",
+  "wmPairPhone3": "Keep that phone plugged in, facing the area to watch, with the screen open.",
+  "wmPairPc1": "On the Windows PC, run the Assisto Shop Box program (AssistoShopBox.exe).",
+  "wmPairPc2": "Choose Pair and paste the code below.",
+  "wmPairPc3": "Keep the PC on and connected to the same Wi-Fi or router as the cameras.",
+  "wmPairCopy": "Copy",
+  "wmPairCopied": "Copied",
+  "wmPairThisPhone": "Use this phone",
+  "wmPairSecretNote": "Keep this code private — anyone with it can send alerts to this place.",
+  "wmNoCamerasOwner": "No cameras yet. Add your first camera.",
+  "wmNoCamerasViewer": "No cameras added yet.",
+  "wmHeldToday": "{n} more alerts were held back today (daily limit). Open the alerts to check.",
+  "@wmHeldToday": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "wmAlerts": "Alerts",
+  "wmAlertsOpen": "Alerts ({n} new)",
+  "@wmAlertsOpen": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "wmAddCamera": "Add camera",
+  "wmConnectGateway": "Connect gateway",
+  "wmFamily": "Family viewers",
+  "wmNotice": "Staff notice",
+  "wmUnnamedCamera": "Camera",
+  "wmCameraMenu": "Camera options",
+  "wmZonesSchedule": "Zones & guard hours",
+  "wmCheckAgain": "Check camera again",
+  "wmRemove": "Remove",
+  "wmCancel": "Cancel",
+  "wmRemoveCamTitle": "Remove this camera?",
+  "wmRemoveCamBody": "\"{name}\" and its alerts will be removed.",
+  "@wmRemoveCamBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wmCamPhoneOwn": "This phone's camera",
+  "wmCamCloudOnly": "Imou cloud alarms only",
+  "wmCamNotChecked": "Not checked yet",
+  "wmCamWorks": "Works",
+  "wmCamCheckFailed": "Check failed — open to fix",
+  "wmVendorOnvif": "Other brand (ONVIF)",
+  "wmVendorRtsp": "I have an RTSP address",
+  "wmVendorPhone": "This phone's own camera",
+  "wmVendorOther": "Camera",
+  "wmPickBrand": "Which camera?",
+  "wmPickBrandPcGw": "Pick the brand printed on the camera. The gateway will check it works before anything else.",
+  "wmPickBrandPhoneGw": "With an old-phone gateway you can use the phone's own camera.",
+  "wmPhoneGwLanLater": "An old-phone gateway uses its own camera. For Wi-Fi cameras, choose a Shop Box PC or your computer as the gateway. Imou cameras can also send their own alarms here.",
+  "wmPhoneGwLanLaterNoImou": "An old-phone gateway uses its own camera. For Wi-Fi cameras, choose a Shop Box PC or your computer as the gateway.",
+  "wmCostLine": "Your plan includes {included} cameras. Each extra camera costs {cost} credits per {days} days. You have {credits} credits.",
+  "@wmCostLine": {
+    "placeholders": {
+      "included": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      },
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "wmHelpImou": "Imou: the user is always admin. The password is the Safety Code printed on the sticker under the camera.",
+  "wmHelpImouCloud": "Imou cloud alarms: enter the serial number (SN) and Safety Code from the sticker under the camera. The camera's own motion and human alarms then arrive here.",
+  "wmHelpHik": "Hikvision: use the camera's admin user and password (not the Hik-Connect app login).",
+  "wmHelpDahua": "Dahua: use the camera's admin user and password. Channel is 1 unless it is on a recorder (NVR).",
+  "wmHelpTapo": "Tapo: first create a Camera Account in the Tapo app (camera → Settings → Advanced → Camera Account), then enter it here.",
+  "wmHelpEzviz": "EZVIZ: the user is admin and the password is the verification code on the sticker. Some models need \"Local RTSP\" turned on in the EZVIZ app.",
+  "wmHelpOnvif": "Most other cameras speak ONVIF. Use the camera's own user and password.",
+  "wmHelpRtsp": "Paste the full RTSP address from the camera's manual or app.",
+  "wmHelpPhone": "The old phone's back camera will watch one spot. Point it at the door or the area to guard.",
+  "wmCamName": "Camera name",
+  "wmCamNameHint": "e.g. Front door",
+  "wmImouSerial": "Serial number (SN)",
+  "wmCamIp": "Camera IP address",
+  "wmScan": "Find cameras on my Wi-Fi",
+  "wmScanning": "Searching…",
+  "wmScanNoAnswer": "The gateway did not answer. Is it on and connected?",
+  "wmScanNone": "No cameras answered the search. You can still type the IP address.",
+  "wmRtspUrl": "RTSP address",
+  "wmUser": "User name",
+  "wmTapoUser": "Camera Account user name",
+  "wmChannel": "Channel",
+  "wmChannelHelp": "1 for a single camera",
+  "wmSecretImou": "Safety Code (on the sticker)",
+  "wmSecretEzviz": "Verification code (on the sticker)",
+  "wmSecretTapo": "Camera Account password",
+  "wmSecretPassword": "Camera password",
+  "wmShow": "Show",
+  "wmHide": "Hide",
+  "wmSecretPrivacy": "Sent once to your gateway and deleted from our server — we never keep it.",
+  "wmStream": "Video quality for watching",
+  "wmStreamSub": "Light (recommended)",
+  "wmStreamMain": "Full",
+  "wmStreamHelp": "Light uses less of the gateway's power and is enough for alerts.",
+  "wmAddThisCamera": "Add this camera",
+  "wmLinkImou": "Link Imou alarms",
+  "wmRunCheck": "Add and check camera",
+  "wmCheckCostNote": "If this is beyond your plan's cameras, {cost} credits are taken when it is added.",
+  "@wmCheckCostNote": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "wmChecking": "Checking the camera…",
+  "wmCheckingBody": "The gateway is trying to open the camera. This takes up to a minute.",
+  "wmCheckingGwOffline": "Waiting for the gateway — it will run the check when it comes online. Gateway:",
+  "wmResultOk": "The camera works",
+  "wmResultFailed": "The camera could not be opened",
+  "wmResultNoAnswer": "The gateway did not answer",
+  "wmResultInfo": "Picture {w} × {h}, {fps} frames per second",
+  "@wmResultInfo": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      },
+      "fps": {
+        "type": "String"
+      }
+    }
+  },
+  "wmStepReachable": "Found on the network",
+  "wmStepAuth": "User and password",
+  "wmStepStream": "Video opens",
+  "wmStepSnapshot": "Still photo",
+  "wmStepEvents": "Camera's own events",
+  "wmStepSkipped": "Not tested because an earlier step failed.",
+  "wmEventsNotChecked": "Not confirmed — that is fine, the gateway's own AI still watches.",
+  "wmFixUnreachable": "Check the IP address (see your router or the camera app) and that the gateway and camera are on the same Wi-Fi.",
+  "wmFixAuth": "The user name or password is wrong. Use the camera's own login.",
+  "wmFixAuthImou": "The Safety Code is wrong. It is on the sticker under the camera (often 6–8 capital letters).",
+  "wmFixAuthTapo": "Use the Camera Account from the Tapo app, not your TP-Link login.",
+  "wmFixAuthEzviz": "Use the verification code on the sticker. If it still fails, turn on Local RTSP in the EZVIZ app.",
+  "wmFixStream": "The camera answered but the video did not open. Try the Light quality, or turn on RTSP in the camera's app.",
+  "wmFixTimeout": "The video took too long. Try the Light quality or move the camera closer to the router.",
+  "wmFixSnapshot": "Video works but no still photo could be taken. You can still draw zones on a plain grid.",
+  "wmFixGatewayNoAnswer": "Is the gateway on, with Assisto Shop Box running and internet working? The check runs as soon as it connects — try again then.",
+  "wmDrawZonesNow": "Draw zones now",
+  "wmFixAndRetry": "Fix and try again",
+  "wmDone": "Done",
+  "wmPhoneCamDoneTitle": "Camera added",
+  "wmPhoneCamDoneBody": "On the old phone, open Shop Box mode, pair with the code and choose this camera.",
+  "wmCloudDoneTitle": "Imou alarms linked",
+  "wmCloudDoneBody": "The camera's own motion and human alarms will now arrive here with a photo.",
+  "wmZonesTitle": "Zones: {name}",
+  "@wmZonesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wmZonesHowTo": "Pick a type, then tap on the picture to place points. An area needs at least 3 points; an entry line needs 2.",
+  "wmZoneRestricted": "No-entry area",
+  "wmZoneCash": "Cash area",
+  "wmZoneLine": "Entry line",
+  "wmZonesCanvasLabel": "Camera picture. Tap to place a point.",
+  "wmZonesNoPreview": "No camera photo yet — draw on the grid; it matches the camera's full picture.",
+  "wmUndoPoint": "Undo point",
+  "wmFinishZone": "Finish area",
+  "wmNoZones": "No zones yet — the whole picture is watched.",
+  "wmDeleteZone": "Delete zone",
+  "wmScheduleTitle": "Guard hours",
+  "wmAlwaysOnGuard": "Always on guard",
+  "wmAlwaysOnGuardBody": "Turn off to guard only on chosen days and hours.",
+  "wmFrom": "From {time}",
+  "@wmFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "wmTo": "To {time}",
+  "@wmTo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "wmPickADay": "Pick at least one day.",
+  "wmSensitivity": "Sensitivity",
+  "wmSensLow": "Low",
+  "wmSensMedium": "Medium",
+  "wmSensHigh": "High",
+  "wmSensHelp": "Low = fewer alerts (big movements only). High = notices small movements too.",
+  "wmQuietHours": "Quiet hours",
+  "wmQuietHoursBody": "Alerts are still saved, but the phone does not ring.",
+  "wmLearned": "Learned from your answers: {correct} correct, {wrong} wrong.",
+  "@wmLearned": {
+    "placeholders": {
+      "correct": {
+        "type": "String"
+      },
+      "wrong": {
+        "type": "String"
+      }
+    }
+  },
+  "wmSave": "Save",
+  "wmZonesSaved": "Saved. The gateway picks it up within a minute.",
+  "wmViewerReadOnly": "You can view these alerts. Only the owner can mark them.",
+  "wmNoAlertsTitle": "All quiet",
+  "wmNoAlertsBody": "Nothing suspicious so far. Alerts appear here with one photo.",
+  "wmSnapshotLabel": "Alert photo",
+  "wmSnapshotGone": "The photo was deleted after the keep period.",
+  "wmNoSnapshot": "No photo for this alert.",
+  "wmSuspiciousLabel": "Suspicious — please check",
+  "wmConfidence": "Confidence {pct}%",
+  "@wmConfidence": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "wmSeenTimes": "seen {n} times",
+  "@wmSeenTimes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "wmVerdictCorrect": "You marked: correct",
+  "wmVerdictWrong": "You marked: wrong",
+  "wmCorrect": "Correct",
+  "wmWrong": "Wrong",
+  "wmMarkedCorrect": "Thanks — noted as a real alert.",
+  "wmMarkedWrong": "Thanks — this camera will be a little stricter.",
+  "wmEvPerson": "A person was seen while on guard",
+  "wmEvZone": "Someone entered a no-entry area",
+  "wmEvLine": "The entry line was crossed",
+  "wmEvCameraAlarm": "The camera's own alarm",
+  "wmEvAfterHours": "Movement outside opening hours",
+  "wmEvCash": "A hand at the cash area with no matching sale",
+  "wmEvDrawer": "Cash drawer opened with no matching sale",
+  "wmEvMaybe": "Someone may be there",
+  "wmEvEod": "End-of-day cash count does not match",
+  "wmEvPos": "Unusual sales activity today",
+  "wmEvMotion": "Movement seen",
+  "wmFamilyBody": "Family members you add get the same alerts and photos. They can only view — no settings, no marking.",
+  "wmFamilyPhone": "Their Assisto mobile number",
+  "wmFamilyAdd": "Add viewer",
+  "wmFamilyEmpty": "Nobody else sees these alerts yet.",
+  "wmFamilyNoName": "Family member",
+  "wmRemoveViewerTitle": "Stop sharing?",
+  "wmRemoveViewerBody": "{name} will no longer get alerts from this place.",
+  "@wmRemoveViewerBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wmNoticeTitle": "Camera notice",
+  "wmNoticeWhy": "Tell staff, helpers and visitors that cameras are in use. Share or print this notice.",
+  "wmNoticeShare": "Share",
+  "wmNoticeUnavailable": "The notice could not be loaded. Try again with internet."
 }

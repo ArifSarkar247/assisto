@@ -67,6 +67,8 @@ _A = {
                    "ডিভাইস-অ্যাডমিন Play-র Device & Network Abuse নীতিতে যাচাই হয় (প্যাক D.1 বাকি); কয়েকটি স্ক্রিন মরা-বাটন টেস্টে নেই।"),
     "cctv_watchman": ("?P??P?F?F", "hide", "Reality B: needs a real camera / Shop Box device; big-week item A — finish to 9/9 first.",
                       "রিয়ালিটি B: আসল ক্যামেরা / শপ বক্স লাগে; বড় সপ্তাহের A — আগে ৯/৯ শেষ।"),
+    "home_watchman": ("?PPFP??PP", "hide", "cctv1 phase 1: no real phone + camera journey, 2 GB speed not measured, no reality-audit flow, Data safety Photos line pending.",
+                      "cctv1 ফেজ ১: আসল ফোন+ক্যামেরা যাত্রা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Data safety-তে Photos লাইন বাকি।"),
     "disaster_alerts": ("?P???P?FF", "hide", "No official BMD/FFWC feed yet: honest empty state only.",
                         "সরকারি BMD/FFWC ফিড এখনো নেই: শুধু খালি অবস্থা।"),
     "blood_donor": ("?P????F?F", "hide", "Public donor contacts = user content: needs moderation + Play UGC answers.",

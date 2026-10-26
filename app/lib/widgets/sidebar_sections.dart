@@ -368,8 +368,9 @@ class SidebarSections {
       // signals + at most one snapshot. Alerts say "please check camera X".
       // Business-gated inside the screen. ChatNav route 'shop_box'.
       // cctv1: Home & shop watchman — homes (any plan) and shops (Business);
-      // not tied to the POS. Server flag cctv_watchman (route 'watchman').
+      // not tied to the POS. Server flag home_watchman (route 'watchman').
       SidebarItem(Icons.videocam_rounded, (t) => t.wmTitle,
+          feature: 'home_watchman',
           (_) => const WatchmanScreen(),
           synonyms: ['cctv', 'camera', 'watchman', 'home camera', 'imou',
               'hikvision', 'dahua', 'tapo', 'ezviz', 'security camera',

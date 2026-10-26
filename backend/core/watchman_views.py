@@ -3,7 +3,7 @@ watchman_views.py — Home & shop watchman, phase 1 (cctv1). Builds on the
 Shop Box / CCTV backend (shop_views.py, shop_ops_views.py) and is NOT tied to
 the POS: a personal user protects a HOME, a Business user a SHOP.
 
-Behind the server feature flag `cctv_watchman` (core.feature_flags, when that
+Behind the server feature flag `home_watchman` (default OFF) (core.feature_flags, when that
 module is deployed): owner endpoints answer 403 `feature_off` while hidden.
 Device (gateway) endpoints are never flag-gated — a paired gateway keeps
 working whatever the app shows.
@@ -46,7 +46,7 @@ from .logic import watchman as WM
 
 log = logging.getLogger("assisto.shop")
 
-FLAG = "cctv_watchman"
+FLAG = "home_watchman"
 TASK_PENDING_TTL_S = 10 * 60      # a task nobody picked up expires (secret wiped)
 TASK_RUNNING_TTL_S = 5 * 60       # a gateway that never answered
 MAX_VIEWERS = 5

@@ -102,6 +102,9 @@ class ZonesPureTests(SimpleTestCase):
 
 
 # ============================================================ API base
+FF_KEY = "home_watchman"
+
+
 @override_settings(MEDIA_ROOT=_MEDIA)
 class _Base(APITestCase):
     @classmethod
@@ -126,6 +129,14 @@ class _Base(APITestCase):
                        side_effect=lambda *a, **k: self.pushes.append((a, k)) or True)
         p.start()
         self.addCleanup(p.stop)
+        # the feature ships hidden (DoD); these tests exercise it switched on
+        from core import feature_flags as FF
+        from core.models import FeatureFlag
+        FF.ensure_seeded()
+        FeatureFlag.objects.filter(key=FF_KEY).update(enabled_all=True,
+                                                     enabled_play=True)
+        FF.invalidate()
+        self.addCleanup(FF.invalidate)
 
     def dev(self, token):
         c = APIClient()
@@ -150,6 +161,20 @@ class _Base(APITestCase):
 
 
 # ============================================================ setup wizard
+class HiddenByDefaultTests(APITestCase):
+    def test_flag_off_by_default_owner_endpoints_403(self):
+        from core import feature_flags as FF
+        FF.invalidate()
+        self.assertFalse(FF.default_row(FF_KEY)["enabled_all"])
+        u = User.objects.create_user(name="X", phone="01710002099", password="pw")
+        self.client.force_authenticate(u)
+        r = self.client.post("/api/v1/shop/watchman/setup",
+                             {"kind": "home", "gateway": "pc", "name": "Home"},
+                             format="json")
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.data["error"], "feature_off")
+
+
 class SetupTests(_Base):
     def test_empty_state_then_home_setup_on_personal_plan(self):
         r = self.client.get("/api/v1/shop/watchman")
