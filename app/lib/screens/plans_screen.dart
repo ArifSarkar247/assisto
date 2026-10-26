@@ -13,7 +13,7 @@ import 'credits_screen.dart';
 import '../payments/checkout_sheet.dart'; // pay1
 import '../services/error_kind.dart' show serverFailText; // qa2
 import '../payments/payments_api.dart'
-    show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
+    show ApiPaymentsBackend, PayConfig, PayProduct, payFlavour; // pay1
 import '../payments/play_restore.dart'; // pay-e2e
 import '../payments/store_billing.dart'; // pay-e2e
 
@@ -148,7 +148,59 @@ class _PlansScreenState extends State<PlansScreen> {
   /// pay1: the sku the tapped card shows the price of.
   String _skuFor(String id) {
     if (id == 'annual') return 'premium_yearly';
-    return '${id}_${_annual && id != 'business' ? 'yearly' : 'monthly'}';
+    // pay-e2e: Business yearly (assisto_business / yearly) is sold when a
+    // live channel lists it; otherwise the Business card stays monthly.
+    if (id == 'business') {
+      return _annual && _liveProduct('business_yearly') != null
+          ? 'business_yearly'
+          : 'business_monthly';
+    }
+    return '${id}_monthly';
+  }
+
+  /// pay-e2e: the product a LIVE channel of this build sells for [sku].
+  PayProduct? _liveProduct(String sku) {
+    final c = _payCfg;
+    if (c == null) return null;
+    for (final ch in c.live(payFlavour())) {
+      final p = c.product(ch.id, sku);
+      if (p != null) return p;
+    }
+    return null;
+  }
+
+  /// pay-e2e: skus the account is paying for right now (Play status +
+  /// prepaid periods) — a yearly card is "current" only for a yearly sku, so
+  /// monthly -> yearly stays one tap.
+  Set<String> get _activeSkus {
+    final out = <String>{};
+    final play = (_pay?['play'] as Map?);
+    if (play != null && '${play['sku'] ?? ''}'.isNotEmpty) {
+      final st = '${play['status'] ?? ''}';
+      if (st == 'active' || st == 'canceled' || st == 'grace') {
+        out.add('${play['sku']}');
+      }
+    }
+    for (final r in (_pay?['periods'] as List?) ?? const []) {
+      if (r is Map && '${r['sku'] ?? ''}'.isNotEmpty && r['queued'] != true) {
+        out.add('${r['sku']}');
+      }
+    }
+    return out;
+  }
+
+  /// pay-e2e: the Business row shown under the yearly toggle — the yearly
+  /// price from the server's payment catalogue, never invented here.
+  Map<String, dynamic> _businessRow(Map<String, dynamic> row, String current) {
+    final y = _annual ? _liveProduct('business_yearly') : null;
+    if (y == null) return row;
+    return {
+      ...row,
+      'price': y.priceBdt,
+      'cur': 'BDT',
+      'period': 'yr',
+      '_current': current == 'business' && _activeSkus.contains('business_yearly'),
+    };
   }
 
   /// NO SHOWPIECES + pay1: a Choose / Renew button exists only when a payment
@@ -250,7 +302,8 @@ class _PlansScreenState extends State<PlansScreen> {
         ...annualPlan
       else
         ...monthly.where((p) => p['id'] == 'premium'),
-      ...monthly.where((p) => p['id'] != 'premium'),
+      for (final p in monthly.where((p) => p['id'] != 'premium'))
+        p['id'] == 'business' ? _businessRow(p, current) : p,
     ];
 
     final annualRow = annualPlan.isNotEmpty ? annualPlan.first : null;
@@ -606,7 +659,8 @@ class _PlansScreenState extends State<PlansScreen> {
       AppLocalizations t, ColorScheme scheme, Map<String, dynamic> p,
       {required bool highlighted, required String current}) {
     final id = (p['id'] ?? '').toString();
-    final isCurrent = id == current;
+    final isCurrent =
+        p['_current'] is bool ? p['_current'] as bool : id == current;
     final benefits =
         (p['benefits'] as List?)?.cast<String>() ?? const <String>[];
     final isBusiness = id == 'business';

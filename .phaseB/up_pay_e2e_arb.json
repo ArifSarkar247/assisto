@@ -1,41 +1,101 @@
 {
   "en": {
     "payPlayUnavailableNoAlt": "Google Play billing is not available right now. Update the Play Store, check that you are signed in, then try again.",
-    "@payPlayUnavailableNoAlt": {"description": "Checkout (Play build): Play Billing could not start. Never names another payment method (Play policy)."},
+    "@payPlayUnavailableNoAlt": {
+      "description": "Checkout (Play build): Play Billing could not start. Never names another payment method (Play policy)."
+    },
     "payRestore": "Restore purchases",
-    "@payRestore": {"description": "Plans screen (Play build): button that re-checks every Google Play purchase on this Google account with our server."},
+    "@payRestore": {
+      "description": "Plans screen (Play build): button that re-checks every Google Play purchase on this Google account with our server."
+    },
     "payRestoreDone": "Purchases restored: {count}",
-    "@payRestoreDone": {"description": "Snackbar after restore: how many Play purchases were confirmed for this account.", "placeholders": {"count": {"type": "int"}}},
+    "@payRestoreDone": {
+      "description": "Snackbar after restore: how many Play purchases were confirmed for this account.",
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
     "payRestoreNone": "No Google Play purchases found on this Google account.",
-    "@payRestoreNone": {"description": "Snackbar after restore: Play returned nothing."},
+    "@payRestoreNone": {
+      "description": "Snackbar after restore: Play returned nothing."
+    },
     "payRestoreOtherAccount": "A purchase on this Google account belongs to another Assisto account. Sign in to that account to use it.",
-    "@payRestoreOtherAccount": {"description": "Snackbar after restore: the server refused a token bought by a different Assisto account."},
+    "@payRestoreOtherAccount": {
+      "description": "Snackbar after restore: the server refused a token bought by a different Assisto account."
+    },
     "payRestoreFailed": "Could not restore right now. Check the internet and try again.",
-    "@payRestoreFailed": {"description": "Snackbar after restore: network / server failure."},
+    "@payRestoreFailed": {
+      "description": "Snackbar after restore: network / server failure."
+    },
     "payPlayActive": "Renews on {date} through Google Play.",
-    "@payPlayActive": {"description": "Plans screen: active Play subscription.", "placeholders": {"date": {"type": "String"}}},
+    "@payPlayActive": {
+      "description": "Plans screen: active Play subscription.",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
     "payPlayCanceled": "Cancelled — your plan stays on until {date}. You can subscribe again in Google Play.",
-    "@payPlayCanceled": {"description": "Plans screen: Play subscription cancelled, still active until period end.", "placeholders": {"date": {"type": "String"}}},
+    "@payPlayCanceled": {
+      "description": "Plans screen: Play subscription cancelled, still active until period end.",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
     "payPlayGrace": "Google Play could not take the renewal payment. Fix your payment method by {date} to keep your plan.",
-    "@payPlayGrace": {"description": "Plans screen: Play grace period (plan still on).", "placeholders": {"date": {"type": "String"}}},
+    "@payPlayGrace": {
+      "description": "Plans screen: Play grace period (plan still on).",
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
     "payPlayOnHold": "Your plan is on hold because the renewal payment failed. Fix the payment in Google Play and it turns back on by itself.",
-    "@payPlayOnHold": {"description": "Plans screen: Play account hold (plan off until payment fixed)."},
+    "@payPlayOnHold": {
+      "description": "Plans screen: Play account hold (plan off until payment fixed)."
+    },
     "payPlayPaused": "Your subscription is paused in Google Play. Resume it there any time.",
-    "@payPlayPaused": {"description": "Plans screen: Play subscription paused."},
+    "@payPlayPaused": {
+      "description": "Plans screen: Play subscription paused."
+    },
     "payManageSub": "Manage subscription",
-    "@payManageSub": {"description": "Button: opens Google Play's subscription page for this app."},
+    "@payManageSub": {
+      "description": "Button: opens Google Play's subscription page for this app."
+    },
     "payFixPayment": "Fix payment",
-    "@payFixPayment": {"description": "Button (grace / on hold): opens Google Play to update the payment method."},
+    "@payFixPayment": {
+      "description": "Button (grace / on hold): opens Google Play to update the payment method."
+    },
     "plansManageBodyPlay": "Google Play plans renew automatically, and Google shows the price before you confirm. Cancel any time in Play Store › Payments & subscriptions — you keep the plan until the paid period ends.",
-    "@plansManageBodyPlay": {"description": "Plans FAQ card (Play build): how renew / cancel works."},
+    "@plansManageBodyPlay": {
+      "description": "Plans FAQ card (Play build): how renew / cancel works."
+    },
     "plansManageBodyApk": "Plans paid with bKash / Nagad / Card are prepaid and never charge you automatically. Renew yourself when the period ends.",
-    "@plansManageBodyApk": {"description": "Plans FAQ card (website APK): prepaid plans."},
+    "@plansManageBodyApk": {
+      "description": "Plans FAQ card (website APK): prepaid plans."
+    },
     "plansFaqRefundAPlay": "Ask Google Play for a refund (Play Store › Payments & subscriptions › Budget & history). If Google refunds it, the plan or credits are removed from your account.",
-    "@plansFaqRefundAPlay": {"description": "Plans FAQ answer (Play build): refunds."},
+    "@plansFaqRefundAPlay": {
+      "description": "Plans FAQ answer (Play build): refunds."
+    },
     "plansFaqRefundAApk": "Write to us from Help & support with your order number. If a refund is approved, the plan or credits are removed from your account.",
-    "@plansFaqRefundAApk": {"description": "Plans FAQ answer (website APK): refunds."},
+    "@plansFaqRefundAApk": {
+      "description": "Plans FAQ answer (website APK): refunds."
+    },
     "plansFaqSwitchALive": "Yes. You can change plans or switch between monthly and yearly at any time. Paid time you have not used is never lost — it is credited or carried over.",
-    "@plansFaqSwitchALive": {"description": "Plans FAQ answer: switching plans."}
+    "@plansFaqSwitchALive": {
+      "description": "Plans FAQ answer: switching plans."
+    },
+    "baBuyPlayNote": "Seller Agent plans are not sold in the Google Play version of the app. Use the free trial or AI credits — each reply uses credits.",
+    "@baBuyPlayNote": {
+      "description": "Seller Agent plan card (Play build, no live way to buy a seller plan): honest note, no buy button."
+    }
   },
   "bn": {
     "payPlayUnavailableNoAlt": "এই মুহূর্তে Google Play বিলিং চালু করা যাচ্ছে না। Play Store আপডেট করুন, সাইন ইন আছেন কি না দেখুন, তারপর আবার চেষ্টা করুন।",
@@ -55,6 +115,7 @@
     "plansManageBodyApk": "বিকাশ / নগদ / কার্ডে কেনা প্ল্যান প্রিপেইড — কখনো নিজে থেকে টাকা কাটে না। মেয়াদ শেষ হলে নিজে নবায়ন করুন।",
     "plansFaqRefundAPlay": "Google Play-র কাছে রিফান্ড চান (Play Store › পেমেন্ট ও সাবস্ক্রিপশন › বাজেট ও ইতিহাস)। Google রিফান্ড দিলে প্ল্যান বা ক্রেডিট আপনার অ্যাকাউন্ট থেকে সরে যাবে।",
     "plansFaqRefundAApk": "অর্ডার নম্বরসহ সাহায্য ও সাপোর্ট থেকে আমাদের লিখুন। রিফান্ড মঞ্জুর হলে প্ল্যান বা ক্রেডিট আপনার অ্যাকাউন্ট থেকে সরে যাবে।",
-    "plansFaqSwitchALive": "হ্যাঁ। যেকোনো সময় প্ল্যান বদলাতে বা মাসিক থেকে বার্ষিকে যেতে পারবেন। না-ব্যবহার করা পেইড সময় কখনো হারায় না — তা জমা বা পরের মেয়াদে যোগ হয়।"
+    "plansFaqSwitchALive": "হ্যাঁ। যেকোনো সময় প্ল্যান বদলাতে বা মাসিক থেকে বার্ষিকে যেতে পারবেন। না-ব্যবহার করা পেইড সময় কখনো হারায় না — তা জমা বা পরের মেয়াদে যোগ হয়।",
+    "baBuyPlayNote": "অ্যাপের Google Play সংস্করণে সেলার এজেন্ট প্ল্যান বিক্রি হয় না। ফ্রি ট্রায়াল বা AI ক্রেডিট ব্যবহার করুন — প্রতিটি উত্তরে ক্রেডিট লাগে।"
   }
 }

@@ -34,8 +34,8 @@
 8. শেষে **Activate** চাপুন — base plan "Active" না হলে অ্যাপ সেটা কিনতে দেয় না (ভুল প্ল্যানে টাকা
    কাটা আটকাতে ইচ্ছে করেই)।
 
-নোট: Business yearly এখন অ্যাপের Plans পাতায় দেখানো হয় না (বার্ষিক টগল শুধু Premium-এর)।
-তবু `assisto_business` / `yearly` বানিয়ে Active রাখুন — ক্ষতি নেই, পরে চালু করতে নতুন কিছু লাগবে না।
+নোট: Plans পাতার "বার্ষিক" টগলে এখন Business-এরও বার্ষিক দাম ও কেনার বোতাম আসে (sku `business_yearly`)।
+তাই `assisto_business` / `yearly` অবশ্যই বানিয়ে Active করুন — না থাকলে অ্যাপ সৎভাবে "এখন পাওয়া যাচ্ছে না" বলে।
 
 ## ধাপ ২ — ক্রেডিট প্যাক (Monetize with Play → Products → **In-app products**)
 
@@ -125,17 +125,19 @@ Cancel `…?r=cancel`, IPN `https://api.lifeassisto.com/api/v1/payments/gateway/
   আমরা দেখি না — সেটা Google/EPS-এর কাছে থাকে।)
 - **Store listing**: "Contains in-app purchases" নিজে থেকেই দেখাবে।
 
-## Google Play নীতি — জরুরি (অডিটের ফল)
+## Google Play নীতি — মালিকের সিদ্ধান্ত (২৬ অক্টোবর)
 
-Play থেকে নামানো অ্যাপে ডিজিটাল জিনিস (Premium, Business, ক্রেডিট, Seller Agent প্ল্যান) শুধু
-Google Play Billing দিয়ে বিক্রি করা যায়। আমাদের জানামতে বাংলাদেশ Google-এর "User choice /
-Alternative billing" প্রোগ্রামে নেই (Play Console → Monetization setup → Alternative billing-এ দেখে
-নিশ্চিত হোন)। এখন `gateway_on_play` **ডিফল্টে চালু** — তাতে Play বিল্ডের চেকআউটে "বিকাশ / নগদ /
-কার্ড — EPS" দেখায়, আর Seller Agent প্ল্যান Play বিল্ডে **শুধু EPS দিয়েই** বিক্রি হয়। এটা Play-র
-Payments নীতি ভাঙে; রিজেক্ট/সাসপেনশনের ঝুঁকি। **সুপারিশ: প্রোডাকশনে যাওয়ার আগে `gateway_on_play` বন্ধ
-করুন।** বন্ধ করলে Play বিল্ডে Seller Agent প্ল্যান কেনার বোতাম লুকিয়ে যাবে (নতুন বিল্ড লাগবে না);
-পরে চাইলে ওগুলোর জন্যও Play সাবস্ক্রিপশন বানানো যাবে। অ্যাপ কোথাও lifeassisto.com/premium-এর
-লিংক দেয় না (যাচাই করা হয়েছে)।
+Play থেকে নামানো অ্যাপে **সব ডিজিটাল জিনিস** (Premium, Business, ক্রেডিট প্যাক, ফিচার আনলক,
+Seller Agent প্ল্যান) **শুধু Google Play Billing** দিয়ে বিক্রি হয়। EPS থাকে শুধু ওয়েবসাইট APK-তে,
+lifeassisto.com/premium-এ, আর আসল জিনিস/সেবার (দোকানের অর্ডার, ডেলিভারি) জন্য।
+
+- লাইভ সার্ভারে `gateway_on_play` = বন্ধ (মালিক করেছেন); কোডের ডিফল্টও এখন বন্ধ।
+- অ্যাপের Play বিল্ড এই সুইচ চালু থাকলেও ডিজিটাল জিনিসের জন্য EPS **কখনো দেখায় না** (অ্যাপে কড়া নিয়ম + টেস্ট)।
+- অ্যাপের কোথাও lifeassisto.com/premium বা /pay-এর লিংক নেই (টেস্ট দিয়ে পাহারা দেওয়া)।
+- Seller Agent প্ল্যানের Play প্রোডাক্ট এখনও নেই, তাই Play বিল্ডে কেনার বোতাম লুকানো; সেখানে সৎ বার্তা:
+  "অ্যাপের Google Play সংস্করণে সেলার এজেন্ট প্ল্যান বিক্রি হয় না। ফ্রি ট্রায়াল বা AI ক্রেডিট ব্যবহার করুন।"
+  (বাইরের কোনো লিংক নেই।) পরে চাইলে `assisto_seller` সাবস্ক্রিপশন (base plan `starter`, `pro`) বানিয়ে
+  Play দিয়ে বিক্রি চালু করা যাবে — তার জন্য আলাদা কোড-কাজ লাগবে, এখন **বানাবেন না**।
 
 ## ১০ মিনিটে পরীক্ষা (license tester Gmail দিয়ে, Play থেকে ইনস্টল করা অ্যাপে)
 

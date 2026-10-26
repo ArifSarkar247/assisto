@@ -10,7 +10,10 @@ Keys
                      lifeassisto.com/premium.
   gateway_on_play    The gateway is ALSO offered inside the Play build
                      (owner compliance kill-switch; applies to EVERY user, it is
-                     never a review-only toggle).
+                     never a review-only toggle). Default OFF and must stay OFF
+                     (owner 26 Oct): in the Play build every digital good is
+                     sold through Google Play Billing only. The Play app
+                     ignores it for digital goods in any case.
   web_enabled        lifeassisto.com/premium checkout page on/off.
   play_fee_subs      Google's cut on subscriptions (0.15 = 15 %).
   play_fee_packs     Google's cut on one-time products (credit packs).
@@ -41,7 +44,7 @@ def defaults():
     return {
         "play_enabled": True,
         "gateway_enabled": True,
-        "gateway_on_play": True,
+        "gateway_on_play": False,   # owner 26 Oct: Play build sells digital goods via Play Billing only
         "web_enabled": True,
         "play_fee_subs": 0.15,
         "play_fee_packs": 0.15,

@@ -33,6 +33,9 @@ class FakeApi extends ApiClient {
   /// /payments/config (the gallery sets it for the `*_paylive` shots).
   static bool payLive = false;
 
+  /// pay-e2e: skus /payments/config leaves out (e.g. 'business_yearly').
+  static Set<String> payOmit = {};
+
   /// dl1: whether /account/delete/status reports a PENDING deletion (the
   /// gallery sets it for the `dl1_*pending*` / grace shots).
   static bool delPending = false;
@@ -68,7 +71,10 @@ class FakeApi extends ApiClient {
       final prods = [
         for (final sku in ['premium_monthly', 'premium_yearly',
             'business_monthly', 'business_yearly'])
-          _payProduct(sku, sku.startsWith('premium') ? 199 : 499),
+          if (!payOmit.contains(sku))
+            _payProduct(sku, sku == 'business_yearly'
+                ? 5808
+                : sku.startsWith('premium') ? 199 : 499),
         for (final p in _packs)
           _payProduct('pack_${p['id']}', p['taka'] as int,
               kind: 'pack', credits: p['credits'] as int),

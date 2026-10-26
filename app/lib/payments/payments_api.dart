@@ -89,9 +89,13 @@ class PayConfig {
   }
 
   /// The channels a user of this build can really pay through: owner switch
-  /// on AND keys added (Play only ever on the Play build).
-  Iterable<PayChannel> live(String flavour) =>
-      channels.where((c) => c.usable && (c.id != 'play' || flavour == 'play'));
+  /// on AND keys added. Google Play only on the Play build; the gateway (EPS)
+  /// NEVER on the Play build — owner rule 26 Oct + Play Payments policy:
+  /// every digital good there (plans, credits, Seller Agent) is sold through
+  /// Play Billing only, whatever a server switch says.
+  Iterable<PayChannel> live(String flavour) => channels.where((c) =>
+      c.usable &&
+      (flavour == 'play' ? c.id == 'play' : c.id != 'play'));
 
   /// NO SHOWPIECES: a buy entry point exists only when this is true.
   bool anyUsable(String flavour) => live(flavour).isNotEmpty;
@@ -163,7 +167,11 @@ abstract class PaymentsBackend {
 }
 
 /// 'play' only in the Google Play build; the website APK is 'apk'.
-String payFlavour() => AppConfig.playStore ? 'play' : 'apk';
+String payFlavour() =>
+    debugPayFlavour ?? (AppConfig.playStore ? 'play' : 'apk');
+
+/// Tests only: pretend to be the Play build ('play') or the APK ('apk').
+String? debugPayFlavour;
 
 class ApiPaymentsBackend implements PaymentsBackend {
   final ApiClient api;

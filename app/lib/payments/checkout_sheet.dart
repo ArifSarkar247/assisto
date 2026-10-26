@@ -17,8 +17,9 @@ const _taka = '৳';
 
 /// pay1 — the ONE checkout sheet (plans, credits, renew).
 ///
-///  * Play build: "Google Play" first, then "bKash / Nagad / Card — EPS"
-///    when the owner keeps the gateway on for the Play build.
+///  * Play build: "Google Play" ONLY — every digital good is sold through
+///    Play Billing (owner rule 26 Oct, Play Payments policy). EPS is never
+///    listed there, whatever the server's gateway_on_play switch says.
 ///  * Website APK: the gateway only — Play Billing is never attempted.
 ///  * Which options exist comes from the SERVER at runtime
 ///    (/payments/config: owner switches + whether keys are added), the same
@@ -269,12 +270,9 @@ class _CheckoutSheetState extends State<CheckoutSheet>
     });
   }
 
-  /// pay-e2e: "use bKash / Nagad / Card instead" only when this sheet really
-  /// offers the gateway (owner switch); otherwise no other method is named.
-  String _playUnavailable(AppLocalizations t) =>
-      _channels.any((c) => c.id == 'gateway')
-          ? t.payPlayUnavailable
-          : t.payPlayUnavailableNoAlt;
+  /// pay-e2e: the Play build never names another way to pay (Play Payments
+  /// policy; the gateway is never offered there — PayConfig.live).
+  String _playUnavailable(AppLocalizations t) => t.payPlayUnavailableNoAlt;
 
   void _success(AppLocalizations t, Map<String, dynamic>? data) {
     final p = _product('gateway') ?? _product('play');
