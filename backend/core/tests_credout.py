@@ -95,7 +95,7 @@ class OutOfCreditsChatTests(_AiOn, TestCase):
         self.u.trial_until = timezone.now() - timedelta(days=1)
         self.u.ai_credits = 0
         self.u.save()
-        self.c = APIClient()
+        self.c = APIClient(HTTP_X_ASSISTO_CREDOUT="1")   # build 247+ app
         self.c.force_authenticate(self.u)
         self.ai_on()
 
@@ -176,3 +176,30 @@ class OutOfCreditsChatTests(_AiOn, TestCase):
                         {"text": "what is my balance"}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertFalse(r.json()["ai_used"])
+
+
+class OldBuildKeepsFreeAnswerTests(_AiOn, TestCase):
+    """An app without X-Assisto-Credout (build 246 and older) never sees the
+    402: it keeps the free, honest Brain answer, so a server update cannot
+    break chat on phones that have not updated yet."""
+
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        self.u = User.objects.create_user(name="Old", phone="01711000078", password="x")
+        self.u.plan = "free"
+        self.u.trial_until = timezone.now() - timedelta(days=1)
+        self.u.ai_credits = 0
+        self.u.save()
+        self.c = APIClient()
+        self.c.force_authenticate(self.u)
+        self.ai_on()
+
+    def test_agent_and_chat_send_answer_200_without_header(self):
+        r = self.c.post("/api/v1/agent", {"text": "how much did I spend?"}, format="json")
+        self.assertEqual(r.status_code, 200, r.content[:300])
+        s = ChatSession.objects.create(user=self.u, source="ai")
+        r = self.c.post(f"/api/v1/chat/sessions/{s.id}/send",
+                        {"text": "write me a poem about rain"}, format="json")
+        self.assertIn(r.status_code, (200, 201), r.content[:300])
+        self.assertTrue(ChatMessage.objects.filter(session=s, role="assistant").exists())

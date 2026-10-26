@@ -1602,7 +1602,8 @@ class AgentView(APIView):
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
                 except ai.AIUnavailable as e:
-                    if e.reason == "credits":
+                    from . import credits_out
+                    if e.reason == "credits" and credits_out.supported(request):
                         # credout: never a silent downgrade — 402 + nothing
                         # saved, so the app keeps the text, opens the
                         # buy-credits sheet and re-sends it once.

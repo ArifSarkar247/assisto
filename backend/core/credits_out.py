@@ -21,6 +21,19 @@ REASON = "credits"
 CODE = "out_of_credits"
 
 
+HEADER = "HTTP_X_ASSISTO_CREDOUT"
+
+
+def supported(request):
+    """Only apps that send `X-Assisto-Credout: 1` (build 247+) know the 402 +
+    buy-credits sheet. Older builds keep the free, honest Brain answer so an
+    update of the server never breaks their chat."""
+    try:
+        return str(request.META.get(HEADER, "")).strip() == "1"
+    except Exception:  # noqa: BLE001
+        return False
+
+
 class CreditsOut(Exception):
     """Raised by a reply producer when the user cannot cover the AI call."""
 

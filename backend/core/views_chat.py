@@ -96,7 +96,7 @@ def _history_for(session, upto_id=None):
     return turns[-_HISTORY_TURNS:]
 
 
-def _produce_reply(user, session, text, lang, history):
+def _produce_reply(user, session, text, lang, history, credout=False):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -148,7 +148,7 @@ def _produce_reply(user, session, text, lang, history):
             # credout: out of credits is NOT degraded silently — the view
             # undoes the turn and answers 402 so the app can offer the
             # buy-credits sheet and re-send the same text.
-            if e.reason == "credits":
+            if e.reason == "credits" and credout:
                 raise credits_out.CreditsOut(
                     credits_out.need_for_tier(user, requested_tier))
             # kill-switch / budget / user-limit / guard-over / every provider
@@ -257,7 +257,8 @@ class ChatSendView(APIView):
 
         history = _history_for(s, upto_id=user_msg.id)
         try:
-            reply, meta, cards = _produce_reply(u, s, text, lang, history)
+            reply, meta, cards = _produce_reply(u, s, text, lang, history,
+                                            credout=credits_out.supported(request))
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -303,7 +304,8 @@ class ChatStreamView(APIView):
             s.derive_title(text)
         history = _history_for(s, upto_id=user_msg.id)
         try:
-            reply, meta, cards = _produce_reply(u, s, text, lang, history)
+            reply, meta, cards = _produce_reply(u, s, text, lang, history,
+                                            credout=credits_out.supported(request))
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -364,7 +366,8 @@ class ChatRegenerateView(APIView):
 
         history = _history_for(s, upto_id=last_user.id)
         try:
-            reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history)
+            reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
+                                            credout=credits_out.supported(request))
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.

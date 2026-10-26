@@ -53,6 +53,9 @@ class ApiClient {
         // schedules from chat, no medicine suggestions). The website APK
         // sends nothing extra.
         if (AppConfig.playStore) 'X-Assisto-Flavour': 'play',
+        // credout: this build understands 402 out_of_credits (keeps the text,
+        // opens the buy-credits sheet). Older builds get the free answer.
+        'X-Assisto-Credout': '1',
         // own-device: lets the server see a request comes FROM the protected
         // phone itself (hashed install id, never a hardware id)
         if (AppConfig.deviceId != null && AppConfig.deviceId!.isNotEmpty)
