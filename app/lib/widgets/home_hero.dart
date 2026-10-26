@@ -34,7 +34,12 @@ class HomeHero extends StatefulWidget {
     this.loadConfig,
     this.isHomeVisible,
     this.sponsor,
+    this.gapWhenShown = 0,
   });
+
+  /// home_v2: space above the ad / sponsor card, only while one is shown
+  /// (nothing at all when the slot is empty).
+  final double gapWhenShown;
 
   /// The normal logo block (no fill / offline / paid / not linked / collapsed).
   final Widget fallback;
@@ -324,12 +329,18 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
             hasVideo: ad.hasVideo,
             startMuted: _cfg.startMuted,
             child: ad.view());
+    final gap = widget.gapWhenShown;
+    final shown = gap > 0 && child.key != const ValueKey('hero-logo');
     // Only the CURRENT child is laid out (the old one is dropped at once), so
     // the ad and the logo block never overlap, not even mid-fade.
     return AnimatedSwitcher(
       duration: Motion.base,
       layoutBuilder: (current, previous) => current ?? const SizedBox.shrink(),
-      child: child,
+      child: shown
+          ? KeyedSubtree(
+              key: ValueKey('gap-${child.key}'),
+              child: Padding(padding: EdgeInsets.only(top: gap), child: child))
+          : child,
     );
   }
 }

@@ -203,6 +203,7 @@ import 'ps1_shots.dart'; // ps1-photo
 import 'd1_photo_shots.dart'; // d1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
+import 'home_v2_shots.dart'; // home_v2
 import 'f1_shots.dart'; // f1-founders
 import 't1_ticks_shots.dart'; // t1-ticks
 import 'mr1_shots.dart'; // mr1
@@ -307,7 +308,7 @@ AppState _stub({required String lang, FakeMode mode = FakeMode.data}) {
   s.api = FakeApi(mode: mode, lang: lang);
   s.user = AppUser(
       id: 1,
-      name: lang == 'bn' ? 'আরিফ' : 'Arif',
+      name: lang == 'bn' ? 'রহিম' : 'Rahim',
       phone: '01712345678',
       email: '',
       autonomyLevel: 2,
@@ -647,6 +648,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // (home hero shots: no urgent cards, so the welcome slot is visible)
     for (final e in h1Shots.entries)
       e.key: (build: e.value, mode: e.key.startsWith('home_hero') ? FakeMode.empty : FakeMode.data, full: true),
+    // home_v2: the owner's new home (+ All Services, AI chat screen, picker)
+    for (final e in homeV2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // f1-founders: Founding Member badge + Send feedback sheet
     for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)

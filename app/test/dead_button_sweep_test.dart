@@ -91,6 +91,7 @@ const Map<String, String> _allowDead = {
   'chat_voice|Tap to stop': 'A: debugListening fixture — stop() while not really listening',
   'onboarding|Skip': 'A: spec passes onDone: () {}; the app swaps the root on done',
   'home_hero_*|Install': 'A: fake native-ad template in h1_home_fakes.dart',
+  'home_v2_free_ad|Install': 'A: fake native-ad template in h1_home_fakes.dart (home_v2 ad slot)',
   'push_settings|Open': 'A: spec uses probe: false, which disables the OS-settings calls',
   'reminders|tip:Sync': 'A: gallery repos keep the pre-stub ApiClient (no token) so sync() returns early; on device it syncs with a spinner',
   // (B) needs real device machinery

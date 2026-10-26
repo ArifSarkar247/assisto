@@ -87,6 +87,11 @@ import '../feedback/feedback_capture.dart'; // f1-founders
 import '../feedback/feedback_sheet.dart'; // f1-founders
 import '../screens/offers_screens.dart' show OffersFeedScreen; // p2-money
 import '../feature_gates.dart' show kAgentStudioRunsAutomations; // f6
+// home_v2: owner's default shortcuts that had no route of their own
+import '../screens/business/khata_entry_screen.dart';
+import '../screens/business/bizagent/seller_agent_screen.dart';
+import '../screens/prepaid_meter_screen.dart';
+import '../screens/contract_analyzer_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -277,6 +282,12 @@ class ChatNav {
     // sheet over the CURRENT screen (screenshot first); this full-page form
     // is the fallback for other callers.
     'feedback': (_) => const FeedbackScreen(route: 'home'),
+    // home_v2 (owner 26 Oct): the new home's default shortcuts. Each opens the
+    // feature's existing screen (also in the sidebar / Business hub).
+    'khata': (_) => const KhataEntryScreen(),
+    'sales_agent': (_) => const SellerAgentScreen(),
+    'prepaid_meter': (_) => const PrepaidMeterScreen(),
+    'contract': (_) => const ContractAnalyzerScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -387,6 +398,11 @@ class ChatNav {
     'voice_settings': ['default assistant', 'digital assistant',
         'wake word', 'voice settings', 'assistant settings'],
     // f1-founders
+    // home_v2 shortcut routes
+    'khata': ['digital khata', 'digital ledger', 'khata'],
+    'sales_agent': ['ai sales agent', 'sales agent', 'sales assistant'],
+    'prepaid_meter': ['prepaid meter', 'electricity meter', 'meter recharge'],
+    'contract': ['contract analyzer', 'contract scanner', 'check contract'],
     'feedback': ['send feedback', 'give feedback', 'feedback',
         'report a problem', 'report a bug', 'report an issue'],
   };

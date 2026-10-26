@@ -1,0 +1,214 @@
+{
+ "en": {
+  "hv2GreetMorning": "Good morning",
+  "@hv2GreetMorning": {
+   "description": "Home v2 header greeting, 05:00-11:59."
+  },
+  "hv2GreetNoon": "Good afternoon",
+  "@hv2GreetNoon": {
+   "description": "Home v2 header greeting, 12:00-15:59."
+  },
+  "hv2GreetAfternoon": "Good afternoon",
+  "@hv2GreetAfternoon": {
+   "description": "Home v2 header greeting, 16:00-17:59 (Bangla: bikal)."
+  },
+  "hv2GreetEvening": "Good evening",
+  "@hv2GreetEvening": {
+   "description": "Home v2 header greeting, 18:00-20:59."
+  },
+  "hv2GreetNight": "Good evening",
+  "@hv2GreetNight": {
+   "description": "Home v2 header greeting, 21:00-04:59 (Bangla: ratri)."
+  },
+  "hv2Tagline": "Your life, one smart companion",
+  "@hv2Tagline": {
+   "description": "Home v2 header line under the greeting."
+  },
+  "hv2TagSmarter": "Smarter",
+  "@hv2TagSmarter": {
+   "description": "Home v2 header tilted tag 1 of 3."
+  },
+  "hv2TagSafer": "Safer",
+  "@hv2TagSafer": {
+   "description": "Home v2 header tilted tag 2 of 3."
+  },
+  "hv2TagEasier": "Easier",
+  "@hv2TagEasier": {
+   "description": "Home v2 header tilted tag 3 of 3."
+  },
+  "hv2MenuA11y": "Open menu",
+  "@hv2MenuA11y": {
+   "description": "Home v2 header menu button (opens the sidebar)."
+  },
+  "hv2Edit": "Edit",
+  "@hv2Edit": {
+   "description": "Home v2 shortcuts: the one Edit button."
+  },
+  "hv2EditA11y": "Edit shortcuts: add, remove or reorder",
+  "@hv2EditA11y": {
+   "description": "TalkBack label of the Edit button."
+  },
+  "hv2PickTitle": "Choose your home shortcuts",
+  "@hv2PickTitle": {
+   "description": "Home v2 shortcut picker title."
+  },
+  "hv2TileFamily": "Family Care",
+  "@hv2TileFamily": {
+   "description": "Home v2 shortcut tile."
+  },
+  "hv2TileLedger": "Digital Ledger",
+  "@hv2TileLedger": {
+   "description": "Home v2 shortcut tile: business Digital Khata."
+  },
+  "hv2TileSales": "AI Sales Assistant",
+  "@hv2TileSales": {
+   "description": "Home v2 shortcut tile: AI sales agent."
+  },
+  "hv2TileCctv": "CCTV Cameras",
+  "@hv2TileCctv": {
+   "description": "Home v2 shortcut tile: home & shop watchman."
+  },
+  "hv2TileVehicle": "Vehicle Tracking",
+  "@hv2TileVehicle": {
+   "description": "Home v2 shortcut tile: live vehicle tracking."
+  },
+  "hv2TileJobs": "Job Hunter",
+  "@hv2TileJobs": {
+   "description": "Home v2 shortcut tile."
+  },
+  "hv2TilePhoneSecurity": "Phone Security",
+  "@hv2TilePhoneSecurity": {
+   "description": "Home v2 shortcut tile: lost/stolen protection."
+  },
+  "hv2TileMeter": "Prepaid Meter",
+  "@hv2TileMeter": {
+   "description": "Home v2 shortcut tile."
+  },
+  "hv2TileContract": "Contract Scanner",
+  "@hv2TileContract": {
+   "description": "Home v2 shortcut tile: contract analyzer."
+  },
+  "hv2AskTitle": "Need help?",
+  "@hv2AskTitle": {
+   "description": "Home v2 Ask Assisto card title."
+  },
+  "hv2AskSub": "Ask Assisto",
+  "@hv2AskSub": {
+   "description": "Home v2 Ask Assisto card line 2."
+  },
+  "hv2AskEm": "Chat | Guide | Solve",
+  "@hv2AskEm": {
+   "description": "Home v2 Ask Assisto card line 3."
+  },
+  "hv2AskBtn": "Chat",
+  "@hv2AskBtn": {
+   "description": "Home v2 Ask Assisto card button."
+  },
+  "hv2AskA11y": "Ask Assisto: open the Assisto AI chat",
+  "@hv2AskA11y": {
+   "description": "TalkBack label of the Ask Assisto card."
+  },
+  "hv2NavHome": "Home",
+  "@hv2NavHome": {
+   "description": "Home v2 bottom bar."
+  },
+  "hv2NavAll": "All Services",
+  "@hv2NavAll": {
+   "description": "Home v2 bottom bar + the All Services screen title."
+  },
+  "hv2NavVoice": "Assisto Voice",
+  "@hv2NavVoice": {
+   "description": "Home v2 bottom bar centre button."
+  },
+  "hv2VoiceA11y": "Assisto Voice: talk to Assisto",
+  "@hv2VoiceA11y": {
+   "description": "TalkBack label of the centre voice button."
+  },
+  "hv2AllEmpty": "Nothing found for this search",
+  "@hv2AllEmpty": {
+   "description": "All Services: no match."
+  },
+  "hv2AllCore": "Assisto essentials",
+  "@hv2AllCore": {
+   "description": "All Services: first section (My Circle, Assisto AI)."
+  },
+  "hv2GreetName": "{greeting}, {name}!",
+  "@hv2GreetName": {
+   "description": "Home v2 greeting with the user's first name.",
+   "placeholders": {
+    "greeting": {
+     "type": "String"
+    },
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "hv2GreetPlain": "{greeting}!",
+  "@hv2GreetPlain": {
+   "description": "Home v2 greeting when the name is unknown.",
+   "placeholders": {
+    "greeting": {
+     "type": "String"
+    }
+   }
+  },
+  "hv2PickHint": "{count}/11 chosen · drag to reorder",
+  "@hv2PickHint": {
+   "description": "Home v2 picker hint; count is pre-formatted (Bangla digits in bn).",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "hv2NotifA11y": "Notifications, {count} new",
+  "@hv2NotifA11y": {
+   "description": "TalkBack: header bell with unseen count (pre-formatted).",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "hv2GreetMorning": "শুভ সকাল",
+  "hv2GreetNoon": "শুভ দুপুর",
+  "hv2GreetAfternoon": "শুভ বিকাল",
+  "hv2GreetEvening": "শুভ সন্ধ্যা",
+  "hv2GreetNight": "শুভ রাত্রি",
+  "hv2Tagline": "আপনার জীবন, এক বুদ্ধিমান সঙ্গী",
+  "hv2TagSmarter": "আরও স্মার্ট",
+  "hv2TagSafer": "আরও নিরাপদ",
+  "hv2TagEasier": "আরও সহজ",
+  "hv2MenuA11y": "মেনু খুলুন",
+  "hv2Edit": "এডিট",
+  "hv2EditA11y": "শর্টকাট এডিট: যোগ, বাদ বা ক্রম বদল",
+  "hv2PickTitle": "হোমের শর্টকাট বাছুন",
+  "hv2TileFamily": "ফ্যামিলি কেয়ার",
+  "hv2TileLedger": "ডিজিটাল খাতা",
+  "hv2TileSales": "AI সেলস সহকারী",
+  "hv2TileCctv": "CCTV ক্যামেরা",
+  "hv2TileVehicle": "গাড়ি ট্র্যাকিং",
+  "hv2TileJobs": "জব হান্টার",
+  "hv2TilePhoneSecurity": "ফোন সিকিউরিটি",
+  "hv2TileMeter": "প্রিপেইড মিটার",
+  "hv2TileContract": "চুক্তি স্ক্যানার",
+  "hv2AskTitle": "সাহায্য লাগবে?",
+  "hv2AskSub": "Assisto-কে জিজ্ঞেস করুন",
+  "hv2AskEm": "চ্যাট | গাইড | সমাধান",
+  "hv2AskBtn": "চ্যাট করুন",
+  "hv2AskA11y": "Assisto-কে জিজ্ঞেস করুন: Assisto AI চ্যাট খুলুন",
+  "hv2NavHome": "হোম",
+  "hv2NavAll": "সব সেবা",
+  "hv2NavVoice": "Assisto ভয়েস",
+  "hv2VoiceA11y": "Assisto ভয়েস: কথা বলে Assisto-কে বলুন",
+  "hv2AllEmpty": "এই খোঁজে কিছু পাওয়া যায়নি",
+  "hv2AllCore": "Assisto-র মূল সেবা",
+  "hv2GreetName": "{greeting}, {name}!",
+  "hv2GreetPlain": "{greeting}!",
+  "hv2PickHint": "{count}/১১ বাছাই হয়েছে · টেনে ক্রম বদলান",
+  "hv2NotifA11y": "নোটিফিকেশন, {count}টি নতুন"
+ }
+}

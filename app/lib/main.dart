@@ -31,7 +31,7 @@ import 'crypto/key_wiring.dart';
 import 'growth/install_ping.dart';
 import 'diag/crash_boot.dart';
 import 'diag/crash_reporter.dart';
-import 'screens/home_screen.dart';
+import 'screens/home_v2/home_v2_screen.dart'; // home_v2
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/elderly_home_screen.dart';
@@ -265,6 +265,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   bool _elderly = false;
   bool _resolving = false; // in-flight guard so builds don't stack reads
   bool _adsStarted = false; // p2-money
+  bool? _homeV2; // home_v2: decided once per app start
 
   @override
   void initState() {
@@ -518,6 +519,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
     }
     AdsService.instance.rootScreen = 'home';
-    return const HomeScreen();
+    // home_v2 (owner 26 Oct): the new home behind its flag, read from the
+    // CACHED flag set loaded at startup (no network wait). Decided once per
+    // app start so a background flag refresh never swaps the home under the
+    // user; OFF = the previous home, unchanged (one-week fallback).
+    final v2 = _homeV2 ??= FeatureFlags.instance.isOn('home_v2');
+    return selectHome(v2: v2);
   }
 }

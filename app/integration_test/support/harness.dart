@@ -504,10 +504,44 @@ class RFlow {
     await pumpFor(const Duration(milliseconds: 1200));
   }
 
-  /// Go back until the home screen's chat input is visible.
+  /// home_v2: the new home (flag `home_v2`, default ON) has no chat input;
+  /// its menu button marks it. The old home is recognised by its input.
+  static const _hv2Menu = ValueKey('hv2_menu');
+  bool get isHomeV2 => find.byKey(_hv2Menu).evaluate().isNotEmpty;
+  bool get _onHome =>
+      isHomeV2 ||
+      (find.text(t.inputHint).evaluate().isNotEmpty &&
+          // the home_v2 chat screen has the input too, but is not home
+          find.byKey(const ValueKey('hv2_chat_new')).evaluate().isEmpty);
+
+  /// Open the side drawer from home (old home: the AppBar menu button;
+  /// home_v2: the header menu button).
+  Future<void> openDrawer({double settleSeconds = 2}) async {
+    final old = find.byTooltip(MaterialLocalizations.of(
+            tester.element(find.byType(Scaffold).first))
+        .openAppDrawerTooltip);
+    if (old.evaluate().isNotEmpty) {
+      await tap(old, settleSeconds: settleSeconds);
+    } else {
+      await tap(find.byKey(_hv2Menu), settleSeconds: settleSeconds);
+    }
+  }
+
+  /// The home chat: on the old home it IS the home; on home_v2 the Ask
+  /// Assisto card opens it on its own screen (same thread, same input).
+  Future<void> openHomeChat() async {
+    if (isHomeV2) {
+      final ask = find.byKey(const ValueKey('hv2_ask'));
+      await tester.ensureVisible(ask);
+      await tap(ask, settleSeconds: 3);
+    }
+    await waitFor(find.text(t.inputHint), seconds: 25, what: 'home chat input');
+  }
+
+  /// Go back until the home screen is visible.
   Future<void> backToHome() async {
     for (var i = 0; i < 6; i++) {
-      if (find.text(t.inputHint).evaluate().isNotEmpty) return;
+      if (_onHome && find.byType(Drawer).evaluate().isEmpty) return;
       try {
         final nav = Navigator.of(tester.element(find.byType(Scaffold).last));
         if (!nav.canPop()) return;
@@ -523,10 +557,7 @@ class RFlow {
   /// through the drawer's own search box — the same thing a user does.
   Future<void> openFromDrawer(String label) async {
     await backToHome();
-    final open = find.byTooltip(MaterialLocalizations.of(
-            tester.element(find.byType(Scaffold).first))
-        .openAppDrawerTooltip);
-    await tap(open);
+    await openDrawer();
     final search = find.descendant(of: find.byType(Drawer), matching: find.byType(TextField));
     await waitFor(search, what: 'drawer search');
     await tester.enterText(search.first, label);
@@ -579,7 +610,12 @@ class RFlow {
 
   /// Wait until the home screen is showing (after boot).
   Future<void> home() async {
-    await waitFor(find.text(t.inputHint), seconds: 25, what: 'home screen');
+    await waitFor(
+        find.byWidgetPredicate((w) =>
+            w.key == _hv2Menu ||
+            (w is Text && w.data == t.inputHint)),
+        seconds: 25,
+        what: 'home screen');
   }
 
   // ------------------------------------------------------------ asserts

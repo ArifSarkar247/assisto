@@ -148,6 +148,9 @@ _A = {
     "retention_auto": ("?PP?P??PP", "hide", "retention1: backend two-account flow + widget tests pass; no real two-phone run yet, 2 GB speed not measured, no reality-audit flow, Play Data safety answer (business messages) pending; WhatsApp/SMS live sends need the owner's keys.",
                        "retention1: সার্ভারে দুই-অ্যাকাউন্ট ফ্লো ও অ্যাপ টেস্ট পাস; আসল দুই ফোনে পরীক্ষা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Play Data safety উত্তর বাকি; WhatsApp/SMS আসল পাঠাতে মালিকের চাবি লাগবে।"),
     "booking": ("FFFFFFFFF", "hide", "~15%: not built.", "~১৫%: তৈরি হয়নি।"),
+    # ---- App shell
+    "home_v2": ("?PP???P??", "show", "New home (owner design v6): widget tests + bn/en/light/dark/200% screenshot gallery; old home stays as the OFF fallback for one week; real-phone 2 GB timing and the owner's 10-minute check pending.",
+                "নতুন হোম (মালিকের ডিজাইন v6): উইজেট টেস্ট + বাংলা/ইংরেজি/লাইট/ডার্ক/২০০% স্ক্রিনশট; এক সপ্তাহ পুরনো হোম বন্ধ-সুইচের বিকল্প; আসল ২ GB ফোনে সময় ও মালিকের ১০ মিনিটের পরীক্ষা বাকি।"),
 }
 
 AUDIT = {

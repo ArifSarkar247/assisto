@@ -53,7 +53,7 @@ REGISTRY = (
     ('expense_split', 'my_account', 'Split expenses', 'খরচ ভাগাভাগি', True, ()),
     ('samity', 'my_account', 'Samity', 'সমিতি', True, ()),
     ('house_rent', 'my_account', 'House rent', 'বাড়ি ভাড়া', True, ()),
-    ('prepaid_meter', 'my_account', 'Prepaid meters', 'প্রিপেইড মিটার', True, ()),
+    ('prepaid_meter', 'my_account', 'Prepaid meters', 'প্রিপেইড মিটার', True, ('prepaid_meter',)),
     ('domestic_staff', 'my_account', 'Household staff & driver', 'গৃহকর্মী ও ড্রাইভার', True, ()),
     ('savings_challenge', 'my_account', 'Savings challenge', 'সঞ্চয় চ্যালেঞ্জ', True, ()),
     ('spending_advice', 'my_account', 'AI spending insights', 'এআই খরচ পর্যবেক্ষণ', True, ()),
@@ -94,7 +94,7 @@ REGISTRY = (
     ('fitness', 'daily_life', 'Fitness partner', 'ফিটনেস সঙ্গী', True, ()),
     ('smartwatch', 'daily_life', 'Smartwatch & fitness', 'স্মার্টওয়াচ ও ফিটনেস', True, ()),
     ('daily_challenges', 'daily_life', 'Daily challenge', 'দৈনিক চ্যালেঞ্জ', True, ()),
-    ('contract_analyzer', 'daily_life', 'Contract analyzer', 'চুক্তি বিশ্লেষক', True, ()),
+    ('contract_analyzer', 'daily_life', 'Contract analyzer', 'চুক্তি বিশ্লেষক', True, ('contract',)),
     ('language_partner', 'daily_life', 'Language partner', 'ভাষা শেখার সঙ্গী', True, ()),
     ('daily_brief', 'daily_life', 'Daily brief', 'দৈনিক ব্রিফ', True, ()),
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
@@ -113,9 +113,9 @@ REGISTRY = (
     ('cv_builder', 'work', 'CV Builder', 'সিভি বিল্ডার', True, ('cv', 'resume')),
     ('ai_inbox', 'work', 'AI Inbox', 'AI ইনবক্স', True, ('inbox',)),
     ('pa_secretary', 'work', 'PA Secretary', 'পিএ সেক্রেটারি', True, ()),
-    ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans')),
+    ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans', 'khata')),
     ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
-    ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ()),
+    ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ('sales_agent',)),
     ('booking_bot', 'business', 'Booking bot (appointments)', 'বুকিং বট (অ্যাপয়েন্টমেন্ট)', False, ('booking', 'my_bookings')),
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
@@ -125,6 +125,11 @@ REGISTRY = (
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
     ('retention', 'upcoming', 'Retention automation', 'রিটেনশন অটোমেশন', False, ()),
     ('booking', 'upcoming', 'Appointment booking bot', 'অ্যাপয়েন্টমেন্ট বুকিং বট', False, ()),
+    # home_v2 (owner final home design, 26 Oct): ON = the new home (header,
+    # Discover, 12 shortcuts, Ask Assisto card, bottom bar with Assisto Voice);
+    # OFF = the previous home, unchanged (fallback for one week). App shell
+    # switch, so it owns no route.
+    ('home_v2', 'app_shell', 'New home (v2)', 'নতুন হোম (v2)', True, ()),
 )
 
 SECTIONS = (
@@ -137,6 +142,7 @@ SECTIONS = (
     ("work", "Work", "কাজ"),
     ("business", "Business", "ব্যবসা"),
     ("upcoming", "Upcoming (big-week plan)", "আসছে (বড় সপ্তাহের পরিকল্পনা)"),
+    ("app_shell", "App shell", "অ্যাপের কাঠামো"),
 )
 
 # The 9 Definition-of-Done checks, in the order of DEFINITION_OF_DONE_BN.md.

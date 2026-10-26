@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/state.dart' show Settings;
+import 'package:assisto/screens/home_v2/home_v2_shortcuts.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
 import '../support/harness.dart';
@@ -18,6 +19,8 @@ void registerHomeFlows() {
     final mark = f.httpMark;
     await f.step('type + send in the home chat', () async {
       await f.shot('home');
+      // home_v2: the Ask Assisto card opens the chat on its own screen
+      await f.openHomeChat();
       await f.enter(_ping, label: f.t.inputHint);
       await f.tapSend(settleSeconds: 6);
       await f.shot('after-send');
@@ -45,6 +48,7 @@ void registerHomeFlows() {
     // realityFlow booted a FRESH AppState + widget tree = app reopened.
     await f.home();
     await f.step('the last home conversation is shown again', () async {
+      await f.openHomeChat();
       final ok = await f.appears(find.textContaining(_ping), seconds: 12);
       await f.shot('after-restart');
       if (!ok) throw TestFailure('message "$_ping" not restored after restart');
@@ -57,7 +61,7 @@ void registerHomeFlows() {
     // (every saved home + AI chat); history is no longer listed in the drawer.
     final mark = f.httpMark;
     await f.step('drawer -> Assisto AI lists the home chat', () async {
-      await f.tap(find.byTooltip('Open navigation menu'), settleSeconds: 2);
+      await f.openDrawer();
       await f.shot('drawer');
       await f.tap(find.byKey(const ValueKey('drawer_assisto_ai')), settleSeconds: 4);
       await f.shot('chats');
@@ -74,13 +78,23 @@ void registerHomeFlows() {
     });
   });
 
-  realityFlow('07_quick_buttons', 'Home', 'Edit the 6 home quick buttons (persists)', (f) async {
+  realityFlow('07_quick_buttons', 'Home', 'Edit the home shortcuts (persists)', (f) async {
     await f.home();
+    final v2 = f.isHomeV2;
+    Future<List<String>> load() =>
+        v2 ? HomeV2Shortcuts.load() : HomeQuickButtons.load();
     late List<String> before;
     await f.step('open the picker', () async {
-      before = await f.net(() => HomeQuickButtons.load());
-      await f.tap(find.widgetWithText(TextButton, f.t.quickEdit));
-      await f.waitFor(find.text(f.t.quickPickTitle));
+      before = await f.net(load);
+      if (v2) {
+        // home_v2: ONE Edit button; My Circle shows locked in the picker
+        await f.tap(find.byKey(const ValueKey('hv2_edit')));
+        await f.waitFor(find.text(f.t.hv2PickTitle));
+        await f.waitFor(find.byKey(const ValueKey('quick_pinned_lock')));
+      } else {
+        await f.tap(find.widgetWithText(TextButton, f.t.quickEdit));
+        await f.waitFor(find.text(f.t.quickPickTitle));
+      }
       await f.shot('picker');
     });
     String? added;
@@ -101,7 +115,7 @@ void registerHomeFlows() {
       await f.tap(free.first, settleSeconds: 0.6);
       await f.shot('changed');
       await f.tapText(f.t.aichatSave, settleSeconds: 2);
-      final after = await f.net(() => HomeQuickButtons.load());
+      final after = await f.net(load);
       added = after.firstWhere((r) => !before.contains(r), orElse: () => '');
       if (added!.isEmpty) throw TestFailure('saved list did not change: $after');
       await f.shot('home-after-save');
@@ -109,7 +123,8 @@ void registerHomeFlows() {
     await f.step('choice survives a restart', () async {
       await f.h.boot(f.tester);
       await f.home();
-      final raw = await f.net(() => Settings.getString(HomeQuickButtons.prefsKey));
+      final raw = await f.net(() => Settings.getString(
+          v2 ? HomeV2Shortcuts.prefsKey : HomeQuickButtons.prefsKey));
       final list = (jsonDecode(raw ?? '[]') as List).cast<String>();
       expect(list, contains(added));
       await f.shot('after-restart');

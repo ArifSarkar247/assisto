@@ -71,8 +71,8 @@ void registerOnboardingFlows() {
       }
       await f.tapText(f.t.skip, settleSeconds: 3);
     });
-    await f.step('lands on home (chat input visible)', () async {
-      await f.waitFor(find.text(f.t.inputHint), what: 'home chat input');
+    await f.step('lands on home', () async {
+      await f.home();
       expect(f.app.onboarded, isTrue);
       await f.shot('home');
     });
