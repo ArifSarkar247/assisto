@@ -1,10 +1,10 @@
 # Owner work queue (newest order wins)
 
 ## BIG BUILD WEEK (owner 26 Oct) — plan: owner_actions/BIG_WEEK_PLAN_BN.md; rule: owner_actions/DEFINITION_OF_DONE_BN.md (MOST IMPORTANT: 9 checks, hidden behind flag until all pass, finish one before starting another, honest table in STATUS). 8 Nov Play production must never be blocked.
-0) Track 0 [AGENTS pay-e2e, calls95; vitals LIVE; 244 SHIPPED; home Edit 48dp on branch homeedit]
-1) Feature flags + Play hiding + DoD audit [AGENT flags]
+0) Track 0 [DONE: 244-247 SHIPPED; payments e2e + credout + Play prices 247; calls95 245; vitals LIVE; RTDN verified; play-verifier permission pending (owner)]
+1) [SHIPPED 245] Feature flags + Play hiding + DoD audit (48/41 proposal waits owner)
 0b) [AGENT home-circle] OWNER HOME CHANGE 26 Oct (explicitly allowed): My Circle = fixed pinned FIRST home shortcut (lock in edit, subtitle "Chat and call with friends"/"বন্ধুদের সাথে চ্যাট ও কল", unread badge + missed-call dot); sidebar My Circle entry in Assisto AI style with subtitle "Chat and call with your friends"/"বন্ধুদের সাথে চ্যাট ও কল" + unread badge; 200% font, 48dp, dark. Ship in the next build.
-2) A CCTV watchman → 3) I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 9) backlog: SOS SMS fallback, low-data mode, in-app business chat. No law/clinic knowledge base.
+2) [cctv1 SHIPPED hidden 10246 (flag home_watchman OFF); waits owner Imou keys + camera] A CCTV watchman → 3) [AGENTS booking1, retention1] I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 9) backlog: SOS SMS fallback, low-data mode, in-app business chat. No law/clinic knowledge base.
 
 **STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
 
