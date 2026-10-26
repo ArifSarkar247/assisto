@@ -39,6 +39,8 @@ import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
+import '../screens/retention/retention_inbox.dart'; // retention1
+import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
@@ -197,6 +199,10 @@ class ChatNav {
     // booking-bot (flag booking_bot): business side + my bookings.
     'booking': (_) => const BookingBizScreen(),
     'my_bookings': (_) => const MyBookingsScreen(),
+    // retention1: Retention automation (flag retention_auto) + the customer's
+    // messages from shops (push / notification route 'retention_inbox').
+    'retention_auto': (_) => const RetentionScreen(),
+    'retention_inbox': (_) => const RetentionInboxScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),

@@ -1101,3 +1101,23 @@ urlpatterns += [
     path("booking/mine/<int:pk>/slots", bkv.MySlotsView.as_view()),
 ]
 # ---- /booking-bot ----
+# ---- retention1 ---- Retention automation (big-week H, flag retention_auto)
+from . import views_retention as retv  # noqa: E402
+urlpatterns += [
+    path("retention", retv.OverviewView.as_view()),
+    path("retention/settings", retv.SettingsView.as_view()),
+    path("retention/automations", retv.AutomationsView.as_view()),
+    path("retention/automations/<int:pk>", retv.AutomationDetailView.as_view()),
+    path("retention/automations/<int:pk>/results", retv.ResultsView.as_view()),
+    path("retention/preview", retv.PreviewView.as_view()),
+    path("retention/customers", retv.CustomersView.as_view()),
+    path("retention/customers/<int:pk>/birthday", retv.BirthdayView.as_view()),
+    path("retention/stock-asks", retv.StockAsksView.as_view()),
+    path("retention/stock-asks/<int:pk>", retv.StockAskDetailView.as_view()),
+    path("retention/opt-outs", retv.OptOutsView.as_view()),
+    path("retention/inbox", retv.InboxView.as_view()),
+    path("retention/inbox/<int:pk>/reply", retv.InboxReplyView.as_view()),
+    path("retention/inbox/<int:pk>/stop", retv.InboxStopView.as_view()),
+    path("retention/u/<str:token>", retv.PublicStopView.as_view()),
+]
+# ---- /retention1 ----

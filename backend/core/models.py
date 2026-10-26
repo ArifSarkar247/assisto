@@ -1731,6 +1731,8 @@ class Customer(models.Model):
     notes = models.TextField(blank=True, default="")
     vip = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # retention1: only when the CUSTOMER gave it (birthday wish automation)
+    birthday = models.DateField(null=True, blank=True)
 
     class Meta:
         # blank phone_key allowed for many rows; a real phone_key is unique/biz.
@@ -5504,3 +5506,116 @@ class BookingContact(models.Model):
         constraints = [models.UniqueConstraint(fields=["business", "phone"],
                                                name="booking_contact_unique")]
 # ---- /booking-bot ----
+
+# ---- retention1 ---- RETENTION AUTOMATION (big-week H). Pure logic:
+# core/logic/retention.py; shared customer-messaging guard (caps, quiet hours,
+# STOP, Meta 24 h): core/logic/msg_guard.py. Audience = the business's OWN
+# customers only (sales / khata / asked) — there is no import of any list.
+class RetentionSettings(models.Model):
+    """The owner's caps for ONE business (may only LOWER the server max)."""
+    business = models.OneToOneField(BusinessProfile, on_delete=models.CASCADE,
+                                    related_name="retention_settings")
+    per_customer_day = models.IntegerField(default=1)
+    per_customer_week = models.IntegerField(default=2)
+    business_daily = models.IntegerField(default=100)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class RetentionAutomation(models.Model):
+    """One owner-set automation: trigger (kind + params), message template
+    (bn/en, variables), channel, send hour, on/off."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="retention_automations")
+    kind = models.CharField(max_length=20)            # retention.KINDS
+    name = models.CharField(max_length=80, blank=True, default="")
+    enabled = models.BooleanField(default=False)
+    params = models.JSONField(default=dict, blank=True)
+    template_bn = models.TextField(blank=True, default="")
+    template_en = models.TextField(blank=True, default="")
+    channel = models.CharField(max_length=12, default="in_app")   # retention.CHANNELS
+    # WhatsApp outside the 24 h window: {name, lang, category, approved, has_stop}
+    wa_template = models.JSONField(default=dict, blank=True)
+    send_hour = models.IntegerField(default=11)       # Dhaka hour 9..20
+    last_run_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["business", "enabled"])]
+
+
+class RetentionSend(models.Model):
+    """One automated message to one customer for one trigger event (ref_key
+    makes it once-only). status: sent | delivered | read | failed | blocked |
+    skipped. Only sent/delivered/read count toward the caps."""
+    automation = models.ForeignKey(RetentionAutomation, on_delete=models.CASCADE,
+                                   related_name="sends")
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="retention_sends")
+    audience_key = models.CharField(max_length=80)    # normalised phone / psid:<id>
+    ref_key = models.CharField(max_length=80)
+    customer = models.ForeignKey(Customer, null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="retention_sends")
+    party = models.ForeignKey(KhataParty, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="retention_sends")
+    recipient = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                  related_name="retention_received")
+    customer_name = models.CharField(max_length=120, blank=True, default="")
+    channel = models.CharField(max_length=12, default="in_app")
+    lang = models.CharField(max_length=2, default="bn")
+    status = models.CharField(max_length=12, default="sent", db_index=True)
+    reason = models.CharField(max_length=60, blank=True, default="")
+    text = models.TextField(blank=True, default="")
+    credits = models.IntegerField(default=0)
+    chat_message = models.ForeignKey("Message", null=True, blank=True,
+                                     on_delete=models.SET_NULL, related_name="+")
+    thread = models.ForeignKey(ChatThread, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="retention_sends")
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    reply_text = models.CharField(max_length=500, blank=True, default="")
+    opted_out_at = models.DateTimeField(null=True, blank=True)
+    purchase_sale = models.ForeignKey(Sale, null=True, blank=True,
+                                      on_delete=models.SET_NULL, related_name="+")
+    purchase_poisha = models.BigIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["automation", "audience_key", "ref_key"], name="ret_send_once")]
+        indexes = [models.Index(fields=["business", "audience_key", "created_at"]),
+                   models.Index(fields=["business", "created_at"]),
+                   models.Index(fields=["recipient", "created_at"])]
+
+
+class BizOptOut(models.Model):
+    """A customer said STOP to ONE business — honoured at once by every
+    automation of that business on every channel (core/logic/msg_guard)."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="opt_outs")
+    key = models.CharField(max_length=80)
+    source = models.CharField(max_length=16, default="in_app")  # in_app|sms_link|chat|owner
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["business", "key"],
+                                               name="biz_optout_once")]
+
+
+class RetentionStockAsk(models.Model):
+    """The owner noted that THIS customer asked for THIS product (no stock
+    now). When stock is back the back_in_stock automation tells them once."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="stock_asks")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="stock_asks")
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="stock_asks")
+    created_at = models.DateTimeField(auto_now_add=True)
+    notified_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["product", "customer"],
+                                               name="stock_ask_once")]
+# ---- /retention1 ----

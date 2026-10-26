@@ -96,6 +96,8 @@ const Map<String, bool> kFeatureDefaults = {
   'booking_bot': false,
   'offers': true,
   'referral': true,
+  // retention1 (big-week H)
+  'retention_auto': false,
   'corporate_meetings': false,
   'remote_support': false,
   'marketing': false,
@@ -175,4 +177,7 @@ const Map<String, String> kRouteFeature = {
   'my_bookings': 'booking_bot',
   'offers': 'offers',
   'referral': 'referral',
+  // retention1: owner screen + the customer's shop messages
+  'retention_auto': 'retention_auto',
+  'retention_inbox': 'retention_auto',
 };

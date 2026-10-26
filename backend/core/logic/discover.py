@@ -58,6 +58,7 @@ ROUTE_KEYS = (
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
     "booking", "my_bookings",  # booking-bot (flag booking_bot)
+    "retention_auto", "retention_inbox",  # retention1: Retention automation
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

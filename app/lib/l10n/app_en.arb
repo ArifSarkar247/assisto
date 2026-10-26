@@ -20242,5 +20242,294 @@
   "bkgPrivacyLine": "Only this business sees your name and number. You only get messages about this booking.",
   "bkgConfirmBooking": "Book this time",
   "bkgSidebarBiz": "Bookings (my business)",
-  "bkgSidebarMine": "My bookings"
+  "bkgSidebarMine": "My bookings",
+  "rtTitle": "Retention automation",
+  "rtHowItWorks": "How it works",
+  "rtGuideTitle": "Bring customers back — politely",
+  "rtGuide1Title": "1. Pick a moment",
+  "rtGuide1Body": "A thank-you after a purchase, we-miss-you, a due reminder, back in stock or a birthday.",
+  "rtGuide2Title": "2. Write the message once",
+  "rtGuide2Body": "In Bangla and English, with the customer's name filled in. A Stop option is added to every message.",
+  "rtGuide3Title": "3. See what worked",
+  "rtGuide3Body": "Sent, delivered, replied, stopped and purchases after the message — per automation.",
+  "rtGuideRules": "Only your own customers. At most 1 message a day and 2 a week per customer, never between 9 pm and 9 am.",
+  "rtGuideGotIt": "Got it",
+  "rtFeatureOffTitle": "Not available yet",
+  "rtFeatureOffBody": "Retention automation is not switched on for your account.",
+  "rtLoadErrorTitle": "Could not load",
+  "rtLoadErrorBody": "Check your internet and try again.",
+  "rtRetry": "Try again",
+  "rtGenericError": "Something went wrong. Please try again.",
+  "rtPlanTitle": "Business plan needed",
+  "rtPlanBody": "Automatic messages to your customers are part of the Business plan.",
+  "rtSeePlans": "See Business plans",
+  "rtWelcomeTitle": "Your first automation",
+  "rtWelcomeBody": "Start with a thank-you two days after each purchase — customers like it most.",
+  "rtCreateFirst": "Create an automation",
+  "rtNew": "New automation",
+  "rtLimitsLine": "Limits: {perDay} a day and {perWeek} a week per customer · up to {daily} a day in total · nothing 9 pm–9 am",
+  "@rtLimitsLine": {
+    "placeholders": {
+      "perDay": {
+        "type": "String"
+      },
+      "perWeek": {
+        "type": "String"
+      },
+      "daily": {
+        "type": "String"
+      }
+    }
+  },
+  "rtLimitsEdit": "Message limits",
+  "rtSwitchLabel": "Automation on",
+  "rtMenu": "More options",
+  "rtSent": "Sent",
+  "rtDelivered": "Delivered",
+  "rtReplied": "Replied",
+  "rtStopped": "Stopped",
+  "rtPurchases": "Purchases after",
+  "rtEdit": "Edit",
+  "rtDelete": "Delete",
+  "rtResults": "Results",
+  "rtDeleteTitle": "Delete this automation?",
+  "rtDeleteBody": "Its results will be deleted too.",
+  "rtCancel": "Cancel",
+  "rtKindThanks": "Thank you + review ask",
+  "rtKindWinback": "We miss you",
+  "rtKindKhata": "Polite due reminder (khata)",
+  "rtKindStock": "Back in stock",
+  "rtKindBirthday": "Birthday wish",
+  "rtKindThanksDesc": "Say thanks and ask how they liked it.",
+  "rtKindWinbackDesc": "Invite back customers who have not bought for a while.",
+  "rtKindKhataDesc": "A gentle note about money due in your khata.",
+  "rtKindStockDesc": "Tell customers who asked that it has arrived.",
+  "rtKindBirthdayDesc": "A warm wish from your shop.",
+  "rtKindThanksWhen": "{days} days after a purchase",
+  "@rtKindThanksWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "rtKindWinbackWhen": "After {days} days without a purchase",
+  "@rtKindWinbackWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "rtKindKhataWhen": "Every {every} days while ৳{min} or more is due",
+  "@rtKindKhataWhen": {
+    "placeholders": {
+      "every": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "rtKindStockWhen": "When a product a customer asked for is back",
+  "rtKindBirthdayWhen": "On the customer's birthday (if they gave it)",
+  "rtChInApp": "Assisto app",
+  "rtChInAppDesc": "Free. Reaches customers who use Assisto.",
+  "rtChWhatsApp": "WhatsApp",
+  "rtChWhatsAppDesc": "Through your connected WhatsApp number. After 24 hours only an approved template.",
+  "rtChMessenger": "Messenger",
+  "rtChMessengerDesc": "Only within 24 hours of the customer's own message.",
+  "rtChSms": "SMS",
+  "rtChSmsDesc": "Uses credits for each SMS. Includes a stop link.",
+  "rtChNotConnected": "(not connected yet)",
+  "rtWizardTitleNew": "New automation",
+  "rtWizardTitleEdit": "Edit automation",
+  "rtStepWhat": "What",
+  "rtStepWho": "Who",
+  "rtStepMessage": "Message",
+  "rtStepHow": "How",
+  "rtNext": "Next",
+  "rtBack": "Back",
+  "rtSave": "Save",
+  "rtSaved": "Saved",
+  "rtWhatTitle": "When should the message go?",
+  "rtParamDaysAfter": "Days after the purchase",
+  "rtParamDaysWithout": "Days without a purchase",
+  "rtParamMinDue": "Minimum due (taka)",
+  "rtParamEvery": "Remind every (days)",
+  "rtLess": "Less",
+  "rtMore": "More",
+  "rtAudienceTitle": "Who gets it",
+  "rtAudienceCount": "{count} of your customers can get this",
+  "@rtAudienceCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rtDueNow": "{count} would get it at the next send",
+  "@rtDueNow": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rtOnAssisto": "{count} of them use Assisto",
+  "@rtOnAssisto": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rtOptedOutCount": "{count} said stop — never messaged",
+  "@rtOptedOutCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rtNoPhone": "{count} have no phone number — add one to include them",
+  "@rtNoPhone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rtAudienceEmpty": "No customer fits yet. It starts by itself when one does.",
+  "rtPreviewError": "Could not count — check your internet.",
+  "rtCounting": "Counting…",
+  "rtNoColdOutreach": "Only people who bought from you, are in your khata or asked you. No bought lists, no strangers.",
+  "rtManageBirthdays": "Customer birthdays",
+  "rtManageAsks": "Who asked for what",
+  "rtMessageBn": "Message in Bangla",
+  "rtMessageEn": "Message in English",
+  "rtInsert": "Insert",
+  "rtVarName": "Name",
+  "rtVarShop": "Shop name",
+  "rtVarProduct": "Product",
+  "rtVarDays": "Days",
+  "rtVarDue": "Due amount",
+  "rtUseDefault": "Suggested text",
+  "rtPreviewLabel": "Preview (as the customer sees it)",
+  "rtStopAdded": "The Stop line is always added at the end and cannot be removed.",
+  "rtExampleName": "Karim",
+  "rtExampleShop": "Your shop",
+  "rtExampleProduct": "blue panjabi",
+  "rtFooterInApp": "Tap \"Stop\" to get no more messages.",
+  "rtFooterChat": "Reply STOP for no more messages.",
+  "rtFooterSms": "Stop: (link added)",
+  "rtChannel": "Send by",
+  "rtSendTime": "Send time",
+  "rtSendTimeHelp": "Messages go out from this time until 9 pm, never at night.",
+  "rtWaTemplateTitle": "WhatsApp template (after 24 hours)",
+  "rtWaTemplateHelp": "Type the exact name of a template approved in Meta Business Manager. Its first variable gets the customer's name.",
+  "rtWaTemplateName": "Template name",
+  "rtWaCategory": "Template category",
+  "rtWaMarketing": "Marketing",
+  "rtWaUtility": "Utility",
+  "rtWaUtilityNote": "Only a payment-due reminder may use a Utility template (Meta rule).",
+  "rtWaApproved": "Approved by Meta",
+  "rtWaHasStop": "Template has a Stop button or option",
+  "rtName": "Name (optional)",
+  "rtTurnOn": "Turn on now",
+  "rtResultsTitle": "Results",
+  "rtNotSent": "Not sent",
+  "rtRevenue": "Sales after message",
+  "rtAttribution": "Counted when the same customer buys within {days} days after the message (only the latest message gets it).",
+  "@rtAttribution": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "rtPaymentsAfter": "Paid after reminder",
+  "rtCredits": "Credits used",
+  "rtRecent": "Recent messages",
+  "rtNoSends": "Nothing sent yet. Messages go between 9 am and 9 pm, from your chosen time.",
+  "rtStSent": "Sent",
+  "rtStDelivered": "Delivered",
+  "rtStRead": "Read",
+  "rtStFailed": "Failed",
+  "rtStBlocked": "Not sent",
+  "rtStSkipped": "Skipped",
+  "rtRsNotOnAssisto": "Customer does not use Assisto",
+  "rtRsRecipientOff": "Not available for this customer yet",
+  "rtRs24h": "After 24 hours — needs an approved template",
+  "rtRsOutside24h": "After 24 hours of the customer's last message",
+  "rtRsTplNotApproved": "Template not approved",
+  "rtRsPromoUtility": "Promotion in a Utility template",
+  "rtRsTplStop": "Template has no Stop option",
+  "rtRsCredits": "Not enough credits",
+  "rtRsNoChannel": "Channel not connected",
+  "rtRsNoChat": "No chat with this customer on this channel",
+  "rtRsBadPhone": "Phone number not valid",
+  "rtRsOther": "Other reason",
+  "rtCapsTitle": "Message limits",
+  "rtCapsBody": "You can lower these, never raise them above Assisto's maximum.",
+  "rtCapDay": "Per customer per day",
+  "rtCapWeek": "Per customer per week",
+  "rtCapDaily": "All customers per day",
+  "rtCapsSaved": "Limits saved",
+  "rtOptOutTitle": "A customer asked you to stop?",
+  "rtOptOutHint": "Their phone number",
+  "rtOptOutAdd": "Stop messages to this number",
+  "rtOptOutDone": "Done — no automatic messages to this number.",
+  "rtDone": "Done",
+  "rtBirthdaysTitle": "Customer birthdays",
+  "rtBirthdaysHelp": "Add a birthday only when the customer told you.",
+  "rtSearchCustomers": "Search customers",
+  "rtNoCustomers": "No customers with a phone number yet. Customers appear here after a sale.",
+  "rtSetBirthday": "Set birthday",
+  "rtRemoveBirthday": "Remove birthday",
+  "rtBirthdayNone": "No birthday",
+  "rtAsksTitle": "Who asked for what",
+  "rtAsksHelp": "Note it when a customer asks for something out of stock. They are told once when it is back.",
+  "rtAddAsk": "Add a request",
+  "rtPickProduct": "Product",
+  "rtNoAsks": "No requests yet.",
+  "rtAskNotified": "Told",
+  "rtAskWaiting": "Waiting for stock",
+  "rtAskInStock": "In stock — goes at the next send",
+  "rtRemove": "Remove",
+  "rtNoProducts": "Add products in Business first.",
+  "rtInboxTitle": "Messages from shops",
+  "rtInboxEmpty": "No messages from shops yet. Shops you buy from can send you a thank-you or a reminder here.",
+  "rtReply": "Reply",
+  "rtStop": "Stop",
+  "rtReplyHint": "Write your reply",
+  "rtSend": "Send",
+  "rtStopTitle": "Stop messages from {shop}?",
+  "@rtStopTitle": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "rtStopBody": "{shop} will not send you automatic messages again. You can still message them yourself.",
+  "@rtStopBody": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "rtStoppedLabel": "You stopped messages from this shop.",
+  "rtReplySent": "Reply sent",
+  "rtStoppedDone": "Stopped. No more automatic messages from {shop}.",
+  "@rtStoppedDone": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "rtYouReplied": "You replied"
 }

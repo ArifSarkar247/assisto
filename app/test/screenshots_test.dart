@@ -214,6 +214,7 @@ import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
 import 'booking1_shots.dart'; // booking1 booking bot
+import 'retention1_shots.dart'; // retention1 Retention automation
 import 'p4_world_shots.dart'; // p4-world
 import 'c2_calls_shots.dart'; // c2-calls
 import 'b1_calls_shots.dart'; // b1-calls
@@ -653,6 +654,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
+    for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent

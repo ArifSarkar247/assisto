@@ -145,6 +145,8 @@ _A = {
     "remote_support": ("FFFFFFFFF", "hide", "~2%: design only.", "~২%: শুধু নকশা।"),
     "marketing": ("FFFFFFFFF", "hide", "~10%: not built.", "~১০%: তৈরি হয়নি।"),
     "retention": ("FFFFFFFFF", "hide", "~35% server parts; no user entry yet.", "~৩৫% সার্ভার অংশ; ব্যবহারকারীর এন্ট্রি নেই।"),
+    "retention_auto": ("?PP?P??PP", "hide", "retention1: backend two-account flow + widget tests pass; no real two-phone run yet, 2 GB speed not measured, no reality-audit flow, Play Data safety answer (business messages) pending; WhatsApp/SMS live sends need the owner's keys.",
+                       "retention1: সার্ভারে দুই-অ্যাকাউন্ট ফ্লো ও অ্যাপ টেস্ট পাস; আসল দুই ফোনে পরীক্ষা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Play Data safety উত্তর বাকি; WhatsApp/SMS আসল পাঠাতে মালিকের চাবি লাগবে।"),
     "booking": ("FFFFFFFFF", "hide", "~15%: not built.", "~১৫%: তৈরি হয়নি।"),
 }
 
