@@ -1051,3 +1051,10 @@ urlpatterns[:0] = [
     path("circle/settings/default-timer", chact.DefaultTimerView.as_view()),
 ]
 # ---- /chat-actions ----
+
+# ---- feature-flags ---- per-user + per-flavour visible feature set.
+from . import views_features as featv  # noqa: E402
+urlpatterns += [
+    path("features", featv.FeaturesView.as_view()),
+]
+# ---- /feature-flags ----

@@ -5273,3 +5273,28 @@ class PlayErrorIssue(models.Model):
     class Meta:
         ordering = ["-users", "-reports"]
 # ---- /play-vitals ----
+
+
+# ---- feature-flags ---- per-feature visibility switch (owner rule 26 Oct:
+# a feature is visible ONLY when all 9 Definition-of-Done checks pass; until
+# then it sits behind its flag). Registry + resolution: core.feature_flags.
+# Owner Admin → Features edits these rows; every change is written to
+# OwnerAudit (action "feature_flag"). A missing row = the registry default.
+class FeatureFlag(models.Model):
+    STATUSES = ("done", "in_progress", "hidden")
+    key = models.CharField(max_length=48, unique=True)
+    enabled_all = models.BooleanField(default=True)       # on for everyone
+    enabled_play = models.BooleanField(default=True)      # also on in the Play build
+    rollout_pct = models.PositiveSmallIntegerField(default=100)   # 0-100
+    allow_user_ids = models.JSONField(default=list, blank=True)   # testers who always see it
+    note = models.TextField(blank=True, default="")       # English note
+    note_bn = models.TextField(blank=True, default="")    # Bangla note
+    dod_status = models.CharField(max_length=12, default="in_progress")
+    dod_checks = models.JSONField(default=list, blank=True)       # 9 bools (DoD order)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="+")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["key"]
+# ---- /feature-flags ----

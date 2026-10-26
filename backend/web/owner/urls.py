@@ -15,6 +15,7 @@ from . import views_p4 as P4     # p4-world
 from . import views_d1photo as D1P   # d1-photo v2
 from . import views_p5 as P5         # p5-growth funnel
 from . import views_pv1 as PV1       # play-vitals
+from . import views_ff1 as FF1       # feature-flags
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -94,4 +95,6 @@ urlpatterns = [
     path("funnel", P5.funnel),                                   # p5-growth
     path("vitals", PV1.vitals),                                  # play-vitals
     path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
+    path("features", FF1.features),                              # feature-flags
+    path("features/<str:key>", FF1.feature_save),                # feature-flags
 ]

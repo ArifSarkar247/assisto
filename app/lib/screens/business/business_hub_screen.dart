@@ -1,3 +1,4 @@
+import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -382,14 +383,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             const SizedBox(height: Gap.md),
             // p1-bizagent: the 24/7 AI sales agent for Page / Instagram /
             // WhatsApp (own seller plans + trial; honest setup states).
-            _HubCard(
-              icon: Icons.support_agent_rounded,
-              tint: Brand.blue,
-              title: t.baHubTitle,
-              subtitle: t.baHubSub,
-              onTap: () => _go(const SellerAgentScreen()),
-            ),
-            const SizedBox(height: Gap.md),
+            // feature-flags: the AI sales agent has its own flag.
+            if (FeatureFlags.instance.isOn('business_agent')) ...[
+              _HubCard(
+                icon: Icons.support_agent_rounded,
+                tint: Brand.blue,
+                title: t.baHubTitle,
+                subtitle: t.baHubSub,
+                onTap: () => _go(const SellerAgentScreen()),
+              ),
+              const SizedBox(height: Gap.md),
+            ],
             // Plans comparison (Free vs Premium) — informational, open to all.
             _HubCard(
               icon: Icons.workspace_premium_rounded,

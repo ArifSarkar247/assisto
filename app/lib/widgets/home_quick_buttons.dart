@@ -1,3 +1,4 @@
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -38,9 +39,15 @@ class HomeQuickButtons {
   /// shortcuts (medicine database, health tips) are not offered in the Play
   /// flavour, and [sanitize] drops them from saved/default sets there (their
   /// routes are not in ChatNav.routes). The home layout itself is unchanged.
-  static List<QuickShortcut> get catalog => kMedicalFeaturesAllowed
-      ? _catalog
-      : [for (final s in _catalog) if (!kMedicalRoutes.contains(s.route)) s];
+  /// feature-flags: a shortcut whose feature flag is off is not offered
+  /// either (its route is not in ChatNav.routes), and [sanitize] drops it
+  /// from saved sets — the next default fills the slot.
+  static List<QuickShortcut> get catalog => [
+        for (final s in _catalog)
+          if ((kMedicalFeaturesAllowed || !kMedicalRoutes.contains(s.route)) &&
+              FeatureFlags.instance.routeAllowed(s.route))
+            s
+      ];
 
   static final List<QuickShortcut> _catalog = [
     QuickShortcut('reminders', Icons.alarm_outlined, (t) => t.navReminders),

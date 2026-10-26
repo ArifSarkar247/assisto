@@ -1,3 +1,4 @@
+import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -374,6 +375,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
     }
     if (state == AppLifecycleState.resumed) {
+      // feature-flags: pick up an owner switch (throttled, ETag, offline-safe).
+      try {
+        unawaited(FeatureFlags.instance
+            .refreshWith(context.read<AppState>().api));
+      } catch (_) {}
       _pollAlerts();
       _maybeNotifOpen(); // play-fgs
       // Re-pick up a flag change made while backgrounded (or in Settings).

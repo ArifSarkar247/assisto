@@ -558,7 +558,7 @@ class PushService {
       // notice-only route, deliberately not in ChatNav.routes).
       final b = target.chatNavRoute == ChatNav.accountDeleteRoute
           ? (BuildContext _) => const DeleteAccountScreen()
-          : ChatNav.routes[target.chatNavRoute];
+          : ChatNav.builderFor(target.chatNavRoute); // feature-flags
       if (b != null) nav.push(MaterialPageRoute(builder: b));
     } catch (e) {
       if (kDebugMode) debugPrint('push open failed: $e');

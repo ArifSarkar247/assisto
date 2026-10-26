@@ -1,3 +1,4 @@
+import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart' show ThemeMode, Locale;
@@ -245,6 +246,11 @@ class AppState extends ChangeNotifier {
     try {
       await _loadPrefs();
     } catch (_) {}
+    // feature-flags: last known visible-feature set (offline = last known;
+    // first run = registry defaults), then a background refresh.
+    try {
+      await FeatureFlags.instance.load();
+    } catch (_) {}
     String? t;
     try {
       t = await SecretStore.instance.read('token');
@@ -275,6 +281,7 @@ class AppState extends ChangeNotifier {
     }
     loading = false;
     notifyListeners();
+    unawaited(FeatureFlags.instance.refreshWith(api)); // feature-flags
     // Tell us (once per launch) when local storage misbehaves on a device, so
     // a real root cause shows up in the server log instead of being swallowed.
     final pe = prefsError;
@@ -324,6 +331,8 @@ class AppState extends ChangeNotifier {
       reportNonFatal('auth.token_write', SecretStore.instance.lastError);
     }
     if (checkGrace) await _checkDeletionGrace();
+    // feature-flags: this account's set (owner / tester preview included).
+    unawaited(FeatureFlags.instance.refreshWith(api, force: true));
     await _publishIdentityKey();
     await reconcileLanguage();
     unawaited(Background.start());
@@ -393,6 +402,7 @@ class AppState extends ChangeNotifier {
     deletionGraceAt = null;
     deletionGraceOtp = false;
     memory = [];
+    FeatureFlags.instance.forgetUser(); // feature-flags
     notifyListeners();
     await _step('logout.token', SecretStore.instance.delete('token'));
     await _step('logout.background', Background.stop());

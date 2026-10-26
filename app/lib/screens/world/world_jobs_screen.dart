@@ -1,3 +1,4 @@
+import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -166,6 +167,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
               ),
             ),
           const SizedBox(height: Gap.sm),
+          if (FeatureFlags.instance.isOn('jobs')) // feature-flags
           OutlinedButton.icon(
             onPressed: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const JobsScreen())),

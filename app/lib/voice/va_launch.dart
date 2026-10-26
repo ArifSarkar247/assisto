@@ -5,6 +5,8 @@ import '../screens/voice_assistant_screen.dart';
 import '../state.dart';
 import 'va_native.dart';
 import '../ads/app_open_gate.dart' show AppEntry;
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import '../widgets/feature_unavailable.dart'; // feature-flags
 
 /// Opens Assisto Voice when the app was started by the "Digital assistant"
 /// gesture (long-press home / assist button) or by the "Hey Assisto" wake
@@ -32,6 +34,11 @@ class VaLaunch {
       if (!await VaNative.consumeAssistLaunch()) return;
       AppEntry.mark('assist'); // p2-money: no app-open ad for this entry
       if (!context.mounted) return;
+      // feature-flags: Assisto Voice switched off -> the friendly notice.
+      if (!FeatureFlags.instance.isOn('voice_assistant')) {
+        FeatureUnavailableScreen.notify(context);
+        return;
+      }
       if (VoiceAssistantScreen.isOpen) {
         relisten.value++;
         return;

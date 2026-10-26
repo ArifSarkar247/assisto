@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
+import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import 'feature_unavailable.dart'; // feature-flags
 
 import '../screens/money_screen.dart';
 import '../screens/money_budget_screen.dart';
@@ -118,12 +120,35 @@ class ChatNav {
   /// Play flavour the medical routes ([kMedicalRoutes]) are absent, so every
   /// caller (chat, Discover, push, quick buttons, watch feed) treats them as
   /// unknown and never opens them.
-  static Map<String, WidgetBuilder> get routes => kMedicalFeaturesAllowed
-      ? _allRoutes
-      : {
-          for (final e in _allRoutes.entries)
-            if (!kMedicalRoutes.contains(e.key)) e.key: e.value,
-        };
+  ///
+  /// feature-flags: a route whose server feature flag is off for this user
+  /// (FeatureFlags / feature_registry.dart) is absent too, so no chat reply,
+  /// Discover card, home suggestion, quick button, watch item, push or voice
+  /// command lists or opens it. [push] / [builderFor] answer a stale link to
+  /// it with the friendly "not available" notice instead.
+  static Map<String, WidgetBuilder> get routes {
+    final ff = FeatureFlags.instance;
+    return {
+      for (final e in _allRoutes.entries)
+        if ((kMedicalFeaturesAllowed || !kMedicalRoutes.contains(e.key)) &&
+            ff.routeAllowed(e.key))
+          e.key: e.value,
+    };
+  }
+
+  /// feature-flags: the builder for a deep link / push target. A route whose
+  /// feature is hidden opens the "not available" page (one tap back) instead
+  /// of nothing; an unknown route stays null.
+  static WidgetBuilder? builderFor(String? route) {
+    if (route == null) return null;
+    final b = routes[route];
+    if (b != null) return b;
+    if (FeatureFlags.instance.isHiddenRoute(route) &&
+        _allRoutes.containsKey(route)) {
+      return (_) => const FeatureUnavailableScreen();
+    }
+    return null;
+  }
 
   static final Map<String, WidgetBuilder> _allRoutes = {
     'money': (_) => const MoneyScreen(),
@@ -450,7 +475,16 @@ class ChatNav {
       return true;
     }
     final b = route == null ? null : routes[route];
-    if (b == null) return false;
+    if (b == null) {
+      // feature-flags: a known route whose feature is hidden -> a friendly
+      // "not available" notice (never a crash, never a silent no-op).
+      if (FeatureFlags.instance.isHiddenRoute(route) &&
+          _allRoutes.containsKey(route)) {
+        FeatureUnavailableScreen.notify(context);
+        return true;
+      }
+      return false;
+    }
     if (route == 'feedback') {
       // f1-founders: a sheet over the screen the user is on (captured first).
       FeedbackSheet.open(context,
