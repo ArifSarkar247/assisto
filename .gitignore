@@ -61,6 +61,7 @@ tools/*
 !tools/photo_train/
 owner_actions/photo_bench/.media_tmp/
 !tools/testlab/
+!tools/ringproof/
 screenshots/
 new-logo.png
 logs/
