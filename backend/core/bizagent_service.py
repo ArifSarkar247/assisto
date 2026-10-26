@@ -692,6 +692,13 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                 "proposal": bai.handoff_message(lang, bai.handoff_trigger(text)),
                 "confidence": 0.0}
 
+    # ---- booking-bot (flag booking_bot): appointment chats — REAL free slots
+    # from the business' calendar only, rule reply (no AI, cost 0) ----
+    from . import booking_service as BKS
+    bk = BKS.bot_reply(business, thread, text, lang)
+    if bk:
+        return bk
+
     # ---- order flow (deterministic; every number from the catalog) ----
     draft = dict(thread.order_draft or {})
     if allow_order:
@@ -931,6 +938,8 @@ def handle_message(ch, e):
     if text and G1.is_opt_out(text):
         t.opted_out = True
         t.save(update_fields=["opted_out"])
+        from . import booking_service as BKS
+        BKS.note_chat_stop(t)          # booking-bot: no more booking reminders
         send_text(t, G1.opt_out_ack(lang), kind="text", is_ai=True, source="system")
         return "opted_out"
     media = None

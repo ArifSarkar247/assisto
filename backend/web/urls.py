@@ -3,6 +3,7 @@ from . import views
 from .owner.urls import site_robots
 from . import views_legal
 from . import views_pay1   # pay1
+from . import views_booking   # booking-bot
 
 urlpatterns = [
     path("", views.landing),
@@ -47,6 +48,10 @@ urlpatterns = [
     path("premium", views_pay1.premium),
     path("pay/return", views_pay1.pay_return),
     # ---- /pay1 ----
+
+    # booking-bot: a business' public booking page + the guest's manage link
+    path("b/m/<str:token>", views_booking.booking_manage),
+    path("b/<slug:slug>", views_booking.booking_page),
 
     # m3-circle: My Circle invite link landing (QR / share / SMS)
     path("i/<str:token>", views.circle_invite),

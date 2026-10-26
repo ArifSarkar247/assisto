@@ -93,6 +93,7 @@ const Map<String, bool> kFeatureDefaults = {
   'business': true,
   'crm': true,
   'business_agent': true,
+  'booking_bot': false,
   'offers': true,
   'referral': true,
   'corporate_meetings': false,
@@ -170,6 +171,8 @@ const Map<String, String> kRouteFeature = {
   'bargain_rules': 'business',
   'business_plans': 'business',
   'crm': 'crm',
+  'booking': 'booking_bot',
+  'my_bookings': 'booking_bot',
   'offers': 'offers',
   'referral': 'referral',
 };

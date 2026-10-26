@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman section
+LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman section; booking-bot: bookings section
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -162,6 +162,19 @@ def _privacy(lang):
              "server. Only you and the family members you add can see it. No "
              "face recognition, no sound recording; live view goes straight to "
              "your phone and is never recorded."),
+        _sec(lang, "অ্যাপয়েন্টমেন্ট বুকিং", "Appointment booking",
+             "কোনো ব্যবসায় বুকিং করলে আপনার নাম, মোবাইল নম্বর, সেবা, সময় ও "
+             "বুকিংয়ের অবস্থা সেই ব্যবসার কাছে যায় — আপনার নম্বর শুধু ওই ব্যবসাই "
+             "দেখে, অন্য কেউ নয়। নম্বর যাচাইয়ের জন্য একবার SMS কোড পাঠানো হতে "
+             "পারে। আমরা শুধু আপনার বুকিং নিয়েই বার্তা পাঠাই (নিশ্চিত, বদল, বাতিল "
+             "এবং সর্বোচ্চ ২টি রিমাইন্ডার — রাত ১০টা থেকে সকাল ৮টার মধ্যে কখনো "
+             "নয়); কোনো বিজ্ঞাপন বা মার্কেটিং নয়। STOP লিখলে রিমাইন্ডার বন্ধ হয়।",
+             "When you book with a business, your name, mobile number, service, "
+             "time and the booking's status go to that business — only that "
+             "business can see your number. We may send one SMS code to check "
+             "the number. We only message you about your booking (confirmed, "
+             "moved, cancelled and at most 2 reminders — never between 10 pm "
+             "and 8 am); no ads or marketing. Reply STOP to stop reminders."),
         _sec(lang, "আমরা কী করি না", "What we do NOT do",
              "আপনার ডেটা বিক্রি করি না, আপনার তথ্য দিয়ে বিজ্ঞাপনের প্রোফাইল "
              "বানাই না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",

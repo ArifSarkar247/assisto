@@ -57,6 +57,7 @@ ROUTE_KEYS = (
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
+    "booking", "my_bookings",  # booking-bot (flag booking_bot)
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

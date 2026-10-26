@@ -82,6 +82,8 @@ import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
+import '../screens/booking/booking_biz_screen.dart'; // booking-bot
+import '../screens/booking/my_bookings_screen.dart'; // booking-bot
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_hub_screen.dart'; // p4-world
@@ -190,6 +192,11 @@ class SidebarSections {
           feature: 'meetings',
           (_) => const MeetingsScreen(),
           synonyms: ['meeting', 'appointment', 'calendar']),
+      // booking-bot: bookings I made with businesses (flag booking_bot).
+      SidebarItem(Icons.event_available_rounded, (t) => t.bkgSidebarMine,
+          feature: 'booking_bot',
+          (_) => const MyBookingsScreen(),
+          synonyms: ['my bookings', 'booking', 'appointment', 'serial', 'slot']),
       SidebarItem(Icons.checklist_rounded, (t) => t.navNotesTasks,
           feature: 'notes',
           (_) => const NotesTodosScreen(),
@@ -670,6 +677,11 @@ class SidebarSections {
           feature: 'crm',
           (_) => const CrmHomeScreen(),
           synonyms: ['crm', 'sales', 'leads', 'pipeline']),
+      // booking-bot: the business' services, hours, link and bookings.
+      SidebarItem(Icons.edit_calendar_rounded, (t) => t.bkgSidebarBiz,
+          feature: 'booking_bot',
+          (_) => const BookingBizScreen(),
+          synonyms: ['booking', 'appointment', 'slot', 'salon', 'chamber', 'serial', 'calendar']),
     ]),
   ];
 

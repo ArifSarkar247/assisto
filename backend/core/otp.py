@@ -37,7 +37,9 @@ from django.utils import timezone
 from .i18n import pick
 
 PURPOSES = ("signup", "login", "password_reset", "delete_account", "section8",
-            "change_number")
+            "change_number",
+            # booking-bot: a guest proves the phone they book with (public page)
+            "booking")
 # Purposes that only make sense for a signed-in user.
 AUTHED_PURPOSES = ("delete_account", "section8", "change_number")
 CODE_LENGTH = 6
