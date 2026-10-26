@@ -530,6 +530,16 @@ class GateTests(_Base):
         bc.force_authenticate(boss)
         self.assertEqual(bc.get("/api/v1/retention").status_code, 200)
 
+    def test_preview_rate_limited(self):
+        from django.core.cache import cache
+        cache.clear()
+        body = {"kind": "winback", "template_bn": "x"}
+        codes = [self.oc.post("/api/v1/retention/preview", body, format="json").status_code
+                 for _ in range(32)]
+        self.assertEqual(codes[:30], [200] * 30)
+        self.assertEqual(codes[-1], 429)
+        cache.clear()
+
     def test_default_off(self):
         from core import feature_flags as FF
         self.assertFalse(FF.default_row(FF_KEY)["enabled_all"])

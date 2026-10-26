@@ -63,6 +63,7 @@ _MSG = {
     "not_found": ("পাওয়া যায়নি।", "Not found."),
     "not_your_customer": ("এই গ্রাহক আপনার ব্যবসার নন।", "This customer is not in your business."),
     "empty": ("কিছু লিখুন।", "Write something."),
+    "rate_limited": ("একটু পরে আবার চেষ্টা করুন।", "Please wait a moment and try again."),
 }
 
 
@@ -247,9 +248,26 @@ class AutomationDetailView(_Owner):
         return Response(status=204)
 
 
+PREVIEWS_PER_MIN = 30     # the audience count scans customers: rate-limited
+
+
+def _rate_ok(user_id, scope, per_min):
+    import time
+    from django.core.cache import cache
+    key = "rt:%s:%s:%d" % (scope, user_id, int(time.time() // 60))
+    cache.add(key, 0, 90)
+    try:
+        n = cache.incr(key)
+    except ValueError:
+        n = 1
+    return n <= per_min
+
+
 class PreviewView(_Owner):
     def post(self, request):
         from .models import RetentionAutomation
+        if not _rate_ok(request.user.id, "preview", PREVIEWS_PER_MIN):
+            return _err(request, "rate_limited", status=429)
         pk = request.data.get("id")
         if pk:
             a = RetentionAutomation.objects.filter(business=self.biz, pk=pk).first()
@@ -405,6 +423,8 @@ class InboxReplyView(_Gated):
         text = (request.data.get("text") or "").strip()[:500]
         if not text:
             return _err(request, "empty")
+        if not _rate_ok(request.user.id, "reply", 10):
+            return _err(request, "rate_limited", status=429)
         now = timezone.now()
         if MG.is_stop_text(text):
             S.opt_out_send(s, "in_app")

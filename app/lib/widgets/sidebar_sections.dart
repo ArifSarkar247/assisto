@@ -82,6 +82,8 @@ import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
+import '../screens/retention/retention_inbox.dart'; // retention1
+import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_hub_screen.dart'; // p4-world
@@ -670,6 +672,17 @@ class SidebarSections {
           feature: 'crm',
           (_) => const CrmHomeScreen(),
           synonyms: ['crm', 'sales', 'leads', 'pipeline']),
+      // retention1: Retention automation for the shop owner (flag
+      // retention_auto) and, for everyone, the messages shops sent them.
+      SidebarItem(Icons.autorenew_rounded, (t) => t.rtTitle,
+          feature: 'retention_auto',
+          (_) => const RetentionScreen(),
+          synonyms: ['retention', 'automation', 'win back', 'winback', 'thank you',
+              'review', 'birthday wish', 'back in stock', 'due reminder', 'follow up']),
+      SidebarItem(Icons.mark_chat_unread_outlined, (t) => t.rtInboxTitle,
+          feature: 'retention_auto',
+          (_) => const RetentionInboxScreen(),
+          synonyms: ['shop messages', 'messages from shops', 'store messages']),
     ]),
   ];
 
