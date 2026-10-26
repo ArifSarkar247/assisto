@@ -19507,5 +19507,18 @@
   "baBuyPlayNote": "Seller Agent plans are not sold in the Google Play version of the app. Use the free trial or AI credits — each reply uses credits.",
   "@baBuyPlayNote": {
     "description": "Seller Agent plan card (Play build, no live way to buy a seller plan): honest note, no buy button."
-  }
+  },
+  "hcTileSub": "Chat and call with friends",
+  "hcDrawerSub": "Chat and call with your friends",
+  "hcUnread": "{count} unread messages",
+  "@hcUnread": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "hcMissed": "Missed call",
+  "hcPinned": "Pinned · always first",
+  "hcPinnedA11y": "Pinned. Can't be moved or removed"
 }
