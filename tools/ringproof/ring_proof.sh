@@ -29,7 +29,7 @@ ring_case() {   # $1=name  $2=setup command(s)
   eval "$2"
   sleep 3
   timeout 30 adb logcat -c || true
-  adb shell am broadcast -f 0x20 -a $PKG.RING_TEST -n "$RCV" --es call_id "$id" --es caller_name "CI Caller" >/dev/null
+  adb shell am broadcast -f 0x20 -a $PKG.RING_TEST -n "$RCV" --es call_id "$id" --es caller_name "'CI Caller'" >/dev/null
   sleep 8
   adb exec-out screencap -p > "ring_${c}.png" 2>/dev/null || true
   timeout 30 adb logcat -d > "ring_${c}_logcat.txt" || true
