@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking (26 Oct)
+LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking + budget and remittance (26 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -530,6 +530,19 @@ PRIVACY = [
           "<b>Checking:</b> if you book without signing in to the app, we send one SMS code to check the number."),
          ("<b>কতদিন:</b> ব্যবসার অ্যাকাউন্ট থাকা পর্যন্ত, অথবা ব্যবসা বা আপনি মুছে ফেলতে বললে।",
           "<b>How long:</b> while the business' account exists, or until the business or you ask us to delete it."))),
+    S("remittance", "বাজেট ও রেমিট্যান্স", "Budget and Remittance",
+      P("বিদেশে থাকা আত্মীয়ের পাঠানো টাকা ও পরিবারের বাজেট আপনি নিজে লিখলে তবেই আমরা রাখি — শুধু আমাদের সার্ভারে।",
+        "We keep the money your relative abroad sends and your family budget only when you write them down — on our server only."),
+      UL(("<b>যা রাখা হয়:</b> পরিমাণ, মুদ্রা, আপনার আসলে পাওয়া রেট (আপনি নিজে লেখেন), টাকায় কত, তারিখ, কে পাঠাল (My Circle থেকে বা নাম), কোন বৈধ পথে (ব্যাংক, বিকাশ, নগদ, রকেট, Western Union, MoneyGram, অন্যান্য), নোট, প্রত্যাশিত মাসিক টাকা, বিল, বাজেটের পরিকল্পনা ও খরচ, সঞ্চয়-লক্ষ্য।",
+          "<b>What is kept:</b> amount, currency, the rate you actually got (you type it), taka, date, who sent it (from My Circle or a name), which legal channel (bank, bKash, Nagad, Rocket, Western Union, MoneyGram, other), note, the expected monthly amount, bills, the budget plan and spending, and a savings goal."),
+         ("<b>সুরক্ষা:</b> টাকার অংশ ও প্রেরকের নাম ডাটাবেসে এনক্রিপ্ট করে রাখা হয়। সত্যি কথা: চাবিটি একই সার্ভারে থাকে — তাই এটা ডাটাবেস বা ব্যাকআপ ফাঁস হলে রক্ষা করে, পুরো সার্ভার দখল হলে নয়।",
+          "<b>Protection:</b> amounts and sender names are encrypted in the database. Honestly: the key is on the same server — so this protects a leaked database or backup, not a fully taken-over server."),
+         ("<b>যা করি না:</b> SMS পড়ি না; মুখে বললে লেখায় বদলানো ফোনেই হয়, অডিও সার্ভারে আসে না। এই তথ্য বিজ্ঞাপন, পরিসংখ্যান বা AI-তে কখনো ব্যবহার হয় না, কারো সাথে শেয়ার বা বিক্রি হয় না।",
+          "<b>What we do not do:</b> we never read SMS; voice becomes text on your phone and no audio reaches us. This data is never used for ads, analytics or AI, and never shared or sold."),
+         ("<b>শেয়ার:</b> মাসিক রিপোর্ট শুধু আপনি “শেয়ার” চাপলে আপনার বেছে নেওয়া My Circle সদস্যের কাছে সাধারণ এনক্রিপ্টেড মেসেজ হিসেবে যায় — কখনো নিজে থেকে নয়।",
+          "<b>Sharing:</b> the monthly report goes to the My Circle member you choose, as a normal encrypted message, only when you tap “Share” — never by itself."),
+         ("<b>আপনার নিয়ন্ত্রণ:</b> অ্যাপ থেকেই সব ডাউনলোড (CSV বা লেখা) করতে ও সব মুছতে পারবেন; অ্যাকাউন্ট মুছলে এগুলোও মুছে যায়।",
+          "<b>Your control:</b> download everything (CSV or text) and delete all of it from the app; deleting your account deletes it too."))),
     S("retention", "কতদিন রাখা হয়", "How long we keep it",
       UL(("অ্যাকাউন্ট ও আপনার যোগ করা তথ্য: যতদিন অ্যাকাউন্ট আছে। মুছতে চাইলে ৭ দিনের অপেক্ষার পর স্থায়ীভাবে মুছে যায় (<a href=\"/delete-account\">বিস্তারিত</a>)।",
           "Account and what you add: as long as the account exists. When you ask to delete, it is permanently erased after a 7-day waiting period (<a href=\"/delete-account?lang=en\">details</a>)."),

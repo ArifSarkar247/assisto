@@ -49,6 +49,7 @@ class AdPlacements {
     'group_chat', 'messenger', 'chat_lock', 'vault', 'payment', 'checkout',
     'plans', 'topup', 'login', 'otp', 'signup', 'password_reset',
     'onboarding', 'language_picker', 'permission', 'ring_check',
+    'remittance', 'budget_remittance', // budget-remittance: money screens
   ];
 
   static Set<String> _allow(AdSurface slot) => switch (slot) {

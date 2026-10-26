@@ -140,6 +140,21 @@ class Command(BaseCommand):
         self.steps.append({"step": "reset A<->C (m3 add flow)", "method": "DB",
                            "path": "circle", "status": 200, "ok": True})
 
+        # --- budrem: Budget and Remittance is hidden (flag budget_remittance
+        # OFF) — allow-list ONLY demo user A on this throw-away CI DB so the
+        # reality flow can audit it (the owner's tester allow-list mechanism).
+        from core import feature_flags as FF
+        from core.models import FeatureFlag
+        FF.ensure_seeded()
+        ff = FeatureFlag.objects.filter(key="budget_remittance").first()
+        if ff is not None:
+            ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]
+            ff.allow_user_ids = ids
+            ff.save(update_fields=["allow_user_ids", "updated_at"])
+            FF.invalidate()
+        self.steps.append({"step": "allow-list A for budget_remittance", "method": "DB",
+                           "path": "feature_flags", "status": 200, "ok": ff is not None})
+
         # --- family + emergency card
         fam = []
         for name, rel, phone in (("Ammu", "mother", "01700000011"),

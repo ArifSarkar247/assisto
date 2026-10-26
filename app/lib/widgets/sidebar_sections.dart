@@ -10,6 +10,7 @@ import '../screens/memory_screen.dart';
 // my account
 import '../screens/money_screen.dart';
 import '../screens/money_budget_screen.dart';
+import '../screens/remittance/remittance_screen.dart'; // budget-remittance
 import '../screens/money_tax_screen.dart';
 import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
@@ -225,6 +226,12 @@ class SidebarSections {
           feature: 'budget',
           (_) => const MoneyBudgetScreen(),
           synonyms: ['budget', 'limit', 'spending plan', 'rollover']),
+      // budget-remittance: money received from abroad + the family budget
+      // (flag budget_remittance, hidden until 9/9).
+      SidebarItem(Icons.currency_exchange_rounded, (t) => t.rmtTitle,
+          feature: 'budget_remittance',
+          (_) => const RemittanceScreen(),
+          synonyms: ['remittance', 'money from abroad', 'family budget', 'bidesh', 'probashi money']),
       // Tax & Zakat calculators (feature #60) — client-side, bilingual.
       SidebarItem(Icons.receipt_long_rounded, (t) => t.taxTitle,
           feature: 'tax_zakat',

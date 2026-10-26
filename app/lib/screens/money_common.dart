@@ -48,6 +48,23 @@ String moneyDay(BuildContext context, dynamic ymd) {
   return DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(d);
 }
 
+/// budget-remittance: the family-budget category KEYS (food, rent, …) that
+/// Budget and Remittance writes into the shared Budget / expense rows show in
+/// the UI language; anything the user typed is shown as typed.
+String moneyCatLabel(AppLocalizations t, Object? raw) {
+  final s = '${raw ?? ''}';
+  return switch (s) {
+    'food' => t.rmtCatFood,
+    'rent' => t.rmtCatRent,
+    'education' => t.rmtCatEducation,
+    'health' => t.rmtCatMedicine,
+    'savings' => t.rmtCatSavings,
+    'loan' => t.rmtCatLoan,
+    'other' => t.rmtCatOther,
+    _ => s,
+  };
+}
+
 /// Lenient double parse (handles strings, nulls, ints).
 double dbl(dynamic v) => double.tryParse('${v ?? 0}') ?? 0;
 

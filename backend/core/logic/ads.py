@@ -66,6 +66,8 @@ BLOCKED_SCREENS = (
     # admob (owner 25 Oct)
     "antitheft", "anti_theft", "family_alert", "alerts", "chat", "chat_lock",
     "vault", "onboarding", "permission", "language_picker",
+    # budget-remittance: family money screens
+    "remittance", "budget_remittance",
 )
 
 # admob: the only screens an ad may appear on (the app has the same

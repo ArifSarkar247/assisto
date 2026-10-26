@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messaging/badges_bus.dart';
 import '../../state.dart';
@@ -76,8 +77,11 @@ class HomeV2Shortcuts {
         (t) => t.hv2TilePhoneSecurity),
     QuickShortcut(
         'prepaid_meter', Icons.electric_meter_outlined, (t) => t.hv2TileMeter),
+    // budget-remittance (owner 26 Oct): "Budget" opening the existing budget
+    // while the flag is OFF; "Budget and Remittance" opening the new feature
+    // once `budget_remittance` is ON (see [openRoute]).
     QuickShortcut('budget', Icons.pie_chart_outline_rounded,
-        (t) => t.budgetTitle),
+        (t) => remittanceOn ? t.rmtTileTitle : t.budgetTitle),
     QuickShortcut('contract', Icons.policy_outlined, (t) => t.hv2TileContract),
   ];
 
@@ -99,6 +103,15 @@ class HomeV2Shortcuts {
     }
     return out;
   }
+
+  /// The Budget tile becomes Budget and Remittance when that flag is on.
+  static bool get remittanceOn =>
+      FeatureFlags.instance.isOn('budget_remittance') &&
+      ChatNav.routes.containsKey('remittance');
+
+  /// Where a tile opens (the Budget tile -> the remittance feature when on).
+  static String openRoute(String route) =>
+      route == 'budget' && remittanceOn ? 'remittance' : route;
 
   static QuickShortcut? byRoute(String r, [List<QuickShortcut>? cat]) {
     for (final s in cat ?? catalog) {
@@ -293,7 +306,8 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
               route: s.route,
               icon: s.icon,
               label: s.label(t),
-              onTap: () => ChatNav.push(context, s.route),
+              onTap: () =>
+                  ChatNav.push(context, HomeV2Shortcuts.openRoute(s.route)),
               onLongPress: _edit,
             ),
         ],

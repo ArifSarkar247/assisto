@@ -39,6 +39,7 @@ import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
+import '../screens/remittance/remittance_screen.dart'; // budget-remittance
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/used_phone_check_screen.dart';
@@ -267,6 +268,8 @@ class ChatNav {
     // Wrapped recap, and Money-by-voice. Each is also in the My Account sidebar
     // group, so none is a dead screen.
     'budget': (_) => const MoneyBudgetScreen(),
+    // budget-remittance (flag budget_remittance): money from abroad + family budget.
+    'remittance': (_) => const RemittanceScreen(),
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),
@@ -381,6 +384,8 @@ class ChatNav {
     'offline': ['offline', 'offline data', 'cache', 'data usage', 'clear cache'],
     // Wave-D batch-5 (money/reminders)
     'budget': ['budget', 'spending plan', 'spending limit', 'monthly budget'],
+    'remittance': ['remittance', 'budget and remittance', 'money from abroad',
+        'money from bidesh', 'probashi money', 'family budget'],
     'tax': ['tax and zakat', 'tax & zakat', 'tax', 'zakat', 'income tax',
         'nisab'],
     'wrapped': ['money wrapped', 'wrapped', 'monthly recap', 'money recap',
