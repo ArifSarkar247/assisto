@@ -44,10 +44,14 @@ class PaymentsPanelTests(OwnerBase):
         self.assertContains(r, "পেমেন্টের উপায়")
 
     def test_kill_switch_reaches_app_config_and_is_audited(self):
+        # pay-e2e: the default is now OFF (owner 26 Oct) — switch it on first
+        self.assertFalse(billing.cfg()["payments"]["gateway_on_play"])
+        self.post("/owner/payments", self._form())
+        self.assertTrue(billing.cfg()["payments"]["gateway_on_play"])
         r = self.post("/owner/payments", self._form(gateway_on_play=None))
         self.assertEqual(r.status_code, 302, r.content[:400])
         self.assertFalse(billing.cfg()["payments"]["gateway_on_play"])
-        a = OwnerAudit.objects.get(action="payments.update")
+        a = OwnerAudit.objects.filter(action="payments.update").order_by("-id").first()
         self.assertIn("gateway_on_play", a.after)
         api = APIClient()
         api.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.u).key)

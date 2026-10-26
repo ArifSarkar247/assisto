@@ -20,6 +20,14 @@ class StoreBuyResult {
       {this.purchaseToken = '', this.productId = '', this.error = ''});
 }
 
+/// One purchase this Google account still owns on Play (an active
+/// subscription, or a credit pack the server has not consumed yet).
+class StoreOwned {
+  final String productId;
+  final String purchaseToken;
+  const StoreOwned(this.productId, this.purchaseToken);
+}
+
 abstract class StoreBilling {
   /// Buy one product. `basePlanId` is set for subscriptions; `accountId` is
   /// the server's obfuscated account id (binds the purchase to this account).
@@ -32,6 +40,12 @@ abstract class StoreBilling {
 
   /// Tell the store we are done with a purchase the server verified.
   Future<void> finish(String purchaseToken);
+
+  /// pay-e2e: every purchase Play still holds for this Google account
+  /// (restore on a new phone / reinstall, a purchase that finished while the
+  /// app was killed, a slow-card purchase that completed later). Each token
+  /// goes to OUR server, which decides who owns it — never the device.
+  Future<List<StoreOwned>> owned();
 
   /// Set by tests to inject a fake client on any flavour.
   static StoreBilling? debugOverride;

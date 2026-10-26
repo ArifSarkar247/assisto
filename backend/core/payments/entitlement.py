@@ -366,7 +366,12 @@ def summary(user, now=None):
         last = max(later, key=lambda p: p["ends_at"])
         renew = {"sku": cur["sku"] or cur["plan"] + "_monthly",
                  "ends_at": last["ends_at"]}
+    try:   # pay-e2e: grace / on hold / paused / cancelled -> app banner + deep link
+        from .play import sub_status
+        play_sub = sub_status(user, now)
+    except Exception:
+        play_sub = None
     return {"plan": plans.effective_plan(user),
             "plan_until": user.plan_until.isoformat() if user.plan_until else None,
             "credits": int(user.ai_credits or 0), "periods": periods,
-            "managed_by_play": bool(play), "renew": renew}
+            "managed_by_play": bool(play), "renew": renew, "play": play_sub}

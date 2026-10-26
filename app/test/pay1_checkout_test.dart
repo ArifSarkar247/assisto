@@ -70,18 +70,18 @@ void main() {
   });
   tearDown(() => StoreBilling.debugOverride = null);
 
-  testWidgets('Play build: Google Play first, then the gateway, prices in taka',
+  testWidgets('Play build: Google Play ONLY — EPS never offered, even when the '
+      'server switch says the gateway is live (owner rule 26 Oct)',
       (tester) async {
-    final b = FakePaymentsBackend();
+    final b = FakePaymentsBackend(); // gateway enabled + ready on the server
     await _pump(tester, b);
     final t = _t(tester);
     expect(b.calls.first, 'config:play');
-    final play = tester.getTopLeft(find.byKey(const ValueKey('pay-option-play')));
-    final gw = tester.getTopLeft(find.byKey(const ValueKey('pay-option-gateway')));
-    expect(play.dy, lessThan(gw.dy));
+    expect(find.byKey(const ValueKey('pay-option-play')), findsOneWidget);
+    expect(find.byKey(const ValueKey('pay-option-gateway')), findsNothing);
     expect(find.text(t.payPlayTitle), findsOneWidget);
-    expect(find.text(t.payGatewayTitle), findsOneWidget);
-    expect(find.text('৳199'), findsNWidgets(2));
+    expect(find.text(t.payGatewayTitle), findsNothing);
+    expect(find.text('৳199'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -125,6 +125,10 @@ void main() {
     expect(pay1Config(playReady: false, gwReady: false).anyUsable('play'),
         isFalse);
     expect(pay1Config().canBuy('premium_lifetime', 'play'), isFalse);
+    // owner rule 26 Oct: the gateway is never a way to pay on the Play build
+    expect(pay1Config(play: false).canBuy('premium_monthly', 'play'), isFalse);
+    expect(pay1Config(play: false).anyUsable('play'), isFalse);
+    expect(pay1Config().live('play').map((c) => c.id), ['play']);
   });
 
   testWidgets('gateway: order -> browser -> check -> paid', (tester) async {
@@ -249,7 +253,8 @@ void main() {
     await _pump(tester, b);
     await tester.tap(find.byKey(const ValueKey('pay-option-play')));
     await tester.pumpAndSettle();
-    expect(find.text(_t(tester).payPlayUnavailable), findsOneWidget);
+    expect(find.text(_t(tester).payPlayUnavailableNoAlt), findsOneWidget);
+    expect(find.text(_t(tester).payPlayUnavailable), findsNothing);
   });
 
   testWidgets('config fails to load -> retry', (tester) async {
@@ -260,7 +265,7 @@ void main() {
     b.failConfig = false;
     await tester.tap(find.text(t.retry));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('pay-option-gateway')), findsOneWidget);
+    expect(find.byKey(const ValueKey('pay-option-play')), findsOneWidget);
   });
 
   for (final lang in ['bn', 'en']) {

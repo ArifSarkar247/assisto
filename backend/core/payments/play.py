@@ -341,6 +341,57 @@ def sync_subscription(token, user=None, now=None, c=None):
             "entitled": entitled, "expires_at": expiry.isoformat(), "user": owner}
 
 
+def _replaced_hashes(user):
+    from ..models import PlayPurchase
+    return set(PlayPurchase.objects.filter(user=user, kind="sub").exclude(
+        linked_token_hash="").values_list("linked_token_hash", flat=True))
+
+
+def active_sub_skus(user, now=None):
+    """SKUs of the Play subscriptions that entitle `user` right now (not
+    revoked, not replaced by an upgrade/downgrade)."""
+    from ..models import PlayPurchase
+    now = now or timezone.now()
+    gone = _replaced_hashes(user)
+    return {pp.sku for pp in PlayPurchase.objects.filter(
+        user=user, kind="sub", revoked=False, state__in=ENTITLED_STATES,
+        expires_at__gt=now) if pp.token_hash not in gone}
+
+
+# subscriptionState -> what the app shows (pay-e2e)
+_STATUS = {"SUBSCRIPTION_STATE_ACTIVE": "active", "SUBSCRIPTION_STATE_CANCELED": "canceled",
+           "SUBSCRIPTION_STATE_IN_GRACE_PERIOD": "grace",
+           "SUBSCRIPTION_STATE_ON_HOLD": "on_hold", "SUBSCRIPTION_STATE_PAUSED": "paused"}
+HOLD_SHOWN_DAYS = 60       # Play keeps a sub on hold for up to 60 days (default 30)
+
+
+def sub_status(user, now=None):
+    """The account's current Play subscription for the app: status
+    active|canceled|grace|on_hold|paused + what the "Manage in Google Play" /
+    "Fix payment" deep link needs. None when there is nothing to show."""
+    from ..models import PlayPurchase
+    now = now or timezone.now()
+    gone = _replaced_hashes(user)
+    for pp in PlayPurchase.objects.filter(user=user, kind="sub", revoked=False,
+                                          state__in=tuple(_STATUS)).order_by("-updated_at"):
+        if pp.token_hash in gone:
+            continue
+        st = _STATUS[pp.state]
+        if st in ("active", "canceled", "grace") and not (pp.expires_at and pp.expires_at > now):
+            continue
+        if st in ("on_hold", "paused") and pp.updated_at < now - timedelta(days=HOLD_SHOWN_DAYS):
+            continue
+        try:
+            pkg = cfg()["package_name"]
+        except Exception:
+            pkg = getattr(settings, "PLAY_PACKAGE_NAME", "com.assisto.assisto")
+        return {"status": st, "sku": pp.sku, "product_id": pp.product_id,
+                "base_plan": pp.base_plan_id, "package": pkg,
+                "auto_renew": bool(pp.auto_renewing),
+                "expires_at": pp.expires_at.isoformat() if pp.expires_at else None}
+    return None
+
+
 # ----------------------------------------------------------------- packs
 def sync_pack(token, product_id, user=None, now=None, c=None):
     """Verify + grant + consume one credit pack token (idempotent)."""

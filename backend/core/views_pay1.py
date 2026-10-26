@@ -94,10 +94,15 @@ class PlayPrecheckView(APIView):
             return _err("channel_off", lang, 409)
         now = timezone.now()
         if d["kind"] == "sub":
+            # pay-e2e: only the SAME sku is a double charge on Play. A period
+            # change (monthly <-> yearly) or a tier change is a Play
+            # REPLACEMENT of the running token (linkedPurchaseToken), never a
+            # second subscription, so it is allowed.
+            from .payments.play import active_sub_skus
+            if sku in active_sub_skus(request.user, now):
+                return _err("already_active", lang, 409)
             for p in PlanPeriod.objects.filter(user=request.user, status="active",
                                                ends_at__gt=now):
-                if p.source == "play" and E.tier(p.plan) == E.tier(d["plan"]):
-                    return _err("already_active", lang, 409)
                 if p.source == "gateway" and E.tier(p.plan) >= E.tier(d["plan"]):
                     return _err("prepaid_active", lang, 409, until=p.ends_at.isoformat())
         from .payments import play

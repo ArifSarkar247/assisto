@@ -6,6 +6,7 @@ import '../../../api.dart';
 import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../messaging/date_separators.dart' show localDigits;
+import '../../../payments/payments_api.dart' show payFlavour; // pay-e2e
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
@@ -311,7 +312,9 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     final creditReplies = (p['credit_replies'] as num?)?.toInt() ?? 0;
     final plans = ((p['plans'] as List?) ?? const []).cast<Map>();
     final trialOk = p['trial_available'] == true;
-    final canBuy = p['purchasable'] == true;
+    // pay-e2e: seller plans have no Play Billing product -> never sold in
+    // the Play build (digital goods via Play Billing only; no link out).
+    final canBuy = p['purchasable'] == true && payFlavour() != 'play';
     final name = plan == 'trial'
         ? t.baPlanTrial
         : plan == 'starter'
@@ -345,8 +348,14 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
                 (p['trial_replies'] as num?)?.toInt() ?? 100))),
           ),
         const SizedBox(height: Gap.sm),
+        // pay-e2e: the Play build has no Play Billing product for seller
+        // plans; with the gateway off there (owner switch) nothing is
+        // sellable — say so honestly instead of "when connected".
         if (!canBuy && !active)
-          BizNote(text: t.baBuyNotReady, icon: Icons.payments_rounded),
+          BizNote(
+              key: const ValueKey('ba-buy-note'),
+              text: payFlavour() == 'play' ? t.baBuyPlayNote : t.baBuyNotReady,
+              icon: Icons.payments_rounded),
         for (final pl in canBuy ? plans : const <Map>[])
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
