@@ -34,6 +34,7 @@ import '../screens/security_screen.dart';
 import '../screens/delete_account_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
+import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
@@ -163,6 +164,9 @@ class ChatNav {
     'sell_phone': (_) => const SellMyPhoneScreen(),
     // Part 4: Shop Box / CCTV loss-prevention (Business tier, signals-only).
     'shop_box': (_) => const ShopBoxScreen(),
+    // cctv1: Home & shop watchman (flag cctv_watchman — register the route
+    // under that key in feature_registry when the flags branch lands).
+    'watchman': (_) => const WatchmanScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),

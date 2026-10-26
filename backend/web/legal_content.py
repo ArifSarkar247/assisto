@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-25"   # AXON Dynamic details (24 Oct) + AdMob ads live on the Free plan (25 Oct)
+LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots (26 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -502,6 +502,21 @@ PRIVACY = [
          ("<b>হোস্টিং:</b> আমাদের সার্ভার — {hosting}।", "<b>Hosting:</b> our servers — {hosting}."),
          ("<b>আইনগত কারণে:</b> বৈধ আইনি অনুরোধ, অথবা কারও জীবন বা নিরাপত্তা রক্ষায় প্রয়োজন হলে।",
           "<b>Legal reasons:</b> a valid legal request, or when needed to protect someone's life or safety."))),
+    S("cctv", "সিসিটিভি ওয়াচম্যান (বাড়ি ও দোকান)", "CCTV watchman (home and shop)",
+      P("আপনি নিজের বাড়ি বা দোকানের ক্যামেরা যুক্ত করলে, ক্যামেরার ভিডিও আপনার গেটওয়েতেই (পুরনো ফোন, Shop Box বা আপনার কম্পিউটার) থাকে ও সেখানেই বিশ্লেষণ হয়। "
+        "আমাদের সার্ভারে <b>কখনো ভিডিও রাখা হয় না</b> — ভিডিও আপলোড সার্ভার গ্রহণই করে না।",
+        "When you connect cameras at your own home or shop, the camera video stays on your gateway (an old phone, the Shop Box or your computer) and is analysed there. "
+        "Our server <b>never keeps video</b> — it does not even accept a video upload."),
+      UL(("<b>যা আমাদের সার্ভারে আসে:</b> কোনো কিছু সন্দেহজনক মনে হলে ঘটনার ধরন, সময়, আত্মবিশ্বাসের সংখ্যা এবং প্রতি ঘটনায় <b>একটি ছোট স্থির ছবি (স্ন্যাপশট)</b>; জোন আঁকার জন্য ক্যামেরা-পরীক্ষার একটি ছবি; ক্যামেরার নাম, ব্র্যান্ড ও নেটওয়ার্ক ঠিকানা (IP)। ক্যামেরার পাসওয়ার্ড/সেফটি কোড একবার আপনার গেটওয়েতে পৌঁছে দেওয়া হয়, তারপর আমাদের সার্ভার থেকে মুছে যায়।",
+          "<b>What reaches our server:</b> when something looks unusual, the event type, time, a confidence number and <b>one small still photo (snapshot)</b> per event; one still from the camera check for drawing zones; the camera's name, brand and network address (IP). The camera password / safety code is handed to your gateway once and then deleted from our server."),
+         ("<b>কতদিন:</b> স্ন্যাপশট আপনার বেছে নেওয়া সময় পর্যন্ত (০–৩০ দিন, নতুন জায়গায় ডিফল্ট ৩ দিন), তারপর প্রতিদিনের পরিষ্কারে মুছে যায়; ০ দিলে কোনো ছবিই রাখা হয় না। ঘটনার লেখা-তথ্য (ছবি ছাড়া) অ্যাকাউন্ট থাকা পর্যন্ত থাকে।",
+          "<b>How long:</b> snapshots are kept for the time you choose (0–30 days, 3 days by default for a new place), then removed by the daily clean-up; with 0 no photo is kept at all. The event text (without the photo) stays while the account exists."),
+         ("<b>কে দেখে:</b> শুধু আপনি এবং যে পরিবারের সদস্যদের আপনি যোগ করেন (শুধু দেখার অনুমতি)। লাইভ ভিউ সরাসরি গেটওয়ে থেকে আপনার ফোনে যায় (প্রয়োজনে আমাদের রিলে দিয়ে, কিন্তু কখনো রেকর্ড হয় না)।",
+          "<b>Who sees it:</b> only you and the family members you add (view-only). Live view goes straight from the gateway to your phone (through our relay when needed, but it is never recorded)."),
+         ("<b>যা আমরা করি না:</b> মুখ চেনা নেই, শব্দ রেকর্ড নেই, কাউকে দোষী বলা নেই — প্রতিটি সতর্কতা শুধু \"সন্দেহজনক — একটু দেখে নিন\"। Imou ক্লাউড সতর্কতা চালু করলে ক্যামেরার নিজের অ্যালার্ম ও তার ছবি Imou থেকে আসে।",
+          "<b>What we do not do:</b> no face recognition, no sound recording, no accusations — every alert only says \"Suspicious — please check\". If you turn on Imou cloud alarms, the camera's own alarm and its photo come from Imou."),
+         ("<b>আপনার দায়িত্ব:</b> শুধু নিজের জায়গায় ক্যামেরা লাগান, কর্মচারী/অতিথিদের জানান (অ্যাপে নোটিশের নমুনা আছে), আর টয়লেট বা পোশাক বদলানোর জায়গার দিকে কখনো ক্যামেরা রাখবেন না।",
+          "<b>Your part:</b> use cameras only at your own place, tell staff/visitors (the app has a notice template), and never point a camera at toilets or changing areas."))),
     S("retention", "কতদিন রাখা হয়", "How long we keep it",
       UL(("অ্যাকাউন্ট ও আপনার যোগ করা তথ্য: যতদিন অ্যাকাউন্ট আছে। মুছতে চাইলে ৭ দিনের অপেক্ষার পর স্থায়ীভাবে মুছে যায় (<a href=\"/delete-account\">বিস্তারিত</a>)।",
           "Account and what you add: as long as the account exists. When you ask to delete, it is permanently erased after a 7-day waiting period (<a href=\"/delete-account?lang=en\">details</a>)."),
@@ -513,6 +528,8 @@ PRIVACY = [
           "Safe Journey route points: deleted when the journey's privacy window ends (default: 24 hours after the expected arrival)."),
          ("গাড়ির অবস্থানের ইতিহাস: ডিফল্ট ৩০ দিন। দোকানের ক্যামেরার স্ন্যাপশট: দোকানের সেটিং অনুযায়ী।",
           "Vehicle position history: 30 days by default. Shop-camera snapshots: per the shop's setting."),
+         ("সিসিটিভি স্ন্যাপশট: আপনার বেছে নেওয়া ০–৩০ দিন (নতুন জায়গায় ডিফল্ট ৩ দিন)। ভিডিও: কখনো রাখা হয় না।",
+          "CCTV snapshots: the 0–30 days you choose (3 days by default for a new place). Video: never kept."),
          ("অ্যাপ ক্র্যাশ ও ত্রুটির রিপোর্ট: আমাদের সার্ভারে ৩০ দিন।",
           "App crash and error reports: 30 days on our server."),
          ("OTP কোড: কয়েক মিনিটে মেয়াদ শেষ।", "OTP codes: expire within minutes."),

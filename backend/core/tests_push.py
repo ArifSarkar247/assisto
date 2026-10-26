@@ -494,7 +494,7 @@ class HookTests(_PushBase):
         m = self.fake.sent_payloads()[0]["message"]
         self.assertEqual(m["token"], "adev")
         self.assertEqual(m["data"]["kind"], "shop_alert")
-        self.assertIn("Please check", m["notification"]["title"])
+        self.assertIn("please check", m["notification"]["title"].lower())
         self.assertIn("Cash counter", m["notification"]["title"])
         self.assertNotIn("theft", json.dumps(m).lower())
 

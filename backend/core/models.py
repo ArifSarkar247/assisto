@@ -3051,10 +3051,35 @@ class ShopSite(models.Model):
     # mirror Assisto POS sales/voids/discounts into this site's ShopPosEvent
     pos_link = models.BooleanField(default=True)
     last_seen = models.DateTimeField(null=True, blank=True)  # any device heartbeat
+    # ---- cctv1 (Home & shop watchman) ----
+    # what the owner protects (a home is a personal-plan use; a shop is Business)
+    KINDS = [("shop", "shop"), ("home", "home")]
+    GATEWAYS = [("", "not chosen"), ("phone", "old Android phone"),
+                ("shopbox", "Shop Box PC"), ("pc", "existing PC")]
+    kind = models.CharField(max_length=8, choices=KINDS, default="shop")
+    gateway = models.CharField(max_length=8, choices=GATEWAYS, default="",
+                               blank=True)
+    # {"day": "YYYY-MM-DD", "suppressed": n} — alerts held back by the daily cap
+    stats = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["owner", "-created"])]
+
+
+class ShopSiteViewer(models.Model):
+    """cctv1: a family member the site owner lets SEE alerts + snapshots
+    (read-only: no marking, no settings, no live view in phase 1)."""
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="viewers")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="shop_site_views")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created", "id"]
+        constraints = [models.UniqueConstraint(fields=["site", "user"],
+                                               name="uniq_shop_site_viewer")]
 
 
 class ShopCamera(models.Model):
@@ -3079,10 +3104,56 @@ class ShopCamera(models.Model):
     billed_until = models.DateTimeField(null=True, blank=True)
     # what the device reported on heartbeat: {"caps": ["live"], "platform", "version"}
     device_info = models.JSONField(default=dict, blank=True)
+    # ---- cctv1 ----
+    VENDORS = [("", "unknown"), ("imou", "Imou"), ("hikvision", "Hikvision"),
+               ("dahua", "Dahua"), ("tapo", "TP-Link Tapo"), ("ezviz", "EZVIZ"),
+               ("onvif", "ONVIF"), ("rtsp", "RTSP URL"), ("phone", "this phone")]
+    vendor = models.CharField(max_length=12, choices=VENDORS, default="",
+                              blank=True)
+    # where the gateway reaches it on the LAN — NEVER the password/safety code
+    # (that stays on the gateway): {"host", "port", "channel", "stream", ...}
+    source = models.JSONField(default=dict, blank=True)
+    # vendor cloud id (Imou: "<deviceId>:<channelId>") for camera-native alarms
+    vendor_ref = models.CharField(max_length=80, blank=True, default="",
+                                  db_index=True)
+    # last compatibility check result the gateway reported (no secrets)
+    compat = models.JSONField(default=dict, blank=True)
+    # one small still from the compatibility check (zone-drawing background);
+    # dropped when the site keeps no snapshots (retention 0). NEVER video.
+    preview = models.ImageField(upload_to="shop/preview/", null=True, blank=True)
+    # owner Correct/Wrong feedback -> bounded per-camera thresholds
+    # {"person_conf", "motion_mult", "cooldown_s", "correct", "wrong"}
+    tuning = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["created", "id"]
         indexes = [models.Index(fields=["site", "enabled"])]
+
+
+class ShopGatewayTask(models.Model):
+    """cctv1: work for the site's gateway (LAN discovery, camera compatibility
+    check). The phone can't reach LAN cameras from the internet, so the gateway
+    runs it and posts the result. A camera secret rides in `request` ONLY until
+    the gateway picks the task up — it is wiped at hand-out (and on expiry)."""
+    ACTIONS = [("discover", "discover"), ("check", "check")]
+    STATUS = [("pending", "pending"), ("running", "running"), ("done", "done"),
+              ("expired", "expired")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="gateway_tasks")
+    camera = models.ForeignKey(ShopCamera, on_delete=models.CASCADE,
+                               related_name="gateway_tasks", null=True,
+                               blank=True)
+    action = models.CharField(max_length=10, choices=ACTIONS)
+    status = models.CharField(max_length=8, choices=STATUS, default="pending")
+    request = models.JSONField(default=dict, blank=True)
+    result = models.JSONField(default=dict, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    picked_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "status"])]
 
 
 class ShopEvent(models.Model):
@@ -3100,6 +3171,11 @@ class ShopEvent(models.Model):
         ("motion", "motion"),
         ("after_hours", "after hours"),
         ("pose_possible", "pose (possible)"),
+        # ---- cctv1 ----
+        ("person_detected", "person seen while armed"),
+        ("zone_intrusion", "restricted zone entered"),
+        ("line_crossing", "entry line crossed"),
+        ("camera_alarm", "camera's own alarm"),
     ]
     STATUS = [("open", "open"), ("checked", "checked"),
               ("false_alarm", "false alarm")]
@@ -3116,6 +3192,10 @@ class ShopEvent(models.Model):
     possible = models.BooleanField(default=False)   # low-confidence "possible" (lone pose)
     status = models.CharField(max_length=12, choices=STATUS, default="open")
     created = models.DateTimeField(auto_now_add=True)
+    # ---- cctv1 ---- grouping: repeats of the same camera+type inside the
+    # group window bump `count` / `last_at` instead of a new alert + push.
+    count = models.PositiveIntegerField(default=1)
+    last_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created"]

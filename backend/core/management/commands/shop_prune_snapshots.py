@@ -52,4 +52,31 @@ def prune(now=None):
             ev.snapshot = None
             ev.save(update_fields=["snapshot"])
             removed += 1
+    removed += prune_watchman(now)
+    return removed
+
+
+def prune_watchman(now):
+    """cctv1: a camera-check still is kept only while the site keeps snapshots
+    at all (retention > 0); finished gateway tasks go after 7 days and any
+    stale task loses its camera secret."""
+    from core.models import ShopCamera, ShopGatewayTask
+    removed = 0
+    for cam in ShopCamera.objects.exclude(preview="").exclude(preview=None).filter(
+            site__snapshot_retention_days=0):
+        try:
+            cam.preview.delete(save=False)
+        except Exception:
+            pass
+        cam.preview = None
+        cam.save(update_fields=["preview"])
+        removed += 1
+    ShopGatewayTask.objects.filter(created__lt=now - timedelta(days=7)).delete()
+    for t in ShopGatewayTask.objects.filter(created__lt=now - timedelta(minutes=10)):
+        if "secret" in (t.request or {}) or "rtsp_url" in (t.request or {}):
+            t.request = {k: v for k, v in t.request.items()
+                         if k not in ("secret", "rtsp_url")}
+            if t.status in ("pending", "running"):
+                t.status = "expired"
+            t.save(update_fields=["request", "status"])
     return removed

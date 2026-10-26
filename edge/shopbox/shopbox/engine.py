@@ -30,9 +30,16 @@ log = logging.getLogger(__name__)
 def camera_url(cfg: AppConfig, store: SecretStore, cam_id: str) -> str:
     """The credentialed RTSP URL handed to FFmpeg. In memory only: never
     logged (logutil masks userinfo) and never saved."""
+    from .tasks import secret_key, user_key
+
     cam = cfg.camera(cam_id)
     user = store.get(cam_key(cam_id, "user"))
     pwd = store.get(cam_key(cam_id, "pass"))
+    if cam.server_id is not None and not (user or pwd):
+        # added from the app via a gateway check: the secret was saved under
+        # the server camera id when the task arrived
+        user = store.get(user_key(cam.server_id))
+        pwd = store.get(secret_key(cam.server_id))
     return join_rtsp_credentials(cam.rtsp_url, user, pwd)
 
 
@@ -74,8 +81,12 @@ class EventLog:
 
 class Engine:
     def __init__(self, cfg: AppConfig, store: Optional[SecretStore] = None,
-                 detector=None, events: Optional[EventLog] = None):
+                 detector=None, events: Optional[EventLog] = None,
+                 cfg_store=None):
         self.cfg = cfg
+        self.cfg_store = cfg_store       # ConfigStore; created lazily on save
+        self.tasks = None                # tasks.GatewayTasks (camera checks)
+        self._cam_lock = threading.Lock()
         self.store = store or SecretStore()
         self.events = events or EventLog()
         self.detector = detector if detector is not None else load_detector(
@@ -132,17 +143,60 @@ class Engine:
         from .device import apply_server_camera, apply_server_site
         changed = apply_server_site(self.cfg, data.get("site") or {})
         site_hours = (data.get("site") or {}).get("hours") or None
+        srv_cams = [c for c in (data.get("cameras") or []) if isinstance(c, dict)]
         if cam_id:
             cam = self.cfg.camera(cam_id)
-            srv = (data.get("cameras") or [None])[0]
-            if cam is not None and isinstance(srv, dict):
+            srv = srv_cams[0] if srv_cams else None
+            if cam is not None and srv is not None:
                 changed = apply_server_camera(cam, srv, site_hours) or changed
+        else:
+            # site token: match the gateway cameras by their server id
+            for srv in srv_cams:
+                try:
+                    sid = int(srv.get("id"))
+                except (TypeError, ValueError):
+                    continue
+                cam = next((c for c in self.cfg.cameras if c.server_id == sid), None)
+                if cam is not None:
+                    if srv.get("name"):
+                        cam.name = str(srv["name"])[:120]
+                    changed = apply_server_camera(cam, srv, site_hours) or changed
         if changed:
-            for cid, an in self.analyzers.items():
+            for cid, an in list(self.analyzers.items()):
                 cam = self.cfg.camera(cid)
                 if cam is not None:
-                    an.hours = self.cfg.hours_for(cam)
+                    an.reconfigure(cam, self.cfg.hours_for(cam))
+            self._save_config()
             log.info("applied the owner's server settings")
+
+    def _save_config(self) -> None:
+        try:
+            if self.cfg_store is None:
+                from .config import ConfigStore
+                self.cfg_store = ConfigStore()
+            self.cfg_store.save(self.cfg)
+        except Exception:
+            log.exception("could not save config")
+
+    def server_camera_ids(self) -> List[int]:
+        return [c.server_id for c in self.cfg.cameras
+                if c.server_id is not None and c.enabled]
+
+    def on_camera_checked(self, task: dict, outcome) -> None:
+        """A gateway check succeeded: add/update the local camera and (when
+        monitoring) start capturing it. The secret is already in the store."""
+        from .tasks import upsert_camera
+
+        with self._cam_lock:
+            cam = upsert_camera(self.cfg, task["camera_id"], task.get("request") or {},
+                                outcome.stream_url, name=task.get("name"))
+            self._save_config()
+            if self.running and cam.enabled:
+                old = self.workers.pop(cam.id, None)
+                if old is not None:
+                    old.stop()
+                self._start_camera(cam)
+        log.info("camera %s ready from the app check", cam.name)
 
     # -------------------------------------------------------------- lifecycle
     def start(self) -> None:
@@ -157,35 +211,42 @@ class Engine:
                              on_result=self._on_send_result)
         self.sender.start()
         self._start_device_sync()
-        for cam in self.cfg.cameras:
-            if not cam.enabled:
-                continue
-            an = CameraAnalyzer(cam, self.cfg.hours_for(cam), self.cfg.detection,
-                                self.detector)
-            self.analyzers[cam.id] = an
-            w = CameraWorker(cam.id, cam.name,
-                             url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),
-                             sample_fps=self.cfg.detection.sample_fps,
-                             on_frame=lambda f, cid=cam.id: self._on_frame(cid, f))
-            self.workers[cam.id] = w
-            w.start()
-        self.running = True
+        with self._cam_lock:
+            for cam in self.cfg.cameras:
+                if cam.enabled:
+                    self._start_camera(cam)
+            self.running = True
         log.info("monitoring %d camera(s); detector=%s", len(self.workers),
                  getattr(self.detector, "name", "motion_only"))
+
+    def _start_camera(self, cam) -> None:
+        an = CameraAnalyzer(cam, self.cfg.hours_for(cam), self.cfg.detection,
+                            self.detector)
+        self.analyzers[cam.id] = an
+        w = CameraWorker(cam.id, cam.name,
+                         url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),
+                         sample_fps=self.cfg.detection.sample_fps,
+                         on_frame=lambda f, cid=cam.id: self._on_frame(cid, f))
+        self.workers[cam.id] = w
+        w.start()
 
     def _start_device_sync(self) -> None:
         """Heartbeat + config pull + (optional) live view. Never fatal."""
         try:
             from . import live
             from .device import DeviceClient, DeviceSync
-            caps = []
+            from .tasks import GatewayTasks
+            caps = ["gateway"]
             if live.available():
                 self.live = live.LiveAnswerer(self.cfg.base_url, self.frame_source_for)
                 caps.append("live")
+            client = DeviceClient(self.cfg.base_url, timeout=self.cfg.sending.timeout_s)
+            self.tasks = GatewayTasks(client, lambda: self.store.get(SITE_TOKEN),
+                                      self.store, on_checked=self.on_camera_checked)
             self.sync = DeviceSync(
-                DeviceClient(self.cfg.base_url, timeout=self.cfg.sending.timeout_s),
-                self.device_tokens, caps, self.apply_server_config,
-                on_live=(self.live.handle if self.live else None))
+                client, self.device_tokens, caps, self.apply_server_config,
+                on_live=(self.live.handle if self.live else None),
+                tasks=self.tasks, camera_ids=self.server_camera_ids)
             self.sync.start()
         except Exception:
             log.exception("device sync could not start (monitoring continues)")
@@ -194,6 +255,8 @@ class Engine:
     def stop(self) -> None:
         if self.sync:
             self.sync.stop()
+        if self.tasks:
+            self.tasks.stop()
         for w in self.workers.values():
             w.stop()
         if self.sender:
@@ -220,14 +283,15 @@ class Engine:
         cam = self.cfg.camera(cam_id)
         if cam is not None and not cam.enabled:
             return False                     # the owner switched it off
-        if not self.cooldown.allow((cam_id, trig.type)):
+        cool = (cam.tuning or {}).get("cooldown_s") if cam is not None else None
+        if not self.cooldown.allow((cam_id, trig.type), cool):
             return False
         snap = None
         if self.cfg.sending.snapshot_mode != "never":
             try:
                 snap = payload.encode_snapshot(
                     trig.frame, max_bytes=self.cfg.sending.snapshot_max_kb * 1024,
-                    zone=cam.zone if cam else None)
+                    zone=cam.cash_zone() if cam else None)
             except ValueError:
                 snap = None
         event = payload.build_event(trig.type, trig.signals, camera_id=cam_id,
@@ -266,4 +330,6 @@ class Engine:
             "unauthorized": self.sender.unauthorized if self.sender else False,
             "live_view": bool(self.live),
             "heartbeat_online": self.sync.online if self.sync else None,
+            "gateway_state": self.tasks.state if self.tasks else "idle",
+            "gateway_last": self.tasks.last if self.tasks else None,
         }

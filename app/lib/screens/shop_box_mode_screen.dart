@@ -28,7 +28,11 @@ import '../services/error_report.dart'; // db1
 class ShopBoxModeScreen extends StatefulWidget {
   /// Tests/gallery: start in this state without touching secure storage.
   final ({String token, int? cameraId, String site, String camera})? preview;
-  const ShopBoxModeScreen({super.key, this.preview});
+
+  /// cctv1: the watchman wizard pre-fills the pairing code (owner still taps
+  /// "Pair" — nothing starts on its own).
+  final String? initialToken;
+  const ShopBoxModeScreen({super.key, this.preview, this.initialToken});
 
   @override
   State<ShopBoxModeScreen> createState() => _ShopBoxModeScreenState();
@@ -88,6 +92,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if ((widget.initialToken ?? '').isNotEmpty) _tokenField.text = widget.initialToken!;
     _restore();
   }
 

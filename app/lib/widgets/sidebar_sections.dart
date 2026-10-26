@@ -81,6 +81,7 @@ import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
+import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_hub_screen.dart'; // p4-world
@@ -320,6 +321,13 @@ class SidebarSections {
       // privacy-first: NO video — the edge box detects on-device and sends only
       // signals + at most one snapshot. Alerts say "please check camera X".
       // Business-gated inside the screen. ChatNav route 'shop_box'.
+      // cctv1: Home & shop watchman — homes (any plan) and shops (Business);
+      // not tied to the POS. Server flag cctv_watchman (route 'watchman').
+      SidebarItem(Icons.videocam_rounded, (t) => t.wmTitle,
+          (_) => const WatchmanScreen(),
+          synonyms: ['cctv', 'camera', 'watchman', 'home camera', 'imou',
+              'hikvision', 'dahua', 'tapo', 'ezviz', 'security camera',
+              'pahara', 'pahaladar']),
       SidebarItem(Icons.storefront_rounded, (t) => t.shopBoxTitle,
           (_) => const ShopBoxScreen(),
           synonyms: ['shop box', 'cctv', 'camera', 'loss prevention',

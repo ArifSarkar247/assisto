@@ -113,7 +113,26 @@ def _pos_rows_for(site, now, window_s):
 def _owner_site(request, pk):
     """Fetch a ShopSite the authenticated user OWNS, or None (owner gate)."""
     from .models import ShopSite
+    try:
+        pk = int(pk)
+    except (TypeError, ValueError):
+        return None
     return ShopSite.objects.filter(pk=pk, owner=request.user).first()
+
+
+def _viewable_site(request, pk):
+    """(site, 'owner'|'viewer') for the owner or a family viewer, else
+    (None, None). Viewers are READ-ONLY (cctv1)."""
+    from .models import ShopSite
+    s = _owner_site(request, pk)
+    if s is not None:
+        return s, "owner"
+    try:
+        pk = int(pk)
+    except (TypeError, ValueError):
+        return None, None
+    s = ShopSite.objects.filter(pk=pk, viewers__user=request.user).first()
+    return (s, "viewer") if s is not None else (None, None)
 
 
 # ---------------------------------------------------------------------------
@@ -164,19 +183,34 @@ class ShopIngestView(APIView):
         at_ts = _coerce_epoch(request.data.get("at"), now)
         cam_event = {"type": etype, "signals": signals, "at": at_ts}
 
-        decision, ev = _ingest_event(site, cam, cam_event, now,
-                                     request.FILES.get("snapshot"))
+        # cctv1: ONE still image or nothing — a video (or anything that is not
+        # a decodable image) is refused outright, never stored.
+        snap = None
+        upload = request.FILES.get("snapshot")
+        if upload is not None:
+            snap, why = clean_snapshot(upload)
+            if snap is None:
+                return _snapshot_refused(lang, why)
+        for extra in request.FILES:
+            if extra != "snapshot":
+                return _snapshot_refused(lang, "extra_file")
+
+        decision, ev = _ingest_event(site, cam, cam_event, now, snap)
         if ev is None:
             # logged/ignored — honest: no alert, no snapshot stored, no video.
             return Response({"raised": False, "type": etype,
                              "confidence": decision["confidence"],
-                             "reason_signals": decision["reason_signals"]})
+                             "reason_signals": decision["reason_signals"],
+                             **({"held": decision["held"]}
+                                if decision.get("held") else {})})
 
         return Response({"raised": True, "event_id": ev.id,
                          "type": ev.type, "confidence": ev.confidence,
                          "possible": ev.possible,
+                         "grouped": bool(decision.get("grouped")),
+                         "count": ev.count,
                          "reason_signals": decision["reason_signals"]},
-                        status=201)
+                        status=200 if decision.get("grouped") else 201)
 
     @staticmethod
     def _rate_limited(site, etype, now):
@@ -189,57 +223,194 @@ class ShopIngestView(APIView):
         return recent >= INGEST_MAX_PER_WINDOW
 
     @staticmethod
-    def _notify_owner(site, cam, ev):
-        """Fire an HONEST owner alert: FamilyAlert (foreground-polled) + a
-        NotifEvent feed row, in the OWNER's language (not the device's). Wording
-        is ALWAYS "please check" / "একটু দেখে নিন" — never "theft"/"চুরি".
-        Confidence is always shown. Best-effort; never raises."""
+    def _notify_owner(site, cam, ev, quiet=False):
+        """Fire an HONEST alert to the owner AND every family viewer of the
+        site: FamilyAlert (foreground-polled) + a NotifEvent feed row, in each
+        person's language. Every alert is labelled "Suspicious — please check"
+        / "সন্দেহজনক — একটু দেখে নিন" — never "theft"/"চুরি", never an
+        accusation. Confidence is always shown. The ONE snapshot rides along
+        (signed, expiring link). In the camera's quiet hours the alert is saved
+        but no phone notification is pushed. Best-effort; never raises."""
+        recipients = [site.owner]
         try:
-            from .models import FamilyAlert, NotifEvent
-            # notify in the OWNER's stored language (the device sent no user lang)
-            olang = getattr(site.owner, "language", None)
-            olang = olang if olang in ("bn", "en") else "bn"
-            cam_name = (cam.name if cam else "") or _subject_label(
-                ev.type, olang)
-            pct = int(round(ev.confidence * 100))
-            reason = ", ".join(ev.signals.get("reason", []))
-            title_bn = "একটু দেখে নিন — %s" % cam_name
-            title_en = "Please check — %s" % cam_name
-            body_bn = ("%s এ একটু দেখে নিন (%s, আত্মবিশ্বাস %d%%)। "
-                       "অনুগ্রহ করে নিজে দেখে নিশ্চিত করুন।" % (cam_name, reason, pct))
-            body_en = ("Please check %s — %s, confidence %d%%. "
-                       "Have a look yourself to confirm." % (cam_name, reason, pct))
-            FamilyAlert.objects.create(
-                user=site.owner, kind="shop_guard",
-                title=title_en[:160] if olang == "en" else title_bn[:160],
-                body=body_en if olang == "en" else body_bn,
-                severity=("info" if ev.possible else "med"),
-                payload={"source": "shop_guard", "event_id": ev.id,
-                         "site_id": site.id, "type": ev.type,
-                         "confidence": ev.confidence, "possible": ev.possible})
-            NotifEvent.objects.create(
-                user=site.owner, type="business",
-                title_bn=title_bn[:200], title_en=title_en[:200],
-                body_bn=body_bn, body_en=body_en, route="business",
-                meta={"source": "shop_guard", "event_id": ev.id,
-                      "site_id": site.id, "type": ev.type,
-                      "confidence": ev.confidence})
+            recipients += [v.user for v in site.viewers.select_related("user")]
         except Exception:
             pass
-        # FCM to the owner's phones — same "please check" wording, never
-        # "theft". Key-gated + async; its own guard so it can't affect ingest.
-        try:
-            from . import push
-            push.safe_push(
-                site.owner, "shop_alert", title_bn, title_en, body_bn, body_en,
-                data={"event_id": ev.id, "site_id": site.id,
-                      "camera_id": cam.id if cam else "",
-                      "camera_name": cam_name, "type": ev.type,
-                      "confidence": ev.confidence, "possible": ev.possible,
-                      "route": "business/shop-box"},
-                high_priority=not ev.possible)
-        except Exception:
-            pass
+        snap_url = _abs_snapshot_url(ev)
+        for user in recipients:
+            _notify_one(user, site, cam, ev, snap_url, quiet)
+
+
+def _alert_text(cam_name, ev):
+    """(title_bn, title_en, body_bn, body_en) — 'Suspicious — please check'."""
+    pct = int(round(ev.confidence * 100))
+    what_bn, what_en = EVENT_WORDS.get(ev.type, EVENT_WORDS["motion"])
+    title_bn = "সন্দেহজনক — একটু দেখে নিন: %s" % cam_name
+    title_en = "Suspicious — please check: %s" % cam_name
+    body_bn = ("%s (আত্মবিশ্বাস %s%%)। অনুগ্রহ করে নিজে দেখে নিশ্চিত করুন — "
+               "এটা ভুলও হতে পারে।" % (what_bn, _bn_digits(pct)))
+    body_en = ("%s (confidence %d%%). Please have a look yourself — it may be "
+               "nothing." % (what_en, pct))
+    return title_bn, title_en, body_bn, body_en
+
+
+def _notify_one(user, site, cam, ev, snap_url, quiet):
+    try:
+        from .models import FamilyAlert, NotifEvent
+        # notify in the RECIPIENT's stored language (the device sent no lang)
+        olang = getattr(user, "language", None)
+        olang = olang if olang in ("bn", "en") else "bn"
+        cam_name = (cam.name if cam else "") or _subject_label(ev.type, olang)
+        title_bn, title_en, body_bn, body_en = _alert_text(cam_name, ev)
+        meta = {"source": "shop_guard", "event_id": ev.id, "site_id": site.id,
+                "type": ev.type, "confidence": ev.confidence,
+                "possible": ev.possible, "label": "suspicious_please_check",
+                "viewer": user.pk != site.owner_id, "quiet": bool(quiet)}
+        FamilyAlert.objects.create(
+            user=user, kind="shop_guard",
+            title=title_en[:160] if olang == "en" else title_bn[:160],
+            body=body_en if olang == "en" else body_bn,
+            severity=("info" if (ev.possible or quiet) else "med"),
+            payload=meta)
+        NotifEvent.objects.create(
+            user=user, type="business",
+            title_bn=title_bn[:200], title_en=title_en[:200],
+            body_bn=body_bn, body_en=body_en, route="business",
+            meta=meta)
+    except Exception:
+        return
+    if quiet:
+        return
+    # FCM to the person's phones — same wording, never "theft". Key-gated +
+    # async; its own guard so it can't affect ingest.
+    try:
+        from . import push
+        push.safe_push(
+            user, "shop_alert", title_bn, title_en, body_bn, body_en,
+            data={"event_id": ev.id, "site_id": site.id,
+                  "camera_id": cam.id if cam else "",
+                  "camera_name": cam_name, "type": ev.type,
+                  "confidence": ev.confidence, "possible": ev.possible,
+                  "label": "suspicious_please_check",
+                  **({"snapshot_url": snap_url} if snap_url else {}),
+                  # cctv1: places made in the watchman wizard open the watchman
+                  "route": "watchman" if site.gateway else "business/shop-box"},
+            high_priority=not ev.possible)
+    except Exception:
+        pass
+
+
+# what the alert is about, in plain words (never accusatory) — bn, en
+EVENT_WORDS = {
+    "hand_in_cash_zone": ("ক্যাশের জায়গায় হাত, কোনো বিক্রি মেলেনি",
+                          "A hand at the cash area with no matching sale"),
+    "drawer_open": ("ক্যাশ ড্রয়ার খোলা, কোনো বিক্রি মেলেনি",
+                    "Cash drawer opened with no matching sale"),
+    "void_spike": ("আজ বাতিল বিক্রি স্বাভাবিকের চেয়ে বেশি",
+                   "More voided sales than usual today"),
+    "refund_spike": ("আজ ফেরত স্বাভাবিকের চেয়ে বেশি",
+                     "More refunds than usual today"),
+    "discount_spike": ("আজ ছাড় স্বাভাবিকের চেয়ে বেশি",
+                       "More discounts than usual today"),
+    "eod_mismatch": ("দিনশেষের ক্যাশ হিসাব মেলেনি",
+                     "The end-of-day cash count does not match"),
+    "motion": ("নড়াচড়া দেখা গেছে", "Movement seen"),
+    "after_hours": ("বন্ধের সময়ে নড়াচড়া", "Movement outside opening hours"),
+    "pose_possible": ("কেউ থাকতে পারে", "Someone may be there"),
+    "person_detected": ("পাহারার সময়ে একজন মানুষ দেখা গেছে",
+                        "A person seen while the camera is on guard"),
+    "zone_intrusion": ("নিষিদ্ধ জায়গায় কেউ ঢুকেছে",
+                       "Someone entered a restricted area"),
+    "line_crossing": ("প্রবেশ-রেখা পার হয়েছে", "The entry line was crossed"),
+    "camera_alarm": ("ক্যামেরার নিজের সতর্কতা", "The camera's own alarm"),
+}
+
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def _bn_digits(v):
+    return str(v).translate(_BN_DIGITS)
+
+
+def _abs_snapshot_url(ev):
+    """Absolute signed link to the event's ONE snapshot, or None."""
+    if not ev.snapshot:
+        return None
+    try:
+        from django.conf import settings
+        url = ev.snapshot.url
+        if url.startswith("/"):
+            url = getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/") + url
+        return url
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------- snapshots
+VIDEO_EXTS = (".mp4", ".mov", ".avi", ".mkv", ".webm", ".3gp", ".m4v", ".ts",
+              ".flv", ".wmv", ".mpg", ".mpeg", ".h264", ".h265", ".dav")
+
+
+def snapshot_limit_bytes():
+    from . import billing
+    try:
+        kb = int((billing.cfg().get("shop") or {}).get("watchman_snapshot_kb", 1024))
+    except Exception:
+        kb = 1024
+    return max(64, min(4096, kb)) * 1024
+
+
+def clean_snapshot(upload, name="snapshot.jpg"):
+    """The ONE still an event may keep. Returns (ContentFile, None) — a
+    downscaled JPEG — or (None, reason): 'video' for any video content type /
+    extension (NO VIDEO EVER ON OUR SERVER), 'too_large', 'not_an_image'."""
+    ctype = (getattr(upload, "content_type", "") or "").lower()
+    fname = (getattr(upload, "name", "") or "").lower()
+    if ctype.startswith("video/") or fname.endswith(VIDEO_EXTS) or \
+            ctype in ("application/vnd.apple.mpegurl", "application/x-mpegurl"):
+        return None, "video"
+    size = getattr(upload, "size", None)
+    limit = snapshot_limit_bytes()
+    if size is not None and size > limit:
+        return None, "too_large"
+    try:
+        raw = upload.read(limit + 1)
+    except Exception:
+        return None, "not_an_image"
+    if len(raw) > limit:
+        return None, "too_large"
+    # magic bytes of common video containers, whatever the label says
+    if looks_like_video(raw):
+        return None, "video"
+    cf = _small_jpeg(raw, name)
+    if cf is None:
+        return None, "not_an_image"
+    return cf, None
+
+
+def looks_like_video(raw):
+    """Magic bytes of common video containers, whatever the label claims."""
+    head = raw[:16]
+    return (head[4:8] in (b"ftyp", b"moov", b"mdat", b"wide")      # MP4/MOV/3GP
+            or head[:4] == b"\x1aE\xdf\xa3"                         # MKV/WebM
+            or (head[:4] == b"RIFF" and raw[8:12] == b"AVI ")       # AVI
+            or head[:3] == b"FLV"
+            or head[:4] in (b"\x00\x00\x01\xba", b"\x00\x00\x01\xb3")  # MPEG-PS
+            or (head[:1] == b"G" and len(raw) > 376 and raw[188:189] == b"G"
+                and raw[376:377] == b"G"))                          # MPEG-TS
+
+
+def _snapshot_refused(lang, why):
+    if why == "video":
+        return _err(lang, "ভিডিও কখনো নেওয়া হয় না — শুধু একটি ছবি পাঠানো যায়।",
+                    "Video is never accepted — only one still image.",
+                    status=415, code="video_not_accepted")
+    if why == "too_large":
+        return _err(lang, "ছবিটি খুব বড়।", "The image is too large.",
+                    status=413, code="snapshot_too_large")
+    return _err(lang, "শুধু একটি ছবি (JPEG/PNG) পাঠানো যায়।",
+                "Only one still image (JPEG/PNG) is accepted.",
+                status=415, code="not_an_image")
 
 
 def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
@@ -248,27 +419,118 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
     persist ONE ShopEvent + at most one snapshot and notify the owner.
     `pos_rows` overrides the recent-window POS rows (the void/discount spike
     check passes TODAY's rows). Returns (decision, event_or_None)."""
+    from .logic import watchman as WM
     if pos_rows is None:
         pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
+    # cctv1: the ARMED state is the SERVER's (from the owner's schedule) — a
+    # device can never claim it. Only cameras with a v2 watchman config are
+    # schedule-driven; legacy Shop Box configs keep their old behaviour.
+    signals = dict(cam_event.get("signals") or {})
+    signals.pop("armed", None)
+    quiet = False
+    v2 = WM.zone_v2(cam.zone_config) if cam is not None else None
+    if v2 is not None:
+        local = timezone.localtime(now)
+        armed = WM.is_armed(v2.get("schedule"), local)
+        if cam_event.get("type") in WATCHMAN_ARMED_TYPES and not armed:
+            return ({"raise": False, "type": cam_event.get("type"),
+                     "confidence": 0.0, "reason_signals": ["not_armed"],
+                     "possible": False, "pos_matched": False}, None)
+        signals["armed"] = armed
+        quiet = WM.in_window(v2.get("quiet_hours"), local)
+    cam_event = dict(cam_event, signals=signals)
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
         return decision, None
 
     from .models import ShopEvent
+    # GROUPING: the same camera + type still open inside the group window ->
+    # bump that alert's count instead of a new alert + push.
+    if cam is not None:
+        since = now - timedelta(minutes=watchman_cfg("watchman_group_min", 10))
+        prev = (ShopEvent.objects.filter(camera=cam, type=decision["type"],
+                                         status="open")
+                .filter(models_Q(last_at__gte=since) |
+                        models_Q(last_at__isnull=True, created__gte=since))
+                .order_by("-created").first())
+        if prev is not None:
+            ShopEvent.objects.filter(pk=prev.pk).update(
+                count=F_("count") + 1, last_at=now,
+                confidence=max(prev.confidence, decision["confidence"]))
+            prev.refresh_from_db()
+            if snapshot is not None and not prev.snapshot and \
+                    site.snapshot_retention_days > 0:
+                prev.snapshot.save(snapshot.name, snapshot, save=True)
+            return dict(decision, grouped=True), prev
+
+    # DAILY CAP per site: beyond it, alerts are only counted (honestly shown
+    # in the app as "N more held back today"), never silently unlimited.
+    start = timezone.localtime(now).replace(hour=0, minute=0, second=0,
+                                            microsecond=0)
+    cap = watchman_cfg("watchman_daily_alert_cap", 30)
+    if ShopEvent.objects.filter(site=site, created__gte=start).count() >= cap:
+        _count_held(site, timezone.localtime(now).date().isoformat())
+        held = dict(decision)
+        held.update({"raise": False, "held": "daily_cap"})
+        return held, None
+
     ev = ShopEvent.objects.create(
         site=site, camera=cam, type=decision["type"],
-        signals={"inputs": cam_event.get("signals") or {},
+        signals={"inputs": signals,
                  "reason": decision["reason_signals"],
                  "pos_matched": decision["pos_matched"]},
         confidence=decision["confidence"],
-        pos_matched=decision["pos_matched"], possible=decision["possible"])
+        pos_matched=decision["pos_matched"], possible=decision["possible"],
+        last_at=now)
 
     # store AT MOST the one small snapshot (only if retention allows it)
     if snapshot is not None and site.snapshot_retention_days > 0:
         ev.snapshot.save(snapshot.name, snapshot, save=True)
 
-    ShopIngestView._notify_owner(site, cam, ev)
+    ShopIngestView._notify_owner(site, cam, ev, quiet=quiet)
     return decision, ev
+
+
+# event types that only count while the owner's schedule is ARMED (cctv1)
+WATCHMAN_ARMED_TYPES = ("motion", "person_detected", "zone_intrusion",
+                        "line_crossing", "camera_alarm", "pose_possible")
+
+
+def models_Q(**kw):
+    from django.db.models import Q
+    return Q(**kw)
+
+
+def F_(name):
+    from django.db.models import F
+    return F(name)
+
+
+def watchman_cfg(key, default):
+    from . import billing
+    try:
+        return int((billing.cfg().get("shop") or {}).get(key, default))
+    except Exception:
+        return default
+
+
+def _count_held(site, day):
+    from .models import ShopSite
+    try:
+        st = dict(site.stats or {})
+        if st.get("day") != day:
+            st = {"day": day, "held": 0}
+        st["held"] = int(st.get("held", 0)) + 1
+        ShopSite.objects.filter(pk=site.pk).update(stats=st)
+        site.stats = st
+    except Exception:
+        pass
+
+
+def held_today(site, now=None):
+    st = site.stats if isinstance(site.stats, dict) else {}
+    day = timezone.localtime(now or timezone.now()).date().isoformat()
+    return int(st.get("held", 0)) if st.get("day") == day else 0
 
 
 # Camera webhooks: a camera repeats "active" every second or so while an event
@@ -426,6 +688,10 @@ class ShopSiteDetailView(APIView):
         if "pos_link" in request.data:
             s.pos_link = _coerce_bool(request.data.get("pos_link"))
             changed.append("pos_link")
+        # cctv1: the watchman gateway can be switched later
+        if request.data.get("gateway") in ("phone", "shopbox", "pc"):
+            s.gateway = request.data["gateway"]
+            changed.append("gateway")
         if changed:
             s.save(update_fields=changed)
         return Response(_site_row(s, reveal_token=True))
@@ -487,10 +753,20 @@ class ShopCamerasView(APIView):
                             code="camera_cap", credits_needed=need)
 
         from .models import ShopCamera
+        # cctv1: vendor + LAN source (never a password — that goes to the
+        # gateway once, through a check task) + a v2 watchman zone config.
+        vendor = request.data.get("vendor") or ""
+        if vendor not in {v for v, _ in ShopCamera.VENDORS}:
+            vendor = ""
+        zc = _coerce_json(request.data.get("zone_config"))
+        if not zc and vendor:
+            from .logic import watchman as WM
+            zc = WM.default_zone_config(s.kind)
         cam = ShopCamera.objects.create(
             site=s, name=(request.data.get("name") or "").strip()[:120],
-            kind=kind, zone_config=_coerce_json(request.data.get("zone_config")),
+            kind=kind, zone_config=zc,
             enabled=bool(request.data.get("enabled", True)),
+            vendor=vendor, source=clean_source(request.data.get("source")),
             billed_until=(timezone.now() + timedelta(days=BILLING_PERIOD_DAYS)
                           if charged else None))
         out = _camera_row(cam, reveal_token=True)
@@ -505,15 +781,20 @@ class ShopEventsView(APIView):
     def get(self, request):
         lang = req_lang(request)
         sid = request.query_params.get("site")
-        s = _owner_site(request, sid) if sid else None
+        # cctv1: a family VIEWER of the site may read its alerts too
+        s, role = _viewable_site(request, sid) if sid else (None, None)
         if s is None:
             return _err(lang, "সাইট পাওয়া যায়নি।", "Site not found.", status=404)
         status_f = request.query_params.get("status")
-        qs = s.events.all()
+        qs = s.events.select_related("camera")
         if status_f in {"open", "checked", "false_alarm"}:
             qs = qs.filter(status=status_f)
+        cam_f = request.query_params.get("camera")
+        if cam_f and str(cam_f).isdigit():
+            qs = qs.filter(camera_id=int(cam_f))
         rows = [_event_row(e, request) for e in qs[:200]]
-        return Response({"events": rows, "site": s.id})
+        return Response({"events": rows, "site": s.id, "role": role,
+                         "held_today": held_today(s)})
 
 
 class ShopEventMarkView(APIView):
@@ -526,12 +807,29 @@ class ShopEventMarkView(APIView):
         if e is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         status_v = (request.data.get("status") or "").strip()
+        # cctv1: the owner's Correct / Wrong verdict (checked / false_alarm)
+        status_v = {"correct": "checked", "wrong": "false_alarm"}.get(
+            status_v, status_v)
         if status_v not in {"checked", "false_alarm"}:
             return _err(lang, "স্ট্যাটাস ভুল।", "Invalid status.", status=422,
                         code="bad_status")
+        before = e.status
         e.status = status_v
         e.save(update_fields=["status"])
-        return Response({"ok": True, "event_id": e.id, "status": e.status})
+        tuning = None
+        # adapt this camera's thresholds ONCE per verdict change (bounded)
+        if e.camera_id and before != status_v:
+            from .logic import watchman as WM
+            from .models import ShopCamera
+            cam = ShopCamera.objects.filter(pk=e.camera_id).first()
+            if cam is not None:
+                verdict = "wrong" if status_v == "false_alarm" else "correct"
+                cam.tuning = WM.adapt(cam.tuning, verdict)
+                cam.save(update_fields=["tuning"])
+                tuning = WM.tuning_of(cam.tuning)
+        return Response({"ok": True, "event_id": e.id, "status": e.status,
+                         "verdict": "wrong" if e.status == "false_alarm" else "correct",
+                         "tuning": tuning})
 
 
 class ShopSummaryView(APIView):
@@ -712,6 +1010,7 @@ def _site_row(s, reveal_token=False):
            "cameras": s.cameras.count(),
            "hours": s.hours or {}, "pos_link": s.pos_link,
            "last_seen": _iso(s.last_seen), "online": is_online(s.last_seen),
+           "kind": s.kind, "gateway": s.gateway,
            "created": s.created.isoformat()}
     if reveal_token:
         row["enrollment_token"] = s.enrollment_token
@@ -727,7 +1026,13 @@ def _camera_row(c, reveal_token=False):
            "restricted_zone": bool(zc.get("restricted_zone", True)),
            "last_seen": _iso(c.last_seen), "online": is_online(c.last_seen),
            "live_capable": bool(caps and "live" in caps),
-           "billed_until": _iso(c.billed_until)}
+           "billed_until": _iso(c.billed_until),
+           # cctv1 (no secrets: the camera password never reaches the server
+           # beyond the one-time hand-off to the gateway)
+           "vendor": c.vendor, "source": c.source or {},
+           "compat": c.compat or {}, "has_preview": bool(c.preview),
+           "zones_v2": zc.get("v") == 2,
+           "cloud_alarms": bool(c.vendor_ref)}
     if reveal_token:
         row["camera_token"] = c.camera_token
     return row
@@ -744,6 +1049,12 @@ def _event_row(e, request):
             "possible": e.possible, "pos_matched": e.pos_matched,
             "status": e.status, "signals": e.signals,
             "snapshot_url": url, "camera": e.camera_id,
+            "camera_name": (e.camera.name if e.camera_id and e.camera else ""),
+            # cctv1: grouped repeats + the never-accusatory label
+            "count": e.count, "last_at": _iso(e.last_at or e.created),
+            "label": "suspicious_please_check",
+            "verdict": ("wrong" if e.status == "false_alarm" else
+                        "correct" if e.status == "checked" else None),
             "created": e.created.isoformat()}
 
 
@@ -777,6 +1088,38 @@ def _coerce_bool(v):
 
 def _coerce_json(v):
     return v if isinstance(v, dict) else {}
+
+
+def clean_source(v):
+    """cctv1: where the gateway finds a camera on the LAN. Secrets are dropped
+    here on purpose — the server never keeps a camera password."""
+    if not isinstance(v, dict):
+        return {}
+    out = {}
+    host = str(v.get("host") or "").strip()[:64]
+    import re
+    if host and re.fullmatch(r"[A-Za-z0-9.\-:\[\]]+", host):
+        out["host"] = host
+    for k, lo, hi in (("port", 1, 65535), ("onvif_port", 1, 65535),
+                      ("channel", 1, 64)):
+        try:
+            n = int(v.get(k))
+            if lo <= n <= hi:
+                out[k] = n
+        except (TypeError, ValueError):
+            pass
+    if v.get("stream") in ("main", "sub"):
+        out["stream"] = v["stream"]
+    user = str(v.get("username") or "").strip()[:40]
+    if user:
+        out["username"] = user
+    path = str(v.get("rtsp_path") or "").strip()[:200]
+    if path and "@" not in path and "://" not in path:
+        out["rtsp_path"] = path
+    dev = str(v.get("device_serial") or "").strip()[:40]
+    if dev and re.fullmatch(r"[A-Za-z0-9\-]+", dev):
+        out["device_serial"] = dev
+    return out
 
 
 def _coerce_epoch(v, now):

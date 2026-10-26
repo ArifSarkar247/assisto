@@ -46,7 +46,7 @@ class NullDetector:
     name = "motion_only"
     available = False
 
-    def detect(self, frame_bgr) -> List[Detection]:  # noqa: D401 - trivial
+    def detect(self, frame_bgr, score_thr=None) -> List[Detection]:  # noqa: D401
         return []
 
 
@@ -74,13 +74,16 @@ class YoloxPersonDetector:
         # peak CPU/RAM predictable when several cameras trigger at once.
         self._lock = threading.Lock()
 
-    def detect(self, frame_bgr) -> List[Detection]:
+    def detect(self, frame_bgr, score_thr: Optional[float] = None) -> List[Detection]:
+        """`score_thr` overrides the threshold for this call (per-camera
+        tuning.person_conf from the owner's app)."""
         h, w = frame_bgr.shape[:2]
         blob, ratio = _letterbox(frame_bgr, _INPUT_SIZE)
         with self._lock:
             out = self._sess.run(None, {self._input: blob})[0][0]
+        thr = self.score_thr if score_thr is None else float(score_thr)
         return _decode(out, self._grids, self._expanded_strides, ratio, w, h,
-                       self.score_thr, self.nms_thr)
+                       thr, self.nms_thr)
 
 
 def _make_grids(size: int):

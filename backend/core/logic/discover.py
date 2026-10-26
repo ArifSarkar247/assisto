@@ -56,6 +56,7 @@ ROUTE_KEYS = (
     "voice_assistant", "voice_settings", "photo_studio",
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
+    "watchman",  # cctv1: Home & shop watchman
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

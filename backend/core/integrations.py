@@ -332,6 +332,24 @@ REGISTRY = {
                    "guide_en": ["Tuya/Google Home developer → credentials → paste → Save"],
                    "fields": [_f("provider", "Provider", "Provider", secret=False), _f("access_id", "Access ID", "Access ID"), _f("access_secret", "Access Secret", "Access Secret")],
                    "test": None},
+    # cctv1: Imou cameras' OWN alarms (motion / human) + snapshot -> watchman
+    # alerts. Without it Imou cameras still work through the local gateway
+    # (RTSP with the safety code); only the cloud alarms stay off.
+    "imou": {"name": "Imou Open Platform (CCTV watchman)", "category": "Smart home",
+             "unlocks_bn": "Imou ক্যামেরার নিজের অ্যালার্ম (নড়াচড়া/মানুষ) ও স্ন্যাপশট সরাসরি ওয়াচম্যান সতর্কতায়।",
+             "unlocks_en": "Imou cameras' own alarms (motion/human) + snapshot straight into watchman alerts.",
+             "guide_bn": ["open.imoulife.com-এ Imou অ্যাকাউন্ট দিয়ে লগইন → Developer হোন",
+                          "App Information → appId ও appSecret কপি করুন",
+                          "নিচে পেস্ট → Save → Test (সবুজ হলে চালু)",
+                          "বিস্তারিত: owner_actions/CCTV_IMOU_SETUP_BN.md"],
+             "guide_en": ["Log in at open.imoulife.com with an Imou account → become a developer",
+                          "App Information → copy appId and appSecret",
+                          "Paste below → Save → Test (green = on)",
+                          "Details: owner_actions/CCTV_IMOU_SETUP_BN.md"],
+             "fields": [_f("app_id", "appId", "appId", secret=False),
+                        _f("app_secret", "appSecret", "appSecret"),
+                        _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
+             "test": "test_imou"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
                  "unlocks_en": "AI CRM deal Won → 1-click Axon ERP onboarding.",
@@ -1096,3 +1114,15 @@ def test_jobs_careerjet(cfg):
     from . import world_service
     return world_service.test_careerjet(cfg)
 # ---- /p4-world ----
+
+
+def test_imou(cfg, http=None):
+    """cctv1: an access token proves appId + appSecret are right."""
+    from .logic.imou import ImouClient, ImouError
+    c = ImouClient(cfg.get("app_id"), cfg.get("app_secret"), cfg.get("api_base"),
+                   http=http)
+    try:
+        c.call("accessToken")
+    except ImouError as e:
+        return False, "Imou: %s %s" % (e.code, e.msg)
+    return True, "Imou access token OK"

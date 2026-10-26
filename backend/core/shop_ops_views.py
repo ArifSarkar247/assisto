@@ -216,11 +216,24 @@ def _reenable_charge(user, cam):
 # ===========================================================================
 
 def _cam_config(cam):
+    from .logic import watchman as WM
     zc = SV.effective_zone_config(cam)
-    return {"id": cam.id, "name": cam.name, "kind": cam.kind,
-            "enabled": cam.enabled, "zone_config": cam.zone_config or {},
-            "hours": zc.get("hours") or None,
-            "restricted_zone": bool(zc.get("restricted_zone", True))}
+    out = {"id": cam.id, "name": cam.name, "kind": cam.kind,
+           "enabled": cam.enabled, "zone_config": cam.zone_config or {},
+           "hours": zc.get("hours") or None,
+           "restricted_zone": bool(zc.get("restricted_zone", True))}
+    # cctv1 additions (older Shop Box clients simply ignore them). The camera
+    # password / safety code is NEVER here — it lives on the gateway only.
+    v2 = WM.zone_v2(cam.zone_config)
+    if cam.vendor:
+        out["source"] = dict(cam.source or {}, vendor=cam.vendor)
+    if v2 is not None:
+        out["zones"] = {"v": WM.SCHEMA_V, "zones": v2.get("zones") or [],
+                        "schedule": v2.get("schedule"),
+                        "sensitivity": v2.get("sensitivity") or "medium",
+                        "quiet_hours": v2.get("quiet_hours")}
+    out["tuning"] = WM.device_tuning(cam.tuning)
+    return out
 
 
 def device_config(site, cam=None):
@@ -286,7 +299,9 @@ class ShopHeartbeatView(APIView):
             ShopCamera.objects.filter(pk=c.pk).update(last_seen=now, device_info=info)
         _sweep_live(now)
         cfg = device_config(site, cam)
+        from . import watchman_views as WV
         return Response({"ok": True, "config_version": cfg["version"],
+                         "tasks_pending": WV.pending_task_count(site, now),
                          "server_time": now.isoformat(),
                          "live_pending": [_live_device_row(s) for s in
                                           _pending_for(site, cams, now)]})

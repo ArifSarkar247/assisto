@@ -3783,7 +3783,12 @@ class ShopGuardTests(APITestCase):
     def test_ingest_stores_at_most_one_snapshot_no_video_field(self):
         from core.models import ShopEvent
         from django.core.files.uploadedfile import SimpleUploadedFile
-        img = SimpleUploadedFile("snap.jpg", b"x" * 512, content_type="image/jpeg")
+        # cctv1: the snapshot must be a REAL decodable still (it is shrunk)
+        import io
+        from PIL import Image
+        buf = io.BytesIO()
+        Image.new("RGB", (64, 32), (10, 20, 30)).save(buf, "JPEG")
+        img = SimpleUploadedFile("snap.jpg", buf.getvalue(), content_type="image/jpeg")
         r = self.client.post("/api/v1/shop/ingest",
                              {"camera_token": self.cam.camera_token,
                               "type": "drawer_open", "snapshot": img},
