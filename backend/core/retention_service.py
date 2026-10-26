@@ -241,12 +241,10 @@ def _base_audience(auto, limit):
 
 def preview(auto, now=None, lang="bn"):
     """Audience preview with honest counts + one rendered sample message."""
-    from .models import BizOptOut
     now = now or timezone.now()
     limit = cfg()["max_audience_scan"]
     keys, no_phone = _base_audience(auto, limit)
-    opted = set(BizOptOut.objects.filter(business=auto.business, key__in=keys)
-                .values_list("key", flat=True))
+    opted = MG.opted_out_keys(auto.business_id) & keys
     events = _events(auto, now, limit) if auto.kind in R.KINDS else []
     due_now = [e for e in events if e["key"] not in opted]
     done = set(_done_refs(auto, due_now))
@@ -362,10 +360,11 @@ def run_automation(auto, now):
     caps = caps_for(auto.business)
     events = _events(auto, now, cfg()["max_audience_scan"])
     done = set(_done_refs(auto, events))
+    stopped = MG.opted_out_keys(auto.business_id) if events else set()
     for ev in events:
-        if (ev["key"], ev["ref"]) in done:
+        if (ev["key"], ev["ref"]) in done or ev["key"] in stopped:
             continue
-        v = MG.gate(auto.business_id, ev["key"], now=now, caps=caps)
+        v = MG.gate(auto.business_id, ev["key"], now=now, caps=caps, opted_out_set=stopped)
         if not v.ok:
             if v.reason == "business_daily_cap":
                 break

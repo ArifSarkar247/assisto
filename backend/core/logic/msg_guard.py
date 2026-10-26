@@ -26,7 +26,9 @@ API for other features (booking, later marketing):
                   transactional=False)                         # pure -> Verdict
     plan = MG.meta_plan(channel, within_24h, template, purpose)  # pure
     MG.is_opted_out(business_id, key) / MG.record_opt_out(...)    # DB
-    MG.gate(business_id, key, now=..., caps=..., extra_day=0, extra_week=0)
+    MG.opted_out_keys(business_id)                                # DB, one pass
+    MG.gate(business_id, key, now=..., caps=..., extra_day=0, extra_week=0,
+            opted_out_set=None)
 
 `key` is the customer's normalised phone (business_selling.normalize_phone)
 or a channel id such as "psid:<id>". `transactional=True` (a reminder the
@@ -245,6 +247,21 @@ def is_opted_out(business_id, key):
         return False
 
 
+def opted_out_keys(business_id):
+    """Every opted-out key of one business as a set (one pass) — for a run
+    over many customers; `gate(..., opted_out_set=...)` uses it."""
+    from ..models import BizOptOut, ChatThread
+    from .business_selling import normalize_phone
+    keys = set(BizOptOut.objects.filter(business_id=business_id).values_list("key", flat=True))
+    for phone, ext in ChatThread.objects.filter(business_id=business_id, opted_out=True).values_list(
+            "customer_phone", "external_user_id")[:20000]:
+        if phone:
+            keys.add(normalize_phone(phone))
+        if ext:
+            keys.add("psid:" + ext)
+    return keys
+
+
 def record_opt_out(business_id, key, source="in_app"):
     """Idempotent; returns True when this call created the opt-out. Also
     marks the business agent's chats with this customer opted out so its own
@@ -282,11 +299,13 @@ def sent_counts(business_id, key, now):
 
 
 def gate(business_id, key, *, now, caps, extra_day=0, extra_week=0,
-         extra_business=0, transactional=False):
+         extra_business=0, transactional=False, opted_out_set=None):
     """DB-backed `decide` for one customer. `extra_*` lets another feature
-    (booking) add its own sends to the counts until it shares the send log."""
+    (booking) add its own sends to the counts until it shares the send log.
+    `opted_out_set` = opted_out_keys(business_id) precomputed for a batch."""
     d, w, b = sent_counts(business_id, key, now)
-    return decide(opted_out=is_opted_out(business_id, key), now=now,
+    out = (key in opted_out_set) if opted_out_set is not None else is_opted_out(business_id, key)
+    return decide(opted_out=out, now=now,
                   sent_customer_day=d + extra_day, sent_customer_week=w + extra_week,
                   sent_business_day=b + extra_business, caps=caps,
                   transactional=transactional)

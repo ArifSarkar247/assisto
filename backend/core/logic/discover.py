@@ -57,6 +57,7 @@ ROUTE_KEYS = (
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
+    "retention_auto", "retention_inbox",  # retention1: Retention automation
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart
