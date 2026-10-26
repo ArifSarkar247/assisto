@@ -1,5 +1,8 @@
 # Owner work queue (newest order wins)
 
+## NEXT (owner 27 Oct) — PLANS v2 for CRM/business [audit DONE in STATUS; implementation starts when an agent slot frees]
+Flag plans_v2; all limits in Owner Admin. FREE: ledger basic, CRM ≤20 contacts, leads/deals/pipeline/tasks VIEW only, no follow-up reminders, no automation. PREMIUM: CRM ≤500, full leads/deals/pipeline/tasks + follow-up reminders, no automation. BUSINESS: CRM "unlimited" (high hidden server cap, editable), all automation (COD confirm, refill, birthday/win-back, post-delivery feedback), AI Sales Agent, booking bot, marketing automation, team members, reports. 7-day Business trial once (no card, clear end date, no auto-charge outside Play). No data loss (over-limit readable; only adding asks upgrade). Server-enforced (owner's plan, not staff's). Honest upgrade sheet w/ Play ProductDetails prices. Update Plans screen + Play listing text. Fix credit leaks: business AI reply + CRM AI calls must charge credits/Profit Guard. Founder must count as Business where intended. Tests every gate; owner 10-min check in Bangla.
+
 ## 🔴 URGENT (owner 27 Oct) — CALL BUGS, top priority after build 250 [AGENTS callsA (1 accept-from-outside + 2 use app during call: return bar, in-app/Android PiP), callsB (3 screen share mediaProjection + Play FGS text, 4 group calls mesh ≤4, no SFU)]
 Real fixes proven on emulator (CI ring-proof) + owner real phone; Bangla STATUS: what was broken, what fixed, 10-min two-phone check.
 
@@ -10,7 +13,7 @@ Full order text is in the agent prompt / STATUS; flag home_v2 default ON for the
 0) Track 0 [DONE: 244-247 SHIPPED; payments e2e + credout + Play prices 247; calls95 245; vitals LIVE; RTDN verified; play-verifier permission pending (owner)]
 1) [SHIPPED 245] Feature flags + Play hiding + DoD audit (48/41 proposal waits owner)
 0b) [AGENT home-circle] OWNER HOME CHANGE 26 Oct (explicitly allowed): My Circle = fixed pinned FIRST home shortcut (lock in edit, subtitle "Chat and call with friends"/"বন্ধুদের সাথে চ্যাট ও কল", unread badge + missed-call dot); sidebar My Circle entry in Assisto AI style with subtitle "Chat and call with your friends"/"বন্ধুদের সাথে চ্যাট ও কল" + unread badge; 200% font, 48dp, dark. Ship in the next build.
-2) [cctv1 SHIPPED hidden 10246 (flag home_watchman OFF); waits owner Imou keys + camera] A CCTV watchman → 3) [AGENTS booking1, retention1] I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 9) backlog: SOS SMS fallback, low-data mode, in-app business chat. No law/clinic knowledge base.
+2) [cctv1 SHIPPED hidden 10246 (flag home_watchman OFF); waits owner Imou keys + camera] A CCTV watchman → 3) [AGENTS booking1, retention1] I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 9) backlog: SOS SMS fallback, low-data mode, in-app business chat, TEAM MEMBERS (owner 27 Oct: staff accounts for a shop with roles + permissions; add back to the Business plan text ONLY when it passes all 9 DoD checks). No law/clinic knowledge base.
 
 **STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
 
