@@ -42,3 +42,19 @@
 # keep file/line info and exception class names (mapping upload is off).
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
+
+# ---- r8-notif (Play Vitals 26 Oct) ---- flutter_local_notifications stores
+# scheduled notifications as JSON via Gson and rebuilds them in
+# ScheduledNotificationBootReceiver (BOOT_COMPLETED / MY_PACKAGE_REPLACED, i.e.
+# after every reboot AND every app update). R8 stripped the generic signature of
+# its Gson TypeToken -> "IllegalStateException: TypeToken must be created with a
+# type argument" crashed the receiver (realme Note 70 / Android 16, realme 9i /
+# Android 13; builds 10221-10224) and scheduled reminders were NOT restored.
+# Rules from the plugin's README + Gson's R8 guidance.
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.dexterous.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken

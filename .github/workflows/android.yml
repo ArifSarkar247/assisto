@@ -883,6 +883,25 @@ jobs:
             --dart-define=API_BASE="$API_BASE" \
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
+      - name: R8 keeps Gson generics for scheduled notifications (gate)
+        working-directory: app
+        run: |
+          # Play Vitals 26 Oct: ScheduledNotificationBootReceiver crashed after
+          # reboot/update (TypeToken generic signature stripped by R8) and
+          # scheduled reminders were lost. The rules live in
+          # android_overlay/app/proguard-rules.pro; prove R8 really applied them.
+          CONF=$(ls build/app/outputs/mapping/release/configuration.txt 2>/dev/null | head -1)
+          if [ -z "$CONF" ]; then
+            grep -q "com.google.gson.reflect.TypeToken" android/app/proguard-rules.pro \
+              || { echo "::error::proguard-rules.pro lost the Gson TypeToken keep rule"; exit 1; }
+            echo "::warning::R8 configuration.txt not found; checked proguard-rules.pro only"
+          else
+            grep -q "com.google.gson.reflect.TypeToken" "$CONF" || { echo "::error::R8 config lacks the Gson TypeToken keep rule"; exit 1; }
+            grep -qE "keepattributes.*Signature" "$CONF" || { echo "::error::R8 config lacks -keepattributes Signature"; exit 1; }
+            grep -q "com.dexterous" "$CONF" || { echo "::error::R8 config lacks the flutter_local_notifications keep rule"; exit 1; }
+            echo "R8 notification keep rules applied ($CONF)"
+          fi
+
       - name: Build x86_64 RELEASE APK (emulator smoke test only — NOT shipped)
         working-directory: app
         run: |
