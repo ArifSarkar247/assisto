@@ -273,7 +273,8 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
           onPressed: _edit,
           icon: const Icon(Icons.tune, size: 18),
           label: Text(t.quickEdit),
-          style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+          // owner 26 Oct: 48 dp tap target (accessibility), home moves 8 dp
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
         ),
       ]),
       GridView(
