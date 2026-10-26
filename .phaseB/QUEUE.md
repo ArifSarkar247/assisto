@@ -1,6 +1,9 @@
 # Owner work queue (newest order wins)
 
-## ⭐ TOP PRIORITY (owner 26 Oct evening) — FINAL HOME DESIGN v6 [AGENT homev2; reference files NOT uploaded yet — asked in STATUS 00]
+## 🔴 URGENT (owner 27 Oct) — CALL BUGS, top priority after build 250 [AGENTS callsA (1 accept-from-outside + 2 use app during call: return bar, in-app/Android PiP), callsB (3 screen share mediaProjection + Play FGS text, 4 group calls mesh ≤4, no SFU)]
+Real fixes proven on emulator (CI ring-proof) + owner real phone; Bangla STATUS: what was broken, what fixed, 10-min two-phone check.
+
+## ✅ [SHIPPED 10249; subtitle in 10250] TOP PRIORITY (owner 26 Oct evening) — FINAL HOME DESIGN v6
 Full order text is in the agent prompt / STATUS; flag home_v2 default ON for the next closed-testing build, old home fallback 1 week; 12 shortcuts (My Circle pinned + owner's 11, real routes only, flag-hidden skipped); Ask Assisto card → AI chat on its own screen; bottom bar Home / All Services / Assisto Voice / Reminders / Business; golden screenshots; Bangla STATUS with mapping + 10-min check.
 
 ## BIG BUILD WEEK (owner 26 Oct) — plan: owner_actions/BIG_WEEK_PLAN_BN.md; rule: owner_actions/DEFINITION_OF_DONE_BN.md (MOST IMPORTANT: 9 checks, hidden behind flag until all pass, finish one before starting another, honest table in STATUS). 8 Nov Play production must never be blocked.
