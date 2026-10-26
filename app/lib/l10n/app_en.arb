@@ -20710,5 +20710,392 @@
   "hv2CircleA11y": "My Circle, chat and call",
   "@hv2CircleA11y": {
     "description": "Home v2 pinned My Circle tile: screen-reader name (unread count is appended)."
-  }
+  },
+  "rmtTitle": "Budget and Remittance",
+  "rmtTileTitle": "Budget and Remittance",
+  "rmtTabMonth": "This month",
+  "rmtTabBudget": "Budget",
+  "rmtTabYear": "Year",
+  "rmtMenu": "More options",
+  "rmtHelp": "How it works",
+  "rmtAddReceived": "Money received",
+  "rmtGuideTitle": "Budget and Remittance in 30 seconds",
+  "rmtGuide1Title": "1. Write down money that came",
+  "rmtGuide1Body": "Say or type it, like \"Bhai sent 20 thousand taka by bKash\". Check the form and save. Works without internet too.",
+  "rmtGuide2Title": "2. Plan where it goes",
+  "rmtGuide2Body": "Split it into food, rent, education, medicine, savings, loan and other. See plan versus actual and grow a savings goal.",
+  "rmtGuide3Title": "3. Tell the sender, if you want",
+  "rmtGuide3Body": "The monthly report shows how much came and where it went. It goes to the sender only when you tap Share.",
+  "rmtGuidePrivacy": "Your money data stays on our server, encrypted, never used for ads and never shared. Only legal channels: bank, bKash, Nagad, Rocket, Western Union, MoneyGram.",
+  "rmtGotIt": "Got it",
+  "rmtOffTitle": "Not available yet",
+  "rmtOffBody": "Budget and Remittance is being finished. It will appear here when it is ready.",
+  "rmtOfflineTitle": "No internet",
+  "rmtOfflineBody": "Connect to the internet and try again.",
+  "rmtOfflineEntryBody": "You can still write down money that came — it is kept on this phone and synced later.",
+  "rmtErrorTitle": "Something went wrong",
+  "rmtErrorBody": "Please try again in a moment.",
+  "rmtRetry": "Try again",
+  "rmtNeedsInternet": "This needs the internet. Please connect and try again.",
+  "rmtPrevMonth": "Previous month",
+  "rmtNextMonth": "Next month",
+  "rmtPrevYear": "Previous year",
+  "rmtNextYear": "Next year",
+  "rmtPendingTitle": "{n} waiting to sync",
+  "@rmtPendingTitle": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtPendingBody": "Saved on this phone. They go up by themselves when you are online.",
+  "rmtSyncNow": "Sync now",
+  "rmtSynced": "Synced: {n}",
+  "@rmtSynced": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtSyncRefused": "{n} could not be saved (details were not right). Please write them again.",
+  "@rmtSyncRefused": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtWaitingSync": "Waiting to sync",
+  "rmtSavedOffline": "Saved on this phone — it will sync when you are online.",
+  "rmtSaved": "Saved",
+  "rmtDeleted": "Deleted",
+  "rmtQuickTitle": "Say or type it",
+  "rmtQuickBody": "One sentence is enough. We fill the form; you check it before saving.",
+  "rmtQuickHint": "Bhai sent 20 thousand taka by bKash",
+  "rmtQuickEmpty": "First type or say how much came, and from whom.",
+  "rmtQuickGo": "Fill the form",
+  "rmtUnderstoodCheck": "We filled what we understood. Please check before saving.",
+  "rmtNotUnderstood": "We could not understand this sentence. Please fill the form.",
+  "rmtReceivedTitle": "Received this month",
+  "rmtReceived": "Received",
+  "rmtTimes": "Times",
+  "rmtTimesN": "{n} times",
+  "@rmtTimesN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtLeft": "Left",
+  "rmtSpent": "Spent",
+  "rmtEmptyMonth": "Nothing written down for this month yet. Tap \"Money received\" or say it above.",
+  "rmtNoSender": "Sender not written",
+  "rmtForeignLine": "{amount} {currency} at {rate}",
+  "@rmtForeignLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpNone": "Set the money you expect each month — we remind you once if it does not come.",
+  "rmtExpWaiting": "Expecting {amount} by {date}.",
+  "@rmtExpWaiting": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpMissing": "{amount} was expected by {date} and has not come yet.",
+  "@rmtExpMissing": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpPartial": "{received} of the expected {amount} has come.",
+  "@rmtExpPartial": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpArrived": "The expected {amount} has come this month.",
+  "@rmtExpArrived": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpFuture": "This month has not started yet.",
+  "rmtMissingNoteTitle": "Money from abroad has not come yet",
+  "rmtMissingNoteBody": "The expected {amount} has not been written down this month. Open Assisto to check.",
+  "@rmtMissingNoteBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtExpectedTitle": "Money expected each month",
+  "rmtExpectedBody": "If nothing is written down by this day, we remind you once that month.",
+  "rmtExpectedAmount": "Amount in taka",
+  "rmtExpectedOffHelp": "Leave empty or 0 to turn the reminder off.",
+  "rmtExpectedDay": "Usually comes by day",
+  "rmtExpectedFrom": "Usually sent by (optional)",
+  "rmtDayHelp": "A day of the month, 1 to 31",
+  "rmtAddEntryTitle": "Money received",
+  "rmtEditEntryTitle": "Edit entry",
+  "rmtFieldCurrency": "Currency sent",
+  "rmtFieldAmountTaka": "Amount in taka",
+  "rmtFieldAmountForeign": "Amount sent",
+  "rmtFieldAmountForeignHelp": "In the currency they sent, for example 500 riyal.",
+  "rmtFieldRate": "Rate you got",
+  "rmtFieldRateHelp": "Taka for one unit, from your bank or bKash receipt. We never look up rates.",
+  "rmtFieldTaka": "Taka you received",
+  "rmtFieldTakaHelp": "Filled from the rate; change it if you got a different amount.",
+  "rmtFieldChannel": "How it came",
+  "rmtLegalOnly": "Only legal channels are listed.",
+  "rmtFieldSender": "Who sent it",
+  "rmtFieldSenderName": "Sender's name",
+  "rmtFieldSenderOther": "Or write a name",
+  "rmtFieldSenderHelp": "Add them to My Circle to pick them next time.",
+  "rmtFieldDate": "Date received",
+  "rmtFieldNote": "Note (optional)",
+  "rmtSave": "Save",
+  "rmtDeleteEntry": "Delete this entry",
+  "rmtDeleteEntryTitle": "Delete this entry?",
+  "rmtDeleteEntryBody": "It is removed from your records for good.",
+  "rmtErrAmount": "Enter a correct amount (more than 0).",
+  "rmtErrRate": "Enter the rate you got (for example 32.50), or the taka you received.",
+  "rmtErrDay": "Enter a day from 1 to 31.",
+  "rmtErrBillName": "Enter the bill's name.",
+  "rmtChBank": "Bank",
+  "rmtChBkash": "bKash",
+  "rmtChNagad": "Nagad",
+  "rmtChRocket": "Rocket",
+  "rmtChWesternUnion": "Western Union",
+  "rmtChMoneygram": "MoneyGram",
+  "rmtChOther": "Other",
+  "rmtCatFood": "Food",
+  "rmtCatRent": "Rent",
+  "rmtCatEducation": "Education",
+  "rmtCatMedicine": "Medicine",
+  "rmtCatSavings": "Savings",
+  "rmtCatLoan": "Loan or EMI",
+  "rmtCatOther": "Other",
+  "rmtRelBrother": "Brother",
+  "rmtRelFather": "Father",
+  "rmtRelMother": "Mother",
+  "rmtRelHusband": "Husband",
+  "rmtRelWife": "Wife",
+  "rmtRelSon": "Son",
+  "rmtRelDaughter": "Daughter",
+  "rmtRelSister": "Sister",
+  "rmtRelUncle": "Uncle",
+  "rmtRelAunt": "Aunt",
+  "rmtCurBDT": "Taka (BDT)",
+  "rmtCurSAR": "Saudi riyal (SAR)",
+  "rmtCurAED": "UAE dirham (AED)",
+  "rmtCurQAR": "Qatari riyal (QAR)",
+  "rmtCurKWD": "Kuwaiti dinar (KWD)",
+  "rmtCurOMR": "Omani rial (OMR)",
+  "rmtCurBHD": "Bahraini dinar (BHD)",
+  "rmtCurMYR": "Malaysian ringgit (MYR)",
+  "rmtCurSGD": "Singapore dollar (SGD)",
+  "rmtCurUSD": "US dollar (USD)",
+  "rmtCurGBP": "British pound (GBP)",
+  "rmtCurEUR": "Euro (EUR)",
+  "rmtCurJPY": "Japanese yen (JPY)",
+  "rmtCurKRW": "Korean won (KRW)",
+  "rmtCurAUD": "Australian dollar (AUD)",
+  "rmtCurCAD": "Canadian dollar (CAD)",
+  "rmtBudgetSummary": "This month in short",
+  "rmtUnplanned": "{amount} has no plan yet.",
+  "@rmtUnplanned": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtPlanTitle": "Plan versus actual",
+  "rmtPlanEdit": "Edit plan",
+  "rmtPlanEmpty": "No plan yet. Tap \"Edit plan\" and split the money into categories.",
+  "rmtPlanLine": "{actual} of {plan}",
+  "@rmtPlanLine": {
+    "placeholders": {
+      "actual": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtPlanLineA11y": "spent {actual} of {plan}",
+  "@rmtPlanLineA11y": {
+    "placeholders": {
+      "actual": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtSpentOnly": "Spent {actual}, no plan",
+  "@rmtSpentOnly": {
+    "placeholders": {
+      "actual": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtStateOk": "On track",
+  "rmtStateNear": "Near the limit (80%)",
+  "rmtStateOver": "Over the plan",
+  "rmtStateNoPlan": "No plan",
+  "rmtPlanNote": "Actual spending comes from your expenses in Account & Finance too, so nothing is written twice.",
+  "rmtPlanEditTitle": "Family budget plan",
+  "rmtPlanEditBody": "How much for each category every month? Leave empty for none.",
+  "rmtSpendAdd": "Add spending",
+  "rmtSpendTitle": "Spending",
+  "rmtSpendBody": "Money spent from the remittance. It is also added to your expenses in Account & Finance.",
+  "rmtGoalTitle": "Savings goal",
+  "rmtGoalEmpty": "Save a part of every remittance for something that matters — a roof, a wedding, a business.",
+  "rmtGoalSet": "Set a savings goal",
+  "rmtGoalEdit": "Edit savings goal",
+  "rmtGoalProgress": "{saved} of {target} saved ({pct}%)",
+  "@rmtGoalProgress": {
+    "placeholders": {
+      "saved": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtGoalAdd": "Add to savings",
+  "rmtGoalAddTitle": "Add to savings",
+  "rmtGoalAddBody": "How much did you put aside? It counts as savings in the plan too.",
+  "rmtGoalSetTitle": "Savings goal",
+  "rmtGoalSetBody": "Name it and set the total you want to reach.",
+  "rmtGoalName": "Goal name",
+  "rmtGoalNameHint": "For example: roof repair",
+  "rmtGoalTarget": "Target in taka",
+  "rmtBillsTitle": "Bills paid from it",
+  "rmtBillsEmpty": "Add bills you pay every month (school fee, electricity, EMI) to get a reminder and mark them paid.",
+  "rmtBillAdd": "Add bill",
+  "rmtBillAddTitle": "Add a bill",
+  "rmtBillEditTitle": "Edit bill",
+  "rmtBillBody": "A bill you pay from the remittance every month.",
+  "rmtBillName": "Bill name",
+  "rmtBillNameHint": "For example: school fee",
+  "rmtBillDueDay": "Due on day",
+  "rmtBillLine": "{amount}, day {day}, {category}",
+  "@rmtBillLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtBillMarkPaid": "Mark paid",
+  "rmtBillPaid": "Paid this month",
+  "rmtBillPaidDone": "Marked paid and added to spending",
+  "rmtBillRemind": "Remind me",
+  "rmtBillReminderOn": "Monthly reminder on",
+  "rmtBillReminderTitle": "Pay {name}",
+  "@rmtBillReminderTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtBillReminderSet": "Reminder set from {date}, every month",
+  "@rmtBillReminderSet": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtBillDeleteTitle": "Delete this bill?",
+  "rmtBillDeleteBody": "Its monthly reminder is removed too. Spending already written stays.",
+  "rmtYearTotal": "Year in total",
+  "rmtAvgMonth": "Average a month",
+  "rmtSavingsBuilt": "Savings built",
+  "rmtYearEmpty": "Nothing written down for this year.",
+  "rmtByMonth": "By month",
+  "rmtBySender": "By sender",
+  "rmtByChannel": "By channel",
+  "rmtReportTitle": "Report for the sender",
+  "rmtReportLang": "Report language",
+  "rmtReportBangla": "Bangla",
+  "rmtReportEnglish": "English",
+  "rmtReportPrivacy": "Nothing is sent unless you tap Share and pick a person. It goes as a normal encrypted My Circle message.",
+  "rmtShareInCircle": "Share in My Circle",
+  "rmtShareWho": "Send the report to",
+  "rmtShareNoMembers": "No one in your My Circle yet. Add the sender to My Circle first.",
+  "rmtShareConfirmTitle": "Send this report?",
+  "rmtShareConfirmBody": "{name} will see this month's summary in your chat.",
+  "@rmtShareConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtShareSend": "Send",
+  "rmtShareSent": "Sent to {name}",
+  "@rmtShareSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rmtShareFailed": "Could not send. Please try again.",
+  "rmtExportCsv": "Download all (CSV)",
+  "rmtExportText": "Download all (text)",
+  "rmtExportCaption": "My remittance records from Assisto",
+  "rmtDeleteAll": "Delete all my data here",
+  "rmtDeleteAllTitle": "Delete everything in Budget and Remittance?",
+  "rmtDeleteAllBody": "All money received, bills, the expected amount, the family plan, spending written here and the savings goal are deleted from our server for good. Download a copy first if you need it.",
+  "rmtDeleteAllYes": "Delete all",
+  "rmtDeleteAllDone": "Everything here was deleted"
 }
