@@ -674,6 +674,7 @@ class HomeV2Palette {
     required this.tileBorder,
     required this.tileShadow,
     required this.tileLabel,
+    required this.circleSub,
     required this.pinBorder,
     required this.pinTop,
     required this.chip,
@@ -701,6 +702,9 @@ class HomeV2Palette {
   final Color tileBorder;
   final Color tileShadow;
   final Color tileLabel;
+
+  /// Pinned My Circle subtitle (owner 26 Oct): purple, >= 4.5:1 on its tile.
+  final Color circleSub;
   final Color pinBorder;
   final Color pinTop;
   final Color chip;
@@ -731,6 +735,7 @@ class HomeV2Palette {
     tileBorder: Color(0xFFEBEEF4),
     tileShadow: Color(0x0D0F172A), // rgba(15,23,42,.05)
     tileLabel: Color(0xFF0F172A),
+    circleSub: Color(0xFF800080),
     pinBorder: Color(0xFFA5B4FC),
     pinTop: Color(0xFFEEF2FF),
     chip: Colors.white,
@@ -759,6 +764,7 @@ class HomeV2Palette {
     tileBorder: Color(0xFF222D45),
     tileShadow: Color(0x33000000),
     tileLabel: Color(0xFFE2E8F0),
+    circleSub: Color(0xFFE08AE0),
     pinBorder: Color(0xFF6366F1),
     pinTop: Color(0xFF1E1B4B),
     chip: Color(0xFF141C2F),

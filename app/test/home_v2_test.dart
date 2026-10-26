@@ -305,6 +305,41 @@ void main() {
       }
     }
 
+    // owner 26 Oct (build 250): one-line purple subtitle on the pinned
+    // My Circle tile only; screen reader says "My Circle, chat and call".
+    for (final lang in ['en', 'bn']) {
+      for (final dark in [false, true]) {
+        testWidgets('My Circle subtitle, one line at 200 % ($lang dark=$dark)',
+            (tester) async {
+          await _pump(tester, _home(),
+              lang: lang, dark: dark, scale: 2.0, size: const Size(360, 800));
+          expect(tester.takeException(), isNull);
+          final t = lookupAppLocalizations(Locale(lang));
+          final sub = find.byKey(const ValueKey('hv2_tile_subtitle'));
+          expect(sub, findsOneWidget); // only the pinned tile has one
+          expect(
+              find.descendant(
+                  of: find.byKey(const ValueKey('hv2_tile_circle')),
+                  matching: sub),
+              findsOneWidget);
+          final w = tester.widget<Text>(sub);
+          expect(w.data, t.hv2CircleSub);
+          expect(w.maxLines, 1);
+          expect(w.overflow, TextOverflow.ellipsis);
+          expect(w.style!.fontWeight, FontWeight.w600);
+          expect(w.style!.color,
+              dark ? const Color(0xFFE08AE0) : const Color(0xFF800080));
+          // one line: its height is about one line even at 200 %
+          final h = tester.getSize(sub).height;
+          expect(h, lessThan(w.style!.fontSize! * 1.6 * 1.6));
+          final tile = tester.getSemantics(
+              find.byKey(const ValueKey('hv2_tile_circle')));
+          expect(tile.label, startsWith(t.hv2CircleA11y));
+          await _unmount(tester);
+        });
+      }
+    }
+
     testWidgets('normal font: 4 columns', (tester) async {
       await _pump(tester, _home());
       final a = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_circle')));

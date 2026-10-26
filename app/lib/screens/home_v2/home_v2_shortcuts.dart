@@ -279,6 +279,8 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
                   route: HomeQuickButtons.pinnedRoute,
                   icon: Icons.diversity_3,
                   label: t.sidebarMyCircle,
+                  subtitle: t.hv2CircleSub,
+                  semanticsLabel: t.hv2CircleA11y,
                   pinned: true,
                   unread: b.unread,
                   missed: b.missed,
@@ -409,6 +411,13 @@ class HomeV2Tile extends StatelessWidget {
   final String route;
   final IconData icon;
   final String label;
+
+  /// One line under the title (only the pinned My Circle tile uses it).
+  final String? subtitle;
+
+  /// Screen-reader name when it differs from [label] (e.g. "My Circle,
+  /// chat and call"); the unread / missed parts are added after it.
+  final String? semanticsLabel;
   final bool pinned;
   final int unread;
   final bool missed;
@@ -420,6 +429,8 @@ class HomeV2Tile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.subtitle,
+    this.semanticsLabel,
     this.onLongPress,
     this.pinned = false,
     this.unread = 0,
@@ -435,7 +446,7 @@ class HomeV2Tile extends StatelessWidget {
     final radius = BorderRadius.circular(HV2.tileRadius);
     final count = circleBadgeLabel(unread, t.localeName);
     final a11y = [
-      label,
+      semanticsLabel ?? label,
       if (unread > 0) t.hcUnread(count),
       if (missed) t.hcMissed,
     ].join('. ');
@@ -542,6 +553,21 @@ class HomeV2Tile extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: p.tileLabel)),
                       ),
+                      if (subtitle != null)
+                        MediaQuery.withClampedTextScaling(
+                          maxScaleFactor: HV2.tileLabelMaxScale,
+                          child: Text(subtitle!,
+                              key: const ValueKey('hv2_tile_subtitle'),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: HV2.tileSub,
+                                  height: 1.15,
+                                  fontWeight: FontWeight.w600,
+                                  color: p.circleSub)),
+                        ),
                     ]),
               ),
               if (unread > 0)

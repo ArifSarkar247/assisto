@@ -89,6 +89,9 @@ class HV2 {
   static const squircleRadius = 15.0;
   static const squircleIcon = 23.0;
   static const tileLabel = 11.5;
+
+  /// Pinned My Circle subtitle (owner 26 Oct): ~10 sp, w600, one line.
+  static const tileSub = 10.0;
   static const tileLabelHeight = 1.25;
   static const tileAngleDeg = 145.0;
   static const countPillH = 19.0;
