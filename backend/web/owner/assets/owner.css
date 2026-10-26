@@ -112,3 +112,9 @@ body.auth{display:block}
 .shot{display:block;margin:0 0 8px}.shot img{display:block;max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--line)}
 .pre{white-space:normal;overflow-wrap:anywhere}
 a.tile{color:var(--fg)}a.tile:hover{text-decoration:none;border-color:var(--blue)}
+/* calls95: ring-delivery trend bar with the 95 % target line */
+.rdbar{position:relative;height:10px;min-width:120px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.rdbar i{position:absolute;left:0;top:0;bottom:0;background:var(--ok);border-radius:999px}
+.rdbar i.below{background:var(--bad)}
+.rdbar b{position:absolute;top:0;bottom:0;width:2px;background:var(--fg);opacity:.85}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}

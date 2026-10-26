@@ -19,7 +19,15 @@ import java.net.URL
  * it is always there when a ring arrives.
  *
  * Runs on the caller's thread (the FCM service thread / a worker thread),
- * never the main thread. 2 tries, 4 s timeouts. Never throws.
+ * never the main thread. 3 tries (0.5 s, 1.5 s back-off), 4 s timeouts.
+ * Never throws.
+ *
+ * calls95: the "delivered" ack is fired on its OWN short-lived thread at the
+ * very top of onMessageReceived ([deliveredNow]) — before the native ring,
+ * Telecom, the Flutter hand-off or anything else heavy — so the caller flips
+ * from "Calling" to "Ringing" as soon as the push lands (live data 25 Oct:
+ * the old after-everything ack reached the server 5–35 s after the Dart
+ * ringing ack on a realme RMX3195).
  * If the server answers that the call already ENDED (a late / stale push),
  * the ring is cancelled at once.
  */
@@ -58,8 +66,9 @@ object CallAck {
             .put("brand", (Build.BRAND ?: "").take(32))
             .put("model", (Build.MODEL ?: "").take(48))
             .put("sdk", Build.VERSION.SDK_INT)
+            .put("app", appVersion(ctx))
             .toString().toByteArray(Charsets.UTF_8)
-        for (attempt in 0 until 2) {
+        for (attempt in 0 until 3) {
             var c: HttpURLConnection? = null
             try {
                 c = URL(url).openConnection() as HttpURLConnection
@@ -85,17 +94,51 @@ object CallAck {
             } finally {
                 try { c?.disconnect() } catch (_: Throwable) {}
             }
-            try { Thread.sleep(800) } catch (_: Throwable) {}
+            if (attempt < 2) {
+                try { Thread.sleep(if (attempt == 0) 500L else 1500L) } catch (_: Throwable) {}
+            }
         }
         return null
     }
 
-    /** From the FCM service thread right after the ring decision. */
+    private fun appVersion(ctx: Context): String = try {
+        (ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_APP, "") ?: "").take(24)
+    } catch (_: Throwable) {
+        ""
+    }
+
+    /**
+     * calls95: "delivered" RIGHT NOW on a separate daemon thread (never
+     * blocks the FCM thread, never throws). Call before any other work.
+     */
+    @JvmStatic
+    fun deliveredNow(ctx: Context, d: Map<String, String>?) {
+        try {
+            if (d == null) return
+            val callId = d["call_id"] ?: return
+            val sig = d["ack_sig"] ?: return
+            if (callId.isEmpty() || sig.isEmpty()) return
+            val app = ctx.applicationContext ?: ctx
+            val t = Thread(Runnable {
+                try {
+                    post(app, callId, sig, "delivered")
+                } catch (_: Throwable) {
+                }
+            }, "assisto-ack")
+            t.isDaemon = true
+            t.start()
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** From the FCM service thread right after the ring decision. The
+     *  "delivered" ack already went out ([deliveredNow]); only a shown ring
+     *  needs a second ("ringing") ack. */
     @JvmStatic
     fun afterPush(ctx: Context, d: Map<String, String>, shown: Boolean) {
         try {
-            post(ctx, d["call_id"] ?: "", d["ack_sig"] ?: "",
-                if (shown) "ringing" else "delivered")
+            if (!shown) return
+            post(ctx, d["call_id"] ?: "", d["ack_sig"] ?: "", "ringing")
         } catch (_: Throwable) {
         }
     }

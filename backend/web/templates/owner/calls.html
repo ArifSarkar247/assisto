@@ -17,24 +17,40 @@
   {% for key, label, n in ch_steps %}<tr><td>{{ label }}</td><td class="num {% if n %}neg{% endif %}">{{ n }}</td></tr>{% endfor %}
   </tbody></table></div>
 </section>{% endif %}
-{% if rd %}<section class="card" id="ring-delivery"><h2>{{ T.rd_title }}</h2>
+{% if rd %}<section class="card" id="ring-delivery"><h2>{% if rd_days == 30 %}{{ T.rd_title_30 }}{% else %}{{ T.rd_title }}{% endif %}</h2>
   <p class="small">{{ T.rd_note }}</p>
-  {% if rd.attempts %}
-  <div class="tiles">
-    <div class="tile"><span>{{ T.rd_total }}</span><b>{{ rd.attempts }}</b></div>
-    <div class="tile"><span>{{ T.rd_delivered }}</span><b>{{ rd.delivered }}</b></div>
-    <div class="tile"><span>{{ T.rd_rate }}</span><b class="{% if rd.pct is not None and rd.pct < 90 %}neg{% endif %}">{% if rd.pct is not None %}{{ rd.pct }}%{% else %}—{% endif %}</b></div>
+  <div class="seg" role="group" aria-label="{{ T.rd_period }}">
+    <a class="btn {% if rd_days != 30 %}primary{% else %}ghost{% endif %}" href="?rd=7#ring-delivery"{% if rd_days != 30 %} aria-current="true"{% endif %}>{{ T.rd_7d }}</a>
+    <a class="btn {% if rd_days == 30 %}primary{% else %}ghost{% endif %}" href="?rd=30#ring-delivery"{% if rd_days == 30 %} aria-current="true"{% endif %}>{{ T.rd_30d }}</a>
   </div>
+  <p class="small mut">{{ T.rd_target_note }}</p>
+  {% if rd.attempts or rd.early_cancels %}
+  <div class="tiles">
+    <div class="tile"><span>{{ T.rd_rate }}</span><b class="{% if rd.below %}neg{% elif rd.pct is not None %}pos{% endif %}">{% if rd.pct is not None %}{{ rd.pct }}%{% else %}—{% endif %}</b><small>{{ T.rd_target }} {{ rd.target }}% · {% if rd.below %}{{ T.rd_below }}{% elif rd.pct is not None %}{{ T.rd_ok }}{% else %}—{% endif %}</small></div>
+    <div class="tile"><span>{{ T.rd_total }}</span><b>{{ rd.attempts }}</b><small>{{ T.rd_delivered }} {{ rd.delivered }}</small></div>
+    <div class="tile"><span>{{ T.rd_early }}</span><b>{{ rd.early_cancels }}</b><small>{{ T.rd_early_note }}</small></div>
+    {% if rd.brands_below %}<div class="tile"><span>{{ T.rd_brands_below }}</span><b class="sm neg">{{ rd.brands_below|join:", " }}</b></div>{% endif %}
+  </div>
+  {% if rd.causes %}<div class="tbl"><table><thead><tr><th>{{ T.rd_causes }}</th><th class="num">{{ T.rd_attempts }}</th></tr></thead><tbody>
+  {% for c in rd.causes %}<tr><td>{{ c.label }}</td><td class="num neg">{{ c.count }}</td></tr>{% endfor %}
+  </tbody></table></div>{% endif %}
   <div class="tbl"><table><thead><tr><th>{{ T.rd_by_brand }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
-  {% for b in rd.brands %}<tr><td>{{ b.brand }}</td><td class="num">{{ b.attempts }}</td><td class="num">{{ b.delivered }}</td><td class="num {% if b.pct is not None and b.pct < 90 %}neg{% endif %}">{% if b.pct is not None %}{{ b.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  {% for b in rd.brands %}<tr><td>{{ b.brand }}{% if b.problem %} <span class="pill">{{ T.rd_problem }}</span>{% endif %}</td><td class="num">{{ b.attempts }}</td><td class="num">{{ b.delivered }}</td><td class="num {% if b.below %}neg{% endif %}">{% if b.pct is not None %}{{ b.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>
   <div class="tbl"><table><thead><tr><th>{{ T.rd_by_android }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
-  {% for a in rd.androids %}<tr><td>{{ a.android }}</td><td class="num">{{ a.attempts }}</td><td class="num">{{ a.delivered }}</td><td class="num {% if a.pct is not None and a.pct < 90 %}neg{% endif %}">{% if a.pct is not None %}{{ a.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  {% for a in rd.androids %}<tr><td>{{ a.android }}</td><td class="num">{{ a.attempts }}</td><td class="num">{{ a.delivered }}</td><td class="num {% if a.below %}neg{% endif %}">{% if a.pct is not None %}{{ a.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="tbl"><table><thead><tr><th>{{ T.rd_by_app }}</th><th>{{ T.rd_native }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
+  {% for a in rd.apps %}<tr><td>{{ a.app }}</td><td>{% if a.native_ack %}{{ T.rd_yes }}{% else %}<span class="neg">{{ T.rd_no }}</span>{% endif %}</td><td class="num">{{ a.attempts }}</td><td class="num">{{ a.delivered }}</td><td class="num {% if a.below %}neg{% endif %}">{% if a.pct is not None %}{{ a.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>
   <div class="tbl"><table><thead><tr><th>{{ T.rd_brand }}</th><th>{{ T.rd_model }}</th><th>{{ T.rd_android }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_resends }}</th><th class="num">{{ T.rd_rate }}</th></tr></thead><tbody>
-  {% for r in rd.rows %}<tr><td>{{ r.brand }}</td><td>{{ r.model }}</td><td>{{ r.android }}</td><td class="num">{{ r.attempts }}</td><td class="num">{{ r.delivered }}</td><td class="num">{{ r.resends }}</td><td class="num {% if r.pct is not None and r.pct < 90 %}neg{% endif %}">{% if r.pct is not None %}{{ r.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  {% for r in rd.rows %}<tr><td>{{ r.brand }}</td><td>{{ r.model }}</td><td>{{ r.android }}</td><td class="num">{{ r.attempts }}</td><td class="num">{{ r.delivered }}</td><td class="num">{{ r.resends }}</td><td class="num {% if r.below %}neg{% endif %}">{% if r.pct is not None %}{{ r.pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>
-  {% else %}<p class="empty">{{ T.rd_none }}</p>{% endif %}
+  {% else %}<p class="empty">{% if rd_days == 30 %}{{ T.rd_none_30 }}{% else %}{{ T.rd_none }}{% endif %}</p>{% endif %}
+  {% if rd.trend %}<h3>{{ T.rd_trend }}</h3>
+  <div class="tbl" id="ring-trend"><table><thead><tr><th>{{ T.rd_day }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th><th>{{ T.rd_target }} {{ rd.target }}%</th><th class="num">{{ T.rd_early }}</th></tr></thead><tbody>
+  {% for d in rd.trend %}<tr><td>{{ d.date|date:"Y-m-d" }}</td><td class="num">{{ d.attempts }}</td><td class="num">{{ d.delivered }}</td><td class="num {% if d.below %}neg{% endif %}">{% if d.pct is not None %}{{ d.pct }}%{% else %}—{% endif %}</td><td>{% if d.pct is not None %}<div class="rdbar" role="img" aria-label="{{ d.pct }}%"><i class="{% if d.below %}below{% endif %}" style="width:{{ d.bar }}%"></i><b style="left:{{ rd.target }}%"></b></div>{% endif %}</td><td class="num">{{ d.early_cancels }}</td></tr>{% endfor %}
+  </tbody></table></div>{% endif %}
 </section>{% endif %}
 {% if not cur %}<p class="empty">{{ T.t9_no_samples }}</p>{% else %}
 {% if summ.stale %}<div class="flash warn">{{ T.t9_stale }} {{ cur.at|date:"Y-m-d H:i" }}</div>{% endif %}

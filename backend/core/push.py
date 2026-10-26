@@ -381,9 +381,14 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
         if user is None or kind not in KINDS or not is_available():
             return 0
         from .models import Device
+        # calls95: newest phone first — it is the one most likely alive, and
+        # a dead older token (dropped below) must never delay its ring.
         tokens = list(Device.objects.filter(user=user).exclude(push_token="")
+                      .order_by("-last_seen", "-id")
                       .values_list("push_token", flat=True))
         if not tokens:
+            if kind == "call":
+                _call_push_event((data or {}).get("call_id"), "no_device", user)
             return 0
         lang = user_lang(user)
         title = title_en if lang == "en" else title_bn
@@ -417,6 +422,10 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                     msg_ids.append(res["name"])
         if kind == "call" and payload.get("call_id"):
             _record_call_push(payload.get("call_id"), sent, msg_ids)
+            if not sent:
+                # every token refused (dead tokens are already dropped):
+                # visible in Owner Admin -> Calls -> missed-ring causes
+                _call_push_event(payload.get("call_id"), "send_fail", user)
         log.info("push: kind=%s devices=%d sent=%d", kind, len(tokens), sent)
         return sent
     except Exception as e:
@@ -436,6 +445,19 @@ def _record_call_push(call_id, sent, msg_ids):
         qs.filter(fcm_sent_at__isnull=True).update(fcm_sent_at=_tz.now())
         if msg_ids:
             qs.update(fcm_msg_id=msg_ids[-1][:160])
+    except Exception:
+        pass
+
+
+def _call_push_event(call_id, code, user=None):
+    """calls95: a ring push that reached NO device (no token / every send
+    refused) -> CallHealthEvent(step=push) for the miss-cause table. Never
+    raises."""
+    try:
+        if not call_id:
+            return
+        from . import call_health
+        call_health.log_event("push", code, user=user, call_id=int(call_id))
     except Exception:
         pass
 

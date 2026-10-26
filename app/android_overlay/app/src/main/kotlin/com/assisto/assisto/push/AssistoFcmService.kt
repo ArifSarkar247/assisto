@@ -59,6 +59,9 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
             val ic = com.assisto.assisto.calls.IncomingCall
             if (ic.isCall(data)) {
                 isCall = true
+                // calls95: confirm delivery FIRST (own thread), before the
+                // ring / Telecom / Flutter hand-off can delay it.
+                com.assisto.assisto.calls.CallAck.deliveredNow(applicationContext, data)
                 shown = ic.onCallPush(applicationContext, data!!)
             } else if (ic.isCancel(data)) {
                 ic.onCancelPush(applicationContext, data!!)

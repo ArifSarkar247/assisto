@@ -250,7 +250,43 @@ class RingChecklist {
           (now ?? DateTime.now()).add(bannerSnooze).millisecondsSinceEpoch);
     } catch (_) {}
   }
+
+  /// calls95: the server just handed this phone calls it NEVER received
+  /// (missed_pending: the ring push did not get through while Assisto was
+  /// closed). On a phone family whose battery manager is known to block
+  /// closed apps (realme / OPPO / OnePlus / vivo / Xiaomi / Infinix / Tecno /
+  /// itel / Samsung), the by-hand steps the user once confirmed may have been
+  /// reset by a system update, so they go back to "Check"; for every phone
+  /// the My Circle banner comes back (snooze cleared) and [attention] is
+  /// re-checked. Returns true when the checklist now needs attention.
+  /// Android only; never throws.
+  static Future<bool> onMissedRing({RingCheckNative? using}) async {
+    try {
+      if (!isAndroid()) return false;
+      final f = await facts(using: using);
+      final info = f.oem;
+      final p = await SharedPreferences.getInstance();
+      if (info != null && isProblemOemFamily(info.family)) {
+        final kept = (p.getStringList(confirmedKey) ?? const <String>[])
+            .where((k) => !k.startsWith('oem_'))
+            .toList()
+          ..sort();
+        await p.setStringList(confirmedKey, kept);
+      }
+      await p.remove(bannerHiddenUntilKey);
+      final rows = await refresh(using: using);
+      return ringNeedsAttention(rows);
+    } catch (_) {
+      return false;
+    }
+  }
 }
+
+/// calls95: phone families whose battery manager is known to delay or drop
+/// the ring push of a CLOSED app (dontkillmyapp.com + the Bangladesh test
+/// fleet). Near-stock phones (Walton, Symphony, Nokia, Motorola, Pixel…)
+/// only need the standard battery-optimisation step.
+bool isProblemOemFamily(OemFamily f) => f != OemFamily.nearStock;
 
 /// "Show once after login" (replaces the tl1 OEM-guide gate: the checklist
 /// contains those steps plus notifications / full-screen). Called from the
