@@ -1102,3 +1102,12 @@ class PlayBillingIntegrationTestHonest(TestCase):
     def test_invalid_fake_token_means_permission_ok(self):
         ok, _ = self._run(400)
         self.assertTrue(ok)
+
+
+class FixedAnnualNoClampWarningTests(TestCase):
+    def test_explicit_annual_price_never_reports_a_clamp(self):
+        from core.logic import pricing as P
+        cfg = {"vat": 0.15, "annual_discount_pct": 20, "plans": {
+            "premium": {"price": 249, "annual_price": 2490, "credits": 90}}}
+        codes = [w["code"] for w in P.margin_warnings(cfg)]
+        self.assertNotIn("annual_discount_clamped", codes)

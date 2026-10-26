@@ -1086,7 +1086,9 @@ def margin_warnings(cfg):
                 w["max_safe_discount_pct"] = row.get("max_safe_discount_pct")
                 w["applied_discount_pct"] = row.get("applied_discount_pct")
             out.append(w)
-        if yr and row.get("discount_pct", 0) > row.get("max_safe_discount_pct", 0):
+        if (yr and not _fixed_annual(row["plan"], cfg)
+                and row.get("discount_pct", 0) > row.get("max_safe_discount_pct", 0)):
+            # (an explicit owner annual_price is sold as-is: nothing is clamped)
             # p2-money: the app sells the CLAMPED price; say so to the owner.
             out.append({"code": "annual_discount_clamped", "plan": row["plan"],
                         "period": "yr", "discount_pct": row["discount_pct"],
