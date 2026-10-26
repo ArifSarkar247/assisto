@@ -75,7 +75,7 @@ Map<String, dynamic> serverCfg({
     },
     'app_open_enabled': !paid,
     'rewarded_enabled': !paid && real,
-    'appopen_min_gap_sec': 3600,
+    'appopen_min_gap_sec': 10800,
     'appopen_daily_cap': appOpenCap,
     'appopen_min_bg_sec': 30,
     'interstitial_min_gap_sec': 300,
@@ -94,6 +94,31 @@ AdConfig cfg({String plan = 'free', bool real = false}) =>
     AdConfig.fromJson(serverCfg(plan: plan, real: real));
 
 void main() {
+  group('app-open never during a call (owner 26 Oct)', () {
+    test('an ongoing call (even minimised) blocks the app-open ad', () {
+      final d = AppOpenGuard.check(
+          firstLaunchEver: false,
+          sessionAfterLogin: false,
+          suppressed: false,
+          screen: 'home',
+          resumed: false,
+          callActive: true);
+      expect(d.allowed, isFalse);
+      expect(d.reason, 'in_call');
+    });
+    test('first launch ever never shows one', () {
+      expect(
+          AppOpenGuard.check(
+                  firstLaunchEver: true,
+                  sessionAfterLogin: false,
+                  suppressed: false,
+                  screen: 'home',
+                  resumed: false)
+              .reason,
+          'first_launch');
+    });
+  });
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     AppEntry.reset();
@@ -113,7 +138,7 @@ void main() {
       for (final k in AdKind.values) {
         expect(c.unitFor(k, builtAppId: AdsService.builtAppId), AdIds.testUnit(k), reason: '$k');
       }
-      expect(c.appOpenMinGap, const Duration(hours: 1));
+      expect(c.appOpenMinGap, const Duration(hours: 3));
       expect(c.appOpenDailyCap, 6);
       expect(c.interstitialMinGap, const Duration(minutes: 5));
       expect(c.bannerScreens, {'saved_items', 'dictionary', 'health_tips'});
@@ -299,7 +324,7 @@ void main() {
       expect(AppEntry.consumeSuppression(), isFalse);
     });
 
-    test('caps: once per hour, max 6 a day', () {
+    test('caps: once every 3 hours, max 6 a day', () {
       final c = cfg();
       final now = DateTime(2026, 10, 25, 12);
       AdDecision d({DateTime? last, int today = 0}) => AdRules.decide(
@@ -311,11 +336,11 @@ void main() {
           lastAppOpenAt: last,
           appOpensToday: today);
       expect(d().allowed, isTrue);
-      expect(d(last: now.subtract(const Duration(minutes: 59))).reason, 'too_soon');
-      expect(d(last: now.subtract(const Duration(minutes: 61))).allowed, isTrue);
+      expect(d(last: now.subtract(const Duration(minutes: 179))).reason, 'too_soon');
+      expect(d(last: now.subtract(const Duration(minutes: 181))).allowed, isTrue);
       expect(d(today: 5).allowed, isTrue);
       expect(d(today: 6).reason, 'daily_cap');
-      // a server gap below 1 h is never honoured
+      // a server gap below 3 h is never honoured
       final fast = AdConfig.fromJson(serverCfg()..['appopen_min_gap_sec'] = 60);
       expect(
           AdRules.decide(
@@ -625,4 +650,5 @@ Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 8; i++) {
     await tester.pump(const Duration(milliseconds: 60));
   }
+
 }

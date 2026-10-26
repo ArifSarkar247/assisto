@@ -12,7 +12,8 @@ app/lib/ads/ad_placements.dart, unit-tested there):
   * Never on SOS, safety, anti-theft, family alerts, calls, chats, chat lock,
     payment, login, onboarding or permission screens — the app uses an
     ALLOWLIST (only listed screens may show an ad; new screens get none).
-  * App-open at most once per `appopen_min_gap_sec` (default 1 h), max 6/day.
+  * App-open at most once per `appopen_min_gap_sec` (owner 26 Oct: default and
+    floor 3 h), max 6/day.
   * The app ships with Google's TEST unit ids. REAL unit ids are sent only
     when the owner turns `admob_real_ids` on (after production launch and
     AdMob app approval). Until then impressions credit nothing and rewarded
@@ -185,7 +186,7 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     caps = ad_caps or {}
     paid = bool(paid)
     real, app_id, units = serving_units(caps, admob_cfg, admob_working)
-    gap = int(caps.get("appopen_min_gap_sec", 3600) or 0)
+    gap = int(caps.get("appopen_min_gap_sec", 10800) or 0)
     i_gap = int(caps.get("interstitial_min_gap_sec", 300) or 0)
 
     def on(key):
@@ -223,7 +224,7 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "placements": placements,
         "rewarded_enabled": placements["rewarded"],
         "app_open_enabled": placements["app_open"],
-        "appopen_min_gap_sec": max(3600, gap),
+        "appopen_min_gap_sec": max(10800, gap),
         "appopen_daily_cap": app_open_cap,
         "appopen_min_bg_sec": max(5, min(3600, int(caps.get("appopen_min_bg_sec", 30) or 30))),
         "rewarded_daily_cap": rew_cap,

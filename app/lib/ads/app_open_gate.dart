@@ -76,7 +76,8 @@ class AppEntry {
 ///    alarm, reminder, widget, deep link, assist) — [suppressed];
 ///  * on a resume, only after the app was in the background >= [minBackground]
 ///    (a quick app switch is not an "app open");
-///  * never while a forbidden screen is on top (only the home root).
+///  * never while a forbidden screen is on top (only the home root);
+///  * never while a call is going on (even minimised to the mini bar).
 class AppOpenGuard {
   AppOpenGuard._();
 
@@ -88,7 +89,9 @@ class AppOpenGuard {
     required bool resumed,
     Duration? backgroundFor,
     Duration minBackground = const Duration(seconds: 30),
+    bool callActive = false,
   }) {
+    if (callActive) return const AdDecision(false, 'in_call');
     if (firstLaunchEver) return const AdDecision(false, 'first_launch');
     if (sessionAfterLogin) return const AdDecision(false, 'after_login');
     if (suppressed) return const AdDecision(false, 'blocked_entry');
@@ -110,8 +113,9 @@ class AppOpenGuard {
 class AppOpenGate {
   AppOpenGate._();
 
-  /// The owner's floor for the gap (server bounds 1 h .. 24 h).
-  static const minGap = Duration(hours: 1);
+  /// The owner's floor for the gap (owner 26 Oct: at most once every 3 h;
+  /// server bounds 3 h .. 24 h).
+  static const minGap = Duration(hours: 3);
 
   /// Day 1 = the sign-up (local) day.
   static int dayNumber(DateTime? joined, DateTime now) {

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../calls/call_runtime.dart' show CallRuntime;
 import '../push/push_service.dart' show appNavigatorKey;
 import '../state.dart';
 import '../screens/offers_screens.dart' show syncPendingOfferPrefs;
@@ -201,6 +202,15 @@ class AdsService with WidgetsBindingObserver {
     }
   }
 
+  /// A call is going on (full screen or minimised to the mini bar).
+  static bool _callActive() {
+    try {
+      return CallRuntime.instance.ongoing.value != null;
+    } catch (_) {
+      return true; // unsure -> no ad (never risk an ad over a call)
+    }
+  }
+
   Future<void> maybeShowAppOpen({bool resumed = false, Duration? backgroundFor}) async {
     if (_showing || suppressAppOpen) return;
     final app = _app;
@@ -221,6 +231,7 @@ class AdsService with WidgetsBindingObserver {
         resumed: resumed,
         backgroundFor: backgroundFor,
         minBackground: cfg0.appOpenMinBackground,
+        callActive: _callActive(),
       );
       if (!guard.allowed) return;
       final cfg = await refreshConfig();

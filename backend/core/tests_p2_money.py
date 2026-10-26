@@ -43,7 +43,7 @@ class AppOpenRuleTests(SimpleTestCase):
     def test_owner_defaults(self):
         # admob (owner 25 Oct): max 6 a day, at most once per hour
         self.assertEqual(CAPS["appopen_daily_cap"], 6)
-        self.assertEqual(CAPS["appopen_min_gap_sec"], 3600)
+        self.assertEqual(CAPS["appopen_min_gap_sec"], 10800)   # owner 26 Oct: 3 h
         self.assertEqual(CAPS["appopen_start_day"], 2)
         self.assertEqual(CAPS["appopen_skip_after_s"], 5)
         self.assertEqual(SP.skip_after_s(CAPS), 5)
@@ -55,8 +55,8 @@ class AppOpenRuleTests(SimpleTestCase):
     def test_daily_cap_and_gap(self):
         self.assertEqual(self.dec(shown_today=6), (False, "daily_cap"))
         self.assertEqual(self.dec(shown_today=5), (True, "ok"))
-        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 11, 30)), (False, "too_soon"))
-        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 10, 59)), (True, "ok"))
+        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 9, 30)), (False, "too_soon"))
+        self.assertEqual(self.dec(last_shown_at=_dt(2026, 10, 2, 8, 59)), (True, "ok"))
 
     def test_free_only_and_switch(self):
         self.assertEqual(self.dec(paid=True), (False, "paid_plan"))
@@ -81,7 +81,7 @@ class AppOpenRuleTests(SimpleTestCase):
                                         "appopen_start_day": 0,
                                         "appopen_min_gap_sec": 5}})["ad_rewards"]
         self.assertEqual((n["appopen_daily_cap"], n["appopen_skip_after_s"],
-                          n["appopen_start_day"], n["appopen_min_gap_sec"]), (6, 5, 1, 3600))
+                          n["appopen_start_day"], n["appopen_min_gap_sec"]), (6, 5, 1, 10800))
         self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"appopen_daily_cap": 50}}))
         self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"offer_notif_daily_cap": 9}}))
         self.assertEqual(P.validate_edit({"ad_rewards": {"appopen_daily_cap": 4,

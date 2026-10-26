@@ -62,7 +62,7 @@ class ConfigPureTests(SimpleTestCase):
         self.assertFalse(c["real_ids"])
         self.assertEqual(c["units"], GOOGLE_TEST_UNITS)
         self.assertTrue(c["ads_enabled"])
-        self.assertEqual(c["appopen_min_gap_sec"], 3600)
+        self.assertEqual(c["appopen_min_gap_sec"], 10800)   # owner 26 Oct: 3 h
         self.assertEqual(c["appopen_daily_cap"], 6)
         self.assertEqual(c["interstitial_min_gap_sec"], 300)
         self.assertEqual(c["interstitial_daily_cap"], 6)

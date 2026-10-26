@@ -393,7 +393,7 @@ def DEFAULTS():
             # admob (owner 25 Oct): app-open at most once per hour and at
             # most 6 a day (the AdMob console caps it at 1/hour too), from
             # day 2 after sign-up, skippable after 5 s. Bounded (AD_BOUNDS).
-            "appopen_min_gap_sec": 3600,
+            "appopen_min_gap_sec": 10800,
             "appopen_daily_cap": 6,
             "appopen_start_day": 2,
             "appopen_skip_after_s": 5,
@@ -771,7 +771,7 @@ def limits(cfg):
 # owner sees the mistake instead of a silent clamp. Nothing is unlimited.
 AD_BOUNDS = {
     "ecpm_bdt": (0, 5000),
-    "appopen_min_gap_sec": (3600, 86400),
+    "appopen_min_gap_sec": (10800, 86400),
     "appopen_daily_cap": (0, 6),
     "appopen_start_day": (1, 30),
     "appopen_skip_after_s": (5, 15),

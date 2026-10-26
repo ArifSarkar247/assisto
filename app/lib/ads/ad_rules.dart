@@ -9,8 +9,8 @@
 ///    a new screen gets no ad until it is added there. NEVER on SOS, safety,
 ///    anti-theft, family alerts, calls, chats, chat lock, payment, login,
 ///    onboarding or permission screens (hard tokens below, a second fence).
-///  * App-open at most once per the server gap (default 1 h, never below
-///    1 h) and within the server's daily cap (default 6).
+///  * App-open at most once per the server gap (owner 26 Oct: default and
+///    floor 3 h) and within the server's daily cap (default 6).
 ///  * The app ships with Google's TEST unit ids. REAL unit ids come from the
 ///    server only after the owner turns `admob_real_ids` on — no app update.
 library;
@@ -148,9 +148,9 @@ class AdConfig {
       bannerEnabled: on('banner'),
       interstitialEnabled: on('interstitial'),
       appOpenMinGap: Duration(
-          seconds: i(j['appopen_min_gap_sec']) > 0
+          seconds: i(j['appopen_min_gap_sec']) > 10800
               ? i(j['appopen_min_gap_sec'])
-              : 3600),
+              : 10800),
       appOpenDailyCap: i(j['appopen_daily_cap']),
       appOpenMinBackground: Duration(
           seconds: i(j['appopen_min_bg_sec']) < 5 ? 30 : i(j['appopen_min_bg_sec'])),
@@ -205,7 +205,7 @@ class AdRules {
   AdRules._();
 
   /// The floor for the app-open gap (owner-editable 1 h .. 24 h).
-  static const minAppOpenGap = Duration(hours: 1);
+  static const minAppOpenGap = Duration(hours: 3); // owner 26 Oct
 
   /// The floor for the interstitial gap (owner: max 1 per 5 minutes).
   static const minInterstitialGap = Duration(minutes: 5);
