@@ -1,1 +1,1 @@
-Build 244: Easier to use for everyone — bigger tap targets (48dp), screen-reader labels on buttons and switches, clearer text contrast, and no cut-off text with larger fonts, checked on every screen.
+Build 245: My Circle is now the first home shortcut (chat and call with friends, with unread and missed-call badges); reminders survive a phone restart again; more reliable incoming calls; bigger Edit button; Play purchases fixed (Business yearly, restore, payment-hold messages).

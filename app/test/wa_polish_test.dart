@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/calls/call_controller.dart';
@@ -89,6 +90,9 @@ class _CallsApi extends ApiClient {
 }
 
 void main() {
+  // the call log marks missed calls seen (CircleBadges -> Settings)
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   group('go to latest', () {
     testWidgets('hidden at the newest message, shows when scrolled up, '
         'counts only NEW incoming, tap returns to the newest', (tester) async {
