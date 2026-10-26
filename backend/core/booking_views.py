@@ -238,6 +238,10 @@ class BizPageView(_Gated):
                 return err(lang, "not_ready", 409, ready_problems=S.ready_problems(page))
         return self.get(request)
 
+    def post(self, request):
+        """Same as PUT (the app's API client posts JSON)."""
+        return self.put(request)
+
 
 class BizServicesView(_Gated):
     def _save(self, request, data, pk=None):

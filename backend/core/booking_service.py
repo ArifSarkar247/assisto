@@ -523,6 +523,28 @@ def _send_sms(b, text, now):
     return True
 
 
+def reminder_guard(b, now, max_reminders=None):
+    """THE single customer-messaging guard for booking reminders (caps, quiet
+    hours 22:00-08:00, STOP / chat opt-out). Returns (kind, allowed):
+      kind    — "24h" | "2h" | None (nothing due: quiet hours, cap reached,
+                too early / too late, booked too close to the start);
+      allowed — False when the customer said STOP (the reminder is counted
+                as used but never sent).
+    Integrator note: switch this ONE function to a shared core.logic.msg_guard
+    when that lands (item H); nothing else in booking decides who may be
+    messaged. The 24 h Meta window is enforced by bizagent send_text."""
+    if max_reminders is None:
+        max_reminders = max(0, min(L.MAX_REMINDERS, knob("booking_max_reminders")))
+    if L.in_quiet_hours(now):
+        return None, False
+    kind = L.due_reminder(b.start, b.created_at, now, list(b.reminded or []), max_reminders)
+    if not kind:
+        return None, False
+    c = contact(b.business, b.customer_phone)
+    stopped = bool(c and c.stop) or bool(b.thread and b.thread.opted_out)
+    return kind, not stopped
+
+
 def send_due_reminders(now=None, limit=500):
     """Run every few minutes (cron: manage.py booking_reminders). Returns the
     number of reminders that went out on at least one channel."""
@@ -538,14 +560,12 @@ def send_due_reminders(now=None, limit=500):
     for b in qs:
         if not flag_on(b.business.user):
             continue
-        kind = L.due_reminder(b.start, b.created_at, now, list(b.reminded or []), maxr)
+        kind, allowed = reminder_guard(b, now, maxr)
         if not kind:
             continue
-        c = contact(b.business, b.customer_phone)
-        stopped = bool(c and c.stop) or bool(b.thread and b.thread.opted_out)
         b.reminded = list(b.reminded or []) + [kind]
         b.reminders_sent += 1
-        if stopped:
+        if not allowed:
             _hist(b, "system", "reminder_skipped_stop", kind=kind)
             b.save(update_fields=["reminded", "reminders_sent", "history"])
             continue
