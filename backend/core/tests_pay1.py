@@ -1082,3 +1082,23 @@ class VatInclusiveNetTests(TestCase):
         self.assertAlmostEqual(nf, 0.85 / 1.15, places=4)       # ~0.739
         self.assertAlmostEqual(P.net_fraction({"play_fee": 0.15, "gateway_fee": 0.02,
                                                "vat": 0.0}), 0.83, places=4)
+
+
+class PlayBillingIntegrationTestHonest(TestCase):
+    """The Owner Admin Test passes only when the account may read purchases."""
+
+    def _run(self, status):
+        sa = {"client_email": "v@x.iam.gserviceaccount.com", "private_key": "k"}
+        with mock.patch.object(play, "access_token", return_value="tok"), \
+                mock.patch.object(play, "_http", return_value=(status, {})):
+            return integrations.test_play_billing(
+                {"service_account_json": json.dumps(sa)})
+
+    def test_permission_missing_fails_honestly(self):
+        ok, detail = self._run(401)
+        self.assertFalse(ok)
+        self.assertIn("permission", detail)
+
+    def test_invalid_fake_token_means_permission_ok(self):
+        ok, _ = self._run(400)
+        self.assertTrue(ok)

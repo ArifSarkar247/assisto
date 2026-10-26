@@ -1067,12 +1067,26 @@ def test_play_billing(cfg):
     c = {"sa": sa, "package_name": (cfg.get("package_name") or "com.assisto.assisto")}
     try:
         play.reset_cache()
-        play.access_token(c)
+        tok = play.access_token(c)
     except play.PlayError as e:
         return False, "Google OAuth: %s %s" % (e.reason, e.detail)
     except Exception as e:  # noqa: BLE001
         return False, "Google OAuth: %s" % type(e).__name__
-    return True, "✓ Google Play API টোকেন পাওয়া গেছে / token OK (%s)" % sa["client_email"]
+    # A token is not enough: ask the purchases API about a fake token. Google
+    # answers 400 "Invalid Value" only when the account MAY read purchases;
+    # 401/403 = Play Console permission missing (or not yet propagated).
+    try:
+        from urllib.parse import quote
+        url = "%s/%s/purchases/subscriptionsv2/tokens/permission-check" % (
+            play.API, quote(c["package_name"], safe=""))
+        st, _js = play._http("GET", url, None, {"Authorization": "Bearer " + tok})
+    except Exception as e:  # noqa: BLE001
+        return False, "Play API: %s" % type(e).__name__
+    if st in (401, 403):
+        return False, ("টোকেন ঠিক আছে, কিন্তু Play Console-এ কেনা দেখার অনুমতি নেই "
+                       "(নতুন অ্যাকাউন্টে কয়েক ঘণ্টা লাগতে পারে) / token OK but no Play "
+                       "Console permission for purchases yet (%s)" % sa["client_email"])
+    return True, "✓ Google Play API টোকেন ও কেনা-যাচাইয়ের অনুমতি ঠিক / token + purchases permission OK (%s)" % sa["client_email"]
 # ---- /pay1 ----
 # ---- t9-turnscale ----
 def test_turn_overflow(cfg):
