@@ -40,12 +40,20 @@ from typing import Dict, Optional
 HAND_IN_CASH_ZONE = "hand_in_cash_zone"
 AFTER_HOURS = "after_hours"
 MOTION = "motion"
+# CCTV AI Watchman (zones v2)
+PERSON_DETECTED = "person_detected"
+ZONE_INTRUSION = "zone_intrusion"
+LINE_CROSSING = "line_crossing"
 EVENT_TYPES = frozenset({
     HAND_IN_CASH_ZONE, "drawer_open", "void_spike", "refund_spike",
     "discount_spike", "eod_mismatch", MOTION, AFTER_HOURS, "pose_possible",
+    PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING, "camera_alarm",
 })
-EDGE_EMITTED_TYPES = frozenset({HAND_IN_CASH_ZONE, AFTER_HOURS, MOTION})
+EDGE_EMITTED_TYPES = frozenset({HAND_IN_CASH_ZONE, AFTER_HOURS, MOTION,
+                                PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING})
 
+# person_detected / zone_intrusion / line_crossing go multipart (snapshot kept):
+# the server parses the JSON-string `signals` of a multipart upload.
 # Types whose server-side raise decision depends on keys inside `signals`
 # (so they must be sent as JSON until the server parses multipart signals).
 SIGNAL_DEPENDENT_TYPES = frozenset({MOTION, "pose_possible", "eod_mismatch",
@@ -57,7 +65,9 @@ INGEST_PATH = "shop/ingest"
 
 def build_signals(etype: str, *, detector: str, after_hours: bool = False,
                   motion_in_zone: bool = False, person_in_zone: bool = False,
-                  frames: int = 1, lingering: bool = False) -> Dict[str, object]:
+                  frames: int = 1, lingering: bool = False,
+                  conf: Optional[float] = None, zone_id: Optional[str] = None,
+                  line_id: Optional[str] = None) -> Dict[str, object]:
     """Build the `signals` dict for one edge event, shaped for shop_guard.
 
     Only TRUE observations are included (a key with a false value would be
@@ -88,6 +98,16 @@ def build_signals(etype: str, *, detector: str, after_hours: bool = False,
             s["motion_in_zone"] = True
         if lingering:
             s["lingering"] = True
+    elif etype == PERSON_DETECTED:
+        s["person"] = True
+        if conf is not None:
+            s["conf"] = round(float(conf), 3)
+    elif etype == ZONE_INTRUSION:
+        s["zone_breach"] = True
+        s["zone"] = str(zone_id or "")[:32]
+    elif etype == LINE_CROSSING:
+        s["zone_breach"] = True
+        s["line"] = str(line_id or "")[:32]
     return s
 
 

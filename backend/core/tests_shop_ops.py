@@ -388,7 +388,7 @@ class PosMirrorVoidTests(_Base):
         self.assertEqual(evs.count(), 1)
         self.assertIn("count_3_vs_baseline_1", evs[0].signals["reason"][1])
         n = NotifEvent.objects.filter(user=self.owner).first()
-        self.assertIn("Please check", n.title_en)
+        self.assertIn("please check", n.title_en.lower())
         self.assertIn("voided sales", n.title_en)
         _assert_honest(self, n.title_en, n.body_en, n.title_bn, n.body_bn)
         OPS.mirror_pos(self.prof, "void", 1000)

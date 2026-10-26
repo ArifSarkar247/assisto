@@ -22,12 +22,14 @@ class Cooldown:
         self._last: Dict[Hashable, float] = {}
         self._lock = threading.Lock()
 
-    def allow(self, key: Hashable) -> bool:
-        """True (and start the cooldown) if `key` is not cooling down."""
+    def allow(self, key: Hashable, seconds: Optional[float] = None) -> bool:
+        """True (and start the cooldown) if `key` is not cooling down.
+        `seconds` overrides the default for this key (per-camera tuning)."""
         now = self._clock()
+        win = self.seconds if seconds is None else float(seconds)
         with self._lock:
             last = self._last.get(key)
-            if last is not None and now - last < self.seconds:
+            if last is not None and now - last < win:
                 return False
             self._last[key] = now
             return True

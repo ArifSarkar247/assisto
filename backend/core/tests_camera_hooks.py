@@ -150,7 +150,7 @@ class CameraHookViewTests(APITestCase):
         from PIL import Image
         self.assertLessEqual(max(Image.open(ev.snapshot.path).size), 640)
         alert = FamilyAlert.objects.get(user=self.owner, kind="shop_guard")
-        self.assertIn("Please check", alert.title)
+        self.assertIn("please check", alert.title.lower())
         self.assertNotIn("theft", (alert.title + alert.body).lower())
         # the camera repeats "active" while the event lasts → deduped
         r2 = self._post("hikvision", ctype, body)

@@ -16,7 +16,7 @@ from urllib.parse import quote, unquote, urlsplit, urlunsplit
 
 from . import paths
 from .hours import Hours
-from .zone import normalize_polygon
+from .zone import normalize_polygon, normalize_tuning, normalize_zones_v2
 
 DEFAULT_BASE_URL = "https://api.lifeassisto.com/api/v1/"
 
@@ -29,6 +29,11 @@ class CameraConfig:
     zone: List[List[float]] = field(default_factory=list)   # normalised polygon
     enabled: bool = True
     hours: Optional[dict] = None          # per-camera override of site hours
+    # ---- CCTV AI Watchman (all optional; absent on older configs/servers)
+    server_id: Optional[int] = None       # the server's ShopCamera id
+    source: Optional[dict] = None         # vendor/host/port/channel/stream (no secret)
+    zones_v2: Optional[dict] = None       # server zones v2 (normalised)
+    tuning: Optional[dict] = None         # person_conf / motion_mult / cooldown_s
 
     @classmethod
     def new(cls, name: str, rtsp_url: str) -> "CameraConfig":
@@ -37,11 +42,41 @@ class CameraConfig:
 
     @classmethod
     def from_dict(cls, d: dict) -> "CameraConfig":
+        sid = d.get("server_id")
         return cls(id=str(d["id"]), name=str(d.get("name", ""))[:120],
                    rtsp_url=str(d.get("rtsp_url", "")),
                    zone=[list(p) for p in normalize_polygon(d.get("zone"))],
                    enabled=bool(d.get("enabled", True)),
-                   hours=d.get("hours") or None)
+                   hours=d.get("hours") or None,
+                   server_id=int(sid) if str(sid).isdigit() else None,
+                   source=clean_source(d.get("source")),
+                   zones_v2=normalize_zones_v2(d.get("zones_v2")),
+                   tuning=normalize_tuning(d.get("tuning")))
+
+    def cash_zone(self) -> List[List[float]]:
+        """The cash-drawer polygon: a v2 `cash` zone from the owner's app
+        wins; otherwise the zone drawn locally on this PC."""
+        for z in (self.zones_v2 or {}).get("zones") or []:
+            if z.get("type") == "cash":
+                return z["points"]
+        return self.zone
+
+
+SOURCE_KEYS = ("vendor", "host", "port", "onvif_port", "channel", "stream",
+               "rtsp_path")
+
+
+def clean_source(d) -> Optional[dict]:
+    """Server camera `source` minus anything that is not a known, non-secret
+    key (a secret must never reach config.json)."""
+    if not isinstance(d, dict):
+        return None
+    out = {k: d[k] for k in SOURCE_KEYS
+           if k in d and isinstance(d[k], (str, int)) and not isinstance(d[k], bool)}
+    if "rtsp_path" in out:
+        from .vendors import redact_url
+        out["rtsp_path"] = redact_url(str(out["rtsp_path"]))[:300]
+    return out or None
 
 
 @dataclass

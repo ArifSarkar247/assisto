@@ -74,3 +74,51 @@ class Hours:
 
     def is_after_hours(self, when: Optional[datetime] = None) -> bool:
         return not self.is_open(when)
+
+
+@dataclass
+class Schedule:
+    """The owner's ARMED schedule for one camera (zones v2): weekdays
+    (Mon=0..Sun=6) and a daily window. `end` earlier than `start` is an
+    overnight window (22:00 -> 06:00): the after-midnight part belongs to the
+    PREVIOUS day, so days=[4] with 22:00-06:00 arms Fri 22:00 -> Sat 06:00.
+    `start == end` arms the listed days all day."""
+    days: List[int] = field(default_factory=lambda: list(range(7)))
+    start: str = "00:00"
+    end: str = "00:00"
+
+    @classmethod
+    def from_dict(cls, d) -> Optional["Schedule"]:
+        """None (= always armed) for a missing/invalid schedule."""
+        if not isinstance(d, dict):
+            return None
+        try:
+            days = sorted({int(x) for x in (d.get("days") or [])
+                           if str(x).lstrip("-").isdigit() and 0 <= int(x) <= 6})
+            s = cls(days=days, start=str(d.get("start") or "00:00"),
+                    end=str(d.get("end") or "00:00"))
+            parse_hhmm(s.start)
+            parse_hhmm(s.end)
+        except (TypeError, ValueError):
+            return None
+        return s
+
+    def to_dict(self) -> dict:
+        return {"days": list(self.days), "start": self.start, "end": self.end}
+
+    def is_armed(self, when: Optional[datetime] = None,
+                 tz_name: Optional[str] = None) -> bool:
+        tz = get_tz(tz_name)
+        local = (when or datetime.now(tz=tz)).astimezone(tz)
+        s, e = parse_hhmm(self.start), parse_hhmm(self.end)
+        t = local.time().replace(second=0, microsecond=0)
+        wd = local.weekday()
+        if s == e:
+            return wd in self.days
+        if s < e:
+            return wd in self.days and s <= t < e
+        if t >= s:
+            return wd in self.days
+        if t < e:
+            return (wd - 1) % 7 in self.days
+        return False

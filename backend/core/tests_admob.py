@@ -356,7 +356,7 @@ class PublicPagesTests(SimpleTestCase):
         for s in ("Google AdMob", "Advertising ID", "com.google.android.gms.permission.AD_ID",
                   "Premium and Business plans have no ads", "non-personalised",
                   "Personalised vs non-personalised", "UMP", "US states",
-                  "Ad privacy choices", "Android Settings → Privacy → Ads", "2026-10-25"):
+                  "Ad privacy choices", "Android Settings → Privacy → Ads", "2026-10-26"):
             self.assertIn(s, en.replace("&#x27;", "'"), s)
         self.assertNotIn("shows no ads today", en)
         bn = Client().get("/privacy").content.decode()
@@ -372,7 +372,7 @@ class PublicPagesTests(SimpleTestCase):
         self.assertIn("Advertising ID", body)
         self.assertIn("Google AdMob", body)
         self.assertNotIn("contains no advertising SDK", body)
-        self.assertEqual(en.get("last_updated", "2026-10-25"), "2026-10-25")
+        self.assertEqual(en.get("last_updated", "2026-10-26"), "2026-10-26")
         bn = Client().get("/api/v1/legal/privacy", HTTP_ACCEPT_LANGUAGE="bn").json()
         body = bn["body"] if isinstance(bn.get("body"), str) else str(bn)
         self.assertIn("Advertising ID", body)

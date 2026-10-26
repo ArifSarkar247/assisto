@@ -91,3 +91,92 @@ def box_zone_overlap(box: Tuple[float, float, float, float], mask: np.ndarray) -
     inter = int(np.count_nonzero(mask[y1:y2, x1:x2]))
     box_px = (x2 - x1) * (y2 - y1)
     return max(inter / zone_px, inter / box_px)
+
+
+# ------------------------------------------------------------- zones v2
+def normalize_line(points) -> List[Point]:
+    """An entry line: exactly 2 distinct normalised points, else []."""
+    try:
+        if not points or len(points) != 2:
+            return []
+    except TypeError:
+        return []
+    out: List[Point] = []
+    for p in points:
+        try:
+            x, y = float(p[0]), float(p[1])
+        except (TypeError, ValueError, IndexError):
+            return []
+        if not (np.isfinite(x) and np.isfinite(y)):
+            return []
+        out.append((min(max(x, 0.0), 1.0), min(max(y, 0.0), 1.0)))
+    if abs(out[0][0] - out[1][0]) + abs(out[0][1] - out[1][1]) < 1e-3:
+        return []
+    return out
+
+
+def _orient(a: Point, b: Point, c: Point) -> float:
+    return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+
+def segments_cross(p1: Point, p2: Point, q1: Point, q2: Point) -> bool:
+    """True when segment p1->p2 (a centroid's movement between two analysed
+    frames) properly crosses segment q1-q2 (the entry line). Merely touching
+    the line, or moving along it, does not count."""
+    d1, d2 = _orient(q1, q2, p1), _orient(q1, q2, p2)
+    d3, d4 = _orient(p1, p2, q1), _orient(p1, p2, q2)
+    return ((d1 > 0 > d2) or (d1 < 0 < d2)) and ((d3 > 0 > d4) or (d3 < 0 < d4))
+
+
+def box_centroid(box) -> Point:
+    return ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
+
+
+ZONE_TYPES = ("restricted", "cash", "entry_line")
+SENSITIVITY_MULT = {"low": 1.5, "medium": 1.0, "high": 0.7}
+
+
+def normalize_zones_v2(d) -> Optional[dict]:
+    """Server `zones` (v2) -> a clean dict, or None when absent/invalid.
+    {"v": 2, "zones": [{id, type, points}], "schedule": dict|None,
+     "sensitivity": low|medium|high, "quiet_hours": dict|None}"""
+    if not isinstance(d, dict):
+        return None
+    try:
+        if int(d.get("v") or 0) != 2:
+            return None
+    except (TypeError, ValueError):
+        return None
+    zones = []
+    raw = d.get("zones") if isinstance(d.get("zones"), list) else []
+    for z in raw[:16]:
+        if not isinstance(z, dict) or z.get("type") not in ZONE_TYPES:
+            continue
+        zid = str(z.get("id") or "z%d" % (len(zones) + 1))[:32]
+        pts = normalize_line(z.get("points")) if z["type"] == "entry_line" \
+            else normalize_polygon(z.get("points"))
+        if pts:
+            zones.append({"id": zid, "type": z["type"],
+                          "points": [list(p) for p in pts]})
+    sens = d.get("sensitivity") if d.get("sensitivity") in SENSITIVITY_MULT \
+        else "medium"
+    sched = d.get("schedule") if isinstance(d.get("schedule"), dict) else None
+    quiet = d.get("quiet_hours") if isinstance(d.get("quiet_hours"), dict) else None
+    return {"v": 2, "zones": zones, "schedule": sched, "sensitivity": sens,
+            "quiet_hours": quiet}
+
+
+def normalize_tuning(d) -> Optional[dict]:
+    """Server `tuning` -> clamped dict (only the keys present), or None."""
+    if not isinstance(d, dict):
+        return None
+    out = {}
+    for key, lo, hi in (("person_conf", 0.35, 0.85), ("motion_mult", 0.5, 3.0),
+                        ("cooldown_s", 60.0, 900.0)):
+        try:
+            v = float(d[key])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if np.isfinite(v):
+            out[key] = min(max(v, lo), hi)
+    return out or None

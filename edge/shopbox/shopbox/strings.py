@@ -95,6 +95,15 @@ STRINGS = {
         "res_unpaired": "Not sent: pairing problem",
         "privacy_note": "Video stays on this PC. Only a short alert and one small still picture are sent.",
         "auto_start_label": "Start monitoring when this window opens",
+        "ev_person_detected": "Someone seen while the camera is armed: please check",
+        "ev_zone_intrusion": "Someone entered a restricted area: please check",
+        "ev_line_crossing": "Someone crossed the entry line: please check",
+        "gw_waiting_cams": "No camera yet. Add cameras in the Assisto app: this PC checks them and starts watching.",
+        "gw_checking": "Checking a camera added in the app...",
+        "gw_discovering": "Looking for cameras on this network...",
+        "gw_check_ok": "Last camera check: it works, watching has started.",
+        "gw_check_fail": "Last camera check: it did not work. The details are in the Assisto app.",
+        "gw_discover_done": "Cameras found on this network: {n}",
     },
     "bn": {
         "app_title": "অ্যাসিস্টো শপ বক্স",
@@ -183,8 +192,41 @@ STRINGS = {
         "res_unpaired": "পাঠানো যায়নি: যুক্ত করার সমস্যা",
         "privacy_note": "ভিডিও এই কম্পিউটারেই থাকে। শুধু একটি ছোট সতর্কবার্তা ও একটি ছোট স্থির ছবি পাঠানো হয়।",
         "auto_start_label": "এই উইন্ডো খুললেই নজরদারি চালু হবে",
+        "ev_person_detected": "নজরদারির সময় কাউকে দেখা গেছে: একটু দেখে নিন",
+        "ev_zone_intrusion": "সংরক্ষিত জায়গায় কেউ ঢুকেছে: একটু দেখে নিন",
+        "ev_line_crossing": "প্রবেশ রেখা কেউ পার হয়েছে: একটু দেখে নিন",
+        "gw_waiting_cams": "এখনো কোনো ক্যামেরা নেই। অ্যাসিস্টো অ্যাপে ক্যামেরা যোগ করুন: এই কম্পিউটার সেটি পরীক্ষা করে নজরদারি শুরু করবে।",
+        "gw_checking": "অ্যাপে যোগ করা একটি ক্যামেরা পরীক্ষা করা হচ্ছে...",
+        "gw_discovering": "এই নেটওয়ার্কে ক্যামেরা খোঁজা হচ্ছে...",
+        "gw_check_ok": "শেষ ক্যামেরা পরীক্ষা: কাজ করছে, নজরদারি শুরু হয়েছে।",
+        "gw_check_fail": "শেষ ক্যামেরা পরীক্ষা: কাজ করেনি। বিস্তারিত অ্যাসিস্টো অ্যাপে দেখুন।",
+        "gw_discover_done": "এই নেটওয়ার্কে পাওয়া ক্যামেরা: {n}টি",
     },
 }
+
+
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def bn_digits(value) -> str:
+    return str(value).translate(_BN_DIGITS)
+
+
+def gateway_line(tr: "Tr", state, last) -> str:
+    """One status line about camera checks from the app ('' when nothing to
+    say). Numbers in Bangla digits when the UI is Bangla."""
+    if state == "check":
+        return tr("gw_checking")
+    if state == "discover":
+        return tr("gw_discovering")
+    if not isinstance(last, dict):
+        return ""
+    if last.get("action") == "discover":
+        n = int(last.get("count") or 0)
+        return tr("gw_discover_done", n=bn_digits(n) if tr.lang == "bn" else n)
+    if last.get("action") == "check":
+        return tr("gw_check_ok" if last.get("ok") else "gw_check_fail")
+    return ""
 
 
 class Tr:

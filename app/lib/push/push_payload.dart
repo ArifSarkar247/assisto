@@ -168,6 +168,7 @@ class PushRouting {
     'alerts': 'notifications',
     'safety/sos': 'family',
     'business/shop-box': 'shop_box',
+    'watchman': 'watchman', // cctv1
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1

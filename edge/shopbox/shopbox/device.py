@@ -4,7 +4,9 @@ config pull. The token travels in the `X-Shop-Token` header (or the JSON body)
 
   POST shop/pair/check   validate a site/camera token, get the shop name
   POST shop/heartbeat    "I'm alive" (+ caps) -> config_version, live_pending
-  GET  shop/config       hours / enabled / restricted_zone per camera
+  GET  shop/config       hours / enabled / zones v2 / tuning per camera
+  GET  shop/gateway/tasks             camera checks / LAN discovery to run
+  POST shop/gateway/tasks/<id>/result multipart: result JSON + one JPEG
 
 `DeviceSync` runs the heartbeat loop in a daemon thread and applies the
 owner's server-side settings (camera on/off, per-camera hours) to the local
@@ -25,6 +27,8 @@ log = logging.getLogger(__name__)
 PAIR_PATH = "shop/pair/check"
 HEARTBEAT_PATH = "shop/heartbeat"
 CONFIG_PATH = "shop/config"
+TASKS_PATH = "shop/gateway/tasks"
+TASK_RESULT_PATH = "shop/gateway/tasks/%d/result"
 
 
 class DeviceClient:
@@ -73,13 +77,38 @@ class DeviceClient:
             return "unsupported", ""
         return "offline", ""
 
-    def heartbeat(self, token: str, caps: List[str]):
-        return self._call("POST", HEARTBEAT_PATH, token,
-                          {"caps": list(caps), "platform": "windows",
-                           "version": __version__})
+    def heartbeat(self, token: str, caps: List[str],
+                  camera_ids: Optional[List[int]] = None):
+        body = {"caps": list(caps), "platform": "windows", "version": __version__}
+        if camera_ids:
+            body["camera_ids"] = [int(x) for x in camera_ids][:64]
+        return self._call("POST", HEARTBEAT_PATH, token, body)
 
     def config(self, token: str):
         return self._call("GET", CONFIG_PATH, token)
+
+    def gateway_tasks(self, token: str):
+        return self._call("GET", TASKS_PATH, token)
+
+    def post_task_result(self, token: str, task_id: int, result: dict,
+                         snapshot: Optional[bytes] = None) -> int:
+        """multipart/form-data: `result` (JSON string) + optional `snapshot`
+        (image/jpeg). -> HTTP status, 0 = network error."""
+        import json
+
+        import requests
+
+        url = urljoin(self.base, TASK_RESULT_PATH % int(task_id))
+        # (None, value) = a plain form field; always multipart/form-data
+        files = {"result": (None, json.dumps(result, separators=(",", ":")))}
+        if snapshot:
+            files["snapshot"] = ("snapshot.jpg", snapshot, "image/jpeg")
+        try:
+            r = self.s.post(url, files=files,
+                            headers={"X-Shop-Token": token}, timeout=self.timeout)
+        except requests.RequestException:
+            return 0
+        return int(r.status_code)
 
 
 def apply_server_camera(local_cam, server_cam: dict, site_hours: Optional[dict] = None
@@ -107,6 +136,26 @@ def apply_server_camera(local_cam, server_cam: dict, site_hours: Optional[dict] 
         if new != cur:
             local_cam.hours = new
             changed = True
+    # CCTV AI Watchman keys (optional: an older server simply omits them, and
+    # then whatever was stored locally stays)
+    from .config import clean_source
+    from .zone import normalize_tuning, normalize_zones_v2
+
+    if "zones" in server_cam:
+        z = normalize_zones_v2(server_cam.get("zones"))
+        if z != local_cam.zones_v2:
+            local_cam.zones_v2 = z
+            changed = True
+    if "tuning" in server_cam:
+        t = normalize_tuning(server_cam.get("tuning"))
+        if t != local_cam.tuning:
+            local_cam.tuning = t
+            changed = True
+    if "source" in server_cam:
+        src = clean_source(server_cam.get("source"))
+        if src and src != local_cam.source:
+            local_cam.source = src
+            changed = True
     return changed
 
 
@@ -131,7 +180,8 @@ class DeviceSync(threading.Thread):
     def __init__(self, client: DeviceClient, tokens: Callable[[], Dict[str, str]],
                  caps: List[str], on_config: Callable[[dict, Optional[str]], None],
                  on_live: Optional[Callable[[str, dict], None]] = None,
-                 every_s: float = 20.0):
+                 every_s: float = 20.0, tasks=None,
+                 camera_ids: Optional[Callable[[], List[int]]] = None):
         super().__init__(name="device-sync", daemon=True)
         self.client = client
         self.tokens = tokens        # () -> {local_camera_id or "": token}
@@ -139,6 +189,8 @@ class DeviceSync(threading.Thread):
         self.on_config = on_config
         self.on_live = on_live
         self.every_s = float(every_s)
+        self.tasks = tasks          # tasks.GatewayTasks (camera checks) or None
+        self.camera_ids = camera_ids  # () -> server camera ids captured here
         self._halt = threading.Event()
         self._versions: Dict[str, str] = {}
         self.online: Optional[bool] = None
@@ -150,10 +202,19 @@ class DeviceSync(threading.Thread):
     def tick(self) -> None:
         """One heartbeat round (public for tests)."""
         any_ok = False
+        pending = 0
+        ids: List[int] = []
+        if self.camera_ids is not None:
+            try:
+                ids = list(self.camera_ids() or [])
+            except Exception:
+                ids = []
         for cam_id, tok in (self.tokens() or {}).items():
             if not tok:
                 continue
-            st, d = self.client.heartbeat(tok, self.caps)
+            # the site token reports the gateway cameras it captures
+            st, d = self.client.heartbeat(tok, self.caps,
+                                          ids if not cam_id else None)
             if st == 401:
                 self.unauthorized = True
                 continue
@@ -161,6 +222,10 @@ class DeviceSync(threading.Thread):
                 continue
             any_ok = True
             self.unauthorized = False
+            try:
+                pending = max(pending, int(d.get("tasks_pending") or 0))
+            except (TypeError, ValueError):
+                pass
             ver = str(d.get("config_version") or "")
             if ver and self._versions.get(cam_id) != ver:
                 cst, cfg = self.client.config(tok)
@@ -177,6 +242,11 @@ class DeviceSync(threading.Thread):
                     except Exception:
                         log.exception("live session handler failed")
         self.online = any_ok if self.tokens() else None
+        if self.tasks is not None and any_ok:
+            try:
+                self.tasks.maybe_poll(pending)
+            except Exception:
+                log.exception("gateway task poll failed")
 
     def run(self) -> None:
         while not self._halt.is_set():

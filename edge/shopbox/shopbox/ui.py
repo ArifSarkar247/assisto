@@ -21,7 +21,7 @@ from .config import CameraConfig, join_rtsp_credentials, normalize_base_url, \
     split_rtsp_credentials
 from .hours import Hours, parse_hhmm
 from .secure_store import SITE_TOKEN, SecretStore, cam_key
-from .strings import Tr
+from .strings import Tr, gateway_line
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,8 @@ class App:
         self.build()
         self.root.after(300, self._poll)
         self.root.after(1000, self._refresh)
-        if cfg.auto_start and self.store.get(SITE_TOKEN) and cfg.cameras:
+        # also with no camera yet: cameras added in the app arrive as checks
+        if cfg.auto_start and self.store.get(SITE_TOKEN):
             self.root.after(1500, self.toggle_run)
 
     # ------------------------------------------------------------- threading
@@ -322,10 +323,8 @@ class App:
             if not self.store.get(SITE_TOKEN):
                 self.run_status.config(text=self.tr("need_pair"))
                 return
-            if not self.cfg.cameras:
-                self.run_status.config(text=self.tr("need_cam"))
-                return
-            self.engine = Engine(self.cfg, self.store, events=self.events)
+            self.engine = Engine(self.cfg, self.store, events=self.events,
+                                 cfg_store=self.cstore)
             try:
                 self.engine.start()
             except RuntimeError:
@@ -351,6 +350,11 @@ class App:
             lines.append(t("net_unknown"))
         else:
             lines.append(t("net_online" if st["online"] else "net_offline"))
+        if not self.cfg.cameras:
+            lines.append(t("gw_waiting_cams"))
+        gw = gateway_line(t, st.get("gateway_state"), st.get("gateway_last"))
+        if gw:
+            lines.append(gw)
         self.run_status.config(text="\n".join(lines))
 
     def _refresh_events(self):

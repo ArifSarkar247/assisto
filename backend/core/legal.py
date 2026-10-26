@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-25"
+LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman section
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -142,6 +142,26 @@ def _privacy(lang):
              "version and a hidden install ID; crash reports to fix bugs (no "
              "message or personal text); anonymous usage statistics only with "
              "your consent."),
+        _sec(lang, "সিসিটিভি ওয়াচম্যান", "CCTV watchman",
+             "বাড়ি বা দোকানের ক্যামেরা যুক্ত করলে ভিডিও আপনার গেটওয়েতেই "
+             "(পুরনো ফোন, Shop Box বা কম্পিউটার) থাকে ও সেখানেই বিশ্লেষণ হয় — "
+             "আমাদের সার্ভারে কখনো ভিডিও রাখা হয় না। সার্ভারে আসে শুধু ঘটনার "
+             "ধরন, সময়, আত্মবিশ্বাস আর প্রতি ঘটনায় একটি ছোট ছবি (আপনার বেছে "
+             "নেওয়া ০–৩০ দিন, ডিফল্ট ৩ দিন, তারপর মুছে যায়), আর জোন আঁকার "
+             "জন্য একটি পরীক্ষার ছবি। ক্যামেরার পাসওয়ার্ড একবার গেটওয়েতে পৌঁছে "
+             "দিয়ে সার্ভার থেকে মুছে ফেলা হয়। দেখেন শুধু আপনি ও আপনার যোগ করা "
+             "পরিবারের সদস্য। মুখ চেনা নেই, শব্দ রেকর্ড নেই; লাইভ ভিউ সরাসরি "
+             "আপনার ফোনে যায় ও রেকর্ড হয় না।",
+             "If you connect cameras at your home or shop, the video stays on "
+             "your gateway (an old phone, the Shop Box or a computer) and is "
+             "analysed there — our server never keeps video. The server gets "
+             "only the event type, time, confidence and one small photo per "
+             "event (kept for the 0–30 days you choose, 3 by default, then "
+             "deleted), plus one check photo for drawing zones. The camera "
+             "password is handed to the gateway once and then deleted from the "
+             "server. Only you and the family members you add can see it. No "
+             "face recognition, no sound recording; live view goes straight to "
+             "your phone and is never recorded."),
         _sec(lang, "আমরা কী করি না", "What we do NOT do",
              "আপনার ডেটা বিক্রি করি না, আপনার তথ্য দিয়ে বিজ্ঞাপনের প্রোফাইল "
              "বানাই না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",

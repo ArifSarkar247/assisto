@@ -201,7 +201,18 @@ _VEHICLE_BOUNDS = {
 #   eod_tolerance_poisha  end-of-day cash count may differ by this before a
 #                         "please check" (default ৳50 = 5000 poisha)
 #   live_max_session_s    hard cap on one live-view session (default 10 min)
-_SHOP_DEFAULTS = {"eod_tolerance_poisha": 5000, "live_max_session_s": 600}
+#   cctv1 watchman limits (all bounded, never unlimited):
+#   watchman_group_min        repeats of camera+type inside N min = ONE alert
+#   watchman_daily_alert_cap  alerts per site per day (the rest are counted only)
+#   watchman_tasks_per_hour   gateway checks/scans an owner may queue per site
+#   watchman_snapshot_kb      biggest snapshot upload accepted (then shrunk)
+_SHOP_DEFAULTS = {"eod_tolerance_poisha": 5000, "live_max_session_s": 600,
+                  "watchman_group_min": 10, "watchman_daily_alert_cap": 30,
+                  "watchman_tasks_per_hour": 20, "watchman_snapshot_kb": 1024}
+_SHOP_BOUNDS = {"watchman_group_min": (1, 120),
+                "watchman_daily_alert_cap": (1, 500),
+                "watchman_tasks_per_hour": (1, 200),
+                "watchman_snapshot_kb": (64, 4096)}
 
 # Business plan includes this many edge cameras at no credit cost; beyond it,
 # each camera is charged `shop_extra_camera`. Non-Business plans get 0 included.
@@ -645,6 +656,8 @@ def _norm_shop(raw, base):
         # 60 s .. 30 min — never unbounded
         "live_max_session_s": max(60, min(1800, _int(raw.get("live_max_session_s"),
                                                      base["live_max_session_s"]))),
+        **{k: max(lo, min(hi, _int(raw.get(k), base.get(k, _SHOP_DEFAULTS[k]))))
+           for k, (lo, hi) in _SHOP_BOUNDS.items()},
     }
 
 

@@ -594,6 +594,25 @@ urlpatterns += [
 ]
 # ---- /a2-cctv ----
 
+# ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
+from . import watchman_views as wm  # noqa: E402
+urlpatterns += [
+    path("shop/watchman", wm.WatchmanOverviewView.as_view()),
+    path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
+    path("shop/cameras/<int:pk>/check", wm.CameraCheckView.as_view()),
+    path("shop/cameras/<int:pk>/zones", wm.CameraZonesView.as_view()),
+    path("shop/cameras/<int:pk>/preview", wm.CameraPreviewView.as_view()),
+    path("shop/cameras/<int:pk>/imou", wm.CameraImouView.as_view()),
+    path("shop/sites/<int:pk>/discover", wm.SiteDiscoverView.as_view()),
+    path("shop/sites/<int:pk>/viewers", wm.SiteViewersView.as_view()),
+    path("shop/sites/<int:pk>/viewers/<int:uid>", wm.SiteViewerDeleteView.as_view()),
+    path("shop/gateway/tasks", wm.GatewayTasksView.as_view()),
+    path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
+    path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
+    path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+]
+# ---- /cctv1 ----
+
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus
 # and the Messenger settings screens. PREPENDED so the literal group routes win
 # over the single-segment `circle/groups/<pk>/<slug:setting>` catch-all above.

@@ -37,6 +37,11 @@ EOD_MISMATCH = "eod_mismatch"
 MOTION = "motion"
 AFTER_HOURS = "after_hours"
 POSE_POSSIBLE = "pose_possible"
+# cctv1 (Home & shop watchman)
+PERSON_DETECTED = "person_detected"
+ZONE_INTRUSION = "zone_intrusion"
+LINE_CROSSING = "line_crossing"
+CAMERA_ALARM = "camera_alarm"
 
 # POS kinds (mirrors ShopPosEvent.KINDS) used for correlation.
 POS_SALE = "sale"
@@ -59,7 +64,11 @@ DEFAULT_SPIKE_FACTOR = 2.0     # and >= this multiple of the baseline
 # (which detector ran, client version, where the event came from). They must
 # never count as an extra corroborating signal or inflate confidence.
 META_KEYS = frozenset({"detector", "edge_version", "source", "camera_rule",
-                       "model", "fps", "camera_id"})
+                       "model", "fps", "camera_id",
+                       # cctv1: schedule state / geometry ids / counters are
+                       # context, not independent evidence
+                       "armed", "conf", "zone", "line", "count", "vendor",
+                       "alarm_type"})
 
 
 def _corroborations(extra):
@@ -204,6 +213,50 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
             conf += 0.1
         return _result(True, etype, min(conf, 0.9), reasons)
 
+    # ---- cctv1: RESTRICTED ZONE / ENTRY LINE (gateway geometry) ----
+    # The gateway only sends these when a detection's centre falls inside a
+    # restricted polygon / crosses the drawn line, so `zone_breach` is the
+    # second signal next to the detection itself. Without it -> never raised.
+    if etype in (ZONE_INTRUSION, LINE_CROSSING):
+        if not extra.get("zone_breach"):
+            return _result(False, etype, 0.0, ["no_zone_breach"])
+        reasons = [etype, "zone_breach"]
+        conf = 0.6
+        if extra.get("person"):
+            reasons.append("person")
+            conf += 0.15
+        if extra.get("after_hours"):
+            reasons.append("after_hours")
+            conf += 0.1
+        return _result(True, etype, min(conf, 0.9), reasons)
+
+    # ---- cctv1: PERSON while the camera is ARMED (owner's schedule) ----
+    # The server adds armed=True only when the owner set an armed schedule and
+    # it is armed now; a person outside an armed window is never an alert.
+    if etype == PERSON_DETECTED:
+        if not extra.get("armed"):
+            return _result(False, etype, 0.0, ["not_armed"])
+        try:
+            pc = float(extra.get("conf") or 0.5)
+        except (TypeError, ValueError):
+            pc = 0.5
+        conf = max(0.3, min(0.9, pc))
+        return _result(True, etype, conf, ["person", "armed_schedule"],
+                       possible=conf < 0.5)
+
+    # ---- cctv1: the camera's OWN alarm (Imou cloud / vendor push) ----
+    # human/intrusion alarms while armed are corroborated by the schedule;
+    # plain motion alarms stay "possible" (low confidence).
+    if etype == CAMERA_ALARM:
+        if not extra.get("armed"):
+            return _result(False, etype, 0.0, ["not_armed"])
+        human = bool(extra.get("human") or extra.get("zone_breach"))
+        if human:
+            return _result(True, etype, 0.65, ["camera_alarm", "human",
+                                                "armed_schedule"])
+        return _result(True, etype, 0.35, ["camera_alarm", "armed_schedule"],
+                       possible=True)
+
     # ---- plain MOTION during open hours: NOT an alert on its own ----
     # Camera-only sites log motion; it only escalates if the edge also flagged
     # after-hours (handled above) or a zone breach rides in signals.
@@ -214,6 +267,10 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
         if extra.get("zone_breach"):
             return _result(True, etype, 0.55,
                            ["motion_detected", "zone_breach"])
+        if extra.get("armed"):
+            # cctv1: motion while the owner's schedule is armed -> "possible"
+            return _result(True, etype, 0.4,
+                           ["motion_detected", "armed_schedule"], possible=True)
         return _result(False, etype, 0.0, ["lone_motion"])
 
     # ---- LONE POSE: at most "possible", low confidence, status stays open ----
