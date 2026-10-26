@@ -1,1 +1,1 @@
-Build 248: Fewer interruptions — the app-open ad now shows at most once every 3 hours and never during a call; behind-the-scenes groundwork for business bookings and customer follow-ups (not visible yet); stability fixes.
+Build 249: A brand-new home — greeting header, slimmer Discover cards, 12 shortcuts with My Circle pinned first, an Ask Assisto card that opens the AI chat, and a new bottom bar with one-tap Assisto Voice and All Services. Bangla and English, light and dark.
