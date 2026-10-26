@@ -266,9 +266,9 @@ class LadderDebtCard extends StatelessWidget {
                   ),
                   FilledButton.tonal(
                     onPressed: onDoStep,
+                    // a11y1: standard density keeps the 48 dp target.
                     style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
-                        visualDensity: VisualDensity.compact),
+                        padding: const EdgeInsets.symmetric(horizontal: Gap.md)),
                     child: Text(t.plDoAction),
                   ),
                 ]),

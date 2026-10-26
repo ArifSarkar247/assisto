@@ -444,9 +444,15 @@ class _SecItemTile extends StatelessWidget {
             done ? t.secMarkedDone : t.secTapToExpand,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          trailing: Switch(
-            value: done,
-            onChanged: onChanged,
+          // a11y1: TalkBack reads which check the switch marks done.
+          trailing: MergeSemantics(
+            child: Semantics(
+              label: secItemTitle(t, item.id),
+              child: Switch(
+                value: done,
+                onChanged: onChanged,
+              ),
+            ),
           ),
           children: [
             Align(

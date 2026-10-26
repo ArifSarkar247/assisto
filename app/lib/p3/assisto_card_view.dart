@@ -287,22 +287,27 @@ class AssistoCardView extends StatelessWidget {
             key: ValueKey('p3-list-${card.id}-$i'),
             onTap: onTick == null ? null : () => onTick!(card, i, !st.done),
             borderRadius: BorderRadius.circular(Radii.sm),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(st.done ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                    size: 22, color: st.done ? scheme.primary : scheme.onSurfaceVariant),
-                const SizedBox(width: Gap.sm),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(items[i],
-                        style: body.copyWith(
-                            decoration: st.done ? TextDecoration.lineThrough : null,
-                            color: st.done ? scheme.onSurfaceVariant : scheme.onSurface)),
-                    if (st.done && st.by.isNotEmpty) Text(t.p3TickedBy(st.by), style: muted),
-                  ]),
-                ),
-              ]),
+            // a11y1: every tickable row is >= 48 dp tall.
+            child: Container(
+              constraints: const BoxConstraints(minHeight: kMinTap),
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Icon(st.done ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                      size: 22, color: st.done ? scheme.primary : scheme.onSurfaceVariant),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(items[i],
+                          style: body.copyWith(
+                              decoration: st.done ? TextDecoration.lineThrough : null,
+                              color: st.done ? scheme.onSurfaceVariant : scheme.onSurface)),
+                      if (st.done && st.by.isNotEmpty) Text(t.p3TickedBy(st.by), style: muted),
+                    ]),
+                  ),
+                ]),
+              ),
             ),
           );
         }),

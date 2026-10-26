@@ -243,8 +243,8 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: SizedBox(
-            width: 44,
-            height: 44,
+            width: kMinTap, // a11y1: was 44
+            height: kMinTap,
             child: Stack(alignment: Alignment.center, children: [
               SizedBox(
                 width: 36,
@@ -493,11 +493,15 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
               Wrap(spacing: Gap.xs, children: [
                 TextButton(
                   key: Key('md1-send-retry-${job.id}'),
+                  // a11y1: the bubble's own ink (primary on the dark
+                  // outgoing green was 3.1:1).
+                  style: TextButton.styleFrom(foregroundColor: widget.fg),
                   onPressed: () => MediaOutbox.instance.retry(job.id),
                   child: Text(t.md1Retry),
                 ),
                 TextButton(
                   key: Key('md1-send-remove-${job.id}'),
+                  style: TextButton.styleFrom(foregroundColor: widget.fg),
                   onPressed: () => MediaOutbox.instance.cancel(job.id),
                   child: Text(t.md1Remove),
                 ),

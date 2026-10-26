@@ -2426,6 +2426,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 focusNode: _inputFocus, // db1
                 minLines: 1,
                 maxLines: 4,
+                textAlignVertical: TextAlignVertical.center, // a11y1
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _send(),
                 onChanged: (v) {
@@ -2440,6 +2441,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   border: const OutlineInputBorder(
                       borderRadius:
                           BorderRadius.all(Radius.circular(Radii.pill))),
+                  // a11y1: 48 dp tall box (was 40).
+                  constraints: const BoxConstraints(minHeight: kMinTap),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: Gap.lg, vertical: Gap.sm),
                 ),

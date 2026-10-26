@@ -765,6 +765,9 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
                         await api.bizAgentDeleteFaq(id);
                       }
                     }),
+            // a11y1: primary on the card tint was 4.48:1.
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurface),
             child: Text(suggested ? t.g1Reject : t.g1Delete),
           ),
         ]),

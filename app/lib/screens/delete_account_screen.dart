@@ -714,6 +714,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               children: [
                 OutlinedButton.icon(
                   key: const Key('del-acct-feedback'),
+                  // a11y1: AA on secondaryContainer.
+                  style: OutlinedButton.styleFrom(
+                      foregroundColor: scheme.onSecondaryContainer),
                   onPressed: () =>
                       FeedbackSheet.open(context, route: 'account_delete'),
                   icon: const Icon(Icons.feedback_rounded),
@@ -721,6 +724,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 ),
                 OutlinedButton.icon(
                   key: const Key('del-acct-support'),
+                  style: OutlinedButton.styleFrom(
+                      foregroundColor: scheme.onSecondaryContainer),
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(

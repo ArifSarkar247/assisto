@@ -70,10 +70,11 @@ class ActionTransparencyBanner extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
+                // a11y1: text-only button, 48 dp tall hit area.
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  minimumSize: const Size(0, kMinTap),
+                  foregroundColor: cs.onPrimaryContainer, // AA on the banner
                 ),
                 onPressed: onOpenAutonomy,
                 child: Text(t.actionOpenAutonomy),

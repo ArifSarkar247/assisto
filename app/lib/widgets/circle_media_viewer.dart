@@ -72,7 +72,9 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text('${_index + 1} / ${widget.items.length}'),
+        // a11y1: the theme's title colour is dark; the viewer is black.
+        title: Text('${_index + 1} / ${widget.items.length}',
+            style: const TextStyle(color: Colors.white)),
         actions: [
           // mr1 NO SHOWPIECES: Save / Forward exist only for an item that is
           // really here (decrypted bytes) and a handler that really acts —

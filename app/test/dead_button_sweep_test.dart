@@ -76,9 +76,9 @@ import 'screenshots_test.dart' as gallery;
 /// device machinery a widget test cannot run (raster capture, OS settings).
 const Map<String, String> _allowDead = {
   // (A) gallery fixtures with `() {}` callbacks — not app code.
-  't1_*|IconButton "icon:0x': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
-  'mr1_last_seen_*|IconButton "icon:0x': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',
-  'a1_header_last_seen|IconButton "icon:0x': 'A: a1_shots.dart header back/call icons use onPressed: () {}; the real chat header wires them',
+  't1_*|IconButton "tip:': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
+  'mr1_last_seen_*|IconButton "tip:': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',
+  'a1_header_last_seen|IconButton "tip:': 'A: a1_shots.dart header back/call icons use onPressed: () {}; the real chat header wires them',
   'md1_attach_sheet|key=attach-': 'A: md1_shots.dart renders CircleAttachGrid(onPick: (_) {}); the real sheet pops the kind and the chat runs the picker (md1_media_test / mr1_test cover it)',
   'md1_viewer|key=mv-': 'A: md1_shots.dart passes onSave/onShare: (_) {}; media_actions.dart wires MediaStore save + share sheet',
   'md1_recorder|key=md1-rec-': 'A: md1_shots.dart pins VoiceRecorderSheet as a static bottomSheet (no route to pop) with a fake recorder; md1_media_test proves Send returns the draft',

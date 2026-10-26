@@ -357,10 +357,7 @@ class _PlansScreenState extends State<PlansScreen> {
     // back to a glyph-less font (rendering as empty boxes/bars).
     const seg = AType.bodySmall;
     return SegmentedButton<bool>(
-      showSelectedIcon: false,
-      style: const ButtonStyle(
-        visualDensity: VisualDensity.compact,
-      ),
+      showSelectedIcon: false, // a11y1: theme density -> 48 dp segments
       segments: [
         ButtonSegment(value: false, label: Text(t.plansMonthly, style: seg)),
         ButtonSegment(value: true, label: Text(t.plansYearly, style: seg)),

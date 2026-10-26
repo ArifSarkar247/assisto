@@ -161,7 +161,11 @@ jobs:
         working-directory: app
         # db1: + dead-button sweep (every gallery screen, every enabled tap must
         # do something) and the swallowed-catch static check.
-        run: flutter test test/language_flow_test.dart test/widget_test.dart test/swallowed_catch_test.dart test/dead_button_sweep_test.dart
+        # a11y1: + accessibility guidelines (48 dp targets, labels, WCAG text
+        # contrast, no overflow at text scale 1.3) on every gallery screen —
+        # default = one rotating bn/en x light/dark combo per screen + the bn 1.3
+        # pass; the full matrix runs locally with A11Y_FULL=1.
+        run: flutter test test/language_flow_test.dart test/widget_test.dart test/swallowed_catch_test.dart test/dead_button_sweep_test.dart test/a11y_guidelines_test.dart
 
       - name: Generate launcher icons (adaptive)
         working-directory: app

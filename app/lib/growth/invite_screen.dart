@@ -145,7 +145,9 @@ class _InviteScreenState extends State<InviteScreen> {
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
-                    fontWeight: FontWeight.w600)),
+                    // a11y1: bold = WCAG large text (white on the gradient's
+                    // light end is 4.2:1).
+                    fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             SelectableText(code,
                 key: const ValueKey('p5_code'),

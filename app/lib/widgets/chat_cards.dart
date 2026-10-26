@@ -129,7 +129,8 @@ class ChatCard extends StatelessWidget {
               onPressed: () => onUndo!(c),
               icon: const Icon(Icons.undo_rounded, size: 16),
               label: Text(t.undo),
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+              // a11y1: no compact density — a text-only button, so the 48 dp
+              // hit area is invisible padding.
             ),
           ),
       ]),

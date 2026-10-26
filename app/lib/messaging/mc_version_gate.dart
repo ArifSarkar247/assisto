@@ -230,6 +230,8 @@ class _McVersionBannerState extends State<McVersionBanner> {
         text: t.t1UpdateTitle,
         action: TextButton(
           onPressed: () => openAssistoUpdate(context),
+          // a11y1: AA on primaryContainer.
+          style: TextButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
           child: Text(t.t1UpdateButton),
         ),
         color: scheme.primaryContainer,

@@ -74,7 +74,8 @@ class UwSpeakButton extends StatelessWidget {
     final t = AppLocalizations.of(context);
     return IconButton(
       tooltip: t.uwListen,
-      visualDensity: compact ? VisualDensity.compact : null,
+      // a11y1: `compact` no longer shrinks the 48 dp target (the button has
+      // no background, so the extra hit area is invisible).
       onPressed: text.trim().isEmpty ? null : () => _speak(context),
       icon: const Icon(Icons.volume_up_rounded),
     );

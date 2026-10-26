@@ -377,6 +377,7 @@ class _TodayCardState extends State<_TodayCard> {
               borderRadius: BorderRadius.circular(Radii.md),
               onTap: done || _busy ? null : () => setState(() => _selected = i),
               child: Container(
+                constraints: const BoxConstraints(minHeight: kMinTap), // a11y1
                 padding: const EdgeInsets.symmetric(
                     horizontal: Gap.md, vertical: Gap.md),
                 decoration: BoxDecoration(

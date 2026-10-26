@@ -261,7 +261,11 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                     children: [
                       // ---- Notes strip (Instagram-style, 24 h) ----
                       SizedBox(
-                        height: 128,
+                        // a11y1: ~46 dp of the strip is text (2 note lines +
+                        // the name); it grows with the phone's font size
+                        // (128 at 1.0; overflowed at 1.3).
+                        height: 128 +
+                            (MediaQuery.textScalerOf(context).scale(11) - 11) / 11 * 46,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),

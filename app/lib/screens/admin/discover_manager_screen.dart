@@ -290,7 +290,13 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                     ],
                   ),
                 ),
-                Switch(value: enabled, onChanged: (v) => _toggle(c, v)),
+                // a11y1: TalkBack reads which item the switch turns on/off.
+                MergeSemantics(
+                  child: Semantics(
+                    label: title,
+                    child: Switch(value: enabled, onChanged: (v) => _toggle(c, v)),
+                  ),
+                ),
                 PopupMenuButton<String>(
                   onSelected: (v) {
                     if (v == 'report') _openReport(c);

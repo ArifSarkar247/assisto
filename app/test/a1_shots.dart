@@ -169,15 +169,20 @@ Widget _withApi(String l, Widget child) {
   return ChangeNotifierProvider<AppState>.value(value: s, child: child);
 }
 
+/// a11y1: fixture header action with the same tooltip as the real chat header.
+Widget _act(IconData icon, String Function(AppLocalizations) tip) => Builder(
+    builder: (ctx) => IconButton(
+        onPressed: () {}, tooltip: tip(AppLocalizations.of(ctx)), icon: Icon(icon)));
+
 PreferredSizeWidget _bar(Widget title) => AppBar(
       // the real chat has a back arrow: the narrowest title (360 dp)
-      leading: IconButton(onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
+      leading: BackButton(onPressed: () {}),
       titleSpacing: 0,
       title: title,
       actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.videocam_rounded)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.call_rounded)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
+        _act(Icons.videocam_rounded, (t) => t.circleVideo),
+        _act(Icons.call_rounded, (t) => t.circleVoiceCall),
+        _act(Icons.more_vert_rounded, (t) => t.msgrChatMore),
       ],
     );
 

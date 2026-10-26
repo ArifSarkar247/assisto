@@ -309,15 +309,19 @@ class _BrandPill extends StatelessWidget {
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              if (selected) ...[
-                Icon(Icons.check_rounded, size: 18, color: fg),
-                const SizedBox(width: Gap.xs),
-              ],
-              Flexible(child: Text(label, style: TextStyle(color: fg))),
-            ]),
+          // a11y1: 48 dp minimum (elderly users pick their brand here).
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: kMinTap),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                if (selected) ...[
+                  Icon(Icons.check_rounded, size: 18, color: fg),
+                  const SizedBox(width: Gap.xs),
+                ],
+                Flexible(child: Text(label, style: TextStyle(color: fg))),
+              ]),
+            ),
           ),
         ),
       ),

@@ -100,23 +100,27 @@ class VoiceNoteBody extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     LayoutBuilder(
-                      builder: (context, c) => GestureDetector(
-                        key: const Key('md1-voice-wave'),
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: path == null
-                            ? null
-                            : (d) => VoicePlayer.instance.seekFraction(
-                                path!, d.localPosition.dx / c.maxWidth, durationMs),
-                        onHorizontalDragUpdate: path == null
-                            ? null
-                            : (d) => VoicePlayer.instance.seekFraction(
-                                path!, d.localPosition.dx / c.maxWidth, durationMs),
-                        child: SizedBox(
-                          height: 30,
-                          width: c.maxWidth,
-                          child: CustomPaint(
-                            painter: WavePainter(
-                                bars, frac, fg, fg.withValues(alpha: 0.35)),
+                      // a11y1: TalkBack names the seek strip.
+                      builder: (context, c) => Semantics(
+                        label: t.a11yVoiceSeek,
+                        child: GestureDetector(
+                          key: const Key('md1-voice-wave'),
+                          behavior: HitTestBehavior.opaque,
+                          onTapDown: path == null
+                              ? null
+                              : (d) => VoicePlayer.instance.seekFraction(
+                                  path!, d.localPosition.dx / c.maxWidth, durationMs),
+                          onHorizontalDragUpdate: path == null
+                              ? null
+                              : (d) => VoicePlayer.instance.seekFraction(
+                                  path!, d.localPosition.dx / c.maxWidth, durationMs),
+                          child: SizedBox(
+                            height: 30,
+                            width: c.maxWidth,
+                            child: CustomPaint(
+                              painter: WavePainter(
+                                  bars, frac, fg, fg.withValues(alpha: 0.35)),
+                            ),
                           ),
                         ),
                       ),

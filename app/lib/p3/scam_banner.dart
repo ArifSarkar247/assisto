@@ -64,7 +64,7 @@ class ScamWarningBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final ink = Brand.warnInk(context);
+    final ink = AssistoTokens.of(context).warning; // a11y1: AA on the amber tint
     final w = MediaQuery.sizeOf(context).width;
     return Align(
       alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
