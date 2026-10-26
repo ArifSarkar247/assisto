@@ -1,1 +1,1 @@
-Build 247: Out of AI credits? A buy-credits sheet now opens right away with the 4 Google Play packs (and a watch-an-ad option for free users where allowed); what you typed is kept and sent again after you buy. Packs can be bought again and again. All Play prices now come straight from Google Play.
+Build 248: Fewer interruptions — the app-open ad now shows at most once every 3 hours and never during a call; behind-the-scenes groundwork for business bookings and customer follow-ups (not visible yet); stability fixes.

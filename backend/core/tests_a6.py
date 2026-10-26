@@ -139,7 +139,7 @@ class AdmobValidatorTests(SimpleTestCase):
         # test units, never a real one
         self.assertEqual(c["units"], A.TEST_UNITS)
         self.assertEqual(c["test_units"]["rewarded"], A.TEST_UNITS["rewarded"])
-        self.assertEqual(c["appopen_min_gap_sec"], 3600)
+        self.assertEqual(c["appopen_min_gap_sec"], 10800)   # owner 26 Oct: 3 h
         self.assertFalse(c["rewarded_enabled"])      # SSV needs real units
         for s in ("sos", "payment", "topup", "login", "otp", "call"):
             self.assertIn(s, c["blocked_screens"])
@@ -158,17 +158,17 @@ class AdmobValidatorTests(SimpleTestCase):
         self.assertFalse(any(c["placements"].values()))
         self.assertEqual(c["units"]["app_open"], REAL_AO)
 
-    def test_gap_never_below_1h(self):
-        # p2-money: owner-editable 1h..24h (default 3h)
+    def test_gap_never_below_3h(self):
+        # owner 26 Oct: at most once every 3 h (floor), owner-editable up to 24 h
         caps = dict(P.DEFAULTS()["ad_rewards"], appopen_min_gap_sec=60)
         c = A.client_config(plan="free", paid=False, admob_cfg={},
                             admob_working=False, flag_rewarded=True,
                             flag_app_open=True, ad_caps=caps)
-        self.assertEqual(c["appopen_min_gap_sec"], 3600)
+        self.assertEqual(c["appopen_min_gap_sec"], 10800)
         c = A.client_config(plan="free", paid=False, admob_cfg={},
                             admob_working=False, flag_rewarded=True,
                             flag_app_open=True, ad_caps=P.DEFAULTS()["ad_rewards"])
-        self.assertEqual(c["appopen_min_gap_sec"], 3600)            # admob: 1 h
+        self.assertEqual(c["appopen_min_gap_sec"], 10800)           # owner 26 Oct: 3 h
 
 
 # --------------------------------------------------------------- ads (api)
