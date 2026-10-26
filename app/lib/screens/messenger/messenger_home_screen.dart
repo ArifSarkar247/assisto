@@ -33,6 +33,7 @@ import 'm3_add_to_circle_screen.dart';
 import 'm3_requests_screen.dart';
 import 'messenger_settings_screen.dart';
 import 'starred_messages_screen.dart';
+import '../../widgets/circle_badges.dart';
 
 /// The Assisto Messenger hub — the home of everything chat. Opened from the
 /// "Messages" entry at the top of the sidebar and from the `messages` ChatNav
@@ -81,6 +82,8 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   void initState() {
     super.initState();
     _tab = widget.initialTab.clamp(0, 3);
+    // home-circle: the Calls tab is on screen -> the missed-call dot clears
+    if (_tab == 3) CircleBadges.instance.markCallsSeen();
     _bootstrap();
     // play-fsi: once, ask to allow full-screen incoming calls (Android 14+)
     WidgetsBinding.instance.addPostFrameCallback(
@@ -385,7 +388,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
               ),
               _updatesTab(),
               _communitiesTab(),
-              const CircleCallHistoryScreen(),
+              const CircleCallHistoryScreen(standalone: false),
             ]),
       floatingActionButton: _tab == 0
           ? FloatingActionButton(
@@ -413,7 +416,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           maxScaleFactor: 1.1,
           child: NavigationBar(
             selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
+            onDestinationSelected: (i) {
+              if (i == 3) CircleBadges.instance.markCallsSeen();
+              setState(() => _tab = i);
+            },
             destinations: [
               // c3-msg: unread chats + incoming requests, live from the
               // UnreadStore (clears the moment a chat is opened).

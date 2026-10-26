@@ -1,0 +1,26 @@
+{
+  "_comment": "home-circle (owner 26 Oct): pinned My Circle first home tile + larger My Circle sidebar entry (subtitle, unread badge, missed-call dot). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_home_circle_arb.json",
+  "en": {
+    "hcTileSub": "Chat and call with friends",
+    "hcDrawerSub": "Chat and call with your friends",
+    "hcUnread": "{count} unread messages",
+    "@hcUnread": {
+      "placeholders": {
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "hcMissed": "Missed call",
+    "hcPinned": "Pinned · always first",
+    "hcPinnedA11y": "Pinned. Can't be moved or removed"
+  },
+  "bn": {
+    "hcTileSub": "বন্ধুদের সাথে চ্যাট ও কল",
+    "hcDrawerSub": "বন্ধুদের সাথে চ্যাট ও কল",
+    "hcUnread": "{count}টি অপঠিত বার্তা",
+    "hcMissed": "মিসড কল",
+    "hcPinned": "পিন করা · সবসময় প্রথমে",
+    "hcPinnedA11y": "পিন করা। সরানো বা বাদ দেওয়া যাবে না"
+  }
+}
