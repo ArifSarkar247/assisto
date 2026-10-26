@@ -14,6 +14,7 @@ from . import views_p2 as P2     # p2-money
 from . import views_p4 as P4     # p4-world
 from . import views_d1photo as D1P   # d1-photo v2
 from . import views_p5 as P5         # p5-growth funnel
+from . import views_pv1 as PV1       # play-vitals
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -91,4 +92,6 @@ urlpatterns = [
     path("photo", D1P.photo),                                   # d1-photo v2
     path("photo/ab/<int:pk>/<str:tag>", D1P.photo_ab_image),     # d1-photo v2
     path("funnel", P5.funnel),                                   # p5-growth
+    path("vitals", PV1.vitals),                                  # play-vitals
+    path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
 ]

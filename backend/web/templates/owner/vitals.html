@@ -1,0 +1,59 @@
+{% extends "owner/base.html" %}
+{% load p5fmt %}
+{% block heading %}{{ T.nav_vitals }}{% endblock %}
+{% block content %}
+<section class="card">
+  {% if latest %}<p><b>{{ T.pv_fresh }} {{ latest|date:"Y-m-d" }}</b> <span class="mut small">{{ T.pv_fresh_note }}{% if pulled %} · {{ T.pv_pulled }} {{ pulled|date:"Y-m-d H:i" }}{% endif %}</span></p>
+  {% else %}<p class="empty">{{ T.pv_none }}</p>{% endif %}
+  <p class="small">{{ T.pv_own }}: <b>{{ own_7d|bnd:lang }}</b> · <a href="/owner/reports/errors">{{ T.ae_title }}</a></p>
+</section>
+
+{% if latest %}
+<section class="card"><h2>{{ T.pv_overall }}</h2>
+  <div class="tiles">{% for t in tiles %}
+    <div class="tile"><span>{{ t.label }}</span><b>{% if t.pct is None %}—{% else %}{{ t.pct|bnd:lang }}%{% endif %}</b>
+      <small>{% if t.limit %}{{ T.pv_limit }} {{ t.limit|bnd:lang }}% {% if t.bad %}<span class="pill bad">{{ T.pv_bad }}</span>{% elif t.pct is not None %}<span class="pill ok">{{ T.pv_ok }}</span>{% endif %}{% else %}{{ T.pv_28d }}{% endif %}</small></div>
+  {% endfor %}</div>
+  <p class="mut small">{{ T.pv_thresholds_note }}</p>
+  <h3>{{ T.pv_trend }}</h3>
+  {% if chart %}<div class="legend"><span class="key s1"></span>{{ T.pv_m_crash }} (%) <span class="key s2"></span>{{ T.pv_m_anr }} (%)</div><div class="chartbox">{{ chart|safe }}</div>{% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
+</section>
+
+<section class="card">
+  <form method="get" class="inline">{% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+    <label>{{ T.pv_metric }} <select name="metric">{% for m, l in metric_choices %}<option value="{{ m }}" {% if m == metric %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <label>{{ T.pv_min_users }} <input type="number" name="min_users" min="0" value="{{ min_users }}"></label>
+    <button class="btn ghost">{{ T.show }}</button>
+  </form>
+  <p class="mut small">{{ T.pv_breakdown_note }}</p>
+  <div class="cols">
+  <section><h2>{{ T.pv_by_device }}</h2>
+  {% if by_device %}<div class="tbl"><table><thead><tr><th>{{ T.pv_device }}</th><th>{{ metric_label }}</th><th>{{ T.pv_users }}</th></tr></thead><tbody>
+  {% for r in by_device %}<tr><td>{{ r.label }}{% if r.label != r.value %}<br><small class="mut">{{ r.value }}</small>{% endif %}</td><td class="num">{{ r.pct|bnd:lang }}%</td><td class="num">{{ r.users|bnd:lang }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.pv_no_rows }}</p>{% endif %}</section>
+  <section><h2>{{ T.pv_by_api }}</h2>
+  {% if by_api %}<div class="tbl"><table><thead><tr><th>{{ T.pv_android }}</th><th>{{ metric_label }}</th><th>{{ T.pv_users }}</th></tr></thead><tbody>
+  {% for r in by_api %}<tr><td>{{ r.label }}{% if r.label != r.value %} <small class="mut">(API {{ r.value }})</small>{% endif %}</td><td class="num">{{ r.pct|bnd:lang }}%</td><td class="num">{{ r.users|bnd:lang }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.pv_no_rows }}</p>{% endif %}</section>
+  <section><h2>{{ T.pv_by_version }}</h2>
+  {% if by_version %}<div class="tbl"><table><thead><tr><th>{{ T.pv_version }}</th><th>{{ metric_label }}</th><th>{{ T.pv_users }}</th></tr></thead><tbody>
+  {% for r in by_version %}<tr><td>{{ r.label }}</td><td class="num">{{ r.pct|bnd:lang }}%</td><td class="num">{{ r.users|bnd:lang }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.pv_no_rows }}</p>{% endif %}</section>
+  </div>
+</section>
+{% endif %}
+
+<section class="card"><h2>{{ T.pv_issues }}</h2>
+{% if issues %}<div class="tbl"><table><thead><tr><th>{{ T.pv_issue }}</th><th>{{ T.pv_versions }}</th><th>Android</th><th>{{ T.pv_users }}</th><th>{{ T.pv_reports }}</th><th>{{ T.pv_last_seen }}</th><th></th></tr></thead><tbody>
+{% for i in issues %}<tr>
+  <td><b>{{ i.type }}</b> {% if i.status == 'new' %}<span class="pill bad">{{ T.pv_new }}</span>{% else %}<span class="pill off">{{ T.pv_known }}</span>{% endif %}<br><small>{{ i.cause|truncatechars:160 }}</small><br><small class="mut">{{ i.location|truncatechars:160 }}</small>
+    {% if i.sample_stack %}<details><summary class="small">{{ T.pv_stack }}{% if i.sample_device %} · {{ i.sample_device }}{% endif %}{% if i.sample_os %} · API {{ i.sample_os }}{% endif %}{% if i.sample_version %} · v{{ i.sample_version }}{% endif %}</summary><pre class="small">{{ i.sample_stack }}</pre></details>{% endif %}</td>
+  <td>{{ i.first_version|default:"—" }} → {{ i.last_version|default:"—" }}</td>
+  <td>{{ i.first_api|default:"—" }} → {{ i.last_api|default:"—" }}</td>
+  <td class="num">{{ i.users|bnd:lang }}</td><td class="num">{{ i.reports|bnd:lang }}</td>
+  <td>{{ i.last_seen|date:"Y-m-d H:i"|default:"—" }}</td>
+  <td><form method="post" action="/owner/vitals/issues/{{ i.pk }}/known">{% include "owner/_csrf.html" %}{% if i.status != 'new' %}<input type="hidden" name="undo" value="1"><button class="btn ghost">{{ T.pv_mark_new }}</button>{% else %}<button class="btn ghost">{{ T.pv_mark_known }}</button>{% endif %}</form></td>
+</tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.pv_no_issues }}</p>{% endif %}
+</section>
+{% endblock %}
