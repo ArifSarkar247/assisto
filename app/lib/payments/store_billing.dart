@@ -47,6 +47,17 @@ abstract class StoreBilling {
   /// goes to OUR server, which decides who owns it — never the device.
   Future<List<StoreOwned>> owned();
 
+  /// credout: the store's own localized price (what the Play sheet will
+  /// charge). Keys: `productId` for one-time packs, `productId/basePlanId`
+  /// for a subscription base plan (its base offer's first pricing phase).
+  /// Missing ids are left out; never throws (empty = store unavailable).
+  Future<Map<String, String>> prices(Set<String> productIds);
+
+  /// credout: consume a credit-pack purchase the SERVER already verified and
+  /// granted, when the server could not consume it itself — so the same
+  /// pack can be bought again. Never throws.
+  Future<void> consume(String purchaseToken);
+
   /// Set by tests to inject a fake client on any flavour.
   static StoreBilling? debugOverride;
 

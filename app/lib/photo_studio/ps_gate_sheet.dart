@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import '../payments/credits_out_sheet.dart'; // credout
 import 'ps_export.dart';
 
 /// The ONE funding sheet free users see before a full-quality export or a
@@ -137,5 +138,11 @@ class SheetGateUi extends GateUi {
       showDragHandle: true,
       builder: (_) => PsGateSheet(need: need, forRun: forRun, onPremium: onPremium),
     );
+  }
+
+  @override
+  Future<bool> outOfCredits() {
+    if (!context.mounted) return Future.value(false);
+    return CreditsOut.offer(context, screen: 'photo_studio', draftKept: true);
   }
 }

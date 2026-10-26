@@ -19,6 +19,8 @@ import 'package:assisto/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:assisto/payments/credits_out_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -185,12 +187,22 @@ void main() {
 
   testWidgets('out of credits: honest message + Get credits, nothing charged', (tester) async {
     SharedPreferences.setMockInitialValues({kP3ConsentKey: true});
+    // credout: the buy-credits sheet opens at once (no ads in My Circle);
+    // the user closes it -> the honest state with Get credits.
+    final offered = <String>[];
+    CreditsOut.debugOffer = (ctx, {required screen, required draftKept}) async {
+      offered.add(screen);
+      return false;
+    };
+    addTearDown(() => CreditsOut.debugOffer = null);
     final api = _Api(runReply: {'ok': false, 'error': 'credits', 'balance': 0, '_status': 402});
     await tester.pumpWidget(_app(
         api, AssistoAiSheet(port: _port([]), action: AssistoAction.summarize)));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('p3-ai-run')));
     await tester.pumpAndSettle();
+    expect(offered, ['circle']);
+    expect(api.runs.length, 1); // no retry after a cancel
     expect(find.text("You're out of credits for this."), findsOneWidget);
     expect(find.text('Nothing was charged.'), findsOneWidget);
     expect(find.byKey(const ValueKey('p3-get-credits')), findsOneWidget);

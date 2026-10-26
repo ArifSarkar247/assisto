@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'payments_api.dart';
+import 'play_prices.dart'; // credout: Play's own prices on the Play build
 import 'store_billing.dart';
 import '../services/error_report.dart'; // db1
 import '../widgets/subs_common.dart' show fmtInt; // qa1: locale digits
@@ -105,9 +106,36 @@ class _CheckoutSheetState extends State<CheckoutSheet>
         _cfg = c;
         _step = _Step.choose;
       });
+      await _loadPrices();
     } catch (_) {
       if (mounted) setState(() => _step = _Step.loadFailed);
     }
+  }
+
+  // ------------------------------------------------------------ Play prices
+  bool _pricesLoading = false;
+
+  /// credout: on the Play build every price is Play's formatted price (packs:
+  /// ProductDetails.price; plans: the server-named base plan's base offer).
+  Future<void> _loadPrices() async {
+    final p = _product('play');
+    if (widget.flavour != 'play' || p == null) return;
+    setState(() => _pricesLoading = true);
+    await PlayPrices.ensure([p]);
+    if (mounted) setState(() => _pricesLoading = false);
+  }
+
+  /// The price to show for [p] on [channel]: Play's own on Play, else ৳.
+  String _priceText(AppLocalizations t, PayProduct p, String channel) {
+    if (channel != 'play') return '$_taka${fmtInt(context, p.priceBdt)}';
+    final s = PlayPrices.of(p);
+    if (s != null) return localizeStoreDigits(context, s);
+    return _pricesLoading ? '\u2026' : t.payPriceUnavailable;
+  }
+
+  bool _playPriced() {
+    final p = _product('play');
+    return p != null && PlayPrices.of(p) != null;
   }
 
   List<PayChannel> get _channels {
@@ -294,11 +322,12 @@ class _CheckoutSheetState extends State<CheckoutSheet>
           Gap.lg + MediaQuery.of(context).viewInsets.bottom),
       child: AnimatedSize(
         duration: const Duration(milliseconds: 180),
-        child: Column(
+        // credout: scrolls at 200% font / small phones (never clipped)
+        child: SingleChildScrollView(child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: _body(t, scheme),
-        ),
+        )),
       ),
     );
   }
@@ -390,18 +419,31 @@ class _CheckoutSheetState extends State<CheckoutSheet>
 
   List<Widget> _choose(AppLocalizations t, ColorScheme scheme) {
     final chans = _channels;
+    final anyCh = _product('play') != null ? 'play' : 'gateway';
     final any = _product('play') ?? _product('gateway');
+    final anyPrice = any == null ? '' : _priceText(t, any, anyCh);
     return [
       Text(t.payChooseTitle, style: Theme.of(context).textTheme.titleLarge),
       if (any != null) ...[
         const SizedBox(height: 4),
         Text(
             any.isSub
-                ? '${any.title} · $_taka${fmtInt(context, any.priceBdt)} ${_period(t, any)}'
-                : '${t.qa1CreditsN(fmtInt(context, any.credits))} · $_taka${fmtInt(context, any.priceBdt)}',
+                ? '${any.title} · $anyPrice ${_period(t, any)}'
+                : '${t.qa1CreditsN(fmtInt(context, any.credits))} · $anyPrice',
             style: TextStyle(color: scheme.onSurfaceVariant)),
       ],
       const SizedBox(height: Gap.lg),
+      if (widget.flavour == 'play' &&
+          _product('play') != null &&
+          !_pricesLoading &&
+          !_playPriced())
+        TextButton.icon(
+          key: const ValueKey('pay-price-retry'),
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: _loadPrices,
+          icon: const Icon(Icons.refresh_rounded),
+          label: Text(t.retry),
+        ),
       for (final c in chans) _option(t, scheme, c),
       if (chans.isEmpty) ...[
         const SizedBox(height: Gap.sm),
@@ -425,7 +467,9 @@ class _CheckoutSheetState extends State<CheckoutSheet>
     final isPlay = c.id == 'play';
     final title = isPlay ? t.payPlayTitle : t.payGatewayTitle;
     final sub = isPlay ? t.payPlaySub : t.payGatewaySub;
-    final can = c.usable && p != null;
+    // credout: on the Play build a Play option is tappable only once Play's
+    // own price is known (store unavailable -> honest text + retry).
+    final can = c.usable && p != null && (!isPlay || _playPriced());
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Material(
@@ -465,10 +509,14 @@ class _CheckoutSheetState extends State<CheckoutSheet>
               ),
               if (p != null) ...[
                 const SizedBox(width: Gap.sm),
-                Text('$_taka${fmtInt(context, p.priceBdt)}',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: can ? scheme.primary : scheme.onSurfaceVariant)),
+                Flexible(
+                  child: Text(_priceText(t, p, c.id),
+                      key: ValueKey('pay-price-${c.id}'),
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: can ? scheme.primary : scheme.onSurfaceVariant)),
+                ),
               ],
             ]),
           ),

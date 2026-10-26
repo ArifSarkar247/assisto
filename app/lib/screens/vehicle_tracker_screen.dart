@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../payments/credits_out_sheet.dart'; // credout
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -185,12 +186,23 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     _refreshLive();
   }
 
-  Future<void> _aiSummary() async {
+  Future<void> _aiSummary({bool creditsRetry = false}) async {
     setState(() => _aiBusy = true);
     final lang = Localizations.localeOf(context).languageCode;
     try {
       final r = await context.read<AppState>().api.vehAiSummary(widget.trackerId, lang);
       if (mounted) setState(() => _ai = r);
+      // credout: the free rule summary is shown; out of credits also opens
+      // the buy-credits sheet (no ads on vehicle screens) and, once credits
+      // land, asks for the AI summary again once.
+      if (mounted && !creditsRetry && r['ai'] == false && r['reason'] == 'credits') {
+        setState(() => _aiBusy = false);
+        final ok = await CreditsOut.offer(context, screen: 'vehicle');
+        if (ok && mounted) {
+          await _aiSummary(creditsRetry: true);
+          return;
+        }
+      }
     } catch (e) {
       if (mounted) _snack(vehReasonText(AppLocalizations.of(context), e));
     }

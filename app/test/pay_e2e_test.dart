@@ -11,6 +11,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/payments/checkout_sheet.dart';
 import 'package:assisto/payments/payments_api.dart';
 import 'package:assisto/payments/play_restore.dart';
+import 'package:assisto/payments/play_prices.dart';
 import 'package:assisto/payments/store_billing.dart';
 import 'package:assisto/theme.dart';
 
@@ -67,7 +68,10 @@ void main() {
     billing = FakeStoreBilling();
     StoreBilling.debugOverride = billing;
   });
-  tearDown(() => StoreBilling.debugOverride = null);
+  tearDown(() {
+    StoreBilling.debugOverride = null;
+    PlayPrices.debugReset();
+  });
 
   group('restorePlayPurchases', () {
     test('sub + pack restored; unknown products and duplicate tokens skipped',
@@ -296,10 +300,14 @@ void main() {
       StoreBilling.debugOverride = null; // test build is not the Play build
       final b = FakePaymentsBackend(cfg: pay1Config(gwEnabled: false));
       final t = await open(tester, b);
+      // credout: no Play price without the Play client -> honest
+      // "price unavailable", the Play option is disabled, no other method
+      expect(find.text(t.payPriceUnavailable), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('pay-option-play')));
       await tester.pumpAndSettle();
-      expect(find.text(t.payPlayUnavailableNoAlt), findsOneWidget);
+      expect(b.calls.where((c) => c.startsWith('precheck')), isEmpty);
       expect(find.text(t.payPlayUnavailable), findsNothing);
+      expect(find.byKey(const ValueKey('pay-option-gateway')), findsNothing);
     });
   });
 }

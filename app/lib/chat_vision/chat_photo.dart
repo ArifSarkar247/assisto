@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -141,6 +142,11 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
           onDevice: widget.onDevice,
           ads: widget.ads,
         );
+    // credout: out of credits -> the shared buy-credits sheet at once, then
+    // the detailed answer once (the photo + question stay on the turn).
+    c.onOutOfCredits ??= () => mounted
+        ? CreditsOut.offer(context, screen: 'chat_photo', draftKept: true)
+        : Future.value(false);
     if (_owns) WidgetsBinding.instance.addPostFrameCallback((_) => c.start());
   }
 

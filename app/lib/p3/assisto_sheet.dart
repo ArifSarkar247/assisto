@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
 import '../notifications.dart';
-import '../screens/credits_screen.dart';
+import '../payments/credits_out_sheet.dart'; // credout
 import '../state.dart';
 import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
@@ -381,9 +381,10 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
     return ok == true;
   }
 
-  Future<void> _run() async {
+  Future<void> _run({bool creditsRetry = false}) async {
     if (!_canRun) return;
-    if (!await _consent() || !mounted) return;
+    if (!creditsRetry && (!await _consent() || !mounted)) return;
+    if (!mounted) return;
     setState(() => _stage = _AiStage.running);
     final api = context.read<AppState>().api;
     final AssistoRun r;
@@ -397,6 +398,22 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
         r = await api.assistoRun('ask', question: _q.text.trim());
     }
     if (!mounted) return;
+    // credout: out of credits -> back to the input (the text is kept), the
+    // buy-credits sheet at once, then the same request once. No ads here
+    // (My Circle is a chat with people).
+    if (!r.ok && r.error == 'credits' && !creditsRetry) {
+      setState(() => _stage = _AiStage.input);
+      final ok = await CreditsOut.offer(context, screen: 'circle', draftKept: true);
+      if (!mounted) return;
+      if (ok) return _run(creditsRetry: true);
+      // cancelled: the honest "out of credits, nothing charged" state with
+      // Get credits (the typed text stays in this sheet's state)
+      setState(() {
+        _stage = _AiStage.error;
+        _error = r.error;
+      });
+      return;
+    }
     setState(() {
       if (r.ok) {
         _stage = _AiStage.result;
@@ -657,8 +674,10 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
       if (_error == 'credits')
         FilledButton.icon(
           key: const ValueKey('p3-get-credits'),
-          onPressed: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const CreditsScreen())),
+          onPressed: () async {
+            final ok = await CreditsOut.offer(context, screen: 'circle', draftKept: true);
+            if (ok && mounted) await _run(creditsRetry: true);
+          },
           icon: const Icon(Icons.bolt_rounded),
           label: Text(t.p3GetCredits),
         )

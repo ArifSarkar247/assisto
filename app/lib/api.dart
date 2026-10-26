@@ -13,7 +13,11 @@ class ApiException implements Exception {
   /// Server-supplied correlation reference (e.g. CRM error ref code). Parsed
   /// from `body['ref']` in [ApiClient._fail] when present; null otherwise.
   final String? ref;
-  ApiException(this.message, [this.status, this.ref]);
+
+  /// credout: the server's machine reason (`reason`, else `code`) when the
+  /// body carried one, e.g. 'credits' on an out-of-credits 402.
+  final String? reason;
+  ApiException(this.message, [this.status, this.ref, this.reason]);
   @override
   String toString() => message;
 }
@@ -58,10 +62,13 @@ class ApiClient {
   Never _fail(http.Response r) {
     String msg;
     String? ref;
+    String? reason;
     try {
       final body = jsonDecode(r.body);
       if (body is Map) {
         if (body['ref'] != null) ref = body['ref'].toString();
+        final why = body['reason'] ?? body['code'];
+        if (why is String && why.isNotEmpty) reason = why;
         if (body['detail'] != null) {
           msg = body['detail'].toString();
         } else if (body.isNotEmpty) {
@@ -78,7 +85,7 @@ class ApiClient {
     } catch (_) {
       msg = 'Something went wrong (${r.statusCode})';
     }
-    throw ApiException(msg, r.statusCode, ref);
+    throw ApiException(msg, r.statusCode, ref, reason);
   }
 
   Future<Map<String, dynamic>> _postJson(String path, Map body,
@@ -1551,7 +1558,18 @@ class ApiClient {
     req.body = jsonEncode({'text': text});
     final resp = await _c.send(req);
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      throw ApiException('stream failed', resp.statusCode);
+      // credout: keep the server's reason (402 'credits' opens the sheet).
+      String? why;
+      String msg = 'stream failed';
+      try {
+        final b = jsonDecode(await resp.stream.bytesToString());
+        if (b is Map) {
+          final w = b['reason'] ?? b['code'];
+          if (w is String) why = w;
+          if (b['message'] is String) msg = b['message'] as String;
+        }
+      } catch (_) {}
+      throw ApiException(msg, resp.statusCode, null, why);
     }
     final lines = resp.stream
         .transform(utf8.decoder)

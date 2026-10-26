@@ -7,6 +7,7 @@ import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../messaging/date_separators.dart' show localDigits;
 import '../../../payments/payments_api.dart' show payFlavour; // pay-e2e
+import '../../../payments/credits_out_sheet.dart'; // credout
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
@@ -339,6 +340,24 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
           Text(t.baNoPlanLine, style: const TextStyle(height: 1.4)),
         Text(bd(context, t.baCreditReplies(creditReplies)),
             style: Theme.of(context).textTheme.bodySmall),
+        // credout: no plan replies AND no credit replies -> the agent cannot
+        // answer customers. One tap to the shared buy-credits sheet (credit
+        // packs are sold on Play through Play Billing; no ads here).
+        if ((!active || left <= 0) && creditReplies <= 0) ...[
+          const SizedBox(height: Gap.sm),
+          FilledButton.tonalIcon(
+            key: const ValueKey('ba-add-credits'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busy
+                ? null
+                : () async {
+                    final ok = await CreditsOut.offer(context, screen: 'business');
+                    if (ok && mounted) await _load();
+                  },
+            icon: const Icon(Icons.bolt_rounded),
+            label: Text(t.credoutGetCredits),
+          ),
+        ],
         const SizedBox(height: Gap.md),
         if (trialOk)
           FilledButton.icon(
