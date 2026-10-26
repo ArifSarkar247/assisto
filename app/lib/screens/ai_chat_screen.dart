@@ -8,6 +8,7 @@ import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../payments/credits_out_sheet.dart'; // credout
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
@@ -224,6 +225,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
   }
 
   // ---------------- send / stream ----------------
+  // credout: the user turn of the send in flight (removed again when the
+  // server says "out of credits" — its text goes back into the box).
+  _Msg? _pendingUser;
+  bool _creditsRetry = false;
+
   Future<void> _send([String? preset]) async {
     final text = (preset ?? _input.text).trim();
     // db1: Send on an empty box is never a dead tap — it opens the keyboard.
@@ -234,8 +240,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (text.isEmpty || _sending) return;
     HapticFeedback.selectionClick();
     _input.clear();
+    final mine = _Msg(user: true, text: text);
+    _pendingUser = mine;
     setState(() {
-      _msgs.add(_Msg(user: true, text: text));
+      _msgs.add(mine);
       _sending = true;
     });
     _toBottom();
@@ -258,6 +266,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     _toBottom();
 
     var gotToken = false;
+    Object? streamErr;
     final completer = Completer<bool>(); // true = finished via stream
     try {
       _streamSub = _api.chatStream(sessionId, text).listen(
@@ -284,7 +293,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             _applySource(assistant, ev['source'], ev['meta']);
           }
         },
-        onError: (_) {
+        onError: (Object e) {
+          streamErr = e;
           if (!completer.isCompleted) completer.complete(false);
         },
         onDone: () {
@@ -295,8 +305,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
       final ok = await completer.future;
       if (!mounted) return;
       if (!ok && !gotToken) {
-        // Stream never produced anything usable — fall back to /send.
         _msgs.remove(assistant);
+        if (isOutOfCredits(streamErr)) {
+          await _onCreditsOut(text);
+          return;
+        }
+        // Stream never produced anything usable — fall back to /send.
         await _nonStreamSend(sessionId, text);
         return;
       }
@@ -334,9 +348,39 @@ class _AiChatScreenState extends State<AiChatScreen> {
       _applySource(assistant, r['source'], r['meta']);
       _syncData();
       _toBottom();
-    } catch (_) {
+    } catch (e) {
       if (mounted) _msgs.remove(assistant);
+      if (isOutOfCredits(e)) return _onCreditsOut(text);
       _onSendError();
+    }
+  }
+
+  /// credout: the server saved nothing — the text goes back into the box
+  /// (never lost), the buy-credits sheet opens at once, and after a verified
+  /// purchase / reward the same text is sent again ONCE.
+  Future<void> _onCreditsOut(String text) async {
+    if (!mounted) return;
+    final mine = _pendingUser;
+    setState(() {
+      if (mine != null) _msgs.remove(mine);
+      if (_input.text.trim().isEmpty) _input.text = text;
+      _sending = false;
+      for (final m in _msgs) {
+        m.streaming = false;
+      }
+    });
+    _pendingUser = null;
+    if (_creditsRetry) {
+      _creditsRetry = false; // already retried once: keep the draft, stop
+      return;
+    }
+    final ok = await CreditsOut.offer(context, screen: 'ai_chat', draftKept: true);
+    if (!ok || !mounted || _input.text.trim() != text) return;
+    _creditsRetry = true;
+    try {
+      await _send(text);
+    } finally {
+      _creditsRetry = false;
     }
   }
 
@@ -406,10 +450,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
   }
 
-  Future<void> _regenerate(_Msg assistant, {String? edit}) async {
+  Future<void> _regenerate(_Msg assistant,
+      {String? edit, bool creditsRetry = false}) async {
     if (_sending || _active == null) return;
     HapticFeedback.selectionClick();
     // Drop the old assistant reply (and any trailing cards) before asking again.
+    final at = _msgs.indexOf(assistant);
     setState(() {
       _msgs.remove(assistant);
       _sending = true;
@@ -433,8 +479,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
       _applySource(assistantNew, r['source'], r['meta']);
       _syncData();
       _toBottom();
-    } catch (_) {
+    } catch (e) {
       if (mounted) _msgs.remove(assistantNew);
+      if (isOutOfCredits(e) && mounted) {
+        // credout: the server kept the old reply — show it again, offer
+        // credits, then regenerate once.
+        setState(() {
+          _msgs.insert((at < 0 || at > _msgs.length) ? _msgs.length : at, assistant);
+          _sending = false;
+        });
+        if (creditsRetry) return;
+        final ok = await CreditsOut.offer(context, screen: 'ai_chat', draftKept: true);
+        if (ok && mounted) {
+          await _regenerate(assistant, edit: edit, creditsRetry: true);
+        }
+        return;
+      }
       _onSendError();
     }
   }

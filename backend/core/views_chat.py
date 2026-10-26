@@ -22,6 +22,12 @@ Routing (the single source of truth is `_produce_reply`):
     (L1 user-data / L2 help KB / L4 honest needs-key). FREE, never charged, never
     empty, never fabricated. meta {source:'brain', level, handler, credits:0}.
 
+credout: when the user cannot cover the AI call (AIUnavailable('credits')) the
+request is answered HTTP 402 {reason:'credits', code:'out_of_credits'} and the
+turn is undone (no user message, no reply, nothing charged; a regenerate keeps
+the old reply), so the app keeps the typed text, opens the buy-credits sheet
+and re-sends it once.
+
 Honesty: a no-key chat still gives real answers over the user's own data and the
 app's offline KB, and an honest "needs a key" for general questions — we never
 invent a fact and never charge for a Brain answer.
@@ -36,6 +42,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import ai
+from . import credits_out
 from .i18n import req_lang, pick
 from .logic import brain
 from .models import ChatSession, ChatMessage
@@ -89,7 +96,7 @@ def _history_for(session, upto_id=None):
     return turns[-_HISTORY_TURNS:]
 
 
-def _produce_reply(user, session, text, lang, history):
+def _produce_reply(user, session, text, lang, history, credout=False):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -137,10 +144,15 @@ def _produce_reply(user, session, text, lang, history):
                 "cards": ctx.get("cards", []),
             }
             return reply, meta, ctx.get("cards", [])
-        except ai.AIUnavailable:
+        except ai.AIUnavailable as e:
+            # credout: out of credits is NOT degraded silently — the view
+            # undoes the turn and answers 402 so the app can offer the
+            # buy-credits sheet and re-send the same text.
+            if e.reason == "credits" and credout:
+                raise credits_out.CreditsOut(
+                    credits_out.need_for_tier(user, requested_tier))
             # kill-switch / budget / user-limit / guard-over / every provider
             # failed -> degrade to the free, honest Brain answer below.
-            pass
 
     # ---- no-key (or degraded) Brain answer: real, free, never charged ----
     meta = {
@@ -244,7 +256,12 @@ class ChatSendView(APIView):
             s.derive_title(text)
 
         history = _history_for(s, upto_id=user_msg.id)
-        reply, meta, cards = _produce_reply(u, s, text, lang, history)
+        try:
+            reply, meta, cards = _produce_reply(u, s, text, lang, history,
+                                            credout=credits_out.supported(request))
+        except credits_out.CreditsOut as e:
+            user_msg.delete()        # nothing saved; the title is not saved either
+            return credits_out.response(u, lang, e.need)
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()  # bump updated_at
@@ -286,7 +303,13 @@ class ChatStreamView(APIView):
         if first:
             s.derive_title(text)
         history = _history_for(s, upto_id=user_msg.id)
-        reply, meta, cards = _produce_reply(u, s, text, lang, history)
+        try:
+            reply, meta, cards = _produce_reply(u, s, text, lang, history,
+                                            credout=credits_out.supported(request))
+        except credits_out.CreditsOut as e:
+            # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
+            user_msg.delete()
+            return credits_out.response(u, lang, e.need)
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()
@@ -327,6 +350,7 @@ class ChatRegenerateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
 
         edit = request.data.get("edit")
+        old_text = last_user.text
         if edit is not None:
             edit = (edit or "").strip()
             if not edit:
@@ -340,13 +364,23 @@ class ChatRegenerateView(APIView):
             if not s.title_custom:
                 s.derive_title(edit)
 
+        history = _history_for(s, upto_id=last_user.id)
+        try:
+            reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
+                                            credout=credits_out.supported(request))
+        except credits_out.CreditsOut as e:
+            # credout: the old reply stays (it is only dropped after a new
+            # reply exists) and an edit is undone.
+            if last_user.text != old_text:
+                last_user.text = old_text
+                last_user.save(update_fields=["text"])
+            return credits_out.response(u, lang, e.need)
+
         # drop every message AFTER the last user turn (the old assistant reply,
         # and anything stray) so the transcript stays clean.
         s.messages.filter(created_at__gte=last_user.created_at) \
                   .exclude(id=last_user.id).delete()
 
-        history = _history_for(s, upto_id=last_user.id)
-        reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history)
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()

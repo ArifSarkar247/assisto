@@ -830,7 +830,10 @@ class PhotoStudioController extends ChangeNotifier {
           body['via'] = 'credits';
         }
       }
-      final cr = await deps.backend.createJob(body);
+      var cr = await deps.backend.createJob(body);
+      if (cr.status == 402 && cr.reason == 'insufficient' && await ui.outOfCredits()) {
+        cr = await deps.backend.createJob(body); // credout: once, same prompt
+      }
       if (!cr.ok || cr.job == null) {
         if (cr.status == 422) {
           refusal = SafetyVerdict(allowed: false, reason: cr.reason, message: cr.message);

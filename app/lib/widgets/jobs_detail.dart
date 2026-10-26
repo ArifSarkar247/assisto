@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../payments/credits_out_sheet.dart'; // credout
 import '../state.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
@@ -117,7 +118,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
   }
 
   // --- CV + cover letter (MOCK, key-gated) --------------------------------
-  Future<void> _tailor(AppLocalizations tr) async {
+  Future<void> _tailor(AppLocalizations tr, {bool creditsRetry = false}) async {
     final id = (_job['id'] ?? 0) as int;
     if (id <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.jobsSampleTrackHint)));
@@ -130,6 +131,14 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
       setState(() => _busy = false);
       if (r['needs_key'] == true) {
         _showKeyGate(tr);
+        return;
+      }
+      // credout: out of credits -> the buy-credits sheet at once; after
+      // credits land the same tailoring runs once (nothing was charged).
+      if (r['reason'] == 'credits') {
+        if (creditsRetry) return;
+        final ok = await CreditsOut.offer(context, screen: 'jobs');
+        if (ok && mounted) await _tailor(tr, creditsRetry: true);
         return;
       }
       final cv = (r['cv_text'] ?? '').toString();

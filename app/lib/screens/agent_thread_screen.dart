@@ -6,6 +6,7 @@ import '../chat_vision/chat_photo.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../payments/credits_out_sheet.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/voice_input.dart';
@@ -258,7 +259,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     });
   }
 
-  Future<void> _send([String? preset]) async {
+  Future<void> _send([String? preset, bool creditsRetry = false]) async {
     final text = (preset ?? _input.text).trim();
     // db1: Send on an empty box is never a dead tap — it opens the keyboard.
     if (text.isEmpty && preset == null && !_sending) {
@@ -277,12 +278,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     }
 
     _input.clear();
+    final mine = _Msg(true, text);
     setState(() {
-      _msgs.add(_Msg(true, text));
+      _msgs.add(mine);
       _sending = true;
     });
     _toBottom();
     final app = context.read<AppState>();
+    var outOfCredits = false;
     try {
       final r = await app.api.agent(text, sessionId: _sessionId);
       final sid = r['session_id']?.toString();
@@ -303,10 +306,30 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       app.txns.sync();
       app.loans.sync();
     } catch (e) {
-      setState(() => _msgs.add(_Msg(false, t.sendFailed)));
+      if (isOutOfCredits(e) && mounted) {
+        // credout: nothing was saved server-side — put the text back in the
+        // box (never lost) and open the buy-credits sheet at once.
+        outOfCredits = true;
+        setState(() {
+          _msgs.remove(mine);
+          if (_input.text.trim().isEmpty) _input.text = text;
+        });
+      } else if (mounted) {
+        setState(() => _msgs.add(_Msg(false, t.sendFailed)));
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
       _toBottom();
+    }
+    if (outOfCredits && mounted) {
+      final ok = creditsRetry
+          ? false // already retried once after a purchase: keep the draft
+          : await CreditsOut.offer(context, screen: 'home', draftKept: true);
+      // after a verified purchase / reward: the same request, once
+      if (ok && mounted && _input.text.trim() == text) {
+        _input.clear();
+        await _send(text, true);
+      }
     }
   }
 

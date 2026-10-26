@@ -438,7 +438,11 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     elif int(js.get("consumptionState", 0) or 0) == 1:
         pp.consumed = True
     pp.save(update_fields=["consumed", "updated_at"])
+    # credout: `consumed` tells the app whether Play still holds the item; when
+    # the server-side consume failed the app consumes it itself (the grant is
+    # once per token either way) so the same pack can be bought again.
     return {"ok": True, "state": "granted", "sku": sku, "granted": granted,
+            "consumed": bool(pp.consumed),
             "credits": int(owner.ai_credits or 0), "user": owner}
 
 

@@ -1601,7 +1601,15 @@ class AgentView(APIView):
                     reply = ai_reply
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
-                except ai.AIUnavailable:
+                except ai.AIUnavailable as e:
+                    from . import credits_out
+                    if e.reason == "credits" and credits_out.supported(request):
+                        # credout: never a silent downgrade — 402 + nothing
+                        # saved, so the app keeps the text, opens the
+                        # buy-credits sheet and re-sends it once.
+                        from . import credits_out
+                        return credits_out.response(
+                            u, lang, credits_out.need_for_tier(u, "cheap"))
                     ai_answered = False
             if not ai_answered:
                 res = brain.answer(u, text, lang)

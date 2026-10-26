@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/payments/checkout_sheet.dart';
 import 'package:assisto/payments/payments_api.dart';
+import 'package:assisto/payments/play_prices.dart';
 import 'package:assisto/payments/store_billing.dart';
 import 'package:assisto/theme.dart';
 
@@ -68,7 +69,10 @@ void main() {
       return true;
     };
   });
-  tearDown(() => StoreBilling.debugOverride = null);
+  tearDown(() {
+    StoreBilling.debugOverride = null;
+    PlayPrices.debugReset();
+  });
 
   testWidgets('Play build: Google Play ONLY — EPS never offered, even when the '
       'server switch says the gateway is live (owner rule 26 Oct)',
@@ -81,7 +85,10 @@ void main() {
     expect(find.byKey(const ValueKey('pay-option-gateway')), findsNothing);
     expect(find.text(t.payPlayTitle), findsOneWidget);
     expect(find.text(t.payGatewayTitle), findsNothing);
-    expect(find.text('৳199'), findsOneWidget);
+    // credout: Play's own formatted price, never the server's taka number
+    expect(find.text('BDT 199.00'), findsOneWidget);
+    expect(find.textContaining('৳199'), findsNothing);
+    expect(find.textContaining('BDT 199.00'), findsNWidgets(2)); // header + option
     expect(tester.takeException(), isNull);
   });
 
@@ -246,15 +253,27 @@ void main() {
     expect(billing.bought, isEmpty);
   });
 
-  testWidgets('Play client unavailable on this phone -> honest fallback note',
-      (tester) async {
+  testWidgets('Play client unavailable on this phone -> price unavailable, '
+      'buy disabled, retry (never a server taka price)', (tester) async {
     StoreBilling.debugOverride = null; // flavour play but not a Play build
     final b = FakePaymentsBackend();
     await _pump(tester, b);
+    final t = _t(tester);
+    expect(find.text(t.payPriceUnavailable), findsOneWidget);
+    expect(find.textContaining('৳'), findsNothing);
+    expect(find.byKey(const ValueKey('pay-price-retry')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('pay-option-play')));
     await tester.pumpAndSettle();
-    expect(find.text(_t(tester).payPlayUnavailableNoAlt), findsOneWidget);
-    expect(find.text(_t(tester).payPlayUnavailable), findsNothing);
+    expect(b.calls.where((c) => c.startsWith('precheck')), isEmpty);
+    expect(find.text(t.payPlayUnavailable), findsNothing);
+    // the store comes back -> retry shows Play's price and enables buying
+    StoreBilling.debugOverride = billing;
+    await tester.tap(find.byKey(const ValueKey('pay-price-retry')));
+    await tester.pumpAndSettle();
+    expect(find.text('BDT 199.00'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('pay-option-play')));
+    await tester.pumpAndSettle();
+    expect(b.calls, contains('precheck:premium_monthly'));
   });
 
   testWidgets('config fails to load -> retry', (tester) async {

@@ -66,6 +66,10 @@ class CvController extends ChangeNotifier {
   bool insufficient = false;
   bool _disposed = false;
 
+  /// credout: opens the shared buy-credits sheet; true when credits really
+  /// landed — the detailed answer is then requested again ONCE.
+  Future<bool> Function()? onOutOfCredits;
+
   /// No endless spinners: every server call is bounded.
   static Future<CvReply> _t(Future<CvReply> f) =>
       f.timeout(const Duration(seconds: 30));
@@ -115,8 +119,22 @@ class CvController extends ChangeNotifier {
   }
 
   /// Ask for the detailed answer via `pool`, `ads` or `credits`.
-  Future<void> requestDetailed(String via) async {
+  Future<void> requestDetailed(String via, {bool creditsRetry = false}) async {
     if (phase == CvPhase.funding || phase == CvPhase.answering) return;
+    await _requestDetailed(via);
+    final offer = onOutOfCredits;
+    if (insufficient && !creditsRetry && offer != null && !_disposed) {
+      bool ok;
+      try {
+        ok = await offer();
+      } catch (_) {
+        ok = false;
+      }
+      if (ok && !_disposed) await requestDetailed(via, creditsRetry: true);
+    }
+  }
+
+  Future<void> _requestDetailed(String via) async {
     insufficient = false;
     message = '';
     _set(CvPhase.funding);

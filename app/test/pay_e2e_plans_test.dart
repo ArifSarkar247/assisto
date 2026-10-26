@@ -17,6 +17,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/payments/checkout_sheet.dart';
 import 'package:assisto/payments/payments_api.dart';
+import 'package:assisto/payments/play_prices.dart';
 import 'package:assisto/payments/store_billing.dart';
 import 'package:assisto/screens/business/bizagent/seller_agent_screen.dart';
 import 'package:assisto/screens/credits_screen.dart';
@@ -92,8 +93,10 @@ void main() {
     FakeApi.payLive = false;
     FakeApi.planSlug = 'premium';
     FakeApi.payOmit = {};
+    FakeApi.playLive = false;
     debugPayFlavour = null;
     StoreBilling.debugOverride = null;
+    PlayPrices.debugReset();
   });
 
   group('Plans: Business yearly', () {
@@ -145,6 +148,80 @@ void main() {
     });
   });
 
+  // credout (owner 26 Oct): the Play build shows ONLY Play's own prices.
+  group('Play build: prices come from Google Play', () {
+    testWidgets('plans show Play formattedPrice (monthly + annual), never the '
+        'server taka', (tester) async {
+      debugPayFlavour = 'play';
+      FakeApi.playLive = true;
+      FakeApi.planSlug = 'free';
+      final billing = FakeStoreBilling();
+      StoreBilling.debugOverride = billing;
+      final t = await _pumpScreen(tester, const PlansScreen());
+      final premium = find.byKey(const ValueKey('plan-price-premium'));
+      expect(tester.widget<Text>(premium).data, 'BDT 199.00');
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-business'))).data,
+          'BDT 499.00');
+      expect(find.text('৳199'), findsNothing);
+      expect(find.text('৳499'), findsNothing);
+      await _toggle(tester, t.plansYearly);
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-annual'))).data,
+          'BDT 1,990.00');
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-business'))).data,
+          'BDT 5,808.00');
+      expect(find.textContaining('5,808'), findsOneWidget); // Play's, not ৳5,808
+      // one cached query for every Play product (plans + packs)
+      expect(billing.priceQueries.length, 1);
+      expect(billing.priceQueries.single,
+          containsAll(<String>['assisto_premium', 'assisto_business', 'credits_p20']));
+    });
+
+    testWidgets('store unavailable: honest "price unavailable", buy disabled, retry',
+        (tester) async {
+      debugPayFlavour = 'play';
+      FakeApi.playLive = true;
+      FakeApi.planSlug = 'free';
+      StoreBilling.debugOverride = null; // no Play client -> no prices
+      final t = await _pumpScreen(tester, const PlansScreen());
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-premium'))).data,
+          t.payPriceUnavailable);
+      expect(find.byKey(const ValueKey('plan-buy-premium')), findsNothing);
+      expect(find.byKey(const ValueKey('plan-price-retry-premium')), findsOneWidget);
+      expect(find.text('৳199'), findsNothing);
+      // the store is back -> retry shows Play's price and the buy button
+      StoreBilling.debugOverride = FakeStoreBilling();
+      final retry = find.byKey(const ValueKey('plan-price-retry-premium'));
+      await tester.ensureVisible(retry);
+      await tester.tap(retry);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-premium'))).data,
+          'BDT 199.00');
+      expect(find.byKey(const ValueKey('plan-buy-premium')), findsOneWidget);
+    });
+
+    testWidgets('website APK keeps the server taka prices', (tester) async {
+      debugPayFlavour = 'apk';
+      FakeApi.payLive = true;
+      FakeApi.planSlug = 'free';
+      await _pumpScreen(tester, const PlansScreen());
+      expect(tester.widget<Text>(find.byKey(const ValueKey('plan-price-premium'))).data,
+          '৳199');
+    });
+
+    testWidgets('credits screen packs: Play formattedPrice in Bangla digits', (tester) async {
+      debugPayFlavour = 'play';
+      FakeApi.playLive = true;
+      FakeApi.payLive = true; // creditsPacks() lists the packs
+      StoreBilling.debugOverride = FakeStoreBilling();
+      await _pumpScreen(tester, const CreditsScreen(), lang: 'bn');
+      final bn = String.fromCharCodes([0x09EB, 0x09E6, 0x2E, 0x09E6, 0x09E6]); // ৫০.০০
+      expect(find.text('BDT $bn'), findsOneWidget);
+      expect(find.text('\u09F3\u09EB\u09E6'), findsNothing); // never ৳৫০
+    });
+  });
+
   group('Google Play: Business yearly', () {
     PayConfig cfg() => PayConfig.fromJson({
           'channels': [
@@ -156,7 +233,7 @@ void main() {
                 'sku': 'business_yearly', 'kind': 'sub', 'plan': 'business',
                 'period': 'yearly', 'months': 12, 'price_bdt': 5808,
                 'title': 'Business', 'play_product_id': 'assisto_business',
-                'play_base_plan': 'yearly',
+                'play_base_plan': 'annual', // Play base plans: monthly | annual
               }
             ],
           },
@@ -182,11 +259,13 @@ void main() {
       StoreBilling.debugOverride = billing;
       final b = FakePaymentsBackend(cfg: cfg());
       final t = await open(tester, b);
-      expect(find.text('৳5,808'), findsOneWidget);
+      // credout: Play's own formatted price, never the server's taka
+      expect(find.text('BDT 5,808.00'), findsWidgets);
+      expect(find.textContaining('৳5,808'), findsNothing);
       await tester.tap(find.byKey(const ValueKey('pay-option-play')));
       await tester.pumpAndSettle();
       expect(b.calls, contains('precheck:business_yearly'));
-      expect(billing.bought.single, 'assisto_business/yearly/true/u7-abc');
+      expect(billing.bought.single, 'assisto_business/annual/true/u7-abc');
       expect(b.calls, contains('verify:sub:assisto_business:tok-1'));
       expect(find.text(t.paySuccessTitle), findsOneWidget);
     });

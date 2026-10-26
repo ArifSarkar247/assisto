@@ -7,7 +7,7 @@ import '../../theme.dart';
 import '../../widgets/voice_input.dart';
 import '../../world/world_api.dart';
 import '../../world/world_widgets.dart';
-import '../credits_screen.dart';
+import '../../payments/credits_out_sheet.dart'; // credout
 
 /// p4-world "Ask anything": a LIVE web search answered by AI with numbered
 /// sources [1][2] that open the original page. Costs credits per new answer
@@ -59,7 +59,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
     super.dispose();
   }
 
-  Future<void> _send() async {
+  Future<void> _send({bool creditsRetry = false}) async {
     final q = _input.text.trim();
     if (q.length < 3 || _busy) return;
     final turn = _Turn(q);
@@ -77,6 +77,21 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
       body = {'_status': 0, 'ok': false};
     }
     if (!mounted) return;
+    // credout: out of credits -> the question goes back into the box, the
+    // buy-credits sheet opens at once, and after credits land it is asked
+    // again once. Cancel keeps the question in the box.
+    if (!creditsRetry && worldStatus(body) == 402 && isOutOfCreditsBody(body)) {
+      setState(() {
+        _turns.remove(turn);
+        _busy = false;
+        if (_input.text.trim().isEmpty) _input.text = q;
+      });
+      final ok = await CreditsOut.offer(context, screen: 'world', draftKept: true);
+      if (ok && mounted && _input.text.trim() == q) {
+        return _send(creditsRetry: true);
+      }
+      return;
+    }
     setState(() {
       turn.body = body;
       turn.loading = false;
@@ -233,10 +248,8 @@ class _TurnCard extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: Gap.sm),
                                 child: FilledButton.tonal(
-                                  onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              const CreditsScreen())),
+                                  onPressed: () => CreditsOut.offer(context,
+                                      screen: 'world'),
                                   child: Text(t.uwGetCredits),
                                 ),
                               ),

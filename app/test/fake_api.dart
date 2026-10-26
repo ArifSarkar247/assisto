@@ -33,6 +33,11 @@ class FakeApi extends ApiClient {
   /// /payments/config (the gallery sets it for the `*_paylive` shots).
   static bool payLive = false;
 
+  /// credout: also list a LIVE Google Play channel (Play-build tests) with
+  /// the real Play ids: assisto_premium / assisto_business on base plans
+  /// monthly | annual, and the credits_p20.. one-time packs.
+  static bool playLive = false;
+
   /// pay-e2e: skus /payments/config leaves out (e.g. 'business_yearly').
   static Set<String> payOmit = {};
 
@@ -79,13 +84,29 @@ class FakeApi extends ApiClient {
           _payProduct('pack_${p['id']}', p['taka'] as int,
               kind: 'pack', credits: p['credits'] as int),
       ];
+      Map<String, dynamic> playOf(Map<String, dynamic> p) {
+        final sku = '${p['sku']}';
+        if (sku.startsWith('pack_')) {
+          return {...p, 'play_product_id': 'credits_${sku.substring(5)}'};
+        }
+        return {
+          ...p,
+          'play_product_id': 'assisto_${sku.split('_').first}',
+          'play_base_plan': sku.endsWith('yearly') ? 'annual' : 'monthly',
+        };
+      }
       return {
         'channels': [
+          if (playLive)
+            {'id': 'play', 'enabled': true, 'ready': true, 'label': 'Google Play'},
           {'id': 'gateway', 'enabled': payLive, 'ready': payLive,
             'label': 'bKash / Nagad / Card — EPS'},
         ],
-        'products': {'gateway': prods},
-        'play_account_id': '',
+        'products': {
+          'gateway': prods,
+          if (playLive) 'play': [for (final p in prods) playOf(p)],
+        },
+        'play_account_id': playLive ? 'u7-abc' : '',
       };
     }
     if (path == '/payments/state') return {'plan': planSlug};

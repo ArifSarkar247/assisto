@@ -16,6 +16,7 @@ import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, PayProduct, payFlavour; // pay1
 import '../payments/play_restore.dart'; // pay-e2e
 import '../payments/store_billing.dart'; // pay-e2e
+import '../payments/play_prices.dart'; // credout: Play's own prices
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -98,6 +99,7 @@ class _PlansScreenState extends State<PlansScreen> {
       _payCfg = null;
     }
     _reconcileOnce();
+    await _loadPlayPrices();
     // Referral loads separately so a referral outage never blanks the paywall.
     try {
       final r = await Future.wait([api.referralBalance(), api.referralHistory()]);
@@ -118,6 +120,31 @@ class _PlansScreenState extends State<PlansScreen> {
     await Navigator.push(
         context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
     if (mounted) await _load();
+  }
+
+  // credout: the Play build shows ONLY Play's own formatted prices.
+  bool _playPricesLoading = false;
+  bool get _isPlay => payFlavour() == 'play';
+
+  Future<void> _loadPlayPrices() async {
+    final c = _payCfg;
+    if (!_isPlay || c == null) return;
+    final prods = c.products['play'] ?? const <PayProduct>[];
+    if (prods.isEmpty) return;
+    if (mounted) setState(() => _playPricesLoading = true);
+    await PlayPrices.ensure(prods);
+    if (mounted) setState(() => _playPricesLoading = false);
+  }
+
+  /// The Play product a plan card stands for (null = not sold on Play).
+  PayProduct? _playProductFor(String id) =>
+      _payCfg?.product('play', _skuFor(id));
+
+  /// Play build: a card is buyable only once its store price is known.
+  bool _playPriced(String id) {
+    if (!_isPlay) return true;
+    final p = _playProductFor(id);
+    return p != null && PlayPrices.of(p) != null;
   }
 
   /// pay-e2e: true on the Play build while Google Play is really live.
@@ -690,8 +717,11 @@ class _PlansScreenState extends State<PlansScreen> {
           ]),
           const SizedBox(height: Gap.xxs),
           Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(_priceLabel(p),
+            Flexible(
+              child: Text(_priceLabel(p),
+                key: ValueKey('plan-price-$id'),
                 style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800, color: scheme.primary)),
+            ),
             const SizedBox(width: Gap.xs),
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
@@ -750,10 +780,22 @@ class _PlansScreenState extends State<PlansScreen> {
                   minimumSize: const Size.fromHeight(44)),
               child: Text(t.plansCurrentTag),
             )
+          else if (_canBuy(_skuFor(id)) && _isPlay && !_playPriced(id) &&
+              !_playPricesLoading)
+            OutlinedButton.icon(
+              key: ValueKey('plan-price-retry-$id'),
+              onPressed: () async {
+                await _loadPlayPrices();
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44)),
+              label: Text(t.retry),
+            )
           else if (_canBuy(_skuFor(id)))
             FilledButton.icon(
               key: ValueKey('plan-buy-$id'),
-              onPressed: () => _buy(_skuFor(id)),
+              onPressed: _playPriced(id) ? () => _buy(_skuFor(id)) : null,
               icon: const Icon(Icons.lock_open_rounded, size: 18),
               style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
@@ -789,6 +831,16 @@ class _PlansScreenState extends State<PlansScreen> {
       );
 
   String _priceLabel(Map<String, dynamic> p) {
+    final id = (p['id'] ?? '').toString();
+    // credout: Play build -> Play's formatted price of the server-named base
+    // plan, never the server's taka number (Free stays free).
+    if (_isPlay && id != 'free') {
+      final pp = _playProductFor(id);
+      final s = pp == null ? null : PlayPrices.of(pp);
+      if (s != null) return localizeStoreDigits(context, s);
+      final t = AppLocalizations.of(context);
+      return _playPricesLoading ? '\u2026' : t.payPriceUnavailable;
+    }
     final price = p['price'];
     final cur = (p['cur'] ?? 'BDT').toString();
     if (price == 0 || price == 0.0) return _curSign(cur) + fmtInt(context, 0);

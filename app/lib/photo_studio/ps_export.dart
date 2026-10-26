@@ -56,6 +56,11 @@ abstract class GateUi {
 
   /// Progress while an ad is verified by the server.
   void verifying(int done, int total) {}
+
+  /// credout: the server said "not enough credits". Open the shared
+  /// buy-credits sheet; true when credits really landed (verified purchase
+  /// or reward) so the caller retries the same step ONCE.
+  Future<bool> outOfCredits() async => false;
 }
 
 class GateGrant {
@@ -110,7 +115,10 @@ class ExportGate {
           adsLinked: ads.linked));
       if (choice == null) return GateResult(GateStatus.cancelled, job: j);
       if (choice == FundChoice.credits) {
-        final r = await backend.fundWithCredits(j.id);
+        var r = await backend.fundWithCredits(j.id);
+        if (r.status == 402 && r.reason == 'insufficient' && await ui.outOfCredits()) {
+          r = await backend.fundWithCredits(j.id); // credout: once, same job
+        }
         if (r.ok && r.job != null) {
           j = r.job!;
           continue;

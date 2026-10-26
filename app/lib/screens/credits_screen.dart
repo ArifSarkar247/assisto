@@ -16,6 +16,7 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
 import '../widgets/paywall_sheet.dart'; // p2-money
+import '../payments/play_prices.dart'; // credout: Play's own prices
 
 /// CREDITS screen (Business Model Build 3, item 2).
 ///
@@ -94,6 +95,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
             .where((p) => cfg.canBuy(
                 'pack_${p['code'] ?? p['id'] ?? ''}', payFlavour()))
             .toList();
+    // credout: the Play build shows Play's own pack prices only.
+    if (payFlavour() == 'play' && cfg != null) {
+      await PlayPrices.ensure(cfg.products['play'] ?? const []);
+    }
     if (mounted) {
       _adsReady = await AdsService.instance
           .rewardedAvailable(context.read<AppState>());
@@ -360,6 +365,18 @@ class _CreditsScreenState extends State<CreditsScreen> {
       AppLocalizations t, ColorScheme scheme, Map<String, dynamic> p) {
     final takaAmt = _int(p['taka']);
     final credits = _int(p['credits']);
+    // credout: Play build -> Play's formatted price; unknown -> honest text,
+    // no buy (pull to refresh asks the store again).
+    final playProd = payFlavour() == 'play'
+        ? _payCfg?.product('play', 'pack_${p['code'] ?? p['id'] ?? ''}')
+        : null;
+    final storePrice = playProd == null ? null : PlayPrices.of(playProd);
+    final priceOk = payFlavour() != 'play' || storePrice != null;
+    final priceText = payFlavour() != 'play'
+        ? '\u09F3${fmtInt(context, takaAmt)}'
+        : (storePrice != null
+            ? localizeStoreDigits(context, storePrice)
+            : t.payPriceUnavailable);
     final months = _int(p['valid_months']);
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -391,12 +408,14 @@ class _CreditsScreenState extends State<CreditsScreen> {
             ]),
           ),
           const SizedBox(width: Gap.sm),
-          FilledButton(
-            key: ValueKey('pack-buy-${p['code'] ?? p['id'] ?? ''}'),
-            onPressed: _buying ? null : () => _topup(p),
-            style: FilledButton.styleFrom(minimumSize: const Size(92, 42)),
-            // Taka sign by code point (keeps the language gate strict).
-            child: Text('\u09F3${fmtInt(context, takaAmt)}'),
+          Flexible(
+            child: FilledButton(
+              key: ValueKey('pack-buy-${p['code'] ?? p['id'] ?? ''}'),
+              onPressed: (_buying || !priceOk) ? null : () => _topup(p),
+              style: FilledButton.styleFrom(minimumSize: const Size(92, 48)),
+              // Taka sign by code point (keeps the language gate strict).
+              child: Text(priceText, textAlign: TextAlign.center),
+            ),
           ),
         ]),
       ),

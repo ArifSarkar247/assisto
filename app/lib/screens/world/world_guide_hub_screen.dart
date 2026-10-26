@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../chat_vision/chat_photo.dart';
 import '../../chat_vision/cv_backend.dart';
 import '../../l10n/app_localizations.dart';
+import '../../payments/credits_out_sheet.dart'; // credout
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
@@ -110,7 +111,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         _ => t.uwHubHealth,
       };
 
-  Future<void> _askAi() async {
+  Future<void> _askAi({bool creditsRetry = false}) async {
     final q = _q.text.trim();
     if (q.length < 3 || _asking) return;
     setState(() {
@@ -126,6 +127,15 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
       r = {'_status': 0, 'ok': false};
     }
     if (!mounted) return;
+    // credout: out of credits -> the buy sheet at once (the question stays in
+    // the box); after credits really land, the same question once. No ads
+    // here (guide hubs include health).
+    if (!creditsRetry && worldStatus(r) == 402 && isOutOfCreditsBody(r)) {
+      setState(() => _asking = false);
+      final ok = await CreditsOut.offer(context, screen: 'world_hub', draftKept: true);
+      if (!mounted) return;
+      if (ok && _q.text.trim() == q) return _askAi(creditsRetry: true);
+    }
     setState(() {
       _aiReply = r;
       _asking = false;

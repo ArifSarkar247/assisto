@@ -14,7 +14,9 @@ Map<String, dynamic> pay1Product(String sku,
       'price_bdt': price,
       'title': kind == 'sub' ? 'Premium' : '$credits credits',
       'play_product_id': kind == 'sub' ? 'assisto_premium' : 'credits_p50',
-      'play_base_plan': kind == 'sub' ? 'monthly' : '',
+      // Play base plans are "monthly" and "annual" (never "yearly")
+      'play_base_plan':
+          kind == 'sub' ? (sku.endsWith('yearly') ? 'annual' : 'monthly') : '',
     };
 
 PayConfig pay1Config({
@@ -96,6 +98,17 @@ class FakePaymentsBackend implements PaymentsBackend {
   }
 }
 
+const kFakePlayPrices = {
+  'credits_p20': 'BDT 20.00',
+  'credits_p50': 'BDT 50.00',
+  'credits_p100': 'BDT 100.00',
+  'credits_p200': 'BDT 200.00',
+  'assisto_premium/monthly': 'BDT 199.00',
+  'assisto_premium/annual': 'BDT 1,990.00',
+  'assisto_business/monthly': 'BDT 499.00',
+  'assisto_business/annual': 'BDT 5,808.00',
+};
+
 /// A fake Google Play client (the real one is never loaded in tests).
 class FakeStoreBilling implements StoreBilling {
   StoreBuyResult next =
@@ -120,4 +133,21 @@ class FakeStoreBilling implements StoreBilling {
   List<StoreOwned> ownedList = [];
   @override
   Future<List<StoreOwned>> owned() async => ownedList;
+
+  /// credout: localized store prices (Play's formatted price strings, keyed
+  /// productId for packs, productId/basePlanId for subscriptions) + consumed
+  /// tokens. Defaults look like Play's own strings — never the server's ৳.
+  Map<String, String> priceMap = Map.of(kFakePlayPrices);
+  final consumed = <String>[];
+  final priceQueries = <Set<String>>[];
+  @override
+  Future<Map<String, String>> prices(Set<String> productIds) async {
+    priceQueries.add(productIds);
+    return {
+      for (final e in priceMap.entries)
+        if (productIds.contains(e.key.split('/').first)) e.key: e.value
+    };
+  }
+  @override
+  Future<void> consume(String purchaseToken) async => consumed.add(purchaseToken);
 }
