@@ -103,10 +103,12 @@ def is_live(state):
     return state in LIVE_STATES
 
 
-def phase(state, ringing_at=None):
-    """The phase a phone renders, from the stored record state."""
+def phase(state, ringing_at=None, delivered_at=None):
+    """The phase a phone renders, from the stored record state.
+    calls95: "calling" until the callee's phone CONFIRMED the ring push
+    (native delivered ack or ringing ack), then "ringing"."""
     if state == "ringing":
-        return "ringing" if ringing_at else "calling"
+        return "ringing" if (ringing_at or delivered_at) else "calling"
     if state == "connecting":
         return "accepted"
     if state == "active":

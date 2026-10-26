@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../alerts_fg.dart';
 import '../api.dart';
 import '../calls/call_native.dart';
+import '../calls/ring_checklist.dart';
 import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
 import '../config.dart';
@@ -205,7 +206,14 @@ class PushService {
   }
 
   /// ring-everywhere: re-register the FCM token at most this often on resume.
-  static const reRegisterEvery = Duration(hours: 12);
+  /// calls95: 6 h (was 12 h) — a token FCM rotated while the app was killed
+  /// is picked up the same day; every cold start registers anyway.
+  static const reRegisterEvery = Duration(hours: 6);
+
+  /// calls95: the token this install registered last (survives restarts), so
+  /// a rotated token REPLACES its old server row instead of leaving a dead
+  /// one behind for the ring push to wait on.
+  static const lastTokenKey = 'push_last_token_v1';
   DateTime? _registeredAt;
   DateTime? _missedFetchedAt;
 
@@ -247,6 +255,9 @@ class PushService {
         await PushNotifier.show(p);
         n++;
       }
+      // calls95: rings this phone never got -> the per-brand setup
+      // checklist comes back (banner + badge), never a blocking screen.
+      if (n > 0) unawaited(RingChecklist.onMissedRing());
       return n;
     } catch (_) {
       return 0;
@@ -363,9 +374,21 @@ class PushService {
       try {
         dev = await CallNative.deviceFacts();
       } catch (_) {}
-      final r = await app.api.pushRegister(token, appVersion: ver, device: dev);
+      String? prev;
+      SharedPreferences? prefs;
+      try {
+        prefs = await SharedPreferences.getInstance();
+        prev = prefs.getString(lastTokenKey);
+      } catch (_) {}
+      final r = await app.api.pushRegister(token,
+          appVersion: ver,
+          device: dev,
+          replaceToken: (prev != null && prev != token) ? prev : null);
       _registeredToken = token;
       _registeredAt = DateTime.now();
+      try {
+        await prefs?.setString(lastTokenKey, token);
+      } catch (_) {}
       await _setPushOk(true);
       // ring-everywhere: the server holds calls this phone never got.
       final pending = r['missed_pending'];

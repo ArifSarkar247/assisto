@@ -7,12 +7,18 @@ extension PushApi on ApiClient {
   /// everywhere) the phone's brand / model / Android SDK for the Owner Admin
   /// call-delivery table (no PII). The answer's `missed_pending` counts
   /// never-delivered missed calls waiting for [missedPending].
+  /// calls95: [replaceToken] = the token this install registered before
+  /// (FCM rotated it); the server drops that row.
   Future<Map<String, dynamic>> pushRegister(String token,
-          {String appVersion = '', Map<String, Object?>? device}) =>
+          {String appVersion = '',
+          Map<String, Object?>? device,
+          String? replaceToken}) =>
       postJson('/devices/register', {
         'push_token': token,
         'platform': 'android',
         'app_version': appVersion,
+        if (replaceToken != null && replaceToken.isNotEmpty)
+          'replace_token': replaceToken,
         if (device != null) ...{
           'brand': '${device['brand'] ?? ''}',
           'model': '${device['model'] ?? ''}',

@@ -1,7 +1,8 @@
 """
 Push-device endpoints (FCM). Token auth + IsAuthenticated (project default).
 
-  POST devices/register   {push_token, platform, app_version} -> upsert
+  POST devices/register   {push_token, platform, app_version,
+                           replace_token?}                     -> upsert
   POST devices/unregister {push_token}                         -> delete
   GET  push/status                                             -> {available}
 
@@ -59,6 +60,12 @@ class DeviceRegisterView(APIView):
             # Same install now belongs to this account -> drop other owners.
             moved = Device.objects.filter(push_token=token).exclude(
                 user=user).delete()[0]
+            # calls95: FCM rotated this install's token -> the app sends the
+            # one it registered before; drop that row so rings never go to
+            # (and wait on) the dead token.
+            prev = str(d.get("replace_token", "") or "").strip()
+            if prev and prev != token and len(prev) <= 255:
+                Device.objects.filter(user=user, push_token=prev).delete()
             dev, created = Device.objects.update_or_create(
                 user=user, push_token=token, defaults=defaults)
             keep = list(Device.objects.filter(user=user)

@@ -354,7 +354,7 @@ def sweep(rec, now=None):
         except Exception:
             pass
     reason = CS.sweep_decision(
-        rec.state, now, rec.started_at, ringing_at=sess.ringing_at,
+        rec.state, now, rec.started_at, ringing_at=sess.ringing_at or getattr(sess, "delivered_at", None),
         answered_at=rec.answered_at, caller_seen=sess.caller_seen_at,
         callee_seen=sess.callee_seen_at, connected_at=sess.connected_at,
         push_sent=bool(getattr(sess, "push_sent", False)))
@@ -425,8 +425,12 @@ def status_row(rec, side, lang="bn"):
     return {
         "call_id": rec.id, "kind": rec.kind, "side": side,
         "state": rec.state,
-        "phase": CS.phase(rec.state, sess.ringing_at),
+        "phase": CS.phase(rec.state, sess.ringing_at,
+                          getattr(sess, "delivered_at", None)),
         "ringing": sess.ringing_at is not None,
+        # calls95: the callee phone confirmed the ring push arrived
+        "delivered": bool(getattr(sess, "delivered_at", None)
+                          or sess.ringing_at),
         "end_reason": sess.end_reason or "",
         "ended_by": sess.ended_by or "",
         "connected_at": sess.connected_at.isoformat() if sess.connected_at else None,
@@ -670,7 +674,8 @@ def incoming_row(rec, me):
         "caller_photo": photo_of(rec.caller)[0],
         "caller_photo_v": photo_of(rec.caller)[1],
         "chat_id": edge.id if edge is not None else None,
-        "phase": CS.phase(rec.state, session_of(rec).ringing_at),
+        "phase": CS.phase(rec.state, session_of(rec).ringing_at,
+                          getattr(session_of(rec), "delivered_at", None)),
     }
 
 
@@ -779,7 +784,13 @@ def place_call(request, member, peer, kind, client_call_id=""):
                 # full ring window for its ack (call_signal.OFFLINE_ACK_PUSHED_S)
                 sess.push_sent = True
                 sess.last_push_at = now   # ring-everywhere: resend clock
-                sess.save(update_fields=["push_sent", "last_push_at"])
+                upd = ["push_sent", "last_push_at"]
+                try:
+                    from . import call_ack
+                    upd += call_ack.stamp_callee_device(sess, callee)
+                except Exception:
+                    pass
+                sess.save(update_fields=upd)
     turn_ready = bool(getattr(settings, "TURN_STATIC_SECRET", "")) or \
         bool(getattr(settings, "CIRCLE_TURN_READY", False))
     push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \

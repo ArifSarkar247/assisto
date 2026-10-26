@@ -5203,6 +5203,30 @@ Device.add_to_class("sdk_int", models.PositiveSmallIntegerField(default=0))
 # ---- /ring-everywhere ----
 
 
+# ---- calls95 ---- ring delivery >= 95 %: the callee's app version at call
+# time (stamped at placement from the newest Device, overwritten by the
+# native ack) and one Owner Admin trend row per day (call_ack.snapshot_days;
+# survives account purges that cascade-delete CallRecords). No PII: counts
+# per brand / Android / app version only.
+CallSession.add_to_class("callee_app", models.CharField(max_length=24, blank=True, default=""))
+
+
+class CallDeliveryDaily(models.Model):
+    date = models.DateField(unique=True)
+    attempts = models.IntegerField(default=0)       # judged ring pushes
+    delivered = models.IntegerField(default=0)
+    early_cancels = models.IntegerField(default=0)  # caller hung up < 4 s (excluded)
+    by_brand = models.JSONField(default=dict, blank=True)    # {brand: [attempts, delivered]}
+    by_android = models.JSONField(default=dict, blank=True)  # {sdk: [a, d]}
+    by_app = models.JSONField(default=dict, blank=True)      # {version: [a, d]}
+    causes = models.JSONField(default=dict, blank=True)      # {miss cause: n}
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date"]
+# ---- /calls95 ----
+
+
 # ---- play-vitals ---- Google Play Vitals (Play Developer Reporting API),
 # pulled daily by manage.py play_vitals_pull (core.play_vitals). Read-only
 # mirror of Google's numbers for Owner Admin → Play Vitals. No user data:

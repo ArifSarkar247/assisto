@@ -130,7 +130,16 @@ def calls(request):
     # ring-everywhere: ring delivery success by phone brand / model / Android.
     try:
         from core import call_ack
-        ctx["rd"] = call_ack.delivery_stats(24 * 7)
+        # calls95: 7 or 30 days (?rd=30), 95 % target, app versions, miss
+        # causes, early caller cancels apart, and the stored daily trend.
+        days = 30 if request.GET.get("rd") == "30" else 7
+        rd = call_ack.delivery_stats(24 * days)
+        for c in rd["causes"]:
+            c["label"] = T.get("rd_cause_" + c["cause"], c["cause"])
+        call_ack.snapshot_days(30)
+        rd["trend"] = call_ack.trend(30)
+        ctx["rd"] = rd
+        ctx["rd_days"] = days
     except Exception:
         ctx["rd"] = None
     return page(request, "owner/calls.html", ctx, status=status, nav="calls")

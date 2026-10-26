@@ -68,8 +68,8 @@ class SignatureTests(TestCase):
         now = timezone.now()
         t0 = now - timedelta(seconds=A.RESEND_AFTER_S)
         self.assertTrue(A.due_resend("ringing", now, t0, None, True, None, None, 0))
-        # not yet 4 s
-        self.assertFalse(A.due_resend("ringing", now, now - timedelta(seconds=2),
+        # not yet the first slot (2 s)
+        self.assertFalse(A.due_resend("ringing", now, now - timedelta(seconds=1),
                                       None, True, None, None, 0))
         # acked (delivered or ringing) -> never
         self.assertFalse(A.due_resend("ringing", now, t0, None, True, now, None, 0))
@@ -102,14 +102,15 @@ class AckTests(_RingBase):
         self.assertEqual(s.fcm_msg_id, "projects/x/messages/1")
         self.assertIsNotNone(s.last_push_at)
 
-    def test_delivered_then_ringing_moves_caller_from_calling_to_ringing(self):
+    def test_delivered_moves_caller_from_calling_to_ringing(self):
         cid = self.place()["call_id"]
         st = self.ca.get(f"{V}/circle/calls/{cid}").json()
         self.assertEqual(st["phase"], "calling")
         r = self.ack(cid, "delivered", brand="Xiaomi", model="Redmi Note 12",
                      sdk=34)
         self.assertEqual(r.status_code, 200, r.content)
-        self.assertEqual(r.json()["phase"], "calling")   # delivered != ringing
+        # calls95: the phone CONFIRMED the push -> the caller sees Ringing
+        self.assertEqual(r.json()["phase"], "ringing")
         s = CallSession.objects.get(call_id=cid)
         self.assertIsNotNone(s.delivered_at)
         self.assertEqual((s.callee_brand, s.callee_model, s.callee_sdk),
@@ -154,31 +155,48 @@ class AckTests(_RingBase):
 
 
 class ResendTests(_RingBase):
-    def test_resend_after_4s_without_ack_bounded_and_idempotent(self):
+    def test_resend_schedule_bounded_and_idempotent(self):
+        """calls95: resends at 2, 4, 8, 16, 24 s after placement while the
+        phone has not acked; each slot sends ONE copy even when both phones
+        poll at once; never more than MAX_RESENDS."""
         cid = self.place()["call_id"]
         self.assertEqual(len(_ring_payloads(self.fake)), 1)
-        # 2 s: not due
-        self.push_age(cid, 2)
+        # 1 s: not due
+        self.push_age(cid, 1)
         self.ca.get(f"{V}/circle/calls/{cid}")
         self.assertEqual(len(_ring_payloads(self.fake)), 1)
-        # 4 s: one resend, even when both phones poll right after
-        self.push_age(cid, A.RESEND_AFTER_S)
-        self.ca.get(f"{V}/circle/calls/{cid}")
-        self.ca.get(f"{V}/circle/calls/{cid}")
-        self.events(self.ca)
-        rings = _ring_payloads(self.fake)
-        self.assertEqual(len(rings), 2)
-        self.assertEqual(rings[1]["data"]["attempt"], "1")
-        self.assertEqual(rings[1]["android"]["collapse_key"], "call-%s" % cid)
-        self.assertEqual(rings[1]["data"]["call_id"], str(cid))
-        # second resend 4 s later, then never again
-        for _ in range(4):
-            self.push_age(cid, A.RESEND_AFTER_S + 1)
+        for k, at in enumerate(A.RESEND_SCHEDULE_S, start=1):
+            self.push_age(cid, at)        # placed `at` s ago, last push too
             self.ca.get(f"{V}/circle/calls/{cid}")
-        rings = _ring_payloads(self.fake)
-        self.assertEqual(len(rings), 1 + A.MAX_RESENDS)
+            self.ca.get(f"{V}/circle/calls/{cid}")
+            self.events(self.ca)
+            rings = _ring_payloads(self.fake)
+            self.assertEqual(len(rings), 1 + k, "slot %s s" % at)
+            self.assertEqual(rings[-1]["data"]["attempt"], str(k))
+            self.assertEqual(rings[-1]["android"]["collapse_key"], "call-%s" % cid)
+        # schedule used up: never again
+        self.push_age(cid, 40)
+        self.ca.get(f"{V}/circle/calls/{cid}")
+        self.assertEqual(len(_ring_payloads(self.fake)), 1 + A.MAX_RESENDS)
         self.assertEqual(CallSession.objects.get(call_id=cid).push_resends,
                          A.MAX_RESENDS)
+
+    def test_resend_slots_follow_placement_with_min_gap(self):
+        now = timezone.now()
+        t0 = now - timedelta(seconds=8.5)
+        # 2 resends done, the 3rd slot (8 s) is due
+        self.assertTrue(A.due_resend("ringing", now, t0, now - timedelta(seconds=4),
+                                     True, None, None, 2))
+        # ...but never closer than RESEND_MIN_GAP_S to the previous send
+        self.assertFalse(A.due_resend("ringing", now, t0, now - timedelta(seconds=1),
+                                      True, None, None, 2))
+        # the 4th slot (16 s) is not due at 8.5 s
+        self.assertFalse(A.due_resend("ringing", now, t0, now - timedelta(seconds=4),
+                                      True, None, None, 3))
+        self.assertEqual(A.next_resend_at_s(0), 2)
+        self.assertIsNone(A.next_resend_at_s(A.MAX_RESENDS))
+        # every slot lies inside the ring window
+        self.assertLess(max(A.RESEND_SCHEDULE_S), CS.RING_TIMEOUT_S)
 
     def test_no_resend_once_delivered(self):
         cid = self.place()["call_id"]
@@ -296,9 +314,11 @@ class DeliveryStatsTests(_RingBase):
         # 1) delivered + reported its own facts
         c1 = self.place()["call_id"]
         self.ack(c1, "delivered", brand="realme", model="RMX3491", sdk=33)
+        self.age(c1, 10)
         self.ev(self.ca, c1, "cancel")
         # 2) never delivered -> falls back to the Device row facts
         c2 = self.place()["call_id"]
+        self.age(c2, 10)          # (a cancel within 4 s is not an attempt)
         self.ev(self.ca, c2, "cancel")
         # 3) still ringing, not acked -> not judged yet
         self.place()

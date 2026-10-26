@@ -996,6 +996,49 @@ BN.update({
 })
 # ---- /ring-everywhere ----
 
+# ---- calls95 ---- target line, 7/30 days, app version, causes, daily trend
+EN.update({
+    "rd_title_30": "Ring delivery by phone (last 30 days)",
+    "rd_none_30": "No ring pushes in the last 30 days.",
+    "rd_period": "Period", "rd_7d": "Last 7 days", "rd_30d": "Last 30 days",
+    "rd_target": "Target", "rd_target_note": "Goal: at least 95% overall and for every brand. Red = below the goal.",
+    "rd_below": "Below 95%", "rd_ok": "On target",
+    "rd_early": "Caller hung up within 4 s",
+    "rd_early_note": "Not counted in the rate: no phone can ring that fast.",
+    "rd_by_app": "By app version", "rd_app": "App version",
+    "rd_native": "Native ring", "rd_yes": "yes", "rd_no": "no (old build)",
+    "rd_problem": "battery saver known to block",
+    "rd_brands_below": "Brands below 95%",
+    "rd_causes": "Why rings were missed", "rd_cause": "Cause",
+    "rd_cause_old_build": "Old app build (before the native ring): ask them to update",
+    "rd_cause_push_error": "Push not accepted (no device / token refused)",
+    "rd_cause_late_ack": "Arrived late (phone asleep / battery saver delayed it)",
+    "rd_cause_woke_late": "Phone woke up only after the call ended (battery saver / Doze)",
+    "rd_cause_offline": "Phone offline (no internet / switched off)",
+    "rd_trend": "Daily trend", "rd_day": "Day",
+})
+BN.update({
+    "rd_title_30": "ফোন অনুযায়ী রিং পৌঁছানো (গত ৩০ দিন)",
+    "rd_none_30": "গত ৩০ দিনে কোনো রিং পুশ নেই।",
+    "rd_period": "সময়", "rd_7d": "গত ৭ দিন", "rd_30d": "গত ৩০ দিন",
+    "rd_target": "লক্ষ্য", "rd_target_note": "লক্ষ্য: মোট এবং প্রতিটি ব্র্যান্ডে কমপক্ষে ৯৫%। লাল = লক্ষ্যের নিচে।",
+    "rd_below": "৯৫%-এর নিচে", "rd_ok": "লক্ষ্যে আছে",
+    "rd_early": "কলকারী ৪ সেকেন্ডের মধ্যে কেটে দিয়েছেন",
+    "rd_early_note": "হারে গোনা হয়নি: এত দ্রুত কোনো ফোনে রিং হওয়া সম্ভব নয়।",
+    "rd_by_app": "অ্যাপ ভার্সন অনুযায়ী", "rd_app": "অ্যাপ ভার্সন",
+    "rd_native": "নেটিভ রিং", "rd_yes": "হ্যাঁ", "rd_no": "না (পুরনো বিল্ড)",
+    "rd_problem": "ব্যাটারি সেভার আটকায় বলে জানা",
+    "rd_brands_below": "৯৫%-এর নিচের ব্র্যান্ড",
+    "rd_causes": "রিং কেন পৌঁছায়নি", "rd_cause": "কারণ",
+    "rd_cause_old_build": "পুরনো অ্যাপ বিল্ড (নেটিভ রিংয়ের আগের): আপডেট করতে বলুন",
+    "rd_cause_push_error": "পুশ নেয়নি (ডিভাইস নেই / টোকেন বাতিল)",
+    "rd_cause_late_ack": "দেরিতে পৌঁছেছে (ফোন ঘুমে / ব্যাটারি সেভার দেরি করিয়েছে)",
+    "rd_cause_woke_late": "কল শেষ হওয়ার পরে ফোন জেগেছে (ব্যাটারি সেভার / Doze)",
+    "rd_cause_offline": "ফোন অফলাইন (ইন্টারনেট নেই / বন্ধ)",
+    "rd_trend": "দৈনিক প্রবণতা", "rd_day": "দিন",
+})
+# ---- /calls95 ----
+
 
 # ---- turn-runner (owner 25 Oct) ---- CI runner traffic shown separately
 EN.update({"t9_runner": "Build runner traffic",
