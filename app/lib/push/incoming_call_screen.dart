@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../calls/call_avatar.dart';
+import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
 import '../l10n/app_localizations.dart';
@@ -55,6 +56,9 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
       if (id == p.callId) _end();
     });
     CallRuntime.instance.markShown(p.callId);
+    // calls-a: an Accept from the notification while this screen is up
+    // answers HERE (this screen replaces itself) — never a second screen.
+    CallLaunchRouter.instance.registerRinging(p.callId, _accept);
     // c2-calls: the caller hung up / it rang out (real-time queue)
     _rtSub = CallRuntime.instance.endedCalls.listen((id) {
       if (id == p.callId) _end();
@@ -70,6 +74,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
 
   @override
   void dispose() {
+    CallLaunchRouter.instance.unregisterRinging(p.callId, _accept);
     _sub?.cancel();
     _rtSub?.cancel();
     _timeout?.cancel();
@@ -80,7 +85,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   }
 
   void _end() {
-    if (!mounted || _ended) return;
+    // calls-a: answered here -> never a "Call ended" frame for it
+    if (!mounted || _ended || _accepted) return;
     unawaited(CallRuntime.instance.stopRinging());
     setState(() => _ended = true);
     Future<void>.delayed(const Duration(milliseconds: 1200), () {
@@ -89,11 +95,17 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   }
 
   void _accept() {
+    if (_accepted || _ended || !mounted) return;
     _accepted = true;
+    _timeout?.cancel();
     unawaited(CallRuntime.instance.stopRinging());
     unawaited(PushNotifier.cancelCall(p.callId));
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => CircleCallScreen(
+    CallLaunchRouter.instance.noteInAppAccept(p);
+    // calls-a: INSTANT swap to the call screen (no zoom transition: the
+    // half-drawn "split" frame came from a transition snapshot taken while
+    // the window was still waking over the lock screen).
+    Navigator.of(context).pushReplacement(instantCallRoute<void>(
+      (_) => CircleCallScreen(
         member: {
           'id': int.tryParse(p.chatId),
           'name': p.callerName,
@@ -103,6 +115,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
         outgoing: false,
         callId: int.tryParse(p.callId),
       ),
+      name: CallLaunchRouter.acceptRouteName,
     ));
   }
 

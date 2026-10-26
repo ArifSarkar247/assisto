@@ -67,11 +67,44 @@ class MainActivity : FlutterFragmentActivity() {
     // "payload" extra) starts or re-enters this activity, and is taken back
     // when the call screen closes (Dart "release") or the app leaves the
     // screen (onStop). SOS alerts ring loudly but need an unlock to open.
+    // calls-a: a re-created activity (savedInstanceState) must never answer
+    // the original call intent a second time.
+    private var restored = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        restored = savedInstanceState != null
+        // calls-a: a call launch shows over the lock screen from the very
+        // first window frame (not after the engine started).
+        try {
+            if (!restored && com.assisto.assisto.calls.CallLaunch.parse(intent) != null) {
+                setOverLockScreen(true)
+            }
+        } catch (e: Throwable) {
+        }
         super.onCreate(savedInstanceState)
         markAdLaunchSource(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
+    }
+
+    // calls-a: COLD start from a call's Accept / tap / full-screen intent ->
+    // the first Flutter route IS the call (or ringing) screen, decided from
+    // the intent before any Dart runs (no method-channel call before the
+    // first frame). Anything else: Flutter's default (the "route" extra /
+    // manifest meta-data; null -> deep link / "/").
+    override fun getInitialRoute(): String? {
+        if (!restored) {
+            try {
+                val r = com.assisto.assisto.calls.CallLaunch.initialRoute(intent)
+                if (r != null) return r
+            } catch (e: Throwable) {
+            }
+        }
+        return try {
+            super.getInitialRoute()
+        } catch (e: Throwable) {
+            null
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -80,6 +113,12 @@ class MainActivity : FlutterFragmentActivity() {
         markAdLaunchSource(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
+        // calls-a: WARM start (Assisto in the background / on the lock
+        // screen): hand the call launch to Dart directly, at once.
+        try {
+            com.assisto.assisto.calls.CallLaunch.deliverWarm(intent)
+        } catch (e: Throwable) {
+        }
         // c3-msg: conversation shortcut tapped while Assisto is running.
         try {
             com.assisto.assisto.messaging.C3MessagingChannel.onNewIntent(intent)
@@ -187,6 +226,15 @@ class MainActivity : FlutterFragmentActivity() {
         if (isCall && callId.isNotEmpty()) {
             try {
                 com.assisto.assisto.calls.TelecomBridge.answered(callId)
+            } catch (e: Throwable) {
+            }
+            // calls-a: Accept -> the ringtone stops on the tap, not seconds
+            // later when Dart has started.
+            try {
+                if (i?.getStringExtra("actionId") ==
+                    com.assisto.assisto.calls.IncomingCall.ACTION_ACCEPT) {
+                    com.assisto.assisto.calls.CallLaunch.answeredHere(applicationContext, callId)
+                }
             } catch (e: Throwable) {
             }
         }
@@ -425,6 +473,16 @@ class MainActivity : FlutterFragmentActivity() {
         } else {
             @Suppress("DEPRECATION")
             vibrator?.vibrate(pattern, 0)
+        }
+    }
+
+    // calls-a: Home / Recents during a live VIDEO call (API 26-30) -> system
+    // picture-in-picture; API 31+ auto-enters via setAutoEnterEnabled.
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        try {
+            com.assisto.assisto.calls.CallsChannel.onUserLeaveHint()
+        } catch (e: Throwable) {
         }
     }
 

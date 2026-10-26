@@ -205,7 +205,8 @@ class AdsService with WidgetsBindingObserver {
   /// A call is going on (full screen or minimised to the mini bar).
   static bool _callActive() {
     try {
-      return CallRuntime.instance.ongoing.value != null;
+      // calls-a: also the FULL-screen call (not only a minimized one)
+      return CallRuntime.instance.callActive;
     } catch (_) {
       return true; // unsure -> no ad (never risk an ad over a call)
     }

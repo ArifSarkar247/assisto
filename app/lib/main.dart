@@ -19,6 +19,8 @@ import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
+import 'calls/call_launch.dart'; // calls-a: Accept -> the call screen first
+import 'calls/call_runtime.dart' show CallRuntime; // calls-a
 import 'push/push_service.dart';
 import 'ads/ads_service.dart' show AdsService;
 import 'services/home_widget_service.dart';
@@ -87,6 +89,14 @@ void main() {
     // permission). A Dart field flip on the registered plugin — no native call.
     usePhotoPicker();
 
+    // calls-a: call launches (Accept / full-screen / tap) route through ONE
+    // place. Pure Dart, no native call before the first frame: the navigator
+    // key + the Dart-side handler for a warm "callLaunch" from MainActivity.
+    CallLaunchRouter.instance.attach(appNavigatorKey);
+    CallRuntime.instance.attachNavigator(appNavigatorKey);
+    CallNative.onCallLaunch = CallLaunchRouter.instance.onNative;
+    CallNative.listen();
+
     // Held here (not only inside the provider) so the deferred push init below
     // can reach it without a BuildContext.
     final appState = AppState()..init();
@@ -104,6 +114,14 @@ void main() {
     // Deferred, post-first-frame, SAFE-MODE-aware init. If the previous launch
     // never reached the home screen, we SKIP all of this and the app still opens.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // calls-a: what the FIRST frame showed for a call launch (the CI
+      // ring-proof asserts "top=call_accept", i.e. no home before the call)
+      try {
+        final r = CallLaunchRouter.instance.coldRoute;
+        if (r != null) {
+          debugPrint('FIRST_FRAME top=${r.isCurrent ? r.settings.name : 'other'}');
+        }
+      } catch (_) {}
       // e2e-recover: restore-from-PIN gate + key backup hooks, BEFORE any
       // sign-in could create a new key (sync, no I/O, guarded).
       try { KeyWiring.instance.installRecoveryHooks(appState); } catch (_) {}
@@ -241,8 +259,12 @@ class AssistoApp extends StatelessWidget {
           // w1-webphoto: https://lifeassisto.com/photo/app?t=… (Android App
           // Link, Flutter's built-in deep linking — no plugin). Only that
           // path is handled; every other name returns null exactly as before.
-          onGenerateRoute: (s) => WebPhotoLink.route(
-              s, (token) => WebPhotoLinkScreen(token: token)),
+          // calls-a: the cold-start call route (MainActivity.getInitialRoute
+          // "/assisto_call?…") -> [home, call]: the first frame IS the call.
+          onGenerateRoute: (s) =>
+              CallLaunchRouter.instance.onGenerateRoute(s) ??
+              WebPhotoLink.route(
+                  s, (token) => WebPhotoLinkScreen(token: token)),
         );
       }),
     );

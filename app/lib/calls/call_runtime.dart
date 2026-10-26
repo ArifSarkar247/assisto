@@ -10,6 +10,7 @@ import '../realtime/realtime_transport.dart';
 import '../services/error_kind.dart';
 import '../state.dart';
 import 'call_controller.dart';
+import 'call_launch.dart'; // calls-a
 import 'call_keepalive.dart';
 import 'call_native.dart';
 import 'call_sound_prefs.dart';
@@ -106,6 +107,24 @@ class CallRuntime with WidgetsBindingObserver {
     }
     app.addListener(_onApp);
     _onApp();
+  }
+
+  /// calls-a: main.dart hands over the app navigator BEFORE the first frame
+  /// (pure Dart), so the return-to-call bar / floating video work even before
+  /// push start-up (2-7 s after launch) called [start].
+  void attachNavigator(GlobalKey<NavigatorState> nav) {
+    if (_nav?.currentState == null) _nav = nav;
+  }
+
+  /// calls-a: a call is going on — full screen, minimized to the bar /
+  /// floating window, or still connecting. Ads never show while true.
+  bool get callActive {
+    if (ongoing.value != null || activeCallId != null) return true;
+    try {
+      return _screenLive?.call() ?? false;
+    } catch (_) {
+      return true;
+    }
   }
 
   void setPushAvailable(bool v) {
@@ -250,6 +269,49 @@ class CallRuntime with WidgetsBindingObserver {
     o.controller.addListener(_onOngoing);
     _setOngoing(o);
     acquireScreen(o, () => !o.controller.isEnded);
+    if (o.controller.callId != null) activeCallId ??= o.controller.callId;
+    _syncPip(o);
+    _watchPip();
+  }
+
+  // ------------------------------------- calls-a: system PiP while minimized
+  bool _pipWatched = false;
+
+  /// A minimized LIVE video call still shrinks into Android picture-in-
+  /// picture when the user leaves Assisto (Home / Recents) — before calls-a
+  /// minimizing switched auto-PiP off.
+  void _syncPip(OngoingCall o) {
+    final c = o.controller;
+    unawaited(CallNative.setAutoPip(c.videoOn && c.isLive && !c.isEnded));
+  }
+
+  void _watchPip() {
+    if (_pipWatched) return;
+    _pipWatched = true;
+    CallNative.inPip.addListener(_onPipChanged);
+  }
+
+  bool _wasInPip = false;
+
+  /// The user tapped the system PiP window back to full size: open the full
+  /// call (WhatsApp does the same). Closing the PiP (its X) leaves the app
+  /// in the background instead — lifecycle not resumed — and the call goes
+  /// on with its notification.
+  void _onPipChanged() {
+    final now = CallNative.inPip.value;
+    final was = _wasInPip;
+    _wasInPip = now;
+    if (!was || now) return;
+    Timer(const Duration(milliseconds: 350), () {
+      try {
+        final o = ongoing.value;
+        if (o == null || o.controller.isEnded) return;
+        final st = WidgetsBinding.instance.lifecycleState;
+        if (st == AppLifecycleState.resumed) restoreOngoing();
+      } catch (e) {
+        callLog('call_runtime#10', e);
+      }
+    });
   }
 
   /// The call screen takes the minimized call back (null = none / ended).
@@ -278,10 +340,20 @@ class CallRuntime with WidgetsBindingObserver {
   }
 
   /// Mini bar tap: back to the full call screen.
-  void restoreOngoing() {
+  /// [from]: the tapped widget's context — used only when no app navigator
+  /// is attached (a screen that hosts the bar below its own Navigator).
+  void restoreOngoing([BuildContext? from]) {
     final o = ongoing.value;
-    final nav = _nav?.currentState;
+    NavigatorState? nav = _nav?.currentState;
+    if (nav == null && from != null && from.mounted) {
+      nav = Navigator.maybeOf(from);
+    }
     if (o == null || nav == null) return;
+    if (o.controller.isEnded) {
+      // calls-a: never re-open a stale "Call ended" screen
+      _dropOngoing(o);
+      return;
+    }
     try {
       reopenCall?.call(nav, o);
     } catch (e) {
@@ -291,7 +363,11 @@ class CallRuntime with WidgetsBindingObserver {
 
   void _onOngoing() {
     final o = ongoing.value;
-    if (o == null || !o.controller.isEnded) return;
+    if (o == null) return;
+    if (!o.controller.isEnded) {
+      _syncPip(o); // voice <-> video while minimized
+      return;
+    }
     _dropOngoing(o);
   }
 
@@ -330,6 +406,8 @@ class CallRuntime with WidgetsBindingObserver {
   void onIncoming(Map<String, dynamic> row) {
     final id = '${row['call_id'] ?? ''}';
     if (id.isEmpty || _shown.contains(id)) return;
+    // calls-a: opened from the notification / full-screen intent already
+    if (CallLaunchRouter.instance.handled(id)) return;
     if (activeCallId != null && '$activeCallId' == id) return; // in it already
     final nav = _nav?.currentState;
     if (nav == null) return;
@@ -351,9 +429,11 @@ class CallRuntime with WidgetsBindingObserver {
       'chat_id': '${row['chat_id'] ?? ''}',
       'lang': _app?.locale?.languageCode == 'en' ? 'en' : 'bn',
     });
+    CallLaunchRouter.instance.claim(id, CallLaunch.actionOpen);
     try {
-      nav.push(MaterialPageRoute(
-          builder: (_) => IncomingCallScreen(payload: p, ringInApp: true)));
+      nav.push(instantCallRoute<void>(
+          (_) => IncomingCallScreen(payload: p, ringInApp: true),
+          name: CallLaunchRouter.ringRouteName));
     } catch (e) {
       callLog('call_runtime#4', e);
     }
@@ -402,6 +482,9 @@ class CallRuntime with WidgetsBindingObserver {
     _shown.clear();
     activeCallId = null;
     ongoing.value = null;
+    if (_pipWatched) CallNative.inPip.removeListener(_onPipChanged);
+    _pipWatched = false;
+    _wasInPip = false;
     _screenOwner = null;
     _screenLive = null;
     _app?.removeListener(_onApp);

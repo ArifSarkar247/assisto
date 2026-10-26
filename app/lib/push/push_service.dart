@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../alerts_fg.dart';
 import '../api.dart';
 import '../calls/call_native.dart';
+import '../calls/call_launch.dart'; // calls-a
 import '../calls/ring_checklist.dart';
 import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
@@ -517,6 +518,21 @@ class PushService {
 
   void _open(PushPayload p, String? action) {
     AppEntry.mark(p.isCall ? 'call' : (p.isSos ? 'sos' : 'notification'));
+    // calls-a: a call's Accept / tap goes straight to its screen (instant, no
+    // wait for the profile sync) and only ONCE per call — the native launch
+    // (MainActivity) usually got there first, then this copy is a no-op.
+    if (p.isCall &&
+        (action == null || action == PushNotifier.actionAccept)) {
+      unawaited(PushNotifier.cancelCall(p.callId));
+      final l = CallLaunch(
+          action: action == PushNotifier.actionAccept
+              ? CallLaunch.actionAccept
+              : CallLaunch.actionOpen,
+          payload: p);
+      if (CallLaunchRouter.instance.openWarm(l, nav: _nav?.currentState)) {
+        return;
+      }
+    }
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) {
       _pending = (payload: p, action: action);

@@ -10,6 +10,7 @@ import '../calls/api_call_signaling.dart';
 import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_keepalive.dart';
+import '../calls/call_launch.dart'; // calls-a
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
@@ -78,16 +79,18 @@ class CircleCallScreen extends StatefulWidget {
 
   /// b1: how the mini call bar re-opens a minimized call.
   static void registerReopen() {
-    CallRuntime.instance.reopenCall ??= (nav, o) => nav.push(
-        MaterialPageRoute<void>(
-            builder: (_) => CircleCallScreen(
-                member: o.member,
-                kind: o.kind,
-                outgoing: o.controller.outgoing,
-                callId: o.controller.callId,
-                controller: o.controller,
-                surface: o.surface,
-                resumed: true)));
+    // calls-a: back to the full call INSTANTLY (no zoom snapshot of the
+    // live video texture)
+    CallRuntime.instance.reopenCall ??= (nav, o) => nav.push(instantCallRoute<void>(
+        (_) => CircleCallScreen(
+            member: o.member,
+            kind: o.kind,
+            outgoing: o.controller.outgoing,
+            callId: o.controller.callId,
+            controller: o.controller,
+            surface: o.surface,
+            resumed: true),
+        name: CallLaunchRouter.acceptRouteName));
   }
 
   @override
@@ -157,6 +160,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       _attach(widget.controller!, widget.surface, initial: true);
     } else {
       _owns = true;
+      final incomingId = widget.outgoing ? null : widget.callId;
+      if (incomingId != null) {
+        // calls-a: this phone is IN call [incomingId] from this frame on — a
+        // resume check / real-time ring / second Accept for it never stacks a
+        // ringing screen ("Call ended") over this one.
+        CallLaunchRouter.instance.claim('$incomingId', CallLaunch.actionAccept);
+        CallRuntime.instance.activeCallId ??= incomingId;
+      }
       if (!CallRuntime.instance.acquireScreen(this, _screenLive)) {
         // another call screen is already live: never place a second call
         _owns = false;
@@ -188,8 +199,34 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     }
   }
 
+  /// calls-a: a cold-start Accept draws this screen on the FIRST frame,
+  /// while AppState is still loading. The call needs only the session token
+  /// (read from secure storage in the first few hundred ms) — never the
+  /// profile sync behind `loading`, which could take seconds on mobile data.
+  Future<bool> _sessionReady(AppState app) async {
+    final until = DateTime.now().add(const Duration(seconds: 15));
+    while (mounted) {
+      final tok = app.api.token;
+      if (tok != null && tok.isNotEmpty) return true;
+      if (!app.loading) return app.loggedIn;
+      if (DateTime.now().isAfter(until)) return false;
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+    }
+    return false;
+  }
+
   Future<void> _beginOnce() async {
     final app = context.read<AppState>();
+    if (!await _sessionReady(app)) {
+      // signed out: nothing to answer with (the login screen shows)
+      debugPrint('CALL_SCREEN closed reason=signed_out');
+      if (CallRuntime.instance.activeCallId == widget.callId) {
+        CallRuntime.instance.activeCallId = null;
+      }
+      _close();
+      return;
+    }
+    if (!mounted) return;
     final transport = CallRuntime.instance.transportFor(app);
     CallMedia media;
     try {
@@ -259,9 +296,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       _close();
       return;
     }
-    if (c.videoOn && _pipSupported) {
-      if (await CallNative.enterPip(w: 9, h: 16)) return;
-    }
+    // calls-a (owner: "use the app during a call, like WhatsApp"): back /
+    // Minimize ALWAYS stays inside Assisto — voice -> the green bar, video ->
+    // the green bar + a floating video window. System picture-in-picture is
+    // only for LEAVING the app (Home / Recents: auto-enter).
     _handOff(c);
   }
 
@@ -271,7 +309,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _owns = false;
     c.removeListener(_onChange);
     CallRuntime.instance.releaseScreen(this);
-    unawaited(CallNative.setAutoPip(false));
+    // calls-a: a locked phone goes back to its lock screen (the call keeps
+    // running) — the app underneath never shows over the keyguard.
+    LockScreenGuard.release();
     CallRuntime.instance.minimize(OngoingCall(
         controller: c,
         surface: _surface,
@@ -599,15 +639,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     final t = _t;
     final live = c != null && c.isLive;
     Widget lead;
-    if (_isVideo && _pipSupported && live) {
-      lead = IconButton(
-        key: const Key('call-pip'),
-        tooltip: t.c2CallPip,
-        color: CallInk.text,
-        icon: const Icon(Icons.picture_in_picture_alt_rounded),
-        onPressed: () => CallNative.enterPip(w: 9, h: 16),
-      );
-    } else if (live && _owns) {
+    if (live && _owns) {
       // b1: keep talking while using the rest of the app
       lead = IconButton(
         key: const Key('call-minimize'),
