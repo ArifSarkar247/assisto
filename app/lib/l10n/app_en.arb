@@ -19408,5 +19408,8 @@
   "callReplyPreset3": "I'll call you later.",
   "callReplyPreset4": "Can't talk now. Call me later?",
   "callReplyWriteOwn": "Write your own…",
-  "a11yVoiceSeek": "Voice message position. Tap to jump"
+  "a11yVoiceSeek": "Voice message position. Tap to jump",
+  "ffUnavailableTitle": "Not available",
+  "ffUnavailableBody": "This feature isn't available in your app right now. We'll let you know when it's ready.",
+  "ffUnavailableBack": "Go back"
 }
