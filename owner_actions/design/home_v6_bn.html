@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>Assisto হোম v6</title>
+<style>
+  body { margin: 0; background: #E3E8F0; font-family: 'Hind Siliguri', sans-serif; }
+  .wrap { padding: 40px; display: flex; justify-content: center; }
+  .phone { width: 390px; height: 844px; border-radius: 34px; overflow: hidden; background: #F4F6FA; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(15,23,42,.28); }
+  svg { display: block; }
+  .ico { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  button { font-family: inherit; border: 0; }
+
+  .hdr { position: relative; overflow: hidden; background: linear-gradient(155deg, #0A1A3F 0%, #13306E 58%, #1E4FB8 100%); color: #fff; padding: 14px 14px 30px; flex-shrink: 0; }
+  .sky { position: absolute; left: 0; bottom: 0; }
+  .bar { position: relative; display: flex; align-items: center; gap: 8px; }
+  .iconbtn { position: relative; width: 42px; height: 42px; border-radius: 21px; background: rgba(255,255,255,.12); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(150deg,#3B82F6,#1D4ED8); border: 1px solid rgba(255,255,255,.35); display: flex; align-items: center; justify-content: center; font: 700 19px Poppins, sans-serif; position: relative; }
+  .logo i { position: absolute; right: 5px; bottom: 5px; width: 6px; height: 6px; border-radius: 3px; background: #4ADE80; }
+  .brand { font: 700 21px Poppins, sans-serif; flex: 1; }
+  .badge { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; background: #F43F5E; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #13306E; line-height: 1; }
+  .badge.g { background: #22C55E; }
+  .greet { position: relative; margin-top: 14px; padding: 0 4px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .greet h1 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.3; }
+  .greet p { margin: 0; font-size: 13px; color: #D3DEF7; }
+  .tags { transform: rotate(-6deg); text-align: right; font-size: 12px; font-weight: 700; font-style: italic; line-height: 1.25; }
+  .tags span { display: block; width: 46px; height: 3px; background: #4ADE80; border-radius: 2px; margin: 3px 0 0 auto; }
+
+  .body { flex: 1; margin-top: -18px; position: relative; background: #F4F6FA; border-radius: 22px 22px 0 0; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
+  .sec { display: flex; align-items: center; justify-content: space-between; }
+  .sec b { font-size: 15px; color: #0F172A; }
+  .dots { display: flex; gap: 5px; align-items: center; }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: #CBD5E1; }
+  .dots i.on { width: 18px; background: #0A84FF; }
+
+  .disc { position: relative; height: 98px; }
+  .card { position: absolute; top: 0; height: 98px; border-radius: 20px; overflow: hidden; color: #fff; box-sizing: border-box; padding: 12px 14px; display: flex; gap: 12px; align-items: center; }
+  .card.main { left: 0; width: 322px; background: linear-gradient(120deg, #4338CA 0%, #6D28D9 60%, #9333EA 100%); box-shadow: 0 10px 22px rgba(79,70,229,.30); }
+  .card.next { left: 332px; width: 300px; background: linear-gradient(120deg, #0F766E, #0E7490); }
+  .blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,.10); }
+  .glass { position: relative; width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ctext { position: relative; flex: 1; display: flex; flex-direction: column; }
+  .ctext b { font-size: 16px; line-height: 1.3; }
+  .ctext small { font-size: 12px; line-height: 1.4; color: #E0E7FF; }
+  .go { position: relative; width: 34px; height: 34px; border-radius: 17px; background: #fff; color: #4338CA; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  .actions { display: flex; gap: 6px; }
+  .chip { height: 32px; padding: 0 12px; border-radius: 16px; background: #fff; color: #1E293B; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(15,23,42,.06); }
+
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .sc { position: relative; background: #fff; border-radius: 18px; padding: 10px 3px 8px; min-height: 92px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1px solid #EBEEF4; box-shadow: 0 4px 12px rgba(15,23,42,.05); }
+  .gi { position: relative; width: 46px; height: 46px; border-radius: 15px; color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .gi::before { content: ''; position: absolute; inset: 0 0 50% 0; background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0)); }
+  .gi svg { position: relative; }
+  .sc span { font-size: 11.5px; font-weight: 600; color: #0F172A; text-align: center; line-height: 1.25; }
+  .sc.pin { border: 1.5px solid #A5B4FC; background: linear-gradient(180deg, #EEF2FF, #FFFFFF 70%); }
+  .cnt { position: absolute; top: 5px; right: 5px; min-width: 19px; height: 19px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: #4F46E5; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .dot { position: absolute; right: -2px; bottom: -2px; width: 11px; height: 11px; border-radius: 6px; background: #EF4444; border: 2px solid #fff; z-index: 2; }
+
+  .ask { position: relative; overflow: hidden; border-radius: 20px; background: linear-gradient(120deg, #0B2560 0%, #1D4ED8 65%, #3B82F6 100%); color: #fff; padding: 12px 12px 12px 12px; display: flex; align-items: center; gap: 11px; box-shadow: 0 10px 22px rgba(29,78,216,.28); margin-top: auto; }
+  .bot { position: relative; width: 52px; height: 52px; border-radius: 16px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 0 4px rgba(255,255,255,.16); }
+  .bot i { position: absolute; right: 1px; bottom: 3px; width: 11px; height: 11px; border-radius: 6px; background: #22C55E; border: 2px solid #fff; }
+  .at { position: relative; flex: 1; display: flex; flex-direction: column; }
+  .at b { font-size: 16px; line-height: 1.3; }
+  .at small { font-size: 12.5px; color: #DBE6FF; }
+  .at em { font-style: normal; font-size: 11.5px; color: #BFD0F5; }
+  .askbtn { position: relative; height: 40px; padding: 0 13px 0 7px; border-radius: 20px; background: #fff; color: #0F2A6B; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .askbtn span { width: 26px; height: 26px; border-radius: 13px; background: #22C55E; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+  .nav { flex-shrink: 0; height: 74px; background: #fff; border-top: 1px solid #E5E9F0; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); align-items: center; }
+  .nav a { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #475569; font-size: 11.5px; font-weight: 500; }
+  .nav a.on { color: #1D4ED8; font-weight: 700; }
+  .nav a.sos { margin-top: -26px; color: #B91C1C; font-weight: 700; }
+  .nav a.sos span { width: 58px; height: 58px; border-radius: 29px; background: linear-gradient(150deg, #F87171, #DC2626 55%, #B91C1C); color: #fff; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: 0 8px 18px rgba(220,38,38,.35); font: 800 15px Poppins, sans-serif; letter-spacing: .5px; }
+
+  .logoimg { width: 36px; height: 36px; border-radius: 11px; display: block; box-shadow: 0 0 0 1.5px rgba(255,255,255,.35); }
+  .nav a.voice { margin-top: -26px; color: #0F172A; font-weight: 700; white-space: nowrap; }
+  .nav a.voice span { width: 58px; height: 58px; border-radius: 29px; background: linear-gradient(140deg, #0A84FF 0%, #0EA5B7 55%, #14C27A 100%); color: #fff; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: 0 8px 18px rgba(10,132,255,.35); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="phone">
+
+  <header class="hdr">
+    <svg class="sky" width="390" height="64" viewBox="0 0 390 64" aria-hidden="true"><path fill="rgba(255,255,255,0.07)" d="M0 64V40h22V30h16v10h12V22h18v18h10V34h14v30zM100 64V26h20V14h14v12h12V36h18V20h16v44zM200 64V30h14V18h20v12h12V8h16v22h14V38h18v26zM310 64V34h16V22h18v12h12V28h16v8h18v28z"/></svg>
+    <div class="bar">
+      <button class="iconbtn" aria-label="মেনু"><svg width="22" height="22" viewBox="0 0 24 24" class="ico"><path d="M4 7h16M4 12h16M4 17h11"/></svg></button>
+      <img class="logoimg" src="new_logo.png" alt="Assisto লোগো">
+      <div class="brand">Assisto</div>
+      <button class="iconbtn" aria-label="ফটো স্টুডিও"><svg width="21" height="21" viewBox="0 0 24 24" class="ico"><path d="M4 20L15 9M13 7l4 4M18 3v3M16.5 4.5h3M20 9v2M19 10h2M9 3v2M8 4h2"/></svg></button>
+      <button class="iconbtn" aria-label="নোটিফিকেশন"><svg width="21" height="21" viewBox="0 0 24 24" class="ico"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></svg><span class="badge">২</span></button>
+      <button class="iconbtn" aria-label="আমার সার্কেল"><svg width="22" height="22" viewBox="0 0 24 24" class="ico"><path d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2.4.6 4 2.9 4 6"/></svg><span class="badge g">৩</span></button>
+    </div>
+    <div class="greet">
+      <div><h1>শুভ সকাল, রহিম!</h1><p>আপনার জীবন, এক বুদ্ধিমান সঙ্গী</p></div>
+      <div class="tags">আরও স্মার্ট<br>আরও নিরাপদ<br>আরও সহজ<span></span></div>
+    </div>
+  </header>
+
+  <main class="body">
+    <div class="sec"><b>আবিষ্কার করুন</b><div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="disc">
+      <div class="card main">
+        <div class="blob" style="width:130px;height:130px;right:-40px;top:-60px"></div>
+        <div class="glass"><svg width="26" height="26" viewBox="0 0 24 24" class="ico"><path d="M4 20L15 9M13 7l4 4M18 3v3M16.5 4.5h3M20 9v2M19 10h2M9 3v2M8 4h2"/></svg></div>
+        <div class="ctext"><b>ফটো স্টুডিও</b><small>যেকোনো ছবি কয়েক সেকেন্ডে পরিষ্কার ও উজ্জ্বল করুন।</small></div>
+        <span class="go"><svg width="16" height="16" viewBox="0 0 24 24" class="ico" style="stroke-width:2.6"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+      <div class="card next">
+        <div class="glass"><svg width="24" height="24" viewBox="0 0 24 24" class="ico"><path d="M7 3h10v18H7zM10 12h4v4h-4zM11 12v-1.5a1 1 0 0 1 2 0V12"/></svg></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <b>শর্টকাট</b>
+      <div class="actions">
+        <button class="chip"><svg width="15" height="15" viewBox="0 0 24 24" class="ico"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>এডিট</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="sc pin"><span class="cnt">৩</span><div style="position:relative"><div class="gi" style="background:linear-gradient(145deg,#6366F1,#4338CA)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2.4.6 4 2.9 4 6"/></svg></div><i class="dot"></i></div><span>আমার সার্কেল</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#FB7185,#E11D48)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M3 11l9-7 9 7v9H3zM12 17.5s-3-1.8-3-3.7a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.9-3 3.7-3 3.7z"/></svg></div><span>ফ্যামিলি কেয়ার</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#10B981,#047857)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg></div><span>নিরাপদ যাত্রা</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#0EA5E9,#0369A1)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M6 3h9l3 3v15H6zM9 9h6M9 13h6M9 17h3"/></svg></div><span>ডিজিটাল খাতা</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#A855F7,#7E22CE)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M4 19h16M7 15l4-4 3 3 5-6M16 8h3v3"/></svg></div><span>AI সেলস সহকারী</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#06B6D4,#0E7490)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M3 8l13-3 2 7-13 3zM8 14v5H4M18 9l3 1"/></svg></div><span>CCTV ক্যামেরা</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#F97316,#C2410C)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M5 16l1.5-5h11L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5M12 8V4"/></svg></div><span>গাড়ি ট্র্যাকিং</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#3B82F6,#1D4ED8)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M3 8h18v11H3zM8 8V5h8v3M3 13h18"/></svg></div><span>জব হান্টার</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#475569,#1E293B)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M7 3h10v18H7zM10 12h4v4h-4zM11 12v-1.5a1 1 0 0 1 2 0V12"/></svg></div><span>ফোন সিকিউরিটি</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#F59E0B,#B45309)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M5 3h14v18H5zM8 6h8v4H8zM13 12l-3 4h3l-1 3"/></svg></div><span>প্রিপেইড মিটার</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#22C55E,#15803D)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg></div><span>বাজেট ও রেমিট্যান্স</span></div>
+      <div class="sc"><div class="gi" style="background:linear-gradient(145deg,#EC4899,#BE185D)"><svg width="23" height="23" viewBox="0 0 24 24" class="ico"><path d="M6 3h9l3 3v5M6 3v18h6M9 9h6M9 13h4M17 14l4 1.5V18c0 2-1.7 3.4-4 4-2.3-.6-4-2-4-4v-2.5z"/></svg></div><span>চুক্তি স্ক্যানার</span></div>
+    </div>
+
+    <div class="ask">
+      <div class="blob" style="width:140px;height:140px;right:-50px;top:-80px"></div>
+      <div class="bot"><img src="new_logo.png" alt="" style="width:52px;height:52px;border-radius:16px;display:block"><i></i></div>
+      <div class="at"><b>সাহায্য লাগবে?</b><small>Assisto-কে জিজ্ঞেস করুন</small><em>চ্যাট | গাইড | সমাধান</em></div>
+      <button class="askbtn"><span><svg width="13" height="13" viewBox="0 0 24 24" class="ico" style="stroke-width:2.4"><path d="M4 5h16v11H9l-5 4z"/></svg></span>চ্যাট করুন</button>
+    </div>
+  </main>
+
+  <nav class="nav">
+    <a class="on"><svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 7.5V21h-6v-6H9v6H3V10.5z"/></svg>হোম</a>
+    <a><svg width="22" height="22" viewBox="0 0 24 24" class="ico" style="stroke-width:1.8"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>সব সেবা</a>
+    <a class="voice"><span><svg width="26" height="26" viewBox="0 0 24 24" class="ico" style="stroke-width:2"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>Assisto ভয়েস</a>
+    <a><svg width="22" height="22" viewBox="0 0 24 24" class="ico" style="stroke-width:1.8"><path d="M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 9v4l2 2M5 3L2 6M19 3l3 3"/></svg>রিমাইন্ডার</a>
+    <a><svg width="22" height="22" viewBox="0 0 24 24" class="ico" style="stroke-width:1.8"><path d="M4 10h16v10H4zM3 10l2-6h14l2 6M9 20v-5h6v5"/></svg>ব্যবসা</a>
+  </nav>
+</div>
+</div>
+</body>
+</html>
