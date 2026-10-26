@@ -306,7 +306,7 @@ AppState _stub({required String lang, FakeMode mode = FakeMode.data}) {
   s.api = FakeApi(mode: mode, lang: lang);
   s.user = AppUser(
       id: 1,
-      name: lang == 'bn' ? 'আরিফ' : 'Arif',
+      name: lang == 'bn' ? 'রহিম' : 'Rahim',
       phone: '01712345678',
       email: '',
       autonomyLevel: 2,

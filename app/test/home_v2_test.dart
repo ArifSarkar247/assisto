@@ -61,12 +61,12 @@ class _TrackApi extends FakeApi {
   }
 }
 
-AppState _state(String lang, {FakeApi? api, String name = 'Arif Hossain'}) {
+AppState _state(String lang, {FakeApi? api, String? name}) {
   final s = AppState();
   s.api = api ?? FakeApi(lang: lang);
   s.user = AppUser(
       id: 1,
-      name: name,
+      name: name ?? (lang == 'bn' ? 'রহিম উদ্দিন' : 'Rahim Uddin'),
       phone: '+8801700000000',
       email: '',
       autonomyLevel: 2,
@@ -188,7 +188,7 @@ void main() {
       expect(g(19), t.hv2GreetEvening);
       expect(g(23), t.hv2GreetNight);
       expect(g(3), t.hv2GreetNight);
-      expect(hv2FirstName('Arif Hossain'), 'Arif');
+      expect(hv2FirstName('Rahim Uddin'), 'Rahim');
       expect(hv2FirstName('  '), isNull);
       expect(hv2FirstName('+8801700000000'), isNull);
     });
@@ -198,7 +198,7 @@ void main() {
           (tester) async {
         await _pump(tester, _home(), lang: lang);
         final t = _t(tester);
-        expect(find.text(t.hv2GreetName(t.hv2GreetMorning, 'Arif')),
+        expect(find.text(t.hv2GreetName(t.hv2GreetMorning, lang == 'bn' ? 'রহিম' : 'Rahim')),
             findsOneWidget);
         expect(find.text(lang == 'bn' ? '২' : '2'), findsOneWidget);
         // header + pinned tile both show the circle count
