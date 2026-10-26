@@ -1,5 +1,8 @@
 # Owner work queue (newest order wins)
 
+## ⭐ TOP PRIORITY (owner 26 Oct evening) — FINAL HOME DESIGN v6 [AGENT homev2; reference files NOT uploaded yet — asked in STATUS 00]
+Full order text is in the agent prompt / STATUS; flag home_v2 default ON for the next closed-testing build, old home fallback 1 week; 12 shortcuts (My Circle pinned + owner's 11, real routes only, flag-hidden skipped); Ask Assisto card → AI chat on its own screen; bottom bar Home / All Services / Assisto Voice / Reminders / Business; golden screenshots; Bangla STATUS with mapping + 10-min check.
+
 ## BIG BUILD WEEK (owner 26 Oct) — plan: owner_actions/BIG_WEEK_PLAN_BN.md; rule: owner_actions/DEFINITION_OF_DONE_BN.md (MOST IMPORTANT: 9 checks, hidden behind flag until all pass, finish one before starting another, honest table in STATUS). 8 Nov Play production must never be blocked.
 0) Track 0 [DONE: 244-247 SHIPPED; payments e2e + credout + Play prices 247; calls95 245; vitals LIVE; RTDN verified; play-verifier permission pending (owner)]
 1) [SHIPPED 245] Feature flags + Play hiding + DoD audit (48/41 proposal waits owner)
