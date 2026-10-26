@@ -42,9 +42,6 @@ import 'screenshots_test.dart' as gallery;
 const Map<String, String> _allow = {
   // HOME IS FROZEN (owner rule): only labels / invisible hit areas may change
   // there. Reported to the owner instead of fixed.
-  'home_*|tap|label: "Edit"': 'HOME FROZEN: quick-buttons "Edit" is a compact TextButton (40 dp); a 48 dp target moves the home layout 8 dp',
-  'home_*|tap|label: "সাজান"': 'HOME FROZEN: same "Edit" button in Bangla',
-  'quick_grid*|tap|label: "Edit"': 'HOME FROZEN: the home quick-buttons grid (same widget as home_*)',
   'quick_grid*|tap|label: "সাজান"': 'HOME FROZEN: same, Bangla',
   'home_*|tap|tags: [RenderViewport.twoPane]': 'false positive: the next home carousel card peeks in at the screen edge (13 dp visible); it is full size once swiped',
   // Ads are out of scope for this sweep (owner rule: no ads changes).
