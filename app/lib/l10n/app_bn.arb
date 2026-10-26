@@ -15095,5 +15095,13 @@
   "wa2CallInfoVideo": "ভিডিও কল",
   "wa2CallIncoming": "ইনকামিং",
   "wa2CallOutgoing": "আউটগোয়িং",
-  "wa2CallMissed": "মিসড"
+  "wa2CallMissed": "মিসড",
+  "callReplyAction": "উত্তর লিখুন",
+  "callReplySheetTitle": "মেসেজ দিয়ে উত্তর দিন",
+  "callReplySheetSubtitle": "কলটি কেটে দেওয়া হয়েছে। {name}-কে একটি ছোট মেসেজ পাঠান।",
+  "callReplyPreset1": "এখন কথা বলতে পারছি না। কী খবর?",
+  "callReplyPreset2": "আমি এখনই ফোন করছি।",
+  "callReplyPreset3": "আমি পরে ফোন করব।",
+  "callReplyPreset4": "এখন কথা বলতে পারছি না। পরে ফোন করবেন?",
+  "callReplyWriteOwn": "নিজে লিখুন…"
 }

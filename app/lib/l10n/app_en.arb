@@ -19392,5 +19392,20 @@
   "wa2CallInfoVideo": "Video call",
   "wa2CallIncoming": "Incoming",
   "wa2CallOutgoing": "Outgoing",
-  "wa2CallMissed": "Missed"
+  "wa2CallMissed": "Missed",
+  "callReplyAction": "Reply",
+  "callReplySheetTitle": "Reply with a message",
+  "callReplySheetSubtitle": "The call was declined. Send {name} a quick message.",
+  "@callReplySheetSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "callReplyPreset1": "Can't talk now. What's up?",
+  "callReplyPreset2": "I'll call you right back.",
+  "callReplyPreset3": "I'll call you later.",
+  "callReplyPreset4": "Can't talk now. Call me later?",
+  "callReplyWriteOwn": "Write your own…"
 }

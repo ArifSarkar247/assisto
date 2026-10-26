@@ -1,1 +1,1 @@
-Build 240: My Circle chats look and feel like WhatsApp — consecutive messages are grouped, hold the mic to record a voice note (release to send, slide left to cancel), voice notes show a waveform and a not-played dot, and tapping a call in the call log opens call info with message, voice and video buttons.
+Build 241: Reply to an incoming call with a message, like WhatsApp — tap Reply, the call is declined and the chat opens with ready replies ("Can't talk now. What's up?", "I'll call you right back."…) or write your own.

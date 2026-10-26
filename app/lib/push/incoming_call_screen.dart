@@ -121,7 +121,10 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
         (PushPayload x) => PushService.instance.onCallReply(x, decline: false);
     try {
       cb(p);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the call is already declined above; if opening the chat
+      // fails the user simply lands where they were — nothing to undo or retry.
+    }
   }
 
   // Release the lock screen as the pop STARTS (decline, ring timeout or the
