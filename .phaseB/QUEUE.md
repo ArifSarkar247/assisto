@@ -1,5 +1,10 @@
 # Owner work queue (newest order wins)
 
+## BIG BUILD WEEK (owner 26 Oct) — plan: owner_actions/BIG_WEEK_PLAN_BN.md; rule: owner_actions/DEFINITION_OF_DONE_BN.md (MOST IMPORTANT: 9 checks, hidden behind flag until all pass, finish one before starting another, honest table in STATUS). 8 Nov Play production must never be blocked.
+0) Track 0 [AGENTS pay-e2e, calls95; vitals LIVE; 244 SHIPPED; home Edit 48dp on branch homeedit]
+1) Feature flags + Play hiding + DoD audit [AGENT flags]
+2) A CCTV watchman → 3) I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 9) backlog: SOS SMS fallback, low-data mode, in-app business chat. No law/clinic knowledge base.
+
 **STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
 
 **PERMANENT RULE (owner, 22 Oct) — ALL ANDROID PHONES:** the app must work on every Android phone common in Bangladesh — OPPO, Realme, Xiaomi/Redmi/POCO, Samsung, vivo, Walton, Symphony, Infinix/Tecno — Android 8 to 16. Secure storage must fall back (Keystore failures never break identity/chats); Crashlytics + Owner Admin → Reports (device model + OS + error, NO message content/PII); Firebase Test Lab device matrix + robo (login → My Circle → chat → send → call screen) before each My Circle build, pass/fail per device in STATUS; OEM background guide once after login.
