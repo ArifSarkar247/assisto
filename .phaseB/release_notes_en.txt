@@ -1,1 +1,1 @@
-Build 250: The pinned My Circle shortcut on the new home now says "Chat & call" under its name.
+Build 251: Behind-the-scenes groundwork for a family budget from money sent home from abroad (not visible yet); stability fixes.
