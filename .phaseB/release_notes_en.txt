@@ -1,1 +1,1 @@
-Build 249: A brand-new home — greeting header, slimmer Discover cards, 12 shortcuts with My Circle pinned first, an Ask Assisto card that opens the AI chat, and a new bottom bar with one-tap Assisto Voice and All Services. Bangla and English, light and dark.
+Build 250: The pinned My Circle shortcut on the new home now says "Chat & call" under its name.
