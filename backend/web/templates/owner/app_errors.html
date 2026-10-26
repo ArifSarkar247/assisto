@@ -1,7 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.ae_title }}{% endblock %}
 {% block content %}
-<p class="small"><a href="/owner/reports">← {{ T.nav_reports }}</a></p>
+<p class="small"><a href="/owner/reports">← {{ T.nav_reports }}</a> · <a href="/owner/vitals">{{ T.nav_vitals }}</a></p>
 <form method="get" class="inline card">
   <label>{{ T.period }} <select name="days">{% for o in day_options %}<option value="{{ o }}" {% if o == f.days %}selected{% endif %}>{{ o }} {{ T.days }}</option>{% endfor %}</select></label>
   <label>{{ T.ae_brand }} <select name="brand"><option value="">{{ T.all }}</option>{% for b in brands %}<option value="{{ b }}" {% if b == f.brand %}selected{% endif %}>{{ b }}</option>{% endfor %}</select></label>

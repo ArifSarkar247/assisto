@@ -248,3 +248,10 @@ OWNER_ADMIN_IDLE_MIN = int(os.getenv("OWNER_ADMIN_IDLE_MIN", "30"))
 # API only ENQUEUES heavy photo jobs; the assisto-photo-worker service runs them.
 PHOTO_WORKER = env_bool("PHOTO_WORKER", False)
 PHOTO_WORKER_INLINE = False   # tests only: run a queued item right away
+
+# play-vitals: daily Google Play Vitals pull (manage.py play_vitals_pull). The
+# service-account key lives ONLY on the server (owner_private); missing/unreadable
+# key = the command logs and exits 0. Never commit the key.
+PLAY_SERVICE_ACCOUNT_JSON = os.getenv(
+    "PLAY_SERVICE_ACCOUNT_JSON", "/home/ubuntu/owner_private/play_service_account.json")
+PLAY_PACKAGE_NAME = os.getenv("PLAY_PACKAGE_NAME", "com.assisto.assisto")

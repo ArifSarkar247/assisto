@@ -5201,3 +5201,51 @@ Device.add_to_class("brand", models.CharField(max_length=32, blank=True, default
 Device.add_to_class("model", models.CharField(max_length=48, blank=True, default=""))
 Device.add_to_class("sdk_int", models.PositiveSmallIntegerField(default=0))
 # ---- /ring-everywhere ----
+
+
+# ---- play-vitals ---- Google Play Vitals (Play Developer Reporting API),
+# pulled daily by manage.py play_vitals_pull (core.play_vitals). Read-only
+# mirror of Google's numbers for Owner Admin → Play Vitals. No user data:
+# rates and distinct-user counts per day, and Google's error-issue clusters.
+class PlayVitalDaily(models.Model):
+    METRICS = ("crash", "anr", "user_perceived_crash", "user_perceived_anr")
+    DIMS = ("overall", "device", "api", "version")
+    date = models.DateField(db_index=True)
+    metric = models.CharField(max_length=24)
+    dim_kind = models.CharField(max_length=12, default="overall")
+    dim_value = models.CharField(max_length=120, blank=True, default="")
+    label = models.CharField(max_length=120, blank=True, default="")   # Google's valueLabel
+    rate = models.FloatField(null=True, blank=True)       # fraction (0.0123 = 1.23 %)
+    users = models.IntegerField(null=True, blank=True)    # distinct users that day
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (("date", "metric", "dim_kind", "dim_value"),)
+        indexes = [models.Index(fields=["metric", "dim_kind", "date"])]
+
+
+class PlayErrorIssue(models.Model):
+    issue_id = models.CharField(max_length=64, unique=True)
+    type = models.CharField(max_length=24, blank=True, default="")   # CRASH | ANR | NON_FATAL
+    cause = models.CharField(max_length=400, blank=True, default="")
+    location = models.CharField(max_length=400, blank=True, default="")
+    first_version = models.CharField(max_length=24, blank=True, default="")
+    last_version = models.CharField(max_length=24, blank=True, default="")
+    first_api = models.IntegerField(null=True, blank=True)
+    last_api = models.IntegerField(null=True, blank=True)
+    users = models.IntegerField(default=0)
+    reports = models.IntegerField(default=0)
+    issue_uri = models.CharField(max_length=400, blank=True, default="")
+    sample_stack = models.TextField(blank=True, default="")    # trimmed to ~4 KB
+    sample_device = models.CharField(max_length=120, blank=True, default="")
+    sample_os = models.CharField(max_length=24, blank=True, default="")
+    sample_version = models.CharField(max_length=24, blank=True, default="")
+    last_seen = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=8, default="new")      # new | known
+    notified = models.BooleanField(default=False)
+    first_seen_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-users", "-reports"]
+# ---- /play-vitals ----
