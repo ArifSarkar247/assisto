@@ -12,13 +12,16 @@ and every AI action debits credits. Safety actions stay free. New users may star
 from datetime import timedelta
 from django.utils import timezone
 
+# Probashi has no purchasable SKU (USD billing not built) -> not listed.
+PUBLIC_PROBASHI = False
+
 # credits == AI "scans" per month for credit-limited plans
 PLANS = {
     "free":     {"name_bn": "ফ্রি", "name_en": "Free", "price": 0, "cur": "BDT", "period": "mo",
                  "credits": 15, "unlimited_ai": False, "ads": True, "family": 0,
                  "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।", "desc_en": "To get started — safety is always free.",
-                 "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব", "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
-                 "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money", "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"]},
+                 "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব", "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)"],
+                 "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money", "Emergency SOS & scam alerts (free)"]},
     # NOTE (Business Model Build 1): Premium absorbs the former Family plan — it
     # now carries family=5 (5-member circle + caregiver dashboard). The standalone
     # "family" plan is REMOVED and existing Family subscribers are migrated to
@@ -27,8 +30,8 @@ PLANS = {
     "premium":  {"name_bn": "প্রিমিয়াম", "name_en": "Premium", "price": 199, "cur": "BDT", "period": "mo",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "প্রতি মাসে ৯০ AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "90 AI credits a month, no ads — care for your family together.",
-                 "benefits_bn": ["প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
-                 "benefits_en": ["90 AI credits / month (scans & assistant)", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart briefings & priority support"]},
+                 "benefits_bn": ["প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট দৈনিক ব্রিফিং"],
+                 "benefits_en": ["90 AI credits / month (scans & assistant)", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart daily briefings"]},
     "probashi": {"name_bn": "প্রবাসী", "name_en": "Probashi", "price": 4.99, "cur": "USD", "period": "mo",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "বিদেশ থেকে দেশের পরিবারের যত্ন।", "desc_en": "Care for your family back home, from abroad.",
@@ -37,8 +40,8 @@ PLANS = {
     "business": {"name_bn": "বিজনেস", "name_en": "Business", "price": 999, "cur": "BDT", "period": "mo",
                  "credits": 240, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।", "desc_en": "For small businesses and sales teams.",
-                 "benefits_bn": ["প্রতি মাসে ২৪০ AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)", "দলের আসন (দাম মালিক ঠিক করবেন)"],
-                 "benefits_en": ["240 AI credits / month", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)", "Team seats (pricing TO REVIEW BY OWNER)"]},
+                 "benefits_bn": ["প্রতি মাসে ২৪০ AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)"],
+                 "benefits_en": ["240 AI credits / month", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)"]},
     "annual":   {"name_bn": "বার্ষিক (প্রিমিয়াম)", "name_en": "Annual (Premium)", "price": 1199, "cur": "BDT", "period": "yr",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "প্রিমিয়াম — বছরে, ২ মাস সাশ্রয়।", "desc_en": "Premium — yearly, save ~2 months.",
@@ -211,8 +214,9 @@ def plans_public(lang="bn"):
     from .logic import pricing
     from . import billing
     out = pricing.plan_public(lang, billing.cfg())
-    # append probashi (USD plan kept per the plan; not config-backed yet)
-    s = PLANS.get("probashi")
+    # owner 26 Oct: never sell what is not built. Probashi (USD billing) has
+    # no purchasable SKU yet, so it is NOT listed until it does.
+    s = PLANS.get("probashi") if PUBLIC_PROBASHI else None
     if s:
         c = _cfg()
         out.append({

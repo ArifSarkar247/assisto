@@ -690,7 +690,6 @@ class _PlansScreenState extends State<PlansScreen> {
         p['_current'] is bool ? p['_current'] as bool : id == current;
     final benefits =
         (p['benefits'] as List?)?.cast<String>() ?? const <String>[];
-    final isBusiness = id == 'business';
     final isFree = id == 'free';
 
     return Padding(
@@ -760,11 +759,7 @@ class _PlansScreenState extends State<PlansScreen> {
           ],
           const SizedBox(height: Gap.md),
           for (final b in benefits) _benefitRow(scheme, b),
-          if (isBusiness) ...[
-            const SizedBox(height: Gap.sm),
-            Text(t.plansCrmSeatsReview,
-                style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
-          ],
+          // owner 26 Oct: no "team seats" note — Team members is not built yet.
           const SizedBox(height: Gap.md),
           if (isFree)
             OutlinedButton(
