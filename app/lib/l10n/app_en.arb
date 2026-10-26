@@ -19963,5 +19963,284 @@
   "payPriceUnavailable": "Price unavailable — try again",
   "@payPriceUnavailable": {
     "description": "credout: Play build — Google Play's own price could not be loaded; buying is disabled until a retry works"
-  }
+  },
+  "bkgTitle": "Bookings",
+  "bkgHelp": "How it works",
+  "bkgSetupTitle": "Booking setup",
+  "bkgTabToday": "Today",
+  "bkgTabUpcoming": "Upcoming",
+  "bkgTabCalendar": "Day view",
+  "bkgAddBooking": "Add booking",
+  "bkgGuideTitle": "Bookings in 30 seconds",
+  "bkgGuide1Title": "1. Your services and hours",
+  "bkgGuide1Body": "Add what you offer (how long, price) and when you are open. Days off too.",
+  "bkgGuide2Title": "2. Share your booking link",
+  "bkgGuide2Body": "Customers pick a free time on your link or in your chats. The AI agent only offers times that are really free.",
+  "bkgGuide3Title": "3. Confirm, remind, done",
+  "bkgGuide3Body": "Confirm requests, and we remind the customer the day before and 2 hours before. Mark done or no-show after.",
+  "bkgGuideRules": "Messages go only to people who booked, only about their booking — max 2 reminders, never 10 pm–8 am, STOP always works. No ads, no marketing.",
+  "bkgGotIt": "Got it",
+  "bkgMyGuideTitle": "Your bookings",
+  "bkgMyGuide1Title": "1. Open the business' link",
+  "bkgMyGuide1Body": "Paste the booking link the business shared (lifeassisto.com/b/…).",
+  "bkgMyGuide2Title": "2. Pick a free time",
+  "bkgMyGuide2Body": "You only see times that are really free. No code needed in the app.",
+  "bkgMyGuide3Title": "3. Get a reminder",
+  "bkgMyGuide3Body": "We remind you the day before and 2 hours before. Cancel or move here, inside the business' rules.",
+  "bkgOffTitle": "Not available yet",
+  "bkgOffBody": "Online booking is not switched on for your account yet.",
+  "bkgOfflineTitle": "No internet",
+  "bkgOfflineBody": "Check your internet connection and try again.",
+  "bkgErrorTitle": "Could not load",
+  "bkgErrorBody": "Something went wrong. Please try again.",
+  "bkgRetry": "Try again",
+  "bkgStRequested": "Waiting to confirm",
+  "bkgStConfirmed": "Confirmed",
+  "bkgStDone": "Done",
+  "bkgStNoShow": "No-show",
+  "bkgStCancelled": "Cancelled",
+  "bkgChWeb": "Booking link",
+  "bkgChApp": "Assisto app",
+  "bkgChManual": "Added by you",
+  "bkgChWebsite": "Website chat",
+  "bkgNoName": "No name given",
+  "bkgPickDay": "Day",
+  "bkgPickTime": "Free times",
+  "bkgNoFreeTimes": "No free time on this day. Try another day.",
+  "bkgWelcomeTitle": "Take bookings without phone calls",
+  "bkgWelcomeBody": "Salon, clinic chamber, coaching or repair shop — set your services and hours once; customers book free times from your link and your chats. Setup takes about 3 minutes.",
+  "bkgWelcomeStaff": "The owner has not set up bookings yet.",
+  "bkgStartSetup": "Start setup",
+  "bkgTakingOn": "Taking online bookings",
+  "bkgTakingOff": "Online booking is off",
+  "bkgNeedsPlan": "Turning on online booking needs the Business plan.",
+  "bkgTurnOnHint": "Open setup (top right) and switch on “Take online bookings”.",
+  "bkgCountToday": "Today: {n}",
+  "@bkgCountToday": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCountPending": "To confirm: {n}",
+  "@bkgCountPending": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCountUpcoming": "Upcoming: {n}",
+  "@bkgCountUpcoming": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCopyLink": "Copy link",
+  "bkgCopied": "Link copied",
+  "bkgShareLink": "Share link",
+  "bkgShareText": "Book a time with us here: {url}",
+  "@bkgShareText": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgEmptyToday": "No bookings today yet. Share your link so customers can book.",
+  "bkgEmptyUpcoming": "No upcoming bookings.",
+  "bkgEmptyDay": "No bookings on this day.",
+  "bkgPrevDay": "Previous day",
+  "bkgNextDay": "Next day",
+  "bkgPickTimeFirst": "Pick a service and a free time first.",
+  "bkgService": "Service",
+  "bkgCustomerName": "Customer name",
+  "bkgCustomerPhoneOptional": "Customer mobile (optional)",
+  "bkgSaveBooking": "Save booking",
+  "bkgStepOf": "Step {n} of {total}",
+  "@bkgStepOf": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgBack": "Back",
+  "bkgNext": "Next",
+  "bkgFinish": "Save and finish",
+  "bkgAddOneService": "Add at least one service to continue.",
+  "bkgStep1Title": "What do you offer?",
+  "bkgStep1Body": "Each service has a length. The price is only shown to customers — nobody pays online.",
+  "bkgMinutes": "{n} min",
+  "@bkgMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgBufferShort": "+{n} min break",
+  "@bkgBufferShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgPriceShort": "৳{n}",
+  "@bkgPriceShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgRemove": "Remove",
+  "bkgAddService": "Add service",
+  "bkgServiceName": "Service name",
+  "bkgServiceHint": "e.g. Haircut, Consultation, AC service",
+  "bkgServiceNameNeeded": "Type the service name.",
+  "bkgDuration": "How long it takes",
+  "bkgBuffer": "Break after it",
+  "bkgBufferHelp": "Time to clean up or get ready before the next customer.",
+  "bkgPrice": "Price in taka (optional)",
+  "bkgPriceHelp": "Shown on your booking page. Leave empty to hide.",
+  "bkgStep2Title": "When are you open?",
+  "bkgStep2Body": "Customers can only book inside these hours. Times are Bangladesh time.",
+  "bkgClosed": "Closed",
+  "bkgOpen": "Open",
+  "bkgOpensAt": "Opens {time}",
+  "@bkgOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgClosesAt": "Closes {time}",
+  "@bkgClosesAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgDaysOff": "Days off",
+  "bkgDaysOffBody": "Holidays or days you are away — nobody can book them.",
+  "bkgAddDayOff": "Add a day off",
+  "bkgStep3Title": "Your booking rules",
+  "bkgStep3Body": "You can change these any time.",
+  "bkgStaffTitle": "Team (optional)",
+  "bkgStaffBody": "Add the people who serve customers. Each person can take one booking at a time.",
+  "bkgStaffName": "Name",
+  "bkgAddStaff": "Add person",
+  "bkgStaffNameNeeded": "Type the person's name first.",
+  "bkgCapacity": "Customers at the same time",
+  "bkgCapacityBody": "How many bookings you can take for the same time.",
+  "bkgLess": "Fewer",
+  "bkgMore": "More",
+  "bkgAutoConfirm": "Confirm bookings automatically",
+  "bkgAutoConfirmBody": "Off: you confirm each request yourself.",
+  "bkgCancelWindow": "Customers can cancel or move until",
+  "bkgCancelWindowBody": "After this, only you can change the booking.",
+  "bkgAnyTime": "Until the start",
+  "bkgHoursBefore": "{n} hours before",
+  "@bkgHoursBefore": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgChatBot": "Book in my chats",
+  "bkgChatBotBody": "Your AI agent offers free times on WhatsApp / Messenger when a customer asks to book.",
+  "bkgSms": "SMS reminders",
+  "bkgSmsBody": "Only for customers we can't reach in the app or chat. 1 credit per SMS, from your credits.",
+  "bkgSmsUnavailable": "SMS is not connected yet — reminders go in the app and chats.",
+  "bkgLinkName": "Your link name",
+  "bkgLinkNameBody": "Small English letters, numbers and -, e.g. rupa-salon.",
+  "bkgTakeBookings": "Take online bookings",
+  "bkgTakeBookingsBody": "Your link and your chats start offering free times.",
+  "bkgDetailTitle": "Booking",
+  "bkgSaved": "Saved",
+  "bkgCancelQ": "Cancel this booking?",
+  "bkgCancelQBody": "The customer will be told.",
+  "bkgKeep": "Keep it",
+  "bkgCancelBooking": "Cancel booking",
+  "bkgCantOpen": "Could not open that on this phone.",
+  "bkgBlocked": "Number blocked from online booking",
+  "bkgUnblocked": "Number unblocked",
+  "bkgWith": "With {name}",
+  "@bkgWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgVia": "Via {channel}",
+  "@bkgVia": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCustomerStopped": "This customer turned reminders off.",
+  "bkgCall": "Call customer",
+  "bkgChat": "Message customer",
+  "bkgConfirm": "Confirm",
+  "bkgMarkDone": "Mark done",
+  "bkgMarkNoShow": "Mark no-show",
+  "bkgMove": "Move to another time",
+  "bkgBlock": "Block this number",
+  "bkgUnblock": "Unblock this number",
+  "bkgMoveTitle": "Pick a new time",
+  "bkgMoveHere": "Move here",
+  "bkgMyTitle": "My bookings",
+  "bkgBookNew": "Book with a business",
+  "bkgMyEmpty": "No bookings yet. Book with a business from its link.",
+  "bkgUpcoming": "Upcoming",
+  "bkgPast": "Earlier",
+  "bkgCancelledMsg": "Booking cancelled. The business has been told.",
+  "bkgMovedMsg": "New time sent to the business.",
+  "bkgTooLateToChange": "Online changes close {n} hours before the start. Please contact the business.",
+  "@bkgTooLateToChange": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgLinkNotFound": "No booking page found for this link.",
+  "bkgLinkInvalid": "Paste the full booking link, e.g. lifeassisto.com/b/rupa-salon.",
+  "bkgBookedTitle": "Booked",
+  "bkgRequestedTitle": "Request sent",
+  "bkgBookedBody": "We'll remind you the day before and 2 hours before.",
+  "bkgRequestedBody": "We'll tell you when the business confirms.",
+  "bkgDone": "Done",
+  "bkgLinkTitle": "Which business?",
+  "bkgLinkBody": "Paste the booking link the business shared with you.",
+  "bkgLinkLabel": "Booking link",
+  "bkgOpenLink": "Open",
+  "bkgNotTaking": "This business is not taking online bookings right now.",
+  "bkgNoteOptional": "Note for the business (optional)",
+  "bkgPolicyLine": "You can cancel or move online until {n} hours before the start.",
+  "@bkgPolicyLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgPrivacyLine": "Only this business sees your name and number. You only get messages about this booking.",
+  "bkgConfirmBooking": "Book this time",
+  "bkgSidebarBiz": "Bookings (my business)",
+  "bkgSidebarMine": "My bookings"
 }

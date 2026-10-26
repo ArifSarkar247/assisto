@@ -15374,5 +15374,284 @@
   "credoutGetCredits": "ক্রেডিট যোগ করুন",
   "credoutAddedRetry": "ক্রেডিট যোগ হয়েছে। আবার পাঠানো হচ্ছে…",
   "credoutAdded": "ক্রেডিট যোগ হয়েছে।",
-  "payPriceUnavailable": "দাম পাওয়া যায়নি — আবার চেষ্টা করুন"
+  "payPriceUnavailable": "দাম পাওয়া যায়নি — আবার চেষ্টা করুন",
+  "bkgTitle": "বুকিং",
+  "bkgHelp": "কীভাবে কাজ করে",
+  "bkgSetupTitle": "বুকিং সেটআপ",
+  "bkgTabToday": "আজ",
+  "bkgTabUpcoming": "সামনে",
+  "bkgTabCalendar": "দিনের হিসাব",
+  "bkgAddBooking": "বুকিং যোগ করুন",
+  "bkgGuideTitle": "৩০ সেকেন্ডে বুকিং",
+  "bkgGuide1Title": "১. আপনার সেবা ও সময়",
+  "bkgGuide1Body": "কী সেবা দেন (কতক্ষণ লাগে, দাম) আর কখন খোলা থাকে লিখুন। ছুটির দিনও।",
+  "bkgGuide2Title": "২. বুকিং লিংক শেয়ার করুন",
+  "bkgGuide2Body": "গ্রাহক আপনার লিংকে বা চ্যাটে খালি সময় বেছে নেন। AI এজেন্ট শুধু সত্যিই খালি সময়গুলোই দেখায়।",
+  "bkgGuide3Title": "৩. নিশ্চিত, রিমাইন্ডার, সম্পন্ন",
+  "bkgGuide3Body": "অনুরোধ নিশ্চিত করুন — আমরা আগের দিন ও ২ ঘণ্টা আগে গ্রাহককে মনে করিয়ে দিই। পরে সম্পন্ন বা আসেননি চিহ্ন দিন।",
+  "bkgGuideRules": "বার্তা যায় শুধু যাঁরা বুক করেছেন তাঁদের, শুধু তাঁদের বুকিং নিয়ে — সর্বোচ্চ ২টি রিমাইন্ডার, রাত ১০টা–সকাল ৮টায় কখনো নয়, STOP লিখলেই বন্ধ। কোনো বিজ্ঞাপন বা মার্কেটিং নয়।",
+  "bkgGotIt": "বুঝেছি",
+  "bkgMyGuideTitle": "আপনার বুকিং",
+  "bkgMyGuide1Title": "১. ব্যবসার লিংক খুলুন",
+  "bkgMyGuide1Body": "ব্যবসা যে বুকিং লিংক দিয়েছে (lifeassisto.com/b/…) সেটি দিন।",
+  "bkgMyGuide2Title": "২. খালি সময় বেছে নিন",
+  "bkgMyGuide2Body": "শুধু সত্যিই খালি সময়গুলো দেখবেন। অ্যাপে কোনো কোড লাগে না।",
+  "bkgMyGuide3Title": "৩. রিমাইন্ডার পান",
+  "bkgMyGuide3Body": "আগের দিন ও ২ ঘণ্টা আগে মনে করিয়ে দিই। ব্যবসার নিয়মের মধ্যে এখান থেকেই বাতিল বা সময় বদল করুন।",
+  "bkgOffTitle": "এখনো চালু হয়নি",
+  "bkgOffBody": "আপনার অ্যাকাউন্টে অনলাইন বুকিং এখনো চালু হয়নি।",
+  "bkgOfflineTitle": "ইন্টারনেট নেই",
+  "bkgOfflineBody": "ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
+  "bkgErrorTitle": "লোড করা যায়নি",
+  "bkgErrorBody": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+  "bkgRetry": "আবার চেষ্টা করুন",
+  "bkgStRequested": "নিশ্চিতের অপেক্ষায়",
+  "bkgStConfirmed": "নিশ্চিত",
+  "bkgStDone": "সম্পন্ন",
+  "bkgStNoShow": "আসেননি",
+  "bkgStCancelled": "বাতিল",
+  "bkgChWeb": "বুকিং লিংক",
+  "bkgChApp": "Assisto অ্যাপ",
+  "bkgChManual": "আপনি যোগ করেছেন",
+  "bkgChWebsite": "ওয়েবসাইট চ্যাট",
+  "bkgNoName": "নাম দেওয়া হয়নি",
+  "bkgPickDay": "দিন",
+  "bkgPickTime": "খালি সময়",
+  "bkgNoFreeTimes": "এই দিনে কোনো খালি সময় নেই। অন্য দিন দেখুন।",
+  "bkgWelcomeTitle": "ফোন ছাড়াই বুকিং নিন",
+  "bkgWelcomeBody": "সেলুন, চেম্বার, কোচিং বা মেরামতের দোকান — একবার সেবা ও সময় ঠিক করুন; গ্রাহক আপনার লিংক ও চ্যাট থেকে খালি সময় বুক করবেন। সেটআপে প্রায় ৩ মিনিট লাগে।",
+  "bkgWelcomeStaff": "মালিক এখনো বুকিং সেটআপ করেননি।",
+  "bkgStartSetup": "সেটআপ শুরু করুন",
+  "bkgTakingOn": "অনলাইন বুকিং নেওয়া হচ্ছে",
+  "bkgTakingOff": "অনলাইন বুকিং বন্ধ",
+  "bkgNeedsPlan": "অনলাইন বুকিং চালু করতে বিজনেস প্ল্যান দরকার।",
+  "bkgTurnOnHint": "সেটআপ খুলে (উপরে ডানে) “অনলাইন বুকিং নিন” চালু করুন।",
+  "bkgCountToday": "আজ: {n}",
+  "@bkgCountToday": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCountPending": "নিশ্চিত বাকি: {n}",
+  "@bkgCountPending": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCountUpcoming": "সামনে: {n}",
+  "@bkgCountUpcoming": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCopyLink": "লিংক কপি",
+  "bkgCopied": "লিংক কপি হয়েছে",
+  "bkgShareLink": "লিংক শেয়ার",
+  "bkgShareText": "এখানে আমাদের কাছে সময় বুক করুন: {url}",
+  "@bkgShareText": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgEmptyToday": "আজ এখনো কোনো বুকিং নেই। লিংকটি শেয়ার করুন, গ্রাহকরা বুক করতে পারবেন।",
+  "bkgEmptyUpcoming": "সামনে কোনো বুকিং নেই।",
+  "bkgEmptyDay": "এই দিনে কোনো বুকিং নেই।",
+  "bkgPrevDay": "আগের দিন",
+  "bkgNextDay": "পরের দিন",
+  "bkgPickTimeFirst": "আগে সেবা ও একটি খালি সময় বেছে নিন।",
+  "bkgService": "সেবা",
+  "bkgCustomerName": "গ্রাহকের নাম",
+  "bkgCustomerPhoneOptional": "গ্রাহকের মোবাইল (ঐচ্ছিক)",
+  "bkgSaveBooking": "বুকিং সংরক্ষণ",
+  "bkgStepOf": "ধাপ {n} / {total}",
+  "@bkgStepOf": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgBack": "পেছনে",
+  "bkgNext": "পরের ধাপ",
+  "bkgFinish": "সংরক্ষণ করে শেষ",
+  "bkgAddOneService": "চালিয়ে যেতে অন্তত একটি সেবা যোগ করুন।",
+  "bkgStep1Title": "আপনি কী সেবা দেন?",
+  "bkgStep1Body": "প্রতিটি সেবার একটি সময়-দৈর্ঘ্য আছে। দাম শুধু গ্রাহককে দেখানো হয় — অনলাইনে কেউ টাকা দেন না।",
+  "bkgMinutes": "{n} মিনিট",
+  "@bkgMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgBufferShort": "+{n} মিনিট বিরতি",
+  "@bkgBufferShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgPriceShort": "৳{n}",
+  "@bkgPriceShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgRemove": "সরান",
+  "bkgAddService": "সেবা যোগ করুন",
+  "bkgServiceName": "সেবার নাম",
+  "bkgServiceHint": "যেমন: চুল কাটা, পরামর্শ, এসি সার্ভিস",
+  "bkgServiceNameNeeded": "সেবার নাম লিখুন।",
+  "bkgDuration": "কতক্ষণ লাগে",
+  "bkgBuffer": "পরে বিরতি",
+  "bkgBufferHelp": "পরের গ্রাহকের আগে গুছিয়ে নেওয়ার সময়।",
+  "bkgPrice": "দাম, টাকায় (ঐচ্ছিক)",
+  "bkgPriceHelp": "বুকিং পেজে দেখানো হবে। খালি রাখলে দেখাবে না।",
+  "bkgStep2Title": "কখন খোলা থাকে?",
+  "bkgStep2Body": "শুধু এই সময়ের মধ্যেই বুক করা যাবে। সময় বাংলাদেশ সময় অনুযায়ী।",
+  "bkgClosed": "বন্ধ",
+  "bkgOpen": "খোলা",
+  "bkgOpensAt": "খোলে {time}",
+  "@bkgOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgClosesAt": "বন্ধ {time}",
+  "@bkgClosesAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgDaysOff": "ছুটির দিন",
+  "bkgDaysOffBody": "ছুটি বা যেদিন থাকবেন না — সেদিন কেউ বুক করতে পারবেন না।",
+  "bkgAddDayOff": "ছুটির দিন যোগ করুন",
+  "bkgStep3Title": "আপনার বুকিংয়ের নিয়ম",
+  "bkgStep3Body": "এগুলো যেকোনো সময় বদলাতে পারবেন।",
+  "bkgStaffTitle": "দল (ঐচ্ছিক)",
+  "bkgStaffBody": "যাঁরা গ্রাহককে সেবা দেন তাঁদের যোগ করুন। প্রত্যেকে একবারে একটি বুকিং নিতে পারবেন।",
+  "bkgStaffName": "নাম",
+  "bkgAddStaff": "সদস্য যোগ করুন",
+  "bkgStaffNameNeeded": "আগে সদস্যের নাম লিখুন।",
+  "bkgCapacity": "একই সময়ে কতজন গ্রাহক",
+  "bkgCapacityBody": "একই সময়ের জন্য কয়টি বুকিং নিতে পারবেন।",
+  "bkgLess": "কমান",
+  "bkgMore": "বাড়ান",
+  "bkgAutoConfirm": "বুকিং আপনা-আপনি নিশ্চিত",
+  "bkgAutoConfirmBody": "বন্ধ থাকলে প্রতিটি অনুরোধ আপনি নিজে নিশ্চিত করবেন।",
+  "bkgCancelWindow": "গ্রাহক বাতিল বা সময় বদল করতে পারবেন",
+  "bkgCancelWindowBody": "এরপর শুধু আপনি বুকিং বদলাতে পারবেন।",
+  "bkgAnyTime": "শুরুর আগ পর্যন্ত",
+  "bkgHoursBefore": "{n} ঘণ্টা আগ পর্যন্ত",
+  "@bkgHoursBefore": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgChatBot": "চ্যাটে বুকিং",
+  "bkgChatBotBody": "গ্রাহক বুক করতে চাইলে আপনার AI এজেন্ট WhatsApp / Messenger-এ খালি সময় দেখাবে।",
+  "bkgSms": "SMS রিমাইন্ডার",
+  "bkgSmsBody": "শুধু যাঁদের অ্যাপ বা চ্যাটে পাওয়া যায় না তাঁদের জন্য। প্রতি SMS-এ ১ ক্রেডিট, আপনার ক্রেডিট থেকে।",
+  "bkgSmsUnavailable": "SMS এখনো যুক্ত হয়নি — রিমাইন্ডার অ্যাপ ও চ্যাটে যাবে।",
+  "bkgLinkName": "আপনার লিংকের নাম",
+  "bkgLinkNameBody": "ইংরেজি ছোট অক্ষর, সংখ্যা ও -, যেমন rupa-salon।",
+  "bkgTakeBookings": "অনলাইন বুকিং নিন",
+  "bkgTakeBookingsBody": "আপনার লিংক ও চ্যাটে খালি সময় দেখানো শুরু হবে।",
+  "bkgDetailTitle": "বুকিং",
+  "bkgSaved": "সংরক্ষিত",
+  "bkgCancelQ": "এই বুকিং বাতিল করবেন?",
+  "bkgCancelQBody": "গ্রাহককে জানিয়ে দেওয়া হবে।",
+  "bkgKeep": "রেখে দিন",
+  "bkgCancelBooking": "বুকিং বাতিল",
+  "bkgCantOpen": "এই ফোনে এটি খোলা গেল না।",
+  "bkgBlocked": "নম্বরটি অনলাইন বুকিং থেকে ব্লক করা হয়েছে",
+  "bkgUnblocked": "নম্বরটি আনব্লক করা হয়েছে",
+  "bkgWith": "সেবা দেবেন: {name}",
+  "@bkgWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgVia": "মাধ্যম: {channel}",
+  "@bkgVia": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgCustomerStopped": "এই গ্রাহক রিমাইন্ডার বন্ধ করেছেন।",
+  "bkgCall": "গ্রাহককে কল",
+  "bkgChat": "গ্রাহককে মেসেজ",
+  "bkgConfirm": "নিশ্চিত করুন",
+  "bkgMarkDone": "সম্পন্ন",
+  "bkgMarkNoShow": "আসেননি",
+  "bkgMove": "অন্য সময়ে সরান",
+  "bkgBlock": "এই নম্বর ব্লক",
+  "bkgUnblock": "এই নম্বর আনব্লক",
+  "bkgMoveTitle": "নতুন সময় বেছে নিন",
+  "bkgMoveHere": "এই সময়ে সরান",
+  "bkgMyTitle": "আমার বুকিং",
+  "bkgBookNew": "ব্যবসায় বুক করুন",
+  "bkgMyEmpty": "এখনো কোনো বুকিং নেই। ব্যবসার লিংক দিয়ে বুক করুন।",
+  "bkgUpcoming": "সামনে",
+  "bkgPast": "আগের",
+  "bkgCancelledMsg": "বুকিং বাতিল হয়েছে। ব্যবসাকে জানানো হয়েছে।",
+  "bkgMovedMsg": "নতুন সময় ব্যবসাকে পাঠানো হয়েছে।",
+  "bkgTooLateToChange": "শুরুর {n} ঘণ্টা আগে অনলাইনে বদল বন্ধ হয়ে যায়। ব্যবসার সাথে যোগাযোগ করুন।",
+  "@bkgTooLateToChange": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgLinkNotFound": "এই লিংকে কোনো বুকিং পেজ পাওয়া যায়নি।",
+  "bkgLinkInvalid": "পুরো বুকিং লিংকটি দিন, যেমন lifeassisto.com/b/rupa-salon।",
+  "bkgBookedTitle": "বুকিং হয়েছে",
+  "bkgRequestedTitle": "অনুরোধ পাঠানো হয়েছে",
+  "bkgBookedBody": "আগের দিন ও ২ ঘণ্টা আগে মনে করিয়ে দেব।",
+  "bkgRequestedBody": "ব্যবসা নিশ্চিত করলে জানিয়ে দেব।",
+  "bkgDone": "ঠিক আছে",
+  "bkgLinkTitle": "কোন ব্যবসা?",
+  "bkgLinkBody": "ব্যবসা যে বুকিং লিংক দিয়েছে সেটি দিন।",
+  "bkgLinkLabel": "বুকিং লিংক",
+  "bkgOpenLink": "খুলুন",
+  "bkgNotTaking": "এই ব্যবসা এখন অনলাইন বুকিং নিচ্ছে না।",
+  "bkgNoteOptional": "ব্যবসার জন্য নোট (ঐচ্ছিক)",
+  "bkgPolicyLine": "শুরুর {n} ঘণ্টা আগ পর্যন্ত অনলাইনে বাতিল বা সময় বদল করা যাবে।",
+  "@bkgPolicyLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bkgPrivacyLine": "আপনার নাম ও নম্বর শুধু এই ব্যবসা দেখবে। শুধু এই বুকিং নিয়েই বার্তা পাবেন।",
+  "bkgConfirmBooking": "এই সময় বুক করুন",
+  "bkgSidebarBiz": "বুকিং (আমার ব্যবসা)",
+  "bkgSidebarMine": "আমার বুকিং"
 }
