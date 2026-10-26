@@ -7,6 +7,7 @@ import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../messaging/badges_bus.dart';
 import '../widgets/chatnav.dart';
+import '../widgets/circle_badges.dart';
 import '../widgets/home_badge_icon.dart';
 import '../widgets/home_hero.dart';
 import '../widgets/home_quick_buttons.dart';
@@ -87,8 +88,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (!app.loggedIn) return;
     try {
       final b = await app.api.homeBadges();
+      // home-circle: the pinned My Circle tile + sidebar show the same count
+      CircleBadges.instance.setUnread(b.myCircleUnread);
       if (mounted) setState(() => _badges = b);
     } catch (_) {/* best-effort: offline/server down — keep last counts */}
+    // home-circle: missed-call dot (throttled; never throws)
+    await CircleBadges.instance.refreshMissed(app.api);
   }
 
   // "New chat": a fresh, empty home thread (the old one stays in the Assisto

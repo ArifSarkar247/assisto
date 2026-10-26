@@ -19,6 +19,7 @@ import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/updater.dart';
 import 'package:assisto/widgets/home_badge_icon.dart';
+import 'package:assisto/widgets/circle_badges.dart';
 
 import 'fake_api.dart';
 
@@ -122,6 +123,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     BadgesBus.instance.reset();
+    CircleBadges.instance.reset();
   });
 
   testWidgets('My Circle: 14 → open chats → 0; new message → 1 → open → 0; '
@@ -131,7 +133,8 @@ void main() {
     await tester.pumpWidget(_wrap(_state(api), const HomeScreen()));
     await _settle(tester);
     expect(_circleCount(tester), 14);
-    expect(find.text('14'), findsOneWidget);
+    // home-circle: the top-bar icon AND the pinned My Circle tile
+    expect(find.text('14'), findsNWidgets(2));
 
     // the chat screen's seen call succeeded → it pokes the bus
     api.openChat('member:7');

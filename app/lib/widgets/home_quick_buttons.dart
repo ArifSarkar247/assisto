@@ -11,6 +11,8 @@ import '../state.dart';
 import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import 'chatnav.dart';
+import 'circle_badges.dart';
+import '../messaging/badges_bus.dart';
 
 /// One shortcut the user can pin to home. Backed by a stable [ChatNav] route
 /// key (never a screen class), with the module's existing sidebar label/icon.
@@ -101,6 +103,13 @@ class HomeQuickButtons {
     return null;
   }
 
+  /// home-circle (owner 26 Oct): My Circle is the FIXED first tile, outside
+  /// the user's six. It (and its alias routes, which open the same hub) can
+  /// never be one of the six — a saved / server list that has it loses that
+  /// entry and keeps the rest in order (topped up from [defaults]).
+  static const pinnedRoute = 'circle';
+  static const pinnedAliases = {'circle', 'messages', 'my_circle'};
+
   /// Saved choice, cleaned: only known routes, no duplicates, exactly 6
   /// (topped up from the defaults if the saved list is short or stale).
   static List<String> sanitize(List<String> saved) {
@@ -108,6 +117,7 @@ class HomeQuickButtons {
     for (final r in [...saved, ...defaults]) {
       if (out.length == count) break;
       if (!out.contains(r) &&
+          !pinnedAliases.contains(r) &&
           byRoute(r) != null &&
           ChatNav.routes.containsKey(r)) {
         out.add(r);
@@ -178,7 +188,12 @@ class HomeQuickBar extends StatefulWidget {
 
   /// Preview/screenshot seed (skips SharedPreferences).
   final List<String>? debugRoutes;
-  const HomeQuickBar({super.key, this.compact = false, this.debugRoutes});
+
+  /// Preview/test seed for the pinned My Circle tile's badges (else the
+  /// shared [CircleBadges] state the home screen keeps fresh).
+  final CircleBadgeState? debugCircle;
+  const HomeQuickBar(
+      {super.key, this.compact = false, this.debugRoutes, this.debugCircle});
 
   @override
   State<HomeQuickBar> createState() => _HomeQuickBarState();
@@ -232,6 +247,27 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
     await HomeQuickButtons.save(_routes);
   }
 
+  Future<void> _openCircle() async {
+    const r = HomeQuickButtons.pinnedRoute;
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: ChatNav.routes[r]!,
+            settings: const RouteSettings(name: r)));
+    BadgesBus.instance.poke(); // back on home: re-fetch the counts
+  }
+
+  /// home-circle: the pinned tile's badges — the debug seed, else live.
+  Widget _circleBadges(
+      Widget Function(BuildContext, CircleBadgeState) builder) {
+    final seed = widget.debugCircle;
+    if (seed != null) return Builder(builder: (c) => builder(c, seed));
+    return ValueListenableBuilder<CircleBadgeState>(
+      valueListenable: CircleBadges.instance.state,
+      builder: (c, v, _) => builder(c, v),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -246,6 +282,28 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           children: [
+            // home-circle: My Circle is always the first chip (pinned).
+            Padding(
+              key: const ValueKey('quick_chip_circle'),
+              padding: const EdgeInsetsDirectional.only(end: Gap.xs),
+              child: _circleBadges((c, b) => ActionChip(
+                    avatar: CircleBadgeDot(
+                        missed: b.missed,
+                        child: const Icon(Icons.diversity_3_outlined, size: 18)),
+                    label: Text(
+                        b.unread > 0
+                            ? '${t.sidebarMyCircle} · ${circleBadgeLabel(b.unread, t.localeName)}'
+                            : t.sidebarMyCircle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        semanticsLabel: [
+                          t.sidebarMyCircle,
+                          if (b.unread > 0)
+                            t.hcUnread(circleBadgeLabel(b.unread, t.localeName)),
+                        ].join('. ')),
+                    onPressed: _openCircle,
+                  )),
+            ),
             for (final s in items)
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: Gap.xs),
@@ -284,6 +342,18 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
           style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
         ),
       ]),
+      // home-circle (owner 26 Oct): My Circle — fixed, pinned FIRST tile, one
+      // full-width row above the user's six (so the 3x2 grid and every saved
+      // shortcut stay exactly as they were, and the subtitle fits on one line
+      // at 360 dp).
+      Padding(
+        padding: const EdgeInsets.only(bottom: Gap.sm),
+        child: _circleBadges((c, b) => HomeCircleTile(
+              badges: b,
+              onTap: _openCircle,
+              onLongPress: _edit,
+            )),
+      ),
       GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -328,6 +398,80 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
                 style: const TextStyle(
                     fontSize: 12, height: 1.15, fontWeight: FontWeight.w600)),
           ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// home-circle (owner 26 Oct): the pinned My Circle tile — always first on
+/// home, cannot be removed or moved. Title + one-line subtitle, the unread
+/// pill and the missed-call dot. Grows with the font (no fixed height).
+class HomeCircleTile extends StatelessWidget {
+  final CircleBadgeState badges;
+  final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  const HomeCircleTile(
+      {super.key, required this.badges, required this.onTap, this.onLongPress});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      key: const ValueKey('quick_tile_circle'),
+      color: scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.md),
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.sm),
+            child: Row(children: [
+              CircleBadgeDot(
+                missed: badges.missed,
+                child: Icon(Icons.diversity_3_outlined,
+                    size: 24, color: scheme.primary),
+              ),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.sidebarMyCircle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              height: 1.2,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      // one line at normal sizes; a 2nd line only at very
+                      // large text so nothing is ever cut off
+                      Text(t.hcTileSub,
+                          key: const ValueKey('quick_tile_circle_sub'),
+                          maxLines:
+                              MediaQuery.textScalerOf(context).scale(1) > 1.3
+                                  ? 2
+                                  : 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 12,
+                              height: 1.2,
+                              color: scheme.onSurfaceVariant)),
+                    ]),
+              ),
+              if (badges.unread > 0) ...[
+                const SizedBox(width: Gap.sm),
+                CircleUnreadPill(count: badges.unread),
+              ],
+            ]),
+          ),
         ),
       ),
     );
@@ -399,6 +543,23 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                   style:
                       TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
             ]),
+          ),
+          // home-circle: My Circle is pinned first on home — shown here with
+          // a lock, not draggable, not removable (it is not one of the six).
+          ListTile(
+            key: const ValueKey('quick_pinned_circle'),
+            dense: true,
+            leading: Icon(Icons.diversity_3_outlined, color: scheme.primary),
+            title: Text(t.sidebarMyCircle,
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text(t.hcPinned,
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: Semantics(
+              label: t.hcPinnedA11y,
+              child: Icon(Icons.lock_outline,
+                  key: const ValueKey('quick_pinned_lock'),
+                  color: scheme.onSurfaceVariant),
+            ),
           ),
           // chosen, in order — drag to reorder
           SizedBox(

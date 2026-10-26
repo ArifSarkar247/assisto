@@ -11,6 +11,7 @@ import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 import 'assisto_chats_screen.dart';
 import '../widgets/robo_id.dart';
+import '../widgets/circle_badges.dart';
 import '../growth/invite_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
@@ -33,7 +34,12 @@ class AppDrawer extends StatefulWidget {
 
   /// Reopen a saved HOME conversation on the home screen (chats page rows).
   final void Function(String sessionId)? onOpenHomeChat;
-  const AppDrawer({super.key, this.onNewChat, this.onOpenHomeChat});
+
+  /// Preview/test seed for the My Circle entry's badges (else the shared
+  /// [CircleBadges] state the home screen keeps fresh).
+  final CircleBadgeState? debugCircle;
+  const AppDrawer(
+      {super.key, this.onNewChat, this.onOpenHomeChat, this.debugCircle});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -133,15 +139,32 @@ class _AppDrawerState extends State<AppDrawer> {
         // Communities · Calls). Labelled "My Circle" — the old expandable
         // "My Circle" sidebar group is gone; circle management (people,
         // privacy, calls) now lives INSIDE the hub (OWNER UI FIX v2 §1–2).
+        // home-circle (owner 26 Oct): same size/style as Assisto AI above —
+        // bold title + one-line subtitle — plus the unread pill and the
+        // missed-call dot (same counts as the home tile / top bar).
         if (circleOn)
         RoboId(id: 'tl_drawer_my_circle', // tl1: Test Lab Robo target
-          child: ListTile(
-            dense: true,
-            leading:
-                Icon(Icons.diversity_3_rounded, color: scheme.onSurfaceVariant),
-            title: Text(t.sidebarMyCircle),
-            onTap: () => _push((_) => const MessengerHomeScreen()),
-          ),
+          child: _circleBadges((b) => ListTile(
+                key: const ValueKey('drawer_my_circle'),
+                dense: true,
+                leading: CircleBadgeDot(
+                  missed: b.missed,
+                  child: Icon(Icons.diversity_3_rounded, color: scheme.primary),
+                ),
+                title: Text(t.sidebarMyCircle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(t.hcDrawerSub,
+                    key: const ValueKey('drawer_my_circle_sub'),
+                    // wraps only at very large text: never cut off
+                    maxLines:
+                        MediaQuery.textScalerOf(context).scale(1) > 1.3 ? 3 : 1,
+                    overflow: TextOverflow.ellipsis),
+                trailing:
+                    b.unread > 0 ? CircleUnreadPill(count: b.unread) : null,
+                onTap: () => _push((_) => const MessengerHomeScreen()),
+              )),
         ),
         // ---- search box ----
         Padding(
@@ -287,6 +310,15 @@ class _AppDrawerState extends State<AppDrawer> {
           ? Text(group, maxLines: 1, overflow: TextOverflow.ellipsis)
           : null,
       onTap: () => _push(item.builder),
+    );
+  }
+
+  Widget _circleBadges(Widget Function(CircleBadgeState) builder) {
+    final seed = widget.debugCircle;
+    if (seed != null) return builder(seed);
+    return ValueListenableBuilder<CircleBadgeState>(
+      valueListenable: CircleBadges.instance.state,
+      builder: (_, v, __) => builder(v),
     );
   }
 

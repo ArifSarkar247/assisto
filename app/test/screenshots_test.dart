@@ -34,6 +34,7 @@ import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 import 'package:assisto/screens/app_drawer.dart';
+import 'package:assisto/widgets/circle_badges.dart';
 import 'package:assisto/screens/ai_chat_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/screens/used_phone_check_screen.dart';
@@ -538,17 +539,19 @@ Map<String, GallerySpec> gallerySpecs() {
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
     'ps_assistant': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chatStore(l))), mode: FakeMode.data, full: true), // order5
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
-    'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {}, debugCircle: const CircleBadgeState(unread: 3, missed: true))])), mode: FakeMode.data, full: true),
     // Owner order after build 146: sidebar "Assisto AI" -> one chats page.
     'assisto_chats': (build: (_) => const AssistoChatsScreen(), mode: FakeMode.data, full: true),
     'assisto_chats_empty': (build: (_) => const AssistoChatsScreen(), mode: FakeMode.empty, full: false),
     'settings_voice': (build: (_) => const Scaffold(body: SafeArea(child: SingleChildScrollView(child: SettingsVoiceSection()))), mode: FakeMode.data, full: true),
     'home_chat_restored': (build: (_) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: Column(children: [const HomeQuickBar(compact: true, debugRoutes: HomeQuickButtons.defaults), Expanded(child: AgentThreadScreen(sessionId: '11'))])), mode: FakeMode.data, full: true),
-    'quick_grid': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults))), mode: FakeMode.data, full: true),
+    'quick_grid': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults, debugCircle: CircleBadgeState()))), mode: FakeMode.data, full: true),
+    // home-circle: pinned My Circle tile with the unread pill + missed dot
+    'quick_grid_circle': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults, debugCircle: CircleBadgeState(unread: 12, missed: true)))), mode: FakeMode.data, full: true),
     // owner default (from /admin/pricing) applied for a not-yet-customized user
     'quick_grid_owner': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: ['emergency', 'money', 'reminders', 'scam', 'nearby', 'notes']))), mode: FakeMode.data, full: true),
     'quick_picker': (build: (_) => const Scaffold(body: QuickButtonsPicker(current: HomeQuickButtons.defaults)), mode: FakeMode.data, full: true),
-    'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {}, debugCircle: const CircleBadgeState(unread: 3, missed: true))])), mode: FakeMode.data, full: true),
     'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
     'messenger_settings': (build: (_) => const MessengerSettingsScreen(), mode: FakeMode.data, full: true),
     'contact_info': (build: (l) => ContactInfoScreen(member: _circleMember(l)), mode: FakeMode.data, full: true),

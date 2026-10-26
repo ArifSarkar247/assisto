@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_relation.dart';
+import '../widgets/circle_badges.dart';
 import '../crypto/identity_vault.dart';
 import 'circle_call_info_screen.dart';
 import 'circle_call_screen.dart';
@@ -22,7 +23,11 @@ import 'circle_chat_screen.dart';
 /// which re-runs the SERVER-SIDE gate (so a free user still can't video-call
 /// back on a video entry — they get the upgrade prompt).
 class CircleCallHistoryScreen extends StatefulWidget {
-  const CircleCallHistoryScreen({super.key});
+  /// home-circle: true when pushed on its own (missed-call notification,
+  /// Settings) — opening it clears the home missed-call dot. Inside the
+  /// My Circle hub the Calls TAB clears it instead (all tabs build at once).
+  final bool standalone;
+  const CircleCallHistoryScreen({super.key, this.standalone = true});
 
   @override
   State<CircleCallHistoryScreen> createState() =>
@@ -61,6 +66,9 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           .map((e) => e.cast<String, dynamic>());
       _byId = {for (final c in singles) '${c['id']}': c};
       _backendReady = true;
+      if (widget.standalone) {
+        CircleBadges.instance.markCallsSeen(_byId.values.toList());
+      }
     } catch (_) {
       _backendReady = false;
       _calls = [];
