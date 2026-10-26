@@ -130,10 +130,24 @@ class LimitsTakeEffectTests(APITestCase):
         self.assertEqual(_included_cameras(free), 0)
 
     def test_probashi_price(self):
+        # owner 26 Oct: Probashi is not listed until USD billing exists...
         self._edit({"probashi_price_usd": 5.49})
-        pro = next(p for p in plans.plans_public("en") if p["id"] == "probashi")
+        self.assertFalse(any(p["id"] == "probashi" for p in plans.plans_public("en")))
+        # ...and when it is switched back on, the edited price still applies
+        from unittest import mock
+        with mock.patch.object(plans, "PUBLIC_PROBASHI", True):
+            pro = next(p for p in plans.plans_public("en") if p["id"] == "probashi")
         self.assertEqual(pro["price"], 5.49)
         self.assertEqual(pro["cur"], "USD")
+
+    def test_no_unbuilt_promises_in_plan_text(self):
+        """owner 26 Oct: never sell what is not built."""
+        for lang in ("bn", "en"):
+            text = " ".join(" ".join(p.get("benefits", []))
+                            for p in plans.plans_public(lang))
+            for bad in ("Team seat", "দলের আসন", "priority support",
+                        "অগ্রাধিকার সাপোর্ট", "Medicine reminders", "ওষুধ রিমাইন্ডার"):
+                self.assertNotIn(bad, text)
 
     @override_settings(AI_DAILY_BUDGET_USD=5.0, AI_USER_DAILY_LIMIT=40)
     def test_ai_budget_and_user_limit_override(self):

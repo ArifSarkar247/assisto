@@ -54,9 +54,9 @@ _PLAN_META = {
         "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।",
         "desc_en": "To get started — safety is always free.",
         "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব",
-                        "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
+                        "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)"],
         "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money",
-                        "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"],
+                        "Emergency SOS & scam alerts (free)"],
     },
     "premium": {
         "name_bn": "প্রিমিয়াম", "name_en": "Premium",
@@ -64,19 +64,21 @@ _PLAN_META = {
         "desc_en": "Monthly AI credits, no ads — care for your family together.",
         "benefits_bn": ["প্রতি মাসে AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই",
                         "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড",
-                        "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
+                        "স্মার্ট দৈনিক ব্রিফিং"],
         "benefits_en": ["Monthly AI credits (scans & assistant)", "No ads",
                         "Up to 5-member Circle & caregiver dashboard",
-                        "Smart briefings & priority support"],
+                        "Smart daily briefings"],
     },
     "business": {
         "name_bn": "বিজনেস", "name_en": "Business",
         "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।",
         "desc_en": "For small businesses and sales teams.",
+        # owner 26 Oct: only what is really built is promised. "Team seats"
+        # returns when Team members passes all 9 Definition-of-Done checks.
         "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার",
-                        "AI CRM (Axon Dynamics)", "দলের আসন"],
+                        "AI CRM (Axon Dynamics)"],
         "benefits_en": ["Monthly AI credits", "Business mode: catalog & orders",
-                        "AI CRM (Axon Dynamics)", "Team seats"],
+                        "AI CRM (Axon Dynamics)"],
     },
 }
 

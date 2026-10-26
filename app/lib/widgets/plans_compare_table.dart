@@ -100,10 +100,7 @@ class PlansCompareTable extends StatelessWidget {
           _Row(t.plansCmpBusinessMode,
               {for (final p in cols) p['id']: (p['id'] ?? '') == 'business'}),
         ]),
-      _Group(t.plansCmpSupport, [
-        _Row(t.plansCmpPriority,
-            {for (final p in cols) p['id']: paid(p)}),
-      ]),
+      // owner 26 Oct: no "priority support" row — it is not a built service.
     ];
 
     return Container(
