@@ -1,1 +1,1 @@
-Build 246: Correct yearly plan prices (Premium ৳2490, Business ৳4990) with the Play "annual" plan; behind-the-scenes groundwork for home & shop camera alerts (not visible yet); stability fixes.
+Build 247: Out of AI credits? A buy-credits sheet now opens right away with the 4 Google Play packs (and a watch-an-ad option for free users where allowed); what you typed is kept and sent again after you buy. Packs can be bought again and again. All Play prices now come straight from Google Play.
