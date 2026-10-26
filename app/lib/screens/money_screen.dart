@@ -644,7 +644,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                           title: Text(
                               (it['data']['category']?.toString().isNotEmpty ==
                                       true)
-                                  ? it['data']['category']
+                                  ? moneyCatLabel(t, it['data']['category'])
                                   : (it['data']['note']?.toString().isNotEmpty ==
                                           true
                                       ? it['data']['note']
@@ -784,7 +784,7 @@ class _BudgetsTab extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(b['category'] ?? '',
+                                    Text(moneyCatLabel(t, b['category']),
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text(

@@ -221,6 +221,7 @@ class AdRules {
     'login', 'otp', 'signup', 'register', 'password', 'onboarding', 'welcome',
     'permission', 'language_picker', 'ring_check',
     'call', 'chat', 'messenger', 'conversation', 'lock', 'vault',
+    'remit', // budget-remittance: family money screens never carry ads
   ];
 
   /// Allowlists (default-deny: anything else is blocked).

@@ -66,7 +66,7 @@ class BudgetCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
-                child: Text(line['category']?.toString() ?? '',
+                child: Text(moneyCatLabel(t, line['category']),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
