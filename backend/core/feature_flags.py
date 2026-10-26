@@ -116,6 +116,7 @@ REGISTRY = (
     ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans')),
     ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
     ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ()),
+    ('booking_bot', 'business', 'Booking bot (appointments)', 'বুকিং বট (অ্যাপয়েন্টমেন্ট)', False, ('booking', 'my_bookings')),
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),

@@ -5378,3 +5378,129 @@ class FeatureFlag(models.Model):
     class Meta:
         ordering = ["key"]
 # ---- /feature-flags ----
+
+
+# ---- booking-bot ---- (big-week item I) appointment / service booking for a
+# Business: services, weekly hours, days off, optional staff, capacity; a
+# public link lifeassisto.com/b/<slug>; the business AI agent offers REAL free
+# slots only. Double booking is impossible at the DB level: every booking
+# holds one BookingSlotLock row per 5-minute granule per seat, and
+# (business, resource, seat, at) is UNIQUE. Pure rules: core.logic.booking;
+# DB layer: core.booking_service; API: core.booking_views; flag `booking_bot`.
+class BookingPage(models.Model):
+    business = models.OneToOneField(BusinessProfile, on_delete=models.CASCADE,
+                                    related_name="booking_page")
+    slug = models.SlugField(max_length=40, unique=True)
+    enabled = models.BooleanField(default=False)          # taking bookings
+    title = models.CharField(max_length=120, blank=True, default="")
+    about = models.CharField(max_length=300, blank=True, default="")
+    address = models.CharField(max_length=200, blank=True, default="")
+    weekly_hours = models.JSONField(default=dict, blank=True)  # {"0": [["10:00","18:00"]], ...} Mon=0
+    days_off = models.JSONField(default=list, blank=True)      # ["2026-11-01", ...]
+    capacity = models.PositiveSmallIntegerField(default=1)     # parallel bookings (no staff)
+    step_min = models.PositiveSmallIntegerField(default=30)    # slot grid
+    min_notice_min = models.PositiveIntegerField(default=60)
+    max_days_ahead = models.PositiveSmallIntegerField(default=30)
+    auto_confirm = models.BooleanField(default=False)
+    cancel_hours = models.PositiveSmallIntegerField(default=2)   # customer may cancel/reschedule until N h before
+    max_pending_per_phone = models.PositiveSmallIntegerField(default=2)
+    chat_bot = models.BooleanField(default=True)          # AI agent offers slots in chats
+    sms_reminders = models.BooleanField(default=False)    # paid from the owner's credits
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class BookingStaff(models.Model):
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="booking_staff")
+    name = models.CharField(max_length=80)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+
+class BookingService(models.Model):
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="booking_services")
+    name = models.CharField(max_length=80)
+    duration_min = models.PositiveSmallIntegerField(default=30)
+    buffer_min = models.PositiveSmallIntegerField(default=0)
+    price_bdt = models.PositiveIntegerField(default=0)    # shown only; 0 = not shown
+    staff_ids = models.JSONField(default=list, blank=True)  # [] = any staff / no staff
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+
+class Booking(models.Model):
+    STATUSES = ("requested", "confirmed", "done", "no_show", "cancelled")
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="bookings")
+    service = models.ForeignKey(BookingService, null=True, on_delete=models.SET_NULL,
+                                related_name="bookings")
+    service_name = models.CharField(max_length=80, blank=True, default="")
+    staff = models.ForeignKey(BookingStaff, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="bookings")
+    customer_user = models.ForeignKey(User, null=True, blank=True,
+                                      on_delete=models.SET_NULL, related_name="bookings_made")
+    customer_name = models.CharField(max_length=80, blank=True, default="")
+    customer_phone = models.CharField(max_length=24, blank=True, default="", db_index=True)
+    start = models.DateTimeField(db_index=True)
+    end = models.DateTimeField()                  # service end (buffer excluded)
+    block_end = models.DateTimeField()            # end + buffer (what the locks cover)
+    status = models.CharField(max_length=12, default="requested")
+    cancelled_by = models.CharField(max_length=12, blank=True, default="")  # customer|business|system
+    channel = models.CharField(max_length=20, default="web")   # web|app|manual|whatsapp_cloud|messenger|instagram|website
+    thread = models.ForeignKey("ChatThread", null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="bookings")
+    note = models.CharField(max_length=300, blank=True, default="")
+    ip_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    manage_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    reminders_sent = models.PositiveSmallIntegerField(default=0)
+    reminded = models.JSONField(default=list, blank=True)     # ["24h","2h"]
+    reschedules = models.PositiveSmallIntegerField(default=0)
+    history = models.JSONField(default=list, blank=True)      # [{at, by, what}]
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["start", "id"]
+        indexes = [models.Index(fields=["business", "start"]),
+                   models.Index(fields=["business", "customer_phone", "status"]),
+                   models.Index(fields=["status", "start"])]
+
+
+class BookingSlotLock(models.Model):
+    """One 5-minute granule of one seat of one resource (staff id, or 0 for
+    the business' shared capacity). UNIQUE → a second booking for the same
+    seat + time fails inside the INSERT, whatever the race."""
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="locks")
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="+")
+    resource = models.PositiveIntegerField(default=0)
+    seat = models.PositiveSmallIntegerField(default=0)
+    at = models.DateTimeField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["business", "resource", "seat", "at"], name="booking_slot_unique")]
+
+
+class BookingContact(models.Model):
+    """Per business + customer phone: blocked by the business, or the customer
+    said STOP (no reminders)."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="booking_contacts")
+    phone = models.CharField(max_length=24)
+    blocked = models.BooleanField(default=False)
+    stop = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["business", "phone"],
+                                               name="booking_contact_unique")]
+# ---- /booking-bot ----

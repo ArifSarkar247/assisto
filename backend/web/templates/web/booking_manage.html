@@ -1,0 +1,26 @@
+{% extends "web/base.html" %}
+{% block title %}{{ B.your }} — Assisto{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<style>.ok{background:#e7f7ee;color:#0b5e3c;padding:10px 12px;border-radius:10px;font-size:14px}.small{font-size:13px;color:#5a6680}.btn{min-height:48px}</style>{% endblock %}
+{% block content %}
+{% if unknown %}
+<div class="card"><p>{{ B.unknown }}</p></div>
+{% else %}
+{% if new %}<div class="ok" role="status"><b>{% if b.status == "confirmed" %}{{ B.ok_h }}{% else %}{{ B.req_h }} — {{ B.req_b }}{% endif %}</b></div>
+<div class="warn">{{ B.manage }}<br><code style="word-break:break-all">https://lifeassisto.com/b/m/{{ token }}</code></div>{% endif %}
+{% if info %}<div class="ok" role="status">{{ info }}</div>{% endif %}
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+<div class="card">
+  <h1>{{ b.business.name }}</h1>
+  <p><b>{{ b.service }}</b><br>{{ b.when }}</p>
+  <p>{{ B.status }}: <b>{{ b.status_label }}</b></p>
+  {% if can_cancel %}
+  <form method="post" action="/b/m/{{ token }}{{ qlang }}">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="btn ghost">{{ B.cancel }}</button></form><p></p>
+  {% endif %}
+  {% if not stopped %}
+  <form method="post" action="/b/m/{{ token }}{{ qlang }}">{% csrf_token %}<input type="hidden" name="action" value="stop"><button class="btn ghost">{{ B.stop }}</button></form>
+  {% else %}<p class="small">{{ B.stopped }}</p>{% endif %}
+</div>
+{% if slug %}<p><a href="/b/{{ slug }}{{ qlang }}">{{ B.back }}</a></p>{% endif %}
+{% endif %}
+{% endblock %}

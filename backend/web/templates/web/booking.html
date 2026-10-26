@@ -1,0 +1,87 @@
+{% extends "web/base.html" %}
+{% block title %}{{ biz_name }} — {{ B.book }}{% endblock %}
+{% block og %}<meta property="og:title" content="{{ biz_name }} — {{ B.book }}">{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<style>
+  .opt{display:block;border:1px solid #dde3ef;border-radius:12px;padding:12px 14px;margin:8px 0;color:#16203a;min-height:48px}
+  .opt.on{border-color:var(--teal);background:#e9f6f2}
+  .opt b{font-size:16px}
+  .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+  .day{flex:0 0 auto;min-width:96px;min-height:48px;text-align:center;border:1px solid #dde3ef;border-radius:12px;padding:8px;color:#16203a;font-size:14px}
+  .day.on{border-color:var(--teal);background:#e9f6f2}
+  .day.off{color:#8591ab}
+  .times{display:flex;flex-wrap:wrap;gap:8px}
+  .times label{margin:0;font-weight:600}
+  .times input{position:absolute;opacity:0}
+  .times span{display:inline-block;min-width:96px;min-height:48px;line-height:30px;text-align:center;border:1px solid #cdd5e5;border-radius:12px;padding:8px 10px}
+  .times input:checked + span{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .times input:focus-visible + span{outline:3px solid var(--navy2)}
+  .ok{background:#e7f7ee;color:#0b5e3c;padding:10px 12px;border-radius:10px;font-size:14px}
+  input[type=tel],input[type=text]{width:100%;padding:12px;border:1px solid #cdd5e5;border-radius:10px;font-family:inherit;font-size:16px;min-height:48px}
+  .small{font-size:13px;color:#5a6680}
+</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ biz_name }}</h1>
+  {% if page.about %}<p>{{ page.about }}</p>{% endif %}
+  {% if page.address %}<p class="small">{{ B.address }}: {{ page.address }}</p>{% endif %}
+  <p class="small">{{ B.privacy }}</p>
+</div>
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+{% if info %}<div class="ok" role="status">{{ info }}</div>{% endif %}
+{% if not taking %}
+  <div class="warn">{{ B.not_taking }}</div>
+{% elif step == "code" %}
+<div class="card">
+  <h2>{{ B.confirm }}</h2>
+  <p><b>{{ svc.name }}</b> — {{ picked }}</p>
+  <form method="post" action="/b/{{ page.slug }}{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="book">
+    {% for k, v in form.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+    <label for="code">{{ B.code }}</label>
+    <input id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+    <p></p><button class="btn">{{ B.confirm }}</button>
+  </form>
+</div>
+{% else %}
+<div class="card">
+  <h2>{{ B.services }}</h2>
+  {% for s in services %}
+    <a class="opt{% if svc and svc.pk == s.id %} on{% endif %}" href="/b/{{ page.slug }}?service={{ s.id }}{{ amp_lang }}">
+      <b>{{ s.name }}</b><br><span class="small">{{ s.dur }} {{ B.min }}{% if s.price_bdt %} · ৳{{ s.price }}{% endif %}</span></a>
+  {% endfor %}
+</div>
+{% if svc %}
+<div class="card">
+  <h2>{{ B.days }}</h2>
+  <div class="days">
+  {% for d in days %}
+    <a class="day{% if d.day == day %} on{% endif %}{% if not d.free %} off{% endif %}" href="/b/{{ page.slug }}?service={{ svc.pk }}&day={{ d.day }}{{ amp_lang }}">{{ d.label }}<br><span class="small">{% if d.free %}{{ d.free_txt }} {{ B.free }}{% else %}{{ B.full }}{% endif %}</span></a>
+  {% endfor %}
+  </div>
+</div>
+{% if day %}
+<div class="card">
+  <h2>{{ B.times }}</h2>
+  {% if slots %}
+  <form method="post" action="/b/{{ page.slug }}{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="send">
+    <input type="hidden" name="service" value="{{ svc.pk }}">
+    <input type="hidden" name="day" value="{{ day }}">
+    <div class="times">
+    {% for s in slots %}<label><input type="radio" name="start" value="{{ s.start }}" required {% if form.start == s.start %}checked{% endif %}><span>{{ s.label }}</span></label>{% endfor %}
+    </div>
+    <label for="name">{{ B.name }}</label>
+    <input id="name" type="text" name="name" value="{{ form.name }}" maxlength="80" autocomplete="name" required>
+    <label for="phone">{{ B.phone }}</label>
+    <input id="phone" type="tel" name="phone" value="{{ form.phone }}" placeholder="01XXXXXXXXX" autocomplete="tel" required>
+    <p class="small">{{ policy }}</p>
+    <button class="btn">{{ B.send }}</button>
+  </form>
+  {% else %}<p>{{ B.none_day }}</p>{% endif %}
+</div>
+{% endif %}
+{% endif %}
+<p class="small">{{ B.app }}</p>
+{% endif %}
+{% endblock %}

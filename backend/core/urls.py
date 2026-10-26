@@ -1077,3 +1077,27 @@ urlpatterns += [
     path("features", featv.FeaturesView.as_view()),
 ]
 # ---- /feature-flags ----
+
+# ---- booking-bot ---- (big-week item I; flag booking_bot, default OFF)
+from . import booking_views as bkv  # noqa: E402
+urlpatterns += [
+    path("booking/biz", bkv.BizPageView.as_view()),
+    path("booking/biz/services", bkv.BizServicesView.as_view()),
+    path("booking/biz/services/<int:pk>", bkv.BizServicesView.as_view()),
+    path("booking/biz/staff", bkv.BizStaffView.as_view()),
+    path("booking/biz/staff/<int:pk>", bkv.BizStaffView.as_view()),
+    path("booking/biz/bookings", bkv.BizBookingsView.as_view()),
+    path("booking/biz/bookings/<int:pk>", bkv.BizBookingView.as_view()),
+    path("booking/biz/bookings/<int:pk>/action", bkv.BizBookingActionView.as_view()),
+    path("booking/biz/slots", bkv.BizSlotsView.as_view()),
+    path("booking/biz/blocks", bkv.BizBlocksView.as_view()),
+    path("booking/p/<slug:slug>", bkv.PublicPageView.as_view()),
+    path("booking/p/<slug:slug>/days", bkv.PublicDaysView.as_view()),
+    path("booking/p/<slug:slug>/slots", bkv.PublicSlotsView.as_view()),
+    path("booking/p/<slug:slug>/otp", bkv.PublicOtpView.as_view()),
+    path("booking/p/<slug:slug>/book", bkv.PublicBookView.as_view()),
+    path("booking/mine", bkv.MyBookingsView.as_view()),
+    path("booking/mine/<int:pk>/action", bkv.MyBookingActionView.as_view()),
+    path("booking/mine/<int:pk>/slots", bkv.MySlotsView.as_view()),
+]
+# ---- /booking-bot ----

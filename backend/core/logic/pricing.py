@@ -206,13 +206,27 @@ _VEHICLE_BOUNDS = {
 #   watchman_daily_alert_cap  alerts per site per day (the rest are counted only)
 #   watchman_tasks_per_hour   gateway checks/scans an owner may queue per site
 #   watchman_snapshot_kb      biggest snapshot upload accepted (then shrunk)
+#   booking-bot limits (item I; all bounded, never unlimited):
+#   booking_ip_per_hour       public bookings one IP may make per hour
+#   booking_phone_per_day     bookings one phone may make per day (all businesses)
+#   booking_biz_per_day       online bookings one business accepts per day
+#   booking_sms_per_biz_day   SMS reminders per business per day (paid: "sms")
+#   booking_max_reminders     reminders per booking (24 h + 2 h = 2 max)
 _SHOP_DEFAULTS = {"eod_tolerance_poisha": 5000, "live_max_session_s": 600,
                   "watchman_group_min": 10, "watchman_daily_alert_cap": 30,
-                  "watchman_tasks_per_hour": 20, "watchman_snapshot_kb": 1024}
+                  "watchman_tasks_per_hour": 20, "watchman_snapshot_kb": 1024,
+                  "booking_ip_per_hour": 10, "booking_phone_per_day": 5,
+                  "booking_biz_per_day": 200, "booking_sms_per_biz_day": 50,
+                  "booking_max_reminders": 2}
 _SHOP_BOUNDS = {"watchman_group_min": (1, 120),
                 "watchman_daily_alert_cap": (1, 500),
                 "watchman_tasks_per_hour": (1, 200),
-                "watchman_snapshot_kb": (64, 4096)}
+                "watchman_snapshot_kb": (64, 4096),
+                "booking_ip_per_hour": (1, 100),
+                "booking_phone_per_day": (1, 20),
+                "booking_biz_per_day": (1, 2000),
+                "booking_sms_per_biz_day": (0, 500),
+                "booking_max_reminders": (0, 2)}
 
 # Business plan includes this many edge cameras at no credit cost; beyond it,
 # each camera is charged `shop_extra_camera`. Non-Business plans get 0 included.

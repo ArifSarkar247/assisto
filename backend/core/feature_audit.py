@@ -136,6 +136,8 @@ _A = {
             "ফ্লো ১৯ A; প্রথমবারের গাইড; ইমেইল ও আসল WhatsApp পাঠানো নেই (বড় সপ্তাহ E)।"),
     "business_agent": ("?P??P?F?F", "hide", "Page / Instagram / WhatsApp setup needs Meta app review; not in a reality flow.",
                        "Page / Instagram / WhatsApp সেটআপে Meta অ্যাপ রিভিউ লাগে; রিয়ালিটি ফ্লো নেই।"),
+    "booking_bot": ("?PP?PFFP?", "hide", "Booking bot phase 1: two-account server test + app widget tests pass; no real two-phone run, 2 GB speed not measured, no reality-audit flow yet, Play Data safety line for booking phone numbers pending, 10-minute test is in BOOKING_BOT_BN.md (not yet in STATUS).",
+                    "বুকিং বট ফেজ ১: দুই-অ্যাকাউন্টের সার্ভার-টেস্ট ও অ্যাপ টেস্ট পাস; দুই ফোনে আসল পরীক্ষা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Play Data safety-তে বুকিংয়ের ফোন নম্বর লাইন বাকি, ১০ মিনিটের পরীক্ষা BOOKING_BOT_BN.md-তে (STATUS-এ এখনো নয়)।"),
     "offers": ("?P????F?F", "hide", "~45% (big-week G); not in the reality sweep.", "~৪৫% (বড় সপ্তাহ G); রিয়ালিটি সুইপে নেই।"),
     "referral": ("?P??PP??F", "show", "Referral rate / min redeem editable (pricing tests).", "রেফারেল হার / সর্বনিম্ন রিডিম বদলানো যায় (প্রাইসিং টেস্ট)।"),
     # ---- Upcoming (nothing built yet)

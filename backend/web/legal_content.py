@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots (26 Oct)
+LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking (26 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -517,6 +517,19 @@ PRIVACY = [
           "<b>What we do not do:</b> no face recognition, no sound recording, no accusations — every alert only says \"Suspicious — please check\". If you turn on Imou cloud alarms, the camera's own alarm and its photo come from Imou."),
          ("<b>আপনার দায়িত্ব:</b> শুধু নিজের জায়গায় ক্যামেরা লাগান, কর্মচারী/অতিথিদের জানান (অ্যাপে নোটিশের নমুনা আছে), আর টয়লেট বা পোশাক বদলানোর জায়গার দিকে কখনো ক্যামেরা রাখবেন না।",
           "<b>Your part:</b> use cameras only at your own place, tell staff/visitors (the app has a notice template), and never point a camera at toilets or changing areas."))),
+    S("booking", "অ্যাপয়েন্টমেন্ট বুকিং", "Appointment booking",
+      P("কোনো ব্যবসার বুকিং-লিংক (lifeassisto.com/b/…), Assisto অ্যাপ বা ব্যবসার চ্যাট থেকে সময় বুক করলে আমরা বুকিংটি ওই ব্যবসার জন্য রাখি।",
+        "When you book a time with a business through its booking link (lifeassisto.com/b/…), the Assisto app or the business' chat, we keep the booking for that business."),
+      UL(("<b>যা রাখা হয়:</b> আপনার নাম, মোবাইল নম্বর, বেছে নেওয়া সেবা ও সময়, বুকিংয়ের অবস্থা (অনুরোধ, নিশ্চিত, সম্পন্ন, আসেননি, বাতিল) ও ইতিহাস, আর অপব্যবহার ঠেকাতে IP ঠিকানার একটি হ্যাশ (আসল IP নয়)।",
+          "<b>What is kept:</b> your name, mobile number, the service and time you chose, the booking's status (requested, confirmed, done, no-show, cancelled) and its history, and a hash of your IP address (not the IP itself) to stop abuse."),
+         ("<b>কে দেখে:</b> শুধু যে ব্যবসায় বুক করেছেন সেই ব্যবসা (মালিক ও তাদের কর্মী)। আপনার নম্বর অন্য কোনো ব্যবসা বা ব্যবহারকারী দেখেন না। ব্যবসা Assisto CRM ব্যবহার করলে বুকিংটি তাদের গ্রাহক-তালিকায় যোগ হতে পারে।",
+          "<b>Who sees it:</b> only the business you booked with (the owner and their staff). No other business or user sees your number. If the business uses the Assisto CRM, the booking may be added to its customer list."),
+         ("<b>বার্তা:</b> শুধু আপনার বুকিং নিয়ে — নিশ্চিত, সময় বদল, বাতিল, আর সর্বোচ্চ ২টি রিমাইন্ডার (২৪ ঘণ্টা ও ২ ঘণ্টা আগে), রাত ১০টা থেকে সকাল ৮টার মধ্যে কখনো নয়। কোনো মার্কেটিং, বিজ্ঞাপন বা ঠান্ডা কল নয়। চ্যাটে STOP লিখলে বা বুকিং-পেজে “রিমাইন্ডার বন্ধ” চাপলে রিমাইন্ডার বন্ধ হয়।",
+          "<b>Messages:</b> only about your booking — confirmed, moved, cancelled, and at most 2 reminders (24 hours and 2 hours before), never between 10 pm and 8 am. No marketing, ads or cold calls. Reply STOP in the chat or tap “Stop reminders” on the booking page to stop reminders."),
+         ("<b>যাচাই:</b> অ্যাপে লগইন না করে বুক করলে নম্বর যাচাইয়ের জন্য একটি SMS কোড পাঠানো হয়।",
+          "<b>Checking:</b> if you book without signing in to the app, we send one SMS code to check the number."),
+         ("<b>কতদিন:</b> ব্যবসার অ্যাকাউন্ট থাকা পর্যন্ত, অথবা ব্যবসা বা আপনি মুছে ফেলতে বললে।",
+          "<b>How long:</b> while the business' account exists, or until the business or you ask us to delete it."))),
     S("retention", "কতদিন রাখা হয়", "How long we keep it",
       UL(("অ্যাকাউন্ট ও আপনার যোগ করা তথ্য: যতদিন অ্যাকাউন্ট আছে। মুছতে চাইলে ৭ দিনের অপেক্ষার পর স্থায়ীভাবে মুছে যায় (<a href=\"/delete-account\">বিস্তারিত</a>)।",
           "Account and what you add: as long as the account exists. When you ask to delete, it is permanently erased after a 7-day waiting period (<a href=\"/delete-account?lang=en\">details</a>)."),
