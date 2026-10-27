@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0098_ai_router'),
+        ('core', '0099_daily_info_flag'),
     ]
 
     operations = [
