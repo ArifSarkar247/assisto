@@ -88,6 +88,7 @@ JOBS = (
     Job("bizagent_process", MIN, "* * * * *"),
     Job("journey_sweep", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet"),
     Job("antitheft_escalate", MIN, "* * * * *", "nice -n10", lock=True),
+    Job("tagada_sweep", 5 * MIN, "*/5 * * * *", "nice -n10", lock=True, args="--quiet"),   # ledger100
     Job("uptime_check", 2 * MIN, "*/2 * * * *"),
     Job("ops_watch", 5 * MIN, "*/5 * * * *", lock=True),
     Job("check_went_dark", 5 * MIN, "*/5 * * * *"),

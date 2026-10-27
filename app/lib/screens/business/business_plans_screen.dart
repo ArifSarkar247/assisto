@@ -6,7 +6,8 @@ import '../plans_screen.dart';
 
 /// Business plans: FREE vs PAID Business.
 ///
-/// FREE  = khata / selling / tagada-via-WhatsApp / reports.
+/// FREE  = khata (also offline) / selling / tagada you send yourself /
+///         daily totals — "free forever" (ledger100).
 /// PAID  = AI sales assistant / auto-reply / bargaining / voice entry /
 ///         paper-khata digitising / insights.
 ///
@@ -27,14 +28,22 @@ class BusinessPlansScreen extends StatelessWidget {
           highlighted: false,
           title: tr.bizPlanFreeTitle,
           subtitle: tr.bizPlanFreeSubtitle,
+          // ledger100: only what is really free (server FreeForeverTests).
+          // "Automatic reminder messages" and weekly/monthly reports were
+          // listed here but are paid (credits / the reports capability).
           benefits: [
             tr.bizPlanBenefitKhata,
+            tr.ldgFreeL2,
             tr.bizPlanBenefitSelling,
-            tr.bizPlanBenefitTagada,
-            tr.bizPlanBenefitReports,
+            tr.ldgFreeL4,
+            tr.ldgPlanDailyTotals,
           ],
           priceLine: tr.bizPlanFreeForever,
         ),
+        const SizedBox(height: Gap.sm),
+        Text(tr.ldgFreePaidSms,
+            style: AType.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: Gap.lg),
         _planCard(
           context,
@@ -48,6 +57,7 @@ class BusinessPlansScreen extends StatelessWidget {
             tr.bizPlanBenefitVoice,
             tr.bizPlanBenefitPaperKhata,
             tr.bizPlanBenefitInsights,
+            tr.bizPlanBenefitReports,
           ],
           // Price intentionally a placeholder — owner review, not invented.
           priceLine: tr.f6BizPlanPriceOnPlans, // f6: real prices live on Plans (server)

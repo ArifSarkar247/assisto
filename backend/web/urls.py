@@ -10,6 +10,7 @@ from . import views_at_watch   # antitheft2
 urlpatterns = [
     path("", views.landing),
     path("get", views.get_app),
+    path("khata-free", views.khata_free),   # ledger100
     # antitheft2: a trusted contact's signed web view of a protected phone
     path("w/phone/<str:token>", views_at_watch.phone_page),
 

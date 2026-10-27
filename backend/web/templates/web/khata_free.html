@@ -1,0 +1,51 @@
+{% extends "web/base.html" %}
+{% block title %}{% if lang == 'en' %}Digital khata — free forever{% else %}ডিজিটাল খাতা — চিরকাল ফ্রি{% endif %} — Assisto{% endblock %}
+{% block content %}
+{% comment %}ledger100: the "free forever" promise. Only what is TRUE: the
+khata core has no plan gate and charges no credits (core/tests_ledger100
+FreeForeverTests proves it). Assisto-sent SMS stays paid — said plainly.{% endcomment %}
+{% if lang == 'en' %}
+<h1>Digital khata — free forever</h1>
+<p class="muted">Our written promise to every shop. No trial, no plan needed, no ads in your khata.</p>
+<div class="card">
+  <h3>Free on every plan, always</h3>
+  <ul>
+    <li>Unlimited customers and suppliers</li>
+    <li>Credit (baki) and payment entries — also offline; they sync when the internet is back</li>
+    <li>Balances, statements and the statement PDF</li>
+    <li>Due reminders you send yourself — WhatsApp or your phone's own SMS, one separate message per customer</li>
+    <li>Scheduled reminders that nudge you on your phone ("time to remind Karim")</li>
+  </ul>
+</div>
+<div class="card">
+  <h3>What costs money (we say it before you send)</h3>
+  <ul>
+    <li>An SMS that <b>Assisto</b> sends for you uses credits (1 credit per SMS part). The app shows the cost before you tap send and never sends at 0 credits.</li>
+    <li>AI extras (voice entry, paper-khata scan) need a paid plan.</li>
+  </ul>
+</div>
+<p class="muted">Your khata is yours: Assisto never holds or moves your money.</p>
+{% else %}
+<h1>ডিজিটাল খাতা — চিরকাল ফ্রি</h1>
+<p class="muted">প্রতিটি দোকানের কাছে আমাদের লিখিত প্রতিশ্রুতি। কোনো ট্রায়াল নয়, প্ল্যান লাগে না, খাতায় কোনো বিজ্ঞাপন নেই।</p>
+<div class="card">
+  <h3>সব প্ল্যানে, সবসময় ফ্রি</h3>
+  <ul>
+    <li>যত খুশি গ্রাহক ও সাপ্লায়ার</li>
+    <li>বাকি ও জমার এন্ট্রি — ইন্টারনেট ছাড়াও; নেট এলে নিজে থেকেই সিঙ্ক হয়</li>
+    <li>ব্যালান্স, হিসাবের বিবরণ ও স্টেটমেন্ট PDF</li>
+    <li>নিজে পাঠানো তাগাদা — WhatsApp বা আপনার ফোনের SMS, প্রতিটি গ্রাহককে আলাদা মেসেজ</li>
+    <li>নির্ধারিত তাগাদা, যা আপনার ফোনে মনে করিয়ে দেয় ("করিমকে তাগাদার সময়")</li>
+  </ul>
+</div>
+<div class="card">
+  <h3>যেটার খরচ আছে (পাঠানোর আগেই বলি)</h3>
+  <ul>
+    <li><b>Assisto</b> আপনার হয়ে যে SMS পাঠায় তাতে ক্রেডিট লাগে (প্রতি SMS অংশে ১ ক্রেডিট)। পাঠানোর আগে অ্যাপ খরচ দেখায়, ০ ক্রেডিটে কখনো পাঠায় না।</li>
+    <li>AI সুবিধা (ভয়েস এন্ট্রি, কাগজের খাতা স্ক্যান) পেইড প্ল্যানে।</li>
+  </ul>
+</div>
+<p class="muted">খাতা আপনার: Assisto কখনো আপনার টাকা রাখে না বা পাঠায় না।</p>
+{% endif %}
+<div class="appcta"><a href="/get{{ qlang }}">📱 {% if lang == 'en' %}Download the app{% else %}অ্যাপ ডাউনলোড{% endif %}</a></div>
+{% endblock %}
