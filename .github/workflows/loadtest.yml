@@ -22,7 +22,7 @@ on:
       base_ref:
         description: 'The "before" ref (default: b255 as branched)'
         required: false
-        default: '7dc7687'
+        default: '7dc76875ea28cf6a9908eef629daf35e900bb2cb'
 
 concurrency:
   group: loadtest-${{ github.ref }}
@@ -41,10 +41,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: head
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.base_ref || '7dc7687' }}
-          path: base
+          fetch-depth: 0
+      - name: before = an ancestor of this branch (fetched with full history)
+        run: git -C head worktree add --detach ../base ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -88,12 +87,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: head
-      - name: checkout system under test (before = base ref)
+          fetch-depth: 0
+      - name: system under test = the before ref (ancestor of this branch)
         if: matrix.sut == 'base'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.base_ref || '7dc7687' }}
-          path: sut
+        run: git -C head worktree add --detach ../sut ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
       - name: system under test = this ref
         if: matrix.sut == 'head'
         run: cp -a head sut
