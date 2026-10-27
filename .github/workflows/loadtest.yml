@@ -54,13 +54,14 @@ jobs:
       - name: srvperf-related suites (serial, full failure output)
         working-directory: head/backend
         run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
           python manage.py test --settings=assisto_backend.settings_test --noinput \
             core.tests_srvperf core.tests_outage core.tests_c3_msg core.tests_c2_calls \
             core.tests_push core.tests_b2_badges core.tests_e2e_recover core.tests_m1_messenger \
             core.tests_m1_routes core.tests_t9_turnscale core.tests_a1_circle core.tests_cde_chat \
             core.tests_chat_actions core.tests_connect_flow core.tests_e_gaps core.tests_mr1 \
             core.tests_o1_otp core.tests_p1_bizagent core.tests_g1_bizagent core.tests_biz_agent_v2 \
-            core.tests_t1_ticks core.tests_x2_ticks core.tests 2>&1 | tail -150
+            core.tests_t1_ticks core.tests_x2_ticks core.tests 2>&1 | grep -vE '^(WARNING|INFO)' | tail -400
           exit ${PIPESTATUS[0]}
       - name: probe before + after
         if: always()

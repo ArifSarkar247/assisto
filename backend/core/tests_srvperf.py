@@ -124,7 +124,9 @@ class ReceiptsSyncScales(TestCase):
         r, big = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
         self.assertEqual(r.status_code, 200)
         self.assertGreater(r.json()["updated"], 40)
-        self.assertLessEqual(big, small + 4 * 12 + 8, (small, big))
+        # per chat: its receipt.update event (savepoint + insert + release)
+        # and the sender's chat-key lookup; nothing per message
+        self.assertLessEqual(big, small + 6 * 12 + 8, (small, big))
 
     def test_steady_state_sync_is_constant(self):
         me = self._world(4)
@@ -180,7 +182,7 @@ class HotEndpointCeilings(TestCase):
 
     CEIL = {
         ("get", "/circle/calls/incoming"): 8,
-        ("get", "/rt/events?after=0&online=1"): 16,
+        ("get", "/rt/events?after=0&online=1"): 12,    # steady poll
         ("get", "/health"): 2,
         ("post", "/circle/receipts/sync"): 30,
         ("post", "/devices/register"): 18,
@@ -189,6 +191,10 @@ class HotEndpointCeilings(TestCase):
     def test_ceilings(self):
         c = client(self.me)
         c.post(V + "/circle/receipts/sync")   # steady state first
+        # the first online poll flips presence (fan-out to each contact,
+        # once per session): bounded, then steady polls are cheap
+        r, flip = nq(lambda: c.get(V + "/rt/events?after=0&online=1"))
+        self.assertLessEqual(flip, 12 + 2 * 12 + 4, flip)
         for (m, path), ceil in self.CEIL.items():
             body = ({"push_token": "tok-srvperf", "platform": "android",
                      "app_version": "1.0.255"} if "devices" in path else {})
@@ -197,24 +203,29 @@ class HotEndpointCeilings(TestCase):
             self.assertLess(r.status_code, 300, path)
             self.assertLessEqual(n, ceil, "%s %s: %d queries" % (m, path, n))
 
+    def _add(self, k):
+        rows = []
+        for e in CircleMember.objects.filter(user=self.me):
+            for _ in range(k):
+                rows.append(CircleMessage(member=e, sender_id=e.peer_user_id,
+                                          ciphertext="x"))
+        CircleMessage.objects.bulk_create(rows)
+
     def test_badges_and_chat_list_do_not_grow_per_message(self):
         c = client(self.me)
         c.post(V + "/circle/receipts/sync")
         _, b1 = nq(lambda: c.get(V + "/home/badges"))
-        _, l1 = nq(lambda: c.get(V + "/circle/chats"))
-        # 5 more messages in every chat: same query count
-        rows = []
-        for e in CircleMember.objects.filter(user=self.me):
-            for k in range(5):
-                rows.append(CircleMessage(member=e, sender_id=e.peer_user_id,
-                                          ciphertext="x"))
-        CircleMessage.objects.bulk_create(rows)
+        self._add(5)
         _, b2 = nq(lambda: c.get(V + "/home/badges"))
+        self.assertLessEqual(b2, b1 + 2, (b1, b2))
+        # chat list with 1 vs 8 new messages in every chat: the same
+        # queries (receipts are bulk; events are one per chat either way)
+        self._add(1)
+        _, l1 = nq(lambda: c.get(V + "/circle/chats"))
+        self._add(8)
         r, l2 = nq(lambda: c.get(V + "/circle/chats"))
         self.assertEqual(r.status_code, 200)
-        self.assertLessEqual(b2, b1 + 2, (b1, b2))
-        # the chat list marks the new messages delivered (bulk, constant)
-        self.assertLessEqual(l2, l1 + 8, (l1, l2))
+        self.assertLessEqual(l2, l1 + 4, (l1, l2))
 
 
 class RtPrune(TestCase):
