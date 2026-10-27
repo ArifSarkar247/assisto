@@ -455,7 +455,7 @@ void main() {
     testWidgets('no tile provider configured -> tile-free canvas', (tester) async {
       _phone(tester, height: 3000);
       await tester.pumpWidget(_app(const VehicleTrackerScreen(trackerId: 7), _FakeVehApi(),
-          lang: 'bn', dark: true));
+          lang: 'bn', dark: true, scale: 2.0));
       await _settle(tester, 12);
       expect(find.byType(FlutterMap), findsNothing);
       expect(find.byType(RouteCanvas), findsOneWidget);

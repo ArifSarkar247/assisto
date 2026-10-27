@@ -523,8 +523,10 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             ),
           if (t['is_owner'] == true) ...[
             const SizedBox(height: Gap.sm),
-            if (_planned(t).length >= 2)
-              Row(children: [
+            if (_planned(t).length >= 2) ...[
+              // Info line + its action stacked, so long Bangla / large-font
+              // labels wrap instead of overflowing at 360 dp.
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.alt_route_rounded, color: Brand.purple),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -534,14 +536,17 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                               300)),
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                 ),
-                TextButton(
+              ]),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton(
                   key: const ValueKey('veh-plan-clear'),
                   style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: _planBusy ? null : () => _setPlanned(true),
-                  child: Text(tr.e2eVehPlanClear),
+                  child: Text(tr.e2eVehPlanClear, textAlign: TextAlign.center),
                 ),
-              ])
-            else
+              ),
+            ] else
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: OutlinedButton.icon(
