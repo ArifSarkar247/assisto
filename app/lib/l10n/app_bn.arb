@@ -16104,5 +16104,6 @@
   "hv2GreetLateName": "শুভ রাত্রি, {name}!",
   "hv2RemoveAds": "বিজ্ঞাপন সরান",
   "hv2RemoveAdsA11y": "বিজ্ঞাপন সরান। প্রিমিয়াম প্ল্যান খুলবে",
-  "ffPreviewTag": "প্রিভিউ"
+  "ffPreviewTag": "প্রিভিউ",
+  "dailyInfoTitle": "আজকের তথ্য ও সেবা"
 }

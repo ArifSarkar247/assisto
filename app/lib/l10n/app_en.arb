@@ -21136,5 +21136,6 @@
   "ffPreviewTag": "Preview",
   "@ffPreviewTag": {
     "description": "Small tag on a sidebar / All Services entry that only the owner / staff / testers see (hidden feature in preview)."
-  }
+  },
+  "dailyInfoTitle": "Daily info and services"
 }
