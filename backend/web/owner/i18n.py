@@ -1453,3 +1453,42 @@ BN.update({
     "ai_alert_title": "AI খরচ:", "ai_alert_full": "সীমা শেষ", "ai_alert_open": "AI পাতা খুলুন",
 })
 # ---- /ai-router ----
+# ---- smsotp ---- "Send test SMS / email" + Pricing → sms / email labels
+EN.update({
+    "test_to_phone": "Test number (gets ONE real SMS)", "test_to_email": "Test email address (gets ONE real email)",
+    "send_test_sms": "Send test SMS", "send_test_email": "Send test email",
+    "pf_primary": "Primary SMS gateway (integration slug, blank = first connected)",
+    "pf_secondary": "Secondary SMS gateway for failover (slug, blank = none)",
+    "pf_default_cost_per_segment_bdt": "SMS cost per segment ৳ (when the gateway entry has none)",
+    "pf_max_segments": "Longest SMS allowed (segments)",
+    "pf_otp_per_phone_day": "OTP SMS: per phone per day", "pf_otp_per_user_day": "OTP SMS: per user per day",
+    "pf_otp_global_day": "OTP SMS: all users per day",
+    "pf_verify_per_phone_day": "Phone-verify SMS: per phone per day", "pf_verify_per_user_day": "Phone-verify SMS: per user per day",
+    "pf_verify_global_day": "Phone-verify SMS: all users per day",
+    "pf_tagada_per_phone_day": "Due reminder SMS: per customer per day", "pf_tagada_per_user_day": "Due reminder SMS: per owner per day",
+    "pf_tagada_per_business_day": "Due reminder SMS: per business per day", "pf_tagada_global_day": "Due reminder SMS: all businesses per day",
+    "pf_safety_per_phone_day": "Safety SMS: per contact per day", "pf_safety_per_user_day": "Safety SMS: per user per day",
+    "pf_safety_global_day": "Safety SMS: all users per day",
+    "pf_provider": "Email sender (smtp; ses later)", "pf_daily_cap": "Emails per 24 hours (Gmail ≈500, keep below)",
+    "pf_near_cap_pct": "From this % of the email cap, prefer SMS",
+    "pf_per_email_per_hour": "OTP codes per email address per hour",
+})
+BN.update({
+    "test_to_phone": "টেস্ট নম্বর (একটি আসল SMS যাবে)", "test_to_email": "টেস্ট ইমেইল ঠিকানা (একটি আসল ইমেইল যাবে)",
+    "send_test_sms": "টেস্ট SMS পাঠান", "send_test_email": "টেস্ট ইমেইল পাঠান",
+    "pf_primary": "প্রধান SMS গেটওয়ে (integration slug, ফাঁকা = প্রথম সংযুক্তটি)",
+    "pf_secondary": "ব্যাকআপ SMS গেটওয়ে (slug, ফাঁকা = নেই)",
+    "pf_default_cost_per_segment_bdt": "প্রতি SMS-অংশের খরচ ৳ (গেটওয়েতে না দিলে)",
+    "pf_max_segments": "সবচেয়ে লম্বা SMS (অংশ)",
+    "pf_otp_per_phone_day": "OTP SMS: প্রতি নম্বরে দিনে", "pf_otp_per_user_day": "OTP SMS: প্রতি ব্যবহারকারী দিনে",
+    "pf_otp_global_day": "OTP SMS: সবার মিলে দিনে",
+    "pf_verify_per_phone_day": "ফোন-যাচাই SMS: প্রতি নম্বরে দিনে", "pf_verify_per_user_day": "ফোন-যাচাই SMS: প্রতি ব্যবহারকারী দিনে",
+    "pf_verify_global_day": "ফোন-যাচাই SMS: সবার মিলে দিনে",
+    "pf_tagada_per_phone_day": "তাগাদা SMS: প্রতি গ্রাহকে দিনে", "pf_tagada_per_user_day": "তাগাদা SMS: প্রতি মালিক দিনে",
+    "pf_tagada_per_business_day": "তাগাদা SMS: প্রতি ব্যবসা দিনে", "pf_tagada_global_day": "তাগাদা SMS: সব ব্যবসা মিলে দিনে",
+    "pf_safety_per_phone_day": "সেফটি SMS: প্রতি কন্টাক্টে দিনে", "pf_safety_per_user_day": "সেফটি SMS: প্রতি ব্যবহারকারী দিনে",
+    "pf_safety_global_day": "সেফটি SMS: সবার মিলে দিনে",
+    "pf_provider": "ইমেইল প্রেরক (smtp; পরে ses)", "pf_daily_cap": "২৪ ঘণ্টায় ইমেইল (Gmail ≈৫০০, এর নিচে রাখুন)",
+    "pf_near_cap_pct": "ইমেইল সীমার এত % থেকে SMS-কে অগ্রাধিকার",
+    "pf_per_email_per_hour": "প্রতি ইমেইলে ঘণ্টায় OTP কোড",
+})

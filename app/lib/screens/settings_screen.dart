@@ -35,6 +35,8 @@ import 'admin/server_address_screen.dart';
 import 'admin/owner_pnl_screen.dart';
 import 'admin/discover_manager_screen.dart';
 import 'credits_screen.dart';
+import 'otp/email_verify_screen.dart'; // smsotp
+import '../otp_api.dart' show ApiOtpBackend; // smsotp
 import '../push/push_settings_screen.dart';
 import '../widgets/storage_meter.dart';
 import 'messenger/moderation_policy_screen.dart';
@@ -269,6 +271,18 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.secTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SecurityCheckupScreen())),
+          ),
+          // smsotp: a verified email = backup for sign-in codes when SMS fails
+          ListTile(
+            key: const Key('settings-email-codes'),
+            leading: const Icon(Icons.alternate_email_rounded),
+            title: Text(t.smsotpEmailTile),
+            subtitle: Text(t.smsotpEmailTileSub),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => EmailVerifyScreen(
+                        backend: ApiOtpBackend(context.read<AppState>().api)))),
           ),
           // #201 Trust / proof page — the app's honest integrity statement
           // (what Assisto does and never does). Lives with the safety/trust tiles.

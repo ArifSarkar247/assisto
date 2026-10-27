@@ -318,7 +318,8 @@ _DICT_SECTIONS = ("guarantees", "limits", "referral", "profit_guard", "shop", "o
                   "vehicle", "photo_studio", "world",   # p4-world
                   "retention",   # retention1
                   "billing",     # billing-v2: staged unlock + refund window
-                  "plans_v2")    # plans-v2 (own labelled card, not the generic list)
+                  "plans_v2",    # plans-v2 (own labelled card, not the generic list)
+                  "sms", "email")   # smsotp: SMS routing/caps/cost, email cap
 
 
 # Plan-row keys the editor never shows or posts. Owner decision: nothing is
@@ -689,8 +690,10 @@ def integrations(request):
                            for k, v in data.items()})
             return done("/owner/integrations#i-%s" % slug)
         if action == "test":
+            # smsotp: "Send test SMS / email" → the number / address typed here
+            test_to = (request.POST.get("test_to") or "").strip()[:254]
             try:
-                st, detail = I.test(slug)
+                st, detail = I.test(slug, test_to=test_to)
             except RuntimeError:
                 return done("/owner/integrations", "no_fernet")
             S.audit(request, request.owner, "integration.test", "integration:%s" % slug,

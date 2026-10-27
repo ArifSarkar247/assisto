@@ -246,19 +246,122 @@ REGISTRY = {
               "test": None},
     # o1-otp: config-driven HTTP adapter (core/sms_gateway.py) — one entry
     # covers SSL Wireless / BulkSMSBD / Alpha SMS / MiM SMS / Infobip / custom.
-    "sms": {"name": "SMS Gateway", "category": "Messaging",
+    # smsotp: one entry PER common gateway with exactly the fields its public
+    # API needs (core/sms_gateway.GATEWAYS). Every entry: "Send test SMS" to a
+    # number the owner types; CONNECTED only after a real test passes.
+    # Primary / secondary + per-purpose caps: Owner Admin → Pricing → sms.
+    "sms_ssl_wireless": {
+        "name": "SMS — SSL Wireless (ISMS)", "category": "Messaging",
+        "unlocks_bn": "SMS OTP, ফোন যাচাই, খাতার বাকি-রিমাইন্ডার (তাগাদা), সেফটি SMS।",
+        "unlocks_en": "SMS OTP, phone verify, ledger due reminders (tagada), safety SMS.",
+        "guide_bn": ["SSL Wireless ISMS প্যানেল (smsplus.sslwireless.com) → API Token ও SID কপি করুন",
+                     "নিচে পেস্ট → Save → একটি নম্বর লিখে 'Send test SMS'",
+                     "বিস্তারিত: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "guide_en": ["SSL Wireless ISMS panel (smsplus.sslwireless.com) → copy API Token and SID",
+                     "Paste below → Save → type a number → Send test SMS",
+                     "Details: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "fields": [_f("api_token", "API Token", "API Token"),
+                   _f("sid", "SID (মাস্কিং/নন-মাস্কিং)", "SID (masking/non-masking)", secret=False),
+                   _f("api_base", "API base (ঐচ্ছিক, ডিফল্ট smsplus.sslwireless.com)", "API base (optional, default smsplus.sslwireless.com)", secret=False),
+                   _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False)],
+        "test": "test_sms_gateway"},
+    "sms_bulksmsbd": {
+        "name": "SMS — BulkSMSBD", "category": "Messaging",
+        "unlocks_bn": "SMS OTP, ফোন যাচাই, খাতার বাকি-রিমাইন্ডার (তাগাদা), সেফটি SMS।",
+        "unlocks_en": "SMS OTP, phone verify, ledger due reminders (tagada), safety SMS.",
+        "guide_bn": ["bulksmsbd.net ড্যাশবোর্ড → Developer API → API Key কপি; Sender ID (অনুমোদিত)",
+                     "নিচে পেস্ট → Save → একটি নম্বর লিখে 'Send test SMS'",
+                     "বিস্তারিত: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "guide_en": ["bulksmsbd.net dashboard → Developer API → copy the API key; approved Sender ID",
+                     "Paste below → Save → type a number → Send test SMS",
+                     "Details: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "fields": [_f("api_key", "API Key", "API Key"),
+                   _f("senderid", "Sender ID", "Sender ID", secret=False),
+                   _f("api_url", "API URL (ঐচ্ছিক)", "API URL (optional)", secret=False),
+                   _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False)],
+        "test": "test_sms_gateway"},
+    "sms_alpha": {
+        "name": "SMS — Alpha SMS (sms.net.bd)", "category": "Messaging",
+        "unlocks_bn": "SMS OTP, ফোন যাচাই, খাতার বাকি-রিমাইন্ডার (তাগাদা), সেফটি SMS।",
+        "unlocks_en": "SMS OTP, phone verify, ledger due reminders (tagada), safety SMS.",
+        "guide_bn": ["sms.net.bd প্যানেল → API → API Key কপি; Sender ID (অনুমোদিত হলে, ঐচ্ছিক)",
+                     "নিচে পেস্ট → Save → একটি নম্বর লিখে 'Send test SMS'",
+                     "বিস্তারিত: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "guide_en": ["sms.net.bd panel → API → copy the API key; Sender ID (only if approved, optional)",
+                     "Paste below → Save → type a number → Send test SMS",
+                     "Details: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "fields": [_f("api_key", "API Key", "API Key"),
+                   _f("sender_id", "Sender ID (ঐচ্ছিক)", "Sender ID (optional)", secret=False),
+                   _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False)],
+        "test": "test_sms_gateway"},
+    "sms_infobip": {
+        "name": "SMS — Infobip", "category": "Messaging",
+        "unlocks_bn": "SMS OTP, ফোন যাচাই, খাতার বাকি-রিমাইন্ডার (তাগাদা), সেফটি SMS।",
+        "unlocks_en": "SMS OTP, phone verify, ledger due reminders (tagada), safety SMS.",
+        "guide_bn": ["portal.infobip.com → হোমপেজে আপনার Base URL (xxxxx.api.infobip.com) ও API Key",
+                     "Sender: অনুমোদিত alphanumeric নাম বা নম্বর",
+                     "নিচে পেস্ট → Save → একটি নম্বর লিখে 'Send test SMS'"],
+        "guide_en": ["portal.infobip.com → your Base URL (xxxxx.api.infobip.com) and API key on the homepage",
+                     "Sender: an approved alphanumeric name or number",
+                     "Paste below → Save → type a number → Send test SMS"],
+        "fields": [_f("base_url", "Base URL (xxxxx.api.infobip.com)", "Base URL (xxxxx.api.infobip.com)", secret=False),
+                   _f("api_key", "API Key", "API Key"),
+                   _f("sender", "Sender", "Sender", secret=False),
+                   _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False)],
+        "test": "test_sms_gateway"},
+    "sms_twilio": {
+        "name": "SMS — Twilio (international fallback)", "category": "Messaging",
+        "unlocks_bn": "আন্তর্জাতিক ব্যাকআপ SMS গেটওয়ে (দেশি গেটওয়ে বন্ধ হলে)।",
+        "unlocks_en": "International backup SMS gateway (when the local gateway is down).",
+        "guide_bn": ["console.twilio.com → Account Info: Account SID ও Auth Token",
+                     "From: SMS-সক্ষম Twilio নম্বর (+1…) বা Messaging Service SID (MG…)",
+                     "নিচে পেস্ট → Save → একটি নম্বর লিখে 'Send test SMS'"],
+        "guide_en": ["console.twilio.com → Account Info: Account SID and Auth Token",
+                     "From: an SMS-capable Twilio number (+1…) or a Messaging Service SID (MG…)",
+                     "Paste below → Save → type a number → Send test SMS"],
+        "fields": [_f("account_sid", "Account SID", "Account SID", secret=False),
+                   _f("auth_token", "Auth Token", "Auth Token"),
+                   _f("from_number", "From (নম্বর বা MG…)", "From (number or MG…)", secret=False),
+                   _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False)],
+        "test": "test_sms_gateway"},
+    # smsotp: company email (OTP backup). Pluggable sender (core/email_sender);
+    # Amazon SES can replace SMTP later without touching OTP code.
+    "smtp_email": {
+        "name": "Email — SMTP (Gmail) for OTP backup", "category": "Email",
+        "unlocks_bn": "ইমেইলে লগইন/যাচাই কোড (SMS ব্যর্থ হলে বা ব্যবহারকারী চাইলে)।",
+        "unlocks_en": "Login / verify codes by email (when SMS fails or the user chooses email).",
+        "guide_bn": ["assistoaiagent@gmail.com-এ 2-Step Verification চালু করুন",
+                     "myaccount.google.com/apppasswords → নাম 'Assisto' → ১৬ অক্ষরের App password কপি",
+                     "Host smtp.gmail.com, Port 587, Username assistoaiagent@gmail.com, App password পেস্ট → Save",
+                     "একটি ইমেইল লিখে 'Send test email' চাপুন",
+                     "বিস্তারিত: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "guide_en": ["Turn on 2-Step Verification for assistoaiagent@gmail.com",
+                     "myaccount.google.com/apppasswords → name it 'Assisto' → copy the 16-character app password",
+                     "Host smtp.gmail.com, port 587, username assistoaiagent@gmail.com, paste the app password → Save",
+                     "Type an email address and press Send test email",
+                     "Details: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+        "fields": [_f("host", "SMTP host (smtp.gmail.com)", "SMTP host (smtp.gmail.com)", secret=False),
+                   _f("port", "Port (587 STARTTLS)", "Port (587 STARTTLS)", secret=False),
+                   _f("username", "ইউজারনেম (assistoaiagent@gmail.com)", "Username (assistoaiagent@gmail.com)", secret=False),
+                   _f("app_password", "App password (১৬ অক্ষর)", "App password (16 characters)"),
+                   _f("from_name", "প্রেরকের নাম (Assisto)", "From name (Assisto)", secret=False),
+                   _f("from_email", "প্রেরকের ইমেইল (ঐচ্ছিক, ডিফল্ট ইউজারনেম)", "From email (optional, defaults to username)", secret=False)],
+        "test": "test_smtp_email"},
+    "sms": {"name": "SMS — Generic HTTP gateway (any BD gateway / advanced)", "category": "Messaging",
             "unlocks_bn": "OTP সাইন-আপ/লগইন, পাসওয়ার্ড রিসেট, অ্যাকাউন্ট ডিলিট ও সেকশন-৮ নিশ্চিতকরণ।",
             "unlocks_en": "OTP sign-up/login, password reset, account-delete and Section-8 confirmation.",
-            "guide_bn": ["প্রোভাইডার লিখুন: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
+            "guide_bn": ["অন্য যেকোনো গেটওয়ে: API URL-এ {to} {text} {sender} {api_key} বসিয়ে টেমপ্লেট দিন, মেথড GET/POST, সফলতা regex",
+                         "প্রোভাইডার লিখুন: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
                          "API Key ও Sender ID (BTRC অনুমোদিত মাস্কিং নাম বা নন-মাস্কিং নম্বর) পেস্ট করুন",
                          "custom হলে API URL ও প্যারামিটারের নাম দিন",
                          "Balance URL অথবা টেস্ট ফোন নম্বর দিন → Save → Test",
-                         "বিস্তারিত: owner_actions/SMS_GATEWAY_NEEDS.md"],
-            "guide_en": ["Provider: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
+                         "বিস্তারিত: owner_actions/SMS_EMAIL_SETUP_BN.md"],
+            "guide_en": ["Any other gateway: an API URL template with {to} {text} {sender} {api_key}, method GET/POST, success regex",
+                         "Provider: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
                          "Paste API key + Sender ID (BTRC-approved masking name or non-masking number)",
                          "For custom: API URL + the gateway's parameter names",
                          "Add a balance URL or a test phone → Save → Test",
-                         "Details: owner_actions/SMS_GATEWAY_NEEDS.md"],
+                         "Details: owner_actions/SMS_EMAIL_SETUP_BN.md"],
             "fields": [_f("provider", "প্রোভাইডার", "Provider", secret=False),
                        _f("api_key", "API Key / Token", "API Key / Token"),
                        _f("sender_id", "Sender ID / মাস্কিং", "Sender ID / masking", secret=False),
@@ -275,6 +378,8 @@ REGISTRY = {
                        _f("number_format", "নম্বর ফরম্যাট 880/+880/0", "Number format 880/+880/0", secret=False),
                        _f("success_json", "সফলতা JSON (path=value)", "Success JSON (path=value)", secret=False),
                        _f("success_contains", "সফলতা টেক্সট", "Success text", secret=False),
+                       _f("success_regex", "সফলতা regex (ঐচ্ছিক)", "Success regex (optional)", secret=False),
+                       _f("cost_per_segment_bdt", "প্রতি SMS-অংশের খরচ (৳)", "Cost per SMS segment (BDT)", secret=False),
                        _f("balance_url", "ব্যালান্স URL", "Balance URL", secret=False),
                        _f("test_phone", "টেস্ট ফোন নম্বর", "Test phone number", secret=False),
                        _f("app_hash", "Android অ্যাপ হ্যাশ (ঐচ্ছিক)", "Android app hash (optional)", secret=False)],
@@ -798,10 +903,15 @@ def save(slug: str, data: dict):
     return obj
 
 
-def test(slug: str) -> tuple:
+# smsotp: tests that accept a number / address the owner typed ("Send test")
+TEST_TO_FNS = ("test_sms_gateway", "test_sms", "test_smtp_email")
+
+
+def test(slug: str, test_to: str = "") -> tuple:
     """Run the connection test. Returns (status, detail). Honest: a feature
     without an automated test is marked 'working' only as 'saved' (verified on
-    first real use)."""
+    first real use). `test_to` = the phone / email the owner typed for a real
+    "Send test SMS / email" (SMS and email entries only)."""
     meta = REGISTRY.get(slug)
     if not meta:
         return ("failing", "unknown integration")
@@ -814,7 +924,10 @@ def test(slug: str) -> tuple:
         status, detail = ("working", "সেভ হয়েছে — প্রথম ব্যবহারে যাচাই হবে / saved — verified on first use")
     else:
         try:
-            ok, detail = globals()[fn](cfg)
+            if fn in TEST_TO_FNS:
+                ok, detail = globals()[fn](cfg, test_to=test_to, slug=slug)
+            else:
+                ok, detail = globals()[fn](cfg)
             status = "working" if ok else "failing"
         except Exception as e:  # noqa: BLE001
             status, detail = ("failing", str(e)[:280])
@@ -876,6 +989,10 @@ def list_all(lang="bn") -> list:
                                                 if lang == "bn" else "never checked")),
             "doc": _DOC,
             "testable": bool(meta.get("test")),
+            # smsotp: entries with a "Send test SMS / email" box
+            "test_to_kind": ("email" if meta.get("test") == "test_smtp_email" else
+                             "phone" if meta.get("test") in ("test_sms_gateway", "test_sms")
+                             else ""),
         })
     return out
 
@@ -1041,12 +1158,26 @@ def test_youtube(cfg):
 
 
 # ---- o1-otp ----
-def test_sms(cfg):
+def test_sms(cfg, test_to="", slug="sms"):
     """Honest SMS gateway check (core/sms_gateway.HttpSmsAdapter.check): config
     complete + a real balance call OR one real test SMS. Never 'working' on a
     format check alone."""
     from .sms_gateway import HttpSmsAdapter
-    return HttpSmsAdapter(cfg).check()
+    return HttpSmsAdapter(cfg).check(test_to=test_to or None)
+
+
+def test_sms_gateway(cfg, test_to="", slug=""):
+    """smsotp: dedicated gateway entries — "Send test SMS" to the typed number
+    (one real SMS), else the gateway's balance/account call."""
+    from . import sms_gateway
+    return sms_gateway.make(slug, cfg).check(test_to=test_to or None)
+
+
+def test_smtp_email(cfg, test_to="", slug="smtp_email"):
+    """smsotp: SMTP login check (STARTTLS + AUTH, no mail) or, with a typed
+    address, ONE real test email."""
+    from . import email_sender
+    return email_sender.check(cfg, test_to=test_to or None)
 
 
 # ---- pay1 ----

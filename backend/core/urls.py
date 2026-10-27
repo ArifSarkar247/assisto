@@ -228,6 +228,7 @@ urlpatterns = [
     path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
     path("business/khata/tagada/single/<int:pk>", bz.TagadaSingleView.as_view()),
     path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
+    path("business/khata/tagada/sms/<int:pk>", bz.TagadaSmsSendView.as_view()),   # smsotp
     path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
     path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
     path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
@@ -706,6 +707,10 @@ urlpatterns += [
     path("auth/otp/verify", otpv.OtpVerifyView.as_view()),
     path("auth/otp/login", otpv.OtpLoginView.as_view()),
     path("auth/otp/reset", otpv.OtpResetView.as_view()),
+    # smsotp: email OTP backup
+    path("auth/otp/email/request", otpv.OtpEmailRequestView.as_view()),
+    path("auth/otp/email/confirm", otpv.OtpEmailConfirmView.as_view()),
+    path("auth/otp/email/me", otpv.OtpEmailMeView.as_view()),
 ]
 # ---- /o1-otp ----
 

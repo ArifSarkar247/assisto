@@ -204,8 +204,9 @@ def _payment_partner_key():
 
 
 def _sms_enabled():
-    from . import integrations
-    return bool(integrations.get("sms").get("api_key"))
+    """smsotp: a CONNECTED SMS gateway (any entry whose Test passed)."""
+    from . import sms_service
+    return sms_service.ready()
 
 
 def _now_iso():
@@ -1160,6 +1161,67 @@ class TagadaBulkView(APIView):
             sms_enabled=_sms_enabled(), lang=lang,
             min_due=request.data.get("min_due", 0))
         return Response(res)
+
+
+class TagadaSmsSendView(APIView):
+    """smsotp: POST business/khata/tagada/sms/<pk> {preset?, pay_hint?} —
+    the SERVER sends the due reminder by SMS (core/sms_service purpose
+    "tagada"): owner only, charged to the owner as credits ("sms" action per
+    segment, refunded on gateway failure), customer STOP opt-out + quiet hours
+    21:00-09:00 + per-customer / per-business / global daily caps. Without a
+    connected gateway → 503 sms_not_configured (use the WhatsApp share)."""
+    _REASONS = {
+        "sms_not_configured": (503, "SMS গেটওয়ে যুক্ত নেই — WhatsApp দিয়ে পাঠান।",
+                               "No SMS gateway yet — send it on WhatsApp."),
+        "insufficient_credits": (402, "ক্রেডিট নেই — SMS পাঠাতে ক্রেডিট লাগে।",
+                                 "Not enough credits — an SMS needs credits."),
+        "opted_out": (409, "এই গ্রাহক মেসেজ বন্ধ করেছেন (STOP)।",
+                      "This customer opted out (STOP)."),
+        "quiet_hours": (409, "রাত ৯টা থেকে সকাল ৯টা SMS পাঠানো হয় না।",
+                        "No SMS between 9 pm and 9 am."),
+        "phone_daily_cap": (429, "এই গ্রাহককে আজ আর SMS পাঠানো যাবে না।",
+                            "No more SMS to this customer today."),
+        "business_daily_cap": (429, "আজকের ব্যবসার SMS সীমা শেষ।",
+                               "Today's business SMS limit is reached."),
+        "user_daily_cap": (429, "আজকের SMS সীমা শেষ।", "Today's SMS limit is reached."),
+        "global_daily_cap": (429, "আজকের SMS সীমা শেষ। কাল আবার চেষ্টা করুন।",
+                             "Today's SMS limit is reached. Try tomorrow."),
+        "purpose_off": (503, "SMS রিমাইন্ডার এখন বন্ধ।", "SMS reminders are off right now."),
+        "bad_phone": (400, "গ্রাহকের সঠিক মোবাইল নম্বর নেই।",
+                      "This customer has no valid mobile number."),
+        "too_long": (400, "মেসেজ বেশি লম্বা।", "The message is too long."),
+        "send_failed": (502, "SMS পাঠানো যায়নি — ক্রেডিট ফেরত দেওয়া হয়েছে।",
+                        "The SMS failed — credits were refunded."),
+    }
+
+    def post(self, request, pk):
+        from . import sms_service
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        p = prof.khata_parties.filter(pk=pk, book=khata.CUSTOMER).first()
+        if not p:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        bal = _party_balance(p)
+        if bal <= 0:
+            return _err(lang, "এই গ্রাহকের কোনো বাকি নেই।", "This customer owes nothing.",
+                        status=400, code="no_due")
+        text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
+                                    preset=request.data.get("preset", "polite"),
+                                    pay_hint=request.data.get("pay_hint"), lang=lang)
+        r = sms_service.send_sms(p.phone, text, "tagada", user=request.user,
+                                 business=prof)
+        if r["ok"]:
+            return Response({"ok": True, "segments": r["segments"],
+                             "credits": r["credits"], "provider": r["provider"]})
+        st, bn, en = self._REASONS.get(r["reason"], (400, "SMS পাঠানো যায়নি।",
+                                                     "Couldn't send the SMS."))
+        return Response({"ok": False, "reason": r["reason"], "detail": pick(lang, bn, en),
+                         "segments": r["segments"]}, status=st)
 
 
 class TagadaScheduleView(APIView):
