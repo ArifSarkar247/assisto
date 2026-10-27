@@ -15,8 +15,9 @@ from decimal import Decimal
 from ..logic import pricing
 
 CHANNELS = ("play", "gateway")
-SUB_PLANS = ("premium", "business")
+SUB_PLANS = ("premium", "business", "plus", "premium_pro")   # plus/premium_pro: price 0 = not sold
 TIER = {"free": 0, "premium": 1, "family": 1, "annual": 1, "probashi": 1,
+        "plus": 1, "premium_pro": 1,
         "founder": 1, "business": 2}
 
 
@@ -61,11 +62,30 @@ def base_price(sku, cfg=None):
     return int(pricing.annual_price(plan, c))
 
 
-def price(sku, channel, cfg=None):
-    """Price (whole ৳) of `sku` on `channel`; None when not for sale."""
+# pricing-40 (owner 27 Oct night): every NEW product stays NOT purchasable
+# until the server has verified through the Play Developer API that its Play
+# product / base plan exists and is ACTIVE (core/payments/play_verify.py).
+LEGACY_PACKS = ("p20", "p50", "p100", "p200")
+GATED_PREFIXES = ("plus_", "premium_pro_", "probashi_")
+
+
+def is_gated(sku):
+    if sku.startswith("pack_"):
+        return sku[5:] not in LEGACY_PACKS
+    return sku.startswith(GATED_PREFIXES)
+
+
+def price(sku, channel, cfg=None, gate=True):
+    """Price (whole ৳) of `sku` on `channel`; None when not for sale.
+    gate=False (only for syncing a purchase Google already made) skips the
+    Play-verified check."""
     base = base_price(sku, cfg)
     if base is None or base <= 0:
         return None
+    if gate and is_gated(sku):
+        from . import play_verify
+        if not play_verify.verified(sku):
+            return None
     over = pay_cfg(cfg)["channel_prices"].get(channel, {}).get(sku)
     return int(over) if over else base
 
@@ -141,7 +161,8 @@ def products(channel, lang="bn", cfg=None):
     from ..i18n import pick
     c = _cfg(cfg)
     out = []
-    names = {"premium": ("প্রিমিয়াম", "Premium"), "business": ("বিজনেস", "Business")}
+    names = {"premium": ("প্রিমিয়াম", "Premium"), "business": ("বিজনেস", "Business"),
+             "plus": ("প্লাস", "Plus"), "premium_pro": ("প্রিমিয়াম প্রো", "Premium Pro")}
     for sku in all_skus(c):
         d = describe(sku, c)
         pr = price(sku, channel, c)

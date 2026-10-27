@@ -928,6 +928,16 @@ class _PlansScreenState extends State<PlansScreen> {
 
   String _priceLabel(Map<String, dynamic> p) {
     final id = (p['id'] ?? '').toString();
+    // pricing-40: an EXISTING subscriber sees what Google actually charges
+    // them (Play keeps them on their old/legacy price after a base-plan price
+    // change) — the server sends it as your_price from their last paid order.
+    final yours = p['your_price'];
+    if (yours is num && yours > 0) {
+      final ycur = (p['your_currency'] ?? 'BDT').toString();
+      return ycur == 'BDT' || ycur == 'USD'
+          ? _curSign(ycur) + _fmt(yours)
+          : '$ycur ${_fmt(yours)}';
+    }
     // credout: Play build -> Play's formatted price of the server-named base
     // plan, never the server's taka number (Free stays free).
     if (_isPlay && id != 'free') {

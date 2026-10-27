@@ -1101,6 +1101,14 @@ class PlansPublicView(APIView):
         from . import plans
         from .calls_free import calls_free
         rows = plans.plans_public(req_lang(request))
+        # pricing-40: an EXISTING subscriber keeps the price Google charges
+        # them (Play legacy price cohort) — mark their plan with what they
+        # actually last paid, so the app never shows them a different price.
+        try:
+            if request.user and request.user.is_authenticated:
+                rows = plans.mark_your_price(request.user, rows)
+        except Exception:  # noqa: BLE001
+            pass
         # dl1: while "Free calls (testing)" is ON the comparison table shows
         # calls as free on every plan (the server stays the authority).
         if calls_free() and isinstance(rows, list):

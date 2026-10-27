@@ -592,6 +592,9 @@ class AIUsage(models.Model):
     cache_read_tokens = models.IntegerField(default=0)
     cache_write_tokens = models.IntegerField(default=0)
     error_kind = models.CharField(max_length=30, blank=True, default="")
+    # pricing-40: credits this call charged (0 = free quota / refunded / no
+    # user); the daily cost-per-credit alert divides cost by this.
+    credits_charged = models.IntegerField(default=0)
 
     class Meta:
         indexes = [models.Index(fields=["created_at"]),
@@ -6356,3 +6359,16 @@ class AgentNudgePrefs(models.Model):
     quiet_end = models.CharField(max_length=5, default="07:00")
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /agent-proactive ----
+
+
+class PlaySkuCheck(models.Model):
+    """pricing-40: the last Play Developer API check of one NEW sku — does the
+    Play product (and base plan) exist and is it ACTIVE? A gated sku is sold
+    only while ok is True (core/payments/play_verify.py)."""
+    sku = models.CharField(max_length=40, unique=True)
+    product_id = models.CharField(max_length=80, blank=True, default="")
+    base_plan = models.CharField(max_length=40, blank=True, default="")
+    state = models.CharField(max_length=24, blank=True, default="")
+    ok = models.BooleanField(default=False)
+    detail = models.CharField(max_length=160, blank=True, default="")
+    checked_at = models.DateTimeField(null=True, blank=True)

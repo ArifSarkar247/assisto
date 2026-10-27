@@ -82,7 +82,7 @@ def grant_allowance(order, *, source_prefix, now=None, staged=True):
     first_key = "%s:%s:m0" % (order.channel, order.order_id)
     if CreditLot.objects.filter(grant_key=first_key).exists():
         return 0
-    per_month = CR.plan_credits(order.plan)
+    per_month = CR.plan_credits(order.plan, months=order.months or 1)
     user = order.user
     # replace, not add: earlier periods of this token + base months end now
     CR.expire_source(user, source_prefix=source_prefix, why="renewed", now=now)

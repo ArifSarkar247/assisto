@@ -85,6 +85,12 @@ def payments(request):
                     return done("/owner/payments")
                 ctx["error"] = ", ".join(payload.get("problems") or ["invalid"])
                 status = 400
+        elif action == "play_recheck":
+            from core.payments import play_verify
+            out = play_verify.check_all()
+            S.audit(request, request.owner, "payments.play_recheck", "payments",
+                    after={"checked": out["checked"], "verified": out["verified"]})
+            return done("/owner/payments", "rechecked")
         elif action == "refund":
             o = PaymentOrder.objects.filter(pk=to_int(request.POST.get("order"))).first()
             if o is None:
@@ -120,12 +126,15 @@ def payments(request):
         "event_rows": _event_rows(PaymentEvent.objects.select_related("user").exclude(
             kind__in=("entitlement.update", "play.rtdn"))[:60], request.owner_lang),
         "paid_orders": _paid_orders(),
+        "sku_checks": __import__("core.payments.play_verify", fromlist=["x"]).status_rows(cfg),
         "reminder_days": ", ".join(str(d) for d in cfg["payments"]["reminder_days"]),
         "urls": service.urls(),
         "rtdn_url": service.api_base() + "/api/v1/payments/play/rtdn",
         "zero": Decimal(0),
     })
     msg = request.GET.get("m", "")
+    if msg == "rechecked":
+        ctx["flash"] = T["pv_rechecked"]
     if msg in ("refunded", "not_refundable"):
         ctx["flash"] = T["pay_refunded"] if msg == "refunded" else T["pay_not_refundable"]
     return page(request, "owner/payments.html", ctx, status=status, nav="payments")

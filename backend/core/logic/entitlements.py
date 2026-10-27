@@ -45,6 +45,7 @@ PLAN_TIER = {
     "free": "free",
     "premium": "premium", "annual": "premium", "probashi": "premium",
     "family": "premium",
+    "plus": "premium", "premium_pro": "premium",   # pricing-40 (owner final)
     "business": "business", "founder": "business",
 }
 

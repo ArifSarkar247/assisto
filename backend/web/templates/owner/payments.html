@@ -3,6 +3,13 @@
 {% block content %}
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
 {% if flash %}<div class="flash" role="status">{{ flash }}</div>{% endif %}
+<section class="card" id="play-verify"><h2>{{ T.pv_h }}</h2>
+<p class="mut small">{{ T.pv_note }}</p>
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="play_recheck"><button class="btn small">{{ T.pv_recheck }}</button></form>
+<div class="tbl"><table><thead><tr><th>{{ T.pv_sku }}</th><th>{{ T.pv_product }}</th><th>{{ T.pv_base }}</th><th>{{ T.pv_state }}</th><th></th><th>{{ T.pv_checked }}</th></tr></thead><tbody>
+{% for r in sku_checks %}<tr><td><code>{{ r.sku }}</code></td><td><code>{{ r.product_id }}</code></td><td>{{ r.base_plan|default:"—" }}</td><td>{{ r.state|default:"—" }}{% if r.detail %} <span class="mut small">{{ r.detail }}</span>{% endif %}</td><td>{% if r.ok %}<span class="pill ok">{{ T.pv_ok }}</span>{% else %}<span class="pill off">{{ T.pv_no }}</span>{% endif %}</td><td>{% if r.checked_at %}{{ r.checked_at|date:"Y-m-d H:i" }}{% else %}{{ T.pv_never }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
 <section class="card"><h2>{{ T.pay_h_status }}</h2>
 <p>{% if play_ready %}<span class="pill ok">Google Play · {{ T.pay_ready }}</span>{% else %}<span class="pill off">Google Play · {{ T.pay_not_ready }}</span>{% endif %}
  {% if gw_ready %}<span class="pill ok">EPS · {{ T.pay_ready }}</span>{% else %}<span class="pill off">EPS · {{ T.pay_not_ready }}</span>{% endif %}
