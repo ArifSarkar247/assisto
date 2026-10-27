@@ -21673,5 +21673,61 @@
   "aiReportThanks": "Thank you. We will review this answer.",
   "aiReportFailed": "Could not send the report. Please try again.",
   "aiReportLimit": "Too many reports. Please try again later.",
-  "aiAnswerMenu": "Answer options"
+  "aiAnswerMenu": "Answer options",
+  "fa100Title": "Family alerts",
+  "fa100PushOffTitle": "Notifications are off",
+  "fa100PushOffBody": "Your family's SOS and alerts can't ring this phone. Turn notifications on so you hear them even when Assisto is closed.",
+  "fa100PushOffAllow": "Turn on",
+  "fa100BatteryGuide": "Alerts not arriving? Battery settings guide",
+  "fa100Received": "Alerts for you",
+  "fa100Sent": "Alerts you sent",
+  "fa100Empty": "No family alerts in the last 7 days. When someone in your circle presses SOS or misses a check-in, it rings here at once.",
+  "fa100Error": "Couldn't load alerts. Check your internet and try again.",
+  "fa100Retry": "Try again",
+  "fa100MarkSeen": "I've seen it",
+  "fa100Seen": "Seen",
+  "fa100OpenMap": "See on map",
+  "fa100SafeNow": "I'm safe now",
+  "fa100SafeSent": "Your family has been told you are safe.",
+  "fa100SafeFailed": "Couldn't reach the server. Call your family to tell them you are safe.",
+  "fa100StSeen": "seen",
+  "fa100StReceived": "reached the phone",
+  "fa100StSent": "sent",
+  "fa100StNoDevice": "no notification on their phone — they'll see it when they open Assisto",
+  "fa100StHeld": "their quiet hours — it rings when those end",
+  "fa100StLimited": "too many alerts this hour — shown in the app only",
+  "fa100StOff": "push not set up — shown in the app only",
+  "fa100KindSos": "SOS",
+  "fa100KindCheckin": "Missed check-in",
+  "fa100KindWellness": "No reply to \"Are you OK?\"",
+  "fa100KindScam": "Scam warning",
+  "fa100KindSafe": "Safe now",
+  "fa100KindOther": "Alert",
+  "fa100TileSub": "SOS and check-ins from your circle",
+  "fa100TileNew": "{count} new",
+  "@fa100TileNew": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fa100SosSent": "SOS sent to {count} family members.",
+  "@fa100SosSent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fa100SosNoCircle": "No family in My Circle yet, so no one got an alert. Add family in My Circle.",
+  "fa100SosOffline": "No internet — Assisto could not alert your family. Send the message from the share screen.",
+  "fa100From": "From {name}",
+  "@fa100From": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
