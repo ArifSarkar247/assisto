@@ -1,0 +1,52 @@
+# CI-ONLY (not for merge): ledger100 before/after gallery shots.
+name: ledger-shots
+on:
+  push:
+    branches: ['ci/ledger-shots']
+permissions:
+  contents: read
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - name: after (ledger100)
+        working-directory: app
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots/after
+          ASSISTO_SHOT_ONLY: biz_khata,biz_khata_error,ldg_send,ldg_schedule,ldg_free,ldg_statement,ldg_khata_pending,sheet_khata_due
+        run: |
+          mkdir -p "$ASSISTO_SHOT_DIR"
+          flutter pub get && flutter gen-l10n
+          flutter test test/screenshots_test.dart --no-pub
+      - name: after at 200% font
+        working-directory: app
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots/after_xl
+          ASSISTO_SHOT_SCALE: '2.0'
+          ASSISTO_SHOT_ONLY: biz_khata,ldg_send,ldg_schedule,ldg_statement,ldg_khata_pending
+        run: |
+          mkdir -p "$ASSISTO_SHOT_DIR"
+          flutter test test/screenshots_test.dart --no-pub
+      - name: before (base 6e2b2a9 app, server-shaped khata fakes)
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots/before
+          ASSISTO_SHOT_ONLY: biz_khata,biz_khata_error,sheet_khata_due
+        run: |
+          mkdir -p "$ASSISTO_SHOT_DIR"
+          git worktree add ../before 6e2b2a9
+          cp app/test/fake_khata.dart app/test/fake_api.dart ../before/app/test/
+          cd ../before/app && flutter pub get && flutter gen-l10n
+          flutter test test/screenshots_test.dart --no-pub
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ledger-shots
+          path: ${{ runner.temp }}/shots
