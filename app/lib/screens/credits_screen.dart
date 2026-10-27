@@ -438,6 +438,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
       key: const Key('credits-hero'),
       decoration: BoxDecoration(
           gradient: Brand.gradient, borderRadius: BorderRadius.circular(Radii.lg)),
+      clipBehavior: Clip.antiAlias,
+      // a dark scrim over the brand gradient keeps white text >= 4.5:1
+      child: Container(
+      color: Colors.black.withValues(alpha: 0.32),
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.billNowUsable, style: AType.bodySmall.copyWith(color: Colors.white)),
@@ -480,6 +484,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
               t.creditsUsedThisMonth(fmtInt(context, monthTotal))),
         ]),
       ]),
+      ),
     );
   }
 

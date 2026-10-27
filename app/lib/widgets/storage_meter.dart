@@ -120,8 +120,10 @@ class _StorageMeterState extends State<StorageMeter> {
               height: 18,
               child: CircularProgressIndicator(strokeWidth: 2)),
           const SizedBox(width: Gap.md),
-          Text(t.storageLoading,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+          Expanded( // billapp: wraps at 200% font
+            child: Text(t.storageLoading,
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
         ]),
       );
     }

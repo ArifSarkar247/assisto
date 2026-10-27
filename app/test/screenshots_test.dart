@@ -147,6 +147,7 @@ import 'package:assisto/screens/memory_screen.dart';
 import 'package:assisto/screens/subscriptions_screen.dart';
 import 'package:assisto/screens/plans_screen.dart';
 import 'package:assisto/screens/credits_screen.dart'; // pay1 gallery
+import 'package:assisto/billing/refund_screen.dart'; // billapp gallery
 import 'package:assisto/screens/finance_screen.dart';
 import 'package:assisto/screens/watch_feed_screen.dart';
 import 'package:assisto/screens/jobs_screen.dart';
@@ -586,6 +587,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'plans_paylive_bottom': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
     'credits_nopay': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
     'credits_paylive': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
+    // billapp: out-of-credits reason banner + the refund request list
+    'credits_reason': (build: (_) => const CreditsScreen(reason: CreditsOpenReason(need: 3)), mode: FakeMode.data, full: true),
+    'billapp_refunds': (build: (_) => const RefundScreen(), mode: FakeMode.data, full: true),
     // a6 push: Settings → Notifications & calls + the ringing screen.
     'push_settings': (build: (_) => const PushSettingsScreen(probe: false), mode: FakeMode.data, full: true),
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
