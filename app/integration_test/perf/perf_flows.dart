@@ -55,6 +55,24 @@ class _FixedPicker implements PhotoPicker {
       [bytes];
 }
 
+/// Sign in through AppState (seeded account A), English, onboarded.
+void registerPerfSignIn() {
+  realityFlow('p00_signin', 'Perf 2 GB', 'Sign in (AppState, seeded account A)', (f) async {
+    for (var i = 0; i < 40 && f.app.loading; i++) {
+      await f.pumpFor(const Duration(milliseconds: 250));
+    }
+    if (f.app.locale?.languageCode != 'en') {
+      await f.net(() => f.app.setLocale(const Locale('en')));
+    }
+    if (!f.app.loggedIn) {
+      await f.net(() => f.app.login(identifier: Seed.phoneA, password: Seed.password));
+    }
+    if (!f.app.loggedIn) throw TestFailure('login did not sign in');
+    if (!f.app.onboarded) f.app.markOnboarded();
+    await f.home();
+  });
+}
+
 void registerPerfFlows({List<String>? only}) {
   perfOnly = only;
   // ------------------------------------------------------------ 1. home + chat

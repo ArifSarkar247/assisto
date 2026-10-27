@@ -6,15 +6,15 @@
 //   flutter build apk --profile --target=integration_test/perf_all_test.dart \
 //     --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 --dart-define=ASSISTO_PERF=true
 //
-// The Start flows (language, login, onboarding) run first so the perf flows
-// open on a signed-in home, exactly like the reality audit.
-import 'flows/onboarding_flow.dart';
+// p00 signs in first (language, login and onboarding through AppState, not
+// the UI: the UI start flows are the reality audit's job) so every perf flow
+// opens on a signed-in home.
 import 'perf/perf_flows.dart';
 import 'support/harness.dart';
 
 void main() {
   Harness.I.init();
   const only = String.fromEnvironment('PERF_ONLY'); // e.g. "p02,p07"
-  registerOnboardingFlows();
+  registerPerfSignIn();
   registerPerfFlows(only: only.isEmpty ? null : only.split(','));
 }

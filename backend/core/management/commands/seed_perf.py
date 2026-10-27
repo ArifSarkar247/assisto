@@ -7,8 +7,8 @@ a busy real user has, so list screens are measured with real-sized data:
 500 reminders, 300 money transactions, 500 till customers, 500 khata
 (ledger) customers with one entry each, a CRM org with 500 leads, a connected
 seller page with 150 AI-sales chats (3 messages each), and A allow-listed on
-every feature flag (hidden launch features must open, not the "not available"
-page). The 200 My Circle messages are sent by the test itself (they must be
+the default-off launch flags measured here (budget_remittance, home_watchman)
+so they open instead of the "not available" page. The 200 My Circle messages are sent by the test itself (they must be
 REALLY encrypted to A's key).
 
 Same refusal rule as seed_reality: only the CI sqlite file or the CI
@@ -31,6 +31,7 @@ N_CUSTOMERS = 500
 N_KHATA = 500
 N_LEADS = 500
 N_THREADS = 150
+PERF_FLAGS = ("budget_remittance", "home_watchman")
 
 FIRST = ["Rahim", "Karim", "Salma", "Nasrin", "Jamal", "Rupa", "Tanvir", "Mitu",
          "Arif", "Shila", "Habib", "Lima", "Sohel", "Nipa", "Babul", "Ruma"]
@@ -85,7 +86,9 @@ class Command(BaseCommand):
         # ---------------------------------------------------- feature flags
         FF.ensure_seeded()
         n = 0
-        for ff in FeatureFlag.objects.all():
+        # only the launch features that are OFF by default and measured here
+        # (allow-listing every flag changed the sign-in path on run 40540444789)
+        for ff in FeatureFlag.objects.filter(key__in=PERF_FLAGS):
             ids = [i for i in (ff.allow_user_ids or []) if i != user.id] + [user.id]
             ff.allow_user_ids = ids
             ff.save(update_fields=["allow_user_ids", "updated_at"])

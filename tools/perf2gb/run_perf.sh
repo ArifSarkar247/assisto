@@ -153,7 +153,7 @@ while :; do
   echo "APP_DIED attempt=$attempt during=${running:-?} at=$(date +%s%3N)" | tee -a "$OUT/deaths.txt"
   [ "$attempt" -ge 2 ] && break
   attempt=$((attempt + 1))
-  { done_ids | grep -v '^0[123]_'; [ -n "$running" ] && echo "$running"; } | sort -u > "$OUT/skip_ids.txt"
+  { done_ids | grep -vE '^(0[123]_|p00_)'; [ -n "$running" ] && echo "$running"; } | sort -u > "$OUT/skip_ids.txt"
   T=10 A shell "mkdir -p $DEV" >/dev/null 2>&1
   T=10 A push "$OUT/skip_ids.txt" "$DEV/skip_ids.txt" >/dev/null 2>&1 || true
 done
