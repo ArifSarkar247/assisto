@@ -232,6 +232,23 @@ def parse_whatsapp(payload):
                             .get("title") or "")
                 else:
                     text = "[%s]" % (typ or "message")
+                cart = []
+                if typ == "order" and isinstance(m.get("order"), dict):
+                    # e2e-sales: a cart from the WhatsApp catalog. Only the
+                    # retailer id + quantity are used; item_price is what the
+                    # customer's app showed and is NEVER trusted (catalog prices).
+                    od = m["order"]
+                    for it in (od.get("product_items") or [])[:20]:
+                        if not isinstance(it, dict):
+                            continue
+                        rid = str(it.get("product_retailer_id") or "").strip()[:64]
+                        try:
+                            q = int(str(it.get("quantity") or "1").strip())
+                        except ValueError:
+                            q = 1
+                        if rid:
+                            cart.append({"retailer_id": rid, "qty": max(1, min(q, 999))})
+                    text = str(od.get("text") or "").strip()[:1000] or "[order]"
                 atts = []
                 if typ in ("image", "audio") and isinstance(m.get(typ), dict):
                     media = m[typ]
@@ -244,10 +261,13 @@ def parse_whatsapp(payload):
                     if typ == "image" and media.get("caption"):
                         text = str(media["caption"])
                 frm = str(m.get("from") or "")
-                events.append(_ev(source="whatsapp", channel=CH_WHATSAPP,
-                                  kind="message", account_id=pnid, user_id=frm,
-                                  name=names.get(frm, ""), event_id=wamid, text=text,
-                                  ts=int(m.get("timestamp") or 0), attachments=atts))
+                ev = _ev(source="whatsapp", channel=CH_WHATSAPP,
+                         kind="message", account_id=pnid, user_id=frm,
+                         name=names.get(frm, ""), event_id=wamid, text=text,
+                         ts=int(m.get("timestamp") or 0), attachments=atts)
+                if cart:
+                    ev["cart"] = cart
+                events.append(ev)
             for s in v.get("statuses") or []:
                 wamid = str(s.get("id") or "")
                 st = str(s.get("status") or "")
@@ -296,9 +316,30 @@ def _tokens(s):
     return [t for t in _WORD_RE.findall((s or "").lower()) if len(t) >= 2]
 
 
+# e2e-sales: everyday F-commerce product words, Bangla script ↔ the Latin
+# spelling sellers usually give their catalog rows (and common variants), so
+# "শাড়িটা কত?" finds "Saree" and "punjabi" finds "Panjabi".
+PRODUCT_ALIASES = {
+    "শাড়ি": "saree sari", "শাড়ী": "saree sari", "sari": "saree", "saree": "sari",
+    "পাঞ্জাবি": "panjabi punjabi", "পাঞ্জাবী": "panjabi punjabi", "punjabi": "panjabi",
+    "panjabi": "punjabi", "শার্ট": "shirt", "টি-শার্ট": "t-shirt tshirt", "টিশার্ট": "t-shirt tshirt",
+    "প্যান্ট": "pant pants", "জিন্স": "jeans", "জুতা": "shoe shoes", "জুতো": "shoe shoes",
+    "স্যান্ডেল": "sandal", "ব্যাগ": "bag", "ঘড়ি": "watch", "বোরকা": "borka burqa",
+    "borka": "burqa", "burqa": "borka", "হিজাব": "hijab", "কুর্তি": "kurti", "কামিজ": "kameez",
+    "থ্রি পিস": "three piece 3 piece", "থ্রিপিস": "three piece 3 piece", "লেহেঙ্গা": "lehenga",
+    "ওড়না": "orna", "লুঙ্গি": "lungi", "টুপি": "tupi cap", "চশমা": "glasses sunglass",
+    "পারফিউম": "perfume", "আতর": "attar", "মধু": "honey",
+}
+
+
+def _with_aliases(low):
+    extra = [v for k, v in PRODUCT_ALIASES.items() if k in low]
+    return (low + " " + " ".join(extra)) if extra else low
+
+
 def match_products(text, catalog, limit=3):
     """Products whose name tokens appear in `text` (best first)."""
-    low = norm_digits((text or "").lower())
+    low = _with_aliases(norm_digits((text or "").lower()))
     toks = set(_tokens(low))
     scored = []
     for p in catalog or []:
@@ -424,6 +465,86 @@ def check_numbers(reply, context, customer_text="", extra=()):
             if nm and nm in low and int(p.get("stock") or 0) <= 0:
                 problems.append({"type": "stock_claim", "value": p.get("name")})
     return problems
+
+
+# ---- e2e-sales: the customer's price OFFER (bargaining), digit-trick safe
+_OFFER_NUM = re.compile(r"(?<![\d.])(\d[\d,]*)(?:\.(\d+))?")
+_QTY_AFTER = re.compile(r"^\s*(?:ta|ti|টা(?!কা)|টি|pcs|pc|piece|pieces|x|পিস|জোড়া|set|"
+                        r"din|দিন|days?|hour|ঘণ্টা)\b", re.IGNORECASE)
+_SIZE_BEFORE = re.compile(r"(?:size|সাইজ|মাপ|no|number|নম্বর|#|qty|x)\s*[:=]?\s*$",
+                          re.IGNORECASE)
+_TAG_AFTER = re.compile(r"^\s*(?:৳|/-|tk\b|taka|টাকা|bdt|te\b|তে|e\b|এ\b|-?এ|য়)",
+                        re.IGNORECASE)
+_TAG_BEFORE = re.compile(r"(?:৳|tk\.?|taka|টাকা|bdt|rs\.?)\s*$", re.IGNORECASE)
+BARGAIN_CUES = ("discount", "ছাড়", "kom", "কম", "offer", "অফার", "komun", "kombe",
+                "negotiate", "দর", "last price", "last dam", "lastprice", "sesh dam",
+                "ses dam", "শেষ দাম", "fixed", "ফিক্সড", "diben", "deben", "dile", "dite paren",
+                "dewa jabe", "deya jabe", "hobe", "hoy na", "hbe", "দিবেন", "দেবেন", "দিলে",
+                "দেওয়া যাবে", "দিতে পারবেন", "দিতে পারেন", "হবে", "হয় না", "less", "lower",
+                "cheaper", "best price", "can you do", "would you take", "rakhen", "রাখেন",
+                "dibo", "debo", "দিবো", "দেবো", "দিব ", "দেব ")
+
+
+def bargain_cue(text):
+    low = norm_digits((text or "").lower())
+    return any(c in low for c in BARGAIN_CUES)
+
+
+def find_offer(text, list_price=None):
+    """The unit price the customer OFFERS, or None. Phone numbers, quantities
+    ("10ta"), sizes ("size 42") and anything with a decimal tail are judged
+    carefully: a decimal offer is rounded DOWN (999.99 → 999) so it can never
+    sneak past the minimum; a leading-zero run ("0001000") is read as the
+    number it is. An untagged number far below the list price (< 25 %) is
+    treated as not-an-offer (a size, a day count …) — the bargaining layer
+    then simply does not agree to anything."""
+    t = norm_digits(text or "")
+    t = _PHONE_RE.sub(" ", t)
+    lp = _dec(list_price)
+    for m in _OFFER_NUM.finditer(t):
+        raw = m.group(1).replace(",", "")
+        if not raw.isdigit():
+            continue
+        v = int(raw)
+        if v < 10:
+            continue
+        after = t[m.end():m.end() + 12]
+        before = t[max(0, m.start() - 12):m.start()]
+        if _QTY_AFTER.match(after) or _SIZE_BEFORE.search(before):
+            continue
+        tagged = bool(_TAG_AFTER.match(after) or _TAG_BEFORE.search(before))
+        if not tagged and lp and Decimal(v) < lp * Decimal("0.25"):
+            continue
+        return Decimal(v)
+    return None
+
+
+def offer_echo(reply, customer_text, products):
+    """Post-check for a FREE (LLM) reply: numbers the customer wrote that are
+    below a matched product's floor (min price, or the list price when no
+    minimum is set) must never appear in our reply — the AI must not agree
+    to a below-minimum price by repeating it. Returns the offending values."""
+    floors = []
+    for p in products or []:
+        lp = _dec(p.get("price")) or Decimal(0)
+        mp = _dec(p.get("min_price")) or Decimal(0)
+        floors.append(mp if mp > 0 else lp)
+    if not floors:
+        return []
+    floor = max(floors)
+    cust = set()
+    for m in _ANY_NUM_RE.findall(_PHONE_RE.sub(" ", norm_digits(customer_text or ""))):
+        d = _num_of(m)
+        if d is not None and Decimal(10) <= d < floor:
+            cust.add(d.to_integral_value() if d == d.to_integral_value() else d)
+    if not cust:
+        return []
+    out = []
+    for m in _ANY_NUM_RE.findall(norm_digits(reply or "")):
+        d = _num_of(m)
+        if d is not None and d in cust and _fmt_money(d) not in out:
+            out.append(_fmt_money(d))
+    return out
 
 
 # =========================================================================
@@ -666,6 +787,45 @@ def extract_order(text, draft, catalog):
     if d.get("phone"):
         d.pop("phone_invalid", None)
     return d
+
+
+def resolve_cart(cart, catalog):
+    """WhatsApp catalog cart → (lines, unknown). A retailer id matches the
+    product SKU (case/dash-insensitive) or its numeric id. lines =
+    [{"product": dict, "qty": int}] (same product merged); unknown = the
+    retailer ids we do not sell. Prices are NOT taken from the cart."""
+    def key(v):
+        return str(v or "").lower().replace("-", "").replace(" ", "")
+    by_sku = {key(p.get("sku")): p for p in catalog or [] if key(p.get("sku"))}
+    by_id = {str(p.get("id")): p for p in catalog or []}
+    lines, unknown = {}, []
+    for it in cart or []:
+        rid = str(it.get("retailer_id") or "")
+        p = by_sku.get(key(rid)) or by_id.get(rid)
+        if p is None:
+            unknown.append(rid)
+            continue
+        row = lines.setdefault(p.get("id"), {"product": p, "qty": 0})
+        row["qty"] = min(999, row["qty"] + int(it.get("qty") or 1))
+    return list(lines.values()), unknown
+
+
+_EN_WORDS = {"is", "are", "the", "what", "how", "can", "could", "you", "please", "want",
+             "do", "does", "much", "have", "has", "will", "would", "i", "i'm", "my", "me",
+             "this", "that", "it", "there", "available", "price", "cost", "send", "need",
+             "when", "where", "which", "why", "thanks", "thank", "hello", "hi", "yes", "no",
+             "of", "for", "with", "and", "to", "a", "an", "in", "order", "buy", "deliver"}
+
+
+def sticky_lang(text, prev):
+    """e2e-sales: the reply language for this message. A language-neutral
+    message ("nam: Karim, 017…, House 5, Road 2, Mirpur") keeps the chat's
+    language instead of flipping a Bangla chat to English."""
+    cur = bai.reply_lang(text)
+    if cur == "bn" or prev not in ("bn", "en") or prev == cur:
+        return cur
+    words = set(re.findall(r"[a-z']+", (text or "").lower()))
+    return cur if words & _EN_WORDS else prev
 
 
 def missing_fields(draft):

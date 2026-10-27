@@ -37,8 +37,10 @@ R_RETURNS = "returns"
 R_PRODUCT = "product"
 R_SIZES = "sizes"
 R_HUMAN_Q = "disclosure"
+R_CATALOG = "catalog"
 RULES = (R_GREETING, R_FAQ, R_DELIVERY, R_HOURS, R_ORDER_STATUS, R_PAYMENT, R_RETURNS,
-         R_PRODUCT, R_SIZES, R_HUMAN_Q)
+         R_PRODUCT, R_SIZES, R_HUMAN_Q, R_CATALOG)
+CATALOG_MAX = 8
 
 _WS = re.compile(r"[?,।!.;:()\[\]\"'\-/]+")
 _BN_SUFFIX = re.compile(r"(টা|টি|টে|গুলো|গুলা|খানা|খানি|টার|টির|টাও|টিও|রে|কে|ের|র)$")
@@ -81,6 +83,13 @@ _ASK_PRICE = ("দাম", "কত", "price", "dam", "daam", "koto", "rate", "co
               "pp", "প্রাইস", "price koto", "prize")
 _ASK_STOCK = ("স্টক", "stock", "আছে কি", "আছে?", "পাওয়া যাবে", "available", "ache", "ase", "pawa",
               "in stock")
+# e2e-sales: "what do you sell?" — a catalog list from the seller's own rows
+_ASK_CATALOG = ("ki ki ache", "ki ki ase", "ki ki product", "ki ki pawa jay", "কী কী আছে",
+                "কি কি আছে", "কী কী পণ্য", "কি কি পণ্য", "কী কী পাওয়া যায়", "কি কি পাওয়া যায়",
+                "catalog", "catalogue", "ক্যাটালগ", "product list", "all products",
+                "সব পণ্য", "পণ্যের তালিকা", "প্রোডাক্ট লিস্ট", "what do you have", "what do you sell",
+                "your products", "collection", "কালেকশন", "kalekshon", "ki bikri koren",
+                "কী বিক্রি করেন", "কি বিক্রি করেন")
 _GREETINGS = ("hi", "hello", "hey", "হাই", "হ্যালো", "salam", "সালাম", "আসসালামু আলাইকুম",
               "assalamu alaikum", "assalamualaikum", "আসসালামুয়ালাইকুম", "good morning",
               "good evening", "নমস্কার", "hlw", "helo")
@@ -290,6 +299,31 @@ def order_status_line(lang, orders):
     return line
 
 
+def catalog_line(lang, catalog, limit=CATALOG_MAX):
+    """A short list of the seller's products with their catalog prices (in
+    stock first). Every number is a catalog price (post-checked by the caller);
+    stock COUNTS are never stated here."""
+    rows = [p for p in catalog or [] if (p.get("name") or "").strip()
+            and _price_range(p)[0] is not None and (_price_range(p)[0] or 0) > 0]
+    if not rows:
+        return ""
+    rows.sort(key=lambda p: int(p.get("stock") or 0) <= 0)
+    lines = []
+    for p in rows[:limit]:
+        lo, hi = _price_range(p)
+        price = f"৳{_money(lo)}" if lo == hi else f"৳{_money(lo)}–৳{_money(hi)}"
+        out = int(p.get("stock") or 0) <= 0
+        lines.append("- %s — %s%s" % (p["name"], price,
+                                      pick(lang, " (স্টক নেই)", " (out of stock)") if out else ""))
+    head = pick(lang, "আমাদের পণ্যগুলো:", "Here is what we have:")
+    tail = pick(lang, "যেটি পছন্দ, তার নাম লিখুন — সাইজ, স্টক ও অর্ডারের নিয়ম জানিয়ে দেব।",
+                "Send the name of the one you like — I'll share sizes, stock and how to order.")
+    more = ""
+    if len(rows) > limit:
+        more = pick(lang, "\n…আরও পণ্য আছে।", "\n…and more.")
+    return head + "\n" + "\n".join(lines) + more + "\n" + tail
+
+
 def payment_line(lang, cod=True, note=""):
     s = pick(lang, "ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে টাকা দিন।",
              "Cash on delivery — pay when you receive the parcel.") if cod else ""
@@ -366,6 +400,10 @@ def answer(text, ctx):
                     dl = delivery_line(lang, ctx.get("delivery"))
                     card = (card + " " + dl).strip() if dl else card
                 return {"text": card, "rule": R_PRODUCT, "product_id": p.get("id")}
+    if p is None and _has(low, _ASK_CATALOG):
+        line = catalog_line(lang, catalog)
+        if line:
+            return {"text": line, "rule": R_CATALOG}
     if _has(low, _ASK_PAYMENT) and not p:
         pol = ctx.get("policies") or {}
         line = payment_line(lang, ctx.get("cod", True), (pol.get("payment") or "")

@@ -36,6 +36,7 @@ from .logic import business_ai as bai
 log = logging.getLogger(__name__)
 
 PLAN_DAYS = 30
+MAX_INBOUND = 4096          # e2e-sales: characters kept from one customer message
 
 
 # ===================================================================== config
@@ -651,13 +652,34 @@ def _history(thread, limit=6):
     return out
 
 
-def _offer_in(text):
-    import re
-    for m in re.finditer(r"\d[\d,]*", BZ.norm_digits(text or "")):
-        v = int(m.group(0).replace(",", ""))
-        if v >= 10:
-            return v
-    return None
+def _offer_in(text, list_price=None):
+    """The customer's offered unit price (int) or None — see BZ.find_offer
+    (phone numbers, quantities, sizes and decimal tails are handled)."""
+    v = BZ.find_offer(text, list_price)
+    return int(v) if v is not None else None
+
+
+def _bargain(thread, text, lang, matched, intent):
+    """e2e-sales: bargaining runs BEFORE the order flow and the rule layer
+    whenever the customer names a price for a product, in any wording
+    ("800 taka te diben?", "৮০০ টাকায় দিবেন?", "last price 900 hobe?",
+    "1050 e dile nibo") — not only when the intent classifier said
+    'bargain'. Returns the negotiate() dict (+ the offer) or None."""
+    if not matched:
+        return None
+    p = matched[0]
+    offer = _offer_in(text, p["price"])
+    if not offer:
+        return None
+    if intent != "bargain" and not BZ.bargain_cue(text):
+        return None
+    # an unset minimum (0) means NO discount: the floor is the list price
+    floor = p["min_price"] if (BZ._dec(p["min_price"]) or 0) > 0 else p["price"]
+    neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
+                                "min_price": floor}, lang=lang)
+    neg["offer_value"] = offer
+    neg["product"] = p
+    return neg
 
 
 def compose(business, agent, thread, text, lang, *, allow_order=True, post_id=""):
@@ -700,6 +722,47 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     if bk:
         return bk
 
+    # ---- bargaining: arithmetic only, the minimum price is never crossed ----
+    draft = dict(thread.order_draft or {})
+    neg = None
+    if not (allow_order and draft.get("state") == "awaiting_confirm"
+            and (BZ.is_yes(text) or BZ.is_no(text))):
+        neg = _bargain(thread, text, lang, matched, intent)
+    offer_decision = neg.get("action") if neg else None
+    proposal = ""
+    neg_line = ""
+    if neg and offer_decision in (bai.ACTION_ACCEPT, bai.ACTION_COUNTER):
+        p = neg["product"]
+        if neg.get("price") is not None:
+            draft = dict(thread.order_draft or {})
+            draft["agreed"] = {"product_id": p["id"], "price": str(neg["price"])}
+            draft.pop("state", None)
+            if draft.get("product_id") != p["id"]:
+                # the agreed product is THE product of a later "order korbo"
+                draft.update({"product_id": p["id"], "product": p["name"]})
+                draft.pop("variant", None)
+                draft.pop("variant_label", None)
+            thread.order_draft = draft
+            thread.save(update_fields=["order_draft"])
+        neg_line = neg.get("message") or neg.get("text") or ""
+        if not (allow_order and (intent == "order" or draft.get("active"))):
+            return {"text": neg_line, "kind": "text", "risk": None, "confidence": 1.0,
+                    "extra": [neg.get("price"), neg.get("counter"), neg["offer_value"]],
+                    "rule": "bargain"}
+    elif neg:
+        # below the minimum → the seller decides; the customer gets the honest
+        # line. The PROPOSAL is what the customer would receive on an unedited
+        # Approve, so it never contains the minimum (only the list price); the
+        # seller sees the "below minimum" chip + the customer's own words.
+        p = neg["product"]
+        risk = BZ.RISK_BELOW_MIN
+        lp = BZ._fmt_money(p["price"])
+        return {"text": BZ.holding_message(lang, risk, hours), "kind": "holding", "risk": risk,
+                "proposal": bai.pick(
+                    lang, "দুঃখিত, %s ৳%s-এ দেওয়া সম্ভব নয়। এর দাম ৳%s।" % (p["name"], neg["offer_value"], lp),
+                    "Sorry, we can't do %s at ৳%s. The price is ৳%s." % (p["name"], neg["offer_value"], lp)),
+                "confidence": 0.0, "rule": "bargain"}
+
     # ---- order flow (deterministic; every number from the catalog) ----
     draft = dict(thread.order_draft or {})
     if allow_order:
@@ -710,7 +773,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
             if BZ.is_no(text):
                 return {"order_action": "cancel", "kind": "order", "risk": None,
                         "text": BZ.order_cancelled_line(lang), "confidence": 1.0}
-        wants_order = intent == "order" or draft.get("active") or (
+        wants_order = intent == "order" or draft.get("active") or bool(neg_line) or (
             BZ.find_phone(text) and (matched or draft.get("product")))
         if wants_order:
             draft = BZ.extract_order(text, draft, catalog)
@@ -718,6 +781,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
             draft.pop("state", None)
             thread.order_draft = draft
             thread.save(update_fields=["order_draft"])
+            pre = (neg_line + "\n") if neg_line else ""
             if draft.get("product"):
                 priced = G1S.price_for(draft, catalog, business, agent)
                 if priced and not priced["stock_ok"]:
@@ -725,7 +789,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                             "kind": "text", "risk": None, "confidence": 1.0}
             miss = BZ.missing_fields(draft)
             if miss:
-                return {"text": BZ.ask_missing(lang, miss, draft.get("phone_invalid")),
+                return {"text": pre + BZ.ask_missing(lang, miss, draft.get("phone_invalid")),
                         "kind": "order", "risk": None, "confidence": 1.0}
             priced = G1S.price_for(draft, catalog, business, agent)
             if priced is None:
@@ -745,31 +809,8 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                 return {"text": BZ.holding_message(lang, BZ.RISK_BIG_ORDER, hours),
                         "kind": "holding", "risk": BZ.RISK_BIG_ORDER, "proposal": summary,
                         "confidence": 1.0}
-            return {"text": summary, "kind": "order", "risk": None, "confidence": 1.0,
+            return {"text": pre + summary, "kind": "order", "risk": None, "confidence": 1.0,
                     "extra": [priced["subtotal"], priced["total"], priced["unit"]] + extra_nums}
-
-    # ---- bargaining: arithmetic only, the minimum price is never crossed ----
-    offer_decision = None
-    proposal = ""
-    if intent == "bargain" and matched:
-        offer = _offer_in(text)
-        if offer:
-            p = matched[0]
-            # an unset minimum (0) means NO discount: the floor is the list price
-            floor = p["min_price"] if (BZ._dec(p["min_price"]) or 0) > 0 else p["price"]
-            neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
-                                        "min_price": floor}, lang=lang)
-            offer_decision = neg.get("action")
-            if offer_decision in (bai.ACTION_ACCEPT, bai.ACTION_COUNTER):
-                if neg.get("price") is not None:
-                    draft = dict(thread.order_draft or {})
-                    draft["agreed"] = {"product_id": p["id"], "price": str(neg["price"])}
-                    thread.order_draft = draft
-                    thread.save(update_fields=["order_draft"])
-                return {"text": neg.get("message") or neg.get("text") or "", "kind": "text",
-                        "risk": None, "confidence": 1.0,
-                        "extra": [neg.get("price"), neg.get("counter"), offer]}
-            proposal = neg.get("message") or neg.get("text") or ""
 
     # ---- g1 RULE-FIRST: FAQ / price / stock / sizes / delivery / hours /
     # payment / returns / order status from the seller's own data — no AI ----
@@ -808,6 +849,14 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     conf = float(d.get("confidence") or 0)
     src = "ai" if used_ai else "fallback"
     problems = BZ.check_numbers(reply, ctx, text)
+    echo = BZ.offer_echo(reply, text, matched)
+    if echo:
+        # the AI repeated a below-minimum number the customer wrote ("ok, 800
+        # te dibo") — never sent; the seller decides
+        return {"text": BZ.holding_message(lang, BZ.RISK_BELOW_MIN, hours), "kind": "holding",
+                "risk": BZ.RISK_BELOW_MIN, "proposal": reply, "confidence": conf,
+                "problems": [{"type": "below_min_echo", "value": v} for v in echo],
+                "used_ai": used_ai, "source": src}
     if problems:
         return {"text": BZ.holding_message(lang, BZ.RISK_NUMBERS, hours), "kind": "holding",
                 "risk": BZ.RISK_NUMBERS, "proposal": reply, "confidence": conf,
@@ -917,11 +966,13 @@ def handle_message(ch, e):
                                                     external_id=e["event_id"]).exists():
         return "skipped"
     t = thread_for(ch, e["user_id"], e.get("name", ""))
-    text = e.get("text") or ""
+    # e2e-sales: one chat message is at most MAX_INBOUND characters (abuse /
+    # cost guard — the AI never gets a 20 000-character "message")
+    text = (e.get("text") or "")[:MAX_INBOUND]
     atts = [a for a in (e.get("attachments") or []) if isinstance(a, dict)]
     if atts and text in ("[attachment]", "[image]", "[audio]"):
         text = ""
-    lang = bai.reply_lang(text) if text else (t.lang or "bn")
+    lang = BZ.sticky_lang(text, t.lang) if text else (t.lang or "bn")
     at = _ts(e)
     t.last_inbound_at = at
     t.last_message_at = at
@@ -950,11 +1001,50 @@ def handle_message(ch, e):
         BKS.note_chat_stop(t)          # booking-bot: no more booking reminders
         send_text(t, G1.opt_out_ack(lang), kind="text", is_ai=True, source="system")
         return "opted_out"
+    if e.get("cart"):
+        return _handle_cart(ch, t, e["cart"], text, lang, inbound)
     media = None
     if image or audio:
         media = {"att": image or audio, "type": "image" if image else "audio",
                  "inbound_id": inbound.pk}
     return respond(ch, t, text, lang, media=media, inbound=inbound)
+
+
+def _handle_cart(ch, t, cart, text, lang, inbound):
+    """e2e-sales: a WhatsApp catalog cart (type=order). ONE known product →
+    it becomes the order draft (our catalog price, the cart's qty) and the
+    normal order flow asks for name / phone / address and the "yes". Several
+    products or an unknown retailer id → the customer gets an honest holding
+    line and the seller gets the cart to handle (never guessed)."""
+    lines, unknown = BZ.resolve_cart(cart, catalog_for(ch.business))
+    note = "" if text == "[order]" else text
+    if not note:
+        lang = t.lang or "bn"
+    names = ", ".join("%s × %d" % (r["product"]["name"], r["qty"]) for r in lines)
+    from .models import Message
+    Message.objects.filter(pk=inbound.pk).update(
+        text=("[order] " + (names or ", ".join(unknown)))[:MAX_INBOUND],
+        kind="order", meta=dict(inbound.meta or {}, cart=cart[:20]))
+    if len(lines) == 1 and not unknown:
+        p, qty = lines[0]["product"], lines[0]["qty"]
+        draft = dict(t.order_draft or {})
+        draft.pop("state", None)
+        if draft.get("product_id") != p["id"]:
+            draft.pop("variant", None)
+            draft.pop("variant_label", None)
+        draft.update({"product_id": p["id"], "product": p["name"], "qty": qty,
+                      "active": True, "source": "wa_cart"})
+        t.order_draft = draft
+        t.save(update_fields=["order_draft"])
+        return respond(ch, t, note or "order", lang, inbound=inbound)
+    risk = BZ.RISK_UNKNOWN_PRODUCT if unknown else BZ.RISK_LOW_CONF
+    proposal = bai.pick(lang, "গ্রাহক WhatsApp ক্যাটালগ থেকে কার্ট পাঠিয়েছেন: ",
+                        "The customer sent a WhatsApp catalog cart: ") + \
+        (names or "") + ((" | ? " + ", ".join(unknown)) if unknown else "")
+    preset = {"text": BZ.holding_message(lang, risk, BZ.hours_text(agent_for(ch.business).hours)),
+              "kind": "holding", "risk": risk, "proposal": proposal[:1000],
+              "confidence": 0.0, "source": "rule", "rule": "wa_cart"}
+    return respond(ch, t, note, lang, inbound=inbound, preset=preset)
 
 
 def _media_bytes(ch, att):
@@ -963,7 +1053,7 @@ def _media_bytes(ch, att):
 
 
 def respond(ch, t, text, lang, comment_id="", *, media=None, inbound=None, resumed=False,
-            post_id=""):
+            post_id="", preset=None):
     """Decide + send ONE reply for the customer's latest message.
     g1: who replies is decided first (business mode, per-chat toggle, the
     human pause); the reply runs under a per-chat lease so two workers can
@@ -998,8 +1088,11 @@ def respond(ch, t, text, lang, comment_id="", *, media=None, inbound=None, resum
         return "deferred"
     started = timezone.now()
     try:
-        res = _respond_locked(ch, t, biz, agent, text, lang, comment_id, media, started,
-                              post_id=post_id)
+        if preset is not None:
+            res = _send_reply(t, agent, preset, lang, comment_id, started)
+        else:
+            res = _respond_locked(ch, t, biz, agent, text, lang, comment_id, media, started,
+                                  post_id=post_id)
         # a message that arrived while we held the lease → answer the newest one
         for _ in range(2):
             later = t.messages.filter(direction="in", created_at__gte=started,
