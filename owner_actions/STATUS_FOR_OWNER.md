@@ -1,5 +1,25 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## 📋 ১০০% বোর্ড তৈরি — `owner_actions/FEATURE_100_BOARD_BN.md` (২৭ Oct ~১০:৩০ UTC)
+- **মোট ২৭১টি ফিচার/উপ-ফিচার; ১০০-তে আছে ০টি।** গড় স্কোর **৫৬/১০০** (লঞ্চ-জরুরি ১৬৪টির গড় ৫৭)। বাকি কাজ আনুমানিক **~৩৯৩ ডেভেলপার-দিন** (লঞ্চ-জরুরি ~২৫৫) — আপনার key/চুক্তি/ডিভাইসের অপেক্ষা ছাড়া। বেশি কাজ মানে একসাথে অনেক এজেন্ট — চলছে।
+- **কেন কেউ ১০০ নয় (সৎভাবে):** (১) ২ GB ফোনে গতি কখনো মাপা হয়নি — সবাই ওই ৫ নম্বর হারায় (সর্বোচ্চ আজ ৯৫); (২) **লাইভ সার্ভারে কোনো AI key নেই** (Anthropic/OpenAI/Gemini কোনোটাই) — তাই Assisto AI এখন শুধু "key লাগবে" ধরনের সৎ উত্তর দেয়; (৩) ৫৩টি ইন্টিগ্রেশনের মধ্যে শুধু Play Billing যুক্ত (FCM ও TURN আছে) — SMS গেটওয়ে নেই (OTP বন্ধ), Maps key নেই, ওয়েবের পেমেন্ট গেটওয়ে নেই, Meta/Imou/কুরিয়ার key নেই; (৪) দুই আসল ফোনে কোনো ফিচারের পাস নেই; (৫) চারটা নির্ধারিত কাজ cron-এ নেই, তাই নিজে থেকে চলে না।
+- **গ্রুপ-ভিত্তিক গড়:** কল ৬৪, My Circle ৬৬, নিরাপদ যাত্রা **৪৪** (সবচেয়ে দুর্বল), পরিবার-নিরাপত্তা ৫৩, রিমাইন্ডার ৬১, AI ও ভয়েস ৫৪, ফটো স্টুডিও ৬০, বিজনেস ও খাতা ৫২, CRM ৫২, AI সেলস ৫৫, CCTV ৫৮, গাড়ি ট্র্যাকিং ৪৯, বাজেট-রেমিট্যান্স ৭০, পেমেন্ট ও প্ল্যান ৬৭।
+- **এখন ঠিক করা চলছে:** CCTV ও গাড়ি ট্র্যাকিং (end-to-end), AI সেলস (end-to-end), চুরি-রোধ, AI রিপোর্ট বোতাম + বাংলা তারিখ; **নতুন শুরু: নিরাপদ যাত্রা** (সার্ভার থেকে প্রতি মিনিটে দেরি/পৌঁছানো/ব্যাটারি দেখে পরিবারকে পুশ, ফোরগ্রাউন্ড-লোকেশন, পথ-বিচ্যুতি)। বাকি ১৫টা বড় ফাঁক বোর্ডের শেষে — একে একে।
+- **🔴 আপনার কাছে লাগবে (শুধু যা আমি নিজে পারি না):**
+  1. **AI key** (সবচেয়ে জরুরি — Assisto-র মূল ফিচার এটা ছাড়া চলে না): Anthropic (সুপারিশ) বা OpenAI/Gemini-এর API key → Owner Admin → Integrations → সংশ্লিষ্ট প্রদানকারী → পেস্ট → Test। খরচ ক্রেডিট + Profit Guard দিয়ে ঢাকা; দৈনিক খরচ-সীমা Owner Admin-এ আছে। **(টাকা খরচের সিদ্ধান্ত — আপনার)।**
+  2. **SMS গেটওয়ে** (OTP, ফোনবুক যাচাই, খাতার তাগাদা SMS): একটা BD গেটওয়ের (SSL Wireless, BulkSMSBD, Alpha SMS ইত্যাদি) অ্যাকাউন্ট ও key → Owner Admin → Integrations। (টাকা — আপনার সিদ্ধান্ত।)
+  3. **চারটা cron লাইন** `/etc/cron.d/assisto-app`-এ যোগ করুন (আমাকে cron বদলাতে দেওয়া হয় না):
+```
+0 * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py run_watchers >> /home/ubuntu/assisto/backend/logs/run_watchers.log 2>&1
+0 3 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py generate_briefings >> /home/ubuntu/assisto/backend/logs/generate_briefings.log 2>&1
+*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py booking_reminders >> /home/ubuntu/assisto/backend/logs/booking_reminders.log 2>&1
+*/15 * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py retention_run >> /home/ubuntu/assisto/backend/logs/retention_run.log 2>&1
+```
+     (বুকিং ও রিটেনশনের সুইচ বন্ধ থাকলে এরা কিছুই পাঠায় না — নিরাপদ।)
+  4. স্বাস্থ্য-ধরনের ফিচার নিয়ে সিদ্ধান্ত (আগের নোট)।
+  5. পরে: Meta অ্যাপ, Imou key + ক্যামেরা, GT06 ট্র্যাকার — এজেন্টরা শেষ করলে দামসহ সঠিক তালিকা।
+
+
 ## 🟥 ১০০% মোড চালু (২৭ Oct ~১০:০০ UTC) — অগ্রগতি
 - **নতুন ফিচার বন্ধ:** আসল অদেখা বিশ্ব, Agent Mode ইত্যাদি শুধু পরিকল্পনা হিসেবে থাকবে (বর্তমান পাতার নাম বদল চলছে — অনুমোদিত)। ওষুধ লুকানোই থাকবে।
 - **ইনভেন্টরি বোর্ড তৈরি হচ্ছে:** `owner_actions/FEATURE_100_BOARD_BN.md` — প্রথম দিন থেকে বানানো প্রতিটি ফিচার ও উপ-ফিচার (অ্যাপ, সার্ভার, Owner Admin, ওয়েবসাইট), ১০০-এ স্কোর ও ঠিক কী বাকি, ওপরে মোট হিসাব; কঠোর নিয়মে (প্রমাণ ছাড়া ১০০ নয়; ২ GB ফোনে গতি এখনো মাপা হয়নি, তাই এখনো কেউ সেই নম্বর পাবে না)।
