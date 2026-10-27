@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0100_family_alert_delivery'),
+        ('core', '0101_antitheft2_location_routing'),
     ]
 
     operations = [
