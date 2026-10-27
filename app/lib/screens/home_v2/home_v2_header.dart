@@ -7,15 +7,41 @@ import '../../theme.dart';
 import '../../widgets/circle_badges.dart';
 import 'home_v2_tokens.dart';
 
-/// Greeting by time of day (owner: morning / noon / afternoon / evening /
-/// night; Bangla has a word for each, English shares afternoon / evening).
-String hv2Greeting(AppLocalizations t, DateTime now) {
-  final h = now.hour;
-  if (h >= 5 && h < 12) return t.hv2GreetMorning;
-  if (h >= 12 && h < 16) return t.hv2GreetNoon;
-  if (h >= 16 && h < 18) return t.hv2GreetAfternoon;
-  if (h >= 18 && h < 21) return t.hv2GreetEvening;
-  return t.hv2GreetNight;
+/// The five greeting windows (owner feedback 27 Oct), by the DEVICE's local
+/// hour: [05,12) morning, [12,16) noon, [16,18) afternoon, [18,22) evening,
+/// [22,05) late night.
+enum Hv2Daypart { morning, noon, afternoon, evening, night }
+
+Hv2Daypart hv2Daypart(DateTime now) {
+  final h = now.toLocal().hour;
+  if (h >= 5 && h < 12) return Hv2Daypart.morning;
+  if (h >= 12 && h < 16) return Hv2Daypart.noon;
+  if (h >= 16 && h < 18) return Hv2Daypart.afternoon;
+  if (h >= 18 && h < 22) return Hv2Daypart.evening;
+  return Hv2Daypart.night;
+}
+
+/// Greeting word(s) by time of day (Bangla: shubho shokal / dupur / bikal /
+/// shondha / ratri); English: Good morning / afternoon / afternoon / evening, and
+/// "Hello, still up" late at night. (Root cause of "Good evening" at 2 AM:
+/// the night string was "Good evening" in English and 21:00 started night.)
+String hv2Greeting(AppLocalizations t, DateTime now) =>
+    switch (hv2Daypart(now)) {
+      Hv2Daypart.morning => t.hv2GreetMorning,
+      Hv2Daypart.noon => t.hv2GreetNoon,
+      Hv2Daypart.afternoon => t.hv2GreetAfternoon,
+      Hv2Daypart.evening => t.hv2GreetEvening,
+      Hv2Daypart.night => t.hv2GreetLate,
+    };
+
+/// The full header line: "Good morning, Rahim!" — late at night English
+/// reads "Hello Rahim, still up?" (bn: the good-night greeting + name).
+String hv2GreetingLine(AppLocalizations t, DateTime now, String? name) {
+  if (hv2Daypart(now) == Hv2Daypart.night) {
+    return name == null ? t.hv2GreetLatePlain : t.hv2GreetLateName(name);
+  }
+  final greet = hv2Greeting(t, now);
+  return name == null ? t.hv2GreetPlain(greet) : t.hv2GreetName(greet, name);
 }
 
 /// The user's first name (first word of the profile name), or null.
@@ -67,10 +93,7 @@ class HomeV2Header extends StatelessWidget {
     final p = HomeV2Palette.of(context);
     final top = MediaQuery.paddingOf(context).top;
     final (begin, end) = HV2.cssAngle(HV2.headerAngleDeg);
-    final greet = hv2Greeting(t, now ?? DateTime.now());
-    final name = firstName;
-    final title =
-        name == null ? t.hv2GreetPlain(greet) : t.hv2GreetName(greet, name);
+    final title = hv2GreetingLine(t, now ?? DateTime.now(), firstName);
     final circleLabel = circleBadgeLabel(circleUnread, t.localeName);
     final notifLabel = circleBadgeLabel(notifUnseen, t.localeName);
     return DecoratedBox(

@@ -122,6 +122,35 @@ void main() {
         await _render(tester, 'home_v2_${lang}_${b.name}_full_200', homeV2Shot(),
             lang: lang, b: b, size: const Size(360, 2000), scale: 2.0);
       });
+      // owner feedback 27 Oct: the Free user's home with the COMPACT ad
+      // (default), at 100 % and 200 %, plus the server "large" option
+      for (final scale in [1.0, 2.0]) {
+        final name =
+            'home_v2_free_${lang}_${b.name}${scale == 1.0 ? '' : '_200'}';
+        testWidgets('golden $name', (tester) async {
+          await _render(tester, name, homeV2Shot(free: true),
+              lang: lang, b: b, size: sizes['ref']!, scale: scale);
+        });
+      }
+      // the whole Free home incl. the ad and the Need help card
+      testWidgets('golden home_v2_free_${lang}_${b.name}_full', (tester) async {
+        await _render(tester, 'home_v2_free_${lang}_${b.name}_full',
+            homeV2Shot(free: true),
+            // just tall enough for the page: a taller surface would only add
+            // empty room above the bottom-anchored Need help card
+            lang: lang, b: b, size: const Size(390, 990));
+      });
+      testWidgets('golden home_v2_free_large_${lang}_${b.name}', (tester) async {
+        await _render(tester, 'home_v2_free_large_${lang}_${b.name}',
+            homeV2Shot(free: true, size: 'large'),
+            lang: lang, b: b, size: sizes['ref']!);
+      });
+      // 02:00 -> the late-night greeting (never "Good evening")
+      testWidgets('golden home_v2_night_${lang}_${b.name}', (tester) async {
+        await _render(tester, 'home_v2_night_${lang}_${b.name}',
+            homeV2Shot(now: DateTime(2026, 10, 27, 2)),
+            lang: lang, b: b, size: sizes['ref']!);
+      });
       if (_before) {
         testWidgets('before $lang ${b.name}', (tester) async {
           await _render(tester, 'home_before_${lang}_${b.name}',

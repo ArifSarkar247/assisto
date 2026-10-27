@@ -562,6 +562,41 @@ class PricingAdsTests(OwnerBase):
         self.assertFalse(j["hero_enabled"])
         self.assertTrue(j["hero_start_muted"])
 
+    def _ads_form(self):
+        from core import billing
+        cfg = billing.cfg()
+        data = {"action": "settings", "reason": "test"}
+        for blk, keys in (("ad_rewards", cfg["ad_rewards"]),
+                          ("photo_studio", cfg.get("photo_studio") or {})):
+            for k, v in keys.items():
+                if isinstance(v, bool):
+                    if v:
+                        data["%s.%s" % (blk, k)] = "on"
+                elif isinstance(v, (int, float)):
+                    data["%s.%s" % (blk, k)] = str(v)
+        return data
+
+    def test_home_native_size_switch(self):
+        # owner 27 Oct: compact (default) | large, switchable without a build
+        from core import billing
+        self.assertEqual(billing.cfg()["ad_rewards"]["home_native_size"], "compact")
+        page = self.c.get("/owner/ads")
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'name="ad_rewards.home_native_size"')
+        free = User.objects.create_user(name="F2", phone="01710009908", password="x")
+        api = APIClient()
+        api.force_authenticate(free)
+        self.assertEqual(api.get("/api/v1/ads/config").json()["home_native_size"], "compact")
+        r = self.post("/owner/ads", {**self._ads_form(), "ad_rewards.home_native_size": "large"})
+        self.assertEqual(r.status_code, 302, r.content[:400])
+        self.assertEqual(billing.cfg()["ad_rewards"]["home_native_size"], "large")
+        self.assertEqual(api.get("/api/v1/ads/config").json()["home_native_size"], "large")
+        # an unknown value is normalised to compact
+        r = self.post("/owner/ads", {**self._ads_form(), "ad_rewards.home_native_size": "HUGE"})
+        self.assertEqual(r.status_code, 302, r.content[:400])
+        self.assertEqual(billing.cfg()["ad_rewards"]["home_native_size"], "compact")
+        self.assertEqual(api.get("/api/v1/ads/config").json()["home_native_size"], "compact")
+
     def test_flag_flip_needs_reason(self):
         from core import billing
         r = self.post("/owner/ads", {"action": "flag", "flag": "ads_rewarded"})

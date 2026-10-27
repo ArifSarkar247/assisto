@@ -1,0 +1,41 @@
+{
+ "en": {
+  "hv2GreetLate": "Hello, still up",
+  "@hv2GreetLate": {
+   "description": "Home v2 greeting word late at night (22:00-05:00, owner 27 Oct). Replaces the old night string that said Good evening."
+  },
+  "hv2GreetLatePlain": "Hello, still up?",
+  "@hv2GreetLatePlain": {
+   "description": "Home v2 header line late at night (22:00-05:00) when the user has no first name."
+  },
+  "hv2GreetLateName": "Hello {name}, still up?",
+  "@hv2GreetLateName": {
+   "description": "Home v2 header line late at night (22:00-05:00) with the user's first name.",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "hv2RemoveAds": "Remove ads",
+  "@hv2RemoveAds": {
+   "description": "Small text link next to (outside) the home native ad; opens the Premium plans screen (owner 27 Oct)."
+  },
+  "hv2RemoveAdsA11y": "Remove ads. Opens the Premium plans",
+  "@hv2RemoveAdsA11y": {
+   "description": "Screen-reader name of the Remove ads link (read separately from the ad)."
+  },
+  "ffPreviewTag": "Preview",
+  "@ffPreviewTag": {
+   "description": "Small tag on a sidebar / All Services entry that only the owner / staff / testers see (hidden feature in preview)."
+  }
+ },
+ "bn": {
+  "hv2GreetLate": "শুভ রাত্রি",
+  "hv2GreetLatePlain": "শুভ রাত্রি!",
+  "hv2GreetLateName": "শুভ রাত্রি, {name}!",
+  "hv2RemoveAds": "বিজ্ঞাপন সরান",
+  "hv2RemoveAdsA11y": "বিজ্ঞাপন সরান। প্রিমিয়াম প্ল্যান খুলবে",
+  "ffPreviewTag": "প্রিভিউ"
+ }
+}

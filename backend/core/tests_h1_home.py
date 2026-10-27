@@ -31,6 +31,24 @@ class HeroConfigTests(SimpleTestCase):
         base.update(kw)
         return A.client_config(**base)
 
+    def test_native_daily_cap_served(self):
+        # owner feedback 27 Oct: the home native card's device cap (default 20)
+        self.assertEqual(self._cfg()["native_daily_cap"], 20)
+        self.assertEqual(self._cfg(ad_caps={"native_daily_cap": 7})["native_daily_cap"], 7)
+        self.assertEqual(self._cfg(ad_caps={"native_daily_cap": 999})["native_daily_cap"], 50)
+        self.assertEqual(self._cfg(ad_caps={"native_daily_cap": 0})["native_daily_cap"], 0)
+
+    def test_home_native_size_normalised(self):
+        # owner 27 Oct: "compact" (default) | "large"; unknown -> compact
+        self.assertEqual(self._cfg()["home_native_size"], "compact")
+        for raw, want in (("large", "large"), (" LARGE ", "large"), ("compact", "compact"),
+                          ("huge", "compact"), ("", "compact"), (None, "compact"), (3, "compact")):
+            self.assertEqual(self._cfg(ad_caps={"home_native_size": raw})["home_native_size"],
+                             want, raw)
+            self.assertEqual(P.normalize({"ad_rewards": {"home_native_size": raw}})
+                             ["ad_rewards"]["home_native_size"], want, raw)
+        self.assertEqual(P.normalize({})["ad_rewards"]["home_native_size"], "compact")
+
     def test_hero_off_by_default_and_muted(self):
         c = self._cfg()
         self.assertFalse(c["hero_enabled"])

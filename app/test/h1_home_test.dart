@@ -153,20 +153,25 @@ void main() {
           HomeHero(
               fallback: _logo,
               collapsed: collapsed,
+              onRemoveAds: () {},
               availableHeight: h,
               bridge: b,
               loadConfig: () async => cfg,
               isHomeVisible: () => true),
         ]);
 
-    testWidgets('Free + flag ON + fill -> native ad with "Ad" label, muted, guard set',
+    testWidgets('Free + flag ON + fill -> compact native ad with "Ad" label, guard set',
         (tester) async {
       final b = FakeHeroBridge();
       await tester.pumpWidget(_app(hero(b, heroConfig())));
       await _settle(tester);
       expect(find.byKey(const ValueKey('fake-native-ad')), findsOneWidget);
       expect(find.text(_t(tester, HomeHero).h1AdLabel), findsOneWidget);
-      expect(find.text(_t(tester, HomeHero).h1HeroMutedHint), findsOneWidget);
+      // compact (default): the SMALL template has no video / muted hint
+      expect(b.lastSize, HeroAdSize.compact);
+      expect(find.text(_t(tester, HomeHero).h1HeroMutedHint), findsNothing);
+      expect(tester.getSize(find.byKey(const ValueKey('hero-ad-box'))).height,
+          lessThanOrEqualTo(110));
       expect(find.byKey(const ValueKey('logo')), findsNothing);
       expect(b.lastStartMuted, isTrue);
       expect(HomeAdGuard.heroShowing.value, isTrue);
@@ -204,7 +209,8 @@ void main() {
         (FakeHeroBridge(fill: false), heroConfig(), 400),
         (FakeHeroBridge(linkedValue: false), heroConfig(), 400),
         (FakeHeroBridge(), heroConfig(enabled: false), 400),
-        (FakeHeroBridge(), heroConfig(), 150),
+        (FakeHeroBridge(), heroConfig(), 120),
+        (FakeHeroBridge(), heroConfig(size: 'large'), 200),
       ];
       for (final (b, cfg, h) in cases) {
         await tester.pumpWidget(_app(hero(b, cfg, h: h)));
@@ -239,6 +245,17 @@ void main() {
       await _settle(tester);
       expect(b.loads, 0);
       expect(find.byKey(const ValueKey('logo')), findsOneWidget);
+    });
+
+    testWidgets('large (server home_native_size) -> medium card, muted hint',
+        (tester) async {
+      final b = FakeHeroBridge();
+      await tester.pumpWidget(_app(hero(b, heroConfig(size: 'large'))));
+      await _settle(tester);
+      expect(b.lastSize, HeroAdSize.large);
+      expect(find.byKey(const ValueKey('fake-native-large')), findsOneWidget);
+      expect(find.text(_t(tester, HomeHero).h1HeroMutedHint), findsOneWidget);
+      expect(b.lastStartMuted, isTrue);
     });
 
     testWidgets('owner flag OFF for muted -> video starts with sound', (tester) async {

@@ -428,6 +428,12 @@ jobs:
               ' android:value="true"/>'
               '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"'
               ' android:value="true"/>'
+              # owner 27 Oct: Google's "Native ad validator" popup appears on
+              # TEST ads / test devices only; the app ships Google TEST units
+              # until admob_real_ids is on, so it is switched OFF here for
+              # every build users get (never shown to a normal user).
+              '\n        <meta-data android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"'
+              ' android:value="false"/>'
               '\n        <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider"'
               ' android:authorities="${applicationId}.mobileadsinitprovider"'
               ' tools:node="remove"/>\n'
@@ -828,6 +834,24 @@ jobs:
       #  * ML Kit's startup ContentProvider (MlKitInitProvider) is REMOVED: no
       #    startup providers (ColorOS launch history). PhotoFaces.kt calls
       #    MlKit.initialize() on the first face request instead.
+      # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
+      # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
+      - name: Native debug symbols in the AAB (crash-map)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          if "debugSymbolLevel" not in s:
+              line = ('android { defaultConfig { ndk { debugSymbolLevel = "SYMBOL_TABLE" } } }'
+                      if is_kts else "android { defaultConfig { ndk { debugSymbolLevel 'SYMBOL_TABLE' } } }")
+              s += "\n\n// crash-map\n" + line + "\n"
+              open(p, "w").write(s)
+          print("native debug symbols: SYMBOL_TABLE in", p)
+          PY
+      # ---- /crash-map ----
       - name: Photo Studio native deps (p2-photo)
         working-directory: app
         run: |
@@ -978,7 +1002,10 @@ jobs:
             if ! echo "$MAN" | grep -q "com.google.android.gms.ads.APPLICATION_ID"; then
               echo "::error::AdMob APPLICATION_ID missing (the SDK would crash at launch)"; exit 1
             fi
-            echo "admob manifest OK (APPLICATION_ID present, no MobileAdsInitProvider)"
+            if ! echo "$MAN" | grep -q "NATIVE_AD_DEBUGGER_ENABLED"; then
+              echo "::error::NATIVE_AD_DEBUGGER_ENABLED=false missing (the native ad validator popup would show on test ads)"; exit 1
+            fi
+            echo "admob manifest OK (APPLICATION_ID present, no MobileAdsInitProvider, native ad validator off)"
           else
             echo "::warning::aapt2 xmltree unavailable - admob manifest gate skipped"
           fi
@@ -1088,14 +1115,20 @@ jobs:
           rm -f /tmp/aab.p12
           mkdir -p out
           cp "$AAB" "out/assisto-play-build${{ github.run_number }}.aab"
-          ls -la out/*.aab
+          # crash-map: keep the R8 mapping of THIS bundle so the ship step uploads
+          # it to Play (readable Play Vitals stack traces for every build)
+          MAP=build/app/outputs/mapping/release/mapping.txt
+          if [ -s "$MAP" ]; then cp "$MAP" "out/assisto-play-build${{ github.run_number }}.mapping.txt"; else echo "::warning::no R8 mapping.txt for the AAB"; fi
+          ls -la out/
 
       - name: Upload AAB artifact (Google Play)
         if: steps.aab.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: assisto-aab
-          path: app/out/*.aab
+          path: |
+            app/out/*.aab
+            app/out/*.mapping.txt
           retention-days: 30
       # ---- /l1-launch ----
 

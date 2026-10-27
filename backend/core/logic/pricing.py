@@ -458,6 +458,10 @@ def DEFAULTS():
             "interstitial_daily_cap": 6,
             "interstitial_min_gap_sec": 300,
             "native_daily_cap": 20,
+            # owner 27 Oct: the home native card's template — "compact"
+            # (AdMob SMALL, ~90-110 dp; default) or "large" (MEDIUM, the old
+            # big card). Switchable in Owner Admin -> Ads, no app update.
+            "home_native_size": "compact",
             # admob (owner 25 Oct): the home native card (the h1 hero slot,
             # BELOW the shortcuts) is ON for Free users, always with an "Ad"
             # label; video starts MUTED by default.
@@ -866,6 +870,16 @@ BANNER_SCREENS = (
 INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
 AD_LISTS = {"banner_screens": BANNER_SCREENS,
             "interstitial_moments": INTERSTITIAL_MOMENTS}
+# one-of settings: the FIRST value is the default; anything else -> it
+HOME_NATIVE_SIZES = ("compact", "large")
+AD_CHOICES = {"home_native_size": HOME_NATIVE_SIZES}
+
+
+def norm_ad_choice(key, raw):
+    """An ad one-of setting, normalised: unknown / empty -> the default."""
+    allowed = AD_CHOICES[key]
+    v = str(raw if raw is not None else "").strip().lower()
+    return v if v in allowed else allowed[0]
 
 
 def _norm_ad_list(raw, allowed, fallback):
@@ -896,6 +910,8 @@ def _norm_ad_rewards(raw, base):
         out[k] = _bool(raw.get(k), base[k])
     for k, allowed in AD_LISTS.items():
         out[k] = _norm_ad_list(raw.get(k), allowed, base[k])
+    for k in AD_CHOICES:
+        out[k] = norm_ad_choice(k, raw.get(k, base.get(k)))
     return out
 
 
