@@ -20,11 +20,16 @@ import 'home_v2_tokens.dart';
 /// AI Sales Assistant, CCTV Cameras, Vehicle Tracking, Job Hunter, Phone
 /// Security, Prepaid Meter, Budget, Contract Scanner. Each maps to a REAL
 /// ChatNav route; a route that is not in [ChatNav.routes] for this user
-/// (feature flag off, e.g. CCTV everywhere today, vehicles / anti-theft in
-/// Play when the owner hides them) is skipped and the next real feature from
+/// (feature flag off, e.g. anti-theft in Play when the owner hides it) is
+/// skipped and the next real feature from
 /// [fillPool] takes the slot — never a fake or dead tile. A feature the owner
 /// / staff / testers see only as a server PREVIEW counts as off here too, so
 /// the owner's home shows exactly what normal users see.
+///
+/// CCTV (`home_watchman`) and Vehicle Tracking (`vehicle_tracking`) are
+/// LAUNCH features (owner 27 Oct, not previews): ON by default in both
+/// builds, so a new / never-edited home gets both in their slots and both are
+/// offered in Edit shortcuts. A saved set is never changed.
 ///
 /// Users who customised the old home keep exactly their own set (their six,
 /// in their order; nothing they did not choose is added). Their choices are

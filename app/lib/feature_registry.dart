@@ -44,7 +44,8 @@ const Map<String, bool> kFeatureDefaults = {
   'fall_detect': false,
   'anti_theft': true,
   'cctv_watchman': true,
-  'home_watchman': false,
+  // launch (owner 27 Oct): CCTV + vehicle tracking are launch features.
+  'home_watchman': true,
   'disaster_alerts': true,
   'blood_donor': true,
   'kid_school': true,

@@ -362,21 +362,10 @@ void main() {
 
   group('shortcuts', () {
     test('owner order, real routes, flag-hidden skipped + filled', () {
-      // defaults: CCTV (home_watchman) is hidden -> Reminders fills slot 11
-      expect(HomeV2Shortcuts.defaults(), [
-        'family',
-        'journey',
-        'khata',
-        'sales_agent',
-        'vehicle_tracking',
-        'jobs',
-        'lost_stolen',
-        'prepaid_meter',
-        'budget',
-        'contract',
-        'reminders',
-      ]);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['watchman']);
+      // launch (owner 27 Oct): CCTV + Vehicle Tracking are ON by default ->
+      // the owner's 11 exactly, nothing skipped
+      expect(HomeV2Shortcuts.defaults(), HomeV2Shortcuts.ownerOrder);
+      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
       for (final r in HomeV2Shortcuts.defaults()) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
       }
@@ -389,10 +378,12 @@ void main() {
       expect(d, isNot(contains('vehicle_tracking')));
       expect(d, isNot(contains('lost_stolen')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.sublist(8), ['reminders', 'money', 'notes']);
-      // CCTV appears in its slot the day the owner turns it on
-      FeatureFlags.instance.debugOverride = {'home_watchman': true};
-      expect(HomeV2Shortcuts.defaults()[4], 'watchman');
+      expect(d.sublist(8), ['contract', 'reminders', 'money']);
+      // CCTV switched OFF by the owner -> skipped, the next real one fills
+      FeatureFlags.instance.debugOverride = {'home_watchman': false};
+      expect(HomeV2Shortcuts.defaults(), isNot(contains('watchman')));
+      expect(HomeV2Shortcuts.skippedDefaults(), ['watchman']);
+      expect(HomeV2Shortcuts.defaults().last, 'reminders');
     });
 
     test('a saved set is kept exactly (no top-up, no My Circle)', () {
@@ -449,6 +440,181 @@ void main() {
       expect(nav.pushed.last, 'budget');
       await _unmount(tester);
     });
+  });
+
+  // launch (owner 27 Oct): CCTV and vehicle tracking are LAUNCH features —
+  // CCTV back in the default home shortcuts, vehicle tracking offered in Edit
+  // shortcuts, no "Preview" label for either while their flags are ON. A
+  // saved set is never touched; the preview mechanism still works for an OFF
+  // flag (owner / staff).
+  group('launch: CCTV + vehicle tracking', () {
+    const launchOn = {
+      'home_watchman': true,
+      'cctv_watchman': true,
+      'vehicle_tracking': true,
+      'vehicles': true,
+    };
+
+    test('registry: ON by default (first run, no server answer)', () {
+      expect(kFeatureDefaults['home_watchman'], isTrue);
+      expect(kFeatureDefaults['cctv_watchman'], isTrue);
+      expect(kFeatureDefaults['vehicle_tracking'], isTrue);
+      expect(FeatureFlags.instance.homeTileAllowed('watchman'), isTrue);
+      expect(FeatureFlags.instance.homeTileAllowed('vehicle_tracking'), isTrue);
+    });
+
+    test('fresh install: default set has CCTV (slot 5) + vehicle tracking',
+        () async {
+      final d = await HomeV2Shortcuts.load();
+      expect(d[4], 'watchman');
+      expect(d[5], 'vehicle_tracking');
+      expect(d.length, HomeV2Shortcuts.max);
+      // same once the server answers ON for everyone (no preview)
+      FeatureFlags.instance.applyForTest({
+        'features': launchOn,
+        'preview': <String>[],
+      });
+      expect((await HomeV2Shortcuts.load())[4], 'watchman');
+    });
+
+    test('a saved custom set is untouched (v2 and old-home six)', () async {
+      SharedPreferences.setMockInitialValues({
+        HomeV2Shortcuts.prefsKey: jsonEncode(['notes', 'money', 'tax']),
+      });
+      Settings.resetForTest();
+      expect(await HomeV2Shortcuts.load(), ['notes', 'money', 'tax']);
+      expect(await Settings.getString(HomeV2Shortcuts.prefsKey),
+          jsonEncode(['notes', 'money', 'tax']));
+      SharedPreferences.setMockInitialValues({
+        HomeQuickButtons.prefsKey:
+            jsonEncode(['money', 'notes', 'emergency', 'scam', 'tax', 'memory']),
+      });
+      Settings.resetForTest();
+      final old = await HomeV2Shortcuts.load();
+      expect(old, ['money', 'notes', 'emergency', 'scam', 'tax', 'memory']);
+      expect(old, isNot(contains('watchman')));
+      expect(await Settings.getString(HomeV2Shortcuts.prefsKey), isNull);
+    });
+
+    for (final lang in ['en', 'bn']) {
+      for (final scale in [1.0, 2.0]) {
+        testWidgets('home default shows the CCTV tile ($lang ${scale}x)',
+            (tester) async {
+          await _pump(tester, _home(), lang: lang, scale: scale);
+          await _settle(tester);
+          final t = _t(tester);
+          final cctv = find.byKey(const ValueKey('hv2_tile_watchman'));
+          await tester.scrollUntilVisible(cctv, 200,
+              scrollable: find.byType(Scrollable).first);
+          expect(cctv, findsOneWidget);
+          expect(tester.getSize(cctv).height, greaterThanOrEqualTo(48));
+          expect(tester.getSize(cctv).width, greaterThanOrEqualTo(48));
+          expect(tester.getSemantics(cctv).label, contains(t.hv2TileCctv));
+          expect(find.byKey(const ValueKey('hv2_tile_vehicle_tracking')),
+              findsOneWidget);
+          expect(find.text(t.ffPreviewTag), findsNothing);
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+
+        testWidgets('saved set: no CCTV tile added ($lang ${scale}x)',
+            (tester) async {
+          SharedPreferences.setMockInitialValues({
+            HomeV2Shortcuts.prefsKey: jsonEncode(['notes', 'money']),
+          });
+          Settings.resetForTest();
+          await _pump(tester, _home(), lang: lang, scale: scale);
+          await _settle(tester);
+          expect(find.byKey(const ValueKey('hv2_tile_notes')), findsOneWidget);
+          expect(find.byKey(const ValueKey('hv2_tile_watchman')), findsNothing);
+          expect(find.byKey(const ValueKey('hv2_tile_vehicle_tracking')),
+              findsNothing);
+          expect(await Settings.getString(HomeV2Shortcuts.prefsKey),
+              jsonEncode(['notes', 'money']));
+          await _unmount(tester);
+        });
+
+        testWidgets('Edit shortcuts offers vehicle tracking + CCTV, 48 dp '
+            '($lang ${scale}x)', (tester) async {
+          SharedPreferences.setMockInitialValues({
+            HomeV2Shortcuts.prefsKey: jsonEncode(['notes']),
+          });
+          Settings.resetForTest();
+          await _pump(tester, _home(), lang: lang, scale: scale);
+          await _settle(tester);
+          final t = _t(tester);
+          await tester.tap(find.byKey(const ValueKey('hv2_edit')));
+          await _settle(tester);
+          final picker = find.byType(QuickButtonsPicker);
+          expect(picker, findsOneWidget);
+          for (final label in [t.hv2TileVehicle, t.hv2TileCctv]) {
+            await tester.enterText(
+                find.descendant(of: picker, matching: find.byType(TextField)),
+                label);
+            await _settle(tester);
+            final row = find.ancestor(
+                of: find.descendant(of: picker, matching: find.text(label)),
+                matching: find.byType(CheckboxListTile));
+            expect(row, findsOneWidget, reason: label);
+            expect(tester.getSize(row).height, greaterThanOrEqualTo(48));
+            expect(tester.widget<CheckboxListTile>(row).onChanged, isNotNull);
+            expect(
+                find.descendant(of: picker, matching: find.text(t.ffPreviewTag)),
+                findsNothing);
+          }
+          // pick vehicle tracking and save -> it is a home tile
+          await tester.enterText(
+              find.descendant(of: picker, matching: find.byType(TextField)),
+              t.hv2TileVehicle);
+          await _settle(tester);
+          await tester.tap(find.ancestor(
+              of: find.descendant(of: picker, matching: find.text(t.hv2TileVehicle)),
+              matching: find.byType(CheckboxListTile)));
+          await _settle(tester);
+          await tester.tap(find.text(t.aichatSave));
+          await _settle(tester);
+          expect(jsonDecode((await Settings.getString(HomeV2Shortcuts.prefsKey))!),
+              ['notes', 'vehicle_tracking']);
+          expect(find.byKey(const ValueKey('hv2_tile_vehicle_tracking')),
+              findsOneWidget);
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+
+        testWidgets('owner/staff: no Preview label on CCTV when ON; an OFF '
+            'flag still shows Preview ($lang ${scale}x)', (tester) async {
+          // staff answer: launch flags ON for everyone, Job Hunter OFF for
+          // users (visible to staff only as a preview)
+          FeatureFlags.instance.applyForTest({
+            'features': {...launchOn, 'jobs': true},
+            'preview': ['jobs'],
+          });
+          expect(FeatureFlags.instance.isPreviewRoute('watchman'), isFalse);
+          expect(FeatureFlags.instance.isPreviewRoute('shop_box'), isFalse);
+          expect(FeatureFlags.instance.isPreviewRoute('vehicle_tracking'),
+              isFalse);
+          expect(FeatureFlags.instance.isPreviewRoute('jobs'), isTrue);
+          await _pump(tester, _home(), lang: lang, scale: scale);
+          await _settle(tester);
+          final t = _t(tester);
+          expect(find.byKey(const ValueKey('hv2_tile_watchman')), findsOneWidget);
+          expect(find.byKey(const ValueKey('hv2_tile_jobs')), findsNothing);
+          await tester.tap(find.byKey(const ValueKey('hv2_nav_all')));
+          await _settle(tester);
+          await tester.enterText(find.byKey(const ValueKey('all_search')), 'cctv');
+          await _settle(tester);
+          expect(find.text(t.wmTitle), findsWidgets);
+          expect(find.text(t.ffPreviewTag), findsNothing);
+          await tester.enterText(
+              find.byKey(const ValueKey('all_search')), t.jobHunter);
+          await _settle(tester);
+          expect(find.text(t.jobHunter), findsWidgets);
+          expect(find.text(t.ffPreviewTag), findsWidgets);
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+      }
+    }
   });
 
   group('All Services', () {
