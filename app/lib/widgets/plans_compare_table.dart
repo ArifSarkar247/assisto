@@ -25,7 +25,23 @@ class PlansCompareTable extends StatelessWidget {
 
   /// The user's current effective plan id, to highlight that column.
   final String current;
-  const PlansCompareTable({super.key, required this.plans, required this.current});
+
+  /// plans-v2: the server's live matrix (`GET /plans/v2` -> `matrix`:
+  /// {free|premium|business: {crm_contacts, crm_unlimited, crm_write, ...}}).
+  /// Null (flag off) = the old table, unchanged.
+  final Map<String, dynamic>? v2;
+
+  /// Only list what is really live for this user (owner rule): the booking
+  /// bot and retention messages appear only while their own flags are on.
+  final bool showBooking;
+  final bool showRetention;
+  const PlansCompareTable(
+      {super.key,
+      required this.plans,
+      required this.current,
+      this.v2,
+      this.showBooking = false,
+      this.showRetention = false});
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +111,9 @@ class PlansCompareTable extends StatelessWidget {
         _Row(t.plansCmpCaregiver,
             {for (final p in cols) p['id']: family(p) > 0}),
       ]),
-      if (byId('business').isNotEmpty)
+      if (v2 != null && byId('business').isNotEmpty)
+        _v2Group(t, cols, digits)
+      else if (byId('business').isNotEmpty)
         _Group(t.plansCmpBusiness, [
           _Row(t.plansCmpBusinessMode,
               {for (final p in cols) p['id']: (p['id'] ?? '') == 'business'}),
@@ -121,6 +139,42 @@ class PlansCompareTable extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  /// plans-v2: "Business & CRM" rows from the live server matrix — only
+  /// features that really exist (no team members, no marketing module).
+  _Group _v2Group(AppLocalizations t, List<Map<String, dynamic>> cols,
+      String Function(int) digits) {
+    Map<String, dynamic> row(Map<String, dynamic> p) {
+      final id = '${p['id'] ?? ''}';
+      final tier = id == 'annual' ? 'premium' : id;
+      final m = v2![tier];
+      return m is Map ? m.cast<String, dynamic>() : const {};
+    }
+
+    bool cap(Map<String, dynamic> p, String c) => row(p)[c] == true;
+    dynamic contacts(Map<String, dynamic> p) {
+      final r = row(p);
+      if (r['crm_unlimited'] == true) return t.pv2CmpUnlimited;
+      final n = r['crm_contacts'];
+      return n is num ? t.plansCmpUpTo(digits(n.toInt())) : false;
+    }
+
+    dynamic crmWrite(Map<String, dynamic> p) =>
+        cap(p, 'crm_write') ? true : t.pv2CmpViewOnly;
+    return _Group(t.pv2CmpGroup, [
+      _Row(t.pv2CmpLedger, {for (final p in cols) p['id']: true}),
+      _Row(t.pv2CmpCrmContacts, {for (final p in cols) p['id']: contacts(p)}),
+      _Row(t.pv2CmpCrmWrite, {for (final p in cols) p['id']: crmWrite(p)}),
+      _Row(t.pv2CmpFollowup,
+          {for (final p in cols) p['id']: cap(p, 'crm_followup_reminders')}),
+      _Row(showRetention ? t.pv2CmpAutomationRetention : t.pv2CmpAutomation,
+          {for (final p in cols) p['id']: cap(p, 'automation')}),
+      _Row(t.pv2CmpAgent, {for (final p in cols) p['id']: cap(p, 'ai_sales_agent')}),
+      if (showBooking)
+        _Row(t.pv2CmpBooking, {for (final p in cols) p['id']: cap(p, 'booking_bot')}),
+      _Row(t.pv2CmpReports, {for (final p in cols) p['id']: cap(p, 'reports')}),
+    ]);
   }
 
   static const double _labelW = 160;

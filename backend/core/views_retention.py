@@ -114,6 +114,13 @@ class _Owner(_Gated):
                 lang, "শুধু দোকানের মালিক এটি ব্যবহার করতে পারেন।",
                 "Only the shop owner can use this.")})
         self.biz = biz
+        from . import entitlements_service as ES
+        if self.need_plan and ES.on(request.user) and not S.plan_ok(request.user):
+            # plans-v2: what exists stays readable and removable (no data
+            # loss); creating / changing / sending needs Business.
+            if request.method in ("GET", "HEAD", "OPTIONS", "DELETE"):
+                return
+            ES.refuse("automation", request.user, lang)
         if self.need_plan and not S.plan_ok(request.user):
             from . import plans
             e = APIException()

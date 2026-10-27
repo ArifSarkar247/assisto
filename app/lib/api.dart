@@ -17,7 +17,11 @@ class ApiException implements Exception {
   /// credout: the server's machine reason (`reason`, else `code`) when the
   /// body carried one, e.g. 'credits' on an out-of-credits 402.
   final String? reason;
-  ApiException(this.message, [this.status, this.ref, this.reason]);
+
+  /// plans-v2: the decoded JSON error body (e.g. the structured 402
+  /// `upgrade_required` {feature, needed_plan, limit, used, message}).
+  final Map<String, dynamic>? body;
+  ApiException(this.message, [this.status, this.ref, this.reason, this.body]);
   @override
   String toString() => message;
 }
@@ -66,9 +70,11 @@ class ApiClient {
     String msg;
     String? ref;
     String? reason;
+    Map<String, dynamic>? errBody;
     try {
       final body = jsonDecode(r.body);
       if (body is Map) {
+        errBody = body.cast<String, dynamic>();
         if (body['ref'] != null) ref = body['ref'].toString();
         final why = body['reason'] ?? body['code'];
         if (why is String && why.isNotEmpty) reason = why;
@@ -88,7 +94,7 @@ class ApiClient {
     } catch (_) {
       msg = 'Something went wrong (${r.statusCode})';
     }
-    throw ApiException(msg, r.statusCode, ref, reason);
+    throw ApiException(msg, r.statusCode, ref, reason, errBody);
   }
 
   Future<Map<String, dynamic>> _postJson(String path, Map body,

@@ -615,7 +615,8 @@ def premium_offer(user, reason="generic", lang="bn"):
         "yearly_discount_pct": disc,
         "yearly_monthly_equiv": round(yearly / 12.0, 2),
         "trial_available": plans.trial_available(user),
-        "trial_days": plans.trial_days(),
+        "trial_days": plans.trial_days(user),
+        "trial_plan": plans.trial_plan(user),
         "trial_active": plans.trial_active(user),
         "cur": "BDT",
     }

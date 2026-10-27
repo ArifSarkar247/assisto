@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
+import '../../plans_v2/trial_banner.dart'; // plans-v2
 import 'business_setup_screen.dart';
 import 'khata_screen.dart';
 import 'cashbox_screen.dart';
@@ -265,6 +266,8 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Gap.lg),
           children: [
+            // plans-v2: a running trial shows its clear end date here too
+            const PlansV2TrialBanner(),
             // Selected business + switcher.
             BrandBand(
               child: Row(children: [

@@ -226,6 +226,9 @@ class BizPageView(_Gated):
         if "enabled" in data:
             want = bool(data.get("enabled"))
             if want and not S.business_plan_ok(biz.user):
+                from . import entitlements_service as ES
+                if ES.on(biz.user):   # plans-v2: the structured upgrade body
+                    return ES.response("booking_bot", biz.user, lang)
                 return err(lang, "upgrade_required", 402, plan_required="business", upgrade=True)
             page.enabled = want
             fields.append("enabled")

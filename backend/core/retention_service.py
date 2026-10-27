@@ -76,8 +76,13 @@ def flag_on(user, play=False):
 
 
 def plan_ok(user):
+    """`user` = the shop owner. plans-v2 ON: the central entitlement module
+    (Business, founder, a running Business trial). OFF: the old rule."""
     from . import plans
     try:
+        from . import entitlements_service as ES
+        if ES.on(user):
+            return ES.allows(user, "automation")
         return plans.effective_plan(user) in ALLOWED_PLANS
     except Exception:
         return False

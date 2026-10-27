@@ -99,6 +99,8 @@ const Map<String, bool> kFeatureDefaults = {
   'referral': true,
   // retention1 (big-week H)
   'retention_auto': false,
+  // plans-v2 (owner 27 Oct): Free / Premium / Business limits + trial
+  'plans_v2': false,
   'corporate_meetings': false,
   'remote_support': false,
   'marketing': false,

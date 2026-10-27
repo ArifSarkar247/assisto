@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import '../../plans_v2/plans_v2.dart';
+import '../../plans_v2/upgrade_sheet.dart';
 import 'crm_lead_form_screen.dart';
 import 'crm_proposal_screen.dart';
 import 'crm_proposal_advanced_screen.dart';
@@ -25,6 +27,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   Map<String, dynamic>? _lead;
   Map<String, dynamic>? _timeline;
   Map<String, dynamic>? _followup;
+  UpgradeReason? _followupLock; // plans-v2: follow-up reminders locked
   bool _loading = true;
   CrmError? _error;
 
@@ -44,9 +47,19 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       // G3: retrieve the single lead directly instead of listing + firstWhere.
       _lead = await api.lead(widget.leadId);
       _timeline = await api.leadTimeline(widget.leadId);
-      _followup = await api.leadFollowup(widget.leadId);
     } catch (e) {
       _error = CrmError.from(e);
+    }
+    // plans-v2: the follow-up suggestion is a Premium feature — a refusal
+    // must never hide the lead itself (reads always work).
+    _followupLock = null;
+    if (_error == null) {
+      try {
+        _followup = await CrmApi.of(context).leadFollowup(widget.leadId);
+      } catch (e) {
+        _followup = null;
+        _followupLock = UpgradeReason.fromError(e);
+      }
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -221,6 +234,17 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                     ]),
                   ),
                 ),
+                if (_followupLock != null)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      key: const Key('pv2-followup-locked'),
+                      onPressed: () => UpgradeSheet.show(context, _followupLock!),
+                      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                      icon: const Icon(Icons.lock_rounded, size: 18),
+                      label: Text(t.pv2FollowupLocked(planName(t, _followupLock!.neededPlan))),
+                    ),
+                  ),
                 if (_followup?['ok'] == true) ...[
                   Text('${t.crmSuggestedContact}: ${crmDate(context, _followup!['suggested_contact_date'])}',
                       style: TextStyle(color: scheme.onSurfaceVariant)),

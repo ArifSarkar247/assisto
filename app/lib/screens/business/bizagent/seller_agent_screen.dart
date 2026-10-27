@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../plans_v2/upgrade_sheet.dart'; // plans-v2
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -129,7 +130,9 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
       await context.read<AppState>().api.bizAgentSaveSettings({'ai_enabled': on});
       _snack(on ? t.baAiOnDone : t.baAiOffDone);
     } catch (e) {
-      _snack(baErrorText(t, e));
+      // plans-v2: the AI Sales Agent is Business -> the honest upgrade sheet
+      final up = mounted && await UpgradeSheet.handle(context, e);
+      if (!up && mounted) _snack(baErrorText(t, e));
     }
     if (mounted) setState(() => _busy = false);
     await _load();

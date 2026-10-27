@@ -32,6 +32,7 @@ from . import quoting, dupes, porting, cadence
 from .audit import log as audit_log
 from .i18n import tdict
 from . import logic as core_logic
+from . import plan_gate as _pg   # plans-v2
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity, Mention,
                      Tag, Product, Territory, RoutingRule, Target, Cadence,
@@ -305,6 +306,9 @@ def lead_create(request):
     if not org:
         return render(request, "crm/no_org.html", _ctx(request, None, None))
     if request.method == "POST":
+        bad = _pg.web_refusal(request, org, "lead")
+        if bad:
+            return bad
         assignee, _terr = pl.route_lead(
             org,
             industry=request.POST.get("industry", "other"),
@@ -380,6 +384,9 @@ def lead_message(request, pk):
     if not org:
         return redirect("crm_org_create")
     lead = get_object_or_404(Lead, pk=pk, org=org)
+    bad = _pg.web_refusal(request, org, "write")
+    if bad:
+        return bad
     text = (request.POST.get("text") or "")[:8000]
     direction = request.POST.get("direction", Message.IN)
     if direction not in (Message.IN, Message.OUT):
@@ -426,6 +433,15 @@ def lead_import(request):
         return render(request, "crm/no_org.html", _ctx(request, None, None))
     summary = None
     if request.method == "POST" and request.FILES.get("file"):
+        f = request.FILES["file"]
+        try:
+            rows = max(1, f.read().count(b"\n"))   # header + rows (upper bound)
+            f.seek(0)
+        except Exception:
+            rows = 1
+        bad = _pg.web_refusal(request, org, "lead", adding=max(1, rows - 1))
+        if bad:
+            return bad
         summary = porting.import_leads_csv(org, request.FILES["file"],
                                            assigned_to=member)
         audit_log(org, member, "lead.import", "", str(summary))
@@ -451,6 +467,9 @@ def company_create(request):
     org, member = _require_org(request)
     if not org:
         return redirect("crm_org_create")
+    bad = _pg.web_refusal(request, org, "write")
+    if bad:
+        return bad
     parent = None
     if request.POST.get("parent"):
         parent = Company.objects.filter(org=org, id=request.POST["parent"]).first()
@@ -482,6 +501,9 @@ def contact_create(request):
     org, member = _require_org(request)
     if not org:
         return redirect("crm_org_create")
+    bad = _pg.web_refusal(request, org, "contact")
+    if bad:
+        return bad
     company = None
     if request.POST.get("company"):
         company = Company.objects.filter(org=org, id=request.POST["company"]).first()
@@ -517,6 +539,9 @@ def deal_create(request):
         return render(request, "crm/no_org.html", _ctx(request, None, None))
     pl.ensure_default_pipeline(org)
     if request.method == "POST":
+        bad = _pg.web_refusal(request, org, "write")
+        if bad:
+            return bad
         pipe = org.pipelines.filter(id=request.POST.get("pipeline")).first() \
             or org.pipelines.filter(is_default=True).first()
         stage = pipe.stages.filter(id=request.POST.get("stage")).first() \
@@ -570,6 +595,11 @@ def deal_update(request, pk):
     if not org:
         return redirect("crm_org_create")
     deal = get_object_or_404(Deal, pk=pk, org=org)
+    nd = _parse_date(request.POST.get("next_step_due"))
+    if nd and nd != deal.next_step_due:
+        bad = _pg.web_refusal(request, org, "followup")
+        if bad:
+            return bad
     deal.title = (request.POST.get("title") or deal.title).strip()
     deal.value = _dec(request.POST.get("value"), str(deal.value))
     if request.POST.get("probability"):
@@ -638,6 +668,9 @@ def deal_enroll(request, pk):
     if not org:
         return redirect("crm_org_create")
     deal = get_object_or_404(Deal, pk=pk, org=org)
+    bad = _pg.web_refusal(request, org, "followup")
+    if bad:
+        return bad
     cad = Cadence.objects.filter(org=org, id=request.POST.get("cadence")).first()
     if cad:
         cadence.enroll(deal, cad, member=member)
@@ -656,6 +689,9 @@ def activity_log(request):
     org, member = _require_org(request)
     if not org:
         return JsonResponse({"ok": False}, status=400)
+    bad = _pg.web_refusal(request, org, "write", json=True)
+    if bad:
+        return bad
     kind = request.POST.get("kind", Activity.NOTE)
     if kind not in dict(Activity.KINDS):
         kind = Activity.NOTE
@@ -725,6 +761,9 @@ def proposal_build(request, lead_pk):
     lead = get_object_or_404(Lead, pk=lead_pk, org=org)
     products = Product.objects.filter(org=org, active=True)
     if request.method == "POST":
+        bad = _pg.web_refusal(request, org, "write")
+        if bad:
+            return bad
         selections = []
         for p in products:
             qty = request.POST.get(f"qty_{p.sku}")

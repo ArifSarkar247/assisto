@@ -121,6 +121,10 @@ REGISTRY = (
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
     ('retention_auto', 'business', 'Retention automation (thank-you, we-miss-you, due, back-in-stock, birthday)', 'রিটেনশন অটোমেশন (ধন্যবাদ, ফিরে আসুন, বাকি, স্টকে এসেছে, জন্মদিন)', False, ('retention_auto', 'retention_inbox')),
+    # plans-v2 (owner 27 Oct): the Free / Premium / Business matrix, CRM
+    # limits and the 7-day Business trial (core.entitlements_service). A
+    # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.
+    ('plans_v2', 'business', 'Plans v2 (Free / Premium / Business limits, 7-day Business trial)', 'প্ল্যান v2 (ফ্রি / প্রিমিয়াম / বিজনেস সীমা, ৭ দিনের বিজনেস ট্রায়াল)', False, ()),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
     ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),

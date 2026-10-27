@@ -24,6 +24,14 @@ def _needs(what_bn, what_en, reason="integration"):
     }
 
 
+def _payer(org):
+    """credit-leak fix (plans-v2): every CRM AI call is charged to the CRM
+    ORG OWNER's credits through billing (ai.generate user=...), like every
+    other AI call — never free. Out of credits -> the honest rule-based
+    fallback below (sentiment / recap / template), never a fake AI answer."""
+    return getattr(org, "owner", None) if org is not None else None
+
+
 # --------------------------------------------------------------- lead capture
 def _inbound_texts(lead):
     """All inbound message text for a lead — the real signal for scoring."""
@@ -42,7 +50,8 @@ def score_lead(lead, use_ai=True):
                                 company_size=lead.company_size,
                                 inbound_texts=texts)
     if use_ai:
-        result, _summary = scoring.refine_with_ai(result, texts)
+        result, _summary = scoring.refine_with_ai(result, texts,
+                                                  user=_payer(lead.org))
     lead.score = result["score"]
     lead.priority = result["priority"]
     lead.score_reason = result["reason"]
@@ -84,7 +93,8 @@ def add_message(conversation, direction, text, rescore=True):
     refresh the conversation insight summary. Re-scores the lead when an inbound
     message arrives (new buying signals may raise priority)."""
     sentiment = scoring.rule_sentiment(text)
-    sentiment = _refine_sentiment(text, sentiment)
+    sentiment = _refine_sentiment(text, sentiment,
+                                  user=_payer(conversation.lead.org))
     msg = Message.objects.create(
         conversation=conversation, direction=direction,
         text=text or "", sentiment=sentiment,
@@ -95,7 +105,7 @@ def add_message(conversation, direction, text, rescore=True):
     return msg
 
 
-def _refine_sentiment(text, fallback):
+def _refine_sentiment(text, fallback, user=None):
     """Ask AI for sentiment only if available; otherwise keep the rule result.
     Never fabricates — on any error returns the deterministic fallback."""
     try:
@@ -108,7 +118,7 @@ def _refine_sentiment(text, fallback):
             "POS, NEU, or NEG (buying sentiment). Reply with the token only.")
     try:
         out, _ = ai.generate(task=task, data=text or "", tier="cheap",
-                             max_tokens=5, feature="crm.sentiment", user=None)
+                             max_tokens=5, feature="crm.sentiment", user=user)
     except Exception:
         return fallback
     tok = (out or "").strip().upper()
@@ -136,7 +146,8 @@ def _update_insight(conversation):
                     "buyer wants and how interested they seem. Only use <data>.")
             summary, _ = ai.generate(task=task, data="\n".join(inbound),
                                      tier="cheap", max_tokens=120,
-                                     feature="crm.insight", user=None)
+                                     feature="crm.insight",
+                                     user=_payer(conversation.lead.org))
     except Exception:
         summary = ""
 
@@ -167,6 +178,7 @@ def suggest_followup(lead):
 
     draft = ""
     source = "template"
+    credits_out = False
     try:
         from core import ai
         if ai.available() and texts:
@@ -176,10 +188,12 @@ def suggest_followup(lead):
                     "assistant, not a human.")
             draft, _ = ai.generate(task=task, data="\n".join(texts),
                                    tier="cheap", max_tokens=200,
-                                   feature="crm.followup", user=None)
+                                   feature="crm.followup",
+                                   user=_payer(lead.org))
             source = "ai" if draft else "template"
-    except Exception:
+    except Exception as e:
         draft = ""
+        credits_out = getattr(e, "reason", "") == "credits"
 
     if not draft:
         name = lead.name or "স্যার/ম্যাডাম"
@@ -193,6 +207,8 @@ def suggest_followup(lead):
         "note": "এটি একটি পরামর্শ, নিশ্চিত নয় / This is a suggestion, not a guarantee",
         "draft": draft,
         "draft_source": source,
+        # out of AI credits: the honest template above, never a fake AI draft
+        "credits_out": credits_out,
     }
 
 
@@ -227,9 +243,14 @@ def generate_proposal(lead, requirements=""):
     )
     try:
         body, _ = ai.generate(task=task, data=data, tier="medium",
-                             max_tokens=1200, feature="crm.proposal", user=None)
+                             max_tokens=1200, feature="crm.proposal",
+                             user=_payer(lead.org))
     except Exception as e:
         reason = getattr(e, "reason", "queued")
+        if reason == "credits":
+            return {"ok": False, "reason": "credits", "code": "out_of_credits",
+                    "message": "AI ক্রেডিট শেষ — ক্রেডিট যোগ করে আবার চেষ্টা করুন। কোনো ক্রেডিট কাটা হয়নি। / "
+                               "Out of AI credits — add credits and try again. No credits were used."}
         return _needs("AI key যোগ হবে", "an AI key is added",
                       reason="no_key" if reason == "no_key" else "queued")
 

@@ -63,6 +63,13 @@ class CrmErrorMixin:
     def get_exception_handler(self):
         return crm_errors.crm_exception_handler
 
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        # plans-v2: the ONE CRM plan gate (org owner's plan; no-op while the
+        # plans_v2 flag is off). Raises a structured 402 upgrade_required.
+        from . import plan_gate
+        plan_gate.check(self, request, kwargs)
+
 
 # --------------------------------------------------------------- helpers
 def _member_org_ids(user):
@@ -289,7 +296,20 @@ class LeadViewSet(CrmErrorMixin, viewsets.ModelViewSet):
     def proposal(self, request, pk=None):
         lead = self.get_object()
         requirements = (request.data.get("requirements") or "")[:4000]
-        return Response(logic.generate_proposal(lead, requirements))
+        res = logic.generate_proposal(lead, requirements)
+        if res.get("reason") == "credits":
+            # credit-leak fix: charged to the org owner; out of credits ->
+            # the shared credout 402 (apps that send X-Assisto-Credout) or
+            # the honest localized line — nothing saved, nothing charged.
+            from core import credits_out
+            from core.i18n import req_lang
+            payer = lead.org.owner
+            need = credits_out.need_for_tier(payer, "medium")
+            if credits_out.supported(request):
+                return credits_out.response(payer, req_lang(request), need)
+            res = {**credits_out.body(payer, req_lang(request), need),
+                   "needs_key": False}
+        return Response(res)
 
     # ----- mark a lead WON: close/create the backing deal (spec §6) -----
     @action(detail=True, methods=["post"])

@@ -138,6 +138,10 @@ class CrmApi {
       _c.getJson('/crm/companies/$id/');
   Future<List<Map<String, dynamic>>> contacts(int org) =>
       _c.listItems('crm/contacts?org=$org');
+  // plans-v2: Free may add CRM contacts up to the owner's limit (server-enforced).
+  Future<Map<String, dynamic>> createContact(Map<String, dynamic> body) =>
+      _c.createItem('crm/contacts', body);
+  Future<void> deleteContact(int id) => _c.deleteItem('crm/contacts', id);
 
   // ---- activities ----
   // `company`/`contact` params are sent HOPEFULLY — the server ignores unknown

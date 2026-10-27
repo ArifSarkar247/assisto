@@ -5,6 +5,8 @@ import 'crm_common.dart';
 import 'crm_firstrun_screen.dart';
 import 'crm_today_screen.dart';
 import 'crm_leads_screen.dart';
+import 'crm_contacts_tab.dart';
+import '../../feature_flags.dart';
 import 'crm_pipeline_screen.dart';
 import 'crm_dashboard_screen.dart';
 import 'crm_companies_screen.dart';
@@ -89,6 +91,9 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     final tabs = [
       (icon: Icons.today_rounded, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
       (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
+      // plans-v2: CRM contacts (Free can add these up to the owner's limit)
+      if (FeatureFlags.instance.isOn('plans_v2'))
+        (icon: Icons.contacts_rounded, label: t.pv2TabContacts, child: CrmContactsTab(org: org)),
       (icon: Icons.domain_rounded, label: t.crmTabCompanies, child: CrmCompaniesScreen(org: org)),
       (icon: Icons.view_kanban_rounded, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
       (icon: Icons.insights_rounded, label: t.crmTabDashboard, child: CrmDashboardScreen(org: org)),

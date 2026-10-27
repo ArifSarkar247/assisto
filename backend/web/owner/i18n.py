@@ -1331,3 +1331,43 @@ BN.update({
     "pf_trial_days": "ট্রায়াল: দিন", "pf_trial_credits": "ট্রায়াল: ক্রেডিট", "pf_trial_on_signup": "ট্রায়াল: সাইন আপেই শুরু",
 })
 # ---- /billing-v2 ----
+
+# ---- plans-v2 ----
+EN.update({
+    "pv2_title": "Plans v2 — Free / Premium / Business limits",
+    "pv2_intro": "Used only while the feature switch plans_v2 is ON (Features page). Every limit here is enforced on the server; the app only shows it. Existing records are never removed: over a limit they stay readable and editable, only adding new ones asks to upgrade.",
+    "pv2_feature": "Feature", "pv2_free": "Free", "pv2_premium": "Premium", "pv2_business": "Business",
+    "pv2_crm_contacts": "CRM contacts (leads + contacts, per account)",
+    "pv2_cap_crm_write": "Add leads, deals, pipeline and tasks (off = view only)",
+    "pv2_cap_crm_followup_reminders": "CRM follow-up reminders",
+    "pv2_cap_automation": "Automation (retention messages, CRM rules, bulk WhatsApp)",
+    "pv2_cap_ai_sales_agent": "AI Sales Agent (incl. COD confirmation)",
+    "pv2_cap_booking_bot": "Booking bot (page live)",
+    "pv2_cap_reports": "Weekly / monthly sales reports, bank-loan report, insights",
+    "pv2_cap_ledger_ai_addons": "Khata AI tools (voice entry, paper scan, payment match)",
+    "pv2_trial_days": "Free trial length (days, 0 = no trial)",
+    "pv2_trial_plan": "The trial gives",
+    "pv2_unlimited_at": "Show \u201cUnlimited\u201d in the app from this many contacts",
+    "pv2_note": "Business keeps a hidden safety cap (the number above) against abuse — nothing is truly unlimited. The trial is once per account, needs no card and never charges: when it ends the account returns to Free. Message and AI costs still come from credits and Profit Guard.",
+    "p_bad_plans_v2": "Plans v2: a number is out of range (trial 0–30 days, Free contacts 0–1000, Premium 1–100000, Business 1–1000000) or the trial plan is not Premium/Business.",
+})
+BN.update({
+    "pv2_title": "প্ল্যান v2 — ফ্রি / প্রিমিয়াম / বিজনেস সীমা",
+    "pv2_intro": "শুধু ফিচার-সুইচ plans_v2 চালু থাকলে (ফিচার পাতা) কাজ করে। এখানের প্রতিটি সীমা সার্ভারে মানা হয়; অ্যাপ শুধু দেখায়। আগের কোনো রেকর্ড কখনো মোছা হয় না: সীমা পেরোলেও সেগুলো দেখা ও বদলানো যায়, শুধু নতুন যোগ করতে আপগ্রেড চাওয়া হয়।",
+    "pv2_feature": "সুবিধা", "pv2_free": "ফ্রি", "pv2_premium": "প্রিমিয়াম", "pv2_business": "বিজনেস",
+    "pv2_crm_contacts": "CRM কন্টাক্ট (লিড + কন্টাক্ট, প্রতি অ্যাকাউন্টে)",
+    "pv2_cap_crm_write": "লিড, ডিল, পাইপলাইন ও কাজ যোগ করা (বন্ধ = শুধু দেখা)",
+    "pv2_cap_crm_followup_reminders": "CRM ফলো-আপ রিমাইন্ডার",
+    "pv2_cap_automation": "অটোমেশন (রিটেনশন বার্তা, CRM নিয়ম, একসাথে WhatsApp)",
+    "pv2_cap_ai_sales_agent": "AI সেলস এজেন্ট (COD নিশ্চিতকরণসহ)",
+    "pv2_cap_booking_bot": "বুকিং বট (পেজ চালু)",
+    "pv2_cap_reports": "সাপ্তাহিক / মাসিক বিক্রির রিপোর্ট, ব্যাংক-লোন রিপোর্ট, ইনসাইট",
+    "pv2_cap_ledger_ai_addons": "খাতার AI টুল (মুখে বলে এন্ট্রি, কাগজ স্ক্যান, পেমেন্ট মেলানো)",
+    "pv2_trial_days": "ফ্রি ট্রায়ালের দৈর্ঘ্য (দিন, ০ = ট্রায়াল নেই)",
+    "pv2_trial_plan": "ট্রায়ালে যা পাওয়া যায়",
+    "pv2_unlimited_at": "এত কন্টাক্ট বা বেশি হলে অ্যাপে \u201cসীমাহীন\u201d দেখাবে",
+    "pv2_note": "অপব্যবহার ঠেকাতে বিজনেসে একটি লুকানো নিরাপত্তা-সীমা থাকে (উপরের সংখ্যা) — কিছুই আসলে সীমাহীন নয়। ট্রায়াল প্রতি অ্যাকাউন্টে একবার, কার্ড লাগে না, কোনো টাকা কাটে না: শেষ হলে অ্যাকাউন্ট ফ্রি-তে ফিরে যায়। বার্তা ও AI খরচ আগের মতোই ক্রেডিট ও Profit Guard থেকে।",
+    "p_bad_plans_v2": "প্ল্যান v2: কোনো সংখ্যা সীমার বাইরে (ট্রায়াল ০–৩০ দিন, ফ্রি কন্টাক্ট ০–১০০০, প্রিমিয়াম ১–১০০০০০, বিজনেস ১–১০০০০০০) অথবা ট্রায়াল প্ল্যান প্রিমিয়াম/বিজনেস নয়।",
+})
+# ---- /plans-v2 ----
+

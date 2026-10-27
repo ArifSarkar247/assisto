@@ -1144,3 +1144,9 @@ urlpatterns += [
     path("remit/delete-all", rmv.DeleteAllView.as_view()),
 ]
 # ---- /budget-remittance ----
+
+# ---- plans-v2 ---- the caller's tier / trial / CRM usage (gates live server-side)
+from . import views_plans_v2 as pv2  # noqa: E402
+urlpatterns += [
+    path("plans/v2", pv2.PlansV2View.as_view()),
+]

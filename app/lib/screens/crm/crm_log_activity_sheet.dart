@@ -3,6 +3,7 @@ import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../notifications.dart';
 import 'crm_common.dart';
+import '../../plans_v2/upgrade_sheet.dart';
 
 /// Fast "log activity + set next follow-up" sheet for the lead-detail screen.
 ///
@@ -149,6 +150,9 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
+      // plans-v2: a locked action opens the honest upgrade sheet
+      if (await UpgradeSheet.handle(context, e)) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }

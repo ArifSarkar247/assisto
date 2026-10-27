@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../plans_v2/plans_v2.dart';
+import '../../plans_v2/upgrade_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../theme.dart';
 import '../../api.dart';
@@ -41,6 +43,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _data = await sellApi(context)
           .report(period: _period, businessId: widget.businessId);
     } catch (e) {
+      // plans-v2: weekly / monthly reports are Business; the day's totals
+      // stay free — go back to the daily view and say why, honestly.
+      final up = UpgradeReason.fromError(e);
+      if (up != null && _period != 'daily' && mounted) {
+        _period = 'daily';
+        await UpgradeSheet.show(context, up);
+        if (mounted) return _load();
+        return;
+      }
       _error = e;
     }
     if (mounted) setState(() => _loading = false);

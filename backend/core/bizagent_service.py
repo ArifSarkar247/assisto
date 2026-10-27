@@ -194,6 +194,17 @@ def consume_reply(agent, now=None):
     from . import billing
     from .models import SellerAgent
     now = now or timezone.now()
+    # plans-v2: the AI Sales Agent is a Business feature (shop owner's plan;
+    # founder and a running Business trial count). Not entitled -> no AI
+    # reply (the customer gets the polite holding line, the seller is told);
+    # rule replies (FAQ, price, stock, order flow) still answer for free.
+    try:
+        from . import entitlements_service as ES
+        owner = agent.business.user
+        if ES.on(owner) and not ES.allows(owner, "ai_sales_agent"):
+            return (None, "plan_required")
+    except Exception:
+        pass
     cfg = sa_cfg()
     q = _quota(agent, cfg)
     if agent.plan in ("trial", "starter", "pro") and agent.period_end and agent.period_end > now:
