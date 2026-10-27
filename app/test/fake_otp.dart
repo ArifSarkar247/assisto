@@ -40,7 +40,7 @@ class FakeOtpBackend implements OtpBackend {
     lastPurpose = purpose;
     lastPhone = phone;
     if (!smsEnabled) {
-      return OtpResult.fromRaw(const {
+      return OtpResult.fromRaw({
         '_status': 503,
         'ok': false,
         'reason': 'sms_not_configured',
