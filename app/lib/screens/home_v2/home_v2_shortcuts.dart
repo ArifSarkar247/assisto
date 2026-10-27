@@ -22,7 +22,9 @@ import 'home_v2_tokens.dart';
 /// ChatNav route; a route that is not in [ChatNav.routes] for this user
 /// (feature flag off, e.g. CCTV everywhere today, vehicles / anti-theft in
 /// Play when the owner hides them) is skipped and the next real feature from
-/// [fillPool] takes the slot — never a fake or dead tile.
+/// [fillPool] takes the slot — never a fake or dead tile. A feature the owner
+/// / staff / testers see only as a server PREVIEW counts as off here too, so
+/// the owner's home shows exactly what normal users see.
 ///
 /// Users who customised the old home keep exactly their own set (their six,
 /// in their order; nothing they did not choose is added). Their choices are
@@ -95,7 +97,11 @@ class HomeV2Shortcuts {
     for (final s in [..._owner, ...HomeQuickButtons.catalog]) {
       if (seen.contains(s.route) ||
           HomeQuickButtons.pinnedAliases.contains(s.route) ||
-          !routes.containsKey(s.route)) {
+          !routes.containsKey(s.route) ||
+          // owner feedback 27 Oct: a feature the owner / testers see only as
+          // a PREVIEW is OFF for home tiles (normal users do not have it);
+          // it stays in the sidebar / All Services, marked "Preview".
+          FeatureFlags.instance.isPreviewRoute(s.route)) {
         continue;
       }
       seen.add(s.route);
@@ -105,8 +111,9 @@ class HomeV2Shortcuts {
   }
 
   /// The Budget tile becomes Budget and Remittance when that flag is on.
+  /// (A preview-only remittance keeps the plain Budget tile on home.)
   static bool get remittanceOn =>
-      FeatureFlags.instance.isOn('budget_remittance') &&
+      FeatureFlags.instance.homeTileAllowed('remittance') &&
       ChatNav.routes.containsKey('remittance');
 
   /// Where a tile opens (the Budget tile -> the remittance feature when on).

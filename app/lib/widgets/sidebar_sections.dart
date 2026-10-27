@@ -137,6 +137,37 @@ class SidebarItem {
   /// Visible in THIS build for THIS user (medical gate + feature flag).
   bool get visible =>
       (kMedicalFeaturesAllowed || !medical) && FeatureFlags.instance.isOn(feature);
+
+  /// Visible ONLY as a server preview (owner / staff / listed tester) —
+  /// normal users do not have it. Shown with a small "Preview" tag.
+  bool get preview =>
+      feature != null && FeatureFlags.instance.isPreview(feature!);
+}
+
+/// The small "Preview" tag next to a sidebar / All Services entry the user
+/// sees only because they are the owner / staff / a listed tester.
+class PreviewTag extends StatelessWidget {
+  const PreviewTag({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      key: const ValueKey('preview_tag'),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(t.ffPreviewTag,
+          maxLines: 1,
+          style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSecondaryContainer)),
+    );
+  }
 }
 
 /// A collapsible, titled group of modules in the sidebar.

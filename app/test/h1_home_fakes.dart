@@ -14,61 +14,147 @@ import 'package:assisto/photo_studio/ps_ads.dart';
 final Uint8List kTinyPng = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAGAAAABACAIAAABqVuVZAAAAzElEQVR42u3bsQ2DMBQFQEBZhpYmPWtkg2zgCbxBNmAN+jRp2SB16lR0VCBFCAF27tU0Pj1/GwnK9+dbyHIqBIAAAQIECBAgQDKXy++PtvdXTivvH40G2WKn2mJThu6a7oLr21ODbDFAgLIe0qsH3oFZfbBoECBAgAABAgTIRfHfXus1CBAgQLkP6RDCGdYQY9QgWwwQIEN63+moQYAAAZIEb9I7nwwaBAgQIDdpDQIECJBsNqQT+rBMgwAdndJv4RoECBAgQIAAAZK5jLqTG1uolIY4AAAAAElFTkSuQmCC');
 
 class FakeHeroHandle implements HeroAdHandle {
-  FakeHeroHandle({this.hasVideo = true});
+  FakeHeroHandle({this.hasVideo = true, this.large = false});
   @override
   final bool hasVideo;
+  final bool large;
   bool disposed = false;
   @override
   void dispose() => disposed = true;
   @override
-  Widget view() => const _FakeNativeTemplate();
+  Widget view() =>
+      large ? const _FakeLargeTemplate() : const _FakeNativeTemplate();
 }
 
-/// Looks like AdMob's medium native template (media on top, headline, CTA).
-class _FakeNativeTemplate extends StatelessWidget {
-  const _FakeNativeTemplate();
+/// Looks like AdMob's MEDIUM native template (media on top, headline, CTA).
+class _FakeLargeTemplate extends StatelessWidget {
+  const _FakeLargeTemplate();
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       key: const ValueKey('fake-native-ad'),
       color: scheme.surfaceContainerHigh,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight),
-            ),
-            child: Stack(children: [
-              const Center(
-                  child: Icon(Icons.play_circle_fill_rounded, size: 56, color: Colors.white)),
-              Positioned(
-                right: 8,
-                bottom: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                      color: Colors.black54, borderRadius: BorderRadius.circular(14)),
-                  child: const Icon(Icons.volume_off_rounded, size: 18, color: Colors.white),
+      child: Column(
+          key: const ValueKey('fake-native-large'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
                 ),
+                child: const Center(
+                    child: Icon(Icons.play_circle_fill_rounded,
+                        size: 56, color: Colors.white)),
               ),
-            ]),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(children: [
-            const Expanded(
-              child: Text('Sample Advertiser — Test ad',
-                  maxLines: 2, style: TextStyle(fontWeight: FontWeight.w700)),
             ),
-            FilledButton(onPressed: () {}, child: const Text('Install')),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(children: [
+                const Expanded(
+                  child: Text('Sample Advertiser — Test ad',
+                      maxLines: 2,
+                      style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+                FilledButton(onPressed: () {}, child: const Text('Install')),
+              ]),
+            ),
           ]),
-        ),
-      ]),
+    );
+  }
+}
+
+/// Looks like AdMob's SMALL native template (owner feedback 27 Oct): square
+/// icon left, headline, "Ad" badge + one line, CTA button; AdChoices top
+/// right. Its text grows at most 1.3x, like the SDK view.
+class _FakeNativeTemplate extends StatelessWidget {
+  const _FakeNativeTemplate();
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.3,
+      child: Container(
+        key: const ValueKey('fake-native-ad'),
+        color: scheme.surfaceContainerLow,
+        padding: const EdgeInsets.all(8),
+        child: Stack(children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: const LinearGradient(
+                      colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
+                ),
+                child: const Icon(Icons.shopping_bag_rounded, color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Sample Advertiser',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: scheme.onSurface)),
+                    Row(children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        color: const Color(0xFFF6B60E),
+                        // (the SDK's own badge; upper-case here so finders
+                        // tell it apart from our localized label)
+                        child: const Text('AD',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111111))),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text('Test ad, one line of body text',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12, color: scheme.onSurfaceVariant)),
+                      ),
+                    ]),
+                    SizedBox(
+                      height: 24,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            color: scheme.primary,
+                            borderRadius: BorderRadius.circular(6)),
+                        child: Center(
+                          child: Text('Install',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: scheme.onPrimary)),
+                        ),
+                      ),
+                    ),
+                  ]),
+            ),
+          ]),
+          Positioned(
+              right: 0,
+              top: 0,
+              child: Icon(Icons.info_outline, size: 14, color: scheme.primary)),
+        ]),
+      ),
     );
   }
 }
@@ -79,23 +165,38 @@ class FakeHeroBridge implements HeroAdBridge {
   final bool linkedValue;
   int loads = 0;
   bool? lastStartMuted;
+  HeroAdLook? lastLook;
+  HeroAdSize? lastSize;
   final List<FakeHeroHandle> handles = [];
   @override
   bool get linked => linkedValue;
   @override
-  Future<HeroAdHandle?> load(String unitId, {required bool startMuted}) async {
+  Future<HeroAdHandle?> load(String unitId,
+      {required bool startMuted,
+      HeroAdLook? look,
+      HeroAdSize size = HeroAdSize.compact}) async {
     loads++;
     lastStartMuted = startMuted;
+    lastLook = look;
+    lastSize = size;
     if (!fill) return null;
-    final h = FakeHeroHandle();
+    final h = FakeHeroHandle(
+        hasVideo: size == HeroAdSize.large, large: size == HeroAdSize.large);
     handles.add(h);
     return h;
   }
 }
 
 Map<String, dynamic> heroConfig(
-        {bool enabled = true, bool muted = true, String plan = 'free', int refresh = 90}) =>
+        {bool enabled = true,
+        bool muted = true,
+        String plan = 'free',
+        int refresh = 90,
+        String? size,
+        int? cap}) =>
     {
+      if (size != null) 'home_native_size': size,
+      if (cap != null) 'native_daily_cap': cap,
       'configured': false,
       'plan': plan,
       'paid': plan != 'free',

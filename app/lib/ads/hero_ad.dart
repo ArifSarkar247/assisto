@@ -20,9 +20,18 @@
 /// `admob_hero_bridge.dart`, bound in `hero_binding.dart` on Android.
 /// admob (owner 25 Oct): the slot sits BELOW the quick shortcuts (and far
 /// from anything safety related) — home is otherwise unchanged.
+///
+/// Owner feedback 27 Oct (home v2, build 249): the home ad is now a COMPACT
+/// native card (AdMob's SMALL template, ~90-110 dp: square icon left,
+/// headline, Ad badge, one line, CTA, AdChoices; no large MediaView), with a
+/// separate "Remove ads" link OUTSIDE the ad (opens Premium plans). It reloads
+/// at most once per 60 s, only while home is visible and the app is in
+/// front, and at most `native_daily_cap` (default 20) native impressions a
+/// day on this device.
 library;
 
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ad_rules.dart' show AdRules;
 
@@ -36,6 +45,53 @@ class HeroAdIds {
 /// AdMob's minimum refresh for one native slot.
 const int kHeroMinRefreshSec = 60;
 
+/// The home native card template (owner 27 Oct, server `home_native_size`).
+enum HeroAdSize {
+  /// AdMob SMALL template, 90-110 dp (default).
+  compact,
+
+  /// AdMob MEDIUM template with the media view (the earlier big card).
+  large;
+
+  /// Unknown / missing -> compact.
+  static HeroAdSize parse(dynamic v) =>
+      '${v ?? ''}'.trim().toLowerCase() == 'large' ? large : compact;
+}
+
+/// The owner's default native cap per day (pricing `native_daily_cap`).
+const int kHeroDefaultDailyCap = 20;
+
+/// Colours + text scale for the compact native template, taken from the app
+/// theme by the widget (no colour literals in the ad bridge).
+@immutable
+class HeroAdLook {
+  const HeroAdLook({
+    required this.background,
+    required this.headline,
+    required this.body,
+    required this.ctaBackground,
+    required this.ctaText,
+    this.textScale = 1.0,
+  });
+  final Color background;
+  final Color headline;
+  final Color body;
+  final Color ctaBackground;
+  final Color ctaText;
+
+  /// The user's font scale. The native template's text is Android `sp`
+  /// (already scaled by the system); see [templateTextSize].
+  final double textScale;
+
+  /// The SMALL template's rows are a fixed share of a 4:1 box, so its text
+  /// may grow at most 1.3x (larger would be clipped inside the SDK view);
+  /// our own label + Remove-ads row follow the full 200 %.
+  double templateTextSize(double base) {
+    final s = textScale <= 0 ? 1.0 : textScale;
+    return base * (s < 1.3 ? s : 1.3) / s;
+  }
+}
+
 /// The hero part of `GET /ads/config`, parsed defensively.
 @immutable
 class HeroAdConfig {
@@ -47,6 +103,8 @@ class HeroAdConfig {
     this.configured = false,
     this.appId = '',
     this.paid = false,
+    this.dailyCap = kHeroDefaultDailyCap,
+    this.size = HeroAdSize.compact,
   });
 
   final bool enabled;
@@ -56,6 +114,14 @@ class HeroAdConfig {
   final bool configured;
   final String appId;
   final bool paid;
+
+  /// Max native impressions per local day on this device (server
+  /// `native_daily_cap`, owner admin; default 20, 0 = no native ad).
+  final int dailyCap;
+
+  /// Server `home_native_size` (Owner Admin -> Ads): compact (default; also
+  /// for an unknown value or no config yet) or large.
+  final HeroAdSize size;
 
   static const none = HeroAdConfig();
 
@@ -67,6 +133,10 @@ class HeroAdConfig {
     final paid = j['paid'] == true || plan != 'free';
     final r = j['hero_refresh_sec'];
     final refresh = r is num ? r.toInt() : int.tryParse('$r') ?? 90;
+    final c = j['native_daily_cap'];
+    final cap = c == null
+        ? kHeroDefaultDailyCap
+        : (c is num ? c.toInt() : int.tryParse('$c') ?? kHeroDefaultDailyCap);
     return HeroAdConfig(
       // the server already says false for paid plans; never trust only that
       enabled: j['hero_enabled'] == true && !paid,
@@ -77,6 +147,8 @@ class HeroAdConfig {
       configured: j['configured'] == true,
       appId: s(j['app_id']),
       paid: paid,
+      dailyCap: cap.clamp(0, 50),
+      size: HeroAdSize.parse(j['home_native_size']),
     );
   }
 
@@ -108,6 +180,16 @@ class HeroAdRules {
   /// normal logo block is shown instead (honest, policy-safe).
   static const double minSlotHeight = 240;
 
+  /// The compact card: its ad box is [compactAdHeight] (90-110 dp) and the
+  /// label / Remove-ads row sits above it; less room -> nothing.
+  static const double compactMinRoom = 146;
+  static const double compactAdMin = 90;
+  static const double compactAdMax = 110;
+
+  /// AdMob's SMALL template is a 4:1 box: width / 4, kept in 90-110 dp.
+  static double compactAdHeight(double width) =>
+      (width / 4).clamp(compactAdMin, compactAdMax).toDouble();
+
   static HeroDecision decide({
     required HeroAdConfig config,
     required String screen,
@@ -116,6 +198,8 @@ class HeroAdRules {
     required bool chatStarted,
     required bool linked,
     required double slotHeight,
+    double minHeight = minSlotHeight,
+    bool capReached = false,
   }) {
     if (!loggedIn) return const HeroDecision(false, 'logged_out');
     if (config.paid) return const HeroDecision(false, 'paid_plan');
@@ -127,7 +211,10 @@ class HeroAdRules {
     if (chatStarted) return const HeroDecision(false, 'chat_started');
     if (collapsed) return const HeroDecision(false, 'collapsed');
     if (!linked) return const HeroDecision(false, 'not_linked');
-    if (slotHeight < minSlotHeight) return const HeroDecision(false, 'no_room');
+    if (slotHeight < minHeight) return const HeroDecision(false, 'no_room');
+    if (capReached || config.dailyCap <= 0) {
+      return const HeroDecision(false, 'daily_cap');
+    }
     return HeroDecision.ok;
   }
 
@@ -166,8 +253,13 @@ abstract class HeroAdBridge {
   bool get linked;
 
   /// Load one native ad. null on no fill / error / timeout — the caller shows
-  /// the normal logo block. Never throws.
-  Future<HeroAdHandle?> load(String unitId, {required bool startMuted});
+  /// the normal logo block. Never throws. [look] styles the compact template
+  /// (null = the plugin's defaults).
+  /// [size] picks the AdMob template (SMALL for compact, MEDIUM for large).
+  Future<HeroAdHandle?> load(String unitId,
+      {required bool startMuted,
+      HeroAdLook? look,
+      HeroAdSize size = HeroAdSize.compact});
 }
 
 class NoopHeroAdBridge implements HeroAdBridge {
@@ -175,8 +267,48 @@ class NoopHeroAdBridge implements HeroAdBridge {
   @override
   bool get linked => false;
   @override
-  Future<HeroAdHandle?> load(String unitId, {required bool startMuted}) async =>
+  Future<HeroAdHandle?> load(String unitId,
+          {required bool startMuted,
+          HeroAdLook? look,
+          HeroAdSize size = HeroAdSize.compact}) async =>
       null;
+}
+
+/// The device-side half of the native daily cap: real SDK impressions of the
+/// home native ad per local day (counted by the bridge's onAdImpression —
+/// never on load, never twice). The server also counts every impression
+/// (POST /ads/event) under the same `native_daily_cap`.
+class HeroDailyCap {
+  HeroDailyCap._();
+  static const kDay = 'hero_native_day';
+  static const kCount = 'hero_native_count';
+
+  static String _day(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  static Future<int> today({DateTime? now}) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      return p.getString(kDay) == _day(now ?? DateTime.now())
+          ? (p.getInt(kCount) ?? 0)
+          : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  static Future<bool> reached(int cap, {DateTime? now}) async =>
+      cap <= 0 || await today(now: now) >= cap;
+
+  static Future<void> recordImpression({DateTime? now}) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final d = _day(now ?? DateTime.now());
+      final n = p.getString(kDay) == d ? (p.getInt(kCount) ?? 0) : 0;
+      await p.setString(kDay, d);
+      await p.setInt(kCount, n + 1);
+    } catch (_) {}
+  }
 }
 
 /// Client half of "only one AdMob ad on home at a time".

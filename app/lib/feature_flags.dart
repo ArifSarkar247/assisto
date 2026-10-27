@@ -62,6 +62,23 @@ class FeatureFlags extends ChangeNotifier {
   /// Visible only because this user is the owner / staff / a listed tester.
   bool isPreview(String key) => _preview.contains(key);
 
+  /// A ChatNav [route] whose feature this user sees ONLY as a preview (owner
+  /// / staff / listed tester; normal users do not have it). Home shortcut
+  /// tiles treat such a route as OFF (owner feedback 27 Oct: the owner's home
+  /// must match what users see); the sidebar / All Services keep it, marked
+  /// "Preview".
+  bool isPreviewRoute(String? route) {
+    final f = featureOf(route);
+    if (f == null || !isPreview(f)) return false;
+    // a test override that turns it on for everyone is not a preview
+    return debugOverride?[f] == null;
+  }
+
+  /// May [route] be a HOME shortcut tile? It must open for this user AND be
+  /// a real (non-preview) feature.
+  bool homeTileAllowed(String? route) =>
+      routeAllowed(route) && !isPreviewRoute(route);
+
   /// The flag that owns a ChatNav [route] (null = never flag-hidden).
   static String? featureOf(String? route) =>
       route == null ? null : kRouteFeature[route];

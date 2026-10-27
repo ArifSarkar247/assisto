@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,11 +13,20 @@ import '../ads/sponsor_widgets.dart' show SponsorHeroCard;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'chatnav.dart';
 
 /// HOME HERO slot (h1-home). Shows [fallback] (the logo + "Hi, I'm Assisto"
 /// block) by default — instantly, never a spinner — and, for a Free user with
 /// the owner's hero flag ON and AdMob linked, swaps it IN THE SAME SLOT for
-/// one large native ad with an "Ad" label. See [HeroAdRules] for every rule.
+/// one native ad with an "Ad" label. See [HeroAdRules] for every rule.
+///
+/// Owner feedback 27 Oct: compact (default, both homes; server
+/// `home_native_size` can switch to "large" without a build) = AdMob's SMALL
+/// native template, 90-110 dp, never a large media view; a separate
+/// "Remove ads" link outside the ad opens the Premium plans; reload at most
+/// once per 60 s (server `hero_refresh_sec`, never below 60) and ONLY while
+/// home is the visible route and the app is resumed — no timer runs in the
+/// background; at most `native_daily_cap` (20) impressions a day.
 ///
 /// p2-money: a DIRECT sponsor campaign for the hero (owner-sold, server
 /// served, works without AdMob) is shown FIRST in the same slot with a
@@ -35,7 +45,17 @@ class HomeHero extends StatefulWidget {
     this.isHomeVisible,
     this.sponsor,
     this.gapWhenShown = 0,
+    this.compact,
+    this.onRemoveAds,
   });
+
+  /// Force the card size (tests / gallery). null (the app) = the server's
+  /// `home_native_size` from the cached /ads/config: "compact" (default,
+  /// also with no config yet or an unknown value) or "large".
+  final bool? compact;
+
+  /// "Remove ads" link (null = open the Premium plans, ChatNav 'plans').
+  final VoidCallback? onRemoveAds;
 
   /// home_v2: space above the ad / sponsor card, only while one is shown
   /// (nothing at all when the slot is empty).
@@ -98,6 +118,15 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   DateTime? _lastLoad;
   bool _loading = false;
   bool _resumed = true;
+  bool _capHit = false;
+
+  /// Compact (SMALL template) unless forced, or the server says "large".
+  bool get _compact =>
+      widget.compact ?? (_cfg.size == HeroAdSize.compact);
+
+  /// While home is covered by another screen the refresh timer only peeks
+  /// this often (no load) until home is visible again.
+  static const _visiblePoll = Duration(seconds: 5);
 
   @override
   void initState() {
@@ -120,7 +149,17 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _resumed = state == AppLifecycleState.resumed;
-    if (_resumed && _ad == null && _direct == null) _start();
+    if (!_resumed) {
+      // background: no timer, no load
+      _timer?.cancel();
+      _timer = null;
+      return;
+    }
+    if (_ad == null && _direct == null) {
+      _start();
+    } else {
+      _schedule();
+    }
   }
 
   @override
@@ -159,12 +198,12 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   Future<HeroAdConfig> _config() async {
     try {
       final fresh = _cfgAt != null &&
-          DateTime.now().difference(_cfgAt!) < const Duration(minutes: 30);
+          clock.now().difference(_cfgAt!) < const Duration(minutes: 30);
       if (!fresh || _injectedConfig != null) {
         final load = _injectedConfig ??
             () => context.read<AppState>().api.getJson('/ads/config');
         _cfgCache = await load();
-        _cfgAt = DateTime.now();
+        _cfgAt = clock.now();
       }
       return HeroAdConfig.fromJson(_cfgCache);
     } catch (_) {
@@ -176,10 +215,40 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   /// row, capped at 340 (AdMob medium template).
   double _slotHeight() {
     final avail = widget.availableHeight ?? MediaQuery.of(context).size.height * 0.42;
+    // compact: the card sizes itself (ad box <= 110 dp); only the room counts
+    if (_compact) return avail;
     return (avail - _labelRow).clamp(0.0, 340.0);
   }
 
-  static const double _labelRow = 28;
+  double get _minRoom =>
+      _compact ? HeroAdRules.compactMinRoom : HeroAdRules.minSlotHeight;
+
+  /// Direct sponsor card height in the compact slot.
+  static const double _compactSponsorH = 180;
+
+  HeroAdLook _look() {
+    final scheme = Theme.of(context).colorScheme;
+    return HeroAdLook(
+      background: scheme.surfaceContainerLow,
+      headline: scheme.onSurface,
+      body: scheme.onSurfaceVariant,
+      ctaBackground: scheme.primary,
+      ctaText: scheme.onPrimary,
+      textScale: MediaQuery.textScalerOf(context).scale(1),
+    );
+  }
+
+  void _openPlans() {
+    final f = widget.onRemoveAds;
+    if (f != null) {
+      f();
+      return;
+    }
+    ChatNav.push(context, 'plans');
+  }
+
+  // label + Remove-ads row (48 dp tap target) + the 8 dp gap to the ad
+  static const double _labelRow = 56;
 
   HeroDecision _decide({bool direct = false}) {
     bool loggedIn;
@@ -196,6 +265,8 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       chatStarted: false, // the thread unmounts this slot once a chat starts
       linked: direct || _bridge.linked,
       slotHeight: _slotHeight(),
+      minHeight: _minRoom,
+      capReached: !direct && _capHit,
     );
   }
 
@@ -221,7 +292,7 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
         return true;
       }
       if (s.isDirect) {
-        _lastLoad = DateTime.now();
+        _lastLoad = clock.now();
         setState(() {
           _disposeAdOnly();
           _direct = s.creative;
@@ -246,26 +317,35 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   }
 
   Future<void> _start() async {
-    if (!mounted || _loading || widget.collapsed) return;
+    if (!mounted || _loading || widget.collapsed || !_resumed) return;
     // AdMob minimum refresh also applies to re-showing after a collapse
     if (_lastLoad != null &&
-        DateTime.now().difference(_lastLoad!) < HeroAdRules.refreshEvery(_cfg)) {
+        clock.now().difference(_lastLoad!) < HeroAdRules.refreshEvery(_cfg)) {
       _schedule();
       return;
     }
     _loading = true;
     try {
-      _cfg = await _config();
+      _cfg = await _config(); // cached 30 min
       if (!mounted) return;
+      // covered by another screen: no attempt (the timer peeks again)
+      if (!_homeVisible()) return;
+      // every attempt (direct sponsor, AdMob, cap / no-fill) counts: at most
+      // one per refresh interval, never a request storm
+      _lastLoad = clock.now();
       if (await _tryDirect()) return;
+      _capHit = await HeroDailyCap.reached(_cfg.dailyCap);
       if (!mounted || !_decide().allowed) return;
       final unit = _cfg.unit(
           builtAppId: AdsService.builtAppId, testMode: AdsService.testMode);
       if (unit == null) return;
-      _lastLoad = DateTime.now();
+      _lastLoad = clock.now();
       final ad = await _bridge
-          .load(unit, startMuted: AdSound.startMuted(AdFormat.heroNative,
-              heroStartMuted: _cfg.startMuted))
+          .load(unit,
+              startMuted: AdSound.startMuted(AdFormat.heroNative,
+                  heroStartMuted: _cfg.startMuted),
+              look: _look(),
+              size: _compact ? HeroAdSize.compact : HeroAdSize.large)
           // admob: the SDK starts only once the launch settled (~8 s), so
           // the first load may wait for it; the logo block shows meanwhile
           .timeout(const Duration(seconds: 45), onTimeout: () => null);
@@ -294,40 +374,80 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
     }
   }
 
+  /// Time left until the next reload may happen (>= 0).
+  Duration _untilDue() {
+    final last = _lastLoad;
+    if (last == null) return Duration.zero;
+    final left =
+        HeroAdRules.refreshEvery(_cfg) - clock.now().difference(last);
+    return left.isNegative ? Duration.zero : left;
+  }
+
   void _schedule() {
     _timer?.cancel();
-    if (!mounted || widget.collapsed || !_cfg.enabled) return;
-    _timer = Timer(HeroAdRules.refreshEvery(_cfg), () {
-      if (!mounted) return;
-      // refresh only while home is really on screen and the app is in front
-      if (_resumed && _homeVisible() && !widget.collapsed) {
-        _lastLoad = null;
-        _start();
-      } else {
-        _schedule();
-      }
-    });
+    _timer = null;
+    // no timer in the background, while collapsed, or with ads off
+    if (!mounted || widget.collapsed || !_cfg.enabled || !_resumed) return;
+    final due = _untilDue();
+    _timer = Timer(due == Duration.zero ? _visiblePoll : due, _tick);
+  }
+
+  void _tick() {
+    _timer = null;
+    if (!mounted || !_resumed || widget.collapsed) return;
+    // reload only while home is really on screen and the app is in front;
+    // covered by another screen -> peek again shortly, never load
+    if (!_homeVisible()) {
+      _timer = Timer(_visiblePoll, _tick);
+      return;
+    }
+    if (_untilDue() > Duration.zero) {
+      _schedule();
+      return;
+    }
+    _start();
   }
 
   @override
   Widget build(BuildContext context) {
     final ad = _ad;
     final direct = _direct;
-    final room = _slotHeight() >= HeroAdRules.minSlotHeight;
+    final room = _slotHeight() >= _minRoom;
+    final compact = _compact;
     final child = (direct != null && !widget.collapsed && room)
         ? KeyedSubtree(
             key: const ValueKey('hero-sponsor'),
-            child: SponsorHeroCard(
-                creative: direct,
-                height: _slotHeight(),
-                onClick: () => unawaited(_sponsor?.event(direct.token, 'click'))))
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SponsorHeroCard(
+                      creative: direct,
+                      height: compact
+                          ? (_slotHeight() < _compactSponsorH
+                              ? _slotHeight()
+                              : _compactSponsorH)
+                          : _slotHeight(),
+                      onClick: () =>
+                          unawaited(_sponsor?.event(direct.token, 'click'))),
+                  if (compact)
+                    Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: RemoveAdsLink(onTap: _openPlans)),
+                ]))
         : (ad == null || widget.collapsed || !room)
         ? KeyedSubtree(key: const ValueKey('hero-logo'), child: widget.fallback)
+        : compact
+        ? CompactAdFrame(
+            key: const ValueKey('hero-ad'),
+            onRemoveAds: _openPlans,
+            child: ad.view())
         : HeroAdFrame(
             key: const ValueKey('hero-ad'),
             height: _slotHeight(),
             hasVideo: ad.hasVideo,
             startMuted: _cfg.startMuted,
+            onRemoveAds: _openPlans,
             child: ad.view());
     final gap = widget.gapWhenShown;
     final shown = gap > 0 && child.key != const ValueKey('hero-logo');
@@ -355,22 +475,24 @@ class HeroAdFrame extends StatelessWidget {
     required this.child,
     this.hasVideo = false,
     this.startMuted = true,
+    this.onRemoveAds,
   });
   final double height;
   final Widget child;
   final bool hasVideo;
   final bool startMuted;
 
+  /// The separate "Remove ads" link in the label row (outside the ad).
+  final VoidCallback? onRemoveAds;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      container: true,
-      label: t.h1HeroAdSemantics,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Container(
+            key: const ValueKey('hero-ad-label'),
             padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
             decoration: BoxDecoration(
               color: scheme.tertiaryContainer,
@@ -393,13 +515,139 @@ class HeroAdFrame extends StatelessWidget {
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
             ),
           ],
+          const SizedBox(width: Gap.sm),
+          if (onRemoveAds != null)
+            Flexible(
+                child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: RemoveAdsLink(onTap: onRemoveAds!)))
+          else
+            const Spacer(),
         ]),
-        const SizedBox(height: Gap.xs),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(Radii.md),
-          child: SizedBox(height: height, child: child),
+        SizedBox(height: onRemoveAds != null ? CompactAdFrame.gap : Gap.xs),
+        Semantics(
+          container: true,
+          label: t.h1HeroAdSemantics,
+          child: ClipRRect(
+            key: const ValueKey('hero-ad-box'),
+            borderRadius: BorderRadius.circular(Radii.md),
+            child: SizedBox(height: height, child: child),
+          ),
         ),
-      ]),
+      ]);
+  }
+}
+
+/// The COMPACT native card (owner feedback 27 Oct): one row above the ad
+/// with our localized "Ad" label (left) and the "Remove ads" link (right),
+/// then 8 dp of space, then the ad box — AdMob's SMALL template, 90-110 dp
+/// ([HeroAdRules.compactAdHeight]). The link is OUTSIDE the ad view and its
+/// own TalkBack button, so it is never read as part of the ad and a tap on
+/// it can never land on the ad (AdMob native policy; no close / X on the ad).
+class CompactAdFrame extends StatelessWidget {
+  const CompactAdFrame(
+      {super.key, required this.child, required this.onRemoveAds});
+  final Widget child;
+  final VoidCallback onRemoveAds;
+
+  /// Space between the link row and the ad (no tap target overlaps the ad).
+  static const double gap = Gap.sm;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(children: [
+          Container(
+            key: const ValueKey('hero-ad-label'),
+            padding:
+                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+            decoration: BoxDecoration(
+              color: scheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(Radii.sm),
+            ),
+            child: Text(t.h1AdLabel,
+                maxLines: 1,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onTertiaryContainer)),
+          ),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: RemoveAdsLink(onTap: onRemoveAds))),
+        ]),
+        const SizedBox(height: gap),
+        LayoutBuilder(builder: (context, c) {
+          final h = HeroAdRules.compactAdHeight(c.maxWidth);
+          return Semantics(
+            container: true,
+            label: t.h1HeroAdSemantics,
+            child: ClipRRect(
+              key: const ValueKey('hero-ad-box'),
+              borderRadius: BorderRadius.circular(Radii.md),
+              child: SizedBox(height: h, child: child),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+/// "Remove ads" — a small text link (48 dp tap target) that opens the
+/// Premium plans. Never inside an ad view; its own screen-reader button.
+class RemoveAdsLink extends StatelessWidget {
+  const RemoveAdsLink({super.key, required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      key: const ValueKey('hero-remove-ads'),
+      // its own TalkBack node, never merged into the ad / label
+      container: true,
+      button: true,
+      label: t.hv2RemoveAdsA11y,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Radii.sm),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.workspace_premium_outlined,
+                    size: 16, color: scheme.primary),
+                const SizedBox(width: Gap.xs),
+                Flexible(
+                  child: Text(t.hv2RemoveAds,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                          decorationColor: scheme.primary,
+                          color: scheme.primary)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

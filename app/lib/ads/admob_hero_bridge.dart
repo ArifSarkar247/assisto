@@ -10,9 +10,12 @@ import 'hero_ad.dart';
 /// The home native card (h1 hero slot, BELOW the quick shortcuts) —
 /// google_mobile_ads 9.1.0, the same lazy [AdmobSdk] init as every bridge.
 ///
-/// * Rendered by AdMob's own Flutter NATIVE TEMPLATE (medium) — it carries
-///   the AdChoices icon, Google's "Ad" attribution and the MediaView; our
-///   [HeroAdFrame] adds the clear localized "Ad" label (h1AdLabel) above it.
+/// * Rendered by AdMob's own Flutter NATIVE TEMPLATE, SMALL (owner feedback
+///   27 Oct: compact, ~90-110 dp): square icon left, headline, Google's "Ad"
+///   badge, one secondary line, CTA button, and the SDK-drawn AdChoices icon.
+///   The small template has NO MediaView, so no large image / video on home.
+///   Our [HeroAdFrame] adds the clear localized "Ad" label (h1AdLabel) and
+///   the separate "Remove ads" link OUTSIDE the ad view.
 /// * VideoOptions(startMuted) from the owner flag (default ON); the SDK
 ///   draws its own video controls (speaker toggle).
 /// * Every SDK call is wrapped: a failure is null (= the normal logo block),
@@ -24,7 +27,10 @@ class AdmobHeroAdBridge implements HeroAdBridge {
   bool get linked => true;
 
   @override
-  Future<HeroAdHandle?> load(String unitId, {required bool startMuted}) async {
+  Future<HeroAdHandle?> load(String unitId,
+      {required bool startMuted,
+      HeroAdLook? look,
+      HeroAdSize size = HeroAdSize.compact}) async {
     if (unitId.isEmpty || !await AdmobSdk.ensureReady()) return null;
     final done = Completer<HeroAdHandle?>();
     NativeAd? ad;
@@ -34,17 +40,16 @@ class AdmobHeroAdBridge implements HeroAdBridge {
         request: AdmobSdk.request(),
         nativeAdOptions: NativeAdOptions(
           adChoicesPlacement: AdChoicesPlacement.topRightCorner,
-          mediaAspectRatio: MediaAspectRatio.landscape,
+          mediaAspectRatio: size == HeroAdSize.compact
+              ? MediaAspectRatio.square
+              : MediaAspectRatio.landscape,
           videoOptions: VideoOptions(
             startMuted: startMuted,
             clickToExpandRequested: false,
             customControlsRequested: false,
           ),
         ),
-        nativeTemplateStyle: NativeTemplateStyle(
-          templateType: TemplateType.medium,
-          cornerRadius: 14,
-        ),
+        nativeTemplateStyle: heroTemplateStyle(look, size),
         listener: NativeAdListener(
           onAdLoaded: (a) {
             if (done.isCompleted) {
@@ -62,7 +67,11 @@ class AdmobHeroAdBridge implements HeroAdBridge {
             } catch (_) {}
             if (!done.isCompleted) done.complete(null);
           },
-          onAdImpression: (_) => AdTelemetry.impression(placement, 'native'),
+          onAdImpression: (_) {
+            // the device daily cap counts REAL impressions only
+            unawaited(HeroDailyCap.recordImpression());
+            AdTelemetry.impression(placement, 'native');
+          },
           onAdClicked: (_) => AdTelemetry.click(placement, 'native'),
           onPaidEvent: (Ad _, double micros, PrecisionType p, String currency) =>
               AdTelemetry.paid(placement, 'native',
@@ -86,6 +95,38 @@ class AdmobHeroAdBridge implements HeroAdBridge {
       return null;
     });
   }
+}
+
+/// Google's OFFICIAL native template for the size — SMALL (compact) or
+/// MEDIUM (large) — styled from the app theme ([HeroAdLook]). Every asset
+/// (icon / media, headline, Ad badge, body, CTA) lives inside the SDK's
+/// NativeAdView and the SDK draws AdChoices; nothing of ours is drawn over
+/// it and there is no close button.
+@visibleForTesting
+NativeTemplateStyle heroTemplateStyle(HeroAdLook? look, HeroAdSize size) {
+  final type =
+      size == HeroAdSize.compact ? TemplateType.small : TemplateType.medium;
+  if (look == null) {
+    return NativeTemplateStyle(templateType: type, cornerRadius: 14);
+  }
+  NativeTemplateTextStyle text(Color c, double size,
+          {Color? bg, NativeTemplateFontStyle? style}) =>
+      NativeTemplateTextStyle(
+          textColor: c,
+          backgroundColor: bg ?? look.background,
+          style: style ?? NativeTemplateFontStyle.normal,
+          size: look.templateTextSize(size));
+  return NativeTemplateStyle(
+    templateType: type,
+    cornerRadius: 14,
+    mainBackgroundColor: look.background,
+    primaryTextStyle:
+        text(look.headline, 14, style: NativeTemplateFontStyle.bold),
+    secondaryTextStyle: text(look.body, 12),
+    tertiaryTextStyle: text(look.body, 12),
+    callToActionTextStyle: text(look.ctaText, 13,
+        bg: look.ctaBackground, style: NativeTemplateFontStyle.bold),
+  );
 }
 
 class _Handle implements HeroAdHandle {

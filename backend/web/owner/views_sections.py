@@ -530,7 +530,7 @@ _AD_REWARD_KEYS = (# admob (owner 25 Oct): real-id switch + per-placement on/off
                    "ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_daily_cap",
                    "appopen_start_day", "appopen_skip_after_s", "appopen_min_bg_sec",
                    "rewarded_daily_cap", "interstitial_daily_cap",
-                   "interstitial_min_gap_sec", "native_daily_cap",
+                   "interstitial_min_gap_sec", "native_daily_cap", "home_native_size",
                    "hero_enabled", "hero_start_muted", "consent_debug_eea",
                    # p2-money
                    "sponsors_enabled", "community_sponsored_enabled",

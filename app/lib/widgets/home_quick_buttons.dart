@@ -47,7 +47,8 @@ class HomeQuickButtons {
   static List<QuickShortcut> get catalog => [
         for (final s in _catalog)
           if ((kMedicalFeaturesAllowed || !kMedicalRoutes.contains(s.route)) &&
-              FeatureFlags.instance.routeAllowed(s.route))
+              // owner feedback 27 Oct: preview-only (owner / tester) = off
+              FeatureFlags.instance.homeTileAllowed(s.route))
             s
       ];
 
@@ -119,7 +120,8 @@ class HomeQuickButtons {
       if (!out.contains(r) &&
           !pinnedAliases.contains(r) &&
           byRoute(r) != null &&
-          ChatNav.routes.containsKey(r)) {
+          ChatNav.routes.containsKey(r) &&
+          !FeatureFlags.instance.isPreviewRoute(r)) {
         out.add(r);
       }
     }
