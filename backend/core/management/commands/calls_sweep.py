@@ -9,11 +9,13 @@ phones get call.state ended (+ the FCM nudge) so nobody is left on
 "Connecting…".
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "End stale live calls (ringing/connecting/no heartbeat)."
 
+    @track_job("calls_sweep")
     def handle(self, *args, **opts):
         from core.views_c2_calls import sweep_all
         out = sweep_all()

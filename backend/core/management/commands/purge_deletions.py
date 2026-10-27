@@ -30,6 +30,7 @@ from core.models import AccountDeletionRequest, AuditLog
 # and start fresh" path (views_account_deletion.StartFreshView) reuses the
 # exact same purge. Re-exported here for existing imports.
 from core.account_purge import _FILE_FIELDS, _delete_user_files  # noqa: E402,F401
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -40,6 +41,7 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true",
                             help="Report what would be purged; delete nothing.")
 
+    @track_job("purge_deletions")
     def handle(self, *args, **opts):
         now = timezone.now()
         dry = opts.get("dry_run")

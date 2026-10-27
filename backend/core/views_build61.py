@@ -592,13 +592,31 @@ class ClientCrashReportView(APIView):
                 frs = CS.frames(d.get("frames"))
                 fatal, source = bool(d.get("fatal")), "app"
                 where = CS.field(d.get("where"), 40)
+                # ops-watch: process exits read from Android ApplicationExitInfo
+                # on the NEXT start (lib/diag/exit_info.dart): an ANR is its own
+                # kind (not a crash); a Java/native crash the Dart reporter
+                # could not see counts as a fatal crash.
+                kind = CS.field(d.get("kind"), 12)
+                if kind == "anr":
+                    etype, fatal, source = "ANR", False, "anr"
+                elif kind == "exit_crash":
+                    fatal, source = True, "exit"
             try:
                 sdk = max(0, min(int(dev.get("sdk") or 0), 99))
             except (TypeError, ValueError):
                 sdk = 0
-            fp = CS.fingerprint(etype, frs)
+            fp = CS.fingerprint(etype, frs if (frs or source not in ("anr", "exit")) else [where])
             now = timezone.now()
             day = timezone.localdate()
+            try:   # ops-watch: an exit read on the next start keeps its own day
+                occ = int(d.get("occurred_ms") or 0)
+            except (TypeError, ValueError):
+                occ = 0
+            if occ and source in ("anr", "exit"):
+                from datetime import datetime, timezone as _tz
+                at = datetime.fromtimestamp(occ / 1000, tz=_tz.utc)
+                if now - timezone.timedelta(days=29) <= at <= now:
+                    day = timezone.localdate(at)
             fields = dict(
                 user_hash=CS.user_hash(uid), source=source, fatal=fatal,
                 error_type=etype, message=msg, frames=frs, where=where,

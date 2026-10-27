@@ -48,11 +48,13 @@ def _cert_days(host):
         with ctx.wrap_socket(sock, server_hostname=host) as s:
             end = ssl.cert_time_to_seconds(s.getpeercert()["notAfter"])
     return int((end - time.time()) // 86400)
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Check API/app/cert/disk health; alert the owner on state change."
 
+    @track_job("uptime_check")
     def handle(self, *args, **opts):
         problems = []
         ok, why = _http_ok(PUBLIC_URL)

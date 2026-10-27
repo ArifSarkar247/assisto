@@ -59,6 +59,7 @@ def due_reminders(now, window_min=5):
 
 def marker_key(r):
     return "%s@%s" % (r.id, _fire_at(r).isoformat())
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -69,6 +70,7 @@ class Command(BaseCommand):
                             help="look-back window in minutes (default 5)")
         parser.add_argument("--state-file", default=None)
 
+    @track_job("push_due_reminders")
     def handle(self, *args, **opts):
         if not push.is_available():
             self.stdout.write("push_due_reminders: push unavailable (no key) - skipped")

@@ -43,11 +43,13 @@ def run_billing(now=None):
     out["pruned"] = VS.prune(now)
     VS.expire_commands(now)
     return out
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Renew (charge) or pause vehicle trackers whose paid month ended."
 
+    @track_job("vehicle_tracking_billing")
     def handle(self, *args, **options):
         res = run_billing()
         self.stdout.write("vehicle_tracking_billing: renewed %(renewed)d, disabled "

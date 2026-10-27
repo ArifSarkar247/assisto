@@ -4,11 +4,13 @@ for prepaid gateway periods (push + SMS when configured), and re-verification
 of gateway orders whose browser return / IPN never arrived, and retry of
 Google Play acknowledge / consume that failed (play.ack_sweep)."""
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Payments sweep: expiry, renew reminders, lost-callback re-verify."
 
+    @track_job("payments_sweep")
     def handle(self, *args, **opts):
         from core.payments import service
         out = service.sweep()

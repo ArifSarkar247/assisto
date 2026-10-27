@@ -8,11 +8,13 @@ Crontab (deploy/p4-world/world.cron):
         /home/ubuntu/assisto/.venv/bin/python manage.py world_job_alerts
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Send capped Unseen World job alerts."
 
+    @track_job("world_job_alerts")
     def handle(self, *args, **opts):
         from core import world_service
         n = world_service.run_job_alerts()

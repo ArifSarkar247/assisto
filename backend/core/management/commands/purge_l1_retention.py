@@ -27,6 +27,7 @@ from django.utils import timezone
 
 TICKET_KEEP_DAYS = 180
 CRASH_KEEP_DAYS = 30   # sc1
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -35,6 +36,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true")
 
+    @track_job("purge_l1_retention")
     def handle(self, *args, **opts):
         from core.models import ClientErrorReport, Journey, JourneyPoint, WebDeletionRequest
         now = timezone.now()

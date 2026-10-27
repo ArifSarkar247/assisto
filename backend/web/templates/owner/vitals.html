@@ -5,7 +5,7 @@
 <section class="card">
   {% if latest %}<p><b>{{ T.pv_fresh }} {{ latest|date:"Y-m-d" }}</b> <span class="mut small">{{ T.pv_fresh_note }}{% if pulled %} · {{ T.pv_pulled }} {{ pulled|date:"Y-m-d H:i" }}{% endif %}</span></p>
   {% else %}<p class="empty">{{ T.pv_none }}</p>{% endif %}
-  <p class="small">{{ T.pv_own }}: <b>{{ own_7d|bnd:lang }}</b> · <a href="/owner/reports/errors">{{ T.ae_title }}</a></p>
+  <p class="small">{{ T.pv_own }}: <b>{{ own_7d|bnd:lang }}</b> · <a href="/owner/reports/errors">{{ T.ae_title }}</a> · <a href="/owner/vitals/crash-rate">{{ T.cr_title }}</a></p>
 </section>
 
 {% if latest %}

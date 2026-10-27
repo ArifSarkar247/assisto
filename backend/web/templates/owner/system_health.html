@@ -1,0 +1,53 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.ops_title }}{% endblock %}
+{% block content %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.ops_jobs_bad }}</span><b>{{ bad_jobs }}</b></div>
+  <div class="tile"><span>{{ T.ops_services_down }}</span><b>{{ down }}</b></div>
+  <div class="tile"><span>{{ T.ops_disk }}</span><b>{% if disk.used_pct is not None %}{{ disk.used_pct }}%{% else %}—{% endif %}</b></div>
+  <div class="tile"><span>{{ T.ops_backup_age }}</span><b>{% if backup_age_h is not None %}{{ backup_age_h }} h{% else %}—{% endif %}</b></div>
+</div>
+<p class="mut small">{{ T.ops_note }}</p>
+
+{% if alerts %}<section class="card warn"><h3>{{ T.ops_open_alerts }}</h3><ul>
+{% for a in alerts %}<li><b>{{ a.key }}</b> — {{ a.detail }} <span class="mut small">({{ T.ops_since }} {{ a.since|date:"m-d H:i" }})</span></li>{% endfor %}
+</ul></section>{% endif %}
+
+{% if missing %}<section class="card warn"><h3>{{ T.ops_missing }}</h3>
+<p class="small">{{ T.ops_missing_note }}</p>
+<pre>{% for name, line in missing %}{{ line }}
+{% endfor %}</pre></section>{% elif not cron_known %}<p class="mut small">{{ T.ops_cron_unknown }}</p>{% endif %}
+
+<section class="card"><h3>{{ T.ops_services }}</h3>
+<div class="tbl"><table><thead><tr><th>{{ T.ops_service }}</th><th>{{ T.ops_status }}</th><th>{{ T.ops_state }}</th></tr></thead><tbody>
+{% for s in services %}<tr><td>{{ s.unit }}</td>
+<td>{% if s.status == "ok" %}<span class="pill ok">{{ T.ops_up }}</span>{% elif s.status == "down" %}<span class="pill bad">{{ T.ops_down }}</span>{% elif s.status == "absent" %}<span class="pill off">{{ T.ops_absent }}</span>{% else %}<span class="pill off">?</span>{% endif %}</td>
+<td class="small mut">{{ s.active }} / {{ s.sub }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+
+<section class="card"><h3>{{ T.ops_jobs }}</h3>
+<div class="tbl"><table><thead><tr><th>{{ T.ops_job }}</th><th>{{ T.ops_status }}</th><th>{{ T.ops_last_run }}</th><th>{{ T.ops_last_ok }}</th><th>rc</th><th>{{ T.ops_duration }}</th><th>{{ T.ops_next_due }}</th><th>{{ T.ops_every }}</th></tr></thead><tbody>
+{% for j in jobs %}<tr>
+<td><b>{{ j.name }}</b>{% if j.detail %}<br><small class="mut">{{ j.detail }}</small>{% endif %}</td>
+<td>{% if j.status == "ok" %}<span class="pill ok">{{ T.ops_ok }}</span>{% elif j.status == "waiting" %}<span class="pill off">{{ T.ops_waiting }}</span>{% elif j.status == "not_scheduled" %}<span class="pill bad">{{ T.ops_not_scheduled }}</span>{% elif j.status == "late" %}<span class="pill bad">{{ T.ops_late }}</span>{% elif j.status == "stuck" %}<span class="pill bad">{{ T.ops_stuck }}</span>{% else %}<span class="pill bad">{{ T.ops_failing }}</span>{% endif %}</td>
+<td>{{ j.last_run|date:"m-d H:i"|default:"—" }}</td>
+<td>{{ j.last_ok|date:"m-d H:i"|default:"—" }}</td>
+<td class="num">{{ j.rc|default_if_none:"—" }}</td>
+<td class="num">{% if j.duration_ms is not None %}{{ j.duration_ms }} ms{% else %}—{% endif %}</td>
+<td>{{ j.next_due|date:"m-d H:i"|default:"—" }}</td>
+<td class="num">{% if j.interval >= 86400 %}{% widthratio j.interval 86400 1 %} {{ T.days }}{% elif j.interval >= 3600 %}{% widthratio j.interval 3600 1 %} h{% else %}{% widthratio j.interval 60 1 %} min{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div></section>
+
+<section class="card"><h3>{{ T.ops_backups }}</h3>
+<p class="small">{{ T.ops_offsite }}: <b>{% if offsite == "uploaded" %}{{ T.ops_offsite_ok }}{% elif offsite == "failed" %}{{ T.ops_offsite_failed }}{% elif offsite == "not_configured" %}{{ T.ops_offsite_none }}{% else %}?{% endif %}</b></p>
+{% if backups %}<div class="tbl"><table><thead><tr><th>{{ T.ops_file }}</th><th>{{ T.ops_size }}</th><th>{{ T.ops_when }}</th></tr></thead><tbody>
+{% for b in backups %}<tr><td class="small">{{ b.name }}</td><td class="num">{{ b.size|filesizeformat }}</td><td>{{ b.mtime|date:"Y-m-d H:i" }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.ops_no_backups }}</p>{% endif %}
+<h3>{{ T.ops_restore }}</h3>
+{% if restore %}<p class="small">{% if restore.ok %}<span class="pill ok">{{ T.ops_ok }}</span>{% else %}<span class="pill bad">{{ T.ops_failing }}</span>{% endif %}
+{{ restore.finished_at }} · {{ T.ops_restore_secs }}: <b>{{ restore.restore_seconds }}</b> · {{ restore.bundle }}{% if restore.detail %}<br><span class="mut">{{ restore.detail }}</span>{% endif %}</p>
+{% else %}<p class="empty">{{ T.ops_restore_none }}</p>{% endif %}
+<p class="mut small">{{ T.ops_restore_note }}</p>
+</section>
+{% endblock %}

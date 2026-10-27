@@ -314,6 +314,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // ops-watch: previous-exit reasons ("com.assisto/exit_info") for our
+        // own crash / ANR rate. Handler only — ApplicationExitInfo is read on
+        // a background thread when Dart asks, ~20 s after start, never at launch.
+        try {
+            com.assisto.assisto.diag.ExitInfoChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // b6-antitheft: Lost/Stolen engine channel "com.assisto/antitheft".
         // Handler registration only — the foreground service starts lazily when
         // Dart calls start() after the user turns protection on (crash-guarded).

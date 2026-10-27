@@ -18,7 +18,12 @@ OUT="${1:-/home/ubuntu/assisto_migration_backups}"
 FLOOR_GB=8
 TS="$(date +%Y%m%d_%H%M%S)"
 STAGE="$(mktemp -d /tmp/assisto_bk.XXXXXX)"
-trap 'rm -rf "$STAGE"' EXIT
+T0="$(date +%s)"
+# ops-watch heartbeat (System health page / ops_watch alerts). Best-effort:
+# never changes the backup's own result.
+_hb() { (cd "$ASSISTO/backend" && timeout 60 "$ASSISTO/.venv/bin/python" manage.py ops_heartbeat backup "$@" >/dev/null 2>&1) || true; }
+trap 'rc=$?; rm -rf "$STAGE"; _hb --rc "$rc" --duration-ms "$(( ($(date +%s) - T0) * 1000 ))"; exit $rc' EXIT
+_hb --start
 
 # --- config ---
 set -a; # shellcheck disable=SC1090

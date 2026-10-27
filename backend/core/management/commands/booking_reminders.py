@@ -8,11 +8,13 @@ Idempotent: each booking remembers which reminders it already got."""
 from django.core.management.base import BaseCommand
 
 from core import booking_service as S
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Send due booking reminders (booking_bot)."
 
+    @track_job("booking_reminders")
     def handle(self, *args, **opts):
         n = S.send_due_reminders()
         self.stdout.write("booking_reminders: sent=%d" % n)

@@ -1,0 +1,35 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.cr_title }}{% endblock %}
+{% block content %}
+<p class="small"><a href="/owner/vitals">← {{ T.nav_vitals }}</a> · <a href="/owner/reports/errors">{{ T.ae_title }}</a></p>
+<form method="get" class="inline card">
+  <label>{{ T.period }} <select name="days">{% for o in day_options %}<option value="{{ o }}" {% if o == days %}selected{% endif %}>{{ o }} {{ T.days }}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+</form>
+{% if not win.enough %}<section class="card warn"><p><b>{{ T.cr_too_few }}</b> {{ T.cr_sample }}: {{ win.user_days }} / {{ win.min_user_days }} {{ T.cr_user_days }}.</p><p class="small">{{ T.cr_too_few_note }}</p></section>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.cr_crash_rate }} ({{ T.cr_bar }} {{ crash_bar }}%)</span><b>{% if win_crash_pct is not None %}{{ win_crash_pct }}%{% else %}—{% endif %}</b></div>
+  <div class="tile"><span>{{ T.cr_anr_rate }} ({{ T.cr_bar }} {{ anr_bar }}%)</span><b>{% if win_anr_pct is not None %}{{ win_anr_pct }}%{% else %}—{% endif %}</b></div>
+  <div class="tile"><span>{{ T.cr_crash_free }}</span><b>{% if win_free_pct is not None %}{{ win_free_pct }}%{% else %}—{% endif %}</b></div>
+  <div class="tile"><span>{{ T.cr_sample }}</span><b>{{ win.user_days }}</b></div>
+</div>
+<p class="mut small">{{ T.cr_note }} {{ since|date:"Y-m-d" }} – {{ today|date:"Y-m-d" }}. {{ T.cr_alert_note }}</p>
+
+<section class="card"><h3>{{ T.cr_daily }}</h3>
+<div class="tbl"><table><thead><tr><th>{{ T.ops_when }}</th><th>{{ T.cr_dau }}</th><th>{{ T.cr_crashed }}</th><th>{{ T.cr_crash_rate }}</th><th>{{ T.cr_crash_free }}</th><th>ANR</th><th>{{ T.cr_anr_rate }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.day|date:"Y-m-d" }}</td><td class="num">{{ r.dau }}</td><td class="num">{{ r.crash_users }}</td>
+<td class="num">{% if r.crash_pct is not None %}{{ r.crash_pct }}%{% else %}—{% endif %}</td>
+<td class="num">{% if r.free_pct is not None %}{{ r.free_pct }}%{% else %}—{% endif %}</td>
+<td class="num">{{ r.anr_users }}</td><td class="num">{% if r.anr_pct is not None %}{{ r.anr_pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section>
+
+{% for d in dims %}<section class="card"><h3>{{ d.title }}</h3>
+{% if d.rows %}<div class="tbl"><table><thead><tr><th>{{ T.cr_value }}</th><th>{{ T.cr_crashed }}</th><th>ANR</th><th>{{ T.cr_nonfatal }}</th><th>{{ T.ae_events }}</th>{% if d.field == "version" %}<th>{{ T.cr_dau_approx }}</th><th>{{ T.cr_crash_rate }}</th>{% endif %}</tr></thead><tbody>
+{% for x in d.rows %}<tr><td>{{ x.value }}</td><td class="num">{{ x.crash_users }}</td><td class="num">{{ x.anr_users }}</td><td class="num">{{ x.nonfatal }}</td><td class="num">{{ x.events }}</td>{% if d.field == "version" %}<td class="num">{{ x.users|default_if_none:"—" }}</td><td class="num">{% if x.crash_pct is not None %}{{ x.crash_pct }}%{% else %}—{% endif %}</td>{% endif %}</tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cr_none }}</p>{% endif %}</section>{% endfor %}
+
+<section class="card"><h3>{{ T.cr_top }}</h3>
+{% if sigs %}<div class="tbl"><table><thead><tr><th>{{ T.ae_error }}</th><th>{{ T.ae_phones }}</th><th>{{ T.ae_count }}</th></tr></thead><tbody>
+{% for g in sigs %}<tr><td><a href="/owner/reports/errors/{{ g.fingerprint }}"><b>{{ g.type }}</b></a> <span class="pill {% if g.source == 'anr' %}off{% else %}bad{% endif %}">{{ g.source }}</span><br><small class="mut">{{ g.message|truncatechars:110 }}</small></td><td class="num">{{ g.users }}</td><td class="num">{{ g.events }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cr_none }}</p>{% endif %}</section>
+{% endblock %}

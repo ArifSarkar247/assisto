@@ -23,11 +23,13 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from core.models import ShopEvent
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Delete shop-event snapshots older than each site's retention window."
 
+    @track_job("shop_prune_snapshots")
     def handle(self, *args, **options):
         now = timezone.now()
         removed = prune(now)
