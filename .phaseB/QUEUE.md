@@ -3,6 +3,9 @@
 ## NEXT (owner 27 Oct) — PLANS v2 for CRM/business [audit DONE in STATUS; implementation starts when an agent slot frees]
 Flag plans_v2; all limits in Owner Admin. FREE: ledger basic, CRM ≤20 contacts, leads/deals/pipeline/tasks VIEW only, no follow-up reminders, no automation. PREMIUM: CRM ≤500, full leads/deals/pipeline/tasks + follow-up reminders, no automation. BUSINESS: CRM "unlimited" (high hidden server cap, editable), all automation (COD confirm, refill, birthday/win-back, post-delivery feedback), AI Sales Agent, booking bot, marketing automation, team members, reports. 7-day Business trial once (no card, clear end date, no auto-charge outside Play). No data loss (over-limit readable; only adding asks upgrade). Server-enforced (owner's plan, not staff's). Honest upgrade sheet w/ Play ProductDetails prices. Update Plans screen + Play listing text. Fix credit leaks: business AI reply + CRM AI calls must charge credits/Profit Guard. Founder must count as Business where intended. Tests every gate; owner 10-min check in Bangla.
 
+## 🔴 TOP PRIORITY after 252 ships (owner 27 Oct) — BILLING, CREDIT AND REFUND HARDENING (full text: owner_actions/BILLING_ORDER_27OCT.md, rules A–V)
+Step 1 audit [AGENT billaudit, read-only → owner_actions/BILLING_AUDIT_BN.md]. Step 2 fixes start after the audit AND after agent/plansv2 (it also touches billing credit charging) is merged, to avoid two agents editing billing.py at once. Server fixes deploy as soon as tested (DB backup first); app screens in the next build. Report in Bangla atop STATUS.
+
 ## 🔴 URGENT (owner 27 Oct) — CALL BUGS, top priority after build 250 [AGENTS callsA (1 accept-from-outside + 2 use app during call: return bar, in-app/Android PiP), callsB (3 screen share mediaProjection + Play FGS text, 4 group calls mesh ≤4, no SFU)]
 Real fixes proven on emulator (CI ring-proof) + owner real phone; Bangla STATUS: what was broken, what fixed, 10-min two-phone check.
 
