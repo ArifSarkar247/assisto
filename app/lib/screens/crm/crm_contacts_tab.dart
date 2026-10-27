@@ -102,7 +102,9 @@ class _CrmContactsTabState extends State<CrmContactsTab> {
           message: t.pv2NoContactsHint,
           action: FilledButton.tonalIcon(
               onPressed: _add,
-              icon: const Icon(Icons.person_add_alt_1_rounded),
+              icon: Icon(_v2.contactLock() != null
+                  ? Icons.lock_rounded
+                  : Icons.person_add_alt_1_rounded),
               label: Text(t.pv2AddContact)),
         ),
       ]);

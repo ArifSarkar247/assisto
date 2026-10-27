@@ -35,6 +35,13 @@ class _PlansV2TrialBannerState extends State<PlansV2TrialBanner> {
   }
 
   @override
+  void didUpdateWidget(PlansV2TrialBanner old) {
+    super.didUpdateWidget(old);
+    final s = widget.state;
+    if (s != null && !identical(s, old.state)) _s = s;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final until = _s.trialUntil;
     if (!_s.on || !_s.trialActive || until == null) return const SizedBox.shrink();

@@ -92,6 +92,9 @@ class PlansV2State {
   final Map<String, bool> crmCaps;
   final ContactUsage? contacts;
 
+  /// The CRM org OWNER's tier (their plan decides the CRM, not the viewer's).
+  final String? crmOwnerTier;
+
   const PlansV2State({
     this.on = false,
     this.tier = 'free',
@@ -105,6 +108,7 @@ class PlansV2State {
     this.matrix = const {},
     this.crmCaps = const {},
     this.contacts,
+    this.crmOwnerTier,
   });
 
   /// Flag off / not loaded: nothing locked by the app (server still decides).
@@ -133,6 +137,7 @@ class PlansV2State {
       },
       matrix: (j['matrix'] as Map?)?.cast<String, dynamic>() ?? const {},
       crmCaps: _caps(crm?['caps']),
+      crmOwnerTier: crm?['owner_tier'] == null ? null : '${crm!['owner_tier']}',
       contacts: crm?['contacts'] is Map
           ? ContactUsage.fromJson((crm!['contacts'] as Map).cast<String, dynamic>())
           : null,
@@ -161,7 +166,7 @@ class PlansV2State {
     if (!on || c == null || c.canAdd) return null;
     return UpgradeReason(
         feature: 'crm_contacts',
-        neededPlan: tier == 'free' ? 'premium' : 'business',
+        neededPlan: (crmOwnerTier ?? tier) == 'free' ? 'premium' : 'business',
         limit: c.limit,
         used: c.used);
   }

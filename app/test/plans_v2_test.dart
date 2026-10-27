@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -14,11 +16,40 @@ import 'package:assisto/payments/store_billing.dart';
 import 'package:assisto/plans_v2/plans_v2.dart';
 import 'package:assisto/plans_v2/trial_banner.dart';
 import 'package:assisto/plans_v2/upgrade_sheet.dart';
-import 'package:assisto/screens/crm/crm_contacts_tab.dart' show CrmUsageBanner;
+import 'package:assisto/screens/crm/crm_contacts_tab.dart'
+    show CrmContactsTab, CrmUsageBanner;
+import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/plans_compare_table.dart';
 
 import 'pay1_fakes.dart';
+
+/// CRM contacts tab fake: an empty list + the given /plans/v2 answer.
+class _CrmApi extends ApiClient {
+  _CrmApi(this.v2) {
+    token = 't';
+  }
+  final Map<String, dynamic> v2;
+
+  @override
+  Future<List<Map<String, dynamic>>> listItems(String path) async => [];
+
+  @override
+  Future<Map<String, dynamic>> getJson(String path) async =>
+      path.startsWith('/plans/v2') ? v2 : <String, dynamic>{};
+}
+
+Future<void> _pumpContacts(WidgetTester tester, Map<String, dynamic> v2) async {
+  SharedPreferences.setMockInitialValues({});
+  final app = AppState();
+  app.api = _CrmApi(v2);
+  app.loading = false;
+  await tester.binding.setSurfaceSize(const Size(400, 900));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+      value: app, child: _app(const CrmContactsTab(org: 1))));
+  await tester.pumpAndSettle();
+}
 
 Widget _app(Widget home, {String lang = 'en', double scale = 1, bool dark = false}) =>
     MaterialApp(
@@ -124,6 +155,7 @@ void main() {
       'tier': 'business', // the viewer is rich, the owner is not
       'needed': {'crm_write': 'premium', 'automation': 'business'},
       'crm': {
+        'owner_tier': 'free',
         'caps': {'crm_write': false, 'automation': false},
         'contacts': {'used': 20, 'limit': 20, 'unlimited': false, 'can_add': false},
       },
@@ -131,6 +163,18 @@ void main() {
     expect(s.crmLock('crm_write')!.neededPlan, 'premium');
     expect(s.crmLock('automation')!.neededPlan, 'business');
     expect(s.contactLock()!.limit, 20);
+    // the OWNER is on Free, so Premium is enough (the viewer's Business tier
+    // must not decide what the owner needs)
+    expect(s.contactLock()!.neededPlan, 'premium');
+    final prem = PlansV2State.fromJson({
+      'on': true,
+      'tier': 'free',
+      'crm': {
+        'owner_tier': 'premium',
+        'contacts': {'used': 500, 'limit': 500, 'unlimited': false, 'can_add': false},
+      },
+    });
+    expect(prem.contactLock()!.neededPlan, 'business');
     expect(PlansV2State.off.crmLock('crm_write'), isNull);
     expect(PlansV2State.off.contactLock(), isNull);
     expect(PlansV2State.fromJson({'on': false, 'crm': {'caps': {'crm_write': false}}})
@@ -277,7 +321,7 @@ void main() {
 
   testWidgets('comparison table: the new matrix only when plans-v2 is on',
       (tester) async {
-    final plans = [
+    final plans = <Map<String, dynamic>>[
       {'id': 'free', 'name': 'Free', 'ads': true, 'credits': 0, 'family': 0},
       {'id': 'premium', 'name': 'Premium', 'ads': false, 'credits': 90, 'family': 5},
       {'id': 'business', 'name': 'Business', 'ads': false, 'credits': 240, 'family': 0},
@@ -301,5 +345,38 @@ void main() {
     await tester.pumpWidget(_app(Scaffold(
         body: SingleChildScrollView(child: PlansCompareTable(plans: plans, current: 'free')))));
     expect(find.text('View only'), findsNothing);
+  });
+
+  testWidgets('locked action: a full Free CRM shows a lock and opens the sheet',
+      (tester) async {
+    await _pumpContacts(tester, {
+      'on': true,
+      'tier': 'free',
+      'crm': {
+        'owner_tier': 'free',
+        'caps': {'crm_write': false},
+        'contacts': {'used': 20, 'limit': 20, 'unlimited': false, 'can_add': false},
+      },
+    });
+    final t = AppLocalizationsEn();
+    expect(find.text('20/20 contacts'), findsOneWidget);
+    expect(find.descendant(
+            of: find.byKey(const Key('crm-add-contact')),
+            matching: find.byIcon(Icons.lock_rounded)),
+        findsOneWidget);
+    await tester.tap(find.byKey(const Key('crm-add-contact')));
+    await tester.pumpAndSettle();
+    expect(find.byType(UpgradeSheet), findsOneWidget);
+    expect(find.text(t.pv2ReasonContactsTitle), findsOneWidget);
+  });
+
+  testWidgets('flag off: no lock, no usage bar (today\'s behaviour)',
+      (tester) async {
+    await _pumpContacts(tester, {'on': false});
+    expect(find.byIcon(Icons.lock_rounded), findsNothing);
+    expect(find.byType(CrmUsageBanner), findsNothing);
+    await tester.tap(find.byKey(const Key('crm-add-contact')));
+    await tester.pumpAndSettle();
+    expect(find.byType(UpgradeSheet), findsNothing);
   });
 }
