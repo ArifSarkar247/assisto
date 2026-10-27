@@ -226,10 +226,21 @@ class _VehMapState extends State<VehMap> {
                         size: 34, color: scheme.error),
                   ),
               ]),
-              SimpleAttributionWidget(
-                source: Text(w.config.attribution,
-                    style: const TextStyle(fontSize: 11, color: Colors.black87)),
-                backgroundColor: Colors.white.withValues(alpha: 0.85),
+              // OSM / provider credit, always visible; wraps instead of
+              // overflowing at large text sizes.
+              Align(
+                alignment: AlignmentDirectional.bottomEnd,
+                child: Container(
+                  margin: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(w.config.attribution,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(fontSize: 11, color: Colors.black87, height: 1.2)),
+                ),
               ),
             ],
           ),

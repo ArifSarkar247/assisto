@@ -149,6 +149,8 @@ class _CarModeScreenState extends State<CarModeScreen> {
     }
   }
 
+  void _set(VoidCallback f) => setState(f);
+
   Stream<CarFix> _gpsStream() => Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high, distanceFilter: 10),
@@ -203,8 +205,8 @@ class _CarModeScreenState extends State<CarModeScreen> {
       _banner = null;
       _sub = (src ?? _gpsStream)()
           .listen(_onFix, onError: (_) {}); // best-effort: a GPS hiccup must not stop the trip
-      await _keepOn(true);
       setState(() => _logging = true);
+      unawaited(_keepOn(true)); // best-effort; never blocks the trip UI
     } catch (_) {
       _snack(tr.vehCarGpsOff);
     }
@@ -212,9 +214,12 @@ class _CarModeScreenState extends State<CarModeScreen> {
 
   Future<void> _stopTrip() async {
     final tr = AppLocalizations.of(context);
-    await _sub?.cancel();
+    // Not awaited: a GPS stream cancel needs nothing back, and awaiting it
+    // must never be able to stall saving the trip.
+    final sub = _sub;
     _sub = null;
-    await _keepOn(false);
+    unawaited(sub?.cancel());
+    unawaited(_keepOn(false));
     setState(() {
       _logging = false;
       _saving = true;
@@ -299,6 +304,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
             MaterialPageRoute(builder: (_) => const VoiceAssistantScreen())),
       ),
       _BigButton(
+        key: const ValueKey('car-trip'),
         icon: _logging ? Icons.stop_circle_rounded : Icons.route_rounded,
         label: _logging ? tr.vehCarStopTrip : tr.vehCarStartTrip,
         color: _logging ? scheme.error : Brand.success,
@@ -496,7 +502,7 @@ extension on _CarModeScreenState {
           trailing: IconButton(
             tooltip: tr.close,
             icon: Icon(Icons.close_rounded, color: scheme.onErrorContainer),
-            onPressed: () => setState(() => _banner = null),
+            onPressed: () => _set(() => _banner = null),
           ),
         ),
       ),
@@ -519,7 +525,7 @@ extension on _CarModeScreenState {
                 label: Text(l == 0 ? tr.e2eVehOff : tr.vehKmh(vehNumStr(context, l))),
                 selected: _limit == l,
                 onSelected: (_) {
-                  setState(() => _limit = l);
+                  _set(() => _limit = l);
                   _savePrefs();
                 },
               ),
@@ -532,7 +538,7 @@ extension on _CarModeScreenState {
             onChanged: _usual.length < 2
                 ? null
                 : (v) {
-                    setState(() => _useRoute = v);
+                    _set(() => _useRoute = v);
                     _savePrefs();
                   },
           ),
@@ -549,7 +555,8 @@ class _BigButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool busy;
   const _BigButton(
-      {required this.icon,
+      {super.key,
+      required this.icon,
       required this.label,
       required this.color,
       required this.onTap,

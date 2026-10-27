@@ -75,7 +75,7 @@ class _FakeVehApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     if (path == '/vehicle/config') return {'map': {}};
-    if (path.endsWith('/route')) {
+    if (path.contains('/route')) {
       final now = DateTime.now().toUtc();
       final pts = [
         for (var i = 0; i < 30; i++)
@@ -328,8 +328,16 @@ void main() {
       expect(tester.takeException(), isNull);
 
       // stop the trip -> upload carries limit + usual route; save as usual route
-      await tester.tap(find.text(en.vehCarStopTrip));
+      expect(find.byKey(const ValueKey('car-trip')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('car-trip')));
+      await _settle(tester, 2);
+      expect(find.text(en.vehCarStopTrip), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('car-trip')));
       await _settle(tester, 12);
+      final snacks = tester.widgetList<SnackBar>(find.byType(SnackBar))
+          .map((b) => (b.content as Text).data).toList();
+      final labels = tester.widgetList<Text>(find.byType(Text)).map((t) => t.data).toList();
+      expect(api.posted, hasLength(1), reason: 'snacks: $snacks texts: $labels');
       final up = api.posted.single;
       expect(up['path'], '/vehicle/carmode/trip');
       expect(up['speed_limit_kmh'], 60);
@@ -419,8 +427,14 @@ void main() {
       expect(find.byType(RouteCanvas), findsNothing);
       expect(find.textContaining('OpenStreetMap'), findsOneWidget);
       await tester.ensureVisible(find.byKey(const ValueKey('veh-plan-set')));
+      await _settle(tester, 2);
+      expect(tester.widget<ButtonStyleButton>(find.byKey(const ValueKey('veh-plan-set')))
+          .onPressed, isNotNull);
       await tester.tap(find.byKey(const ValueKey('veh-plan-set')));
       await _settle(tester);
+      final snacks = tester.widgetList<SnackBar>(find.byType(SnackBar))
+          .map((b) => (b.content as Text).data).toList();
+      expect(api.patched, isNotEmpty, reason: 'snacks: $snacks');
       final routes = api.patched.single['routes'] as List;
       expect(routes, hasLength(1));
       expect((routes.first as Map)['points'], hasLength(30));
