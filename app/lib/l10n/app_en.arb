@@ -21660,5 +21660,18 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "aiReportAction": "Report this answer",
+  "aiReportBody": "Tell us what is wrong. Only the text of this answer is sent to the Assisto team for review.",
+  "aiReportOffensive": "Offensive",
+  "aiReportHarmful": "Harmful or dangerous",
+  "aiReportWrong": "Wrong or misleading",
+  "aiReportOther": "Something else",
+  "aiReportNoteHint": "Add details (optional)",
+  "aiReportSend": "Send report",
+  "aiReportPickReason": "Choose a reason",
+  "aiReportThanks": "Thank you. We will review this answer.",
+  "aiReportFailed": "Could not send the report. Please try again.",
+  "aiReportLimit": "Too many reports. Please try again later.",
+  "aiAnswerMenu": "Answer options"
 }
