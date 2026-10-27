@@ -36,13 +36,20 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: backend/requirements.txt
-      - run: python -m pip install -q -r backend/requirements.txt
+      # tblib: Django's --parallel runner needs it to report a failing test;
+      # without it one failure crashes the whole run ("cannot pickle traceback").
+      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
       - name: makemigrations --check
         working-directory: backend
         run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
       - name: core crm web
         working-directory: backend
-        run: python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
+        # A throwaway Fernet key made fresh on every run (never a real secret):
+        # integration tests encrypt/decrypt with it. Locally the key comes from
+        # the server's secrets file, which CI does not (and must not) have.
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
 
   flutter-static:
     runs-on: ubuntu-latest
