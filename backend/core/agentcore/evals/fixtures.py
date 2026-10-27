@@ -15,11 +15,13 @@ LAST_MONTH = {"income": 48000, "expense": {"food": 9500, "rent": 15000}}
 BUDGETS = {"food": 7000, "transport": 2500, "rent": 20000}      # food over, transport near
 LOANS = [("given", "Rahim", 5000, 1000), ("given", "Karim", 2500, 0), ("taken", "Sumon", 3000, 0)]
 
+METER = {"name": "Bari meter", "balance": 500, "daily_use": 50}    # -> ~10 days left
 EXPECT = {
     "expense_this": 26540, "income_this": 50000, "net_this": 23460,
     "expense_last": 24500, "top_this": "rent",
     "budget_over": "food", "budget_near": "transport",
     "loans_given": 6500, "loans_taken": 3000,
+    "meter_balance": 500, "meter_days": 10,
 }
 
 
@@ -59,3 +61,9 @@ def seed_money(user):
         Loan.objects.create(user=user, kind=kind, person=person, amount=Decimal(amt),
                             repayments=[{"amount": repaid, "date": str(this1)}] if repaid else [])
     Note.objects.create(user=user, title="bKash", body="Rahim bKash %s" % PHONE_IN_NOTE)
+    from ...models import PaCollectionItem          # WP-TOOLS-A: prepaid meter estimate
+    PaCollectionItem.objects.create(user=user, collection="meter/meters",
+                                    data={"name": METER["name"], "utility": "desco",
+                                          "balance": str(METER["balance"]),
+                                          "balance_date": timezone.localdate().isoformat(),
+                                          "daily_use": str(METER["daily_use"])})

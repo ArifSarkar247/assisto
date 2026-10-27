@@ -55,6 +55,7 @@ class Ctx:
     lang: str = "bn"
     play: bool = False
     idem_key: str = ""
+    charged: int = 0               # credits a tool itself charged (e.g. tagada SMS)
 
 
 def limits_for(user):
@@ -191,6 +192,12 @@ def _tick(run, ctx):
         plan = T.unseal(last.result_sealed).get("plan") or {}
         tool_steps = [s for s in steps if s.kind == "tool" and s.no > last.no]
         if plan.get("done") and tool_steps and all(s.state == "done" for s in tool_steps):
+            _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
+            return "stop"
+        # the user REJECTED a card of a finished plan: answer from templates
+        # (0 credits) instead of paying for another planner call
+        if plan.get("done") and tool_steps and all(s.state in ("done", "rejected") for s in tool_steps) \
+                and any(s.state == "rejected" and s.error_code == "rejected_by_user" for s in tool_steps):
             _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
             return "stop"
     return _plan(run, steps, ctx)
@@ -360,6 +367,7 @@ def _exec_step(run, step, ctx):
         log.error("agentcore: %s returned output outside its schema", tool.ref)
         return _fail_step(run, step, "bad_output")
     step.state = "done"
+    step.credits = int(tctx.charged or 0)
     step.result_sealed = T.seal({"r": out})
     step.summary = vault.mask(tool.summarize(out, ctx.lang))[:400]
     step.latency_ms = int((_time.monotonic() - t0) * 1000)
@@ -367,8 +375,10 @@ def _exec_step(run, step, ctx):
     step.save()
     T.save_vault(run, vault)       # summaries may have minted new tokens
     run.steps_used += 1
-    run.save(update_fields=["steps_used", "vault_sealed", "updated_at"])
-    T.audit(run, "tool.done", step=step, tool=tool.ref, risk=tool.risk, summary=step.summary)
+    run.credits_spent += step.credits     # the ledger was debited by the module itself
+    run.save(update_fields=["steps_used", "credits_spent", "vault_sealed", "updated_at"])
+    T.audit(run, "tool.done", step=step, credits=step.credits, tool=tool.ref, risk=tool.risk,
+            summary=step.summary)
     return "done"
 
 
@@ -386,6 +396,10 @@ def _template_answer(run, tool_steps, lang):
     lines = []
     for s in tool_steps:
         t = TL.get(s.tool)
+        if t and s.state == "rejected":
+            lines.append("“%s” বাতিল করা হয়েছে — কিছু করা হয়নি।" % t.label_bn if lang == "bn"
+                         else "“%s” was rejected — nothing was done." % t.label_en)
+            continue
         out = T.unseal(s.result_sealed).get("r")
         if t and out is not None:
             lines.append(t.summarize(out, lang))

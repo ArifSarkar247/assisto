@@ -12,6 +12,8 @@ STRUCTURAL guards (topic allow-list + validator) stop it, not the model.
 """
 import json
 import re
+
+_BN2EN = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 from datetime import datetime, timedelta
 
 _RX = {
@@ -23,6 +25,11 @@ _RX = {
     "loans": re.compile(r"ধার|দেনা|পাওনা|পাব|দেব\b|\bowes?\b|loan|dhar|pabo", re.I),
     "spend": re.compile(r"খরচ|আয়|spend|spent|spending|expense|income|khoroch|money go|টাকা যাচ্ছে|money summary", re.I),
     "hisab": re.compile(r"হিসাব|hisab|summary", re.I),
+    # WP-TOOLS-A money tools
+    "log": re.compile(r"লিখে রাখো|লিখে রাখ|হিসাবে তোলো|\blog\b|\badd (an? )?(expense|income)|likhe rakho|hisabe tolo", re.I),
+    "amount": re.compile(r"([0-9০-৯][0-9০-৯,]*)"),
+    "income": re.compile(r"আয়|বেতন|পেয়েছি|income|salary|earned|beton|peyechi", re.I),
+    "meter": re.compile(r"মিটার|\bmeter", re.I),
     "last": re.compile(r"গত মাস|আগের মাস|last month|gotomash", re.I),
 }
 
@@ -46,6 +53,13 @@ def _data(prompt):
     return json.loads(prompt[i + 7:j]) if i >= 0 and j > i else {}
 
 
+def _topic(task):
+    from .. import topics as TP
+    m = re.search(r"^Topic rules: (.*)$", task, re.M)
+    rules = m.group(1) if m else ""
+    return next((k for k, v in TP.TOPICS.items() if v["rules"] == rules), "")
+
+
 def think(task, prompt):
     data = _data(prompt)
     goal = data.get("goal") or ""
@@ -53,6 +67,10 @@ def think(task, prompt):
     lang = _lang(task)
     retry = "previous output was rejected" in task
     now = _now(task)
+    topic = _topic(task)
+    if topic and topic != "money":            # WP-TOOLS-A/B topics
+        from . import topic_brain
+        return topic_brain.think(topic, goal, lang, _allowed(task), retry, now, obs)
     if obs:
         bad = [o for o in obs if not o.get("ok")]
         msg = ("কিছু ধাপ করা যায়নি: " if lang == "bn" else "Some steps could not run: ") + \
@@ -68,6 +86,13 @@ def think(task, prompt):
         title = (goal.split(":", 1)[1] if ":" in goal else goal).strip()[:120] or "note"
         return {"v": 1, "done": True, "answer": None,
                 "steps": [{"tool": "notes.create", "args": {"title": title, "body": goal[:500]}}]}
+    if _RX["log"].search(goal) and _RX["amount"].search(goal) and "money.log" in _allowed(task):
+        amt = int(_RX["amount"].search(goal).group(1).translate(_BN2EN).replace(",", ""))
+        kind = "income" if _RX["income"].search(goal) else "expense"
+        return {"v": 1, "done": True, "answer": None,
+                "steps": [{"tool": "money.log", "args": {"kind": kind, "amount": amt}}]}
+    if _RX["meter"].search(goal) and "meter.balance" in _allowed(task):
+        return {"v": 1, "done": True, "answer": None, "steps": [{"tool": "meter.balance", "args": {}}]}
     if _RX["move"].search(goal):
         ans = ("আমি টাকা পাঠাতে বা বিল দিতে পারি না — টাকা সবসময় আপনি নিজে আপনার অ্যাপ থেকে পাঠান।"
                if lang == "bn" else

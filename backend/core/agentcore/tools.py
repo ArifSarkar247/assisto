@@ -443,7 +443,7 @@ TOOLS = (
          obj({"id": _INT, "title": _STR, "due_at": _STR, "created": _BOOL},
              ("id", "title", "due_at", "created")),
          _reminders_create, _reminders_create_sum, rate_per_hour=20, feature="reminders",
-         topics=("family", "money", "business", "travel", "health", "learning")),
+         topics=("family", "money", "business", "documents", "travel", "health", "learning")),
     Tool("notes.search", 1, "নোট খোঁজা", "Search notes",
          "Find the user's notes by text (empty query = latest).", "read",
          obj({"query": {"type": "string", "maxLength": 100},
@@ -525,6 +525,11 @@ TOOLS = (
          _journey_status, _journey_status_sum, feature="safe_journey",
          topics=("family", "safety", "travel")),
 )
+
+# WP-TOOLS-A (personal) + WP-TOOLS-B (business) live in their own modules.
+from . import tools_business as _TB, tools_personal as _TPS   # noqa: E402
+
+TOOLS = TOOLS + _TPS.TOOLS + _TB.TOOLS
 
 REGISTRY = {t.name: t for t in TOOLS}
 
