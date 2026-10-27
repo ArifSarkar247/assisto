@@ -617,6 +617,7 @@ def circle_join_landing(request, raw):
     (verified App Link on /i/) Android opens the app and this page never
     loads. Shows only the inviter's FIRST name. None = not a circle code
     (the caller falls through to the referral landing)."""
+    from urllib.parse import quote
     from core import invite_join as IJ
     from core import otp as _otp
     lang = _lang(request)
@@ -634,8 +635,7 @@ def circle_join_landing(request, raw):
     intent_url = ("intent://%s/i/%s#Intent;scheme=https;package=%s;"
                   "S.browser_fallback_url=%s;end" % (
                       _site().split("://", 1)[-1], code, APP_PACKAGE,
-                      IJ.play_link(code).replace("&", "%26").replace("=", "%3D")
-                      .replace(":", "%3A").replace("/", "%2F").replace("?", "%3F")))
+                      quote(IJ.play_link(code), safe="")))
     ctx = _ctx(request, ok=ok, code=code, name=name,
                initial=(name[:1] or "A"), intent_url=intent_url,
                play_url=IJ.play_link(code),

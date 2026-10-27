@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -137,15 +136,14 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
   // ------------------------------------------------------------------ actions
   Future<void> _pick() async {
     try {
-      final b = widget.pickPhoto != null
-          ? await widget.pickPhoto!()
-          : await ImagePicker()
-              .pickImage(
-                  source: ImageSource.gallery,
-                  maxWidth: 512,
-                  maxHeight: 512,
-                  imageQuality: 80)
-              .then((x) => x?.readAsBytes());
+      Uint8List? b;
+      if (widget.pickPhoto != null) {
+        b = await widget.pickPhoto!();
+      } else {
+        final x = await ImagePicker().pickImage(
+            source: ImageSource.gallery, maxWidth: 512, maxHeight: 512, imageQuality: 80);
+        b = await x?.readAsBytes();
+      }
       if (b != null && mounted) setState(() => _photo = b);
     } catch (_) {
       // picker unavailable: the photo is optional, nothing to do

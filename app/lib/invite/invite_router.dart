@@ -43,14 +43,16 @@ class InviteRouter {
   }
 
   /// Root initState (after the first frame): cold-start URL, the code saved
-  /// by an earlier launch, then (seconds later, once per install) the Play
-  /// Install Referrer. All guarded; never blocks the first frame.
+  /// by an earlier launch, then (once per install) the Play Install Referrer. All guarded; never blocks the first frame.
   static void start(String defaultRouteName) {
     if (_started) return;
     _started = true;
     if (!defaultRouteName.startsWith('/')) PendingInvite.takeLink(defaultRouteName);
     unawaited(PendingInvite.load());
-    Timer(const Duration(seconds: 2), () {
+    // Shortly after the first frame (never on the cold-start path); Play
+    // usually answers in well under a second, so a fresh install switches
+    // from the language screen to "Join X's circle" almost at once.
+    Timer(const Duration(milliseconds: 300), () {
       unawaited(PendingInvite.readReferrerOnce());
     });
   }

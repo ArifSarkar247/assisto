@@ -16,6 +16,7 @@ import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/home_flow.dart';
 import 'flows/my_circle_add_flow.dart';
+import 'flows/invite_join_flow.dart'; // invite-join
 import 'flows/my_circle_ticks_flow.dart';
 import 'flows/onboarding_flow.dart';
 import 'flows/personal_flow.dart';
@@ -37,6 +38,7 @@ void main() {
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.
   if (on('circle')) registerMyCircleAddFlows(); // m3-circle
+  if (on('circle')) registerInviteJoinFlows(); // invite-join
   if (on('circle')) registerMyCircleTicksFlows(); // c3-msg
   if (on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
   if (on('business')) registerBusinessFlows();
