@@ -74,20 +74,21 @@ jobs:
           done
 
   load:
+    # Each job runs BEFORE and AFTER back-to-back on the SAME runner VM, so
+    # the comparison is fair (GitHub runners differ by up to ~50% in speed
+    # from one VM to the next — measured in the first runs).
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 80
     strategy:
       fail-fast: false
       matrix:
         include:
-          - {name: after-live-1k,    sut: head, workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: before-live-1k,   sut: base, workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: after-gthread-1k, sut: head, workers: 3, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: after-live-10k,   sut: head, workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
-          - {name: before-live-10k,  sut: base, workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
-          - {name: after-w5-1k,      sut: head, workers: 5, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: after-w5-10k,     sut: head, workers: 5, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
-          - {name: after-gthread-10k, sut: head, workers: 3, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: live-1k,     workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 1}
+          - {name: live-10k,    workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 1}
+          - {name: w5-1k,       workers: 5, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 0}
+          - {name: w5-10k,      workers: 5, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 0}
+          - {name: gthread-1k,  workers: 3, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 0}
+          - {name: gthread-10k, workers: 3, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 0}
     env:
       DB_NAME: loadtest
       DB_USER: postgres
@@ -103,12 +104,8 @@ jobs:
         with:
           path: head
           fetch-depth: 0
-      - name: system under test = the before ref (ancestor of this branch)
-        if: matrix.sut == 'base'
-        run: git -C head worktree add --detach ../sut ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
-      - name: system under test = this ref
-        if: matrix.sut == 'head'
-        run: cp -a head sut
+      - name: before code = an ancestor of this branch
+        run: git -C head worktree add --detach ../base ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -118,69 +115,31 @@ jobs:
         run: |
           python -m pip install -q -r head/backend/requirements.txt
           python -m pip install -q locust==2.31.8
-          nproc; free -m
-      - name: postgres 16 (2 CPUs, pg_stat_statements)
+          nproc; free -m; lscpu | grep -E "Model name|^CPU\(s\)"
+      - name: postgres 16 (CPUs 0-1, pg_stat_statements, auto_explain)
         run: |
           docker run -d --name pg --cpuset-cpus=0,1 -m 3g --network host \
-            -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=$DB_NAME postgres:16 \
+            -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=postgres postgres:16 \
             -c max_connections=200 -c shared_preload_libraries=pg_stat_statements,auto_explain \
             -c auto_explain.log_min_duration=25 -c auto_explain.log_analyze=on \
             -c auto_explain.log_timing=off -c auto_explain.log_buffers=on
           for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
           sleep 3
-          docker exec pg psql -U postgres -d $DB_NAME -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
-      - name: migrate + seed (synthetic data only)
-        working-directory: head/backend
-        run: |
-          python manage.py migrate -v0 --noinput
-          python manage.py loadtest_seed --users ${{ matrix.seed }} --out $GITHUB_WORKSPACE/tokens.json
-          docker exec pg psql -U postgres -d $DB_NAME -c "SELECT pg_stat_statements_reset()"
-          docker logs pg 2>&1 | wc -l > $GITHUB_WORKSPACE/pg_lines_before
-      - name: start nginx + gunicorn (pinned to CPUs 0-1, live config)
-        working-directory: sut/backend
-        run: |
-          EXTRA=""
-          if [ "${{ matrix.threads }}" != "0" ]; then EXTRA="--worker-class gthread --threads ${{ matrix.threads }}"; fi
-          nohup taskset -c 0,1 python -m gunicorn assisto_backend.wsgi:application \
-            --workers ${{ matrix.workers }} $EXTRA --bind 127.0.0.1:8700 --timeout 60 \
-            > $GITHUB_WORKSPACE/gunicorn.log 2>&1 &
-          sudo taskset -c 0,1 nginx -c $GITHUB_WORKSPACE/head/loadtest/nginx.conf
-          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/v1/health && break; sleep 1; done
-          echo
-          (vmstat 5 > $GITHUB_WORKSPACE/vmstat.log 2>&1 &)
-      - name: locust (CPUs 2-3)
-        working-directory: head/loadtest
-        env:
-          LT_TOKENS: ${{ github.workspace }}/tokens.json
-          LT_USERS: ${{ matrix.users }}
-          LT_RAMP_S: ${{ matrix.ramp }}
-          LT_HOLD_S: ${{ matrix.hold }}
-        run: |
-          ulimit -n 65535
-          mkdir -p $GITHUB_WORKSPACE/out
-          taskset -c 2,3 locust -f locustfile.py --headless --host http://127.0.0.1:8080 \
-            --processes 2 --csv $GITHUB_WORKSPACE/out/lt --csv-full-history \
-            --only-summary --stop-timeout 15 --exit-code-on-error 0 \
-            > $GITHUB_WORKSPACE/out/locust.log 2>&1 || true
-          tail -40 $GITHUB_WORKSPACE/out/locust.log
+      - name: before
+        if: matrix.before == 1
+        run: bash head/loadtest/run_one.sh $GITHUB_WORKSPACE/base/backend before-${{ matrix.name }} ${{ matrix.workers }} ${{ matrix.threads }} ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
+      - name: after
+        run: bash head/loadtest/run_one.sh $GITHUB_WORKSPACE/head/backend after-${{ matrix.name }} ${{ matrix.workers }} ${{ matrix.threads }} ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
       - name: summary
         if: always()
         run: |
-          python head/loadtest/summarize.py out/lt ${{ matrix.name }} out/${{ matrix.name }} >> $GITHUB_STEP_SUMMARY || true
-          docker exec pg psql -U postgres -d $DB_NAME -c "SELECT round(total_exec_time) AS total_ms, calls, round(mean_exec_time::numeric,2) AS mean_ms, left(regexp_replace(query, '\s+', ' ', 'g'), 220) AS query FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 25" > out/pg_top_queries.txt || true
-          cp gunicorn.log vmstat.log out/ 2>/dev/null || true
-          # slow-query plans (auto_explain >= 25 ms), first 400 lines
-          docker logs pg 2>&1 | tail -n +$(( $(cat pg_lines_before) + 1 )) | grep -A40 "duration:" | head -600 > out/pg_slow_plans.txt || true
-          grep -c "duration:" out/pg_slow_plans.txt || true
-          grep -c " 500 \|Traceback" gunicorn.log || true
-          tail -30 vmstat.log || true
+          for f in out/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
+          for f in out/*/summary.md; do sed -n 1,8p "$f"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: loadtest-${{ matrix.name }}
-          path: |
-            out/
-            !out/**/tokens*
+          path: out/
           retention-days: 30
 
   report:
@@ -194,5 +153,5 @@ jobs:
           pattern: loadtest-*
       - name: combined summary
         run: |
-          for f in all/*/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
+          for f in all/*/*/summary.md all/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
           ls -R all | head -50

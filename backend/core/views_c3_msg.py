@@ -451,19 +451,35 @@ def sync_delivered(user):
         qs = (CircleMessage.objects.filter(member_id__in=sorted(ids),
                                            group=None)
               .exclude(sender=user).exclude(receipts__user=user)
-              .select_related("member", "member__peer_user", "sender")
               .only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
-        n += mark(user, list(qs), now=now)
+        n += mark(user, _attach(list(qs)), now=now)
     gids = list(CircleGroupMember.objects.filter(
         member=user, status="active").values_list("group_id", flat=True))
     if gids:
         qs = (CircleMessage.objects.filter(group_id__in=gids)
               .exclude(sender=user).exclude(receipts__user=user)
-              .select_related("sender").only(*_MARK_FIELDS)
+              .only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
-        n += mark(user, list(qs), now=now)
+        n += mark(user, _attach(list(qs)), now=now)
     return n
+
+
+def _attach(msgs):
+    """srvperf: give the rows their edge (+ its peer user) and sender from
+    two small id lookups — a select_related JOIN here made PostgreSQL hash
+    the WHOLE member and user tables on every sync (seen in auto_explain)."""
+    if not msgs:
+        return msgs
+    edges = CircleMember.objects.select_related("peer_user").in_bulk(
+        {x.member_id for x in msgs if x.member_id})
+    users = User.objects.in_bulk({x.sender_id for x in msgs})
+    for x in msgs:
+        if x.member_id in edges:
+            x.member = edges[x.member_id]
+        if x.sender_id in users:
+            x.sender = users[x.sender_id]
+    return msgs
 
 
 # srvperf: what mark() / publish_receipts() / statuses() read on a message
