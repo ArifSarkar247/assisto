@@ -3474,6 +3474,11 @@ class OtpChallenge(models.Model):
     device_id = models.CharField(max_length=128, blank=True, default="", db_index=True)
     sent = models.BooleanField(default=False)
     detail = models.CharField(max_length=200, blank=True, default="")
+    # smsotp: delivery channel (sms | email). An email-identity challenge has
+    # phone="" and `email` set; a phone-identity challenge delivered by email
+    # keeps `phone` and records the address it went to in `email`.
+    channel = models.CharField(max_length=8, default="sms")
+    email = models.CharField(max_length=254, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -3489,6 +3494,8 @@ class OtpProof(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     expires_at = models.DateTimeField()
     used_at = models.DateTimeField(null=True, blank=True)
+    channel = models.CharField(max_length=8, default="sms")       # smsotp
+    email = models.CharField(max_length=254, blank=True, default="")
 
 
 class PhoneVerification(models.Model):
@@ -3498,6 +3505,55 @@ class PhoneVerification(models.Model):
                                 related_name="phone_verification")
     phone = models.CharField(max_length=24)
     verified_at = models.DateTimeField(default=timezone.now)
+
+
+# ---- smsotp ---- SMS send log (cost + caps), email send log, email verify.
+class SmsLog(models.Model):
+    """One row per SMS the server tried to send (core/sms_service.py). The
+    message TEXT is never stored. Caps count rows with status 'sent'."""
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    purpose = models.CharField(max_length=16, db_index=True)   # otp|phone_verify|tagada|safety
+    phone = models.CharField(max_length=24, db_index=True)     # +8801XXXXXXXXX
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="+")
+    provider = models.CharField(max_length=32, blank=True, default="")
+    message_id = models.CharField(max_length=80, blank=True, default="")
+    segments = models.PositiveSmallIntegerField(default=0)
+    encoding = models.CharField(max_length=8, blank=True, default="")   # gsm7|ucs2
+    cost_bdt = models.FloatField(default=0.0)          # company provider cost
+    credits = models.IntegerField(default=0)            # credits charged (tagada)
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    reason = models.CharField(max_length=40, blank=True, default="")
+    failover = models.BooleanField(default=False)       # went out on the secondary
+    detail = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["purpose", "status", "created_at"])]
+
+
+class EmailLog(models.Model):
+    """One row per email the server tried to send (core/email_sender.py).
+    Only a hash + mask of the address; never the body."""
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    purpose = models.CharField(max_length=16)
+    to_hash = models.CharField(max_length=64, db_index=True)
+    to_masked = models.CharField(max_length=80, blank=True, default="")
+    provider = models.CharField(max_length=16, blank=True, default="smtp")
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    detail = models.CharField(max_length=200, blank=True, default="")
+
+
+class EmailVerification(models.Model):
+    """The user proved this email address with a code (smsotp). Only a
+    verified address may receive login / reset codes."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="email_verification")
+    email = models.CharField(max_length=254, db_index=True)
+    verified_at = models.DateTimeField(default=timezone.now)
+# ---- /smsotp ----
 # ---- /o1-otp ----
 
 # ===========================================================================

@@ -381,6 +381,7 @@ _OTP_DEFAULTS = {
     "per_phone_per_hour": 5,
     "per_ip_per_hour": 20,
     "per_device_per_hour": 10,
+    "per_email_per_hour": 5,       # smsotp: email OTP codes per address
     "proof_ttl_seconds": 600,      # otp_proof life: 10 minutes, single use
 }
 _OTP_BOUNDS = {
@@ -388,7 +389,77 @@ _OTP_BOUNDS = {
     "max_attempts": (1, 10), "lockout_minutes": (1, 1440),
     "per_phone_per_hour": (1, 50), "per_ip_per_hour": (1, 500),
     "per_device_per_hour": (1, 100), "proof_ttl_seconds": (60, 3600),
+    "per_email_per_hour": (1, 50),
 }
+
+
+# ---- smsotp ---- SMS routing + per-purpose per-day caps + email caps
+# (Owner Admin → Pricing → "sms" / "email"; flat scalars so the generic
+# section editor shows them). 0 = that purpose is OFF. Bounds clamp.
+SMS_GATEWAY_SLUGS = ("sms_ssl_wireless", "sms_bulksmsbd", "sms_alpha",
+                     "sms_infobip", "sms_twilio", "sms")
+_SMS_DEFAULTS = {
+    "primary": "",                 # integration slug; blank = first CONNECTED
+    "secondary": "",               # optional failover gateway slug
+    "default_cost_per_segment_bdt": 0.35,   # when the gateway entry has none
+    "max_segments": 4,             # longer messages are refused
+    # OTP (login / reset / delete / section 8) — company cost, free to user
+    "otp_per_phone_day": 10, "otp_per_user_day": 10, "otp_global_day": 3000,
+    # phone verify (sign-up / change number / booking) — company cost
+    "verify_per_phone_day": 6, "verify_per_user_day": 6, "verify_global_day": 2000,
+    # ledger due reminders — charged to the business owner as credits
+    "tagada_per_phone_day": 1, "tagada_per_user_day": 200,
+    "tagada_per_business_day": 200, "tagada_global_day": 5000,
+    # safety (SOS / journey / family alerts) — free, strict, company cost
+    "safety_per_phone_day": 6, "safety_per_user_day": 20, "safety_global_day": 1000,
+}
+_SMS_INT_BOUNDS = {
+    "max_segments": (1, 10),
+    "otp_per_phone_day": (0, 50), "otp_per_user_day": (0, 50), "otp_global_day": (0, 100000),
+    "verify_per_phone_day": (0, 50), "verify_per_user_day": (0, 50),
+    "verify_global_day": (0, 100000),
+    "tagada_per_phone_day": (0, 5), "tagada_per_user_day": (0, 1000),
+    "tagada_per_business_day": (0, 1000), "tagada_global_day": (0, 200000),
+    "safety_per_phone_day": (0, 30), "safety_per_user_day": (0, 100),
+    "safety_global_day": (0, 50000),
+}
+_EMAIL_DEFAULTS = {
+    "provider": "smtp",            # pluggable sender (smtp now; "ses" later)
+    # Gmail consumer accounts allow ~500 recipients/day (Google Workspace
+    # ~2000): stay under it so Google never suspends the company mailbox.
+    "daily_cap": 400,
+    "near_cap_pct": 90,            # from here the app is told to prefer SMS
+}
+
+
+def _norm_sms(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k in ("primary", "secondary"):
+        v = str(raw.get(k, base[k]) or "").strip()
+        out[k] = v if v in SMS_GATEWAY_SLUGS else ""
+    out["default_cost_per_segment_bdt"] = round(max(0.0, min(50.0, _num(
+        raw.get("default_cost_per_segment_bdt"), base["default_cost_per_segment_bdt"]))), 4)
+    for k, (lo, hi) in _SMS_INT_BOUNDS.items():
+        out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
+    return out
+
+
+def _norm_email(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    prov = str(raw.get("provider", base["provider"]) or "smtp").strip().lower()
+    return {"provider": prov if prov in ("smtp",) else "smtp",
+            "daily_cap": max(0, min(2000, _int(raw.get("daily_cap"), base["daily_cap"]))),
+            "near_cap_pct": max(50, min(100, _int(raw.get("near_cap_pct"),
+                                                  base["near_cap_pct"])))}
+
+
+def sms_cfg(cfg):
+    return normalize(cfg)["sms"]
+
+
+def email_cfg(cfg):
+    return normalize(cfg)["email"]
 
 
 def _norm_otp(raw, base):
@@ -571,6 +642,8 @@ def DEFAULTS():
         "shop": dict(_SHOP_DEFAULTS),
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
+        "sms": dict(_SMS_DEFAULTS),        # smsotp
+        "email": dict(_EMAIL_DEFAULTS),    # smsotp
         "vehicle": dict(_VEHICLE_DEFAULTS),
         # ps1-photo: Photo Studio knobs (core/logic/photo_studio.py)
         "photo_studio": _PS.defaults(),
@@ -703,6 +776,8 @@ def normalize(data):
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "otp": _norm_otp(d.get("otp"), base["otp"]),
+        "sms": _norm_sms(d.get("sms"), base["sms"]),          # smsotp
+        "email": _norm_email(d.get("email"), base["email"]),  # smsotp
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),

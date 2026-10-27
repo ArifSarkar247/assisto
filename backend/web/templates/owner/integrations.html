@@ -20,7 +20,9 @@
   {% for f in r.fields %}<label>{{ f.label }}{% if f.set %} <span class="pos small">✓ {% if f.secret %}{{ f.masked }}{% else %}{{ T.saved_value }}: {{ f.masked }}{% endif %}</span>{% endif %}
     <input name="{{ f.key }}" {% if f.secret %}type="password"{% endif %} autocomplete="off" placeholder="{% if f.set %}{{ T.replace_ph }}{% else %}{{ T.paste_ph }}{% endif %}"></label>{% endfor %}
   <p class="mut small">{{ T.last_checked }}: {{ r.last_tested_human }}{% if r.detail %} · {{ r.detail }}{% endif %}</p>
-  <div class="row"><button class="btn primary" name="action" value="save">{{ T.save }}</button>{% if r.testable %}<button class="btn ghost" name="action" value="test">{{ T.test }}</button>{% else %}<button class="btn ghost" name="action" value="test">{{ T.mark_saved }}</button>{% endif %}</div>
+  {% if r.test_to_kind %}<label>{% if r.test_to_kind == 'email' %}{{ T.test_to_email }}{% else %}{{ T.test_to_phone }}{% endif %}
+    <input name="test_to" {% if r.test_to_kind == 'email' %}type="email" placeholder="you@example.com"{% else %}type="tel" placeholder="01XXXXXXXXX"{% endif %} autocomplete="off"></label>{% endif %}
+  <div class="row"><button class="btn primary" name="action" value="save">{{ T.save }}</button>{% if r.test_to_kind == 'email' %}<button class="btn ghost" name="action" value="test">{{ T.send_test_email }}</button>{% elif r.test_to_kind %}<button class="btn ghost" name="action" value="test">{{ T.send_test_sms }}</button>{% elif r.testable %}<button class="btn ghost" name="action" value="test">{{ T.test }}</button>{% else %}<button class="btn ghost" name="action" value="test">{{ T.mark_saved }}</button>{% endif %}</div>
 </form>
 {% endfor %}
 </div>

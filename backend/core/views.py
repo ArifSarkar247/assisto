@@ -1840,7 +1840,9 @@ class IntegrationTestView(_OwnerOnly):
         if d:
             return d
         from . import integrations
-        status_, detail = integrations.test(slug)
+        # smsotp: "Send test SMS / email" to the number/address the owner typed
+        test_to = str((request.data or {}).get("test_to") or "").strip()[:254]
+        status_, detail = integrations.test(slug, test_to=test_to)
         log(request.user, "integration.test", slug=slug, result=status_)
         return Response({"status": status_, "detail": detail})
 

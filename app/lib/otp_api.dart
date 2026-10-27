@@ -11,6 +11,12 @@ import 'models.dart';
 ///   POST /auth/otp/login   {phone, otp_proof} -> {token, user}
 ///   POST /auth/otp/reset   {phone, otp_proof, password} -> {ok, message}
 ///
+/// smsotp — email backup (same codes, same limits; verify via /auth/otp/verify):
+///   POST /auth/otp/email/request {purpose, phone? | email?} -> {ok, channel,
+///                              email_masked?, prefer_sms} | {ok:false, reason}
+///   POST /auth/otp/email/confirm {email, code} -> {ok, email, verified}
+///   GET  /auth/otp/email/me -> {email, verified, email_enabled}
+///
 /// Purposes: signup, login, password_reset, delete_account, section8.
 /// Screens depend on [OtpBackend] (not ApiClient) so widget tests can inject a
 /// fake without any network.
@@ -32,6 +38,11 @@ class OtpResult {
   int? get attemptsLeft => _int(data['attempts_left']);
   int? get resendIn => _int(data['resend_in']);
   String get phoneMasked => '${data['phone_masked'] ?? ''}';
+  // smsotp: email backup
+  String get emailMasked => '${data['email_masked'] ?? ''}';
+  bool get emailAvailable =>
+      data['email_enabled'] == true || data['email_fallback'] == true;
+  bool get emailOff => reason == 'email_not_configured';
   String? get proof => data['otp_proof'] as String?;
   bool get smsOff =>
       reason == 'sms_not_configured' || data['sms_enabled'] == false;
@@ -61,12 +72,25 @@ class OtpStatus {
   final bool passwordOnlySignup;
   final int codeLength;
   final int resendIn;
+  final bool emailEnabled; // smsotp
   const OtpStatus(
       {this.smsEnabled = false,
       this.passwordOnlySignup = true,
       this.codeLength = 6,
-      this.resendIn = 60});
+      this.resendIn = 60,
+      this.emailEnabled = false});
 }
+
+/// smsotp — the signed-in user's email for codes.
+class EmailState {
+  final String email;
+  final bool verified;
+  final bool enabled; // the server can send email codes at all
+  const EmailState({this.email = '', this.verified = false, this.enabled = false});
+}
+
+/// smsotp — purposes whose code may also be delivered by email.
+const otpEmailPurposes = {'login', 'password_reset', 'delete_account', 'section8'};
 
 abstract class OtpBackend {
   Future<OtpStatus> status();
@@ -75,6 +99,11 @@ abstract class OtpBackend {
   Future<({String token, AppUser user})?> loginWithProof(
       String phone, String proof);
   Future<OtpResult> resetPassword(String phone, String proof, String password);
+
+  // smsotp — email backup
+  Future<OtpResult> requestEmail(String purpose, {String? phone, String? email});
+  Future<OtpResult> confirmEmail(String email, String code);
+  Future<EmailState> emailState();
 }
 
 /// Real implementation over [ApiClient.postJsonRaw].
@@ -99,6 +128,7 @@ class ApiOtpBackend implements OtpBackend {
         passwordOnlySignup: j['password_only_signup'] != false,
         codeLength: (j['code_length'] as num?)?.toInt() ?? 6,
         resendIn: (j['resend_in'] as num?)?.toInt() ?? 60,
+        emailEnabled: j['email_enabled'] == true,
       );
     } catch (_) {
       // Unknown -> behave like before OTP existed; the server still enforces.
@@ -137,7 +167,36 @@ class ApiOtpBackend implements OtpBackend {
   Future<OtpResult> resetPassword(String phone, String proof, String password) =>
       _post('/auth/otp/reset',
           {'phone': phone, 'otp_proof': proof, 'password': password});
+
+  @override
+  Future<OtpResult> requestEmail(String purpose, {String? phone, String? email}) =>
+      _post('/auth/otp/email/request', {
+        'purpose': purpose,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (email != null && email.isNotEmpty) 'email': email,
+      });
+
+  @override
+  Future<OtpResult> confirmEmail(String email, String code) =>
+      _post('/auth/otp/email/confirm', {'email': email, 'code': code});
+
+  @override
+  Future<EmailState> emailState() async {
+    try {
+      final j = await api.getJson('/auth/otp/email/me');
+      return EmailState(
+          email: '${j['email'] ?? ''}',
+          verified: j['verified'] == true,
+          enabled: j['email_enabled'] == true);
+    } catch (_) {
+      return const EmailState();
+    }
+  }
 }
+
+/// Client-side email shape check (the server is the authority).
+bool looksLikeEmail(String raw) =>
+    RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(raw.trim());
 
 /// Client-side Bangladeshi mobile check (server is the authority):
 /// 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX.
