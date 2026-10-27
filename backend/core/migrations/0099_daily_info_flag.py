@@ -52,7 +52,7 @@ def backward(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0095_billing_v2'),
+        ('core', '0098_ai_router'),
     ]
 
     operations = [

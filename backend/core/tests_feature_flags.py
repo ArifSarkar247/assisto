@@ -266,7 +266,7 @@ class UnseenRenameTests(TestCase):
     def _migrate(self):
         import importlib
         from django.apps import apps
-        mod = importlib.import_module("core.migrations.0096_daily_info_flag")
+        mod = importlib.import_module("core.migrations.0099_daily_info_flag")
         mod.forward(apps, None)
         FF.invalidate()
 

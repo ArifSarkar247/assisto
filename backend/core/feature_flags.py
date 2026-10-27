@@ -80,7 +80,7 @@ REGISTRY = (
     # Farmers / Government-services hub is "Daily info and services". Its
     # flag was `unseen_world` until this rename; that key now belongs to the
     # REAL Unseen World travel feature below (default OFF). Migration
-    # 0096_daily_info_flag carries the owner's old row over; LEGACY_KEYS
+    # 0099_daily_info_flag carries the owner's old row over; LEGACY_KEYS
     # keeps old apps (which still ask for `unseen_world`) showing the hub.
     ('daily_info', 'daily_life', 'Daily info and services', 'আজকের তথ্য ও সেবা', True, ()),
     ('unseen_bangladesh', 'daily_life', 'Unseen Bangladesh', 'অদেখা বাংলাদেশ', True, ('unseen',)),

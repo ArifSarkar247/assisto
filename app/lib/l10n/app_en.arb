@@ -21673,5 +21673,6 @@
   "aiReportThanks": "Thank you. We will review this answer.",
   "aiReportFailed": "Could not send the report. Please try again.",
   "aiReportLimit": "Too many reports. Please try again later.",
-  "aiAnswerMenu": "Answer options"
+  "aiAnswerMenu": "Answer options",
+  "dailyInfoTitle": "Daily info and services"
 }
