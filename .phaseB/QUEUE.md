@@ -1,5 +1,8 @@
 # Owner work queue (newest order wins)
 
+## 🟦 OWNER ORDER 27 Oct — LAUNCH SWITCH-ON (conditional)
+CCTV, vehicle tracking and AI sales assistant are LAUNCH features (not preview). AS SOON AS each one's E2E tests pass (agents e2e_cv, e2e_sales) and the code is merged + deployed + shipped: turn its flags ON for both the website APK and the Play build (live today: cctv_watchman ON, vehicle_tracking ON, business_agent ON; home_watchman OFF → turn ON after CCTV E2E passes), make CCTV appear in the home v2 default shortcuts again and vehicle tracking selectable in the Edit shortcuts list, remove every preview label. NEVER turn on anything that hasn't passed its E2E tests. DB backup before the config change; report the day in STATUS.
+
 ## 🟥 TOP RULE (owner 27 Oct) — 100 PERCENT MODE (above everything below)
 A) FREEZE NEW FEATURES: real Unseen World, Agent Mode, digital legacy, reverse auction and every new idea stay PLANS ONLY until every existing feature is 100%. (Renaming the current Unseen World screen is allowed. Medicine stays hidden until the owner says an Organization account exists.)
 B) INVENTORY: owner_actions/FEATURE_100_BOARD_BN.md — every feature and sub-feature since day one (app, server, Owner Admin, website), one row each, score /100, exactly what is missing; totals at top (at 100, below, total remaining work).
