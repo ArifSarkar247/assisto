@@ -35,6 +35,7 @@ import '../messaging/msg_notify.dart';
 import '../messaging/receipt_ack.dart';
 import '../messaging/receipt_bus.dart';
 import '../realtime/realtime_channel.dart';
+import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -490,6 +491,7 @@ class PushService {
       }));
       return;
     }
+    AgentCorePush.onForegroundPush(p); // agent-core: refresh an open inbox
     // Foreground: draw it ourselves (FCM shows nothing while we're open).
     unawaited(PushNotifier.show(p));
   }
@@ -504,6 +506,13 @@ class PushService {
     if (p == null) return;
     if (r.actionId == CallReply.action) {
       onCallReply(p);
+      return;
+    }
+    // agent-core WP-APP: Reject from the notification (no UI); Approve falls
+    // through to _open -> the approval card (confirm there).
+    if (r.actionId == AgentCorePush.actionReject && p.isAgentApproval) {
+      unawaited(AgentCorePush.rejectFromNotification(p,
+          token: _app?.api.token, onFailed: PushNotifier.show));
       return;
     }
     if (r.actionId == PushNotifier.actionDecline) {
@@ -546,6 +555,15 @@ class PushService {
     final chat = MsgPushHandler.chatOf(p);
     if (chat != null && action == null) {
       _openChat(chat.kind, chat.id);
+      return;
+    }
+    // agent-core WP-APP: an approval push opens THAT card (flag-gated).
+    if (p.isAgentApproval) {
+      final n = _nav?.currentState;
+      if (n != null) {
+        n.push(MaterialPageRoute(
+            builder: AgentCorePush.builderFor(p, action: action)));
+      }
       return;
     }
     final target = PushRouting.targetFor(p, action: action);

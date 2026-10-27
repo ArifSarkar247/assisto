@@ -173,6 +173,8 @@ const Map<String, String> kRouteFeature = {
   'vehicle_tracking': 'vehicle_tracking',
   'car_mode': 'vehicle_tracking',
   'agent_studio': 'agent_studio',
+  'agent_core': 'agent_core',
+  'agent_approvals': 'agent_core',
   'jobs': 'jobs',
   'cv': 'cv_builder',
   'resume': 'cv_builder',

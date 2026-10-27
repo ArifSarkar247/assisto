@@ -330,8 +330,11 @@ def _exec_step(run, step, ctx):
                                 tool.approval_title(tctx, args, "en"))
                 else:
                     tbn, ten = tool.label_bn + "?", tool.label_en + "?"
-                T.request_approval(run, step, tool, masked_args, vault.mask(tbn), vault.mask(ten))
+                new_ap = T.request_approval(run, step, tool, masked_args, vault.mask(tbn),
+                                            vault.mask(ten))
                 T.save_vault(run, vault)
+                from . import approval_push      # WP-APP: push kind agent_approval
+                approval_push.notify(new_ap, tool)
             step.state = "waiting_approval"
             step.save(update_fields=["state"])
             run.state = "waiting_approval"
@@ -389,9 +392,9 @@ def _template_answer(run, tool_steps, lang):
     return "\n".join(lines)
 
 
-# Approvals reach the phone through the foreground poll (GET /agent-core/
-# approvals) for now; a dedicated push kind + notification actions is work
-# package WP-APP (needs an app channel, see AGENT_CORE_DESIGN_BN.md §12).
+# Approvals reach the phone by push kind `agent_approval` (approval_push.py,
+# Reject / Approve notification actions) AND the foreground poll (GET
+# /agent-core/approvals) when push is unavailable.
 
 
 # ------------------------------------------------------------------ decisions

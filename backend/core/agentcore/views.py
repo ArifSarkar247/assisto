@@ -92,16 +92,76 @@ def _run_out(run, lang, detail=False):
     return d
 
 
+def _partial(kind, value):
+    """WP-APP: an approval card names WHO/WHAT, but a number is shown partly
+    hidden (017•••••678, ••••4321, a•••@mail.com) — enough to recognise."""
+    v = str(value)
+    if kind == "EMAIL" and "@" in v:
+        name, dom = v.split("@", 1)
+        return (name[:1] + "•••@" + dom) if name else v
+    digits = [c for c in v if c.isdigit()]
+    if kind == "PHONE" and len(digits) >= 6:
+        return "".join(digits[:3]) + "•••••" + "".join(digits[-3:])
+    if len(digits) >= 4:
+        return "••••" + "".join(digits[-4:])
+    return "••••"
+
+
+def _ap_details(a, vault):
+    """What exactly the step will do: its arguments as [{key, value}], with
+    phone / NID / account / e-mail tokens shown partly hidden."""
+    try:
+        args = T.unseal(a.step.args_sealed).get("a") or {}
+    except Exception:
+        return []
+    out = []
+    for k, v in list(args.items())[:12]:
+        if not isinstance(v, str):
+            import json as _json
+            v = _json.dumps(v, ensure_ascii=False)
+        v = T.TOKEN_RX.sub(lambda m: _partial(m.group(1), vault.t2v.get(m.group(0), "")), v)
+        out.append({"key": str(k)[:40], "value": v[:300]})
+    return out
+
+
 def _ap_out(a, lang):
     vault = T.vault_of(a.run)
+    tool = TL.get(a.step.tool) if a.step_id else None
     return {"id": a.id, "run": a.run_id, "risk": a.risk, "status": a.status,
             "title": vault.unmask(pick(lang, a.title_bn, a.title_en)),
-            "expires_at": a.expires_at.isoformat()}
+            "expires_at": a.expires_at.isoformat(),
+            # WP-APP: the card shows what will be done and what it costs
+            "tool": a.step.tool if a.step_id else "",
+            "tool_label": pick(lang, tool.label_bn, tool.label_en) if tool else "",
+            "credits": int(tool.credits) if tool else 0,
+            "details": _ap_details(a, vault),
+            "goal": vault.unmask(a.run.goal.text_masked) if a.run.goal_id else ""}
+
+
+def _estimate(user):
+    """WP-APP: the credit cost shown BEFORE a goal runs (owner rule). One
+    planner call is the usual task; the run's credit cap is the hard ceiling."""
+    from .. import billing
+    from ..logic import pricing
+    from ..models import AgentRun
+    from django.utils import timezone
+    from . import planner as PL
+    lim = RN.limits_for(user)
+    try:
+        plan = int(pricing.credit_cost(PL.CHARGE_ACTION, billing.cfg()))
+    except Exception:
+        plan = 0
+    day0 = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+    used = AgentRun.objects.filter(user=user, created_at__gte=day0).count()
+    return {"plan_credits": plan, "typical_credits": plan,
+            "max_credits": int(lim["credits"]),
+            "runs_per_day": int(lim["runs_per_day"]),
+            "runs_left_today": max(0, int(lim["runs_per_day"]) - used)}
 
 
 class ToolsView(_Gated):
     def get(self, request):
-        return Response({"version": 1,
+        return Response({"version": 1, "estimate": _estimate(request.user),
                          "topics": {k: {"label": TP.label(k, req_lang(request)),
                                         "tools": list(v["tools"])} for k, v in TP.TOPICS.items()},
                          "tools": [t.spec() for t in TL.TOOLS]})
@@ -168,7 +228,7 @@ class ApprovalsView(_Gated):
         from ..models import AgentApproval
         lang = req_lang(request)
         rows = (AgentApproval.objects.filter(user=request.user, status="pending")
-                .select_related("run")[:20])
+                .select_related("run", "run__goal", "step")[:20])
         return Response({"approvals": [_ap_out(a, lang) for a in rows]})
 
 

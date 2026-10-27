@@ -97,6 +97,7 @@ import '../screens/exam_result_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
 // work
 import '../screens/agent_studio_screen.dart';
+import '../screens/agent_core/agent_core_screen.dart'; // agent-core
 import '../screens/jobs_screen.dart';
 import '../screens/inbox_screen.dart';
 // business
@@ -658,6 +659,12 @@ class SidebarSections {
       // f6 (no showpieces): Agent Studio automations never fire yet (and its
       // social composer labels template drafts "AI-generated"), so the entry
       // is hidden until automations really run.
+      // agent-core WP-APP: hidden behind flag agent_core (owner / staff /
+      // allow-listed testers see it with the Preview tag while OFF).
+      SidebarItem(Icons.smart_toy_outlined, (t) => t.acTitle,
+          feature: 'agent_core',
+          (_) => const AgentCoreScreen(),
+          synonyms: ['agent', 'goal', 'approval', 'assisto agent']),
       if (kAgentStudioRunsAutomations)
         SidebarItem(Icons.auto_awesome_rounded, (t) => t.agentStudio,
             feature: 'agent_studio',

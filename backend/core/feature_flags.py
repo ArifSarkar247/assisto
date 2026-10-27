@@ -108,8 +108,9 @@ REGISTRY = (
     # agent-core (owner final order 27 Oct, PART 2): the server-side Assisto
     # agent (goal -> plan -> act -> observe, typed tools, one-tap approvals,
     # audit). OFF until the live eval meets the bar (AGENT_CORE_DESIGN_BN.md
-    # §15). API only for now, so it owns no app route yet.
-    ('agent_core', 'work', 'Assisto Agent (goals, plans, approvals)', 'Assisto এজেন্ট (লক্ষ্য, পরিকল্পনা, অনুমোদন)', False, ()),
+    # §15). WP-APP: the hidden agent screen + approval inbox (preview for
+    # owner / staff / allow-listed testers only while OFF).
+    ('agent_core', 'work', 'Assisto Agent (goals, plans, approvals)', 'Assisto এজেন্ট (লক্ষ্য, পরিকল্পনা, অনুমোদন)', False, ('agent_core', 'agent_approvals')),
     ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ()),
     ('cost_estimator', 'work', 'Cost & time estimator', 'খরচ ও সময় হিসাব', True, ()),
     ('mock_interview', 'work', 'Mock interview', 'মক ইন্টারভিউ', True, ()),
