@@ -189,6 +189,29 @@ void main() {
     expect(find.text(en.wmMarkedWrong), findsOneWidget);
   });
 
+  testWidgets('hikvision camera: owner gets its private push link (HTTP Listening)', (tester) async {
+    _phone(tester, height: 2000);
+    final src = FakeWatchman();
+    await tester.pumpWidget(_app(WatchmanScreen(source: src, guide: false)));
+    await _settle(tester);
+    // the Imou camera has no push link item; the Hikvision one does
+    final menus = find.byTooltip(en.wmCameraMenu);
+    await tester.tap(menus.first);
+    await _settle(tester);
+    expect(find.text(en.shopHookTitle), findsNothing);
+    await tester.tapAt(const Offset(5, 5));
+    await _settle(tester);
+    await tester.ensureVisible(menus.last);
+    await tester.tap(menus.last);
+    await _settle(tester);
+    await tester.tap(find.text(en.shopHookTitle));
+    await _settle(tester, 20);
+    expect(src.calls, contains('camera:12'));
+    expect(find.text(en.shopHookTitle), findsOneWidget);
+    expect(find.textContaining('/shop/hook/hikvision/tok12'), findsOneWidget);
+    expect(find.textContaining('/shop/hook/dahua/tok12'), findsOneWidget);
+  });
+
   testWidgets('family viewer: read-only alerts, no setup buttons', (tester) async {
     _phone(tester, height: 2000);
     await tester.pumpWidget(_app(WatchmanAlertsScreen(source: FakeWatchman('viewer'), siteId: 1, owner: false)));
