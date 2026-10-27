@@ -834,6 +834,24 @@ jobs:
       #  * ML Kit's startup ContentProvider (MlKitInitProvider) is REMOVED: no
       #    startup providers (ColorOS launch history). PhotoFaces.kt calls
       #    MlKit.initialize() on the first face request instead.
+      # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
+      # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
+      - name: Native debug symbols in the AAB (crash-map)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          if "debugSymbolLevel" not in s:
+              line = ('android { defaultConfig { ndk { debugSymbolLevel = "SYMBOL_TABLE" } } }'
+                      if is_kts else "android { defaultConfig { ndk { debugSymbolLevel 'SYMBOL_TABLE' } } }")
+              s += "\n\n// crash-map\n" + line + "\n"
+              open(p, "w").write(s)
+          print("native debug symbols: SYMBOL_TABLE in", p)
+          PY
+      # ---- /crash-map ----
       - name: Photo Studio native deps (p2-photo)
         working-directory: app
         run: |
