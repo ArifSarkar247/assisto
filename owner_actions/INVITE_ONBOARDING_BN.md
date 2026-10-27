@@ -104,7 +104,7 @@
 - রিয়ালিটি ফ্লো `18_invite_join` (CI এমুলেটর, দুই ব্যবহারকারী: A লিংক বানায় → নতুন B নাম+নম্বরে যোগ → দুজনেই দুজনের সার্কেলে → A, B-র লিংক খোলে → চ্যাট)।
 - স্ক্রিনশট: gallery-তে `ij_join_form`, `ij_join_signed_in`, `ij_join_expired`, `ij_join_offline`, `ij_share_sheet`, `ij_sent` (আগে: `login`, `language_picker`)।
 
-CI রান / লোকাল ফল: চূড়ান্ত রিপোর্টে লেখা।
+**ফল:** CI `checks` রান **40586313042 — সব সবুজ** (backend + flutter static + ৮ শার্ড)। রিয়ালিটি রান **40584340062**: `18_invite_join` = **A** (৭ ধাপ, এমুলেটরে আসল সার্ভারের বিরুদ্ধে)। লোকাল: সার্ভারের টার্গেটেড টেস্ট ৬৬+৭২ পাস; `invite_join_test.dart` ২৫/২৫; স্ক্রিনশট ৩২/৩২ (আগে: `before_login`, `before_language_picker`; পরে: `ij_*`, bn/en × light/dark)।
 
 ---
 
