@@ -131,16 +131,14 @@ class ApiRemitSource implements RemitSource {
       'done': false,
       'source': 'remit',
     });
-    final lid = created['localId'] as String?;
-    if (lid != null) await Notifications.schedule(lid, title, '', first);
-    return lid;
+    // remmeter: the alarm follows the reminders repo (AppState reconcile)
+    return created['localId'] as String?;
   }
 
   @override
   Future<void> removeReminder(String localId) async {
     final a = app;
     if (a == null || localId.isEmpty) return;
-    await Notifications.cancel(localId);
     for (final it in a.reminders.items) {
       if (it['localId'] == localId) {
         await a.reminders.remove(it);

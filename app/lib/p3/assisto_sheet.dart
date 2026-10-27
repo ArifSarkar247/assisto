@@ -14,7 +14,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
-import '../notifications.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../state.dart';
 import '../theme.dart';
@@ -707,7 +706,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
 Future<bool> addReminderForMe(BuildContext context, String title, DateTime at) async {
   try {
     final app = context.read<AppState>();
-    final row = await app.reminders.add({
+    await app.reminders.add({
       'title': title,
       'notes': '',
       'due_at': at.toUtc().toIso8601String(),
@@ -717,10 +716,7 @@ Future<bool> addReminderForMe(BuildContext context, String title, DateTime at) a
       'done': false,
       'link': <String, dynamic>{},
     });
-    final lid = row['localId'];
-    if (lid is String) {
-      unawaited(Notifications.schedule(lid, title, '', at.toLocal()));
-    }
+    // remmeter: the alarm follows the reminders repo (AppState reconcile)
     return true;
   } catch (_) {
     return false;

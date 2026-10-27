@@ -10,6 +10,7 @@ import 'home_api.dart';
 import 'db.dart';
 import 'models.dart';
 import 'sync_repo.dart';
+import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
 import 'background.dart';
 import 'push/push_service.dart';
 import 'security/secret_store.dart';
@@ -171,7 +172,14 @@ class AppState extends ChangeNotifier {
     for (final r in _repos) {
       r.addListener(notifyListeners);
     }
+    // remmeter: every change to the reminder list re-syncs the phone's
+    // alarms (stable ids, exact when allowed, cancel what is gone).
+    reminders.addListener(syncReminderAlarms);
   }
+
+  /// Re-sync the OS alarms with the reminder list (coalesced; no-op until
+  /// local notifications are initialised). Called on start and resume too.
+  void syncReminderAlarms() => ReminderAlarms.request(() => reminders.items);
 
   void _syncAll() {
     for (final r in _repos) {

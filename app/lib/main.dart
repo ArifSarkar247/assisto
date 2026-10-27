@@ -18,6 +18,7 @@ import 'play_update.dart'; // ota1
 import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
+import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'calls/call_launch.dart'; // calls-a: Accept -> the call screen first
 import 'calls/call_runtime.dart' show CallRuntime; // calls-a
@@ -137,6 +138,11 @@ void main() {
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       // Time-boxed: a hang here must not delay key publishing below.
       try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
+      // remmeter: re-arm reminder alarms (exact when allowed) after an app
+      // update / reboot / permission change; guarded, after the first frame.
+      unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
+        try { appState.syncReminderAlarms(); } catch (_) {}
+      }));
       // e2-keys: publish the PUBLIC key on every start / login / accept and
       // run the outbox — pure Dart + HTTP, guarded, a few seconds after the
       // first frame (never on the cold-start path, runs in safe mode too).
@@ -404,6 +410,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
             .refreshWith(context.read<AppState>().api));
       } catch (_) {}
       _pollAlerts();
+      // remmeter: exact-alarm access may have changed in Settings; measure
+      // how late the delivered reminders really were (local only).
+      try {
+        context.read<AppState>().syncReminderAlarms();
+        unawaited(ReminderAlarms.measure());
+      } catch (_) {}
       _maybeNotifOpen(); // play-fgs
       // Re-pick up a flag change made while backgrounded (or in Settings).
       _resolveElderly();

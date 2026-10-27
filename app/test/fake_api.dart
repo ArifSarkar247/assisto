@@ -168,6 +168,32 @@ class FakeApi extends ApiClient {
         {'id': 5, 'unit_id': 5, 'month': m, 'paid_poisha': 1000000},
       ]);
     }
+    // remmeter: prepaid meters (company, meter no, estimate, token log)
+    if (path == 'meter/meters' || path == 'meter/recharges') {
+      final today = DateTime.now();
+      String d(int ago) => today
+          .subtract(Duration(days: ago))
+          .toIso8601String()
+          .split('T')
+          .first;
+      if (path == 'meter/meters') {
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'বাসার মিটার' : 'Home meter', 'kind': 'electricity',
+           'utility': 'desco', 'meter_no': '04123456789', 'balance': '180',
+           'balance_date': d(0), 'daily_use': '60', 'alert_days': 3, 'alerts': true},
+          {'id': 2, 'name': _bn ? 'দোকান' : 'Shop', 'kind': 'electricity',
+           'utility': 'breb', 'meter_no': '98765432', 'alert_days': 3, 'alerts': true},
+          {'id': 3, 'name': _bn ? 'রান্নাঘরের গ্যাস' : 'Kitchen gas', 'kind': 'gas',
+           'utility': 'titas', 'alerts': false},
+        ]);
+      }
+      return _maybe([
+        {'id': 11, 'meter': 2, 'amount': '1000', 'date': d(40), 'channel': 'bkash'},
+        {'id': 12, 'meter': 2, 'amount': '1000', 'date': d(10), 'channel': 'nagad',
+         'token': '12345678901234567890'},
+        {'id': 13, 'meter': 3, 'amount': '1500', 'date': d(5)},
+      ]);
+    }
     switch (path) {
       case 'subscriptions':
         return _maybe([

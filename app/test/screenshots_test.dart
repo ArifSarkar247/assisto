@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'app_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:assisto/reminders/exact_alarm_ui.dart' show ReminderDeliverySheet, ExactAlarmHooks; // remmeter
+import 'package:assisto/services/oem_guide.dart' show OemGuideNative, OemInfo, OemOpen; // remmeter
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -569,6 +571,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
+    // remmeter: delivery check + recharge paths (sheets shown as pages)
+    'rem_check': (build: (_) {
+      ExactAlarmHooks.canExact = () async => false;
+      ExactAlarmHooks.notifEnabled = () async => true;
+      ExactAlarmHooks.oem = const _ShotOem();
+      return const Scaffold(body: ReminderDeliverySheet());
+    }, mode: FakeMode.data, full: true),
+    'meter_pay': (build: (_) => const Scaffold(body: PayPathSheet(meter: {'name': 'Home', 'kind': 'electricity', 'utility': 'desco', 'meter_no': '04123456789'})), mode: FakeMode.data, full: true),
     'notes_tasks': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),
     'memory': (build: (_) => const MemoryScreen(), mode: FakeMode.data, full: true),
     'subscriptions': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.data, full: true),
@@ -938,4 +948,16 @@ void main() {
       }
     }
   });
+}
+
+
+/// remmeter: instant OEM facts for the delivery-check shot.
+class _ShotOem implements OemGuideNative {
+  const _ShotOem();
+  @override
+  Future<OemInfo?> info() async => const OemInfo(batteryOptIgnored: false);
+  @override
+  Future<OemOpen> available(String step) async => OemOpen.none;
+  @override
+  Future<OemOpen> open(String step) async => OemOpen.none;
 }

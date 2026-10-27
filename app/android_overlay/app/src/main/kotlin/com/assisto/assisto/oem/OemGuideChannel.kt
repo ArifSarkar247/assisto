@@ -30,6 +30,10 @@ import io.flutter.plugin.common.MethodChannel
  *                                  phone: resolveActivity + exported check),
  *                                  "details" (only App info resolves),
  *                                  "none" (Dart shows by-hand text, no button)
+ *   activePostTimes()      -> Map<Int, Long> our notifications still in the
+ *                                  tray: id -> REAL post time (ms). remmeter
+ *                                  measures reminder lateness with it
+ *                                  (scheduled vs delivered), on-device only.
  *   open({step})           -> String "oem" (the step's own screen opened),
  *                                  "details" (fell back to App info),
  *                                  "none" (nothing could be opened — Dart
@@ -51,6 +55,7 @@ object OemGuideChannel {
             try {
                 when (call.method) {
                     "info" -> result.success(info(activity))
+                    "activePostTimes" -> result.success(activePostTimes(activity))
                     "available" -> {
                         val step = call.argument<String>("step") ?: ""
                         result.success(available(activity, step))
@@ -67,12 +72,29 @@ object OemGuideChannel {
                     when (call.method) {
                         "available" -> result.success("none")
                         "open" -> result.success("none")
+                        "activePostTimes" -> result.success(HashMap<Int, Long>())
                         else -> result.success(null)
                     }
                 } catch (_: Throwable) {
                 }
             }
         }
+    }
+
+    // ---- remmeter: real delivery time of our tray notifications -----------
+
+    private fun activePostTimes(ctx: Context): Map<Int, Long> {
+        val out = HashMap<Int, Long>()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return out
+        val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE)
+            as? android.app.NotificationManager ?: return out
+        try {
+            for (sbn in nm.activeNotifications) {
+                out[sbn.id] = sbn.postTime
+            }
+        } catch (_: Throwable) {
+        }
+        return out
     }
 
     // ---- device + state ----------------------------------------------------

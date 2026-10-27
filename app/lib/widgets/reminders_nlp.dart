@@ -267,7 +267,29 @@ const Map<String, List<Object>> _dayparts = {
   'evening': [18, true],
   'night': [21, true],
   'dawn': [6, false],
+  // Banglish (parity with agent/aieval nlp_datetime: "kal sokal 8tay")
+  'sokal': [8, false], 'sokale': [8, false], 'bhor': [6, false],
+  'dupur': [13, true], 'dupure': [13, true], 'bikel': [16, true],
+  'bikale': [16, true], 'bikele': [16, true], 'bikal': [16, true],
+  'sondha': [18, true], 'shondha': [18, true], 'sondhay': [18, true],
+  'sondhar': [18, true], 'raat': [21, true], 'rat': [21, true],
+  'raate': [21, true],
 };
+
+// Banglish day-parts match as whole words only ("rat" never in "karate").
+const Set<String> _blParts = {
+  'sokal', 'sokale', 'bhor', 'dupur', 'dupure', 'bikel', 'bikale', 'bikele',
+  'bikal', 'sondha', 'shondha', 'sondhay', 'sondhar', 'raat', 'rat', 'raate',
+};
+const Set<String> _nightParts = {'\u09b0\u09be\u09a4', 'night', 'raat', 'rat', 'raate'};
+const Set<String> _morningParts = {
+  '\u09b8\u0995\u09be\u09b2', '\u09ad\u09cb\u09b0', 'morning', 'dawn', 'sokal', 'sokale', 'bhor',
+};
+// Banglish clock: "8tay" / "8 tae" / "8tar" always; a bare "8ta" only next to
+// a Banglish day-part ("sokal 8ta") -- "2ta dim" is a count, not a time.
+final RegExp _blTimeRx =
+    RegExp(r'(?<!\d)(\d{1,2})\s*(?:tay|tae|tai|tar)\b', caseSensitive: false);
+final RegExp _blTimeTaRx = RegExp(r'(?<!\d)(\d{1,2})\s*ta\b', caseSensitive: false);
 
 // weekday -> 0=Mon..6=Sun
 const Map<String, int> _weekdays = {
@@ -358,7 +380,10 @@ ParsedReminder parseReminder(String text, {DateTime? now, bool preferPast = fals
   int? partHour;
   bool partPm = false;
   _dayparts.forEach((w, v) {
-    if (partWord == null && low.contains(w)) {
+    final hit = _blParts.contains(w)
+        ? RegExp('(?<![a-z])${RegExp.escape(w)}(?![a-z])').hasMatch(low)
+        : low.contains(w);
+    if (partWord == null && hit) {
       partWord = w;
       partHour = v[0] as int;
       partPm = v[1] as bool;
@@ -370,8 +395,8 @@ ParsedReminder parseReminder(String text, {DateTime? now, bool preferPast = fals
     dpSpan = dm?.group(0) ?? partWord;
   }
 
-  final night = partWord == '\u09b0\u09be\u09a4' || partWord == 'night';
-  final tod = _extractTime(norm, partPm, night);
+  final night = _nightParts.contains(partWord);
+  final tod = _extractTime(norm, partPm, night, partWord);
   bool dateOnly = true;
   int? hour, minute;
   if (tod != null) {
@@ -567,14 +592,33 @@ DateTime expenseDate(String text, {DateTime? now}) {
   return d.isAfter(today) ? today : d;
 }
 
-List<Object>? _extractTime(String norm, bool partPm, [bool night = false]) {
+List<Object>? _extractTime(String norm, bool partPm,
+    [bool night = false, String? part]) {
   final rx = RegExp(
       r'(\d{1,2})\s*[:.]\s*(\d{2})\s*(am|pm)?'
       r'|(\d{1,2})\s*(am|pm)'
-      '|(?<!\\d)(\\d{1,2})\\s*$_biTa(?!\u0995\u09be)(?:\\s*(\\d{1,2})\\s*$_biMinute)?',
+      // Ta(y): "8Ta" / "8Tay" (the -y ending belongs to the time phrase, so it
+      // never dangles in the title); never "50 Taka"
+      '|(?<!\\d)(\\d{1,2})\\s*$_biTa(?!\u0995\u09be)(?:\u09af\u09bc|\u09df)?(?:\\s*(\\d{1,2})\\s*$_biMinute)?',
       caseSensitive: false);
   final m = rx.firstMatch(norm);
-  if (m == null) return null;
+  if (m == null) {
+    // Banglish clock (mirror of nlp_datetime._BL_TIME_RX / _BL_TIME_TA_RX)
+    final asciiPart =
+        part != null && part.codeUnits.every((c) => c < 128);
+    final b = _blTimeRx.firstMatch(norm) ??
+        (asciiPart ? _blTimeTaRx.firstMatch(norm) : null);
+    if (b == null) return null;
+    var bh = int.parse(b.group(1)!);
+    if (bh > 24) return null;
+    if (partPm && bh >= 1 && bh <= 11 && !(night && bh < 6)) {
+      bh += 12;
+    } else if (_morningParts.contains(part) && bh == 12) {
+      bh = 0;
+    }
+    if (bh > 23) bh = 23;
+    return [bh, 0, b.group(0) ?? ''];
+  }
   int? h, mi;
   String ampm = '';
   if (m.group(1) != null) {
@@ -598,6 +642,8 @@ List<Object>? _extractTime(String norm, bool partPm, [bool night = false]) {
   } else if (partPm && h >= 1 && h <= 11 && !(night && h < 6)) {
     // (raat/night: only 6..11 are evening hours -- "raat 1Ta" is 01:00)
     h = h + 12;
+  } else if (_morningParts.contains(part) && h == 12) {
+    h = 0;
   }
   if (h > 23) h = 23;
   if (mi! > 59) mi = 59;
@@ -644,6 +690,9 @@ final RegExp _ajRx = RegExp('$_nb\u0986\u099c(?:\u0995\u09c7|\u0995\u09c7\u0987|
   if (m != null) return (plus(-1), m.group(0)!, 0.85);
   m = RegExp('\u0997\u09a4\\s*\u09aa\u09b0\u09b6\u09c1|day before yesterday').firstMatch(low);
   if (m != null) return (plus(-2), m.group(0)!, 0.85);
+  // day after tomorrow (contains "tomorrow", so test it first -- aieval)
+  m = RegExp('day after tomorrow').firstMatch(low);
+  if (m != null) return (plus(2), m.group(0)!, 0.85);
   // explicit tomorrow (agamikal contains kal, so test it first)
   m = RegExp('\u0986\u0997\u09be\u09ae\u09c0\\s*\u0995\u09be\u09b2(?:\u0995\u09c7|\u0987)?|\u0986\u0997\u09be\u09ae\u09bf\\s*\u0995\u09be\u09b2|\\btomorrow\\b').firstMatch(low);
   if (m != null) return (plus(1), m.group(0)!, 0.85);
@@ -653,8 +702,6 @@ final RegExp _ajRx = RegExp('$_nb\u0986\u099c(?:\u0995\u09c7|\u0995\u09c7\u0987|
   // today
   m = _ajRx.firstMatch(low) ?? RegExp(r'\btoday\b|\bajke\b|\baj\b').firstMatch(low);
   if (m != null) return (today, m.group(0)!, 0.8);
-  m = RegExp('day after tomorrow').firstMatch(low);
-  if (m != null) return (plus(2), m.group(0)!, 0.85);
   m = RegExp('\u09aa\u09b0\u09b6\u09c1(?:\u09a6\u09bf\u09a8)?').firstMatch(low);
   if (m != null) return (plus(past ? -2 : 2), m.group(0)!, 0.85);
   // N din age / N days ago
@@ -745,6 +792,12 @@ final RegExp _ajRx = RegExp('$_nb\u0986\u099c(?:\u0995\u09c7|\u0995\u09c7\u0987|
   return null;
 }
 
+// one-off weekday qualifiers that belong to the date phrase (mirror of
+// nlp_datetime._WD_QUAL_RX): next/this/coming/upcoming/agami/samner/ei,
+// agami, samner, ei, got, last.
+const _wdQualRx = '(?:(?<![a-z])(?:next|this|coming|upcoming|agami|samner|ei)'
+    '|\u0986\u0997\u09be\u09ae\u09c0|\u0986\u0997\u09be\u09ae\u09bf|\u09b8\u09be\u09ae\u09a8\u09c7\u09b0|\u098f\u0987|\u0997\u09a4|last)';
+
 (DateTime, String, double)? _bareWeekday(String low, DateTime now, bool past) {
   for (final entry in _weekdays.entries) {
     final tok = entry.key;
@@ -757,13 +810,18 @@ final RegExp _ajRx = RegExp('$_nb\u0986\u099c(?:\u0995\u09c7|\u0995\u09c7\u0987|
     if (RegExp('(?:$_biEvery|every|each)\\s+${RegExp.escape(tok)}').hasMatch(low)) {
       return null;
     }
+    // remmeter: the qualifier ("next friday", "agami shukrobar") is part of
+    // the date phrase, so it leaves the title too (was "next call ammu")
+    var span = tok;
+    final qm = RegExp('$_wdQualRx\\s*${RegExp.escape(tok)}').firstMatch(low);
+    if (qm != null) span = qm.group(0)!;
     if (past) {
       // "shukrobar giyechilam" -> the most recent past Friday
       var back = ((now.weekday - 1) - entry.value) % 7;
       if (back == 0) back = 7;
-      return (DateTime(now.year, now.month, now.day - back), tok, 0.65);
+      return (DateTime(now.year, now.month, now.day - back), span, 0.65);
     }
-    return (_nextWeekday(now, entry.value), tok, 0.65);
+    return (_nextWeekday(now, entry.value), span, 0.65);
   }
   return null;
 }

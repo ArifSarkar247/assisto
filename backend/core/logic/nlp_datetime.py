@@ -113,10 +113,23 @@ _DAYPART = {
     "সন্ধ্যা": 18, "সন্ধ্যে": 18, "রাত": 21, "রাতে": 21, "মধ্যরাত": 0,
     "morning": 8, "noon": 12, "afternoon": 15, "evening": 18,
     "night": 21, "midnight": 0, "dawn": 6,
+    # Banglish (aieval: "kal sokal 8tay" used to lose its time)
+    "sokal": 8, "sokale": 8, "bhor": 6, "dupur": 13, "dupure": 13, "bikel": 16,
+    "bikale": 16, "bikele": 16, "bikal": 16, "sondha": 18, "shondha": 18,
+    "sondhay": 18, "sondhar": 18, "raat": 21, "rat": 21, "raate": 21,
 }
 # which parts mean PM for a bare hour like "৮টা"
 _PM_PARTS = {"দুপুর", "বিকাল", "বিকেল", "সন্ধ্যা", "সন্ধ্যে", "রাত", "রাতে",
-             "afternoon", "evening", "night", "noon"}
+             "afternoon", "evening", "night", "noon",
+             "dupur", "dupure", "bikel", "bikale", "bikele", "bikal", "sondha", "shondha",
+             "sondhay", "sondhar", "raat", "rat", "raate"}
+_NIGHT_PARTS = {"রাত", "রাতে", "night", "raat", "rat", "raate"}
+_BL_PARTS = {"sokal", "sokale", "bhor", "dupur", "dupure", "bikel", "bikale", "bikele",
+             "bikal", "sondha", "shondha", "sondhay", "sondhar", "raat", "rat", "raate"}
+# Banglish clock: "8tay" / "8 tae" / "8tar" always; a bare "8ta" only next to
+# a day-part word ("sokal 8ta") — "2ta dim" is a count, not a time.
+_BL_TIME_RX = re.compile(r"(?<!\d)(\d{1,2})\s*(?:tay|tae|tai|tar)\b", re.I)
+_BL_TIME_TA_RX = re.compile(r"(?<!\d)(\d{1,2})\s*ta\b", re.I)
 
 _FREQ_WORDS = {
     "daily": ("daily", "everyday", "every day", "প্রতিদিন", "রোজ", "protidin"),
@@ -293,7 +306,7 @@ def _mk_rule(freq, interval=1, weekday=None, day_of_month=None, month=None, tod=
 _TIME_RX = re.compile(
     r"(?<!\d)(\d{1,2})\s*[:.]\s*(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?"           # 5:30pm / 17.00
     r"|(?<!\d)(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)"                            # 5pm
-    r"|(?<!\d)(\d{1,2})\s*টা(?!কা)(?:\s*(\d{1,2})\s*মিনিট)?"                # ৮টা / ৮টা ৩০ মিনিট (never ৫০ টাকা)
+    r"|(?<!\d)(\d{1,2})\s*টা(?!কা)(?:য়|য়)?(?:\s*(\d{1,2})\s*মিনিট)?"      # ৮টা(য়) / ৮টা ৩০ মিনিট (never ৫০ টাকা)
     r"|(\d{1,2})\s*ঘটিকা",
     re.IGNORECASE,
 )
@@ -303,7 +316,20 @@ def _extract_time(text, daypart_hint=None):
     """Return ((hour,minute), matched_span_text) or (None, None)."""
     m = _TIME_RX.search(text)
     if not m:
-        return None, None
+        m = _BL_TIME_RX.search(text) or (
+            _BL_TIME_TA_RX.search(text) if daypart_hint and daypart_hint.isascii() else None)
+        if not m:
+            return None, None
+        hour = int(m.group(1))
+        if hour > 24:
+            return None, None
+        if daypart_hint in _PM_PARTS and 1 <= hour <= 11 and not (
+                daypart_hint in _NIGHT_PARTS and hour < 6):
+            hour += 12
+        elif daypart_hint in ("সকাল", "ভোর", "morning", "dawn", "sokal", "sokale", "bhor") \
+                and hour == 12:
+            hour = 0
+        return (max(0, min(23, hour)), 0), m.group(0)
     g = m.groups()
     hour = minute = None
     ampm = None
@@ -333,7 +359,7 @@ def _extract_time(text, daypart_hint=None):
     else:
         # no am/pm → use daypart hint for bare hours (Bangla "৮টা" + "রাত")
         # (রাত/night: only 6..11 are evening hours — "রাত ১টা" is 01:00)
-        night = daypart_hint in ("রাত", "রাতে", "night")
+        night = daypart_hint in _NIGHT_PARTS
         if daypart_hint in _PM_PARTS and 1 <= hour <= 11 and not (night and hour < 6):
             hour += 12
         elif daypart_hint in ("সকাল", "ভোর", "morning", "dawn") and hour == 12:
@@ -345,7 +371,11 @@ def _extract_time(text, daypart_hint=None):
 
 def _find_daypart(text):
     for word, hr in _DAYPART.items():
-        if word in text:
+        if word in _BL_PARTS:
+            # Banglish: whole word only ("rat" never inside "karate")
+            if re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", text):
+                return word, hr
+        elif word in text:
             return word, hr
     return None, None
 
@@ -618,6 +648,10 @@ def _relative_date(low, now, past=False):
     m = re.search(r"গত\s*পরশু|day before yesterday", low)
     if m:
         return today - timedelta(days=2), m.group(0), 0.85
+    # day after tomorrow (contains "tomorrow", so test it first — aieval)
+    m = re.search(r"day after tomorrow", low)
+    if m:
+        return today + timedelta(days=2), m.group(0), 0.85
     # explicit tomorrow (আগামীকাল contains কাল, so test it first)
     m = re.search(r"আগামী\s*কাল(?:কে|ই)?|আগামি\s*কাল|\btomorrow\b", low)
     if m:
@@ -727,6 +761,11 @@ def _prev_dom(from_date, dom):
     return cand
 
 
+# one-off weekday qualifiers that belong to the date phrase (remmeter)
+_WD_QUAL_RX = (r"(?:(?<![a-z])(?:next|this|coming|upcoming|agami|samner|ei)"
+               r"|আগামী|আগামি|সামনের|এই|গত|last)")
+
+
 def _bare_weekday(low, now, past=False):
     """'next friday', 'শুক্রবার', 'এই শুক্রবার' — one-off, not preceded by প্রতি/every."""
     for token, wd in _WEEKDAYS.items():
@@ -739,12 +778,18 @@ def _bare_weekday(low, now, past=False):
         # skip if part of a recurrence phrase (handled earlier)
         if re.search(rf"(?:প্রতি|every|each)\s+{re.escape(token)}", low):
             return None, None, 0.0
+        # remmeter: the qualifier ("next friday", "আগামী শুক্রবার") is part of
+        # the date phrase, so it leaves the title too (was "next call ammu")
+        span = token
+        qm = re.search(_WD_QUAL_RX + r"\s*" + re.escape(token), low)
+        if qm:
+            span = qm.group(0)
         if past:   # "শুক্রবার গিয়েছিলাম" -> the most recent past Friday
             back = (now.date().weekday() - wd) % 7 or 7
-            return now.date() - timedelta(days=back), token, 0.65
+            return now.date() - timedelta(days=back), span, 0.65
         d = _next_weekday(now.date(), wd, allow_today=False)
         # "this friday" -> next occurrence (never today)
-        return d, token, 0.65
+        return d, span, 0.65
     return None, None, 0.0
 
 
