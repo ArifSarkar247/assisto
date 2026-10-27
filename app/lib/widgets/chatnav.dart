@@ -40,6 +40,7 @@ import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
 import '../screens/remittance/remittance_screen.dart'; // budget-remittance
+import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/used_phone_check_screen.dart';
@@ -276,6 +277,8 @@ class ChatNav {
     'budget': (_) => const MoneyBudgetScreen(),
     // budget-remittance (flag budget_remittance): money from abroad + family budget.
     'remittance': (_) => const RemittanceScreen(),
+    // probashi-plan (flag probashi_plan): expat family plan, seats, pool, reports.
+    'probashi_plan': (_) => const ProbashiPlanScreen(),
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),
