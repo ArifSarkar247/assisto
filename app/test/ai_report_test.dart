@@ -191,7 +191,7 @@ void main() {
     expect(
         node.getSemanticsData().customSemanticsActionIds,
         isNotEmpty);
-    expect(find.bySemanticsLabel('Report this answer'), findsWidgets);
+    expect(find.byTooltip('Report this answer'), findsOneWidget);
     handle.dispose();
   });
 
