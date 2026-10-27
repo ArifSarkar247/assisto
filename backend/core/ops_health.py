@@ -37,6 +37,7 @@ log = logging.getLogger(__name__)
 APP = "/home/ubuntu/assisto"
 PY = APP + "/.venv/bin/python"
 LOGS = APP + "/backend/logs"
+CRON_LOGS = LOGS   # cron lines always name the live log dir
 
 MIN = 60
 HOUR = 3600
@@ -61,15 +62,15 @@ class Job:
     def cron_line(self):
         if self.kind == "backup":
             return ("%s ubuntu %s/migration/backup.sh >>%s/backup.log 2>&1"
-                    % (self.schedule, APP, LOGS))
+                    % (self.schedule, APP, CRON_LOGS))
         if self.kind == "restore_test":
             return ("%s ubuntu %s/migration/restore_test.sh >>%s/restore_test.log 2>&1"
-                    % (self.schedule, APP, LOGS))
+                    % (self.schedule, APP, CRON_LOGS))
         lock = ("flock -n /tmp/assisto-%s.lock " % self.name.replace("_", "-")
                 if self.lock else "")
         args = (" " + self.args) if self.args else ""
         return ("%s ubuntu cd %s/backend && %s%s %s manage.py %s%s >> %s/%s.log 2>&1"
-                % (self.schedule, APP, lock, self.nice, PY, self.name, args, LOGS,
+                % (self.schedule, APP, lock, self.nice, PY, self.name, args, CRON_LOGS,
                    self.name))
 
 

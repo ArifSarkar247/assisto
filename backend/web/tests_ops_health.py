@@ -5,6 +5,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.html import escape
 
 from core import ops_health as H
 from core.models import ActiveDay, ClientErrorReport, JobHeartbeat
@@ -43,7 +44,7 @@ class SystemHealthPageTests(OwnerBase):
         self.assertContains(r, "billing_daily")
         self.assertContains(r, "FAILING")
         self.assertContains(r, "Jobs with no cron line")
-        self.assertContains(r, H.JOB_BY_NAME["antitheft_escalate"].cron_line().replace(">", "&gt;").replace("&&", "&amp;&amp;"))
+        self.assertContains(r, escape(H.JOB_BY_NAME["antitheft_escalate"].cron_line()))
         self.assertContains(r, "coturn")
         r = self.get("/owner/system?lang=bn")
         self.assertContains(r, "সিস্টেমের অবস্থা")
