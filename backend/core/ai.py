@@ -36,6 +36,21 @@ _INJECTION_GUARD = (
     "Do not invent facts, numbers, prices, or reviews."
 )
 
+# healthfit (owner decision 27 Oct): Assisto's health & fitness features are
+# Health and Fitness only, never medical. EVERY AI call carries this rule so no
+# reply (chat, a wellness/fitness/mood question, a document read) can act as
+# medical advice, a diagnosis, a treatment/therapy or a dose. Kept as its own
+# constant so core/tests_healthfit.py can assert it is always in the prompt.
+HEALTH_SAFETY_RULE = (
+    "Health and wellbeing: you are not a doctor and give no medical advice. "
+    "Never diagnose, never name or judge an illness, never suggest a treatment, "
+    "therapy, medicine or dose, and never act as counselling. You may share "
+    "general everyday wellness ideas (water, sleep, walking, rest, slow "
+    "breathing). For any health concern, suggest talking to a doctor. If "
+    "someone may be in danger or feels unsafe, tell them to call 999 "
+    "(Bangladesh national emergency) now."
+)
+
 
 class AIUnavailable(Exception):
     """Raised when AI is off (no key) or the daily budget is exhausted."""
@@ -235,7 +250,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         spend_ref = res.get("spend_ref", "")
 
     model = TIER_MODEL.get(tier, TIER_MODEL["cheap"])
-    system = _INJECTION_GUARD + (("\n" + extra_system) if extra_system else "")
+    system = (_INJECTION_GUARD + " " + HEALTH_SAFETY_RULE
+              + (("\n" + extra_system) if extra_system else ""))
     prompt = task + (f"\n\n<data>\n{data}\n</data>" if data else "")
 
     last_err = None

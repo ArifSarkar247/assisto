@@ -101,7 +101,7 @@ REGISTRY = (
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
     ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),
     ('travel_planner', 'daily_life', 'Travel planner', 'ভ্রমণ পরিকল্পনা', True, ()),
-    ('voice_mood', 'daily_life', 'Mood & energy', 'মন ও প্রাণশক্তি', True, ()),
+    ('voice_mood', 'daily_life', 'Mood & energy journal', 'মন ও প্রাণশক্তির ডায়েরি', True, ()),
     ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
     ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
     ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
