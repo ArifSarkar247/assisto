@@ -563,11 +563,13 @@ class VoiceP5Tests(TestCase):
         self.assertEqual(n["place_type"], "pharmacy")
 
     def test_nearby_osm_fallback_structure(self):
+        from unittest import mock
         from core import nearby
-        nearby._osm = lambda lat, lon, t, radius=2500: [
+        fake = lambda lat, lon, t, radius=2500, lang="bn": [  # noqa: E731
             {"name": "Test Pharmacy", "distance_m": 120, "rating": None, "open_now": None,
              "lat": lat, "lon": lon, "maps": "x", "address": ""}]
-        res, src = nearby.search(23.8, 90.4, "pharmacy")
+        with mock.patch.object(nearby, "_osm", fake):
+            res, src = nearby.search(23.8, 90.4, "pharmacy")
         self.assertEqual(src, "osm")
         self.assertIsNone(res[0]["rating"])   # never invented
 

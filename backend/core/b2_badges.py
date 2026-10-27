@@ -72,18 +72,22 @@ def unread_by_chat(user):
                                      visible_conversation,
                                      visible_group_messages)
     out = {}
-    edges = list(CircleMember.objects.filter(user=user, state="accepted"))
+    edges = list(CircleMember.objects.filter(user=user, state="accepted")
+                 .select_related("peer_user"))
     # srvperf: one mirror-edge query for every chat (not one per chat)
     emap = conversation_edge_map(user, [m for m in edges
                                         if member_open(user, m)])
     for m in edges:
+        # srvperf: only the rows that can be unread are loaded (no
+        # ciphertext), not the whole history of every chat on every poll
         out["member:%d" % m.id] = (member_unread(
-            user, m, visible_conversation(user, m, emap.get(m.id)))
+            user, m, visible_conversation(user, m, emap.get(m.id),
+                                          unread_only=True))
             if member_open(user, m) else 0)
     for gm in (CircleGroupMember.objects.filter(member=user, status="active")
                .select_related("group")):
         out["group:%d" % gm.group_id] = count_unread(
-            user, visible_group_messages(gm.group, user))
+            user, visible_group_messages(gm.group, user, unread_only=True))
     return out
 
 

@@ -428,7 +428,8 @@ def sync_delivered(user):
         qs = (CircleMessage.objects.filter(member_id__in=sorted(ids),
                                            group=None)
               .exclude(sender=user).exclude(receipts__user=user)
-              .select_related("member").only(*_MARK_FIELDS)
+              .select_related("member", "member__peer_user", "sender")
+              .only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
         n += mark(user, list(qs), now=now)
     gids = list(CircleGroupMember.objects.filter(
@@ -436,7 +437,7 @@ def sync_delivered(user):
     if gids:
         qs = (CircleMessage.objects.filter(group_id__in=gids)
               .exclude(sender=user).exclude(receipts__user=user)
-              .only(*_MARK_FIELDS)
+              .select_related("sender").only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
         n += mark(user, list(qs), now=now)
     return n

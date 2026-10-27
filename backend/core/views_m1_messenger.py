@@ -109,11 +109,39 @@ def call_prefs(user):
     return {k: bool(stored.get(k, v)) for k, v in CALL_DEFAULTS.items()}
 
 
+import contextlib as _ctx
+import threading as _threading
+
+_PREF_MEMO = _threading.local()
+
+
+@_ctx.contextmanager
+def chat_pref_memo(user):
+    """srvperf: READ-ONLY list views (chat list, home badges) read every
+    chat's MsgChatPref up to 3x per chat; inside this block they come from
+    ONE query. Any create=True call (a write) switches the memo off."""
+    try:
+        rows = {(p.chat_kind, p.chat_id): p
+                for p in MsgChatPref.objects.filter(user=user)}
+    except Exception:  # noqa: BLE001
+        rows = None
+    prev = getattr(_PREF_MEMO, "v", None)
+    _PREF_MEMO.v = (user.id, rows) if rows is not None else None
+    try:
+        yield
+    finally:
+        _PREF_MEMO.v = prev
+
+
 def chat_pref(user, kind, chat_id, create=False):
     if create:
+        _PREF_MEMO.v = None
         row, _ = MsgChatPref.objects.get_or_create(
             user=user, chat_kind=kind, chat_id=str(chat_id))
         return row
+    memo = getattr(_PREF_MEMO, "v", None)
+    if memo is not None and memo[0] == getattr(user, "id", None):
+        return memo[1].get((kind, str(chat_id)))
     return MsgChatPref.objects.filter(
         user=user, chat_kind=kind, chat_id=str(chat_id)).first()
 
@@ -225,12 +253,29 @@ def conversation_rows(edge, edge_ids=None):
                                         group=None).order_by("created_at", "id")
 
 
-def visible_conversation(user, edge, edge_ids=None):
+def unread_candidates(user, qs):
+    """srvperf: narrow a message queryset to the rows that CAN be unread for
+    `user` (not mine, no 'seen' receipt from me) without loading the
+    ciphertext. mark(seen=True) writes the receipt and read_by together, so
+    this is a superset of the unread rows; b2_badges.count_unread still
+    applies the exact read_by rule on what comes back."""
+    from .models import CircleReceipt
+    return (qs.exclude(sender=user)
+            .exclude(id__in=CircleReceipt.objects.filter(
+                user=user, seen_at__isnull=False).values("message_id"))
+            .defer("ciphertext", "nonce", "per_recipient", "link_preview",
+                   "reactions"))
+
+
+def visible_conversation(user, edge, edge_ids=None, unread_only=False):
     pref = chat_pref(user, "member", edge.id)
     cs = ChatSettings.objects.filter(user=user, peer=edge).first()
     ttl = X.normalize_disappearing(cs.disappearing_sec) if cs else 0
     expired = []
-    out = _visible(user, conversation_rows(edge, edge_ids),
+    rows = conversation_rows(edge, edge_ids)
+    if unread_only:
+        rows = unread_candidates(user, rows)
+    out = _visible(user, rows,
                    cleared_at=pref.cleared_at if pref else None,
                    keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=ttl, since=pref.disappearing_since if pref else None,
@@ -246,12 +291,14 @@ def group_timer(group):
     return MsgGroupTimer.objects.filter(group=group).first()
 
 
-def visible_group_messages(group, user):
+def visible_group_messages(group, user, unread_only=False):
     pref = chat_pref(user, "group", group.id)
     t = group_timer(group)
     expired = []
-    out = _visible(user, CircleMessage.objects.filter(group=group)
-                   .order_by("created_at"),
+    rows = CircleMessage.objects.filter(group=group).order_by("created_at")
+    if unread_only:
+        rows = unread_candidates(user, rows)
+    out = _visible(user, rows,
                    cleared_at=pref.cleared_at if pref else None,
                    keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=t.disappearing_sec if t else 0,

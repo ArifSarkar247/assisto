@@ -366,6 +366,16 @@ class CircleChatsView(APIView):
     favourite, lists:[ids]}]} — one row per ACCEPTED member, newest first."""
 
     def get(self, request):
+        # srvperf: chat prefs + keys read once per request (read-only view)
+        from .views_m1_messenger import chat_pref_memo
+        from . import e2_keys
+        peers = list(CircleMember.objects.filter(user=request.user)
+                     .exclude(peer_user=None)
+                     .values_list("peer_user_id", flat=True))
+        with chat_pref_memo(request.user), e2_keys.key_memo(peers):
+            return self._get(request)
+
+    def _get(self, request):
         from .views_module5 import _member_dict, _organise_map
         from .views_m1_messenger import (member_favourite, visible_conversation)
         from . import b2_badges as B2
@@ -376,10 +386,12 @@ class CircleChatsView(APIView):
         # mr1: my OUTGOING message requests show as normal chats too (the
         # chat says "Waiting for <name> to accept"), once I sent something.
         edges = list(CircleMember.objects.filter(user=request.user,
-                                                 state="accepted"))
+                                                 state="accepted")
+                     .select_related("peer_user"))
         edges += list(CircleMember.objects.filter(
             user=request.user, state="pending", direction="outgoing",
-            peer_user__isnull=False, messages__isnull=False).distinct())
+            peer_user__isnull=False, messages__isnull=False).distinct()
+            .select_related("peer_user"))
         from . import chat_actions as CA
         from .models import ChatSettings as _CS
         timers = {cs.peer_id: cs.disappearing_sec for cs in

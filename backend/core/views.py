@@ -3464,7 +3464,9 @@ def home_badges(request):
        my_circle_unread (chat messages) + notif_unseen (notification centre)."""
     settings_enabled = _notif_settings(request.user)
     events = _collect_events(request.user, req_lang(request))
-    chat_unread = _chat_unread(request.user)
+    from .views_m1_messenger import chat_pref_memo
+    with chat_pref_memo(request.user):   # srvperf: one prefs query
+        chat_unread = _chat_unread(request.user)
     out = _nc.badges(chat_unread, events, settings_enabled=settings_enabled)
     # b2-badges: the bell counts only items newer than the last time the
     # centre was opened (POST notif/opened) + every unhandled SOS/family alert.
