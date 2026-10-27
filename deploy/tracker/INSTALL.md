@@ -1,5 +1,13 @@
 # Assisto tracker server — install steps (for the integrator / owner)
 
+Protocols on TCP 5023 (auto-detected per connection): Concox GT06/GT06N,
+H02 text (Sinotrack ST-901 family), Teltonika Codec 8/8E/12.
+E2E harness (no secrets, scratch port 15026, scratch SQLite):
+`tools/e2e/vehicle_e2e.sh`. After merging the e2e-vehicle branch only a
+**restart** of assisto-tracker is needed to pick up H02 + idempotent ingest
+(no migration, no new port, no new cron):
+`sudo systemctl restart assisto-tracker`.
+
 Nothing here is installed by the v1-vehicle agent. Run these on the
 lifeassisto box (16.4.105.173) only after the branch is merged and migration
 `00NN_v1_vehicle_tracking` has been applied (take a DB backup first).
@@ -49,6 +57,12 @@ every 30 s; the cron renews/pauses paid months.)
 * Concox GT06 / GT06N / GT800: `SERVER,1,track.lifeassisto.com,5023,0#`
 * Teltonika FMB: `  setparam 2004:track.lifeassisto.com;2005:5023;2006:0`
   (two leading spaces = empty SMS login/password)
+* Sinotrack ST-901 / ST-906 (H02 text protocol, same port 5023 — auto-detected):
+  `8030000 gpinternet` (APN; GP=gpinternet, Robi/Airtel=internet, Banglalink=blweb),
+  then `8040000 16.4.105.173 5023` (many ST-901 firmwares need the IP, not a
+  domain), then `7100000` (GPRS mode on). `0000` = default SMS password.
+  Pair with the 10-digit DEVICE ID on the label (not the 15-digit IMEI).
+  Engine cut on H02 = `S20` command (works only when the relay is wired).
 Then in the app: My Vehicles -> Live tracking -> Pair tracker, enter the IMEI;
 the tracker must connect within the pairing window (default 10 min).
 
@@ -57,3 +71,15 @@ GT06 and Teltonika trackers speak plain TCP and cannot do TLS, so the
 device -> server leg is unencrypted. Mitigations: IMEI allowlist pairing with a
 time window, per-device rate limits + frame caps, unknown IMEIs refused and
 logged, devices can never issue commands to the server. App <-> server is HTTPS.
+
+## Map tiles for the app (real map)
+The app draws a real map (flutter_map) only when the server provides a tile
+URL; otherwise it keeps the tile-free route canvas. Add to backend/.env and
+restart assisto.service:
+```
+MAP_TILE_URL=https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=<MAPTILER_KEY>
+MAP_TILE_ATTRIBUTION=© MapTiler © OpenStreetMap contributors
+MAP_TILE_MAX_ZOOM=19
+```
+Never use `tile.openstreetmap.org` (OSMF usage policy forbids app traffic —
+the API returns an empty URL if it is configured).

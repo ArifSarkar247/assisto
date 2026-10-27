@@ -32,6 +32,8 @@ HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 MAX_GEOFENCES = 10
 MAX_TRACKERS_PER_USER = 25
 MAX_CARMODE_POINTS = 5000
+MAX_ROUTES = 5
+MAX_ROUTE_POINTS = 300
 
 
 # --------------------------------------------------------------- access
@@ -104,7 +106,8 @@ def _tracker_json(t, acc, now, cfg):
             "speed_limit_kmh": t.speed_limit_kmh,
             "night_ignition_alert": t.night_ignition_alert,
             "night_start": t.night_start, "night_end": t.night_end,
-            "geofences": t.geofences or [],
+            "geofences": VS.split_fences(t.geofences)[0],
+            "routes": VS.split_fences(t.geofences)[1],
             "cutoff_requires_approval": t.cutoff_requires_approval,
             "approver_member_id": t.approver_id,
         }
@@ -125,8 +128,25 @@ def _server_info():
             # Concox: SERVER,1,<domain>,<port>,0#  (1 = domain, last 0 = TCP)
             # Teltonika SMS (empty login/pass -> two leading spaces):
             #   "  setparam 2004:<domain>;2005:<port>;2006:0"  (2006 0 = TCP)
+            # Sinotrack ST-901 (H02): 804<pass> <ip|domain> <port>, default pass 0000
             "setup_sms": {"gt06": "SERVER,1,%s,%d,0#" % (host, port),
+                          "h02": "8040000 %s %d" % (host, port),
                           "teltonika": "  setparam 2004:%s;2005:%d;2006:0" % (host, port)}}
+
+
+def map_config():
+    """Map tiles for the app's real map (flutter_map). Server-configured so the
+    provider / key can change without an app release. EMPTY url = the app
+    falls back to its tile-free route canvas. Never tile.openstreetmap.org in
+    production (OSMF tile usage policy forbids app traffic)."""
+    url = str(getattr(settings, "MAP_TILE_URL", "") or "")
+    if "tile.openstreetmap.org" in url:
+        url = ""
+    return {"tile_url": url,
+            "attribution": str(getattr(settings, "MAP_TILE_ATTRIBUTION", "")
+                               or "© OpenStreetMap contributors"),
+            "max_zoom": int(getattr(settings, "MAP_TILE_MAX_ZOOM", 19) or 19),
+            "user_agent_package": "com.assisto.app"}
 
 
 # --------------------------------------------------------------- config
@@ -144,6 +164,7 @@ class VehicleConfigView(APIView):
                   "moving_interval_s": cfg["moving_interval_s"],
                   "parked_interval_s": cfg["parked_interval_s"],
                   "server": _server_info(),
+                  "map": map_config(),
                   "transport_note": "plain_tcp_device_leg"})
 
 
@@ -173,7 +194,7 @@ class TrackerListView(APIView):
         from .models import VehicleTracker, PaCollectionItem
         d = request.data or {}
         imei = VS.normalize_imei(d.get("imei"))
-        if not VS.imei_valid(imei):
+        if not VS.imei_valid(imei, d.get("protocol")):
             return R({"reason": "bad_imei", "ok": False}, status=400)
         now = timezone.now()
         cfg = VS.vcfg()
@@ -196,7 +217,8 @@ class TrackerListView(APIView):
         if need > 0 and not paid_through and int(request.user.ai_credits or 0) < need:
             return R({"reason": "no_credits", "ok": False, "need": need,
                       "balance": int(request.user.ai_credits or 0)}, status=402)
-        proto = d.get("protocol") if d.get("protocol") in ("gt06", "teltonika") else "auto"
+        proto = d.get("protocol") if d.get("protocol") in ("gt06", "h02", "teltonika") \
+            else "auto"
         t = existing or VehicleTracker(owner=request.user, imei=imei)
         t.name = str(d.get("name") or t.name or "")[:80]
         t.vehicle_record = rec or t.vehicle_record
@@ -280,7 +302,12 @@ class TrackerDetailView(APIView):
                 clean.append({"id": str(f.get("id") or i + 1)[:12],
                               "name": str(f.get("name") or "")[:40],
                               "lat": lat, "lng": lng, "radius_m": rad})
-            t.geofences = clean
+            t.geofences = clean + VS.split_fences(t.geofences)[1]
+        if "routes" in d:
+            routes, bad = _clean_routes(d["routes"])
+            if bad:
+                return R({"reason": "bad_route", "ok": False}, status=400)
+            t.geofences = VS.split_fences(t.geofences)[0] + routes
         if "cutoff_requires_approval" in d:
             t.cutoff_requires_approval = bool(d["cutoff_requires_approval"])
         if "approver_member_id" in d:
@@ -327,6 +354,42 @@ class TrackerDetailView(APIView):
         t.delete()
         VS.audit(None, "tracker_removed", actor=request.user, imei=imei)
         return R({"ok": True})
+
+
+def _clean_routes(raw):
+    """Planned routes for off-route / long-stop alerts. Stored inside the
+    geofences JSON as {"type": "route", ...} (no extra column / migration).
+    Returns (routes, bad)."""
+    if not isinstance(raw, list) or len(raw) > MAX_ROUTES:
+        return [], True
+    out = []
+    for i, r in enumerate(raw):
+        if not isinstance(r, dict):
+            return [], True
+        pts = r.get("points")
+        if not isinstance(pts, list) or not 2 <= len(pts) <= MAX_ROUTE_POINTS:
+            return [], True
+        clean_pts = []
+        for p in pts:
+            try:
+                lat, lng = (float(p[0]), float(p[1])) if isinstance(p, (list, tuple)) \
+                    else (float(p["lat"]), float(p["lng"]))
+            except (KeyError, TypeError, ValueError, IndexError):
+                return [], True
+            if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+                return [], True
+            clean_pts.append([round(lat, 6), round(lng, 6)])
+        try:
+            corridor = int(r.get("corridor_m") or 300)
+            stop_min = int(r.get("stop_alert_min") or 0)
+        except (TypeError, ValueError):
+            return [], True
+        if not (50 <= corridor <= 5000 and 0 <= stop_min <= 720):
+            return [], True
+        out.append({"type": "route", "id": str(r.get("id") or "r%d" % (i + 1))[:12],
+                    "name": str(r.get("name") or "")[:40], "points": clean_pts,
+                    "corridor_m": corridor, "stop_alert_min": stop_min})
+    return out, False
 
 
 # --------------------------------------------------------------- history
@@ -682,13 +745,35 @@ class CarModeTripView(APIView):
                 pk=vid, user=request.user, collection="vehicle/records").exists():
             return R({"reason": "bad_vehicle", "ok": False}, status=400)
         s = _summary_json(VT.compute_trips(pts, night=(23, 5)))
+        # Same alert engine as the hardware tracker, replayed over the phone's
+        # trip (the app shows these live on screen; this is the server record).
+        alerts = []
+        try:
+            limit = max(0, min(200, int(d.get("speed_limit_kmh") or 0)))
+        except (TypeError, ValueError):
+            limit = 0
+        routes = []
+        if d.get("route"):
+            routes, bad = _clean_routes([d["route"]])
+            if bad:
+                return R({"reason": "bad_route", "ok": False}, status=400)
+        if limit or routes:
+            st = {}
+            cfg = {"speed_limit_kmh": limit, "night_ignition": False,
+                   "geofences": [], "routes": routes}
+            for p in sorted(pts, key=lambda x: x["at"]):
+                st, al = VT.evaluate_alerts(st, p, cfg, p["local_hour"])
+                alerts.extend({k: (_iso(v) if hasattr(v, "isoformat") else v)
+                               for k, v in a.items()} | {"at": _iso(p["at"])}
+                              for a in al)
         item = PaCollectionItem.objects.create(
             user=request.user, collection="vehicle/trips",
             data={"source": "headunit", "vehicle_record_id": vid or None,
                   "start": _iso(pts[0]["at"]), "end": _iso(pts[-1]["at"]),
                   "total_km": s["total_km"], "moving_s": s["moving_s"],
-                  "max_speed_kmh": s["max_speed_kmh"], "trips": len(s["trips"])})
-        return R({"ok": True, "id": item.id, **s}, status=201)
+                  "max_speed_kmh": s["max_speed_kmh"], "trips": len(s["trips"]),
+                  "alerts": [a["kind"] for a in alerts][:50]})
+        return R({"ok": True, "id": item.id, **s, "alerts": alerts[:50]}, status=201)
 
 
 # --------------------------------------------------------------- fleet
