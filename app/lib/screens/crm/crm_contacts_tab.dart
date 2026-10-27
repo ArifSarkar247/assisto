@@ -191,7 +191,7 @@ class CrmUsageBanner extends StatelessWidget {
         if (viewOnly) ...[
           const SizedBox(height: Gap.xs),
           Text(t.pv2CrmViewOnlyNote,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ]),
     );

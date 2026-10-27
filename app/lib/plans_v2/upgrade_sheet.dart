@@ -315,7 +315,7 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.pv2PlayNote,
-                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
               ),
             if (_trialMsg != null)
               Padding(
@@ -342,7 +342,7 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
               ),
               const SizedBox(height: Gap.xs),
               Text(t.pv2TrialNote(_date(trialEnd)),
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
             ],
             const SizedBox(height: Gap.md),
             OutlinedButton(
