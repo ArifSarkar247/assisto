@@ -252,6 +252,8 @@ class _AppDrawerState extends State<AppDrawer> {
                               color: scheme.onSurfaceVariant, size: 22),
                           title: Text(item.label(t),
                               maxLines: 2, overflow: TextOverflow.ellipsis),
+                          // owner feedback 27 Oct: preview-only entries
+                          trailing: item.preview ? const PreviewTag() : null,
                           visualDensity: VisualDensity.compact,
                           onTap: () => _push(item.builder),
                         ),
@@ -309,6 +311,7 @@ class _AppDrawerState extends State<AppDrawer> {
       subtitle: showItem
           ? Text(group, maxLines: 1, overflow: TextOverflow.ellipsis)
           : null,
+      trailing: item.preview ? const PreviewTag() : null,
       onTap: () => _push(item.builder),
     );
   }

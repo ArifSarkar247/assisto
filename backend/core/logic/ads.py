@@ -124,6 +124,12 @@ BLOCKED_ENTRIES = ("notification", "deeplink", "call", "sos", "share",
 HERO_MIN_REFRESH_SEC = 60
 
 
+def home_native_size(value):
+    """The home native card template: "compact" (default) or "large"."""
+    v = _s(value).lower()
+    return v if v in ("compact", "large") else "compact"
+
+
 def hero_refresh_sec(value):
     """The home hero native-ad refresh, never faster than AdMob allows."""
     try:
@@ -241,6 +247,11 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "hero_start_muted": bool(caps.get("hero_start_muted", True)),
         # h1-home: home hero native-ad refresh (admin: pricing home_hero)
         "hero_refresh_sec": hero_refresh_sec(hero_refresh),
+        # owner feedback 27 Oct: the home native card shows at most this many
+        # impressions a day on the device (the same cap the wallet uses)
+        "native_daily_cap": max(0, min(50, int(caps.get("native_daily_cap", 20) or 0))),
+        # owner 27 Oct: "compact" (default; unknown -> compact) | "large"
+        "home_native_size": home_native_size(caps.get("home_native_size")),
         # l3-ump: Google UMP debug knobs (Owner Admin -> Ads).
         "consent_debug_eea": bool(caps.get("consent_debug_eea", False)),
         "consent_test_devices": ump_test_devices(admob_cfg.get("ump_test_devices"))

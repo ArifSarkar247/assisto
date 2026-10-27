@@ -78,6 +78,11 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                 route: '${s.id}_$i',
                 icon: s.items[i].icon,
                 label: s.items[i].label(t),
+                // owner feedback 27 Oct: seen only as owner / tester preview
+                subtitle: s.items[i].preview ? t.ffPreviewTag : null,
+                semanticsLabel: s.items[i].preview
+                    ? '${s.items[i].label(t)}, ${t.ffPreviewTag}'
+                    : null,
                 onTap: () => Navigator.push(
                     context, MaterialPageRoute(builder: s.items[i].builder)),
               ),

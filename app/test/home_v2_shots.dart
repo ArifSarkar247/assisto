@@ -16,13 +16,13 @@ import 'h1_home_fakes.dart';
 
 /// The home as the owner sees it in the reference: 09:00, 2 new
 /// notifications, 3 unread in My Circle + a missed call.
-Widget homeV2Shot({bool free = false}) {
+Widget homeV2Shot({bool free = false, String? size, DateTime? now}) {
   HomeHero.debugReset();
   HomeHero.debugBridge = FakeHeroBridge();
   HomeHero.debugLoadConfig =
-      () async => heroConfig(plan: free ? 'free' : 'premium');
+      () async => heroConfig(plan: free ? 'free' : 'premium', size: size);
   return HomeV2Screen(
-    debugNow: DateTime(2026, 10, 26, 9),
+    debugNow: now ?? DateTime(2026, 10, 26, 9),
     debugBadges: const HomeBadges(myCircleUnread: 3, notifUnseen: 2),
     debugCircle: const CircleBadgeState(unread: 3, missed: true),
   );

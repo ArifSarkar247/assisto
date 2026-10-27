@@ -428,6 +428,12 @@ jobs:
               ' android:value="true"/>'
               '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"'
               ' android:value="true"/>'
+              # owner 27 Oct: Google's "Native ad validator" popup appears on
+              # TEST ads / test devices only; the app ships Google TEST units
+              # until admob_real_ids is on, so it is switched OFF here for
+              # every build users get (never shown to a normal user).
+              '\n        <meta-data android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"'
+              ' android:value="false"/>'
               '\n        <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider"'
               ' android:authorities="${applicationId}.mobileadsinitprovider"'
               ' tools:node="remove"/>\n'
@@ -968,7 +974,10 @@ jobs:
             if ! echo "$MAN" | grep -q "com.google.android.gms.ads.APPLICATION_ID"; then
               echo "::error::AdMob APPLICATION_ID missing (the SDK would crash at launch)"; exit 1
             fi
-            echo "admob manifest OK (APPLICATION_ID present, no MobileAdsInitProvider)"
+            if ! echo "$MAN" | grep -q "NATIVE_AD_DEBUGGER_ENABLED"; then
+              echo "::error::NATIVE_AD_DEBUGGER_ENABLED=false missing (the native ad validator popup would show on test ads)"; exit 1
+            fi
+            echo "admob manifest OK (APPLICATION_ID present, no MobileAdsInitProvider, native ad validator off)"
           else
             echo "::warning::aapt2 xmltree unavailable - admob manifest gate skipped"
           fi
