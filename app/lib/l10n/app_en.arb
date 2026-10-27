@@ -21999,5 +21999,189 @@
   "smsotpEmailVerified": "Verified",
   "smsotpEmailNotVerified": "Not verified yet",
   "smsotpEmailDone": "Email verified.",
-  "smsotpEmailCodeHint": "Enter the 6-digit code from the email"
+  "smsotpEmailCodeHint": "Enter the 6-digit code from the email",
+  "rmxExactTitle": "Ring reminders on the exact minute?",
+  "rmxExactBody": "Android needs your permission for exact alarms (\"Alarms & reminders\"). Without it, many phones deliver reminders a few minutes late.",
+  "rmxExactHow": "Tap Allow, then turn on Assisto on the next screen and come back.",
+  "rmxAllow": "Allow",
+  "rmxLater": "Not now",
+  "rmxBannerTitle": "Reminders may ring a few minutes late",
+  "rmxBannerBody": "Exact alarms are off for Assisto. Turn on \"Alarms & reminders\" so reminders ring on time.",
+  "rmxBannerAllow": "Turn on exact alarms",
+  "rmxBatteryGuide": "Battery settings guide",
+  "rmxCheckTitle": "Reminder delivery check",
+  "rmxCheckNotifOn": "Notifications: on",
+  "rmxCheckNotifOff": "Notifications: off — reminders cannot alert you",
+  "rmxCheckExactOn": "Exact alarms: on — reminders ring on the minute",
+  "rmxCheckExactOff": "Exact alarms: off — reminders may be a few minutes late",
+  "rmxCheckBatteryOk": "Battery saver: Assisto is not restricted",
+  "rmxCheckBatteryOpt": "Battery saver may delay reminders — see the battery guide",
+  "rmxCheckBatteryUnknown": "Battery saver: this phone doesn't tell us",
+  "rmxCheckServerBackup": "Backup: when you're online, Assisto's server also sends the reminder. You still get only one alert.",
+  "rmxCheckMeasured": "{count} reminders measured · {onTime} within 1 minute · typical delay {median} sec",
+  "@rmxCheckMeasured": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "onTime": {
+        "type": "String"
+      },
+      "median": {
+        "type": "String"
+      }
+    }
+  },
+  "rmxCheckWorst": "Slowest: {sec} sec late",
+  "@rmxCheckWorst": {
+    "placeholders": {
+      "sec": {
+        "type": "String"
+      }
+    }
+  },
+  "rmxCheckNone": "No reminder has been measured on this phone yet. Try the 1-minute test.",
+  "rmxCheckPrivacy": "Measured on this phone only. Nothing is sent anywhere.",
+  "rmxCheckTest": "Test: ring in 1 minute",
+  "rmxCheckTestSet": "Test set — lock the phone and wait 1 minute",
+  "rmxTestTitle": "Assisto test reminder",
+  "rmxTestBody": "If this rang on time, reminders work on this phone.",
+  "mtrUtilityLabel": "Company",
+  "mtrUtilDesco": "DESCO",
+  "mtrUtilDpdc": "DPDC",
+  "mtrUtilNesco": "NESCO",
+  "mtrUtilWzpdcl": "WZPDCL (Ozopadico)",
+  "mtrUtilBreb": "Palli Bidyut (BREB)",
+  "mtrUtilBpdb": "BPDB",
+  "mtrUtilTitas": "Titas Gas",
+  "mtrUtilKarnaphuli": "Karnaphuli Gas",
+  "mtrUtilOther": "Other",
+  "mtrUtilUnset": "Company not chosen",
+  "mtrMeterNo": "Meter number (optional)",
+  "mtrMeterNoHelp": "Digits only. We don't check it against the company's format — copy it exactly from your meter card.",
+  "mtrMeterNoDigits": "Use digits only",
+  "mtrMeterNoLength": "A meter number is usually 6 to 20 digits",
+  "mtrDailyUse": "Your daily use estimate (optional)",
+  "mtrDailyUseHelp": "Used until we have two recharges to work it out ourselves.",
+  "mtrRateFromEstimate": "Based on your estimate",
+  "mtrAlertSwitch": "Warn me before it runs out",
+  "mtrAlertSwitchHelp": "A notification when the estimate says the balance is running low. Not between 9 pm and 9 am.",
+  "mtrAlertDaysLabel": "Warn when this many days are left",
+  "mtrAlertDaysN": "{days} days",
+  "@mtrAlertDaysN": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrAlertOnChip": "Alert at {days} days left",
+  "@mtrAlertOnChip": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrAlertOffChip": "Low-balance alert off",
+  "mtrPayCta": "How to recharge",
+  "mtrPayTitle": "Recharge this meter",
+  "mtrBkash": "bKash",
+  "mtrNagad": "Nagad",
+  "mtrChannelOther": "Other",
+  "mtrStepOpen": "Open {wallet}",
+  "@mtrStepOpen": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrStepPayBill": "Tap Pay Bill, then Electricity",
+  "mtrStepPick": "Choose {company} prepaid",
+  "@mtrStepPick": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrStepMeterNo": "Paste the meter number (we copied it for you)",
+  "mtrStepAmountPin": "Enter the amount and your PIN",
+  "mtrStepToken": "The 20-digit token comes by SMS — save it here with \"Log recharge\"",
+  "mtrNotVerified": "We haven't confirmed that {wallet} lists {company} prepaid. Check Pay Bill in {wallet} before paying.",
+  "@mtrNotVerified": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrOpenApp": "Open {wallet}",
+  "@mtrOpenApp": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrCopyOpen": "Copy meter number & open {wallet}",
+  "@mtrCopyOpen": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrDialUssd": "No internet: dial {code}",
+  "@mtrDialUssd": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrOpened": "Opened",
+  "mtrOpenedCopied": "Meter number copied — paste it in Pay Bill",
+  "mtrOpenFailed": "Couldn't open the app on this phone",
+  "mtrGasWarning": "Prepaid gas meters use a card. bKash says a prepaid gas card payment through Pay Bill does NOT reach the meter. Recharge the card at your gas company's vending point.",
+  "mtrPickCompanyFirst": "Choose your company in Edit to see the right steps.",
+  "mtrHotline": "{company} hotline: {number}",
+  "@mtrHotline": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrPayHonest": "You pay inside bKash or Nagad. Assisto never takes or holds your money and cannot read your meter — every balance here is an estimate.",
+  "mtrTokenLabel": "Token (20 digits, optional)",
+  "mtrTokenHelp": "Copy the SMS, then tap paste — we pick out the token. Keep it as proof.",
+  "mtrTokenBad": "A token has exactly 20 digits",
+  "mtrTokenPaste": "Paste from SMS",
+  "mtrTokenNoneFound": "No 20-digit token found in the copied text",
+  "mtrTokenExtra": "Also in the SMS: {tokens} — enter these in the meter first if it asks",
+  "@mtrTokenExtra": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrTokenShown": "Token {token}",
+  "@mtrTokenShown": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrTokenCopy": "Copy token",
+  "mtrCopied": "Copied"
 }
