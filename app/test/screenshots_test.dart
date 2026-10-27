@@ -37,6 +37,8 @@ import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/widgets/circle_badges.dart';
 import 'package:assisto/screens/ai_chat_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
+import 'package:assisto/widgets/onb_first_win.dart';
+import 'package:assisto/widgets/onb_role.dart';
 import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
@@ -669,6 +671,11 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
+    // truth (27 Oct): live rows + licence line; business first win = ledger;
+    // Safe Journey with an empty circle offers "add a family member".
+    'truth_nearby_live': (build: (_) => const NearbyScreen(debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
+    'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: OnbFirstWin(role: OnbRole.business, onPick: (_) {}))), mode: FakeMode.data, full: true),
+    'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
     'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),
