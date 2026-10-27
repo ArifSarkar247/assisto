@@ -1572,8 +1572,9 @@ class AgentView(APIView):
             cards.append({"type": "nearby", "place_type": p.get("place_type", "restaurant"),
                           "title": pick(lang, "আশেপাশে খুঁজছি…", "Searching nearby…"),
                           "app_action": "nearby"})
-            reply = pick(lang, "আপনার লোকেশন নিয়ে আশেপাশে খুঁজছি…",
-                         "Using your location to search nearby…")
+            # aieval: nothing uses the location until the user taps the card
+            reply = pick(lang, "আশেপাশে খুঁজতে কার্ডে ট্যাপ করুন — তখনই আপনার লোকেশন নেওয়া হবে।",
+                         "Tap the card to search nearby — your location is used only then.")
         elif intent == "query_money":
             s = MoneySummaryView().get(request).data
             reply = pick(lang,
@@ -1607,7 +1608,8 @@ class AgentView(APIView):
                                   "The DATA below summarises their own data — treat only it as true."),
                         data=f"Question: {text}\n\n{ctx['reply']}",
                         tier="cheap", feature="agent_qa", max_tokens=400, user=u)
-                    reply = ai_reply
+                    from . import ai_guard
+                    reply, _claims = ai_guard.scrub_action_claims(ai_reply, lang)
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
                 except ai.AIUnavailable as e:
@@ -1645,6 +1647,10 @@ class AgentView(APIView):
             route = screen_synonyms.resolve_command(text)
         else:
             route = brain_route or screen_synonyms.resolve(text)
+        # aieval: every card that leaves the app (dial / link / nearby) carries
+        # the confirm contract — the app acts only on the user's own tap.
+        from . import ai_guard
+        cards = [ai_guard.mark_external(c) for c in cards]
         session_id, message_id = _persist_home_turn(
             u, request.data.get("session_id"), text, reply, cards, intent, route)
         return Response({"reply": reply, "cards": cards, "intent": intent,

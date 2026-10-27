@@ -860,6 +860,11 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     conf = float(d.get("confidence") or 0)
     src = "ai" if used_ai else "fallback"
     problems = BZ.check_numbers(reply, ctx, text)
+    # aieval guard: refund promises and "I am human" claims are the owner's
+    # call / never true — they go to the seller like an unverified number.
+    from . import ai_guard
+    problems += [{"type": "refund_promise", "value": w} for w in ai_guard.refund_promises(reply)]
+    problems += [{"type": "human_claim", "value": w} for w in ai_guard.human_claims(reply)]
     echo = BZ.offer_echo(reply, text, matched)
     if echo:
         # the AI repeated a below-minimum number the customer wrote ("ok, 800

@@ -124,6 +124,10 @@ def _produce_reply(user, session, text, lang, history, credout=False):
                 data=f"User's latest message: {text}\n\nTheir data summary:\n{ctx['reply']}",
                 tier=requested_tier, feature="chat", max_tokens=700,
                 user=user, history=history)
+            # aieval guard: the chat cannot act outside the app — a sentence
+            # claiming it sent / called / paid / posted is removed (honest line).
+            from . import ai_guard
+            reply, _claims = ai_guard.scrub_action_claims(reply, lang)
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing

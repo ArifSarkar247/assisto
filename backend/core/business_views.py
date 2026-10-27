@@ -1366,6 +1366,20 @@ class AiReplyView(APIView):
         return Response(res)
 
 
+def ai_reply_task(prompt):
+    """aieval: the trusted instruction for the shop's AI draft. Before this the
+    model got ONLY the facts list as its instruction (no rules at all)."""
+    lang = "Bangla (Bengali script)" if prompt.get("lang") == "bn" else "English"
+    return ("You are the polite assistant (an AI, not a human) of the shop \"%s\" in "
+            "Bangladesh. Reply to the customer's message in %s, in at most 3 short "
+            "sentences, using ONLY the FACTS below. Never state a price, stock count, "
+            "delivery charge or discount that is not written in the FACTS, never promise "
+            "a refund, and never ask for a PIN or password. If the FACTS do not answer "
+            "the question, say someone from the shop will reply.\n\nFACTS:\n%s"
+            % (prompt.get("shop_name") or "shop", lang,
+               prompt.get("facts") or "(no catalog yet)"))
+
+
 def _llm_provider(user=None, state=None):
     """Adapter: prompt dict → {text, confidence} via core.ai. MUST NOT invent
     price/stock (the pure layer only passes it the context facts). `user` is
@@ -1374,7 +1388,7 @@ def _llm_provider(user=None, state=None):
 
     def provider(prompt):
         try:
-            text, _ = ai.generate(task=prompt.get("facts", ""),
+            text, _ = ai.generate(task=ai_reply_task(prompt),
                                   data=prompt.get("customer_text", ""),
                                   tier="cheap", feature="business.ai_reply",
                                   max_tokens=300, user=user)

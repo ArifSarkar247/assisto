@@ -1196,6 +1196,45 @@ _COMPANY_HINT = re.compile(
     r"Enterprise|Trading|Fashions|Apparels)))", re.MULTILINE)
 
 
+def extract_contact(text):
+    """Pure rule-based extraction (aieval: evaluated in CI by
+    core/ai_evals crm_extract). -> {phone, phones, whatsapp, email, company, name}"""
+    text = (text or "")[:8000]
+
+    phones = []
+    for m in _PHONE_RE.findall(text):
+        digits = re.sub(r"\D", "", m)
+        tail = digits[-11:]
+        if tail not in phones:
+            phones.append(tail)
+    if not phones:
+        for m in _PHONE_ANY_RE.findall(text):
+            digits = re.sub(r"\D", "", m)
+            if len(digits) >= 9 and digits not in phones:
+                phones.append(digits)
+
+    emails = _EMAIL_RE.findall(text)
+    company = ""
+    cm = _COMPANY_HINT.search(text)
+    if cm:
+        company = cm.group(1).strip()
+
+    # Name heuristic: first non-empty line that is short, has no digits/@,
+    # and looks like a person's name (1–4 words). Honest best-effort only.
+    name = ""
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or "@" in line or any(c.isdigit() for c in line):
+            continue
+        words = line.split()
+        if 1 <= len(words) <= 4 and len(line) <= 48:
+            name = line
+            break
+    return {"phone": phones[0] if phones else "", "phones": phones[1:],
+            "whatsapp": phones[0] if phones else "",
+            "email": emails[0] if emails else "", "company": company, "name": name}
+
+
 class PasteExtractView(CrmErrorMixin, APIView):
     """Rule-based paste extraction (CRM_SPEC: RICH MANUAL ENTRY without AI).
 
@@ -1208,38 +1247,7 @@ class PasteExtractView(CrmErrorMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        text = (request.data.get("text") or "")[:8000]
-
-        phones = []
-        for m in _PHONE_RE.findall(text):
-            digits = re.sub(r"\D", "", m)
-            tail = digits[-11:]
-            if tail not in phones:
-                phones.append(tail)
-        if not phones:
-            for m in _PHONE_ANY_RE.findall(text):
-                digits = re.sub(r"\D", "", m)
-                if len(digits) >= 9 and digits not in phones:
-                    phones.append(digits)
-
-        emails = _EMAIL_RE.findall(text)
-        company = ""
-        cm = _COMPANY_HINT.search(text)
-        if cm:
-            company = cm.group(1).strip()
-
-        # Name heuristic: first non-empty line that is short, has no digits/@,
-        # and looks like a person's name (1–4 words). Honest best-effort only.
-        name = ""
-        for raw in text.splitlines():
-            line = raw.strip()
-            if not line or "@" in line or any(c.isdigit() for c in line):
-                continue
-            words = line.split()
-            if 1 <= len(words) <= 4 and len(line) <= 48:
-                name = line
-                break
-
+        ex = extract_contact(request.data.get("text") or "")
         try:
             from core import ai
             ai_available = ai.available()
@@ -1249,12 +1257,7 @@ class PasteExtractView(CrmErrorMixin, APIView):
         return Response({
             "ok": True,
             "ai_available": ai_available,
-            "phone": phones[0] if phones else "",
-            "phones": phones[1:],
-            "whatsapp": phones[0] if phones else "",
-            "email": emails[0] if emails else "",
-            "company": company,
-            "name": name,
+            **ex,
             "note_bn": ("স্বয়ংক্রিয় পূরণ AI key যোগ হলে চালু হবে — এখন শুধু "
                         "ফোন/ইমেইল/কোম্পানি বের করা হলো"),
             "note_en": ("AI auto-fill available when a key is added — for now "
