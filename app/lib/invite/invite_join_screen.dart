@@ -282,6 +282,9 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
   }
 
   Future<void> _notNow() async {
+    // As the root, the router swaps this screen for sign-in as soon as the
+    // code is cleared; show progress until it does (never a dead tap).
+    if (widget.asRoot) setState(() => _st = _St.loading);
     await PendingInvite.clear();
     if (!mounted) return;
     if (!widget.asRoot) Navigator.of(context).maybePop();
@@ -405,7 +408,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _busy ? null : _signup(),
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9+ \-০-৯]')),
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9+ \-\u09E6-\u09EF]')),
           ],
           decoration: InputDecoration(
               labelText: t.ijPhoneLabel,

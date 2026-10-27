@@ -489,7 +489,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     // invite-join: an invited person goes straight to "Join X's circle"
-    // (that screen has its own বাংলা/English switch).
+    // (that screen has its own language switch).
     if (!app.loggedIn) {
       final join = InviteRouter.signedOutRoot();
       if (join != null) {

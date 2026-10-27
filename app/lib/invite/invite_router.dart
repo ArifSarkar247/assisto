@@ -13,7 +13,7 @@ import 'invite_link.dart';
 /// shows. ONE path decides the screen (no double pushes):
 ///  * signed out + pending code -> the root shows [InviteJoinScreen] instead
 ///    of the login screen (and instead of the first-run language gate: the
-///    join screen carries its own বাংলা/English switch);
+///    join screen carries its own language switch);
 ///  * signed in + pending code  -> [InviteJoinScreen] pushed once on top.
 /// A warm App Link ("/i/<CODE>" via onGenerateRoute) only records the code and
 /// returns a route that removes itself at once.
