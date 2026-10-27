@@ -156,7 +156,8 @@ def _parse(raw):
             except Exception:
                 return None
     if timezone.is_naive(dt):
-        dt = timezone.make_aware(dt, timezone.utc)
+        from datetime import timezone as _dtz   # django.utils.timezone.utc is gone in Django 5
+        dt = timezone.make_aware(dt, _dtz.utc)
     return dt
 
 
