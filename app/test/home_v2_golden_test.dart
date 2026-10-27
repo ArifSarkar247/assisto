@@ -132,11 +132,13 @@ void main() {
               lang: lang, b: b, size: sizes['ref']!, scale: scale);
         });
       }
-      // tall: the whole Free home incl. the ad and the Need help card
+      // the whole Free home incl. the ad and the Need help card
       testWidgets('golden home_v2_free_${lang}_${b.name}_full', (tester) async {
         await _render(tester, 'home_v2_free_${lang}_${b.name}_full',
             homeV2Shot(free: true),
-            lang: lang, b: b, size: const Size(390, 1080));
+            // just tall enough for the page: a taller surface would only add
+            // empty room above the bottom-anchored Need help card
+            lang: lang, b: b, size: const Size(390, 990));
       });
       testWidgets('golden home_v2_free_large_${lang}_${b.name}', (tester) async {
         await _render(tester, 'home_v2_free_large_${lang}_${b.name}',

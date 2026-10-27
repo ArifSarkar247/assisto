@@ -30,6 +30,7 @@ import 'package:assisto/screens/home_v2/assisto_chat_screen.dart';
 import 'package:assisto/screens/home_v2/home_v2_header.dart';
 import 'package:assisto/screens/home_v2/home_v2_screen.dart';
 import 'package:assisto/screens/home_v2/home_v2_shortcuts.dart';
+import 'package:assisto/screens/home_v2/home_v2_tokens.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/updater.dart';
@@ -605,6 +606,43 @@ void main() {
         });
       }
     }
+
+    // coordinator 27 Oct: no reserved space under the compact ad — the Need
+    // help card follows after exactly the normal section gap.
+    for (final lang in ['en', 'bn']) {
+      for (final scale in [1.0, 2.0]) {
+        testWidgets('compact ad -> Need help: one section gap ($lang x$scale)',
+            (tester) async {
+          await _pump(tester, _home(free: true), lang: lang, scale: scale);
+          await _settle(tester);
+          final ask = find.byKey(const ValueKey('hv2_ask'));
+          await tester.scrollUntilVisible(ask, 200,
+              scrollable: find.byType(Scrollable).first);
+          await _settle(tester);
+          final box = find.byKey(const ValueKey('hero-ad-box'));
+          expect(box, findsOneWidget);
+          expect(tester.getSize(box).height, lessThanOrEqualTo(110));
+          final gap = tester.getTopLeft(ask).dy - tester.getBottomLeft(box).dy;
+          expect(gap, closeTo(HV2.sectionGap, 2));
+          // the whole slot = label row + 8 dp + the ad box, nothing more
+          final frame = tester.getRect(find.byType(CompactAdFrame));
+          final row = tester.getRect(find.byKey(const ValueKey('hero-remove-ads')));
+          expect(frame.bottom, closeTo(tester.getBottomLeft(box).dy, 0.5));
+          expect(frame.height,
+              closeTo(row.height + 8 + tester.getSize(box).height, 2));
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+      }
+    }
+
+    testWidgets('no fill -> the ad slot takes zero height', (tester) async {
+      await _pump(tester, _home(free: true, bridge: FakeHeroBridge(fill: false)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('hero-ad-box')), findsNothing);
+      expect(tester.getSize(find.byKey(const ValueKey('hv2_ad_slot'))).height, 0);
+      await _unmount(tester);
+    });
 
     testWidgets('compact ad at 200 % font: no overflow, grows sanely',
         (tester) async {
