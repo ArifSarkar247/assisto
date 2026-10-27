@@ -31,6 +31,7 @@ from . import chat_vision as _CV
 from . import payments_cfg as _PAY   # pay1
 from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
+from .. import ai_config as _AIR      # ai-router: models, caps, prices
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -576,6 +577,7 @@ def DEFAULTS():
         "photo_studio": _PS.defaults(),
         # h1-home: image-in-chat knobs + the home hero native-ad refresh
         "chat_vision": _CV.defaults(),
+        "ai_router": _AIR.defaults(),          # ai-router (Owner Admin -> AI)
         "home_hero": _CV.hero_defaults(),
         # pay1: payment channels, switches, fees, per-channel prices
         "payments": _PAY.defaults(),
@@ -706,6 +708,7 @@ def normalize(data):
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
+        "ai_router": _AIR.normalize(d.get("ai_router")),   # ai-router
         "home_hero": _CV.normalize_hero(d.get("home_hero")),
         "payments": _PAY.normalize(d.get("payments")),   # pay1
         "billing": _BILL.normalize(d.get("billing")),    # billing-v2

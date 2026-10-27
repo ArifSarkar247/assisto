@@ -580,9 +580,64 @@ class AIUsage(models.Model):
     output_tokens = models.IntegerField(default=0)
     cost_usd = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ai-router: which provider answered (owner-only; never shown in the app),
+    # the job class, latency, success and the failover path.
+    provider = models.CharField(max_length=20, blank=True, default="")
+    tier = models.CharField(max_length=10, blank=True, default="")
+    task_class = models.CharField(max_length=10, blank=True, default="")
+    latency_ms = models.IntegerField(default=0)
+    ok = models.BooleanField(default=True)
+    hops = models.IntegerField(default=0)            # failovers before the answer
+    attempts = models.CharField(max_length=240, blank=True, default="")
+    cache_read_tokens = models.IntegerField(default=0)
+    cache_write_tokens = models.IntegerField(default=0)
+    error_kind = models.CharField(max_length=30, blank=True, default="")
 
     class Meta:
-        indexes = [models.Index(fields=["created_at"])]
+        indexes = [models.Index(fields=["created_at"]),
+                   models.Index(fields=["provider", "created_at"])]
+
+
+class AIProviderState(models.Model):
+    """ai-router: per-provider circuit breaker + health, shared by every
+    gunicorn worker (DB row; no cache infrastructure). slug 'total' holds only
+    the total-cap alert days."""
+    STATES = [("closed", "closed"), ("open", "open"), ("half_open", "half_open")]
+    slug = models.CharField(max_length=20, unique=True)
+    state = models.CharField(max_length=10, choices=STATES, default="closed")
+    consecutive_failures = models.IntegerField(default=0)
+    window_start = models.DateTimeField(null=True, blank=True)
+    window_calls = models.IntegerField(default=0)
+    window_failures = models.IntegerField(default=0)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    probe_until = models.DateTimeField(null=True, blank=True)
+    last_success_at = models.DateTimeField(null=True, blank=True)
+    last_failure_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=120, blank=True, default="")
+    last_health_at = models.DateTimeField(null=True, blank=True)
+    last_health_ok = models.BooleanField(null=True, blank=True)
+    alert_warn_day = models.DateField(null=True, blank=True)     # 80% alert sent
+    alert_full_day = models.DateField(null=True, blank=True)     # 100% alert sent
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AIQualityProbe(models.Model):
+    """ai-router: one answer of the owner-run offline Bangla quality probe
+    (manage.py ai_quality_probe) for side-by-side review in Owner Admin."""
+    run_id = models.CharField(max_length=20, db_index=True)
+    provider = models.CharField(max_length=20)
+    model = models.CharField(max_length=60)
+    prompt_no = models.IntegerField(default=0)
+    prompt = models.TextField()
+    answer = models.TextField(blank=True, default="")
+    ok = models.BooleanField(default=False)
+    error = models.CharField(max_length=120, blank=True, default="")
+    latency_ms = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "prompt_no", "provider"]
 
 
 class ToolUsage(models.Model):
