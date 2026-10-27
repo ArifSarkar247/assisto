@@ -114,7 +114,7 @@
 
 ---
 
-## ২. নিরাপদ যাত্রা (Safe Journey), ১৯টি স্তর
+## ২. নিরাপদ যাত্রা (Safe Journey) — ১৯টি পরিকল্পিত স্তরের ১৮টি কাজ করে; এনক্রিপ্টেড প্রমাণ-অডিও ইচ্ছা করে বাদ (SAFE_JOURNEY_100_BN.md)
 
 উৎস: `backend/core/logic/safety_journey.py` (pure logic), `backend/core/views_build61.py` (`Journey*View`), `app/lib/screens/journey_*.dart`, `safe_arrival_screen.dart`, `voice_sos_screen.dart`, `emergency_screen.dart`
 

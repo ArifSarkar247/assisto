@@ -71,6 +71,26 @@ class FakeApi extends ApiClient {
         : const [];
   }
 
+  /// truth: GET /nearby — REAL-shaped rows (the server's live Places/OSM
+  /// layer) with the licence line; empty mode = nothing nearby; fail = down.
+  @override
+  Future<Map<String, dynamic>> nearby(double lat, double lon, String type) async {
+    await _slow();
+    if (mode == FakeMode.fail) _fail();
+    final rows = mode == FakeMode.empty
+        ? const <Map<String, dynamic>>[]
+        : [
+            {'name': 'Dhaka Medical College Hospital', 'address': 'Secretariat Road',
+             'distance_m': 850, 'open_now': null, 'rating': null, 'phone': null,
+             'lat': lat + 0.006, 'lon': lon + 0.002, 'maps': 'https://maps'},
+            {'name': 'Square Hospital', 'address': 'Panthapath',
+             'distance_m': 2100, 'open_now': null, 'rating': null, 'phone': '10616',
+             'lat': lat + 0.015, 'lon': lon - 0.012, 'maps': 'https://maps'},
+          ];
+    return {'type': type, 'source': 'osm', 'places': rows,
+            'attribution': '\u00a9 OpenStreetMap contributors (ODbL)'};
+  }
+
   Map<String, dynamic>? _pay1Get(String path) {
     if (path.startsWith('/payments/config')) {
       final prods = [
