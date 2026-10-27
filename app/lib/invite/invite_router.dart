@@ -92,7 +92,7 @@ class InviteRouter {
       try {
         final dev = await InstallPing.installId();
         await app.api.growthClaim(r, deviceId: dev);
-      } catch (_) {}
+      } catch (_) {} // best-effort: background referral claim
       await PendingInvite.clearReferral();
     }());
   }

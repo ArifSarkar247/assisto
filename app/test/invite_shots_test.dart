@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +27,14 @@ void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
     await loadAppFonts();
+    final root = Platform.environment['FLUTTER_ROOT'] ??
+        '${Platform.environment['HOME']}/assisto/tools/flutter';
+    final icons = File('$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
+    if (icons.existsSync()) {
+      final l = FontLoader('MaterialIcons')
+        ..addFont(icons.readAsBytes().then((b) => ByteData.view(b.buffer)));
+      await l.load();
+    }
   });
   final specs = <String, Widget Function(String)>{
     'before_login': (l) => SignedOut(lang: l, child: const LoginScreen()),

@@ -316,7 +316,12 @@ class _InviteSentScreenState extends State<InviteSentScreen> {
       ScaffoldMessenger.maybeOf(context)
           ?.showSnackBar(SnackBar(content: Text(t.ijRevoked)));
       await _load();
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(SnackBar(content: Text(t.ijOffline)));
+      }
+    }
   }
 
   @override

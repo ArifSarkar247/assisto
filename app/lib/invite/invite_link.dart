@@ -105,7 +105,7 @@ class PendingInvite {
       await p.setString(_kCode, c);
       await p.setString(_kVia, via);
       await p.setInt(_kAt, DateTime.now().millisecondsSinceEpoch);
-    } catch (_) {}
+    } catch (_) {} // best-effort: prefs only; memory copy still works
   }
 
   static Future<void> setReferral(String r) async {
@@ -113,7 +113,7 @@ class PendingInvite {
     try {
       final p = await SharedPreferences.getInstance();
       await p.setString(_kRef, r);
-    } catch (_) {}
+    } catch (_) {} // best-effort: prefs only; memory copy still works
   }
 
   static Future<void> clear() async {
@@ -123,7 +123,7 @@ class PendingInvite {
       await p.remove(_kCode);
       await p.remove(_kAt);
       await p.remove(_kVia);
-    } catch (_) {}
+    } catch (_) {} // best-effort: prefs only; memory copy still works
   }
 
   static Future<void> clearReferral() async {
@@ -131,7 +131,7 @@ class PendingInvite {
     try {
       final p = await SharedPreferences.getInstance();
       await p.remove(_kRef);
-    } catch (_) {}
+    } catch (_) {} // best-effort: prefs only; memory copy still works
   }
 
   /// Startup: restore a code saved by an earlier launch (fast prefs read).
@@ -148,7 +148,7 @@ class PendingInvite {
         await p.remove(_kCode);
       }
       referral ??= p.getString(_kRef);
-    } catch (_) {}
+    } catch (_) {} // best-effort: prefs only; memory copy still works
   }
 
   /// A route name / URL that carries an invite -> remembered. True if taken.

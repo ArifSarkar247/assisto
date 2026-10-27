@@ -145,8 +145,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         b = await x?.readAsBytes();
       }
       if (b != null && mounted) setState(() => _photo = b);
-    } catch (_) {
-      // picker unavailable: the photo is optional, nothing to do
+    } catch (_) { // best-effort: picker unavailable; the photo is optional
     }
   }
 
@@ -201,7 +200,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
       var device = '';
       try {
         device = await InstallPing.installId();
-      } catch (_) {}
+      } catch (_) {} // best-effort: no device id only skips referral credit
       final r = await _b
           .signup(
               code: widget.code,
@@ -279,7 +278,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         nav?.push(MaterialPageRoute<void>(
             builder: (_) => CircleChatScreen(member: member, identity: id)));
       });
-    } catch (_) {}
+    } catch (_) {} // best-effort: already joined + snack shown; the chat is in My Circle
   }
 
   Future<void> _notNow() async {
