@@ -354,7 +354,7 @@ class SidebarSections {
       SidebarItem(Icons.flight_takeoff_rounded, (t) => t.pbsTitle,
           feature: 'probashi_plan',
           (_) => const ProbashiPlanScreen(),
-          synonyms: ['probashi', 'expat', 'abroad', 'family plan', 'প্রবাসী']),
+          synonyms: ['probashi', 'expat', 'abroad', 'family plan']),
       SidebarItem(Icons.emergency_rounded, (t) => t.moduleEmergency,
           feature: 'emergency',
           (_) => const EmergencyScreen(),

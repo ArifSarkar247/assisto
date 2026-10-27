@@ -59,6 +59,7 @@ ROUTE_KEYS = (
     "watchman",  # cctv1: Home & shop watchman
     "booking", "my_bookings",  # booking-bot (flag booking_bot)
     "remittance",  # budget-remittance (flag budget_remittance)
+    "probashi_plan",  # probashi-plan (flag probashi_plan)
     "retention_auto", "retention_inbox",  # retention1: Retention automation
     "khata", "sales_agent", "prepaid_meter", "contract",  # home_v2 shortcut routes
 )
