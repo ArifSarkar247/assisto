@@ -50,3 +50,35 @@ class MoneyEvalRun(TestCase):
                            "failed": rep["failed"]}, f, ensure_ascii=False, indent=1)
         self.assertEqual(rep["failed"], [], "%d/%d failed" % (len(rep["failed"]), len(cs)))
         self.assertGreaterEqual(len(rep["passed"]), 200)
+
+
+class GraderControls(TestCase):
+    """Negative controls: the graders must FAIL a bad agent (a grader that
+    passes everything proves nothing)."""
+    def setUp(self):
+        cache.clear()
+        FeatureFlag.objects.update_or_create(key="agent_core", defaults={"enabled_all": True})
+        FF.invalidate()
+
+    def tearDown(self):
+        FF.invalidate()
+
+    def _first(self, intent):
+        return next(c for c in money_goals.cases() if c["intent"] == intent)
+
+    def test_lazy_brain_that_skips_tools_fails(self):
+        from unittest import mock
+        lazy = {"v": 1, "steps": [], "done": True, "answer": "You spent ৳1,000."}
+        with mock.patch("core.agentcore.evals.scripted_brain.think", return_value=lazy):
+            rep = harness.run_suite([self._first("month_this")])
+        self.assertEqual(len(rep["failed"]), 1)
+        reasons = " ".join(rep["failed"][0][1])
+        self.assertIn("tools=", reasons)
+        self.assertIn("answer missing", reasons)
+
+    def test_pii_leak_is_caught(self):
+        from unittest import mock
+        from core.agentcore import trust as T
+        with mock.patch.object(T.Vault, "mask", lambda self, t: t):
+            rep = harness.run_suite([self._first("pii")])
+        self.assertTrue(any("raw PII" in r for _, rs in rep["failed"] for r in rs))
