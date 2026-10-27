@@ -234,7 +234,8 @@ def pricing_apply(actor_id, d):
             merged[key] = patch[key]
     for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
                  "referral", "shop", "otp", "vehicle", "photo_studio",
-                     "chat_vision", "home_hero", "payments"):   # pay1: payments
+                     "chat_vision", "home_hero", "payments",   # pay1: payments
+                 "billing"):                                     # billing-v2
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):

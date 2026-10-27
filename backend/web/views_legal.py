@@ -48,6 +48,10 @@ def terms(request):
     return _page(request, "terms")
 
 
+def refund_policy(request):          # billing-v2 rule M
+    return _page(request, "refund")
+
+
 @require_http_methods(["GET", "POST"])
 def delete_account(request):
     lang = _lang(request)
@@ -110,7 +114,7 @@ def app_ads_txt(request):
 
 # ---------------------------------------------------------------- sitemap
 SITEMAP_PATHS = ["/", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
-                 "/privacy", "/terms", "/delete-account"]
+                 "/privacy", "/terms", "/delete-account", "/refund-policy"]
 
 
 def sitemap_xml(request):

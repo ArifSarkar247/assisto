@@ -23,7 +23,14 @@ def _assert_honest(tc, *texts):
 
 class _Base(APITestCase):
     def setUp(self):
+        from unittest import mock as _m
         from core.models import ShopSite, ShopCamera
+        # billing-v2: an owner-edited Business plan (no payment) gets its
+        # month of allowance on the first spend; these tests count the
+        # purchased balance only, so the base month is switched off here.
+        _p = _m.patch("core.credits._base_allowance", return_value=0)
+        _p.start()
+        self.addCleanup(_p.stop)
         self.owner = User.objects.create_user(name="Owner", phone="01710001001",
                                               password="pw")
         self.owner.plan = "business"

@@ -84,8 +84,8 @@ class ReferralTests(TestCase):
         new_self = mk("Same", "01911000003")
         self.assertEqual(G.claim(new_self, "ZZZZZZZZ")[1], "bad_code")
         self.assertEqual(G.claim(new_self, G.ensure_code(new_self))[1], "self")
-        self.assertTrue(G.claim(self.friend, self.code)[0])
-        self.assertEqual(G.claim(self.friend, self.code)[1], "already_claimed")
+        self.assertTrue(G.claim(self.friend, self.code, device_id="dev-friend")[0])
+        self.assertEqual(G.claim(self.friend, self.code, device_id="dev-friend")[1], "already_claimed")
 
     def test_inviter_must_be_older(self):
         older = mk("Older", "01911000004", joined_days_ago=5)
@@ -102,10 +102,14 @@ class ReferralTests(TestCase):
         self.assertEqual(G.claim(other, self.code, device_id="d1")[1], "device_used")
 
     def test_phone_reused_after_account_deletion(self):
-        self.assertTrue(G.claim(self.friend, self.code)[0])
+        self.assertTrue(G.claim(self.friend, self.code, device_id="dev-friend")[0])
         self.friend.delete()
         again = mk("Again", "01811000002")
-        self.assertEqual(G.claim(again, self.code)[1], "phone_used")
+        self.assertEqual(G.claim(again, self.code, device_id="dev-again")[1], "phone_used")
+
+    def test_no_device_id_no_referral(self):
+        # billing-v2 rule P: the device check can no longer be skipped
+        self.assertEqual(G.claim(self.friend, self.code)[1], "device_required")
 
     def test_claim_window(self):
         late = mk("Late", "01911000006", joined_days_ago=15)
@@ -116,7 +120,7 @@ class ReferralTests(TestCase):
         a = mk("A", "01911000011", joined_days_ago=1)
         b = mk("B", "01911000012", joined_days_ago=1)
         for u in (a, b):
-            self.assertTrue(G.claim(u, self.code)[0])
+            self.assertTrue(G.claim(u, self.code, device_id="dev-%d" % u.pk)[0])
             active_on(u, 0, 1)
             G.evaluate(u)
         rows = ReferralClaim.objects.order_by("id")
@@ -126,7 +130,7 @@ class ReferralTests(TestCase):
         self.assertEqual(User.objects.get(pk=self.inviter.pk).ai_credits, 20)
 
     def test_not_activated_in_window_is_rejected(self):
-        self.assertTrue(G.claim(self.friend, self.code)[0])
+        self.assertTrue(G.claim(self.friend, self.code, device_id="dev-friend")[0])
         User.objects.filter(pk=self.friend.pk).update(
             date_joined=timezone.now() - timedelta(days=16))
         self.friend.refresh_from_db()
@@ -137,7 +141,7 @@ class ReferralTests(TestCase):
 
     def test_no_phone_no_reward(self):
         nophone = User.objects.create_user(name="E", email="e@example.com", password="pw12345678")
-        self.assertTrue(G.claim(nophone, self.code)[0])
+        self.assertTrue(G.claim(nophone, self.code, device_id="dev-np")[0])
         active_on(nophone, 0, 1, 2)
         G.evaluate(nophone)
         self.assertEqual(ReferralClaim.objects.get(invitee=nophone).state, "pending")
