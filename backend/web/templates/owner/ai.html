@@ -1,0 +1,96 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_ai }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+
+<section class="card"><h2>{{ T.ai_today }}</h2>
+<div class="tiles">
+  <div class="tile"><span>{{ T.ai_spend_total }}</span><b>${{ dash.total.spent }} / ${{ dash.total.cap }}</b><small class="mut">{{ dash.total.pct }}%</small></div>
+  <div class="tile"><span>{{ T.ai_calls }}</span><b>{{ dash.total.calls }}</b></div>
+  <div class="tile"><span>{{ T.ai_failovers }}</span><b>{{ dash.total.failovers }}</b></div>
+  <div class="tile"><span>{{ T.ai_failed }}</span><b>{{ dash.total.failed }}</b></div>
+</div>
+<p class="small">{{ T.ai_total_note }}</p>
+</section>
+
+<section class="card" id="providers"><h2>{{ T.ai_providers }}</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.ai_provider }}</th><th>{{ T.ai_key }}</th><th>{{ T.ai_circuit }}</th><th>{{ T.ai_spend_cap }}</th><th>{{ T.ai_calls }}</th><th>{{ T.ai_health }}</th><th>{{ T.ai_last_error }}</th><th></th></tr></thead><tbody>
+  {% for p in dash.providers %}<tr>
+    <td><b>{{ p.slug }}</b></td>
+    <td>{% if p.key %}<span class="pill ok">{{ T.ai_key_on }}</span>{% else %}<span class="pill off">{{ T.ai_key_off }}</span>{% endif %}</td>
+    <td>{% if p.state == 'closed' %}<span class="pill ok">{{ T.ai_closed }}</span>{% elif p.state == 'half_open' %}<span class="pill fm">{{ T.ai_half_open }}</span>{% else %}<span class="pill bad">{{ T.ai_open }}</span>{% endif %}</td>
+    <td class="num">${{ p.spent }} / ${{ p.cap }} ({{ p.pct }}%)</td>
+    <td class="num">{{ p.calls }}</td>
+    <td>{% if p.last_health_at %}{% if p.last_health_ok %}✓{% else %}<span class="neg">✗</span>{% endif %} <small class="mut">{{ p.last_health_at|date:"m-d H:i" }}</small>{% else %}<span class="mut">{{ T.ai_never }}</span>{% endif %}</td>
+    <td>{% if p.last_error %}<span class="neg">{{ p.last_error }}</span> <small class="mut">{{ p.last_failure_at|date:"m-d H:i" }}</small>{% else %}—{% endif %}</td>
+    <td>{% if p.state != 'closed' %}<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset"><input type="hidden" name="slug" value="{{ p.slug }}"><button class="btn">{{ T.ai_reset }}</button></form>{% endif %}</td>
+  </tr>{% endfor %}
+  </tbody></table></div>
+  <p class="small">{{ T.ai_circuit_note }}</p>
+  <p class="small"><a href="/owner/integrations">{{ T.nav_integrations }}</a> · owner_actions/AI_ROUTER_BN.md</p>
+</section>
+
+<section class="card" id="jobs"><h2>{{ T.ai_jobs }}</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.ai_job }}</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>
+  {% for j in jobs %}<tr><td>{{ j.label }}</td>{% for c in j.chain %}<td><b>{{ c.provider }}</b><br><code>{{ c.model }}</code>{% if c.effort %} <small class="mut">effort={{ c.effort }}</small>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+  </tbody></table></div>
+  <p class="small">{{ T.ai_jobs_note }}</p>
+</section>
+
+<section class="card" id="settings"><h2>{{ T.ai_settings }}</h2>
+<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="save">
+  <h3>{{ T.ai_models }}</h3><div class="grid2">
+  {% for s in slots %}<label class="field"><span>{{ s.label }}</span>
+    {% if s.choices %}<select name="m_{{ s.slot }}">{% for c in s.choices %}<option value="{{ c }}" {% if c == s.value %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+    {% else %}<input name="m_{{ s.slot }}" value="{{ s.value }}" maxlength="60" spellcheck="false">{% endif %}
+    <small class="mut">{{ T.ai_default }}: {{ s.default }}</small></label>{% endfor %}
+  {% for t, label, cur in effort_rows %}<label class="field"><span>{{ label }}</span>
+    <select name="eff_{{ t }}">{% for e in efforts %}<option value="{{ e }}" {% if e == cur %}selected{% endif %}>{{ e }}</option>{% endfor %}</select></label>{% endfor %}
+  <label class="field"><span>{{ L.server_fallback }}</span><input type="checkbox" name="server_fallback" {% if conf.server_fallback %}checked{% endif %}></label>
+  <label class="field"><span>{{ T.ai_main_features }}</span><input name="main_features" value="{{ main_features }}" spellcheck="false"><small class="mut">{{ T.ai_main_features_note }}</small></label>
+
+  </div>
+  <h3>{{ T.ai_caps }}</h3><div class="grid2">
+  <label class="field"><span>{{ L.cap_anthropic }}</span><input name="cap_anthropic" value="{{ conf.caps_usd.anthropic }}" inputmode="decimal"></label>
+  <label class="field"><span>{{ L.cap_openai }}</span><input name="cap_openai" value="{{ conf.caps_usd.openai }}" inputmode="decimal"></label>
+  <label class="field"><span>{{ L.cap_gemini }}</span><input name="cap_gemini" value="{{ conf.caps_usd.gemini }}" inputmode="decimal"></label>
+  <label class="field"><span>{{ L.cap_total }}</span><input name="cap_total" value="{{ conf.caps_usd.total }}" inputmode="decimal"></label>
+  <label class="field"><span>{{ L.alert_pct }}</span><input name="alert_pct" value="{{ conf.alert_pct }}" inputmode="numeric"></label>
+  </div>
+  <p class="small">{{ T.ai_caps_note }}</p>
+
+  <h3>{{ T.ai_speed }}</h3><div class="grid2">
+  <label class="field"><span>{{ L.timeout_main }}</span><input name="to_main" value="{{ conf.timeouts_s.main }}" inputmode="numeric"></label>
+  <label class="field"><span>{{ L.timeout_cheap }}</span><input name="to_cheap" value="{{ conf.timeouts_s.cheap }}" inputmode="numeric"></label>
+  <label class="field"><span>{{ L.slow_main }}</span><input name="slow_main" value="{{ conf.slow_ms.main }}" inputmode="numeric"></label>
+  <label class="field"><span>{{ L.slow_cheap }}</span><input name="slow_cheap" value="{{ conf.slow_ms.cheap }}" inputmode="numeric"></label>
+  {% for k, label, v in circuit_fields %}<label class="field"><span>{{ label }}</span><input name="cb_{{ k }}" value="{{ v }}" inputmode="numeric"></label>{% endfor %}
+
+  </div>
+  <h3>{{ T.ai_prices }}</h3>
+  {% if missing_price %}<div class="flash warn">{{ T.ai_missing_price }} {{ missing_price|join:", " }}</div>{% endif %}
+  <div class="tbl"><table><thead><tr><th>{{ T.ai_model }}</th><th>in</th><th>out</th><th>cache read</th><th>cache write</th></tr></thead><tbody>
+  {% for r in prices %}<tr><td><code>{{ r.model }}</code>{% if r.used %} <span class="pill ok">{{ T.ai_in_use }}</span>{% endif %}</td>
+    {% for k, v in r.vals %}<td><input name="p_{{ r.model }}_{{ k }}" value="{{ v }}" inputmode="decimal" size="7" aria-label="{{ r.model }} {{ k }}"></td>{% endfor %}</tr>{% endfor %}
+  <tr><td><input name="new_model" placeholder="{{ T.ai_new_model }}" maxlength="60" spellcheck="false"></td>{% for k in price_keys %}<td><input name="new_{{ k }}" inputmode="decimal" size="7" aria-label="{{ k }}"></td>{% endfor %}</tr>
+  </tbody></table></div>
+  <p class="small">{{ T.ai_prices_note }}</p>
+  <button class="btn primary">{{ T.save }}</button>
+</form>
+</section>
+
+<section class="card" id="recent"><h2>{{ T.ai_recent }}</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.ai_when }}</th><th>{{ T.ai_feature }}</th><th>{{ T.ai_provider }}</th><th>{{ T.ai_model }}</th><th>{{ T.ai_class }}</th><th>in/out</th><th>USD</th><th>ms</th><th>{{ T.ai_path }}</th></tr></thead><tbody>
+  {% for u in dash.recent %}<tr><td>{{ u.created_at|date:"m-d H:i" }}</td><td>{{ u.feature }}</td><td>{% if u.ok %}{{ u.provider|default:"—" }}{% else %}<span class="neg">{{ u.error_kind }}</span>{% endif %}</td><td><code>{{ u.model|default:"—" }}</code></td><td>{{ u.task_class }}/{{ u.tier }}</td><td class="num">{{ u.input_tokens }}/{{ u.output_tokens }}</td><td class="num">{{ u.cost_usd|floatformat:5 }}</td><td class="num">{{ u.latency_ms }}</td><td><small>{{ u.attempts }}</small></td></tr>{% empty %}<tr><td colspan="9" class="mut">{{ T.ai_no_calls }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if dash.top_users %}<h3>{{ T.ai_top_users }}</h3><p class="small">{% for t in dash.top_users %}<a href="/owner/users/{{ t.user_id }}">#{{ t.user_id }}</a> ${{ t.cost_usd }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+</section>
+
+<section class="card" id="probe"><h2>{{ T.ai_probe }}</h2>
+  <p class="small">{{ T.ai_probe_note }} <code>manage.py ai_quality_probe --confirm</code></p>
+  {% if probe %}<p class="small mut">{{ probe.run_id }} · {{ probe.at|date:"Y-m-d H:i" }}</p>
+  {% for row in probe.rows %}<div class="probe"><p><b>{{ row.no }}.</b> {{ row.prompt }}</p>
+    <div class="cols">{% for a in row.answers %}<div><b>{{ a.provider }}</b> <small class="mut">{{ a.model }} · {{ a.latency_ms }}ms</small><p>{% if a.ok %}{{ a.answer|linebreaksbr }}{% else %}<span class="neg">{{ a.error }}</span>{% endif %}</p></div>{% endfor %}</div></div>{% endfor %}
+  {% else %}<p class="mut">{{ T.ai_probe_none }}</p>{% endif %}
+</section>
+{% endblock %}
