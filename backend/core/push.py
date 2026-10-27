@@ -60,9 +60,17 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # remmeter: prepaid meter running low (a NOTIFICATION push, so every
          # build's tray draws it; capped + quiet hours in meter_low_alerts).
          "meter_low",
+         # agent-proactive: an Agent Core nudge / morning brief / evening
+         # recap (a NOTIFICATION push; capped + quiet hours server-side).
+         "agent_nudge",
          # p2-money: a brand offer the user opted into (max 2/day, mutable;
          # its own LOW-importance "offers" channel on the phone).
-         "offer")
+         "offer",
+         # agent-core (WP-APP): the agent needs a one-tap approval before it
+         # messages / posts / pays / books / deletes. A NOTIFICATION push with
+         # NO details (lock screen): the app adds Approve / Reject actions —
+         # Reject calls the API from the notification, Approve opens the card.
+         "agent_approval")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -81,7 +89,8 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
          "shop_alert": 3600, "missed_call": 86400, "msg_sync": 86400,
          "key_request": 86400, "key_ready": 86400, "message_request": 86400,
-         "offer": 6 * 3600, "meter_low": 12 * 3600}
+         "offer": 6 * 3600, "meter_low": 12 * 3600,
+         "agent_nudge": 12 * 3600, "agent_approval": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -89,7 +98,8 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "missed_call": "missed_calls", "msg_sync": "messages",
             "key_request": "messages", "key_ready": "messages",
             "message_request": "messages", "offer": "offers",
-            "meter_low": "alerts"}
+            "meter_low": "alerts",
+            "agent_nudge": "alerts", "agent_approval": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -438,6 +448,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             collapse = kind   # one pending per device is enough
         elif kind in ("call", "call_cancel") and payload.get("call_id"):
             collapse = "call-%s" % payload["call_id"]
+        elif kind == "agent_approval" and payload.get("approval_id"):
+            collapse = "agentap-%s" % payload["approval_id"]
         sent = 0
         msg_ids = []
         for tok in dict.fromkeys(tokens):

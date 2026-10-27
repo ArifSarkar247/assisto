@@ -127,6 +127,8 @@ _A = {
     "area_community": ("FF???????", "hide", "Hidden today (posts not shared; f6).", "আজও লুকানো (পোস্ট কেউ দেখেন না; f6)।"),
     # ---- Work
     "agent_studio": ("FF???????", "hide", "Hidden today (automations never run; f6).", "আজও লুকানো (অটোমেশন চলে না; f6)।"),
+    "agent_core": ("?F??P?FFF", "hide", "agent-core foundation: typed tools, trust layer, run loop, Owner Admin page and the CI eval (money topic, 200+ goals, mocked planner) pass; no app screen yet, no live-model eval (no AI key), no real-phone run.",
+                   "এজেন্ট কোর ফাউন্ডেশন: টাইপ-করা টুল, ট্রাস্ট লেয়ার, রান লুপ, Owner Admin পাতা ও CI eval (টাকা topic, ২০০+ লক্ষ্য, mock planner) পাস; অ্যাপে স্ক্রিন নেই, আসল মডেলে eval হয়নি (AI কি নেই), আসল ফোনে চালানো হয়নি।"),
     "task_manager": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "cost_estimator": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "mock_interview": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),

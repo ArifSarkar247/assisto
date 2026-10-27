@@ -1,0 +1,19 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_agent_runs }} #{{ run.id }}{% endblock %}
+{% block content %}
+<p><a class="btn ghost" href="/owner/agent-runs">←</a></p>
+<div class="card">
+  <p><b>{{ T.agr_goal }}:</b> {{ run.goal.text_masked }}</p>
+  <p class="mut small">{{ T.status }}: {{ run.state }}{% if run.error_code %} ({{ run.error_code }}){% endif %} · {{ T.agr_topic }}: {{ run.topic|default:"general" }} · {{ T.agr_credits }}: {{ run.credits_spent }} · {{ T.agr_cost }}: ${{ run.cost_usd|floatformat:4 }} · {{ T.agr_steps }}: {{ run.steps_used }} / {{ run.llm_calls }} · <a href="/owner/users/{{ run.user_id }}">#{{ run.user_id }}</a></p>
+  {% if run.feedback_note %}<p class="mut small">{{ T.agr_feedback }}: {{ run.feedback_note }}</p>{% endif %}
+</div>
+<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.agr_kind }}</th><th>{{ T.agr_tool }}</th><th>{{ T.status }}</th><th>{{ T.agr_summary }}</th><th>{{ T.agr_credits }}</th><th>ms</th></tr></thead><tbody>
+{% for s in steps %}<tr><td>{{ s.no }}</td><td>{{ s.kind }}</td><td>{{ s.tool|default:"—" }}{% if s.risk %} <span class="pill">{{ s.risk }}</span>{% endif %}</td><td>{{ s.state }}{% if s.error_code %} · {{ s.error_code }}{% endif %}</td><td>{{ s.summary }}</td><td>{{ s.credits }}</td><td>{{ s.latency_ms }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if approvals %}<div class="card tbl"><table><thead><tr><th>{{ T.agr_approval }}</th><th>{{ T.status }}</th><th>{{ T.time }}</th></tr></thead><tbody>
+{% for a in approvals %}<tr><td>{{ a.title_en }} <span class="pill">{{ a.risk }}</span></td><td>{{ a.status }}</td><td>{{ a.decided_at|date:"Y-m-d H:i"|default:"—" }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+<div class="card tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.agr_event }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_summary }}</th></tr></thead><tbody>
+{% for e in events %}<tr><td>{{ e.created_at|date:"H:i:s" }}</td><td>{{ e.event }}</td><td>{{ e.credits }}</td><td class="small">{{ e.detail }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

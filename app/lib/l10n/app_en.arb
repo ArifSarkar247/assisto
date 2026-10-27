@@ -22799,5 +22799,193 @@
   "ijViaWhatsApp": "WhatsApp",
   "@ijViaWhatsApp": {
     "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "acTitle": "Assisto Agent",
+  "acIntro": "Type or say a task. The agent plans it step by step using your Assisto data. It always asks you before it sends, pays, books or deletes anything.",
+  "acGoalLabel": "What should the agent do?",
+  "acGoalHint": "e.g. Where did I spend the most this month?",
+  "acCheckCost": "See the cost",
+  "acCheckingCost": "Working out the cost…",
+  "acEstimateTitle": "Cost before it runs",
+  "acEstimateTypical": "Usually {credits} credits (one planning step).",
+  "@acEstimateTypical": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateMax": "At most {credits} credits for this task — never more.",
+  "@acEstimateMax": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateRunsLeft": "You can give {count} more tasks today.",
+  "@acEstimateRunsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateApprovalNote": "Before sending, paying, booking or deleting it will ask you separately.",
+  "acRunConfirm": "Run · about {credits} credits",
+  "@acRunConfirm": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEdit": "Edit",
+  "acSending": "Sending…",
+  "acHistory": "Past tasks",
+  "acApprovals": "Approvals",
+  "acApprovalsWaiting": "{count} approvals waiting",
+  "@acApprovalsWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "acStateQueued": "Queued",
+  "acStateRunning": "Working",
+  "acStateWaiting": "Waiting for your approval",
+  "acStateDone": "Done",
+  "acStateFailed": "Didn't work",
+  "acStateBudget": "Stopped at its limit",
+  "acStateCancelled": "Cancelled",
+  "acStateExpired": "Expired",
+  "acStepPlan": "Planning",
+  "acStepStPending": "Waiting",
+  "acStepStRunning": "Running",
+  "acStepStDone": "Done",
+  "acStepStFailed": "Failed",
+  "acStepStApproval": "Needs your OK",
+  "acStepStRejected": "You rejected it",
+  "acStepStSkipped": "Skipped",
+  "acStepCredits": "{credits} credits",
+  "@acStepCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acSemStep": "Step {no}: {label}, {state}",
+  "@acSemStep": {
+    "placeholders": {
+      "no": {
+        "type": "Object"
+      },
+      "label": {
+        "type": "Object"
+      },
+      "state": {
+        "type": "Object"
+      }
+    }
+  },
+  "acPlanTitle": "Plan and steps",
+  "acAnswerTitle": "Result",
+  "acSourcesTitle": "Sources",
+  "acSpent": "Spent: {credits} credits",
+  "@acSpent": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acCancel": "Cancel task",
+  "acFeedbackAsk": "Was this helpful?",
+  "acFeedbackUp": "Helpful",
+  "acFeedbackDown": "Not helpful",
+  "acFeedbackNote": "What could be better? (optional)",
+  "acFeedbackSend": "Send feedback",
+  "acFeedbackThanks": "Thanks — your feedback is saved.",
+  "acNewTask": "New task",
+  "acStillWorking": "Still working. Check \"Past tasks\" later.",
+  "acRefresh": "Check again",
+  "acOfflineQueued": "You're offline — the task has not started. Keep this page open and it is sent as soon as you're back online.",
+  "acDailyCap": "Today's agent task limit is reached — please try tomorrow.",
+  "acFeatureOff": "This feature is not available yet.",
+  "acSendNow": "Send now",
+  "acDiscard": "Discard",
+  "acNotSetUpTitle": "AI is not set up yet",
+  "acOutOfCreditsTitle": "Out of credits",
+  "acBuyCredits": "Get credits",
+  "acErrorLoad": "Couldn't load. Check the internet and try again.",
+  "acRetry": "Try again",
+  "acHistoryEmpty": "You haven't given the agent a task yet.",
+  "acApprovalsEmpty": "Nothing is waiting for your approval.",
+  "acApprove": "Approve",
+  "acReject": "Reject",
+  "acRiskExternal": "Sends outside",
+  "acRiskMoney": "Money",
+  "acRiskDelete": "Deletes",
+  "acRiskOther": "Changes",
+  "acApDetails": "Exactly what happens",
+  "acApForGoal": "Task: {goal}",
+  "@acApForGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApStep": "Step: {label}",
+  "@acApStep": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApCost": "This step costs {credits} credits",
+  "@acApCost": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApCostFree": "This step uses no credits",
+  "acApExpires": "Decide by {time}",
+  "@acApExpires": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApExpired": "Expired — it can no longer be approved",
+  "acApApproved": "Approved — the agent is carrying on.",
+  "acApRejected": "Rejected — nothing was done.",
+  "acApFromNotif": "You tapped Approve in the notification. Check the details below, then confirm.",
+  "acApMaskedNote": "Numbers are shown partly hidden.",
+  "acApGone": "This approval is no longer waiting.",
+  "acNotifApprove": "Approve",
+  "acNotifReject": "Reject",
+  "acNotifRejectFailed": "Couldn't reject — open the app and try again.",
+  "acTopic": "Topic: {topic}",
+  "@acTopic": {
+    "placeholders": {
+      "topic": {
+        "type": "Object"
+      }
+    }
+  },
+  "acStarted": "Started {time}",
+  "@acStarted": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
   }
 }

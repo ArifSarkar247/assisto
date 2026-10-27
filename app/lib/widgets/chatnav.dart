@@ -62,6 +62,8 @@ import '../screens/notes_todos_screen.dart';
 import '../screens/memory_screen.dart';
 import '../screens/nominee_screen.dart';
 import '../screens/crm_contacts_screen.dart';
+import '../screens/agent_core/agent_approvals_screen.dart'; // agent-core
+import '../screens/agent_core/agent_core_screen.dart'; // agent-core
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
 import '../screens/cv_builder_screen.dart';
@@ -246,6 +248,10 @@ class ChatNav {
     // f6: hidden until automations really run (feature_gates.dart).
     if (kAgentStudioRunsAutomations)
       'agent_studio': (_) => const AgentStudioScreen(),
+    // agent-core WP-APP (flag agent_core, default OFF): the agent screen and
+    // the Approval inbox (also the `agent_approval` push target).
+    'agent_core': (_) => const AgentCoreScreen(),
+    'agent_approvals': (_) => const AgentApprovalsScreen(),
     'jobs': (_) => const JobsScreen(),
     'cv': (_) => const CvBuilderScreen(),
     'resume': (_) => const CvBuilderScreen(),

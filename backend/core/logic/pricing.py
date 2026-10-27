@@ -141,6 +141,13 @@ _ACTION_DEFAULTS = {
     # (Brave ~$0.005 / Tavily ~$0.008) + a cheap-tier LLM (~$0.006).
     # NET floor = ceil(0.015*120/0.60) = 3; margin rule = 3; 4 keeps >=40%.
     "web_answer":          {"provider_cost": 0.015, "credits": 4},
+    # agent-core: ONE planner call of the Assisto agent (plan, re-plan or final
+    # answer) through the AI router, main class. Priced for the most expensive
+    # default (Opus 5.5: ~3,500 in + 400 out tokens = $0.022) so no model
+    # choice can make a run loss-making: NET floor = ceil(0.022*120/0.60) = 5;
+    # the 40%-of-pack-credit rule (AGENT_CORE_DESIGN_BN.md §11) = 7. Tool steps
+    # over our own DB cost 0 credits (they count against the run's step cap).
+    "agent_plan":          {"provider_cost": 0.022, "credits": 7},
     # g1-bizagent: the seller's agent looks at a customer PHOTO with a cloud
     # vision model (only when the free perceptual match is not sure) and
     # transcribes a customer VOICE NOTE. The live call books the larger of

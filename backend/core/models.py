@@ -6183,3 +6183,176 @@ class OpsAlertState(models.Model):
     class Meta:
         ordering = ["key"]
 # ---- /ops-watch ----
+
+# ---- agent-core ---- (flag agent_core, default OFF; owner_actions/AGENT_CORE_DESIGN_BN.md)
+# The goal -> plan -> act -> observe -> re-plan loop runs SERVER-side
+# (core/agentcore/runner.py). Free text (goal, tool args/results, answer, the
+# masking vault) is Fernet-sealed at rest; `*_masked` / `summary` columns hold
+# only MASKED text (phone / NID / account numbers replaced by tokens) and are
+# what the audit trail and Owner Admin show.
+class AgentGoal(models.Model):
+    CHANNELS = ("chat", "voice", "widget", "notification", "eval")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_goals")
+    topic = models.CharField(max_length=20, blank=True, default="")
+    channel = models.CharField(max_length=14, default="chat")
+    text_sealed = models.TextField(blank=True, default="")
+    text_masked = models.CharField(max_length=600, blank=True, default="")
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["user", "client_id"], condition=~models.Q(client_id=""),
+            name="agentgoal_user_client_uniq")]
+
+
+class AgentRun(models.Model):
+    STATES = ("queued", "running", "waiting_approval", "done", "failed",
+              "budget", "cancelled", "expired")
+    OPEN_STATES = ("queued", "running", "waiting_approval")
+    goal = models.ForeignKey(AgentGoal, on_delete=models.CASCADE, related_name="runs")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_runs")
+    topic = models.CharField(max_length=20, blank=True, default="")
+    state = models.CharField(max_length=18, default="queued", db_index=True)
+    max_steps = models.IntegerField(default=8)
+    max_llm_calls = models.IntegerField(default=3)
+    max_credits = models.IntegerField(default=30)
+    steps_used = models.IntegerField(default=0)
+    llm_calls = models.IntegerField(default=0)
+    credits_spent = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    vault_sealed = models.TextField(blank=True, default="")
+    answer_sealed = models.TextField(blank=True, default="")
+    error_code = models.CharField(max_length=40, blank=True, default="")
+    lease_until = models.DateTimeField(null=True, blank=True)
+    deadline_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.SmallIntegerField(default=0)       # +1 / -1 / 0
+    feedback_note = models.CharField(max_length=300, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "created_at"]),
+                   models.Index(fields=["state", "lease_until"])]
+
+
+class AgentStep(models.Model):
+    KINDS = ("plan", "tool", "answer")
+    STATES = ("pending", "running", "done", "failed", "waiting_approval",
+              "rejected", "skipped")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="steps")
+    no = models.IntegerField()
+    kind = models.CharField(max_length=8, default="tool")
+    tool = models.CharField(max_length=60, blank=True, default="")
+    tool_version = models.IntegerField(default=0)
+    risk = models.CharField(max_length=10, blank=True, default="")
+    state = models.CharField(max_length=18, default="pending")
+    args_sealed = models.TextField(blank=True, default="")
+    result_sealed = models.TextField(blank=True, default="")
+    summary = models.CharField(max_length=400, blank=True, default="")
+    idem_key = models.CharField(max_length=80, unique=True)
+    credits = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    latency_ms = models.IntegerField(default=0)
+    error_code = models.CharField(max_length=40, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["run", "no"]
+        unique_together = [("run", "no")]
+
+
+class AgentApproval(models.Model):
+    STATUSES = ("pending", "approved", "rejected", "expired")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="approvals")
+    step = models.OneToOneField(AgentStep, on_delete=models.CASCADE, related_name="approval")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_approvals")
+    risk = models.CharField(max_length=10)
+    title_bn = models.CharField(max_length=200)
+    title_en = models.CharField(max_length=200)
+    summary = models.CharField(max_length=400, blank=True, default="")
+    status = models.CharField(max_length=10, default="pending", db_index=True)
+    expires_at = models.DateTimeField()
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+
+class AgentAuditEvent(models.Model):
+    """Append-only, MASKED, human-readable trail of everything a run did."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_audit")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="audit")
+    step = models.ForeignKey(AgentStep, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    event = models.CharField(max_length=40)
+    detail = models.JSONField(default=dict, blank=True)
+    credits = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["run", "id"])]
+# ---- /agent-core ----
+
+# ---- agent-proactive ---- (WP-PROACTIVE: core/agentcore/proactive.py; flag
+# agent_core). Template-only (no AI, no credits): trigger nudges with dedupe,
+# cooldown, a per-user daily cap and quiet hours, plus the morning brief and
+# evening recap. One row per (user, trigger, dedupe_key) — the scheduler can
+# run any number of times and a nudge is still delivered once.
+class AgentNudge(models.Model):
+    TRIGGERS = ("bill_due", "remit_missing", "child_not_home", "stock_low",
+                "order_unpaid", "meter_low", "camera_alert",
+                "brief_morning", "brief_evening")
+    DELIVERY = ("push", "card", "brief")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_nudges")
+    trigger = models.CharField(max_length=16)
+    dedupe_key = models.CharField(max_length=120)
+    priority = models.SmallIntegerField(default=2)       # 1 urgent, 2 normal, 3 low
+    delivery = models.CharField(max_length=6, default="card")   # push | card | brief
+    reason = models.CharField(max_length=16, blank=True, default="")  # why not pushed
+    counted = models.BooleanField(default=False)         # counts toward the daily cap
+    title_bn = models.CharField(max_length=200, blank=True, default="")
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    why_bn = models.CharField(max_length=300, blank=True, default="")
+    why_en = models.CharField(max_length=300, blank=True, default="")
+    route = models.CharField(max_length=40, blank=True, default="")
+    data = models.JSONField(default=dict, blank=True)
+    for_date = models.DateField()                         # local (Asia/Dhaka) day
+    in_brief = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="batched")
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    dismissed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["user", "trigger", "dedupe_key"],
+                                               name="agentnudge_once")]
+        indexes = [models.Index(fields=["user", "for_date"]),
+                   models.Index(fields=["trigger", "created_at"])]
+
+
+class AgentNudgePrefs(models.Model):
+    """Per-user proactive settings. `off` = trigger keys the user opted out of
+    (a missing row means every trigger ON with the defaults below)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agent_nudge_prefs")
+    off = models.JSONField(default=list, blank=True)
+    daily_cap = models.SmallIntegerField(default=3)
+    morning_brief = models.BooleanField(default=True)
+    evening_recap = models.BooleanField(default=True)
+    morning_at = models.CharField(max_length=5, default="07:30")
+    evening_at = models.CharField(max_length=5, default="21:00")
+    quiet_start = models.CharField(max_length=5, default="22:00")
+    quiet_end = models.CharField(max_length=5, default="07:00")
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /agent-proactive ----

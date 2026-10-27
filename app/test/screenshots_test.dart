@@ -260,6 +260,7 @@ import 'package:assisto/vehicle/elm327.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/push/push_settings_screen.dart';
+import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'fake_api.dart';
 
 class _NoNet extends HttpOverrides {
@@ -677,6 +678,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
+    for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in budremShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // budrem
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)

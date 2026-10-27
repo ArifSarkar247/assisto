@@ -1,0 +1,37 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_agent_runs }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.agr_intro }}</p>
+<form method="get" class="inline card">
+  <label>{{ T.agr_days }}<select name="days">{% for d in day_opts %}<option value="{{ d }}" {% if d == days %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label>
+  <label>{{ T.status }}<select name="state"><option value="">{{ T.all }}</option>{% for s in states %}<option value="{{ s }}" {% if s == st %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+</form>
+<div class="tiles">
+  <div class="tile"><span>{{ T.agr_runs }}</span><b>{{ n }}</b></div>
+  <div class="tile"><span>{{ T.agr_success }}</span><b>{{ success_pct }}%</b></div>
+  <div class="tile"><span>{{ T.agr_credits }}</span><b>{{ credits }}</b></div>
+  <div class="tile"><span>{{ T.agr_cost }}</span><b>${{ cost }}</b></div>
+  <div class="tile"><span>{{ T.agr_ai_cost }}</span><b>${{ ai_cost }}</b></div>
+  <div class="tile"><span>{{ T.agr_avg }}</span><b>{{ avg_steps }} / {{ avg_llm }}</b></div>
+  <div class="tile"><span>{{ T.agr_feedback }}</span><b>+{{ up }} / −{{ down }}</b></div>
+</div>
+{% if topics %}<div class="card tbl"><table><thead><tr><th>{{ T.agr_topic }}</th><th>{{ T.agr_runs }}</th><th>{{ T.agr_success }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th></tr></thead><tbody>
+{% for t in topics %}<tr><td>{{ t.topic|default:"general" }}</td><td>{{ t.n }}</td><td>{{ t.pct }}%</td><td>{{ t.credits|default:0 }}</td><td>${{ t.cost|default:0|floatformat:4 }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+{% if nudges %}<div class="card tbl"><b>{{ T.agn_title }}</b><p class="mut small">{{ T.agn_intro }}</p><table><thead><tr><th>{{ T.agn_trigger }}</th><th>{{ T.agn_n }}</th><th>{{ T.agn_sent }}</th><th>{{ T.agn_batched }}</th><th>{{ T.agn_opened }}</th><th>{{ T.agn_dismissed }}</th><th>{{ T.agn_opted }}</th></tr></thead><tbody>
+{% for t in nudges %}<tr><td>{{ t.trigger }}</td><td>{{ t.n }}</td><td>{{ t.sent }}</td><td>{{ t.batched }}</td><td>{{ t.opened }}</td><td>{{ t.dismissed }}</td><td>{{ t.opted_out }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+{% if errors %}<div class="card"><b>{{ T.agr_errors }}</b> {% for e in errors %}<span class="pill">{{ e.error_code }} · {{ e.n }}</span> {% endfor %}</div>{% endif %}
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.agr_topic }}</th><th>{{ T.agr_goal }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th><th>{{ T.agr_steps }}</th><th>{{ T.agr_feedback }}</th><th>{{ T.fb_from }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/agent-runs/{{ r.id }}">#{{ r.id }}</a></td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+<td><span class="pill {% if r.state == 'done' %}ok{% elif r.state == 'failed' or r.state == 'budget' %}spons{% endif %}">{{ r.state }}</span>{% if r.error_code %} <span class="mut small">{{ r.error_code }}</span>{% endif %}</td>
+<td>{{ r.topic|default:"general" }}</td><td>{{ r.goal.text_masked|truncatechars:90 }}</td>
+<td>{{ r.credits_spent }}</td><td>${{ r.cost_usd|floatformat:4 }}</td><td>{{ r.steps_used }} / {{ r.llm_calls }}</td>
+<td>{% if r.feedback == 1 %}+1{% elif r.feedback == -1 %}−1{% else %}—{% endif %}</td>
+<td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a></td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?days={{ days }}&state={{ st }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?days={{ days }}&state={{ st }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.agr_none }}</p>{% endif %}
+{% endblock %}

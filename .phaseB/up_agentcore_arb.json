@@ -1,0 +1,278 @@
+{
+ "en": {
+  "acTitle": "Assisto Agent",
+  "acIntro": "Type or say a task. The agent plans it step by step using your Assisto data. It always asks you before it sends, pays, books or deletes anything.",
+  "acGoalLabel": "What should the agent do?",
+  "acGoalHint": "e.g. Where did I spend the most this month?",
+  "acCheckCost": "See the cost",
+  "acCheckingCost": "Working out the cost…",
+  "acEstimateTitle": "Cost before it runs",
+  "acEstimateTypical": "Usually {credits} credits (one planning step).",
+  "@acEstimateTypical": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acEstimateMax": "At most {credits} credits for this task — never more.",
+  "@acEstimateMax": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acEstimateRunsLeft": "You can give {count} more tasks today.",
+  "@acEstimateRunsLeft": {
+   "placeholders": {
+    "count": {
+     "type": "Object"
+    }
+   }
+  },
+  "acEstimateApprovalNote": "Before sending, paying, booking or deleting it will ask you separately.",
+  "acRunConfirm": "Run · about {credits} credits",
+  "@acRunConfirm": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acEdit": "Edit",
+  "acSending": "Sending…",
+  "acHistory": "Past tasks",
+  "acApprovals": "Approvals",
+  "acApprovalsWaiting": "{count} approvals waiting",
+  "@acApprovalsWaiting": {
+   "placeholders": {
+    "count": {
+     "type": "Object"
+    }
+   }
+  },
+  "acStateQueued": "Queued",
+  "acStateRunning": "Working",
+  "acStateWaiting": "Waiting for your approval",
+  "acStateDone": "Done",
+  "acStateFailed": "Didn't work",
+  "acStateBudget": "Stopped at its limit",
+  "acStateCancelled": "Cancelled",
+  "acStateExpired": "Expired",
+  "acStepPlan": "Planning",
+  "acStepStPending": "Waiting",
+  "acStepStRunning": "Running",
+  "acStepStDone": "Done",
+  "acStepStFailed": "Failed",
+  "acStepStApproval": "Needs your OK",
+  "acStepStRejected": "You rejected it",
+  "acStepStSkipped": "Skipped",
+  "acStepCredits": "{credits} credits",
+  "@acStepCredits": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acSemStep": "Step {no}: {label}, {state}",
+  "@acSemStep": {
+   "placeholders": {
+    "no": {
+     "type": "Object"
+    },
+    "label": {
+     "type": "Object"
+    },
+    "state": {
+     "type": "Object"
+    }
+   }
+  },
+  "acPlanTitle": "Plan and steps",
+  "acAnswerTitle": "Result",
+  "acSourcesTitle": "Sources",
+  "acSpent": "Spent: {credits} credits",
+  "@acSpent": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acCancel": "Cancel task",
+  "acFeedbackAsk": "Was this helpful?",
+  "acFeedbackUp": "Helpful",
+  "acFeedbackDown": "Not helpful",
+  "acFeedbackNote": "What could be better? (optional)",
+  "acFeedbackSend": "Send feedback",
+  "acFeedbackThanks": "Thanks — your feedback is saved.",
+  "acNewTask": "New task",
+  "acStillWorking": "Still working. Check \"Past tasks\" later.",
+  "acRefresh": "Check again",
+  "acOfflineQueued": "You're offline — the task has not started. Keep this page open and it is sent as soon as you're back online.",
+  "acDailyCap": "Today's agent task limit is reached — please try tomorrow.",
+  "acFeatureOff": "This feature is not available yet.",
+  "acSendNow": "Send now",
+  "acDiscard": "Discard",
+  "acNotSetUpTitle": "AI is not set up yet",
+  "acOutOfCreditsTitle": "Out of credits",
+  "acBuyCredits": "Get credits",
+  "acErrorLoad": "Couldn't load. Check the internet and try again.",
+  "acRetry": "Try again",
+  "acHistoryEmpty": "You haven't given the agent a task yet.",
+  "acApprovalsEmpty": "Nothing is waiting for your approval.",
+  "acApprove": "Approve",
+  "acReject": "Reject",
+  "acRiskExternal": "Sends outside",
+  "acRiskMoney": "Money",
+  "acRiskDelete": "Deletes",
+  "acRiskOther": "Changes",
+  "acApDetails": "Exactly what happens",
+  "acApForGoal": "Task: {goal}",
+  "@acApForGoal": {
+   "placeholders": {
+    "goal": {
+     "type": "Object"
+    }
+   }
+  },
+  "acApStep": "Step: {label}",
+  "@acApStep": {
+   "placeholders": {
+    "label": {
+     "type": "Object"
+    }
+   }
+  },
+  "acApCost": "This step costs {credits} credits",
+  "@acApCost": {
+   "placeholders": {
+    "credits": {
+     "type": "Object"
+    }
+   }
+  },
+  "acApCostFree": "This step uses no credits",
+  "acApExpires": "Decide by {time}",
+  "@acApExpires": {
+   "placeholders": {
+    "time": {
+     "type": "Object"
+    }
+   }
+  },
+  "acApExpired": "Expired — it can no longer be approved",
+  "acApApproved": "Approved — the agent is carrying on.",
+  "acApRejected": "Rejected — nothing was done.",
+  "acApFromNotif": "You tapped Approve in the notification. Check the details below, then confirm.",
+  "acApMaskedNote": "Numbers are shown partly hidden.",
+  "acApGone": "This approval is no longer waiting.",
+  "acNotifApprove": "Approve",
+  "acNotifReject": "Reject",
+  "acNotifRejectFailed": "Couldn't reject — open the app and try again.",
+  "acTopic": "Topic: {topic}",
+  "@acTopic": {
+   "placeholders": {
+    "topic": {
+     "type": "Object"
+    }
+   }
+  },
+  "acStarted": "Started {time}",
+  "@acStarted": {
+   "placeholders": {
+    "time": {
+     "type": "Object"
+    }
+   }
+  }
+ },
+ "bn": {
+  "acTitle": "Assisto এজেন্ট",
+  "acIntro": "একটা কাজ লিখুন বা বলুন। এজেন্ট ধাপে ধাপে পরিকল্পনা করে আপনার Assisto-র তথ্য দিয়ে কাজটি করবে। কিছু পাঠানো, টাকা, বুকিং বা মোছার আগে সবসময় আপনার অনুমতি নেবে।",
+  "acGoalLabel": "কী করতে হবে?",
+  "acGoalHint": "যেমন: এই মাসে কোথায় বেশি খরচ হলো?",
+  "acCheckCost": "খরচ দেখুন",
+  "acCheckingCost": "খরচ হিসাব হচ্ছে…",
+  "acEstimateTitle": "চালানোর আগে খরচ",
+  "acEstimateTypical": "সাধারণত {credits} ক্রেডিট লাগে (এক ধাপ পরিকল্পনা)।",
+  "acEstimateMax": "এই কাজে সর্বোচ্চ {credits} ক্রেডিট — এর বেশি কখনো নয়।",
+  "acEstimateRunsLeft": "আজ আরও {count}টি কাজ দিতে পারবেন।",
+  "acEstimateApprovalNote": "কিছু পাঠানো, টাকা, বুকিং বা মোছার আগে আলাদা করে আপনার অনুমতি চাইবে।",
+  "acRunConfirm": "চালান · প্রায় {credits} ক্রেডিট",
+  "acEdit": "বদলান",
+  "acSending": "পাঠানো হচ্ছে…",
+  "acHistory": "আগের কাজ",
+  "acApprovals": "অনুমোদন",
+  "acApprovalsWaiting": "{count}টি অনুমোদন অপেক্ষায়",
+  "acStateQueued": "সারিতে আছে",
+  "acStateRunning": "কাজ চলছে",
+  "acStateWaiting": "আপনার অনুমোদনের অপেক্ষায়",
+  "acStateDone": "শেষ হয়েছে",
+  "acStateFailed": "কাজটি হয়নি",
+  "acStateBudget": "সীমায় পৌঁছে থেমেছে",
+  "acStateCancelled": "বাতিল করা হয়েছে",
+  "acStateExpired": "মেয়াদ শেষ",
+  "acStepPlan": "পরিকল্পনা",
+  "acStepStPending": "অপেক্ষায়",
+  "acStepStRunning": "চলছে",
+  "acStepStDone": "হয়েছে",
+  "acStepStFailed": "হয়নি",
+  "acStepStApproval": "আপনার অনুমতির অপেক্ষায়",
+  "acStepStRejected": "আপনি বাতিল করেছেন",
+  "acStepStSkipped": "বাদ দেওয়া হয়েছে",
+  "acStepCredits": "{credits} ক্রেডিট",
+  "acSemStep": "ধাপ {no}: {label}, {state}",
+  "acPlanTitle": "পরিকল্পনা ও ধাপ",
+  "acAnswerTitle": "ফলাফল",
+  "acSourcesTitle": "কোথা থেকে",
+  "acSpent": "খরচ হয়েছে: {credits} ক্রেডিট",
+  "acCancel": "কাজ বাতিল করুন",
+  "acFeedbackAsk": "ফলাফলটা কাজে লেগেছে?",
+  "acFeedbackUp": "কাজে লেগেছে",
+  "acFeedbackDown": "কাজে লাগেনি",
+  "acFeedbackNote": "কী ভালো হতে পারত? (ঐচ্ছিক)",
+  "acFeedbackSend": "মতামত পাঠান",
+  "acFeedbackThanks": "ধন্যবাদ — আপনার মতামত রাখা হলো।",
+  "acNewTask": "নতুন কাজ",
+  "acStillWorking": "কাজ এখনো চলছে। পরে \"আগের কাজ\"-এ দেখুন।",
+  "acRefresh": "আবার দেখুন",
+  "acOfflineQueued": "আপনি অফলাইনে — কাজটি এখনো শুরু হয়নি। এই পাতা খোলা রাখলে ইন্টারনেট এলেই পাঠানো হবে।",
+  "acDailyCap": "আজকের এজেন্ট-কাজের সীমা পূর্ণ — কাল আবার চেষ্টা করুন।",
+  "acFeatureOff": "এই ফিচারটি এখনো চালু হয়নি।",
+  "acSendNow": "এখন পাঠান",
+  "acDiscard": "বাদ দিন",
+  "acNotSetUpTitle": "AI এখনো চালু হয়নি",
+  "acOutOfCreditsTitle": "ক্রেডিট শেষ",
+  "acBuyCredits": "ক্রেডিট নিন",
+  "acErrorLoad": "লোড করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "acRetry": "আবার চেষ্টা করুন",
+  "acHistoryEmpty": "এখনো এজেন্টকে কোনো কাজ দেননি।",
+  "acApprovalsEmpty": "কোনো অনুমোদন অপেক্ষায় নেই।",
+  "acApprove": "অনুমোদন দিন",
+  "acReject": "বাতিল করুন",
+  "acRiskExternal": "বাইরে পাঠাবে",
+  "acRiskMoney": "টাকা",
+  "acRiskDelete": "মুছে ফেলবে",
+  "acRiskOther": "পরিবর্তন",
+  "acApDetails": "ঠিক কী হবে",
+  "acApForGoal": "কাজ: {goal}",
+  "acApStep": "ধাপ: {label}",
+  "acApCost": "এই ধাপের খরচ: {credits} ক্রেডিট",
+  "acApCostFree": "এই ধাপে কোনো ক্রেডিট লাগবে না",
+  "acApExpires": "{time}-এর মধ্যে সিদ্ধান্ত নিন",
+  "acApExpired": "মেয়াদ শেষ — আর অনুমোদন দেওয়া যাবে না",
+  "acApApproved": "অনুমোদন দেওয়া হয়েছে — এজেন্ট কাজ চালিয়ে যাচ্ছে।",
+  "acApRejected": "বাতিল করা হয়েছে — কিছুই করা হয়নি।",
+  "acApFromNotif": "নোটিফিকেশনে আপনি \"অনুমোদন\" চেপেছেন। নিচের বিস্তারিত দেখে নিশ্চিত করুন।",
+  "acApMaskedNote": "নম্বরগুলো আংশিক লুকিয়ে দেখানো হচ্ছে।",
+  "acApGone": "এই অনুমোদনটি আর অপেক্ষায় নেই।",
+  "acNotifApprove": "অনুমোদন",
+  "acNotifReject": "বাতিল",
+  "acNotifRejectFailed": "বাতিল করা যায়নি — অ্যাপ খুলে আবার চেষ্টা করুন।",
+  "acTopic": "বিষয়: {topic}",
+  "acStarted": "শুরু: {time}"
+ }
+}

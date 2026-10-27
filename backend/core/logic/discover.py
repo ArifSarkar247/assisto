@@ -63,6 +63,7 @@ ROUTE_KEYS = (
     "remittance",  # budget-remittance (flag budget_remittance)
     "retention_auto", "retention_inbox",  # retention1: Retention automation
     "khata", "sales_agent", "prepaid_meter", "contract",  # home_v2 shortcut routes
+    "agent_core", "agent_approvals",  # agent-core WP-APP (flag agent_core)
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

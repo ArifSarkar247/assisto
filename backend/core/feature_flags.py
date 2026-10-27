@@ -111,6 +111,12 @@ REGISTRY = (
     ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
     ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
     ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
+    # agent-core (owner final order 27 Oct, PART 2): the server-side Assisto
+    # agent (goal -> plan -> act -> observe, typed tools, one-tap approvals,
+    # audit). OFF until the live eval meets the bar (AGENT_CORE_DESIGN_BN.md
+    # §15). WP-APP: the hidden agent screen + approval inbox (preview for
+    # owner / staff / allow-listed testers only while OFF).
+    ('agent_core', 'work', 'Assisto Agent (goals, plans, approvals)', 'Assisto এজেন্ট (লক্ষ্য, পরিকল্পনা, অনুমোদন)', False, ('agent_core', 'agent_approvals')),
     ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ()),
     ('cost_estimator', 'work', 'Cost & time estimator', 'খরচ ও সময় হিসাব', True, ()),
     ('mock_interview', 'work', 'Mock interview', 'মক ইন্টারভিউ', True, ()),
