@@ -50,7 +50,9 @@ jobs:
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          want = [x.strip() for x in (os.environ.get("P") or "2gb,mid").split(",") if x.strip()]
+          # a push to ci/perf2gb-before* (the baseline) measures only the 2 GB profile
+          dflt = "2gb" if os.environ.get("GITHUB_REF", "").endswith("-before") else "2gb,mid"
+          want = [x.strip() for x in (os.environ.get("P") or dflt).split(",") if x.strip()]
           print("profiles=" + json.dumps([w for w in want if w in ("2gb", "mid")] or ["2gb"]))
           PY
 
