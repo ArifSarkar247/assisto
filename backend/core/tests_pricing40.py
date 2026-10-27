@@ -158,7 +158,7 @@ class CalculatorTests(SimpleTestCase):
                                          "default_chat_mode": "opus", "agent_cap_usd": True})
         self.assertFalse(cm["enabled"])                       # only a real True enables
         self.assertEqual(cm["annual_credit_months"], 12)
-        self.assertEqual(cm["modes"]["smart"], {"in_cap": 8000, "out_cap": 100, "history_turns": 8})
+        self.assertEqual(cm["modes"]["smart"], {"in_cap": 8000, "out_cap": 100, "history_turns": 6})
         self.assertEqual(cm["default_chat_mode"], "smart")
         self.assertEqual(cm["agent_cap_usd"], 0.115)
 
