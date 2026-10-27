@@ -23,6 +23,11 @@ class PhoneCanon {
   static final RegExp _bdSubscriber = RegExp(r'^1[3-9]\d{8}$');
   static final RegExp _digits = RegExp(r'^\d+$');
 
+  /// probashi-otp: country codes whose trunk "0" after the code is dropped
+  /// ("+966 050…" == "+966 50…"). Mirror of TRUNK0_CC in core/phone.py.
+  /// Italy (+39) is NOT here: Italian landlines keep the 0.
+  static const List<String> trunk0Cc = ['966', '971', '60', '44', '61'];
+
   /// Bangla digits -> ASCII digits.
   static String toAsciiDigits(String raw) {
     final b = StringBuffer();
@@ -59,6 +64,14 @@ class PhoneCanon {
     if (bd != null) {
       if (_bdSubscriber.hasMatch(bd)) return '+880$bd';
       if (s.startsWith('880') || !intl) return null;
+    }
+    if (intl) {
+      for (final cc in trunk0Cc) {
+        if (s.startsWith('${cc}0')) {
+          s = cc + s.substring(cc.length + 1);
+          break;
+        }
+      }
     }
     if (intl && s.length >= 8 && s.length <= 15 && !s.startsWith('0')) {
       return '+$s';
