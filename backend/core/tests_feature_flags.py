@@ -165,6 +165,57 @@ class ResolutionTests(TestCase):
         self.assertEqual(FF.validate(form)[1], [])
 
 
+class LaunchFeatureTests(TestCase):
+    """Owner order 27 Oct: CCTV (home_watchman + cctv_watchman / Shop Box) and
+    vehicle tracking are LAUNCH features: ON by default in both builds, never
+    a "preview" for the owner / staff while ON, and the DoD audit proposes
+    showing them in Play. The preview mechanism still works for an OFF flag."""
+    LAUNCH = ("home_watchman", "cctv_watchman", "vehicle_tracking")
+
+    def setUp(self):
+        FF.invalidate()
+        self.owner = User.objects.create_superuser(name="O", phone="01700000031", password="pw-123456")
+        self.staff = User.objects.create_user(name="S", phone="01700000032", password="pw-123456")
+        self.staff.is_staff = True
+        self.staff.save()
+
+    def tearDown(self):
+        FF.invalidate()
+
+    def test_on_by_default_both_builds(self):
+        for k in self.LAUNCH:
+            self.assertTrue(FF.default_row(k)["enabled_all"], k)
+            self.assertTrue(FF.default_row(k)["enabled_play"], k)
+            for play in (False, True):
+                self.assertTrue(FF.resolve(None, play=play)[0][k], (k, play))
+
+    def test_no_preview_label_for_owner_or_staff_when_on(self):
+        for u in (self.owner, self.staff):
+            for play in (False, True):
+                body = FF.payload(u, play=play, fv=2)
+                for k in self.LAUNCH:
+                    self.assertTrue(body["features"][k], (k, play))
+                    self.assertNotIn(k, body["preview"], (k, play))
+
+    def test_preview_still_works_for_an_off_flag(self):
+        _flag("remote_support", enabled_all=False)
+        body = FF.payload(self.staff, play=True, fv=2)
+        self.assertTrue(body["features"]["remote_support"])
+        self.assertIn("remote_support", body["preview"])
+        for k in self.LAUNCH:
+            self.assertNotIn(k, body["preview"], k)
+
+    def test_audit_proposes_show_not_hide(self):
+        for k in self.LAUNCH:
+            a = FA.AUDIT[k]
+            self.assertEqual(a["play"], "show", k)
+            self.assertIn("owner decision 27 oct", a["reason_en"].lower(), k)
+            self.assertIn("not a preview", a["reason_en"].lower(), k)
+            self.assertNotIn("লুকান", a["note_bn"], k)
+            self.assertNotEqual(FF.meta(k)["section"], "upcoming", k)
+            self.assertTrue(FF.meta(k)["default_on"], k)
+
+
 class EndpointTests(TestCase):
     def setUp(self):
         FF.invalidate()
