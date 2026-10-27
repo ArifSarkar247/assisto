@@ -740,7 +740,7 @@ class _RechargeFormState extends State<_RechargeForm> {
     String text = '';
     try {
       text = (await Clipboard.getData('text/plain'))?.text ?? '';
-    } catch (_) {}
+    } catch (_) {} // best-effort: an unreadable clipboard shows "no token found" below
     final found = extractTokens(text);
     if (!mounted) return;
     if (found.isEmpty) {
@@ -1205,7 +1205,7 @@ class PayPathSheet extends StatelessWidget {
     if (meterNo.isEmpty) return;
     try {
       await Clipboard.setData(ClipboardData(text: meterNo));
-    } catch (_) {}
+    } catch (_) {} // best-effort: the steps still say to paste/type the number
   }
 
   Future<void> _openWallet(
@@ -1215,13 +1215,13 @@ class PayPathSheet extends StatelessWidget {
     var ok = false;
     try {
       ok = await VaNative.launchApp(pkg);
-    } catch (_) {}
+    } catch (_) {} // best-effort: falls through to the Play page, then an honest snackbar
     if (!ok) {
       try {
         ok = await launchUrl(
             Uri.parse('https://play.google.com/store/apps/details?id=$pkg'),
             mode: LaunchMode.externalApplication);
-      } catch (_) {}
+      } catch (_) {} // best-effort: ok stays false -> "couldn't open" snackbar
     }
     if (context.mounted) {
       ScaffoldMessenger.of(context)
@@ -1236,7 +1236,7 @@ class PayPathSheet extends StatelessWidget {
   Future<void> _dial(String code) async {
     try {
       await launchUrl(Uri(scheme: 'tel', path: code));
-    } catch (_) {}
+    } catch (_) {} // best-effort: the USSD code is printed on the button to dial by hand
   }
 
   @override

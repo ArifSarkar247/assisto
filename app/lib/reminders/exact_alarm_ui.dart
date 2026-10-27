@@ -54,7 +54,7 @@ Future<void> maybeAskExactAlarms(BuildContext context) async {
     if (context.mounted) {
       try {
         context.read<AppState>().syncReminderAlarms();
-      } catch (_) {}
+      } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     }
   }
 }
@@ -165,7 +165,7 @@ class _ExactAlarmBannerState extends State<ExactAlarmBanner>
     if (mounted) {
       try {
         context.read<AppState>().syncReminderAlarms();
-      } catch (_) {}
+      } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     }
     await _check();
   }
@@ -273,19 +273,19 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
     bool? n, e, b;
     try {
       n = await ExactAlarmHooks.notifEnabled();
-    } catch (_) {}
+    } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     try {
       e = await ExactAlarmHooks.canExact();
-    } catch (_) {}
+    } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     try {
       b = (await ExactAlarmHooks.oem.info())?.batteryOptIgnored;
-    } catch (_) {}
+    } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     DeliveryStats s = DeliveryStats.of(const []);
     try {
       await ReminderAlarms.measure();
       s = DeliveryStats.of(
           ReminderAlarms.loadLog(await SharedPreferences.getInstance()));
-    } catch (_) {}
+    } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     if (!mounted) return;
     setState(() {
       _notif = n;
@@ -391,7 +391,7 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
                     if (context.mounted) {
                       try {
                         context.read<AppState>().syncReminderAlarms();
-                      } catch (_) {}
+                      } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
                     }
                     await _load();
                   },
