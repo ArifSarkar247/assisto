@@ -327,7 +327,7 @@ LEARNING = {
                ("bl", "amar cv er note ta khuje dao")],
     "note": [("bn", "নোট লিখে রাখো: ইন্টারভিউ বৃহস্পতিবার সকাল ১০টায়"), ("en", "Save a note: interview on Thursday 10 am"),
              ("en", "Write a note to study vocabulary daily")],
-    "rem_done": [("bn", "ব্যাংক জবের আবেদন জমা দিয়েছি, রিমাইন্ডারটা সম্পন্ন করো"),
+    "rem_done": [("bn", "Bank job application জমা দিয়েছি, রিমাইন্ডারটা সম্পন্ন করো"),
                  ("en", "I submitted the bank job application, mark that reminder done"),
                  ("bl", "bank job application joma diyechi, reminder ta done kore dao")],
     "rem_list": [("bn", "পড়াশোনার রিমাইন্ডারগুলো দেখাও"), ("en", "Show my study reminders")],
