@@ -942,3 +942,25 @@ class GrantAndPaidCountTests(PlayCase):
         g = EntitlementGrant.objects.get(source="play_reviewer")
         self.assertEqual(g.plan, "premium")
         self.assertFalse(PaidOrder.objects.exists())
+
+
+class BaseMonthNoDoublingTests(TestCase):
+    def test_pre_v2_pool_and_rebuilt_pool_are_never_doubled(self):
+        u = User.objects.create_user(name="U25", phone="01711005125", password="x")
+        User.objects.filter(pk=u.pk).update(plan="premium",
+                                            plan_until=timezone.now() + timedelta(days=360),
+                                            ai_credits=90)
+        CreditLedger.objects.create(user=u, delta=90, reason="grant",
+                                    note="pool:%s" % timezone.localtime().strftime("%Y-%m"))
+        u.refresh_from_db()
+        CR.settle(u)                                   # deploy, before the rebuild
+        u.refresh_from_db()
+        self.assertEqual(u.ai_credits, 90)
+        call_command("credits_rebuild_buckets", stdout=StringIO())
+        CR.settle(u)
+        u.refresh_from_db()
+        self.assertEqual((u.ai_credits, CR.buckets(u)["plan"]), (90, 90))
+        self.assertTrue(CR.verify(u)["ok"])
+        CR.settle(u, now=timezone.now() + timedelta(days=32))   # next month: one new month
+        u.refresh_from_db()
+        self.assertEqual(CR.buckets(u)["plan"], 90)

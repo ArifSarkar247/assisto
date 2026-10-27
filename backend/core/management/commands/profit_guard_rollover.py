@@ -7,7 +7,7 @@ plan months) and reports the trailing-7-day guard. Safe to run any time;
 billing_daily covers the rest (voided poll, reconcile, per-user guard).
 
 Crontab (Asia/Dhaka), on the Assisto box:
-    5 0 * * *  ubuntu  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py profit_guard_rollover
+    5 0 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py profit_guard_rollover >> /home/ubuntu/assisto/backend/logs/profit_guard_rollover.log 2>&1
 """
 from django.core.management.base import BaseCommand
 

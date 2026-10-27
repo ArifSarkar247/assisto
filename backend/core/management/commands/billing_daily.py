@@ -9,7 +9,7 @@
 Each step saves a BillingReport (Owner Admin -> Payments -> Billing reports).
 
 Cron (Asia/Dhaka), on the Assisto box — owner adds it to /etc/cron.d/assisto-app:
-    20 3 * * *  ubuntu  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py billing_daily >> /home/ubuntu/assisto/logs/billing_daily.log 2>&1
+    40 3 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py billing_daily >> /home/ubuntu/assisto/backend/logs/billing_daily.log 2>&1
 """
 from django.core.management.base import BaseCommand
 

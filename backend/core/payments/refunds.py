@@ -413,7 +413,7 @@ def approve(req, actor, amount=None, note="", now=None):
         full = amt >= o.price
         action, result = "", {}
         if o.channel == "play":
-            if full and not o.is_test:
+            if full:          # test orders too: a license tester's refund costs nothing
                 from . import play
                 try:
                     play.refund_order_api(o.order_id, revoke=True)

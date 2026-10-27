@@ -287,10 +287,20 @@ def _base_allowance(u, now):
     amount = plan_credits(p)
     if amount <= 0:
         return 0
-    last = CreditLot.objects.filter(user=u, bucket=PLAN, source_type="base").order_by("-starts_at", "-id").first()
+    from .models import CreditLedger
+    last = CreditLot.objects.filter(user=u, bucket=PLAN, source_type__in=("base", "migration")
+                                    ).order_by("-starts_at", "-id").first()
+    last_start = last.starts_at if last is not None else None
+    # a pre-v2 calendar pool (ledger "pool:YYYY-MM", not yet rebuilt into
+    # buckets) counts as the last base month too, so it is never doubled
+    old_pool = (CreditLedger.objects.filter(user=u, reason="grant", bucket="",
+                                            note__startswith="pool:")
+                .order_by("-created_at").values_list("created_at", flat=True).first())
+    if old_pool and (last_start is None or old_pool > last_start):
+        last_start = old_pool
     start = now
-    if last is not None:
-        nxt = add_months(last.starts_at, 1)
+    if last_start is not None:
+        nxt = add_months(last_start, 1)
         if now < nxt:
             return 0
         if now - nxt < timedelta(days=28):
