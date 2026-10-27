@@ -1,0 +1,99 @@
+# Full test suites on GitHub-hosted runners (owner order 27 Oct night,
+# MAXIMUM MODE). The 2-vCPU server queued every agent's full `flutter test`
+# (~70 min each) behind one lock; here the same suites run sharded in
+# parallel in ~15 min, free (public repo). Local runs stay for targeted tests.
+#
+# Trigger: push any branch named ci/<name>, or run manually with a ref.
+# No secrets are used; never runs on the self-hosted runner (public repo).
+name: checks
+
+on:
+  push:
+    branches: ['ci/**']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to check'
+        required: true
+
+concurrency:
+  group: checks-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      # tblib: Django's --parallel runner needs it to report a failing test;
+      # without it one failure crashes the whole run ("cannot pickle traceback").
+      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
+      - name: makemigrations --check
+        working-directory: backend
+        run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
+      - name: core crm web
+        working-directory: backend
+        # A throwaway Fernet key made fresh on every run (never a real secret):
+        # integration tests encrypt/decrypt with it. Locally the key comes from
+        # the server's secrets file, which CI does not (and must not) have.
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
+
+  flutter-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - name: pub get + gen-l10n
+        working-directory: app
+        run: flutter pub get && flutter gen-l10n
+      - name: analyze (errors fail; infos/warnings reported)
+        working-directory: app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: lang gate
+        working-directory: app
+        run: python3 tool/lang_gate.py
+
+  flutter-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - name: pub get + gen-l10n
+        working-directory: app
+        run: flutter pub get && flutter gen-l10n
+      - name: flutter test shard ${{ matrix.shard }}/8
+        working-directory: app
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }}
