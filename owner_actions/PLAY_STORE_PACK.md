@@ -330,6 +330,7 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 | `BIND_VOICE_INTERACTION` | No form | Optional default-assistant role chosen by the user in Android settings. |
 | `REQUEST_INSTALL_PACKAGES` | Would need a declaration and would very likely be refused | **Removed from the Play build** (proposal A). The website APK keeps it for its own updater. |
 | `SET_ALARM`, `VIBRATE`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, network | No form | Normal permissions. |
+| `SCHEDULE_EXACT_ALARM` (remmeter) | No form (only `USE_EXACT_ALARM` has the Play declaration; we never declare it — CI removes it) | User-granted "Alarms & reminders" special access, asked only when a timed reminder is created; inexact fallback with an honest note. |
 
 Also in App content: **Government apps** No · **Financial features**: personal
 finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**: §4 ·
