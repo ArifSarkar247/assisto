@@ -598,17 +598,15 @@ class _AgendaRow extends StatelessWidget {
         'due_at': adv?.toUtc().toIso8601String(),
         'done': false,
       });
-      Notifications.cancel(occ.item['localId']);
-      if (adv != null) {
-        Notifications.schedule(
-            occ.item['localId'], d['title'] ?? '', d['notes'] ?? '', adv);
-      }
+      // remmeter: reminder alarms follow the repo (AppState reconcile)
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.remRecurringAdvanced)));
       return;
     }
     repo.update(occ.item, {'done': !done});
-    if (!done) Notifications.cancel(occ.item['localId']);
+    if (!done && occ.kind != 'reminder') {
+      Notifications.cancel(occ.item['localId']);
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(done ? t.remCalMarkedOpen : t.remCalMarkedDone),
       action: SnackBarAction(
@@ -642,11 +640,12 @@ class _AgendaRow extends StatelessWidget {
       'date_only': tm == null,
       if (occ.kind != 'note') 'done': false,
     });
-    if (occ.kind != 'note') {
+    if (occ.kind == 'todo') {
       Notifications.cancel(occ.item['localId']);
       Notifications.schedule(
           occ.item['localId'], d['title'] ?? '', d['notes'] ?? '', when);
     }
+    // remmeter: a reminder's alarm follows the repo (AppState reconcile)
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(

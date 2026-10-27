@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../notifications.dart';
+import '../reminders/exact_alarm_ui.dart' show maybeAskExactAlarms; // remmeter
 import '../widgets/reminders_nlp.dart';
 import 'reminders_screen.dart' show recurrenceLabel;
 import '../widgets/bn_day_periods.dart' show appDateLocale;
@@ -538,9 +538,10 @@ Future<void> editReminder(BuildContext context,
     } else {
       await app.reminders.update(item, payload);
     }
-    final lid = lidSource?['localId'];
-    if (due != null && lid != null) {
-      Notifications.schedule(lid, title.text.trim(), notes.text.trim(), due!);
+    // remmeter: the alarm follows the repo (AppState reconcile); a timed
+    // reminder is where we explain + ask for exact "Alarms & reminders".
+    if (due != null && lidSource != null && context.mounted) {
+      await maybeAskExactAlarms(context);
     }
   }
 }

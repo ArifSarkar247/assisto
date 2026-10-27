@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../meter/meter_logic.dart';
+import '../voice/va_native.dart' show VaNative;
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/offline_banner.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -134,6 +140,7 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
           children: [
+            const OfflineBanner(),
             for (final row in overview)
               _MeterCard(
                 row: row,
@@ -141,6 +148,7 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
                 onEdit: () => _editMeter(row.raw),
                 onDelete: () => _deleteMeter(row.raw),
                 onViewRecharges: () => _viewRecharges(row),
+                onPay: () => PayPathSheet.open(context, row.raw),
               ),
             const SizedBox(height: Gap.md),
             _TrackerNote(),
@@ -257,12 +265,14 @@ class _MeterCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onViewRecharges;
+  final VoidCallback onPay;
   const _MeterCard({
     required this.row,
     required this.onRecharge,
     required this.onEdit,
     required this.onDelete,
     required this.onViewRecharges,
+    required this.onPay,
   });
 
   @override
@@ -302,7 +312,18 @@ class _MeterCard extends StatelessWidget {
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                Text(row.kind == 'gas' ? tr.meterKindGas : tr.meterKindElec,
+                Text(
+                    [
+                      utilityLabel(tr, '${row.raw['utility'] ?? ''}') ??
+                          (row.kind == 'gas'
+                              ? tr.meterKindGas
+                              : tr.meterKindElec),
+                      if ('${row.raw['meter_no'] ?? ''}'.isNotEmpty)
+                        notifLocalizeDigits(
+                            context, '${row.raw['meter_no']}'),
+                    ].join(' · '),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ]),
             ),
@@ -333,7 +354,7 @@ class _MeterCard extends StatelessWidget {
                     Text(tr.meterEstBalance,
                         style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     const SizedBox(height: Gap.xxs),
-                    Text(row.balanceDisplay,
+                    Text(notifLocalizeDigits(context, row.balanceDisplay),
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge
@@ -354,7 +375,8 @@ class _MeterCard extends StatelessWidget {
                     ? tr.meterDaysUnknown
                     : (row.state == 'empty'
                         ? tr.meterRanOut
-                        : tr.meterDaysLeft(row.daysLeft!)),
+                        : tr.meterDaysLeft(
+                            notifLocalizeDigits(context, '${row.daysLeft}'))),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               ),
             ]),
@@ -369,12 +391,26 @@ class _MeterCard extends StatelessWidget {
                 Icons.speed_rounded,
                 row.state == 'unknown'
                     ? tr.meterRateUnknown
-                    : tr.meterRatePerDay(row.rateDisplay)),
+                    : tr.meterRatePerDay(
+                        notifLocalizeDigits(context, row.rateDisplay))),
+            if (row.rateBasis == 'user')
+              _chip(context, Icons.edit_note_rounded, tr.mtrRateFromEstimate),
             if (row.runoutDate != null)
               _chip(context, Icons.event_busy_rounded,
-                  tr.meterRunsOutOn(row.runoutDate!)),
+                  tr.meterRunsOutOn(
+                      notifLocalizeDigits(context, row.runoutDate!))),
             _chip(context, Icons.payments_rounded,
-                tr.meterTotalRecharged(row.totalRechargedDisplay)),
+                tr.meterTotalRecharged(
+                    notifLocalizeDigits(context, row.totalRechargedDisplay))),
+            _chip(
+                context,
+                alertsOn(row.raw)
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_off_rounded,
+                alertsOn(row.raw)
+                    ? tr.mtrAlertOnChip(notifLocalizeDigits(
+                        context, '${alertDaysOf(row.raw)}'))
+                    : tr.mtrAlertOffChip),
           ]),
         ),
         const Divider(height: 1),
@@ -396,6 +432,17 @@ class _MeterCard extends StatelessWidget {
             ),
           ),
         ]),
+        // remmeter: how to pay (bKash / Nagad Pay Bill, verified paths only)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
+          child: FilledButton.tonalIcon(
+            style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48)),
+            onPressed: onPay,
+            icon: const Icon(Icons.account_balance_wallet_rounded),
+            label: Text(tr.mtrPayCta),
+          ),
+        ),
       ]),
     );
   }
@@ -457,6 +504,14 @@ class _MeterFormState extends State<_MeterForm> {
       text: widget.existing?['balance']?.toString() ?? '');
   late String _kind = _normKind(widget.existing?['kind']);
   DateTime? _balanceDate;
+  // remmeter: company, meter number, daily-use estimate, low alert
+  late String? _utility = utilityById(widget.existing?['utility']?.toString())?.id;
+  late final TextEditingController _meterNo = TextEditingController(
+      text: widget.existing?['meter_no']?.toString() ?? '');
+  late final TextEditingController _dailyUse = TextEditingController(
+      text: widget.existing?['daily_use']?.toString() ?? '');
+  late int _alertDays = alertDaysOf(widget.existing ?? const {});
+  late bool _alerts = alertsOn(widget.existing ?? const {});
 
   static String _normKind(dynamic v) {
     final s = (v ?? 'electricity').toString();
@@ -474,15 +529,25 @@ class _MeterFormState extends State<_MeterForm> {
   void dispose() {
     _name.dispose();
     _balance.dispose();
+    _meterNo.dispose();
+    _dailyUse.dispose();
     super.dispose();
   }
 
-  bool get _valid => _name.text.trim().isNotEmpty;
+  String? get _meterProblem => meterNumberProblem(_meterNo.text);
+
+  bool get _valid =>
+      _name.text.trim().isNotEmpty && _meterProblem == null;
 
   Map<String, dynamic> _result() {
     final base = <String, dynamic>{
       'name': _name.text.trim(),
       'kind': _kind,
+      'utility': _utility ?? '',
+      'meter_no': normalizeNumber(_meterNo.text),
+      'daily_use': normalizeDigitsOnly(_dailyUse.text.trim()),
+      'alert_days': _alertDays,
+      'alerts': _alerts,
     };
     if (_balance.text.trim().isNotEmpty) {
       base['balance'] = _balance.text.trim();
@@ -534,9 +599,43 @@ class _MeterFormState extends State<_MeterForm> {
                       size: 18),
                   label: Text(k == 'gas' ? tr.meterKindGas : tr.meterKindElec),
                   selected: _kind == k,
-                  onSelected: (_) => setState(() => _kind = k),
+                  onSelected: (_) => setState(() {
+                    _kind = k;
+                    if (utilityById(_utility)?.kind != k &&
+                        _utility != 'other') {
+                      _utility = null;
+                    }
+                  }),
                 ),
             ]),
+            const SizedBox(height: Gap.md),
+            Text(tr.mtrUtilityLabel,
+                style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: Gap.xs),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              for (final u in utilitiesFor(_kind))
+                ChoiceChip(
+                  label: Text(utilityLabel(tr, u.id) ?? u.id),
+                  selected: _utility == u.id,
+                  onSelected: (_) => setState(() => _utility = u.id),
+                ),
+            ]),
+            const SizedBox(height: Gap.md),
+            TextField(
+              controller: _meterNo,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                  labelText: tr.mtrMeterNo,
+                  helperText: tr.mtrMeterNoHelp,
+                  helperMaxLines: 3,
+                  errorText: switch (_meterProblem) {
+                    'meter_digits_only' => tr.mtrMeterNoDigits,
+                    'meter_length' => tr.mtrMeterNoLength,
+                    _ => null,
+                  },
+                  border: const OutlineInputBorder()),
+            ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _balance,
@@ -551,6 +650,41 @@ class _MeterFormState extends State<_MeterForm> {
             const SizedBox(height: Gap.xs),
             Text(tr.meterReadingOptional,
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.md),
+            TextField(
+              controller: _dailyUse,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                  labelText: tr.mtrDailyUse,
+                  helperText: tr.mtrDailyUseHelp,
+                  helperMaxLines: 3,
+                  prefixText: '৳ ',
+                  border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: Gap.md),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _alerts,
+              onChanged: (v) => setState(() => _alerts = v),
+              title: Text(tr.mtrAlertSwitch),
+              subtitle: Text(tr.mtrAlertSwitchHelp),
+            ),
+            if (_alerts)
+              Row(children: [
+                Expanded(child: Text(tr.mtrAlertDaysLabel)),
+                DropdownButton<int>(
+                  value: _alertDays,
+                  onChanged: (v) => setState(() => _alertDays = v ?? 3),
+                  items: [
+                    for (var d = 1; d <= 7; d++)
+                      DropdownMenuItem(
+                          value: d,
+                          child: Text(tr.mtrAlertDaysN(
+                              notifLocalizeDigits(context, '$d')))),
+                  ],
+                ),
+              ]),
             const SizedBox(height: Gap.lg),
             Row(children: [
               Expanded(
@@ -584,15 +718,42 @@ class _RechargeForm extends StatefulWidget {
 
 class _RechargeFormState extends State<_RechargeForm> {
   final TextEditingController _amount = TextEditingController();
+  // remmeter: the 20-digit token (paste the SMS) + how it was paid
+  final TextEditingController _token = TextEditingController();
+  String _channel = '';
+  List<String> _extra = const []; // further tokens found in the same SMS
   DateTime _date = DateTime.now();
 
   @override
   void dispose() {
     _amount.dispose();
+    _token.dispose();
     super.dispose();
   }
 
-  bool get _valid => _Meter.toPoisha(_amount.text) > 0;
+  bool get _tokenOk => _token.text.trim().isEmpty || validToken(_token.text);
+
+  bool get _valid => _Meter.toPoisha(normalizeDigitsOnly(_amount.text)) > 0 && _tokenOk;
+
+  Future<void> _pasteSms() async {
+    final tr = AppLocalizations.of(context);
+    String text = '';
+    try {
+      text = (await Clipboard.getData('text/plain'))?.text ?? '';
+    } catch (_) {}
+    final found = extractTokens(text);
+    if (!mounted) return;
+    if (found.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(tr.mtrTokenNoneFound)));
+      return;
+    }
+    setState(() {
+      _token.text = groupToken(found.first);
+      _extra = found.skip(1).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -642,6 +803,44 @@ class _RechargeFormState extends State<_RechargeForm> {
               child: Text(_date.toIso8601String().split('T').first),
             ),
           ),
+          const SizedBox(height: Gap.md),
+          TextField(
+            controller: _token,
+            keyboardType: TextInputType.number,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+                labelText: tr.mtrTokenLabel,
+                helperText: tr.mtrTokenHelp,
+                helperMaxLines: 3,
+                errorText: _tokenOk ? null : tr.mtrTokenBad,
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  tooltip: tr.mtrTokenPaste,
+                  onPressed: _pasteSms,
+                  icon: const Icon(Icons.content_paste_rounded),
+                )),
+          ),
+          if (_extra.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(
+                  tr.mtrTokenExtra(notifLocalizeDigits(
+                      context, _extra.map(groupToken).join(' / '))),
+                  style: AType.bodySmall),
+            ),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, children: [
+            for (final c in const ['bkash', 'nagad', 'other'])
+              ChoiceChip(
+                label: Text(switch (c) {
+                  'bkash' => tr.mtrBkash,
+                  'nagad' => tr.mtrNagad,
+                  _ => tr.mtrChannelOther,
+                }),
+                selected: _channel == c,
+                onSelected: (v) => setState(() => _channel = v ? c : ''),
+              ),
+          ]),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
@@ -654,8 +853,12 @@ class _RechargeFormState extends State<_RechargeForm> {
               child: FilledButton(
                 onPressed: _valid
                     ? () => Navigator.pop(context, {
-                          'amount': _amount.text.trim(),
+                          'amount': normalizeDigitsOnly(_amount.text.trim()),
                           'date': _date.toIso8601String().split('T').first,
+                          if (_token.text.trim().isNotEmpty)
+                            'token': normalizeNumber(_token.text),
+                          if (_extra.isNotEmpty) 'extra_tokens': _extra,
+                          if (_channel.isNotEmpty) 'channel': _channel,
                         })
                     : null,
                 child: Text(tr.save),
@@ -708,17 +911,43 @@ class _RechargeHistorySheet extends StatelessWidget {
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, i) {
                   final r = sorted[i];
+                  final token = (r['token'] ?? '').toString();
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.add_card_rounded),
-                    title: Text(_Meter.fmtPoisha(_Meter.toPoisha(r['amount'])),
+                    title: Text(
+                        notifLocalizeDigits(context,
+                            _Meter.fmtPoisha(_Meter.toPoisha(r['amount']))),
                         style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: Text((r['date'] ?? '').toString()),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, size: 20),
-                      tooltip: tr.delete,
-                      onPressed: () => onDelete(r),
-                    ),
+                    subtitle: Text([
+                      notifLocalizeDigits(
+                          context, (r['date'] ?? '').toString()),
+                      if (token.isNotEmpty)
+                        tr.mtrTokenShown(
+                            notifLocalizeDigits(context, groupToken(token))),
+                      if (r['channel'] == 'bkash') tr.mtrBkash,
+                      if (r['channel'] == 'nagad') tr.mtrNagad,
+                    ].join('\n')),
+                    isThreeLine: token.isNotEmpty,
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      if (token.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.copy_rounded, size: 20),
+                          tooltip: tr.mtrTokenCopy,
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: token));
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(tr.mtrCopied)));
+                            }
+                          },
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                        tooltip: tr.delete,
+                        onPressed: () => onDelete(r),
+                      ),
+                    ]),
                   );
                 },
               ),
@@ -747,7 +976,11 @@ class _MeterView {
   final String state; // ok | low | empty | unknown
   final int totalRecharged;
   final String totalRechargedDisplay;
+
+  /// history | user (the user's own daily-use estimate) | none
+  final String rateBasis;
   _MeterView({
+    this.rateBasis = 'none',
     required this.raw,
     required this.id,
     required this.name,
@@ -783,7 +1016,8 @@ class _Meter {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = (frac + '00').substring(0, 3);
+    // remmeter: '000' (was '00' -> RangeError on every whole amount like "500")
+    frac = (frac + '000').substring(0, 3);
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);
     if (taka == null || milli == null) return 0;
@@ -851,7 +1085,17 @@ class _Meter {
       {DateTime? asOf, int lowDays = _defaultLowDays}) {
     asOf ??= DateTime.now();
     final asOfD = DateTime(asOf.year, asOf.month, asOf.day);
-    final (rate, confident) = _dailyRate(recharges);
+    var (rate, confident) = _dailyRate(recharges);
+    // remmeter: thin history -> the user's own daily-use estimate (labelled)
+    var rateBasis = confident ? 'history' : 'none';
+    if (!confident) {
+      final est = toPoisha(meter['daily_use']);
+      if (est > 0) {
+        rate = est;
+        confident = true;
+        rateBasis = 'user';
+      }
+    }
     final rows = _rows(recharges);
 
     // balance: explicit reading (decayed) else last recharge (decayed)
@@ -905,6 +1149,7 @@ class _Meter {
       state: state,
       totalRecharged: total,
       totalRechargedDisplay: fmtPoisha(total),
+      rateBasis: rateBasis,
     );
   }
 
@@ -922,5 +1167,207 @@ class _Meter {
       return a.name.toLowerCase().compareTo(b.name.toLowerCase());
     });
     return rows;
+  }
+}
+
+// ======================= remmeter: COMPANY + PAY PATHS =======================
+/// Localised company name (null for an unknown / empty id).
+String? utilityLabel(AppLocalizations tr, String id) => switch (id) {
+      'desco' => tr.mtrUtilDesco,
+      'dpdc' => tr.mtrUtilDpdc,
+      'nesco' => tr.mtrUtilNesco,
+      'wzpdcl' => tr.mtrUtilWzpdcl,
+      'breb' => tr.mtrUtilBreb,
+      'bpdb' => tr.mtrUtilBpdb,
+      'titas' => tr.mtrUtilTitas,
+      'karnaphuli' => tr.mtrUtilKarnaphuli,
+      'other' => tr.mtrUtilOther,
+      _ => null,
+    };
+
+/// "How to pay": bKash / Nagad Pay Bill steps ONLY where verified, the
+/// meter number copied first, the wallet app opened (no undocumented deep
+/// link), the USSD code as the no-internet path. Gas: vending point only.
+/// Assisto never takes or moves the money.
+class PayPathSheet extends StatelessWidget {
+  const PayPathSheet({super.key, required this.meter});
+  final Map<String, dynamic> meter;
+
+  static Future<void> open(BuildContext context, Map<String, dynamic> meter) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) => PayPathSheet(meter: meter),
+      );
+
+  Future<void> _copy(BuildContext context, String meterNo) async {
+    if (meterNo.isEmpty) return;
+    try {
+      await Clipboard.setData(ClipboardData(text: meterNo));
+    } catch (_) {}
+  }
+
+  Future<void> _openWallet(
+      BuildContext context, String pkg, String meterNo) async {
+    final tr = AppLocalizations.of(context);
+    await _copy(context, meterNo);
+    var ok = false;
+    try {
+      ok = await VaNative.launchApp(pkg);
+    } catch (_) {}
+    if (!ok) {
+      try {
+        ok = await launchUrl(
+            Uri.parse('https://play.google.com/store/apps/details?id=$pkg'),
+            mode: LaunchMode.externalApplication);
+      } catch (_) {}
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(
+            content: Text(ok
+                ? (meterNo.isEmpty ? tr.mtrOpened : tr.mtrOpenedCopied)
+                : tr.mtrOpenFailed)));
+    }
+  }
+
+  Future<void> _dial(String code) async {
+    try {
+      await launchUrl(Uri(scheme: 'tel', path: code));
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final u = utilityById('${meter['utility'] ?? ''}');
+    final meterNo = '${meter['meter_no'] ?? ''}';
+    final company = u == null ? null : utilityLabel(tr, u.id);
+    final isGas = (u?.kind ?? meter['kind']) == 'gas';
+
+    Widget step(int n, String text) => Padding(
+          padding: const EdgeInsets.only(bottom: Gap.xs),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            ExcludeSemantics(
+              child: CircleAvatar(
+                radius: 11,
+                backgroundColor: scheme.primaryContainer,
+                child: Text(notifLocalizeDigits(context, '$n'),
+                    style: AType.bodySmall
+                        .copyWith(color: scheme.onPrimaryContainer)),
+              ),
+            ),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(text, style: AType.bodyMedium)),
+          ]),
+        );
+
+    Widget wallet(String name, bool verified, String pkg, String ussd) {
+      return Card(
+        margin: const EdgeInsets.only(bottom: Gap.md),
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(name,
+                    style: AType.titleMedium
+                        .copyWith(fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(height: Gap.sm),
+              if (verified) ...[
+                step(1, tr.mtrStepOpen(name)),
+                step(2, tr.mtrStepPayBill),
+                step(3, tr.mtrStepPick(company ?? '')),
+                step(4, tr.mtrStepMeterNo),
+                step(5, tr.mtrStepAmountPin),
+                step(6, tr.mtrStepToken),
+              ] else
+                Text(tr.mtrNotVerified(name, company ?? ''),
+                    style: AType.bodyMedium),
+              const SizedBox(height: Gap.sm),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => _openWallet(context, pkg, meterNo),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                  label: Text(meterNo.isEmpty
+                      ? tr.mtrOpenApp(name)
+                      : tr.mtrCopyOpen(name)),
+                ),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => _dial(ussd),
+                  icon: const Icon(Icons.dialpad_rounded, size: 18),
+                  label: Text(tr.mtrDialUssd(ussd)),
+                ),
+              ]),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.8,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (context, sc) => ListView(
+          controller: sc,
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+          children: [
+            Semantics(
+              header: true,
+              child: Text(tr.mtrPayTitle,
+                  style: Theme.of(context).textTheme.titleLarge),
+            ),
+            const SizedBox(height: Gap.xs),
+            Text(
+                [
+                  company ?? tr.mtrUtilUnset,
+                  if (meterNo.isNotEmpty) notifLocalizeDigits(context, meterNo),
+                ].join(' · '),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.md),
+            if (isGas)
+              Card(
+                color: scheme.errorContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Text(tr.mtrGasWarning,
+                      style: AType.bodyMedium
+                          .copyWith(color: scheme.onErrorContainer)),
+                ),
+              )
+            else if (u == null || u.id == 'other')
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.md),
+                child: Text(tr.mtrPickCompanyFirst, style: AType.bodyMedium),
+              )
+            else ...[
+              wallet(tr.mtrBkash, u.bkash, kBkashPackage, kBkashUssd),
+              wallet(tr.mtrNagad, u.nagad, kNagadPackage, kNagadUssd),
+            ],
+            if (u != null && u.hotline.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: Text(
+                    tr.mtrHotline(company ?? '',
+                        notifLocalizeDigits(context, u.hotline)),
+                    style: AType.bodyMedium),
+              ),
+            Text(tr.mtrPayHonest,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
   }
 }

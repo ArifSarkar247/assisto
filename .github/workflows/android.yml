@@ -241,6 +241,17 @@ jobs:
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
+          # ---- remmeter ---- exact reminder alarms. SCHEDULE_EXACT_ALARM =
+          # the user-granted "Alarms & reminders" special access (Android 12+;
+          # OFF by default for new installs on Android 14+); the app asks only
+          # when the user sets a timed reminder and falls back to inexact with a
+          # visible note. USE_EXACT_ALARM is Play-restricted to alarm-clock /
+          # calendar apps, so it is REMOVED even if a plugin contributes it.
+          if 'SCHEDULE_EXACT_ALARM' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>'
+                  '\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove"/>\n',
+                  s, count=1)
           # ---- play-fgs ---- geolocator ships a background location service we
           # never start (no foregroundNotificationConfig anywhere); drop it so
           # the Play foreground-service review only sees services we use.
@@ -996,6 +1007,14 @@ jobs:
               echo "::error::$P is in the APK manifest (use the Photo Picker)"; exit 1
             fi
           done
+          # ---- remmeter ---- exact reminders: SCHEDULE_EXACT_ALARM in, the
+          # Play-restricted USE_EXACT_ALARM out.
+          if ! echo "$PERMS" | grep -q "android.permission.SCHEDULE_EXACT_ALARM"; then
+            echo "::error::SCHEDULE_EXACT_ALARM missing (reminders would stay inexact)"; exit 1
+          fi
+          if echo "$PERMS" | grep -q "android.permission.USE_EXACT_ALARM"; then
+            echo "::error::USE_EXACT_ALARM is in the APK (Play: alarm-clock/calendar apps only)"; exit 1
+          fi
           # ---- /play-perm ----
           # ---- admob ---- launch safety: no SDK startup provider, app id present
           MAN=$("${BT}aapt2" dump xmltree --file AndroidManifest.xml "$OUT" 2>/dev/null || true)

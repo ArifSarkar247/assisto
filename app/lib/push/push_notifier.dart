@@ -15,6 +15,8 @@ import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
+import '../reminders/alarm_plan.dart' show PushDecision;
+import '../reminders/reminder_alarms.dart' show ReminderAlarms;
 import '../services/own_device_guard.dart'; // grab-guard
 import '../messaging/msg_notify.dart';
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
@@ -205,6 +207,13 @@ class PushNotifier {
         return;
       }
       if (!p.isKnownKind) return;
+      // remmeter: the server's backup reminder push stays silent when this
+      // phone's own alarm already rang for the same fire; when that alarm is
+      // still waiting (late), the push rings now and the alarm is cancelled.
+      if (p.kind == 'reminder') {
+        final d = await ReminderAlarms.onReminderPush(p.data, plugin: _plugin);
+        if (d == PushDecision.suppress) return;
+      }
       String? ring;
       if (p.isCall) {
         // c2-calls: tell the caller this phone is REALLY ringing, and ring

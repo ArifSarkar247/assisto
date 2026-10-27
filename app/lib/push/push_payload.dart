@@ -36,6 +36,7 @@ class PushChannels {
     'missed_call': missedCalls,
     'message_request': messages, // mr1
     'offer': offers, // p2-money
+    'meter_low': alerts, // remmeter: prepaid meter running low
   };
 }
 
@@ -181,6 +182,7 @@ class PushRouting {
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
+    'prepaid_meter': 'prepaid_meter', // remmeter
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -194,6 +196,7 @@ class PushRouting {
     'owner_alert': 'notifications',
     'shop_alert': 'shop_box',
     'sos': 'family_alerts',
+    'meter_low': 'prepaid_meter', // remmeter
   };
 
   /// [action] is the local-notification action id ('accept' / 'decline' /
