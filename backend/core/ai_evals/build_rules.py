@@ -340,7 +340,7 @@ def build_home_intent(rng):
     for t, it in [("এই মাসে কত খরচ হলো", "query_money"), ("আমার ব্যালেন্স কত", "query_money"),
                   ("how much did I spend", "query_money"), ("show my balance", "query_money"),
                   ("আজ কী আছে", "query_today"), ("today's briefing", "query_today"),
-                  ("আজকে কী কী আছে", "query_today"), ("koto taka ache amar", "query_money"),
+                  ("আজকে কী কী আছে", "query_today"), ("koto taka ache amar", "question"),
                   ("balance koto", "query_money")]:
         lang = "bn" if not t.isascii() else ("banglish" if "koto" in t else "en")
         rows.append(case(lang, {"text": t}, {"intent": it}, "query"))

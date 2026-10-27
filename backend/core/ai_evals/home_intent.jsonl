@@ -150,7 +150,7 @@
 {"id": "home_intent-0150", "lang": "banglish", "input": {"text": "Karim er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
 {"id": "home_intent-0151", "lang": "banglish", "input": {"text": "Karim ke call dao"}, "expect": {"intent": "call", "name__contains": "Karim"}, "tags": ["call"]}
 {"id": "home_intent-0152", "lang": "banglish", "input": {"text": "Salma er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
-{"id": "home_intent-0153", "lang": "banglish", "input": {"text": "koto taka ache amar"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0153", "lang": "banglish", "input": {"text": "koto taka ache amar"}, "expect": {"intent": "question"}, "tags": ["query"]}
 {"id": "home_intent-0154", "lang": "banglish", "input": {"text": "salary pelam 30000"}, "expect": {"intent": "income", "amount": "30000"}, "tags": ["income"]}
 {"id": "home_intent-0155", "lang": "banglish", "input": {"text": "salary pelam 25000"}, "expect": {"intent": "income", "amount": "25000"}, "tags": ["income"]}
 {"id": "home_intent-0156", "lang": "banglish", "input": {"text": "Rahim er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}

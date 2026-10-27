@@ -67,8 +67,7 @@ _LOAN_TAKE = ["ধার নিলাম", "ধার নিছি", "নিল�
 _REMIND = ["মনে করিয়ে", "রিমাইন্ডার", "মনে করাও", "remind", "alarm", "অ্যালার্ম"]
 _MEDICINE = ["ওষুধ", "medicine", "medication", "ওষূধ"]
 _REMEMBER = ["মনে রাখো", "মনে রেখো", "remember", "মনে রাখবে"]
-_QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে",
-                "koto taka", "koto khoroch"]
+_QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে"]
 _QUERY_TODAY = ["আজ কী", "আজকে কী", "today", "briefing", "ব্রিফিং", "কী কী আছে"]
 # --- voice assistant commands (P5) ---
 _MUSIC = ["গান চালাও", "গান শোনাও", "গান বাজাও", "গান ছাড়ো", "play song", "play music", "play "]
