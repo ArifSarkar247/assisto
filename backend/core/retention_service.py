@@ -270,7 +270,8 @@ def preview(auto, now=None, lang="bn"):
 def _done_refs(auto, events):
     from .models import RetentionSend
     refs = [e["ref"] for e in events]
-    if not refs:
+    # a draft preview (unsaved automation) has sent nothing yet
+    if not refs or auto.pk is None:
         return []
     return list(RetentionSend.objects.filter(automation=auto, ref_key__in=refs)
                 .values_list("audience_key", "ref_key"))
