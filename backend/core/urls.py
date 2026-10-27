@@ -1172,3 +1172,13 @@ urlpatterns += [
     path("agent-core/approvals/<int:pk>", acv.ApprovalView.as_view()),
 ]
 # ---- /agent-core ----
+
+# ---- agent-proactive ---- (WP-PROACTIVE; flag agent_core, default OFF)
+from .agentcore import nudge_views as acn  # noqa: E402
+urlpatterns += [
+    path("agent-core/nudges", acn.NudgesView.as_view()),
+    path("agent-core/nudges/<int:pk>/<str:action>", acn.NudgeActionView.as_view()),
+    path("agent-core/nudge-prefs", acn.NudgePrefsView.as_view()),
+    path("agent-core/brief", acn.BriefView.as_view()),
+]
+# ---- /agent-proactive ----

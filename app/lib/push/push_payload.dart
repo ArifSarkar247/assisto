@@ -37,6 +37,7 @@ class PushChannels {
     'message_request': messages, // mr1
     'offer': offers, // p2-money
     'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
+    'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
   };
 }
 
@@ -184,6 +185,7 @@ class PushRouting {
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
     'agent/approval': 'agent_approvals', // agent-core WP-APP
+    'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -198,6 +200,7 @@ class PushRouting {
     'shop_alert': 'shop_box',
     'sos': 'family',
     'agent_approval': 'agent_approvals', // agent-core WP-APP
+    'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
   };
 
   /// [action] is the local-notification action id ('accept' / 'decline' /

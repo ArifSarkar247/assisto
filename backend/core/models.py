@@ -6123,3 +6123,60 @@ class AgentAuditEvent(models.Model):
         ordering = ["id"]
         indexes = [models.Index(fields=["run", "id"])]
 # ---- /agent-core ----
+
+# ---- agent-proactive ---- (WP-PROACTIVE: core/agentcore/proactive.py; flag
+# agent_core). Template-only (no AI, no credits): trigger nudges with dedupe,
+# cooldown, a per-user daily cap and quiet hours, plus the morning brief and
+# evening recap. One row per (user, trigger, dedupe_key) — the scheduler can
+# run any number of times and a nudge is still delivered once.
+class AgentNudge(models.Model):
+    TRIGGERS = ("bill_due", "remit_missing", "child_not_home", "stock_low",
+                "order_unpaid", "meter_low", "camera_alert",
+                "brief_morning", "brief_evening")
+    DELIVERY = ("push", "card", "brief")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_nudges")
+    trigger = models.CharField(max_length=16)
+    dedupe_key = models.CharField(max_length=120)
+    priority = models.SmallIntegerField(default=2)       # 1 urgent, 2 normal, 3 low
+    delivery = models.CharField(max_length=6, default="card")   # push | card | brief
+    reason = models.CharField(max_length=16, blank=True, default="")  # why not pushed
+    counted = models.BooleanField(default=False)         # counts toward the daily cap
+    title_bn = models.CharField(max_length=200, blank=True, default="")
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    why_bn = models.CharField(max_length=300, blank=True, default="")
+    why_en = models.CharField(max_length=300, blank=True, default="")
+    route = models.CharField(max_length=40, blank=True, default="")
+    data = models.JSONField(default=dict, blank=True)
+    for_date = models.DateField()                         # local (Asia/Dhaka) day
+    in_brief = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="batched")
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    dismissed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["user", "trigger", "dedupe_key"],
+                                               name="agentnudge_once")]
+        indexes = [models.Index(fields=["user", "for_date"]),
+                   models.Index(fields=["trigger", "created_at"])]
+
+
+class AgentNudgePrefs(models.Model):
+    """Per-user proactive settings. `off` = trigger keys the user opted out of
+    (a missing row means every trigger ON with the defaults below)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agent_nudge_prefs")
+    off = models.JSONField(default=list, blank=True)
+    daily_cap = models.SmallIntegerField(default=3)
+    morning_brief = models.BooleanField(default=True)
+    evening_recap = models.BooleanField(default=True)
+    morning_at = models.CharField(max_length=5, default="07:30")
+    evening_at = models.CharField(max_length=5, default="21:00")
+    quiet_start = models.CharField(max_length=5, default="22:00")
+    quiet_end = models.CharField(max_length=5, default="07:00")
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /agent-proactive ----
+

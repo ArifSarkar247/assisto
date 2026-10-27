@@ -19,6 +19,9 @@
 {% if topics %}<div class="card tbl"><table><thead><tr><th>{{ T.agr_topic }}</th><th>{{ T.agr_runs }}</th><th>{{ T.agr_success }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th></tr></thead><tbody>
 {% for t in topics %}<tr><td>{{ t.topic|default:"general" }}</td><td>{{ t.n }}</td><td>{{ t.pct }}%</td><td>{{ t.credits|default:0 }}</td><td>${{ t.cost|default:0|floatformat:4 }}</td></tr>{% endfor %}
 </tbody></table></div>{% endif %}
+{% if nudges %}<div class="card tbl"><b>{{ T.agn_title }}</b><p class="mut small">{{ T.agn_intro }}</p><table><thead><tr><th>{{ T.agn_trigger }}</th><th>{{ T.agn_n }}</th><th>{{ T.agn_sent }}</th><th>{{ T.agn_batched }}</th><th>{{ T.agn_opened }}</th><th>{{ T.agn_dismissed }}</th><th>{{ T.agn_opted }}</th></tr></thead><tbody>
+{% for t in nudges %}<tr><td>{{ t.trigger }}</td><td>{{ t.n }}</td><td>{{ t.sent }}</td><td>{{ t.batched }}</td><td>{{ t.opened }}</td><td>{{ t.dismissed }}</td><td>{{ t.opted_out }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
 {% if errors %}<div class="card"><b>{{ T.agr_errors }}</b> {% for e in errors %}<span class="pill">{{ e.error_code }} · {{ e.n }}</span> {% endfor %}</div>{% endif %}
 {% if rows %}
 <div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.agr_topic }}</th><th>{{ T.agr_goal }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th><th>{{ T.agr_steps }}</th><th>{{ T.agr_feedback }}</th><th>{{ T.fb_from }}</th></tr></thead><tbody>
