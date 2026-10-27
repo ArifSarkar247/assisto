@@ -6005,3 +6005,65 @@ class AiAnswerReport(models.Model):
         ordering = ["-created_at", "-id"]
         indexes = [models.Index(fields=["user", "created_at"])]
 # ---- /ai-report ----
+
+
+# ---- probashi-plan ---- (owner decision 27 Oct: the expat pays, up to 3-4
+# family members in Bangladesh get Premium through My Circle, a SHARED credit
+# pool with per-member caps; core/probashi_plan.py is the engine; flag
+# `probashi_plan`, default OFF)
+class ProbashiSeat(models.Model):
+    """One family seat of a Probashi payer. status: invited -> active (member
+    accepted) | declined | expired (invite timed out / plan lapsed long) |
+    removed (payer) | left (member) | transferred (payer swapped it).
+    Benefits are LIVE only while the payer's plan is probashi and the seat is
+    active (derived every time, so renewal / grace / hold / refund need no
+    copying). `consent` = what the MEMBER agreed the payer may see:
+    {journeys, sos, budget, reminders, report} (default: nothing)."""
+    STATUSES = ("invited", "active", "declined", "expired", "removed", "left",
+                "transferred")
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="probashi_seats")
+    member = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="probashi_memberships")
+    status = models.CharField(max_length=12, default="invited", db_index=True)
+    monthly_cap = models.IntegerField(default=40)   # pool credits / calendar month
+    consent = models.JSONField(default=dict, blank=True)
+    invited_at = models.DateTimeField(default=timezone.now)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=24, blank=True, default="")
+    # a removal / leave holds the slot (and the person) for the cooldown;
+    # transfers and plan lapses do not
+    counts_cooldown = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["invited_at", "id"]
+        indexes = [models.Index(fields=["payer", "status"]),
+                   models.Index(fields=["member", "status"])]
+
+
+class ProbashiSeatKey(models.Model):
+    """Anti-abuse: the hashed phone / email / device keys (core.antifarm) of a
+    seat's member, so ONE person holds at most one live seat anywhere, and a
+    person who left / was removed cannot hop to another family before the
+    cooldown ends — even with a new account on the same phone or device."""
+    seat = models.ForeignKey(ProbashiSeat, on_delete=models.CASCADE, related_name="keys")
+    key_hash = models.CharField(max_length=64, db_index=True)
+
+
+class ProbashiReport(models.Model):
+    """The monthly family report (one per recipient per month). `payload`
+    holds only sections the member consented to, already localised bn/en."""
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="probashi_reports")
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    month = models.CharField(max_length=7)          # YYYY-MM (Asia/Dhaka)
+    payload = models.JSONField(default=dict, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-month", "-id"]
+        constraints = [models.UniqueConstraint(fields=["recipient", "month"],
+                                               name="probashi_report_once")]
+# ---- /probashi-plan ----

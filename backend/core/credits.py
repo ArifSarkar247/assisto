@@ -63,6 +63,9 @@ def plan_credits(plan):
     -> Premium)."""
     from . import billing
     c = billing.cfg()
+    if plan == "probashi":
+        # probashi-plan: the family's SHARED monthly pool (payer + seats)
+        return max(0, int(c["probashi_plan"]["pool_credits"]))
     row = c["plans"].get(plan) or c["plans"]["premium"]
     return max(0, int(row["credits"]))
 
@@ -377,11 +380,14 @@ def _reconcile_cache(u, now):
 
 
 # ----------------------------------------------------------------- spend
-def spend(user, need, note="", now=None, source_type="spend", _u=None):
+def spend(user, need, note="", now=None, source_type="spend", _u=None, only_buckets=None):
     """ATOMIC spend of `need` credits in the owner's order. Returns
     {ok, reason, charged, balance, spend_ref}. A negative balance blocks every
     credit feature (rule L). One ledger row per lot touched, all sharing the
-    spend_ref (so a failed call can be returned to the same lots)."""
+    spend_ref (so a failed call can be returned to the same lots).
+    `only_buckets` (probashi-plan) limits the spend to those buckets — a
+    family member spends ONLY the payer's plan pool, never the payer's own
+    packs or free credits."""
     now = now or timezone.now()
     need = int(need or 0)
 
@@ -390,12 +396,19 @@ def spend(user, need, note="", now=None, source_type="spend", _u=None):
         bal = int(u.ai_credits or 0)
         if need <= 0:
             return {"ok": True, "reason": "ok", "charged": 0, "balance": bal, "spend_ref": ""}
+        lots_qs = _active(u).filter(remaining__gt=0)
+        if only_buckets:
+            if bal < 0:
+                return {"ok": False, "reason": "insufficient", "charged": 0, "balance": bal,
+                        "negative": True, "spend_ref": ""}
+            lots_qs = lots_qs.filter(bucket__in=tuple(only_buckets))
+            bal = int(lots_qs.aggregate(s=Sum("remaining"))["s"] or 0)
         if bal < need:
             return {"ok": False, "reason": "insufficient", "charged": 0, "balance": bal,
                     "negative": bal < 0, "spend_ref": ""}
         ref = "sp:" + uuid.uuid4().hex[:20]
         left = need
-        for lot in _spend_order(_active(u).filter(remaining__gt=0).select_for_update()):
+        for lot in _spend_order(lots_qs.select_for_update()):
             take = min(lot.remaining, left)
             lot.remaining -= take
             lot.spent += take

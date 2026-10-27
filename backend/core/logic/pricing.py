@@ -32,6 +32,7 @@ from . import payments_cfg as _PAY   # pay1
 from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
 from . import entitlements as _ENT   # plans-v2
+from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
 
 # --------------------------------------------------------------- currency basis
@@ -591,6 +592,8 @@ def DEFAULTS():
         # plans-v2 (owner 27 Oct): Free / Premium / Business limits + the
         # 7-day Business trial, used only while feature flag plans_v2 is ON.
         "plans_v2": _ENT.defaults(),
+        # probashi-plan (owner 27 Oct): seats, shared pool, caps, cooldown
+        "probashi_plan": _PB.defaults(),
     }
 
 
@@ -720,6 +723,7 @@ def normalize(data):
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
         "retention": _norm_retention(d.get("retention"), base["retention"]),
         "plans_v2": _ENT.normalize(d.get("plans_v2")),
+        "probashi_plan": _PB.normalize(d.get("probashi_plan")),
     }
 
 

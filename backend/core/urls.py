@@ -1158,3 +1158,17 @@ from . import views_plans_v2 as pv2  # noqa: E402
 urlpatterns += [
     path("plans/v2", pv2.PlansV2View.as_view()),
 ]
+
+# ---- probashi-plan ---- (flag probashi_plan, default OFF)
+from . import views_probashi as pbv  # noqa: E402
+urlpatterns += [
+    path("probashi", pbv.OverviewView.as_view()),
+    path("probashi/candidates", pbv.CandidatesView.as_view()),
+    path("probashi/seats", pbv.SeatsView.as_view()),
+    path("probashi/seats/<int:pk>/<str:action>", pbv.SeatActionView.as_view()),
+    path("probashi/pool", pbv.PoolView.as_view()),
+    path("probashi/family", pbv.FamilyView.as_view()),
+    path("probashi/reports", pbv.ReportsView.as_view()),
+    path("probashi/reports/<int:pk>/read", pbv.ReportReadView.as_view()),
+]
+# ---- /probashi-plan ----

@@ -146,6 +146,8 @@ _A = {
     "referral": ("?P??PP??F", "show", "Referral rate / min redeem editable (pricing tests).", "রেফারেল হার / সর্বনিম্ন রিডিম বদলানো যায় (প্রাইসিং টেস্ট)।"),
     "plans_v2": ("?PP?P??P?", "hide", "plans-v2: server gates + tests for every gate, Owner Admin limits, upgrade sheet with Play prices; real two-phone run, reality-audit flow and the owner's 10-minute check (PLANS_V2_BN.md) pending.",
                  "প্ল্যান v2: সার্ভারে প্রতিটি গেট ও টেস্ট, Owner Admin-এ সীমা, Play দামের আপগ্রেড শিট; আসল দুই ফোনে পরীক্ষা, রিয়ালিটি-অডিট ফ্লো ও মালিকের ১০ মিনিটের পরীক্ষা (PLANS_V2_BN.md) বাকি।"),
+    "probashi_plan": ("?PP?P?P?F", "hide", "probashi-plan: seats, anti-abuse, shared pool + caps + ledger, Play lifecycle, monthly report, app screens and tests built; Play product assisto_probashi + country prices not created yet (owner), real 3-phone run and owner's 10-minute test (PROBASHI_PLAN_BN.md) pending.",
+                      "প্রবাসী প্ল্যান: সিট, অপব্যবহার-রোধ, শেয়ার করা পুল + সীমা + লেজার, Play চক্র, মাসিক রিপোর্ট, অ্যাপের পাতা ও টেস্ট তৈরি; Play-তে assisto_probashi ও দেশভিত্তিক দাম এখনো বানানো হয়নি (মালিক), আসল ৩ ফোনের পরীক্ষা ও মালিকের ১০ মিনিটের পরীক্ষা (PROBASHI_PLAN_BN.md) বাকি।"),
     # ---- Upcoming (nothing built yet)
     "corporate_meetings": ("FFFFFFFFF", "hide", "~10%: not built (needs its own SFU server).", "~১০%: তৈরি হয়নি (আলাদা SFU সার্ভার লাগবে)।"),
     "remote_support": ("FFFFFFFFF", "hide", "~2%: design only.", "~২%: শুধু নকশা।"),

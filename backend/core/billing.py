@@ -117,6 +117,9 @@ def monthly_pool_credits(user):
         p = plans.effective_plan(user)
         if p == "free":
             return 0
+        if p == "probashi":     # probashi-plan: the family's shared pool
+            from . import credits as CR
+            return CR.plan_credits(p)
         c = cfg()
         row = c["plans"].get(p) or c["plans"]["premium"]
         return max(0, int(row["credits"]))
@@ -552,7 +555,9 @@ def usage_summary(user, now=None):
     prow = c["plans"].get(plan_id)
     if prow is not None:
         pool = int(prow["credits"])
-    elif plan_id in ("annual", "founder", "probashi"):
+    elif plan_id == "probashi":         # probashi-plan: shared family pool
+        pool = int(c["probashi_plan"]["pool_credits"])
+    elif plan_id in ("annual", "founder"):
         pool = int(c["plans"]["premium"]["credits"])
     # this calendar month's consumption grouped by action (the ledger note)
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -640,6 +645,12 @@ def guard_can(user, action, qty=1):
     # `rewarded`); a negative balance (refund debt) blocks everything.
     bal = int(getattr(user, "ai_credits", 0) or 0)
     if bal < need:
+        try:   # probashi-plan: the family pool (within this member's cap)
+            from . import probashi_plan as PB
+            if PB.pool_can(user, need):
+                return True, "ok"
+        except Exception:
+            pass
         return False, "insufficient"
     return True, "ok"
 
@@ -705,6 +716,16 @@ def charge(user, action, qty=1, note=""):
     # free/rewarded/referral -> pack) under the user row lock; rewarded ad
     # credits are a bucket of the balance now, not a side wallet.
     from . import credits as CR
+    # probashi-plan: a family member whose own balance cannot cover this
+    # spends from the payer's SHARED pool (plan bucket only, per-member cap)
+    if int(getattr(user, "ai_credits", 0) or 0) < need:
+        try:
+            from . import probashi_plan as PB
+            fam = PB.charge_pool(user, need, note=(note or action))
+        except Exception:
+            fam = None
+        if fam is not None and (fam["ok"] or fam["reason"] == "family_cap"):
+            return fam
     res = CR.spend(user, need, note=(note or action))
     return {"ok": res["ok"], "reason": res["reason"], "charged": res["charged"],
             "balance": res["balance"], "spend_ref": res.get("spend_ref", ""),
@@ -727,6 +748,12 @@ def credit(user, source, amount, note="", spend_ref=None):
     if user is None or amount <= 0:
         return int(getattr(user, "ai_credits", 0) or 0) if user else 0
     is_return = bool(spend_ref) or (source == "adjust" and "refund" in (note or "").lower())
+    if spend_ref and str(spend_ref).startswith("fam:"):
+        # probashi-plan: a failed call paid from the family pool goes back
+        # to the payer's same lots
+        from . import probashi_plan as PB
+        PB.return_pool(spend_ref, note=(note or "returned"))
+        return int(user.ai_credits or 0)
     if is_return:
         ref = spend_ref or CR.last_spend_ref(user, amount)
         if ref:

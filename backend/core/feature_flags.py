@@ -131,6 +131,10 @@ REGISTRY = (
     # limits and the 7-day Business trial (core.entitlements_service). A
     # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.
     ('plans_v2', 'business', 'Plans v2 (Free / Premium / Business limits, 7-day Business trial)', 'প্ল্যান v2 (ফ্রি / প্রিমিয়াম / বিজনেস সীমা, ৭ দিনের বিজনেস ট্রায়াল)', False, ()),
+    # probashi-plan (owner 27 Oct): the expat family plan — payer Premium +
+    # 3-4 family seats in Bangladesh, shared credit pool, family dashboard,
+    # monthly report (core/probashi_plan.py). Hidden until all 9 DoD checks.
+    ('probashi_plan', 'family_safety', 'Probashi family plan (expat pays, family in Bangladesh gets Premium)', 'প্রবাসী পরিবার প্ল্যান (বিদেশ থেকে পেমেন্ট, দেশের পরিবার প্রিমিয়াম পায়)', False, ('probashi_plan',)),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
     ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
@@ -309,6 +313,15 @@ def resolve(user=None, play=False):
             on = True
             preview.append(k)
         feats[k] = on
+    # probashi-plan: a live Probashi family (payer or seat member) gets budget
+    # & remittance turned on (owner 27 Oct). Only when the plan flag is on.
+    if feats.get("probashi_plan") and not feats.get("budget_remittance") and uid:
+        try:
+            from . import probashi_plan as PB
+            if PB.in_live_family(user):
+                feats["budget_remittance"] = True
+        except Exception:
+            pass
     return feats, preview
 
 
