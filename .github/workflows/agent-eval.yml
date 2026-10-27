@@ -40,7 +40,14 @@ jobs:
         working-directory: backend
         env:
           AGENT_EVAL_REPORT: ${{ runner.temp }}/agent_eval_money.json
-        run: python manage.py test core.tests_agentcore core.tests_agentcore_eval web.tests_agentcore_owner --settings=assisto_backend.settings_test --noinput -v 2
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core.tests_agentcore core.tests_agentcore_eval web.tests_agentcore_owner --settings=assisto_backend.settings_test --noinput -v 2
+      - name: agent core integration points (flags, routes, pricing, owner admin)
+        working-directory: backend
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core.tests_feature_flags core.tests_route_coverage core.tests_profit_guard core.tests_pricing_limits core.tests_api_contract core.tests_ai_router web.tests_o2_owner_admin web.tests_ff1_features web.tests_ai_router_owner --settings=assisto_backend.settings_test --noinput
       - name: upload eval report
         if: always()
         uses: actions/upload-artifact@v4
