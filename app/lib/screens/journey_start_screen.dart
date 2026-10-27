@@ -65,14 +65,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     }
     try {
       _places = await api.savedPlaces();
-    } catch (_) {}
+    } catch (_) {} // best-effort: no saved places offline, form still works
     try {
       final r = await api.getJson('/circle/members');
       _watchers = ((r['members'] ?? r['accepted'] ?? []) as List)
           .cast<Map<String, dynamic>>()
           .where((m) => (m['status'] ?? 'accepted') == 'accepted')
           .toList();
-    } catch (_) {}
+    } catch (_) {} // best-effort: offline -> empty list shows the add-family step
     if (mounted) setState(() => _loading = false);
   }
 
