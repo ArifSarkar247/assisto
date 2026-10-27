@@ -75,17 +75,16 @@ jobs:
     # the comparison is fair (GitHub runners differ by up to ~50% in speed
     # from one VM to the next — measured in the first runs).
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
+        # runs = "<sut>:<workers>:<threads>" passes, all on ONE VM (fair)
         include:
-          - {name: live-1k,     workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 1}
-          - {name: live-10k,    workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 1}
-          - {name: w5-1k,       workers: 5, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 0}
-          - {name: w5-10k,      workers: 5, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 0}
-          - {name: gthread-1k,  workers: 3, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180, before: 0}
-          - {name: gthread-10k, workers: 3, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180, before: 0}
+          - {name: beforeafter-1k,  users: 1000,  seed: 2000,  ramp: 120, hold: 180, runs: "before:3:0 after:3:0"}
+          - {name: beforeafter-10k, users: 10000, seed: 10000, ramp: 300, hold: 180, runs: "before:3:0 after:3:0"}
+          - {name: configs-1k,      users: 1000,  seed: 2000,  ramp: 120, hold: 180, runs: "after:3:0 after:5:0 after:3:4"}
+          - {name: configs-10k,     users: 10000, seed: 10000, ramp: 300, hold: 180, runs: "after:3:0 after:3:4"}
     env:
       DB_NAME: loadtest
       DB_USER: postgres
@@ -122,11 +121,13 @@ jobs:
             -c auto_explain.log_timing=off -c auto_explain.log_buffers=on
           for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
           sleep 3
-      - name: before
-        if: matrix.before == 1
-        run: bash head/loadtest/run_one.sh $GITHUB_WORKSPACE/base/backend before-${{ matrix.name }} ${{ matrix.workers }} ${{ matrix.threads }} ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
-      - name: after
-        run: bash head/loadtest/run_one.sh $GITHUB_WORKSPACE/head/backend after-${{ matrix.name }} ${{ matrix.workers }} ${{ matrix.threads }} ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
+      - name: load passes (same VM)
+        run: |
+          for r in ${{ matrix.runs }}; do
+            IFS=: read sut w t <<< "$r"
+            dir=$GITHUB_WORKSPACE/head/backend; [ "$sut" = before ] && dir=$GITHUB_WORKSPACE/base/backend
+            bash head/loadtest/run_one.sh $dir $sut-w${w}t${t}-${{ matrix.users }} $w $t ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
+          done
       - name: summary
         if: always()
         run: |
@@ -150,5 +151,5 @@ jobs:
           pattern: loadtest-*
       - name: combined summary
         run: |
-          for f in all/*/*/summary.md all/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
-          ls -R all | head -50
+          for f in all/*/*/summary.md; do [ -f "$f" ] && { cat "$f"; echo; } >> $GITHUB_STEP_SUMMARY; done; true
+          ls -R all | head -50 || true
