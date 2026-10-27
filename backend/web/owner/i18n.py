@@ -1478,3 +1478,18 @@ BN.update({
     "agr_event": "ঘটনা", "agr_approval": "অনুমোদন",
 })
 # ---- /agent-core ----
+
+# ---- agent-proactive: nudge stats on Agent runs ----
+EN.update({
+    "agn_title": "Proactive nudges (no AI, no credits)",
+    "agn_intro": "Per trigger in the chosen days: created, pushed (counted against the user's daily cap except safety), held for the brief (cap / quiet hours / cooldown / not urgent), opened, dismissed, and users who switched the trigger off.",
+    "agn_trigger": "Trigger", "agn_n": "Created", "agn_sent": "Pushed", "agn_batched": "Held for brief",
+    "agn_opened": "Opened", "agn_dismissed": "Dismissed", "agn_opted": "Opted out",
+})
+BN.update({
+    "agn_title": "প্রোঅ্যাকটিভ নাজ (AI ছাড়া, ক্রেডিট লাগে না)",
+    "agn_intro": "বাছাই করা দিনে প্রতিটি ট্রিগারে: তৈরি, পুশ পাঠানো (নিরাপত্তা ছাড়া ইউজারের দৈনিক সীমায় গোনা), ব্রিফের জন্য রাখা (সীমা / নীরব সময় / কুলডাউন / জরুরি নয়), খোলা, সরানো, আর যত ইউজার ট্রিগারটি বন্ধ করেছেন।",
+    "agn_trigger": "ট্রিগার", "agn_n": "তৈরি", "agn_sent": "পুশ", "agn_batched": "ব্রিফে রাখা",
+    "agn_opened": "খোলা", "agn_dismissed": "সরানো", "agn_opted": "বন্ধ করেছেন",
+})
+# ---- /agent-proactive ----

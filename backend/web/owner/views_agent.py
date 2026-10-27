@@ -58,7 +58,17 @@ def agent_runs(request):
         "ai_cost": round(ai_cost, 4),
         "avg_steps": round(float(agg["steps"] or 0), 1), "avg_llm": round(float(agg["llm"] or 0), 1),
         "up": agg["up"] or 0, "down": agg["down"] or 0, "topics": topics, "errors": errors,
+        "nudges": _nudge_stats(since),
     }, nav="agent_runs")
+
+
+def _nudge_stats(since):
+    """agent-proactive: per-trigger nudge stats (never breaks the runs page)."""
+    try:
+        from core.agentcore import proactive as P
+        return P.stats_by_trigger(since)
+    except Exception:
+        return []
 
 
 @require_http_methods(["GET"])

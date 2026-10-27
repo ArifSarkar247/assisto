@@ -36,6 +36,7 @@ class PushChannels {
     'missed_call': missedCalls,
     'message_request': messages, // mr1
     'offer': offers, // p2-money
+    'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
   };
 }
 
