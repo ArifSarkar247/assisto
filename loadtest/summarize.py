@@ -33,22 +33,32 @@ def main(prefix, label, out_dir):
     cap = None
     first_bad = None
     hist = prefix + "_stats_history.csv"
+    pts = []
     if os.path.exists(hist):
+        t0 = None
         for r in csv.DictReader(open(hist)):
             if r.get("Name") != "Aggregated":
                 continue
+            ts = num(r.get("Timestamp")) or 0
+            t0 = ts if t0 is None else t0
             users = int(num(r.get("User Count")) or 0)
             p95 = num(r.get("95%"))
             rps = num(r.get("Requests/s")) or 0
             fps = num(r.get("Failures/s")) or 0
-            if not users or p95 is None or rps <= 0:
-                continue
-            good = p95 <= 300 and fps <= 0.01 * rps
-            if good and first_bad is None:
-                cap = {"users": users, "p95": p95, "rps": round(rps, 1)}
-            elif not good and first_bad is None and users > 20:
-                first_bad = {"users": users, "p95": p95, "rps": round(rps, 1),
-                             "fail_rps": round(fps, 1)}
+            if ts - t0 < 30 or not users or p95 is None or rps <= 0:
+                continue      # skip the first 30 s (cold start, first syncs)
+            pts.append((users, p95, rps, fps))
+    # the bar is "broken" only when it stays broken (3 samples in a row);
+    # capacity = the most users seen while every sample so far was good.
+    for i, (users, p95, rps, fps) in enumerate(pts):
+        bad = lambda q: q[1] > 300 or q[3] > 0.01 * q[2]   # noqa: E731
+        if bad(pts[i]) and all(bad(q) for q in pts[i:i + 3]) and len(pts[i:i + 3]) == 3:
+            first_bad = {"users": users, "p95": p95, "rps": round(rps, 1),
+                         "fail_rps": round(fps, 1)}
+            break
+        if not bad(pts[i]):
+            cap = {"users": users, "p95": p95, "rps": round(rps, 1)}
+    peak = max(pts, key=lambda q: q[2]) if pts else None
     fails = []
     fpath = prefix + "_failures.csv"
     if os.path.exists(fpath):
@@ -58,6 +68,8 @@ def main(prefix, label, out_dir):
         fails.sort(key=lambda d: -d["n"])
     out = {"label": label, "aggregate": agg, "endpoints": eps,
            "capacity_p95_le_300ms": cap, "first_over_bar": first_bad,
+           "peak_rps": peak and {"users": peak[0], "rps": round(peak[2], 1),
+                                 "p95": peak[1]},
            "top_failures": fails[:15]}
     os.makedirs(out_dir, exist_ok=True)
     json.dump(out, open(os.path.join(out_dir, "summary.json"), "w"), indent=1)
@@ -69,7 +81,10 @@ def main(prefix, label, out_dir):
     md.append("")
     md.append("Capacity (window p95 <= 300 ms, errors < 1%%): %s" % (
         cap and "%d users @ %.1f req/s" % (cap["users"], cap["rps"]) or "never met"))
-    md.append("First over the bar: %s" % (
+    if peak:
+        md.append("Peak throughput: %.1f req/s at %d users (window p95 %s ms)"
+                  % (peak[2], peak[0], peak[1]))
+    md.append("First over the bar (3 samples in a row): %s" % (
         first_bad and "%d users (p95 %s ms, %.1f req/s, %.1f fail/s)" % (
             first_bad["users"], first_bad["p95"], first_bad["rps"],
             first_bad["fail_rps"]) or "never"))

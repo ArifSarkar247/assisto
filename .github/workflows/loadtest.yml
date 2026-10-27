@@ -26,7 +26,7 @@ on:
 
 concurrency:
   group: loadtest-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -108,7 +108,9 @@ jobs:
         run: |
           docker run -d --name pg --cpuset-cpus=0,1 -m 3g --network host \
             -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=$DB_NAME postgres:16 \
-            -c max_connections=200 -c shared_preload_libraries=pg_stat_statements
+            -c max_connections=200 -c shared_preload_libraries=pg_stat_statements,auto_explain \
+            -c auto_explain.log_min_duration=25 -c auto_explain.log_analyze=on \
+            -c auto_explain.log_timing=off -c auto_explain.log_buffers=on
           for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
           sleep 3
           docker exec pg psql -U postgres -d $DB_NAME -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
@@ -118,6 +120,7 @@ jobs:
           python manage.py migrate -v0 --noinput
           python manage.py loadtest_seed --users ${{ matrix.seed }} --out $GITHUB_WORKSPACE/tokens.json
           docker exec pg psql -U postgres -d $DB_NAME -c "SELECT pg_stat_statements_reset()"
+          docker logs pg 2>&1 | wc -l > $GITHUB_WORKSPACE/pg_lines_before
       - name: start nginx + gunicorn (pinned to CPUs 0-1, live config)
         working-directory: sut/backend
         run: |
@@ -151,6 +154,9 @@ jobs:
           python head/loadtest/summarize.py out/lt ${{ matrix.name }} out/${{ matrix.name }} >> $GITHUB_STEP_SUMMARY || true
           docker exec pg psql -U postgres -d $DB_NAME -c "SELECT round(total_exec_time) AS total_ms, calls, round(mean_exec_time::numeric,2) AS mean_ms, left(regexp_replace(query, '\s+', ' ', 'g'), 220) AS query FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 25" > out/pg_top_queries.txt || true
           cp gunicorn.log vmstat.log out/ 2>/dev/null || true
+          # slow-query plans (auto_explain >= 25 ms), first 400 lines
+          docker logs pg 2>&1 | tail -n +$(( $(cat pg_lines_before) + 1 )) | grep -A40 "duration:" | head -600 > out/pg_slow_plans.txt || true
+          grep -c "duration:" out/pg_slow_plans.txt || true
           grep -c " 500 \|Traceback" gunicorn.log || true
           tail -30 vmstat.log || true
       - uses: actions/upload-artifact@v4
