@@ -133,8 +133,24 @@ def paid_plan_ok(user):
     return plans.effective_plan(user) in _PAID_PLANS
 
 
-def _plan_gate(request):
-    """Return an upgrade Response if the user lacks a paid plan, else None."""
+def _plan_gate(request, prof=None, cap="ledger_ai_addons", read_ok=False):
+    """Return an upgrade Response if the plan lacks this feature, else None.
+
+    plans-v2 ON (for the shop OWNER): the owner's tier decides through the
+    central entitlement module (core.entitlements_service) — a staff
+    member's own plan never matters, founder counts as Business, a running
+    trial as the trial plan. `read_ok` endpoints (GET of existing threads /
+    rules) always answer so nobody loses their data.
+    plans-v2 OFF: exactly the old rule (the requester's paid plan)."""
+    owner = getattr(prof, "user", None) if prof is not None else None
+    if owner is not None:
+        from . import entitlements_service as ES
+        if ES.on(owner):
+            if read_ok and request.method == "GET":
+                return None
+            if ES.allows(owner, cap):
+                return None
+            return ES.response(cap, owner, req_lang(request))
     if paid_plan_ok(request.user):
         return None
     lang = req_lang(request)
@@ -148,6 +164,11 @@ def _plan_gate(request):
                        "This AI feature needs the Business plan."),
         "upgrade": True,
     }, status=402)
+
+
+def _v2_owner(prof):
+    from . import entitlements_service as ES
+    return ES.on(getattr(prof, "user", None))
 
 
 # ---- live-key gates (all AI/courier/payment paths mocked until a key) -----
@@ -934,6 +955,12 @@ class ReportsView(APIView):
             return bad
         lang = req_lang(request)
         period = request.query_params.get("period", "daily")
+        # plans-v2: the day's totals are "Digital Ledger basic" (free); weekly
+        # and monthly reports are a Business feature (shop owner's plan).
+        if period != "daily":
+            gate = _plan_gate(request, prof, "reports") if _v2_owner(prof) else None
+            if gate:
+                return gate
         from .models import Sale, Expense
         sales = [_sale_record(s) for s in
                  Sale.objects.filter(user=request.user, business=prof,
@@ -1299,7 +1326,7 @@ class AiReplyView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate       # PLAN GATE
         lang = req_lang(request)
@@ -1317,17 +1344,32 @@ class AiReplyView(APIView):
                                 policies=policies, shop_name=prof.shop_name,
                                 style=prof.style_sample, lang=lang)
         key = _ai_key()
-        provider = _llm_provider() if key else None   # LIVE KEY gate
+        state = {}
+        # credit-leak fix: the AI reply is charged to the SHOP OWNER's credits
+        # through billing (ai.generate user=...), like every other AI call.
+        provider = _llm_provider(prof.user, state) if key else None   # LIVE KEY gate
         res = bai.draft_reply(request.data.get("text", ""), ctx,
                               reply_provider=provider, ai_key=key or None,
                               owner_takeover=bool(request.data.get("owner_takeover")))
+        if state.get("credits"):
+            from . import credits_out
+            need = credits_out.need_for_tier(prof.user, "cheap")
+            if credits_out.supported(request):
+                return credits_out.response(prof.user, lang, need)
+            # older app: the honest rule-based draft + the honest line
+            res = bai.draft_reply(request.data.get("text", ""), ctx,
+                                  reply_provider=None, ai_key=None,
+                                  owner_takeover=bool(request.data.get("owner_takeover")))
+            res["credits_out"] = True
+            res["credits_message"] = credits_out.body(prof.user, lang, need)["message"]
         res["mock"] = not res.get("used_ai")
         return Response(res)
 
 
-def _llm_provider():
+def _llm_provider(user=None, state=None):
     """Adapter: prompt dict → {text, confidence} via core.ai. MUST NOT invent
-    price/stock (the pure layer only passes it the context facts)."""
+    price/stock (the pure layer only passes it the context facts). `user` is
+    charged (credits + Profit Guard); out of credits sets state["credits"]."""
     from . import ai
 
     def provider(prompt):
@@ -1335,8 +1377,12 @@ def _llm_provider():
             text, _ = ai.generate(task=prompt.get("facts", ""),
                                   data=prompt.get("customer_text", ""),
                                   tier="cheap", feature="business.ai_reply",
-                                  max_tokens=300)
+                                  max_tokens=300, user=user)
             return {"text": text, "confidence": 0.8}
+        except ai.AIUnavailable as e:
+            if state is not None and e.reason == "credits":
+                state["credits"] = True
+            return {"text": "", "confidence": 0.0}
         except Exception:
             return {"text": "", "confidence": 0.0}
     return provider
@@ -1349,7 +1395,7 @@ class AiBargainView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1377,7 +1423,7 @@ class AiDiscloseView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         return Response(bai.assistant_disclosure(req_lang(request)))
@@ -1523,7 +1569,7 @@ class MorningSummaryView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1542,7 +1588,7 @@ class OutboundPlanView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1568,7 +1614,7 @@ class WebhookSendView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1622,7 +1668,7 @@ class VoiceEntryView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ledger_ai_addons")
         if gate:
             return gate
         res = bai.voice_entry_parse(request.data.get("text", ""),
@@ -1638,7 +1684,7 @@ class PaperKhataView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ledger_ai_addons")
         if gate:
             return gate
         res = bai.paper_khata_parse(request.data.get("mock_rows"),
@@ -1654,7 +1700,7 @@ class MatchPaymentView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ledger_ai_addons")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1675,7 +1721,7 @@ class InsightsView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "reports")
         if gate:
             return gate
         # records built from recent sales/dues (rules decide the flags)
@@ -1700,7 +1746,7 @@ class AiChannelsView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent", read_ok=True)
         if gate:
             return gate
         from . import integrations
@@ -1736,7 +1782,7 @@ class AiThreadsView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent", read_ok=True)
         if gate:
             return gate
         rows = [_thread_row(t) for t in request.user.chat_threads.all()]
@@ -1749,7 +1795,7 @@ class AiThreadDetailView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent", read_ok=True)
         if gate:
             return gate
         t = request.user.chat_threads.filter(pk=pk).first()
@@ -1770,7 +1816,7 @@ class AiThreadTakeoverView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         t = request.user.chat_threads.filter(pk=pk).first()
@@ -1789,7 +1835,7 @@ class AiThreadSendView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         lang = req_lang(request)
@@ -1816,7 +1862,7 @@ class BargainRulesView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent", read_ok=True)
         if gate:
             return gate
         from .models import BargainRule
@@ -1842,7 +1888,7 @@ class BargainRuleSaveView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "ai_sales_agent")
         if gate:
             return gate
         guard = _owner_only(request, role)
@@ -1878,7 +1924,7 @@ class BankLoanReportView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        gate = _plan_gate(request)
+        gate = _plan_gate(request, prof, "reports")
         if gate:
             return gate
         from .models import Sale

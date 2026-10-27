@@ -760,9 +760,9 @@ BN.update({
     "ak_offers_premium_notifs": "প্রিমিয়াম ব্যবহারকারীরাও ব্র্যান্ড অফার পাবেন (ডিফল্ট বন্ধ)",
 })
 # ---- /p2-money ----
-# ---- p4-world ---- owner panel: Unseen World data sources + gold/fuel values
+# ---- p4-world ---- owner panel: Daily info and services (was "Unseen World") data sources + gold/fuel values
 EN.update({
-    "nav_world": "Unseen World",
+    "nav_world": "Daily info and services",
     "w_sources": "Data sources", "w_source": "Source", "w_kind": "Kind",
     "w_last_ok": "Last refresh", "w_last_err": "Last error", "w_calls": "Calls today",
     "w_cost": "Cost today (USD)", "w_items": "Items", "w_on": "On", "w_off": "Off",
@@ -777,7 +777,7 @@ EN.update({
     "w_open_official": "Open official page",
 })
 BN.update({
-    "nav_world": "অদেখা দুনিয়া",
+    "nav_world": "আজকের তথ্য ও সেবা",
     "w_sources": "তথ্যের উৎস", "w_source": "উৎস", "w_kind": "ধরন",
     "w_last_ok": "শেষ হালনাগাদ", "w_last_err": "শেষ ত্রুটি", "w_calls": "আজকের কল",
     "w_cost": "আজকের খরচ (USD)", "w_items": "আইটেম", "w_on": "চালু", "w_off": "বন্ধ",
@@ -1331,3 +1331,125 @@ BN.update({
     "pf_trial_days": "ট্রায়াল: দিন", "pf_trial_credits": "ট্রায়াল: ক্রেডিট", "pf_trial_on_signup": "ট্রায়াল: সাইন আপেই শুরু",
 })
 # ---- /billing-v2 ----
+
+# ---- plans-v2 ----
+EN.update({
+    "pv2_title": "Plans v2 — Free / Premium / Business limits",
+    "pv2_intro": "Used only while the feature switch plans_v2 is ON (Features page). Every limit here is enforced on the server; the app only shows it. Existing records are never removed: over a limit they stay readable and editable, only adding new ones asks to upgrade.",
+    "pv2_feature": "Feature", "pv2_free": "Free", "pv2_premium": "Premium", "pv2_business": "Business",
+    "pv2_crm_contacts": "CRM contacts (leads + contacts, per account)",
+    "pv2_cap_crm_write": "Add leads, deals, pipeline and tasks (off = view only)",
+    "pv2_cap_crm_followup_reminders": "CRM follow-up reminders",
+    "pv2_cap_automation": "Automation (retention messages, CRM rules, bulk WhatsApp)",
+    "pv2_cap_ai_sales_agent": "AI Sales Agent (incl. COD confirmation)",
+    "pv2_cap_booking_bot": "Booking bot (page live)",
+    "pv2_cap_reports": "Weekly / monthly sales reports, bank-loan report, insights",
+    "pv2_cap_ledger_ai_addons": "Khata AI tools (voice entry, paper scan, payment match)",
+    "pv2_trial_days": "Free trial length (days, 0 = no trial)",
+    "pv2_trial_plan": "The trial gives",
+    "pv2_unlimited_at": "Show \u201cUnlimited\u201d in the app from this many contacts",
+    "pv2_note": "Business keeps a hidden safety cap (the number above) against abuse — nothing is truly unlimited. The trial is once per account, needs no card and never charges: when it ends the account returns to Free. Message and AI costs still come from credits and Profit Guard.",
+    "p_bad_plans_v2": "Plans v2: a number is out of range (trial 0–30 days, Free contacts 0–1000, Premium 1–100000, Business 1–1000000) or the trial plan is not Premium/Business.",
+})
+BN.update({
+    "pv2_title": "প্ল্যান v2 — ফ্রি / প্রিমিয়াম / বিজনেস সীমা",
+    "pv2_intro": "শুধু ফিচার-সুইচ plans_v2 চালু থাকলে (ফিচার পাতা) কাজ করে। এখানের প্রতিটি সীমা সার্ভারে মানা হয়; অ্যাপ শুধু দেখায়। আগের কোনো রেকর্ড কখনো মোছা হয় না: সীমা পেরোলেও সেগুলো দেখা ও বদলানো যায়, শুধু নতুন যোগ করতে আপগ্রেড চাওয়া হয়।",
+    "pv2_feature": "সুবিধা", "pv2_free": "ফ্রি", "pv2_premium": "প্রিমিয়াম", "pv2_business": "বিজনেস",
+    "pv2_crm_contacts": "CRM কন্টাক্ট (লিড + কন্টাক্ট, প্রতি অ্যাকাউন্টে)",
+    "pv2_cap_crm_write": "লিড, ডিল, পাইপলাইন ও কাজ যোগ করা (বন্ধ = শুধু দেখা)",
+    "pv2_cap_crm_followup_reminders": "CRM ফলো-আপ রিমাইন্ডার",
+    "pv2_cap_automation": "অটোমেশন (রিটেনশন বার্তা, CRM নিয়ম, একসাথে WhatsApp)",
+    "pv2_cap_ai_sales_agent": "AI সেলস এজেন্ট (COD নিশ্চিতকরণসহ)",
+    "pv2_cap_booking_bot": "বুকিং বট (পেজ চালু)",
+    "pv2_cap_reports": "সাপ্তাহিক / মাসিক বিক্রির রিপোর্ট, ব্যাংক-লোন রিপোর্ট, ইনসাইট",
+    "pv2_cap_ledger_ai_addons": "খাতার AI টুল (মুখে বলে এন্ট্রি, কাগজ স্ক্যান, পেমেন্ট মেলানো)",
+    "pv2_trial_days": "ফ্রি ট্রায়ালের দৈর্ঘ্য (দিন, ০ = ট্রায়াল নেই)",
+    "pv2_trial_plan": "ট্রায়ালে যা পাওয়া যায়",
+    "pv2_unlimited_at": "এত কন্টাক্ট বা বেশি হলে অ্যাপে \u201cসীমাহীন\u201d দেখাবে",
+    "pv2_note": "অপব্যবহার ঠেকাতে বিজনেসে একটি লুকানো নিরাপত্তা-সীমা থাকে (উপরের সংখ্যা) — কিছুই আসলে সীমাহীন নয়। ট্রায়াল প্রতি অ্যাকাউন্টে একবার, কার্ড লাগে না, কোনো টাকা কাটে না: শেষ হলে অ্যাকাউন্ট ফ্রি-তে ফিরে যায়। বার্তা ও AI খরচ আগের মতোই ক্রেডিট ও Profit Guard থেকে।",
+    "p_bad_plans_v2": "প্ল্যান v2: কোনো সংখ্যা সীমার বাইরে (ট্রায়াল ০–৩০ দিন, ফ্রি কন্টাক্ট ০–১০০০, প্রিমিয়াম ১–১০০০০০, বিজনেস ১–১০০০০০০) অথবা ট্রায়াল প্ল্যান প্রিমিয়াম/বিজনেস নয়।",
+})
+# ---- /plans-v2 ----
+
+# ---- ai-report: Owner Admin -> AI reports (user-flagged AI answers) ----
+EN.update({
+    "nav_ai_reports": "AI reports",
+    "air_intro": "AI answers that users reported from inside the app (Google Play AI-generated content policy). Only the text of the answer is kept, never photos. Review each one, fix the cause if needed, then mark it resolved.",
+    "air_s_open": "Open", "air_s_resolved": "Resolved",
+    "air_reason": "Reason", "air_where": "Where", "air_answer": "AI answer",
+    "air_r_offensive": "Offensive", "air_r_harmful": "Harmful",
+    "air_r_wrong": "Wrong or misleading", "air_r_other": "Other",
+    "air_resolve": "Mark resolved", "air_reopen": "Re-open",
+    "air_none": "No AI reports here.",
+})
+BN.update({
+    "nav_ai_reports": "AI রিপোর্ট",
+    "air_intro": "ব্যবহারকারীরা অ্যাপের ভেতর থেকে যেসব AI উত্তর রিপোর্ট করেছেন (Google Play-এর AI কনটেন্ট নীতি)। শুধু উত্তরের লেখা রাখা হয়, কোনো ছবি নয়। প্রতিটি দেখুন, দরকার হলে কারণ ঠিক করুন, তারপর সমাধান হয়েছে চিহ্ন দিন।",
+    "air_s_open": "খোলা", "air_s_resolved": "সমাধান হয়েছে",
+    "air_reason": "কারণ", "air_where": "কোথায়", "air_answer": "AI উত্তর",
+    "air_r_offensive": "আপত্তিকর", "air_r_harmful": "ক্ষতিকর",
+    "air_r_wrong": "ভুল বা বিভ্রান্তিকর", "air_r_other": "অন্যান্য",
+    "air_resolve": "সমাধান হয়েছে", "air_reopen": "আবার খুলুন",
+    "air_none": "এখানে কোনো AI রিপোর্ট নেই।",
+})
+# ---- /ai-report ----
+# ---- ai-router ---- Owner Admin → AI
+EN.update({
+    "nav_ai": "AI providers",
+    "ai_today": "Today (Dhaka day)", "ai_spend_total": "Spend / total cap",
+    "ai_calls": "Answered calls", "ai_failovers": "Answered after a failover",
+    "ai_failed": "Not answered (all providers failed or capped)",
+    "ai_total_note": "The total cap in use is the smaller of the cap below and the old AI daily budget on the Pricing page (or the server default).",
+    "ai_providers": "Providers", "ai_provider": "Provider", "ai_key": "Key",
+    "ai_key_on": "key saved", "ai_key_off": "no key",
+    "ai_circuit": "State", "ai_closed": "working", "ai_open": "paused (errors)",
+    "ai_half_open": "testing again", "ai_spend_cap": "Spend / cap today",
+    "ai_health": "Last health check", "ai_last_error": "Last error", "ai_never": "never",
+    "ai_reset": "Mark working",
+    "ai_circuit_note": "A provider that keeps failing is paused automatically and tried again after the wait time; traffic moves to the next provider meanwhile. Users never see which provider answered.",
+    "ai_jobs": "Which model does which job", "ai_job": "Job",
+    "ai_jobs_note": "Column 1 is tried first; if it is down, slow, rate limited or over its cap, column 2, then 3. Users are charged credits by the job, never by the provider.",
+    "ai_settings": "Settings", "ai_models": "Models", "ai_default": "default",
+    "ai_main_features": "Cheap-credit features that use the MAIN model (chat, assistant, agent)",
+    "ai_main_features_note": "Comma-separated feature names (prefix match). Remove one to send it to the cheap path.",
+    "ai_caps": "Daily spend caps", "ai_caps_note": "At the alert % you get one push/email per provider per day and a banner here. At 100% that provider is skipped until tomorrow; if all are capped, users see the honest “AI busy” message. Cap 0 switches a provider off.",
+    "ai_speed": "Speed and failover",
+    "ai_prices": "Prices (USD per 1M tokens)", "ai_model": "Model", "ai_in_use": "in use",
+    "ai_new_model": "add a model id", "ai_missing_price": "No price set for (the highest price is assumed until you add one):",
+    "ai_prices_note": "Check prices on each provider's pricing page after any change; cost per call and the caps use this table.",
+    "ai_recent": "Recent calls", "ai_when": "When", "ai_feature": "Feature", "ai_class": "Class",
+    "ai_path": "Route", "ai_no_calls": "No AI calls yet.", "ai_top_users": "Highest AI cost per user today",
+    "ai_probe": "Bangla quality probe", "ai_probe_note": "The same 10 Bangla prompts to every connected provider, side by side. Run it yourself on the server (it costs a few cents):",
+    "ai_probe_none": "Not run yet.",
+    "ai_alert_title": "AI spend:", "ai_alert_full": "cap reached", "ai_alert_open": "Open AI page",
+})
+BN.update({
+    "nav_ai": "AI প্রোভাইডার",
+    "ai_today": "আজ (ঢাকার দিন)", "ai_spend_total": "খরচ / মোট সীমা",
+    "ai_calls": "উত্তর দেওয়া কল", "ai_failovers": "ব্যাকআপে গিয়ে উত্তর",
+    "ai_failed": "উত্তর হয়নি (সব প্রোভাইডার ব্যর্থ বা সীমায়)",
+    "ai_total_note": "মোট সীমা হিসেবে নিচের সীমা আর Pricing পাতার পুরনো AI দৈনিক বাজেটের (বা সার্ভারের ডিফল্ট) মধ্যে যেটা ছোট সেটা ব্যবহার হয়।",
+    "ai_providers": "প্রোভাইডার", "ai_provider": "প্রোভাইডার", "ai_key": "কি",
+    "ai_key_on": "কি আছে", "ai_key_off": "কি নেই",
+    "ai_circuit": "অবস্থা", "ai_closed": "চলছে", "ai_open": "বিরতিতে (ত্রুটি)",
+    "ai_half_open": "আবার পরীক্ষা হচ্ছে", "ai_spend_cap": "আজকের খরচ / সীমা",
+    "ai_health": "শেষ স্বাস্থ্য পরীক্ষা", "ai_last_error": "শেষ ত্রুটি", "ai_never": "কখনো না",
+    "ai_reset": "চালু হিসেবে চিহ্নিত করুন",
+    "ai_circuit_note": "কোনো প্রোভাইডার বারবার ব্যর্থ হলে নিজে থেকেই বিরতিতে যায়, অপেক্ষার সময় পরে আবার চেষ্টা হয়; এর মধ্যে কাজ পরের প্রোভাইডারে যায়। কোন প্রোভাইডার উত্তর দিল, ইউজার কখনো দেখেন না।",
+    "ai_jobs": "কোন কাজে কোন মডেল", "ai_job": "কাজ",
+    "ai_jobs_note": "প্রথমে কলাম ১; সেটা বন্ধ, ধীর, রেট-লিমিটে বা সীমায় থাকলে কলাম ২, তারপর ৩। ইউজারের ক্রেডিট কাটে কাজ অনুযায়ী, প্রোভাইডার অনুযায়ী কখনো নয়।",
+    "ai_settings": "সেটিংস", "ai_models": "মডেল", "ai_default": "ডিফল্ট",
+    "ai_main_features": "সস্তা-ক্রেডিটের যে ফিচারগুলো মূল মডেল ব্যবহার করে (চ্যাট, সহকারী, এজেন্ট)",
+    "ai_main_features_note": "কমা দিয়ে ফিচারের নাম (শুরুর অংশ মিললেই হবে)। সরালে সেটি সস্তা পথে যাবে।",
+    "ai_caps": "দৈনিক খরচের সীমা", "ai_caps_note": "সতর্কতার % ছুঁলে প্রতিটি প্রোভাইডারের জন্য দিনে একবার পুশ/ইমেইল আর এখানে ব্যানার। ১০০% হলে সেই প্রোভাইডার কাল পর্যন্ত বাদ; সবগুলো সীমায় থাকলে ইউজার সৎ “AI এখন ব্যস্ত” বার্তা দেখেন। সীমা ০ দিলে প্রোভাইডার বন্ধ।",
+    "ai_speed": "গতি ও ব্যাকআপ",
+    "ai_prices": "দাম (প্রতি ১০ লাখ টোকেনে USD)", "ai_model": "মডেল", "ai_in_use": "ব্যবহৃত",
+    "ai_new_model": "নতুন মডেল আইডি", "ai_missing_price": "এগুলোর দাম দেওয়া নেই (না দেওয়া পর্যন্ত সবচেয়ে বেশি দাম ধরা হবে):",
+    "ai_prices_note": "দাম বদলালে প্রতিটি প্রোভাইডারের দামের পাতা দেখে মিলিয়ে নিন; প্রতি কলের খরচ আর সীমা এই টেবিল দিয়ে হিসাব হয়।",
+    "ai_recent": "সাম্প্রতিক কল", "ai_when": "কখন", "ai_feature": "ফিচার", "ai_class": "শ্রেণি",
+    "ai_path": "পথ", "ai_no_calls": "এখনো কোনো AI কল নেই।", "ai_top_users": "আজ ইউজারপ্রতি সবচেয়ে বেশি AI খরচ",
+    "ai_probe": "বাংলা মান পরীক্ষা", "ai_probe_note": "একই ১০টি বাংলা প্রশ্ন প্রতিটি যুক্ত প্রোভাইডারে, পাশাপাশি। সার্ভারে নিজে চালান (কয়েক সেন্ট খরচ):",
+    "ai_probe_none": "এখনো চালানো হয়নি।",
+    "ai_alert_title": "AI খরচ:", "ai_alert_full": "সীমা শেষ", "ai_alert_open": "AI পাতা খুলুন",
+})
+# ---- /ai-router ----

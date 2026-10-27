@@ -76,7 +76,13 @@ REGISTRY = (
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
     ('service_guide', 'daily_life', 'Service guide', 'সেবা গাইড', True, ('guide',)),
     ('nearby', 'daily_life', 'Nearby', 'কাছেপিঠে', True, ('nearby',)),
-    ('unseen_world', 'daily_life', 'Unseen World', 'অদেখা দুনিয়া', True, ()),
+    # unseen-rename (owner 27 Oct): the Today / Jobs / Expats / Students /
+    # Farmers / Government-services hub is "Daily info and services". Its
+    # flag was `unseen_world` until this rename; that key now belongs to the
+    # REAL Unseen World travel feature below (default OFF). Migration
+    # 0099_daily_info_flag carries the owner's old row over; LEGACY_KEYS
+    # keeps old apps (which still ask for `unseen_world`) showing the hub.
+    ('daily_info', 'daily_life', 'Daily info and services', 'আজকের তথ্য ও সেবা', True, ()),
     ('unseen_bangladesh', 'daily_life', 'Unseen Bangladesh', 'অদেখা বাংলাদেশ', True, ('unseen',)),
     ('dictionary', 'daily_life', 'Dictionary', 'অভিধান', True, ('dictionary',)),
     ('ramadan', 'daily_life', 'Ramadan mode', 'রমজান মোড', True, ('ramadan',)),
@@ -101,7 +107,7 @@ REGISTRY = (
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
     ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),
     ('travel_planner', 'daily_life', 'Travel planner', 'ভ্রমণ পরিকল্পনা', True, ()),
-    ('voice_mood', 'daily_life', 'Mood & energy', 'মন ও প্রাণশক্তি', True, ()),
+    ('voice_mood', 'daily_life', 'Mood & energy journal', 'মন ও প্রাণশক্তির ডায়েরি', True, ()),
     ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
     ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
     ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
@@ -121,11 +127,19 @@ REGISTRY = (
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
     ('retention_auto', 'business', 'Retention automation (thank-you, we-miss-you, due, back-in-stock, birthday)', 'রিটেনশন অটোমেশন (ধন্যবাদ, ফিরে আসুন, বাকি, স্টকে এসেছে, জন্মদিন)', False, ('retention_auto', 'retention_inbox')),
+    # plans-v2 (owner 27 Oct): the Free / Premium / Business matrix, CRM
+    # limits and the 7-day Business trial (core.entitlements_service). A
+    # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.
+    ('plans_v2', 'business', 'Plans v2 (Free / Premium / Business limits, 7-day Business trial)', 'প্ল্যান v2 (ফ্রি / প্রিমিয়াম / বিজনেস সীমা, ৭ দিনের বিজনেস ট্রায়াল)', False, ()),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
     ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
     ('retention', 'upcoming', 'Retention automation', 'রিটেনশন অটোমেশন', False, ()),
     ('booking', 'upcoming', 'Appointment booking bot', 'অ্যাপয়েন্টমেন্ট বুকিং বট', False, ()),
+    # The REAL Unseen World (owner 27 Oct): travel discovery — Bangladesh
+    # divisions/districts/spots first, then countries. Not built yet; plan:
+    # owner_actions/UNSEEN_WORLD_PLAN_BN.md. Hidden until all 9 DoD checks.
+    ('unseen_world', 'upcoming', 'Unseen World (travel discovery)', 'অদেখা দুনিয়া (ভ্রমণ আবিষ্কার)', False, ()),
     # home_v2 (owner final home design, 26 Oct): ON = the new home (header,
     # Discover, 12 shortcuts, Ask Assisto card, bottom bar with Assisto Voice);
     # OFF = the previous home, unchanged (fallback for one week). App shell
@@ -175,6 +189,13 @@ CACHE_TTL = 30             # seconds; the saving worker drops its copy at once
 KEYS = tuple(r[0] for r in REGISTRY)
 _BY_KEY = {r[0]: r for r in REGISTRY}
 ROUTE_FEATURE = {route: r[0] for r in REGISTRY for route in r[5]}
+
+# unseen-rename: a key whose MEANING changed. Apps built before the rename
+# gate the daily info hub on `unseen_world` and do not send `fv`, so they get
+# the daily_info answer under the old name. Apps that send `fv=2` (the rename
+# build on) get every key with its real meaning (`unseen_world` = travel).
+FEATURES_V = 2
+LEGACY_KEYS = {"unseen_world": "daily_info"}   # old name -> key it meant
 
 
 def is_known(key):
@@ -299,8 +320,14 @@ def is_on(key, user=None, play=False):
     return resolve(user, play)[0][key]
 
 
-def payload(user=None, play=False):
+def payload(user=None, play=False, fv=1):
     feats, preview = resolve(user, play)
+    if fv < FEATURES_V:
+        preview = [k for k in preview if k not in LEGACY_KEYS]
+        for old, new in LEGACY_KEYS.items():
+            feats[old] = feats[new]
+            if new in preview:
+                preview.append(old)
     return {"v": 1, "flavour": "play" if play else "apk",
             "features": feats, "preview": sorted(preview)}
 

@@ -22,6 +22,7 @@ import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../widgets/journey_api.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/reminders_nlp.dart' as nlp;
+import '../widgets/ai_report.dart'; // ai-report
 import 'assisto_card.dart';
 import 'assisto_card_view.dart' show p3When, p3Taka;
 import 'assisto_intent.dart';
@@ -651,6 +652,14 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
           icon: const Icon(Icons.copy_rounded),
           label: Text(t.p3Copy),
         ),
+        // ai-report: flag this @Assisto answer (text only)
+        TextButton.icon(
+          key: const ValueKey('p3-ai-report'),
+          onPressed: () => AiReport.open(
+              context, AiReportTarget(surface: 'circle', text: _result)),
+          icon: const Icon(Icons.outlined_flag_rounded),
+          label: Text(t.aiReportAction),
+        ),
       ];
 
   List<Widget> _errorView(AppLocalizations t, ColorScheme scheme) {
@@ -742,7 +751,9 @@ class _ReminderComposerState extends State<ReminderComposer> {
       _title.text = p.cleanTitle.isNotEmpty ? p.cleanTitle : rest;
       final dt = p.dateTime;
       if (dt != null && dt.isAfter(DateTime.now())) {
-        _at = p.dateOnly ? DateTime(dt.year, dt.month, dt.day, 9) : dt;
+        // the parser already applies the default / day-part / "today, next
+        // full hour" missing-time rule, so never force 09:00 (could be past)
+        _at = dt;
       }
     } else {
       final n = DateTime.now().add(const Duration(hours: 1));

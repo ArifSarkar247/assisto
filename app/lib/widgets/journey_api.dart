@@ -23,6 +23,8 @@ extension JourneyApi on ApiClient {
     int? overdueGraceMin,
     bool routeDeviationOn = false,
     int? locationRetentionHours,
+    bool night = false,
+    int? stopAlertMin,
   }) =>
       postJson('/journey/start', {
         'destination': destination,
@@ -35,6 +37,8 @@ extension JourneyApi on ApiClient {
         'route_deviation_on': routeDeviationOn,
         if (locationRetentionHours != null)
           'location_retention_hours': locationRetentionHours,
+        'night': night,
+        if (stopAlertMin != null) 'stop_alert_min': stopAlertMin,
       });
 
   /// Current active journey for the logged-in traveller (or {} if none).
@@ -146,6 +150,53 @@ extension JourneyApi on ApiClient {
   /// POST /journey/wellness/ping
   Future<void> wellnessPing() =>
       postJson('/journey/wellness/ping', const {});
+
+  // ---- journey100 ---------------------------------------------------------
+
+  /// Store-and-forward batch of queued fixes [{lat,lng,at,battery?}] (the
+  /// server orders, checks and de-futures them). POST /journey/<id>/location
+  Future<Map<String, dynamic>> journeyLocationBatch(
+          int id, List<Map<String, dynamic>> points) =>
+      postJson('/journey/$id/location', {'points': points});
+
+  /// More time (5–120 min). Watchers are told the new arrival time.
+  /// POST /journey/<id>/extend {minutes}
+  Future<Map<String, dynamic>> journeyExtend(int id, int minutes) =>
+      postJson('/journey/$id/extend', {'minutes': minutes});
+
+  /// The ride's photo (JPEG/PNG bytes, base64). POST /journey/<id>/vehicle-photo
+  Future<Map<String, dynamic>> journeyVehiclePhoto(int id, String imageB64,
+          {String? plate, String? mode}) =>
+      postJson('/journey/$id/vehicle-photo', {
+        'image_b64': imageB64,
+        if (plate != null && plate.isNotEmpty) 'plate': plate,
+        if (mode != null) 'mode': mode,
+      });
+
+  /// Cancel an SOS countdown. No PIN set -> plain cancel; the duress PIN
+  /// answers the same 'cancel' while a silent SOS goes out; a wrong PIN is a
+  /// 400 (stay armed). POST /journey/sos/cancel {pin?, journey_id?, lat?, lng?}
+  Future<Map<String, dynamic>> journeySosCancel(
+          {String? pin, int? journeyId, double? lat, double? lng}) =>
+      postJson('/journey/sos/cancel', {
+        if (pin != null) 'pin': pin,
+        if (journeyId != null) 'journey_id': journeyId,
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+      });
+
+  /// Is a safety PIN set on the server? GET /journey/duress-pin
+  Future<bool> duressPinConfigured() async =>
+      (await getJson('/journey/duress-pin'))['configured'] == true;
+
+  /// Journeys I was chosen to watch. GET /journey/watching
+  Future<List<Map<String, dynamic>>> journeysWatching() async {
+    final r = await getJson('/journey/watching');
+    return ((r['journeys'] ?? []) as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Delete a routine. DELETE /journey/routines/<id>
+  Future<void> deleteJourneyRoutine(int id) => deleteJson('/journey/routines/$id');
 
   // ---- saved places (Home / Office / College) ---------------------------
 

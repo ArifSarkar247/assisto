@@ -109,6 +109,9 @@ def detect_lang(text):
         "koto", "kemon", "ache", "dam", "daam", "pathao", "ki ", "kivabe",
         "kobe", "order", "lagbe", "nibo", "dibo", "takbe", "porabe", "koto taka",
         "bikash", "bkash", "nagad", "delivery koto", "ekta", "dorkar",
+        # e2e-sales: everyday bargaining / ordering Banglish
+        "diben", "deben", "dile ", "hobe", "taka te", "takay", "korben", "korbo",
+        "koren", "bhai", "vaiya", "apu ", "naki", "dite paren", "kom ", "chai ",
     )
     if any(m in low for m in banglish_markers):
         return "banglish"

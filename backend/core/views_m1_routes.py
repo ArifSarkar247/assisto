@@ -568,11 +568,18 @@ class JourneyTimelineView(APIView):
             {"lat": p.lat, "lng": p.lng, "battery": p.battery,
              "at": p.at.isoformat()} for p in JourneyPoint.objects.filter(journey=j)]
         events = [{"kind": "started", "at": j.created_at.isoformat()}]
-        if j.sos_active:
+        if j.sos_active and not (j.silent and j.traveller_id == request.user.id):
             events.append({"kind": "sos", "at": (j.last_activity_at or now).isoformat()})
+        # journey100: what watchers were actually told (never the silent
+        # duress event on the traveller's own timeline)
+        for ev in j.events.exclude(kind="started").order_by("created_at")[:100]:
+            if ev.kind == "duress" and j.traveller_id == request.user.id:
+                continue
+            events.append({"kind": ev.kind, "at": ev.created_at.isoformat(),
+                           "delivered": ev.delivered_at is not None})
         if j.status in ("arrived", "stopped", "expired"):
             events.append({"kind": j.status,
-                           "at": (j.last_activity_at or now).isoformat()})
+                           "at": (j.stopped_at or j.last_activity_at or now).isoformat()})
         return Response({"id": j.id, "status": j.status, "expired": expired,
                          "destination": j.destination, "eta":
                          j.eta.isoformat() if j.eta else None,

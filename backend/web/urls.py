@@ -4,10 +4,14 @@ from .owner.urls import site_robots
 from . import views_legal
 from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
+from . import views_journey   # journey100
+from . import views_at_watch   # antitheft2
 
 urlpatterns = [
     path("", views.landing),
     path("get", views.get_app),
+    # antitheft2: a trusted contact's signed web view of a protected phone
+    path("w/phone/<str:token>", views_at_watch.phone_page),
 
     # ---- o2-admin: web owner admin panel (2FA, own session cookie) ----
     # Replaces the old password-only /owner/integrations page (same URL now
@@ -56,4 +60,8 @@ urlpatterns = [
 
     # m3-circle: My Circle invite link landing (QR / share / SMS)
     path("i/<str:token>", views.circle_invite),
+
+    # journey100: Safe Journey watcher page (signed expiring token, noindex)
+    path("j/<str:token>/data", views_journey.watch_data),
+    path("j/<str:token>", views_journey.watch_page),
 ]

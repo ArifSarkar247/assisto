@@ -51,9 +51,10 @@ ROUTE_KEYS = (
     "subscriptions", "finance", "payment_ladder", "notes", "memory", "nominee",
     "contacts", "agent_studio", "jobs", "cv", "resume", "inbox", "guide",
     "nearby", "watch_feed", "business", "bargain_rules", "business_plans",
-    "journey", "referral", "circle_privacy", "circle_calls", "action_center",
+    "journey", "journey_watch", "journey_settings", "referral", "circle_privacy", "circle_calls", "action_center",
     "disaster", "offline", "budget", "tax", "wrapped", "money_voice", "ai_chat",
     "voice_assistant", "voice_settings", "photo_studio",
+    "family_alerts",  # family100
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman

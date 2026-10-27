@@ -76,6 +76,18 @@ def test_expense():
     _ok(r3["args"]["amount"] is None, r3["args"])
 
 
+def test_expense_date_past_biased():
+    from datetime import datetime
+    now = datetime(2026, 10, 13, 10, 0)
+    r = V.map_command("কাল ৫০০ টাকা খরচ করেছি", now=now)
+    _ok(r["intent"] == V.INTENT_EXPENSE, r)
+    _ok(r["args"]["date"] == "2026-10-12", r["args"])        # yesterday
+    r = V.map_command("kal 200 taka khoroch korechi", now=now)
+    _ok(r["args"]["date"] == "2026-10-12", r["args"])
+    r = V.map_command("৫০ টাকা খরচ করেছি", now=now)
+    _ok(r["args"]["date"] == "2026-10-13", r["args"])        # no day word -> today
+
+
 def test_open_route_reuse():
     # open-verb + known subject -> navigate (reuses screen_synonyms)
     r = V.map_command("open my money")
@@ -110,6 +122,7 @@ def run_all():
     test_call()
     test_reminder()
     test_expense()
+    test_expense_date_past_biased()
     test_open_route_reuse()
     test_unknown()
     test_confirm_invariant()

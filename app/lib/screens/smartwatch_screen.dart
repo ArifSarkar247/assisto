@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart'; // db1
 
@@ -139,11 +140,9 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
 
   Future<void> _requestPermission() async {
     setState(() => _phase = _Phase.checking);
-    // On Android 14+ reading in the background / activity recognition may be
-    // required by the OEM; request the common runtime permission defensively.
-    try {
-      await Permission.activityRecognition.request();
-    } catch (_) {} // best-effort: optional OEM permission; Health Connect permission is requested next
+    // healthfit (least privilege): only the four Health Connect READ
+    // permissions are asked — no ACTIVITY_RECOGNITION (Health Connect reads
+    // never need it, and no shipped screen uses the phone's step sensor).
     bool ok = false;
     try {
       ok = await _health.requestAuthorization(_types, permissions: _access);
@@ -222,6 +221,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
       appBar: AppBar(title: Text(tr.swTitle), actions: [
         if (_phase == _Phase.ready || _phase == _Phase.needsPermission)
           IconButton(

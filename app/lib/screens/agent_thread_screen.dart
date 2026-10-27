@@ -10,6 +10,7 @@ import '../payments/credits_out_sheet.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/voice_input.dart';
+import '../widgets/ai_report.dart';
 
 /// own-device (owner 24 Oct): an /alerts row about the signed-in user's OWN
 /// protected phone (anti-theft, owner_id == me). The home urgent card never
@@ -32,7 +33,13 @@ class _Msg {
   /// h1-home: an attached photo turn (kept on this device only — the photo is
   /// never saved to the chat history).
   final ChatPhotoRequest? photo;
-  _Msg(this.user, this.text, [this.cards = const [], this.photo]);
+
+  /// ai-report: a server answer the user can report (not local notices such
+  /// as the greeting, "send failed" or "undone"). [id] = stored message id.
+  final bool reportable;
+  final String? id;
+  _Msg(this.user, this.text,
+      [this.cards = const [], this.photo, this.reportable = false, this.id]);
 }
 
 /// The heart of the app: a conversation with Assisto. The screen is only the
@@ -129,8 +136,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     });
     if (widget.debugSeed != null) {
       for (final m in widget.debugSeed!) {
-        _msgs.add(_Msg(m['user'] == true, (m['text'] ?? '').toString(),
-            ((m['cards'] ?? []) as List).cast<Map<String, dynamic>>()));
+        _msgs.add(_Msg(
+            m['user'] == true,
+            (m['text'] ?? '').toString(),
+            ((m['cards'] ?? []) as List).cast<Map<String, dynamic>>(),
+            null,
+            m['user'] != true && m['reportable'] != false,
+            m['id']?.toString()));
       }
       return; // previews don't poll
     }
@@ -172,7 +184,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               (m['text'] ?? '').toString(),
               (((m['meta'] is Map ? m['meta'] as Map : const {})['cards'] ??
                       []) as List)
-                  .cast<Map<String, dynamic>>()),
+                  .cast<Map<String, dynamic>>(),
+              null,
+              m['role'] == 'assistant',
+              m['id']?.toString()),
       ];
       // history goes BEFORE anything the user already sent while it loaded
       setState(() => _msgs.insertAll(0, restored));
@@ -301,7 +316,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         return;
       }
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
-      setState(() => _msgs.add(_Msg(false, r['reply'] ?? '', cards)));
+      setState(() => _msgs.add(_Msg(false, r['reply'] ?? '', cards, null,
+          true, r['message_id']?.toString())));
       app.reminders.sync();
       app.txns.sync();
       app.loans.sync();
@@ -472,13 +488,24 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             child: bubble),
       );
     }
-    // assistant: avatar + bubble
+    // assistant: avatar + bubble (+ ai-report: long-press menu + flag)
+    final report = m.reportable && m.text.trim().isNotEmpty
+        ? AiReportTarget(
+            surface: 'home',
+            text: m.text,
+            messageId: m.id,
+            sessionId: _sessionId)
+        : null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _logoMark(28),
         const SizedBox(width: Gap.sm),
-        Flexible(child: bubble),
+        Flexible(
+            child: report == null
+                ? bubble
+                : AiAnswerLongPress(target: report, child: bubble)),
+        if (report != null) AiReportButton(target: report),
       ]),
     );
   }

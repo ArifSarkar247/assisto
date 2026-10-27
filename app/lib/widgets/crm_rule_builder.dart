@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
+import '../plans_v2/plans_v2.dart';
+import '../plans_v2/upgrade_sheet.dart';
 import '../screens/crm/crm_advanced_api.dart';
 
 /// Builder sheet for ONE owner automation rule (CRM spec #11), in the shape
@@ -122,7 +124,12 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      setState(() => _err = CrmError.from(e).textFor(context));
+      // plans-v2: automation is a Business feature -> the upgrade sheet
+      if (UpgradeReason.fromError(e) != null) {
+        if (mounted) await UpgradeSheet.handle(context, e);
+        return;
+      }
+      if (mounted) setState(() => _err = CrmError.from(e).textFor(context));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

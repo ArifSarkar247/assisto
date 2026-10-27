@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../plans_v2/plans_v2.dart';
+import '../plans_v2/upgrade_sheet.dart';
 import 'package:provider/provider.dart';
 import '../business_ai_api.dart';
 import '../l10n/app_localizations.dart';
@@ -132,6 +134,9 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     } catch (e) {
       if (isUpgradeRequired(e)) {
         _locked = true;
+        // plans-v2: the structured refusal opens the honest upgrade sheet
+        final up = UpgradeReason.fromError(e);
+        if (up != null && mounted) UpgradeSheet.show(context, up);
       } else {
         _error = e.toString();
       }

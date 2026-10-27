@@ -323,6 +323,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // journey100: Safe Journey battery % ("com.assisto/journey"). Handler
+        // only — BatteryManager is read when Dart asks, never at launch.
+        try {
+            com.assisto.assisto.journey.JourneyChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

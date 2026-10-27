@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
+import '../../widgets/ai_report.dart'; // ai-report
 import '../../widgets/skeleton.dart';
 import '../plans_screen.dart';
 
@@ -460,8 +461,17 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             Row(children: [
               Icon(Icons.insights_rounded, size: 16, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
-              Text(tr.bizConfidence('${(conf * 100).round()}'),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              Expanded(
+                child: Text(tr.bizConfidence('${(conf * 100).round()}'),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              ),
+              // ai-report: flag the AI-drafted reply (text only)
+              if ((_draft?['text'] ?? '').toString().trim().isNotEmpty)
+                AiReportButton(
+                    target: AiReportTarget(
+                        surface: 'business',
+                        text: (_draft!['text'] ?? '').toString(),
+                        sessionId: '${widget.threadId}')),
             ]),
             const SizedBox(height: Gap.sm),
           ],

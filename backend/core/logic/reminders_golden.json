@@ -30,7 +30,7 @@
     "input": "আজকে রিপোর্ট জমা",
     "now": "2026-10-13T10:00:00",
     "expected": {
-      "datetime": "2026-10-13T09:00:00",
+      "datetime": "2026-10-13T11:00:00",
       "recurrence_rule": null,
       "clean_title": "রিপোর্ট জমা"
     }
@@ -223,6 +223,480 @@
       "datetime": "2026-10-25T09:00:00",
       "recurrence_rule": null,
       "clean_title": "বিল দাও"
+    }
+  },
+  {
+    "input": "কাল ৫০০ টাকা খরচ করেছি",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "500 টাকা খরচ করেছি",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "গতকাল বাজার",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বাজার",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কাল গিয়েছিলাম ডাক্তারের কাছে",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "গিয়েছিলাম ডাক্তারের কাছে",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কাল সকালে মিটিং",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "মিটিং",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কাল মনে করিয়ে দিও ওষুধ",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ওষুধ",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "kal 500 taka khoroch korechi",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "500 taka khoroch korechi",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "kal gelam office",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "gelam office",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "yesterday lunch",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "lunch",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কালকে চাল কিনলাম",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-12T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "চাল কিনলাম",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কাল মিটিং আছে",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "মিটিং আছে",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "পরশু গিয়েছিলাম",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-11T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "গিয়েছিলাম",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "পরশু মিটিং",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-15T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "মিটিং",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "৩ দিন আগে বিল দিয়েছি",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-10T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বিল দিয়েছি",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "বিকাল ৫টা চা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T17:00:00",
+      "recurrence_rule": null,
+      "clean_title": "চা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "সকাল ৭টা ৩০ মিনিট দৌড়",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T07:30:00",
+      "recurrence_rule": null,
+      "clean_title": "দৌড়",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "রাত ৯টা খবর",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T21:00:00",
+      "recurrence_rule": null,
+      "clean_title": "খবর",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "রাত ১টা ওষুধ",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T01:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ওষুধ",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "বিকাল সাড়ে পাঁচটা চা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T17:30:00",
+      "recurrence_rule": null,
+      "clean_title": "চা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "পৌনে ১০টায় ক্লাস",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:45:00",
+      "recurrence_rule": null,
+      "clean_title": "ক্লাস",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "সকাল সোয়া আটটা নাস্তা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:15:00",
+      "recurrence_rule": null,
+      "clean_title": "নাস্তা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "দেড়টায় লাঞ্চ",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T13:30:00",
+      "recurrence_rule": null,
+      "clean_title": "লাঞ্চ",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "আড়াইটায় মিটিং",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T14:30:00",
+      "recurrence_rule": null,
+      "clean_title": "মিটিং",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "রাত সাড়ে ৯টা খবর",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T21:30:00",
+      "recurrence_rule": null,
+      "clean_title": "খবর",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "পাঁচ তারিখ বিল",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-11-05T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বিল",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "তিন দিন পর পরীক্ষা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "পরীক্ষা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "প্রতি মাসের পাঁচ তারিখ ভাড়া",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-11-05T09:00:00",
+      "recurrence_rule": {
+        "freq": "monthly",
+        "interval": 1,
+        "weekday": null,
+        "day_of_month": 5,
+        "month": null,
+        "time": null
+      },
+      "clean_title": "ভাড়া",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "মাসের শেষে বেতন",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-31T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বেতন",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "প্রতি মাসের শেষে বিল",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-31T09:00:00",
+      "recurrence_rule": {
+        "freq": "monthly",
+        "interval": 1,
+        "weekday": null,
+        "day_of_month": 31,
+        "month": null,
+        "time": null
+      },
+      "clean_title": "বিল",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "end of month report",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-31T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "report",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "শুক্রবার গিয়েছিলাম",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-09T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "গিয়েছিলাম",
+      "past": true,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "সকাল সাতটা হাঁটা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T07:00:00",
+      "recurrence_rule": null,
+      "clean_title": "হাঁটা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কালকে অফিস",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "অফিস",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "আজকাল খুব ব্যস্ত",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": null,
+      "recurrence_rule": null,
+      "clean_title": "আজকাল খুব ব্যস্ত",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "আজকে রিপোর্ট জমা",
+    "now": "2026-10-13T08:00:00",
+    "expected": {
+      "datetime": "2026-10-13T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "রিপোর্ট জমা",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "আজ রিপোর্ট",
+    "now": "2026-10-13T23:20:00",
+    "expected": {
+      "datetime": "2026-10-13T23:59:00",
+      "recurrence_rule": null,
+      "clean_title": "রিপোর্ট",
+      "past": false,
+      "needs_time": true
+    }
+  },
+  {
+    "input": "মাসের শেষে বেতন",
+    "now": "2026-10-31T23:30:00",
+    "expected": {
+      "datetime": "2026-11-30T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বেতন",
+      "past": false,
+      "needs_time": false
+    }
+  },
+  {
+    "input": "কাল ৫০০ টাকা খরচ",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-12"
+    }
+  },
+  {
+    "input": "কাল ৫০০ টাকা খরচ করেছি",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-12"
+    }
+  },
+  {
+    "input": "৫০০ টাকা চা",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-13"
+    }
+  },
+  {
+    "input": "পরশু ২০০ টাকা রিকশা",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-11"
+    }
+  },
+  {
+    "input": "আগামীকাল ১০০ টাকা",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-13"
+    }
+  },
+  {
+    "input": "শুক্রবার বাজার ৮০০",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-09"
+    }
+  },
+  {
+    "input": "গতকাল ৩০০ টাকা ওষুধ",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-10-12"
+    }
+  },
+  {
+    "input": "২০ তারিখ ভাড়া ৫০০০",
+    "now": "2026-10-13T10:00:00",
+    "mode": "expense",
+    "expected": {
+      "expense_date": "2026-09-20"
     }
   }
 ]

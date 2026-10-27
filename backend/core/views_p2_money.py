@@ -171,5 +171,6 @@ class TrialStartView(APIView):
                             status=status.HTTP_409_CONFLICT)
         u = request.user
         return Response({"ok": True, "trial_until": u.trial_until.isoformat(),
-                         "days": plans.trial_days(), "credits": u.ai_credits,
-                         "plan": plans.effective_plan(u)})
+                         "days": plans.trial_days(u), "credits": u.ai_credits,
+                         "plan": plans.effective_plan(u),
+                         "trial_plan": plans.trial_plan(u)})

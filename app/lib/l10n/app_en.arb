@@ -21136,5 +21136,841 @@
   "ffPreviewTag": "Preview",
   "@ffPreviewTag": {
     "description": "Small tag on a sidebar / All Services entry that only the owner / staff / testers see (hidden feature in preview)."
+  },
+  "pv2AddContact": "Add contact",
+  "@pv2AddContact": {
+    "description": "plans-v2"
+  },
+  "pv2TabContacts": "Contacts",
+  "@pv2TabContacts": {
+    "description": "plans-v2"
+  },
+  "pv2NoContacts": "No contacts yet",
+  "@pv2NoContacts": {
+    "description": "plans-v2"
+  },
+  "pv2NoContactsHint": "Keep your customers and the people you deal with here — a name and a phone are enough.",
+  "@pv2NoContactsHint": {
+    "description": "plans-v2"
+  },
+  "pv2ContactName": "Name",
+  "@pv2ContactName": {
+    "description": "plans-v2"
+  },
+  "pv2ContactPhone": "Phone",
+  "@pv2ContactPhone": {
+    "description": "plans-v2"
+  },
+  "pv2ContactEmail": "Email",
+  "@pv2ContactEmail": {
+    "description": "plans-v2"
+  },
+  "pv2ContactTitle": "Job title (optional)",
+  "@pv2ContactTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ContactNameNeeded": "Enter a name.",
+  "@pv2ContactNameNeeded": {
+    "description": "plans-v2"
+  },
+  "pv2CrmViewOnlyNote": "On Free, leads, deals, pipeline and tasks are view only; you can add contacts.",
+  "@pv2CrmViewOnlyNote": {
+    "description": "plans-v2"
+  },
+  "pv2UsageContacts": "{used}/{limit} contacts",
+  "@pv2UsageContacts": {
+    "description": "plans-v2",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2UsageContactsUnlimited": "{used} contacts · Unlimited",
+  "@pv2UsageContactsUnlimited": {
+    "description": "plans-v2",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2PlanFree": "Free",
+  "@pv2PlanFree": {
+    "description": "plans-v2"
+  },
+  "pv2PlanPremium": "Premium",
+  "@pv2PlanPremium": {
+    "description": "plans-v2"
+  },
+  "pv2PlanBusiness": "Business",
+  "@pv2PlanBusiness": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonContactsTitle": "Contact limit reached",
+  "@pv2ReasonContactsTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonContactsBody": "You have {used} of {limit} contacts on your plan. Upgrade to {plan} to add more — every contact you already have stays as it is.",
+  "@pv2ReasonContactsBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonCrmWriteTitle": "CRM is view only on Free",
+  "@pv2ReasonCrmWriteTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonCrmWriteBody": "On Free you can view leads, deals, pipeline and tasks but not add new ones. Upgrade to {plan} to add leads and tasks.",
+  "@pv2ReasonCrmWriteBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonFollowupTitle": "Follow-up reminders",
+  "@pv2ReasonFollowupTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonFollowupBody": "Follow-up dates, reminders and suggestions come with {plan}.",
+  "@pv2ReasonFollowupBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonAutomationTitle": "Automation needs Business",
+  "@pv2ReasonAutomationTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonAutomationBody": "Automatic rules and customer messages come with {plan}. Your existing rules stay visible and can be switched off.",
+  "@pv2ReasonAutomationBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonAgentTitle": "The AI Sales Agent needs Business",
+  "@pv2ReasonAgentTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonAgentBody": "AI replies to customers on Messenger, WhatsApp and your website, and COD order confirmation, come with {plan}. Message and AI costs come from credits.",
+  "@pv2ReasonAgentBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonBookingTitle": "The booking page needs Business",
+  "@pv2ReasonBookingTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonBookingBody": "Putting your booking page live needs {plan}. Your setup stays as it is.",
+  "@pv2ReasonBookingBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonReportsTitle": "Weekly and monthly reports",
+  "@pv2ReasonReportsTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonReportsBody": "Weekly and monthly reports come with {plan}. Daily totals stay free.",
+  "@pv2ReasonReportsBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonLedgerAiTitle": "Khata AI tools",
+  "@pv2ReasonLedgerAiTitle": {
+    "description": "plans-v2"
+  },
+  "pv2ReasonLedgerAiBody": "Voice entry, paper-khata scan and payment matching come with {plan}. The basic digital khata is always free.",
+  "@pv2ReasonLedgerAiBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonGenericTitle": "A {plan} feature",
+  "@pv2ReasonGenericTitle": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2ReasonGenericBody": "This needs the {plan} plan.",
+  "@pv2ReasonGenericBody": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2WhatYouGet": "What {plan} adds",
+  "@pv2WhatYouGet": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2BenefitPremiumContacts": "Up to 500 CRM contacts",
+  "@pv2BenefitPremiumContacts": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitPremiumCrm": "Add and edit leads, deals, pipeline and tasks",
+  "@pv2BenefitPremiumCrm": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitPremiumFollowup": "Follow-up reminders",
+  "@pv2BenefitPremiumFollowup": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessContacts": "Unlimited CRM contacts",
+  "@pv2BenefitBusinessContacts": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessAutomation": "CRM automation: rule-based follow-up tasks and alerts",
+  "@pv2BenefitBusinessAutomation": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessRetention": "Automatic thank-you and review ask, win-back, birthday wishes, dues and back-in-stock messages",
+  "@pv2BenefitBusinessRetention": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessAgent": "AI Sales Agent, with COD order confirmation",
+  "@pv2BenefitBusinessAgent": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessBooking": "Booking bot (appointment page)",
+  "@pv2BenefitBusinessBooking": {
+    "description": "plans-v2"
+  },
+  "pv2BenefitBusinessReports": "Weekly and monthly reports, bank-loan report",
+  "@pv2BenefitBusinessReports": {
+    "description": "plans-v2"
+  },
+  "pv2UpgradeTo": "Upgrade to {plan} — {price}/month",
+  "@pv2UpgradeTo": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2PriceLoading": "Getting the price from Google Play…",
+  "@pv2PriceLoading": {
+    "description": "plans-v2"
+  },
+  "pv2PlayNote": "Price and payment are Google Play's. Cancel any time in Play.",
+  "@pv2PlayNote": {
+    "description": "plans-v2"
+  },
+  "pv2TrialButton": "Start the free {days}-day {plan} trial",
+  "@pv2TrialButton": {
+    "description": "plans-v2",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2TrialNote": "Once per account, no card needed. It ends on {date} — then the account returns to Free; nothing is charged.",
+  "@pv2TrialNote": {
+    "description": "plans-v2",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2TrialStarted": "Your {plan} trial has started — it ends on {date}.",
+  "@pv2TrialStarted": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2TrialUsed": "The free trial is once per account — you already used it.",
+  "@pv2TrialUsed": {
+    "description": "plans-v2"
+  },
+  "pv2TrialActiveUntil": "{plan} trial · ends {date}",
+  "@pv2TrialActiveUntil": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2TrialBanner": "Your {plan} trial ends on {date}. After that the account returns to Free — nothing is charged and all your data stays.",
+  "@pv2TrialBanner": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2SeePlans": "See all plans",
+  "@pv2SeePlans": {
+    "description": "plans-v2"
+  },
+  "pv2NotNow": "Not now",
+  "@pv2NotNow": {
+    "description": "plans-v2"
+  },
+  "pv2FollowupLocked": "Follow-up suggestions come with {plan}",
+  "@pv2FollowupLocked": {
+    "description": "plans-v2",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "pv2CmpGroup": "Business & CRM",
+  "@pv2CmpGroup": {
+    "description": "plans-v2"
+  },
+  "pv2CmpLedger": "Digital ledger (basic)",
+  "@pv2CmpLedger": {
+    "description": "plans-v2"
+  },
+  "pv2CmpCrmContacts": "CRM contacts",
+  "@pv2CmpCrmContacts": {
+    "description": "plans-v2"
+  },
+  "pv2CmpCrmWrite": "Leads, deals, pipeline and tasks",
+  "@pv2CmpCrmWrite": {
+    "description": "plans-v2"
+  },
+  "pv2CmpViewOnly": "View only",
+  "@pv2CmpViewOnly": {
+    "description": "plans-v2"
+  },
+  "pv2CmpFollowup": "Follow-up reminders",
+  "@pv2CmpFollowup": {
+    "description": "plans-v2"
+  },
+  "pv2CmpAutomation": "CRM automation",
+  "@pv2CmpAutomation": {
+    "description": "plans-v2"
+  },
+  "pv2CmpAutomationRetention": "Automation (CRM rules and customer messages)",
+  "@pv2CmpAutomationRetention": {
+    "description": "plans-v2"
+  },
+  "pv2CmpAgent": "AI Sales Agent",
+  "@pv2CmpAgent": {
+    "description": "plans-v2"
+  },
+  "pv2CmpBooking": "Booking bot",
+  "@pv2CmpBooking": {
+    "description": "plans-v2"
+  },
+  "pv2CmpReports": "Weekly and monthly reports",
+  "@pv2CmpReports": {
+    "description": "plans-v2"
+  },
+  "pv2CmpUnlimited": "Unlimited",
+  "@pv2CmpUnlimited": {
+    "description": "plans-v2"
+  },
+  "j100BackgroundOn": "Keeps sharing with the screen off. Stops when you arrive or stop.",
+  "j100Battery": "Battery {n}%",
+  "j100Extend": "More time",
+  "j100ExtendLimit": "You can't add more time to this journey.",
+  "j100ExtendMin": "{n} minutes",
+  "j100ExtendTitle": "How much more time?",
+  "j100Extended": "Time added. Your people were told the new time.",
+  "j100Footer": "Only the people you chose see your location, and only during this journey. It is deleted after the time you set.",
+  "j100KeepOpen": "This phone did not allow sharing in the background. Keep Assisto open during the trip.",
+  "j100LastSent": "Last sent at {time}",
+  "j100Late": "Your arrival time has passed",
+  "j100LivePage": "Live page",
+  "j100LocOffBody": "Turn on location so your people can see where you are.",
+  "j100LocOffTitle": "Location is off",
+  "j100LocOn": "Turn on location",
+  "j100Locating": "Finding your location…",
+  "j100NearbyFailed": "Couldn't load nearby places. Call 999 or search the map.",
+  "j100NearbyNone": "No police station or hospital found on the map near you.",
+  "j100Night": "Night trip",
+  "j100NightDesc": "If you are late, your people are alerted sooner.",
+  "j100NotifText": "Sharing your location with the people you chose until you arrive.",
+  "j100NotifTitle": "Safe Journey is on",
+  "j100OfflineBody": "{n} locations are saved on this phone and will be sent when the internet is back.",
+  "j100OfflineTitle": "No internet",
+  "j100OpenMap": "Open map",
+  "j100PinLocked": "Too many wrong PINs. Try again in 10 minutes.",
+  "j100PinRule": "Both PINs must be 4 to 8 digits and different from each other.",
+  "j100RoutineDelete": "Delete routine",
+  "j100RoutineDesc": "At the time you set, Assisto reminds you to start a Safe Journey. If that journey is late, your people are alerted.",
+  "j100SearchHospital": "Hospitals on the map",
+  "j100SearchHospitalQuery": "hospital",
+  "j100SearchPolice": "Police on the map",
+  "j100SearchPoliceQuery": "police station",
+  "j100SendSms": "Send SMS from my SIM",
+  "j100Sharing": "Sharing your live location",
+  "j100SmsBody": "I'm on a Safe Journey to {dest}. My last location: {link} (at {time}). Please check on me.",
+  "j100SmsBodyNoLoc": "I'm on a Safe Journey and may need help. Please call me.",
+  "j100SosNotSent": "The alert could not be sent — no internet. Send an SMS from your SIM or call 999.",
+  "j100SosSmsBody": "Emergency! I need help. My location: {link} (at {time}).",
+  "j100StArrived": "Arrived safely",
+  "j100StEnded": "Journey ended",
+  "j100StLate": "Late — not arrived yet",
+  "j100StLive": "Live",
+  "j100StLost": "No location for {min} min",
+  "j100StSos": "Emergency",
+  "j100StStale": "Updated {min} min ago",
+  "j100StWaiting": "Waiting for the first location",
+  "j100StopAlert": "Alert if I stop for a long time",
+  "j100StopAlertDesc": "If you don't move for {min} minutes, your people are told.",
+  "j100VehiclePhoto": "Ride photo",
+  "j100VehiclePhotoAdded": "Ride photo added",
+  "j100VehiclePhotoCamera": "Take a photo",
+  "j100VehiclePhotoPick": "Choose a photo",
+  "j100VehiclePhotoSent": "Photo shared with your people.",
+  "j100WatchEmpty": "No one is sharing a journey with you right now.",
+  "j100WatchError": "Couldn't load. Check the internet and try again.",
+  "j100Watching": "Journeys I'm watching",
+  "j100WellnessAsk": "Assisto asked if you're OK. Tap below so your family knows.",
+  "j100WellnessFine": "I'm fine — tell my family",
+  "j100WellnessPinged": "Thanks — your family knows you're OK.",
+  "@j100Battery": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100ExtendMin": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100LastSent": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100OfflineBody": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100SmsBody": {
+    "placeholders": {
+      "dest": {
+        "type": "Object"
+      },
+      "link": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100SosSmsBody": {
+    "placeholders": {
+      "link": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100StLost": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100StStale": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "@j100StopAlertDesc": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "aiReportAction": "Report this answer",
+  "aiReportBody": "Tell us what is wrong. Only the text of this answer is sent to the Assisto team for review.",
+  "aiReportOffensive": "Offensive",
+  "aiReportHarmful": "Harmful or dangerous",
+  "aiReportWrong": "Wrong or misleading",
+  "aiReportOther": "Something else",
+  "aiReportNoteHint": "Add details (optional)",
+  "aiReportSend": "Send report",
+  "aiReportPickReason": "Choose a reason",
+  "aiReportThanks": "Thank you. We will review this answer.",
+  "aiReportFailed": "Could not send the report. Please try again.",
+  "aiReportLimit": "Too many reports. Please try again later.",
+  "aiAnswerMenu": "Answer options",
+  "dailyInfoTitle": "Daily info and services",
+  "hfNotMedicalAdvice": "This is not medical advice. Talk to a doctor about any health concern.",
+  "moodJournalTitle": "Mood & energy journal",
+  "moodOptInBody2": "Fully optional, and it stays only on this phone. Once a day, note how you feel and how much energy you have, add a short line if you like, and take a one-minute breathing break.",
+  "moodOptInPoint4b": "A personal journal for relaxation and self-care. It is not medical advice — talk to a doctor about any health concern.",
+  "moodSafetyNote2": "A personal journal to notice your mood and energy, with simple relaxation ideas. It never labels or judges how you feel.",
+  "moodSupportTitle": "You don't have to carry it alone",
+  "moodSupportBody": "If things have felt heavy for a few days, talk to someone you trust. If you ever feel unsafe, call 999 (national emergency service).",
+  "moodCall999": "Call 999",
+  "moodBreathTitle": "One-minute breathing",
+  "moodBreathBody": "Breathe in slowly for 4 seconds, then out for 4 seconds. Follow the circle and relax.",
+  "moodBreathStart": "Start",
+  "moodBreathStop": "Stop",
+  "moodBreathIn": "Breathe in…",
+  "moodBreathOut": "Breathe out…",
+  "moodBreathLeft": "{seconds} s left",
+  "moodBreathDone": "Nicely done. Come back any time you want a calm minute.",
+  "moodNoteLabel": "A short note (optional)",
+  "moodNoteHint": "e.g. slept well, busy day at work",
+  "fitTipFixedNote": "A simple tip based on your own progress.",
+  "@moodBreathLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehMoving": "Moving",
+  "e2eVehStoppedFor": "Stopped · {minutes} min",
+  "@e2eVehStoppedFor": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehOnRoute": "On your usual route",
+  "e2eVehOffRoute": "{meters} m off your usual route",
+  "@e2eVehOffRoute": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertOverspeed": "Slow down — {speed} (limit {limit})",
+  "@e2eVehAlertOverspeed": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertOffRoute": "You left your usual route ({meters} m)",
+  "@e2eVehAlertOffRoute": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertLongStop": "Stopped for {minutes} min on your route",
+  "@e2eVehAlertLongStop": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehSpeedAlert": "Speed alert",
+  "e2eVehOff": "Off",
+  "e2eVehUseRoute": "Alert if I leave my usual route",
+  "e2eVehNoRouteYet": "No usual route yet. Finish a trip, then save it.",
+  "e2eVehSaveRoute": "Save this trip as my usual route",
+  "e2eVehRouteSaved": "Saved as your usual route",
+  "e2eVehCarMapSemantics": "Live map. Speed {speed}. {state}",
+  "@e2eVehCarMapSemantics": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehPlanSave": "Set as planned route",
+  "e2eVehPlanClear": "Remove planned route",
+  "e2eVehPlanSaved": "Planned route saved. You get an alert if the vehicle leaves it or stops for long.",
+  "e2eVehPlanCleared": "Planned route removed",
+  "e2eVehPlanInfo": "Planned route · alert beyond {meters} m",
+  "@e2eVehPlanInfo": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehPlanNeedsTrip": "Needs at least one recorded trip first",
+  "e2eVehBadDeviceId": "Enter the 10–15 digit device ID",
+  "e2eVehH02Help": "Sinotrack/H02: the 10-digit ID on the label",
+  "fa100Title": "Family alerts",
+  "fa100PushOffTitle": "Notifications are off",
+  "fa100PushOffBody": "Your family's SOS and alerts can't ring this phone. Turn notifications on so you hear them even when Assisto is closed.",
+  "fa100PushOffAllow": "Turn on",
+  "fa100BatteryGuide": "Alerts not arriving? Battery settings guide",
+  "fa100Received": "Alerts for you",
+  "fa100Sent": "Alerts you sent",
+  "fa100Empty": "No family alerts in the last 7 days. When someone in your circle presses SOS or misses a check-in, it rings here at once.",
+  "fa100Error": "Couldn't load alerts. Check your internet and try again.",
+  "fa100Retry": "Try again",
+  "fa100MarkSeen": "I've seen it",
+  "fa100Seen": "Seen",
+  "fa100OpenMap": "See on map",
+  "fa100SafeNow": "I'm safe now",
+  "fa100SafeSent": "Your family has been told you are safe.",
+  "fa100SafeFailed": "Couldn't reach the server. Call your family to tell them you are safe.",
+  "fa100StSeen": "seen",
+  "fa100StReceived": "reached the phone",
+  "fa100StSent": "sent",
+  "fa100StNoDevice": "no notification on their phone — they'll see it when they open Assisto",
+  "fa100StHeld": "their quiet hours — it rings when those end",
+  "fa100StLimited": "too many alerts this hour — shown in the app only",
+  "fa100StOff": "push not set up — shown in the app only",
+  "fa100KindSos": "SOS",
+  "fa100KindCheckin": "Missed check-in",
+  "fa100KindWellness": "No reply to \"Are you OK?\"",
+  "fa100KindScam": "Scam warning",
+  "fa100KindSafe": "Safe now",
+  "fa100KindOther": "Alert",
+  "fa100TileSub": "SOS and check-ins from your circle",
+  "fa100TileNew": "{count} new",
+  "@fa100TileNew": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fa100SosSent": "SOS sent to {count} family members.",
+  "@fa100SosSent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fa100SosNoCircle": "No family in My Circle yet, so no one got an alert. Add family in My Circle.",
+  "fa100SosOffline": "No internet — Assisto could not alert your family. Send the message from the share screen.",
+  "fa100From": "From {name}",
+  "@fa100From": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "at2OkTitle": "Are you OK?",
+  "@at2OkTitle": {
+    "description": "antitheft2: title of the local heads-up notification AND the in-app dialog on the owner's own phone after a sudden grab was detected."
+  },
+  "at2OkNotifBody": "Your phone was suddenly grabbed and moved. Open Assisto within 1 minute and tell us you are OK — otherwise your trusted contacts will be alerted.",
+  "@at2OkNotifBody": {
+    "description": "antitheft2: body of the local 'Are you OK?' notification (owner's own phone only)."
+  },
+  "at2OkBody": "Assisto felt your phone being grabbed and carried away. If you are OK, confirm with your Security PIN and no one will be alerted. If you need help, tap \"I need help\". With no answer, your trusted contacts are alerted in about a minute.",
+  "@at2OkBody": {
+    "description": "antitheft2: body of the in-app 'Are you OK?' dialog."
+  },
+  "at2OkYes": "I'm OK (Security PIN)",
+  "@at2OkYes": {
+    "description": "antitheft2: dialog button — confirm with the Security PIN that the owner is fine; the held grab is dropped."
+  },
+  "at2OkNo": "I need help — alert now",
+  "@at2OkNo": {
+    "description": "antitheft2: dialog button — alert the trusted contacts immediately."
+  },
+  "at2OkSent": "Your trusted contacts are being alerted.",
+  "@at2OkSent": {
+    "description": "antitheft2: snackbar after 'I need help'."
+  },
+  "at2OkWrongPin": "Wrong PIN. Your trusted contacts are being alerted.",
+  "@at2OkWrongPin": {
+    "description": "antitheft2: snackbar after a wrong Security PIN on 'Are you OK?' — the server escalates the grab."
+  },
+  "at2NoContactTitle": "Add a trusted contact",
+  "@at2NoContactTitle": {
+    "description": "antitheft2: warning card title when nobody is chosen to receive this phone's alerts."
+  },
+  "at2NoContactBody": "Alerts about this phone go only to the people you tick below, on THEIR phones — never to this phone, because a thief holding it would see them. Nobody is ticked yet, so nobody would be told.",
+  "@at2NoContactBody": {
+    "description": "antitheft2: warning card body (no trusted contact)."
+  },
+  "at2NoContactCircle": "First add a family member or friend in My Circle, then tick them here.",
+  "@at2NoContactCircle": {
+    "description": "antitheft2: extra line when the user has nobody in My Circle yet."
+  },
+  "at2LocTitle": "Location in alerts",
+  "@at2LocTitle": {
+    "description": "antitheft2: location status card title."
+  },
+  "at2LocOk": "Alerts include the last location with its time and accuracy.",
+  "@at2LocOk": {
+    "description": "antitheft2: location works."
+  },
+  "at2LocNoPerm": "Location permission is off, so alerts cannot say where the phone is.",
+  "@at2LocNoPerm": {
+    "description": "antitheft2: location permission missing."
+  },
+  "at2LocOff": "Location is switched off on this phone. Turn it on from the quick settings so alerts can say where the phone is.",
+  "@at2LocOff": {
+    "description": "antitheft2: device location switched off."
+  },
+  "at2LocNoFix": "No location yet. It usually comes within a few minutes, faster outdoors.",
+  "@at2LocNoFix": {
+    "description": "antitheft2: permission ok but no fix received yet."
+  },
+  "at2LocLast": "Last location: {when}, ±{acc} m",
+  "@at2LocLast": {
+    "description": "antitheft2: time and accuracy of the newest fix the server has.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "acc": {
+        "type": "String"
+      }
+    }
+  },
+  "at2LocLastNoAcc": "Last location: {when}",
+  "@at2LocLastNoAcc": {
+    "description": "antitheft2: time of the newest fix (accuracy unknown).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "at2LocAllow": "Allow location",
+  "@at2LocAllow": {
+    "description": "antitheft2: button that asks for the while-in-use location permission."
+  },
+  "at2NightTitle": "Night guard",
+  "@at2NightTitle": {
+    "description": "antitheft2: switch title."
+  },
+  "at2NightBody": "Off: at night (11 PM–6 AM) on your home Wi-Fi, a sudden jolt is treated as the phone falling or being tossed on the bed. On: keep watching at home at night too.",
+  "@at2NightBody": {
+    "description": "antitheft2: switch explanation."
+  },
+  "at2HomeWifiSave": "Save this Wi-Fi as home",
+  "@at2HomeWifiSave": {
+    "description": "antitheft2: button — save the current Wi-Fi (as a code) as the home network."
+  },
+  "at2HomeWifiClear": "Forget home Wi-Fi",
+  "@at2HomeWifiClear": {
+    "description": "antitheft2: button — remove the saved home Wi-Fi."
+  },
+  "at2HomeWifiSaved": "{count, plural, =1{1 home Wi-Fi saved} other{{count} home Wi-Fi networks saved}}",
+  "@at2HomeWifiSaved": {
+    "description": "antitheft2: how many home Wi-Fi networks are saved.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "at2HomeWifiNoneSaved": "No home Wi-Fi saved yet. Only a code is stored, never the Wi-Fi name.",
+  "@at2HomeWifiNoneSaved": {
+    "description": "antitheft2: nothing saved yet."
+  },
+  "at2HomeWifiNone": "Connect to your home Wi-Fi first. Android shows the Wi-Fi to apps only when location is allowed and switched on.",
+  "@at2HomeWifiNone": {
+    "description": "antitheft2: snackbar when the current Wi-Fi could not be read."
+  },
+  "at2SentTo": "{count, plural, =1{Sent to 1 trusted contact} other{Sent to {count} trusted contacts}}",
+  "@at2SentTo": {
+    "description": "antitheft2: timeline — how many people got this alert.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "at2NoOneTold": "Nobody was told: no trusted contact was set",
+  "@at2NoOneTold": {
+    "description": "antitheft2: timeline — alert recorded but no recipient."
+  },
+  "at2Held": "Waiting for your answer to \"Are you OK?\"",
+  "@at2Held": {
+    "description": "antitheft2: timeline — a grab held for the owner's answer."
+  },
+  "at2Suppressed": "Ignored: most likely a drop or a toss",
+  "@at2Suppressed": {
+    "description": "antitheft2: timeline — a grab ignored (charging / face-down still / night at home)."
   }
 }

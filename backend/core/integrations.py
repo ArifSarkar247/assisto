@@ -56,22 +56,24 @@ _DOC = "owner_actions/integrations.md"
 
 REGISTRY = {
     "anthropic": {
-        "name": "Anthropic (Claude) AI",
+        "name": "Anthropic (Claude) AI — main",
         "category": "AI",
-        "unlocks_bn": "স্মার্ট ব্রিফিং, রোল-প্লে, মানসিক সাপোর্ট, বিল/স্ক্যান AI, CRM AI।",
-        "unlocks_en": "Smart briefing, roleplay, mental support, bill/scan AI, CRM AI.",
+        "unlocks_bn": "মূল AI: চ্যাট, সহকারী, এজেন্ট, জটিল কাজ (Owner Admin → AI প্রোভাইডার দেখুন)।",
+        "unlocks_en": "Main AI: chat, assistant, agent and complex work (see Owner Admin → AI providers).",
         "guide_bn": ["console.anthropic.com-এ যান → API Keys → Create Key",
-                     "বিলিং যোগ করুন (সস্তা, Haiku)", "কি কপি করে নিচে পেস্ট করুন → Test"],
+                     "Billing-এ ক্রেডিট যোগ করুন", "কি কপি করে নিচে পেস্ট করুন → Test",
+                     "দৈনিক খরচের সীমা: Owner Admin → AI প্রোভাইডার"],
         "guide_en": ["Go to console.anthropic.com → API Keys → Create Key",
-                     "Add billing (cheap, Haiku)", "Paste the key below → Test"],
+                     "Add credit under Billing", "Paste the key below → Test",
+                     "Daily spend cap: Owner Admin → AI providers"],
         "fields": [_f("api_key", "API Key", "API Key")],
         "test": "test_anthropic",
     },
     "gemini": {
-        "name": "Google Gemini AI (backup)",
+        "name": "Google Gemini AI — cheap tasks",
         "category": "AI",
-        "unlocks_bn": "Anthropic ব্যর্থ হলে ব্যাকআপ AI প্রোভাইডার।",
-        "unlocks_en": "Backup AI provider when Anthropic is down.",
+        "unlocks_bn": "সস্তা ছোট কাজ (শ্রেণিবিন্যাস, ছোট উত্তর, সারাংশ) প্রথমে Gemini-তে; মূল কাজের শেষ ব্যাকআপ। Test পাস না করা পর্যন্ত ব্যবহার হবে না।",
+        "unlocks_en": "Cheap small tasks (classify, short replies, summaries) go to Gemini first; last backup for main work. Used only after Test passes.",
         "guide_bn": ["aistudio.google.com → Get API Key", "নিচে পেস্ট → Test"],
         "guide_en": ["aistudio.google.com → Get API Key", "Paste below → Test"],
         "fields": [_f("api_key", "API Key", "API Key")],
@@ -80,8 +82,8 @@ REGISTRY = {
     "openai": {
         "name": "OpenAI (backup)",
         "category": "AI",
-        "unlocks_bn": "আরেকটি ব্যাকআপ AI প্রোভাইডার।",
-        "unlocks_en": "Another backup AI provider.",
+        "unlocks_bn": "ব্যাকআপ AI: Anthropic বা Gemini বন্ধ/ধীর/সীমায় থাকলে। Test পাস না করা পর্যন্ত ব্যবহার হবে না।",
+        "unlocks_en": "Backup AI when Anthropic or Gemini is down, slow or capped. Used only after Test passes.",
         "guide_bn": ["platform.openai.com → API keys → Create", "পেস্ট → Test"],
         "guide_en": ["platform.openai.com → API keys → Create", "Paste → Test"],
         "fields": [_f("api_key", "API Key", "API Key")],
@@ -389,12 +391,12 @@ REGISTRY = {
                               "App settings → Basic → App ID ও App Secret কপি",
                               "নিজের একটি verify token বানান (লম্বা র‍্যান্ডম লেখা)",
                               "Webhooks: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta এবং /api/v1/bizagent/webhook/whatsapp",
-                              "বিস্তারিত: owner_actions/BUSINESS_AGENT_SETUP.md"],
+                              "বিস্তারিত: owner_actions/BUSINESS_AGENT_SETUP.md; ১০ মিনিটের ফোন চেক: owner_actions/AI_SALES_REAL_DEVICE_CHECK_BN.md"],
                  "guide_en": ["developers.facebook.com → My Apps → Create App (Business type)",
                               "App settings → Basic → copy App ID and App Secret",
                               "Make your own verify token (a long random string)",
                               "Webhooks: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta and /api/v1/bizagent/webhook/whatsapp",
-                              "Details: owner_actions/BUSINESS_AGENT_SETUP.md"],
+                              "Details: owner_actions/BUSINESS_AGENT_SETUP.md; 10-minute phone check: owner_actions/AI_SALES_REAL_DEVICE_CHECK_BN.md"],
                  "fields": [_f("app_id", "App ID", "App ID", secret=False),
                             _f("app_secret", "App Secret", "App Secret"),
                             _f("verify_token", "Webhook verify token", "Webhook verify token"),
@@ -682,12 +684,12 @@ REGISTRY = {
              "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
              "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
              "test": None},
-    # ---- p4-world ---- Unseen World: live web search answers, sports scores,
+    # ---- p4-world ---- Daily info and services: live web search answers, sports scores,
     # job alerts. Each is HIDDEN for users until connected (no fake data).
     "web_search": {
         "name": "Web search (live AI answers with sources)", "category": "AI",
-        "unlocks_bn": "অদেখা দুনিয়া → “যেকোনো প্রশ্ন”: লাইভ ওয়েব সার্চ করে সূত্রসহ ([১][২]) বাংলা/ইংরেজি উত্তর। প্রতি উত্তরে ক্রেডিট কাটে (web_answer)।",
-        "unlocks_en": "Unseen World → “Ask anything”: live web search answers with numbered sources [1][2], Bangla/English. Each answer costs credits (web_answer).",
+        "unlocks_bn": "আজকের তথ্য ও সেবা → “যেকোনো প্রশ্ন”: লাইভ ওয়েব সার্চ করে সূত্রসহ ([১][২]) বাংলা/ইংরেজি উত্তর। প্রতি উত্তরে ক্রেডিট কাটে (web_answer)।",
+        "unlocks_en": "Daily info and services → “Ask anything”: live web search answers with numbered sources [1][2], Bangla/English. Each answer costs credits (web_answer).",
         "guide_bn": ["প্রোভাইডার বাছুন: brave (api-dashboard.search.brave.com → API key) অথবা tavily (app.tavily.com → API key)",
                      "provider ঘরে brave বা tavily লিখুন, ওই প্রোভাইডারের key পেস্ট করুন",
                      "সার্চ প্রতি খরচ (USD) লিখুন — Brave ≈ 0.005, Tavily ≈ 0.008",
@@ -899,32 +901,34 @@ def summary(lang="bn") -> dict:
 
 # ---------------------------------------------------------------- tests
 def test_anthropic(cfg):
-    import urllib.request
-    import json as _j
+    """Free check through the official SDK (list models — no tokens)."""
     key = cfg.get("api_key", "")
     if not key.startswith("sk-"):
         return (False, "কি ফরম্যাট ভুল / key format looks wrong")
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=_j.dumps({"model": "claude-haiku-4-5", "max_tokens": 1,
-                       "messages": [{"role": "user", "content": "hi"}]}).encode(),
-        headers={"x-api-key": key, "anthropic-version": "2023-06-01",
-                 "content-type": "application/json"})
     try:
-        urllib.request.urlopen(req, timeout=15)
+        import anthropic
+    except ImportError:
+        return (False, "anthropic SDK missing")
+    client = anthropic.Anthropic(api_key=key, timeout=15, max_retries=0)
+    try:
+        client.models.list(limit=1)
         return (True, "✓ কাজ করছে / working")
-    except urllib.error.HTTPError as e:
-        if e.code in (400, 429):  # reached API but maybe limited — key is valid
-            return (True, "✓ কি বৈধ / key valid")
-        return (False, f"HTTP {e.code}")
+    except anthropic.RateLimitError:          # reached the API — key is valid
+        return (True, "✓ কি বৈধ / key valid")
+    except anthropic.APIStatusError as e:
+        return (False, f"HTTP {e.status_code}")
+    except anthropic.APIConnectionError:
+        return (False, "সংযোগ হয়নি / connection failed")
 
 
 def test_gemini(cfg):
     import urllib.request
     key = cfg.get("api_key", "")
-    url = ("https://generativelanguage.googleapis.com/v1beta/models?key=" + key)
+    req = urllib.request.Request(
+        "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",
+        headers={"x-goog-api-key": key})
     try:
-        urllib.request.urlopen(url, timeout=15)
+        urllib.request.urlopen(req, timeout=15)
         return (True, "✓ working")
     except urllib.error.HTTPError as e:
         return (False, f"HTTP {e.code}")

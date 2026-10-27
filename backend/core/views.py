@@ -1006,12 +1006,14 @@ class ScamReportView(APIView):
             user=u, kind=payload.get("kind", "scam_report"),
             title=payload.get("title", ""), body=payload.get("body", ""),
             severity="high", payload=payload)
-        try:  # FCM to the reporter's family (key-gated, never raises)
-            from . import push
-            push.hook_family_alert(
-                u, payload.get("title", ""), payload.get("title", ""),
-                payload.get("body", ""), payload.get("body", ""),
-                data={"alert_kind": payload.get("kind", "scam_report")})
+        try:  # family100: push + in-app card to the reporter's circle
+            from . import family_alerts
+
+            def _txt(name, la):
+                pl = scamlogic.family_alert_payload(name, result, la)
+                return pl.get("title", ""), pl.get("body", "")
+            family_alerts.alert(u, "scam_report", "scam:%d" % int(timezone.now().timestamp()),
+                                payload={"event": "scam_report"}, texts=_txt)
         except Exception:
             pass
         log(u, "scam.report", verdict=result["verdict"])
@@ -1032,7 +1034,12 @@ class SafetyCheckinView(APIView):
                                             "Please provide an arrival time.")}, status=400)
         u.checkins.filter(arrived=False).update(arrived=True,
                                                 arrived_at=timezone.now())
-        c = SafetyCheckin.objects.create(user=u, place=place, eta=eta, arrived=False)
+        try:   # journey100: night safety -> a shorter wait before family hears
+            grace = max(0, min(60, int(request.data.get("grace_min", 15))))
+        except (TypeError, ValueError):
+            grace = 15
+        c = SafetyCheckin.objects.create(user=u, place=place, eta=eta, arrived=False,
+                                         grace_min=grace)
         log(u, "safety.checkin.start", id=c.id)
         return Response({"ok": True, "id": c.id})
 
@@ -1229,6 +1236,12 @@ def _build_alerts(user, lang="bn"):
         # owner 24 Oct: legacy anti-theft rows about the user's OWN phone never
         # reach his own urgent card / briefing
         if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
+            continue
+        # owner 27 Oct (C): owner-only alerts never reach a normal account
+        from . import push as _push
+        if not _push.is_owner_admin(user) and (
+                fa.kind in _push.OWNER_ALERT_FA_KINDS or
+                (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
             continue
         row = {"type": fa.kind, "text": fa.body or fa.title,
                "title": fa.title, "severity": fa.severity or "high"}
@@ -1489,9 +1502,13 @@ class AgentView(APIView):
                           "model": "reminder", "id": r.id, "undo": True})
         elif intent in ("expense", "income"):
             acc = ensure_account()
+            # "কাল ৫০০ টাকা খরচ করেছি" is YESTERDAY's spend: past-biased date,
+            # never later than today (nlp_datetime.expense_date).
+            from .logic.nlp_datetime import expense_date
             t = Transaction.objects.create(user=u, account=acc, kind=intent,
                 amount=Decimal(p["amount"]), category=p.get("category", ""),
-                date=timezone.localdate(), source="ai")
+                date=expense_date(text, now=timezone.localtime().replace(tzinfo=None)),
+                source="ai")
             log(u, f"agent.{intent}", id=t.id)
             reply = pick(lang,
                          ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।",
@@ -1638,10 +1655,11 @@ class AgentView(APIView):
             route = screen_synonyms.resolve_command(text)
         else:
             route = brain_route or screen_synonyms.resolve(text)
-        session_id = _persist_home_turn(u, request.data.get("session_id"),
-                                        text, reply, cards, intent, route)
+        session_id, message_id = _persist_home_turn(
+            u, request.data.get("session_id"), text, reply, cards, intent, route)
         return Response({"reply": reply, "cards": cards, "intent": intent,
                          "route": route, "session_id": session_id,
+                         "message_id": message_id,  # ai-report: report this answer
                          "ai_used": ai_used, "ai_enabled": ai.key_present()})
 
 
@@ -1649,7 +1667,8 @@ def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
     """Save one home-chat turn (user text + agent reply/cards) so the home
     conversation survives restarts and shows in the sidebar history. Reuses an
     existing home session of THIS user, else starts one. Never breaks the
-    reply: returns the session id, or None if saving failed."""
+    reply: returns (session id, assistant message id), or (None, None) if
+    saving failed."""
     from .models import ChatSession, ChatMessage
     try:
         s = None
@@ -1661,13 +1680,14 @@ def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
             s.derive_title(text)
             s.save()
         ChatMessage.objects.create(session=s, role="user", text=text)
-        ChatMessage.objects.create(session=s, role="assistant", text=reply or "",
-                                   meta={"source": "agent", "cards": cards,
-                                         "intent": intent, "route": route})
+        am = ChatMessage.objects.create(
+            session=s, role="assistant", text=reply or "",
+            meta={"source": "agent", "cards": cards,
+                  "intent": intent, "route": route})
         s.save(update_fields=["updated_at"])
-        return s.id
+        return s.id, am.id
     except Exception:
-        return None
+        return None, None
 
 
 # ---------- AI status (needs-key state surfaced to the app) ----------
@@ -3125,8 +3145,21 @@ def _collect_events(user, lang="bn"):
     """Gather notification-centre events: persisted NotifEvent rows PLUS live
     rows reused from existing alert sources (FamilyAlert). CHAT is never here."""
     events = []
+    from . import push as _push
+    owner_admin = _push.is_owner_admin(user)
     # persisted events
     for e in user.notif_events.all()[:200]:
+        m = e.meta if isinstance(e.meta, dict) else {}
+        # owner 27 Oct (C): owner-only rows never show for a normal account
+        if not owner_admin and (e.type == "admin" or e.route == "owner"
+                                or m.get("source") in _push.OWNER_ALERT_SOURCES):
+            continue
+        # antitheft2: alerts about the user's OWN protected phone are never
+        # shown on it (a thief holding it would see them); the owner keeps
+        # the silent timeline. The owner-only "test" alarm stays.
+        if (m.get("antitheft_kind") and m.get("owner_id") == user.id
+                and m.get("antitheft_kind") != "test"):
+            continue
         events.append({
             "id": f"notif:{e.id}", "type": e.type,
             "title": {"bn": e.title_bn, "en": e.title_en},
@@ -3136,6 +3169,11 @@ def _collect_events(user, lang="bn"):
         })
     # reuse existing family alerts (missed medicine / safe-journey / scam relays)
     for fa in user.family_alerts.filter(dismissed=False)[:50]:
+        if not owner_admin and (fa.kind in _push.OWNER_ALERT_FA_KINDS or
+                                (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
+            continue
+        if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
+            continue
         etype = _nc.TYPE_FAMILY_ALERT
         k = (fa.kind or "")
         if "scam" in k:

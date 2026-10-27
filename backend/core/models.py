@@ -580,9 +580,64 @@ class AIUsage(models.Model):
     output_tokens = models.IntegerField(default=0)
     cost_usd = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ai-router: which provider answered (owner-only; never shown in the app),
+    # the job class, latency, success and the failover path.
+    provider = models.CharField(max_length=20, blank=True, default="")
+    tier = models.CharField(max_length=10, blank=True, default="")
+    task_class = models.CharField(max_length=10, blank=True, default="")
+    latency_ms = models.IntegerField(default=0)
+    ok = models.BooleanField(default=True)
+    hops = models.IntegerField(default=0)            # failovers before the answer
+    attempts = models.CharField(max_length=240, blank=True, default="")
+    cache_read_tokens = models.IntegerField(default=0)
+    cache_write_tokens = models.IntegerField(default=0)
+    error_kind = models.CharField(max_length=30, blank=True, default="")
 
     class Meta:
-        indexes = [models.Index(fields=["created_at"])]
+        indexes = [models.Index(fields=["created_at"]),
+                   models.Index(fields=["provider", "created_at"])]
+
+
+class AIProviderState(models.Model):
+    """ai-router: per-provider circuit breaker + health, shared by every
+    gunicorn worker (DB row; no cache infrastructure). slug 'total' holds only
+    the total-cap alert days."""
+    STATES = [("closed", "closed"), ("open", "open"), ("half_open", "half_open")]
+    slug = models.CharField(max_length=20, unique=True)
+    state = models.CharField(max_length=10, choices=STATES, default="closed")
+    consecutive_failures = models.IntegerField(default=0)
+    window_start = models.DateTimeField(null=True, blank=True)
+    window_calls = models.IntegerField(default=0)
+    window_failures = models.IntegerField(default=0)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    probe_until = models.DateTimeField(null=True, blank=True)
+    last_success_at = models.DateTimeField(null=True, blank=True)
+    last_failure_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=120, blank=True, default="")
+    last_health_at = models.DateTimeField(null=True, blank=True)
+    last_health_ok = models.BooleanField(null=True, blank=True)
+    alert_warn_day = models.DateField(null=True, blank=True)     # 80% alert sent
+    alert_full_day = models.DateField(null=True, blank=True)     # 100% alert sent
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AIQualityProbe(models.Model):
+    """ai-router: one answer of the owner-run offline Bangla quality probe
+    (manage.py ai_quality_probe) for side-by-side review in Owner Admin."""
+    run_id = models.CharField(max_length=20, db_index=True)
+    provider = models.CharField(max_length=20)
+    model = models.CharField(max_length=60)
+    prompt_no = models.IntegerField(default=0)
+    prompt = models.TextField()
+    answer = models.TextField(blank=True, default="")
+    ok = models.BooleanField(default=False)
+    error = models.CharField(max_length=120, blank=True, default="")
+    latency_ms = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "prompt_no", "provider"]
 
 
 class ToolUsage(models.Model):
@@ -958,6 +1013,8 @@ class SafetyCheckin(models.Model):
     arrived = models.BooleanField(default=False)
     arrived_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    alerted_at = models.DateTimeField(null=True, blank=True)  # journey100: family escalated
+    grace_min = models.IntegerField(default=15)  # journey100: night safety = 7
 
     class Meta:
         ordering = ["-created_at"]
@@ -1292,9 +1349,67 @@ class Journey(models.Model):
     sos_active = models.BooleanField(default=False)
     silent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ---- journey100: server sweeper state (core/journey_watch.py) ----
+    stopped_at = models.DateTimeField(null=True, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)   # last "I'm OK"
+    ask_sent_at = models.DateTimeField(null=True, blank=True)    # "Are you OK?" pushed
+    escalated_at = models.DateTimeField(null=True, blank=True)   # watchers alerted (overdue)
+    escalations = models.IntegerField(default=0)
+    extended_count = models.IntegerField(default=0)
+    low_batt_pct = models.IntegerField(null=True, blank=True)    # % at the last low-battery alert
+    anchor = models.JSONField(null=True, blank=True)             # {lat,lng} where the last stop began
+    moved_at = models.DateTimeField(null=True, blank=True)       # last real movement (>60 m)
+    stop_alert_min = models.IntegerField(default=20)             # prolonged stop; 0 = off
+    stop_alerted_at = models.DateTimeField(null=True, blank=True)
+    offroute_alerted_at = models.DateTimeField(null=True, blank=True)
+    lost_alerted_at = models.DateTimeField(null=True, blank=True)  # no location for a while
+    night = models.BooleanField(default=False)                   # night routine (tighter grace)
+    vehicle_photo = models.FileField(upload_to="journey/", blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class JourneyEvent(models.Model):
+    """journey100: one watcher-facing event (started / arrived / extended /
+    low_battery / overdue_ask / overdue_alert / ok_again / off_route /
+    long_stop / signal_lost / ended / duress / vehicle). (journey, kind, key)
+    is UNIQUE, so the sweeper and the views can both emit the same event and
+    watchers still get it once (idempotent). `delivered_at` is set after the
+    push + in-app rows are written; the sweeper retries undelivered rows."""
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="events")
+    kind = models.CharField(max_length=24)
+    key = models.CharField(max_length=64, blank=True, default="")
+    payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    attempts = models.IntegerField(default=0)
+    recipients = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [models.UniqueConstraint(fields=["journey", "kind", "key"],
+                                               name="uniq_journey_event")]
+        indexes = [models.Index(fields=["delivered_at"])]
+
+
+class JourneyRoutine(models.Model):
+    """journey100: a saved routine trip ("home by 21:00, Sun-Thu"). At the
+    time the sweeper pushes the traveller a reminder to start the journey (a
+    location service can only be started by the user, from the app)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="journey_routines")
+    days = models.JSONField(default=list, blank=True)        # ["sun","mon",...]
+    time = models.CharField(max_length=5, default="21:00")   # HH:MM, Asia/Dhaka
+    destination = models.JSONField(default=dict, blank=True)
+    watcher_ids = models.JSONField(default=list, blank=True)
+    minutes = models.IntegerField(default=30)
+    night = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
+    last_fired_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["time", "id"]
 
 
 class JourneyWatcher(models.Model):
@@ -1329,6 +1444,7 @@ class WellnessWatch(models.Model):
     watcher_ids = models.JSONField(default=list, blank=True)
     last_activity_at = models.DateTimeField(null=True, blank=True)
     prompt_sent_at = models.DateTimeField(null=True, blank=True)
+    alert_sent_at = models.DateTimeField(null=True, blank=True)  # journey100 sweeper
 
 
 class DuressPin(models.Model):
@@ -4279,6 +4395,17 @@ class AntiTheftEngine(models.Model):
     # the same id proves the phone is alive -> a went-dark latch is resolved.
     device_hash = models.CharField(max_length=64, blank=True, default="",
                                    db_index=True)
+    # antitheft2 (owner 27 Oct): accuracy (m) of the newest accepted fix
+    # (time = last_fix_at), so every alert can say "±N m at HH:MM".
+    last_fix_acc = models.FloatField(null=True, blank=True)
+    # antitheft2: "Night guard" — OFF (default) = a grab at night while the
+    # phone is on the owner's saved home Wi-Fi is treated as a drop/toss.
+    night_guard = models.BooleanField(default=False)
+    # sha256 hashes of the owner's saved home Wi-Fi names (never the name).
+    home_wifi = models.JSONField(default=list, blank=True)
+    # hash of the Wi-Fi the engine last reported (for "save my home Wi-Fi").
+    last_wifi_hash = models.CharField(max_length=64, blank=True, default="")
+    last_wifi_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -4310,6 +4437,16 @@ class AntiTheftEvent(models.Model):
     # family, decrypted per request).
     photo = models.FileField(upload_to="theft/engine/", null=True, blank=True)
     alerted = models.BooleanField(default=False)
+    # antitheft2: when the location fix itself was taken (may be older than
+    # `at` — the alert then says "last seen at <fix time>").
+    fix_at = models.DateTimeField(null=True, blank=True)
+    # antitheft2: delivery record — when the alert was dispatched and to how
+    # many trusted contacts (0 = nobody set: recorded, the app asks the owner).
+    alerted_at = models.DateTimeField(null=True, blank=True)
+    recipients = models.SmallIntegerField(null=True, blank=True)
+    # antitheft2: a grab held for the owner's "Are you OK?" answer; at this
+    # time (no answer) it is escalated to the trusted contacts.
+    escalate_at = models.DateTimeField(null=True, blank=True, db_index=True)
 
     class Meta:
         ordering = ["-at", "-id"]
@@ -5859,3 +5996,70 @@ class BillingReport(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /billing-v2 ----
+
+# ---- ai-report ---- Google Play AI-Generated Content policy: a user can
+# report / flag an offensive or harmful AI answer from inside the app. We keep
+# a TEXT-ONLY snapshot of the answer (never photos, never the whole chat), the
+# reason, an optional note, who and when. Only the reporter (API) and the owner
+# (Owner Admin -> AI reports) can see a report.
+class AiAnswerReport(models.Model):
+    REASONS = ("offensive", "harmful", "wrong", "other")
+    SURFACES = ("chat", "home", "photo", "business", "world", "circle", "other")
+    STATUSES = ("open", "resolved")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="ai_reports")
+    surface = models.CharField(max_length=12, default="chat")
+    # the stored assistant message when the answer lives in a ChatSession
+    message = models.ForeignKey("ChatMessage", null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="+")
+    session_id_ref = models.CharField(max_length=40, blank=True, default="")
+    reason = models.CharField(max_length=12)
+    note = models.CharField(max_length=500, blank=True, default="")
+    answer_text = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=10, default="open", db_index=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "created_at"])]
+# ---- /ai-report ----
+
+
+# ---- family100: family alerts delivered by SERVER push ----
+class FamilyAlertDelivery(models.Model):
+    """family100: ONE row per (family event, recipient) — the audit trail and
+    the idempotency guard of core/family_alerts.py. A second attempt to send
+    the same event to the same person hits the UNIQUE constraint and sends
+    nothing. `status`: sent (FCM accepted / queued) · no_device (no push
+    token: the in-app card + foreground poll only) · push_off (server push not
+    configured) · held (recipient's quiet hours — released by the sweep) ·
+    rate_limited (per-recipient cap; in-app card only) · failed ·
+    revoked (held, then the recipient left the circle: never sent)."""
+    event_key = models.CharField(max_length=120)
+    kind = models.CharField(max_length=24)
+    sender = models.ForeignKey(User, null=True, blank=True,
+                               on_delete=models.SET_NULL,
+                               related_name="family_alerts_sent")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="family_alert_deliveries")
+    alert = models.ForeignKey("FamilyAlert", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="deliveries")
+    status = models.CharField(max_length=16, default="sent")
+    with_location = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    # quality bar D/৭: the recipient's phone acks the push the moment it
+    # arrives (any isolate) -> received_at - pushed_at = delivery time.
+    received_at = models.DateTimeField(null=True, blank=True)
+    seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["event_key", "recipient"], name="uniq_family_alert_delivery")]
+        indexes = [models.Index(fields=["sender", "created_at"]),
+                   models.Index(fields=["recipient", "created_at"]),
+                   models.Index(fields=["status"])]

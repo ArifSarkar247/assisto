@@ -1,1 +1,1 @@
-Build 253: A smaller home ad with a separate "Remove ads" link, correct greetings for every time of day (night shows "Good night"), and more reliable crash reports.
+Build 260: CCTV home & shop watchman checks real cameras end to end; Safe Journey with family alerts, live page and a fixed SOS cancel; family SOS now reaches your circle instantly; stronger phone protection (fresh location, trusted contacts); AI sales assistant fixes for bargaining, WhatsApp orders and catalog; report any AI answer; better Bangla dates; Health & Fitness wording.

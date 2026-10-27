@@ -81,6 +81,13 @@ def page(request, template, ctx=None, status=200, nav=""):
             c["call_alert"] = call_health.cached_alert()
         except Exception:
             c["call_alert"] = None
+        # ai-router: a panel-wide banner once a provider / the total crossed
+        # the alert % of its daily spend cap today
+        try:
+            from core import ai_router
+            c["ai_alert"] = ai_router.owner_alert()
+        except Exception:
+            c["ai_alert"] = None
     c.update(ctx or {})
     return render(request, template, c, status=status)
 

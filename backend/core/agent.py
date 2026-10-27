@@ -35,8 +35,12 @@ def _time(text):
     t = _norm(text)
     now = datetime.now()
     base = now
-    if "কাল" in text or "tomorrow" in text.lower():
-        base = now + timedelta(days=1)
+    # standalone কাল/আগামীকাল/পরশু/tomorrow only (not the কাল inside সকাল/বিকাল);
+    # a past-tense "কাল" (yesterday) never moves a reminder backwards.
+    from .logic.nlp_datetime import day_offset
+    off = day_offset(text, now=now)
+    if off and off > 0:
+        base = now + timedelta(days=off)
     m = re.search(r"(\d{1,2}):(\d{2})", t)
     if m:
         return base.replace(hour=int(m.group(1)), minute=int(m.group(2)),

@@ -46,8 +46,13 @@ extension ScamSafetyApi on ApiClient {
 
   /// Start a safe-arrival check-in so the family poll can detect overdue
   /// arrivals. POST /safety/checkin {place, eta} (eta ISO-8601).
-  Future<void> safetyCheckinStart({String? place, required String etaIso}) =>
-      postJson('/safety/checkin', {'place': place ?? '', 'eta': etaIso});
+  Future<void> safetyCheckinStart(
+          {String? place, required String etaIso, int? graceMin}) =>
+      postJson('/safety/checkin', {
+        'place': place ?? '',
+        'eta': etaIso,
+        if (graceMin != null) 'grace_min': graceMin, // journey100: night safety
+      });
 
   /// Mark the active check-in as arrived (clears the pending alert).
   /// POST /safety/checkin/arrived {}.

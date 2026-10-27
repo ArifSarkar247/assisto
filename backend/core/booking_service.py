@@ -68,8 +68,16 @@ def flag_on(user, play=False):
 
 
 def business_plan_ok(user):
+    """`user` = the shop owner. plans-v2 ON: the central entitlement module
+    (Business, founder, a running Business trial). OFF: the old rule."""
     from . import plans
     from . import feature_flags as FF
+    try:
+        from . import entitlements_service as ES
+        if ES.on(user):
+            return ES.allows(user, "booking_bot") or FF.is_privileged(user)
+    except Exception:
+        pass
     return plans.effective_plan(user) == "business" or FF.is_privileged(user)
 
 

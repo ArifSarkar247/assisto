@@ -317,7 +317,8 @@ _SCALARS = ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt", "play_fee"
 _DICT_SECTIONS = ("guarantees", "limits", "referral", "profit_guard", "shop", "otp",
                   "vehicle", "photo_studio", "world",   # p4-world
                   "retention",   # retention1
-                  "billing")     # billing-v2: staged unlock + refund window
+                  "billing",     # billing-v2: staged unlock + refund window
+                  "plans_v2")    # plans-v2 (own labelled card, not the generic list)
 
 
 # Plan-row keys the editor never shows or posts. Owner decision: nothing is
@@ -413,6 +414,23 @@ def _pricing_patch(request, cfg):
     return sec, patch, bad
 
 
+def _plans_v2_ctx(cfg, T=None):
+    """plans-v2 Owner Admin card: one row per capability x Free/Premium/
+    Business, the CRM contact limits and the trial settings."""
+    from core.logic import entitlements as E
+    pv = cfg.get("plans_v2") or E.defaults()
+    T = T or {}
+    rows = [{"cap": c, "label": T.get("pv2_cap_" + c, c), "cells": [{"name": "plans_v2.%s_%s" % (t, c),
+                                   "on": bool(pv.get("%s_%s" % (t, c)))}
+                                  for t in E.TIERS]} for c in E.CAPS]
+    contacts = [{"tier": t, "name": "plans_v2.%s_crm_contacts" % t,
+                 "value": pv.get("%s_crm_contacts" % t)} for t in E.TIERS]
+    return {"rows": rows, "contacts": contacts, "tiers": E.TIERS,
+            "trial_days": pv.get("trial_days"), "trial_plan": pv.get("trial_plan"),
+            "trial_plans": E.TRIAL_PLANS,
+            "unlimited_display_at": pv.get("unlimited_display_at")}
+
+
 @require_http_methods(["GET", "POST"])
 @owner_view()
 def pricing(request):
@@ -472,9 +490,11 @@ def pricing(request):
         "packs": [(str(i), _fields_of(row)) for i, row in enumerate(cfg["topup_packs"])],
         "pack_cols": [k for k, _, _ in _fields_of(cfg["topup_packs"][0])]
         if cfg["topup_packs"] else ["id", "price", "credits", "valid_months"],
-        # billing-v2: bn/en labels for the section fields (key when unnamed)
+        # billing-v2: bn/en labels for the section fields (key when unnamed);
+        # plans-v2 has its own labelled card (pv2), not the generic list
         "sections": [(s, [(k, v, kind, T.get("pf_" + k, k)) for k, v, kind in _fields_of(cfg[s])])
-                     for s in _DICT_SECTIONS if isinstance(cfg.get(s), dict)],
+                     for s in _DICT_SECTIONS if isinstance(cfg.get(s), dict) and s != "plans_v2"],
+        "pv2": _plans_v2_ctx(cfg, T),
         "home_quick": ", ".join(cfg.get("home_quick_defaults") or []),
         "problem_text": ([T.get("p_" + p, p) for p in ctx.get("problems", [])]
                          + ctx.get("problem_text_flag", [])),

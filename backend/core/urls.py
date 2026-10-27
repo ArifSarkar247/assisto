@@ -16,6 +16,7 @@ from . import views_account_deletion as acctdel
 from . import views_chat as chatv
 from . import shop_views as shop
 from . import views_push as pushv
+from . import views_family100 as fam100
 from . import views_ads as ads_views
 from . import views_voice as voicev
 
@@ -145,6 +146,7 @@ urlpatterns = [
     path("chat/sessions/<int:sid>/send", chatv.ChatSendView.as_view()),
     path("chat/sessions/<int:sid>/stream", chatv.ChatStreamView.as_view()),
     path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
+    path("chat/report", chatv.AiReportView.as_view()),  # ai-report
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),
@@ -266,6 +268,12 @@ urlpatterns = [
     # per-item consent. MUST precede router.urls so the literal `family/sharing*`
     # routes win over the FamilyMember router's `family/<pk>`. Trailing slashes
     # match the client's createItem/listItems path convention (api.dart _withSlash).
+    # family100: family alerts over server push (MUST precede router.urls).
+    path("family/sos", fam100.FamilySosView.as_view()),
+    path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
+    path("family/alerts", fam100.FamilyAlertsView.as_view()),
+    path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
+    path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
     path("family/sharing/consent", views.FamilySharingConsentView.as_view()),
     path("family/sharing/grant/", views.FamilySharingGrantView.as_view()),
@@ -433,6 +441,13 @@ urlpatterns = [
     path("journey/routines", b61.JourneyRoutinesView.as_view()),
     path("journey/wellness", b61.WellnessView.as_view()),
     path("journey/wellness/ping", b61.WellnessPingView.as_view()),
+    # journey100: extend, ride photo, PIN-checked SOS cancel, watcher list,
+    # routine edit/delete
+    path("journey/<int:pk>/extend", b61.JourneyExtendView.as_view()),
+    path("journey/<int:pk>/vehicle-photo", b61.JourneyVehiclePhotoView.as_view()),
+    path("journey/sos/cancel", b61.JourneySosCancelView.as_view()),
+    path("journey/watching", b61.JourneyWatchingView.as_view()),
+    path("journey/routines/<int:pk>", b61.JourneyRoutineDetailView.as_view()),
 
     # ===== Messenger STEP 3 =====
     # 1. Contacts & invites + personal connection request (msg_contacts)
@@ -870,6 +885,7 @@ urlpatterns += [
     path("security/engine/disable", atv.EngineDisableView.as_view()),
     path("security/engine/settings", atv.EngineSettingsView.as_view()),
     path("security/engine/false-alarm", atv.FalseAlarmView.as_view()),
+    path("security/engine/escalate", atv.EngineEscalateView.as_view()),  # antitheft2
     path("security/engine/ingest", atv.EngineIngestView.as_view()),
     path("security/engine/photo", atv.EnginePhotoView.as_view()),
     path("security/engine/timeline", atv.EngineTimelineView.as_view()),
@@ -1144,3 +1160,9 @@ urlpatterns += [
     path("remit/delete-all", rmv.DeleteAllView.as_view()),
 ]
 # ---- /budget-remittance ----
+
+# ---- plans-v2 ---- the caller's tier / trial / CRM usage (gates live server-side)
+from . import views_plans_v2 as pv2  # noqa: E402
+urlpatterns += [
+    path("plans/v2", pv2.PlansV2View.as_view()),
+]

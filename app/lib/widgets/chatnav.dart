@@ -10,6 +10,7 @@ import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/family_screen.dart';
+import '../screens/family_alerts_screen.dart'; // family100
 import '../screens/emergency_screen.dart';
 import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
@@ -72,6 +73,8 @@ import '../screens/business_screen.dart';
 import '../screens/business/bargain_rules_screen.dart';
 import '../screens/business/business_plans_screen.dart';
 import '../screens/journey_start_screen.dart';
+import '../screens/journey_watch_screen.dart'; // journey100
+import '../screens/journey_settings_screen.dart'; // journey100
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
 import '../screens/circle_call_history_screen.dart';
@@ -165,6 +168,7 @@ class ChatNav {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
     'family': (_) => const FamilyScreen(),
+    'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle
@@ -255,6 +259,10 @@ class ChatNav {
     'bargain_rules': (_) => const BargainRulesScreen(),
     'business_plans': (_) => const BusinessPlansScreen(),
     'journey': (_) => const JourneyStartScreen(),
+    // journey100: a watcher's push opens their watch list; a wellness
+    // "Is everything OK?" push opens the safety settings (I'm fine).
+    'journey_watch': (_) => const JourneyWatchScreen(),
+    'journey_settings': (_) => const JourneySettingsScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),
