@@ -1351,6 +1351,8 @@ def _briefing_payload(u, lang):
                           "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।",
                           "Using the information below, write a short, warm morning briefing for the user (3-4 lines). Write in English."),
                 data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
+            from . import ai_guard
+            ai_text, _flags = ai_guard.clean_assistant_answer(ai_text, lang, actions=False)
         except ai.AIUnavailable:
             ai_text = None
     return {"text": text, "lines": lines, "ai_text": ai_text,
@@ -1609,7 +1611,7 @@ class AgentView(APIView):
                         data=f"Question: {text}\n\n{ctx['reply']}",
                         tier="cheap", feature="agent_qa", max_tokens=400, user=u)
                     from . import ai_guard
-                    reply, _claims = ai_guard.scrub_action_claims(ai_reply, lang)
+                    reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
                 except ai.AIUnavailable as e:
@@ -2309,6 +2311,8 @@ class AgentStudioView(APIView):
         try:
             text, _ = ai.generate(task=task, data=prompt, tier="medium",
                                    feature=f"studio.{kind}", max_tokens=900, user=request.user)
+            from . import ai_guard     # aieval: a draft never claims it was sent
+            text, _n = ai_guard.scrub_action_claims(text, lang)
             return Response({"kind": kind, "text": text, "ai_used": True})
         except ai.AIUnavailable as e:
             return Response({"needs_key": e.reason == "no_key", "reason": e.reason,

@@ -1193,7 +1193,7 @@ _EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 _COMPANY_HINT = re.compile(
     r"([A-Z][A-Za-z0-9&.\- ]{1,60}?(?:\s(?:Ltd|Limited|Inc|LLC|Group|Industries|"
     r"Garments|Pharma|Pharmaceuticals|Textiles|Corporation|Corp|Co|Company|"
-    r"Enterprise|Trading|Fashions|Apparels)))", re.MULTILINE)
+    r"Enterprise|Trading|Fashions|Apparels))+\.?)", re.MULTILINE)   # aieval: "X Garments Ltd" keeps "Ltd"
 
 
 def extract_contact(text):
@@ -1202,7 +1202,9 @@ def extract_contact(text):
     text = (text or "")[:8000]
 
     phones = []
-    for m in _PHONE_RE.findall(text):
+    # aieval: "+88 01711-000001" / "01711 000001" are one number, not two runs
+    joined = re.sub(r"(?<=\d)[\s\-()](?=\d)", "", text)
+    for m in _PHONE_RE.findall(joined):
         digits = re.sub(r"\D", "", m)
         tail = digits[-11:]
         if tail not in phones:
@@ -1218,6 +1220,8 @@ def extract_contact(text):
     cm = _COMPANY_HINT.search(text)
     if cm:
         company = cm.group(1).strip()
+        # "Head of Procurement at Padma Group" -> "Padma Group" (aieval)
+        company = re.split(r"\s(?:at|@)\s", company)[-1].strip()
 
     # Name heuristic: first non-empty line that is short, has no digits/@,
     # and looks like a person's name (1–4 words). Honest best-effort only.

@@ -125,9 +125,10 @@ def _produce_reply(user, session, text, lang, history, credout=False):
                 tier=requested_tier, feature="chat", max_tokens=700,
                 user=user, history=history)
             # aieval guard: the chat cannot act outside the app — a sentence
-            # claiming it sent / called / paid / posted is removed (honest line).
+            # claiming it sent / called / paid / posted is removed (honest
+            # line); a cure promise / self-prescribed dose is removed too.
             from . import ai_guard
-            reply, _claims = ai_guard.scrub_action_claims(reply, lang)
+            reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing

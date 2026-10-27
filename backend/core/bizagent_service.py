@@ -859,10 +859,13 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     reply = (d.get("text") or "").strip()
     conf = float(d.get("confidence") or 0)
     src = "ai" if used_ai else "fallback"
-    problems = BZ.check_numbers(reply, ctx, text)
+    # aieval: price + delivery / qty x price totals of the asked-about product
+    # are arithmetic, not inventions (they were wrongly held before).
+    from . import ai_guard
+    problems = BZ.check_numbers(reply, ctx, text,
+                                extra=ai_guard.price_totals(matched, ctx.get("delivery")))
     # aieval guard: refund promises and "I am human" claims are the owner's
     # call / never true — they go to the seller like an unverified number.
-    from . import ai_guard
     problems += [{"type": "refund_promise", "value": w} for w in ai_guard.refund_promises(reply)]
     problems += [{"type": "human_claim", "value": w} for w in ai_guard.human_claims(reply)]
     echo = BZ.offer_echo(reply, text, matched)

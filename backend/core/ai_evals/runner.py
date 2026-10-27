@@ -89,6 +89,40 @@ def est_cost(klass, prompt_in, answer_out, cfg=None):
     return C.cost_usd(cfg, model, tin, tout), model, tin, tout
 
 
+def worst_case_cost(klass, prompt_in, max_tokens, cfg=None):
+    """Upper bound for ONE live call: input estimate x1.5, the full max_tokens
+    plus the router's thinking headroom as output, at the most expensive model
+    the class could fail over to. Used before every live call so the budget
+    is a hard cap, never an average."""
+    cfg = cfg or C.normalize({})
+    if klass not in C.CLASSES:
+        return 0.0
+    tin = int(est_tokens(prompt_in) * 1.5) + 50
+    tout = int(max_tokens) + 1024
+    worst = 0.0
+    for prov in C.ORDER[klass]:
+        tier = "medium" if klass == "main" else "cheap"
+        model = C.model_for(cfg, prov, tier, klass)
+        worst = max(worst, C.cost_usd(cfg, model, tin, tout))
+    return worst
+
+
+def realistic_cost(klass, prompt_in, out_text, max_tokens, cfg=None, reference=True):
+    """Expected USD for one answer. A reference answer is shorter than a real
+    one, so it is costed at max(its length, 40% of max_tokens) plus ~300
+    thinking tokens on MAIN (effort) models; a live-recorded answer at its
+    own length."""
+    cfg = cfg or C.normalize({})
+    if klass not in C.CLASSES:
+        return 0.0, "", 0, 0
+    tin = est_tokens(prompt_in)
+    tout = est_tokens(out_text)
+    if reference:
+        tout = max(tout, int(0.4 * max_tokens)) + (300 if klass == "main" else 0)
+    model = primary_model(klass, cfg)
+    return C.cost_usd(cfg, model, tin, tout), model, tin, tout
+
+
 # ------------------------------------------------------------------ rule features
 def _jsonable(v):
     if isinstance(v, Decimal):
@@ -183,7 +217,8 @@ def run_llm_replay(fid, cfg=None):
         g = GR.grade(c, final, S.sources(fid, c))
         prompt_in = P.system_prompt(req.get("extra_system", "")) + req["task"] + req.get("data", "") \
             + "".join(h.get("content", "") for h in req.get("history") or [])
-        usd, model, tin, tout = est_cost(klass, prompt_in, r["text"], cfg)
+        usd, model, tin, tout = realistic_cost(klass, prompt_in, r["text"], req.get("max_tokens", 600),
+                                               cfg, reference=r.get("source") == "reference")
         costs.append(usd)
         toks_in.append(tin)
         toks_out.append(tout)
@@ -207,6 +242,12 @@ def _llm_summary(fid, feat, cases, rows, neg, costs, toks_in, toks_out, ms_all, 
         vals = [r.get(metric) for r in rows if r.get(metric) is not None]
         return _rate(vals)
     ge = [n for n in neg if n["guard_expected"]]
+    by_kind = {}
+    for n in neg:
+        k = by_kind.setdefault(n["kind"], {"n": 0, "product_guard": 0, "caught": 0})
+        k["n"] += 1
+        k["product_guard"] += int(n["guard"])
+        k["caught"] += int(n["caught"])
     sources = sorted({r.get("source", "") for r in rows if r.get("source")})
     return {
         "feature": fid, "kind": "llm", "mode": mode, "cases": len(cases),
@@ -222,6 +263,7 @@ def _llm_summary(fid, feat, cases, rows, neg, costs, toks_in, toks_out, ms_all, 
         "negatives_caught": _rate([n["caught"] for n in neg]),
         "guard_block_rate": _rate([n["guard"] for n in ge]),
         "guard_cases": len(ge),
+        "negatives_by_kind": by_kind,
         "missed_negatives": [n for n in neg if not n["caught"]][:20],
         "guard_misses": [n for n in ge if not n["guard"]][:20],
         "failures": [r for r in rows if not r.get("pass")][:20],
@@ -243,13 +285,16 @@ def estimate_live(fid, cfg=None):
     cfg = cfg or C.normalize({})
     feat = REG.BY_ID[fid]
     total = 0.0
+    recs = load_recorded(fid)
     for c in load_cases(fid):
         klass = REG.model_class_for_case(feat, c, cfg)
+        if klass not in C.CLASSES:
+            continue
         req = S.build(fid, c)
-        rec = load_recorded(fid).get(c["id"]) or {}
+        rec = recs.get(c["id"]) or {}
         prompt_in = P.system_prompt(req.get("extra_system", "")) + req["task"] + req.get("data", "")
-        out = rec.get("text") or ("x" * 400)
-        total += est_cost(klass, prompt_in, out, cfg)[0]
+        total += realistic_cost(klass, prompt_in, rec.get("text", ""), req.get("max_tokens", 600),
+                                cfg, reference=True)[0]
     return round(total, 4)
 
 
@@ -284,7 +329,7 @@ def run_llm_live(fid, budget_usd, limit=None, record=False, out=print):
         klass = REG.model_class_for_case(feat, c, cfg)
         req = S.build(fid, c)
         prompt_in = P.system_prompt(req.get("extra_system", "")) + req["task"] + req.get("data", "")
-        est_next = est_cost(klass, prompt_in, "x" * 600, cfg)[0]
+        est_next = worst_case_cost(klass, prompt_in, req.get("max_tokens", 600), cfg)
         if spent() + est_next > budget_usd:
             out("budget reached: spent $%.4f of $%.2f — stopping" % (spent(), budget_usd))
             break
@@ -350,10 +395,13 @@ def check(result, th):
     for k, v in t.items():
         if k in ("min_cases",):
             continue
-        if k == "max_known_gaps":
-            if result.get("known_gaps", 0) > v:
-                bad.append("%s: known gaps %d > %d (new failures must be fixed, not listed)"
-                           % (fid, result["known_gaps"], v))
+        if k.startswith("max_"):
+            key = k[4:]
+            got = result.get(key) or 0
+            if got > v:
+                bad.append("%s: %s %s > max %s%s" % (
+                    fid, key, got, v, " (new failures must be fixed, not listed)"
+                    if key == "known_gaps" else ""))
             continue
         got = result.get(k)
         if got is None:

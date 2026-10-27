@@ -58,13 +58,17 @@ def _time(text):
 
 # intent keyword sets
 _EXPENSE = ["খরচ", "দিলাম", "কিনলাম", "খরচা", "spent", "paid", "bought", "expense"]
-_INCOME = ["আয়", "পেলাম", "বেতন", "ইনকাম", "income", "salary", "got paid", "received"]
-_LOAN_GIVE = ["ধার দিলাম", "ধার দিছি", "দিলাম ধার", "lent", "ধার দিয়েছি"]
-_LOAN_TAKE = ["ধার নিলাম", "ধার নিছি", "নিলাম ধার", "borrowed", "ধার নিয়েছি"]
+_INCOME = ["আয়", "পেলাম", "বেতন", "ইনকাম", "income", "salary", "got paid", "received",
+           "beton", "pelam", "peyechi"]
+_LOAN_GIVE = ["ধার দিলাম", "ধার দিছি", "দিলাম ধার", "lent", "ধার দিয়েছি",
+              "dhar dilam", "dhar disi", "dhar diyechi"]
+_LOAN_TAKE = ["ধার নিলাম", "ধার নিছি", "নিলাম ধার", "borrowed", "ধার নিয়েছি",
+              "dhar nilam", "dhar nisi", "dhar niyechi"]
 _REMIND = ["মনে করিয়ে", "রিমাইন্ডার", "মনে করাও", "remind", "alarm", "অ্যালার্ম"]
 _MEDICINE = ["ওষুধ", "medicine", "medication", "ওষূধ"]
 _REMEMBER = ["মনে রাখো", "মনে রেখো", "remember", "মনে রাখবে"]
-_QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে"]
+_QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে",
+                "koto taka", "koto khoroch"]
 _QUERY_TODAY = ["আজ কী", "আজকে কী", "today", "briefing", "ব্রিফিং", "কী কী আছে"]
 # --- voice assistant commands (P5) ---
 _MUSIC = ["গান চালাও", "গান শোনাও", "গান বাজাও", "গান ছাড়ো", "play song", "play music", "play "]
@@ -128,6 +132,11 @@ def parse(text, lang="bn"):
     # A QUESTION wins over keyword captures (reminder/medicine/memory): it is
     # ANSWERED by Brain, never saved. (Deep-link voice commands above keep
     # priority — they carry an explicit action verb, e.g. "রহিম কে কল করো".)
+    # "Rahim ke 500 taka dhar dilam" — Banglish "ke" (to) is not "who?": an
+    # amount + an explicit loan verb is a capture, never a question (aieval).
+    if question and "?" not in text and _amount(text) is not None \
+            and _has(text, _LOAN_GIVE + _LOAN_TAKE):
+        question = False
     if question:
         return {"intent": "question", "text": text}
 

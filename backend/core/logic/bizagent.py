@@ -639,7 +639,9 @@ _QTY_WORDS = {"ek": 1, "ekta": 1, "akta": 1, "one": 1, "এক": 1, "একট�
               "tin": 3, "tinta": 3, "three": 3, "তিন": 3, "তিনটা": 3, "তিনটি": 3,
               "char": 4, "charta": 4, "four": 4, "চার": 4, "চারটা": 4, "চারটি": 4,
               "pach": 5, "pachta": 5, "five": 5, "পাঁচ": 5, "পাঁচটা": 5, "পাঁচটি": 5}
-_QTY_RE = re.compile(r"(\d{1,3})\s*(?:ta|ti|টা|টি|pcs|pc|piece|pieces|x|পিস|জোড়া|set)\b"
+# aieval: the Bangla units had a trailing \b, which never matches after a
+# Bangla vowel sign — "২টা" / "৩টি" were never read as a quantity.
+_QTY_RE = re.compile(r"(\d{1,3})\s*(?:(?:ta|ti|pcs|pc|piece|pieces|x|set)\b|টা(?!কা)|টি|পিস|জোড়া)"
                      r"|(?:qty|quantity|x|পরিমাণ)\s*[:=]?\s*(\d{1,3})", re.IGNORECASE)
 
 

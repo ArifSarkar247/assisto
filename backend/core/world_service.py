@@ -580,6 +580,8 @@ def hub_ai(user, hub_id, question, lang):
             "message": _msg(lang, "যথেষ্ট ক্রেডিট নেই।", "Not enough credits.") if e.reason == "credits"
             else _msg(lang, "এখন উত্তর দেওয়া যাচ্ছে না — কোনো ক্রেডিট কাটা হয়নি।", "Can't answer right now — no credits were used.")}
     note = WC.AI_TASK_NOTE[hub_id][0 if lang == "bn" else 1]
+    from . import ai_guard     # aieval: no action claims, no cure / dose promises
+    text, _flags = ai_guard.clean_assistant_answer(text, lang)
     return 200, {"ok": True, "answer": text.strip(), "note": note,
                  "balance": int(user.ai_credits or 0), "ai_generated": True}
 

@@ -59,30 +59,53 @@ def numbers_in(text):
     return out
 
 
+def money_numbers(text):
+    """Numbers written as money ("৳1,200", "1200 টাকা", "Tk 500")."""
+    t = norm_digits(text)
+    out = set()
+    for rx in (_MONEY_BEFORE, _MONEY_AFTER):
+        for m in rx.finditer(t):
+            d = _dec(m.group(1).rstrip(",."))
+            if d is not None:
+                out.add(d)
+    return out
+
+
 def allowed_numbers(*sources, extra=()):
-    base = set()
+    """Numbers an answer may use: every number in the sources, plus simple
+    arithmetic on MONEY values only (price + delivery, n x price for n=2..10).
+    Plain counts (stock 25) are never multiplied — "৳225" must not pass just
+    because a stock of 25 exists."""
+    base, money = set(), set()
+
+    def add_text(x):
+        base.update(numbers_in(x))
+        money.update(money_numbers(x))
+
     for s in sources:
         if s is None:
             continue
-        if isinstance(s, (list, tuple, set)):
+        if isinstance(s, dict):
+            for v in s.values():
+                base.update(numbers_in(v))
+                money.update(numbers_in(v))      # structured money (delivery charges)
+        elif isinstance(s, (list, tuple, set)):
             for x in s:
-                base |= numbers_in(x)
-        elif isinstance(s, dict):
-            base |= numbers_in(" ".join(str(v) for v in s.values()))
+                add_text(x)
         else:
-            base |= numbers_in(s)
+            add_text(s)
     for x in extra or ():
         d = _dec(x)
         if d is not None:
             base.add(d)
+            money.add(d)
     allowed = set(base)
-    big = [b for b in base if b >= 1]
-    if len(big) <= 120:
-        for i, a in enumerate(big):
-            for b in big[i:]:
-                allowed.add(a + b)
-            for n in range(2, 11):
-                allowed.add(a * n)
+    mv = sorted(m for m in money if m >= 1)[:120]
+    for i, a in enumerate(mv):
+        for b in mv[i:]:
+            allowed.add(a + b)
+        for n in range(2, 11):
+            allowed.add(a * n)
     return allowed
 
 
@@ -254,3 +277,91 @@ def ground_fields(fields, source, keys):
         fields[k] = ""
         dropped.append(k)
     return fields, dropped
+
+
+def price_totals(products, delivery=None, max_qty=5):
+    """Totals a sales answer may legitimately state for the products the
+    customer asked about: price + delivery, qty x price (+ delivery)."""
+    prices = set()
+    for p in products or []:
+        for v in [p.get("price")] + [x.get("price") for x in (p.get("variants") or [])]:
+            d = _dec(v) if v not in (None, "") else None
+            if d is not None and d > 0:
+                prices.add(d)
+    dels = {d for d in (_dec(v) for v in (delivery or {}).values() if v not in (None, ""))
+            if d is not None and d > 0}
+    out = set()
+    for p in prices:
+        for n in range(1, max_qty + 1):
+            out.add(p * n)
+            for d in dels:
+                out.add(p * n + d)
+    return sorted(out)
+
+
+# --------------------------------------------------------------- health claims
+# Owner rule: health features make NO medical claims (no cure promises, no
+# doses the user did not get from a doctor / the label).
+MEDICAL_CLAIMS = (
+    "সেরে যাবে", "ভালো হয়ে যাবে নিশ্চিত", "১০০% সুস্থ", "100% সুস্থ", "রোগ সারবে", "নিরাময় নিশ্চিত",
+    "ডাক্তার লাগবে না", "ডাক্তারের দরকার নেই", "অবশ্যই সেরে", "guaranteed cure", "will cure",
+    "100% cure", "no need for a doctor", "no need to see a doctor",
+    "you don't need a doctor", "you do not need a doctor", "take 2 tablets", "take two tablets",
+    "দিনে ৩ বার খান", "দিনে তিনবার খান", "দিনে ২ বার খান", "500mg খান", "৫০০ মিগ্রা খান",
+    "500 mg twice", "500mg twice", "sere jabe", "doctor lagbe na",
+)
+_DOSE_ADVICE = re.compile(
+    r"(?:খান|খাবেন|take|খেয়ে নিন|সেবন করুন)[^.।\n]{0,30}?[\d০-৯]+\s*(?:mg|ml|ট্যাবলেট|tablet|বড়ি|মিগ্রা)|"
+    r"[\d০-৯]+\s*(?:mg|ml|মিগ্রা)[^.।\n]{0,25}?(?:খান|খাবেন|take|দিনে|daily|twice|thrice|a day)", re.I)
+DOCTOR_LINE = {
+    "bn": "স্বাস্থ্যের বিষয়ে সিদ্ধান্ত নেওয়ার আগে ডাক্তার বা ফার্মাসিস্টের পরামর্শ নিন।",
+    "en": "Please check with a doctor or pharmacist before acting on any health advice.",
+}
+
+
+def medical_claims(text):
+    low = (text or "").lower()
+    hits = [w for w in MEDICAL_CLAIMS if w.lower() in low]
+    m = _DOSE_ADVICE.search(text or "")
+    if m:
+        hits.append(m.group(0))
+    return hits
+
+
+def scrub_medical_claims(text, lang="bn"):
+    """Remove sentences with a cure promise / self-prescribed dose; add the
+    doctor line once. Returns (text, removed_count)."""
+    if not medical_claims(text):
+        return text, 0
+    kept, removed = [], 0
+    for s in _SENT_SPLIT.split(text or ""):
+        if not s.strip():
+            continue
+        if medical_claims(s):
+            removed += 1
+            continue
+        kept.append(s.strip())
+    line = DOCTOR_LINE["en" if lang == "en" else "bn"]
+    out = " ".join(kept).strip()
+    if line not in out:
+        out = (out + ("\n\n" if out else "") + line).strip()
+    return out, removed
+
+
+ACCUSATIONS = ("চুরি", "চোর", "stolen", "stole", "thief", "theft by")
+
+
+def accusations(text):
+    low = (text or "").lower()
+    return [w for w in ACCUSATIONS if w in low]
+
+
+def clean_assistant_answer(text, lang="bn", actions=True, medical=True):
+    """One call for assistant-style answers (chat, agent Q&A, hubs, briefings,
+    @Assisto ask, studio). Returns (text, {"actions": n, "medical": n})."""
+    flags = {"actions": 0, "medical": 0}
+    if actions:
+        text, flags["actions"] = scrub_action_claims(text, lang)
+    if medical:
+        text, flags["medical"] = scrub_medical_claims(text, lang)
+    return text, flags
