@@ -1097,14 +1097,20 @@ jobs:
           rm -f /tmp/aab.p12
           mkdir -p out
           cp "$AAB" "out/assisto-play-build${{ github.run_number }}.aab"
-          ls -la out/*.aab
+          # crash-map: keep the R8 mapping of THIS bundle so the ship step uploads
+          # it to Play (readable Play Vitals stack traces for every build)
+          MAP=build/app/outputs/mapping/release/mapping.txt
+          if [ -s "$MAP" ]; then cp "$MAP" "out/assisto-play-build${{ github.run_number }}.mapping.txt"; else echo "::warning::no R8 mapping.txt for the AAB"; fi
+          ls -la out/
 
       - name: Upload AAB artifact (Google Play)
         if: steps.aab.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: assisto-aab
-          path: app/out/*.aab
+          path: |
+            app/out/*.aab
+            app/out/*.mapping.txt
           retention-days: 30
       # ---- /l1-launch ----
 
