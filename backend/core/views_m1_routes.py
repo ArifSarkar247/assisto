@@ -385,8 +385,10 @@ class CircleChatsView(APIView):
         timers = {cs.peer_id: cs.disappearing_sec for cs in
                   _CS.objects.filter(user=request.user,
                                      disappearing_sec__gt=0)}
+        from .views_m1_messenger import conversation_edge_map
+        emap = conversation_edge_map(request.user, edges)  # srvperf
         for m in edges:
-            rows = visible_conversation(request.user, m)
+            rows = visible_conversation(request.user, m, emap.get(m.id))
             if m.state != "accepted" and not rows:
                 continue
             # chat-actions: a chat I deleted stays off MY list until a newer

@@ -220,9 +220,17 @@ def get_access_token(sa=None, force=False):
                 "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
                 "assertion": build_jwt(sa, now),
             }).encode("ascii")
-            code, js = _http_post(
-                TOKEN_URI, body,
-                {"Content-Type": "application/x-www-form-urlencoded"})
+            from . import ext_breaker as XB
+            if not XB.allow("fcm"):
+                return None           # srvperf/H: Google is down, skip fast
+            try:
+                code, js = _http_post(
+                    TOKEN_URI, body,
+                    {"Content-Type": "application/x-www-form-urlencoded"})
+            except Exception as e:
+                XB.fail("fcm", "token " + type(e).__name__)
+                raise
+            XB.book("fcm", code < 500 and code != 429, "token http %s" % code)
             if code != 200 or not js.get("access_token"):
                 log.warning("push: token exchange failed (http %s)", code)
                 return None
@@ -320,13 +328,23 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
                                 collapse_key, android_channel)
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         url = SEND_URL.format(project_id=sa["project_id"])
+        from . import ext_breaker as XB
         for attempt in (0, 1):
+            # srvperf/H: FCM down -> no 8 s wait per token per push; the
+            # circuit opens after 5 failures in a row and probes every 30 s.
+            if not XB.allow("fcm"):
+                return False
             access = get_access_token(sa, force=bool(attempt))
             if not access:
                 return False
-            code, js = _http_post(url, body, {
-                "Authorization": "Bearer " + access,
-                "Content-Type": "application/json; charset=utf-8"})
+            try:
+                code, js = _http_post(url, body, {
+                    "Authorization": "Bearer " + access,
+                    "Content-Type": "application/json; charset=utf-8"})
+            except Exception as e:
+                XB.fail("fcm", "send " + type(e).__name__)
+                raise
+            XB.book("fcm", code < 500 and code != 429, "send http %s" % code)
             if code == 200:
                 if isinstance(result, dict):
                     try:
@@ -471,18 +489,35 @@ def _get_executor():
         return _executor
 
 
+# srvperf/H: when FCM is slow the 2 push threads fall behind; the queue is
+# bounded so memory never grows without limit. Rings / SOS / cancel are
+# never dropped; other kinds are dropped (counted in the log) above the cap —
+# the app's foreground polls still deliver them.
+PUSH_QUEUE_CAP = 300
+_CRITICAL_KINDS = ("call", "call_cancel", "sos", "family_alert", "owner_alert")
+_pending = [0]
+_dropped = [0]
+
+
 def _run_in_worker(args, kwargs):
     from django.db import close_old_connections, connection
+    try:
+        _run_push(args, kwargs, close_old_connections)
+    finally:
+        with _executor_lock:
+            _pending[0] = max(0, _pending[0] - 1)
+        try:
+            connection.close()
+        except Exception:
+            pass
+
+
+def _run_push(args, kwargs, close_old_connections):
     try:
         close_old_connections()
         push_to_user(*args, **kwargs)
     except Exception:
         pass
-    finally:
-        try:
-            connection.close()
-        except Exception:
-            pass
 
 
 def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
@@ -501,7 +536,21 @@ def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
             sync = bool(getattr(settings, "PUSH_SYNC", False))
         if sync:
             return push_to_user(*args, **kwargs) > 0
-        _get_executor().submit(_run_in_worker, args, kwargs)
+        ex = _get_executor()
+        with _executor_lock:
+            if _pending[0] >= PUSH_QUEUE_CAP and kind not in _CRITICAL_KINDS:
+                _dropped[0] += 1
+                if _dropped[0] % 50 == 1:
+                    log.warning("push: queue full (%d), dropped %d non-critical",
+                                _pending[0], _dropped[0])
+                return False
+            _pending[0] += 1
+        try:
+            ex.submit(_run_in_worker, args, kwargs)
+        except Exception:
+            with _executor_lock:
+                _pending[0] = max(0, _pending[0] - 1)
+            return False
         return True
     except Exception:
         return False

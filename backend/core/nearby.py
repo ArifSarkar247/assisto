@@ -38,7 +38,12 @@ def _haversine(a, b, c, d):
     return int(R * 2 * math.asin(math.sqrt(x)))
 
 
-def _get(url, timeout=20):
+# srvperf/H: a maps lookup sits in the request path (Nearby, Safe Journey's
+# police/hospital): short timeout + shared circuit, never 20 s x2 per call.
+HTTP_TIMEOUT_S = 6
+
+
+def _get(url, timeout=HTTP_TIMEOUT_S):
     req = urllib.request.Request(url, headers={"User-Agent": _UA})
     return urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8", "replace")
 
@@ -65,8 +70,9 @@ def _places(lat, lon, ptype, key):
 
 
 def _osm(lat, lon, ptype, radius=2500, lang="bn"):
-    if time.time() - _LAST_OSM[0] < 2:
-        time.sleep(2)
+    gap = time.time() - _LAST_OSM[0]
+    if gap < 1:
+        time.sleep(1 - gap)       # polite to the free Overpass API, but short
     _LAST_OSM[0] = time.time()
     flt = _OSM_FILTER.get(ptype, _OSM_FILTER["restaurant"])
     q = f"[out:json][timeout:20];{flt}(around:{radius},{lat},{lon});out 20;"
@@ -101,13 +107,21 @@ def search(lat, lon, ptype, lang="bn"):
     hit = _CACHE.get(ckey)
     if hit and time.time() - hit[0] < _CACHE_TTL:
         return hit[1]
-    cfg = integrations.get("google_places")
-    try:
-        if cfg.get("api_key") and integrations.is_enabled("google_places"):
-            res = (_places(lat, lon, ptype, cfg["api_key"]), "places")
-        else:
-            res = (_osm(lat, lon, ptype, lang=lang), "osm")
-    except Exception:
-        res = (_osm(lat, lon, ptype), "osm")
+    from . import ext_breaker as XB
+    cfg = integrations.get("google_places") or {}
+    res = None
+    if cfg.get("api_key") and integrations.is_enabled("google_places"):
+        try:
+            res = (XB.call("maps", _places, lat, lon, ptype, cfg["api_key"]),
+                   "places")
+        except Exception:
+            res = None
+    if res is None:
+        try:
+            res = (XB.call("osm", _osm, lat, lon, ptype, lang=lang), "osm")
+        except Exception:
+            # srvperf/H: every maps source is down -> an honest empty answer
+            # (never a 500, never cached so the next try can succeed).
+            return [], "unavailable"
     _CACHE[ckey] = (time.time(), res)
     return res

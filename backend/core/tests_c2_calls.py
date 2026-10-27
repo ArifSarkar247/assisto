@@ -346,6 +346,9 @@ class SignallingNoPushTests(_Pair, TestCase):
         self.assertTrue(RtPresence.objects.filter(user=self.a).exists())
         RtEvent.objects.filter(pk=s1).update(
             created_at=timezone.now() - timedelta(seconds=900))
+        # srvperf: the prune runs at most once a minute per user (cache key)
+        from django.core.cache import cache
+        cache.clear()
         self.events(self.ca)
         self.assertFalse(RtEvent.objects.filter(pk=s1).exists())
 

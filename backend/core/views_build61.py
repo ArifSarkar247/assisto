@@ -1565,6 +1565,8 @@ class JourneyNearestHelpView(APIView):
                      for r in (rows or []) if isinstance(r, dict)], lat, lon, limit=3)
                 out[kind] = ranked
                 out["source"] = src
+                if src == "unavailable":   # srvperf/H: maps down, say so
+                    failed += 1
             except Exception:
                 out[kind] = []
                 failed += 1

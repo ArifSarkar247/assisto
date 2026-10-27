@@ -182,21 +182,33 @@ def mark(user, msgs, seen=False, now=None, publish=True):
             touched.append(x)
     if create:
         CircleReceipt.objects.bulk_create(create, ignore_conflicts=True)
+    # srvperf: one bulk UPDATE per field set instead of one save() per
+    # message (a 300-message sync was 300 round trips). No post_save
+    # receiver cares (b2-badges only reacts to created rows).
+    upd_d, upd_r, upd_dr = [], [], []
     for x in msgs:
-        upd = []
+        d_ch = r_ch = False
         dt = list(x.delivered_to or [])
         if user.id not in dt:
             dt.append(user.id)
             x.delivered_to = dt
-            upd.append("delivered_to")
+            d_ch = True
         if seen:
             rb = list(x.read_by or [])
             if user.id not in rb:
                 rb.append(user.id)
                 x.read_by = rb
-                upd.append("read_by")
-        if upd:
-            x.save(update_fields=upd)
+                r_ch = True
+        if d_ch and r_ch:
+            upd_dr.append(x)
+        elif d_ch:
+            upd_d.append(x)
+        elif r_ch:
+            upd_r.append(x)
+    for rows, fields in ((upd_d, ["delivered_to"]), (upd_r, ["read_by"]),
+                         (upd_dr, ["delivered_to", "read_by"])):
+        if rows:
+            CircleMessage.objects.bulk_update(rows, fields, batch_size=200)
     if publish and touched:
         publish_receipts(touched)
     return changed
@@ -398,25 +410,43 @@ def _flags(user):
 
 def sync_delivered(user):
     """Mark delivered on every incoming message in all the user's chats that
-    has no receipt from this user yet (app open / resume / push handler)."""
-    from .views_m1_messenger import conversation_rows
+    has no receipt from this user yet (app open / resume / push handler).
+    srvperf: ONE message query for all 1:1 chats (member_id IN the edges'
+    conversation ids) instead of one OR-over-JOIN scan per chat, and only
+    the columns mark() needs."""
+    from .views_m1_messenger import conversation_edge_map
     now = _now()
     n = 0
     from django.db.models import Q
-    for edge in CircleMember.objects.filter(
-            Q(state="accepted") | Q(state="pending", direction="incoming"),
-            user=user):  # mr1: a request's messages are delivered too
-        qs = (conversation_rows(edge).exclude(sender=user)
-              .exclude(receipts__user=user))[:SYNC_CAP]
+    edges = list(CircleMember.objects.filter(
+        Q(state="accepted") | Q(state="pending", direction="incoming"),
+        user=user))  # mr1: a request's messages are delivered too
+    ids = set()
+    for v in conversation_edge_map(user, edges).values():
+        ids.update(v)
+    if ids:
+        qs = (CircleMessage.objects.filter(member_id__in=sorted(ids),
+                                           group=None)
+              .exclude(sender=user).exclude(receipts__user=user)
+              .select_related("member").only(*_MARK_FIELDS)
+              .order_by("-created_at"))[:SYNC_CAP]
         n += mark(user, list(qs), now=now)
     gids = list(CircleGroupMember.objects.filter(
         member=user, status="active").values_list("group_id", flat=True))
     if gids:
         qs = (CircleMessage.objects.filter(group_id__in=gids)
               .exclude(sender=user).exclude(receipts__user=user)
+              .only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
         n += mark(user, list(qs), now=now)
     return n
+
+
+# srvperf: what mark() / publish_receipts() / statuses() read on a message
+# (the ciphertext + fan-out blobs are never needed to record a receipt).
+_MARK_FIELDS = ("id", "member", "group", "sender", "recipient_ids",
+                "delivered_to", "read_by", "created_at", "deleted",
+                "sender_key_id", "scheme")
 
 
 # ---------------------------------------------------------------------------

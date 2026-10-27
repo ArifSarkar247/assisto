@@ -1,0 +1,180 @@
+# Server load test (owner MASTER QUALITY ORDER, parts D + I): 1,000 then
+# 10,000 concurrent virtual users against a THROW-AWAY copy of the backend
+# on the GitHub runner — NEVER the live server (no secrets, no live host).
+#
+# Shape of the box under test = the live one: nginx -> gunicorn (3 sync
+# workers, timeout 60) -> PostgreSQL, all three pinned to 2 CPUs (taskset /
+# docker --cpuset-cpus) like the 2-vCPU server; Locust runs on the other
+# 2 CPUs of the 4-vCPU runner so it never steals the server's CPU.
+# Matrix: before (base ref) vs after (this ref), live config vs a gthread
+# what-if (3 workers x 4 threads) for the owner's gunicorn decision.
+#
+# Runner limits (honest): one GitHub runner = 4 vCPU / 16 GB; matrix jobs
+# are separate VMs that cannot reach each other, so 10k users come from ONE
+# Locust (2 processes, ~5k greenlets each, app-like 3-7 s think time).
+name: loadtest
+
+on:
+  push:
+    branches: ['ci/srvperf*']
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: 'The "before" ref (default: b255 as branched)'
+        required: false
+        default: '7dc7687'
+
+concurrency:
+  group: loadtest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    # query count + time per hot endpoint (sqlite test DB, seeded heavy user)
+    # on the before and after code — the per-request cost behind the p95.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.base_ref || '7dc7687' }}
+          path: base
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: head/backend/requirements.txt
+      - run: python -m pip install -q -r head/backend/requirements.txt
+      - name: probe before + after
+        env:
+          SRVPERF_PROBE: '1'
+        run: |
+          cp head/backend/core/perf_seed.py head/backend/core/tests_srvperf_probe.py base/backend/core/
+          for d in base head; do
+            echo "=== $d" | tee -a $GITHUB_STEP_SUMMARY
+            (cd $d/backend && python manage.py test core.tests_srvperf_probe --settings=assisto_backend.settings_test 2>&1 | grep -E "PROBE|^ +[0-9]+ |\{|Error|Traceback" | tee -a $GITHUB_STEP_SUMMARY)
+          done
+
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: after-live-1k,    sut: head, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: before-live-1k,   sut: base, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: after-gthread-1k, sut: head, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: after-live-10k,   sut: head, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: before-live-10k,  sut: base, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: after-gthread-10k, sut: head, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180}
+    env:
+      DB_NAME: loadtest
+      DB_USER: postgres
+      DB_PASSWORD: lt-only-pw
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DJANGO_DEBUG: '0'
+      DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
+      LOADTEST_ALLOW_SEED: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+      - name: checkout system under test (before = base ref)
+        if: matrix.sut == 'base'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.base_ref || '7dc7687' }}
+          path: sut
+      - name: system under test = this ref
+        if: matrix.sut == 'head'
+        run: cp -a head sut
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: head/backend/requirements.txt
+      - name: install
+        run: |
+          python -m pip install -q -r head/backend/requirements.txt
+          python -m pip install -q locust==2.31.8
+          nproc; free -m
+      - name: postgres 16 (2 CPUs, pg_stat_statements)
+        run: |
+          docker run -d --name pg --cpuset-cpus=0,1 -m 3g --network host \
+            -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=$DB_NAME postgres:16 \
+            -c max_connections=200 -c shared_preload_libraries=pg_stat_statements
+          for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
+          sleep 3
+          docker exec pg psql -U postgres -d $DB_NAME -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
+      - name: migrate + seed (synthetic data only)
+        working-directory: head/backend
+        run: |
+          python manage.py migrate -v0 --noinput
+          python manage.py loadtest_seed --users ${{ matrix.seed }} --out $GITHUB_WORKSPACE/tokens.json
+          docker exec pg psql -U postgres -d $DB_NAME -c "SELECT pg_stat_statements_reset()"
+      - name: start nginx + gunicorn (pinned to CPUs 0-1, live config)
+        working-directory: sut/backend
+        run: |
+          EXTRA=""
+          if [ "${{ matrix.threads }}" != "0" ]; then EXTRA="--worker-class gthread --threads ${{ matrix.threads }}"; fi
+          nohup taskset -c 0,1 python -m gunicorn assisto_backend.wsgi:application \
+            --workers 3 $EXTRA --bind 127.0.0.1:8700 --timeout 60 \
+            > $GITHUB_WORKSPACE/gunicorn.log 2>&1 &
+          sudo taskset -c 0,1 nginx -c $GITHUB_WORKSPACE/head/loadtest/nginx.conf
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/v1/health && break; sleep 1; done
+          echo
+          (vmstat 5 > $GITHUB_WORKSPACE/vmstat.log 2>&1 &)
+      - name: locust (CPUs 2-3)
+        working-directory: head/loadtest
+        env:
+          LT_TOKENS: ${{ github.workspace }}/tokens.json
+          LT_USERS: ${{ matrix.users }}
+          LT_RAMP_S: ${{ matrix.ramp }}
+          LT_HOLD_S: ${{ matrix.hold }}
+        run: |
+          ulimit -n 65535
+          mkdir -p $GITHUB_WORKSPACE/out
+          taskset -c 2,3 locust -f locustfile.py --headless --host http://127.0.0.1:8080 \
+            --processes 2 --csv $GITHUB_WORKSPACE/out/lt --csv-full-history \
+            --only-summary --stop-timeout 15 --exit-code-on-error 0 \
+            > $GITHUB_WORKSPACE/out/locust.log 2>&1 || true
+          tail -40 $GITHUB_WORKSPACE/out/locust.log
+      - name: summary
+        if: always()
+        run: |
+          python head/loadtest/summarize.py out/lt ${{ matrix.name }} out/${{ matrix.name }} >> $GITHUB_STEP_SUMMARY || true
+          docker exec pg psql -U postgres -d $DB_NAME -c "SELECT round(total_exec_time) AS total_ms, calls, round(mean_exec_time::numeric,2) AS mean_ms, left(regexp_replace(query, '\s+', ' ', 'g'), 220) AS query FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 25" > out/pg_top_queries.txt || true
+          cp gunicorn.log vmstat.log out/ 2>/dev/null || true
+          grep -c " 500 \|Traceback" gunicorn.log || true
+          tail -30 vmstat.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: loadtest-${{ matrix.name }}
+          path: |
+            out/
+            !out/**/tokens*
+          retention-days: 30
+
+  report:
+    needs: load
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: all
+          pattern: loadtest-*
+      - name: combined summary
+        run: |
+          for f in all/*/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
+          ls -R all | head -50

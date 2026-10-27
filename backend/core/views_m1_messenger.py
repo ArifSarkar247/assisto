@@ -172,28 +172,65 @@ def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None,
     return out
 
 
-def conversation_rows(edge):
+def conversation_edge_ids(edge, mirrors=None):
+    """srvperf: the CircleMember ids a 1:1 conversation is stored on — the
+    edge itself, every mirror edge (owner = my peer, peer_user = me) and the
+    phone-matched reverse edge. Same rows as the old OR-over-a-JOIN filter,
+    but as `member_id IN (...)` so PostgreSQL uses the member index instead of
+    scanning every message per chat. `mirrors` (optional, from
+    conversation_edge_map) skips the per-edge mirror query."""
+    ids = {edge.id}
+    if getattr(edge, "peer_user_id", None):
+        if mirrors is None:
+            mirrors = list(CircleMember.objects.filter(
+                user_id=edge.peer_user_id, peer_user_id=edge.user_id)
+                .values_list("id", flat=True))
+        ids.update(mirrors)
+        if mirrors:
+            # reverse_edge() would return the first of these (same filter)
+            return ids
+    rev = reverse_edge(edge)
+    if rev is not None:
+        ids.add(rev.id)
+    return ids
+
+
+def conversation_edge_map(user, edges):
+    """{edge.id: conversation_edge_ids(edge)} for many of `user`'s edges with
+    ONE mirror query (chat list, badges, receipts sync)."""
+    edges = list(edges)
+    peers = {e.peer_user_id for e in edges if getattr(e, "peer_user_id", None)}
+    mir = {}
+    if peers:
+        for mid, owner in CircleMember.objects.filter(
+                user_id__in=peers, peer_user_id=user.id).values_list(
+                    "id", "user_id"):
+            mir.setdefault(owner, []).append(mid)
+    out = {}
+    for e in edges:
+        if getattr(e, "peer_user_id", None) and e.user_id == user.id:
+            out[e.id] = conversation_edge_ids(e, mir.get(e.peer_user_id, []))
+        else:
+            out[e.id] = conversation_edge_ids(e)
+    return out
+
+
+def conversation_rows(edge, edge_ids=None):
     """Every 1:1 message of the conversation `edge` belongs to: the ones sent
     on this edge AND the ones the peer sent on their reverse edge."""
     # Same thread rule as m2-reality's views_module5._thread_q (mirror edge =
     # owner is my peer, peer_user is me), plus the phone-matched reverse edge.
-    q = dj_models.Q(member=edge)
-    if getattr(edge, "peer_user_id", None):
-        q |= dj_models.Q(member__user_id=edge.peer_user_id,
-                         member__peer_user_id=edge.user_id)
-    rev = reverse_edge(edge)
-    if rev is not None:
-        q |= dj_models.Q(member=rev)
-    return CircleMessage.objects.filter(q, group=None).order_by(
-        "created_at", "id")
+    ids = edge_ids if edge_ids is not None else conversation_edge_ids(edge)
+    return CircleMessage.objects.filter(member_id__in=sorted(ids),
+                                        group=None).order_by("created_at", "id")
 
 
-def visible_conversation(user, edge):
+def visible_conversation(user, edge, edge_ids=None):
     pref = chat_pref(user, "member", edge.id)
     cs = ChatSettings.objects.filter(user=user, peer=edge).first()
     ttl = X.normalize_disappearing(cs.disappearing_sec) if cs else 0
     expired = []
-    out = _visible(user, conversation_rows(edge),
+    out = _visible(user, conversation_rows(edge, edge_ids),
                    cleared_at=pref.cleared_at if pref else None,
                    keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=ttl, since=pref.disappearing_since if pref else None,

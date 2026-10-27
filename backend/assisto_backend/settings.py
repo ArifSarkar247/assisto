@@ -161,6 +161,11 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv("DB_PORT", "5432"),
+        # srvperf: keep each worker's DB connection for 60 s instead of a new
+        # PostgreSQL login (SCRAM + backend fork) on EVERY request; health-
+        # checked so a restarted Postgres never serves a dead socket.
+        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 

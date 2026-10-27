@@ -1941,7 +1941,14 @@ def nearby(request):
     ptype = request.query_params.get("type", "restaurant")
     results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
-    return Response({"type": ptype, "source": source, "places": results})
+    out = {"type": ptype, "source": source, "places": results}
+    if source == "unavailable":
+        # srvperf/H: maps providers down — honest state, not "nothing here"
+        lang = req_lang(request)
+        out["state"] = "unavailable"
+        out["detail"] = pick(lang, "ম্যাপ সার্ভিস এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
+                             "The maps service is not reachable right now. Please try again shortly.")
+    return Response(out)
 
 
 class FavouriteArtistView(APIView):
