@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../calls/call_avatar.dart';
 import '../calls/call_launch.dart'; // calls-a
+import '../calls/call_native.dart'; // calls-a
 import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
 import '../l10n/app_localizations.dart';
@@ -18,6 +19,10 @@ import 'push_service.dart';
 /// intent or a tap on the call notification). Accept hands over to the
 /// existing [CircleCallScreen] (incoming); Decline tells the server. Closes
 /// itself on `call_cancel` or after the ring window.
+/// calls-a test seam: answers "is the native ring still posted?".
+@visibleForTesting
+Future<bool?> Function(String callId)? debugRingActive;
+
 class IncomingCallScreen extends StatefulWidget {
   const IncomingCallScreen(
       {super.key,
@@ -68,9 +73,38 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     } else {
       // launched from the notification: still confirm we are ringing
       unawaited(PushNotifier.ackRinging(p.callId));
+      unawaited(_keepRinging());
     }
     _timeout = Timer(const Duration(seconds: 60), _end);
   }
+
+  /// calls-a: opened from the call notification (tap / full-screen, also
+  /// over the lock screen). The phone must KEEP ringing until Accept /
+  /// Decline: normally the native ring notification is still sounding; if it
+  /// is gone (an OEM dropped it, or it was cleared), ring in-app instead —
+  /// never a silent ringing screen.
+  bool _ringingInApp = false;
+
+  Future<void> _keepRinging() async {
+    bool? native;
+    try {
+      native = await (debugRingActive ?? CallNative.ringActive)(p.callId);
+    } catch (_) {
+      native = null;
+    }
+    if (!mounted || _accepted || _ended) return;
+    if (native == false) {
+      _ringingInApp = true;
+      debugPrint('RING_INAPP_START id=${p.callId}');
+      // no second "ringing" ack: startRinging sends it with retries
+      unawaited(CallRuntime.instance.startRinging(p));
+    } else if (native == true) {
+      debugPrint('RING_NATIVE_KEPT id=${p.callId}');
+    }
+  }
+
+  @visibleForTesting
+  bool get ringingInApp => _ringingInApp;
 
   @override
   void dispose() {
@@ -88,6 +122,9 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     // calls-a: answered here -> never a "Call ended" frame for it
     if (!mounted || _ended || _accepted) return;
     unawaited(CallRuntime.instance.stopRinging());
+    // calls-a: caller hung up / rang out / answered elsewhere: the native
+    // ring (kept alive while this screen showed) stops too
+    unawaited(PushNotifier.cancelCall(p.callId));
     setState(() => _ended = true);
     Future<void>.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) Navigator.of(context).maybePop();

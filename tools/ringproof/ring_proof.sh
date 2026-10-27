@@ -34,12 +34,19 @@ ring_case() {   # $1=name  $2=setup command(s)
   adb exec-out screencap -p > "ring_${c}.png" 2>/dev/null || true
   timeout 30 adb logcat -d > "ring_${c}_logcat.txt" || true
   adb shell dumpsys notification --noredact > "ring_${c}_notif.txt" 2>/dev/null || true
-  local shown=no notif=no
+  local shown=no notif=no inapp=no screen=no
   grep -q "RING_TEST shown=true" "ring_${c}_logcat.txt" && shown=yes
   grep -q "pkg=$PKG" "ring_${c}_notif.txt" && grep -qiE "channel=.*call|category=call" "ring_${c}_notif.txt" && notif=yes
+  # calls-a: screen off -> the full-screen intent opens Assisto's ringing
+  # screen. It must STILL be ringing 8 s later: either the native ring
+  # notification is still posted, or the ringing screen started the in-app
+  # ringtone because the notification was gone (Dart logs RING_INAPP_START).
+  grep -q "RING_INAPP_START id=$id" "ring_${c}_logcat.txt" && inapp=yes
+  grep -qE "CALL_ENTRY entry=(cold|warm)Open action=open id=$id result=(first|top)=ringing" "ring_${c}_logcat.txt" && screen=yes
   if grep -q "RING_TEST ignored" "ring_${c}_logcat.txt"; then log "API $API $c: hook NOT ARMED (not a smoke build?)"; fail=1
-  elif [ $shown = yes ] && [ $notif = yes ]; then log "API $API $c: RING OK (native ring shown, call notification posted)"
-  else log "API $API $c: FAIL (shown=$shown call-notification=$notif)"; fail=1; fi
+  elif [ $shown = yes ] && [ $notif = yes ]; then log "API $API $c: RING OK (native ring shown, call notification still posted; ringing screen=$screen)"
+  elif [ $shown = yes ] && [ $inapp = yes ]; then log "API $API $c: RING OK (ringing screen=$screen rings IN-APP; native notification gone)"
+  else log "API $API $c: FAIL (shown=$shown call-notification=$notif in-app-ring=$inapp ringing-screen=$screen)"; fail=1; fi
   adb shell am broadcast -f 0x20 -a $PKG.RING_TEST -n "$RCV" --es call_id "$id" --ez cancel true >/dev/null 2>&1
   adb shell dumpsys deviceidle unforce >/dev/null 2>&1 || true
   adb shell input keyevent KEYCODE_WAKEUP

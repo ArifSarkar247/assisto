@@ -133,6 +133,13 @@ adb shell input keyevent KEYCODE_SLEEP; sleep 3
 timeout 30 adb logcat -c || true
 ring $id; sleep 6
 timeout 20 adb logcat -d > ring_tmp.txt || true
+# the full-screen ringing screen is up: the phone must STILL be ringing
+adb shell dumpsys notification --noredact > accept_lock_prering_notif.txt 2>/dev/null || true
+pre=no
+{ grep -q "pkg=$PKG" accept_lock_prering_notif.txt && grep -qiE "channel=.*call|category=call" accept_lock_prering_notif.txt; } && pre=yes
+grep -q "RING_INAPP_START id=$id" ring_tmp.txt && pre=yes
+if [ $pre = yes ]; then log "API $API lock: still ringing while the ringing screen shows: yes"
+else log "API $API lock: FAIL silent ringing screen (no call notification, no in-app ring)"; fail=1; fi
 adb shell input keyevent KEYCODE_WAKEUP; sleep 1
 how=$(tap_accept $id)
 collect lock

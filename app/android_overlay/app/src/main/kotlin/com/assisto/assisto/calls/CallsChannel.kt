@@ -169,6 +169,14 @@ object CallsChannel {
                         TelecomBridge.active(call.argument<String>("call_id") ?: ""))
                     "telecomEnd" -> result.success(
                         TelecomBridge.end(call.argument<String>("call_id") ?: ""))
+                    // calls-a: the ringing screen asks whether the native
+                    // ring is still sounding (else Dart rings in-app)
+                    "ringActive" -> {
+                        val c = ctx()
+                        val id = call.argument<String>("call_id") ?: ""
+                        result.success(if (c != null && id.isNotEmpty())
+                            IncomingCall.ringActive(c, id) else null)
+                    }
                     "cancelRing" -> {
                         val c = ctx()
                         val id = call.argument<String>("call_id") ?: ""
