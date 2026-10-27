@@ -136,9 +136,11 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                           message: t.crmNoLeadsHint)
                       : RefreshIndicator(
                           onRefresh: _load,
-                          child: ListView(
+                          // perf2gb: lazy rows (500 leads built at once before)
+                          child: ListView.builder(
                             padding: const EdgeInsets.all(Gap.md),
-                            children: [for (final l in _list) _leadTile(t, l)],
+                            itemCount: _list.length,
+                            itemBuilder: (context, i) => _leadTile(t, _list[i]),
                           ),
                         ),
         ),

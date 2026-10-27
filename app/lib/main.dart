@@ -52,6 +52,7 @@ import 'widgets/grab_check_dialog.dart'; // grab-guard
 import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
+import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -135,6 +136,9 @@ void main() {
       // own-device: load the hashed install id for the X-Device-Id header
       // (SharedPreferences only, never throws, not awaited).
       unawaited(DeviceId.get());
+      // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
+      // time-boxed device_info read, after the first frame; never throws).
+      unawaited(LowRamTuning.apply());
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.

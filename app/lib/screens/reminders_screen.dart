@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
@@ -143,20 +144,26 @@ class _RemindersScreenState extends State<RemindersScreen>
                           title: t.remEmpty,
                           message: t.remEmptyHint,
                         )
-                      : ListView(
-                          padding: const EdgeInsets.fromLTRB(
-                              Gap.md, Gap.sm, Gap.md, 96),
-                          children: [
-                            for (final g in groups)
-                              if (g.items.isNotEmpty) ...[
-                                _SectionHeader(
-                                    label: g.label(t), tint: g.tint),
-                                for (final it in g.items)
-                                  _ReminderCard(item: it, group: g.kind),
-                                const SizedBox(height: Gap.sm),
-                              ],
-                          ],
-                        ),
+                      // perf2gb: lazy list — only the rows on screen are
+                      // built (500 reminders built every card at once).
+                      : Builder(builder: (context) {
+                          final rows = remRows<_Group>(groups, (g) => g.items);
+                          return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(
+                                Gap.md, Gap.sm, Gap.md, 96),
+                            itemCount: rows.length,
+                            itemBuilder: (context, i) {
+                              final r = rows[i];
+                              return switch (r.kind) {
+                                RemRowKind.header => _SectionHeader(
+                                    label: r.group.label(t), tint: r.group.tint),
+                                RemRowKind.card =>
+                                  _ReminderCard(item: r.item!, group: r.group.kind),
+                                RemRowKind.gap => const SizedBox(height: Gap.sm),
+                              };
+                            },
+                          );
+                        }),
                 ),
               ],
             ),
@@ -171,13 +178,21 @@ class _RemindersScreenState extends State<RemindersScreen>
     final upcoming = <Map<String, dynamic>>[];
     final noDate = <Map<String, dynamic>>[];
     final done = <Map<String, dynamic>>[];
+    // perf2gb: each item's next/overdue fire time once (the sort used to
+    // recompute both for every comparison: ~9k rule evaluations for 500).
+    final nextOf = Map<Map<String, dynamic>, DateTime?>.identity();
+    final overOf = Map<Map<String, dynamic>, DateTime?>.identity();
+    DateTime? nx(Map<String, dynamic> it) =>
+        nextOf.putIfAbsent(it, () => nextFireOf(it['data'], now));
+    DateTime? ov(Map<String, dynamic> it) =>
+        overOf.putIfAbsent(it, () => overdueFireOf(it['data'], now));
     for (final it in items) {
       final d = it['data'] as Map<String, dynamic>;
       if (d['done'] == true) {
         done.add(it);
         continue;
       }
-      final next = nextFireOf(d, now);
+      final next = nx(it);
       if (isOverdue(d, now)) {
         overdue.add(it);
       } else if (next == null) {
@@ -191,16 +206,16 @@ class _RemindersScreenState extends State<RemindersScreen>
       }
     }
     int byNext(Map<String, dynamic> a, Map<String, dynamic> b) {
-      final da = nextFireOf(a['data'], now);
-      final db = nextFireOf(b['data'], now);
+      final da = nx(a);
+      final db = nx(b);
       if (da == null) return 1;
       if (db == null) return -1;
       return da.compareTo(db);
     }
 
     int byOverdue(Map<String, dynamic> a, Map<String, dynamic> b) {
-      final da = overdueFireOf(a['data'], now);
-      final db = overdueFireOf(b['data'], now);
+      final da = ov(a);
+      final db = ov(b);
       if (da == null) return 1;
       if (db == null) return -1;
       return da.compareTo(db);
@@ -312,6 +327,33 @@ RecurrenceRule? ruleFromData(Map<String, dynamic> d) {
 }
 
 // ---------------------------------------------------------------- grouping
+/// perf2gb: one row of the lazy reminders list.
+enum RemRowKind { header, card, gap }
+
+class RemRow<G> {
+  const RemRow(this.kind, this.group, [this.item]);
+  final RemRowKind kind;
+  final G group;
+  final Map<String, dynamic>? item;
+}
+
+/// Groups -> flat rows (header, its cards, a gap); empty groups are skipped.
+@visibleForTesting
+List<RemRow<G>> remRows<G>(
+    List<G> groups, List<Map<String, dynamic>> Function(G) itemsOf) {
+  final rows = <RemRow<G>>[];
+  for (final g in groups) {
+    final items = itemsOf(g);
+    if (items.isEmpty) continue;
+    rows.add(RemRow(RemRowKind.header, g));
+    for (final it in items) {
+      rows.add(RemRow(RemRowKind.card, g, it));
+    }
+    rows.add(RemRow(RemRowKind.gap, g));
+  }
+  return rows;
+}
+
 class _Group {
   final String kind;
   final List<Map<String, dynamic>> items;
