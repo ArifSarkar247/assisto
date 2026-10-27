@@ -9,9 +9,10 @@ from django.test import TestCase
 
 
 class SeedPerfTests(TestCase):
-    def _run(self):
+    def _run(self, reality=True):
         d = tempfile.mkdtemp()
-        call_command("seed_reality", out=os.path.join(d, "r.json"), stdout=StringIO())
+        if reality:
+            call_command("seed_reality", out=os.path.join(d, "r.json"), stdout=StringIO())
         f = os.path.join(d, "p.json")
         call_command("seed_perf", out=f, stdout=StringIO())
         return json.load(open(f))
@@ -24,7 +25,7 @@ class SeedPerfTests(TestCase):
         self.assertEqual(a["sales_threads"], 150)
         self.assertEqual(a.get("crm_leads"), 500, a.get("crm_error"))
         self.assertGreater(a["flags_allow_listed"], 0)
-        b = self._run()  # re-run replaces the tagged rows, never doubles them
+        b = self._run(reality=False)  # re-run replaces the tagged rows, never doubles them
         self.assertEqual(a["reminders"], b["reminders"])
         self.assertEqual(a["transactions"], b["transactions"])
         self.assertEqual(b["khata_parties"], 500)

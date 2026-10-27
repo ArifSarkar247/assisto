@@ -235,83 +235,95 @@ class _BookTabState extends State<_BookTab> {
                   ),
                 ),
               ])
-            // perf2gb: header stays mounted (SliverToBoxAdapter), the party
-            // rows are lazy — 500 customers no longer build 500 tiles at once.
-            : CustomScrollView(
-                // RefreshIndicator needs the list to be scrollable when short
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
-                    sliver: SliverToBoxAdapter(
+            // perf2gb: lazy rows — 500 customers no longer build 500 tiles
+            // at once. Row 0 is the header (kept alive, so scrolling back up
+            // never reloads the net-position strip).
+            : ListView.builder(
+                padding: const EdgeInsets.fromLTRB(
+                    Gap.lg, Gap.lg, Gap.lg, 96),
+                itemCount: _parties.length + 1,
+                itemBuilder: (context, i) {
+                  if (i == 0) {
+                    return _KeepAlive(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _NetHeader(
-                              businessId: widget.businessId,
-                              isCustomer: _isCustomer,
-                              isStaff: widget.isStaff),
-                          const SizedBox(height: Gap.md),
-                          // Wrap: on a large font the "remind everyone" button moves
-                          // to its own line instead of squeezing the title.
-                          Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                            Text(
-                              _isCustomer ? t.khataCustomers : t.khataSuppliers,
-                              style: Theme.of(context).textTheme.titleMedium,
+                        _NetHeader(
+                            businessId: widget.businessId,
+                            isCustomer: _isCustomer,
+                            isStaff: widget.isStaff),
+                        const SizedBox(height: Gap.md),
+                        // Wrap: on a large font the "remind everyone" button moves
+                        // to its own line instead of squeezing the title.
+                        Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                          Text(
+                            _isCustomer ? t.khataCustomers : t.khataSuppliers,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if (_isCustomer)
+                            TextButton.icon(
+                              icon: Icon(
+                                  _selecting ? Icons.close_rounded : Icons.campaign_rounded,
+                                  size: 18),
+                              label: Text(_selecting
+                                  ? t.cancel
+                                  : t.tagadaSendAll),
+                              onPressed: () => setState(() {
+                                _selecting = !_selecting;
+                                _picked.clear();
+                              }),
                             ),
-                            if (_isCustomer)
-                              TextButton.icon(
-                                icon: Icon(
-                                    _selecting ? Icons.close_rounded : Icons.campaign_rounded,
-                                    size: 18),
-                                label: Text(_selecting
-                                    ? t.cancel
-                                    : t.tagadaSendAll),
-                                onPressed: () => setState(() {
-                                  _selecting = !_selecting;
-                                  _picked.clear();
-                                }),
-                              ),
-                          ]),
-                          const SizedBox(height: Gap.sm),
+                        ]),
+                        const SizedBox(height: Gap.sm),
                         ],
                       ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, 96),
-                    sliver: SliverList.builder(
-                      itemCount: _parties.length,
-                      itemBuilder: (context, i) {
-                        final p = _parties[i];
-                        return _PartyTile(
-                          party: p,
-                          book: widget.book,
-                          selecting: _selecting && _isCustomer,
-                          picked: _picked.contains((p['id'] as num?)?.toInt()),
-                          onTogglePick: () {
-                            final id = (p['id'] as num?)?.toInt();
-                            if (id == null) return;
-                            setState(() {
-                              if (_picked.contains(id)) {
-                                _picked.remove(id);
-                              } else {
-                                _picked.add(id);
-                              }
-                            });
-                          },
-                          onTap: () => _openParty(p),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                  final p = _parties[i - 1];
+                  return _PartyTile(
+                    party: p,
+                    book: widget.book,
+                    selecting: _selecting && _isCustomer,
+                    picked: _picked.contains((p['id'] as num?)?.toInt()),
+                    onTogglePick: () {
+                      final id = (p['id'] as num?)?.toInt();
+                      if (id == null) return;
+                      setState(() {
+                        if (_picked.contains(id)) {
+                          _picked.remove(id);
+                        } else {
+                          _picked.add(id);
+                        }
+                      });
+                    },
+                    onTap: () => _openParty(p),
+                  );
+                },
               ),
       ),
     );
+  }
+}
+
+/// perf2gb: keeps the list header mounted while it is scrolled away.
+class _KeepAlive extends StatefulWidget {
+  const _KeepAlive({required this.child});
+  final Widget child;
+  @override
+  State<_KeepAlive> createState() => _KeepAliveState();
+}
+
+class _KeepAliveState extends State<_KeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }
 
