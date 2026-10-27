@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
@@ -168,6 +169,8 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'quick_tools'),
       appBar: AppBar(title: Text(t.qtTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),

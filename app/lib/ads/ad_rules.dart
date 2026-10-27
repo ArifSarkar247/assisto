@@ -71,6 +71,7 @@ class AdConfig {
     this.appOpenStartDay = 2,
     this.appOpenSkipAfterS = 5,
     this.sponsorsEnabled = true,
+    this.bannerRefresh = AdRules.minBannerRefresh,
   });
 
   /// REAL unit ids are being served (owner switch `admob_real_ids`).
@@ -113,6 +114,11 @@ class AdConfig {
 
   /// p2-money: direct sponsor slots on (server; Free users only).
   final bool sponsorsEnabled;
+
+  /// banners-everywhere (owner 26 Oct): how often one screen's banner may
+  /// be replaced. Never below [AdRules.minBannerRefresh] (60 s), whatever
+  /// the server sends.
+  final Duration bannerRefresh;
 
   static const none = AdConfig();
 
@@ -167,6 +173,10 @@ class AdConfig {
           i(j['appopen_start_day']) < 1 ? 2 : i(j['appopen_start_day']),
       appOpenSkipAfterS: i(j['appopen_skip_after_s']).clamp(5, 15),
       sponsorsEnabled: j['sponsors_enabled'] != false,
+      // banners-everywhere: floor 60 s, ceiling 1 h, default 60 s
+      bannerRefresh: Duration(
+          seconds: i(j['banner_refresh_sec'])
+              .clamp(AdRules.minBannerRefresh.inSeconds, 3600)),
     );
   }
 
@@ -210,6 +220,11 @@ class AdRules {
   /// The floor for the interstitial gap (owner: max 1 per 5 minutes).
   static const minInterstitialGap = Duration(minutes: 5);
 
+  /// banners-everywhere (owner 26 Oct): a banner is refreshed no faster
+  /// than once a minute (Google's own floor is 30 s). The AdMob console
+  /// refresh for the banner unit must be OFF — the app refreshes itself.
+  static const minBannerRefresh = Duration(seconds: 60);
+
   /// Hard block — substrings, so 'circle_call', 'payment_ladder',
   /// 'otp_verify', 'voice_sos', 'chat_lock', 'antitheft_alarm' etc. are all
   /// caught. A second fence behind the allowlist in [AdPlacements].
@@ -222,6 +237,13 @@ class AdRules {
     'permission', 'language_picker', 'ring_check',
     'call', 'chat', 'messenger', 'conversation', 'lock', 'vault',
     'remit', // budget-remittance: family money screens never carry ads
+    // banners-everywhere (owner 26 Oct): banners now reach many normal
+    // screens, so the fence also catches account / privacy / family /
+    // location / tracking pages and PIN gates. The My Circle chat LIST
+    // uses the key 'circle_list' (no token); every conversation screen key
+    // still contains 'chat' / 'messenger' / 'conversation'.
+    'account', 'delete', 'privacy', 'pin', 'family', 'location', 'track',
+    'kid', 'live', 'sign_up', 'language_pick',
   ];
 
   /// Allowlists (default-deny: anything else is blocked).

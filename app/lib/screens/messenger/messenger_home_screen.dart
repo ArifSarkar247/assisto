@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../ring_checklist_screen.dart'; // ring-everywhere banner
 import '../../messaging/unread_store.dart';
@@ -405,7 +406,16 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       // labels stay on ONE line 4-across at 360dp in both EN and BN. The
       // NavigationBar label itself renders one-line with ellipsis as a
       // backstop so a label can never wrap to a second line.
-      bottomNavigationBar: NavigationBarTheme(
+      // banners-everywhere (owner 26 Oct): ONE banner ABOVE the tab bar, on
+      // the Chats LIST tab only ('circle_list'). Never on Updates /
+      // Community / Calls, never inside a conversation (own route, no slot).
+      bottomNavigationBar: Column(mainAxisSize: MainAxisSize.min, children: [
+        // the NavigationBar below already pads for the system bar
+        MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: AdBannerSlot(screen: 'circle_list', enabled: _tab == 0)),
+        NavigationBarTheme(
         data: NavigationBarThemeData(
           labelTextStyle: WidgetStateProperty.all(
             AType.labelSmall
@@ -447,6 +457,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           ),
         ),
       ),
+      ]),
     );
   }
 

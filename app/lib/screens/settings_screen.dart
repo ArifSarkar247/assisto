@@ -1,3 +1,4 @@
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -155,6 +156,8 @@ class SettingsScreen extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final u = app.user;
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'settings'),
       appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
         children: [

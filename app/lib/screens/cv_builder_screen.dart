@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -335,6 +336,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     }
 
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'cv_builder'),
       appBar: AppBar(
         title: Text(t.cvTitle),
         actions: [

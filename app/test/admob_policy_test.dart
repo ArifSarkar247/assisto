@@ -38,7 +38,8 @@ import 'p2_fakes.dart';
 Map<String, dynamic> serverCfg({
   String plan = 'free',
   bool real = false,
-  List<String> banner = const ['saved_items', 'dictionary', 'health_tips'],
+  // banners-everywhere (owner 26 Oct): the server default = the app list
+  List<String>? banner,
   List<String> moments = const ['photo_saved', 'task_done'],
   int appOpenCap = 6,
   int interCap = 6,
@@ -80,7 +81,7 @@ Map<String, dynamic> serverCfg({
     'appopen_min_bg_sec': 30,
     'interstitial_min_gap_sec': 300,
     'interstitial_daily_cap': interCap,
-    'banner_screens': paid ? <String>[] : banner,
+    'banner_screens': paid ? <String>[] : (banner ?? AdPlacements.bannerScreens.toList()),
     'interstitial_moments': paid ? <String>[] : moments,
     'hero_enabled': !paid,
     'hero_start_muted': true,
@@ -127,6 +128,7 @@ void main() {
     HomeHero.debugReset();
     AdBannerSlot.debugBridge = null;
     AdBannerSlot.debugLoadConfig = null;
+    BannerPacer.resetForTest();
   });
 
   // ------------------------------------------------------------- config
@@ -141,7 +143,7 @@ void main() {
       expect(c.appOpenMinGap, const Duration(hours: 3));
       expect(c.appOpenDailyCap, 6);
       expect(c.interstitialMinGap, const Duration(minutes: 5));
-      expect(c.bannerScreens, {'saved_items', 'dictionary', 'health_tips'});
+      expect(c.bannerScreens, AdPlacements.bannerScreens);
       expect(c.rewardedEnabled, isFalse, reason: 'SSV cannot verify test units');
       expect(c.personalized, isFalse);
     });
@@ -218,12 +220,13 @@ void main() {
 
   // ------------------------------------------------------------- allowlist
   group('central allowlist (default-deny)', () {
-    test('banner only on the three safe list pages', () {
+    test('banner only on the listed normal feature screens', () {
       final c = cfg();
-      for (final s in ['saved_items', 'dictionary', 'health_tips']) {
+      // banners-everywhere (owner 26 Oct): every listed screen, nothing else
+      for (final s in AdPlacements.bannerScreens) {
         expect(AdPlacements.banner(s, c, loggedIn: true).allowed, isTrue, reason: s);
       }
-      for (final s in ['home', 'notes_todos', 'settings', 'brand_new_screen', '', 'unknown']) {
+      for (final s in ['home', 'brand_new_screen', 'circle_chat', '', 'unknown']) {
         expect(AdPlacements.banner(s, c, loggedIn: true).allowed, isFalse, reason: s);
       }
       expect(AdPlacements.banner('dictionary', c, loggedIn: false).allowed, isFalse);
@@ -258,10 +261,10 @@ void main() {
       expect(AdPlacements.screenAllowed(AdSurface.appOpen, 'home'), isTrue);
       expect(AdPlacements.screenAllowed(AdSurface.homeNative, 'dictionary'), isFalse);
       expect(AdPlacements.screenAllowed(AdSurface.appOpen, 'onboarding'), isFalse);
-      // one ad per screen: no banner page also hosts an interstitial moment
-      expect(
-          AdPlacements.bannerScreens
-              .intersection(AdPlacements.interstitialMoments.values.toSet()),
+      // one persistent ad per screen: no banner page also hosts the native
+      // card (banners-everywhere: interstitials are full-screen moments
+      // after a finished action, see ad_banners_everywhere_test.dart)
+      expect(AdPlacements.bannerScreens.intersection(AdPlacements.nativeScreens),
           isEmpty);
       expect(AdPlacements.bannerScreens.contains('home'), isFalse);
     });

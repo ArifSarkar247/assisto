@@ -473,7 +473,8 @@ def DEFAULTS():
             "place_rewarded": True,
             # which of the app's banner-ready list pages may show a banner
             # (comma separated; names the app does not allow are dropped)
-            "banner_screens": "saved_items,dictionary,health_tips",
+            # banners-everywhere: a fresh config enables every app banner page
+            "banner_screens": ",".join(BANNER_SCREENS),
             # which natural breaks may show an interstitial
             "interstitial_moments": "photo_saved,task_done",
             # ---- /admob ----
@@ -847,7 +848,16 @@ AD_BOOLS = ("hero_enabled", "hero_start_muted", "consent_debug_eea",
 # admob: the app's banner-ready list pages and interstitial natural breaks
 # (mirrors app/lib/ads/ad_placements.dart). The server can switch each one
 # off; it can never add a screen the app does not allow.
-BANNER_SCREENS = ("saved_items", "dictionary", "health_tips")
+# banners-everywhere (owner 26 Oct): one bottom banner on every normal
+# Free-user feature screen (mirrors AdPlacements.bannerScreens).
+BANNER_SCREENS = (
+    "saved_items", "dictionary", "health_tips",
+    "money", "budget", "money_report", "money_trends", "money_networth", "money_tax",
+    "reminders", "notes_todos", "birthdays", "meetings", "documents",
+    "jobs", "cv_builder", "business", "crm", "contract", "prepaid_meter",
+    "all_services", "guide", "nearby", "quick_tools", "medicine_db", "ramadan", "exam",
+    "photo_gallery", "circle_list", "settings",
+)
 INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
 AD_LISTS = {"banner_screens": BANNER_SCREENS,
             "interstitial_moments": INTERSTITIAL_MOMENTS}

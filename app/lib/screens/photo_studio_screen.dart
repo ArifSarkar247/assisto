@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../photo_studio/ps_backend.dart';
 import '../photo_studio/ps_controller.dart';
@@ -192,6 +193,12 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     final t = AppLocalizations.of(context);
     final s = _c.session;
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): banner on the Photo Studio
+      // landing / picker ("gallery") only — never while a photo is being
+      // edited, processed or exported.
+      bottomNavigationBar: AdBannerSlot(
+          screen: 'photo_gallery',
+          enabled: _c.phase == PsPhase.open && s == null),
       appBar: AppBar(
         title: Text(t.psTitle),
         actions: [

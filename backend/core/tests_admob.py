@@ -67,7 +67,10 @@ class ConfigPureTests(SimpleTestCase):
         self.assertEqual(c["interstitial_min_gap_sec"], 300)
         self.assertEqual(c["interstitial_daily_cap"], 6)
         self.assertGreaterEqual(c["appopen_min_bg_sec"], 5)
-        self.assertEqual(c["banner_screens"], ["saved_items", "dictionary", "health_tips"])
+        # banners-everywhere (owner 26 Oct): every normal feature screen
+        self.assertEqual(c["banner_screens"], list(A.BANNER_SCREENS))
+        self.assertIn("circle_list", c["banner_screens"])
+        self.assertEqual(c["banner_refresh_sec"], 60)
         self.assertEqual(c["interstitial_moments"], ["photo_saved", "task_done"])
         self.assertEqual(c["native_screens"], ["home"])
         p = c["placements"]
@@ -121,6 +124,32 @@ class ConfigPureTests(SimpleTestCase):
         self.assertEqual(n["banner_screens"], "dictionary")
         self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"interstitial_min_gap_sec": 60}}))
         self.assertFalse(P.DEFAULTS()["ad_rewards"]["admob_real_ids"])
+
+    def test_banners_everywhere_never_list_is_enforced(self):
+        """owner 26 Oct: banners on normal screens only; the never-list wins."""
+        self.assertEqual(A.BANNER_SCREENS, P.BANNER_SCREENS)  # one mirror
+        for b in A.BANNER_SCREENS:
+            self.assertFalse(A.is_blocked_screen(b), b)
+        self.assertFalse(set(A.BANNER_SCREENS) & set(A.BLOCKED_SCREENS))
+        for bad in A.BLOCKED_SCREENS:
+            self.assertTrue(A.is_blocked_screen(bad), bad)
+        # the chat LIST is allowed, a conversation / call / lock never
+        self.assertFalse(A.is_blocked_screen("circle_list"))
+        for bad in ("circle_chat", "chat_conversation", "messenger_chat", "circle_call",
+                    "call_log", "chat_lock", "chat_vault", "plans", "payment_ladder",
+                    "journey_live", "journey_settings", "family_alerts", "otp_verify",
+                    "language_pick", "ring_check", "account_security", "delete_account"):
+            self.assertTrue(A.is_blocked_screen(bad), bad)
+        # even typed in by the owner, a never-screen is dropped
+        caps = dict(P.DEFAULTS()["ad_rewards"],
+                    banner_screens="money,sos,circle_chat,plans,circle_list,journey_live")
+        c = _cfg(ad_caps=caps)
+        self.assertEqual(c["banner_screens"], ["money", "circle_list"])
+        n = P.normalize({"ad_rewards": {"banner_screens": "settings, chat_lock, budget"}})
+        self.assertEqual(n["ad_rewards"]["banner_screens"], "settings,budget")
+        # Premium: still nothing; refresh never under 60 s
+        self.assertEqual(_cfg(plan="premium", paid=True, ad_caps=caps)["banner_screens"], [])
+        self.assertGreaterEqual(A.BANNER_MIN_REFRESH_SEC, 60)
 
     def test_clean_event(self):
         ok, why = A.clean_event({"kind": "paid", "format": "banner", "placement": "banner_dictionary",
