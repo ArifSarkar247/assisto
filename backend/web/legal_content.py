@@ -343,13 +343,15 @@ PERMISSIONS = [
     },
     {
         "id": "normal",
-        "perm": "INTERNET, ACCESS_NETWORK_STATE, CHANGE_NETWORK_STATE, MODIFY_AUDIO_SETTINGS, VIBRATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED",
+        "perm": "INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_NETWORK_STATE, MODIFY_AUDIO_SETTINGS, VIBRATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED",
         "name": ("সাধারণ অনুমতি", "Normal permissions"),
         "why": ("সার্ভারের সাথে যোগাযোগ, কলের সংযোগ ও স্পিকার/ইয়ারপিস বদল, চুরি-অ্যালার্মের কম্পন, রিমাইন্ডার বাজার সময় ফোন "
-                "জাগানো, এবং ফোন রিস্টার্টের পরে আপনার রিমাইন্ডারগুলো আবার সেট করা।",
+                "জাগানো, ফোন রিস্টার্টের পরে আপনার রিমাইন্ডারগুলো আবার সেট করা, এবং চুরি-সুরক্ষা চালু থাকলে ফোনটি আপনার "
+                "রাখা বাসার ওয়াই-ফাইতে আছে কি না দেখা (শুধু একটি কোড, ওয়াই-ফাইয়ের নাম কখনো সংরক্ষণ বা পাঠানো হয় না)।",
                 "Talking to our server, keeping calls connected and switching speaker/earpiece, vibration for the "
-                "anti-theft alarm, waking the phone when a reminder is due, and re-setting your reminders after "
-                "the phone restarts."),
+                "anti-theft alarm, waking the phone when a reminder is due, re-setting your reminders after "
+                "the phone restarts, and, while anti-theft protection is on, checking whether the phone is on the "
+                "home Wi-Fi you saved (only a code; the Wi-Fi name is never stored or sent)."),
         "when": ("Android এগুলোর জন্য আলাদা করে জিজ্ঞেস করে না।",
                  "Android does not prompt for these."),
         "revoke": ("অ্যাপ আনইনস্টল করলে।", "Uninstall the app."),

@@ -171,6 +171,19 @@ class AntiTheftService {
     } catch (_) {/* ignore */}
   }
 
+  /// antitheft2: sha256 of the current Wi-Fi name (for "save my home
+  /// Wi-Fi"), or null (not on Wi-Fi, or Android hides the name without the
+  /// location permission). Never throws.
+  static Future<String?> wifiHash() async {
+    if (!supported) return null;
+    try {
+      final v = await _ch.invokeMethod<String>('wifiHash');
+      return (v == null || v.length != 64) ? null : v;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Ask the engine to try an immediate heartbeat + flush its queue now (e.g.
   /// right after enabling, or on app resume). Best-effort; never throws.
   static Future<void> flushNow() async {
