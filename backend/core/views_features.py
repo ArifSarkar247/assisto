@@ -21,7 +21,11 @@ class FeaturesView(APIView):
 
     def get(self, request):
         play = is_play_flavour(request) or request.query_params.get("flavour") == "play"
-        body = FF.payload(request.user, play)
+        try:   # unseen-rename: apps from the rename build on send fv=2 (FF.LEGACY_KEYS)
+            fv = int(request.query_params.get("fv") or 1)
+        except (TypeError, ValueError):
+            fv = 1
+        body = FF.payload(request.user, play, fv)
         tag = FF.etag(body)
         if (request.META.get("HTTP_IF_NONE_MATCH") or "").strip() == tag:
             resp = Response(status=304)

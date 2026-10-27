@@ -11,7 +11,8 @@ import 'world_guide_hub_screen.dart';
 import 'world_jobs_screen.dart';
 import 'world_today_screen.dart';
 
-/// p4-world UNSEEN WORLD — "everything in one place": Ask anything (live web
+/// p4-world DAILY INFO AND SERVICES (was "Unseen World" until the 27 Oct
+/// rename; flag `daily_info`) — "everything in one place": Ask anything (live web
 /// answers with sources, shown ONLY when the owner connected a search key),
 /// Today cards, Jobs, and the Expats / Students / Farmers / Government /
 /// Health hubs. Every tile works with voice (mic in, read-aloud out).
@@ -75,10 +76,10 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
       // a medical feature — hidden in the Play flavour.
       if (kMedicalFeaturesAllowed)
         _Tile(Icons.health_and_safety_rounded, t.uwHubHealth, t.uwHubHealthSub,
-          () => _go(WorldGuideHubScreen(hubId: 'health', api: api))),
+            () => _go(WorldGuideHubScreen(hubId: 'health', api: api))),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(t.uwTitle)),
+      appBar: AppBar(title: Text(t.dailyInfoTitle)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -114,7 +115,8 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
               ),
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.mic_none_rounded, size: 18, color: scheme.onSurfaceVariant),
+              Icon(Icons.mic_none_rounded,
+                  size: 18, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.uwVoiceHint,

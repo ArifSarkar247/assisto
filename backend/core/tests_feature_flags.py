@@ -39,11 +39,11 @@ class RegistryTests(TestCase):
         # visible today, in both builds
         for k in ("my_circle", "reminders", "money", "crm", "cctv_watchman",
                   "vehicle_tracking", "anti_theft", "photo_studio", "offers",
-                  "business_agent", "unseen_world"):
+                  "business_agent", "daily_info"):
             self.assertTrue(feats[k], k)
             self.assertTrue(FF.resolve(None, play=False)[0][k], k)
         # not visible today (code-gated showpieces / not built yet)
-        for k in ("agent_studio", "area_community", "fall_detect", "remote_support",
+        for k in ("unseen_world", "agent_studio", "area_community", "fall_detect", "remote_support",
                   "corporate_meetings", "marketing", "retention", "booking"):
             self.assertFalse(feats[k], k)
 
@@ -210,3 +210,87 @@ class EndpointTests(TestCase):
         j = self.c.get("/api/v1/features", HTTP_X_ASSISTO_FLAVOUR="play").json()
         self.assertTrue(j["features"]["remote_support"])
         self.assertIn("remote_support", j["preview"])
+
+
+class UnseenRenameTests(TestCase):
+    """unseen-rename (owner 27 Oct): the daily info hub moved from flag key
+    `unseen_world` to `daily_info`; `unseen_world` is now the NEW travel
+    feature, default OFF. Old apps (no `fv`) keep their hub; the owner's old
+    row is carried over by migration 0096 and the new key starts hidden."""
+
+    def setUp(self):
+        FF.invalidate()
+        self.u = User.objects.create_user(name="U", phone="01700000021", password="pw-123456")
+        self.c = APIClient()
+
+    def tearDown(self):
+        FF.invalidate()
+
+    def test_registry_names_and_defaults(self):
+        m = FF.meta("daily_info")
+        self.assertEqual((m["label_en"], m["label_bn"]),
+                         ("Daily info and services", "আজকের তথ্য ও সেবা"))
+        self.assertTrue(m["default_on"])
+        n = FF.meta("unseen_world")
+        self.assertFalse(n["default_on"])
+        self.assertEqual(n["routes"], [])
+        for k, sec, en, bn, on, rts in FF.REGISTRY:
+            if k != "unseen_world":   # only the NEW feature may carry the name
+                self.assertNotIn("Unseen World", en, k)
+                self.assertNotIn("অদেখা দুনিয়া", bn, k)
+
+    def test_new_app_gets_real_meaning(self):
+        _flag("daily_info", enabled_all=True)
+        j = self.c.get("/api/v1/features?fv=2").json()
+        self.assertTrue(j["features"]["daily_info"])
+        self.assertFalse(j["features"]["unseen_world"])
+
+    def test_old_app_keeps_daily_hub_under_old_key(self):
+        j = self.c.get("/api/v1/features").json()           # no fv = old app
+        self.assertTrue(j["features"]["unseen_world"])
+        _flag("daily_info", enabled_all=False)               # owner hides the hub
+        j = self.c.get("/api/v1/features").json()
+        self.assertFalse(j["features"]["unseen_world"])
+        self.assertEqual(self.c.get("/api/v1/features?fv=junk").status_code, 200)
+
+    def test_old_app_preview_follows_daily_info_only(self):
+        owner = User.objects.create_superuser(name="O", phone="01700000022", password="pw-123456")
+        body = FF.payload(owner, play=True, fv=1)            # travel hidden, hub on
+        self.assertNotIn("unseen_world", body["preview"])
+        self.assertIn("unseen_world", FF.payload(owner, play=True, fv=2)["preview"])
+        _flag("daily_info", enabled_all=False)
+        body = FF.payload(owner, play=True, fv=1)
+        self.assertIn("unseen_world", body["preview"])
+        self.assertIn("daily_info", body["preview"])
+
+    def _migrate(self):
+        import importlib
+        from django.apps import apps
+        mod = importlib.import_module("core.migrations.0096_daily_info_flag")
+        mod.forward(apps, None)
+        FF.invalidate()
+
+    def test_migration_carries_owner_row_and_resets_new_key(self):
+        FeatureFlag.objects.create(key="unseen_world", enabled_all=True, enabled_play=False,
+                                   rollout_pct=40, allow_user_ids=[self.u.pk],
+                                   dod_status="in_progress", dod_checks=[True] + [False] * 8,
+                                   note="owner note")
+        self._migrate()
+        d = FeatureFlag.objects.get(key="daily_info")
+        self.assertEqual((d.enabled_all, d.enabled_play, d.rollout_pct, d.allow_user_ids,
+                          d.dod_checks[0], d.note),
+                         (True, False, 40, [self.u.pk], True, "owner note"))
+        n = FeatureFlag.objects.get(key="unseen_world")
+        self.assertEqual((n.enabled_all, n.enabled_play, n.allow_user_ids, n.dod_status),
+                         (False, False, [], "hidden"))
+        self.assertFalse(FF.is_on("unseen_world", self.u, play=False))
+        # idempotent: running again never overwrites the carried row
+        FeatureFlag.objects.filter(key="daily_info").update(rollout_pct=70)
+        self._migrate()
+        self.assertEqual(FeatureFlag.objects.get(key="daily_info").rollout_pct, 70)
+
+    def test_migration_no_row_is_noop(self):
+        self._migrate()
+        self.assertFalse(FeatureFlag.objects.exists())
+        self.assertTrue(FF.is_on("daily_info", self.u))
+        self.assertFalse(FF.is_on("unseen_world", self.u))
