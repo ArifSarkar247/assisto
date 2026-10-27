@@ -630,12 +630,16 @@ def _sweep_wellness(now, stats):
             w.save(update_fields=["prompt_sent_at"])
             stats["wellness_prompt"] += 1
         elif state == "alert" and w.alert_sent_at is None:
-            for u in _wellness_recipients(w):
-                name = push.seen_name(u, w.parent)
-                b, e = SJ.wellness_payload(name, lang="bn"), SJ.wellness_payload(name, lang="en")
-                _notify(u, "wellness", None, b["title"], e["title"], b["body"], e["body"],
-                        {"route": "alerts", "event": "wellness_alert",
-                         "from_user_id": w.parent_id}, urgent=True, high=True)
+            # family100: one delivery function (consent, idempotency, audit)
+            from . import family_alerts as FA
+
+            def _txt(name, lang):
+                pl = SJ.wellness_payload(name, lang=lang)
+                return pl["title"], pl["body"]
+            FA.alert(w.parent, "wellness_alert",
+                     "wellness:%s:%s" % (w.pk, int((w.prompt_sent_at or now).timestamp())),
+                     payload={"event": "wellness_alert"},
+                     recipients=_wellness_recipients(w), texts=_txt, now=now)
             w.alert_sent_at = now
             w.save(update_fields=["alert_sent_at"])
             stats["wellness_alert"] += 1
@@ -651,14 +655,17 @@ def _sweep_checkins(now, stats):
         state, mins = SAF.checkin_status(c.eta, now=now, grace_minutes=c.grace_min)
         if state != "overdue":
             continue
-        for u in push.circle_family_users(c.user):
-            name = push.seen_name(u, c.user)
-            b = SAF.checkin_overdue_payload(name, c.place, bn_num(mins), "bn")
-            e = SAF.checkin_overdue_payload(name, c.place, mins, "en")
-            _notify(u, "checkin", None, b["title"], e["title"], b["body"], e["body"],
-                    {"route": "alerts", "event": "checkin_overdue",
-                     "from_user_id": c.user_id, "checkin_id": c.id},
-                    urgent=True, high=True)
+        # family100: one delivery function (consent, idempotency, audit,
+        # quiet hours); the event key makes a re-run a no-op.
+        from . import family_alerts as FA
+
+        def _txt(name, lang, c=c, mins=mins):
+            pl = SAF.checkin_overdue_payload(
+                name, c.place, bn_num(mins) if lang == "bn" else mins, lang)
+            return pl["title"], pl["body"]
+        FA.alert(c.user, "checkin_overdue", "checkin:%s" % c.id,
+                 payload={"event": "checkin_overdue", "checkin_id": c.id},
+                 texts=_txt, now=now)
         c.alerted_at = now
         c.save(update_fields=["alerted_at"])
         stats["checkin_alert"] += 1
@@ -667,7 +674,8 @@ def _sweep_checkins(now, stats):
     done = SafetyCheckin.objects.filter(arrived=True, alerted_at__isnull=False,
                                         arrived_at__gte=now - timedelta(hours=24))
     for c in done:
-        FamilyAlert.objects.filter(kind="journey", dismissed=False,
+        FamilyAlert.objects.filter(kind__in=("journey", "checkin_overdue"),
+                                   dismissed=False,
                                    payload__checkin_id=c.id).update(dismissed=True)
 
 
@@ -720,8 +728,12 @@ def sweep(now=None):
         except Exception as e:
             stats["errors"] += 1
             log.warning("journey_sweep: journey %s %s", j.id, type(e).__name__)
+    from . import family_alerts as FA
+
+    def _sweep_family(now, stats):
+        FA.sweep(now, stats)
     for fn in (_sweep_retry, _sweep_wellness, _sweep_checkins, _sweep_routines,
-               _sweep_privacy):
+               _sweep_privacy, _sweep_family):
         try:
             fn(now, stats)
         except Exception as e:

@@ -221,7 +221,7 @@ def get_access_token(sa=None, force=False):
                 "assertion": build_jwt(sa, now),
             }).encode("ascii")
             code, js = _http_post(
-                TOKEN_URI, body,
+                getattr(settings, "FCM_TOKEN_URI", "") or TOKEN_URI, body,
                 {"Content-Type": "application/x-www-form-urlencoded"})
             if code != 200 or not js.get("access_token"):
                 log.warning("push: token exchange failed (http %s)", code)
@@ -319,7 +319,9 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
         payload = build_message(token, data, notification, priority, ttl_s,
                                 collapse_key, android_channel)
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        url = SEND_URL.format(project_id=sa["project_id"])
+        # e2e: settings.FCM_SEND_URL points the harness at a local mock FCM
+        url = (getattr(settings, "FCM_SEND_URL", "") or SEND_URL).format(
+            project_id=sa["project_id"])
         for attempt in (0, 1):
             access = get_access_token(sa, force=bool(attempt))
             if not access:
@@ -379,6 +381,11 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
     devices that accepted it (0 when push is unavailable). Never raises."""
     try:
         if user is None or kind not in KINDS or not is_available():
+            return 0
+        # owner-only push kinds never reach a normal account (defence in
+        # depth: every caller already picks owner admins).
+        if kind in OWNER_ALERT_KINDS and not is_owner_admin(user):
+            log.warning("push: refused owner-only kind for non-admin")
             return 0
         from .models import Device
         # calls95: newest phone first — it is the one most likely alive, and
@@ -555,16 +562,37 @@ def _smtp_configured():
         b in backend for b in ("console", "locmem", "dummy", "filebased"))
 
 
+# antitheft2 / owner 27 Oct (C): owner-only alerts (Play Vitals, disk, call
+# relay, …) go ONLY to OWNER-ADMIN accounts = active superusers (the same rule
+# as the web Owner Admin login, web/owner/security.py). Never a normal user.
+OWNER_ALERT_KINDS = ("owner_alert",)
+# meta.source of in-app rows that are owner-only (NotifEvent / FamilyAlert)
+OWNER_ALERT_SOURCES = ("play_vitals", "uptime_check", "turn_monitor",
+                       "profit_guard")
+OWNER_ALERT_FA_KINDS = ("disk_alert", "turn_capacity", "cost_guard")
+
+
+def is_owner_admin(user):
+    return bool(user is not None and getattr(user, "is_active", False)
+                and getattr(user, "is_superuser", False))
+
+
+def owner_admin_users(limit=5):
+    """Every account that may receive owner-only alerts."""
+    from django.contrib.auth import get_user_model
+    return list(get_user_model().objects.filter(is_superuser=True,
+                                                is_active=True)
+                .order_by("id")[:limit])
+
+
 def notify_owner(subject, body):
-    """Alert every superuser: FCM push (owner_alert) when available AND email
-    when real SMTP is configured (+ env OWNER_ALERT_EMAIL). Never raises.
-    Returns what was attempted."""
+    """Alert every OWNER-ADMIN (active superuser): FCM push (owner_alert) when
+    available AND email when real SMTP is configured (+ env
+    OWNER_ALERT_EMAIL). Never raises. Returns what was attempted."""
     out = {"push_available": False, "push_sent": 0, "email": False,
            "email_recipients": 0}
     try:
-        from django.contrib.auth import get_user_model
-        owners = list(get_user_model().objects.filter(is_superuser=True,
-                                                      is_active=True))
+        owners = owner_admin_users()
         if is_available():
             out["push_available"] = True
             for u in owners:
@@ -852,24 +880,21 @@ def hook_family_alert(user, title_bn, title_en, body_bn="", body_en="",
         return False
 
 
-def hook_sos(user, lat=None, lng=None, silent=False, journey_id=None):
-    """SOS -> every accepted circle peer, data-only + high priority. A SILENT
-    (duress) SOS still reaches family — only the sender's own screen is quiet;
-    nothing is ever sent back to the sender's devices."""
+def hook_sos(user, lat=None, lng=None, silent=False, journey_id=None,
+             client_id="", source=""):
+    """SOS -> every consenting circle peer, data-only + high priority, via
+    family100's single delivery function (idempotent, audited, rings in
+    quiet hours, location to family because SOS is explicit consent).
+    A SILENT (duress) SOS still reaches family and still rings there — only
+    the sender's own screen is quiet; nothing is ever sent back to the
+    sender's devices. Returns True when at least one member was addressed."""
     try:
-        if not is_available() or user is None:
+        if user is None:
             return False
-        name = display_name(user)
-        data = {"from_user_id": user.id, "from_name": name,
-                "lat": "" if lat is None else lat,
-                "lng": "" if lng is None else lng,
-                "silent": bool(silent), "journey_id": journey_id or "",
-                "route": "safety/sos"}
-        targets = circle_family_users(user)
-        for t in targets:
-            safe_push(t, "sos", "জরুরি: %s সাহায্য চাইছেন" % name,
-                      "SOS: %s needs help" % name,
-                      "এখনই যোগাযোগ করুন", "Please contact them now", data=data)
-        return bool(targets)
+        from . import family_alerts
+        st = family_alerts.sos(user, lat=lat, lng=lng, duress=bool(silent),
+                               journey_id=journey_id, client_id=client_id,
+                               source=source)
+        return bool(st.get("recipients"))
     except Exception:
         return False

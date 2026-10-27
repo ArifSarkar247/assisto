@@ -211,6 +211,100 @@ def inside_fence(fence, lat, lng):
         return False
 
 
+def _seg_dist_m(lat, lng, a, b):
+    """Metres from (lat, lng) to segment a-b (local equirectangular plane —
+    accurate to well under 1 % at city / highway-corridor scale)."""
+    k = math.cos(math.radians(lat))
+    ax, ay = (a[1] - lng) * k * 111320.0, (a[0] - lat) * 110574.0
+    bx, by = (b[1] - lng) * k * 111320.0, (b[0] - lat) * 110574.0
+    dx, dy = bx - ax, by - ay
+    L2 = dx * dx + dy * dy
+    t = 0.0 if L2 == 0 else max(0.0, min(1.0, -(ax * dx + ay * dy) / L2))
+    px, py = ax + t * dx, ay + t * dy
+    return math.hypot(px, py)
+
+
+def route_distance_m(points, lat, lng):
+    """Shortest distance (m) from a fix to a planned-route polyline
+    [[lat, lng], ...]. inf for an empty route."""
+    pts = [(float(p[0]), float(p[1])) for p in points or []]
+    if not pts:
+        return float("inf")
+    if len(pts) == 1:
+        return haversine_m(pts[0][0], pts[0][1], lat, lng)
+    return min(_seg_dist_m(lat, lng, pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+
+
+OFF_ROUTE_FIXES = 3        # consecutive fixes outside the corridor before alerting
+
+
+def _eval_routes(st, fix, routes, moving_kmh=MOVING_KMH):
+    """Route-deviation + long-stop state machine for planned routes.
+
+    A route only ARMS once the vehicle has been seen inside its corridor (so a
+    car parked off-route at home never fires); it disarms on arrival (inside
+    the corridor near the last point). While armed:
+      * off_route  — OFF_ROUTE_FIXES consecutive fixes farther than corridor_m;
+                     re-arms once the vehicle is back inside the corridor;
+      * long_stop  — stationary for >= stop_alert_min minutes (0 = off)."""
+    alerts = []
+    rstate = dict(st.get("route") or {})
+    lat, lng = fix["lat"], fix["lng"]
+    at = fix.get("at")
+    for r in routes or []:
+        rid = str(r.get("id"))
+        pts = r.get("points") or []
+        if len(pts) < 2:
+            continue
+        corridor = float(r.get("corridor_m") or 300)
+        rs = dict(rstate.get(rid) or {})
+        d = route_distance_m(pts, lat, lng)
+        end = pts[-1]
+        at_end = haversine_m(float(end[0]), float(end[1]), lat, lng) <= corridor
+        if d <= corridor:
+            rs["off_n"] = 0
+            rs["off_alerted"] = False
+            if at_end:
+                rs["armed"] = False          # arrived: trip along this route done
+                rs["stop_since"] = None
+                rs["stop_alerted"] = False
+            elif not rs.get("armed"):
+                rs["armed"] = True
+        elif rs.get("armed"):
+            rs["off_n"] = int(rs.get("off_n") or 0) + 1
+            if rs["off_n"] >= OFF_ROUTE_FIXES and not rs.get("off_alerted"):
+                rs["off_alerted"] = True
+                alerts.append({"kind": "off_route", "route_id": rid,
+                               "route_name": r.get("name") or "",
+                               "distance_m": int(d), "corridor_m": int(corridor),
+                               "lat": lat, "lng": lng})
+        stop_min = int(r.get("stop_alert_min") or 0)
+        if rs.get("armed") and stop_min > 0 and at is not None:
+            if float(fix.get("speed_kmh") or 0) < moving_kmh:
+                since = rs.get("stop_since")
+                if not since:
+                    rs["stop_since"] = at.isoformat()
+                else:
+                    from datetime import datetime
+                    try:
+                        s0 = datetime.fromisoformat(since)
+                    except ValueError:
+                        s0 = at
+                    mins = (at - s0).total_seconds() / 60.0
+                    if mins >= stop_min and not rs.get("stop_alerted"):
+                        rs["stop_alerted"] = True
+                        alerts.append({"kind": "long_stop", "route_id": rid,
+                                       "route_name": r.get("name") or "",
+                                       "minutes": int(mins),
+                                       "lat": lat, "lng": lng})
+            else:
+                rs["stop_since"] = None
+                rs["stop_alerted"] = False
+        rstate[rid] = rs
+    st["route"] = rstate
+    return alerts
+
+
 def _parse_hhmm(s, default):
     try:
         h, m = str(s).split(":")
@@ -228,7 +322,10 @@ def evaluate_alerts(state, fix, settings, local_hour):
     settings: {speed_limit_kmh (0 = off), night_start "22:00", night_end "05:00",
                night_ignition (bool), geofences [{id,name,lat,lng,radius_m}]}
     Returns (new_state, alerts) where each alert is {kind, ...details} with
-    kind in {'geofence_enter','geofence_exit','overspeed','night_ignition'}.
+    kind in {'geofence_enter','geofence_exit','overspeed','night_ignition',
+    'off_route','long_stop'}. settings may also carry routes
+    [{id,name,points:[[lat,lng]...],corridor_m,stop_alert_min}] (planned routes;
+    see _eval_routes).
     The FIRST observation of a fence only records inside/outside (no alert), so
     pairing a tracker that is already parked at home never fires "entered"."""
     st = dict(state or {})
@@ -245,6 +342,8 @@ def evaluate_alerts(state, fix, settings, local_hour):
                                "lat": fix["lat"], "lng": fix["lng"]})
             fences_state[fid] = now_in
         st["fence"] = fences_state
+        if settings.get("routes"):
+            alerts.extend(_eval_routes(st, fix, settings["routes"]))
 
         limit = float(settings.get("speed_limit_kmh") or 0)
         spd = float(fix.get("speed_kmh") or 0)
@@ -358,6 +457,16 @@ def alert_text(alert, vehicle_name, lang="bn"):
         if k == "night_ignition":
             return ("রাতে %s চালু হয়েছে" % v,
                     "রাতে ইঞ্জিন চালু হয়েছে। আপনি বা পরিচিত কেউ না হলে দয়া করে দেখে নিন।")
+        if k == "off_route":
+            return ("%s পথ থেকে সরে গেছে" % v,
+                    "%s \"%s\" পথ থেকে প্রায় %s মিটার দূরে চলে গেছে। দয়া করে খোঁজ নিন।"
+                    % (v, alert.get("route_name") or "নির্ধারিত",
+                       _bn(int(alert.get("distance_m") or 0))))
+        if k == "long_stop":
+            return ("%s অনেকক্ষণ থেমে আছে" % v,
+                    "%s \"%s\" পথে %s মিনিট ধরে থেমে আছে। দয়া করে খোঁজ নিন।"
+                    % (v, alert.get("route_name") or "নির্ধারিত",
+                       _bn(int(alert.get("minutes") or 0))))
         if k == "device_alarm":
             what = _ALARM_BN.get(alert.get("alarm"), "সতর্ক সংকেত")
             return ("%s: %s" % (v, what),
@@ -378,6 +487,15 @@ def alert_text(alert, vehicle_name, lang="bn"):
         return ("%s started at night" % v,
                 "The engine was switched on at night. If it was not you or someone "
                 "you know, please check.")
+    if k == "off_route":
+        return ("%s left the planned route" % v,
+                "%s is about %d m off the \"%s\" route. Please check in."
+                % (v, int(alert.get("distance_m") or 0),
+                   alert.get("route_name") or "planned"))
+    if k == "long_stop":
+        return ("%s has been stopped a while" % v,
+                "%s has been stopped for %d minutes on the \"%s\" route. Please check in."
+                % (v, int(alert.get("minutes") or 0), alert.get("route_name") or "planned"))
     if k == "device_alarm":
         what = _ALARM_EN.get(alert.get("alarm"), "alarm")
         return ("%s: %s" % (v, what),

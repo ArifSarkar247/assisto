@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -175,12 +176,14 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: const SkeletonList(),
       );
     }
     if (_error) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
@@ -197,6 +200,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
     final goal = _activeGoal;
     if (goal == null) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: StateMessage(
           icon: Icons.favorite_outline_rounded,
@@ -214,6 +218,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
     final wk = _FitMath.weeklySummary(_workouts, _today());
     final streak = _FitMath.streak(_workouts, _today());
     return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
       appBar: AppBar(title: Text(tr.fitTitle), actions: [
         IconButton(
           tooltip: tr.fitChangeGoal,
@@ -460,7 +465,7 @@ class _CoachTip extends StatelessWidget {
                   Text(_tip(tr, status),
                       style: const TextStyle(fontWeight: FontWeight.w500)),
                   const SizedBox(height: Gap.xxs),
-                  Text(tr.fitCoachingSeam,
+                  Text(tr.fitTipFixedNote,
                       style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),

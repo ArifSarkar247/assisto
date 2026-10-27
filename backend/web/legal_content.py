@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-26"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking + budget and remittance (26 Oct)
+LAST_UPDATED = "2026-10-27"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking + budget and remittance (26 Oct) + health & fitness section (27 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -276,12 +276,12 @@ PERMISSIONS = [
     },
     {
         "id": "health",
-        "perm": "health.READ_STEPS, health.READ_HEART_RATE, health.READ_SLEEP, health.READ_ACTIVE_CALORIES_BURNED, ACTIVITY_RECOGNITION",
+        "perm": "health.READ_STEPS, health.READ_HEART_RATE, health.READ_SLEEP, health.READ_ACTIVE_CALORIES_BURNED",
         "name": ("Health Connect (ধাপ, হার্ট রেট, ঘুম, ক্যালোরি) — শুধু পড়া", "Health Connect (steps, heart rate, sleep, calories) — read only"),
-        "why": ("স্মার্টওয়াচ ও ফিটনেস স্ক্রিনে আজকের ও গত ৭ দিনের সারসংক্ষেপ দেখানো। এই ডেটা শুধু আপনার ফোনে "
+        "why": ("স্মার্টওয়াচ ও ফিটনেস স্ক্রিনে আজকের সারসংক্ষেপ ও ৭, ৩০ বা ৯০ দিনের প্রবণতা দেখানো। এই ডেটা শুধু আপনার ফোনে "
                 "দেখানো হয় — আমাদের সার্ভারে পাঠানো হয় না, বিজ্ঞাপন বা অন্য কোনো কাজে ব্যবহার হয় না, কারও সাথে শেয়ার হয় না। "
                 "আমরা Health Connect-এ কিছু লিখি না।",
-                "Showing today's and the last 7 days' summary on the Smartwatch & Fitness screen. This data is "
+                "Showing today's summary and a 7-, 30- or 90-day trend on the Smartwatch & Fitness screen. This data is "
                 "only shown on your phone — it is not sent to our servers, not used for ads or anything else, "
                 "and not shared with anyone. We never write to Health Connect."),
         "when": ("স্মার্টওয়াচ ও ফিটনেস স্ক্রিন খুলে \"Connect\" চাপলে, Health Connect-এর নিজস্ব অনুমতি স্ক্রিনে।",
@@ -343,13 +343,15 @@ PERMISSIONS = [
     },
     {
         "id": "normal",
-        "perm": "INTERNET, ACCESS_NETWORK_STATE, CHANGE_NETWORK_STATE, MODIFY_AUDIO_SETTINGS, VIBRATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED",
+        "perm": "INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_NETWORK_STATE, MODIFY_AUDIO_SETTINGS, VIBRATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED",
         "name": ("সাধারণ অনুমতি", "Normal permissions"),
         "why": ("সার্ভারের সাথে যোগাযোগ, কলের সংযোগ ও স্পিকার/ইয়ারপিস বদল, চুরি-অ্যালার্মের কম্পন, রিমাইন্ডার বাজার সময় ফোন "
-                "জাগানো, এবং ফোন রিস্টার্টের পরে আপনার রিমাইন্ডারগুলো আবার সেট করা।",
+                "জাগানো, ফোন রিস্টার্টের পরে আপনার রিমাইন্ডারগুলো আবার সেট করা, এবং চুরি-সুরক্ষা চালু থাকলে ফোনটি আপনার "
+                "রাখা বাসার ওয়াই-ফাইতে আছে কি না দেখা (শুধু একটি কোড, ওয়াই-ফাইয়ের নাম কখনো সংরক্ষণ বা পাঠানো হয় না)।",
                 "Talking to our server, keeping calls connected and switching speaker/earpiece, vibration for the "
-                "anti-theft alarm, waking the phone when a reminder is due, and re-setting your reminders after "
-                "the phone restarts."),
+                "anti-theft alarm, waking the phone when a reminder is due, re-setting your reminders after "
+                "the phone restarts, and, while anti-theft protection is on, checking whether the phone is on the "
+                "home Wi-Fi you saved (only a code; the Wi-Fi name is never stored or sent)."),
         "when": ("Android এগুলোর জন্য আলাদা করে জিজ্ঞেস করে না।",
                  "Android does not prompt for these."),
         "revoke": ("অ্যাপ আনইনস্টল করলে।", "Uninstall the app."),
@@ -403,6 +405,8 @@ PRIVACY = [
           "<b>What you add:</b> reminders, notes, to-dos, memories, birthdays, income/expense records, budgets, loans, savings, subscriptions, Document Vault files and details (e.g. passport expiry), family members, emergency card."),
          ("<b>স্বাস্থ্য তথ্য যা আপনি নিজে লেখেন:</b> ডাক্তার, প্রেসক্রিপশন, ওষুধ ও ওষুধ খাওয়ার রেকর্ড। (Health Connect-এর ডেটা নয় — সেটি ফোনেই থাকে।)",
           "<b>Health details you type in yourself:</b> doctors, prescriptions, medicines and dose logs. (Not Health Connect data — that stays on the phone.)"),
+         ("<b>পানি, ঘুম, খাবার ও ফিটনেস (আপনি লিখলে):</b> দিনে কত গ্লাস পানি, কত ঘণ্টা ঘুম, খাবারের নোট, আপনার লক্ষ্য, ব্যায়ামের লগ (ধরন, সময়, পদক্ষেপ, ঐচ্ছিক ক্যালরি) ও ওজন — যাতে অন্য ফোনেও আপনার অগ্রগতি দেখতে পান।",
+          "<b>Water, sleep, food and fitness (if you log them):</b> glasses of water, hours of sleep, food notes, your goals, workout logs (type, minutes, steps, optional calories) and weight — so you can see your progress on any phone."),
          ("<b>বার্তা ও কল:</b> ব্যক্তিগত ও গ্রুপ চ্যাটের লেখা বার্তা এনক্রিপ্টেড আকারে (আমরা পড়তে পারি না) এবং ডেলিভারির জন্য প্রয়োজনীয় তথ্য (কে, কাকে, কখন)। চ্যানেলের পোস্ট, কমিউনিটি ও ব্যবসায়িক ইনবক্স end-to-end এনক্রিপ্টেড নয়। পাঠানো ছবি/ফাইল প্রাপক নামাতে পারার জন্য সার্ভারে থাকে। কলের রেকর্ড (কে, কখন, কতক্ষণ) — কলের অডিও/ভিডিও আমরা রেকর্ড করি না।",
           "<b>Messages and calls:</b> text messages of personal and group chats in encrypted form (we cannot read them) plus what is needed to deliver them (who, to whom, when). Channel posts, communities and the business inbox are not end-to-end encrypted. Photos/files you send are kept on the server so recipients can download them. Call records (who, when, how long) — we never record call audio or video."),
          ("<b>নিরাপত্তা ফিচার:</b> SOS ও Safe Journey-র লোকেশন, আপনার বেছে নেওয়া পরিচিত নিরাপদ জায়গা, চেক-ইন, বিশ্বস্ত পরিচিতজন।",
@@ -424,12 +428,29 @@ PRIVACY = [
     S("device_only", "যা আপনার ফোনেই থাকে", "What stays on your phone",
       UL(("Health Connect-এর ধাপ, হার্ট রেট, ঘুম ও ক্যালোরি — শুধু ফোনে দেখানো হয়।",
           "Health Connect steps, heart rate, sleep and calories — only shown on the phone."),
+         ("মন ও প্রাণশক্তির ডায়েরি (মুড, প্রাণশক্তির রেটিং ও নোট) — কোনো অডিও রাখা হয় না।",
+          "Your Mood & energy journal (mood, energy rating and notes) — no audio is ever kept."),
          ("আপনার ফোনবুক — শুধু নম্বরের হ্যাশ মেলানোর জন্য যায়, নাম কখনো নয়।",
           "Your phonebook — only number hashes are sent for matching, never names."),
          ("\"Hey Assisto\" ওয়েক-ওয়ার্ড শোনার অডিও।", "The audio the \"Hey Assisto\" wake word listens to."),
          ("চ্যাট এনক্রিপশনের চাবি — এগুলো কখনো ফোন ছাড়ে না।", "Your chat encryption keys — they never leave the phone."),
          ("ভয়েস টাইপিং ফোনের নিজস্ব স্পিচ সার্ভিস (যেমন Google) দিয়ে হয়, সেই সার্ভিসের নিজস্ব নীতিমালায়।",
           "Voice typing uses your phone's own speech service (for example Google's), under that service's own terms."))),
+    S("health_fitness", "স্বাস্থ্য ও ফিটনেস ফিচার", "Health and fitness features",
+      P("পানি-ঘুম-খাবার, ফিটনেস সঙ্গী, স্মার্টওয়াচ ও ফিটনেস এবং মন ও প্রাণশক্তির ডায়েরি — এগুলো শুধু নিজের যত্ন ও অভ্যাসের হিসাব রাখার টুল। "
+        "<b>এটি চিকিৎসা-পরামর্শ নয়।</b> Assisto কোনো রোগ চেনে না, চিকিৎসা বা ওষুধের কথা বলে না; স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে কথা বলুন। "
+        "মন ও প্রাণশক্তির ডায়েরি শুধু নিজের অনুভূতি লিখে রাখা ও বিশ্রামের (শ্বাসের ব্যায়াম) জন্য; এটি কোনো কাউন্সেলিং সেবা নয়। কখনো নিজেকে অনিরাপদ মনে হলে ৯৯৯-এ কল করুন।",
+        "Water, sleep and food, Fitness partner, Smartwatch and fitness, and the Mood and energy journal are self-care and habit-tracking tools only. "
+        "<b>This is not medical advice.</b> Assisto does not identify any illness and does not suggest treatment or medicine; talk to a doctor about any health concern. "
+        "The Mood and energy journal is only for noting how you feel and for relaxation (a breathing exercise); it is not a counselling service. If you ever feel unsafe, call 999."),
+      UL(("<b>Health Connect:</b> আপনি অনুমতি দিলে আমরা শুধু <b>পড়ি</b> — পদক্ষেপ, হার্ট রেট, ঘুম ও সক্রিয় ক্যালরি — এবং স্মার্টওয়াচ ও ফিটনেস স্ক্রিনে দেখাই। এই ডেটা ফোনেই থাকে: আমাদের সার্ভারে যায় না, আমরা Health Connect-এ কিছু লিখি না।",
+          "<b>Health Connect:</b> if you allow it, we only <b>read</b> steps, heart rate, sleep and active calories and show them on the Smartwatch and fitness screen. This data stays on your phone: it is not sent to our server, and we never write to Health Connect."),
+         ("<b>আপনার লেখা পানি/ঘুম/খাবার/ফিটনেস লগ</b> আমাদের সার্ভারে আপনার অ্যাকাউন্টে থাকে, যাতে অন্য ফোনেও দেখতে পান; দেখেন শুধু আপনি। মন ও প্রাণশক্তির ডায়েরি শুধু এই ফোনে থাকে।",
+          "<b>Water/sleep/food/fitness logs you enter</b> are kept on our server in your account so you can see them on another phone; only you can see them. The Mood and energy journal stays only on this phone."),
+         ("স্বাস্থ্য ও ফিটনেসের কোনো তথ্য আমরা <b>বিক্রি করি না, বিজ্ঞাপনে বা বিজ্ঞাপনের প্রোফাইলে ব্যবহার করি না</b>, ঋণ বা বিমার যোগ্যতা যাচাইয়ে ব্যবহার করি না, এবং কারও সাথে শেয়ার করি না। Health Connect থেকে পাওয়া তথ্যের ব্যবহার Health Connect-এর অনুমতি নীতির (Limited Use) শর্ত মেনে চলে।",
+          "We <b>never sell health and fitness data, never use it for ads or advertising profiles</b>, never use it to decide credit or insurance eligibility, and never share it with anyone. Use of information received from Health Connect follows the Health Connect Permissions policy, including its Limited Use requirements."),
+         ("যেকোনো সময় মুছতে পারেন: প্রতিটি স্ক্রিনে লগ মুছুন, মন ও প্রাণশক্তির ডায়েরিতে \"সব তথ্য মুছুন\", Health Connect অ্যাপ থেকে অনুমতি তুলে নিন, অথবা পুরো অ্যাকাউন্ট মুছে ফেলুন।",
+          "Delete any time: delete logs on each screen, use \"Delete all data\" in the Mood and energy journal, revoke access in the Health Connect app, or delete your whole account."))),
     S("permissions", "অ্যাপের অনুমতিগুলো — কী, কেন, কখন, কীভাবে বন্ধ করবেন", "App permissions — what, why, when, how to turn off",
       P("অ্যাপ চালু হওয়ার সময় কোনো অনুমতি চাওয়া হয় না। নোটিফিকেশনের অনুমতি একবার চাওয়া হয় আপনি লগইন করার পরে; বাকি প্রতিটি অনুমতি চাওয়া হয় যে ফিচারের দরকার সেটি প্রথমবার ব্যবহারের সময়। কোনো অনুমতি না দিলেও বাকি অ্যাপ চলবে; শুধু সেই ফিচারটি কাজ করবে না।",
         "No permission is requested while the app starts. Notifications are asked once, after you sign in; every other permission is asked the first time you use the feature that needs it. If you say no, the rest of the app keeps working; only that feature won't."),

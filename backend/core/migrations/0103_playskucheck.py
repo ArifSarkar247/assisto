@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0100_aiusage_credits"),
+        ("core", "0102_aiusage_credits"),
     ]
 
     operations = [

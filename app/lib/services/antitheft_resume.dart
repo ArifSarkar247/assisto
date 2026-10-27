@@ -60,8 +60,9 @@ class AntiTheftResume {
         'resumeTitle': tr.athbResumeTitle,
         'resumeBody': tr.athbResumeBody,
         // grab-guard: the local "Was this you?" heads-up after a grab
-        'grabTitle': tr.grabAskTitle,
-        'grabBody': tr.grabAskNotifBody,
+        // antitheft2: "Are you OK?" (owner 27 Oct)
+        'grabTitle': tr.at2OkTitle,
+        'grabBody': tr.at2OkNotifBody,
       };
 
   /// True when protection is ON and the engine is (now) running.

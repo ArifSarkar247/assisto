@@ -107,14 +107,14 @@ def test_low_streak_breaks_on_gap_or_good_day():
     assert tr["low_streak"] == 1
 
 
-def test_suggestions_are_keys_and_add_helpline_when_low():
+def test_suggestions_are_keys_and_add_support_when_low():
     s = V.suggestions("great")
-    assert "helpline" not in s
+    assert "support" not in s
     s2 = V.suggestions("great", persistently_low=True)
-    assert s2[-1] == "helpline"
+    assert s2[-1] == "support"
     s3 = V.suggestions("low")
-    assert "helpline" in s3  # low bucket already includes it, no dupe
-    assert s3.count("helpline") == 1
+    assert "support" in s3  # low bucket already includes it, no dupe
+    assert s3.count("support") == 1
 
 
 def test_check_in_includes_itself_in_trend():

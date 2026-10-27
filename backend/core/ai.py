@@ -60,6 +60,13 @@ _INJECTION_GUARD = P.INJECTION_GUARD
 _THINK_HEADROOM = {"low": 1024, "medium": 4096, "high": 8000, "xhigh": 12000, "max": 15000}
 _MAX_TOKENS_CAP = 16000          # non-streaming request ceiling
 
+# healthfit (owner decision 27 Oct): Assisto's health & fitness features are
+# Health and Fitness only, never medical. EVERY AI call carries this rule so no
+# reply (chat, a wellness/fitness/mood question, a document read) can act as
+# medical advice, a diagnosis, a treatment/therapy or a dose. Kept as its own
+# constant so core/tests_healthfit.py can assert it is always in the prompt.
+HEALTH_SAFETY_RULE = P.HEALTH_SAFETY_RULE
+
 
 class AIUnavailable(Exception):
     """Raised when AI is off (no key), a budget/cap/limit is reached, or every

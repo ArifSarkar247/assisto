@@ -637,10 +637,10 @@ class SidebarSections {
           synonyms: ['travel', 'trip', 'itinerary', 'tour', 'journey', 'vacation']),
       // §6 AI-core: #15 voice mood (on-device opt-in), #6 proactive AI;
       // §20 #194 area community (local-area board).
-      SidebarItem(Icons.mood_rounded, (t) => t.moodTitle,
+      SidebarItem(Icons.mood_rounded, (t) => t.moodJournalTitle,
           feature: 'voice_mood',
           (_) => const VoiceMoodScreen(),
-          synonyms: ['mood', 'wellbeing', 'feeling', 'mental', 'check-in']),
+          synonyms: ['mood', 'journal', 'energy', 'relax', 'breathing', 'check-in']),
       SidebarItem(Icons.lightbulb_outline_rounded, (t) => t.proTitle,
           feature: 'proactive_ai',
           (_) => const ProactiveAiScreen(),

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0099_daily_info_flag"),
+        ("core", "0101_antitheft2_location_routing"),
     ]
 
     operations = [

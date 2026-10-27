@@ -3,8 +3,9 @@ Assisto vehicle tracker server — standalone asyncio TCP service (v1-vehicle).
 
     python -m tracker --host 0.0.0.0 --port 5023
 
-Speaks Concox GT06 and Teltonika Codec 8 / 8E (+ Codec 12 commands) on ONE
-port; the protocol is detected from the first bytes of each connection.
+Speaks Concox GT06, H02 text (Sinotrack ST-901 family) and Teltonika Codec 8 /
+8E (+ Codec 12 commands) on ONE port; the protocol is detected from the first
+bytes of each connection.
 
 TRANSPORT HONESTY: these trackers speak plain TCP and cannot do TLS. Position
 data on the device->server leg is therefore not encrypted. Mitigations:
@@ -29,7 +30,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from .protocols import gt06, teltonika
+from .protocols import gt06, h02, teltonika
 
 log = logging.getLogger("assisto.tracker")
 
@@ -104,6 +105,7 @@ class Session:
         self.writer = writer
         self.serial = 1
         self.inflight = None          # (cmd_id, sent_monotonic)
+        self.sos = False              # H02: SOS bit seen on the last frame
 
     def next_serial(self):
         self.serial = (self.serial + 1) & 0xFFFF
@@ -230,6 +232,9 @@ class TrackerServer:
             flag = cmd["id"] & 0xFFFFFFFF
             if s.proto == "gt06":
                 wire = gt06.server_command(text, flag, s.next_serial())
+            elif s.proto == "h02":
+                wire = h02.server_command(s.imei, text, datetime.now(timezone.utc))
+                flag = 0
             else:
                 wire = teltonika.codec12_command(text)
                 flag = 0
@@ -245,7 +250,7 @@ class TrackerServer:
 
     @staticmethod
     def _command_text(proto, cmd):
-        mod = gt06 if proto == "gt06" else teltonika
+        mod = {"gt06": gt06, "h02": h02}.get(proto, teltonika)
         if cmd["kind"] in mod.COMMANDS:
             return mod.COMMANDS[cmd["kind"]]
         if cmd["kind"] == "set_interval":
@@ -290,6 +295,8 @@ class TrackerServer:
                 return
             if first[:2] in (gt06.START_SHORT, gt06.START_LONG):
                 session = await self._gt06(reader, writer, first, ip)
+            elif h02.looks_like_h02(first):
+                session = await self._h02(reader, writer, first, ip)
             elif teltonika.looks_like_imei_frame(first):
                 session = await self._teltonika(reader, writer, first, ip)
             # anything else: not a tracker we speak -> just close
@@ -393,6 +400,53 @@ class TrackerServer:
         await writer.drain()
         if self.buffered >= BATCH_MAX:
             await self.flush()
+
+    # ---- H02 (text; no login packet — the IMEI rides in every frame)
+    async def _h02(self, reader, writer, buf, ip):
+        bucket = Bucket(self._c("max_packets_per_min", 240))
+        s = None
+        while True:
+            try:
+                frames, buf = h02.split_frames(buf)
+            except h02.FrameError:
+                self.stats["bad_frames"] += 1
+                return s
+            for fr in frames:
+                if not bucket.take():
+                    if bucket.dropped > 3 * self._c("max_packets_per_min", 240):
+                        await self._abuse(s, ip)
+                        return s
+                    continue
+                try:
+                    pkt = h02.parse_frame(fr)
+                except h02.FrameError:
+                    self.stats["bad_frames"] += 1
+                    continue
+                self.stats["frames"] += 1
+                if s is None:
+                    tid, _reason = await self._connect(pkt["imei"], "h02", ip)
+                    if tid is None:
+                        return None          # refused: close, no reply
+                    s = self._register("h02", tid, pkt["imei"], writer)
+                elif pkt["imei"] != s.imei:
+                    self.stats["bad_frames"] += 1     # never switch IMEI mid-socket
+                    continue
+                k = pkt["kind"]
+                if k == "gps":
+                    self.add_fix(s.tracker_id, pkt["fix"])
+                    sos = pkt.get("alarm") == "sos"
+                    if sos and not s.sos:        # the SOS bit repeats in every
+                        await self.store.call(_device_alarm, s.tracker_id, "sos")
+                    s.sos = sos                  # frame: alert on the edge only
+                elif k == "heartbeat":
+                    self._buf(s.tracker_id)
+                elif k == "cmd_reply":
+                    await self._reply(s, pkt["text"], h02.reply_ok(pkt["text"]))
+                if self.buffered >= BATCH_MAX:
+                    await self.flush()
+            if len(buf) > MAX_BUFFER:
+                return s
+            buf += await self._read(reader)
 
     # ---- Teltonika
     async def _teltonika(self, reader, writer, buf, ip):

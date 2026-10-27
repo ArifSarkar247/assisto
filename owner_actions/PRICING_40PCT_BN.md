@@ -123,7 +123,7 @@ Premium ৳৪৪৯: প্রতিটি চ্যাট Sonnet 5.5 (চি�
   হাতে দেখতে: `manage.py ai_cost_check --no-alert`। বদলানো যায় Owner Admin → Pricing & plans → billing (সীমার মধ্যে): চালু/বন্ধ, AI বাজেট % (১০–৪০, ডিফল্ট ২৪), কমপক্ষে কত ক্রেডিট (ডিফল্ট ১০০), নিজের নিরাপদ সীমা (পয়সায়, ০ = নিজে হিসাব)।
 - **প্রতি মাসে** (`manage.py ai_usage_monthly`, ১ তারিখ): প্রতিটি মোডে আসল গড় ইনপুট/ক্যাশ/আউটপুট টোকেন, গড় ও ৯০% ক্ষেত্রে খরচ, সীমার তুলনায় কত — আর ২০০+ মেসেজের ডেটা থাকলে “৪০% রেখেই এত ক্রেডিট দেওয়া যায়”। আপনার ফোনে পুশ + ইমেইল, মাসে একবার। নিজে কিছু বদলায় না।
   cron: `10 4 1 * * ubuntu cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py ai_usage_monthly >> /home/ubuntu/assisto/backend/logs/ai_usage_monthly.log 2>&1`
-- প্রতিটি AI কলে এখন কত ক্রেডিট কাটা হলো তাও লেখা থাকে (নতুন ঘর `credits_charged`, মাইগ্রেশন 0100)।
+- প্রতিটি AI কলে এখন কত ক্রেডিট কাটা হলো তাও লেখা থাকে (নতুন ঘর `credits_charged`, মাইগ্রেশন 0102)।
 - কি বসানোর পর **বিনা খরচে** আসল টোকেন গুনতে: `manage.py ai_token_audit` (Anthropic-এর ফ্রি count_tokens; টেস্ট/CI-তে চলে না; কি না থাকলে `--offline`)।
 
 ## ৯. অনুমোদনের পর কী বদলাবে

@@ -12,6 +12,7 @@ import 'firebase_lazy.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
+import 'family_alert_receipt.dart'; // family100
 
 /// Firebase-backed [PushBridge].
 ///
@@ -127,6 +128,9 @@ Future<void> assistoFcmBackgroundHandler(RemoteMessage message) async {
   try {
     if (await ackPushDelivery(message.data)) return;
   } catch (_) {}
+  // family100: an SOS / family alert reached this phone -> receipt (sender
+  // sees "received"; delivery time is measured). Never blocks drawing it.
+  unawaited(ackFamilyAlertReceipt(message.data));
   try {
     final p = PushPayload.fromData(message.data);
     // e2-keys: a SILENT key push — publish our public key / flush the outbox
