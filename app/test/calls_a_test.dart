@@ -694,6 +694,9 @@ void main() {
         'only the video; the app underneath keeps its state', (tester) async {
       final nav = GlobalKey<NavigatorState>();
       CallRuntime.instance.attachNavigator(nav);
+      // In the app the call screen registers this before any minimize; here
+      // the call is minimized directly, so register it (test-order safe).
+      CircleCallScreen.registerReopen();
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpWidget(_App(nav: nav, app: _signedOut()));
       final o = minimized();

@@ -458,7 +458,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         if (loggedIn && nav != null && nav.mounted && mounted) {
           final api = context.read<AppState>().api;
           await GrabCheck.maybeShow(nav.context,
-              send: (pin) => api.engineFalseAlarm(pin: pin));
+              send: (pin) => api.engineFalseAlarm(pin: pin),
+              escalate: (r) => api.engineEscalate(reason: r)); // antitheft2
         }
         if (!on || !loggedIn || nav == null || !mounted) return;
         await AntiTheftResume.maybeShowBatteryGuide(

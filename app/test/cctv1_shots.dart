@@ -30,21 +30,21 @@ final Map<String, Widget Function(String)> cctv1Shots = {
       source: FakeWatchman(), site: _site, limits: _limits, credits: 120),
   'wm_add_form_imou': (_) => WatchmanAddCameraScreen(
       source: FakeWatchman(), site: _site, limits: _limits, credits: 120,
-      recheck: FakeWatchman.camera()),
+      recheck: FakeWatchman.cameraRow()),
   'wm_check_ok': (_) => WatchmanAddCameraScreen(
       source: FakeWatchman(), site: _site, limits: _limits, credits: 120,
-      recheck: FakeWatchman.camera(),
+      recheck: FakeWatchman.cameraRow(),
       initialResult: {'id': 5, 'status': 'done', 'request': {'vendor': 'imou'}, 'result': FakeWatchman.result('ok')}),
   'wm_check_auth_failed': (_) => WatchmanAddCameraScreen(
       source: FakeWatchman(), site: _site, limits: _limits, credits: 120,
-      recheck: FakeWatchman.camera(),
+      recheck: FakeWatchman.cameraRow(),
       initialResult: {'id': 5, 'status': 'done', 'request': {'vendor': 'imou'}, 'result': FakeWatchman.result('auth')}),
   'wm_check_no_gateway': (_) => WatchmanAddCameraScreen(
       source: FakeWatchman(), site: _site, limits: _limits, credits: 120,
-      recheck: FakeWatchman.camera(),
+      recheck: FakeWatchman.cameraRow(),
       initialResult: {'id': 5, 'status': 'expired', 'request': {'vendor': 'imou'},
                       'result': {'ok': false, 'code': 'gateway_no_answer'}}),
-  'wm_zones': (_) => WatchmanZonesScreen(source: FakeWatchman(), camera: FakeWatchman.camera()),
+  'wm_zones': (_) => WatchmanZonesScreen(source: FakeWatchman(), camera: FakeWatchman.cameraRow()),
   'wm_alerts': (_) => WatchmanAlertsScreen(source: FakeWatchman(), siteId: 1, owner: true),
   'wm_alerts_empty': (_) => WatchmanAlertsScreen(source: FakeWatchman('empty'), siteId: 1, owner: true),
   'wm_alerts_viewer': (_) => WatchmanAlertsScreen(source: FakeWatchman('viewer'), siteId: 1, owner: false),

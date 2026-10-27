@@ -260,7 +260,8 @@ def deliver(sends):
         body = "\n".join(fires) + "\nSee Owner Admin → Call relay. Guide: owner_actions/CALL_SCALING.md"
         notify_owner("Assisto call relay near its limit", body)
         # owner 25 Oct: an ADMIN notification, not a Family alert
-        for o in User.objects.filter(is_superuser=True)[:5]:
+        from .push import owner_admin_users   # active owner admins only
+        for o in owner_admin_users():
             NotifEvent.objects.create(
                 user=o, type="admin", title_en="Call relay (TURN) near its limit",
                 title_bn="কল রিলে (TURN) সীমার কাছে", body_en=body[:2000],

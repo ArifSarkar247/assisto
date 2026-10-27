@@ -53,13 +53,24 @@ extension AntiTheftApi on ApiClient {
   Future<Map<String, dynamic>> engineFalseAlarm({required String pin}) =>
       postJsonRaw('/security/engine/false-alarm', {'pin': pin});
 
+  /// antitheft2: POST security/engine/escalate {reason: not_ok|duress} — the
+  /// owner answered "I need help" on "Are you OK?": the held grab goes to
+  /// the trusted contacts now. -> {ok, escalated, recipients}.
+  Future<Map<String, dynamic>> engineEscalate({String reason = 'not_ok'}) =>
+      postJsonRaw('/security/engine/escalate', {'reason': reason});
+
   /// POST security/engine/settings {pin, ...} -> {ok, config, alert_members}.
+  /// antitheft2: [nightGuard]; [homeWifi] 'save_current' (with [wifiHash]
+  /// from the engine, never the name) | 'clear'.
   Future<Map<String, dynamic>> engineSettings({
     required String pin,
     bool? snatchLock,
     bool? intruderPhoto,
     int? failedUnlockThreshold,
     List<int>? alertMemberIds,
+    bool? nightGuard,
+    String? homeWifi,
+    String? wifiHash,
   }) =>
       postJsonRaw('/security/engine/settings', {
         'pin': pin,
@@ -68,6 +79,9 @@ extension AntiTheftApi on ApiClient {
         if (failedUnlockThreshold != null)
           'failed_unlock_threshold': failedUnlockThreshold,
         if (alertMemberIds != null) 'alert_member_ids': alertMemberIds,
+        if (nightGuard != null) 'night_guard': nightGuard,
+        if (homeWifi != null) 'home_wifi': homeWifi,
+        if (wifiHash != null && wifiHash.isNotEmpty) 'wifi_hash': wifiHash,
       });
 
   /// GET security/engine/timeline[?phone_id] — owner or approved family only.
