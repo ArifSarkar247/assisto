@@ -50,12 +50,12 @@ PLANS = {
     # pricing-40 (owner final, 27 Oct night): live price/credits come from
     # PricingConfig (shipped at price 0 = not for sale until the preset).
     "plus":     {"name_bn": "প্লাস", "name_en": "Plus", "price": 0, "cur": "BDT", "period": "mo",
-                 "credits": 0, "unlimited_ai": False, "ads": False, "family": 0,
+                 "credits": 70, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "কম দামে স্মার্ট AI চ্যাট।", "desc_en": "Smart AI chat at a small price.",
                  "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "বিজ্ঞাপন নেই"],
                  "benefits_en": ["Monthly AI credits", "No ads"]},
     "premium_pro": {"name_bn": "প্রিমিয়াম প্রো", "name_en": "Premium Pro", "price": 0, "cur": "BDT",
-                    "period": "mo", "credits": 0, "unlimited_ai": False, "ads": False, "family": 5,
+                    "period": "mo", "credits": 380, "unlimited_ai": False, "ads": False, "family": 5,
                     "desc_bn": "প্রতিটি চ্যাটে সবচেয়ে শক্তিশালী AI, সাথে এজেন্ট কাজ।",
                     "desc_en": "Our strongest AI on every chat, plus agent tasks.",
                     "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "প্রতি মাসে AI ক্রেডিট"],
