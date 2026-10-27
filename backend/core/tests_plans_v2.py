@@ -208,10 +208,14 @@ class TierTests(_V2):
         client(u).get("/api/v1/me/plan")
         client(u).get("/api/v1/plans/v2")
         self.assertFalse(PaymentOrder.objects.filter(user=u).exists())   # nothing billed
-        self.assertFalse(CreditLedger.objects.filter(user=u, delta__lt=0).exists())
+        # owner 27 Oct (billing-v2): the only negative rows are the trial
+        # credits EXPIRING at the trial end — never a charge
+        neg = CreditLedger.objects.filter(user=u, delta__lt=0)
+        self.assertFalse(neg.exclude(reason="expire").exists())
         u.refresh_from_db()
         self.assertEqual(u.plan_until, None)
-        self.assertEqual(u.ai_credits, granted)
+        self.assertLessEqual(u.ai_credits, granted)
+        self.assertEqual(u.ai_credits + sum(-r.delta for r in neg), granted)
 
 
 # ===================================================================== CRM
