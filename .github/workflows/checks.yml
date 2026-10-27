@@ -36,7 +36,9 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: backend/requirements.txt
-      - run: python -m pip install -q -r backend/requirements.txt
+      # tblib: Django's --parallel runner needs it to report a failing test;
+      # without it one failure crashes the whole run ("cannot pickle traceback").
+      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
       - name: makemigrations --check
         working-directory: backend
         run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
