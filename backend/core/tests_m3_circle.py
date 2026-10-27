@@ -321,7 +321,10 @@ class InviteLinkAndRedeem(TestCase):
         self.assertEqual(r.status_code, 200)
         mine = CircleMember.objects.get(user=self.b, peer_user=self.a)
         self.assertEqual(mine.relation, "colleague")
-        self.assertTrue(CircleInvite.objects.get(token=tok).used)
+        # invite-join: "My QR" is a multi-use short code (a room can scan it)
+        inv = CircleInvite.objects.get(code=tok)
+        self.assertEqual(inv.use_count, 1)
+        self.assertEqual(inv.max_uses, 10)
 
 
 class ChatCommandsOpenCircleAdd(TestCase):

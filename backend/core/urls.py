@@ -1165,3 +1165,19 @@ from . import views_plans_v2 as pv2  # noqa: E402
 urlpatterns += [
     path("plans/v2", pv2.PlansV2View.as_view()),
 ]
+
+# ---- invite-join ---- short invite codes, passwordless join from a link.
+# PREPENDED so the literal paths win over any circle/<...> catch-all.
+from . import views_invite_join as ijv  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/invite/code", ijv.InviteCodeCreateView.as_view()),
+    path("circle/invite/sent", ijv.InviteSentView.as_view()),
+    path("circle/invite/<int:pk>/resend", ijv.InviteResendView.as_view()),
+    path("circle/invite/<int:pk>/revoke", ijv.InviteRevokeView.as_view()),
+    path("invite/preview", ijv.InvitePreviewView.as_view()),
+    path("invite/join", ijv.InviteJoinView.as_view()),
+    path("invite/signup", ijv.InviteSignupView.as_view()),
+    path("auth/set-password", ijv.SetPasswordView.as_view()),
+    path("auth/password-state", ijv.PasswordStateView.as_view()),
+]
+# ---- /invite-join ----

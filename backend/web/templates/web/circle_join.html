@@ -1,0 +1,33 @@
+{% extends "web/base.html" %}
+{% block title %}{% if lang == 'en' %}Join My Circle on Assisto{% else %}Assisto — আমার সার্কেলে যোগ দিন{% endif %}{% endblock %}
+{% block og %}
+<meta property="og:title" content="{% if lang == 'en' %}{% if name %}{{ name }} invited you to My Circle{% else %}You're invited to My Circle{% endif %}{% else %}{% if name %}{{ name }} আপনাকে আমার সার্কেলে ডেকেছেন{% else %}আপনাকে আমার সার্কেলে ডাকা হয়েছে{% endif %}{% endif %}">
+<meta property="og:description" content="{% if lang == 'en' %}Chat, calls and family safety in one app.{% else %}চ্যাট, কল আর পরিবারের নিরাপত্তা — এক অ্যাপে।{% endif %}">
+<meta property="og:type" content="website">
+{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<style>.av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#2563eb,#7c3aed);color:#fff;font-size:34px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:8px auto}
+.big{display:block;text-align:center;font-size:18px;padding:16px;min-height:48px;margin:10px 0}
+.steps li{margin:6px 0}</style>{% endblock %}
+{% block content %}
+<div class="card">
+  {% if ok %}
+  <div class="av" aria-hidden="true">{{ initial }}</div>
+  <h1 style="text-align:center">{% if lang == 'en' %}{% if name %}{{ name }} invited you to their circle{% else %}You're invited to a circle{% endif %}{% else %}{% if name %}{{ name }} আপনাকে তার সার্কেলে ডেকেছেন{% else %}আপনাকে একটি সার্কেলে ডাকা হয়েছে{% endif %}{% endif %}</h1>
+  <p style="text-align:center" class="muted">{% if lang == 'en' %}Chat, calls and family safety in one app.{% else %}চ্যাট, কল আর পরিবারের নিরাপত্তা — এক অ্যাপে।{% endif %}</p>
+  <a class="btn big" id="open" href="{{ intent_url }}" rel="nofollow">{% if lang == 'en' %}Open in Assisto{% else %}Assisto-তে খুলুন{% endif %}</a>
+  <a class="btn big" href="{{ play_url }}" rel="nofollow noopener">{% if lang == 'en' %}Get Assisto on Google Play{% else %}Google Play থেকে Assisto নিন{% endif %}</a>
+  <ol class="steps muted">
+    <li>{% if lang == 'en' %}Install Assisto and open it — it opens straight to “Join”.{% else %}Assisto ইনস্টল করে খুলুন — সরাসরি “যোগ দিন” দেখাবে।{% endif %}</li>
+    <li>{% if lang == 'en' %}Type your name, tap Join. No password.{% else %}নাম লিখে “যোগ দিন” চাপুন। কোনো পাসওয়ার্ড লাগবে না।{% endif %}</li>
+  </ol>
+  <p class="muted">{% if lang == 'en' %}Installed the app from the website instead? Tap this link again after installing, or enter this code in the app:{% else %}ওয়েবসাইট থেকে অ্যাপ নিয়েছেন? ইনস্টলের পরে লিংকটি আবার ট্যাপ করুন, অথবা অ্যাপে এই কোডটি দিন:{% endif %} <b style="letter-spacing:2px">{{ code }}</b>
+    · <a href="/get{{ qlang }}">{% if lang == 'en' %}website download{% else %}ওয়েবসাইট থেকে নিন{% endif %}</a></p>
+  {% else %}
+  <h1>{% if lang == 'en' %}This invite can't be used{% else %}এই আমন্ত্রণটি ব্যবহার করা যাচ্ছে না{% endif %}</h1>
+  <div class="err">{{ reason_text }}</div>
+  <p><a class="btn big" href="{{ play_url }}" rel="nofollow noopener">{% if lang == 'en' %}Get Assisto on Google Play{% else %}Google Play থেকে Assisto নিন{% endif %}</a></p>
+  {% endif %}
+  <p class="muted" style="text-align:center"><a href="?lang={% if lang == 'en' %}bn{% else %}en{% endif %}">{% if lang == 'en' %}বাংলা{% else %}English{% endif %}</a></p>
+</div>
+{% endblock %}

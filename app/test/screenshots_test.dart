@@ -27,6 +27,7 @@ import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
+import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
 import 'package:assisto/screens/language_picker_screen.dart';
@@ -774,6 +775,9 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolishShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // wa-polish2: bubble grouping, composer mic + recording strip, Call info
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // invite-join: Join X's circle (form / signed in / expired / offline),
+    // share sheet, invited-not-joined list
+    for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 }
 

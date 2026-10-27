@@ -1235,8 +1235,30 @@ class CircleInvite(models.Model):
     used = models.BooleanField(default=False)
     expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # invite-join: a SHORT random code (https://lifeassisto.com/i/<code>) —
+    # carries no user id, can't be guessed (32^10), multi-use when asked.
+    code = models.CharField(max_length=16, unique=True, null=True, blank=True)
+    max_uses = models.PositiveSmallIntegerField(default=1)
+    use_count = models.PositiveSmallIntegerField(default=0)
+    revoked = models.BooleanField(default=False)
+    label = models.CharField(max_length=60, blank=True, default="")  # who it was for (inviter-only)
+    last_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleInviteJoin(models.Model):
+    """invite-join: who joined through which invite (attribution + the
+    inviter's "joined / not joined yet" list). One row per (invite, user)."""
+    invite = models.ForeignKey(CircleInvite, on_delete=models.CASCADE, related_name="joins")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_invite_joins")
+    via = models.CharField(max_length=16, default="link")  # link|referrer|paste|qr
+    new_account = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("invite", "user")]
         ordering = ["-created_at"]
 
 

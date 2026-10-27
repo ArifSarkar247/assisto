@@ -612,11 +612,53 @@ def referral_invite(request, raw):
     return resp
 
 
+def circle_join_landing(request, raw):
+    """invite-join: https://lifeassisto.com/i/<CODE>. With the app installed
+    (verified App Link on /i/) Android opens the app and this page never
+    loads. Shows only the inviter's FIRST name. None = not a circle code
+    (the caller falls through to the referral landing)."""
+    from core import invite_join as IJ
+    from core import otp as _otp
+    lang = _lang(request)
+    ip = _otp.client_ip(request)
+    if IJ.ip_locked(ip) or not IJ.preview_rate_ok(ip):
+        return _rate_limited_page(request)
+    inv = IJ.find(raw)
+    if inv is None:
+        IJ.note_bad(ip)
+        return None
+    code = inv.code
+    p = IJ.preview(inv, lang)
+    ok = bool(p.get("ok"))
+    name = p.get("inviter_name", "") if ok else ""
+    intent_url = ("intent://%s/i/%s#Intent;scheme=https;package=%s;"
+                  "S.browser_fallback_url=%s;end" % (
+                      _site().split("://", 1)[-1], code, APP_PACKAGE,
+                      IJ.play_link(code).replace("&", "%26").replace("=", "%3D")
+                      .replace(":", "%3A").replace("/", "%2F").replace("?", "%3F")))
+    ctx = _ctx(request, ok=ok, code=code, name=name,
+               initial=(name[:1] or "A"), intent_url=intent_url,
+               play_url=IJ.play_link(code),
+               reason_text=IJ.message(p.get("state", "invalid"), lang))
+    resp = render(request, "web/circle_join.html", ctx, status=200 if ok else 410)
+    resp["Cache-Control"] = "no-store"
+    resp["Referrer-Policy"] = "no-referrer"
+    resp["X-Robots-Tag"] = "noindex"
+    return resp
+
+
 def circle_invite(request, token):
     """Landing page for a shared My Circle invite (QR / share / SMS link).
     Bilingual, no login. Step 1 install Assisto, step 2 in the app: My Circle
     -> Add to My Circle -> "Paste invite link". Never reveals the inviter's
     phone; shows only their display name when the token is valid."""
+    # invite-join: a 10-char circle invite code -> "Join X's circle" (App
+    # Link opens the app; else Play with the code as install referrer).
+    from core import invite_join as _IJ
+    if _IJ.looks_like_code(token):
+        resp = circle_join_landing(request, token)
+        if resp is not None:
+            return resp
     # p5-growth: a short code without a dot is an INVITE CODE (referral), not a
     # signed My Circle token -> the referral landing (Play link + the code).
     if "." not in token and len(token) <= 12:

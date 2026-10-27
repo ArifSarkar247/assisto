@@ -51,6 +51,8 @@ import 'antitheft_api.dart'; // grab-guard
 import 'widgets/grab_check_dialog.dart'; // grab-guard
 import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
+import 'invite/invite_link.dart'; // invite-join
+import 'invite/invite_router.dart'; // invite-join
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -261,8 +263,11 @@ class AssistoApp extends StatelessWidget {
           // path is handled; every other name returns null exactly as before.
           // calls-a: the cold-start call route (MainActivity.getInitialRoute
           // "/assisto_call?…") -> [home, call]: the first frame IS the call.
+          // invite-join: "/i/<CODE>" (warm App Link) only records the code;
+          // the root decides what to show (InviteRouter).
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
+              InviteRouter.route(s) ??
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -293,6 +298,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    PendingInvite.code.addListener(_onInvite); // invite-join
     // First foreground poll shortly after launch.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pollAlerts();
@@ -301,6 +307,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeNotifOpen(); // play-fgs
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
+      InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
       WebPhotoLink.maybeOpenColdStart(
           context,
@@ -380,7 +388,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    PendingInvite.code.removeListener(_onInvite);
     super.dispose();
+  }
+
+  /// invite-join: a code arrived (link / referrer / restored) -> re-decide.
+  void _onInvite() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -473,6 +487,15 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (app.loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    // invite-join: an invited person goes straight to "Join X's circle"
+    // (that screen has its own বাংলা/English switch).
+    if (!app.loggedIn) {
+      final join = InviteRouter.signedOutRoot();
+      if (join != null) {
+        AdsService.instance.rootScreen = 'invite_join';
+        return join;
+      }
+    }
     if (app.locale == null) {
       AdsService.instance.rootScreen = 'language_picker'; // admob: no ads
       return const LanguagePickerScreen();
@@ -492,6 +515,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return const LoginScreen();
     }
     _wasLoggedIn = true;
+    InviteRouter.maybePushSignedIn(app); // invite-join
+    InviteRouter.maybeClaimReferral(app); // invite-join
     // dl1: signed in during a deletion grace period -> decide first.
     if (app.deletionGraceAt != null) {
       AdsService.instance.rootScreen = 'deletion_grace';

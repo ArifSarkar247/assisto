@@ -570,6 +570,22 @@ jobs:
               j = s.find('</activity>', i) if i != -1 else -1
               if j != -1:
                   s = s[:j] + applink + s[j:]
+          # ---- invite-join ---- https://lifeassisto.com/i/<CODE> opens the app
+          # straight into "Join X's circle" (same verified host/assetlinks).
+          invitelink = (
+              '\n            <intent-filter android:autoVerify="true">'
+              '\n                <action android:name="android.intent.action.VIEW"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <category android:name="android.intent.category.BROWSABLE"/>'
+              '\n                <data android:scheme="https" android:host="lifeassisto.com"'
+              ' android:pathPrefix="/i/"/>'
+              '\n            </intent-filter>\n        '
+          )
+          if 'android:pathPrefix="/i/"' not in s:
+              i = s.find('android:name=".MainActivity"')
+              j = s.find('</activity>', i) if i != -1 else -1
+              if j != -1:
+                  s = s[:j] + invitelink + s[j:]
           # ---- c3-msg ---- chat bubbles (Android 11+ Bubbles API): the bubble
           # expands this activity, so it must be embeddable + resizeable and
           # launch as its own document (several bubbles at once). Not
@@ -869,6 +885,10 @@ jobs:
               deps.append("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")
           if "com.google.mlkit:face-detection" not in s:
               deps.append("com.google.mlkit:face-detection:16.1.7")
+          # invite-join: Play Install Referrer (tiny AAR, no ContentProvider;
+          # bound lazily from InstallReferrerChannel when Dart asks)
+          if "com.android.installreferrer:installreferrer" not in s:
+              deps.append("com.android.installreferrer:installreferrer:2.2")
           if deps:
               body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
                              for d in deps)
