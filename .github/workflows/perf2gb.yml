@@ -244,6 +244,7 @@ jobs:
           echo "::group::diagnostics (flow starts, failures, results)"
           tail -40 "$PERF_OUT/run.log" 2>/dev/null || true
           grep -aE "REALITY_FLOW_START|REALITY FAIL|PERF_ALL_DONE|PERF_MEM|TimeoutException|TestFailure|Exception:|FATAL|ANR in|has died" "$PERF_OUT/live_logcat.txt" 2>/dev/null | cut -c1-400 | tail -150 || true
+          for m in cold_fresh_idle cold_home_idle; do echo "-- meminfo $m"; sed -n '/App Summary/,/TOTAL SWAP/p' "$PERF_OUT/mem/$m.txt" 2>/dev/null; done
           echo "::endgroup::"
           # artifacts can hit the account egress cap: the JSON also goes to the
           # log (gzip+base64 between markers; tools/perf2gb/from_log.py decodes)
