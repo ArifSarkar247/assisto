@@ -53,7 +53,8 @@ const Map<String, bool> kFeatureDefaults = {
   'documents': true,
   'service_guide': true,
   'nearby': true,
-  'unseen_world': true,
+  // unseen-rename (owner 27 Oct): the daily info hub (was `unseen_world`).
+  'daily_info': true,
   'unseen_bangladesh': true,
   'dictionary': true,
   'ramadan': true,
@@ -106,8 +107,19 @@ const Map<String, bool> kFeatureDefaults = {
   'marketing': false,
   'retention': false,
   'booking': false,
+  // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
+  'unseen_world': false,
   'home_v2': true,
 };
+
+/// unseen-rename: GET /features?fv=2 = "this app knows `daily_info`", so the
+/// server sends `unseen_world` with its NEW meaning (the travel feature).
+/// Without fv (apps before the rename) the server sends the daily info hub's
+/// answer under the old name `unseen_world` (backend FF.LEGACY_KEYS).
+const int kFeaturesVersion = 2;
+
+/// Old key -> the key it meant, for an answer from before the rename.
+const Map<String, String> kLegacyFeatureKeys = {'unseen_world': 'daily_info'};
 
 /// ChatNav route -> the feature that owns it. Routes not listed here (core
 /// screens: settings, plans, legal, notifications, feedback, AI chat, the

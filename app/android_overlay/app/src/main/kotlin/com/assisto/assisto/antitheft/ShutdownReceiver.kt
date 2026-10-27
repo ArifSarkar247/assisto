@@ -51,13 +51,21 @@ class ShutdownReceiver : BroadcastReceiver() {
                     // upload reliably mid-shutdown, so it waits in the queue.
                     try {
                         val q = AntiTheftQueue(ctx)
-                        val loc = LastLocation.get(ctx)
+                        // antitheft2: newest cached fix with accuracy + time
+                        // (no time for a fresh one mid-shutdown)
+                        val fix = LastLocation.best(ctx)
+                        val d = JSONObject().put("note", "best_effort")
+                        if (fix != null) {
+                            d.put("fix_at", fix.timeMs)
+                            fix.acc?.let { a -> d.put("acc", a.toDouble()) }
+                        }
                         q.add("shutdown-" + System.currentTimeMillis(),
                             "shutdown", System.currentTimeMillis(),
-                            loc?.first, loc?.second, null,
-                            JSONObject().put("note", "best_effort"))
+                            fix?.lat, fix?.lng, null, d)
                     } catch (_: Throwable) {
                     }
+                    // antitheft2: try to send it in the few seconds left
+                    try { AntiTheftService.flushNowIfRunning() } catch (_: Throwable) {}
                 }
                 Intent.ACTION_BOOT_COMPLETED,
                 "android.intent.action.QUICKBOOT_POWERON" -> {

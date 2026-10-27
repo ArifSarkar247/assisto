@@ -1,54 +1,9 @@
 {
-  "_note": "Unseen World (Appendix #41) ADVANCED upgrade strings. Format {key:[bn,en]} (bn=index 0, en=index 1). Merge into app_bn.arb / app_en.arb then run flutter gen-l10n. Keys unseenTitle/unseenBestSeason/unseenTip/unseenSource/unseenDestinations already exist and are REUSED (not re-added here). Placeholder keys listed in the integration note need `placeholders` metadata in the .arb.",
-
-  "unseenAttribution":      ["তথ্যসূত্র: unseenbangladesh.com ও উন্মুক্ত তথ্য (উইকিভয়েজ)। খরচ আনুমানিক।", "Sources: unseenbangladesh.com and open data (Wikivoyage). Costs are approximate."],
-
-  "unseenSearchHint":       ["গন্তব্য খুঁজুন…", "Search destinations…"],
-  "unseenAll":              ["সব", "All"],
-  "unseenWishlist":         ["পছন্দের তালিকা", "Wishlist"],
-  "unseenAddWishlist":      ["পছন্দে রাখুন", "Add to wishlist"],
-  "unseenRemoveWishlist":   ["পছন্দ থেকে সরান", "Remove from wishlist"],
-  "unseenNoWishlist":       ["পছন্দের তালিকা খালি", "Your wishlist is empty"],
-  "unseenNoWishlistHint":   ["কার্ডের বুকমার্ক আইকনে ট্যাপ করে গন্তব্য সেভ করুন — অফলাইনেও থাকবে।", "Tap the bookmark on a card to save a place — it stays available offline."],
-
-  "unseenDivision":         ["বিভাগ", "Division"],
-  "unseenAllDivisions":     ["সব বিভাগ", "All divisions"],
-  "unseenDivDhaka":         ["ঢাকা", "Dhaka"],
-  "unseenDivChattogram":    ["চট্টগ্রাম", "Chattogram"],
-  "unseenDivSylhet":        ["সিলেট", "Sylhet"],
-  "unseenDivKhulna":        ["খুলনা", "Khulna"],
-  "unseenDivRajshahi":      ["রাজশাহী", "Rajshahi"],
-  "unseenDivBarishal":      ["বরিশাল", "Barishal"],
-  "unseenDivRangpur":       ["রংপুর", "Rangpur"],
-  "unseenDivMymensingh":    ["ময়মনসিংহ", "Mymensingh"],
-
-  "unseenCatNature":        ["প্রকৃতি", "Nature"],
-  "unseenCatHistorical":    ["ঐতিহাসিক", "Historical"],
-  "unseenCatBeach":         ["সমুদ্র সৈকত", "Beach"],
-  "unseenCatHill":          ["পাহাড়", "Hill"],
-  "unseenCatReligious":     ["ধর্মীয়", "Religious"],
-  "unseenCatIsland":        ["দ্বীপ", "Island"],
-  "unseenCatWaterfall":     ["জলপ্রপাত", "Waterfall"],
-
-  "unseenHowToGet":         ["যেভাবে যাবেন", "How to get there"],
-  "unseenApproxCost":       ["আনুমানিক খরচ", "Approx. cost"],
-  "unseenCostRange":        ["৳{low}–{high} (আনুমানিক)", "BDT {low}–{high} (approx)"],
-  "unseenNearby":           ["কাছাকাছি", "Nearby"],
-  "unseenApproxNote":       ["খরচ ও সময় আনুমানিক ও পরিবর্তনশীল — সূত্র: unseenbangladesh.com / উন্মুক্ত তথ্য।", "Costs and times are approximate and change — source: unseenbangladesh.com / open data."],
-
-  "unseenDirections":       ["পথনির্দেশ", "Directions"],
-  "unseenShare":            ["শেয়ার", "Share"],
-  "unseenKmAway":           ["{km} কিমি দূরে", "{km} km away"],
-
-  "unseenSeasonalNow":      ["এই মৌসুমে যাওয়ার মতো", "Good to visit this season"],
-  "unseenSeasonWinter":     ["শীত", "Winter"],
-  "unseenSeasonSummer":     ["গ্রীষ্ম", "Summer"],
-  "unseenSeasonMonsoon":    ["বর্ষা", "Monsoon"],
-  "unseenSeasonAutumn":     ["শরৎ", "Autumn"],
-
-  "unseenTripIdeas":        ["ভ্রমণ পরিকল্পনা", "Trip ideas"],
-  "unseenTripDays":         ["{days} দিন", "{days} days"],
-
-  "unseenLocationBanner":   ["লোকেশন ছাড়া দূরত্ব দেখানো যাচ্ছে না — তালিকা স্বাভাবিকভাবেই দেখানো হচ্ছে।", "Distance is hidden without location — the list still works normally."],
-  "unseenEnable":           ["চালু করুন", "Enable"]
+  "_comment": "unseen-rename (owner 27 Oct): the Today / Jobs / Expats / Students / Farmers / Government-services hub (app/lib/screens/world/, flag daily_info) is renamed 'Daily info and services' / 'আজকের তথ্য ও সেবা'. arb_apply.py refuses to overwrite an existing key's value, so the title is a NEW key dailyInfoTitle (used by the sidebar entry and the hub's app bar); the old key uwTitle ('Unseen World' / 'অদেখা দুনিয়া') is left in the ARB but no longer referenced by any Dart code (test/unseen_rename_test.dart enforces that), so the name stays free for the new Unseen World travel feature. All keys NEW. This file replaces the earlier spent proposal of the same name (its 43 keys were all merged long ago; see git history). Integrator: bin/arb_apply.py .phaseB/up_unseen_arb.json",
+  "en": {
+    "dailyInfoTitle": "Daily info and services"
+  },
+  "bn": {
+    "dailyInfoTitle": "আজকের তথ্য ও সেবা"
+  }
 }

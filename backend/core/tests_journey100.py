@@ -52,7 +52,7 @@ class PushSpy:
                            "high": kw.get("high_priority", False)})
         return True
 
-    def hook_sos(self, user, lat=None, lng=None, silent=False, journey_id=None):
+    def hook_sos(self, user, lat=None, lng=None, silent=False, journey_id=None, **kw):
         self.sos.append({"user": user.pk, "silent": silent, "journey_id": journey_id,
                          "lat": lat})
         return True

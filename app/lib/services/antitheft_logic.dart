@@ -30,7 +30,20 @@ class SnatchContext {
     this.unlocked = false,
     this.msSinceUnlock,
     this.hour = 12,
+    this.faceDown = false,
+    this.onHomeWifi = false,
+    this.nightGuard = false,
   });
+
+  /// antitheft2: lying screen-down (gravity on -z). With [restBefore] =
+  /// "face-down and still" — a drop/toss, never a snatch.
+  final bool faceDown;
+
+  /// antitheft2: connected to one of the owner's saved home Wi-Fi networks.
+  final bool onHomeWifi;
+
+  /// antitheft2: "Night guard" ON = keep watching at night even at home.
+  final bool nightGuard;
 
   /// On the charger: the owner put it there — never a snatch.
   final bool charging;
@@ -123,8 +136,9 @@ class SnatchPolicy {
   static const debounceMs = 300;
   static const cooldownMs = 5 * 60000;
 
-  /// The owner gets this long to answer "Was this you?" on his own phone
-  /// before the grab goes to the server (and the family).
+  /// The owner gets this long to answer "Are you OK?" on his own phone;
+  /// antitheft2: the grab reaches the server at once (held there) and the
+  /// SERVER escalates it to the trusted contacts when this window passes.
   static const confirmWindowMs = 60000;
 
   static bool isNight(int hour) =>
@@ -139,6 +153,10 @@ class SnatchPolicy {
       {required bool restBefore}) {
     if (c.charging) return null;
     if (freshUnlock(c)) return null;
+    // antitheft2 (owner 27 Oct): face-down and still -> a drop / toss
+    if (c.faceDown && restBefore) return null;
+    // antitheft2: at night at home (saved Wi-Fi) unless Night guard is ON
+    if (homeNight(c)) return null;
     if (isNight(c.hour)) {
       if (c.screenOn || !restBefore) return null;
       return night;
@@ -147,8 +165,47 @@ class SnatchPolicy {
     return day;
   }
 
+  /// antitheft2: night + the owner's home Wi-Fi + Night guard OFF.
+  static bool homeNight(SnatchContext c) =>
+      isNight(c.hour) && c.onHomeWifi && !c.nightGuard;
+
   /// Abort an armed grab mid-window (plugged in / unlocked meanwhile).
   static bool abort(SnatchContext c) => c.charging || freshUnlock(c);
+}
+
+/// antitheft2 (owner 27 Oct: alerts arrived hours late) — WHEN the native
+/// engine retries sending its store-and-forward queue. Mirror of
+/// FlushPolicy.kt (keep in sync):
+///   * connectivity comes back with something queued -> flush after
+///     [connectivityDelayMs] (the network needs a moment to be usable);
+///   * a failed upload with something queued -> retry with backoff
+///     30 s, 60 s, 120 s, 240 s, then every 300 s — never just "next
+///     heartbeat" (15-60 min) or "next app open".
+class FlushPolicy {
+  FlushPolicy._();
+
+  static const connectivityDelayMs = 3000;
+  static const firstRetryMs = 30000;
+  static const maxRetryMs = 300000;
+
+  /// Delay before retry number [attempt] (1-based) after a failed upload.
+  static int retryDelayMs(int attempt) {
+    if (attempt < 1) attempt = 1;
+    var d = firstRetryMs;
+    for (var i = 1; i < attempt && d < maxRetryMs; i++) {
+      d *= 2;
+    }
+    return d > maxRetryMs ? maxRetryMs : d;
+  }
+
+  /// Should a connectivity broadcast trigger a flush now?
+  static bool flushOnConnectivity(
+          {required bool connected, required int queued}) =>
+      connected && queued > 0;
+
+  /// Should a failed/finished upload schedule a retry?
+  static bool scheduleRetry({required bool uploadOk, required int queued}) =>
+      !uploadOk && queued > 0;
 }
 
 /// Conservative snatch detector (Kotlin mirror: SnatchDetector.kt). A

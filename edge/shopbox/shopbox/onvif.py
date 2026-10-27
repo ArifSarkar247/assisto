@@ -161,10 +161,67 @@ def parse_probe_matches(data: bytes, sender_ip: Optional[str] = None) -> List[di
     return out
 
 
+def local_ipv4_interfaces() -> List[str]:
+    """Best-effort list of this PC's own IPv4 addresses (no loopback), stdlib
+    only (Windows/Linux/macOS). A shop PC often has TWO networks — Ethernet to
+    the NVR/cameras and Wi-Fi to the internet — and the OS sends multicast
+    out of the default-route NIC only, so a probe on that one alone misses the
+    cameras. `SHOPBOX_DISCOVERY_IFACES=ip1,ip2` overrides (portable installs,
+    the e2e harness uses 127.0.0.1)."""
+    env = os.environ.get("SHOPBOX_DISCOVERY_IFACES")
+    if env:
+        return [a.strip() for a in env.split(",") if a.strip()][:8]
+    found: List[str] = []
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ip = info[4][0]
+            if ip not in found and not ip.startswith("127."):
+                found.append(ip)
+    except OSError:
+        pass
+    try:                       # the default-route address (no packet is sent)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("192.0.2.1", 9))
+            ip = s.getsockname()[0]
+            if ip not in found and not ip.startswith(("127.", "0.")):
+                found.append(ip)
+        finally:
+            s.close()
+    except OSError:
+        pass
+    return found[:8]
+
+
+def _send_probe(sock, msg: bytes, interfaces: List[str]) -> None:
+    """One probe out of the OS default NIC, plus one per extra interface."""
+    sent = False
+    try:
+        sock.sendto(msg, MULTICAST)
+        sent = True
+    except OSError:
+        pass
+    for ip in interfaces:
+        try:
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
+                            socket.inet_aton(ip))
+            sock.sendto(msg, MULTICAST)
+            sent = True
+        except (OSError, AttributeError, ValueError):
+            continue
+    if not sent:
+        raise OSError("no interface could send the probe")
+
+
 def discover(timeout_s: float = 4.0, sock_factory: Optional[Callable] = None,
-             clock: Callable[[], float] = time.monotonic) -> List[dict]:
-    """WS-Discovery on the local network. Returns <= 32 unique devices."""
+             clock: Callable[[], float] = time.monotonic,
+             interfaces: Optional[List[str]] = None) -> List[dict]:
+    """WS-Discovery on the local network(s). Returns <= 32 unique devices.
+    `interfaces`: extra local IPv4 addresses to probe from (default: every
+    local NIC, see local_ipv4_interfaces; [] = OS default only)."""
     timeout_s = max(1.0, min(float(timeout_s or 4.0), 15.0))
+    if interfaces is None:
+        interfaces = [] if sock_factory is not None else local_ipv4_interfaces()
     if sock_factory is None:
         def sock_factory():
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -175,7 +232,7 @@ def discover(timeout_s: float = 4.0, sock_factory: Optional[Callable] = None,
     found: Dict[str, dict] = {}
     try:
         msg = probe_message()
-        sock.sendto(msg, MULTICAST)
+        _send_probe(sock, msg, interfaces)
         deadline = clock() + timeout_s
         resent = False
         while len(found) < MAX_DEVICES:
@@ -183,7 +240,10 @@ def discover(timeout_s: float = 4.0, sock_factory: Optional[Callable] = None,
             if left <= 0:
                 break
             if not resent and left < timeout_s / 2:
-                sock.sendto(msg, MULTICAST)     # UDP is lossy: probe twice
+                try:
+                    _send_probe(sock, msg, interfaces)   # UDP is lossy: twice
+                except OSError:
+                    pass
                 resent = True
             sock.settimeout(min(left, 0.5))
             try:

@@ -355,8 +355,9 @@ def weighted_rate(metric, days=DAYS):
 
 # ----------------------------------------------------------------- alerts
 def _owners():
-    from .models import User
-    return list(User.objects.filter(is_superuser=True, is_active=True)[:5])
+    # owner-admin accounts only (active superusers) — never a normal user
+    from .push import owner_admin_users
+    return owner_admin_users()
 
 
 def _admin_event(kind, t_en, t_bn, b_en, b_bn, meta):

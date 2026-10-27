@@ -19,7 +19,7 @@ no personal name.
 
 ## Case B — medicine STILL HIDDEN (use this now, before 8 Nov)
 
-Nothing about medicine, doses, prescriptions, doctors or health records. "Health" is not used as a heading.
+Nothing about medicine, doses, prescriptions or health records. Owner decision 27 Oct: the health and fitness features are IN, as Health and Fitness only, under the heading "FITNESS AND SELF-CARE" with the not-medical-advice line (the only mention of a doctor). Declarations to fill first: `owner_actions/PLAY_HEALTH_DECLARATION_BN.md`.
 
 **Title en-US** (28 chars)
 ```
@@ -41,7 +41,7 @@ Chat & calls, reminders, money, family safety and shop tools - in Bangla.
 চ্যাট ও কল, রিমাইন্ডার, হিসাব, পরিবারের নিরাপত্তা ও দোকানের খাতা — বাংলায়।
 ```
 
-**Full description en-US** (2703 chars)
+**Full description en-US** (3282 chars)
 ```
 Assisto is an all-in-one app for everyday life in Bangladesh. Chat and call your people, keep reminders, notes and money in order, look after your family's safety and run your shop - in Bangla or English, by text or voice.
 
@@ -71,6 +71,13 @@ FAMILY AND SAFETY
 • Emergency contacts card and kids' school corner.
 • Scam safety tips and a way to report scams.
 
+FITNESS AND SELF-CARE
+• Water, sleep and food: log glasses of water, hours of sleep and what you ate, with your own goals and a 7-day chart.
+• Fitness partner: one small goal (workout days, daily steps or a weight goal), a workout log and streaks.
+• Smartwatch and fitness: see steps, heart rate, sleep and active calories from Health Connect - read-only, kept on your phone.
+• Mood and energy journal: a private daily check-in with a short note and a one-minute breathing break - it stays on your phone.
+• This is not medical advice. Talk to a doctor about any health concern.
+
 DOCUMENTS AND PHOTO STUDIO
 • PIN-locked vault for passport, NID and licence details, with expiry reminders.
 • Nominee access for your family.
@@ -98,7 +105,7 @@ Developer: AXON Dynamic · assistoaiagent@gmail.com
 Privacy policy: https://lifeassisto.com/privacy
 ```
 
-**Full description bn-BD** (2544 chars)
+**Full description bn-BD** (3115 chars)
 ```
 Assisto — বাংলাদেশের দৈনন্দিন জীবনের জন্য এক অ্যাপ। প্রিয়জনের সাথে চ্যাট ও কল, রিমাইন্ডার-নোট-হিসাব গুছিয়ে রাখা, পরিবারের নিরাপত্তা আর দোকান চালানো — বাংলা বা ইংরেজিতে, লিখে বা বলে।
 
@@ -127,6 +134,13 @@ Assisto — বাংলাদেশের দৈনন্দিন জীবন
 • নিরাপদ যাত্রা: আপনি যাদের বেছে নেন, তারা পৌঁছানো পর্যন্ত যাত্রা দেখতে পান; সাথে নকল কল।
 • জরুরি যোগাযোগের কার্ড ও বাচ্চাদের স্কুল কর্নার।
 • প্রতারণা থেকে বাঁচার টিপস ও প্রতারণা রিপোর্ট।
+
+ফিটনেস ও নিজের যত্ন
+• পানি, ঘুম ও খাবার: কত গ্লাস পানি, কত ঘণ্টা ঘুম আর কী খেলেন লিখে রাখুন — নিজের লক্ষ্য ও ৭ দিনের চার্টসহ।
+• ফিটনেস সঙ্গী: ছোট একটি লক্ষ্য (সপ্তাহে ব্যায়ামের দিন, দৈনিক পদক্ষেপ বা ওজনের লক্ষ্য), ব্যায়ামের লগ ও টানা দিনের হিসাব।
+• স্মার্টওয়াচ ও ফিটনেস: Health Connect থেকে পদক্ষেপ, হার্ট রেট, ঘুম ও সক্রিয় ক্যালরি দেখুন — শুধু পড়া, তথ্য ফোনেই থাকে।
+• মন ও প্রাণশক্তির ডায়েরি: দিনে একবার মন ও প্রাণশক্তি লিখে রাখা, ছোট নোট আর এক মিনিটের শ্বাস-বিরতি — সব ফোনেই থাকে।
+• এটি চিকিৎসা-পরামর্শ নয়। স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে কথা বলুন।
 
 ডকুমেন্ট ও ফটো স্টুডিও
 • পাসপোর্ট, NID ও লাইসেন্সের তথ্য PIN-লক ভল্টে, মেয়াদ শেষের আগে রিমাইন্ডার।
@@ -158,8 +172,9 @@ Assisto — বাংলাদেশের দৈনন্দিন জীবন
 
 ### Optional add-on lines (paste ONLY the lines whose feature is still ON for Play on the day you paste)
 These features are visible in Play today (flag on), but `owner_actions/FEATURE_STATUS_BN.md` proposes hiding them in Play
-for 8 Nov. If you keep one on, paste its line at the end of the "MORE" / "আরও" section. With all six lines the
-English full text is 3397 chars and Bangla 3164 — inside 4000.
+for 8 Nov. If you keep one on, paste its line at the end of the "MORE" / "আরও" section. With all five lines the
+English full text is 3876 chars and Bangla 3648 — inside 4000. (The Fitness line moved into the main text on 27 Oct —
+health and fitness are no longer optional: see the "FITNESS AND SELF-CARE" section.)
 
 | Line | Flag that must be ON for Play | Extra condition |
 |---|---|---|
@@ -167,26 +182,23 @@ English full text is 3397 chars and Bangla 3164 — inside 4000.
 | Business AI Agent | `business_agent` | Business plan product active in Play; page connection works (Meta review). |
 | Shop Box | `cctv_watchman` | — |
 | AI tools | `mock_interview`, `contract_analyzer`, `blog_writer`, `travel_planner`, `language_partner` | Server AI key live (otherwise results are canned). Drop any tool whose flag is off. |
-| Fitness | `smartwatch` | Health apps declaration = Fitness only (already in `PLAY_STORE_PACK.md` §3). |
 | Vehicles | `vehicles`, `vehicle_tracking` | The tracker shows a drawn route, not a street map — so never write "map". |
 
-**Add-on lines en-US** (693 chars)
+**Add-on lines en-US** (593 chars)
 ```
 • Phone protection: SIM change alert, intruder photo on a wrong unlock, security check-up and used-phone check.
 • Business AI Agent (Business plan): replies to your customers on your connected page using your own products and prices; you see every conversation and can take over.
 • Shop Box: use an old phone as a shop camera with alerts.
 • AI tools: mock interview, contract checker, blog and post writer, travel planner and language partner (use AI credits).
-• Fitness: see your steps, heart rate and sleep from Health Connect, read-only, kept on your phone.
 • Vehicles: live position and 24-hour route playback with your own GPS tracker; OBD readings with a paired Bluetooth OBD-II adapter.
 ```
 
-**Add-on lines bn-BD** (619 chars)
+**Add-on lines bn-BD** (532 chars)
 ```
 • ফোন সুরক্ষা: সিম বদলের সতর্কতা, ভুল আনলকে ছবি তোলা, নিরাপত্তা চেক-আপ ও পুরনো ফোন যাচাই।
 • বিজনেস AI এজেন্ট (বিজনেস প্ল্যান): আপনার যুক্ত করা পেজে আপনার নিজের পণ্য ও দাম দেখে গ্রাহককে উত্তর দেয়; সব কথোপকথন দেখতে ও নিজে ধরতে পারেন।
 • শপ বক্স: পুরনো ফোনকে সতর্কবার্তাসহ দোকানের ক্যামেরা বানান।
 • AI টুল: মক ইন্টারভিউ, চুক্তি যাচাই, ব্লগ ও পোস্ট লেখা, ভ্রমণ পরিকল্পনা ও ভাষা শেখার সঙ্গী (AI ক্রেডিট লাগে)।
-• ফিটনেস: Health Connect থেকে ধাপ, হার্ট রেট ও ঘুম দেখুন — শুধু পড়া, তথ্য ফোনেই থাকে।
 • গাড়ি: নিজের GPS ট্র্যাকার দিয়ে লাইভ অবস্থান ও ২৪ ঘণ্টার রুট প্লেব্যাক; pair করা ব্লুটুথ OBD-II অ্যাডাপ্টার দিয়ে OBD রিডিং।
 ```
 
@@ -225,7 +237,7 @@ Chat & calls, reminders incl. medicine times, money, family safety, shop tools
 চ্যাট ও কল, ওষুধসহ রিমাইন্ডার, হিসাব, পরিবারের নিরাপত্তা ও দোকানের খাতা।
 ```
 
-**Full description en-US** (3143 chars)
+**Full description en-US** (3722 chars)
 ```
 Assisto is an all-in-one app for everyday life in Bangladesh. Chat and call your people, keep reminders, notes and money in order, look after your family's safety and run your shop - in Bangla or English, by text or voice.
 
@@ -261,6 +273,13 @@ MEDICINE REMINDERS
 • Set reminders for a parent or child, and see in Family when a reminder was not marked taken.
 • Assisto only reminds you at the times you enter. It is not medical advice, does not suggest doses and does not diagnose or treat any condition. Always follow your doctor.
 
+FITNESS AND SELF-CARE
+• Water, sleep and food: log glasses of water, hours of sleep and what you ate, with your own goals and a 7-day chart.
+• Fitness partner: one small goal (workout days, daily steps or a weight goal), a workout log and streaks.
+• Smartwatch and fitness: see steps, heart rate, sleep and active calories from Health Connect - read-only, kept on your phone.
+• Mood and energy journal: a private daily check-in with a short note and a one-minute breathing break - it stays on your phone.
+• This is not medical advice. Talk to a doctor about any health concern.
+
 DOCUMENTS AND PHOTO STUDIO
 • PIN-locked vault for passport, NID and licence details, with expiry reminders.
 • Nominee access for your family.
@@ -288,7 +307,7 @@ Developer: AXON Dynamic · assistoaiagent@gmail.com
 Privacy policy: https://lifeassisto.com/privacy
 ```
 
-**Full description bn-BD** (2980 chars)
+**Full description bn-BD** (3551 chars)
 ```
 Assisto — বাংলাদেশের দৈনন্দিন জীবনের জন্য এক অ্যাপ। প্রিয়জনের সাথে চ্যাট ও কল, রিমাইন্ডার-নোট-হিসাব গুছিয়ে রাখা, পরিবারের নিরাপত্তা আর দোকান চালানো — বাংলা বা ইংরেজিতে, লিখে বা বলে।
 
@@ -324,6 +343,13 @@ Assisto — বাংলাদেশের দৈনন্দিন জীবন
 • মা-বাবা বা সন্তানের জন্য রিমাইন্ডার দিন; কোনো রিমাইন্ডার "খেয়েছি" চিহ্ন না পেলে ফ্যামিলি পাতায় দেখতে পাবেন।
 • Assisto শুধু আপনার দেওয়া সময়ে মনে করিয়ে দেয়। এটি চিকিৎসা-পরামর্শ নয়, ডোজ বলে না, রোগ নির্ণয় বা চিকিৎসা করে না। সবসময় ডাক্তারের পরামর্শ মানুন।
 
+ফিটনেস ও নিজের যত্ন
+• পানি, ঘুম ও খাবার: কত গ্লাস পানি, কত ঘণ্টা ঘুম আর কী খেলেন লিখে রাখুন — নিজের লক্ষ্য ও ৭ দিনের চার্টসহ।
+• ফিটনেস সঙ্গী: ছোট একটি লক্ষ্য (সপ্তাহে ব্যায়ামের দিন, দৈনিক পদক্ষেপ বা ওজনের লক্ষ্য), ব্যায়ামের লগ ও টানা দিনের হিসাব।
+• স্মার্টওয়াচ ও ফিটনেস: Health Connect থেকে পদক্ষেপ, হার্ট রেট, ঘুম ও সক্রিয় ক্যালরি দেখুন — শুধু পড়া, তথ্য ফোনেই থাকে।
+• মন ও প্রাণশক্তির ডায়েরি: দিনে একবার মন ও প্রাণশক্তি লিখে রাখা, ছোট নোট আর এক মিনিটের শ্বাস-বিরতি — সব ফোনেই থাকে।
+• এটি চিকিৎসা-পরামর্শ নয়। স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে কথা বলুন।
+
 ডকুমেন্ট ও ফটো স্টুডিও
 • পাসপোর্ট, NID ও লাইসেন্সের তথ্য PIN-লক ভল্টে, মেয়াদ শেষের আগে রিমাইন্ডার।
 • পরিবারের জন্য নমিনি অ্যাক্সেস।
@@ -352,7 +378,9 @@ Assisto — বাংলাদেশের দৈনন্দিন জীবন
 ```
 
 
-The same optional add-on lines as Case B apply (with all six: en 3837, bn 3600 chars — inside 4000).
+The same optional add-on lines as Case B apply, but with the "FITNESS AND SELF-CARE" section all five no longer fit
+(en 4316 / bn 4084 > 4000). Case A has room for about **278 more English characters** (bn 449): for example Phone protection +
+Shop Box (171) or Business AI Agent + Shop Box (227). Check Play's own counter before saving.
 
 ---
 

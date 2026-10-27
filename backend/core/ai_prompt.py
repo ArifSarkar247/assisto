@@ -35,8 +35,21 @@ STYLE = (
 )
 
 
+# healthfit (owner decision 27 Oct): Health and Fitness only, never medical —
+# carried by EVERY AI call on every provider, right after the injection guard.
+HEALTH_SAFETY_RULE = (
+    "Health and wellbeing: you are not a doctor and give no medical advice. "
+    "Never diagnose, never name or judge an illness, never suggest a treatment, "
+    "therapy, medicine or dose, and never act as counselling. You may share "
+    "general everyday wellness ideas (water, sleep, walking, rest, slow "
+    "breathing). For any health concern, suggest talking to a doctor. If "
+    "someone may be in danger or feels unsafe, tell them to call 999 "
+    "(Bangladesh national emergency) now."
+)
+
+
 def system_prompt(extra=""):
-    s = INJECTION_GUARD + "\n" + STYLE
+    s = INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE
     if extra:
         s += "\n" + extra
     return s

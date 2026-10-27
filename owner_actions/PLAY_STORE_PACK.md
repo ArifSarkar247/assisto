@@ -239,7 +239,8 @@ is whatever IARC returns.
 - Target age groups: **18 and over only**. Not designed for children; no child-appealing characters/themes. Do not opt into "Designed for Families".
 - "Could the app unintentionally appeal to children?" → No.
 - News app: No. COVID-19 app: No. Government app: No. Financial features: it is a personal ledger — it does **not** offer loans, payments or money transfer (answer the "Financial features" form accordingly: personal finance management only).
-- Health apps declaration (required because of Health Connect): select **Fitness / activity tracking** ONLY (steps, heart rate, sleep from Health Connect — wellness, no diagnosis). Do **NOT** select Medication and treatment management or any medical category (Play rejected it 24 Oct: personal accounts cannot publish medical apps; medicine features are hidden in the Play build until the organization account — see PLAY_ORGANIZATION_ACCOUNT_BN.md).
+- **UPDATED 27 Oct (owner decision) — the exact answers are now in `PLAY_HEALTH_DECLARATION_BN.md`** (tick Activity and Fitness, Nutrition and Weight Management, Sleep Management, Stress Management; never a medical category). Old note kept below for history.
+- (old) Health apps declaration (required because of Health Connect): select **Fitness / activity tracking** ONLY (steps, heart rate, sleep from Health Connect — wellness, no diagnosis). Do **NOT** select Medication and treatment management or any medical category (Play rejected it 24 Oct: personal accounts cannot publish medical apps; medicine features are hidden in the Play build until the organization account — see PLAY_ORGANIZATION_ACCOUNT_BN.md).
 
 ## 4. Ads declaration
 
@@ -286,7 +287,8 @@ End-to-end encrypted personal/group text messages are also exempt (we cannot rea
 | Personal info — Other info (family members, emergency card) | Yes | No | No | Optional | App functionality |
 | Financial info — Purchase history | Yes | No | No | Optional | Account management (plans/credits) |
 | Financial info — Other financial info (ledger, budgets, loans you type) | Yes | No | No | Optional | App functionality |
-| Health and fitness — Fitness info (steps, heart rate, sleep via Health Connect, read only) | Yes | No | No | Optional | App functionality |
+| Health and fitness — Fitness info (workouts, steps, weight goal you log; Health Connect itself stays on the phone) | Yes | No | No | Optional | App functionality — see PLAY_HEALTH_DECLARATION_BN.md §3 |
+| Health and fitness — Health info (water, sleep hours, food notes you log) | Yes | No | No | Optional | App functionality — see PLAY_HEALTH_DECLARATION_BN.md §3 |
 | Messages — Other in-app messages (channels, communities, business inbox; NOT the E2E chats) | Yes | No | No | Optional | App functionality |
 | Photos and videos — Photos / Videos | Yes | No | No | Optional | App functionality (vault, profile, status, Photo Studio, intruder photo, shop snapshots) |
 | Files and docs | Yes | No | No | Optional | App functionality (vault) |
@@ -319,7 +321,7 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 | `FOREGROUND_SERVICE_MICROPHONE` | **Yes** (App content → Foreground service permissions) | "Hands-free voice SOS and the optional 'Hey Assisto' wake word: the user switches it on; a persistent notification with Stop is shown while the microphone listens for the SOS phrase with the screen off. Wake-word audio is processed on device." Provide a short video: Settings → voice SOS → on → notification visible → Stop. |
 | `FOREGROUND_SERVICE_LOCATION` | **Yes** (same form) | "During an active SOS started by the user, the foreground service sends the user's location to their trusted contacts until the SOS ends; a persistent notification is shown." |
 | Health Connect reads (`READ_STEPS`, `READ_HEART_RATE`, `READ_SLEEP`, `READ_ACTIVE_CALORIES_BURNED`) | **Yes** (Health Connect permissions declaration + Health apps form) | "Shown only on the Smartwatch & Fitness screen as today's and 7-day summaries. Read-only, never uploaded to our servers, never used for ads, never shared." Needs proposal C (privacy-policy activity) in the build. |
-| `ACTIVITY_RECOGNITION` | No form | Used with Health Connect step data. |
+| ~~`ACTIVITY_RECOGNITION`~~ | — | Removed 27 Oct (healthfit, least privilege): Health Connect reads do not need it. See PLAY_HEALTH_DECLARATION_BN.md. |
 | `READ_CONTACTS` | No form (not restricted) — prominent disclosure required (built: Contacts screen explanation before the OS prompt) | "Find which contacts use Assisto. Numbers are hashed on the device; only hashes are sent; non-users are never stored; read-only." |
 | `CALL_PHONE` | No form (not in the restricted call-log/SMS group) | "Places a call only after the user asks Assisto Voice to call someone and confirms." |
 | Device admin (`BIND_DEVICE_ADMIN`, policies force-lock, limit-password, reset-password, watch-login) | No form; reviewed under the Device and Network Abuse / Permissions policy | "Anti-theft: lock a lost phone remotely, require a screen lock, detect wrong unlock attempts. User enables it on Android's consent screen; no wipe; can be deactivated in Settings → Security → Device admin apps." See proposal D.1 — consider dropping the deprecated password policies. |

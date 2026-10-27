@@ -1,0 +1,52 @@
+{
+  "_comment": "healthfit (owner decision 27 Oct: health & fitness stay SHOWN in Play, never medical): the always-visible not-medical-advice strip on Water/sleep/food, Fitness partner, Smartwatch & fitness and the Mood & energy journal; mood reworded as a wellness journal + relaxation (one-minute breathing, optional note, 999 safety line instead of a mental-health helpline); fitness tip note no longer promises AI coaching. All keys NEW (old keys moodTitle/moodOptInBody/moodOptInPoint4/moodSafetyNote/moodHelplineTitle/moodHelplineBody/fitCoachingSeam are no longer referenced by code). Integrator: bin/arb_apply.py .phaseB/up_healthfit_arb.json",
+  "en": {
+    "hfNotMedicalAdvice": "This is not medical advice. Talk to a doctor about any health concern.",
+    "moodJournalTitle": "Mood & energy journal",
+    "moodOptInBody2": "Fully optional, and it stays only on this phone. Once a day, note how you feel and how much energy you have, add a short line if you like, and take a one-minute breathing break.",
+    "moodOptInPoint4b": "A personal journal for relaxation and self-care. It is not medical advice — talk to a doctor about any health concern.",
+    "moodSafetyNote2": "A personal journal to notice your mood and energy, with simple relaxation ideas. It never labels or judges how you feel.",
+    "moodSupportTitle": "You don't have to carry it alone",
+    "moodSupportBody": "If things have felt heavy for a few days, talk to someone you trust. If you ever feel unsafe, call 999 (national emergency service).",
+    "moodCall999": "Call 999",
+    "moodBreathTitle": "One-minute breathing",
+    "moodBreathBody": "Breathe in slowly for 4 seconds, then out for 4 seconds. Follow the circle and relax.",
+    "moodBreathStart": "Start",
+    "moodBreathStop": "Stop",
+    "moodBreathIn": "Breathe in…",
+    "moodBreathOut": "Breathe out…",
+    "moodBreathLeft": "{seconds} s left",
+    "moodBreathDone": "Nicely done. Come back any time you want a calm minute.",
+    "moodNoteLabel": "A short note (optional)",
+    "moodNoteHint": "e.g. slept well, busy day at work",
+    "fitTipFixedNote": "A simple tip based on your own progress.",
+    "@moodBreathLeft": {
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "hfNotMedicalAdvice": "এটি চিকিৎসা-পরামর্শ নয়। স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে কথা বলুন।",
+    "moodJournalTitle": "মন ও প্রাণশক্তির ডায়েরি",
+    "moodOptInBody2": "সম্পূর্ণ ঐচ্ছিক, আর সব শুধু এই ফোনেই থাকে। দিনে একবার মন ও প্রাণশক্তি কেমন তা লিখে রাখুন, চাইলে ছোট একটা নোট দিন, আর এক মিনিটের শ্বাস-বিরতি নিন।",
+    "moodOptInPoint4b": "বিশ্রাম ও নিজের যত্নের জন্য একটি ব্যক্তিগত ডায়েরি। এটি চিকিৎসা-পরামর্শ নয় — স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে কথা বলুন।",
+    "moodSafetyNote2": "মন ও প্রাণশক্তি খেয়াল রাখার একটি ব্যক্তিগত ডায়েরি, সাথে বিশ্রামের সহজ কিছু উপায়। এটি কখনো আপনার অনুভূতির নাম দেয় না বা বিচার করে না।",
+    "moodSupportTitle": "একা বয়ে বেড়াতে হবে না",
+    "moodSupportBody": "কয়েক দিন ধরে মন ভারী লাগলে বিশ্বস্ত কারও সাথে কথা বলুন। কখনো নিজেকে অনিরাপদ মনে হলে ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করুন।",
+    "moodCall999": "৯৯৯-এ কল করুন",
+    "moodBreathTitle": "এক মিনিটের শ্বাস-বিরতি",
+    "moodBreathBody": "৪ সেকেন্ড ধীরে শ্বাস নিন, তারপর ৪ সেকেন্ডে ছাড়ুন। বৃত্তটির তালে তালে একটু আরাম করুন।",
+    "moodBreathStart": "শুরু করুন",
+    "moodBreathStop": "থামান",
+    "moodBreathIn": "শ্বাস নিন…",
+    "moodBreathOut": "শ্বাস ছাড়ুন…",
+    "moodBreathLeft": "আর {seconds} সেকেন্ড",
+    "moodBreathDone": "চমৎকার! শান্ত একটা মিনিট চাইলে যেকোনো সময় আবার আসুন।",
+    "moodNoteLabel": "ছোট একটা নোট (ঐচ্ছিক)",
+    "moodNoteHint": "যেমন: ভালো ঘুম হয়েছে, কাজের চাপ ছিল",
+    "fitTipFixedNote": "আপনার নিজের অগ্রগতি দেখে একটি সহজ টিপ।"
+  }
+}

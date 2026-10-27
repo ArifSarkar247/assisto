@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-26"   # cctv1: CCTV watchman; booking-bot: bookings; retention1: shop messages; budget-remittance
+LAST_UPDATED = "2026-10-27"   # cctv1: CCTV watchman; booking-bot: bookings; retention1: shop messages; budget-remittance; healthfit: health & fitness
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -157,6 +157,25 @@ def _privacy(lang):
              "The Assisto team reviews reported answers to fix AI mistakes and "
              "prevent misuse; they are not used for ads or shared with anyone "
              "else."),
+        # healthfit (owner decision 27 Oct): Health & Fitness, never medical.
+        _sec(lang, "স্বাস্থ্য ও ফিটনেস", "Health and fitness",
+             "পানি-ঘুম-খাবার, ফিটনেস সঙ্গী, স্মার্টওয়াচ ও ফিটনেস এবং মন ও "
+             "প্রাণশক্তির ডায়েরি শুধু নিজের যত্ন ও অভ্যাসের হিসাব রাখার টুল — "
+             "এটি চিকিৎসা-পরামর্শ নয়; স্বাস্থ্য নিয়ে চিন্তা থাকলে ডাক্তারের সাথে "
+             "কথা বলুন। Health Connect থেকে শুধু পদক্ষেপ, হার্ট রেট, ঘুম ও সক্রিয় "
+             "ক্যালরি পড়া হয় এবং তা ফোনেই থাকে। আপনার লেখা পানি/ঘুম/খাবার/"
+             "ফিটনেস লগ আপনার অ্যাকাউন্টে থাকে, শুধু আপনি দেখেন; মন ও "
+             "প্রাণশক্তির ডায়েরি শুধু ফোনে থাকে। এই তথ্য আমরা কখনো বিক্রি করি "
+             "না, বিজ্ঞাপনে ব্যবহার করি না বা কারও সাথে শেয়ার করি না।",
+             "Water, sleep and food, Fitness partner, Smartwatch and fitness, "
+             "and the Mood and energy journal are self-care and habit-tracking "
+             "tools only — this is not medical advice; talk to a doctor about "
+             "any health concern. From Health Connect we only read steps, heart "
+             "rate, sleep and active calories, and that data stays on your "
+             "phone. Water/sleep/food/fitness logs you enter are kept in your "
+             "account and only you can see them; the Mood and energy journal "
+             "stays on the phone. We never sell this data, never use it for "
+             "ads and never share it with anyone."),
         _sec(lang, "সিসিটিভি ওয়াচম্যান", "CCTV watchman",
              "বাড়ি বা দোকানের ক্যামেরা যুক্ত করলে ভিডিও আপনার গেটওয়েতেই "
              "(পুরনো ফোন, Shop Box বা কম্পিউটার) থাকে ও সেখানেই বিশ্লেষণ হয় — "
@@ -308,9 +327,15 @@ def _health_disclaimer(lang):
              _disc(lang, "not_medical_advice")),
         _sec(lang, "ফিচারগুলো কী", "What the features are",
              "Assisto-এর স্বাস্থ্য ও ওষুধ সংক্রান্ত ফিচার (রিমাইন্ডার, রেকর্ড) "
-             "শুধুমাত্র সহায়ক তথ্যের জন্য।",
+             "শুধুমাত্র সহায়ক তথ্যের জন্য। পানি-ঘুম-খাবার, ফিটনেস, স্মার্টওয়াচ "
+             "ও মন-প্রাণশক্তির ডায়েরি শুধু নিজের যত্ন ও অভ্যাসের হিসাব রাখার "
+             "টুল; মন ও প্রাণশক্তির ডায়েরি কোনো কাউন্সেলিং সেবা নয়। কখনো "
+             "নিজেকে অনিরাপদ মনে হলে ৯৯৯-এ কল করুন।",
              "Assisto's health and medicine features (reminders, records) are "
-             "for supportive information only."),
+             "for supportive information only. Water, sleep and food, fitness, "
+             "smartwatch and the Mood and energy journal are self-care and "
+             "habit-tracking tools only; the Mood and energy journal is not a "
+             "counselling service. If you ever feel unsafe, call 999."),
         _sec(lang, "সবসময় চিকিৎসকের পরামর্শ নিন", "Always consult a doctor",
              "ওষুধ, ডোজ বা চিকিৎসা সংক্রান্ত সিদ্ধান্তের জন্য সর্বদা একজন "
              "যোগ্য চিকিৎসকের পরামর্শ নিন।",
@@ -392,6 +417,17 @@ def _data_safety(lang):
              "When Budget and Remittance is used: money received and the family "
              "budget the user writes down — app functionality only, not shared, "
              "encrypted in the database, deletable by the user."),
+        _sec(lang, "স্বাস্থ্য ও ফিটনেস (ঐচ্ছিক)", "Health and fitness (optional)",
+             "পানি-ঘুম-খাবার ও ফিটনেস ব্যবহার করলে: ব্যবহারকারীর নিজে লেখা লগ "
+             "(পানি, ঘুম, খাবারের নোট, ব্যায়াম, পদক্ষেপ, ওজন) — শুধু অ্যাপ "
+             "কার্যকারিতার জন্য, শেয়ার হয় না, ব্যবহারকারী মুছতে পারেন। Health "
+             "Connect-এর তথ্য ও মন-প্রাণশক্তির ডায়েরি শুধু ফোনে থাকে "
+             "(সংগ্রহ করা হয় না)।",
+             "When Water/sleep/food and Fitness are used: logs the user writes "
+             "(water, sleep, food notes, workouts, steps, weight) — app "
+             "functionality only, not shared, deletable by the user. Health "
+             "Connect data and the Mood and energy journal stay on the phone "
+             "(not collected)."),
         _sec(lang, "ভাগাভাগি", "Sharing",
              "ডেটা বিক্রি হয় না। ফ্রি প্ল্যানে Google AdMob বিজ্ঞাপনের জন্য ডিভাইসের "
              "Advertising ID ও বিজ্ঞাপন দেখা/ট্যাপের তথ্য পায়।",
