@@ -92,25 +92,52 @@ class ConversationRowsEquivalence(TestCase):
 
 
 class ReceiptsSyncScales(TestCase):
-    def _world(self, peers):
+    def _world(self, peers, msgs=6):
         us = S.make_users(peers + 1)
         users = [u for u, _ in us]
-        S.seed_world(users, peers=peers, msgs=6, groups=2, group_size=4,
+        S.seed_world(users, peers=peers, msgs=msgs, groups=2, group_size=4,
                      group_msgs=8, reminders=1, txns=1)
         return users[0]
 
-    def test_constant_queries_whatever_the_number_of_chats(self):
-        me = self._world(4)
-        _, small = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
+    def _reset(self):
         CircleReceipt.objects.all().delete()
         User.objects.all().delete()
+
+    def test_queries_do_not_grow_with_messages(self):
+        """4x the messages per chat: the same queries (bulk receipts + one
+        bulk UPDATE; was one save() per message)."""
+        me = self._world(8, msgs=4)
+        _, few = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
+        self._reset()
+        me = self._world(8, msgs=16)
+        r, many = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
+        self.assertEqual(r.status_code, 200)
+        self.assertLessEqual(many, few + 4, (few, many))
+
+    def test_chats_cost_only_their_realtime_event(self):
+        """4x the chats: no per-chat lookups any more — only the one
+        `receipt.update` event per chat to its sender (insert + savepoint)."""
+        me = self._world(4)
+        _, small = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
+        self._reset()
         me = self._world(16)
         r, big = nq(lambda: client(me).post(V + "/circle/receipts/sync"))
         self.assertEqual(r.status_code, 200)
         self.assertGreater(r.json()["updated"], 40)
-        # 4x the chats must not mean 4x the queries (was ~5 per chat + 1 per
-        # message); allow a little slack for per-sender realtime events.
-        self.assertLessEqual(big, small + 12, (small, big))
+        self.assertLessEqual(big, small + 4 * 12 + 8, (small, big))
+
+    def test_steady_state_sync_is_constant(self):
+        me = self._world(4)
+        c = client(me)
+        c.post(V + "/circle/receipts/sync")
+        _, small = nq(lambda: c.post(V + "/circle/receipts/sync"))
+        self._reset()
+        me = self._world(16)
+        c = client(me)
+        c.post(V + "/circle/receipts/sync")
+        _, big = nq(lambda: c.post(V + "/circle/receipts/sync"))
+        self.assertLessEqual(big, small + 1, (small, big))
+        self.assertLessEqual(big, 8)
 
     def test_marks_every_incoming_message_delivered(self):
         me = self._world(6)
@@ -208,3 +235,19 @@ class RtPrune(TestCase):
         c.get(V + "/rt/events?after=0")
         # inside the minute: no DELETE issued (the row stays until the next)
         self.assertTrue(RtEvent.objects.filter(pk=old2.pk).exists())
+
+
+class StatusesAllEquivalence(TestCase):
+    def test_batched_statuses_equal_per_sender_statuses(self):
+        from core import views_c3_msg as C3
+        us = S.make_users(6)
+        users = [u for u, _ in us]
+        S.seed_world(users, peers=4, msgs=4, groups=1, group_size=4,
+                     group_msgs=6, reminders=0, txns=0)
+        client(users[0]).post(V + "/circle/receipts/sync")
+        client(users[1]).post(V + "/circle/receipts/sync")
+        msgs = list(CircleMessage.objects.all())
+        allst = C3._statuses_all(msgs)
+        for u in users:
+            for mid, st in C3.statuses(msgs, u).items():
+                self.assertEqual(allst[mid], st, (u.id, mid))

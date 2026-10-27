@@ -252,11 +252,12 @@ def publish_receipts(msgs):
             return 0
         senders = {u.id: u for u in User.objects.filter(id__in=list(by_sender))}
         n, cache = 0, {}
+        st_all = _statuses_all(msgs)   # srvperf: one pass for every sender
         for sid, xs in by_sender.items():
             sender = senders.get(sid)
             if sender is None:
                 continue
-            st = statuses(xs, sender)
+            st = st_all
             chats = {}
             for x in xs:
                 key = _sender_chat_key(x, cache)
@@ -333,6 +334,28 @@ def statuses(msgs, viewer):
         out[x.id] = "sent" if x.id in legacy else status_from(
             rec.get(x.id, []), rows.get(x.id, {}), pm[viewer.id], pm)
     return out
+
+
+def _statuses_all(msgs):
+    """{message_id: status} for each message as its OWN SENDER sees it —
+    statuses() for many senders at once (4 queries total instead of ~5 per
+    sender; receipts sync of a busy account touched dozens of senders)."""
+    msgs = [x for x in msgs if x.sender_id]
+    if not msgs:
+        return {}
+    rec = recipients_map(msgs)
+    rows = {}
+    for r in CircleReceipt.objects.filter(message_id__in=[x.id for x in msgs]):
+        rows.setdefault(r.message_id, {})[r.user_id] = (r.delivered_at, r.seen_at)
+    uids = {x.sender_id for x in msgs}
+    for v in rec.values():
+        uids.update(v)
+    pm = _privacy_map(list(uids))
+    from .views_t1_ticks import legacy_ids
+    legacy = legacy_ids(msgs)
+    return {x.id: ("sent" if x.id in legacy else status_from(
+        rec.get(x.id, []), rows.get(x.id, {}), pm[x.sender_id], pm))
+        for x in msgs}
 
 
 def annotate(out_rows, msgs, viewer):

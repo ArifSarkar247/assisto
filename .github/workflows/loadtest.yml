@@ -7,7 +7,8 @@
 # docker --cpuset-cpus) like the 2-vCPU server; Locust runs on the other
 # 2 CPUs of the 4-vCPU runner so it never steals the server's CPU.
 # Matrix: before (base ref) vs after (this ref), live config vs a gthread
-# what-if (3 workers x 4 threads) for the owner's gunicorn decision.
+# what-if (3 workers x 4 threads) and a 5-sync-worker what-if for the
+# owner's gunicorn decision.
 #
 # Runner limits (honest): one GitHub runner = 4 vCPU / 16 GB; matrix jobs
 # are separate VMs that cannot reach each other, so 10k users come from ONE
@@ -50,7 +51,19 @@ jobs:
           cache: pip
           cache-dependency-path: head/backend/requirements.txt
       - run: python -m pip install -q -r head/backend/requirements.txt
+      - name: srvperf-related suites (serial, full failure output)
+        working-directory: head/backend
+        run: |
+          python manage.py test --settings=assisto_backend.settings_test --noinput \
+            core.tests_srvperf core.tests_outage core.tests_c3_msg core.tests_c2_calls \
+            core.tests_push core.tests_b2_badges core.tests_e2e_recover core.tests_m1_messenger \
+            core.tests_m1_routes core.tests_t9_turnscale core.tests_a1_circle core.tests_cde_chat \
+            core.tests_chat_actions core.tests_connect_flow core.tests_e_gaps core.tests_mr1 \
+            core.tests_o1_otp core.tests_p1_bizagent core.tests_g1_bizagent core.tests_biz_agent_v2 \
+            core.tests_t1_ticks core.tests_x2_ticks core.tests 2>&1 | tail -150
+          exit ${PIPESTATUS[0]}
       - name: probe before + after
+        if: always()
         env:
           SRVPERF_PROBE: '1'
         run: |
@@ -67,12 +80,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: after-live-1k,    sut: head, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: before-live-1k,   sut: base, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: after-gthread-1k, sut: head, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
-          - {name: after-live-10k,   sut: head, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
-          - {name: before-live-10k,  sut: base, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
-          - {name: after-gthread-10k, sut: head, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: after-live-1k,    sut: head, workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: before-live-1k,   sut: base, workers: 3, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: after-gthread-1k, sut: head, workers: 3, threads: 4, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: after-live-10k,   sut: head, workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: before-live-10k,  sut: base, workers: 3, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: after-w5-1k,      sut: head, workers: 5, threads: 0, users: 1000,  seed: 2000,  ramp: 120, hold: 180}
+          - {name: after-w5-10k,     sut: head, workers: 5, threads: 0, users: 10000, seed: 10000, ramp: 300, hold: 180}
+          - {name: after-gthread-10k, sut: head, workers: 3, threads: 4, users: 10000, seed: 10000, ramp: 300, hold: 180}
     env:
       DB_NAME: loadtest
       DB_USER: postgres
@@ -127,7 +142,7 @@ jobs:
           EXTRA=""
           if [ "${{ matrix.threads }}" != "0" ]; then EXTRA="--worker-class gthread --threads ${{ matrix.threads }}"; fi
           nohup taskset -c 0,1 python -m gunicorn assisto_backend.wsgi:application \
-            --workers 3 $EXTRA --bind 127.0.0.1:8700 --timeout 60 \
+            --workers ${{ matrix.workers }} $EXTRA --bind 127.0.0.1:8700 --timeout 60 \
             > $GITHUB_WORKSPACE/gunicorn.log 2>&1 &
           sudo taskset -c 0,1 nginx -c $GITHUB_WORKSPACE/head/loadtest/nginx.conf
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/v1/health && break; sleep 1; done
