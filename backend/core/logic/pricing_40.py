@@ -433,9 +433,10 @@ PRESETS = {
             {"id": "c120", "price": 399, "credits": 120, "valid_months": 12},
             {"id": "c300", "price": 949, "credits": 300, "valid_months": 12},
         ],
-        # owner: 74 % net = 15 % Google then 15 % VAT. pricing.net_fraction:
-        # (1 - 0.15 play - 0.02 gateway) / 1.15 = 0.722 (a little safer).
-        "vat": 0.15,
+        # VAT is NOT set here: vat 0.15 (the owner's 74 % net) makes the
+        # existing seller-agent "pro" plan (৳3990 / 3000 replies) fail its
+        # 40 % guarantee (36.5 %), so pricing_apply refuses the whole preset.
+        # That is a separate owner decision (PRICING_40PCT_BN.md §11).
         # credits per chat mode / agent task; provider_cost = the HARD-CAP cost
         # (USD) so Owner Admin's NET-floor check holds them too.
         "action_costs": {
