@@ -33,6 +33,65 @@ ALL = [("anthropic", "ka")]
 
 
 # ================================================================== pure
+class V2CalculatorTests(SimpleTestCase):
+    """Owner final structure (27 Oct night)."""
+
+    def test_every_plan_pack_and_annual_keeps_40pct_at_120_and_125(self):
+        for rate in (120.0, 125.0):
+            for annual in (False, True):
+                bad = [(r["id"], r["margin_pct"]) for r in P40.v2_rows(rate, annual) if not r["ok"]]
+                self.assertEqual(bad, [], (rate, annual))
+
+    def test_guaranteed_counts(self):
+        cr = P40.v2_plan_credits()
+        self.assertEqual(cr, {"plus": 70, "premium": 150, "premium_pro": 380, "business": 480})
+        self.assertEqual(P40.v2_messages("premium", cr["premium"])["smart"], 75)
+        self.assertEqual(P40.v2_messages("premium_pro", cr["premium_pro"])["opus"], 76)
+
+    def test_owner_targets_need_these_prices(self):
+        # 200 smart messages on Premium / 165 Opus on Pro, guaranteed
+        ai = P40.v2_worst_ai_usd("premium", 400) * P40.STRICT_RATE
+        self.assertGreater(ai / 0.24, 449)
+
+    def test_agent_cap_never_above_limit_and_fits_a_typical_task(self):
+        for rate in (120.0, 125.0):
+            self.assertLessEqual(P40.v2_agent_cap_usd(rate), P40.v2_agent_cap_limit_usd(rate))
+        self.assertLess(P40.agent_cost_usd(4), P40.v2_agent_cap_usd())
+
+    def test_preset_passes_legacy_net_floor(self):
+        merged = P.normalize({**P40.PRESETS["pricing_27oct"]})
+        for aid in P40.PRESETS["pricing_27oct"]["action_costs"]:
+            self.assertGreaterEqual(merged["action_costs"][aid]["credits"],
+                                    P.action_credit_floor(aid, merged), aid)
+
+    def test_hard_question_rules(self):
+        H = P40.is_hard_question
+        self.assertFalse(H("হ্যালো, কেমন আছো?"))
+        self.assertFalse(H("মাকে জন্মদিনের শুভেচ্ছা লিখে দাও"))
+        self.assertTrue(H("আমার ব্যবসার পরিকল্পনা ধাপে ধাপে বানিয়ে দাও"))
+        self.assertTrue(H("Compare these two loans for me"))
+        self.assertTrue(H("৩৫০০০ আয়, ১২০০০ ভাড়া, ৯০০০ খাবার, ৫০০০ সঞ্চয় — কত থাকে"))
+        self.assertTrue(H("ক" * 400))
+        self.assertTrue(H("এটা কী? আর ওটা কী?"))
+
+    def test_plan_text_never_names_a_model(self):
+        cfg = P.normalize(P40.PRESETS["pricing_27oct"])
+        for pid in ("plus", "premium", "premium_pro", "business"):
+            for bn in (True, False):
+                line = P40.plan_message_line(pid, cfg["plans"][pid]["credits"], cfg, bn)
+                self.assertTrue(line)
+                for name in ("opus", "sonnet", "haiku", "claude", "anthropic"):
+                    self.assertNotIn(name, line.lower())
+        self.assertIsNone(P40.plan_message_line("premium", 150, P.normalize({}), True))
+
+    def test_plan_modes(self):
+        cm = P40.normalize_credit_model(P40.PRESETS["pricing_27oct"]["credit_model"])
+        self.assertEqual(P40.plan_modes(cm, "premium_pro")[0], "pro")
+        self.assertNotIn("pro", P40.plan_modes(cm, "premium"))
+        self.assertEqual(P40.upgrades_allowed(cm, "premium"), 10)
+        self.assertEqual(P40.upgrades_allowed(cm, "plus"), 0)
+
+
 class CalculatorTests(SimpleTestCase):
     def test_budget_interpretations(self):
         self.assertAlmostEqual(P40.ai_budget_pct(), 0.24)
@@ -101,7 +160,7 @@ class CalculatorTests(SimpleTestCase):
         self.assertEqual(cm["annual_credit_months"], 12)
         self.assertEqual(cm["modes"]["smart"], {"in_cap": 8000, "out_cap": 100, "history_turns": 8})
         self.assertEqual(cm["default_chat_mode"], "smart")
-        self.assertEqual(cm["agent_cap_usd"], 0.119)
+        self.assertEqual(cm["agent_cap_usd"], 0.115)
 
     def test_safe_level_from_config(self):
         cfg = P.normalize({"plans": {"premium": {"price": 449, "credits": 150, "annual_price": 4490}},
@@ -122,6 +181,13 @@ class CalculatorTests(SimpleTestCase):
         b = ai.anthropic_request("claude-opus-5-5", "s", [], 750, "low", thinking="off",
                                  hard_cap=True)
         self.assertEqual((b["thinking"], b["max_tokens"]), ({"type": "adaptive"}, 750))
+        b = ai.anthropic_request("claude-sonnet-5-5", "sys", [
+            {"role": "user", "content": "a"}, {"role": "assistant", "content": "b"},
+            {"role": "user", "content": "c"}], 400, "low", thinking="off", hard_cap=True,
+            cache=True)
+        self.assertEqual(b["system"][0]["cache_control"], {"type": "ephemeral"})
+        self.assertEqual(b["messages"][1]["content"][0]["cache_control"], {"type": "ephemeral"})
+        self.assertEqual(b["messages"][2]["content"], "c")           # newest never marked
         # unchanged default: adaptive + thinking headroom
         b = ai.anthropic_request("claude-opus-5-5", "s", [], 700, "low")
         self.assertEqual((b["thinking"], b["max_tokens"]), ({"type": "adaptive"}, 1724))
@@ -203,36 +269,80 @@ class PresetAppliedTests(Base):
         super().setUp()
         self.assertIn("APPLIED", self.apply_preset())
 
+    def set_plan(self, plan):
+        self.u.plan = plan
+        self.u.plan_until = timezone.now() + timedelta(days=30)
+        self.u.save()
+        billing.ensure_monthly_pool(self.u)        # the plan month lands first
+        self.balance()
+
     def test_config_after_apply(self):
         c = billing.cfg()
-        self.assertEqual((c["plans"]["premium"]["price"], c["plans"]["premium"]["credits"]), (449, 150))
-        self.assertEqual((c["plans"]["business"]["price"], c["plans"]["business"]["credits"]), (1299, 400))
+        got = {p: (c["plans"][p]["price"], c["plans"][p]["credits"])
+               for p in ("plus", "premium", "premium_pro", "business")}
+        self.assertEqual(got, {"plus": (199, 70), "premium": (449, 150),
+                               "premium_pro": (999, 380), "business": (1299, 480)})
         self.assertEqual([p["id"] for p in c["topup_packs"]], ["c50", "c120", "c300"])
-        self.assertEqual(c["action_costs"]["ai_chat_smart"]["credits"], 2)
-        self.assertEqual(c["action_costs"]["ai_chat_pro"]["credits"], 5)
-        self.assertEqual(c["action_costs"]["ai_agent_task"]["credits"], 25)
+        self.assertEqual({a: c["action_costs"][a]["credits"] for a in
+                          ("ai_chat_smart", "ai_chat_pro", "ai_agent_task")},
+                         {"ai_chat_smart": 2, "ai_chat_pro": 5, "ai_agent_task": 25})
         self.assertTrue(c["credit_model"]["enabled"])
-        self.assertAlmostEqual(A.safe_level(c), round(449 / 150 * 0.24, 4), places=3)
+        cheapest = min(v for _, v in P40.bdt_per_credit_rows(c))
+        self.assertAlmostEqual(A.safe_level(c), round(cheapest * 0.24, 4))
 
-    def test_smart_default_two_credits_sonnet_thinking_off_hard_cap(self):
+    def test_new_products_on_sale_only_after_preset(self):
+        from core.payments import catalog
+        skus = catalog.all_skus()
+        for sku in ("plus_monthly", "plus_yearly", "premium_pro_monthly", "premium_pro_yearly",
+                    "pack_c50", "pack_c300"):
+            self.assertIn(sku, skus)
+        self.assertEqual(catalog.base_price("premium_pro_yearly"), 9990)
+        self.assertEqual(catalog.play_product("premium_pro_monthly"),
+                         ("assisto_premium_pro", "monthly"))
+        ids = [p["id"] for p in __import__("core.plans", fromlist=["x"]).plans_public("bn")]
+        self.assertIn("premium_pro", ids)
+
+    def test_smart_default_two_credits_sonnet_thinking_off_cached(self):
         before = self.balance()
         r = self.send()
         self.assertEqual(r.status_code, 200)
         call = self.calls[0]
         self.assertEqual(call["model"], "claude-sonnet-5-5")
-        self.assertEqual(call["max_tokens"], 450)
-        self.assertEqual((call["opts"]["thinking"], call["opts"]["hard_cap"]), ("off", True))
+        self.assertEqual(call["max_tokens"], 400)
+        self.assertEqual((call["opts"]["thinking"], call["opts"]["hard_cap"], call["opts"]["cache"]),
+                         ("off", True, True))
         self.assertEqual(before - self.balance(), 2)
         u = AIUsage.objects.get()
         self.assertEqual((u.feature, u.credits_charged), ("chat.smart", 2))
         self.assertEqual(r.json()["message"]["meta"]["credits"], 2)
 
-    def test_pro_five_credits_opus(self):
+    def test_pro_only_on_premium_pro(self):
         before = self.balance()
-        self.send(mode="pro")
-        self.assertEqual(self.calls[0]["model"], "claude-opus-5-5")
-        self.assertEqual(self.calls[0]["max_tokens"], 750)
-        self.assertEqual(before - self.balance(), 5)
+        self.send(mode="pro")                       # free user: not allowed -> smart
+        self.assertEqual(self.calls[-1]["model"], "claude-sonnet-5-5")
+        self.set_plan("premium_pro")
+        mid = self.balance()
+        self.send()                                 # Pro plan default = pro
+        self.assertEqual(self.calls[-1]["model"], "claude-opus-5-5")
+        self.assertEqual(self.calls[-1]["max_tokens"], 700)
+        self.assertEqual((before - mid, mid - self.balance()), (2, 5))
+
+    def test_premium_hard_question_auto_upgrade_capped(self):
+        self.set_plan("premium")
+        CR.grant(self.u, CR.PACK, 100, note="more", key="t40b:%d" % self.u.pk)
+        before = self.balance()
+        hard = "আমার ব্যবসার পরিকল্পনা ধাপে ধাপে বানিয়ে দাও"
+        self.send(text=hard)
+        self.assertEqual(self.calls[-1]["model"], "claude-opus-5-5")
+        self.assertEqual(before - self.balance(), 2)              # charged as smart
+        self.assertEqual(AIUsage.objects.filter(feature="chat.upgrade").count(), 1)
+        self.send(text="হ্যালো")
+        self.assertEqual(self.calls[-1]["model"], "claude-sonnet-5-5")
+        for _ in range(9):
+            self.send(text=hard)
+        self.send(text=hard)                                       # 11th: cap reached
+        self.assertEqual(self.calls[-1]["model"], "claude-sonnet-5-5")
+        self.assertEqual(AIUsage.objects.filter(feature="chat.upgrade").count(), 10)
 
     def test_quick_free_up_to_daily_quota_then_one_credit(self):
         before = self.balance()
@@ -240,23 +350,56 @@ class PresetAppliedTests(Base):
             self.send(mode="quick")
         self.assertEqual(self.balance(), before)
         self.assertTrue(all(c["model"] == "claude-haiku-5-5" for c in self.calls))
+        self.assertTrue(all(c["max_tokens"] == 300 for c in self.calls))
         self.send(mode="quick")
         self.assertEqual(before - self.balance(), 1)
         self.assertEqual(AIUsage.objects.filter(credits_charged=0).count(), 10)
 
     def test_long_paste_is_capped(self):
         self.send(text="ক" * 50000)
-        call = self.calls[0]
-        self.assertLessEqual(P40.est_tokens(call["prompt"]), 2000)
+        self.assertLessEqual(P40.est_tokens(self.calls[0]["prompt"]), 1800)
 
     def test_l4_needs_key_text_not_sent_as_data(self):
         self.send(text="আজ আবহাওয়া কেমন হবে?")
-        self.assertNotIn("key", self.calls[0]["prompt"].split("<data>")[-1].lower().replace("data", ""))
+        self.assertNotIn("key", self.calls[0]["prompt"].lower())
 
     def test_annual_grants_ten_twelfths(self):
         self.assertEqual(CR.plan_credits("premium", months=12), 125)
         self.assertEqual(CR.plan_credits("premium", months=1), 150)
-        self.assertEqual(CR.plan_credits("business", months=12), 333)
+        self.assertEqual(CR.plan_credits("business", months=12), 400)
+
+    def test_plan_texts_show_message_counts(self):
+        from core import plans
+        rows = {p["id"]: p for p in plans.plans_public("bn")}
+        self.assertIn("৭৫টি স্মার্ট মেসেজ", rows["premium"]["benefits"][0])
+        self.assertIn("প্রো মেসেজ", rows["premium_pro"]["benefits"][0])
+        blob = repr(rows).lower()
+        for name in ("opus", "sonnet", "haiku", "claude"):
+            self.assertNotIn(name, blob)
+
+
+class MonthlyUsageTests(Base):
+    def setUp(self):
+        super().setUp()
+        self.owner = User.objects.create_user(phone="+8801711400003", password="x")
+        self.owner.is_superuser = True
+        self.owner.save()
+
+    def test_report_suggests_more_when_real_cost_is_low(self):
+        AIUsage.objects.bulk_create([AIUsage(user=self.u, feature="chat.smart", model="claude-sonnet-5-5",
+                                             input_tokens=300, cache_read_tokens=900, output_tokens=250,
+                                             cost_usd=0.003, credits_charged=2) for _ in range(250)])
+        out = A.monthly_report()
+        self.assertTrue(out["sent"])
+        sug = out["report"]["suggested_credits"]
+        self.assertGreater(sug["premium"], 150)
+        self.assertIn("বেশি মেসেজ", out["body"])
+        self.assertFalse(A.monthly_report()["sent"])               # once a month
+
+    def test_report_without_data_is_honest(self):
+        out = A.monthly_report(notify=False)
+        self.assertEqual(out["report"]["suggested_credits"], {})
+        self.assertIn("নেই", out["body"])
 
 
 class CostAlertTests(Base):

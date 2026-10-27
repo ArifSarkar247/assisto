@@ -195,3 +195,115 @@ def banner():
     except Exception:  # noqa: BLE001
         pass
     return rows or None
+
+
+# ------------------------------------------------------------------ monthly
+MONTH_KIND = "ai_usage_month"
+MODE_FEATURES = (("quick", "chat.quick"), ("smart", "chat.smart"),
+                 ("upgrade", "chat.upgrade"), ("pro", "chat.pro"))
+
+
+def _p90(vals):
+    if not vals:
+        return None
+    v = sorted(vals)
+    return v[min(len(v) - 1, int(round(0.9 * (len(v) - 1))))]
+
+
+def monthly_usage(days=30, now=None, cfg=None):
+    """REAL usage per chat mode over `days`: calls, average input / cached /
+    output tokens, average and p90 cost per message (৳), vs the hard cap the
+    plan credits were sized on — and the plan credits the REAL p90 cost would
+    allow at the same >= 40 % rule (so the owner can give more messages)."""
+    from . import billing
+    from .logic import pricing_40 as P40
+    from .models import AIUsage
+    c = cfg or billing.cfg()
+    rate = float(c.get("usd_bdt") or 120.0)
+    now = now or timezone.now()
+    qs = AIUsage.objects.filter(ok=True, created_at__gte=now - timedelta(days=days))
+    modes = {}
+    for mode, feat in MODE_FEATURES:
+        rows = list(qs.filter(feature=feat).values_list(
+            "input_tokens", "cache_read_tokens", "cache_write_tokens", "output_tokens", "cost_usd"))
+        n = len(rows)
+        cap_mode = "pro" if mode == "upgrade" else mode
+        cap = P40.v2_cap_usd(cap_mode)
+        if not n:
+            modes[mode] = {"calls": 0, "cap_bdt": round(cap * rate, 3)}
+            continue
+        costs = [r[4] for r in rows]
+        modes[mode] = {
+            "calls": n,
+            "avg_in": int(sum(r[0] for r in rows) / n),
+            "avg_cache_read": int(sum(r[1] for r in rows) / n),
+            "avg_cache_write": int(sum(r[2] for r in rows) / n),
+            "avg_out": int(sum(r[3] for r in rows) / n),
+            "avg_bdt": round(sum(costs) / n * rate, 3),
+            "p90_bdt": round(_p90(costs) * rate, 3),
+            "cap_bdt": round(cap * rate, 3),
+            "p90_vs_cap": round(_p90(costs) / cap, 2) if cap else None,
+        }
+    # what the plans could give at the REAL p90 cost (only with enough data)
+    suggest = {}
+    sm, pr = modes.get("smart", {}), modes.get("pro", {})
+    if sm.get("calls", 0) >= 200:
+        f = max(sm["p90_vs_cap"], 0.3)
+        for pid in P40.PLANS_V2:
+            if "pro" in P40.PLANS_V2[pid]["modes"]:
+                if pr.get("calls", 0) < 200:
+                    continue
+                f = max(pr["p90_vs_cap"], 0.3)
+            suggest[pid] = int(P40.v2_plan_credits()[pid] / f) // 10 * 10
+    return {"days": days, "modes": modes, "suggested_credits": suggest,
+            "current_credits": {pid: int((c["plans"].get(pid) or {}).get("credits") or 0)
+                                for pid in P40.PLANS_V2}}
+
+
+def monthly_report(now=None, notify=True, cfg=None):
+    """Monthly job: the real-usage numbers to the owner (push + email +
+    FamilyAlert), once per calendar month. Report only — never changes a
+    plan. When real cost runs clearly under the caps it says so plainly."""
+    out = {"sent": False}
+    try:
+        rep = monthly_usage(30, now, cfg)
+        out["report"] = rep
+        sm = rep["modes"].get("smart", {})
+        lines = []
+        for mode, m in rep["modes"].items():
+            if m.get("calls"):
+                lines.append("%s: %d বার, গড় ৳%.2f, ৯০%% ক্ষেত্রে ≤ ৳%.2f (সীমা ৳%.2f)" % (
+                    mode, m["calls"], m["avg_bdt"], m["p90_bdt"], m["cap_bdt"]))
+        if not lines:
+            lines.append("এই মাসে চ্যাট মোডে কোনো AI ব্যবহার নেই।")
+        more = [pid for pid, n in rep["suggested_credits"].items()
+                if n > rep["current_credits"].get(pid, 0)]
+        if more:
+            lines.append("আসল খরচ সীমার চেয়ে কম — ৪০% লাভ রেখেই বেশি মেসেজ দেওয়া যায়: " + ", ".join(
+                "%s %d → %d ক্রেডিট" % (pid, rep["current_credits"][pid], rep["suggested_credits"][pid])
+                for pid in more) + "। আপনার অনুমতি ছাড়া কিছু বদলাবে না।")
+        elif sm.get("calls", 0) < 200:
+            lines.append("বেশি মেসেজ দেওয়ার পরামর্শের জন্য অন্তত ২০০টি স্মার্ট মেসেজের ডেটা লাগবে।")
+        body = "\n".join(lines)
+        out["body"] = body
+        if not notify:
+            return out
+        from django.contrib.auth import get_user_model
+        from .models import FamilyAlert
+        month = (timezone.localdate(now) if now else timezone.localdate()).strftime("%Y-%m")
+        owners = list(get_user_model().objects.filter(is_superuser=True, is_active=True)[:5])
+        first = False
+        for o in owners:
+            _, created = FamilyAlert.objects.get_or_create(
+                user=o, kind=MONTH_KIND, title=("AI real usage %s" % month)[:160],
+                defaults={"body": body, "severity": "info",
+                          "payload": {"source": "ai_usage_month", "month": month}})
+            first = first or created
+        if first:
+            from . import push
+            push.notify_owner("Assisto: মাসিক আসল AI খরচ (%s)" % month, body)
+            out["sent"] = True
+    except Exception as e:  # noqa: BLE001
+        log.warning("ai_cost_alert.monthly_report: %s", type(e).__name__)
+        out["error"] = type(e).__name__
+    return out

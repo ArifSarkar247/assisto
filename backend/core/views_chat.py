@@ -132,9 +132,14 @@ def _chat_mode(request):
         cm = billing.cfg().get("credit_model") or {}
         if not cm.get("enabled"):
             return None
+        from . import plans
+        from .logic import pricing_40 as P40
+        allowed = P40.plan_modes(cm, plans.effective_plan(request.user))
         m = str((request.data.get("mode") if hasattr(request, "data") else "")
                 or request.query_params.get("mode") or "").strip().lower()
-        return m if m in ("quick", "smart", "pro") else cm.get("default_chat_mode", "smart")
+        # a plan may only pick its own modes (Opus on every chat = Premium Pro);
+        # anything else falls back to the plan's default
+        return m if m in allowed else allowed[0]
     except Exception:  # noqa: BLE001
         return None
 
@@ -163,11 +168,24 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 if ctx.get("level") == "L4":
                     summary = "-"
             meta_out = {}
-            reply, cost = ai.generate(
-                task=pick(lang, *CHAT_TASK),
-                data=CHAT_DATA.format(text=ai_text, summary=summary),
-                tier=requested_tier, feature=("chat." + mode) if mode else "chat",
-                max_tokens=700, user=user, history=history, mode=mode, out_meta=meta_out)
+            if mode:
+                # pricing-40: the chat instruction goes into the SYSTEM block so
+                # system + instruction (>= 512 tokens) is one cacheable prefix
+                # shared by every user of that language; free hard-question
+                # check decides the Opus auto-upgrade (capped per month).
+                from .logic import pricing_40 as P40
+                reply, cost = ai.generate(
+                    task="", extra_system=pick(lang, *CHAT_TASK),
+                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    tier=requested_tier, feature="chat." + mode, max_tokens=700,
+                    user=user, history=history, mode=mode, out_meta=meta_out,
+                    upgrade=(mode == "smart" and P40.is_hard_question(text)))
+            else:
+                reply, cost = ai.generate(
+                    task=pick(lang, *CHAT_TASK),
+                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    tier=requested_tier, feature="chat", max_tokens=700,
+                    user=user, history=history)
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
@@ -180,9 +198,13 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 credits = 0
             if mode:
                 credits = int(meta_out.get("charged") or 0)
+                tier_label = {"quick": "assisto-lite", "smart": "assisto",
+                              "pro": "assisto-pro"}.get(mode, "assisto")
+                if meta_out.get("upgraded"):
+                    tier_label = "assisto-pro"
             meta = {
                 "source": "ai",
-                "model": ai.TIER_MODEL.get(eff, "cheap"),
+                "model": tier_label if mode else ai.TIER_MODEL.get(eff, "cheap"),
                 "tier": eff,
                 "cost_usd": round(cost, 6),
                 # every plan pays credits (nothing is unlimited)

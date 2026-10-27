@@ -15,8 +15,9 @@ from decimal import Decimal
 from ..logic import pricing
 
 CHANNELS = ("play", "gateway")
-SUB_PLANS = ("premium", "business")
+SUB_PLANS = ("premium", "business", "plus", "premium_pro")   # plus/premium_pro: price 0 = not sold
 TIER = {"free": 0, "premium": 1, "family": 1, "annual": 1, "probashi": 1,
+        "plus": 1, "premium_pro": 1,
         "founder": 1, "business": 2}
 
 
@@ -141,7 +142,8 @@ def products(channel, lang="bn", cfg=None):
     from ..i18n import pick
     c = _cfg(cfg)
     out = []
-    names = {"premium": ("প্রিমিয়াম", "Premium"), "business": ("বিজনেস", "Business")}
+    names = {"premium": ("প্রিমিয়াম", "Premium"), "business": ("বিজনেস", "Business"),
+             "plus": ("প্লাস", "Plus"), "premium_pro": ("প্রিমিয়াম প্রো", "Premium Pro")}
     for sku in all_skus(c):
         d = describe(sku, c)
         pr = price(sku, channel, c)

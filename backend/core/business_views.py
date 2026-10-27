@@ -124,7 +124,8 @@ def _notice_pair():
 
 # ---- plan gate: AI endpoints need a PAID Business-tier plan ---------------
 # khata + selling + tagada + reports + QR are FREE; only AI features are paid.
-_PAID_PLANS = {"business", "premium", "family", "probashi", "annual", "founder"}
+_PAID_PLANS = {"business", "premium", "family", "probashi", "annual", "founder",
+               "plus", "premium_pro"}
 
 
 def paid_plan_ok(user):

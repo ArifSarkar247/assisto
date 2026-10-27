@@ -332,9 +332,16 @@ def credit_model_defaults():
         # every month); the preset sets 10 (owner's "annual = 10x").
         "annual_credit_months": 12,
         "agent_confirm": True,
-        "agent_cap_usd": 0.119,
+        "agent_cap_usd": 0.115,
         "user_text_max_chars": 4000,
-        "modes": {m: {k: MODES[m][k] for k in CAP_BOUNDS} for m in MODE_IDS},
+        "modes": {m: {k: MODES_V2[m][k] for k in CAP_BOUNDS} for m in MODE_IDS},
+        # owner final: Opus auto-upgrade for HARD questions, charged as a
+        # smart message, at most this many per user per calendar month
+        "upgrades_per_month": {"free": 0, "plus": 0, "premium": 10, "business": 30,
+                               "premium_pro": 0, "probashi": 10, "annual": 10, "founder": 10},
+        # which modes a plan may pick; the first is its default
+        "plan_modes": {"premium_pro": ["pro", "smart", "quick"]},
+        "cache": True,                 # prompt caching on mode calls
     }
 
 
@@ -365,6 +372,17 @@ def normalize_credit_model(raw):
     except (TypeError, ValueError):
         cap = base["agent_cap_usd"]
     out["agent_cap_usd"] = round(max(0.01, min(5.0, cap)), 4)
+    out["cache"] = raw.get("cache", base["cache"]) is not False
+    ru = raw.get("upgrades_per_month") if isinstance(raw.get("upgrades_per_month"), dict) else {}
+    out["upgrades_per_month"] = {k: _clampi(ru.get(k), 0, 100, v)
+                                 for k, v in base["upgrades_per_month"].items()}
+    rpm = raw.get("plan_modes") if isinstance(raw.get("plan_modes"), dict) else base["plan_modes"]
+    out["plan_modes"] = {}
+    for k, v in rpm.items():
+        if isinstance(v, (list, tuple)):
+            ms = [m for m in v if m in MODE_IDS]
+            if ms and len(str(k)) <= 20:
+                out["plan_modes"][str(k)] = ms
     rm = raw.get("modes") if isinstance(raw.get("modes"), dict) else {}
     out["modes"] = {}
     for m in MODE_IDS:
@@ -376,8 +394,9 @@ def normalize_credit_model(raw):
 
 def mode_spec(cm, mode):
     """Model / effort / thinking (fixed per mode) + the owner-tunable caps."""
-    spec = dict(MODES[mode])
+    spec = dict(MODES_V2[mode])
     spec.update(cm["modes"][mode])
+    spec["cache"] = bool(cm.get("cache", True))
     return spec
 
 
@@ -549,3 +568,296 @@ def final_agent_cap_usd(annual_credits_x=10, usd_bdt=USD_BDT, prop=None):
 
 if __name__ == "__main__":   # pragma: no cover
     print(report())
+
+
+# ======================================================================
+# V2 — OWNER FINAL AI PRICING (27 Oct night). Supersedes FINAL_PROPOSAL.
+# Unit: 1 smart (Sonnet) message = 2 credits, so the owner's packs
+# (50/৳179, 120/৳399, 300/৳949) keep >= 40 % on every model.
+# Worst case = cold cache (no hit), every message at its hard cap, every
+# credit on the most expensive mode the plan allows, the monthly Opus
+# auto-upgrades all used, the full free Haiku quota used.
+# ======================================================================
+MODES_V2 = {
+    "quick": {"model": HAIKU, "effort": "low", "thinking": "disabled",
+              "in_cap": 1200, "out_cap": 300, "history_turns": 4},
+    "smart": {"model": SONNET, "effort": "low", "thinking": "between_tools",
+              "in_cap": 1800, "out_cap": 400, "history_turns": 6},
+    "pro": {"model": OPUS, "effort": "low", "thinking": "adaptive",
+            "in_cap": 2000, "out_cap": 700, "history_turns": 6},
+}
+# pro = 5 (not 4) and agent = 25 so the legacy Owner Admin NET-floor check
+# (৳1 credit face, cost / 0.60) also passes: ceil(0.022 x 120 / 0.6) = 5.
+CREDITS_V2 = {"smart": 2, "pro": 5, "agent": 25, "quick_after_quota": 1}
+AGENT_TASK_CAP_USD = 0.115   # a typical 4-step cached Opus task is ~$0.111
+QUICK_FREE_PER_DAY = 10
+SAFETY = 0.98              # plan credits sized at 98 % of the exact boundary
+STRICT_RATE = 125.0        # credits sized at ৳125/USD (holds at ৳120 too)
+PLANS_V2 = {   # id: price ৳/month, paid modes, Opus auto-upgrades/month, agent tasks
+    "plus": {"price": 199, "modes": ("smart",), "upgrades": 0},
+    "premium": {"price": 449, "modes": ("smart",), "upgrades": 10},
+    "premium_pro": {"price": 999, "modes": ("smart", "pro", "agent"), "upgrades": 0},
+    "business": {"price": 1299, "modes": ("smart",), "upgrades": 30},
+}
+PACKS_V2 = [(50, 179), (120, 399), (300, 949)]
+OWNER_TARGETS = {"plus": "কম", "premium": "~২০০ স্মার্ট", "premium_pro": "১৫০–১৮০ Opus",
+                 "business": "ক্রেডিট অনুযায়ী"}
+
+
+def v2_cap_usd(mode):
+    m = MODES_V2[mode]
+    return call_cost_usd(m["model"], m["in_cap"], m["out_cap"])
+
+
+def v2_expected_usd(mode):
+    """Typical message WITH prompt caching: ~900 tokens of stable prefix
+    (system + instructions + earlier turns) read from cache, ~500 new tokens
+    written to cache, typical output (Sonnet/Haiku 300 visible; Opus 300 +
+    150 thinking). Expected, NOT guaranteed (cache lives 5 minutes)."""
+    m = MODES_V2[mode]
+    out = 450 if m["thinking"] == "adaptive" else 300
+    return call_cost_usd(m["model"], 0, out, cache_read=900, cache_write=500)
+
+
+def v2_agent_cap_limit_usd(rate=STRICT_RATE):
+    """The most an agent task may ever cost: its credits x the smallest
+    per-credit AI budget of any product that can pay for it (the ৳949/300
+    pack), less 5 %."""
+    per = min(price * ai_budget_pct() / cr for cr, price in PACKS_V2) / rate
+    return round(per * CREDITS_V2["agent"] * 0.95, 4)
+
+
+def v2_agent_cap_usd(rate=STRICT_RATE):
+    """The hard per-task cap actually enforced (never above the limit)."""
+    return min(AGENT_TASK_CAP_USD, v2_agent_cap_limit_usd(rate))
+
+
+def v2_per_credit_usd(mode, rate=STRICT_RATE):
+    if mode == "agent":
+        return v2_agent_cap_usd(rate) / CREDITS_V2["agent"]
+    return v2_cap_usd(mode) / CREDITS_V2[mode]
+
+
+def v2_quick_month_usd():
+    return v2_cap_usd("quick") * QUICK_FREE_PER_DAY * QUICK_DAYS
+
+
+def v2_upgrade_extra_usd():
+    """An Opus auto-upgrade is charged as a smart message (2 credits)."""
+    return v2_cap_usd("pro") - CREDITS_V2["smart"] * v2_per_credit_usd("smart")
+
+
+def v2_worst_ai_usd(plan, credits, rate=STRICT_RATE, months=1):
+    p = PLANS_V2[plan]
+    per = max(v2_per_credit_usd(m, rate) for m in p["modes"])
+    return (credits * per + months * (p["upgrades"] * v2_upgrade_extra_usd()
+                                      + v2_quick_month_usd()))
+
+
+def v2_max_credits(plan, rate=STRICT_RATE, base="price"):
+    p = PLANS_V2[plan]
+    budget = p["price"] * ai_budget_pct(base=base) / rate * SAFETY
+    per = max(v2_per_credit_usd(m, rate) for m in p["modes"])
+    fixed = p["upgrades"] * v2_upgrade_extra_usd() + v2_quick_month_usd()
+    # monthly, and annual (10x price, 10x credits, but quota/upgrades 12 months)
+    n = int(min((budget - fixed) / per, (10 * budget - 12 * fixed) / (10 * per)))
+    return n - n % 10
+
+
+def v2_margin(price, ai_usd, rate):
+    return (price * (NET_PCT - OVERHEAD_PCT) - ai_usd * rate) / price
+
+
+def v2_plan_credits():
+    return {pid: v2_max_credits(pid) for pid in PLANS_V2}
+
+
+def v2_messages(plan, credits):
+    """Messages a month the plan's credits buy (all of one kind)."""
+    p = PLANS_V2[plan]
+    if "pro" in p["modes"]:
+        return {"opus": credits // CREDITS_V2["pro"], "smart": credits // CREDITS_V2["smart"],
+                "agent": credits // CREDITS_V2["agent"]}
+    return {"smart": credits // CREDITS_V2["smart"], "opus_upgrades": p["upgrades"]}
+
+
+def v2_rows(rate=STRICT_RATE, annual=False):
+    out = []
+    credits = v2_plan_credits()
+    for pid, p in PLANS_V2.items():
+        months = 10 if annual else 1          # annual = 10x price, 10x credits
+        price = p["price"] * months
+        cr = credits[pid] * months
+        # the quick quota and upgrades run 12 months on an annual plan
+        ai = v2_worst_ai_usd(pid, cr, rate, months=12 if annual else 1)
+        out.append({"id": pid + ("_annual" if annual else ""), "price": price, "credits": cr,
+                    "ai_bdt": round(ai * rate, 1), "margin_pct": round(100 * v2_margin(price, ai, rate), 1),
+                    "ok": v2_margin(price, ai, rate) >= PROFIT_PCT})
+    for cr, price in PACKS_V2:
+        per = max(v2_per_credit_usd(m, rate) for m in ("smart", "pro", "agent"))
+        ai = cr * per
+        out.append({"id": "pack%d" % cr, "price": price, "credits": cr, "ai_bdt": round(ai * rate, 1),
+                    "margin_pct": round(100 * v2_margin(price, ai, rate), 1),
+                    "ok": v2_margin(price, ai, rate) >= PROFIT_PCT})
+    return out
+
+
+def v2_report():   # pragma: no cover
+    L = []
+    for m in MODES_V2:
+        L.append("%s cap $%.5f ৳%.2f/৳%.2f  expected $%.5f ৳%.2f" % (
+            m, v2_cap_usd(m), v2_cap_usd(m) * 120, v2_cap_usd(m) * 125,
+            v2_expected_usd(m), v2_expected_usd(m) * 125))
+    L.append("agent cap $%.4f (৳%.1f)  upgrade extra $%.4f  quick month $%.4f" % (
+        v2_agent_cap_usd(), v2_agent_cap_usd() * 125, v2_upgrade_extra_usd(), v2_quick_month_usd()))
+    cr = v2_plan_credits()
+    L.append("credits %s" % cr)
+    for pid in PLANS_V2:
+        L.append("  %s msgs %s  expected-x %.2f" % (pid, v2_messages(pid, cr[pid]),
+                                                     v2_cap_usd("smart") / v2_expected_usd("smart")))
+    for rate in (120.0, 125.0):
+        for annual in (False, True):
+            L.append("rate %s annual %s" % (rate, annual))
+            for r in v2_rows(rate, annual):
+                L.append("   %-20s ৳%-6s cr %-5s AI ৳%-7s %5s%% %s" % (
+                    r["id"], r["price"], r["credits"], r["ai_bdt"], r["margin_pct"],
+                    "OK" if r["ok"] else "FAIL"))
+    # what price would make the owner's counts guaranteed
+    for pid, msgs, mode in (("premium", 200, "smart"), ("premium_pro", 165, "pro")):
+        cr = msgs * CREDITS_V2[mode]
+        ai = v2_worst_ai_usd(pid, cr) * STRICT_RATE
+        L.append("price for %s %d msgs guaranteed: ৳%.0f (A) / ৳%.0f (B)" % (
+            pid, msgs, ai / ai_budget_pct(), ai / ai_budget_pct(base="net")))
+    for pid in PLANS_V2:
+        L.append("B-interp credits %s %s" % (pid, v2_max_credits(pid, base="net")))
+    exp = {pid: int(v2_plan_credits()[pid] * v2_cap_usd("smart") / v2_expected_usd("smart"))
+           for pid in PLANS_V2}
+    L.append("expected-cost credits (same 40%% at typical cached cost): %s" % exp)
+    L.append("pro expected opus msgs: %d" % (
+        (PLANS_V2["premium_pro"]["price"] * ai_budget_pct() / STRICT_RATE - v2_quick_month_usd())
+        / v2_expected_usd("pro")))
+    L.append("premium expected smart msgs: %d" % (
+        (449 * ai_budget_pct() / STRICT_RATE - v2_quick_month_usd()
+         - 10 * (v2_expected_usd("pro") - v2_expected_usd("smart"))) / v2_expected_usd("smart")))
+    return "\n".join(L)
+
+
+def plan_message_line(pid, credits, cfg, bn=True):
+    """Plan-text line with the message COUNT the credits buy — only while the
+    credit_model is enabled (else None: today's credit-only text). Never names
+    a provider or model (owner rule: the app never says which AI answers)."""
+    cm = (cfg or {}).get("credit_model") or {}
+    if not cm.get("enabled") or credits <= 0:
+        return None
+    ac = (cfg or {}).get("action_costs") or {}
+    smart = int((ac.get(MODE_ACTION["smart"]) or {}).get("credits") or 0)
+    pro = int((ac.get(MODE_ACTION["pro"]) or {}).get("credits") or 0)
+    q = int(cm.get("quick_free_per_day") or 0)
+    d = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    n = (lambda v: str(int(v)).translate(d)) if bn else (lambda v: str(int(v)))
+    if pid == "premium_pro" and pro:
+        core = (f"মাসে {n(credits // pro)}টি প্রো মেসেজ (সবচেয়ে শক্তিশালী AI)" if bn
+                else f"{credits // pro} Pro messages a month (our strongest AI)")
+    elif smart:
+        core = (f"মাসে {n(credits // smart)}টি স্মার্ট মেসেজ" if bn
+                else f"{credits // smart} Smart messages a month")
+        up = int((cm.get("upgrades_per_month") or {}).get(pid) or 0)
+        if up:
+            core += (f" (কঠিন প্রশ্নে মাসে {n(up)}টি পর্যন্ত প্রো)" if bn
+                     else f" (up to {up} Pro answers for hard questions)")
+    else:
+        return None
+    if q:
+        core += (f" + দিনে {n(q)}টি ফ্রি দ্রুত উত্তর" if bn else f" + {q} free quick replies a day")
+    return core
+
+
+# ------------------------------------------------------------------ V2 preset
+# Owner final (27 Oct night). Overrides the earlier pricing_27oct draft.
+# NOT APPLIED: the integrator runs apply_pricing_preset only after the owner
+# confirms the Play Console prices are live (texts never promise a price Play
+# does not charge).
+_V2_CREDITS = v2_plan_credits()
+PRESETS["pricing_27oct"] = {
+    "plans": {
+        "plus": {"price": 199, "credits": _V2_CREDITS["plus"], "annual_price": 1990},
+        "premium": {"price": 449, "credits": _V2_CREDITS["premium"], "annual_price": 4490},
+        "premium_pro": {"price": 999, "credits": _V2_CREDITS["premium_pro"], "annual_price": 9990},
+        "business": {"price": 1299, "credits": _V2_CREDITS["business"], "annual_price": 12990},
+    },
+    "topup_packs": [
+        {"id": "c50", "price": 179, "credits": 50, "valid_months": 12},
+        {"id": "c120", "price": 399, "credits": 120, "valid_months": 12},
+        {"id": "c300", "price": 949, "credits": 300, "valid_months": 12},
+    ],
+    # VAT is NOT set here: vat 0.15 makes the existing seller-agent "pro"
+    # plan fail its own 40 % guarantee (owner decision, doc §11).
+    "action_costs": {   # provider_cost = the HARD-CAP cost (USD) per unit
+        "ai_chat_quick": {"provider_cost": round(v2_cap_usd("quick"), 5),
+                          "credits": CREDITS_V2["quick_after_quota"]},
+        "ai_chat_smart": {"provider_cost": round(v2_cap_usd("smart"), 5),
+                          "credits": CREDITS_V2["smart"]},
+        "ai_chat_pro": {"provider_cost": round(v2_cap_usd("pro"), 5),
+                        "credits": CREDITS_V2["pro"]},
+        "ai_agent_task": {"provider_cost": v2_agent_cap_usd(), "credits": CREDITS_V2["agent"]},
+    },
+    "credit_model": {
+        "enabled": True,
+        "quick_free_per_day": QUICK_FREE_PER_DAY,
+        "default_chat_mode": "smart",
+        "annual_credit_months": 10,
+        "agent_confirm": True,
+        "agent_cap_usd": v2_agent_cap_usd(),
+        "user_text_max_chars": 4000,
+        "modes": {m: {k: MODES_V2[m][k] for k in CAP_BOUNDS} for m in MODE_IDS},
+        "upgrades_per_month": {"free": 0, "plus": 0, "premium": 10, "business": 30,
+                               "premium_pro": 0, "probashi": 10, "annual": 10, "founder": 10},
+        "plan_modes": {"premium_pro": ["pro", "smart", "quick"]},
+        "cache": True,
+    },
+    "ad_rewards": {"rewarded_daily_cap": 5},
+}
+
+
+# ------------------------------------------------------------------ hard question
+import re as _re
+
+_HARD_WORDS = (
+    "হিসাব কর", "হিসেব কর", "তুলনা", "বিশ্লেষণ", "ধাপে ধাপে", "পরিকল্পনা", "ব্যাখ্যা",
+    "কৌশল", "সমাধান", "প্রমাণ", "কোড", "আইন", "চুক্তি", "মামলা", "ট্যাক্স", "কর হিসাব",
+    "বিনিয়োগ", "ব্যবসার পরিকল্পনা", "রোগ নির্ণয়", "কেন এমন",
+    "calculate", "compare", "analy", "step by step", "explain why", "strategy",
+    "business plan", "prove", "debug", "code", "legal", "contract", "invest",
+    "optimi", "diagnos", "pros and cons",
+)
+_NUM = _re.compile(r"[0-9০-৯]+(?:[.,][0-9০-৯]+)?")
+
+
+def is_hard_question(text):
+    """Free, rules-only "hard question" check for the Opus auto-upgrade
+    (no AI call, no cost). Hard = long (>= 350 chars), several questions,
+    a reasoning keyword, or a number-heavy calculation."""
+    t = (text or "").strip()
+    if not t:
+        return False
+    low = t.lower()
+    if len(t) >= 350:
+        return True
+    if t.count("?") + t.count("？") >= 2:
+        return True
+    if any(w in low for w in _HARD_WORDS):
+        return True
+    return len(_NUM.findall(t)) >= 4
+
+
+def plan_modes(cm, plan):
+    """Modes a plan may pick (first = its default)."""
+    pm = (cm.get("plan_modes") or {}).get(plan)
+    if pm:
+        return list(pm)
+    return [cm.get("default_chat_mode") or "smart", "quick"] if (
+        cm.get("default_chat_mode") or "smart") != "quick" else ["quick", "smart"]
+
+
+def upgrades_allowed(cm, plan):
+    return int((cm.get("upgrades_per_month") or {}).get(plan) or 0)

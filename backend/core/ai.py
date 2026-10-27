@@ -225,8 +225,25 @@ _THINKING_OFF = {"claude-sonnet-5-5": "between_tools", "claude-haiku-5-5": "disa
 _THINK_OFF_EFFORTS = ("low", "medium", "high")
 
 
+def _cache_mark(messages):
+    """Prompt caching (pricing-40): one cache breakpoint on the system prompt
+    (shared by every user of the same language: system + chat instructions
+    are >= 512 tokens, the minimum on the 5.5 models) and one on the LAST
+    earlier turn, so the next message in a live chat (< 5 min) reads the whole
+    stable prefix at the cache price ($0.20/M on Opus and Sonnet 5.5) instead
+    of the full input price. The newest user turn is never marked."""
+    out = [dict(m) for m in messages]
+    if len(out) >= 2:
+        last = out[-2]
+        c = last.get("content")
+        if isinstance(c, str) and c:
+            last["content"] = [{"type": "text", "text": c,
+                                "cache_control": {"type": "ephemeral"}}]
+    return out
+
+
 def anthropic_request(model, system, messages, max_tokens, effort="low",
-                      thinking=None, hard_cap=False):
+                      thinking=None, hard_cap=False, cache=False):
     """The exact Messages API body for `model`. Opus/Sonnet/Haiku 5.5: effort
     + adaptive thinking; NEVER temperature/top_p/top_k, never an assistant
     prefill (the last message is the user's).
@@ -246,6 +263,10 @@ def anthropic_request(model, system, messages, max_tokens, effort="low",
             body["thinking"] = {"type": "adaptive"}
         if not hard_cap:
             body["max_tokens"] = min(_MAX_TOKENS_CAP, int(max_tokens) + _THINK_HEADROOM[eff])
+    if cache:
+        body["system"] = [{"type": "text", "text": system,
+                           "cache_control": {"type": "ephemeral"}}]
+        body["messages"] = _cache_mark(messages)
     return body
 
 
@@ -277,7 +298,7 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     client = _anthropic_client(key, o.get("timeout", 45))
     body = anthropic_request(model, system, _messages(history, prompt), max_tokens,
                              o.get("effort", "low"), thinking=o.get("thinking"),
-                             hard_cap=bool(o.get("hard_cap")))
+                             hard_cap=bool(o.get("hard_cap")), cache=bool(o.get("cache")))
     try:
         if o.get("server_fallback") and model in C.SERVER_FALLBACK_MODELS:
             try:
@@ -446,7 +467,7 @@ def health_probe(name, key, timeout=10):
 # ------------------------------------------------------------------ generate
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
-             task_class=None, mode=None, out_meta=None):
+             task_class=None, mode=None, out_meta=None, upgrade=False):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -459,7 +480,10 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     mode fixes the Anthropic model, effort, thinking, the hard input/output
     caps and the credits (ai_chat_<mode>; quick is free up to the daily
     quota). Disabled -> `mode` is ignored and nothing changes. `out_meta`
-    (a dict) receives {"charged", "mode"}."""
+    (a dict) receives {"charged", "mode", "upgraded"}. `upgrade=True` (the
+    caller's free hard-question check said so) runs a smart message on the
+    pro model/caps — still charged as smart — while the user's plan has
+    Opus auto-upgrades left this calendar month."""
     from . import ai_router as R
     providers = _providers()
     if not providers:
@@ -484,6 +508,26 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             spec = None
     if spec is None:
         mode = None
+    upgraded = False
+    if spec is not None and mode == "smart" and upgrade and user is not None:
+        try:
+            from . import billing, plans
+            from .logic import pricing_40 as P40
+            cm = billing.cfg().get("credit_model") or {}
+            cap = P40.upgrades_allowed(cm, plans.effective_plan(user))
+            if cap > 0:
+                now = timezone.localtime()
+                month0 = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                used = AIUsage.objects.filter(user=user, ok=True, feature="chat.upgrade",
+                                              created_at__gte=month0).count()
+                if used < cap:
+                    up = P40.mode_spec(cm, "pro")
+                    spec.update({k: up[k] for k in ("model", "effort", "thinking", "in_cap",
+                                                    "out_cap", "history_turns")})
+                    upgraded = True
+                    feature = "chat.upgrade"
+        except Exception:  # noqa: BLE001 — never block the smart answer
+            upgraded = False
     charged = 0
     spend_ref = ""
     if user is not None and spec is not None:
@@ -526,6 +570,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     order = [p for p in C.ORDER[klass] if p in keys]
     system = P.system_prompt(extra_system)
     prompt = task + (f"\n\n<data>\n{data}\n</data>" if data else "")
+    if not task:
+        prompt = prompt.lstrip()
     opts = {"timeout": conf["timeouts_s"][klass], "klass": klass,
             "effort": C.effort_for(conf, tier, klass),
             "server_fallback": conf["server_fallback"]}
@@ -535,7 +581,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
                                         spec["history_turns"])
         max_tokens = spec["out_cap"]
         opts.update({"effort": spec["effort"], "hard_cap": True,
-                     "thinking": "off" if spec["thinking"] != "adaptive" else None})
+                     "thinking": "off" if spec["thinking"] != "adaptive" else None,
+                     "cache": bool(spec.get("cache", True))})
 
     attempts = []
     skipped_cap = 0
@@ -585,7 +632,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             ok=True, hops=hops, attempts="|".join(attempts)[:240],
             cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged)
         if isinstance(out_meta, dict):
-            out_meta.update({"charged": charged, "mode": mode or ""})
+            out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded})
         try:
             from . import billing
             billing.record_ai_cost_usd(cost)     # Profit Guard (USD -> ৳ ledger)
