@@ -200,6 +200,29 @@ def parse_flows(out):
     return [flows[k] for k in sorted(flows)]
 
 
+def parse_reality_errors(out):
+    """flow id -> (status, error) from the harness' REALITY_RESULT chunks."""
+    parts = {}
+    for _, tag, msg in logcat_lines(out):
+        m = re.match(r"REALITY_RESULT (\w+) (\d+)/(\d+) (.*)$", msg)
+        if m:
+            parts.setdefault(m.group(1), {})[int(m.group(2))] = (int(m.group(3)), m.group(4))
+    res = {}
+    for fid, ch in parts.items():
+        n = next(iter(ch.values()))[0]
+        if len(ch) != n:
+            continue
+        try:
+            j = json.loads("".join(ch[i][1] for i in range(1, n + 1)))
+        except ValueError:
+            continue
+        failed = [s for s in j.get("steps", []) if not s.get("ok")]
+        res[fid] = {"status": j.get("status"), "error": (j.get("error") or "")[:300],
+                    "failed_step": failed[0]["name"] if failed else "",
+                    "note": (j.get("note") or "")[:300]}
+    return res
+
+
 def verdict_flow(f, mem):
     opens = f.get("opens") or {}
     worst_open = max([o.get("ready_ms") or 10 ** 6 if o.get("timed_out") else (o.get("ready_ms") or 0)
@@ -255,6 +278,7 @@ def main():
         "flows": flows, "mem": mem, "rss_peak_mb": parse_rss_peak(out), "lmk": lmk,
         "lmk_ok": not lmk["lmkd_kills"] and not lmk["exit_info_low_memory"],
         "battery_bg": parse_battery(out), "apk": apk,
+        "reality": parse_reality_errors(out),
     }
     (out / "perf2gb.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
     md = render_md(res)
@@ -291,6 +315,12 @@ def render_md(r):
                  f"{_fmt(v['worst_open_ms'], ' ms')}{' (timeout)' if v['open_timed_out'] else ''} | "
                  f"{v['frame_p90_ms']} ms | {v['janky_pct']} | {v['ui_p90_ms']} ms / {v['janky_ui_pct']} | "
                  f"{_fmt(v['peak_pss_mb'], ' MB')} | {'PASS' if v['pass'] else 'FAIL'} |")
+    L += ["", "### Flow status (harness)", "", "| flow | status | error / note |", "|---|---|---|"]
+    for fid, e in sorted((r.get("reality") or {}).items()):
+        L.append(f"| {fid} | {e['status']} | {(e['error'] or e['note'] or e['failed_step']).replace('|', '/')[:220]} |")
+    for f in r["flows"]:
+        if f.get("notes"):
+            L.append(f"| {f['id']} notes | | {'; '.join(f['notes']).replace('|', '/')[:220]} |")
     L += ["", "### Every screen open", "", "| flow | screen | first frame | ready |", "|---|---|---|---|"]
     for f in r["flows"]:
         for k, o in (f.get("opens") or {}).items():
