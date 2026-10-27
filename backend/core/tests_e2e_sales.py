@@ -473,6 +473,28 @@ class D_CatalogBrowsing(E2EBase):
                                                        "delivery": S.delivery_for(self.biz)}),
                              [])
 
+    def test_message_echoes_ours_skipped_human_pauses_ai(self):
+        """Messenger sends an echo of EVERY page message (message_echoes).
+        Our own (app_id = our Meta app) is ignored; a person replying from
+        the Page inbox pauses the agent in that chat only."""
+        self.no_ai()
+        self.ms_say("Panjabi price?", "mid.D20")
+        ts = int(timezone.now().timestamp() * 1000)
+
+        def echo(mid, app_id, text):
+            return {"object": "page", "entry": [{"id": PAGE_ID, "time": ts, "messaging": [
+                {"sender": {"id": PAGE_ID}, "recipient": {"id": PSID}, "timestamp": ts,
+                 "message": {"mid": mid, "is_echo": True, "app_id": int(app_id),
+                             "text": text}}]}]}
+        self.post(META_URL, echo("m_OUT0001", APP_ID, "ours"))
+        self.assertIsNone(self.thread(self.ms).ai_paused_until)
+        self.post(META_URL, echo("mid.HUMAN1", "263902037430900", "ami dekhchi bhai"))
+        t = self.thread(self.ms)
+        self.assertIsNotNone(t.ai_paused_until)
+        n0 = len(self.wire.posts())
+        self.post(META_URL, ms_text("Saree price?", "mid.D21"))
+        self.assertEqual(len(self.wire.posts()), n0)          # the person handles it
+
     def test_list_reply_and_quick_reply_and_postback_pick_a_product(self):
         self.no_ai()
         self.post(WA_URL, wa_list_reply("Saree", "wamid.D10"))
