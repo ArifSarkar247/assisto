@@ -6,7 +6,6 @@
 //
 // Each flow: reopen the app (timed) -> open the screen (timed: first frame +
 // ready) -> scroll (FrameTimings) -> memory (dumpsys on the host).
-import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';

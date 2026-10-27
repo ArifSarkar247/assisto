@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
