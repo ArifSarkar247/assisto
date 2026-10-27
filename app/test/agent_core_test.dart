@@ -84,6 +84,11 @@ const _fast = [Duration(milliseconds: 100)];
 late AppLocalizations en;
 late AppLocalizations bn;
 
+String? _runState(WidgetTester tester) {
+  final f = find.byKey(const ValueKey('ac_run_state'));
+  return f.evaluate().isEmpty ? null : tester.widget<Text>(f).data;
+}
+
 Future<void> _typeAndEstimate(WidgetTester tester, String goal) async {
   await tester.enterText(find.byKey(const ValueKey('ac_goal_input')), goal);
   await tester.pump();
@@ -132,7 +137,7 @@ void main() {
       final goals = src.calls.where((c) => c.startsWith('goal:')).toList();
       expect(goals.length, 1);
       expect(goals.single, startsWith('goal:Where did I spend the most?:ac-'));
-      expect(find.text(en.acStateDone), findsOneWidget);
+      expect(_runState(tester), en.acStateDone);
       expect(find.byKey(const ValueKey('ac_answer')), findsOneWidget);
       expect(find.text(en.acSourcesTitle), findsOneWidget);
       expect(find.text('Month income/expense summary'), findsWidgets); // the source module
@@ -175,10 +180,10 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('ac_run')));
       await tester.pump();
       await tester.pump();
-      expect(find.text(en.acStateRunning), findsOneWidget);
+      expect(_runState(tester), en.acStateRunning);
       expect(find.byKey(const ValueKey('ac_cancel')), findsOneWidget);
       await _settle(tester, 12);
-      expect(find.text(en.acStateDone), findsOneWidget);
+      expect(_runState(tester), en.acStateDone);
       final n = src.polls;
       await _settle(tester, 12);
       expect(src.polls, n); // polling stopped
@@ -202,7 +207,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('ac_cancel')));
       await _settle(tester);
       expect(src.calls, contains('cancel:5'));
-      expect(find.text(en.acStateCancelled), findsOneWidget);
+      expect(_runState(tester), en.acStateCancelled);
     });
 
     testWidgets('AI not set up: the honest state from the router', (tester) async {
@@ -255,7 +260,7 @@ void main() {
       st.notifyListeners(); // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
       await _settle(tester);
       expect(src.calls.where((c) => c.startsWith('goal:')).length, 1);
-      expect(find.text(en.acStateDone), findsOneWidget);
+      expect(_runState(tester), en.acStateDone);
     });
 
     testWidgets('no answer from the server = not started (offline card, Send now)',
@@ -319,13 +324,13 @@ void main() {
       await _typeAndEstimate(tester, 'delete old list');
       await tester.tap(find.byKey(const ValueKey('ac_run')));
       await _settle(tester);
-      expect(find.text(en.acStateWaiting), findsOneWidget);
+      expect(_runState(tester), en.acStateWaiting);
       expect(find.text("Delete note: 'Grocery list'?"), findsOneWidget);
       expect(find.text(en.acApCostFree), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('ac_approve_11')));
       await _settle(tester);
       expect(src.calls, contains('decide:11:approve'));
-      expect(find.text(en.acStateDone), findsOneWidget);
+      expect(_runState(tester), en.acStateDone);
     });
 
     testWidgets('step semantics for TalkBack', (tester) async {
@@ -375,8 +380,7 @@ void main() {
       await tester.pumpWidget(_app(AgentApprovalsScreen(source: FakeAgentCore('expired'))));
       await _settle(tester);
       expect(find.text(en.acApExpired), findsOneWidget);
-      final b = tester.widget<FilledButton>(find.descendant(
-          of: find.byKey(const ValueKey('ac_approve_13')), matching: find.byType(FilledButton)).first);
+      final b = tester.widget<ButtonStyleButton>(find.byKey(const ValueKey('ac_approve_13')));
       expect(b.onPressed, isNull);
     });
 

@@ -123,7 +123,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
       final j = await _src.approvals();
       final n = (j['approvals'] as List? ?? const []).length;
       if (mounted) setState(() => _approvals = n);
-    } catch (_) {}
+    } catch (_) {} // best-effort: badge count only; the inbox shows real errors
   }
 
   void _toConfirm() {
@@ -269,7 +269,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
       try {
         final j = await _src.run(_run!.id);
         if (mounted) setState(() => _run = AcRun.fromJson(j));
-      } catch (_) {}
+      } catch (_) {} // best-effort: refresh; the run panel keeps polling
     }
   }
 
