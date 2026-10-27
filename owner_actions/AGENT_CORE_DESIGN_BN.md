@@ -3,7 +3,7 @@
 > মালিকের TOP RULE `owner_actions/OWNER_FINAL_ORDER_27OCT.md` — PART 2 "ASSISTO AGENT CORE, THE BRAIN"-এর প্রথম ডেলিভারেবল।
 > আগের পরিকল্পনা `owner_actions/AGENT_MODE_PLAN_BN.md` (শুধু ডিজাইন) এর ওপর দাঁড়িয়ে; সেখানকার টুল-তালিকা, ঝুঁকি-স্তর ও খরচের হিসাব এখানে **নতুন AI রাউটারের** (`core/ai.py`, `core/ai_router.py`, `core/ai_config.py`, `owner_actions/AI_ROUTER_BN.md`) দামে আবার হিসাব করা হয়েছে।
 > সৎ নিয়ম: যা তৈরি হয়েছে তা "✅ তৈরি", যা পরিকল্পনা তা "🗓 পরে" লেখা। কোনো আসল AI কল হয়নি (সার্ভারে কি নেই, খরচ অনুমোদন নেই) — সব টেস্ট রাউটারের seam-এ mock।
-> ফিচার সুইচ: **`agent_core`** (ডিফল্ট **বন্ধ**)। বন্ধ থাকলে অ্যাপে কিছুই বদলায় না; API 404 দেয়।
+> ফিচার সুইচ: **`agent_core`** (ডিফল্ট **বন্ধ**)। বন্ধ থাকলে অ্যাপে কিছুই বদলায় না; API `403 feature_off` দেয়।
 
 ---
 
@@ -295,11 +295,11 @@ running ─▶ budget (steps / credits / time)
 | নোটিফিকেশন অ্যাকশন | "অনুমোদন/বাতিল", "হ্যাঁ, করো" | 🗓 ফেজ ১খ |
 | WhatsApp/Messenger | শুধু business agent (দোকানের গ্রাহক) | 🗓 ফেজ ২ |
 
-✅ এখন: শুধু API (`/api/v1/agent-core/...`, ফ্ল্যাগ বন্ধ = 404) + অ্যাপে একটা **লুকানো** route `agent_core` (ফ্ল্যাগ চালু না হলে কোথাও দেখা যায় না), যেখানে owner লক্ষ্য দিয়ে run আর অনুমোদন পরীক্ষা করতে পারবেন।
+✅ এখন: শুধু API (`/api/v1/agent-core/...`, ফ্ল্যাগ বন্ধ = `403 feature_off`)। অ্যাপে এখনো কোনো এন্ট্রি নেই (দৃশ্যমান কিছুই বদলায়নি); অনুমোদন কার্ড ও লুকানো এজেন্ট স্ক্রিন ওয়ার্ক প্যাকেজ WP-APP-এ। অনুমোদন এখন অ্যাপ খুললে `GET /agent-core/approvals` (foreground poll) দিয়ে আসবে; আলাদা পুশ-ধরন + নোটিফিকেশন অ্যাকশন WP-APP-এ।
 
 ## ১৩. ফিচার সুইচ
 
-`agent_core` (section `daily_life`, ডিফল্ট **বন্ধ**) — `core/feature_flags.py` + `app/lib/feature_registry.dart` + `feature_audit.py`; Owner Admin → Features থেকে owner/টেস্টার allow-list বা rollout %। বন্ধ থাকলে: সব API 404, worker কিছু তোলে না, অ্যাপে কোনো এন্ট্রি নেই।
+`agent_core` (section `work`, ডিফল্ট **বন্ধ**) — `core/feature_flags.py` + `app/lib/feature_registry.dart` + `feature_audit.py`; Owner Admin → Features থেকে owner/টেস্টার allow-list বা rollout %। বন্ধ থাকলে: সব API `403 feature_off`, worker কিছু তোলে না, অ্যাপে কোনো এন্ট্রি নেই।
 
 ---
 
