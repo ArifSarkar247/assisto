@@ -1014,8 +1014,13 @@ class CircleMemberControlsView(APIView):
 
 
 # ===========================================================================
-# Safe Journey & Personal Safety
+# Safe Journey & Personal Safety  (journey100: real watcher delivery — the
+# events below go to watchers at once and the `journey_sweep` cron re-checks
+# overdue / stop / route / signal / wellness every minute; core/journey_watch)
 # ===========================================================================
+from . import journey_watch as JW  # noqa: E402
+
+
 def _journey_pure(j):
     """A plain-dict view of a Journey model for the pure safety_journey helpers
     (they operate on dicts, never ORM objects)."""
@@ -1025,53 +1030,121 @@ def _journey_pure(j):
         "origin": j.origin,
         "last_location": j.last_location,
         "arrival_radius_m": j.arrival_radius_m,
-        "overdue_grace_min": j.overdue_grace_min,
+        "overdue_grace_min": JW.effective_grace(j),
         "location_retention_hours": j.location_retention_hours,
         "expires_at": j.expires_at.isoformat() if j.expires_at else None,
     }
 
 
-def _journey_dict(j, lang="bn"):
-    return {
+def _pin_configured(user):
+    dp = DuressPin.objects.filter(user=user).first()
+    return bool(dp and dp.salt and dp.normal_hash)
+
+
+def _photo_url(j):
+    try:
+        return j.vehicle_photo.url if j.vehicle_photo else None
+    except Exception:
+        return None
+
+
+def _journey_dict(j, lang="bn", traveller=True):
+    now = timezone.now()
+    state, mins = JW.overdue(j, now)
+    out = {
         "id": j.id, "status": j.status, "mode": j.mode,
         "destination": j.destination, "eta": j.eta.isoformat() if j.eta else None,
-        "last_location": j.last_location, "sos_active": j.sos_active,
+        "last_location": j.last_location,
+        # a SILENT (duress) SOS is never revealed on the traveller's own screen
+        "sos_active": bool(j.sos_active and not (traveller and j.silent)),
         "overdue_grace_min": j.overdue_grace_min,
+        "overdue_state": state, "overdue_minutes": mins,
+        "night": j.night, "extended_count": j.extended_count,
+        "extend_left": max(0, JW.MAX_EXTENSIONS - j.extended_count),
+        "route_deviation": j.route_deviation, "stop_alert_min": j.stop_alert_min,
         "location_retention_hours": j.location_retention_hours,
         "expires_at": j.expires_at.isoformat() if j.expires_at else None,
+        "stopped_at": j.stopped_at.isoformat() if j.stopped_at else None,
+        "vehicle": {**(j.vehicle or {}), "photo_url": _photo_url(j)} if (j.vehicle or j.vehicle_photo) else None,
+        "web_link": JW.web_url(j) or None,
     }
+    if traveller:
+        out["pin_required"] = _pin_configured(j.traveller)
+    return out
+
+
+def _parse_eta(raw):
+    if not raw:
+        return None
+    from django.utils.dateparse import parse_datetime
+    eta = parse_datetime(str(raw))
+    if eta is not None and timezone.is_naive(eta):
+        eta = timezone.make_aware(eta)
+    return eta
+
+
+def _int(v, default, lo, hi):
+    try:
+        x = int(v)
+    except (TypeError, ValueError):
+        return default
+    return max(lo, min(hi, x))
+
+
+def _nf():
+    return Response({"detail": "not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class JourneyStartView(APIView):
     def post(self, request):
         d = request.data or {}
         now = timezone.now()
-        eta_raw = d.get("eta")
-        eta = None
-        if eta_raw:
-            from django.utils.dateparse import parse_datetime
-            eta = parse_datetime(str(eta_raw))
-        retention = int(d.get("location_retention_hours", 24) or 24)
+        wids = [w for w in (d.get("watcher_ids") or []) if str(w).isdigit()]
+        wids = list(dict.fromkeys(int(w) for w in wids))
+        if len(wids) > JW.MAX_WATCHERS:
+            return Response({"detail": "too_many_watchers", "max": JW.MAX_WATCHERS},
+                            status=status.HTTP_400_BAD_REQUEST)
+        day_start = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
+        if Journey.objects.filter(traveller=request.user,
+                                  created_at__gte=day_start).count() >= JW.DAILY_JOURNEY_CAP:
+            return Response({"detail": "daily_limit", "max": JW.DAILY_JOURNEY_CAP},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        dest = d.get("destination", {}) or {}
+        if not isinstance(dest, dict) or not (str(dest.get("name") or "").strip() or
+                                              dest.get("lat") is not None):
+            return Response({"detail": "destination_required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        eta = _parse_eta(d.get("eta"))
+        grace = _int(d.get("overdue_grace_min"), 10, 0, 60)
+        retention = _int(d.get("location_retention_hours"), 24, 0, 24 * 7)
+        stop_min = _int(d.get("stop_alert_min"), 20, 0, 180)
+        # one live journey at a time: an older active one is closed quietly
+        for old in Journey.objects.filter(traveller=request.user, status="active"):
+            old.status, old.stopped_at = "stopped", now
+            old.expires_at = JW.ended_expiry(old, now)
+            old.save(update_fields=["status", "stopped_at", "expires_at"])
+        horizon = max(eta or now, now) + timezone.timedelta(minutes=grace + 10, hours=12)
+        origin = d.get("origin") if isinstance(d.get("origin"), dict) else None
         j = Journey.objects.create(
-            traveller=request.user,
-            origin=d.get("origin"), destination=d.get("destination", {}) or {},
-            eta=eta,
-            status="active", mode=str(d.get("mode", ""))[:16] or "",
-            vehicle=d.get("vehicle"),
-            overdue_grace_min=int(d.get("overdue_grace_min", 10) or 10),
+            traveller=request.user, origin=origin, destination=dest, eta=eta,
+            status="active", mode=str(d.get("mode", "") or "")[:16],
+            vehicle=d.get("vehicle") if isinstance(d.get("vehicle"), dict) else None,
+            overdue_grace_min=grace,
             route_deviation=bool(d.get("route_deviation_on")),
-            location_retention_hours=retention,
-            expires_at=now + timezone.timedelta(hours=retention),
-            last_activity_at=now)
-        for mid in (d.get("watcher_ids") or []):
-            m = CircleMember.objects.filter(user=request.user, pk=mid).first()
+            planned_route=d.get("planned_route") if isinstance(d.get("planned_route"), list) else None,
+            location_retention_hours=retention, stop_alert_min=stop_min,
+            night=bool(d.get("night")),
+            expires_at=horizon, last_activity_at=now, moved_at=now)
+        for mid in wids:
+            m = CircleMember.objects.filter(user=request.user, pk=mid,
+                                            state="accepted", blocked=False).first()
             if m:
                 JourneyWatcher.objects.get_or_create(journey=j, member=m)
-        token = SJ.make_web_token(j.id, j.expires_at, settings.SECRET_KEY) \
-            if j.expires_at else ""
-        return Response({**_journey_dict(j, req_lang(request)),
-                         "web_link": f"/j/{token}" if token else None},
-                        status=status.HTTP_201_CREATED)
+        v = j.vehicle or {}
+        JW.emit(j, "started", payload={"plate": v.get("plate"), "mode": v.get("mode") or j.mode})
+        out = _journey_dict(j, req_lang(request))
+        out["watchers"] = j.watchers.count()
+        return Response(out, status=status.HTTP_201_CREATED)
 
 
 class JourneyActiveView(APIView):
@@ -1081,88 +1154,267 @@ class JourneyActiveView(APIView):
         return Response(_journey_dict(j, req_lang(request)) if j else {})
 
 
+def _fixes(d, j, now):
+    """Accept one fix ({lat,lng,battery,at?}) or a store-and-forward batch
+    ({points:[...]}) the phone queued while offline. Sorted, de-futured,
+    nothing before the journey began, at most 300."""
+    raw = d.get("points") if isinstance(d.get("points"), list) else [d]
+    out = []
+    for p in raw[:300]:
+        if not isinstance(p, dict):
+            continue
+        try:
+            lat, lng = float(p.get("lat")), float(p.get("lng"))
+        except (TypeError, ValueError):
+            continue
+        if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+            continue
+        at = _parse_eta(p.get("at")) or now
+        if at > now:
+            at = now
+        if at < j.created_at - timezone.timedelta(minutes=1):
+            continue
+        b = p.get("battery")
+        try:
+            b = int(b) if b not in (None, "") else None
+        except (TypeError, ValueError):
+            b = None
+        out.append((at, lat, lng, b))
+    out.sort(key=lambda x: x[0])
+    return out
+
+
 class JourneyLocationView(APIView):
     def post(self, request, pk):
+        from .models import JourneyPoint
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return _nf()
         d = request.data or {}
         now = timezone.now()
-        if SJ.journey_is_expired(_journey_pure(j), now):
-            j.last_location = None
-            j.status = "expired"
-            j.save(update_fields=["last_location", "status"])
-            return Response({"ok": True, "expired": True})
-        lat, lng = d.get("lat"), d.get("lng")
-        j.last_location = {"lat": lat, "lng": lng,
-                           "at": now.isoformat(), "battery": d.get("battery")}
-        if lat is not None and lng is not None:
-            from .views_m1_routes import record_journey_point  # m1: timeline
-            record_journey_point(j, lat, lng, d.get("battery"))
+        if SJ.journey_is_expired(_journey_pure(j), now) and j.status == "active":
+            JW.expire(j)
+        if j.status != "active":
+            # the journey is over (arrived / stopped / expired): the phone
+            # stops its location service on this answer
+            return Response({"ok": True, "status": j.status, "arrived": j.status == "arrived",
+                             "accepted": 0, "overdue_state": j.status})
+        fixes = _fixes(d, j, now)
+        newest_known = JW.fix_of(j)
+        for at, lat, lng, b in fixes:
+            JourneyPoint.objects.create(journey=j, lat=lat, lng=lng, battery=b, at=at)
+            JW.on_location(j, lat, lng, at, b, now=now)
+            if newest_known is None or newest_known[2] is None or at >= newest_known[2]:
+                j.last_location = {"lat": lat, "lng": lng, "at": at.isoformat(), "battery": b}
+                newest_known = (lat, lng, at, b)
         j.last_activity_at = now
         arrived = False
-        if lat is not None and lng is not None:
-            arrived, _dist = SJ.arrival_check(_journey_pure(j), lat, lng)
+        if newest_known is not None and fixes:
+            arrived, _dist = SJ.arrival_check(_journey_pure(j), newest_known[0], newest_known[1])
+        j.lost_alerted_at = None if fixes else j.lost_alerted_at
         if arrived:
-            j.status = "arrived"
-        j.save(update_fields=["last_location", "last_activity_at", "status"])
-        return Response({"ok": True, "arrived": bool(arrived),
-                         "low_battery": (d.get("battery") is not None and
-                                         int(d.get("battery")) < 15)})
+            JW.on_arrived(j, now)
+        j.save()
+        state, mins = JW.overdue(j, now)
+        b = fixes[-1][3] if fixes else None
+        return Response({"ok": True, "status": j.status, "arrived": bool(arrived),
+                         "accepted": len(fixes),
+                         "overdue_state": state, "overdue_minutes": mins,
+                         "eta": j.eta.isoformat() if j.eta else None,
+                         "low_battery": b is not None and b < JW.LOW_BATT})
 
 
 class JourneyArrivedView(APIView):
     def post(self, request, pk):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
-        j.status = "arrived"
-        j.save(update_fields=["status"])
-        return Response({"ok": True})
+            return _nf()
+        if j.status == "active":
+            JW.on_arrived(j)
+            j.save()
+        return Response({"ok": True, "status": j.status})
+
+
+def _pin_rate_ok(user):
+    from django.core.cache import cache
+    key = "jw:pin:%s" % user.pk
+    n = cache.get(key, 0)
+    return n < 8, key, n
+
+
+def _classify_pin(request, pin):
+    """'none' (no PIN set) | 'required' | 'cancel' | 'duress' | 'wrong' | 'locked'."""
+    dp = DuressPin.objects.filter(user=request.user).first()
+    if not (dp and dp.salt and dp.normal_hash):
+        return "none"
+    if not pin:
+        return "required"
+    ok, key, n = _pin_rate_ok(request.user)
+    if not ok:
+        return "locked"
+    action = SJ.verify_pin_action(str(pin), dp.normal_hash, dp.duress_hash, dp.salt)
+    if action == "wrong":
+        from django.core.cache import cache
+        cache.set(key, n + 1, 600)
+    return action
+
+
+def _duress(request, j, lat=None, lng=None):
+    """Silent emergency: the screen shows 'cancelled', watchers + family get
+    an SOS with the last location. Nothing reaches the sender's own phone."""
+    fx = JW.fix_of(j) if j else None
+    lat = lat if lat is not None else (fx[0] if fx else None)
+    lng = lng if lng is not None else (fx[1] if fx else None)
+    if j is not None:
+        j.sos_active, j.silent = True, True
+        # keep the last location for the watchers a while, whatever retention says
+        keep = timezone.now() + timezone.timedelta(hours=24)
+        if not j.expires_at or j.expires_at < keep:
+            j.expires_at = keep
+        j.save(update_fields=["sos_active", "silent", "expires_at", "status", "stopped_at"])
+        JW.emit(j, "duress", key="1", payload={"lat": lat, "lng": lng})
+    PUSH.hook_sos(request.user, lat=lat, lng=lng, silent=True,
+                  journey_id=j.id if j else None)
 
 
 class JourneyStopView(APIView):
-    """Stop early. A PIN is validated server-side: a duress PIN makes this look
-    cancelled while silently firing an SOS (item 8)."""
+    """Stop early. When the user has a safety PIN, stopping needs it: the
+    normal PIN really cancels; the DURESS PIN answers exactly the same way
+    ('cancel') while silently firing an SOS to watchers + family (item 8)."""
     def post(self, request, pk):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return _nf()
         pin = (request.data or {}).get("pin")
-        outcome = "cancel"
-        if pin:
-            dp = DuressPin.objects.filter(user=request.user).first()
-            if dp and dp.salt:
-                action = SJ.verify_pin_action(pin, dp.normal_hash,
-                                              dp.duress_hash, dp.salt)
-                outcome = SJ.duress_outcome(action).get("action", "wrong")
-                if outcome == "wrong":
-                    return Response({"ok": False, "pin": "wrong"},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                if outcome == "duress":
-                    j.sos_active = True
-                    j.silent = True
-        # cancel + duress both stop the journey; duress also fires silent SOS.
+        action = _classify_pin(request, pin)
+        if action == "required":
+            return Response({"ok": False, "pin": "required"}, status=status.HTTP_400_BAD_REQUEST)
+        if action == "locked":
+            return Response({"ok": False, "pin": "locked"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        if action == "wrong":
+            return Response({"ok": False, "pin": "wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        now = timezone.now()
+        was_active = j.status == "active"
         j.status = "stopped"
-        j.save(update_fields=["status", "sos_active", "silent"])
-        if outcome == "duress":
-            # silent SOS still reaches family (key-gated, never raises)
-            PUSH.hook_sos(request.user, silent=True, journey_id=j.id)
-        return Response({"ok": True, "outcome": outcome})
+        j.stopped_at = j.stopped_at or now
+        if action == "duress":
+            _duress(request, j)
+        else:
+            j.sos_active = False
+            j.expires_at = JW.ended_expiry(j, now)
+            j.save(update_fields=["status", "stopped_at", "sos_active", "expires_at"])
+            if was_active:
+                JW.emit(j, "ended")
+            JW.clear_urgent(j)
+        # identical answer for cancel and duress (an onlooker sees no difference)
+        return Response({"ok": True, "outcome": "cancel", "status": "stopped"})
 
 
 class JourneyRespondView(APIView):
+    """'I'm OK' to the overdue question: the deadline moves OK_SNOOZE_MIN
+    ahead; if watchers were already alerted they hear the traveller is OK."""
     def post(self, request, pk):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
-        j.last_activity_at = timezone.now()
-        j.save(update_fields=["last_activity_at"])
-        return Response({"ok": True})
+            return _nf()
+        now = timezone.now()
+        j.last_activity_at = now
+        j.responded_at = now
+        fields = ["last_activity_at", "responded_at"]
+        state, _ = JW.overdue(j, now)
+        if j.status == "active" and state in ("grace", "ask", "alert"):
+            j.eta = now + timezone.timedelta(minutes=JW.OK_SNOOZE_MIN) - \
+                timezone.timedelta(minutes=JW.effective_grace(j))
+            if j.expires_at and j.expires_at < j.eta + timezone.timedelta(hours=1):
+                j.expires_at = j.eta + timezone.timedelta(hours=12)
+            fields += ["eta", "expires_at", "ask_sent_at", "escalated_at", "escalations"]
+            if j.escalated_at is not None:
+                JW.emit(j, "ok_again", key="%d:%s" % (j.escalations, now.isoformat()))
+                JW.clear_urgent(j)
+            j.ask_sent_at, j.escalated_at, j.escalations = None, None, 0
+        j.save(update_fields=fields)
+        state, mins = JW.overdue(j, now)
+        return Response({"ok": True, "eta": j.eta.isoformat() if j.eta else None,
+                         "overdue_state": state})
+
+
+class JourneyExtendView(APIView):
+    """POST /journey/<pk>/extend {minutes}: more time (5–120 min, at most
+    MAX_EXTENSIONS times). Watchers are told the new arrival time."""
+    def post(self, request, pk):
+        j = Journey.objects.filter(traveller=request.user, pk=pk, status="active").first()
+        if j is None:
+            return _nf()
+        if j.extended_count >= JW.MAX_EXTENSIONS:
+            return Response({"detail": "extend_limit", "max": JW.MAX_EXTENSIONS},
+                            status=status.HTTP_400_BAD_REQUEST)
+        mins = _int((request.data or {}).get("minutes"), 15, JW.EXTEND_MIN, JW.EXTEND_MAX)
+        now = timezone.now()
+        was_alerted = j.escalated_at is not None
+        j.eta = max(j.eta or now, now) + timezone.timedelta(minutes=mins)
+        j.expires_at = max(j.expires_at or now, j.eta + timezone.timedelta(hours=12))
+        j.extended_count += 1
+        j.ask_sent_at, j.escalated_at, j.escalations = None, None, 0
+        j.responded_at = now
+        j.save(update_fields=["eta", "expires_at", "extended_count", "ask_sent_at",
+                              "escalated_at", "escalations", "responded_at"])
+        JW.emit(j, "extended", key=str(j.extended_count), payload={"minutes": mins})
+        if was_alerted:
+            JW.clear_urgent(j)
+        return Response({**_journey_dict(j, req_lang(request)), "ok": True})
+
+
+class JourneyVehiclePhotoView(APIView):
+    """POST /journey/<pk>/vehicle-photo {image_b64, plate?}: the ride's photo
+    (taken with the camera or picked — no storage permission). Re-encoded as
+    a small JPEG (EXIF incl. GPS stripped), private signed link, deleted with
+    the journey's location data."""
+    MAX_BYTES = 3 * 1024 * 1024
+
+    def post(self, request, pk):
+        import base64
+        import io
+        from django.core.files.base import ContentFile
+        j = Journey.objects.filter(traveller=request.user, pk=pk, status="active").first()
+        if j is None:
+            return _nf()
+        d = request.data or {}
+        raw = str(d.get("image_b64") or "")
+        if "," in raw[:80]:
+            raw = raw.split(",", 1)[1]
+        try:
+            blob = base64.b64decode(raw, validate=False)
+        except Exception:
+            blob = b""
+        if not blob or len(blob) > self.MAX_BYTES:
+            return Response({"detail": "bad_image"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            from PIL import Image
+            im = Image.open(io.BytesIO(blob))
+            im.load()
+            im = im.convert("RGB")
+            im.thumbnail((1280, 1280))
+            buf = io.BytesIO()
+            im.save(buf, "JPEG", quality=72)
+        except Exception:
+            return Response({"detail": "bad_image"}, status=status.HTTP_400_BAD_REQUEST)
+        if j.vehicle_photo:
+            try:
+                j.vehicle_photo.delete(save=False)
+            except Exception:
+                pass
+        j.vehicle_photo.save("j%d_%d.jpg" % (j.id, int(timezone.now().timestamp())),
+                             ContentFile(buf.getvalue()), save=False)
+        v = dict(j.vehicle or {})
+        if d.get("plate"):
+            v["plate"] = str(d["plate"])[:40]
+        if d.get("mode"):
+            v["mode"] = str(d["mode"])[:16]
+        j.vehicle = v
+        j.save(update_fields=["vehicle_photo", "vehicle"])
+        JW.emit(j, "vehicle", key="photo:%s" % j.vehicle_photo.name[-20:],
+                payload={"plate": v.get("plate"), "mode": v.get("mode") or j.mode, "photo": True})
+        return Response({"ok": True, "photo_url": _photo_url(j)})
 
 
 class JourneySosView(APIView):
@@ -1175,7 +1427,14 @@ class JourneySosView(APIView):
         if j:
             j.sos_active = True
             j.silent = silent
-            j.save(update_fields=["sos_active", "silent"])
+            keep = timezone.now() + timezone.timedelta(hours=24)
+            if not j.expires_at or j.expires_at < keep:
+                j.expires_at = keep
+            if d.get("lat") is not None and d.get("lng") is not None:
+                j.last_location = {"lat": d.get("lat"), "lng": d.get("lng"),
+                                   "at": timezone.now().isoformat(),
+                                   "battery": (j.last_location or {}).get("battery")}
+            j.save(update_fields=["sos_active", "silent", "expires_at", "last_location"])
         lang = req_lang(request)
         loc = {"lat": d.get("lat"), "lng": d.get("lng")} \
             if d.get("lat") is not None else None
@@ -1183,14 +1442,40 @@ class JourneySosView(APIView):
                                          silent=silent, lang=lang)
         PUSH.hook_sos(request.user, lat=d.get("lat"), lng=d.get("lng"),
                       silent=silent, journey_id=j.id if j else None)
-        return Response({"ok": True, "silent": silent, "payload": payload})
+        return Response({"ok": True, "silent": silent, "payload": payload,
+                         "web_link": JW.web_url(j) if j else None})
+
+
+class JourneySosCancelView(APIView):
+    """POST /journey/sos/cancel {pin, journey_id?}: cancel an SOS countdown.
+    No PIN set -> plain cancel. Normal PIN -> cancel. Duress PIN -> the SAME
+    'cancel' answer while a silent SOS goes out. Wrong -> 400, stay armed."""
+    def post(self, request):
+        d = request.data or {}
+        action = _classify_pin(request, d.get("pin"))
+        if action == "required":
+            return Response({"ok": False, "pin": "required"}, status=status.HTTP_400_BAD_REQUEST)
+        if action == "locked":
+            return Response({"ok": False, "pin": "locked"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        if action == "wrong":
+            return Response({"ok": False, "pin": "wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        if action == "duress":
+            jid = d.get("journey_id")
+            j = Journey.objects.filter(traveller=request.user, pk=jid).first() \
+                if jid and str(jid).isdigit() else None
+            _duress(request, j, lat=d.get("lat"), lng=d.get("lng"))
+        return Response({"ok": True, "outcome": "cancel"})
 
 
 class JourneyDuressPinView(APIView):
+    def get(self, request):
+        return Response({"configured": _pin_configured(request.user)})
+
     def post(self, request):
         d = request.data or {}
-        pin, duress = d.get("pin"), d.get("duress_pin")
-        if not pin or not duress or pin == duress:
+        pin, duress = str(d.get("pin") or ""), str(d.get("duress_pin") or "")
+        if not pin or not duress or pin == duress or not (pin.isdigit() and duress.isdigit()) \
+                or not (4 <= len(pin) <= 8 and 4 <= len(duress) <= 8):
             return Response({"detail": "pins must differ"},
                             status=status.HTTP_400_BAD_REQUEST)
         import os
@@ -1200,34 +1485,90 @@ class JourneyDuressPinView(APIView):
         dp.normal_hash = SJ.hash_pin(pin, salt)
         dp.duress_hash = SJ.hash_pin(duress, salt)
         dp.save()
-        return Response({"ok": True})
+        return Response({"ok": True, "configured": True})
+
+    def delete(self, request):
+        """Remove the safety PIN — needs the normal PIN (a duress PIN here
+        'succeeds' too, silently alerting, exactly like a cancel)."""
+        action = _classify_pin(request, (request.data or {}).get("pin"))
+        if action in ("required", "wrong", "locked"):
+            return Response({"ok": False, "pin": action}, status=status.HTTP_400_BAD_REQUEST)
+        if action == "duress":
+            _duress(request, None)
+            return Response({"ok": True, "configured": False})
+        DuressPin.objects.filter(user=request.user).delete()
+        return Response({"ok": True, "configured": False})
 
 
 class JourneyWebLinkView(APIView):
     def get(self, request, pk):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None or not j.expires_at:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
-        token = SJ.make_web_token(j.id, j.expires_at, settings.SECRET_KEY)
-        return Response({"url": f"/j/{token}", "token": token})
+            return _nf()
+        return Response({"url": JW.web_url(j), "token": JW.web_token(j)})
+
+
+class JourneyWatchingView(APIView):
+    """GET /journey/watching — journeys the caller is a chosen watcher of
+    (live, or ended within the privacy window). Location only while the trip
+    is live or an SOS is open; never past the privacy expiry."""
+    def get(self, request):
+        now = timezone.now()
+        rows = (JourneyWatcher.objects
+                .filter(member__peer_user=request.user, member__state="accepted",
+                        member__blocked=False, journey__expires_at__gt=now)
+                .select_related("journey", "journey__traveller")
+                .order_by("-journey__created_at")[:20])
+        out = []
+        for w in rows:
+            j = w.journey
+            live = j.status == "active" or j.sos_active
+            fx = JW.fix_of(j) if live else None
+            st, mins = JW.overdue(j, now)
+            out.append({
+                "id": j.id, "name": PUSH.seen_name(request.user, j.traveller),
+                "status": j.status, "sos": j.sos_active,
+                "destination": (j.destination or {}).get("name") or "",
+                "eta": j.eta.isoformat() if j.eta else None,
+                "overdue_state": st, "overdue_minutes": mins,
+                "lat": fx[0] if fx else None, "lng": fx[1] if fx else None,
+                "fix_at": fx[2].isoformat() if fx and fx[2] else None,
+                "fix_age_s": int((now - fx[2]).total_seconds()) if fx and fx[2] else None,
+                "battery": fx[3] if fx else None,
+                "url": JW.web_url(j)})
+        return Response({"journeys": out})
 
 
 class JourneyNearestHelpView(APIView):
+    """Nearest police + hospitals from REAL map data (Google Places when the
+    owner's key is set, else OpenStreetMap via Overpass) — never samples. The
+    helplines (999 / 109) always come back, even when the lookup fails."""
     def get(self, request):
+        lang = req_lang(request)
+        lines = SJ.helplines(lang)
         try:
             lat = float(request.query_params.get("lat"))
             lon = float(request.query_params.get("lon"))
         except (TypeError, ValueError):
-            return Response({"police": [], "hospital": []})
-        out = {}
-        for kind, cat in (("police", "police"), ("hospital", "hospital")):
+            return Response({"police": [], "hospital": [], "helplines": lines,
+                             "state": "no_location"})
+        out = {"helplines": lines}
+        failed = 0
+        for kind in ("police", "hospital"):
             try:
-                res = nearby.search(lat, lon, cat, lang=req_lang(request))
-                out[kind] = (res.get("results") or res.get("places") or [])[:3] \
-                    if isinstance(res, dict) else []
+                res = nearby.search(lat, lon, kind, lang=lang)
+                rows, src = (res if isinstance(res, tuple) else
+                             ((res or {}).get("results") or [], ""))
+                ranked = SJ.rank_nearest(
+                    [{**r, "lng": r.get("lng", r.get("lon")), "type": kind}
+                     for r in (rows or []) if isinstance(r, dict)], lat, lon, limit=3)
+                out[kind] = ranked
+                out["source"] = src
             except Exception:
                 out[kind] = []
+                failed += 1
+        out["state"] = "failed" if failed == 2 else (
+            "ok" if (out.get("police") or out.get("hospital")) else "none_nearby")
         return Response(out)
 
 
@@ -1240,6 +1581,8 @@ class SavedPlacesView(APIView):
 
     def post(self, request):
         d = request.data or {}
+        if SavedPlace.objects.filter(user=request.user).count() >= 30:
+            return Response({"detail": "limit"}, status=status.HTTP_400_BAD_REQUEST)
         p = SavedPlace.objects.create(
             user=request.user, label=str(d.get("label", ""))[:40],
             name=str(d.get("name", ""))[:160], lat=d.get("lat"), lng=d.get("lng"))
@@ -1247,12 +1590,61 @@ class SavedPlacesView(APIView):
                         status=status.HTTP_201_CREATED)
 
 
+def _routine_dict(r):
+    return {"id": r.id, "days": r.days, "time": r.time, "destination": r.destination,
+            "watcher_ids": r.watcher_ids, "minutes": r.minutes, "night": r.night,
+            "enabled": r.enabled}
+
+
 class JourneyRoutinesView(APIView):
+    """Saved routine trips. At the time, the server pushes the traveller a
+    'start your Safe Journey' reminder (only the user can start the location
+    service, from the app)."""
     def get(self, request):
-        return Response({"routines": []})  # scheduled commutes (native TODO)
+        from .models import JourneyRoutine
+        return Response({"routines": [_routine_dict(r) for r in
+                                      JourneyRoutine.objects.filter(user=request.user)]})
 
     def post(self, request):
-        return Response({"ok": True}, status=status.HTTP_201_CREATED)
+        from .models import JourneyRoutine
+        import re
+        d = request.data or {}
+        if JourneyRoutine.objects.filter(user=request.user).count() >= 10:
+            return Response({"detail": "limit"}, status=status.HTTP_400_BAD_REQUEST)
+        t = str(d.get("time") or "")
+        if not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", t):
+            return Response({"detail": "bad_time"}, status=status.HTTP_400_BAD_REQUEST)
+        days = [x for x in (str(v).lower()[:3] for v in (d.get("days") or []))
+                if x in ("sun", "mon", "tue", "wed", "thu", "fri", "sat")]
+        if not days:
+            return Response({"detail": "bad_days"}, status=status.HTTP_400_BAD_REQUEST)
+        dest = d.get("destination") if isinstance(d.get("destination"), dict) else {}
+        r = JourneyRoutine.objects.create(
+            user=request.user, days=list(dict.fromkeys(days)), time=t,
+            destination={"name": str(dest.get("name") or "")[:160],
+                         **({"lat": dest["lat"], "lng": dest["lng"]}
+                            if dest.get("lat") is not None and dest.get("lng") is not None else {})},
+            watcher_ids=[int(w) for w in (d.get("watcher_ids") or []) if str(w).isdigit()][:JW.MAX_WATCHERS],
+            minutes=_int(d.get("minutes"), 30, 5, 240), night=bool(d.get("night")),
+            enabled=d.get("enabled", True) is not False)
+        return Response({**_routine_dict(r), "ok": True}, status=status.HTTP_201_CREATED)
+
+
+class JourneyRoutineDetailView(APIView):
+    def post(self, request, pk):
+        from .models import JourneyRoutine
+        r = JourneyRoutine.objects.filter(user=request.user, pk=pk).first()
+        if r is None:
+            return _nf()
+        if "enabled" in (request.data or {}):
+            r.enabled = bool(request.data["enabled"])
+            r.save(update_fields=["enabled"])
+        return Response(_routine_dict(r))
+
+    def delete(self, request, pk):
+        from .models import JourneyRoutine
+        n, _ = JourneyRoutine.objects.filter(user=request.user, pk=pk).delete()
+        return Response({"ok": bool(n)}, status=200 if n else 404)
 
 
 class WellnessView(APIView):
@@ -1264,7 +1656,8 @@ class WellnessView(APIView):
             "enabled": w.enabled, "parent_opt_in": w.parent_opt_in,
             "period_hours": w.period_hours, "response_window": w.response_window,
             "quiet_start": w.quiet_start, "quiet_end": w.quiet_end,
-            "watcher_ids": w.watcher_ids})
+            "watcher_ids": w.watcher_ids,
+            "prompt_open": w.prompt_sent_at is not None})
 
     def post(self, request):
         d = request.data or {}
@@ -1274,13 +1667,15 @@ class WellnessView(APIView):
         # arming GATE: enabled only ever true if the parent opted in.
         w.enabled = bool(d.get("enabled")) and w.parent_opt_in
         if "period_hours" in d:
-            w.period_hours = int(d["period_hours"])
+            w.period_hours = _int(d["period_hours"], 12, SJ.WELLNESS_PERIOD_HOURS_MIN,
+                                  SJ.WELLNESS_PERIOD_HOURS_MAX)
         if isinstance(d.get("watcher_ids"), list):
-            w.watcher_ids = d["watcher_ids"]
+            w.watcher_ids = [int(x) for x in d["watcher_ids"] if str(x).isdigit()][:JW.MAX_WATCHERS]
         for t in ("quiet_start", "quiet_end"):
             if t in d:
                 setattr(w, t, str(d[t])[:5])
         w.last_activity_at = timezone.now()
+        w.prompt_sent_at, w.alert_sent_at = None, None
         w.save()
         return Response({"ok": True, "enabled": w.enabled})
 
@@ -1290,5 +1685,6 @@ class WellnessPingView(APIView):
         w, _ = WellnessWatch.objects.get_or_create(parent=request.user)
         w.last_activity_at = timezone.now()
         w.prompt_sent_at = None
-        w.save(update_fields=["last_activity_at", "prompt_sent_at"])
+        w.alert_sent_at = None
+        w.save(update_fields=["last_activity_at", "prompt_sent_at", "alert_sent_at"])
         return Response({"ok": True})

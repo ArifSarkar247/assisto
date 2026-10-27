@@ -1,231 +1,146 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Assisto — Live Journey / লাইভ যাত্রা</title>
-<!--
-  Safe Journey live-location WEB page (item 13 — APPROVED web exception).
-  A watcher WITHOUT the app opens an EXPIRING link and sees the traveller's
-  live position until the trip ends. Minimal, bilingual, no build step, works
-  in any browser (Leaflet from CDN; degrades to a map link if blocked).
-
-  INTEGRATOR WIRING (no secrets in this file):
-    - Serve at:  GET /j/<token>/   -> render this template with {token}.
-    - This page polls:  GET /api/journey/public/<token>/  every ~15s, which
-      the integrator maps to core.logic.safety_journey.parse_web_token +
-      redact_expired_journey. That JSON endpoint MUST return, and NEVER return
-      location once the token is expired/ended (privacy item 18):
-        { "status": "ok|ended|expired|bad",
-          "traveller": "<name>",
-          "destination": "<name>",
-          "eta": "<ISO>",
-          "location": {"lat":..,"lng":..,"at":"<ISO>","battery":<0-100|null>},
-          "helplines": [{"number":"999","label":".."},{"number":"109",..}] }
-    - When status != ok, the endpoint returns NO location object.
-  The <token> is injected by Django; everything else is static.
--->
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>{{ T.title }} · Assisto</title>
+{% comment %}journey100: the Safe Journey watcher page (web/views_journey.py). One
+   language per page, no external script/CSS, no map library: tiles (when the
+   owner configured MAP_TILE_URL) are laid out by the small script below.{% endcomment %}
 <style>
-  :root { --cyan:#00bcd4; --blue:#1976d2; --purple:#7b2ff7; --ink:#1a1a2e; }
-  * { box-sizing: border-box; }
-  html,body { margin:0; height:100%; font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink); }
-  header {
-    background: linear-gradient(90deg,var(--cyan),var(--blue),var(--purple));
-    color:#fff; padding:14px 16px;
+  :root { --bg:#f6f8fb; --card:#fff; --ink:#14171f; --muted:#4b5563; --line:#dde3ea;
+          --ok:#146c2e; --warn:#8a4b00; --bad:#b3261e; --brand:#1d4ed8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#181c24; --ink:#eef1f6; --muted:#b4bccb; --line:#2b313d;
+            --ok:#7ddc96; --warn:#f2b968; --bad:#ff8a80; --brand:#93b4ff; }
   }
-  header .brand { font-weight:700; font-size:18px; letter-spacing:.3px; }
-  header .sub { font-size:13px; opacity:.95; }
-  #map { width:100%; height:48vh; background:#eef2f7; }
-  .wrap { padding:14px 16px; max-width:720px; margin:0 auto; }
-  .card { border:1px solid #e3e7ee; border-radius:12px; padding:14px; margin-bottom:12px; }
-  .row { display:flex; justify-content:space-between; gap:10px; font-size:15px; margin:6px 0; }
-  .row .k { color:#5a6372; }
-  .row .v { font-weight:600; text-align:right; }
-  .status { font-weight:700; }
-  .ok { color:#1a8f3c; } .warn { color:#d98100; } .bad { color:#c62828; }
-  .help a {
-    display:inline-block; margin:4px 8px 4px 0; padding:10px 14px;
-    background:#c62828; color:#fff; text-decoration:none; border-radius:10px; font-weight:700;
-  }
-  .muted { color:#7a8290; font-size:13px; line-height:1.5; }
-  .langbtn { float:right; background:rgba(255,255,255,.2); color:#fff; border:0;
-    border-radius:8px; padding:4px 10px; font-size:13px; cursor:pointer; }
-  .fallback { font-size:14px; }
-  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.5 -apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",Arial,sans-serif; }
+  header { background:linear-gradient(90deg,#0891b2,#1d4ed8,#7c3aed); color:#fff; padding:14px 16px; }
+  header b { font-size:18px; }
+  header a { color:#fff; float:right; font-size:14px; min-height:48px; display:inline-flex; align-items:center; }
+  main { max-width:720px; margin:0 auto; padding:14px 16px 32px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin:0 0 12px; }
+  .state { font-weight:700; font-size:18px; }
+  .live { color:var(--ok); } .stale,.waiting,.late { color:var(--warn); } .lost,.sos,.bad { color:var(--bad); }
+  .row { display:flex; justify-content:space-between; gap:12px; margin:6px 0; flex-wrap:wrap; }
+  .row span:first-child { color:var(--muted); }
+  .row span:last-child { font-weight:600; text-align:right; }
+  #map { position:relative; width:100%; height:320px; overflow:hidden; border-radius:12px;
+         background:#dfe6ee; border:1px solid var(--line); }
+  #map img.t { position:absolute; width:256px; height:256px; user-select:none; }
+  #pin { position:absolute; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%;
+         background:#1d4ed8; border:3px solid #fff; box-shadow:0 0 0 3px rgba(29,78,216,.35); left:50%; top:50%; }
+  .attr { font-size:12px; color:var(--muted); margin-top:4px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 18px;
+         border-radius:12px; text-decoration:none; font-weight:700; margin:6px 8px 0 0; }
+  .primary { background:var(--brand); color:#fff; }
+  @media (prefers-color-scheme: dark) { .primary { color:#0f1218; } }
+  .danger { background:#b3261e; color:#fff; }
+  .muted { color:var(--muted); font-size:14px; }
+  img.photo { max-width:100%; border-radius:12px; display:block; margin-top:8px; }
+  [hidden] { display:none !important; }
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      onerror="window.__noleaflet=true">
 </head>
 <body>
-<header>
-  <button class="langbtn" id="langbtn" onclick="toggleLang()">বাংলা</button>
-  <div class="brand">Assisto</div>
-  <div class="sub" data-i18n="watching">Watching a loved one's journey</div>
-</header>
-
-<div id="map"></div>
-
-<div class="wrap">
-  <div class="card">
-    <div class="row"><span class="k" data-i18n="statusLabel">Status</span>
-      <span class="v status" id="status">—</span></div>
-    <div class="row"><span class="k" data-i18n="travellerLabel">Traveller</span>
-      <span class="v" id="traveller">—</span></div>
-    <div class="row"><span class="k" data-i18n="destLabel">Destination</span>
-      <span class="v" id="dest">—</span></div>
-    <div class="row"><span class="k" data-i18n="etaLabel">Expected by</span>
-      <span class="v" id="eta">—</span></div>
-    <div class="row"><span class="k" data-i18n="updatedLabel">Last update</span>
-      <span class="v" id="updated">—</span></div>
-    <div class="row"><span class="k" data-i18n="batteryLabel">Phone battery</span>
-      <span class="v" id="battery">—</span></div>
-    <div class="fallback" id="maplink"></div>
+<header><a href="{{ other_q|default:'?' }}" lang="{% if lang == 'en' %}bn{% else %}en{% endif %}">{{ T.other }}</a><b>{{ T.brand }}</b></header>
+<main>
+{% if limited %}
+  <div class="card"><p class="state bad">{{ T.limited }}</p></div>
+{% elif state == "bad" %}
+  <div class="card"><p class="state bad">{{ T.bad }}</p></div>
+{% else %}
+  <div class="card" role="status" aria-live="polite">
+    <div id="st" class="state"></div>
+    <div id="late" class="late" hidden>{{ T.late }}</div>
+    <div class="row" id="r-name" hidden><span id="name"></span></div>
+    <div class="row" id="r-to" hidden><span>{{ T.to }}</span><span id="to"></span></div>
+    <div class="row" id="r-eta" hidden><span>{{ T.eta }}</span><span id="eta"></span></div>
+    <div class="row" id="r-upd" hidden><span>{{ T.updated }}</span><span id="upd"></span></div>
+    <div class="row" id="r-bat" hidden><span>{{ T.battery }}</span><span id="bat"></span></div>
+    <div id="net" class="muted" hidden>{{ T.offline }}</div>
   </div>
-
-  <div class="card help">
-    <div class="muted" data-i18n="helpIntro">In an emergency in Bangladesh, call:</div>
-    <div id="helplines"></div>
+  <div class="card" id="mapcard" hidden>
+    <div id="map" aria-hidden="true"><div id="pin"></div></div>
+    <div class="attr" id="attr"></div>
+    <div id="nomap" hidden><p class="muted">{{ T.nomap }}</p></div>
+    <a class="btn primary" id="gmaps" href="#" target="_blank" rel="noopener noreferrer">{{ T.open_maps }}</a>
   </div>
-
-  <p class="muted" data-i18n="privacy">
-    This link was shared by the traveller and shows their location only while the
-    trip is active. It stops working when the trip ends. Nothing is stored after that.
-  </p>
-</div>
-
-<script>
-// Token injected by Django; keep the quotes — it's a string.
-var TOKEN = "{{ token }}";
-var POLL_MS = 15000;
-
-var I18N = {
-  en: {
-    watching:"Watching a loved one's journey", statusLabel:"Status",
-    travellerLabel:"Traveller", destLabel:"Destination", etaLabel:"Expected by",
-    updatedLabel:"Last update", batteryLabel:"Phone battery",
-    helpIntro:"In an emergency in Bangladesh, call:",
-    privacy:"This link was shared by the traveller and shows their location only while the trip is active. It stops working when the trip ends. Nothing is stored after that.",
-    active:"On the way", arrived:"Arrived safely", ended:"Trip ended",
-    expired:"This link has expired", bad:"Link not valid",
-    offline:"Can't reach the server — retrying", openMap:"Open in maps"
-  },
-  bn: {
-    watching:"প্রিয়জনের যাত্রা দেখছেন", statusLabel:"অবস্থা",
-    travellerLabel:"যাত্রী", destLabel:"গন্তব্য", etaLabel:"পৌঁছানোর কথা",
-    updatedLabel:"সর্বশেষ আপডেট", batteryLabel:"ফোনের চার্জ",
-    helpIntro:"বাংলাদেশে জরুরি অবস্থায় কল করুন:",
-    privacy:"এই লিংকটি যাত্রী শেয়ার করেছেন এবং যাত্রা চলাকালীনই শুধু অবস্থান দেখায়। যাত্রা শেষ হলে এটি কাজ করবে না। এরপর কিছুই সংরক্ষণ করা হয় না।",
-    active:"পথে আছেন", arrived:"নিরাপদে পৌঁছেছেন", ended:"যাত্রা শেষ",
-    expired:"লিংকটির মেয়াদ শেষ", bad:"লিংকটি সঠিক নয়",
-    offline:"সার্ভারে পৌঁছানো যাচ্ছে না — আবার চেষ্টা চলছে", openMap:"ম্যাপে দেখুন"
-  }
-};
-var lang = (navigator.language || "en").slice(0,2) === "bn" ? "bn" : "en";
-
-function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
-function applyI18n(){
-  document.documentElement.lang = lang;
-  document.getElementById("langbtn").textContent = lang === "bn" ? "English" : "বাংলা";
-  document.querySelectorAll("[data-i18n]").forEach(function(el){
-    el.textContent = t(el.getAttribute("data-i18n"));
-  });
-}
-function toggleLang(){ lang = lang === "bn" ? "en" : "bn"; applyI18n(); renderHelplines(lastData); }
-
-var map, marker, leafletOK = false;
-function initMap(){
-  if (window.__noleaflet) return;
-  try {
-    map = L.map("map").setView([23.8103, 90.4125], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
-    leafletOK = true;
-  } catch(e){ leafletOK = false; }
-}
-function setMap(lat, lng){
-  if (leafletOK && map){
-    if (!marker) marker = L.marker([lat,lng]).addTo(map);
-    marker.setLatLng([lat,lng]);
-    map.setView([lat,lng], 15);
-  }
-  document.getElementById("maplink").innerHTML =
-    '<a href="https://maps.google.com/?q='+lat+','+lng+'" target="_blank" rel="noopener">'+t("openMap")+' ↗</a>';
-}
-
-function fmtTime(iso){
-  if(!iso) return "—";
-  try { var d = new Date(iso); return d.toLocaleString(lang==="bn"?"bn-BD":"en-GB"); }
-  catch(e){ return iso; }
-}
-
-var lastData = null;
-function renderHelplines(data){
-  var box = document.getElementById("helplines");
-  var lines = (data && data.helplines) || [
-    {number:"999", label: lang==="bn"?"জাতীয় জরুরি সেবা":"National Emergency"},
-    {number:"109", label: lang==="bn"?"নারী ও শিশু নির্যাতন হেল্পলাইন":"Violence against Women & Children"}
-  ];
-  box.innerHTML = lines.map(function(h){
-    return '<a href="tel:'+h.number+'">☎ '+h.number+' · '+(h.label||"")+'</a>';
-  }).join("");
-}
-
-function statusClass(s){ return s==="ok"||s==="arrived" ? "ok" : (s==="ended" ? "warn" : "bad"); }
-function statusText(s){
-  if(s==="arrived") return t("arrived");
-  if(s==="ended") return t("ended");
-  if(s==="expired") return t("expired");
-  if(s==="bad") return t("bad");
-  return t("active");
-}
-
-function render(data){
-  lastData = data;
-  var st = (data && data.status) || "bad";
-  var sEl = document.getElementById("status");
-  sEl.textContent = statusText(st);
-  sEl.className = "v status " + statusClass(st);
-  document.getElementById("traveller").textContent = (data && data.traveller) || "—";
-  document.getElementById("dest").textContent = (data && data.destination) || "—";
-  document.getElementById("eta").textContent = fmtTime(data && data.eta);
-  var loc = data && data.location;
-  if (loc && loc.lat != null){
-    document.getElementById("updated").textContent = fmtTime(loc.at);
-    document.getElementById("battery").textContent =
-      (loc.battery != null) ? (loc.battery + "%") : "—";
-    setMap(loc.lat, loc.lng);
-  } else {
-    document.getElementById("updated").textContent = "—";
-    document.getElementById("battery").textContent = "—";
-    document.getElementById("maplink").textContent = "";
-  }
-  renderHelplines(data);
-}
-
-var stopped = false;
-function poll(){
-  if (stopped) return;
-  fetch("/api/journey/public/" + encodeURIComponent(TOKEN) + "/", {cache:"no-store"})
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      render(data);
-      var st = data && data.status;
-      if (st === "expired" || st === "bad" || st === "arrived" || st === "ended"){
-        stopped = true;  // trip over / link dead — stop polling (privacy)
+  <div class="card" id="ridecard" hidden>
+    <div class="row"><span>{{ T.ride }}</span><span id="ride"></span></div>
+    <img class="photo" id="ridephoto" alt="{{ T.photo }}" hidden>
+  </div>
+  <div class="card" id="help" hidden>
+    <b>{{ T.help }}</b><br>
+    <a class="btn danger" href="tel:999">{{ T.call999 }}</a>
+  </div>
+  <p class="muted">{{ T.refresh }}</p>
+  <p class="muted">{{ T.privacy }}</p>
+  {{ boot|json_script:"boot" }}
+  <script>
+  (function () {
+    var B = JSON.parse(document.getElementById("boot").textContent), T = B.T;
+    var bn = B.lang === "bn", Z = 16;
+    function num(s) { s = String(s); return bn ? s.replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[d]; }) : s; }
+    function hhmm(iso) { if (!iso) return ""; var d = new Date(iso);
+      return num(("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2)); }
+    function ago(s) { if (s == null) return ""; return s < 90 ? T.ago_s.replace("{n}", num(s)) : T.ago_m.replace("{n}", num(Math.round(s / 60))); }
+    function show(id, on) { document.getElementById(id).hidden = !on; }
+    function txt(id, v) { document.getElementById(id).textContent = v; }
+    function tiles(lat, lng) {
+      var map = document.getElementById("map"), w = map.clientWidth, h = map.clientHeight;
+      Array.prototype.slice.call(map.querySelectorAll("img.t")).forEach(function (n) { n.remove(); });
+      var n = Math.pow(2, Z), x = (lng + 180) / 360 * n,
+          r = lat * Math.PI / 180, y = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
+      var cx = Math.floor(x), cy = Math.floor(y), ox = w / 2 - (x - cx) * 256, oy = h / 2 - (y - cy) * 256;
+      for (var dx = -2; dx <= 2; dx++) for (var dy = -2; dy <= 2; dy++) {
+        var tx = cx + dx, ty = cy + dy; if (ty < 0 || ty >= n) continue;
+        var img = document.createElement("img"); img.className = "t"; img.alt = "";
+        img.src = B.tile.replace("{z}", Z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty).replace("{s}", "a");
+        img.style.left = (ox + dx * 256) + "px"; img.style.top = (oy + dy * 256) + "px";
+        map.insertBefore(img, map.firstChild);
       }
-    })
-    .catch(function(){
-      var sEl = document.getElementById("status");
-      sEl.textContent = t("offline"); sEl.className = "v status warn";
-    })
-    .finally(function(){ if(!stopped) setTimeout(poll, POLL_MS); });
-}
-
-applyI18n();
-renderHelplines(null);
-initMap();
-poll();
-</script>
+    }
+    function render(d) {
+      var st = d.state || "bad", el = document.getElementById("st");
+      el.className = "state " + st; txt("st", T[st] || T.bad);
+      show("late", !!d.late && (st === "live" || st === "stale" || st === "lost" || st === "waiting"));
+      show("r-name", !!d.name); txt("name", d.name || "");
+      show("r-to", !!d.destination); txt("to", d.destination || "");
+      show("r-eta", !!d.eta && st !== "arrived" && st !== "ended"); txt("eta", hhmm(d.eta));
+      var hasLoc = d.lat != null && d.lng != null;
+      show("r-upd", hasLoc); txt("upd", hasLoc ? hhmm(d.at) + " (" + ago(d.age_s) + ")" : "");
+      show("r-bat", d.battery != null); txt("bat", d.battery != null ? num(d.battery) + "%" : "");
+      show("mapcard", hasLoc);
+      if (hasLoc) {
+        document.getElementById("gmaps").href = "https://www.google.com/maps/search/?api=1&query=" + d.lat + "," + d.lng;
+        var haveTiles = !!B.tile;
+        show("map", haveTiles); show("nomap", !haveTiles); txt("attr", haveTiles ? B.attr : "");
+        if (haveTiles) tiles(d.lat, d.lng);
+      }
+      var ride = d.ride || null; show("ridecard", !!ride);
+      if (ride) { txt("ride", [ride.mode, ride.plate].filter(Boolean).join(" · "));
+        var p = document.getElementById("ridephoto"); p.hidden = !ride.photo; if (ride.photo) p.src = ride.photo; }
+      show("help", st === "sos" || st === "lost" || !!d.late);
+      return st;
+    }
+    var state = render(B.data || {});
+    function poll() {
+      if (state === "bad" || state === "expired" || state === "arrived" || state === "ended") return;
+      var x = new XMLHttpRequest(); x.open("GET", B.api + (bn ? "" : "?lang=en")); x.timeout = 15000;
+      x.onload = function () { show("net", false);
+        if (x.status === 429) return; try { state = render(JSON.parse(x.responseText)); } catch (e) {} };
+      x.onerror = x.ontimeout = function () { show("net", true); };
+      x.send();
+    }
+    setInterval(poll, 20000);
+  })();
+  </script>
+{% endif %}
+</main>
 </body>
 </html>

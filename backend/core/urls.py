@@ -433,6 +433,13 @@ urlpatterns = [
     path("journey/routines", b61.JourneyRoutinesView.as_view()),
     path("journey/wellness", b61.WellnessView.as_view()),
     path("journey/wellness/ping", b61.WellnessPingView.as_view()),
+    # journey100: extend, ride photo, PIN-checked SOS cancel, watcher list,
+    # routine edit/delete
+    path("journey/<int:pk>/extend", b61.JourneyExtendView.as_view()),
+    path("journey/<int:pk>/vehicle-photo", b61.JourneyVehiclePhotoView.as_view()),
+    path("journey/sos/cancel", b61.JourneySosCancelView.as_view()),
+    path("journey/watching", b61.JourneyWatchingView.as_view()),
+    path("journey/routines/<int:pk>", b61.JourneyRoutineDetailView.as_view()),
 
     # ===== Messenger STEP 3 =====
     # 1. Contacts & invites + personal connection request (msg_contacts)

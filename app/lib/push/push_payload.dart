@@ -167,6 +167,10 @@ class PushRouting {
     'reminders': 'reminders',
     'alerts': 'notifications',
     'safety/sos': 'family',
+    // journey100: Safe Journey pushes
+    'journey': 'journey', // the traveller: Are you OK? / routine
+    'journey/watch': 'journey_watch', // a watcher: started/late/arrived...
+    'journey/wellness': 'journey_settings', // a parent: Is everything OK?
     'business/shop-box': 'shop_box',
     'watchman': 'watchman', // cctv1
     'retention_inbox': 'retention_inbox', // retention1 (customer)

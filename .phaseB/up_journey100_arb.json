@@ -1,0 +1,199 @@
+{
+  "_comment": "journey100 (Safe Journey to 100). All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_journey100_arb.json",
+  "en": {
+    "j100BackgroundOn": "Keeps sharing with the screen off. Stops when you arrive or stop.",
+    "j100Battery": "Battery {n}%",
+    "j100Extend": "More time",
+    "j100ExtendLimit": "You can't add more time to this journey.",
+    "j100ExtendMin": "{n} minutes",
+    "j100ExtendTitle": "How much more time?",
+    "j100Extended": "Time added. Your people were told the new time.",
+    "j100Footer": "Only the people you chose see your location, and only during this journey. It is deleted after the time you set.",
+    "j100KeepOpen": "This phone did not allow sharing in the background. Keep Assisto open during the trip.",
+    "j100LastSent": "Last sent at {time}",
+    "j100Late": "Your arrival time has passed",
+    "j100LivePage": "Live page",
+    "j100LocOffBody": "Turn on location so your people can see where you are.",
+    "j100LocOffTitle": "Location is off",
+    "j100LocOn": "Turn on location",
+    "j100Locating": "Finding your location…",
+    "j100NearbyFailed": "Couldn't load nearby places. Call 999 or search the map.",
+    "j100NearbyNone": "No police station or hospital found on the map near you.",
+    "j100Night": "Night trip",
+    "j100NightDesc": "If you are late, your people are alerted sooner.",
+    "j100NotifText": "Sharing your location with the people you chose until you arrive.",
+    "j100NotifTitle": "Safe Journey is on",
+    "j100OfflineBody": "{n} locations are saved on this phone and will be sent when the internet is back.",
+    "j100OfflineTitle": "No internet",
+    "j100OpenMap": "Open map",
+    "j100PinLocked": "Too many wrong PINs. Try again in 10 minutes.",
+    "j100PinRule": "Both PINs must be 4 to 8 digits and different from each other.",
+    "j100RoutineDelete": "Delete routine",
+    "j100RoutineDesc": "At the time you set, Assisto reminds you to start a Safe Journey. If that journey is late, your people are alerted.",
+    "j100SearchHospital": "Hospitals on the map",
+    "j100SearchHospitalQuery": "hospital",
+    "j100SearchPolice": "Police on the map",
+    "j100SearchPoliceQuery": "police station",
+    "j100SendSms": "Send SMS from my SIM",
+    "j100Sharing": "Sharing your live location",
+    "j100SmsBody": "I'm on a Safe Journey to {dest}. My last location: {link} (at {time}). Please check on me.",
+    "j100SmsBodyNoLoc": "I'm on a Safe Journey and may need help. Please call me.",
+    "j100SosNotSent": "The alert could not be sent — no internet. Send an SMS from your SIM or call 999.",
+    "j100SosSmsBody": "Emergency! I need help. My location: {link} (at {time}).",
+    "j100StArrived": "Arrived safely",
+    "j100StEnded": "Journey ended",
+    "j100StLate": "Late — not arrived yet",
+    "j100StLive": "Live",
+    "j100StLost": "No location for {min} min",
+    "j100StSos": "Emergency",
+    "j100StStale": "Updated {min} min ago",
+    "j100StWaiting": "Waiting for the first location",
+    "j100StopAlert": "Alert if I stop for a long time",
+    "j100StopAlertDesc": "If you don't move for {min} minutes, your people are told.",
+    "j100VehiclePhoto": "Ride photo",
+    "j100VehiclePhotoAdded": "Ride photo added",
+    "j100VehiclePhotoCamera": "Take a photo",
+    "j100VehiclePhotoPick": "Choose a photo",
+    "j100VehiclePhotoSent": "Photo shared with your people.",
+    "j100WatchEmpty": "No one is sharing a journey with you right now.",
+    "j100WatchError": "Couldn't load. Check the internet and try again.",
+    "j100Watching": "Journeys I'm watching",
+    "j100WellnessAsk": "Assisto asked if you're OK. Tap below so your family knows.",
+    "j100WellnessFine": "I'm fine — tell my family",
+    "j100WellnessPinged": "Thanks — your family knows you're OK.",
+    "@j100Battery": {
+      "placeholders": {
+        "n": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100ExtendMin": {
+      "placeholders": {
+        "n": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100LastSent": {
+      "placeholders": {
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100OfflineBody": {
+      "placeholders": {
+        "n": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100SmsBody": {
+      "placeholders": {
+        "dest": {
+          "type": "Object"
+        },
+        "link": {
+          "type": "Object"
+        },
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100SosSmsBody": {
+      "placeholders": {
+        "link": {
+          "type": "Object"
+        },
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100StLost": {
+      "placeholders": {
+        "min": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100StStale": {
+      "placeholders": {
+        "min": {
+          "type": "Object"
+        }
+      }
+    },
+    "@j100StopAlertDesc": {
+      "placeholders": {
+        "min": {
+          "type": "Object"
+        }
+      }
+    }
+  },
+  "bn": {
+    "j100BackgroundOn": "স্ক্রিন বন্ধ থাকলেও শেয়ার চলবে। পৌঁছালে বা থামালে বন্ধ হবে।",
+    "j100Battery": "চার্জ {n}%",
+    "j100Extend": "সময় বাড়ান",
+    "j100ExtendLimit": "এই যাত্রায় আর সময় বাড়ানো যাবে না।",
+    "j100ExtendMin": "{n} মিনিট",
+    "j100ExtendTitle": "কত সময় বাড়াবেন?",
+    "j100Extended": "সময় বাড়ানো হয়েছে। আপনার পরিচিতদের নতুন সময় জানানো হয়েছে।",
+    "j100Footer": "শুধু আপনার বেছে নেওয়া মানুষেরা, শুধু এই যাত্রার সময় আপনার লোকেশন দেখেন। আপনার দেওয়া সময় পরে তা মুছে যায়।",
+    "j100KeepOpen": "এই ফোন ব্যাকগ্রাউন্ডে শেয়ারের অনুমতি দেয়নি। যাত্রার সময় Assisto খোলা রাখুন।",
+    "j100LastSent": "শেষ পাঠানো হয়েছে {time}-এ",
+    "j100Late": "পৌঁছানোর সময় পার হয়ে গেছে",
+    "j100LivePage": "লাইভ পাতা",
+    "j100LocOffBody": "লোকেশন চালু করুন, যাতে আপনার পরিচিতরা দেখতে পান আপনি কোথায়।",
+    "j100LocOffTitle": "লোকেশন বন্ধ আছে",
+    "j100LocOn": "লোকেশন চালু করুন",
+    "j100Locating": "আপনার লোকেশন খোঁজা হচ্ছে…",
+    "j100NearbyFailed": "কাছের জায়গা আনা যায়নি। ৯৯৯-এ কল করুন বা ম্যাপে খুঁজুন।",
+    "j100NearbyNone": "ম্যাপে আপনার কাছে কোনো থানা বা হাসপাতাল পাওয়া যায়নি।",
+    "j100Night": "রাতের যাত্রা",
+    "j100NightDesc": "দেরি হলে আপনার পরিচিতদের আরও তাড়াতাড়ি জানানো হবে।",
+    "j100NotifText": "পৌঁছানো পর্যন্ত আপনার বেছে নেওয়া মানুষদের সাথে লোকেশন শেয়ার হচ্ছে।",
+    "j100NotifTitle": "নিরাপদ যাত্রা চালু আছে",
+    "j100OfflineBody": "{n}টি লোকেশন এই ফোনে রাখা আছে, ইন্টারনেট ফিরলে পাঠানো হবে।",
+    "j100OfflineTitle": "ইন্টারনেট নেই",
+    "j100OpenMap": "ম্যাপ খুলুন",
+    "j100PinLocked": "অনেকবার ভুল PIN। ১০ মিনিট পরে আবার চেষ্টা করুন।",
+    "j100PinRule": "দুটি PIN-ই ৪ থেকে ৮ সংখ্যার হতে হবে এবং একটি অন্যটির থেকে আলাদা।",
+    "j100RoutineDelete": "রুটিন মুছুন",
+    "j100RoutineDesc": "আপনার দেওয়া সময়ে Assisto আপনাকে নিরাপদ যাত্রা শুরু করার কথা মনে করিয়ে দেবে। সেই যাত্রায় দেরি হলে আপনার পরিচিতদের জানানো হবে।",
+    "j100SearchHospital": "ম্যাপে হাসপাতাল",
+    "j100SearchHospitalQuery": "হাসপাতাল",
+    "j100SearchPolice": "ম্যাপে থানা",
+    "j100SearchPoliceQuery": "থানা",
+    "j100SendSms": "আমার সিম থেকে SMS পাঠান",
+    "j100Sharing": "আপনার লাইভ লোকেশন শেয়ার হচ্ছে",
+    "j100SmsBody": "আমি নিরাপদ যাত্রায় {dest}-এ যাচ্ছি। আমার শেষ লোকেশন: {link} ({time}-এ)। একটু খোঁজ নিন।",
+    "j100SmsBodyNoLoc": "আমি নিরাপদ যাত্রায় আছি, সাহায্য লাগতে পারে। আমাকে ফোন করুন।",
+    "j100SosNotSent": "সতর্কবার্তা পাঠানো যায়নি — ইন্টারনেট নেই। নিজের সিম থেকে SMS পাঠান বা ৯৯৯-এ কল করুন।",
+    "j100SosSmsBody": "জরুরি! আমার সাহায্য দরকার। আমার লোকেশন: {link} ({time}-এ)।",
+    "j100StArrived": "নিরাপদে পৌঁছেছেন",
+    "j100StEnded": "যাত্রা শেষ",
+    "j100StLate": "দেরি — এখনো পৌঁছাননি",
+    "j100StLive": "লাইভ",
+    "j100StLost": "{min} মিনিট ধরে লোকেশন নেই",
+    "j100StSos": "জরুরি অবস্থা",
+    "j100StStale": "{min} মিনিট আগে হালনাগাদ",
+    "j100StWaiting": "প্রথম লোকেশনের অপেক্ষা",
+    "j100StopAlert": "অনেকক্ষণ থেমে থাকলে জানান",
+    "j100StopAlertDesc": "{min} মিনিট না নড়লে আপনার পরিচিতদের জানানো হবে।",
+    "j100VehiclePhoto": "যানবাহনের ছবি",
+    "j100VehiclePhotoAdded": "যানবাহনের ছবি দেওয়া হয়েছে",
+    "j100VehiclePhotoCamera": "ছবি তুলুন",
+    "j100VehiclePhotoPick": "ছবি বেছে নিন",
+    "j100VehiclePhotoSent": "ছবিটি আপনার পরিচিতদের কাছে গেছে।",
+    "j100WatchEmpty": "এই মুহূর্তে কেউ আপনার সাথে যাত্রা শেয়ার করছেন না।",
+    "j100WatchError": "আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "j100Watching": "যাঁদের যাত্রা আমি দেখছি",
+    "j100WellnessAsk": "Assisto জানতে চেয়েছে আপনি ভালো আছেন কিনা। নিচে ট্যাপ করুন, পরিবার জানবে।",
+    "j100WellnessFine": "আমি ভালো আছি — পরিবারকে জানান",
+    "j100WellnessPinged": "ধন্যবাদ — পরিবার জানল আপনি ভালো আছেন।"
+  }
+}

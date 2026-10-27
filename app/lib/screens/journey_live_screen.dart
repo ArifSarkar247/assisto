@@ -1,109 +1,134 @@
 import 'dart:async';
-import '../theme.dart';
-import 'package:flutter/material.dart';
-import '../widgets/adaptive_button_pair.dart';
-import 'package:provider/provider.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:share_plus/share_plus.dart';
-import '../state.dart';
-import '../l10n/app_localizations.dart';
-import '../widgets/journey_api.dart';
-import '../widgets/sos_button.dart';
-import 'journey_sos_screen.dart';
-import 'journey_fake_call_screen.dart';
-import '../services/action_feedback.dart'; // db1
+import 'dart:convert';
 
-/// In-app LIVE journey screen (item 2). Works NOW: while open it pushes the
-/// device location (+battery) to the server every ~15s, which runs the
-/// auto-arrival geofence (item 4), the overdue state machine (item 5), the
-/// low-battery trigger (item 6) and route-deviation (item 15). It also hosts
-/// the always-available in-app SOS button (item 7), the "I'm safe" arrival,
-/// the share-an-expiring-web-link action (item 13) and the fake-call escape
-/// (item 9).
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../api.dart';
+import '../config.dart';
+import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart'; // db1
+import '../services/journey_tracker.dart';
+import '../state.dart';
+import '../theme.dart';
+import '../widgets/adaptive_button_pair.dart';
+import '../widgets/journey_api.dart';
+import '../widgets/password_field.dart';
+import '../widgets/sos_button.dart';
+import 'journey_fake_call_screen.dart';
+import 'journey_sos_screen.dart';
+
+/// journey100 — the LIVE journey screen.
 ///
-/// The battery-efficient background FOREGROUND SERVICE + prominent-location
-/// disclosure is native platform work — this screen is the in-app path that
-/// works today; the integrator wires the service to call the same
-/// journeyLocation endpoint when the app is backgrounded (see report).
+/// Location is sent by [JourneyTracker] (a location-type foreground service
+/// with a visible notification, so it keeps going with the screen off; it
+/// starts here and stops on arrival / stop). Everything that must happen
+/// without this phone — "Are you OK?" when late, alerting watchers, stop /
+/// off-route / signal-lost checks — runs on the server every minute
+/// (backend `journey_sweep`). This screen only shows honest state:
+/// sharing / offline with N fixes saved / location off, plus the actions:
+/// SOS, I've arrived, more time, fake call, ride photo, stop (safety PIN).
 class JourneyLiveScreen extends StatefulWidget {
   final int journeyId;
-  const JourneyLiveScreen({super.key, required this.journeyId});
+
+  /// Tests inject a tracker without the foreground service.
+  final JourneyTracker? tracker;
+  const JourneyLiveScreen({super.key, required this.journeyId, this.tracker});
   @override
   State<JourneyLiveScreen> createState() => _JourneyLiveScreenState();
 }
 
 class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     with WidgetsBindingObserver {
-  Timer? _ticker;
+  late final JourneyTracker _tr = widget.tracker ?? JourneyTracker.I;
   Map<String, dynamic> _journey = {};
-  String _status = 'active';
-  String _overdue = 'on_time';
-  bool _asked = false; // overdue "Are you OK?" prompt showing
+  bool _asked = false; // "Are you OK?" showing
+  bool _closing = false;
+  bool _photoAdded = false;
+  bool _pinRequired = false;
+
+  ApiClient get _api => context.read<AppState>().api;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tick();
-    _ticker = Timer.periodic(const Duration(seconds: 15), (_) => _tick());
+    _tr.addListener(_onTrack);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _boot());
   }
 
   @override
   void dispose() {
-    _ticker?.cancel();
+    _tr.removeListener(_onTrack);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _tick();
+    if (state == AppLifecycleState.resumed) unawaited(_tr.tick());
   }
 
-  Future<void> _tick() async {
-    if (!mounted || _status != 'active') return;
-    final api = context.read<AppState>().api;
+  Future<void> _boot() async {
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
+    final api = _api;
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) return;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition();
-      // Battery % for the low-battery trigger (item 6) comes from a native
-      // channel the integrator wires (no battery_plus dependency yet); the
-      // <15% auto-send logic lives server-side in safety_journey. Null today.
-      final int? batt = null;
-      final r = await api.journeyLocation(widget.journeyId,
-          lat: pos.latitude, lng: pos.longitude, battery: batt);
+      final j = await api.journeyActive();
       if (!mounted) return;
-      setState(() {
-        _journey = r;
-        _status = (r['status'] ?? 'active').toString();
-        _overdue = (r['overdue_state'] ?? _overdue).toString();
-      });
-      if (_status == 'arrived') {
-        _onArrived();
-      } else if (_overdue == 'ask' && !_asked) {
-        _promptOk();
+      if ((j['id'] as num?)?.toInt() == widget.journeyId) {
+        setState(() {
+          _journey = j;
+          _pinRequired = j['pin_required'] == true;
+          _photoAdded = ((j['vehicle'] as Map?)?['photo_url'] ?? '') != '';
+        });
       }
     } catch (_) {
-      // offline: server-side queue handles watcher alerts; retry next tick.
+      // best-effort: offline — the tracker's own state + queue still work
+    }
+    if (!mounted) return;
+    await _tr.start(
+      widget.journeyId,
+      (id, points) => api.journeyLocationBatch(id, points),
+      notifTitle: t.j100NotifTitle,
+      notifText: t.j100NotifText,
+      serviceSession: api.token == null
+          ? null
+          : {
+              'url': AppConfig.api('/journey/${widget.journeyId}/location')
+                  .toString(),
+              'auth': 'Token ${api.token}',
+              'lang': api.lang ?? 'bn',
+            },
+    );
+  }
+
+  void _onTrack() {
+    if (!mounted || _closing) return;
+    final s = _tr.value;
+    setState(() {});
+    if (s.journeyId != widget.journeyId) return;
+    if (s.status == 'arrived') {
+      _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+    } else if (s.status != 'active') {
+      _closeWith(null);
+    } else if ((s.overdue == 'ask' || s.overdue == 'alert') && !_asked) {
+      _promptOk();
     }
   }
 
-  void _snackText(String msg) => ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text(msg)));
+  void _snack(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
 
-  void _onArrived() {
-    final t = AppLocalizations.of(context);
-    _ticker?.cancel();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(t.journeyArrivedSafely)));
+  void _closeWith(String? msg) {
+    if (_closing) return;
+    _closing = true;
+    if (msg != null) _snack(msg);
     if (Navigator.canPop(context)) Navigator.pop(context);
   }
 
@@ -118,9 +143,11 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         content: Text(t.journeyAreYouOkBody),
         actions: [
           TextButton(
+              key: const ValueKey('j100_need_help'),
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(t.journeyNeedHelp)),
           FilledButton(
+              key: const ValueKey('j100_im_ok'),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.journeyImOk)),
         ],
@@ -128,83 +155,213 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     );
     if (!mounted) return;
     if (ok == true) {
-      // q1-seams: a failed "I'm OK" used to be silent, so the server could
-      // still escalate to family while the user believed it was handled.
+      // q1-seams: a failed "I'm OK" must never look handled.
       try {
-        await context.read<AppState>().api.journeyRespondOk(widget.journeyId);
+        await _api.journeyRespondOk(widget.journeyId);
       } catch (_) {
-        if (mounted) _snackText(AppLocalizations.of(context).grpActionFailed);
-        // _asked=false so the next overdue tick asks again.
+        _snack(AppLocalizations.of(context).grpActionFailed);
         if (mounted) setState(() => _asked = false);
         return;
       }
-      setState(() => _asked = false);
+      if (mounted) setState(() => _asked = false);
+      unawaited(_tr.tick());
     } else {
       _openSos();
     }
   }
 
   Future<void> _markArrived() async {
-    final api = context.read<AppState>().api;
     try {
-      await api.journeyArrived(widget.journeyId);
+      await _api.journeyArrived(widget.journeyId);
     } catch (_) {
-      // q1-seams: never a false "arrived safely" — the server did not hear it,
-      // so family may still be alerted. Stay on the live screen.
-      if (mounted) {
-        _snackText(AppLocalizations.of(context).realityArrivedNotSent);
-      }
+      // q1-seams: never a false "arrived safely" — the server did not hear it.
+      if (mounted) _snack(AppLocalizations.of(context).realityArrivedNotSent);
       return;
     }
-    if (mounted) _onArrived();
+    await _tr.finished('arrived');
+    if (mounted) _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+  }
+
+  Future<String?> _askPin(AppLocalizations t) {
+    final ctrl = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.sosPinTitle),
+        content: ObscureTextField(
+          key: const ValueKey('j100_pin_field'),
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: InputDecoration(labelText: t.sosPinLabel),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, null), child: Text(t.cancel)),
+          FilledButton(
+              key: const ValueKey('j100_pin_ok'),
+              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+              child: Text(t.ok)),
+        ],
+      ),
+    );
   }
 
   Future<void> _stop() async {
     final t = AppLocalizations.of(context);
-    // Stopping may require the PIN (duress flow) — the server classifies it.
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t.journeyStopTitle),
-        content: Text(t.journeyStopBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true), child: Text(t.journeyStopConfirm)),
-        ],
-      ),
-    );
-    if (confirm != true) return;
+    String? pin;
+    if (_pinRequired) {
+      // safety PIN: the normal PIN stops; the duress PIN LOOKS the same while
+      // the server silently alerts (the answer is identical).
+      pin = await _askPin(t);
+      if (pin == null || pin.isEmpty) return;
+    } else {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t.journeyStopTitle),
+          content: Text(t.journeyStopBody),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(t.cancel)),
+            FilledButton(
+                key: const ValueKey('j100_stop_confirm'),
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(t.journeyStopConfirm)),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+    }
+    if (!mounted) return;
     try {
-      await context.read<AppState>().api.journeyStop(widget.journeyId);
+      await _api.journeyStop(widget.journeyId, pin: pin);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      if (e.status == 429) {
+        _snack(t.j100PinLocked);
+      } else if (e.status == 400) {
+        // wrong / missing PIN: the journey keeps running
+        _snack(t.sosPinWrong);
+        if (!_pinRequired) setState(() => _pinRequired = true);
+      } else {
+        _snack(t.grpActionFailed);
+      }
+      return;
     } catch (_) {
-      // q1-seams: the journey is still live on the server (watchers still
-      // see it) — say so and keep the screen instead of a silent close.
-      if (mounted) _snackText(AppLocalizations.of(context).grpActionFailed);
+      // q1-seams: still live on the server — say so, keep the screen.
+      if (mounted) _snack(t.grpActionFailed);
       return;
     }
-    _ticker?.cancel();
-    if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+    await _tr.finished('stopped');
+    if (mounted) _closeWith(null);
   }
 
   Future<void> _shareWebLink() async {
     final t = AppLocalizations.of(context);
     try {
-      final r = await context.read<AppState>().api.journeyWebLink(widget.journeyId);
+      final r = await _api.journeyWebLink(widget.journeyId);
       final url = (r['url'] ?? '').toString();
-      if (url.isNotEmpty) {
-        await Share.share(t.journeyShareLinkText(url));
-      }
+      if (url.isEmpty) throw StateError('no link');
+      await Share.share(t.journeyShareLinkText(url));
     } catch (e) {
-      showActionFailed(context, 'journey.shareLink', e, open: true); // db1
+      if (mounted) showActionFailed(context, 'journey.shareLink', e, open: true);
     }
   }
 
+  Future<void> _extend() async {
+    final t = AppLocalizations.of(context);
+    final mins = await showModalBottomSheet<int>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+              title: Text(t.j100ExtendTitle,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))),
+          for (final m in const [10, 15, 30, 60])
+            ListTile(
+              key: ValueKey('j100_extend_$m'),
+              leading: const Icon(Icons.more_time_rounded),
+              title: Text(t.j100ExtendMin(m)),
+              onTap: () => Navigator.pop(ctx, m),
+            ),
+        ]),
+      ),
+    );
+    if (mins == null || !mounted) return;
+    try {
+      final r = await _api.journeyExtend(widget.journeyId, mins);
+      if (!mounted) return;
+      setState(() => _journey = {..._journey, ...r});
+      _snack(t.j100Extended);
+    } on ApiException catch (e) {
+      if (mounted) _snack(e.status == 400 ? t.j100ExtendLimit : t.grpActionFailed);
+    } catch (_) {
+      if (mounted) _snack(t.grpActionFailed);
+    }
+  }
+
+  Future<void> _vehiclePhoto() async {
+    final t = AppLocalizations.of(context);
+    final src = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+              leading: const Icon(Icons.photo_camera_rounded),
+              title: Text(t.j100VehiclePhotoCamera),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera)),
+          ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: Text(t.j100VehiclePhotoPick),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
+        ]),
+      ),
+    );
+    if (src == null || !mounted) return;
+    try {
+      // camera intent / system photo picker: no storage permission
+      final x = await ImagePicker()
+          .pickImage(source: src, maxWidth: 1280, maxHeight: 1280, imageQuality: 70);
+      if (x == null) return;
+      final bytes = await x.readAsBytes();
+      final plate = ((_journey['vehicle'] as Map?)?['plate'] ?? '').toString();
+      await _api.journeyVehiclePhoto(widget.journeyId, base64Encode(bytes),
+          plate: plate.isEmpty ? null : plate);
+      if (!mounted) return;
+      setState(() => _photoAdded = true);
+      _snack(t.j100VehiclePhotoSent);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'journey.vehiclePhoto', e);
+    }
+  }
+
+  Future<void> _sms() async {
+    final t = AppLocalizations.of(context);
+    final phones = (await Settings.getString(kPhonesKey) ?? '')
+        .split(',')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+    if (!mounted) return;
+    final f = _tr.value.lastFix;
+    final dest = (_journey['destination'] as Map?)?['name']?.toString() ?? '';
+    final body = f == null
+        ? t.j100SmsBodyNoLoc
+        : t.j100SmsBody(dest.isEmpty ? '-' : dest, journeyMapsLink(f.lat, f.lng),
+            TimeOfDay.fromDateTime(f.at).format(context));
+    await openForUser(context, journeySmsUri(phones, body), where: 'journey.sms');
+  }
+
   void _openSos() {
+    final f = _tr.value.lastFix;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => JourneySosScreen(
-            journeyId: widget.journeyId, countdownSeconds: 5)));
+            journeyId: widget.journeyId,
+            countdownSeconds: 5,
+            pinRequired: _pinRequired,
+            lastLat: f?.lat,
+            lastLng: f?.lng)));
   }
 
   Future<void> _fakeCall() async {
@@ -221,7 +378,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           TextButton(
               onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true), child: Text(t.fakeCallStart)),
+              key: const ValueKey('j100_fake_go'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.fakeCallStart)),
         ],
       ),
     );
@@ -235,54 +394,129 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
   }
 
+  Widget _statusCard(AppLocalizations t, JourneyTrackState s) {
+    final cs = Theme.of(context).colorScheme;
+    late final IconData icon;
+    late final Color color;
+    late final String title;
+    String? body;
+    Widget? action;
+    if (s.locationOff) {
+      icon = Icons.location_off_rounded;
+      color = Brand.warnInk(context);
+      title = t.j100LocOffTitle;
+      body = t.j100LocOffBody;
+      action = OutlinedButton.icon(
+        key: const ValueKey('j100_loc_on'),
+        icon: const Icon(Icons.my_location_rounded),
+        label: Text(t.j100LocOn),
+        onPressed: () async {
+          try {
+            await Geolocator.openLocationSettings();
+          } catch (e) {
+            if (mounted) showActionFailed(context, 'journey.locSettings', e, open: true);
+          }
+        },
+      );
+    } else if (s.net == JourneyNet.offline) {
+      icon = Icons.cloud_off_rounded;
+      color = Brand.warnInk(context);
+      title = t.j100OfflineTitle;
+      body = t.j100OfflineBody(s.queued);
+      action = FilledButton.icon(
+        key: const ValueKey('j100_sms'),
+        icon: const Icon(Icons.sms_rounded),
+        label: Text(t.j100SendSms),
+        onPressed: _sms,
+      );
+    } else if (s.lastSentAt != null) {
+      icon = Icons.navigation_rounded;
+      color = Brand.successFill;
+      title = t.j100Sharing;
+      body = t.j100LastSent(TimeOfDay.fromDateTime(s.lastSentAt!).format(context));
+    } else {
+      icon = Icons.gps_not_fixed_rounded;
+      color = cs.onSurfaceVariant;
+      title = t.j100Locating;
+    }
+    final dest = (_journey['destination'] as Map?)?['name']?.toString();
+    final eta = DateTime.tryParse('${_journey['eta'] ?? ''}')?.toLocal();
+    final late = s.overdue == 'grace' || s.overdue == 'ask' || s.overdue == 'alert';
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Container(
+        key: const ValueKey('j100_status'),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(Radii.md)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 10),
+            Expanded(
+                child: Text(title,
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
+          ]),
+          if (body != null) ...[
+            const SizedBox(height: Gap.xs),
+            Text(body, style: AType.bodyMedium),
+          ],
+          if (dest != null && dest.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Text(t.journeyToward(dest), style: AType.bodyMedium),
+          ],
+          if (eta != null)
+            Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
+                style: AType.bodyMedium),
+          if (late)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(t.j100Late,
+                  style: AType.bodyMedium.copyWith(
+                      color: cs.error, fontWeight: FontWeight.w700)),
+            ),
+          const SizedBox(height: Gap.xs),
+          Text(s.serviceOn ? t.j100BackgroundOn : t.j100KeepOpen,
+              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+          if (action != null) ...[
+            const SizedBox(height: Gap.sm),
+            action,
+          ],
+        ]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final dest = (_journey['destination'] as Map?)?['name']?.toString();
-    final loc = _journey['last_location'] as Map?;
+    final s = _tr.value;
+    final extendLeft = (_journey['extend_left'] as num?)?.toInt() ?? 1;
     return Scaffold(
       appBar: AppBar(title: Text(t.journeyLiveTitle), actions: [
         IconButton(
+            key: const ValueKey('j100_share'),
             icon: const Icon(Icons.link_rounded),
             tooltip: t.journeyShareLink,
             onPressed: _shareWebLink),
       ]),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(Radii.md)),
-          child: Row(children: [
-            const Icon(Icons.navigation_rounded, color: Colors.green),
-            const SizedBox(width: 10),
-            Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                  Text(t.journeyWatchingNotif,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                  if (dest != null && dest.isNotEmpty)
-                    Text(t.journeyToward(dest),
-                        style: AType.bodyMedium),
-                ])),
-          ]),
-        ),
-        const SizedBox(height: Gap.md),
-        if (loc != null && loc['at'] != null)
-          Text(t.journeyLastFix(loc['at'].toString()),
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        _statusCard(t, s),
         const SizedBox(height: Gap.lg),
         SosButton(label: t.emergencySosButton, onPressed: _openSos),
         const SizedBox(height: Gap.lg),
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
+            key: const ValueKey('j100_arrived'),
             style: FilledButton.styleFrom(
                 // QA a6: white on Colors.green was 2.8:1 — deeper green 5:1.
                 backgroundColor: Brand.successFill,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
+                minimumSize: const Size.fromHeight(52),
+                padding: const EdgeInsets.symmetric(vertical: Gap.md)),
             onPressed: _markArrived,
             icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.journeyImSafe, style: AType.bodyLarge),
@@ -291,17 +525,41 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         const SizedBox(height: Gap.md),
         AdaptiveButtonPair(
           first: OutlinedButton.icon(
+              key: const ValueKey('j100_extend'),
+              icon: const Icon(Icons.more_time_rounded),
+              label: Text(t.j100Extend),
+              onPressed: extendLeft > 0 ? _extend : null),
+          second: OutlinedButton.icon(
+              key: const ValueKey('j100_fake_call'),
               icon: const Icon(Icons.phone_callback_rounded),
               label: Text(t.fakeCallTitle),
               onPressed: _fakeCall),
+        ),
+        const SizedBox(height: Gap.sm),
+        AdaptiveButtonPair(
+          first: OutlinedButton.icon(
+              key: const ValueKey('j100_photo'),
+              icon: Icon(_photoAdded
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.add_a_photo_rounded),
+              label: Text(_photoAdded ? t.j100VehiclePhotoAdded : t.j100VehiclePhoto),
+              onPressed: _vehiclePhoto),
           second: OutlinedButton.icon(
+              key: const ValueKey('j100_stop'),
               icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.journeyStop),
               onPressed: _stop),
         ),
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+            key: const ValueKey('j100_sms_any'),
+            icon: const Icon(Icons.sms_rounded),
+            label: Text(t.j100SendSms),
+            onPressed: _sms),
         const SizedBox(height: 20),
-        Text(t.journeyLiveFooter,
-            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(t.j100Footer,
+            style: AType.bodySmall
+                .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

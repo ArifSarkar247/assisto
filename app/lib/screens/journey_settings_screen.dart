@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/subs_common.dart' show fmtInt;
+import '../services/action_feedback.dart';
 
 /// Safe Journey settings (items 7, 8, 14, 16, 18). Hosts:
 ///   - SOS countdown + siren default
@@ -31,6 +32,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
   int _periodHours = 12;
   String _quietStart = '22:00';
   String _quietEnd = '07:00';
+  bool _promptOpen = false; // journey100: Assisto asked "Is everything OK?"
 
   bool _loading = true;
 
@@ -45,8 +47,18 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
     _sirenDefault = await Settings.getBool('journey_siren', false);
     _hasDuress = await Settings.getBool('journey_has_duress', false);
+    if (!mounted) return;
+    try {
+      // journey100: the server is the truth for the safety PIN
+      _hasDuress = await context.read<AppState>().api.duressPinConfigured();
+      await Settings.setBool('journey_has_duress', _hasDuress);
+    } catch (_) {
+      // best-effort: offline — the last known local flag is shown
+    }
+    if (!mounted) return;
     try {
       final w = await context.read<AppState>().api.wellnessConfig();
+      _promptOpen = w['prompt_open'] == true;
       _wellnessEnabled = w['enabled'] == true;
       _parentOptIn = w['parent_opt_in'] == true;
       _periodHours = (w['period_hours'] as num?)?.toInt() ?? 12;
@@ -73,6 +85,19 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(AppLocalizations.of(context).grpActionFailed)));
       await _load();
+    }
+  }
+
+  Future<void> _imFine() async {
+    final t = AppLocalizations.of(context);
+    try {
+      await context.read<AppState>().api.wellnessPing();
+      if (!mounted) return;
+      setState(() => _promptOpen = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.j100WellnessPinged)));
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'journey.wellnessPing', e);
     }
   }
 
@@ -108,8 +133,9 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
     final p = pin.text.trim();
     final d = duress.text.trim();
     final messenger = ScaffoldMessenger.of(context);
-    if (p.isEmpty || d.isEmpty || p == d) {
-      messenger.showSnackBar(SnackBar(content: Text(t.duressMustDiffer)));
+    final rule = RegExp(r'^[0-9]{4,8}$');
+    if (!rule.hasMatch(p) || !rule.hasMatch(d) || p == d) {
+      messenger.showSnackBar(SnackBar(content: Text(t.j100PinRule)));
       return;
     }
     try {
@@ -200,6 +226,23 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             _saveWellness();
           },
         ),
+        if (_wellnessEnabled && _parentOptIn) ...[
+          if (_promptOpen)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.xs),
+              child: Text(t.j100WellnessAsk,
+                  style: AType.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w600)),
+            ),
+          FilledButton.icon(
+            key: const ValueKey('j100_im_fine'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            icon: const Icon(Icons.favorite_rounded),
+            label: Text(t.j100WellnessFine),
+            onPressed: _imFine,
+          ),
+        ],
         if (_wellnessEnabled) ...[
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
