@@ -54,25 +54,34 @@ class HealthEmergencyView(APIView):
 # Health: medicine DB (SAMPLE / DGDA switch) — no model, static seed
 # ===========================================================================
 
+def _medicine_meta(lang):
+    """truth (owner FINAL ORDER 27 Oct): while the source is the curated sample
+    (hand-typed brands with made-up "indicative" prices) we serve NO records —
+    the app shows its honest "data not added yet" state. Records come back
+    only once a real DGDA list is loaded (medicine_db.set_source)."""
+    m = medicine_db.meta(lang)
+    if medicine_db.is_sample():
+        m = {**m, "count": 0, "sample_notice": "", "withheld": True}
+    return m
+
+
 class MedicineDbSearchView(APIView):
     def get(self, request):
         lang = req_lang(request)
         q = request.query_params.get("q", "")
-        return Response({
-            "results": medicine_db.search(q, lang=lang),
-            "meta": medicine_db.meta(lang),
-        })
+        results = [] if medicine_db.is_sample() else medicine_db.search(q, lang=lang)
+        return Response({"results": results, "meta": _medicine_meta(lang)})
 
 
 class MedicineDbLookupView(APIView):
     def get(self, request):
         lang = req_lang(request)
         brand = request.query_params.get("brand", "")
-        rec = medicine_db.lookup(brand, lang=lang)
+        rec = None if medicine_db.is_sample() else medicine_db.lookup(brand, lang=lang)
         if rec is None:
             return Response({"available": False, **medicine_db.needs_data_state(lang),
-                             "meta": medicine_db.meta(lang)})
-        return Response({"available": True, "record": rec, "meta": medicine_db.meta(lang)})
+                             "meta": _medicine_meta(lang)})
+        return Response({"available": True, "record": rec, "meta": _medicine_meta(lang)})
 
 
 # ===========================================================================

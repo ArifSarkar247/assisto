@@ -280,33 +280,10 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         occasion: occ,
         drafts: drafts,
         card: card,
-        // AI wish: the server's drafts endpoint already returns mock-safe text.
-        // We surface it as the AI preview, honestly flagged mock (is_mock) until
-        // a real key+provider is wired server-side (birthdays.ai_wish).
-        onAiWish: (style) async {
-          try {
-            final r = await api.birthdayDrafts({
-              'name': occ['name'],
-              'kind': occ['kind'] ?? 'birthday',
-              if (occ['turning_age'] != null) 'age': occ['turning_age'],
-              if (occ['relation'] != null) 'relation': occ['relation'],
-              'ai': true,
-              'style': style,
-            });
-            // Prefer an explicit ai field; else pick the matching style draft.
-            final ai = (r['ai'] as Map?)?.cast<String, dynamic>();
-            if (ai != null) return ai;
-            final list =
-                ((r['drafts'] ?? []) as List).cast<Map<String, dynamic>>();
-            final match = list.firstWhere(
-              (d) => d['style'] == style,
-              orElse: () => list.isNotEmpty ? list[1 % list.length] : {},
-            );
-            return {'text': match['text'] ?? '', 'is_mock': true};
-          } catch (_) {
-            return null;
-          }
-        },
+        // truth (owner FINAL ORDER 27 Oct): no "AI wish" — the server has no
+        // AI path for wishes (birthdays.ai_wish is not served), so the old
+        // block only re-showed a template labelled as an AI preview. The
+        // plain drafts above are the honest offer; onAiWish stays null.
       ),
     );
   }

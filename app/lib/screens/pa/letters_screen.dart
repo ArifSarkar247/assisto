@@ -521,7 +521,7 @@ class _LetterEditorState extends State<_LetterEditor> {
             Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Expanded(
-              child: Text(tr.paAiReviewMarker,
+              child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
                   style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
             ),
           ]),

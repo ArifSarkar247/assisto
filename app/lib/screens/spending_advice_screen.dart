@@ -131,13 +131,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.spendTitle)),
+        appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: const SkeletonList(),
       );
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.spendTitle)),
+        appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
           tint: scheme.error,
@@ -155,7 +155,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     final result = _SMath.analyse(_rows);
 
     return Scaffold(
-      appBar: AppBar(title: Text(tr.spendTitle)),
+      appBar: AppBar(title: Text(tr.truthSpendTitle)),
       floatingActionButton: _rows.isEmpty
           ? null
           : FloatingActionButton.extended(

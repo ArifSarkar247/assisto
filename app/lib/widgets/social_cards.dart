@@ -119,7 +119,7 @@ class AiDraftMarker extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.socialAiMarker,
+            Text(t.f6BwTemplateMarker, // truth: template, not AI
                 style: TextStyle(
                     color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,

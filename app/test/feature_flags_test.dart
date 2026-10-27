@@ -93,8 +93,13 @@ void main() {
     await ff.load();
     expect(await ff.refresh(_offline), isFalse);
     for (final e in kFeatureDefaults.entries) {
-      expect(ff.isOn(e.key), e.value, reason: e.key);
+      // truth: a feature without its data source stays hidden until the
+      // server answers (backend feature_flags.SOURCE_REQUIRED).
+      final want = kFeatureNeedsSource.contains(e.key) ? false : e.value;
+      expect(ff.isOn(e.key), want, reason: e.key);
     }
+    expect(ff.isOn('dictionary'), isFalse);
+    expect(ff.isOn('ai_inbox'), isFalse);
     expect(ff.isOn(null), isTrue); // core entries
     expect(ff.isOn('typo_key'), isTrue); // a typo never hides a feature
     expect(ChatNav.routes.containsKey('crm'), isTrue);

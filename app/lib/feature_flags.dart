@@ -56,6 +56,9 @@ class FeatureFlags extends ChangeNotifier {
     if (o != null) return o;
     final s = _server?[key];
     if (s != null) return s;
+    // truth: no server answer yet -> a feature without its data source stays
+    // hidden (the server decides once it answers).
+    if (kFeatureNeedsSource.contains(key)) return false;
     return kFeatureDefaults[key] ?? true;
   }
 

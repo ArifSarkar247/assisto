@@ -57,7 +57,7 @@ REGISTRY = (
     ('prepaid_meter', 'my_account', 'Prepaid meters', 'প্রিপেইড মিটার', True, ('prepaid_meter',)),
     ('domestic_staff', 'my_account', 'Household staff & driver', 'গৃহকর্মী ও ড্রাইভার', True, ()),
     ('savings_challenge', 'my_account', 'Savings challenge', 'সঞ্চয় চ্যালেঞ্জ', True, ()),
-    ('spending_advice', 'my_account', 'AI spending insights', 'এআই খরচ পর্যবেক্ষণ', True, ()),
+    ('spending_advice', 'my_account', 'Spending insights (rule-based)', 'খরচের পর্যবেক্ষণ (নিয়মভিত্তিক)', True, ()),
     ('price_radar', 'my_account', 'Market price radar', 'বাজার দাম রাডার', True, ()),
     ('family', 'family_safety', 'Family', 'ফ্যামিলি', True, ('family',)),
     ('nominee', 'family_safety', 'Nominee access', 'নমিনি অ্যাক্সেস', True, ('nominee',)),
@@ -186,6 +186,53 @@ STATUSES = ("done", "in_progress", "hidden")
 MAX_ALLOW = 200            # tester ids per feature
 CACHE_TTL = 30             # seconds; the saving worker drops its copy at once
 
+# truth (owner FINAL ORDER 27 Oct: "no demo or fake data anywhere, real
+# licensed data sources, honest empty states, never promise what is not
+# built"). A feature whose ONLY content is a data source we do not have yet is
+# hidden by CODE until that source exists — independent of its DB flag, so no
+# live flag is touched and it reappears by itself once the source is real.
+# The owner / staff / allow-listed testers still get it as a "preview".
+#   source -> zero-arg check (True = a real source is connected and served)
+def _src_dictionary():
+    from .logic import dictionary
+    return not dictionary.is_sample()
+
+
+SOURCES = {
+    # licensed / open dictionary dataset loaded (logic.dictionary.load_dataset);
+    # until then only ~20 hand-written sample words exist.
+    "dictionary_dataset": _src_dictionary,
+    # a real mail fetch path. None is built: connecting Google only flips a
+    # flag, no message is ever fetched, so the inbox would only promise.
+    "mail_fetch": lambda: False,
+}
+SOURCE_REQUIRED = {
+    "dictionary": "dictionary_dataset",
+    "ai_inbox": "mail_fetch",
+}
+
+
+def sources_ready():
+    """{source: bool}. A broken check counts as 'not ready' (never shows a
+    feature on an error)."""
+    out = {}
+    for name, fn in SOURCES.items():
+        try:
+            out[name] = bool(fn())
+        except Exception:
+            out[name] = False
+    return out
+
+
+def source_missing(key, ready=None):
+    """True when `key` needs a data source that is not connected yet."""
+    src = SOURCE_REQUIRED.get(key)
+    if not src:
+        return False
+    ready = sources_ready() if ready is None else ready
+    return not ready.get(src, False)
+
+
 KEYS = tuple(r[0] for r in REGISTRY)
 _BY_KEY = {r[0]: r for r in REGISTRY}
 ROUTE_FEATURE = {route: r[0] for r in REGISTRY for route in r[5]}
@@ -302,9 +349,11 @@ def resolve(user=None, play=False):
     uid = getattr(user, "pk", None) if authed else None
     priv = is_privileged(user)
     feats, preview = {}, []
+    ready = sources_ready()
     for k, r in rows().items():
         on = (r["enabled_all"] and (r["enabled_play"] or not play)
-              and in_rollout(k, uid, r["rollout_pct"]))
+              and in_rollout(k, uid, r["rollout_pct"])
+              and not source_missing(k, ready))   # truth: no source, no entry
         if not on and (priv or (uid and uid in r["allow_user_ids"])):
             on = True
             preview.append(k)

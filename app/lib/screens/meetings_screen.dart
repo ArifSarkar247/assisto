@@ -214,8 +214,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
   int? _travelFor(Map<String, dynamic> a) {
     final key = _apptKey(a);
     if (_travelMinByAppt.containsKey(key)) return _travelMinByAppt[key];
-    // HONEST key-gated default: with no Maps key wired we seed the mock ETA so
-    // "Leave now" is usable; the card labels it an estimate (never live).
+    // truth: only a LIVE travel time (none wired yet) or the user's own value.
     final e = travelEta(
       place: '${a['place'] ?? ''}',
       lat: (a['place_lat'] as num?)?.toDouble(),
@@ -658,12 +657,6 @@ class _MeetingCard extends StatelessWidget {
     final status = statusOf(appt);
     final done = status == kStatusDone;
     final recurring = freqOf(appt) != kFreqNone;
-    final hasEta = travelEta(
-          place: place,
-          lat: (appt['place_lat'] as num?)?.toDouble(),
-          lng: (appt['place_lng'] as num?)?.toDouble(),
-        ).source ==
-        'mock';
 
     return Card(
       margin: EdgeInsets.zero,
@@ -754,12 +747,6 @@ class _MeetingCard extends StatelessWidget {
               travelMin: travelMin,
               onTravelChanged: onTravelChanged,
             ),
-            if (hasEta)
-              Padding(
-                padding: const EdgeInsets.only(top: Gap.xs),
-                child: Text(mStr(context, 'mEtaMockNote'),
-                    style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.outline)),
-              ),
           ],
         ]),
       ),

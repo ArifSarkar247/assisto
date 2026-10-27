@@ -45,7 +45,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
   }
 
   Future<void> _loadLocal() async {
-    await MemPrivacy.seedIfFirstRun();
+    await MemPrivacy.dropDemoSeed(); // truth: no demo suggestion
     final f = await MemPrivacy.loadFlags();
     if (!mounted) return;
     setState(() {

@@ -652,7 +652,7 @@ class _HonestMarker extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.caMarker,
+            Text(t.f6QtRuleMarker, // truth: rule-based, not AI
                 style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,
                     height: 1.4)),

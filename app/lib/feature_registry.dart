@@ -112,6 +112,12 @@ const Map<String, bool> kFeatureDefaults = {
   'home_v2': true,
 };
 
+/// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
+/// source that is not connected yet (backend feature_flags.SOURCE_REQUIRED).
+/// The server hides them for normal users until the source exists; on a
+/// first run with no server answer the app hides them too.
+const Set<String> kFeatureNeedsSource = {'dictionary', 'ai_inbox'};
+
 /// unseen-rename: GET /features?fv=2 = "this app knows `daily_info`", so the
 /// server sends `unseen_world` with its NEW meaning (the travel feature).
 /// Without fv (apps before the rename) the server sends the daily info hub's

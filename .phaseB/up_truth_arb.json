@@ -37,6 +37,10 @@
           "type": "String"
         }
       }
+    },
+    "truthSpendTitle": "Spending insights",
+    "@truthSpendTitle": {
+      "description": "Title of the rule-based spending observations (was \"AI spending insights\"; no AI runs there)."
     }
   },
   "bn": {
@@ -51,6 +55,7 @@
     "truthNearbyNeedLocationBody": "শুধু আপনার আশেপাশে সত্যিই যে জায়গাগুলো আছে, সেগুলোই লাইভ ম্যাপ তথ্য থেকে দেখাই।",
     "truthNearbyLoadFailed": "কাছের জায়গাগুলো আনা গেল না",
     "truthNearbyNoneNearby": "আপনার কাছে এই ধরনের কোনো জায়গা পাওয়া যায়নি",
-    "truthNearbySource": "ম্যাপের তথ্য: {source}"
+    "truthNearbySource": "ম্যাপের তথ্য: {source}",
+    "truthSpendTitle": "খরচের পর্যবেক্ষণ"
   }
 }

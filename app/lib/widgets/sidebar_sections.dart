@@ -324,7 +324,7 @@ class SidebarSections {
           (_) => const SavingsChallengeScreen(),
           synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
       // #51 AI spending advice (key-gated mock) + #34 market price radar.
-      SidebarItem(Icons.insights_rounded, (t) => t.spendTitle,
+      SidebarItem(Icons.insights_rounded, (t) => t.truthSpendTitle, // truth: rule-based, not AI
           feature: 'spending_advice',
           (_) => const SpendingAdviceScreen(),
           synonyms: ['spending', 'advice', 'insights', 'ai money', 'analysis']),
