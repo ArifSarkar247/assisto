@@ -25,6 +25,7 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'callsb_shots.dart'; // callsB
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
 import 'wa_polish_shots.dart'; // wa-polish
@@ -641,6 +642,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     for (final e in b1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // b1-calls
+    for (final e in callsbShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // callsB
     for (final e in f3Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // f3-design
     for (final e in cdeShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cde-chat
     for (final e in eGapsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // e-gaps

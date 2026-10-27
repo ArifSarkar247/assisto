@@ -11,7 +11,11 @@ import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_keepalive.dart';
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
+import '../calls/group/call_group_bridge.dart'; // callsB
+import '../calls/group/group_call.dart'; // callsB
+import '../calls/screen_share.dart'; // callsB
 import '../calls/call_native.dart';
+import '../calls/call_log.dart'; // callsB
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
 import '../calls/video_stage.dart'; // cde-chat
@@ -63,6 +67,10 @@ class CircleCallScreen extends StatefulWidget {
   final bool previewSwapped;
   final bool previewFullscreen;
 
+  /// callsB gallery / tests: a pre-built group session / screen share.
+  final GroupCallSession? previewGroup;
+  final ScreenShareController? previewShare;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -74,6 +82,8 @@ class CircleCallScreen extends StatefulWidget {
     this.resumed = false,
     this.previewSwapped = false,
     this.previewFullscreen = false,
+    this.previewGroup,
+    this.previewShare,
   });
 
   /// b1: how the mini call bar re-opens a minimized call.
@@ -114,6 +124,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   CallNotice _noticeShown = CallNotice.none;
   Timer? _noticeTimer;
   bool? _screenOnSent;
+
+  /// callsB: screen share + growing into a group call (one object, so this
+  /// screen changes in a few marked lines only).
+  late CallGroupBridge _gb = CallGroupBridge(onChange: _onGroupChange);
+  bool get _groupAlive => _gb.alive;
+  void _onGroupChange() {
+    if (mounted) _onChange();
+  }
 
   /// Direction of the CURRENT controller: an incoming call that failed can
   /// be called back ("Call again" places a new outgoing call).
@@ -169,7 +187,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   }
 
   bool _duplicate = false;
-  bool _screenLive() => mounted && !_closed && (_c == null || !_c!.isEnded);
+  bool _screenLive() =>
+      mounted && !_closed && (_c == null || !_c!.isEnded || _groupAlive);
 
   void _onPip() {
     if (mounted) setState(() => _pip = CallNative.inPip.value);
@@ -229,6 +248,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   void _attach(CallController c, CallVideoSurface? s, {bool initial = false}) {
     _c = c;
     _surface = s;
+    _attachGroup(c); // callsB
     c.addListener(_onChange);
     s?.hasRemoteVideo.addListener(_onChange);
     _ticker?.cancel();
@@ -237,6 +257,35 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     });
     _syncNotice(c);
     if (!initial) setState(() {});
+  }
+
+  /// callsB: screen share + group call for a real (or re-opened) call.
+  void _attachGroup(CallController c) {
+    if (widget.previewGroup != null || widget.previewShare != null) {
+      _gb.preview(group: widget.previewGroup, share: widget.previewShare);
+      return;
+    }
+    if (widget.controller != null && !widget.resumed) return; // gallery
+    if (_gb.attachedTo(c)) return;
+    final parked = CallGroupBridge.forCall(c.callId, _onGroupChange);
+    if (parked != null && parked.attachedTo(c)) {
+      _gb = parked;
+      return;
+    }
+    AppState app;
+    try {
+      app = context.read<AppState>();
+    } catch (e) {
+      callLog('call_screen#group', e);
+      return; // no app state (isolated widget tests): plain 1:1 call
+    }
+    _gb.dispose(handedOff: false); // "Call again": the old call's bridge
+    _gb = CallGroupBridge(onChange: _onGroupChange)
+      ..attach(c,
+          api: app.api,
+          transport: CallRuntime.instance.transportFor(app),
+          texts: () => _t,
+          peerMemberId: widget.member['id'] as int?);
   }
 
   /// b1: show a NEW controller notice for a few seconds.
@@ -255,6 +304,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   /// the call moves to the in-app bar and the user can use the app.
   Future<void> _minimizeOrPip() async {
     final c = _c;
+    if (_gb.groupView && _groupAlive) {
+      // callsB: a group call stays on its screen (its pair links live here)
+      if (c != null && c.videoOn && _pipSupported) {
+        await CallNative.enterPip(w: 9, h: 16);
+      }
+      return;
+    }
     if (c == null || !c.isLive || !_owns) {
       _close();
       return;
@@ -303,7 +359,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         }
       }
       // keep the mic alive if the user leaves the app mid-call
-      if (c.phase == CallPhase.accepted || c.isLive) {
+      if (c.phase == CallPhase.accepted || c.isLive || _groupAlive) {
         final t = _t;
         unawaited(CallKeepAlive.start(
             channelName: t.c2ChOngoing,
@@ -315,13 +371,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               if (cc != null) await cc.hangup();
             }));
       }
-      if (c.isEnded) {
+      // callsB: the 1:1 link ended but the group call goes on
+      if (c.isEnded && !_groupAlive) {
         if (CallRuntime.instance.activeCallId == c.callId) {
           CallRuntime.instance.activeCallId = null;
         }
         unawaited(CallNative.keepScreenOn(false));
         unawaited(CallKeepAlive.stop());
-        if (c.endReason == CallEndReason.hangup) {
+        if (c.endReason == CallEndReason.hangup || _gb.group != null) {
           _autoClose ??= Timer(const Duration(milliseconds: 1400), _close);
         }
       }
@@ -353,6 +410,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   @override
   void dispose() {
+    _gb.dispose(handedOff: _handedOff); // callsB
     CallNative.inPip.removeListener(_onPip);
     _ticker?.cancel();
     _autoClose?.cancel();
@@ -442,7 +500,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Widget build(BuildContext context) => PopScope(
         // b1: back during a LIVE call never hangs up — it minimizes (PiP for
         // video, the in-app call bar otherwise), like WhatsApp.
-        canPop: !(_owns && !_closed && (_c?.isLive ?? false)),
+        canPop: !(_owns && !_closed && ((_c?.isLive ?? false) || _groupAlive)),
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) {
             LockScreenGuard.release();
@@ -461,6 +519,16 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (c != null && c.isEnded && c.endReason == CallEndReason.upgrade) {
       return _gateScreen(Theme.of(context).colorScheme);
     }
+    // callsB: 3+ people -> the group grid
+    final gs = _pip
+        ? null
+        : _gb.groupStage(context,
+            onLeave: _leaveGroup,
+            speakerOn: c?.speakerOn ?? false,
+            onSpeaker: c == null || c.isEnded
+                ? null
+                : () => unawaited(_onRouteTap(c)));
+    if (gs != null) return gs;
     final surface = _surface;
     final remoteVideo = _isVideo &&
         c != null &&
@@ -536,6 +604,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           const Spacer(flex: 2),
           if (live) _noticeBanner(c),
           if (live) _upgradeCard(c),
+          _gb.shareBar(), // callsB
+          if (live) _gb.extras(context, c, video: _isVideo), // callsB
           if (c == null || !c.isEnded) _controls(c),
         ],
       ),
@@ -550,7 +620,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         backgroundColor: Brand.ink,
         body: VideoStage(
           key: const Key('call-video-stage'),
-          remote: remoteVideo ? surface.remoteView() : gradient,
+          remote: remoteVideo
+              ? (_gb.remoteScreen(c, surface) ?? surface.remoteView())
+              : gradient,
           local: c.cameraOn
               ? surface.localView(mirror: c.frontCamera)
               : Center(
@@ -593,6 +665,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         ],
       ),
     );
+  }
+
+  /// callsB: the group grid's red button — leave the group (and the 1:1).
+  Future<void> _leaveGroup() async {
+    await _gb.leave();
+    final cc = _c;
+    if (cc != null && !cc.isEnded) await cc.hangup();
+    _close();
   }
 
   Widget _topBar(CallController? c) {
@@ -726,6 +806,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               padding: const EdgeInsets.only(top: Gap.xs),
               child: _badge(Icons.videocam_off_rounded,
                   t.c2CallRemoteCameraOff, const Key('call-remote-camera-off')),
+            ),
+          if (live && c.remoteScreen) // callsB
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: _badge(Icons.screen_share_rounded,
+                  _t.ssRemoteSharing(_name), const Key('call-remote-screen')),
             ),
           if (live && !c.remoteMicOn)
             Padding(

@@ -240,6 +240,7 @@ def call_events(viewer, edge, limit=200):
         return []
     recs = list(CallRecord.objects.filter(
         Q(caller=viewer, callee=peer) | Q(caller=peer, callee=viewer))
+        .exclude(room_link__via="mesh")   # callsB: group pair links
         .order_by("-started_at", "-id")[:limit])
     reasons = dict(CallSession.objects.filter(call__in=recs)
                    .values_list("call_id", "end_reason"))

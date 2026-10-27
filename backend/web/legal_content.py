@@ -224,6 +224,24 @@ PERMISSIONS = [
                    "Turn always-on protection off in the app (Security PIN), or remove the camera permission."),
     },
     {
+        "id": "fgs_screen_share",
+        "perm": "FOREGROUND_SERVICE_MEDIA_PROJECTION",
+        "name": ("ভিডিও কলে স্ক্রিন শেয়ার", "Screen sharing in a video call"),
+        "why": ("ভিডিও কলে আপনি নিজে \"স্ক্রিন শেয়ার\" চাপলে আপনার স্ক্রিন কলের অন্যজন/অন্যরা দেখতে পান। "
+                "Android প্রতিবার আপনার অনুমতি চায়; শেয়ার চলার সময় একটি নোটিফিকেশন ও কল স্ক্রিনে লাল "
+                "চিহ্ন দেখা যায়, সেখান থেকে এক ট্যাপে বন্ধ করা যায়। স্ক্রিনের ছবি সরাসরি কলের মানুষদের কাছে যায় "
+                "(এনক্রিপ্টেড কল সংযোগে); আমরা তা রেকর্ড বা সংরক্ষণ করি না।",
+                "When you tap \"Share screen\" in a video call, the other person / people in the call see your "
+                "screen. Android asks for your consent every time; while sharing, a notification and a red "
+                "indicator on the call screen are shown, with one-tap Stop. The screen goes straight to the "
+                "people in the call (over the encrypted call connection); we never record or store it."),
+        "when": ("শুধু ভিডিও কলের মাঝে আপনি নিজে স্ক্রিন শেয়ার শুরু করলে। কল শেষ হলে বা Stop চাপলে সঙ্গে সঙ্গে বন্ধ হয়।",
+                 "Only when you start screen sharing yourself during a video call. It stops at once when you "
+                 "tap Stop or the call ends."),
+        "revoke": ("কল স্ক্রিনের Stop বোতাম বা নোটিফিকেশনের \"শেয়ার বন্ধ করুন\"।",
+                   "The Stop button on the call screen, or \"Stop sharing\" in the notification."),
+    },
+    {
         "id": "call_phone",
         "perm": "CALL_PHONE",
         "name": ("ফোন কল করা", "Make phone calls"),

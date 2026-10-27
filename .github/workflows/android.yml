@@ -617,6 +617,25 @@ jobs:
           if 'antitheft.AntiTheftService' not in s:
               s = s.replace('</application>', antitheft_components + '    </application>', 1)
           # ---- /b6-antitheft ----
+          # ---- callsB ---- screen sharing in a video call (flutter_webrtc
+          # getDisplayMedia = MediaProjection). Android 14+ needs a foreground
+          # service of type mediaProjection running BEFORE the projection is
+          # used, started only AFTER the user's consent: ScreenShareService
+          # (overlay) is started from Dart ONLY when the user taps Share
+          # screen and accepted the system dialog, and stopped on Stop / call
+          # end. FOREGROUND_SERVICE_MEDIA_PROJECTION is a normal (install-time)
+          # permission; Play needs the FGS declaration (owner_actions/
+          # CALLS_SCREENSHARE_GROUP_BN.md). Never started at launch.
+          if 'FOREGROUND_SERVICE_MEDIA_PROJECTION' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>\n',
+                  s, count=1)
+          if 'calls.ScreenShareService' not in s:
+              s = s.replace('</application>',
+                  '\n        <service android:name="com.assisto.assisto.calls.ScreenShareService"'
+                  ' android:foregroundServiceType="mediaProjection"'
+                  ' android:exported="false"/>\n    </application>', 1)
+          # ---- /callsB ----
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP, b6 anti-theft engine")
           PY

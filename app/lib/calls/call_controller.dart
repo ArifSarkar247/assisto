@@ -296,9 +296,24 @@ class CallController extends ChangeNotifier {
     this.setupRetryDelays = defaultSetupRetryDelays,
     this.networkEvents,
     this.onSetupFailure,
+    this.preplaced = false,
     String? clientCallId,
   })  : clientCallId = clientCallId ?? newClientCallId(),
         videoOn = video;
+
+  /// callsB: a group-call PAIR link the SERVER already created ([callId]
+  /// given): as the offerer ([outgoing]) this phone skips placing and goes
+  /// straight to "open media, create the peer, send the offer" — the same
+  /// path a normal outgoing call takes after it was placed.
+  final bool preplaced;
+
+  /// callsB: I share my screen in this (video) call right now — sent to the
+  /// other side in the `media` signal (`screen`), so it shows the whole
+  /// screen (not cropped) and "X is sharing their screen".
+  bool screenSharing = false;
+
+  /// callsB: the other person shares their screen.
+  bool remoteScreen = false;
 
   /// calls-presence (owner 24 Oct "Call server busy — try again"): every
   /// call-setup step (rtc config, placing, accepting) is retried SILENTLY on
@@ -516,7 +531,9 @@ class CallController extends ChangeNotifier {
           .map((e) => e.cast<String, dynamic>())
           .toList();
       turnAvailable = cfg?['configured'] == true && turnIce.isNotEmpty;
-      if (outgoing) {
+      if (outgoing && preplaced && callId != null) {
+        await _startPreplaced(turnIce);
+      } else if (outgoing) {
         await _startOutgoing(turnIce);
       } else {
         await _startIncoming(turnIce);
@@ -606,6 +623,34 @@ class CallController extends ChangeNotifier {
     final offer = await media.createOffer();
     if (await _endedDuringSetup()) return;
     await signaling.signal(callId!, 'offer', offer);
+    log.add('offer-sent');
+    await _peerUp();
+  }
+
+  /// callsB: the offerer of a server-created pair link (group call).
+  Future<void> _startPreplaced(List<Map<String, dynamic>> turnIce) async {
+    final id = callId!;
+    _listen();
+    final r = await _retrying<Map<String, dynamic>>(
+        'status', () => signaling.status(id));
+    if (isEnded) return;
+    final p = phaseFromServer('${r['phase'] ?? ''}');
+    if (p == CallPhase.ended) {
+      return _finish(endReasonFromServer('${r['end_reason'] ?? ''}'));
+    }
+    log.add('preplaced:$id');
+    _set(p);
+    _ice = _iceFrom(r, turnIce);
+    await media.open(video: video);
+    _afterOpen();
+    if (await _endedDuringSetup()) return;
+    await media.setSpeaker(speakerOn);
+    await media.createPeer(_ice);
+    if (await _endedDuringSetup()) return;
+    _wireMedia();
+    final offer = await media.createOffer();
+    if (await _endedDuringSetup()) return;
+    await signaling.signal(id, 'offer', offer);
     log.add('offer-sent');
     await _peerUp();
   }
@@ -826,6 +871,7 @@ class CallController extends ChangeNotifier {
         case 'media':
           remoteCameraOn = data['camera'] != false;
           remoteMicOn = data['mic'] != false;
+          remoteScreen = data['screen'] == true;
           notifyListeners();
           break;
         // ---- b1-calls: voice <-> video + reconnect -----------------------
@@ -947,7 +993,7 @@ class CallController extends ChangeNotifier {
         unawaited(_reportConnected(first));
         // b1: my mic / camera state survives a reconnect (and a callee that
         // joined muted / camera-off tells the other side at once).
-        if (back || muted || (videoOn && !cameraOn)) {
+        if (back || muted || (videoOn && !cameraOn) || screenSharing) {
           unawaited(_sendMediaState());
         }
         break;
@@ -1176,12 +1222,30 @@ class CallController extends ChangeNotifier {
     final id = callId;
     if (id == null || isEnded) return;
     try {
-      await signaling.signal(id, 'media',
-          {'camera': videoOn && cameraOn, 'mic': !muted, 'video': videoOn});
+      await signaling.signal(id, 'media', {
+        'camera': videoOn && cameraOn,
+        'mic': !muted,
+        'video': videoOn,
+        if (screenSharing) 'screen': true,
+      });
     } catch (e) {
       callLog('call_controller#18', e);
     }
   }
+
+  /// callsB: my screen share started / stopped on this link (the media
+  /// layer already swapped the video track) — tell the other side.
+  Future<void> setScreenSharing(bool on) async {
+    if (screenSharing == on || isEnded) return;
+    screenSharing = on;
+    log.add('screen:${on ? 'on' : 'off'}');
+    notifyListeners();
+    await _sendMediaState();
+  }
+
+  /// callsB: a new video track had no sender on this link yet (the camera
+  /// never opened): renegotiate so the other side receives it.
+  Future<void> renegotiateForNewTrack() => _renegotiateOrAsk();
 
   /// Ask to switch this voice call to video (the other person must accept).
   Future<void> requestVideo() async {

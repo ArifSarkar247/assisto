@@ -328,6 +328,12 @@ def end_call(rec, reason, by="server", now=None, sess=None, notify=True):
             pass
     sess.save(update_fields=upd)
     publish_state(rec)
+    # callsB: a pair link of a GROUP call ended -> roster (no-op for 1:1)
+    try:
+        from . import call_rooms
+        call_rooms.on_record_ended(rec, reason)
+    except Exception:
+        log.exception("callsB: on_record_ended hook")
     if notify and not was_ringing:
         # accepted / live call ended: wake the other phone now (a ringing
         # end already sends call_cancel to the callee)
@@ -821,6 +827,12 @@ def accept_call(rec, now=None):
     publish_state(rec)
     # stop the ring on the callee's OTHER devices
     PUSH.hook_call_cancel(rec, "answered")
+    # callsB: an added person answered -> joined + pair links (no-op for 1:1)
+    try:
+        from . import call_rooms
+        call_rooms.on_record_accepted(rec)
+    except Exception:
+        log.exception("callsB: on_record_accepted hook")
     return True
 
 
