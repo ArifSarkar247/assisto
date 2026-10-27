@@ -55,6 +55,7 @@ class Ctx:
     lang: str = "bn"
     play: bool = False
     idem_key: str = ""
+    charged: int = 0               # credits a tool itself charged (e.g. tagada SMS)
 
 
 def limits_for(user):
@@ -360,6 +361,7 @@ def _exec_step(run, step, ctx):
         log.error("agentcore: %s returned output outside its schema", tool.ref)
         return _fail_step(run, step, "bad_output")
     step.state = "done"
+    step.credits = int(tctx.charged or 0)
     step.result_sealed = T.seal({"r": out})
     step.summary = vault.mask(tool.summarize(out, ctx.lang))[:400]
     step.latency_ms = int((_time.monotonic() - t0) * 1000)
@@ -367,8 +369,10 @@ def _exec_step(run, step, ctx):
     step.save()
     T.save_vault(run, vault)       # summaries may have minted new tokens
     run.steps_used += 1
-    run.save(update_fields=["steps_used", "vault_sealed", "updated_at"])
-    T.audit(run, "tool.done", step=step, tool=tool.ref, risk=tool.risk, summary=step.summary)
+    run.credits_spent += step.credits     # the ledger was debited by the module itself
+    run.save(update_fields=["steps_used", "credits_spent", "vault_sealed", "updated_at"])
+    T.audit(run, "tool.done", step=step, credits=step.credits, tool=tool.ref, risk=tool.risk,
+            summary=step.summary)
     return "done"
 
 
