@@ -234,15 +234,13 @@ class _InviteBase(APIView):
     def _from_name(self, request):
         return (request.user.name or "").strip() or request.user.username
 
-    def _share_link(self, request, relation):
-        token = circle.make_invite_token(
-            request.user.id, relation, settings.SECRET_KEY)
-        # m3-circle: live base (was the old assisto.asalify.com domain) + the
-        # token is stored so the /i/<token> page and /circle/invite/redeem
-        # can turn it into a real My Circle connection.
-        from .views_m3_circle import invite_base, remember_invite
-        remember_invite(request.user, relation, token)
-        return token, f"{invite_base()}/i/{token}"
+    def _share_link(self, request, relation, label=""):
+        # invite-join: a SHORT random code (lifeassisto.com/i/<CODE>) — no
+        # user id in the link, opens the app straight into "Join X's circle"
+        # (App Link) or the Play listing with the code as install referrer.
+        from . import invite_join as IJ
+        inv = IJ.create_invite(request.user, relation=relation, label=label)
+        return inv.code, IJ.link_for(inv.code)
 
 
 class InviteExistingView(_InviteBase):
@@ -312,7 +310,8 @@ class InviteSmsView(_InviteBase):
                 return Response({"detail": "bad_phone", "reason": "bad_phone"},
                                 status=status.HTTP_400_BAD_REQUEST)
             to_number = canon
-        token, link = self._share_link(request, relation)
+        label = ("0" + to_number[4:]) if to_number.startswith("+880") else to_number
+        token, link = self._share_link(request, relation, label=label[:60])
         InviteOutbound.objects.create(inviter=request.user, channel="sms_own_sim",
                                       token=token)
         return Response(mc.invite_non_user_sms(

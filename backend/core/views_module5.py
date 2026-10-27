@@ -941,19 +941,12 @@ class CircleReportView(APIView):
 class CircleInviteView(APIView):
     def get(self, request):
         relation = request.query_params.get("relation", "friend")
-        token = circle.make_invite_token(request.user.id, relation, settings.SECRET_KEY)
-        inv = CircleInvite.objects.create(
-            inviter=request.user,
-            relation=circle.normalize_relation(relation),
-            token=token,
-            expires_at=timezone.now() + timezone.timedelta(minutes=1440),
-        )
-        # m3-circle: the link used to point at the OLD domain
-        # (assisto.asalify.com) with no /i/ page behind it. It now uses the
-        # live base and a real landing page (web/urls.py i/<token>).
-        from .views_m3_circle import invite_base
-        link = circle.qr_payload(token, base_url=invite_base())
-        return Response({"token": token, "qr": link, "link": link, "id": inv.id})
+        # invite-join: "My QR" is a multi-use short code (several people can
+        # scan the same QR in a room); expiry/revoke/cap as every code invite.
+        from . import invite_join as IJ
+        inv = IJ.create_invite(request.user, relation=relation, max_uses=10)
+        link = IJ.link_for(inv.code)
+        return Response({"token": inv.code, "qr": link, "link": link, "id": inv.id})
 
 
 class CircleMessagesView(APIView):

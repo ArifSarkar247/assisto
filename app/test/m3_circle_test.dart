@@ -186,7 +186,13 @@ AppLocalizations _t(WidgetTester tester) =>
 
 Future<void> _tapKey(WidgetTester tester, String key) async {
   final f = find.byKey(Key(key));
+  // invite-join: the add screen grew two rows (invite link / invited list),
+  // so the list scrolls further; centre the target instead of top-aligning
+  // it (a chip inside the horizontal relation row could end up off-screen).
+  await tester.runAsync(() => Scrollable.ensureVisible(tester.element(f), alignment: 0.5));
+  await tester.pump();
   await tester.ensureVisible(f);
+  await tester.pump();
   await tester.tap(f);
   await _settle(tester);
 }

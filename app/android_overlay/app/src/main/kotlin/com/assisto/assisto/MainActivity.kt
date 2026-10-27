@@ -305,6 +305,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // ---- invite-join ---- Play Install Referrer ("com.assisto/install_referrer"):
+        // handler only; the Play service is bound when Dart asks (once per install).
+        try {
+            com.assisto.assisto.growth.InstallReferrerChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // ---- tl1 ---- OEM background guide ("com.assisto/oem_guide"): device
         // + battery-state lookups and the vendor settings screens. Handler only
         // — nothing is resolved or started until the guide screen calls it.

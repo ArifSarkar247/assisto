@@ -125,6 +125,35 @@ class CircleInviteRedeemView(APIView):
         if not token:
             return err("bad_token", "আমন্ত্রণ লিংকটি সঠিক নয়।",
                        "That invite link isn't valid.")
+        # invite-join: a short code (lifeassisto.com/i/<CODE>) joins through
+        # the new path (multi-use, expiry, circle cap, attribution).
+        from . import invite_join as IJ
+        if IJ.looks_like_code(token):
+            from . import otp as _otp
+            ip = _otp.client_ip(request)
+            if IJ.ip_locked(ip) or not IJ.join_rate_ok(request.user.id):
+                return err("rate_limited", IJ.message("rate_limited", "bn"),
+                           IJ.message("rate_limited", "en"),
+                           status.HTTP_429_TOO_MANY_REQUESTS)
+            inv = IJ.find(token)
+            if inv is None:
+                IJ.note_bad(ip)
+                return err("bad_token", "আমন্ত্রণ লিংকটি সঠিক নয়।",
+                           "That invite link isn't valid.")
+            try:
+                mine, inviter, _already = IJ.join(
+                    inv, request.user, via=str(data.get("via") or "paste"))
+            except IJ.JoinError as e:
+                reason = {"invalid": "bad_token", "self": "self_invite"}.get(
+                    e.reason, e.reason)
+                return err(reason, IJ.message(e.reason, "bn"),
+                           IJ.message(e.reason, "en"),
+                           status.HTTP_403_FORBIDDEN if e.reason == "blocked"
+                           else status.HTTP_400_BAD_REQUEST)
+            return Response({"ok": True, "member": _member_dict(mine),
+                             "inviter": {"id": inviter.id,
+                                         "name": (inviter.name or "").strip()}},
+                            status=status.HTTP_200_OK)
         ok, info = circle.parse_invite_token(token, settings.SECRET_KEY)
         if not ok:
             if "expired" in str(info):

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../invite/invite_share_sheet.dart'; // invite-join
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../m3_circle_api.dart';
@@ -363,6 +364,25 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         const SizedBox(height: Gap.xs),
         Card(
           child: Column(children: [
+            // invite-join: the 2-tap link (WhatsApp / imo / Messenger / SMS /
+            // QR) + who joined / not yet, with resend.
+            ListTile(
+              key: const Key('ij-invite-link'),
+              leading: const Icon(Icons.person_add_alt_1_rounded),
+              title: Text(t.ijInviteTile),
+              subtitle: Text(t.ijInviteTileSub),
+              onTap: () => showInviteShareSheet(context),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              key: const Key('ij-invite-sent'),
+              leading: const Icon(Icons.hourglass_top_rounded),
+              title: Text(t.ijSentTitle),
+              subtitle: Text(t.ijSentTileSub),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => const InviteSentScreen())),
+            ),
+            const Divider(height: 1),
             ListTile(
               key: const Key('m3-pick-contacts'),
               leading: const Icon(Icons.contacts_rounded),
