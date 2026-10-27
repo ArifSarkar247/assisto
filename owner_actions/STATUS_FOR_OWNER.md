@@ -1,5 +1,18 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## ⏰ আপনার কাজ: ৬টা cron লাইন যোগ করুন (বিল্ড 256 সার্ভারে ডিপ্লয় হয়ে গেছে — এই কমান্ডগুলো এখন আছে)
+root হিসেবে `/etc/cron.d/assisto-app` ফাইলের শেষে হুবহু এই ৬ লাইন যোগ করুন (`sudo nano /etc/cron.d/assisto-app`), সেভ করুন — আর কিছু লাগবে না:
+```
+* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-journey-sweep.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py journey_sweep --quiet >> /home/ubuntu/assisto/backend/logs/journey_sweep.log 2>&1
+* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-antitheft-escalate.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py antitheft_escalate >> /home/ubuntu/assisto/backend/logs/antitheft_escalate.log 2>&1
+*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-ops-watch.lock nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py ops_watch >> /home/ubuntu/assisto/backend/logs/ops_watch.log 2>&1
+*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-ai-health-check.lock nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py ai_health_check >> /home/ubuntu/assisto/backend/logs/ai_health_check.log 2>&1
+15 * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py meter_low_alerts >> /home/ubuntu/assisto/backend/logs/meter_low_alerts.log 2>&1
+30 2 1 * * ubuntu /home/ubuntu/assisto/migration/restore_test.sh >>/home/ubuntu/assisto/backend/logs/restore_test.log 2>&1
+```
+কী করে: নিরাপদ যাত্রার দেরি/পথ-বিচ্যুতি সতর্কতা · চুরি-টানের পর উত্তর না দিলে এগিয়ে নেওয়া · সার্ভার ও cron নষ্ট হলে আপনাকে সতর্কতা · AI প্রদানকারীর স্বাস্থ্য (বিনামূল্যে) · প্রিপেইড মিটার কম হলে পুশ · মাসে একবার ব্যাকআপ-পুনরুদ্ধার পরীক্ষা। (Agent Core ও প্রবাসীর cron সুইচ চালু হলে দেব।)
+
+
 **📊 অগ্রগতি (২৮ Oct রাত ২:৪০ বাংলাদেশ সময়):** বোর্ডের ২৭০ সারির **০টি ১০০-তে**; **গড় ৫৮.৯** (বিল্ড 255-এর কাজ ধরে; বিলিং-স্ক্রিন, SMS/OTP, AI-মান, সার্ভার-গতির স্কোর 256-এ মার্জ হলে বাড়বে)। **Agent Core:** ভিত্তি + সক্রিয় সতর্কতা ও সকাল/সন্ধ্যার সারাংশ তৈরি (ফ্ল্যাগ বন্ধ); অ্যাপ-স্ক্রিন ও অনুমোদন-কার্ডের কাজ চলছে। সব এজেন্ট আবার কাজে (ব্যবহার-সীমার পরে)।
 
 
