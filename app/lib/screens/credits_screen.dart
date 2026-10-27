@@ -727,7 +727,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
               const SizedBox(height: Gap.xxs),
               // billing v2 + truth: bought pack credits NEVER expire (core/credits.py
               // rule B); the admin `valid_months` field is not enforced, so not shown.
-              Text(t.billPackNeverExpires,
+              Text(t.truthPackNeverExpires,
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ),
