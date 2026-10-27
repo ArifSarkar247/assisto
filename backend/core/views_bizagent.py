@@ -347,6 +347,19 @@ class ChannelsView(APIView):
                 sub = G.subscribe_page(token, ext)
                 if not sub["ok"]:
                     ch.status_detail = ("webhook subscribe: " + sub["error"])[:200]
+            elif kind == BZ.CH_WHATSAPP:
+                # e2e-sales: the number's WhatsApp Business Account must be
+                # subscribed to our app, or Meta never sends its messages
+                waba = str(d.get("waba_id") or "").strip()
+                m = S.meta_app() or {}
+                wabas = [waba] if waba.isdigit() and len(waba) <= 32 else \
+                    G.waba_ids_for_token(token, m.get("app_id"), m.get("app_secret"))
+                if not wabas:
+                    ch.status_detail = "webhook subscribe: waba_not_found"
+                for w in wabas[:3]:
+                    sub = G.subscribe_waba(token, w)
+                    if not sub["ok"]:
+                        ch.status_detail = ("webhook subscribe: " + sub["error"])[:200]
         else:
             ch.status = "error"
             ch.status_detail = r.get("error", "")[:200]

@@ -181,3 +181,29 @@ def send_whatsapp_image(token, phone_number_id, to, url, caption=""):
 def whatsapp_number_info(token, phone_number_id):
     """GET /{phone-number-id}?fields=display_phone_number,verified_name."""
     return _get("%s?fields=display_phone_number,verified_name" % phone_number_id, token)
+
+
+def waba_ids_for_token(token, app_id, app_secret):
+    """e2e-sales: the WhatsApp Business Account id(s) a token was granted
+    (GET /debug_token, granular_scopes → whatsapp_business_messaging /
+    _management target_ids — the documented Embedded-Signup way). Needs the
+    Meta app's own access token (app_id|app_secret). [] when unknown."""
+    if not (token and app_id and app_secret):
+        return []
+    from urllib.parse import quote
+    r = _get("debug_token?input_token=%s" % quote(token, safe=""),
+             "%s|%s" % (app_id, app_secret))
+    data = (r.get("json") or {}).get("data") or {}
+    out = []
+    for g in data.get("granular_scopes") or []:
+        if g.get("scope") in ("whatsapp_business_messaging", "whatsapp_business_management"):
+            for t in g.get("target_ids") or []:
+                if str(t).isdigit() and str(t) not in out:
+                    out.append(str(t))
+    return out
+
+
+def subscribe_waba(token, waba_id):
+    """Subscribe our app to the WABA's webhooks (POST /{waba-id}/subscribed_apps).
+    Without it a seller's own number never sends us its messages."""
+    return _post("%s/subscribed_apps" % waba_id, token, {})
