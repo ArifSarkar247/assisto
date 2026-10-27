@@ -110,7 +110,7 @@ Map<String, dynamic> acRunJson(String state,
 /// mode: data | empty | fail | off | no_ai | credits | cap | slow (running ->
 /// done on the 2nd poll) | approval | offline (POST throws SocketException)
 class FakeAgentCore implements AgentCoreSource {
-  FakeAgentCore([this.mode = 'data', {this.bn = false, this.left = 3}]);
+  FakeAgentCore(this.mode, {this.bn = false, this.left = 3});
   final String mode;
   final bool bn;
   final int left;
