@@ -377,7 +377,6 @@ class _CreditsScreenState extends State<CreditsScreen> {
         : (storePrice != null
             ? localizeStoreDigits(context, storePrice)
             : t.payPriceUnavailable);
-    final months = _int(p['valid_months']);
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Container(
@@ -403,7 +402,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
                   style:
                       AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
-              Text(t.creditsPackValidity(fmtInt(context, months)),
+              // truth: bought pack credits NEVER expire (core/credits.py
+              // rule B; legal_content.py says the same). The admin
+              // `valid_months` field is not enforced, so it is not shown.
+              Text(t.truthPackNeverExpires,
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
           ),

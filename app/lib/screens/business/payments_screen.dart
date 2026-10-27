@@ -141,7 +141,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.payLinkLabel, style: const TextStyle(height: 1.4)),
         const SizedBox(height: Gap.md),
-        // Key-gated mock: no licensed-partner key -> MOCK-PAY-LINK, live:false.
+        // truth: no partner checkout is wired -> honest banner, never a link.
         BizMockBanner(text: tr.bizPaymentLinkNeedKey),
       ]),
     );

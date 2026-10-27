@@ -538,9 +538,9 @@ def advance_order(order, target, courier=None, courier_keys=None, lang="bn"):
     """Pure state-machine step. `order` is a dict (never a Django model).
     Returns (new_order_dict, event_dict). Raises ValueError on illegal moves.
 
-    Moving to 'shipped' REQUIRES a courier AND that the owner has configured a
-    key for that courier (key-gated). Without a key we MOCK a tracking id and
-    flag courier_live=False so the integrator knows it is not a real booking.
+    Moving to 'shipped' REQUIRES a courier. truth: this path books nothing
+    with the courier, so it never invents a tracking id and always sets
+    courier_live=False (the owner adds the real consignment id).
     """
     cur = order.get("status", STATUS_NEW)
     if not can_transition(cur, target):
@@ -563,25 +563,25 @@ def advance_order(order, target, courier=None, courier_keys=None, lang="bn"):
 
 
 def book_courier_mock(order, courier, courier_keys=None, lang="bn"):
-    """Courier booking — MOCK now, key-gated live (Pathao/Steadfast/RedX APIs).
+    """Courier hand-over record for the manual order flow.
 
-    courier_keys: {"pathao": "<key>", ...}. When a key exists we would call the
-    real API (left for the integrator — see biz_ai_integration.md). Without a
-    key we return a deterministic MOCK tracking id and live=False.
+    truth (owner FINAL ORDER 27 Oct, no fake data): this path does NOT call a
+    courier API (the real Pathao/Steadfast/RedX booking lives in
+    bizagent_service / couriers.py). So it never invents a tracking id and is
+    never `live`, key or no key: tracking stays empty until the owner types
+    the real consignment id from the courier, and the note says so.
+    `courier_keys` is accepted for API compatibility only.
     """
     if courier not in COURIERS:
         raise ValueError("unknown courier")
-    has_key = bool((courier_keys or {}).get(courier))
-    oid = order.get("id", "X")
-    tracking = f"{courier.upper()}-MOCK-{oid}"
     return {
         "courier": courier,
-        "tracking": tracking,
-        "live": has_key,   # True only means 'a real API call WOULD be made'
+        "tracking": "",
+        "live": False,
         "cod_amount": str(cod_amount(order)),
         "note": pick(lang,
-                     "মক বুকিং — লাইভ করতে কুরিয়ার কী দরকার।",
-                     "Mock booking — a courier key is required to go live."),
+                     "কুরিয়ারে এখনো বুক করা হয়নি — কুরিয়ারের অ্যাপে বুক করে ট্র্যাকিং নম্বর লিখুন।",
+                     "Not booked with the courier yet — book it in the courier's app and add the tracking number."),
     }
 
 
@@ -934,24 +934,25 @@ def merchant_qr_descriptor(owner_wallet, lang="bn"):
 
 
 def payment_link_builder(order, partner_key=None, lang="bn"):
-    """Build a payment LINK that DELEGATES to a LICENSED payment partner.
+    """Payment LINK through a LICENSED payment partner — NOT wired yet.
 
-    We NEVER hold the money. The link points at the licensed partner's hosted
-    checkout (key-gated/mock). Without a partner key we return a MOCK link and
-    live=False so the integrator knows it is not a real checkout.
+    We NEVER hold the money. truth (owner FINAL ORDER 27 Oct): no partner
+    checkout API is called here, so we never return a made-up URL (it used to
+    be a non-working example.com link flagged live once a key existed). The
+    answer is always `live: False` with an empty link and `needs_key` /
+    `not_wired` so the app shows the honest "not available yet" state; the
+    owner's own bKash/Nagad merchant QR (merchant_qr_descriptor) is the real
+    way to get paid today.
     """
     amount = _to_decimal(order.get("total")) or Decimal("0")
-    oid = order.get("id", "X")
-    has_key = bool(partner_key)
-    link = (f"https://pay.licensed-partner.example/checkout?ref=ASSISTO-{oid}"
-            if has_key else f"MOCK-PAY-LINK://order/{oid}")
     return {
-        "link": link,
+        "link": "",
         "amount": str(amount),
-        "live": has_key,           # True only when a licensed-partner key exists
-        "holds_funds": False,      # INVARIANT: funds flow partner↔owner, not us
+        "live": False,
+        "holds_funds": False,      # INVARIANT: funds flow partner<->owner, not us
         "custodian": "licensed_partner",  # never 'assisto'
-        "label": pick(lang, "লাইসেন্সপ্রাপ্ত পার্টনারের মাধ্যমে পরিশোধ করুন।",
-                      "Pay via our licensed payment partner."),
-        "needs_key": not has_key,
+        "label": pick(lang, "অনলাইন পেমেন্ট লিংক এখনো চালু হয়নি — আপনার বিকাশ/নগদ মার্চেন্ট QR ব্যবহার করুন।",
+                      "Online payment links are not available yet — use your bKash/Nagad merchant QR."),
+        "needs_key": not partner_key,
+        "not_wired": True,
     }

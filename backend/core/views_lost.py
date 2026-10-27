@@ -626,9 +626,14 @@ class EvidencePdfView(APIView):
 
 
 class PoliceStationsView(APIView):
-    """GET recovery/police-stations?lat&lng -> nearest police stations. Reuses
-    the curated nearby dataset (source: 'mock'); honest about being coarse. If
-    no location is supplied we return available:false (never fake stations)."""
+    """GET recovery/police-stations?lat&lng -> nearest REAL police stations.
+
+    truth (owner FINAL ORDER 27 Oct): this used to answer from a curated
+    one-station sample (Shahbag, Dhaka) for every user in Bangladesh. It now
+    uses the same live layer as Nearby (core.nearby: Google Places when the
+    owner's key works, else OpenStreetMap Overpass, cached + rate-limited,
+    with the licence attribution). No location, or the source is down ->
+    available:false with an honest reason — never a sample station."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -638,29 +643,30 @@ class PoliceStationsView(APIView):
         if lat is None or lng is None:
             return Response({"available": False,
                              "reason": "no_location",
+                             "stations": [],
                              "message": pick(lang,
                                 "অবস্থান দিলে কাছের থানা দেখানো যাবে।",
                                 "Share a location to see nearby police stations.")})
-        # Use the curated OFFLINE dataset (core.logic.nearby, source "mock") so
-        # this never makes a live network call and never fakes ratings. The live
-        # Places/OSM path (core.nearby) is key-gated and not used here.
+        from . import nearby as nb
         try:
-            from .logic import nearby as nb
+            results, source = nb.search(lat, lng, "police", lang=lang)
         except Exception:
-            nb = None
-        if nb is None:
-            return Response({"available": False, "stations": []})
-        results, source = nb.search(category="police", lat=lat, lon=lng,
-                                    sort="distance", limit=10)
+            return Response({"available": False, "reason": "source_down",
+                             "stations": [],
+                             "message": pick(lang,
+                                "এখন থানার তালিকা আনা গেল না। জরুরি হলে ৯৯৯-এ কল করুন।",
+                                "Couldn't load police stations now. In an emergency call 999.")})
         stations = [{
-            "name": p.get("name_en") if lang == "en" else p.get("name_bn"),
+            "name": p.get("name") or "",
             "lat": p.get("lat"), "lng": p.get("lon"),
             "phone": p.get("phone"),
             "distance_m": p.get("distance_m"),
-            "directions": p.get("directions"),
+            "directions": p.get("maps"),
         } for p in results]
         return Response({
             "available": bool(stations),
-            "source": source,  # 'mock' -> app shows the honest "live when Maps key" banner
+            "reason": "" if stations else "none_found",
+            "source": source,                     # 'places' | 'osm'
+            "attribution": nb.attribution(source),
             "stations": stations,
         })

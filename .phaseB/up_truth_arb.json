@@ -1,0 +1,25 @@
+{
+  "en": {
+    "truthPackNeverExpires": "Never expires",
+    "@truthPackNeverExpires": {"description": "Credits screen: a bought credit pack row. Pack credits never expire (core/credits.py rule B)."},
+    "truthOnbWinLedgerTitle": "Add your first ledger customer",
+    "@truthOnbWinLedgerTitle": {"description": "Onboarding first win (business role): opens the Digital Khata."},
+    "truthOnbWinLedgerSub": "Write who owes you; send a polite reminder later.",
+    "truthOnbWinBillTitle": "Save a bill or receipt photo",
+    "@truthOnbWinBillTitle": {"description": "Onboarding first win: opens the document vault. It stores the photo; it does not read the amount."},
+    "truthOnbWinBillSub": "Keep it safe in your vault and find it in seconds.",
+    "truthOnbWinJourneySub": "Pick who watches your trip; they are alerted if you don't arrive on time.",
+    "@truthOnbWinJourneySub": {"description": "Onboarding first win: Safe Journey. Alerts go only to the watchers the user picks."},
+    "truthJourneyAddFamily": "Add a family member",
+    "@truthJourneyAddFamily": {"description": "Safe Journey start: button shown when the user has nobody in My Circle to watch the trip."}
+  },
+  "bn": {
+    "truthPackNeverExpires": "মেয়াদ কখনো শেষ হয় না",
+    "truthOnbWinLedgerTitle": "খাতায় প্রথম কাস্টমার যোগ করুন",
+    "truthOnbWinLedgerSub": "কে কত বাকি রাখল লিখে রাখুন; পরে ভদ্রভাবে মনে করিয়ে দিন।",
+    "truthOnbWinBillTitle": "বিল বা রসিদের ছবি রাখুন",
+    "truthOnbWinBillSub": "ভল্টে নিরাপদে থাকবে, দরকারের সময় সেকেন্ডেই খুঁজে পাবেন।",
+    "truthOnbWinJourneySub": "কে আপনার যাত্রা দেখবেন বেছে নিন; সময়মতো না পৌঁছালে তাঁদের জানানো হবে।",
+    "truthJourneyAddFamily": "পরিবারের একজনকে যোগ করুন"
+  }
+}

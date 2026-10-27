@@ -13,7 +13,17 @@ import urllib.request
 from . import integrations
 from .i18n import pick
 
-_UA = "AssistoNearby/1.0 (+https://assisto.asalify.com)"
+# OSM Overpass usage policy: identify the app with a contact URL, cache, and
+# stay polite (one query per ~2 s). Attribution is returned with every answer
+# (ODbL: "© OpenStreetMap contributors") and shown by the app.
+_UA = "AssistoNearby/1.0 (+https://lifeassisto.com)"
+OSM_ATTRIBUTION = "© OpenStreetMap contributors (ODbL)"
+PLACES_ATTRIBUTION = "Google"
+
+
+def attribution(source):
+    """The licence line the app must show under results from `source`."""
+    return {"osm": OSM_ATTRIBUTION, "places": PLACES_ATTRIBUTION}.get(source, "")
 _CACHE = {}        # (type,lat2,lon2) -> (ts, results)  tiny in-process cache
 _CACHE_TTL = 300
 _LAST_OSM = [0.0]  # polite rate-limit for Overpass

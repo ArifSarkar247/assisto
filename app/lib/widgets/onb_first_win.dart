@@ -8,7 +8,7 @@ import 'onb_role.dart';
 /// Which real feature a first-win tile opens. The onboarding screen owns the
 /// actual Navigator.push (it holds the screen imports); this enum just carries
 /// the intent so the widget stays screen-agnostic and testable.
-enum OnbWin { medicine, bill, journey, expense }
+enum OnbWin { medicine, bill, journey, expense, ledger }
 
 /// The <60s "wow": one quick, REAL task tailored to the chosen role. Tapping a
 /// tile marks onboarding done and opens the live screen — the win is genuine,
@@ -32,7 +32,9 @@ class OnbFirstWin extends StatelessWidget {
   OnbWin get _roleRecommended => switch (role) {
         OnbRole.parent => OnbWin.medicine,
         OnbRole.family => OnbWin.medicine,
-        OnbRole.business => OnbWin.bill,
+        // truth: the business first win is the real Digital Khata (add the
+        // first customer) — the vault never read amounts and OCR is key-gated.
+        OnbRole.business => OnbWin.ledger,
         OnbRole.self => OnbWin.journey,
         null => OnbWin.medicine,
       };
@@ -49,17 +51,29 @@ class OnbFirstWin extends StatelessWidget {
           t.onbWinMedicineTitle,
           t.onbWinMedicineSub
         ),
+      // truth: only the business role gets the ledger tile (it needs a shop).
+      if (role == OnbRole.business)
+        (
+          OnbWin.ledger,
+          Icons.menu_book_rounded,
+          t.truthOnbWinLedgerTitle,
+          t.truthOnbWinLedgerSub
+        ),
+      // truth: the vault keeps the photo; it does not read the amount/date,
+      // so the tile no longer promises that.
       (
         OnbWin.bill,
         Icons.receipt_long_rounded,
-        t.onbWinBillTitle,
-        t.onbWinBillSub
+        t.truthOnbWinBillTitle,
+        t.truthOnbWinBillSub
       ),
+      // truth: the family is alerted only through the watchers the user
+      // picks (needs someone in My Circle; the start screen offers "add").
       (
         OnbWin.journey,
         Icons.directions_walk_rounded,
         t.onbWinJourneyTitle,
-        t.onbWinJourneySub
+        t.truthOnbWinJourneySub
       ),
       (
         OnbWin.expense,

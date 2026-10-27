@@ -1943,7 +1943,8 @@ def nearby(request):
     ptype = request.query_params.get("type", "restaurant")
     results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
-    return Response({"type": ptype, "source": source, "places": results})
+    return Response({"type": ptype, "source": source, "places": results,
+                     "attribution": nb.attribution(source)})
 
 
 class FavouriteArtistView(APIView):

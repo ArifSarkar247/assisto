@@ -142,7 +142,7 @@ def test_role_normalize_and_label_bilingual():
 def test_first_win_per_role():
     assert P.first_win_for_role("parent") == P.WIN_MEDICINE
     assert P.first_win_for_role("family") == P.WIN_MEDICINE
-    assert P.first_win_for_role("business") == P.WIN_BILL
+    assert P.first_win_for_role("business") == P.WIN_LEDGER
     assert P.first_win_for_role("self") == P.WIN_JOURNEY
 
 

@@ -492,25 +492,26 @@ def scenario_b():
     c.eq(ev["from"], AI.STATUS_NEW, "event from new")
     o, ev = AI.advance_order(o, AI.STATUS_PACKED)
     c.eq(o["status"], AI.STATUS_PACKED, "order -> packed")
-    # shipped REQUIRES a courier; without a key it's a MOCK booking.
+    # shipped REQUIRES a courier; this path books nothing (truth: no fake id).
     o, ev = AI.advance_order(o, AI.STATUS_SHIPPED, courier="pathao")
     c.eq(o["status"], AI.STATUS_SHIPPED, "order -> shipped")
     c.eq(o["courier"], "pathao", "courier recorded")
-    c.eq(o["tracking"], "PATHAO-MOCK-1001", "mock tracking id")
-    c.ok(o["courier_live"] is False, "courier NOT live without key")
-    c.eq(ev["tracking"], "PATHAO-MOCK-1001", "shipped event tracking")
+    c.eq(o["tracking"], "", "no made-up tracking id")
+    c.ok(o["courier_live"] is False, "courier NOT live (no API call here)")
+    c.eq(ev["tracking"], "", "shipped event has no fake tracking")
+    o["tracking"] = "PT1001ABC"   # the owner types the real consignment id
     o, ev = AI.advance_order(o, AI.STATUS_DELIVERED)
     c.eq(o["status"], AI.STATUS_DELIVERED, "order -> delivered")
 
-    # with a courier key, booking would be live=True (still a mock tracking id).
+    # truth: a courier key alone never makes this path claim a live booking.
     live_booking = AI.book_courier_mock({"id": 1001}, "pathao",
                                         courier_keys={"pathao": "KEY"})
-    c.ok(live_booking["live"] is True, "courier live flag with key")
+    c.ok(live_booking["live"] is False, "no live claim without a real API call")
 
     # a second order gets returned after delivery.
     order2 = {"id": 1002, "payment": "cod", "total": "2560",
               "status": AI.STATUS_SHIPPED, "courier": "redx",
-              "tracking": "REDX-MOCK-1002"}
+              "tracking": "RX1002"}
     o2, ev2 = AI.advance_order(order2, AI.STATUS_RETURNED)
     c.eq(o2["status"], AI.STATUS_RETURNED, "order2 -> returned")
 
@@ -539,7 +540,7 @@ def scenario_b():
     ps = AI.parcel_status(o, lang="en")  # o is delivered
     c.eq(ps["status"], AI.STATUS_DELIVERED, "parcel status delivered")
     c.ok("delivered" in ps["message"], "parcel message says delivered")
-    c.ok("PATHAO-MOCK-1001" in ps["message"], "parcel message shows tracking")
+    c.ok("PT1001ABC" in ps["message"], "parcel message shows tracking")
     # and the classifier routes the question correctly
     c.eq(AI.classify_intent("where is my parcel?"), "parcel_status",
          "parcel intent classified")
@@ -626,10 +627,10 @@ def scenario_b():
     c.ok(pay["holds_funds"] is False, "payment link holds no funds")
     c.eq(pay["custodian"], "licensed_partner", "custody is the licensed partner")
     c.ok(pay["live"] is False, "payment link mock without partner key")
-    # with a partner key it would be live, still never custodial.
+    # truth: no partner API is wired, so a key never yields a fake live link.
     pay_live = AI.payment_link_builder({"id": 1001, "total": "1260"},
                                        partner_key="KEY")
-    c.ok(pay_live["live"] is True, "payment link live with key")
+    c.ok(pay_live["live"] is False and pay_live["link"] == "", "no fake live link")
     c.ok(pay_live["holds_funds"] is False, "live payment link still no custody")
 
     # (3) The bank-loan report is sales history ONLY — no lending/scoring.
