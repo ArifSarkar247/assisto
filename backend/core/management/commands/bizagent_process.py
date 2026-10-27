@@ -2,6 +2,7 @@
 Meta/WhatsApp webhook event still pending (the web worker thread normally
 handles them within a second; this sweep covers restarts/crashes)."""
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -10,6 +11,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--limit", type=int, default=200)
 
+    @track_job("bizagent_process")
     def handle(self, *args, **opts):
         from core import bizagent_service as S
         n = S.process_pending(limit=opts["limit"])

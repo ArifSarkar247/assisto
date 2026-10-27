@@ -8,11 +8,13 @@ this; this cron is the backstop (cheap: one indexed query). Run every minute:
   * * * * *  nice -n10 <venv>/python manage.py antitheft_escalate
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Escalate held anti-theft grab alerts whose confirm window passed."
 
+    @track_job("antitheft_escalate")
     def handle(self, *args, **opts):
         from core.views_antitheft import escalate_due
         n = escalate_due()

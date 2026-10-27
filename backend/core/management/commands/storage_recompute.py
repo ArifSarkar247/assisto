@@ -22,11 +22,13 @@ Run after a deploy and nightly. Crontab (Asia/Dhaka), Assisto-owned box only:
 """
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Recompute StorageUsage.used_bytes from live retained-media rows."
 
+    @track_job("storage_recompute")
     def handle(self, *args, **opts):
         from core.models import (User, Document, CircleStatus, ChatBackup,
                                   StorageUsage)

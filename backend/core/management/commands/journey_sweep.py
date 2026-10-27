@@ -15,6 +15,7 @@ Crontab (every minute):
 """
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -24,6 +25,7 @@ class Command(BaseCommand):
         parser.add_argument("--quiet", action="store_true",
                             help="print only when something happened")
 
+    @track_job("journey_sweep")
     def handle(self, *args, **opts):
         from core import journey_watch
         stats = journey_watch.sweep()

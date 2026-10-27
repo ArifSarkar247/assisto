@@ -12,11 +12,13 @@ Cron (Asia/Dhaka), on the Assisto box — owner adds it to /etc/cron.d/assisto-a
     40 3 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py billing_daily >> /home/ubuntu/assisto/backend/logs/billing_daily.log 2>&1
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Daily: voided poll, reconcile, credits verify, per-user profit guard."
 
+    @track_job("billing_daily")
     def handle(self, *a, **o):
         from core.payments import reconcile as RC, refunds as R
         steps = (("voided_poll", R.voided_poll), ("reconcile", RC.reconcile),

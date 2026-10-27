@@ -6119,3 +6119,45 @@ class FamilyAlertDelivery(models.Model):
         indexes = [models.Index(fields=["sender", "created_at"]),
                    models.Index(fields=["recipient", "created_at"]),
                    models.Index(fields=["status"])]
+
+
+# ---- ops-watch ---- cron/service health (core.ops_health, manage.py ops_watch)
+class JobHeartbeat(models.Model):
+    """One row per scheduled job (cron management command / shell job): the
+    last start/finish, exit code and duration, written by
+    core.ops_health.track_job (best-effort, never breaks the job). ops_watch
+    compares it with the job's expected interval (core.ops_health.JOBS)."""
+    name = models.CharField(max_length=48, unique=True)
+    last_start = models.DateTimeField(null=True, blank=True)
+    last_finish = models.DateTimeField(null=True, blank=True)
+    last_ok = models.DateTimeField(null=True, blank=True)
+    last_rc = models.IntegerField(null=True, blank=True)
+    last_duration_ms = models.IntegerField(null=True, blank=True)
+    last_error = models.CharField(max_length=200, blank=True, default="")
+    running = models.BooleanField(default=False)
+    runs_ok = models.PositiveIntegerField(default=0)
+    runs_failed = models.PositiveIntegerField(default=0)
+    fails_in_row = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class OpsAlertState(models.Model):
+    """Alert dedupe for ops_watch: one row per check key ("job:billing_daily",
+    "svc:coturn", "crash_rate", ...). The owner is alerted when a key turns
+    bad, reminded at most once a day while it stays bad, and told when it
+    recovers. `first_seen` lets a never-run job count as late only after its
+    grace period has passed since monitoring began."""
+    key = models.CharField(max_length=64, unique=True)
+    bad = models.BooleanField(default=False)
+    bad_count = models.PositiveIntegerField(default=0)
+    detail = models.CharField(max_length=300, blank=True, default="")
+    first_seen = models.DateTimeField(default=timezone.now)
+    since = models.DateTimeField(null=True, blank=True)
+    alerted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["key"]
+# ---- /ops-watch ----

@@ -10,11 +10,13 @@ from django.core.management.base import BaseCommand
 
 from core import watcher
 from core.models import Watcher
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Check all due watchers; record change hits."
 
+    @track_job("run_watchers")
     def handle(self, *args, **opts):
         checked = hits = 0
         for w in Watcher.objects.filter(enabled=True).select_related("user"):

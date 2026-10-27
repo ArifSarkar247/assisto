@@ -10,11 +10,13 @@ Crontab (Asia/Dhaka), on the Assisto box:
     5 0 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py profit_guard_rollover >> /home/ubuntu/assisto/backend/logs/profit_guard_rollover.log 2>&1
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Settle credit buckets + report the daily profit-guard state."
 
+    @track_job("profit_guard_rollover")
     def handle(self, *args, **opts):
         from core import billing
         expired = billing.expire_credits()

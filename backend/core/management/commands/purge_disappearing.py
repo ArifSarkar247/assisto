@@ -19,6 +19,7 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -27,6 +28,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true")
 
+    @track_job("purge_disappearing")
     def handle(self, *args, **opts):
         from core.models import (ChatSettings, CircleMessage, MsgChatPref,
                                  MsgExport, MsgGroupTimer)

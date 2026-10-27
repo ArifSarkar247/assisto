@@ -8,6 +8,7 @@ Cron (daily, after Google's overnight refresh):
 """
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -17,6 +18,7 @@ class Command(BaseCommand):
         parser.add_argument("--no-alerts", action="store_true",
                             help="Do not send owner alerts this run.")
 
+    @track_job("play_vitals_pull")
     def handle(self, *args, **opts):
         from core import play_vitals as PV
 
