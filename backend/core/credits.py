@@ -58,13 +58,20 @@ def bcfg():
         return billing_cfg.defaults()
 
 
-def plan_credits(plan):
+def plan_credits(plan, months=1):
     """Monthly allowance of a plan from PricingConfig (founder/annual/probashi
-    -> Premium)."""
+    -> Premium). pricing-40: for a paid period of 12+ months (an annual
+    plan) with credit_model enabled, each month grants
+    credits x annual_credit_months / 12 (owner: annual = 10x price, 10x
+    credits). Disabled (default) -> the full monthly allowance, as before."""
     from . import billing
     c = billing.cfg()
     row = c["plans"].get(plan) or c["plans"]["premium"]
-    return max(0, int(row["credits"]))
+    n = max(0, int(row["credits"]))
+    cm = c.get("credit_model") or {}
+    if int(months or 1) >= 12 and cm.get("enabled"):
+        n = (n * int(cm.get("annual_credit_months") or 12)) // 12
+    return n
 
 
 def add_months(dt, n):

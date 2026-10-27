@@ -6,6 +6,7 @@
      period ended even when an RTDN was missed)
   3. credits_verify (balance == ledger == lots)
   4. per-user Profit Guard (cost this month > paid this month)
+  5. pricing-40: real AI cost per credit vs the safe level (owner alert only)
 Each step saves a BillingReport (Owner Admin -> Payments -> Billing reports).
 
 Cron (Asia/Dhaka), on the Assisto box — owner adds it to /etc/cron.d/assisto-app:
@@ -19,9 +20,11 @@ class Command(BaseCommand):
 
     def handle(self, *a, **o):
         from core.payments import reconcile as RC, refunds as R
+        from core import ai_cost_alert
         steps = (("voided_poll", R.voided_poll), ("reconcile", RC.reconcile),
                  ("credits_verify", RC.credits_verify),
-                 ("profit_guard", RC.profit_guard_users))
+                 ("profit_guard", RC.profit_guard_users),
+                 ("ai_cost_per_credit", ai_cost_alert.check))
         for name, fn in steps:
             try:
                 out = fn()

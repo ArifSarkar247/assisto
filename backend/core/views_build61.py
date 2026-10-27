@@ -236,7 +236,8 @@ def pricing_apply(actor_id, d):
                  "referral", "shop", "otp", "vehicle", "photo_studio",
                      "chat_vision", "home_hero", "payments",   # pay1: payments
                  "billing",                                      # billing-v2
-                 "plans_v2"):   # plans-v2
+                 "plans_v2",    # plans-v2
+                 "credit_model"):   # pricing-40
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):

@@ -88,6 +88,12 @@ def page(request, template, ctx=None, status=200, nav=""):
             c["ai_alert"] = ai_router.owner_alert()
         except Exception:
             c["ai_alert"] = None
+        # pricing-40: real AI cost per credit above the safe level today
+        try:
+            from core import ai_cost_alert
+            c["cost_alert"] = ai_cost_alert.banner()
+        except Exception:
+            c["cost_alert"] = None
     c.update(ctx or {})
     return render(request, template, c, status=status)
 

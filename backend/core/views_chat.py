@@ -50,6 +50,19 @@ from .models import ChatSession, ChatMessage
 # How many prior turns to feed the model as context (keeps cost + tokens bounded).
 _HISTORY_TURNS = 20
 
+# The chat instruction (bn, en) — module level so manage.py ai_token_audit
+# counts exactly what a chat turn sends.
+CHAT_TASK = (
+    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। ব্যবহারকারীর সাথে "
+    "স্বাভাবিক কথোপকথন চালাও — সংক্ষেপে, সত্যভাবে, বাংলায় (যদি সে "
+    "ইংরেজিতে না বলে)। নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে; "
+    "শুধু সেটাই সত্য তথ্য হিসেবে ধরবে, কোনো সংখ্যা বা তথ্য বানাবে না।",
+    "You are Assisto, a Bangla-first assistant. Hold a natural "
+    "conversation — briefly and truthfully, in English if the user "
+    "writes in English. The DATA below summarises the user's own "
+    "data; treat only it as factual and never invent numbers or facts.")
+CHAT_DATA = "User's latest message: {text}\n\nTheir data summary:\n{summary}"
+
 
 # ---------------------------------------------------------------------------
 # serialisation helpers
@@ -96,7 +109,37 @@ def _history_for(session, upto_id=None):
     return turns[-_HISTORY_TURNS:]
 
 
-def _produce_reply(user, session, text, lang, history, credout=False):
+def ai_cm():
+    from . import billing
+    return billing.cfg().get("credit_model") or {}
+
+
+def _mode_need(mode):
+    try:
+        from . import billing
+        from .logic import pricing, pricing_40 as P40
+        return int(pricing.credit_cost(P40.MODE_ACTION[mode], billing.cfg()) or 0)
+    except Exception:  # noqa: BLE001
+        return 0
+
+
+def _chat_mode(request):
+    """pricing-40: the chat mode for this request — the app's `mode`
+    ('quick'|'smart'|'pro') or the owner's default — ONLY while the
+    credit_model block is enabled; None otherwise (today's behaviour)."""
+    try:
+        from . import billing
+        cm = billing.cfg().get("credit_model") or {}
+        if not cm.get("enabled"):
+            return None
+        m = str((request.data.get("mode") if hasattr(request, "data") else "")
+                or request.query_params.get("mode") or "").strip().lower()
+        return m if m in ("quick", "smart", "pro") else cm.get("default_chat_mode", "smart")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _produce_reply(user, session, text, lang, history, credout=False, mode=None):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -110,20 +153,21 @@ def _produce_reply(user, session, text, lang, history, credout=False):
     if ai.available():
         try:
             requested_tier = "cheap"
+            ai_text = text
+            summary = ctx["reply"]
+            if mode:
+                # pricing-40 (enabled only): cap the user's own text, and do
+                # not send the Brain's "needs a key" line as if it were data
+                cm = ai_cm()
+                ai_text = text[: int(cm.get("user_text_max_chars") or 4000)]
+                if ctx.get("level") == "L4":
+                    summary = "-"
+            meta_out = {}
             reply, cost = ai.generate(
-                task=pick(
-                    lang,
-                    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। ব্যবহারকারীর সাথে "
-                    "স্বাভাবিক কথোপকথন চালাও — সংক্ষেপে, সত্যভাবে, বাংলায় (যদি সে "
-                    "ইংরেজিতে না বলে)। নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে; "
-                    "শুধু সেটাই সত্য তথ্য হিসেবে ধরবে, কোনো সংখ্যা বা তথ্য বানাবে না।",
-                    "You are Assisto, a Bangla-first assistant. Hold a natural "
-                    "conversation — briefly and truthfully, in English if the user "
-                    "writes in English. The DATA below summarises the user's own "
-                    "data; treat only it as factual and never invent numbers or facts."),
-                data=f"User's latest message: {text}\n\nTheir data summary:\n{ctx['reply']}",
-                tier=requested_tier, feature="chat", max_tokens=700,
-                user=user, history=history)
+                task=pick(lang, *CHAT_TASK),
+                data=CHAT_DATA.format(text=ai_text, summary=summary),
+                tier=requested_tier, feature=("chat." + mode) if mode else "chat",
+                max_tokens=700, user=user, history=history, mode=mode, out_meta=meta_out)
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
@@ -134,6 +178,8 @@ def _produce_reply(user, session, text, lang, history, credout=False):
                 credits = pricing.credits_for(action, 1, billing.cfg())
             except Exception:
                 credits = 0
+            if mode:
+                credits = int(meta_out.get("charged") or 0)
             meta = {
                 "source": "ai",
                 "model": ai.TIER_MODEL.get(eff, "cheap"),
@@ -150,7 +196,8 @@ def _produce_reply(user, session, text, lang, history, credout=False):
             # buy-credits sheet and re-send the same text.
             if e.reason == "credits" and credout:
                 raise credits_out.CreditsOut(
-                    credits_out.need_for_tier(user, requested_tier))
+                    _mode_need(mode) if mode
+                    else credits_out.need_for_tier(user, requested_tier))
             # kill-switch / budget / user-limit / guard-over / every provider
             # failed -> degrade to the free, honest Brain answer below.
 
@@ -258,7 +305,8 @@ class ChatSendView(APIView):
         history = _history_for(s, upto_id=user_msg.id)
         try:
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
-                                            credout=credits_out.supported(request))
+                                            credout=credits_out.supported(request),
+                                            mode=_chat_mode(request))
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -305,7 +353,8 @@ class ChatStreamView(APIView):
         history = _history_for(s, upto_id=user_msg.id)
         try:
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
-                                            credout=credits_out.supported(request))
+                                            credout=credits_out.supported(request),
+                                            mode=_chat_mode(request))
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -367,7 +416,8 @@ class ChatRegenerateView(APIView):
         history = _history_for(s, upto_id=last_user.id)
         try:
             reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
-                                            credout=credits_out.supported(request))
+                                            credout=credits_out.supported(request),
+                                            mode=_chat_mode(request))
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.

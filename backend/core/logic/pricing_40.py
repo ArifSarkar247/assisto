@@ -270,10 +270,15 @@ def free_user_month(prop, cost_of, quick_cost_usd, ecpm_usd, usd_bdt=USD_BDT):
 
 
 # ------------------------------------------------------------------ safe level
-def bdt_per_credit_rows(cfg):
+def bdt_per_credit_rows(cfg, annual_credit_months=None):
     """৳ the customer pays per credit, for every product the CONFIG sells
-    (normalized PricingConfig dict): monthly plans, annual plans (12 monthly
-    grants), packs. Free / 0-credit rows are skipped."""
+    (normalized PricingConfig dict): monthly plans, annual plans, packs.
+    Annual months of credits: the credit_model value while it is enabled,
+    else 12 (today: an annual plan grants the monthly credits every month).
+    Free / 0-credit rows are skipped."""
+    cm = cfg.get("credit_model") or {}
+    if annual_credit_months is None:
+        annual_credit_months = int(cm.get("annual_credit_months") or 12) if cm.get("enabled") else 12
     rows = []
     for pid, row in (cfg.get("plans") or {}).items():
         price, cr = float(row.get("price") or 0), float(row.get("credits") or 0)
@@ -281,9 +286,14 @@ def bdt_per_credit_rows(cfg):
             continue
         rows.append((pid, price / cr))
         annual = float(row.get("annual_price") or 0)
+        if annual <= 0:
+            try:
+                from . import pricing as _P
+                annual = float(_P.annual_price(pid, cfg) or 0)
+            except Exception:  # noqa: BLE001
+                annual = 0.0
         if annual > 0:
-            months = float(row.get("annual_credit_months") or 12)
-            rows.append((pid + "_annual", annual / (cr * months)))
+            rows.append((pid + "_annual", annual / (cr * annual_credit_months)))
     for p in cfg.get("topup_packs") or []:
         price, cr = float(p.get("price") or 0), float(p.get("credits") or 0)
         if price > 0 and cr > 0:
@@ -301,6 +311,115 @@ def safe_bdt_per_credit(cfg, budget_pct=None):
     return round(min(r[1] for r in rows) * b, 4)
 
 
+# ------------------------------------------------------------------ credit model
+# The PricingConfig block that turns the chat modes on. Shipped DISABLED: with
+# enabled False every code path behaves exactly as before (no price, credit,
+# model or cap changes). The preset below enables it after owner approval.
+MODE_IDS = ("quick", "smart", "pro")
+MODE_ACTION = {"quick": "ai_chat_quick", "smart": "ai_chat_smart", "pro": "ai_chat_pro"}
+AGENT_ACTION = "ai_agent_task"
+CAP_BOUNDS = {"in_cap": (500, 8000), "out_cap": (100, 4000), "history_turns": (0, 20)}
+CM_BOUNDS = {"quick_free_per_day": (0, 100), "annual_credit_months": (1, 12),
+             "user_text_max_chars": (500, 20000)}
+
+
+def credit_model_defaults():
+    return {
+        "enabled": False,
+        "quick_free_per_day": 10,
+        "default_chat_mode": "smart",
+        # 12 = today's behaviour (an annual plan grants the monthly credits
+        # every month); the preset sets 10 (owner's "annual = 10x").
+        "annual_credit_months": 12,
+        "agent_confirm": True,
+        "agent_cap_usd": 0.119,
+        "user_text_max_chars": 4000,
+        "modes": {m: {k: MODES[m][k] for k in CAP_BOUNDS} for m in MODE_IDS},
+    }
+
+
+def _clampi(v, lo, hi, d):
+    try:
+        if isinstance(v, bool):
+            return d
+        n = int(float(v))
+    except (TypeError, ValueError):
+        return d
+    return max(lo, min(hi, n))
+
+
+def normalize_credit_model(raw):
+    """Bounded, defaults-filled credit_model block. Never raises."""
+    raw = raw if isinstance(raw, dict) else {}
+    base = credit_model_defaults()
+    out = {"enabled": raw.get("enabled", base["enabled"]) is True,
+           "agent_confirm": raw.get("agent_confirm", base["agent_confirm"]) is not False}
+    for k, (lo, hi) in CM_BOUNDS.items():
+        out[k] = _clampi(raw.get(k), lo, hi, base[k])
+    dm = str(raw.get("default_chat_mode") or "").strip().lower()
+    out["default_chat_mode"] = dm if dm in MODE_IDS else base["default_chat_mode"]
+    try:
+        cap = float(raw.get("agent_cap_usd", base["agent_cap_usd"]))
+        if cap != cap or isinstance(raw.get("agent_cap_usd"), bool):
+            raise ValueError
+    except (TypeError, ValueError):
+        cap = base["agent_cap_usd"]
+    out["agent_cap_usd"] = round(max(0.01, min(5.0, cap)), 4)
+    rm = raw.get("modes") if isinstance(raw.get("modes"), dict) else {}
+    out["modes"] = {}
+    for m in MODE_IDS:
+        r = rm.get(m) if isinstance(rm.get(m), dict) else {}
+        out["modes"][m] = {k: _clampi(r.get(k), lo, hi, base["modes"][m][k])
+                           for k, (lo, hi) in CAP_BOUNDS.items()}
+    return out
+
+
+def mode_spec(cm, mode):
+    """Model / effort / thinking (fixed per mode) + the owner-tunable caps."""
+    spec = dict(MODES[mode])
+    spec.update(cm["modes"][mode])
+    return spec
+
+
+# ------------------------------------------------------------------ fitting
+def est_tokens(text):
+    """Conservative token estimate (Bangla 1.3 / other 0.3 per char) used to
+    keep a request under its in_cap BEFORE it is sent. Over-counts on purpose."""
+    t = text or ""
+    bn = sum(1 for c in t if "\u0980" <= c <= "\u09ff")
+    return int(math.ceil(bn * TOK_PER_CHAR["bn_stress"] + (len(t) - bn) * TOK_PER_CHAR["other"])) + 4
+
+
+def fit_input(system, prompt, history, in_cap, max_turns):
+    """Trim so system + prompt + history <= in_cap (estimated, conservative).
+    Newest history is kept first; then the prompt is shortened from the
+    middle of its <data> as a last resort. Returns (prompt, history)."""
+    hist = [h for h in (history or []) if isinstance(h, dict)][-max_turns:] if max_turns else []
+    budget = in_cap - est_tokens(system)
+    p = prompt or ""
+    need = est_tokens(p)
+    if need > budget:
+        # keep the head (task) and the tail; cut the middle of the data
+        keep = max(200, int(len(p) * budget / float(max(need, 1))) - 20)
+        p = p[: keep // 2] + "\n…\n" + p[-(keep // 2):]
+        while est_tokens(p) > budget and len(p) > 200:
+            p = p[: len(p) // 2] + p[-(len(p) // 4):]
+        need = est_tokens(p)
+    left = budget - need
+    kept = []
+    for h in reversed(hist):
+        c = est_tokens(h.get("content") or "")
+        if c > left:
+            break
+        kept.append(h)
+        left -= c
+    kept.reverse()
+    # a conversation must start with a user turn
+    while kept and kept[0].get("role") != "user":
+        kept.pop(0)
+    return p, kept
+
+
 # ------------------------------------------------------------------ the preset
 # NOT APPLIED. manage.py apply_pricing_preset pricing_27oct --apply runs only
 # after the owner's written approval (DB backup first). Keys mirror the
@@ -314,20 +433,30 @@ PRESETS = {
             {"id": "c120", "price": 399, "credits": 120, "valid_months": 12},
             {"id": "c300", "price": 949, "credits": 300, "valid_months": 12},
         ],
-        # owner: 74 % net = 15 % Google then 15 % VAT. In the code's additive
-        # formula 1 - play - gateway - vat: 0.15 + 0.02 + 0.11 -> 0.72 (safer).
-        "vat": 0.11,
+        # owner: 74 % net = 15 % Google then 15 % VAT. pricing.net_fraction:
+        # (1 - 0.15 play - 0.02 gateway) / 1.15 = 0.722 (a little safer).
+        "vat": 0.15,
+        # credits per chat mode / agent task; provider_cost = the HARD-CAP cost
+        # (USD) so Owner Admin's NET-floor check holds them too.
+        "action_costs": {
+            "ai_chat_quick": {"provider_cost": 0.0003, "credits": 1},   # after the free quota
+            "ai_chat_smart": {"provider_cost": 0.0085, "credits": 2},
+            "ai_chat_pro": {"provider_cost": 0.0246, "credits": 5},
+            "ai_agent_task": {"provider_cost": 0.119, "credits": 25},
+        },
         "credit_model": {
             "enabled": True,
             "quick_free_per_day": 10,
-            "quick_credits_after_quota": 1,
-            "smart_credits": 2, "pro_credits": 5, "agent_credits": 25,
             "default_chat_mode": "smart",
             "annual_credit_months": 10,
             "agent_confirm": True,
+            # hard per-task cap, derived at ৳125/USD (holds at ৳120 too):
+            # final_agent_cap_usd(10, 125.0) = 0.1194
+            "agent_cap_usd": 0.119,
+            "user_text_max_chars": 4000,
+            "modes": {m: {k: MODES[m][k] for k in CAP_BOUNDS} for m in MODE_IDS},
         },
         "ad_rewards": {"rewarded_daily_cap": 5},
-        "free_monthly_credits": 20,
     },
 }
 

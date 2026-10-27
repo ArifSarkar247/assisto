@@ -1290,6 +1290,11 @@ EN.update({
     "pf_unlock_pct": "Staged unlock: % usable at once", "pf_unlock_hours": "Staged unlock: hours until the rest",
     "pf_refund_window_hours": "Refund window (24 or 48 hours)",
     "pf_profit_guard_min_bdt": "Profit Guard per user: alert above ৳", "pf_profit_guard_push": "Profit Guard: also push to staff",
+    "pf_cost_alert_enabled": "AI cost per credit: alert me when it is above the safe level",
+    "pf_cost_alert_budget_pct": "AI cost per credit: AI budget, % of price (40% profit rule = 24)",
+    "pf_cost_alert_min_credits": "AI cost per credit: judge a window only after this many credits",
+    "pf_cost_alert_safe_paisa": "AI cost per credit: my own safe level in paisa (0 = automatic)",
+    "cost_alert_title": "AI cost per credit is above the safe level:", "cost_alert_open": "Open AI page",
     "pf_trial_days": "Trial: days", "pf_trial_credits": "Trial: credits", "pf_trial_on_signup": "Trial: start at sign-up",
 })
 BN.update({
@@ -1328,6 +1333,11 @@ BN.update({
     "pf_unlock_pct": "ধাপে আনলক: শুরুতে কত % ব্যবহার করা যাবে", "pf_unlock_hours": "ধাপে আনলক: বাকিটা কত ঘণ্টা পরে",
     "pf_refund_window_hours": "রিফান্ডের সময়সীমা (২৪ বা ৪৮ ঘণ্টা)",
     "pf_profit_guard_min_bdt": "ইউজার-ভিত্তিক Profit Guard: এত ৳-এর বেশি হলে সতর্কতা", "pf_profit_guard_push": "Profit Guard: স্টাফকে পুশও পাঠান",
+    "pf_cost_alert_enabled": "প্রতি ক্রেডিটে AI খরচ নিরাপদ সীমা ছাড়ালে আমাকে জানাও",
+    "pf_cost_alert_budget_pct": "প্রতি ক্রেডিটে AI খরচ: AI বাজেট, দামের % (৪০% লাভের নিয়মে ২৪)",
+    "pf_cost_alert_min_credits": "প্রতি ক্রেডিটে AI খরচ: অন্তত এত ক্রেডিট কাটার পর হিসাব ধরো",
+    "pf_cost_alert_safe_paisa": "প্রতি ক্রেডিটে AI খরচ: আমার নিজের নিরাপদ সীমা, পয়সায় (০ = নিজে হিসাব)",
+    "cost_alert_title": "প্রতি ক্রেডিটে AI খরচ নিরাপদ সীমার উপরে:", "cost_alert_open": "AI পাতা খুলুন",
     "pf_trial_days": "ট্রায়াল: দিন", "pf_trial_credits": "ট্রায়াল: ক্রেডিট", "pf_trial_on_signup": "ট্রায়াল: সাইন আপেই শুরু",
 })
 # ---- /billing-v2 ----

@@ -33,6 +33,7 @@ from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
 from . import entitlements as _ENT   # plans-v2
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
+from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -591,6 +592,10 @@ def DEFAULTS():
         # plans-v2 (owner 27 Oct): Free / Premium / Business limits + the
         # 7-day Business trial, used only while feature flag plans_v2 is ON.
         "plans_v2": _ENT.defaults(),
+        # pricing-40 (owner 27 Oct): quick/smart/pro chat modes, free quick
+        # quota, input/output caps, annual credit months. DISABLED until the
+        # owner approves (manage.py apply_pricing_preset pricing_27oct).
+        "credit_model": _P40.credit_model_defaults(),
     }
 
 
@@ -720,6 +725,7 @@ def normalize(data):
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
         "retention": _norm_retention(d.get("retention"), base["retention"]),
         "plans_v2": _ENT.normalize(d.get("plans_v2")),
+        "credit_model": _P40.normalize_credit_model(d.get("credit_model")),
     }
 
 

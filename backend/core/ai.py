@@ -217,17 +217,35 @@ def _anthropic_client(key, timeout):
     return anthropic.Anthropic(api_key=key, timeout=timeout, max_retries=0)
 
 
-def anthropic_request(model, system, messages, max_tokens, effort="low"):
+# pricing-40 chat modes: which thinking setting each model accepts with
+# thinking OFF. Sonnet 5.5 -> {"type": "between_tools"} (effort <= high);
+# Haiku 5.5 -> {"type": "disabled"} (effort <= high); Opus 5.5 can't turn it
+# off (a 400) -> adaptive at low effort.
+_THINKING_OFF = {"claude-sonnet-5-5": "between_tools", "claude-haiku-5-5": "disabled"}
+_THINK_OFF_EFFORTS = ("low", "medium", "high")
+
+
+def anthropic_request(model, system, messages, max_tokens, effort="low",
+                      thinking=None, hard_cap=False):
     """The exact Messages API body for `model`. Opus/Sonnet/Haiku 5.5: effort
-    + adaptive thinking; NEVER temperature/top_p/top_k, never disabled
-    thinking, never an assistant prefill (the last message is the user's)."""
+    + adaptive thinking; NEVER temperature/top_p/top_k, never an assistant
+    prefill (the last message is the user's).
+    pricing-40 modes: thinking="off" turns thinking off where the model allows
+    it (Sonnet between_tools / Haiku disabled, effort <= high); hard_cap=True
+    makes max_tokens the TOTAL output ceiling (thinking included) instead of
+    adding thinking headroom, so a message can never cost more than its cap."""
     body = {"model": model, "system": system, "messages": messages,
             "max_tokens": int(max_tokens)}
     if model in C.EFFORT_MODELS:
         eff = effort if effort in C.EFFORTS else "low"
         body["output_config"] = {"effort": eff}
-        body["thinking"] = {"type": "adaptive"}
-        body["max_tokens"] = min(_MAX_TOKENS_CAP, int(max_tokens) + _THINK_HEADROOM[eff])
+        off = _THINKING_OFF.get(model) if thinking == "off" else None
+        if off and eff in _THINK_OFF_EFFORTS:
+            body["thinking"] = {"type": off}
+        else:
+            body["thinking"] = {"type": "adaptive"}
+        if not hard_cap:
+            body["max_tokens"] = min(_MAX_TOKENS_CAP, int(max_tokens) + _THINK_HEADROOM[eff])
     return body
 
 
@@ -258,7 +276,8 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     o = _opts()
     client = _anthropic_client(key, o.get("timeout", 45))
     body = anthropic_request(model, system, _messages(history, prompt), max_tokens,
-                             o.get("effort", "low"))
+                             o.get("effort", "low"), thinking=o.get("thinking"),
+                             hard_cap=bool(o.get("hard_cap")))
     try:
         if o.get("server_fallback") and model in C.SERVER_FALLBACK_MODELS:
             try:
@@ -427,13 +446,20 @@ def health_probe(name, key, timeout=10):
 # ------------------------------------------------------------------ generate
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
-             task_class=None):
+             task_class=None, mode=None, out_meta=None):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
     `task_class` ('main'|'cheap') overrides the feature/tier mapping.
     Returns (text, cost_usd). Raises AIUnavailable('no_key'|'budget'|
-    'user_limit'|'credits'|'queued') — callers show a clean Bangla state."""
+    'user_limit'|'credits'|'queued') — callers show a clean Bangla state.
+
+    pricing-40: `mode` ('quick'|'smart'|'pro') is honoured ONLY while the
+    PricingConfig credit_model block is enabled (owner approval); then the
+    mode fixes the Anthropic model, effort, thinking, the hard input/output
+    caps and the credits (ai_chat_<mode>; quick is free up to the daily
+    quota). Disabled -> `mode` is ignored and nothing changes. `out_meta`
+    (a dict) receives {"charged", "mode"}."""
     from . import ai_router as R
     providers = _providers()
     if not providers:
@@ -445,9 +471,41 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         raise AIUnavailable("user_limit")
     # Plan credits: config-driven, per-model-TIER cost (never per provider),
     # ATOMIC pre-charge; refunded below if no provider answers.
+    spec = None
+    if mode:
+        try:
+            from . import billing
+            from .logic import pricing_40 as P40
+            cm = billing.cfg().get("credit_model") or {}
+            if cm.get("enabled") and mode in P40.MODE_IDS:
+                spec = P40.mode_spec(cm, mode)
+                spec["quota"] = int(cm.get("quick_free_per_day") or 0)
+        except Exception:  # noqa: BLE001 — a bad block never breaks AI
+            spec = None
+    if spec is None:
+        mode = None
     charged = 0
     spend_ref = ""
-    if user is not None:
+    if user is not None and spec is not None:
+        from . import billing
+        from .logic import pricing_40 as P40
+        action = P40.MODE_ACTION[mode]
+        if action not in billing.cfg()["action_costs"]:
+            action = "ai_msg_medium"        # never free by accident
+        free = False
+        if mode == "quick" and spec["quota"] > 0:
+            used = AIUsage.objects.filter(user=user, feature=(feature or "")[:40], ok=True,
+                                          credits_charged=0,
+                                          created_at__gte=R.day_start()).count()
+            free = used < spec["quota"]
+        if not free:
+            res = billing.charge(user, action, qty=1, note=feature or action)
+            if not res["ok"]:
+                raise AIUnavailable("budget" if res.get("reason") == "guard_over"
+                                    else "credits")
+            charged = res["charged"]
+            spend_ref = res.get("spend_ref", "")
+    elif user is not None:
         from . import billing
         from .logic import pricing
         # Profit-guard model-downgrade hook: a FREE user's action under a
@@ -471,6 +529,13 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     opts = {"timeout": conf["timeouts_s"][klass], "klass": klass,
             "effort": C.effort_for(conf, tier, klass),
             "server_fallback": conf["server_fallback"]}
+    if spec is not None:
+        from .logic import pricing_40 as P40
+        prompt, history = P40.fit_input(system, prompt, history, spec["in_cap"],
+                                        spec["history_turns"])
+        max_tokens = spec["out_cap"]
+        opts.update({"effort": spec["effort"], "hard_cap": True,
+                     "thinking": "off" if spec["thinking"] != "adaptive" else None})
 
     attempts = []
     skipped_cap = 0
@@ -485,6 +550,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             attempts.append(name + ":circuit")
             continue
         model = C.model_for(conf, name, tier, klass)
+        if spec is not None and name == "anthropic":
+            model = spec["model"]
         fn = globals()["_call_" + name]
         token = _CALL_OPTS.set(opts)
         t0 = _time.monotonic()
@@ -516,7 +583,9 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             input_tokens=itok, output_tokens=otok, cost_usd=cost,
             provider=name, tier=tier, task_class=klass, latency_ms=latency,
             ok=True, hops=hops, attempts="|".join(attempts)[:240],
-            cache_read_tokens=cr, cache_write_tokens=cw)
+            cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged)
+        if isinstance(out_meta, dict):
+            out_meta.update({"charged": charged, "mode": mode or ""})
         try:
             from . import billing
             billing.record_ai_cost_usd(cost)     # Profit Guard (USD -> ৳ ledger)

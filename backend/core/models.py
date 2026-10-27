@@ -592,6 +592,9 @@ class AIUsage(models.Model):
     cache_read_tokens = models.IntegerField(default=0)
     cache_write_tokens = models.IntegerField(default=0)
     error_kind = models.CharField(max_length=30, blank=True, default="")
+    # pricing-40: credits this call charged (0 = free quota / refunded / no
+    # user); the daily cost-per-credit alert divides cost by this.
+    credits_charged = models.IntegerField(default=0)
 
     class Meta:
         indexes = [models.Index(fields=["created_at"]),
