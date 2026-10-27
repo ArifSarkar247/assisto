@@ -230,6 +230,8 @@ urlpatterns = [
     path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
     path("business/khata/tagada/sms/<int:pk>", bz.TagadaSmsSendView.as_view()),   # smsotp
     path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
+    path("business/khata/tagada/schedule/<int:pk>", bz.TagadaScheduleDetailView.as_view()),   # ledger100
+    path("business/khata/entries/<int:pk>", bz.KhataEntryEditView.as_view()),   # ledger100
     path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
     path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
     path("business/cashbox/<str:day>/entries", bz.CashboxEntryView.as_view()),

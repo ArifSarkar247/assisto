@@ -2015,10 +2015,21 @@ class KhataEntry(models.Model):
     bill_photo = models.ImageField(upload_to="khata_bills/", null=True, blank=True)
     at = models.DateTimeField()                        # owner-supplied event time
     created_at = models.DateTimeField(auto_now_add=True)
+    # ledger100: offline entry. The phone mints `client_id` once per entry and
+    # replays it until the server answers, so a retried sync never books the
+    # same entry twice (unique per party when set). `version` bumps on every
+    # edit; an edit made offline against an older version is refused (409)
+    # instead of silently overwriting a newer change.
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    version = models.PositiveIntegerField(default=1)
+    edited_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["at", "id"]
         indexes = [models.Index(fields=["party", "at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["party", "client_id"], condition=~models.Q(client_id=""),
+            name="khata_entry_client_uniq")]
 
 
 class CashboxDay(models.Model):
@@ -2059,9 +2070,22 @@ class TagadaSchedule(models.Model):
     preset = models.CharField(max_length=16, default="reminder")  # polite/reminder/firm/thanks
     channel = models.CharField(max_length=20, default="whatsapp_share")  # or 'sms'
     next_at = models.DateTimeField()
-    interval_days = models.IntegerField(default=7)
+    interval_days = models.IntegerField(default=7)   # 0 = once
     enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ledger100: the tagada_sweep cron. until_paid stops it once the due is 0;
+    # pay_hint = the owner's own bKash/Nagad {method, number} for the text;
+    # last_* = what the last firing did (sms_sent / push / paid / ...);
+    # awaiting_owner = a push asked the owner to send it by hand.
+    until_paid = models.BooleanField(default=True)
+    pay_hint = models.JSONField(default=dict, blank=True)
+    last_fired_at = models.DateTimeField(null=True, blank=True)
+    last_result = models.CharField(max_length=40, blank=True, default="")
+    fire_count = models.PositiveIntegerField(default=0)
+    awaiting_owner = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["enabled", "next_at"])]
 
 
 # ===========================================================================
