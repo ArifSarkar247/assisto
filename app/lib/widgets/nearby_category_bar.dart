@@ -27,8 +27,6 @@ class NearbyCategoryBar extends StatelessWidget {
         return t.nearbyCatPharmacy;
       case NearbyCat.atmBank:
         return t.nearbyCatAtm;
-      case NearbyCat.mobileAgent:
-        return t.nearbyCatAgent;
       case NearbyCat.police:
         return t.nearbyCatPolice;
       case NearbyCat.fire:
@@ -65,6 +63,7 @@ class NearbyCategoryBar extends StatelessWidget {
               onSelected: (_) => onToggleFavView(),
             ),
           ),
+          if (showAll)
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),
             child: ChoiceChip(

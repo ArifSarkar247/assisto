@@ -1,17 +1,43 @@
 {
   "en": {
     "truthPackNeverExpires": "Never expires",
-    "@truthPackNeverExpires": {"description": "Credits screen: a bought credit pack row. Pack credits never expire (core/credits.py rule B)."},
+    "@truthPackNeverExpires": {
+      "description": "Credits screen: a bought credit pack row. Pack credits never expire (core/credits.py rule B)."
+    },
     "truthOnbWinLedgerTitle": "Add your first ledger customer",
-    "@truthOnbWinLedgerTitle": {"description": "Onboarding first win (business role): opens the Digital Khata."},
+    "@truthOnbWinLedgerTitle": {
+      "description": "Onboarding first win (business role): opens the Digital Khata."
+    },
     "truthOnbWinLedgerSub": "Write who owes you; send a polite reminder later.",
     "truthOnbWinBillTitle": "Save a bill or receipt photo",
-    "@truthOnbWinBillTitle": {"description": "Onboarding first win: opens the document vault. It stores the photo; it does not read the amount."},
+    "@truthOnbWinBillTitle": {
+      "description": "Onboarding first win: opens the document vault. It stores the photo; it does not read the amount."
+    },
     "truthOnbWinBillSub": "Keep it safe in your vault and find it in seconds.",
     "truthOnbWinJourneySub": "Pick who watches your trip; they are alerted if you don't arrive on time.",
-    "@truthOnbWinJourneySub": {"description": "Onboarding first win: Safe Journey. Alerts go only to the watchers the user picks."},
+    "@truthOnbWinJourneySub": {
+      "description": "Onboarding first win: Safe Journey. Alerts go only to the watchers the user picks."
+    },
     "truthJourneyAddFamily": "Add a family member",
-    "@truthJourneyAddFamily": {"description": "Safe Journey start: button shown when the user has nobody in My Circle to watch the trip."}
+    "@truthJourneyAddFamily": {
+      "description": "Safe Journey start: button shown when the user has nobody in My Circle to watch the trip."
+    },
+    "truthNearbyNeedLocation": "Turn on location to see real places near you",
+    "@truthNearbyNeedLocation": {
+      "description": "Nearby: no location — no list is shown (no sample data)."
+    },
+    "truthNearbyNeedLocationBody": "We only show places that really are around you, from live map data.",
+    "truthNearbyLoadFailed": "Couldn't load nearby places",
+    "truthNearbyNoneNearby": "No places of this type found near you",
+    "truthNearbySource": "Map data: {source}",
+    "@truthNearbySource": {
+      "description": "Nearby: licence line of the live source, e.g. \"© OpenStreetMap contributors (ODbL)\".",
+      "placeholders": {
+        "source": {
+          "type": "String"
+        }
+      }
+    }
   },
   "bn": {
     "truthPackNeverExpires": "মেয়াদ কখনো শেষ হয় না",
@@ -20,6 +46,11 @@
     "truthOnbWinBillTitle": "বিল বা রসিদের ছবি রাখুন",
     "truthOnbWinBillSub": "ভল্টে নিরাপদে থাকবে, দরকারের সময় সেকেন্ডেই খুঁজে পাবেন।",
     "truthOnbWinJourneySub": "কে আপনার যাত্রা দেখবেন বেছে নিন; সময়মতো না পৌঁছালে তাঁদের জানানো হবে।",
-    "truthJourneyAddFamily": "পরিবারের একজনকে যোগ করুন"
+    "truthJourneyAddFamily": "পরিবারের একজনকে যোগ করুন",
+    "truthNearbyNeedLocation": "আশেপাশের আসল জায়গা দেখতে লোকেশন চালু করুন",
+    "truthNearbyNeedLocationBody": "শুধু আপনার আশেপাশে সত্যিই যে জায়গাগুলো আছে, সেগুলোই লাইভ ম্যাপ তথ্য থেকে দেখাই।",
+    "truthNearbyLoadFailed": "কাছের জায়গাগুলো আনা গেল না",
+    "truthNearbyNoneNearby": "আপনার কাছে এই ধরনের কোনো জায়গা পাওয়া যায়নি",
+    "truthNearbySource": "ম্যাপের তথ্য: {source}"
   }
 }

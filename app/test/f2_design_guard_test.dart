@@ -59,7 +59,7 @@ const _colorAllow = <String, int>{
   'lib/widgets/guide_data.dart': 9,
   'lib/widgets/inbox_item_card.dart': 4,
   'lib/widgets/meddb_drug_card.dart': 2,
-  'lib/widgets/nearby_data.dart': 11,
+  'lib/widgets/nearby_data.dart': 10,
   'lib/widgets/ref_leaderboard.dart': 3,
   'lib/widgets/safety_checkin_card.dart': 1,
   'lib/widgets/sos_button.dart': 1,
