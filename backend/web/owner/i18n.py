@@ -1453,3 +1453,28 @@ BN.update({
     "ai_alert_title": "AI খরচ:", "ai_alert_full": "সীমা শেষ", "ai_alert_open": "AI পাতা খুলুন",
 })
 # ---- /ai-router ----
+
+# ---- agent-core: Owner Admin -> Agent runs ----
+EN.update({
+    "nav_agent_runs": "Agent runs",
+    "agr_intro": "Every Assisto agent run (flag agent_core): success, steps, credits charged and the real AI cost. Goals and the trail are MASKED (phone, NID and account numbers are tokens). AI cost also counts in the AI page's daily caps.",
+    "agr_days": "Days", "agr_runs": "Runs", "agr_success": "Success (of finished)",
+    "agr_credits": "Credits", "agr_cost": "Run cost (USD)", "agr_ai_cost": "AI cost, agent:* (USD)",
+    "agr_avg": "Avg tool steps / AI calls", "agr_feedback": "Feedback",
+    "agr_topic": "Topic", "agr_goal": "Goal (masked)", "agr_steps": "Steps / AI calls",
+    "agr_errors": "Top errors:", "agr_none": "No agent runs yet.",
+    "agr_kind": "Kind", "agr_tool": "Tool", "agr_summary": "Summary (masked)",
+    "agr_event": "Event", "agr_approval": "Approval",
+})
+BN.update({
+    "nav_agent_runs": "এজেন্ট রান",
+    "agr_intro": "Assisto এজেন্টের প্রতিটি রান (সুইচ agent_core): সফলতা, ধাপ, কাটা ক্রেডিট আর আসল AI খরচ। লক্ষ্য ও বিবরণ মাস্ক করা (ফোন, NID ও অ্যাকাউন্ট নম্বর টোকেন হয়ে থাকে)। AI খরচ AI পাতার দৈনিক সীমাতেও গোনা হয়।",
+    "agr_days": "দিন", "agr_runs": "রান", "agr_success": "সফল (শেষ হওয়াগুলোর মধ্যে)",
+    "agr_credits": "ক্রেডিট", "agr_cost": "রানের খরচ (USD)", "agr_ai_cost": "AI খরচ, agent:* (USD)",
+    "agr_avg": "গড় টুল-ধাপ / AI কল", "agr_feedback": "মতামত",
+    "agr_topic": "বিষয়", "agr_goal": "লক্ষ্য (মাস্ক করা)", "agr_steps": "ধাপ / AI কল",
+    "agr_errors": "সবচেয়ে বেশি ত্রুটি:", "agr_none": "এখনো কোনো এজেন্ট রান নেই।",
+    "agr_kind": "ধরন", "agr_tool": "টুল", "agr_summary": "সারাংশ (মাস্ক করা)",
+    "agr_event": "ঘটনা", "agr_approval": "অনুমোদন",
+})
+# ---- /agent-core ----

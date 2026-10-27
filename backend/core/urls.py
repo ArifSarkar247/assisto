@@ -1158,3 +1158,17 @@ from . import views_plans_v2 as pv2  # noqa: E402
 urlpatterns += [
     path("plans/v2", pv2.PlansV2View.as_view()),
 ]
+
+# ---- agent-core ---- (flag agent_core, default OFF; AGENT_CORE_DESIGN_BN.md)
+from .agentcore import views as acv  # noqa: E402
+urlpatterns += [
+    path("agent-core/tools", acv.ToolsView.as_view()),
+    path("agent-core/goals", acv.GoalsView.as_view()),
+    path("agent-core/runs", acv.RunsView.as_view()),
+    path("agent-core/runs/<int:pk>", acv.RunView.as_view()),
+    path("agent-core/runs/<int:pk>/cancel", acv.RunCancelView.as_view()),
+    path("agent-core/runs/<int:pk>/feedback", acv.RunFeedbackView.as_view()),
+    path("agent-core/approvals", acv.ApprovalsView.as_view()),
+    path("agent-core/approvals/<int:pk>", acv.ApprovalView.as_view()),
+]
+# ---- /agent-core ----

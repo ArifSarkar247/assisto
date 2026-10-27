@@ -1,0 +1,50 @@
+# Agent Core TESTING CENTER (owner final order 27 Oct, PART 2): the agent's
+# unit tests + every topic's >=200-goal eval set, graded deterministically,
+# on every ci/** push. CI mode = scripted brain at the AI router's provider
+# seam (no key, no spend); the per-case report is uploaded as an artifact.
+# Live-model evals run on the server only, with the owner's approval
+# (manage.py agent_eval --live), never here.
+name: agent-eval
+
+on:
+  push:
+    branches: ['ci/**']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to check'
+        required: true
+
+concurrency:
+  group: agent-eval-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -q -r backend/requirements.txt
+      - name: agent core unit tests + eval sets
+        working-directory: backend
+        env:
+          AGENT_EVAL_REPORT: ${{ runner.temp }}/agent_eval_money.json
+        run: python manage.py test core.tests_agentcore core.tests_agentcore_eval web.tests_agentcore_owner --settings=assisto_backend.settings_test --noinput -v 2
+      - name: upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-eval-report
+          path: ${{ runner.temp }}/agent_eval_*.json
+          if-no-files-found: ignore

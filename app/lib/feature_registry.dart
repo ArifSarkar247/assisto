@@ -82,6 +82,7 @@ const Map<String, bool> kFeatureDefaults = {
   'proactive_ai': true,
   'area_community': false,
   'agent_studio': false,
+  'agent_core': false,
   'task_manager': true,
   'cost_estimator': true,
   'mock_interview': true,
