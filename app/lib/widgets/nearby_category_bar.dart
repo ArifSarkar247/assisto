@@ -11,8 +11,13 @@ class NearbyCategoryBar extends StatelessWidget {
   final ValueChanged<NearbyCat?> onSelect;
   final VoidCallback onToggleFavView;
 
+  /// truth: live places are fetched per category, so the live screen hides
+  /// the "All" chip (there is no honest single "everything" query).
+  final bool showAll;
+
   const NearbyCategoryBar({
     super.key,
+    this.showAll = true,
     required this.selected,
     required this.showFavourites,
     required this.onSelect,

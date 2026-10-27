@@ -53,7 +53,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
   ({double lat, double lon})? _pos; // null = no location
   bool _locating = true;
-  bool _permNeeded = false;
 
   bool _fetching = false;
   Object? _error;
@@ -115,10 +114,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   Future<void> _locate() async {
-    setState(() {
-      _locating = true;
-      _permNeeded = false;
-    });
+    setState(() => _locating = true);
     final dbg = widget.debugLocation;
     if (dbg != null) {
       _pos = dbg;
@@ -140,8 +136,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         final p = await Geolocator.getCurrentPosition();
         _pos = (lat: p.latitude, lon: p.longitude);
       } catch (_) {
-        _pos = null;
-        _permNeeded = true; // honest: no location -> no list, no sample
+        _pos = null; // honest: no location -> no list, no sample
       }
     }
     if (!mounted) return;
