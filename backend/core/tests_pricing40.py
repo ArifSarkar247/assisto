@@ -205,6 +205,8 @@ class CalculatorTests(SimpleTestCase):
 class Base(TestCase):
     def setUp(self):
         cache.clear()
+        from core.payments import play_verify
+        play_verify._clear()
         mock.patch("core.ai._providers", return_value=list(ALL)).start()
         self.notify = mock.patch("core.push.notify_owner", return_value={}).start()
         self.addCleanup(mock.patch.stopall)
@@ -290,17 +292,67 @@ class PresetAppliedTests(Base):
         cheapest = min(v for _, v in P40.bdt_per_credit_rows(c))
         self.assertAlmostEqual(A.safe_level(c), round(cheapest * 0.24, 4))
 
-    def test_new_products_on_sale_only_after_preset(self):
-        from core.payments import catalog
+    def verify_all(self):
+        from core.payments import play_verify
+
+        def api(method, path):
+            if path.startswith("subscriptions/"):
+                return {"basePlans": [{"basePlanId": "monthly", "state": "ACTIVE"},
+                                      {"basePlanId": "annual", "state": "ACTIVE"}]}
+            return {"status": "active"}
+        return play_verify.check_all(api=api)
+
+    def test_new_products_not_sold_until_play_verifies_them(self):
+        from core import plans
+        from core.payments import catalog, play_verify
         skus = catalog.all_skus()
         for sku in ("plus_monthly", "plus_yearly", "premium_pro_monthly", "premium_pro_yearly",
                     "pack_c50", "pack_c300"):
-            self.assertIn(sku, skus)
+            self.assertIn(sku, skus)                       # configured …
+            self.assertIsNone(catalog.price(sku, "play"))   # … but NOT for sale
+            self.assertIsNone(catalog.price(sku, "gateway"))
+        self.assertEqual(catalog.price("premium_monthly", "play"), 449)   # existing: not gated
+        self.assertNotIn("premium_pro", [p["id"] for p in plans.plans_public("bn")])
         self.assertEqual(catalog.base_price("premium_pro_yearly"), 9990)
         self.assertEqual(catalog.play_product("premium_pro_monthly"),
                          ("assisto_premium_pro", "monthly"))
-        ids = [p["id"] for p in __import__("core.plans", fromlist=["x"]).plans_public("bn")]
-        self.assertIn("premium_pro", ids)
+        # Play says the Pro monthly base plan is still a DRAFT -> stays off sale
+        out = play_verify.check_all(api=lambda m, p: (
+            {"basePlans": [{"basePlanId": "monthly", "state": "DRAFT"}]}
+            if p.startswith("subscriptions/") else {"status": "inactive"}))
+        self.assertEqual(out["verified"], 0)
+        self.assertIsNone(catalog.price("premium_pro_monthly", "play"))
+        out = self.verify_all()
+        self.assertEqual(out["verified"], out["checked"])
+        self.assertEqual(catalog.price("premium_pro_monthly", "play"), 999)
+        self.assertEqual(catalog.price("pack_c300", "play"), 949)
+        self.assertIn("premium_pro", [p["id"] for p in plans.plans_public("bn")])
+
+    def test_not_configured_play_verifies_nothing(self):
+        from core.payments import play_verify
+        out = play_verify.check_all()
+        self.assertEqual(out["verified"], 0)
+        self.assertTrue(all(r["state"] == "NOT_CONFIGURED" for r in out["rows"]))
+
+    def test_owner_admin_status_rows(self):
+        from core.payments import play_verify
+        rows = play_verify.status_rows()
+        self.assertIn("premium_pro_monthly", [r["sku"] for r in rows])
+        self.assertIn("pack_c50", [r["sku"] for r in rows])
+        self.assertNotIn("premium_monthly", [r["sku"] for r in rows])   # existing: not gated
+        self.assertTrue(all(not r["ok"] for r in rows))
+
+    def test_existing_subscriber_sees_their_own_price(self):
+        from core import plans
+        from core.models import PaidOrder
+        with mock.patch("core.payments.play.active_sub_skus", return_value={"premium_monthly"}):
+            PaidOrder.objects.create(channel="play", order_id="GPA.1", user=self.u,
+                                     sku="premium_monthly", kind="sub", plan="premium",
+                                     months=1, price=199, purchased_at=timezone.now())
+            rows = {r["id"]: r for r in plans.mark_your_price(self.u, plans.plans_public("en"))}
+        self.assertEqual(rows["premium"]["your_price"], 199.0)
+        self.assertEqual(rows["premium"]["price"], 449)          # new buyers
+        self.assertNotIn("your_price", rows["business"])
 
     def test_smart_default_two_credits_sonnet_thinking_off_cached(self):
         before = self.balance()
@@ -371,8 +423,14 @@ class PresetAppliedTests(Base):
 
     def test_plan_texts_show_message_counts(self):
         from core import plans
+        self.verify_all()
         rows = {p["id"]: p for p in plans.plans_public("bn")}
+        self.assertIn("৭৬টি প্রো মেসেজ", rows["premium_pro"]["benefits"][0])
+        self.assertIn("১০টি পর্যন্ত প্রো", rows["premium"]["benefits"][0])
+        self.assertIn("দিনে ১০টি ফ্রি দ্রুত উত্তর", rows["premium"]["benefits"][0])
         self.assertIn("৭৫টি স্মার্ট মেসেজ", rows["premium"]["benefits"][0])
+        self.assertIn("বছরে ৭৫০টি স্মার্ট মেসেজ", rows["annual"]["benefits"][0])
+        self.assertEqual(rows["annual"]["credits"], 125)
         self.assertIn("প্রো মেসেজ", rows["premium_pro"]["benefits"][0])
         blob = repr(rows).lower()
         for name in ("opus", "sonnet", "haiku", "claude"):

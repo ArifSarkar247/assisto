@@ -62,11 +62,30 @@ def base_price(sku, cfg=None):
     return int(pricing.annual_price(plan, c))
 
 
-def price(sku, channel, cfg=None):
-    """Price (whole ৳) of `sku` on `channel`; None when not for sale."""
+# pricing-40 (owner 27 Oct night): every NEW product stays NOT purchasable
+# until the server has verified through the Play Developer API that its Play
+# product / base plan exists and is ACTIVE (core/payments/play_verify.py).
+LEGACY_PACKS = ("p20", "p50", "p100", "p200")
+GATED_PREFIXES = ("plus_", "premium_pro_", "probashi_")
+
+
+def is_gated(sku):
+    if sku.startswith("pack_"):
+        return sku[5:] not in LEGACY_PACKS
+    return sku.startswith(GATED_PREFIXES)
+
+
+def price(sku, channel, cfg=None, gate=True):
+    """Price (whole ৳) of `sku` on `channel`; None when not for sale.
+    gate=False (only for syncing a purchase Google already made) skips the
+    Play-verified check."""
     base = base_price(sku, cfg)
     if base is None or base <= 0:
         return None
+    if gate and is_gated(sku):
+        from . import play_verify
+        if not play_verify.verified(sku):
+            return None
     over = pay_cfg(cfg)["channel_prices"].get(channel, {}).get(sku)
     return int(over) if over else base
 

@@ -271,6 +271,16 @@ def plans_public(lang="bn"):
     from .logic import pricing
     from . import billing
     out = pricing.plan_public(lang, billing.cfg())
+    # pricing-40: a NEW plan (Plus, Premium Pro) is listed only once one of
+    # its Play products is verified ACTIVE and it is for sale — never a plan
+    # the user cannot buy.
+    try:
+        from .payments import catalog
+        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus()
+                if catalog.price(s, "play") or catalog.price(s, "gateway")}
+    except Exception:  # noqa: BLE001
+        sold = set()
+    out = [r for r in out if r.get("id") not in pricing.NEW_PLAN_ORDER or r.get("id") in sold]
     # owner 26 Oct: never sell what is not built. Probashi (USD billing) has
     # no purchasable SKU yet, so it is NOT listed until it does.
     s = PLANS.get("probashi") if PUBLIC_PROBASHI else None
@@ -284,6 +294,34 @@ def plans_public(lang="bn"):
             "ads": s["ads"], "family": s["family"],
             "credits": (c["plans"]["premium"]["credits"] if c else s["credits"]),
         })
+    return out
+
+
+def mark_your_price(user, rows):
+    """pricing-40: for the plan the user is subscribed to right now, add
+    your_price / your_currency / your_period = the price of their LAST paid
+    order of that subscription (Google's real charge — a legacy-cohort price
+    stays theirs after a base-plan price change). Other rows unchanged."""
+    from .models import PaidOrder
+    from .payments import play
+    skus = play.active_sub_skus(user)
+    if not skus:
+        return rows
+    out = []
+    for r in rows:
+        if not isinstance(r, dict):
+            out.append(r)
+            continue
+        pid = "premium" if r.get("id") == "annual" else r.get("id")
+        period = "yearly" if r.get("period") == "yr" else "monthly"
+        sku = "%s_%s" % (pid, period)
+        if sku in skus:
+            o = (PaidOrder.objects.filter(user=user, sku=sku, kind="sub", status="paid")
+                 .order_by("-purchased_at").first())
+            if o is not None and o.price:
+                r = dict(r, your_price=float(o.price), your_currency=o.currency,
+                         current=True)
+        out.append(r)
     return out
 
 

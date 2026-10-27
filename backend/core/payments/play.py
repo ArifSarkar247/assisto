@@ -435,7 +435,7 @@ def sync_subscription(token, user=None, now=None, c=None):
                                     "acknowledgementState", "regionCode")}
     pp.raw["latestSuccessfulOrderId"] = line.get("latestSuccessfulOrderId")
     price, cur = _money((line.get("autoRenewingPlan") or {}).get("recurringPrice"))
-    amount = price if (price and cur == "BDT") else Decimal(catalog.price(sku, "play") or 0)
+    amount = price if (price and cur == "BDT") else Decimal(catalog.price(sku, "play", gate=False) or 0)
     pp.price_bdt = amount
     pp.save()
     if linked:
@@ -578,7 +578,7 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     if ps != 0 or pp.revoked:
         return {"ok": False, "state": "canceled", "sku": sku}
     granted = 0
-    amount = Decimal(catalog.price(sku, "play") or 0)
+    amount = Decimal(catalog.price(sku, "play", gate=False) or 0)
     if not pp.granted:
         oid = pp.order_id or ("tok:" + th[:40])
         rp, rc, src = _real_price(pp.order_id, (amount, "BDT", "catalog"), c)

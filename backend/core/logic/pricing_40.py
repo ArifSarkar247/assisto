@@ -742,7 +742,7 @@ def v2_report():   # pragma: no cover
     return "\n".join(L)
 
 
-def plan_message_line(pid, credits, cfg, bn=True):
+def plan_message_line(pid, credits, cfg, bn=True, year=False):
     """Plan-text line with the message COUNT the credits buy — only while the
     credit_model is enabled (else None: today's credit-only text). Never names
     a provider or model (owner rule: the app never says which AI answers)."""
@@ -755,16 +755,17 @@ def plan_message_line(pid, credits, cfg, bn=True):
     q = int(cm.get("quick_free_per_day") or 0)
     d = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
     n = (lambda v: str(int(v)).translate(d)) if bn else (lambda v: str(int(v)))
+    per_bn, per_en = ("বছরে", "a year") if year else ("মাসে", "a month")
     if pid == "premium_pro" and pro:
-        core = (f"মাসে {n(credits // pro)}টি প্রো মেসেজ (সবচেয়ে শক্তিশালী AI)" if bn
-                else f"{credits // pro} Pro messages a month (our strongest AI)")
+        core = (f"{per_bn} {n(credits // pro)}টি প্রো মেসেজ (সবচেয়ে শক্তিশালী AI)" if bn
+                else f"{credits // pro} Pro messages {per_en} (our strongest AI)")
     elif smart:
-        core = (f"মাসে {n(credits // smart)}টি স্মার্ট মেসেজ" if bn
-                else f"{credits // smart} Smart messages a month")
+        core = (f"{per_bn} {n(credits // smart)}টি স্মার্ট মেসেজ" if bn
+                else f"{credits // smart} Smart messages {per_en}")
         up = int((cm.get("upgrades_per_month") or {}).get(pid) or 0)
         if up:
             core += (f" (কঠিন প্রশ্নে মাসে {n(up)}টি পর্যন্ত প্রো)" if bn
-                     else f" (up to {up} Pro answers for hard questions)")
+                     else f" (up to {up} Pro answers a month for hard questions)")
     else:
         return None
     if q:

@@ -7,12 +7,19 @@
   3. credits_verify (balance == ledger == lots)
   4. per-user Profit Guard (cost this month > paid this month)
   5. pricing-40: real AI cost per credit vs the safe level (owner alert only)
+  6. pricing-40: Play-verify every NEW sku (sold only while ACTIVE in Play)
 Each step saves a BillingReport (Owner Admin -> Payments -> Billing reports).
 
 Cron (Asia/Dhaka), on the Assisto box — owner adds it to /etc/cron.d/assisto-app:
     40 3 * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py billing_daily >> /home/ubuntu/assisto/backend/logs/billing_daily.log 2>&1
 """
 from django.core.management.base import BaseCommand
+
+
+def _verify():
+    from core.payments import play_verify
+    out = play_verify.check_all()
+    return {"checked": out["checked"], "verified": out["verified"]}
 
 
 class Command(BaseCommand):
@@ -24,7 +31,8 @@ class Command(BaseCommand):
         steps = (("voided_poll", R.voided_poll), ("reconcile", RC.reconcile),
                  ("credits_verify", RC.credits_verify),
                  ("profit_guard", RC.profit_guard_users),
-                 ("ai_cost_per_credit", ai_cost_alert.check))
+                 ("ai_cost_per_credit", ai_cost_alert.check),
+                 ("play_sku_verify", _verify))
         for name, fn in steps:
             try:
                 out = fn()

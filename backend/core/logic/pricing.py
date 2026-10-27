@@ -1403,6 +1403,19 @@ def plan_benefits(pid, lang, cfg):
     return lines
 
 
+def _annual_benefits(lang, cfg):
+    """Premium's lines; with the credit model on, the message line counts the
+    YEAR's credits (10x monthly), never the monthly plan's number."""
+    lines = plan_benefits("premium", lang, cfg)
+    cm = cfg["credit_model"]
+    if cm["enabled"]:
+        yearly = cfg["plans"]["premium"]["credits"] * cm["annual_credit_months"]
+        msg = _P40.plan_message_line("premium", yearly, cfg, lang == "bn", year=True)
+        if msg:
+            lines[0] = msg
+    return lines
+
+
 def plan_public(lang, cfg):
     """Build the localized public plans list from config. REPLACES the hard-coded
     Free/Premium/Business entries in core/plans.py. probashi/founder are handled
@@ -1436,7 +1449,7 @@ def plan_public(lang, cfg):
         "price": yearly, "cur": CUR, "period": "yr",
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
-        "benefits": plan_benefits("premium", lang, cfg),
+        "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],
         # the monthly pool every month (pricing-40 enabled: x annual_credit_months/12)
         "credits": (prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12

@@ -6008,3 +6008,16 @@ class AiAnswerReport(models.Model):
         ordering = ["-created_at", "-id"]
         indexes = [models.Index(fields=["user", "created_at"])]
 # ---- /ai-report ----
+
+
+class PlaySkuCheck(models.Model):
+    """pricing-40: the last Play Developer API check of one NEW sku — does the
+    Play product (and base plan) exist and is it ACTIVE? A gated sku is sold
+    only while ok is True (core/payments/play_verify.py)."""
+    sku = models.CharField(max_length=40, unique=True)
+    product_id = models.CharField(max_length=80, blank=True, default="")
+    base_plan = models.CharField(max_length=40, blank=True, default="")
+    state = models.CharField(max_length=24, blank=True, default="")
+    ok = models.BooleanField(default=False)
+    detail = models.CharField(max_length=160, blank=True, default="")
+    checked_at = models.DateTimeField(null=True, blank=True)
