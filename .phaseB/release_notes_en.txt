@@ -1,1 +1,1 @@
-Build 251: Behind-the-scenes groundwork for a family budget from money sent home from abroad (not visible yet); stability fixes.
+Build 252: Accepting a call from outside the app now opens the call straight away (also from the lock screen) with no home flash or "Call ended" screen; the phone keeps ringing until you answer. Use Assisto during a call: a green return-to-call bar on every screen and a small movable video window. Plan descriptions now list only features that really exist.
