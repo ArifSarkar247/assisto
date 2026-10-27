@@ -58,11 +58,21 @@ def cfg():
 
 
 def flag_on(user, play=False):
+    """The flag for this account, computed from the flag ROW directly (not
+    through feature_flags.resolve, whose probashi hook calls back in here —
+    that would recurse). Same rules: on for all / rollout / allow-list, and
+    owner / staff preview."""
     if user is None or not getattr(user, "pk", None):
         return False
     try:
         from . import feature_flags as FF
-        return bool(FF.resolve(user, play)[0].get(FLAG))
+        r = FF.rows().get(FLAG)
+        if not r:
+            return False
+        if (r["enabled_all"] and (r["enabled_play"] or not play)
+                and FF.in_rollout(FLAG, user.pk, r["rollout_pct"])):
+            return True
+        return FF.is_privileged(user) or user.pk in r["allow_user_ids"]
     except Exception:
         return False
 
@@ -101,9 +111,11 @@ def month_key(now=None):
 def payer_paid(payer):
     """The payer's own plan is probashi right now (Play: active, cancelled
     until expiry, or grace)."""
+    # the payer's OWN plan only (never effective_plan: its seat hook would
+    # loop between two families that once invited each other)
     from . import plans
     try:
-        return plans.effective_plan(payer) == "probashi"
+        return (payer.plan or "") == "probashi" and plans.plan_active(payer)
     except Exception:
         return False
 
