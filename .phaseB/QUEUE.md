@@ -1,3 +1,6 @@
+## ⬛ TOP RULE ABOVE EVERYTHING — OWNER MASTER QUALITY ORDER 27 Oct (SILICON VALLEY STANDARD)
+Full text, word for word: **owner_actions/MASTER_QUALITY_ORDER.md** — read it before starting or briefing any work. Every feature: benchmark competitors + their review complaints → 3 reasons + wow moment → Bangla user journeys → build every missing piece → polish → simulated-week customer test → Bangla 10-min owner test → honest board score. Measured bars in owner_actions/QUALITY_BARS_BN.md (real numbers only). Also: one design system + line-by-line Bangla review (E); no fake data, licensed sources (F); AI eval sets ≥200 bn/en prompts per AI feature running in CI (G); OWASP MASVS, backup+restore tested, monitoring alerts, graceful outages (H); emulator matrix Android 9–15 + low-RAM, monkey, load 1k→10k, failure tests with AI/SMS/push/TURN down (I); before/after screenshots per improved feature (J). Target ≥95 launch-critical by 5 Nov, nothing 100 without proof. Guardrails (L) unchanged: no production track, no secrets, no spending, no Asalify, no ads on SOS/safety/calls/chat/payment/login/permission screens, credits never cash, medicine hidden.
+
 # Owner work queue (newest order wins)
 
 ## 🟪 OWNER ORDER 27 Oct night — MAXIMUM MODE (on top of 100% mode)
