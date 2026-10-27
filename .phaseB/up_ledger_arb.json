@@ -12,7 +12,7 @@
   "@ldgAwaitingSend": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   },
-  "ldgAwaitingTitle": "Time to remind {count} customers",
+  "ldgAwaitingTitle": "Reminders due now: {count}",
   "@ldgAwaitingTitle": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
    "placeholders": {
@@ -213,7 +213,7 @@
   "@ldgPayInfo": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   },
-  "ldgPayNumber": "Your bKash, Nagad or Rocket number",
+  "ldgPayNumber": "Your payment number",
   "@ldgPayNumber": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   },
@@ -230,7 +230,7 @@
     }
    }
   },
-  "ldgPendingSync": "{count} entries waiting to sync — they go up by themselves when you're online",
+  "ldgPendingSync": "Waiting to sync: {count} — they go up by themselves when you're online",
   "@ldgPendingSync": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
    "placeholders": {
@@ -461,7 +461,7 @@
   "@ldgStillOffline": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   },
-  "ldgSyncFailed": "{count} entries didn't sync",
+  "ldgSyncFailed": "Didn't sync: {count}",
   "@ldgSyncFailed": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
    "placeholders": {
@@ -474,7 +474,7 @@
   "@ldgSyncNow": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   },
-  "ldgSynced": "{count} entries synced",
+  "ldgSynced": "Synced: {count}",
   "@ldgSynced": {
    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
    "placeholders": {
@@ -530,7 +530,7 @@
   "ldgOfflineBuilt": "ইন্টারনেট নেই — সংরক্ষিত খাতা থেকে মেসেজ বানানো হয়েছে। হোয়াটসঅ্যাপ ও ফোনের SMS চলবে, Assisto SMS নয়।",
   "ldgPayApply": "মেসেজে যোগ করুন",
   "ldgPayInfo": "পেমেন্টের তথ্য (ঐচ্ছিক)",
-  "ldgPayNumber": "আপনার bKash, Nagad বা Rocket নম্বর",
+  "ldgPayNumber": "আপনার পেমেন্ট নম্বর",
   "ldgPendingChip": "সিঙ্ক বাকি",
   "ldgPendingEstimate": "সিঙ্কের পর আনুমানিক {amount}",
   "ldgPendingSync": "{count}টি এন্ট্রি সিঙ্ক বাকি — ইন্টারনেট এলে নিজে থেকেই যাবে",

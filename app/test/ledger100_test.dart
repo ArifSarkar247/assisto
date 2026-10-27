@@ -212,18 +212,24 @@ void main() {
       final t = await _pump(tester,
           TagadaSendScreen(business: _biz, parties: parties), api);
       expect(find.byKey(const ValueKey('ldg-row-1')), findsOneWidget);
-      expect(find.byKey(const ValueKey('ldg-row-3')), findsOneWidget);
-      expect(find.byKey(const ValueKey('ldg-row-2')), findsNothing); // owes 0
       expect(find.textContaining('Your due at Rahim Store is ৳1500.00'), findsOneWidget);
-      expect(find.textContaining('৳250.00'), findsWidgets);
       expect(find.text(t.ldgCountSkipped('1')), findsOneWidget); // Rahim: no due
       expect(find.text(t.ldgCountWaiting('2')), findsOneWidget);
       // the picked ids went to the server, one call (not a merged text)
       expect(api.posts['/business/khata/tagada/bulk']!.single['party_ids'], [1, 2, 3]);
+      await tester.ensureVisible(find.text(t.ldgBtnSkip).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.ldgBtnSkip).first);
+      await tester.pumpAndSettle();
+      // the list is lazy: Salma's own card comes into view on scroll
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('ldg-row-3')), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.byKey(const ValueKey('ldg-row-2')), findsNothing); // owes 0
+      expect(find.textContaining('৳250.00'), findsWidgets);
       // Salma has no phone → Share instead of WhatsApp
       expect(find.text(t.ldgNoPhone), findsOneWidget);
-      await tester.ensureVisible(find.text(t.ldgBtnSkip).first);
-      await tester.tap(find.text(t.ldgBtnSkip).first);
+      await tester.dragUntilVisible(find.text(t.ldgCountWaiting('1')),
+          find.byType(Scrollable).first, const Offset(0, 300));
       await tester.pumpAndSettle();
       expect(find.text(t.ldgCountSkipped('2')), findsOneWidget);
       expect(find.text(t.ldgCountWaiting('1')), findsOneWidget);
@@ -237,6 +243,7 @@ void main() {
       final btn = find.byKey(const ValueKey('ldg-assisto-1'));
       expect(find.text(t.ldgBtnAssistoSms('2')), findsOneWidget);
       await tester.ensureVisible(btn);
+      await tester.pumpAndSettle();
       await tester.tap(btn);
       await tester.pumpAndSettle();
       expect(find.text(t.ldgSmsConfirmBody('Karim Store', '2', '40')), findsOneWidget);
@@ -249,6 +256,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.posts['/business/khata/tagada/sms/1']!.length, 1);
       expect(find.text(t.ldgStatusSmsSent('2')), findsOneWidget);
+      await tester.dragUntilVisible(find.text(t.ldgCountSent('1')),
+          find.byType(Scrollable).first, const Offset(0, 300));
       expect(find.text(t.ldgCountSent('1')), findsOneWidget);
     });
 

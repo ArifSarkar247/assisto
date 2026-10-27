@@ -552,22 +552,16 @@ class _Banner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       decoration:
           BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.md)),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        alignment: WrapAlignment.spaceBetween,
-        runSpacing: Gap.xs,
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Row(
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, size: 20, color: fg),
-              const SizedBox(width: Gap.sm),
-              Flexible(
-                  child: Text(text,
-                      style: TextStyle(color: fg, fontWeight: FontWeight.w600))),
-            ]),
-          ),
-          if (action != null)
+          Icon(icon, size: 20, color: fg),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(text,
+                  style: TextStyle(color: fg, fontWeight: FontWeight.w600))),
+          if (action != null) ...[
+            const SizedBox(width: Gap.xs),
             // a11y: the banner's own ink colour (primary on the container
             // failed 4.5:1 in dark)
             TextButtonTheme(
@@ -575,6 +569,7 @@ class _Banner extends StatelessWidget {
                   style: TextButton.styleFrom(foregroundColor: fg)),
               child: action!,
             ),
+          ],
         ],
       ),
     );
