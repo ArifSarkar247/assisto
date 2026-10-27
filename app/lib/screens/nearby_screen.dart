@@ -35,7 +35,15 @@ class NearbyScreen extends StatefulWidget {
   @visibleForTesting
   final ({double lat, double lon})? debugLocation;
 
-  const NearbyScreen({super.key, this.placeType = '', this.debugLocation});
+  /// Test-only: behave as if location is off / denied (no GPS call).
+  @visibleForTesting
+  final bool debugLocationDenied;
+
+  const NearbyScreen(
+      {super.key,
+      this.placeType = '',
+      this.debugLocation,
+      this.debugLocationDenied = false});
   @override
   State<NearbyScreen> createState() => _NearbyScreenState();
 }
@@ -116,7 +124,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
   Future<void> _locate() async {
     setState(() => _locating = true);
     final dbg = widget.debugLocation;
-    if (dbg != null) {
+    if (dbg != null || widget.debugLocationDenied) {
       _pos = dbg;
     } else {
       try {

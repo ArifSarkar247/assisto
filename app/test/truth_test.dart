@@ -194,7 +194,8 @@ void main() {
       for (final dark in [false, true]) {
         testWidgets('no location -> honest state, no rows ($lang, dark=$dark)',
             (tester) async {
-          final t = await _pump(tester, const NearbyScreen(),
+          final t = await _pump(
+              tester, const NearbyScreen(debugLocationDenied: true),
               lang: lang, dark: dark);
           expect(find.byKey(const ValueKey('truth_nearby_no_location')),
               findsOneWidget);

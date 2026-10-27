@@ -670,11 +670,11 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in p4WorldShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // p4-world
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
-    'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
+    'nearby': (build: (_) => const NearbyScreen(debugLocationDenied: true), mode: FakeMode.data, full: true),
     // truth (27 Oct): live rows + licence line; business first win = ledger;
     // Safe Journey with an empty circle offers "add a family member".
     'truth_nearby_live': (build: (_) => const NearbyScreen(debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
-    'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: OnbFirstWin(role: OnbRole.business, onPick: (_) {}))), mode: FakeMode.data, full: true),
+    'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
