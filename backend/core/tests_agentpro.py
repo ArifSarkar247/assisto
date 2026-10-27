@@ -19,7 +19,7 @@ from core import remittance_service as RS
 from core.agentcore import proactive as P
 from core.models import (Account, AgentNudge, AgentNudgePrefs, CircleMember, CirclePrivacy,
                          FeatureFlag, Journey, JourneyRoutine, Loan, Order, PaCollectionItem,
-                         Product, RemittanceProfile, Reminder, ShopEvent, ShopSite, Transaction,
+                         Product, RemittanceEntry, RemittanceProfile, Reminder, ShopEvent, ShopSite, Transaction,
                          User)
 
 
@@ -139,8 +139,10 @@ class TriggerTests(_Base):
         self.assertEqual(P.eval_remit_missing(self.u, now, "bn"), [])
         # arrived
         self.remit(day=5)
-        RS.create_entry(self.u, {"client_id": "abcdefgh01", "amount": "20000", "currency": "BDT",
-                                 "received_on": "2026-11-03", "channel": "bkash"})
+        RemittanceEntry.objects.create(
+            user=self.u, client_id="abcdefgh01", received_on=date(2026, 11, 3), month="2026-11",
+            enc=RS.seal({"amount": "20000", "currency": "BDT", "rate": "1", "taka": "20000",
+                         "received_on": "2026-11-03", "channel": "bkash"}))
         self.assertEqual(P.eval_remit_missing(self.u, now, "bn"), [])
 
     def test_child_not_home_consent_and_journey_rules(self):
@@ -339,7 +341,7 @@ class BriefTests(_Base):
         self.assertIn("রেমিট্যান্স এখনো আসেনি", bn["text"])
         self.assertIn("Today 1: Doctor", en["text"])
         self.assertNotRegex(bn["text"].split("\n", 1)[1], r"[0-9]")   # strict Bangla digits
-        self.assertNotRegex(en["text"], r"[ঀ-৿]")            # strict English
+        self.assertNotRegex(en["text"], "[\u0980-\u09F2\u09F4-\u09FF]")   # strict English (৳ allowed)
         self.assertNotIn("৳", bn["voice"]["text"])
         self.assertIn("১,৫০০ টাকা", bn["voice"]["text"])
         self.assertIn("1,500 taka", en["voice"]["text"])
@@ -363,7 +365,8 @@ class BriefTests(_Base):
         AgentNudgePrefs.objects.create(user=self.u, morning_at="06:00")
         Product.objects.create(user=self.u, name="Salt", stock=1, low_stock_at=3)
         site = ShopSite.objects.create(owner=self.u, name="Shop")
-        ShopEvent.objects.create(site=site, type="motion")
+        e = ShopEvent.objects.create(site=site, type="motion")
+        ShopEvent.objects.filter(pk=e.pk).update(created=at(10, 2))
         P.tick(now=at(10, 6, 30), users=[self.u])          # quiet until 07:00
         self.assertFalse(AgentNudge.objects.filter(trigger="brief_morning").exists())
         held = AgentNudge.objects.get(trigger="stock_low")
@@ -388,7 +391,7 @@ class ApiTests(_Base):
         AgentNudgePrefs.objects.create(user=self.u, quiet_start="00:00", quiet_end="00:00")
         Product.objects.create(user=self.u, name="Salt", stock=0, low_stock_at=3)
         P.tick(now=timezone.now(), users=[self.u])
-        r = self.c.get("/api/v1/agent-core/nudges?lang=en")
+        r = self.c.get("/api/v1/agent-core/nudges", HTTP_ACCEPT_LANGUAGE="en")
         self.assertEqual(r.status_code, 200)
         card = [x for x in r.json()["results"] if x["trigger"] == "stock_low"][0]
         self.assertTrue(card["why"])
@@ -416,7 +419,7 @@ class ApiTests(_Base):
 
     def test_brief_endpoint(self):
         Reminder.objects.create(user=self.u, title="Doctor", due_at=timezone.now() + timedelta(minutes=30))
-        r = self.c.get("/api/v1/agent-core/brief?kind=evening&lang=en")
+        r = self.c.get("/api/v1/agent-core/brief?kind=evening", HTTP_ACCEPT_LANGUAGE="en")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()["voice"]["lang"], "en")
         self.assertEqual(self.c.get("/api/v1/agent-core/brief?kind=noon").status_code, 400)
@@ -455,6 +458,7 @@ class SimulatedWeekTests(_Base):
             # Saturday 09:00 a customer sends a payment screenshot
             if day == 14 and loc.hour == 9 and loc.minute == 0:
                 o = Order.objects.create(user=ma, total=1200, payment_status="pending_verification")
+                Order.objects.filter(pk=o.pk).update(created_at=t)
                 events["order"] = o
             # Saturday 16:00 she verifies it
             if day == 14 and loc.hour == 16 and loc.minute == 0:
