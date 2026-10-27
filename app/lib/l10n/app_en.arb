@@ -21136,5 +21136,31 @@
   "ffPreviewTag": "Preview",
   "@ffPreviewTag": {
     "description": "Small tag on a sidebar / All Services entry that only the owner / staff / testers see (hidden feature in preview)."
+  },
+  "hfNotMedicalAdvice": "This is not medical advice. Talk to a doctor about any health concern.",
+  "moodJournalTitle": "Mood & energy journal",
+  "moodOptInBody2": "Fully optional, and it stays only on this phone. Once a day, note how you feel and how much energy you have, add a short line if you like, and take a one-minute breathing break.",
+  "moodOptInPoint4b": "A personal journal for relaxation and self-care. It is not medical advice — talk to a doctor about any health concern.",
+  "moodSafetyNote2": "A personal journal to notice your mood and energy, with simple relaxation ideas. It never labels or judges how you feel.",
+  "moodSupportTitle": "You don't have to carry it alone",
+  "moodSupportBody": "If things have felt heavy for a few days, talk to someone you trust. If you ever feel unsafe, call 999 (national emergency service).",
+  "moodCall999": "Call 999",
+  "moodBreathTitle": "One-minute breathing",
+  "moodBreathBody": "Breathe in slowly for 4 seconds, then out for 4 seconds. Follow the circle and relax.",
+  "moodBreathStart": "Start",
+  "moodBreathStop": "Stop",
+  "moodBreathIn": "Breathe in…",
+  "moodBreathOut": "Breathe out…",
+  "moodBreathLeft": "{seconds} s left",
+  "moodBreathDone": "Nicely done. Come back any time you want a calm minute.",
+  "moodNoteLabel": "A short note (optional)",
+  "moodNoteHint": "e.g. slept well, busy day at work",
+  "fitTipFixedNote": "A simple tip based on your own progress.",
+  "@moodBreathLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }
