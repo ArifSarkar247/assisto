@@ -143,6 +143,14 @@ def payload(user, lang="bn", crm_owner=None, shop_owner=None):
            "needed": {cap: E.needed_plan(cap, c) for cap in E.CAPS},
            "unlimited_display_at": c["unlimited_display_at"]}
     out["caps"] = {cap: E.allows(out["tier"], cap, c) for cap in E.CAPS}
+    # billapp: the caller's OWN CRM contact usage (when they own a CRM org),
+    # for the Plan screen's usage meter. Additive; the CRM screens keep ?org=.
+    try:
+        from crm.models import CrmOrg
+        if CrmOrg.objects.filter(owner=user).exists():
+            out["own_crm_contacts"] = crm_contacts(user, c)
+    except Exception:
+        pass
     if crm_owner is not None:
         t = tier(crm_owner, c)
         out["crm"] = {"on": on(crm_owner), "owner_tier": t,

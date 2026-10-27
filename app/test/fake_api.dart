@@ -121,8 +121,41 @@ class FakeApi extends ApiClient {
         'storage': {'used': 1200000000, 'quota_bytes': 5368709120},
       };
     }
-    if (path == '/credits/history') {
-      return {'items': const [], 'expiry_buckets': const []};
+    if (path.startsWith('/credits/history')) {
+      // billapp: the real paged ledger shape (newest first)
+      return {
+        'ledger': [
+          {'id': 3, 'delta': -1, 'reason': 'consume', 'note': 'ai_msg_cheap', 'bucket': 'plan',
+            'at': '2026-10-27T09:10:00+00:00', 'balance_after': 17},
+          {'id': 2, 'delta': 18, 'reason': 'grant', 'note': '', 'bucket': 'plan',
+            'at': '2026-10-27T08:00:00+00:00', 'balance_after': 18},
+          {'id': 1, 'delta': 20, 'reason': 'topup', 'note': '', 'bucket': 'pack',
+            'at': '2026-10-20T08:00:00+00:00', 'balance_after': 20},
+        ],
+        'next_offset': null, 'total': 3, 'expiry_buckets': const [],
+      };
+    }
+    if (path == '/credits/state') {
+      // billapp: 18 usable now, 72 locked (opens in 2 days), a pack
+      final now = DateTime.now().toUtc();
+      return {
+        'balance': 38, 'now_usable': 38, 'locked': 72,
+        'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String(),
+        'negative': false, 'blocked': false, 'purchase_blocked': false, 'debt': 0,
+        'buckets': {'plan': 18, 'pack': 20},
+        'bucket_detail': [
+          {'bucket': 'plan', 'remaining': 18, 'locked': 72,
+            'expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+            'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String()},
+          {'bucket': 'pack', 'remaining': 20, 'locked': 0, 'expires_at': null, 'unlocks_at': null},
+        ],
+        'plan_expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+        'unlock_pct': 20, 'unlock_hours': 48, 'refund_window_hours': 48,
+        'action_costs': {'ai_msg_cheap': 1, 'ai_msg_medium': 3, 'scan_ocr': 2,
+          'photo_generate': 9, 'retention_in_app': 0},
+        'withdrawable': false,
+        'server_time': now.toIso8601String(),
+      };
     }
     return null;
   }

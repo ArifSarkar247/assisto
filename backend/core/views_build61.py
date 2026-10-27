@@ -334,7 +334,15 @@ class CreditHistoryView(APIView):
     """GET /credits/history -> ledger + balance + expiry buckets."""
     def get(self, request):
         from . import billing
-        return Response(billing.credit_history(request.user))
+        q = request.query_params
+
+        def _n(k, d):
+            try:
+                return int(q.get(k, d))
+            except (TypeError, ValueError):
+                return d
+        return Response(billing.credit_history(request.user, offset=_n("offset", 0),
+                                               limit=_n("limit", 200)))
 
 
 class CreditTopupView(APIView):

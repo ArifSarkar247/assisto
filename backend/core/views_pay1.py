@@ -201,6 +201,12 @@ class RefundListView(APIView):
             pid = int(d.get("purchase_id") or 0)
         except (TypeError, ValueError):
             pid = 0
+        from .i18n import pick
+        if R.rate_limited(request.user):
+            return Response({"ok": False, "reason": "rate_limited",
+                             "message": pick(lang, "অনেকবার চেষ্টা হয়েছে। এক ঘণ্টা পরে আবার চেষ্টা করুন।",
+                                             "Too many tries. Please try again in an hour."),
+                             "policy": R.policy(lang)}, status=429)
         try:
             r = R.create_request(request.user, pid, str(d.get("reason") or "")[:2000])
         except R.RefundError as e:
