@@ -32,7 +32,7 @@ import urllib.request
 
 from .logic import business_ai as bai
 
-TIMEOUT_S = 20
+TIMEOUT_S = 10   # srvperf/H: bounded request-path wait
 
 PATHAO_SANDBOX = "https://courier-api-sandbox.pathao.com"
 PATHAO_LIVE = "https://api-hermes.pathao.com"

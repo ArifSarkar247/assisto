@@ -1951,7 +1951,14 @@ def nearby(request):
     ptype = request.query_params.get("type", "restaurant")
     results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
-    return Response({"type": ptype, "source": source, "places": results})
+    out = {"type": ptype, "source": source, "places": results}
+    if source == "unavailable":
+        # srvperf/H: maps providers down — honest state, not "nothing here"
+        lang = req_lang(request)
+        out["state"] = "unavailable"
+        out["detail"] = pick(lang, "ম্যাপ সার্ভিস এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
+                             "The maps service is not reachable right now. Please try again shortly.")
+    return Response(out)
 
 
 class FavouriteArtistView(APIView):
@@ -3485,7 +3492,9 @@ def home_badges(request):
        my_circle_unread (chat messages) + notif_unseen (notification centre)."""
     settings_enabled = _notif_settings(request.user)
     events = _collect_events(request.user, req_lang(request))
-    chat_unread = _chat_unread(request.user)
+    from .views_m1_messenger import chat_pref_memo
+    with chat_pref_memo(request.user):   # srvperf: one prefs query
+        chat_unread = _chat_unread(request.user)
     out = _nc.badges(chat_unread, events, settings_enabled=settings_enabled)
     # b2-badges: the bell counts only items newer than the last time the
     # centre was opened (POST notif/opened) + every unhandled SOS/family alert.

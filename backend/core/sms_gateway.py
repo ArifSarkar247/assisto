@@ -106,7 +106,7 @@ _DEFAULTS = {
     "number_format": "880",
 }
 
-TIMEOUT = 15
+TIMEOUT = 8   # srvperf/H: an OTP request never parks a worker 15 s+
 
 
 class SmsError(Exception):
@@ -275,10 +275,18 @@ class HttpSmsAdapter:
             method, url, body, headers = build_request(self.cfg, to_canon, text)
         except (SmsError, ValueError) as e:
             return False, f"config: {str(e)[:120]}"
+        # srvperf/H: a gateway that keeps failing is skipped at once (shared
+        # circuit, core/ext_breaker.py) — the OTP screen answers honestly.
+        from . import ext_breaker as XB
+        if not XB.allow("sms"):
+            return False, "unavailable: SMS gateway is down (circuit open)"
         try:
             st, txt = _http(method, url, body, headers)
         except Exception as e:  # noqa: BLE001 — network down, DNS, TLS
+            XB.fail("sms", type(e).__name__)
             return False, f"network: {type(e).__name__}"
+        # a 5xx is the gateway's fault; a 4xx is our request (no trip)
+        XB.book("sms", st < 500, "HTTP %s" % st)
         if success(self.cfg, st, txt):
             return True, f"HTTP {st} accepted"
         return False, f"HTTP {st}: {_scrub(txt, secret)}"

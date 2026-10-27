@@ -182,21 +182,33 @@ def mark(user, msgs, seen=False, now=None, publish=True):
             touched.append(x)
     if create:
         CircleReceipt.objects.bulk_create(create, ignore_conflicts=True)
+    # srvperf: one bulk UPDATE per field set instead of one save() per
+    # message (a 300-message sync was 300 round trips). No post_save
+    # receiver cares (b2-badges only reacts to created rows).
+    upd_d, upd_r, upd_dr = [], [], []
     for x in msgs:
-        upd = []
+        d_ch = r_ch = False
         dt = list(x.delivered_to or [])
         if user.id not in dt:
             dt.append(user.id)
             x.delivered_to = dt
-            upd.append("delivered_to")
+            d_ch = True
         if seen:
             rb = list(x.read_by or [])
             if user.id not in rb:
                 rb.append(user.id)
                 x.read_by = rb
-                upd.append("read_by")
-        if upd:
-            x.save(update_fields=upd)
+                r_ch = True
+        if d_ch and r_ch:
+            upd_dr.append(x)
+        elif d_ch:
+            upd_d.append(x)
+        elif r_ch:
+            upd_r.append(x)
+    for rows, fields in ((upd_d, ["delivered_to"]), (upd_r, ["read_by"]),
+                         (upd_dr, ["delivered_to", "read_by"])):
+        if rows:
+            CircleMessage.objects.bulk_update(rows, fields, batch_size=200)
     if publish and touched:
         publish_receipts(touched)
     return changed
@@ -240,11 +252,12 @@ def publish_receipts(msgs):
             return 0
         senders = {u.id: u for u in User.objects.filter(id__in=list(by_sender))}
         n, cache = 0, {}
+        st_all = _statuses_all(msgs)   # srvperf: one pass for every sender
         for sid, xs in by_sender.items():
             sender = senders.get(sid)
             if sender is None:
                 continue
-            st = statuses(xs, sender)
+            st = st_all
             chats = {}
             for x in xs:
                 key = _sender_chat_key(x, cache)
@@ -323,6 +336,28 @@ def statuses(msgs, viewer):
     return out
 
 
+def _statuses_all(msgs):
+    """{message_id: status} for each message as its OWN SENDER sees it —
+    statuses() for many senders at once (4 queries total instead of ~5 per
+    sender; receipts sync of a busy account touched dozens of senders)."""
+    msgs = [x for x in msgs if x.sender_id]
+    if not msgs:
+        return {}
+    rec = recipients_map(msgs)
+    rows = {}
+    for r in CircleReceipt.objects.filter(message_id__in=[x.id for x in msgs]):
+        rows.setdefault(r.message_id, {})[r.user_id] = (r.delivered_at, r.seen_at)
+    uids = {x.sender_id for x in msgs}
+    for v in rec.values():
+        uids.update(v)
+    pm = _privacy_map(list(uids))
+    from .views_t1_ticks import legacy_ids
+    legacy = legacy_ids(msgs)
+    return {x.id: ("sent" if x.id in legacy else status_from(
+        rec.get(x.id, []), rows.get(x.id, {}), pm[x.sender_id], pm))
+        for x in msgs}
+
+
 def annotate(out_rows, msgs, viewer):
     """Add `status` to serialized message dicts (in place). Never raises.
     t1-ticks 1a: pre-receipts rows get `receipts_legacy: true`. (DELIVERED
@@ -398,25 +433,60 @@ def _flags(user):
 
 def sync_delivered(user):
     """Mark delivered on every incoming message in all the user's chats that
-    has no receipt from this user yet (app open / resume / push handler)."""
-    from .views_m1_messenger import conversation_rows
+    has no receipt from this user yet (app open / resume / push handler).
+    srvperf: ONE message query for all 1:1 chats (member_id IN the edges'
+    conversation ids) instead of one OR-over-JOIN scan per chat, and only
+    the columns mark() needs."""
+    from .views_m1_messenger import conversation_edge_map
     now = _now()
     n = 0
     from django.db.models import Q
-    for edge in CircleMember.objects.filter(
-            Q(state="accepted") | Q(state="pending", direction="incoming"),
-            user=user):  # mr1: a request's messages are delivered too
-        qs = (conversation_rows(edge).exclude(sender=user)
-              .exclude(receipts__user=user))[:SYNC_CAP]
-        n += mark(user, list(qs), now=now)
+    edges = list(CircleMember.objects.filter(
+        Q(state="accepted") | Q(state="pending", direction="incoming"),
+        user=user))  # mr1: a request's messages are delivered too
+    ids = set()
+    for v in conversation_edge_map(user, edges).values():
+        ids.update(v)
+    if ids:
+        qs = (CircleMessage.objects.filter(member_id__in=sorted(ids),
+                                           group=None)
+              .exclude(sender=user).exclude(receipts__user=user)
+              .only(*_MARK_FIELDS)
+              .order_by("-created_at"))[:SYNC_CAP]
+        n += mark(user, _attach(list(qs)), now=now)
     gids = list(CircleGroupMember.objects.filter(
         member=user, status="active").values_list("group_id", flat=True))
     if gids:
         qs = (CircleMessage.objects.filter(group_id__in=gids)
               .exclude(sender=user).exclude(receipts__user=user)
+              .only(*_MARK_FIELDS)
               .order_by("-created_at"))[:SYNC_CAP]
-        n += mark(user, list(qs), now=now)
+        n += mark(user, _attach(list(qs)), now=now)
     return n
+
+
+def _attach(msgs):
+    """srvperf: give the rows their edge (+ its peer user) and sender from
+    two small id lookups — a select_related JOIN here made PostgreSQL hash
+    the WHOLE member and user tables on every sync (seen in auto_explain)."""
+    if not msgs:
+        return msgs
+    edges = CircleMember.objects.select_related("peer_user").in_bulk(
+        {x.member_id for x in msgs if x.member_id})
+    users = User.objects.in_bulk({x.sender_id for x in msgs})
+    for x in msgs:
+        if x.member_id in edges:
+            x.member = edges[x.member_id]
+        if x.sender_id in users:
+            x.sender = users[x.sender_id]
+    return msgs
+
+
+# srvperf: what mark() / publish_receipts() / statuses() read on a message
+# (the ciphertext + fan-out blobs are never needed to record a receipt).
+_MARK_FIELDS = ("id", "member", "group", "sender", "recipient_ids",
+                "delivered_to", "read_by", "created_at", "deleted",
+                "sender_key_id", "scheme")
 
 
 # ---------------------------------------------------------------------------
