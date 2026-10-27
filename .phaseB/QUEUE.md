@@ -1,5 +1,9 @@
 # Owner work queue (newest order wins)
 
+## 🟪 OWNER ORDER 27 Oct night — MAXIMUM MODE (on top of 100% mode)
+1) Max safe parallel agents 24/7; start the next the moment one finishes. 2) Never wait for the owner — build key/device/account features fully, test E2E with mocks/simulators, ready the minute the key is added; owner needs = one short list. 3) FEATURE_100_BOARD lowest launch-critical rows first, each to 100 on every criterion (2 GB speed measured on a low-RAM emulator / Test Lab free quota). 4) Every launch-critical feature ≥95 by 5 Nov; board updated after every merge; one Bangla line atop STATUS every 3 h (rows at 100 + average). 5) A testing build EVERY day (Bangla notes, never production). 6) Watchdog: no commit for 60 min → find the stuck agent, save its work, restart it. Never mark 100 without proof. No secrets, no spending.
+**Mechanics:** full suites on GitHub CI only (`.github/workflows/checks.yml`, push `ci/<name>`; backend + analyze + lang gate + flutter test ×8 shards). Local heavy.sh = targeted tests only.
+
 ## 🟦 OWNER ORDER 27 Oct — LAUNCH SWITCH-ON (conditional)
 CCTV, vehicle tracking and AI sales assistant are LAUNCH features (not preview). AS SOON AS each one's E2E tests pass (agents e2e_cv, e2e_sales) and the code is merged + deployed + shipped: turn its flags ON for both the website APK and the Play build (live today: cctv_watchman ON, vehicle_tracking ON, business_agent ON; home_watchman OFF → turn ON after CCTV E2E passes), make CCTV appear in the home v2 default shortcuts again and vehicle tracking selectable in the Edit shortcuts list, remove every preview label. NEVER turn on anything that hasn't passed its E2E tests. DB backup before the config change; report the day in STATUS.
 
