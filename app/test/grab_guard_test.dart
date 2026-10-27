@@ -117,6 +117,7 @@ void main() {
     late int cancels;
     late int sendNows;
     late List<String> sentPins;
+    late List<String> escalations;
 
     setUp(() {
       GrabCheck.resetForTest();
@@ -124,6 +125,7 @@ void main() {
       cancels = 0;
       sendNows = 0;
       sentPins = [];
+      escalations = [];
       GrabCheck.pending = () async => pendingMs;
       GrabCheck.cancelNative = () async {
         cancels++;
@@ -151,6 +153,10 @@ void main() {
                   send: (pin) async {
                     sentPins.add(pin);
                     return reply;
+                  },
+                  escalate: (r) async {
+                    escalations.add(r);
+                    return {'ok': true};
                   }),
               child: const Text('go'),
             ),
@@ -162,45 +168,62 @@ void main() {
     }
 
     for (final lang in ['en', 'bn']) {
-      testWidgets('$lang: "Yes, it was me" + PIN drops the pending grab',
+      testWidgets('$lang: "I\'m OK" + PIN drops the held grab',
           (tester) async {
         await open(tester, lang, {'ok': true, 'cleared': 0});
         final tr = lookupAppLocalizations(Locale(lang));
-        expect(find.text(tr.grabAskTitle), findsOneWidget);
-        expect(find.text(tr.grabAskBody), findsOneWidget);
+        // antitheft2: "Are you OK? / আপনি ঠিক আছেন?"
+        expect(find.text(tr.at2OkTitle), findsOneWidget);
+        expect(find.text(tr.at2OkBody), findsOneWidget);
         await tester.tap(find.byKey(const Key('grab-yes')));
         await tester.pumpAndSettle();
         expect(sentPins, ['1234']);
         expect(cancels, 1);
         expect(sendNows, 0);
+        expect(escalations, isEmpty);
         expect(find.text(tr.grabCleared), findsOneWidget);
       });
     }
 
-    testWidgets('wrong PIN keeps the grab pending (family will hear)',
+    testWidgets('wrong PIN: never dropped, owner told it escalates',
         (tester) async {
       await open(tester, 'en', {'_status': 403, 'reason': 'bad_pin'});
       await tester.tap(find.byKey(const Key('grab-yes')));
       await tester.pumpAndSettle();
       expect(cancels, 0);
       final tr = lookupAppLocalizations(const Locale('en'));
-      expect(find.text(tr.securityBadPin), findsOneWidget);
+      // the SERVER escalates a held grab on a wrong PIN
+      expect(find.text(tr.at2OkWrongPin), findsOneWidget);
     });
 
-    testWidgets('"No, alert my family now" sends at once', (tester) async {
+    for (final lang in ['en', 'bn']) {
+      testWidgets('$lang: "I need help" escalates at once', (tester) async {
+        await open(tester, lang, {'ok': true});
+        final tr = lookupAppLocalizations(Locale(lang));
+        expect(find.text(tr.at2OkNo), findsOneWidget);
+        await tester.tap(find.byKey(const Key('grab-no')));
+        await tester.pumpAndSettle();
+        expect(sendNows, 1);
+        expect(escalations, ['not_ok']);
+        expect(cancels, 0);
+        expect(sentPins, isEmpty);
+        expect(find.text(tr.at2OkSent), findsOneWidget);
+      });
+    }
+
+    testWidgets('dialog buttons are at least 48 dp tall', (tester) async {
       await open(tester, 'en', {'ok': true});
-      await tester.tap(find.byKey(const Key('grab-no')));
-      await tester.pumpAndSettle();
-      expect(sendNows, 1);
-      expect(cancels, 0);
-      expect(sentPins, isEmpty);
+      expect(tester.getSize(find.byKey(const Key('grab-yes'))).height,
+          greaterThanOrEqualTo(48));
+      expect(tester.getSize(find.byKey(const Key('grab-no'))).height,
+          greaterThanOrEqualTo(48));
     });
 
     testWidgets('nothing pending -> no dialog', (tester) async {
       pendingMs = null;
       await open(tester, 'en', {'ok': true});
       final tr = lookupAppLocalizations(const Locale('en'));
-      expect(find.text(tr.grabAskTitle), findsNothing);
+      expect(find.text(tr.at2OkTitle), findsNothing);
     });
   });
 }

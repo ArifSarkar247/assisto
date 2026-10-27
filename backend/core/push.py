@@ -380,6 +380,11 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
     try:
         if user is None or kind not in KINDS or not is_available():
             return 0
+        # owner-only push kinds never reach a normal account (defence in
+        # depth: every caller already picks owner admins).
+        if kind in OWNER_ALERT_KINDS and not is_owner_admin(user):
+            log.warning("push: refused owner-only kind for non-admin")
+            return 0
         from .models import Device
         # calls95: newest phone first — it is the one most likely alive, and
         # a dead older token (dropped below) must never delay its ring.
@@ -555,16 +560,37 @@ def _smtp_configured():
         b in backend for b in ("console", "locmem", "dummy", "filebased"))
 
 
+# antitheft2 / owner 27 Oct (C): owner-only alerts (Play Vitals, disk, call
+# relay, …) go ONLY to OWNER-ADMIN accounts = active superusers (the same rule
+# as the web Owner Admin login, web/owner/security.py). Never a normal user.
+OWNER_ALERT_KINDS = ("owner_alert",)
+# meta.source of in-app rows that are owner-only (NotifEvent / FamilyAlert)
+OWNER_ALERT_SOURCES = ("play_vitals", "uptime_check", "turn_monitor",
+                       "profit_guard")
+OWNER_ALERT_FA_KINDS = ("disk_alert", "turn_capacity", "cost_guard")
+
+
+def is_owner_admin(user):
+    return bool(user is not None and getattr(user, "is_active", False)
+                and getattr(user, "is_superuser", False))
+
+
+def owner_admin_users(limit=5):
+    """Every account that may receive owner-only alerts."""
+    from django.contrib.auth import get_user_model
+    return list(get_user_model().objects.filter(is_superuser=True,
+                                                is_active=True)
+                .order_by("id")[:limit])
+
+
 def notify_owner(subject, body):
-    """Alert every superuser: FCM push (owner_alert) when available AND email
-    when real SMTP is configured (+ env OWNER_ALERT_EMAIL). Never raises.
-    Returns what was attempted."""
+    """Alert every OWNER-ADMIN (active superuser): FCM push (owner_alert) when
+    available AND email when real SMTP is configured (+ env
+    OWNER_ALERT_EMAIL). Never raises. Returns what was attempted."""
     out = {"push_available": False, "push_sent": 0, "email": False,
            "email_recipients": 0}
     try:
-        from django.contrib.auth import get_user_model
-        owners = list(get_user_model().objects.filter(is_superuser=True,
-                                                      is_active=True))
+        owners = owner_admin_users()
         if is_available():
             out["push_available"] = True
             for u in owners:

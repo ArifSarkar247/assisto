@@ -309,13 +309,19 @@ def _map(lat, lng):
     return "https://www.google.com/maps/search/?api=1&query=%.6f,%.6f" % (lat, lng)
 
 
-def alert_text(kind, owner_name, ev_at, data, lat, lng, battery, late, now):
-    """(title_en, body_en, title_bn, body_bn) for one event kind."""
+def alert_text(kind, owner_name, ev_at, data, lat, lng, battery, late, now,
+               loc=None):
+    """(title_en, body_en, title_bn, body_bn) for one event kind.
+
+    antitheft2: `loc` (from pick_location) carries the best location we have —
+    the event's own fix, else the server's last stored fix — with its accuracy
+    and fix time; a stale fix says "last seen at <time>". Without `loc` the
+    event's lat/lng are used as before."""
     name = owner_name or "Assisto user"
     w = _when(ev_at)
-    m = _map(lat, lng)
-    loc_en = ("Last location: %s" % m) if m else "Last location: not known."
-    loc_bn = ("শেষ অবস্থান: %s" % m) if m else "শেষ অবস্থান জানা নেই।"
+    if loc is None:
+        loc = pick_location(lat, lng, None, None, ev_at)
+    loc_en, loc_bn = location_text(loc, ev_at)
     late_en = ("(Delivered late: this happened at %s, while the phone was offline.) "
                % w) if late else ""
     late_bn = ("(দেরিতে পৌঁছেছে: ঘটনাটি %s সময়ের, তখন ফোনটি অফলাইন ছিল।) "
@@ -420,6 +426,137 @@ def alert_text(kind, owner_name, ev_at, data, lat, lng, battery, late, now):
     return te, late_en + be, tb, late_bn + bb
 
 
+# --- antitheft2 (owner 27 Oct): honest last location on EVERY alert ----------
+# A fix older than this (relative to the event) is shown as "last seen at".
+STALE_FIX_S = 15 * 60
+
+
+def pick_location(ev_lat, ev_lng, ev_acc, ev_fix_at, ev_at,
+                  last_lat=None, last_lng=None, last_acc=None, last_fix_at=None,
+                  caps=None):
+    """The best location for an alert, newest first:
+      1. the fix the phone attached to the event (fused / fresh / last-known);
+      2. the server's last stored fix for the phone (heartbeats + events).
+    Returns {lat, lng, acc, fix_at, source, missing}. With no fix at all,
+    `missing` says why, from what the engine reported: "permission" (location
+    permission off), "location_off" (location switched off) or "no_fix"."""
+    if valid_latlng(ev_lat, ev_lng):
+        return {"lat": ev_lat, "lng": ev_lng, "acc": ev_acc,
+                "fix_at": ev_fix_at, "source": "event", "missing": None}
+    if valid_latlng(last_lat, last_lng):
+        return {"lat": last_lat, "lng": last_lng, "acc": last_acc,
+                "fix_at": last_fix_at, "source": "last_known", "missing": None}
+    c = caps if isinstance(caps, dict) else {}
+    if c.get("locationPermission") is False:
+        why = "permission"
+    elif c.get("locationEnabled") is False:
+        why = "location_off"
+    else:
+        why = "no_fix"
+    return {"lat": None, "lng": None, "acc": None, "fix_at": None,
+            "source": None, "missing": why}
+
+
+def _acc_txt(acc):
+    try:
+        a = float(acc)
+    except (TypeError, ValueError):
+        return ""
+    if a != a or a <= 0:
+        return ""
+    return "±%d m" % int(round(a))
+
+
+def location_text(loc, ev_at):
+    """(en, bn) location sentence for an alert. Never claims more than we
+    know: accuracy and fix time are shown when known; an old fix is "last
+    seen at <time>"; no fix says why."""
+    loc = loc or {}
+    m = _map(loc.get("lat"), loc.get("lng"))
+    if not m:
+        why = loc.get("missing") or "no_fix"
+        if why == "permission":
+            return ("Last location: not known (location permission is off on "
+                    "this phone).",
+                    "শেষ অবস্থান জানা নেই (এই ফোনে লোকেশনের অনুমতি বন্ধ)।")
+        if why == "location_off":
+            return ("Last location: not known (location is switched off on "
+                    "this phone).",
+                    "শেষ অবস্থান জানা নেই (এই ফোনে লোকেশন বন্ধ করা আছে)।")
+        return ("Last location: not known (the phone has not got a location "
+                "fix yet).",
+                "শেষ অবস্থান জানা নেই (ফোনটি এখনো লোকেশন পায়নি)।")
+    acc = _acc_txt(loc.get("acc"))
+    fix_at = loc.get("fix_at")
+    stale = False
+    if fix_at is not None and ev_at is not None:
+        try:
+            stale = (ev_at - fix_at).total_seconds() > STALE_FIX_S
+        except Exception:
+            stale = False
+    if fix_at is not None and stale:
+        when = _when(fix_at)
+        return ("Last seen at %s%s: %s" % (when, (", " + acc) if acc else "", m),
+                "শেষ দেখা গেছে %s সময়ে%s: %s" % (when, (", " + acc) if acc else "", m))
+    if fix_at is not None:
+        when = _when(fix_at)
+        return ("Location at %s%s: %s" % (when, (", " + acc) if acc else "", m),
+                "অবস্থান (%s%s): %s" % (when, (", " + acc) if acc else "", m))
+    return ("Last known location%s: %s" % ((" (" + acc + ")") if acc else "", m),
+            "সর্বশেষ জানা অবস্থান%s: %s" % ((" (" + acc + ")") if acc else "", m))
+
+
+# --- antitheft2: fewer false "grab" alerts + "Are you OK?" -----------------
+# The owner's phone asks "Are you OK?" first; with no answer in this window
+# the grab is escalated to the trusted contacts (server-side, so a thief who
+# switches the phone off cannot stop it).
+CONFIRM_WINDOW_S = 60
+NIGHT_START_HOUR, NIGHT_END_HOUR = 23, 6
+HOME_WIFI_MAX = 3
+WIFI_SEEN_FRESH_MIN = 30
+
+
+def is_night(hour):
+    try:
+        h = int(hour)
+    except (TypeError, ValueError):
+        return False
+    return h >= NIGHT_START_HOUR or h < NIGHT_END_HOUR
+
+
+def wifi_hash_ok(h):
+    """A Wi-Fi network is only ever stored as a sha256 hex of its name."""
+    return (isinstance(h, str) and len(h) == 64
+            and all(c in "0123456789abcdef" for c in h))
+
+
+def grab_suppression(data, ev_at, night_guard=False, home_wifi=None):
+    """Why a detected grab is NOT a theft signal, or None (= alert). Pure.
+      * "charging"         — the phone was on the charger;
+      * "face_down_still"  — it lay face-down and still right before;
+      * "home_wifi_night"  — night (23:00-06:00) on the owner's saved home
+                             Wi-Fi, unless Night guard is ON.
+    `data` is what the engine attached to the event (device local `hour`,
+    `charging`, `face_down_still`, `wifi` hash)."""
+    d = data if isinstance(data, dict) else {}
+    if d.get("charging") is True:
+        return "charging"
+    if d.get("face_down_still") is True:
+        return "face_down_still"
+    hour = d.get("hour")
+    if hour is None and ev_at is not None:
+        try:
+            hour = timezone.localtime(ev_at).hour
+        except Exception:
+            hour = None
+    wifi = d.get("wifi")
+    homes = home_wifi if isinstance(home_wifi, list) else []
+    if (not night_guard and is_night(hour) and wifi_hash_ok(wifi)
+            and wifi in homes):
+        return "home_wifi_night"
+    return None
+
+
 def back_online_text(owner_name, lat, lng):
     name = owner_name or "Assisto user"
     m = _map(lat, lng)
@@ -431,12 +568,12 @@ def back_online_text(owner_name, lat, lng):
             "ফোনটি আবার অনলাইনে এসেছে এবং নিয়মিত তথ্য পাঠাচ্ছে। %s" % loc_bn)
 
 
-def went_dark_text(owner_name, dark_since, lat, lng, battery):
+def went_dark_text(owner_name, dark_since, lat, lng, battery, loc=None):
     name = owner_name or "Assisto user"
     w = _when(dark_since)
-    m = _map(lat, lng)
-    loc_en = ("Last location: %s" % m) if m else "Last location: not known."
-    loc_bn = ("শেষ অবস্থান: %s" % m) if m else "শেষ অবস্থান জানা নেই।"
+    if loc is None:
+        loc = pick_location(lat, lng, None, None, dark_since)
+    loc_en, loc_bn = location_text(loc, dark_since)
     bat_en = (" The battery was %s%% then, so it may simply have run out." % battery
               if battery is not None and battery <= 15 else "")
     bat_bn = (" তখন চার্জ ছিল %s%%, তাই হয়তো চার্জ শেষ হয়ে গেছে।" % battery

@@ -4279,6 +4279,17 @@ class AntiTheftEngine(models.Model):
     # the same id proves the phone is alive -> a went-dark latch is resolved.
     device_hash = models.CharField(max_length=64, blank=True, default="",
                                    db_index=True)
+    # antitheft2 (owner 27 Oct): accuracy (m) of the newest accepted fix
+    # (time = last_fix_at), so every alert can say "±N m at HH:MM".
+    last_fix_acc = models.FloatField(null=True, blank=True)
+    # antitheft2: "Night guard" — OFF (default) = a grab at night while the
+    # phone is on the owner's saved home Wi-Fi is treated as a drop/toss.
+    night_guard = models.BooleanField(default=False)
+    # sha256 hashes of the owner's saved home Wi-Fi names (never the name).
+    home_wifi = models.JSONField(default=list, blank=True)
+    # hash of the Wi-Fi the engine last reported (for "save my home Wi-Fi").
+    last_wifi_hash = models.CharField(max_length=64, blank=True, default="")
+    last_wifi_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -4310,6 +4321,16 @@ class AntiTheftEvent(models.Model):
     # family, decrypted per request).
     photo = models.FileField(upload_to="theft/engine/", null=True, blank=True)
     alerted = models.BooleanField(default=False)
+    # antitheft2: when the location fix itself was taken (may be older than
+    # `at` — the alert then says "last seen at <fix time>").
+    fix_at = models.DateTimeField(null=True, blank=True)
+    # antitheft2: delivery record — when the alert was dispatched and to how
+    # many trusted contacts (0 = nobody set: recorded, the app asks the owner).
+    alerted_at = models.DateTimeField(null=True, blank=True)
+    recipients = models.SmallIntegerField(null=True, blank=True)
+    # antitheft2: a grab held for the owner's "Are you OK?" answer; at this
+    # time (no answer) it is escalated to the trusted contacts.
+    escalate_at = models.DateTimeField(null=True, blank=True, db_index=True)
 
     class Meta:
         ordering = ["-at", "-id"]

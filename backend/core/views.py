@@ -1228,6 +1228,12 @@ def _build_alerts(user, lang="bn"):
         # reach his own urgent card / briefing
         if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
             continue
+        # owner 27 Oct (C): owner-only alerts never reach a normal account
+        from . import push as _push
+        if not _push.is_owner_admin(user) and (
+                fa.kind in _push.OWNER_ALERT_FA_KINDS or
+                (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
+            continue
         row = {"type": fa.kind, "text": fa.body or fa.title,
                "title": fa.title, "severity": fa.severity or "high"}
         if fa.kind == "antitheft":  # own-device: app urgent-card guard
@@ -3123,8 +3129,21 @@ def _collect_events(user, lang="bn"):
     """Gather notification-centre events: persisted NotifEvent rows PLUS live
     rows reused from existing alert sources (FamilyAlert). CHAT is never here."""
     events = []
+    from . import push as _push
+    owner_admin = _push.is_owner_admin(user)
     # persisted events
     for e in user.notif_events.all()[:200]:
+        m = e.meta if isinstance(e.meta, dict) else {}
+        # owner 27 Oct (C): owner-only rows never show for a normal account
+        if not owner_admin and (e.type == "admin" or e.route == "owner"
+                                or m.get("source") in _push.OWNER_ALERT_SOURCES):
+            continue
+        # antitheft2: alerts about the user's OWN protected phone are never
+        # shown on it (a thief holding it would see them); the owner keeps
+        # the silent timeline. The owner-only "test" alarm stays.
+        if (m.get("antitheft_kind") and m.get("owner_id") == user.id
+                and m.get("antitheft_kind") != "test"):
+            continue
         events.append({
             "id": f"notif:{e.id}", "type": e.type,
             "title": {"bn": e.title_bn, "en": e.title_en},
@@ -3134,6 +3153,11 @@ def _collect_events(user, lang="bn"):
         })
     # reuse existing family alerts (missed medicine / safe-journey / scam relays)
     for fa in user.family_alerts.filter(dismissed=False)[:50]:
+        if not owner_admin and (fa.kind in _push.OWNER_ALERT_FA_KINDS or
+                                (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
+            continue
+        if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
+            continue
         etype = _nc.TYPE_FAMILY_ALERT
         k = (fa.kind or "")
         if "scam" in k:

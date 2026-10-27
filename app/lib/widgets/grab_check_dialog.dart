@@ -4,16 +4,18 @@ import '../l10n/app_localizations.dart';
 import '../services/antitheft_service.dart';
 import '../services/security_guard.dart';
 
-/// grab-guard (owner 25 Oct) — on the OWN phone a detected grab first asks
-/// "Was this you?" (native heads-up notification; this dialog when Assisto is
-/// opened). The engine holds the grab for 60 s:
-///   * "Yes, it was me" -> Security PIN, verified by the SERVER (POST
-///     security/engine/false-alarm, same as build 221's "It was me"; a wrong
-///     PIN counts toward the lock, so a thief cannot use it) -> the pending
-///     grab is dropped. If it was already sent, that endpoint clears it and
-///     the family gets the all-clear.
-///   * "No, alert my family now" -> sent at once.
-///   * no answer -> the engine sends it after 60 s as usual.
+/// grab-guard (owner 25 Oct) / antitheft2 (owner 27 Oct) — on the OWN phone
+/// a detected grab first asks "Are you OK?" (at2OkTitle, bn + en) (native heads-up
+/// notification; this dialog when Assisto is opened). The engine has
+/// ALREADY sent the grab to the server, which HOLDS it for 60 s:
+///   * "I'm OK" -> Security PIN, verified by the SERVER (POST
+///     security/engine/false-alarm; a wrong PIN counts toward the lock) ->
+///     the held grab is dropped, nobody is told. A WRONG PIN escalates it at
+///     once (the server does that itself).
+///   * "I need help" -> POST security/engine/escalate: the trusted contacts
+///     are alerted now.
+///   * no answer -> the server escalates when the 60 s are up (even if the
+///     phone was switched off meanwhile).
 class GrabCheck {
   GrabCheck._();
 
@@ -36,6 +38,7 @@ class GrabCheck {
     BuildContext context, {
     required Future<Map<String, dynamic>> Function(String pin) send,
     Future<String?> Function(BuildContext context)? askPin,
+    Future<Map<String, dynamic>> Function(String reason)? escalate,
   }) async {
     if (_showing) return;
     try {
@@ -48,17 +51,19 @@ class GrabCheck {
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.back_hand_outlined),
-          title: Text(tr.grabAskTitle),
-          content: Text(tr.grabAskBody),
+          title: Text(tr.at2OkTitle),
+          content: SingleChildScrollView(child: Text(tr.at2OkBody)),
           actions: [
             TextButton(
                 key: const Key('grab-no'),
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(tr.grabAskNo, softWrap: true)),
+                child: Text(tr.at2OkNo, softWrap: true)),
             FilledButton(
                 key: const Key('grab-yes'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(tr.grabAskYes, softWrap: true)),
+                child: Text(tr.at2OkYes, softWrap: true)),
           ],
         ),
       );
@@ -66,7 +71,10 @@ class GrabCheck {
       if (mine == null || !context.mounted) return;
       if (!mine) {
         await sendNow();
-        if (context.mounted) _snack(context, tr.grabSentNow);
+        try {
+          await escalate?.call('not_ok');
+        } catch (_) {}
+        if (context.mounted) _snack(context, tr.at2OkSent);
         return;
       }
       final pin = await (askPin?.call(context) ??
@@ -83,9 +91,10 @@ class GrabCheck {
       } else if (st == 429 || r['reason'] == 'rate_limited') {
         _snack(context, tr.atfaRateLimited);
       } else if (r['locked'] == true) {
-        _snack(context, tr.securityLockedOut);
+        // antitheft2: the server already escalated the held grab
+        _snack(context, tr.at2OkWrongPin);
       } else if (st == 403 || r['reason'] == 'bad_pin') {
-        _snack(context, tr.securityBadPin);
+        _snack(context, tr.at2OkWrongPin);
       } else {
         _snack(context, tr.securityActionError);
       }
