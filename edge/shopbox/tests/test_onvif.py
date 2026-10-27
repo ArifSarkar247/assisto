@@ -163,3 +163,39 @@ def test_parser_refuses_dtd_and_oversize():
         onvif.parse_xml(b'<!DOCTYPE x [<!ENTITY a "b">]><x>&a;</x>')
     with pytest.raises(onvif.OnvifError):
         onvif.parse_xml(b"<x>" + b"a" * (onvif.MAX_RESPONSE + 1) + b"</x>")
+
+
+class _IfSock(FakeSock):
+    def __init__(self, replies):
+        super().__init__(replies)
+        self.ifs = []
+
+    def setsockopt(self, level, opt, val):
+        self.ifs.append(val)
+
+
+def test_discover_probes_every_local_interface():
+    """A shop PC with Ethernet (cameras) + Wi-Fi (internet): the probe goes out
+    of the OS default NIC AND each extra interface (multicast otherwise only
+    leaves through the default-route NIC)."""
+    import socket as _s
+    clock = {"t": 0.0}
+
+    def tick():
+        clock["t"] += 0.3
+        return clock["t"]
+
+    sock = _IfSock([(PROBE_MATCH, ("192.168.1.20", 3702))])
+    devs = onvif.discover(2.0, sock_factory=lambda: sock, clock=tick,
+                          interfaces=["192.168.1.5", "10.0.0.7"])
+    assert len(devs) == 1
+    # first round: default + 2 interfaces; the lossy-UDP resend repeats it
+    assert len(sock.sent) == 6 and all(d == onvif.MULTICAST for _, d in sock.sent)
+    assert _s.inet_aton("192.168.1.5") in sock.ifs and _s.inet_aton("10.0.0.7") in sock.ifs
+
+
+def test_discovery_interfaces_env_override(monkeypatch):
+    monkeypatch.setenv("SHOPBOX_DISCOVERY_IFACES", "127.0.0.1, 192.168.0.9")
+    assert onvif.local_ipv4_interfaces() == ["127.0.0.1", "192.168.0.9"]
+    monkeypatch.delenv("SHOPBOX_DISCOVERY_IFACES")
+    assert all(not ip.startswith("127.") for ip in onvif.local_ipv4_interfaces())

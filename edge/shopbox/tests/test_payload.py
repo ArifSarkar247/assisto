@@ -131,3 +131,19 @@ def test_snapshot_is_small_jpeg_even_for_large_noisy_frame():
     assert jpg[:2] == b"\xff\xd8" and len(jpg) <= 150 * 1024
     img = cv2.imdecode(np.frombuffer(jpg, np.uint8), cv2.IMREAD_COLOR)
     assert img.shape[1] <= 640
+
+
+def test_gateway_camera_is_named_with_the_site_token():
+    """A camera added + checked from the app has no token of its own; with the
+    site token the request names the SERVER camera (else the alert is not
+    attributed: no schedule, grouping or camera name server-side)."""
+    ev = payload.build_event("person_detected", {"person": True}, camera_id="srv12")
+    ev["server_camera_id"] = 12
+    _t, body, _f = payload.build_request(ev, site_token="S", camera_token=None)
+    assert body["camera_id"] == 12 and body["site_token"] == "S"
+    _t, form, _f = payload.build_request(ev, site_token="S", camera_token=None,
+                                         snapshot=b"\xff\xd8x", snapshot_mode="always")
+    assert form["camera_id"] == "12"
+    # a per-camera token already identifies the camera: nothing extra
+    _t, body, _f = payload.build_request(ev, site_token="S", camera_token="C")
+    assert "camera_id" not in body and body["camera_token"] == "C"

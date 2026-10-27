@@ -1,0 +1,54 @@
+name: Launch E2E (CCTV watchman + vehicle tracking)
+
+# Real-socket end-to-end harnesses for the two features shown at launch.
+# No secrets: every vendor / Google endpoint is a local mock or simulator.
+on:
+  push:
+    paths:
+      - "tools/e2e/**"
+      - "edge/shopbox/shopbox/**"
+      - "backend/core/watchman_views.py"
+      - "backend/core/shop_views.py"
+      - "backend/core/logic/camera_hooks.py"
+      - "backend/core/logic/imou.py"
+      - "backend/core/logic/shop_guard.py"
+      - "backend/core/push.py"
+      - "backend/tracker/**"
+      - "backend/core/vehicle_service.py"
+      - "backend/core/views_vehicle.py"
+      - "backend/core/logic/vehicle_tracking.py"
+      - ".github/workflows/e2e-launch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cctv:
+    name: CCTV e2e (RTSP + ONVIF sim + Shop Box + Django + mock FCM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            edge/shopbox/requirements.txt
+      - name: Install backend + edge dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # the edge pins an older requests; the backend's pin wins here
+          grep -v '^requests' edge/shopbox/requirements.txt > /tmp/edge-req.txt
+          pip install -r backend/requirements.txt -r /tmp/edge-req.txt
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/assisto-e2e
+          key: e2e-assets-${{ hashFiles('backend/*/migrations/*.py') }}
+          restore-keys: e2e-assets-
+      - name: Run CCTV harness
+        env:
+          PY: python
+        run: bash tools/e2e/cctv_e2e.sh
