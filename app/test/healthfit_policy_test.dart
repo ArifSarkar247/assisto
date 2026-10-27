@@ -283,6 +283,10 @@ void main() {
       final start = find.text(en['moodBreathStart'] as String);
       await tester.scrollUntilVisible(start, 200,
           scrollable: find.byType(Scrollable).first);
+      // bring the whole card above the FAB / viewport edge before tapping
+      await tester.ensureVisible(find.byKey(const Key('mood-breathing-card')));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(start);
       await tester.pump(const Duration(seconds: 1));
       expect(find.text(en['moodBreathIn'] as String), findsOneWidget);
