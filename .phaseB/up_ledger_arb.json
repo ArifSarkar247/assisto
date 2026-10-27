@@ -1,0 +1,586 @@
+{
+ "en": {
+  "ldgAddPartyOnline": "Adding a new customer needs the internet. Entries work offline.",
+  "@ldgAddPartyOnline": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAllDone": "All done",
+  "@ldgAllDone": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAwaitingSend": "Send now",
+  "@ldgAwaitingSend": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAwaitingTitle": "Time to remind {count} customers",
+  "@ldgAwaitingTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgBtnAssistoSms": "Assisto SMS · {credits} credits",
+  "@ldgBtnAssistoSms": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "credits": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgBtnPhoneSms": "Phone SMS",
+  "@ldgBtnPhoneSms": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnShare": "Share",
+  "@ldgBtnShare": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnSkip": "Skip",
+  "@ldgBtnSkip": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnWhatsApp": "WhatsApp",
+  "@ldgBtnWhatsApp": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgConflict": "Changed elsewhere",
+  "@ldgConflict": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgCountFailed": "Failed {count}",
+  "@ldgCountFailed": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgCountSent": "Sent {count}",
+  "@ldgCountSent": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgCountSkipped": "Skipped {count}",
+  "@ldgCountSkipped": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgCountWaiting": "Waiting {count}",
+  "@ldgCountWaiting": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgDiscard": "Discard",
+  "@ldgDiscard": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditEntry": "Edit entry",
+  "@ldgEditEntry": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditLinked": "This entry came from a sale — change it from the sale",
+  "@ldgEditLinked": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditOwnerOnly": "Only the owner can change an entry",
+  "@ldgEditOwnerOnly": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEdited": "Change saved",
+  "@ldgEdited": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFailedTitle": "Entries that didn't sync",
+  "@ldgFailedTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL1": "Unlimited customers and suppliers",
+  "@ldgFreeL1": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL2": "Credit and payment entries — even offline",
+  "@ldgFreeL2": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL3": "Balances, statements and the statement PDF",
+  "@ldgFreeL3": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL4": "Reminders you send by WhatsApp or your phone's SMS",
+  "@ldgFreeL4": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL5": "Scheduled reminder notifications",
+  "@ldgFreeL5": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidAi": "AI extras (voice entry, paper-khata scan) are on paid plans",
+  "@ldgFreePaidAi": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidSms": "An SMS that Assisto sends uses credits — we show the cost before sending and never send at 0 credits.",
+  "@ldgFreePaidSms": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidTitle": "What costs money",
+  "@ldgFreePaidTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeSub": "Customers, dues, payments, statements and reminders you send yourself — free on every plan, always.",
+  "@ldgFreeSub": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeTitle": "Digital khata — free forever",
+  "@ldgFreeTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeWeb": "Our written promise: lifeassisto.com/khata-free",
+  "@ldgFreeWeb": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgLocalMsg": "Hello {name}. Your due at {shop} is {amount}. Kindly clear it at your convenience, thank you.",
+  "@ldgLocalMsg": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "shop": {
+     "type": "String"
+    },
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgLocalPay": " Pay to {method}: {number}.",
+  "@ldgLocalPay": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "method": {
+     "type": "String"
+    },
+    "number": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgNeverAuto": "Nothing is sent without your tap.",
+  "@ldgNeverAuto": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoDueBody": "The customers you picked owe nothing, so no reminder is needed.",
+  "@ldgNoDueBody": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoDueTitle": "Nobody owes you",
+  "@ldgNoDueTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoMatch": "No match",
+  "@ldgNoMatch": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoPhone": "No valid mobile number — send it with Share",
+  "@ldgNoPhone": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgOfflineBuilt": "No internet — messages built from your saved khata. WhatsApp and phone SMS work; Assisto SMS doesn't.",
+  "@ldgOfflineBuilt": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayApply": "Add to messages",
+  "@ldgPayApply": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayInfo": "Payment info (optional)",
+  "@ldgPayInfo": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayNumber": "Your bKash, Nagad or Rocket number",
+  "@ldgPayNumber": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPendingChip": "Pending sync",
+  "@ldgPendingChip": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPendingEstimate": "About {amount} after sync",
+  "@ldgPendingEstimate": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgPendingSync": "{count} entries waiting to sync — they go up by themselves when you're online",
+  "@ldgPendingSync": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgPickSome": "Pick at least one customer",
+  "@ldgPickSome": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPlanDailyTotals": "Daily sales totals",
+  "@ldgPlanDailyTotals": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgReview": "Review",
+  "@ldgReview": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSaved": "Saved",
+  "@ldgSaved": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSavedCopy": "Showing your saved copy ({time}) — it updates when you're back online",
+  "@ldgSavedCopy": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSavedOffline": "Saved on this phone — it will sync when you're online",
+  "@ldgSavedOffline": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedAction": "Schedule a reminder",
+  "@ldgSchedAction": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedDelete": "Stop this scheduled reminder",
+  "@ldgSchedDelete": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedDeleted": "Scheduled reminder stopped",
+  "@ldgSchedDeleted": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedEvery": "Every {days} days",
+  "@ldgSchedEvery": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSchedHow": "How",
+  "@ldgSchedHow": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModePush": "Remind me (free)",
+  "@ldgSchedModePush": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModePushSub": "A notification on your phone at that time — you send it with one tap",
+  "@ldgSchedModePushSub": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModeSms": "Assisto sends an SMS",
+  "@ldgSchedModeSms": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModeSmsSub": "{credits} credits per SMS part. With no credits it won't send — it tells you instead.",
+  "@ldgSchedModeSmsSub": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "credits": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSchedNeedsOnline": "Scheduling a reminder needs the internet",
+  "@ldgSchedNeedsOnline": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedOnce": "Once",
+  "@ldgSchedOnce": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedQuiet": "This is between 9 pm and 9 am — the reminder will go at 9 am.",
+  "@ldgSchedQuiet": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedQuietAlways": "Nothing goes out between 9 pm and 9 am, and never more than once a day per customer.",
+  "@ldgSchedQuietAlways": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedRepeat": "How often",
+  "@ldgSchedRepeat": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedSave": "Save schedule",
+  "@ldgSchedSave": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedSaved": "Reminder scheduled",
+  "@ldgSchedSaved": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedTitleFor": "Schedule a reminder for {name}",
+  "@ldgSchedTitleFor": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSchedUntilPaid": "Stops by itself once paid",
+  "@ldgSchedUntilPaid": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedWhen": "When",
+  "@ldgSchedWhen": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSearchHint": "Search by name or phone",
+  "@ldgSearchHint": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSelectDue": "Everyone with a due",
+  "@ldgSelectDue": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendIntro": "One separate message per customer, with their own due. You send each one with your own tap.",
+  "@ldgSendIntro": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendTitle": "Send reminders",
+  "@ldgSendTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendToN": "Remind {count}",
+  "@ldgSendToN": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSmsBalance": "Your credits for Assisto SMS: {balance}",
+  "@ldgSmsBalance": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "balance": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSmsConfirmBody": "An SMS goes to {name}. Cost: {credits} credits. You have {balance} credits.",
+  "@ldgSmsConfirmBody": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "credits": {
+     "type": "String"
+    },
+    "balance": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSmsConfirmTitle": "Send by Assisto SMS?",
+  "@ldgSmsConfirmTitle": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsNoCredits": "No credits",
+  "@ldgSmsNoCredits": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsNotReady": "Assisto SMS isn't on yet — use WhatsApp or your phone's SMS",
+  "@ldgSmsNotReady": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsOwnerOnly": "Only the owner can send Assisto SMS",
+  "@ldgSmsOwnerOnly": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsSendNow": "Send",
+  "@ldgSmsSendNow": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusFailed": "Not sent",
+  "@ldgStatusFailed": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusOpenedSms": "Opened in your SMS app — press send there",
+  "@ldgStatusOpenedSms": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusOpenedWa": "Opened in WhatsApp — press send there",
+  "@ldgStatusOpenedWa": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusShared": "Shared",
+  "@ldgStatusShared": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusSkipped": "Skipped",
+  "@ldgStatusSkipped": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusSmsSent": "Sent by Assisto SMS · {credits} credits used",
+  "@ldgStatusSmsSent": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "credits": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgStillOffline": "Still offline — your entries are safe on this phone",
+  "@ldgStillOffline": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSyncFailed": "{count} entries didn't sync",
+  "@ldgSyncFailed": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgSyncNow": "Sync now",
+  "@ldgSyncNow": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSynced": "{count} entries synced",
+  "@ldgSynced": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "ldgTone": "Tone",
+  "@ldgTone": {
+   "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  }
+ },
+ "bn": {
+  "ldgAddPartyOnline": "নতুন গ্রাহক যোগ করতে ইন্টারনেট লাগবে। এন্ট্রি অফলাইনেও দেওয়া যায়।",
+  "ldgAllDone": "সব শেষ",
+  "ldgAwaitingSend": "এখন পাঠান",
+  "ldgAwaitingTitle": "{count} জনকে তাগাদার সময় হয়েছে",
+  "ldgBtnAssistoSms": "Assisto SMS · {credits} ক্রেডিট",
+  "ldgBtnPhoneSms": "ফোনের SMS",
+  "ldgBtnShare": "শেয়ার",
+  "ldgBtnSkip": "বাদ দিন",
+  "ldgBtnWhatsApp": "হোয়াটসঅ্যাপ",
+  "ldgConflict": "অন্য কোথাও বদলানো হয়েছে",
+  "ldgCountFailed": "ব্যর্থ {count}",
+  "ldgCountSent": "পাঠানো {count}",
+  "ldgCountSkipped": "বাদ {count}",
+  "ldgCountWaiting": "অপেক্ষায় {count}",
+  "ldgDiscard": "মুছে দিন",
+  "ldgEditEntry": "এন্ট্রি বদলান",
+  "ldgEditLinked": "এই এন্ট্রি বিক্রি থেকে এসেছে — বিক্রি থেকেই বদলান",
+  "ldgEditOwnerOnly": "শুধু মালিক এন্ট্রি বদলাতে পারেন",
+  "ldgEdited": "পরিবর্তন সংরক্ষিত",
+  "ldgFailedTitle": "যে এন্ট্রি সিঙ্ক হয়নি",
+  "ldgFreeL1": "যত খুশি গ্রাহক ও সাপ্লায়ার",
+  "ldgFreeL2": "বাকি ও জমার এন্ট্রি — ইন্টারনেট ছাড়াও",
+  "ldgFreeL3": "ব্যালান্স, হিসাবের বিবরণ ও স্টেটমেন্ট PDF",
+  "ldgFreeL4": "হোয়াটসঅ্যাপ বা ফোনের SMS-এ নিজে পাঠানো তাগাদা",
+  "ldgFreeL5": "নির্ধারিত তাগাদার নোটিফিকেশন",
+  "ldgFreePaidAi": "AI সুবিধা (ভয়েস এন্ট্রি, কাগজের খাতা স্ক্যান) পেইড প্ল্যানে",
+  "ldgFreePaidSms": "Assisto নিজে যে SMS পাঠায় তাতে ক্রেডিট লাগে — পাঠানোর আগেই খরচ দেখাই, ০ ক্রেডিটে কখনো পাঠাই না।",
+  "ldgFreePaidTitle": "যেটার খরচ আছে",
+  "ldgFreeSub": "গ্রাহক, বাকি, জমা, হিসাব আর নিজে পাঠানো তাগাদা — সব প্ল্যানে ফ্রি, সবসময়।",
+  "ldgFreeTitle": "ডিজিটাল খাতা চিরকাল ফ্রি",
+  "ldgFreeWeb": "লিখিত প্রতিশ্রুতি: lifeassisto.com/khata-free",
+  "ldgLocalMsg": "আসসালামু আলাইকুম {name}। {shop}-এ আপনার বাকি {amount}। সুবিধামতো পরিশোধ করলে কৃতজ্ঞ থাকব।",
+  "ldgLocalPay": " পরিশোধ: {method} {number}।",
+  "ldgNeverAuto": "আপনার ট্যাপ ছাড়া কিছুই যায় না।",
+  "ldgNoDueBody": "বাছাই করা গ্রাহকদের কোনো বাকি নেই, তাই তাগাদার দরকার নেই।",
+  "ldgNoDueTitle": "কারো কাছে বাকি নেই",
+  "ldgNoMatch": "মিল পাওয়া যায়নি",
+  "ldgNoPhone": "সঠিক মোবাইল নম্বর নেই — শেয়ার দিয়ে পাঠান",
+  "ldgOfflineBuilt": "ইন্টারনেট নেই — সংরক্ষিত খাতা থেকে মেসেজ বানানো হয়েছে। হোয়াটসঅ্যাপ ও ফোনের SMS চলবে, Assisto SMS নয়।",
+  "ldgPayApply": "মেসেজে যোগ করুন",
+  "ldgPayInfo": "পেমেন্টের তথ্য (ঐচ্ছিক)",
+  "ldgPayNumber": "আপনার bKash, Nagad বা Rocket নম্বর",
+  "ldgPendingChip": "সিঙ্ক বাকি",
+  "ldgPendingEstimate": "সিঙ্কের পর আনুমানিক {amount}",
+  "ldgPendingSync": "{count}টি এন্ট্রি সিঙ্ক বাকি — ইন্টারনেট এলে নিজে থেকেই যাবে",
+  "ldgPickSome": "অন্তত একজন গ্রাহক বাছুন",
+  "ldgPlanDailyTotals": "দৈনিক বিক্রির হিসাব",
+  "ldgReview": "দেখুন",
+  "ldgSaved": "সংরক্ষিত",
+  "ldgSavedCopy": "সংরক্ষিত কপি দেখানো হচ্ছে ({time}) — ইন্টারনেট এলে আপডেট হবে",
+  "ldgSavedOffline": "ফোনে রাখা হলো — ইন্টারনেট এলে সিঙ্ক হবে",
+  "ldgSchedAction": "তাগাদার সময় ঠিক করুন",
+  "ldgSchedDelete": "নির্ধারিত তাগাদা বন্ধ করুন",
+  "ldgSchedDeleted": "নির্ধারিত তাগাদা বন্ধ হয়েছে",
+  "ldgSchedEvery": "প্রতি {days} দিনে",
+  "ldgSchedHow": "কীভাবে",
+  "ldgSchedModePush": "আমাকে মনে করিয়ে দিন (ফ্রি)",
+  "ldgSchedModePushSub": "সময় হলে আপনার ফোনে নোটিফিকেশন — এক ট্যাপে পাঠাবেন",
+  "ldgSchedModeSms": "Assisto নিজে SMS পাঠাবে",
+  "ldgSchedModeSmsSub": "প্রতি SMS অংশে {credits} ক্রেডিট। ক্রেডিট না থাকলে পাঠাবে না — আপনাকে জানাবে।",
+  "ldgSchedNeedsOnline": "তাগাদার সময় ঠিক করতে ইন্টারনেট লাগবে",
+  "ldgSchedOnce": "একবার",
+  "ldgSchedQuiet": "এই সময়টা রাত ৯টা থেকে সকাল ৯টার মধ্যে — তাগাদা সকাল ৯টায় যাবে।",
+  "ldgSchedQuietAlways": "রাত ৯টা থেকে সকাল ৯টা কিছু যায় না। একই গ্রাহককে দিনে একবারের বেশি নয়।",
+  "ldgSchedRepeat": "কতবার",
+  "ldgSchedSave": "সময় ঠিক করুন",
+  "ldgSchedSaved": "তাগাদার সময় ঠিক হয়েছে",
+  "ldgSchedTitleFor": "{name}-কে তাগাদার সময়",
+  "ldgSchedUntilPaid": "বাকি শোধ হলে নিজে থেকে থামবে",
+  "ldgSchedWhen": "কবে",
+  "ldgSearchHint": "নাম বা ফোন দিয়ে খুঁজুন",
+  "ldgSelectDue": "যাদের বাকি আছে সবাই",
+  "ldgSendIntro": "প্রতিটি গ্রাহককে আলাদা মেসেজ — তার নিজের বাকির অঙ্কসহ। প্রতিটি আপনি নিজে ট্যাপ করে পাঠাবেন।",
+  "ldgSendTitle": "তাগাদা পাঠান",
+  "ldgSendToN": "{count} জনকে তাগাদা",
+  "ldgSmsBalance": "Assisto SMS-এর জন্য আপনার ক্রেডিট: {balance}",
+  "ldgSmsConfirmBody": "{name}-কে SMS যাবে। খরচ {credits} ক্রেডিট। আপনার আছে {balance} ক্রেডিট।",
+  "ldgSmsConfirmTitle": "Assisto SMS পাঠাবেন?",
+  "ldgSmsNoCredits": "ক্রেডিট নেই",
+  "ldgSmsNotReady": "Assisto SMS এখনো চালু নয় — হোয়াটসঅ্যাপ বা ফোনের SMS ব্যবহার করুন",
+  "ldgSmsOwnerOnly": "Assisto SMS শুধু মালিক পাঠাতে পারেন",
+  "ldgSmsSendNow": "পাঠান",
+  "ldgStatusFailed": "পাঠানো যায়নি",
+  "ldgStatusOpenedSms": "ফোনের SMS-এ খোলা হয়েছে — সেখানে পাঠান চাপুন",
+  "ldgStatusOpenedWa": "হোয়াটসঅ্যাপে খোলা হয়েছে — সেখানে পাঠান চাপুন",
+  "ldgStatusShared": "শেয়ার করা হয়েছে",
+  "ldgStatusSkipped": "বাদ দেওয়া হয়েছে",
+  "ldgStatusSmsSent": "Assisto SMS পাঠিয়েছে · {credits} ক্রেডিট কাটা হয়েছে",
+  "ldgStillOffline": "এখনো ইন্টারনেট নেই — এন্ট্রিগুলো নিরাপদে ফোনে আছে",
+  "ldgSyncFailed": "{count}টি এন্ট্রি সিঙ্ক হয়নি",
+  "ldgSyncNow": "এখন সিঙ্ক",
+  "ldgSynced": "{count}টি এন্ট্রি সিঙ্ক হয়েছে",
+  "ldgTone": "সুর"
+ }
+}

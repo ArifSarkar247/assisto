@@ -42,7 +42,7 @@ extension BusinessKhataApi on ApiClient {
   /// {parties:[{id, name, phone, area, vip, balance_poisha, balance_display{bn,en},
   /// balance_status{bn,en}}]}. `book=supplier` is owner-only server-side.
   Future<Map<String, dynamic>> khataParties(int businessId, String book) =>
-      getJson('/business/khata/parties?business_id=$businessId&book=$book');
+      getJson('/business/khata/parties?business=$businessId&book=$book');
 
   /// POST /business/khata/parties -> the created party (incl. zeroed balance).
   /// book ∈ customer|supplier (supplier owner-only).
@@ -56,7 +56,7 @@ extension BusinessKhataApi on ApiClient {
     bool vip = false,
   }) =>
       postJson('/business/khata/parties', {
-        'business_id': businessId,
+        'business': businessId,
         'book': book,
         'name': name,
         'phone': phone,
@@ -84,8 +84,10 @@ extension BusinessKhataApi on ApiClient {
     String note = '',
     String? atIso,
     bool notifyCustomer = false,
+    String? clientId,
   }) =>
       postJson('/business/khata/parties/$partyId/entries', {
+        if (clientId != null) 'client_id': clientId,
         'direction': direction,
         'amount': amountPoisha,
         'note': note,
@@ -100,8 +102,10 @@ extension BusinessKhataApi on ApiClient {
     required int amountPoisha,
     String note = '',
     String? atIso,
+    String? clientId,
   }) =>
       postJson('/business/khata/parties/$partyId/payment', {
+        if (clientId != null) 'client_id': clientId,
         'amount': amountPoisha,
         'note': note,
         if (atIso != null) 'at': atIso,
@@ -112,7 +116,7 @@ extension BusinessKhataApi on ApiClient {
   /// supplier_advances_display{bn,en}, net_display{bn,en}, net_status{bn,en},
   /// ahead:bool}. Supplier figures are omitted/zeroed for staff server-side.
   Future<Map<String, dynamic>> khataNetPosition(int businessId) =>
-      getJson('/business/khata/net-position?business_id=$businessId');
+      getJson('/business/khata/net-position?business=$businessId');
 
   // ======================= tagada (reminders) ===========================
 
@@ -133,23 +137,73 @@ extension BusinessKhataApi on ApiClient {
   /// POST /business/khata/tagada/bulk {business_id, party_ids[], preset, channel}
   /// -> {reminders:[{party_id, name, message{bn,en}, share{...}}]}. Pure
   /// plan_tagada_bulk — one descriptor per party the owner can fan out.
+  /// ledger100: -> {reminders:[{party_id, name, phone, phone_ok,
+  /// balance_poisha, balance_display{bn,en}, message (one language), wa_url,
+  /// sms_uri, sms_segments, sms_credits}], skipped:[{party_id, reason}],
+  /// sms:{ready, available, owner_only, balance, per_segment}}. ONE
+  /// reminder per customer — the app sends them one by one.
   Future<Map<String, dynamic>> tagadaBulk({
     required int businessId,
     required List<int> partyIds,
     required String preset,
     String channel = 'whatsapp_share',
+    Map<String, String>? payHint,
   }) =>
       postJson('/business/khata/tagada/bulk', {
-        'business_id': businessId,
+        'business': businessId,
         'party_ids': partyIds,
         'preset': preset,
         'channel': channel,
+        if (payHint != null) 'pay_hint': payHint,
       });
+
+  /// smsotp/ledger100: POST tagada/sms/<party> — ASSISTO sends the SMS
+  /// (owner only, credits per segment, refused at 0 credits). Returns the
+  /// raw body + `_status` (never throws on a refusal) so the screen can
+  /// show the server's honest reason.
+  Future<Map<String, dynamic>> tagadaSendSms({
+    required int businessId,
+    required int partyId,
+    required String preset,
+    Map<String, String>? payHint,
+  }) =>
+      postJsonRaw('/business/khata/tagada/sms/$partyId', {
+        'business': businessId,
+        'preset': preset,
+        if (payHint != null) 'pay_hint': payHint,
+      });
+
+  /// ledger100: POST entries/<id> {amount?, note?, at?, base_version} —
+  /// owner edit; 409 `conflict` when the server row moved on.
+  Future<Map<String, dynamic>> khataEditEntry({
+    required int businessId,
+    required int entryId,
+    required int baseVersion,
+    int? amountPoisha,
+    String? note,
+    String? atIso,
+  }) =>
+      postJson('/business/khata/entries/$entryId', {
+        'business': businessId,
+        'base_version': baseVersion,
+        if (amountPoisha != null) 'amount': amountPoisha,
+        if (note != null) 'note': note,
+        if (atIso != null) 'at': atIso,
+      });
+
+  /// ledger100: DELETE tagada/schedule/<id>.
+  Future<Map<String, dynamic>> tagadaDeleteSchedule(int businessId, int id) =>
+      deleteJson('/business/khata/tagada/schedule/$id?business=$businessId');
+
+  /// ledger100: POST tagada/schedule/<id> {ack:true} — the owner sent it.
+  Future<Map<String, dynamic>> tagadaAckSchedule(int businessId, int id) =>
+      postJson('/business/khata/tagada/schedule/$id',
+          {'business': businessId, 'ack': true});
 
   /// GET /business/khata/tagada/schedule?business_id= -> {schedules:[{id,
   /// party_id, party_name, preset, channel, next_at, interval_days, enabled}]}.
   Future<Map<String, dynamic>> tagadaSchedules(int businessId) =>
-      getJson('/business/khata/tagada/schedule?business_id=$businessId');
+      getJson('/business/khata/tagada/schedule?business=$businessId');
 
   /// POST /business/khata/tagada/schedule {party_id, preset, channel,
   /// interval_days, next_at, enabled} -> the created/updated schedule. A

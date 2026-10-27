@@ -185,6 +185,7 @@ class PushRouting {
     'watchman': 'watchman', // cctv1
     'retention_inbox': 'retention_inbox', // retention1 (customer)
     'retention_auto': 'retention_auto', // retention1 (owner: a reply)
+    'business/khata': 'khata', // ledger100: scheduled tagada nudge
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
