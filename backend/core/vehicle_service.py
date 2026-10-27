@@ -59,8 +59,13 @@ def normalize_imei(raw):
     return "".join(ch for ch in str(raw or "") if ch.isdigit())
 
 
-def imei_valid(imei):
-    """15-digit IMEI with a correct Luhn check digit."""
+def imei_valid(imei, protocol=None):
+    """15-digit IMEI with a correct Luhn check digit. H02 trackers (Sinotrack
+    ST-901 family) report a 10-digit DEVICE ID instead (printed on the label /
+    returned by SMS), so for protocol 'h02' any 10-15 digit id is accepted."""
+    if protocol == "h02" and imei.isdigit() and 10 <= len(imei) <= 15 \
+            and len(imei) != 15:
+        return True
     if len(imei) != 15 or not imei.isdigit():
         return False
     total = 0
@@ -201,14 +206,25 @@ def ingest(batch, now=None):
         if "relay_cut" in st:
             fields["relay_cut"] = st["relay_cut"]
         alert_state = dict(t.alert_state or {})
+        circles, routes = split_fences(t.geofences)
         settings = {"speed_limit_kmh": t.speed_limit_kmh,
                     "night_start": t.night_start, "night_end": t.night_end,
                     "night_ignition": t.night_ignition_alert,
-                    "geofences": t.geofences or []}
+                    "geofences": circles, "routes": routes}
+        # Idempotency: a tracker that never got our ACK (or a flaky link)
+        # re-sends the same fix. One fix per (tracker, device time): skip any
+        # `at` already stored or already seen in this batch.
+        ats = [f.get("at") for f in fixes if f.get("at") is not None]
+        seen = set(VehiclePosition.objects.filter(tracker_id=tid, at__in=ats)
+                   .values_list("at", flat=True)) if ats else set()
         for f in fixes:
             at = f.get("at") or now
             if at > now + timedelta(minutes=5):   # device clock in the future
                 at = now
+            if f.get("at") is not None and f.get("valid", True):
+                if at in seen:
+                    continue
+                seen.add(at)
             ign = f.get("ignition")
             io = {}
             for k in ("ext_voltage_v", "battery_v", "relay_cut", "movement", "obd"):
@@ -248,6 +264,16 @@ def ingest(batch, now=None):
     for t, a in pending_alerts:
         deliver_alert(t, a)
     return len(rows)
+
+
+def split_fences(raw):
+    """t.geofences holds circle fences AND planned routes ({"type": "route"})
+    in one JSON list (no extra column). Returns (circles, routes)."""
+    circles, routes = [], []
+    for f in raw or []:
+        if isinstance(f, dict):
+            (routes if f.get("type") == "route" else circles).append(f)
+    return circles, routes
 
 
 def prune(now=None):
@@ -397,7 +423,8 @@ def deliver_alert(tracker, alert):
     audit(tracker, "alert_" + alert["kind"], **{k: v for k, v in alert.items()
                                                if k != "kind"})
     _send(_viewers(tracker), tb, te, bb, be, meta, family_alert_for=tracker.owner,
-          severity="high" if alert["kind"] in ("night_ignition", "geofence_exit")
+          severity="high" if alert["kind"] in ("night_ignition", "geofence_exit",
+                                                 "off_route")
           else "med")
 
 

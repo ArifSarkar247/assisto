@@ -149,10 +149,16 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
             continue
         seen.add(u.pk)
         try:
+            m = dict(meta)
+            # antitheft2: the trusted contact's own web view of this phone
+            # (signed, bound to them, expires) — the "web dashboard".
+            if u.pk != phone.owner_id:
+                m["web_path"] = watch_path(phone, u)
             NotifEvent.objects.create(
                 user=u, type="security", title_bn=tb[:200], title_en=te[:200],
                 body_bn=bb, body_en=be, route="security/lost-phone",
-                meta=meta, at=now)
+                meta=m, at=now)
+            # antitheft2: HIGH priority (Doze-safe, delivered within seconds)
             push.safe_push(u, "family_alert", tb, te, bb, be,
                            data={"alert_kind": "antitheft", "route": "security/lost-phone",
                                  "phone_id": phone.id, "antitheft_kind": kind,
@@ -164,6 +170,66 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
         except Exception:
             continue
     return sent
+
+
+# --------------------------------------------------------------------------
+# antitheft2: signed web view for a trusted contact ("web dashboard")
+# --------------------------------------------------------------------------
+WATCH_SALT = "assisto-at-watch-v1"
+WATCH_MAX_AGE_S = 7 * 24 * 3600
+
+
+def watch_token(phone, viewer):
+    from django.core import signing
+    return signing.dumps({"p": int(phone.id), "v": int(viewer.pk)},
+                         salt=WATCH_SALT, compress=True)
+
+
+def watch_path(phone, viewer):
+    try:
+        return "/w/phone/%s" % watch_token(phone, viewer)
+    except Exception:
+        return ""
+
+
+def watch_resolve(token):
+    """(phone, viewer) for a valid, unexpired link whose viewer may STILL see
+    the phone (a removed trusted contact's old link stops working); else
+    (None, None). Never raises."""
+    from django.core import signing
+    try:
+        d = signing.loads(str(token or "")[:600], salt=WATCH_SALT,
+                          max_age=WATCH_MAX_AGE_S)
+        phone = ProtectedPhone.objects.filter(pk=int(d["p"])).first()
+        viewer = User.objects.filter(pk=int(d["v"]), is_active=True).first()
+    except Exception:
+        return None, None
+    if phone is None or viewer is None or not can_view(phone, viewer):
+        return None, None
+    return phone, viewer
+
+
+def best_location(phone, eng, ev=None):
+    """antitheft2: event fix -> server's last stored fix -> honest reason."""
+    caps = (eng.capabilities if eng is not None else None) or {}
+    return at.pick_location(
+        getattr(ev, "lat", None), getattr(ev, "lng", None),
+        getattr(ev, "accuracy_m", None), getattr(ev, "fix_at", None),
+        getattr(ev, "at", None) or timezone.now(),
+        phone.last_lat, phone.last_lng,
+        getattr(eng, "last_fix_acc", None), getattr(eng, "last_fix_at", None),
+        caps)
+
+
+def _loc_meta(loc):
+    return {"lat": loc.get("lat"), "lng": loc.get("lng"), "acc": loc.get("acc"),
+            "fix_at": loc["fix_at"].isoformat() if loc.get("fix_at") else None,
+            "loc_source": loc.get("source"), "loc_missing": loc.get("missing")}
+
+
+def trusted_contacts(phone):
+    """The people who receive this phone's alerts (never the owner)."""
+    return [u for u in approved_family_users(phone) if u.pk != phone.owner_id]
 
 
 # How long an unseen anti-theft alert stays in the foreground /alerts poll.
@@ -251,6 +317,9 @@ def _config(phone, eng, interval=None):
         "snatch_lock": eng.snatch_lock,
         "intruder_photo": eng.intruder_photo,
         "failed_unlock_threshold": eng.failed_unlock_threshold,
+        # antitheft2: grab rules the engine applies on the phone too
+        "night_guard": bool(eng.night_guard),
+        "home_wifi": [h for h in (eng.home_wifi or []) if at.wifi_hash_ok(h)],
     }
 
 
@@ -347,6 +416,11 @@ def _event_json(ev, viewer_is_owner=True):
         "lat": ev.lat, "lng": ev.lng, "accuracy_m": ev.accuracy_m,
         "battery": ev.battery,
         "has_photo": bool(ev.photo),
+        # antitheft2: honest location + delivery facts
+        "fix_at": ev.fix_at.isoformat() if ev.fix_at else None,
+        "alerted_at": ev.alerted_at.isoformat() if ev.alerted_at else None,
+        "recipients": ev.recipients,
+        "held": ev.escalate_at is not None and not ev.alerted,
     }
 
 
@@ -410,7 +484,35 @@ class EngineStateView(APIView):
             "theft_signal": bool(_recent_signals(phone, now)),
             "lost_mode": phone.lost_mode,
             "recent": recent,
+            # antitheft2: who gets the alerts — none set -> the app asks the
+            # owner to add a trusted contact (alerts are recorded meanwhile).
+            "trusted_contacts": len(trusted_contacts(phone)),
+            "needs_trusted_contact": not trusted_contacts(phone),
+            "location": self._location(phone, eng),
+            "night_guard": bool(eng.night_guard),
+            "home_wifi_count": len([h for h in (eng.home_wifi or [])
+                                    if at.wifi_hash_ok(h)]),
+            "wifi_seen": bool(eng.last_wifi_hash and eng.last_wifi_at and
+                              eng.last_wifi_at >= now - timedelta(
+                                  minutes=at.WIFI_SEEN_FRESH_MIN)),
+            "grab_pending": _pending_grabs(phone).exists(),
+            # the engine config (the app re-hands it to the running engine
+            # after the location permission is granted)
+            "config": _config(phone, eng),
         })
+
+    @staticmethod
+    def _location(phone, eng):
+        """What the alerts can say about location, and what is missing."""
+        caps = eng.capabilities or {}
+        return {
+            "permission": caps.get("locationPermission"),
+            "enabled": caps.get("locationEnabled"),
+            "background": caps.get("backgroundLocation"),
+            "has_fix": phone.last_lat is not None,
+            "last_fix_at": eng.last_fix_at.isoformat() if eng.last_fix_at else None,
+            "last_fix_acc": eng.last_fix_acc,
+        }
 
 
 class EngineEnableView(APIView):
@@ -517,6 +619,22 @@ class EngineSettingsView(APIView):
         ids = _clean_member_ids(request.user, request.data.get("alert_member_ids"))
         if ids is not None:
             eng.alert_member_ids = ids
+        # antitheft2: Night guard + the saved home Wi-Fi (hashes only)
+        eng.night_guard = _bool(request.data.get("night_guard"), eng.night_guard)
+        hw = str(request.data.get("home_wifi") or "")
+        if hw == "clear":
+            eng.home_wifi = []
+        elif hw == "save_current":
+            h = str(request.data.get("wifi_hash") or "").lower()
+            if not at.wifi_hash_ok(h):
+                fresh = (eng.last_wifi_at and eng.last_wifi_at >= timezone.now()
+                         - timedelta(minutes=at.WIFI_SEEN_FRESH_MIN))
+                h = eng.last_wifi_hash if fresh else ""
+            if not at.wifi_hash_ok(h):
+                return Response({"ok": False, "reason": "no_wifi"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            homes = [x for x in (eng.home_wifi or []) if at.wifi_hash_ok(x) and x != h]
+            eng.home_wifi = (homes + [h])[-at.HOME_WIFI_MAX:]
         eng.save()
         return Response({"ok": True, "config": _config(phone, eng),
                          "alert_members": [_member_brief(m) for m in approved_members(phone)]})
@@ -581,12 +699,30 @@ class FalseAlarmView(APIView):
         # stolen: only the real owner can say "it was me".
         gate = _pin_gate(request, phone)
         if gate is not None:
+            # antitheft2: a WRONG PIN on "I'm OK" is suspicious — a held grab
+            # goes to the trusted contacts at once.
+            if gate.status_code == 403:
+                for ev in list(_pending_grabs(phone)):
+                    try:
+                        escalate_grab(ev, "wrong_pin", now)
+                    except Exception:
+                        pass
             return gate
         phone.refresh_from_db()
+        # antitheft2: "I'm OK" during the window — the held grab is dropped
+        # (never sent; the trusted contacts never heard of it).
+        held = 0
+        for ev in list(_pending_grabs(phone)):
+            d = dict(ev.data or {})
+            d.update(false_alarm=True, confirm="ok")
+            held += AntiTheftEvent.objects.filter(
+                pk=ev.pk, alerted=False).update(data=d, alerted=True,
+                                                escalate_at=None)
         recent = _recent_signals(phone, now)
         was_frozen = sec.is_frozen(phone, now)
         if not recent and not was_frozen:
-            return Response({"ok": True, "cleared": 0, "frozen": False})
+            return Response({"ok": True, "cleared": 0, "frozen": False,
+                             "held_cleared": held})
         before = {"frozen_until": (phone.frozen_until.isoformat()
                                    if phone.frozen_until else None),
                   "signals": list(phone.signals or []),
@@ -631,6 +767,33 @@ class FalseAlarmView(APIView):
                          "events_marked": len(evs), "family_notified": sent})
 
 
+class EngineEscalateView(APIView):
+    """POST security/engine/escalate {reason?: not_ok|duress} — owner only.
+
+    antitheft2: the owner answered "No, I'm not OK" (or chose the duress
+    answer) on the "Are you OK?" prompt: every held grab of his phone goes to
+    the trusted contacts NOW. No PIN on purpose — asking for help must never
+    be harder than staying silent."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        phone = _primary_phone(request.user, create=False)
+        if phone is None:
+            raise Http404
+        reason = str(request.data.get("reason") or "not_ok")
+        if reason not in ("not_ok", "duress"):
+            reason = "not_ok"
+        now = timezone.now()
+        n = 0
+        for ev in list(_pending_grabs(phone)):
+            try:
+                n += 1 if escalate_grab(ev, reason, now) else 0
+            except Exception:
+                continue
+        return Response({"ok": True, "escalated": n,
+                         "recipients": len(trusted_contacts(phone))})
+
+
 # --------------------------------------------------------------------------
 # engine-token endpoints
 # --------------------------------------------------------------------------
@@ -652,7 +815,12 @@ def _revoked():
 
 def _alert_new_events(phone, eng, new_events, now):
     """One alert per kind (newest wins), with a per-kind cooldown so a
-    flapping signal never spams the family."""
+    flapping signal never spams the family.
+
+    antitheft2: every alert carries the best location we have (event fix ->
+    server's last fix -> honest reason), goes ONLY to the trusted contacts
+    (high-priority push + in-app + web link) and the delivery is recorded on
+    the event (alerted_at, recipients; 0 = nobody set, data.no_recipients)."""
     owner_name = _owner_name(phone.owner)
     newest = {}
     for ev in new_events:
@@ -669,16 +837,100 @@ def _alert_new_events(phone, eng, new_events, now):
         cutoff = now - timedelta(minutes=at.ALERT_COOLDOWN_MIN)
         recently = (AntiTheftEvent.objects.filter(
             phone=phone, kind=kind, alerted=True, received_at__gte=cutoff)
-            .exclude(pk=ev.pk).exists())
+            .exclude(pk=ev.pk).exclude(data__has_key="suppressed").exists())
         if recently and kind != "test":
             continue
+        loc = best_location(phone, eng, ev)
         te, be, tb, bb = at.alert_text(kind, owner_name, ev.at, ev.data, ev.lat,
-                                       ev.lng, ev.battery, ev.late, now)
-        notify(phone, kind, te, be, tb, bb,
-               meta={"event_id": ev.id, "at": ev.at.isoformat(), "late": ev.late,
-                     "lat": ev.lat, "lng": ev.lng},
-               owner_only=kind in at.OWNER_ONLY_KINDS)
+                                       ev.lng, ev.battery, ev.late, now, loc=loc)
+        meta = {"event_id": ev.id, "at": ev.at.isoformat(), "late": ev.late}
+        meta.update(_loc_meta(loc))
+        sent = notify(phone, kind, te, be, tb, bb, meta=meta,
+                      owner_only=kind in at.OWNER_ONLY_KINDS)
+        upd = {"alerted": True, "alerted_at": timezone.now(), "recipients": sent}
+        if not sent and kind not in at.OWNER_ONLY_KINDS:
+            d = dict(ev.data or {})
+            d["no_recipients"] = True
+            upd["data"] = d
+        AntiTheftEvent.objects.filter(pk=ev.pk).update(**upd)
+
+
+def _pending_grabs(phone):
+    return AntiTheftEvent.objects.filter(phone=phone, kind="snatch", alerted=False,
+                                         escalate_at__isnull=False)
+
+
+def escalate_grab(ev, reason, now=None):
+    """Send ONE held grab to the trusted contacts now (no answer / "not OK" /
+    wrong PIN / duress). Atomic: a grab is escalated at most once even when
+    the timer, the cron and an ingest race. Returns True if this call did it."""
+    now = now or timezone.now()
+    won = AntiTheftEvent.objects.filter(
+        pk=ev.pk, alerted=False, escalate_at__isnull=False).update(escalate_at=None)
+    if not won:
+        return False
+    ev.refresh_from_db()
+    d = dict(ev.data or {})
+    if d.get("false_alarm"):
         AntiTheftEvent.objects.filter(pk=ev.pk).update(alerted=True)
+        return False
+    d["confirm"] = reason
+    AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
+    ev.data = d
+    phone = ProtectedPhone.objects.select_related("owner").get(pk=ev.phone_id)
+    sec.register_signal(phone, at.SIGNAL_KINDS["snatch"], now)
+    phone.save(update_fields=["frozen_until", "signals", "updated_at"])
+    eng = _engine(phone)
+    _alert_new_events(phone, eng, [ev], now)
+    return True
+
+
+def escalate_due(now=None, phone=None):
+    """Escalate every held grab whose "Are you OK?" window has passed. Run by
+    the in-process timer, every ingest, and the antitheft_escalate cron."""
+    now = now or timezone.now()
+    qs = AntiTheftEvent.objects.filter(kind="snatch", alerted=False,
+                                       escalate_at__lte=now).select_related(
+                                           "phone", "phone__owner")
+    if phone is not None:
+        qs = qs.filter(phone=phone)
+    n = 0
+    for ev in list(qs[:50]):
+        try:
+            if escalate_grab(ev, "timeout", now):
+                n += 1
+        except Exception:
+            continue
+    return n
+
+
+def _schedule_escalation(delay_s):
+    """Best-effort in-process timer so a held grab is escalated ~on time even
+    between cron runs (the cron + the next ingest are the backstop). Off in
+    tests (settings.ANTITHEFT_ESCALATE_TIMER = False)."""
+    from django.conf import settings
+    if not getattr(settings, "ANTITHEFT_ESCALATE_TIMER", True):
+        return
+    import threading
+
+    def _run():
+        from django.db import close_old_connections, connection
+        try:
+            close_old_connections()
+            escalate_due()
+        except Exception:
+            pass
+        finally:
+            try:
+                connection.close()
+            except Exception:
+                pass
+    try:
+        t = threading.Timer(max(1.0, float(delay_s) + 1.0), _run)
+        t.daemon = True
+        t.start()
+    except Exception:
+        pass
 
 
 class EngineIngestView(APIView):
@@ -734,6 +986,7 @@ class EngineIngestView(APIView):
         rows.sort(key=lambda r: r[0])   # oldest first → correct replay order
 
         new_events = []
+        held = []   # antitheft2: escalate_at of grabs waiting for "Are you OK?"
         for ev_at, cid, kind, it in rows:
             lat = at.f_or_none(it.get("lat"))
             lng = at.f_or_none(it.get("lng"))
@@ -741,6 +994,21 @@ class EngineIngestView(APIView):
                 lat = lng = None
             battery = at.i_or_none(it.get("battery"))
             network = str(it.get("network") or "")[:16]
+            # antitheft2: accuracy + the time the fix was taken (the engine
+            # sends them on the item or inside data); a fix is never newer
+            # than now and never trusted without a position.
+            raw_d = it.get("data") if isinstance(it.get("data"), dict) else {}
+            acc = at.f_or_none(it.get("acc"))
+            if acc is None:
+                acc = at.f_or_none(raw_d.get("acc"))
+            if acc is not None and not (0 < acc <= 100000):
+                acc = None
+            fix_at = None
+            fix_raw = it.get("fix_at") or raw_d.get("fix_at")
+            if fix_raw and lat is not None:
+                fa, fok = at.corrected_at(fix_raw, offset, now)
+                fix_at = fa if fok else None
+            fixt = fix_at or ev_at
 
             if kind == "heartbeat":
                 if cid in (eng.recent_ids or []):
@@ -757,9 +1025,15 @@ class EngineIngestView(APIView):
                 iv = at.reported_interval(it, phone.lost_mode)
                 if iv is not None:
                     phone.heartbeat_interval_min = iv
-                if lat is not None and (eng.last_fix_at is None or ev_at >= eng.last_fix_at):
+                if lat is not None and (eng.last_fix_at is None or fixt >= eng.last_fix_at):
                     phone.last_lat, phone.last_lng = lat, lng
-                    eng.last_fix_at = ev_at
+                    eng.last_fix_at = fixt
+                    eng.last_fix_acc = acc
+                # antitheft2: the hash (never the name) of the Wi-Fi the
+                # phone is on — lets the owner save "my home Wi-Fi".
+                wifi = it.get("wifi")
+                if at.wifi_hash_ok(wifi):
+                    eng.last_wifi_hash, eng.last_wifi_at = wifi, now
                 accepted.append(cid)
                 continue
 
@@ -770,18 +1044,56 @@ class EngineIngestView(APIView):
                         phone=phone, client_id=cid, kind=kind, at=ev_at,
                         late=at.is_late(ev_at, now),
                         data=at.clean_data(it.get("data")),
-                        lat=lat, lng=lng,
-                        accuracy_m=at.f_or_none(it.get("acc")), battery=battery)
+                        lat=lat, lng=lng, fix_at=fix_at,
+                        accuracy_m=acc, battery=battery)
             except IntegrityError:
                 duplicate.append(cid)
                 continue
             accepted.append(cid)
             new_events.append(ev)
             # a newer fix carried on an event also updates last location
-            if lat is not None and (eng.last_fix_at is None or ev_at >= eng.last_fix_at):
+            if lat is not None and (eng.last_fix_at is None or fixt >= eng.last_fix_at):
                 phone.last_heartbeat_at = phone.last_heartbeat_at or now
                 phone.last_lat, phone.last_lng = lat, lng
-                eng.last_fix_at = ev_at
+                eng.last_fix_at = fixt
+                eng.last_fix_acc = acc
+            # antitheft2: an "offline" that could only be delivered after the
+            # phone was back online (late) is history, not news: kept on the
+            # timeline, no alert (a long silence is the "went dark" alert).
+            if kind == "offline" and ev.late:
+                d = dict(ev.data or {})
+                d["silent"] = "delivered_after_reconnect"
+                AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d, alerted=True)
+                new_events.pop()
+                continue
+            # antitheft2: a grab while charging / face-down still / at night
+            # on the home Wi-Fi (Night guard off) is a drop or a toss: stored
+            # for the timeline, no alert, no freeze.
+            if kind == "snatch":
+                why = at.grab_suppression(ev.data, ev_at, eng.night_guard,
+                                          eng.home_wifi)
+                if why:
+                    d = dict(ev.data or {})
+                    d["suppressed"] = why
+                    AntiTheftEvent.objects.filter(pk=ev.pk).update(
+                        data=d, alerted=True)
+                    new_events.pop()
+                    continue
+                # "Are you OK?" on the owner's phone: held for the window,
+                # then escalated by the SERVER (works even if the phone is
+                # switched off meanwhile). Late arrivals escalate at once.
+                if (ev.data or {}).get("confirm") == "pending":
+                    esc = ev_at + timedelta(seconds=at.CONFIRM_WINDOW_S)
+                    if esc > now:
+                        AntiTheftEvent.objects.filter(pk=ev.pk).update(
+                            escalate_at=esc)
+                        new_events.pop()
+                        held.append(esc)
+                        continue
+                    d = dict(ev.data or {})
+                    d["confirm"] = "timeout"
+                    AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
+                    ev.data = d
             # a theft signal freezes Section-8 actions (snatch / sim_change)
             if kind in at.SIGNAL_KINDS:
                 if _legacy_arming_sim(eng, kind, ev_at, ev.data):
@@ -811,6 +1123,12 @@ class EngineIngestView(APIView):
 
         if new_events:
             _alert_new_events(phone, eng, new_events, now)
+        if held:
+            _schedule_escalation((min(held) - now).total_seconds())
+        try:   # a held grab of this phone whose window passed (backstop)
+            escalate_due(now, phone=phone)
+        except Exception:
+            pass
         if back_online:
             # at-heartbeat: resolve the went-dark alert(s), then ONE
             # "back online" line to approved family only (never the owner).
@@ -935,7 +1253,10 @@ class EngineTimelineView(APIView):
             "went_dark_at": dark.isoformat() if dark else None,
             "last_location": ({"lat": phone.last_lat, "lng": phone.last_lng,
                                "at": phone.last_heartbeat_at.isoformat()
-                               if phone.last_heartbeat_at else None}
+                               if phone.last_heartbeat_at else None,
+                               "fix_at": (eng.last_fix_at.isoformat()
+                                          if eng and eng.last_fix_at else None),
+                               "acc": eng.last_fix_acc if eng else None}
                               if phone.last_lat is not None else None),
             "events": evs,
         })

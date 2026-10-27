@@ -30,6 +30,7 @@ import org.json.JSONObject
  *   grabCancel()   -> Bool  owner said "it was me" (PIN verified by the
  *                        server first) -> drop it; true = was still pending
  *   grabSendNow()  -> void  "No, it wasn't me" -> send it now
+ *   wifiHash()     -> String? antitheft2: sha256 of the current Wi-Fi name
  *   configure({config}) -> Bool  new settings from the open app (re-declares
  *                        the foreground types, e.g. adds CAMERA for the
  *                        opt-in intruder photo)
@@ -111,6 +112,9 @@ object AntiTheftChannel {
                         AntiTheftService.sendGrabNow(app)
                         result.success(null)
                     }
+                    // antitheft2: hash of the current Wi-Fi (never the name)
+                    // for "save my home Wi-Fi"; null = not on Wi-Fi / hidden
+                    "wifiHash" -> result.success(WifiHash.current(app))
                     "configure" -> {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))
@@ -141,6 +145,8 @@ object AntiTheftChannel {
             m["canReadSimNumber"] = false
             m["deviceAdmin"] = DeviceAdminLock.isActive(ctx)
             m["location"] = LastLocation.get(ctx) != null
+            // antitheft2: what exactly is missing (permission / switched off)
+            m.putAll(LastLocation.status(ctx))
             // at-heartbeat: Doze/battery saver delays check-ins (null = unknown)
             m["batteryOptimised"] = AntiTheftService.batteryOptimised(ctx)
         } catch (_: Throwable) {

@@ -383,6 +383,16 @@ class AntiTheftService : Service(), SensorEventListener {
             }
         }
 
+        /** antitheft2: phone is shutting down — if the engine runs, try to
+         *  send the queue (incl. the shutdown event) right now on its worker
+         *  thread. Starts nothing; never throws. */
+        fun flushNowIfRunning() {
+            try {
+                val svc = instance ?: return
+                if (running) svc.postFlush()
+            } catch (_: Throwable) {}
+        }
+
         /** Owner changed settings in the open app: store + re-declare types. */
         fun configure(ctx: Context, config: JSONObject): Boolean {
             return try {
@@ -433,6 +443,31 @@ class AntiTheftService : Service(), SensorEventListener {
     // foreground yet). The camera is used only if CAMERA is in here (API 30+).
     private var fgTypes = -1
     private var lastPhotoAt = 0L
+    // antitheft2: grab rules from the server config + live facts
+    private var nightGuard = false
+    private var homeWifi: Set<String> = emptySet()
+    @Volatile private var wifiHashNow: String? = null
+    @Volatile private var faceDownSince = 0L
+    @Volatile private var faceDownStillUntil = 0L
+    @Volatile private var lastFix: LastLocation.Fix? = null
+    // antitheft2: store-and-forward retry (FlushPolicy) + one "battery about
+    // to die" event per discharge
+    private var retryAttempt = 0
+    @Volatile private var criticalSent = false
+    internal val flushRun = Runnable {
+        try { doHeartbeat() } catch (_: Throwable) {}
+    }
+    private val offlineCheck = Runnable {
+        try {
+            // still no network 20 s later -> a real "went offline"
+            if (networkKind() == "none") {
+                capture("offline", JSONObject().put("reason", "no_network"),
+                    offlineAt.takeIf { it > 0L } ?: System.currentTimeMillis())
+            }
+        } catch (_: Throwable) {}
+        offlineAt = 0L
+    }
+    @Volatile private var offlineAt = 0L
 
     private var sensorMgr: SensorManager? = null
     private val snatch = SnatchDetector()
@@ -635,8 +670,40 @@ class AntiTheftService : Service(), SensorEventListener {
             snatchLock = cfg.optBoolean("snatch_lock", false)
             intruderPhoto = cfg.optBoolean("intruder_photo", false)
             failThreshold = cfg.optInt("failed_unlock_threshold", 3).coerceIn(2, 10)
+            nightGuard = cfg.optBoolean("night_guard", false)
+            val hw = HashSet<String>()
+            cfg.optJSONArray("home_wifi")?.let { a ->
+                for (i in 0 until a.length()) {
+                    val h = a.optString(i, "")
+                    if (h.length == 64) hw.add(h)
+                }
+            }
+            homeWifi = hw
         } catch (_: Throwable) {
         }
+    }
+
+    /** antitheft2: newest fix we know (cached / ours); a fresh single
+     *  request when it is older than [maxAgeMs]. Worker thread only. */
+    private fun currentFix(maxAgeMs: Long, timeoutMs: Long): LastLocation.Fix? {
+        return try {
+            val now = System.currentTimeMillis()
+            var c = LastLocation.best(applicationContext)
+            val mine = lastFix
+            if (mine != null && (c == null || mine.timeMs > c.timeMs)) c = mine
+            if (c != null && now - c.timeMs <= maxAgeMs) return c
+            if (timeoutMs <= 0L) return c
+            val f = LastLocation.fresh(applicationContext, timeoutMs)
+            val r = if (f != null && (c == null || f.timeMs >= c.timeMs)) f else c
+            if (r != null) lastFix = r
+            r
+        } catch (_: Throwable) { lastFix }
+    }
+
+    private fun refreshWifi() {
+        wifiHashNow = try {
+            if (networkKind() == "wifi") WifiHash.current(applicationContext) else null
+        } catch (_: Throwable) { null }
     }
 
     // ---- heartbeat + uploader ---------------------------------------------
@@ -680,16 +747,37 @@ class AntiTheftService : Service(), SensorEventListener {
             // so the server waits the right time before "stopped checking in".
             .put("interval", currentIntervalMin())
             .put("charging", charging())
-        LastLocation.get(applicationContext)?.let {
-            item.put("lat", it.first).put("lng", it.second)
+        // antitheft2: a real fix (fresh when the cached one is > 10 min
+        // old) with its accuracy and the time it was taken.
+        currentFix(10 * 60_000L, 6_000L)?.let { f ->
+            item.put("lat", f.lat).put("lng", f.lng).put("fix_at", f.timeMs)
+            f.acc?.let { a -> item.put("acc", a.toDouble()) }
         }
+        refreshWifi()
+        wifiHashNow?.let { item.put("wifi", it) }
         val items = JSONArray().put(item)
         // append any queued offline events (oldest-first), then upload.
+        var queuedSent = 0
         queue?.batchJson(99)?.let { q ->
+            queuedSent = q.length()
             for (i in 0 until q.length()) items.put(q.get(i))
         }
-        uploadIngest(items)
+        val ok = uploadIngest(items)
         if (running) uploadPhotos()
+        // antitheft2: never wait for the next heartbeat (15-60 min) or the
+        // next app open — retry with backoff while something is queued.
+        try {
+            val left = queue?.count() ?: 0
+            if (ok) retryAttempt = 0
+            if (FlushPolicy.scheduleRetry(ok, left)) {
+                retryAttempt++
+                bg.removeCallbacks(flushRun)
+                bg.postDelayed(flushRun, FlushPolicy.retryDelayMs(retryAttempt))
+            } else if (ok && left > 0 && queuedSent >= 99) {
+                bg.removeCallbacks(flushRun)
+                bg.postDelayed(flushRun, 2_000L) // a long backlog: next batch
+            }
+        } catch (_: Throwable) {}
     }
 
     // ---- intruder photo -----------------------------------------------------
@@ -782,32 +870,54 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     }
 
-    /** Queue an event; try to send immediately, keep it on failure. */
+    /** Queue an event; try to send immediately, keep it on failure.
+     *  antitheft2: on the worker thread, with the best location (a fresh
+     *  fix for low battery / grab / SIM / unlock events — airplane mode is
+     *  sent at once with the last fix, the radio is about to go), its
+     *  accuracy and fix time (data.acc / data.fix_at). */
     private fun capture(kind: String, data: JSONObject = JSONObject(),
                         atMs: Long = System.currentTimeMillis()) {
-        val cid = "$kind-" + UUID.randomUUID().toString().take(12)
-        val loc = LastLocation.get(applicationContext)
-        queue?.add(cid, kind, atMs,
-            loc?.first, loc?.second, batteryPct(), data)
-        bg.post { try { doHeartbeat() } catch (_: Throwable) {} }
+        if (!this::bg.isInitialized) return
+        bg.post {
+            try {
+                val cid = "$kind-" + UUID.randomUUID().toString().take(12)
+                val wantFresh = kind == "low_battery" || kind == "snatch" ||
+                    kind == "sim_change" || kind == "failed_unlock"
+                val fix = currentFix(if (wantFresh) 2 * 60_000L else 15 * 60_000L,
+                    if (wantFresh) 8_000L else 0L)
+                if (fix != null) {
+                    data.put("fix_at", fix.timeMs)
+                    fix.acc?.let { a -> data.put("acc", a.toDouble()) }
+                }
+                queue?.add(cid, kind, atMs, fix?.lat, fix?.lng, batteryPct(), data)
+                doHeartbeat()
+            } catch (_: Throwable) {}
+        }
     }
 
-    private fun uploadIngest(items: JSONArray) {
-        if (token.isBlank() || apiBase.isBlank() || items.length() == 0) return
+    /** true = the server answered (whatever it said); false = no network. */
+    private fun uploadIngest(items: JSONArray): Boolean {
+        if (token.isBlank() || apiBase.isBlank() || items.length() == 0) return true
         val body = JSONObject()
             .put("sent_at", nowIso())
             .put("items", items)
         // at-heartbeat: a live fact the server's "went dark" rule uses (Doze /
         // battery saver can delay an optimised phone's heartbeats a lot).
         try {
+            val caps = JSONObject()
             val opt = batteryOptimised(applicationContext)
-            if (opt != null) body.put("capabilities", JSONObject().put("batteryOptimised", opt))
+            if (opt != null) caps.put("batteryOptimised", opt)
+            // antitheft2: live location facts (what is missing, honestly)
+            for ((k, v) in LastLocation.status(applicationContext)) {
+                if (v is Boolean) caps.put(k, v)
+            }
+            if (caps.length() > 0) body.put("capabilities", caps)
         } catch (_: Throwable) {}
-        val resp = postJson("/security/engine/ingest", body) ?: return
+        val resp = postJson("/security/engine/ingest", body) ?: return false
         // 401 engine_revoked -> protection was turned off / token rotated: stop.
         if (resp.optBoolean("stop", false)) {
             stop(applicationContext)
-            return
+            return true
         }
         val done = HashSet<String>()
         fun collect(key: String) {
@@ -815,6 +925,14 @@ class AntiTheftService : Service(), SensorEventListener {
             for (i in 0 until a.length()) done.add(a.optString(i))
         }
         collect("accepted"); collect("duplicate")
+        // antitheft2: a REJECTED item (bad kind / too old) is permanent —
+        // drop it, or it would be re-sent forever.
+        try {
+            val rj = resp.optJSONArray("rejected")
+            if (rj != null) for (i in 0 until rj.length()) {
+                rj.optJSONObject(i)?.optString("id", "")?.let { if (it.isNotBlank()) done.add(it) }
+            }
+        } catch (_: Throwable) {}
         queue?.ack(done)
         // at-falsealarm: the owner said "It was me" -> re-record the baseline.
         try {
@@ -830,6 +948,22 @@ class AntiTheftService : Service(), SensorEventListener {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putBoolean("lost_mode", resp.optBoolean("lost_mode", false)).apply()
         } catch (_: Throwable) {}
+        // antitheft2: the server's grab rules (Night guard, home Wi-Fi)
+        try {
+            val cfg = resp.optJSONObject("config")
+            if (cfg != null) {
+                nightGuard = cfg.optBoolean("night_guard", nightGuard)
+                cfg.optJSONArray("home_wifi")?.let { a ->
+                    val hw = HashSet<String>()
+                    for (i in 0 until a.length()) {
+                        val h = a.optString(i, "")
+                        if (h.length == 64) hw.add(h)
+                    }
+                    homeWifi = hw
+                }
+            }
+        } catch (_: Throwable) {}
+        return true
     }
 
     private fun nowIso(): String {
@@ -891,6 +1025,10 @@ class AntiTheftService : Service(), SensorEventListener {
             if (s != null) {
                 sensorMgr?.registerListener(this, s, SensorManager.SENSOR_DELAY_GAME)
             }
+            // antitheft2: gravity tells "lying face-down" (cheap, low rate)
+            sensorMgr?.getDefaultSensor(Sensor.TYPE_GRAVITY)?.let { g ->
+                sensorMgr?.registerListener(this, g, SensorManager.SENSOR_DELAY_NORMAL)
+            }
         } catch (_: Throwable) {
         }
     }
@@ -904,6 +1042,10 @@ class AntiTheftService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         try {
             if (event == null) return
+            if (event.sensor.type == Sensor.TYPE_GRAVITY) {
+                onGravity(event.values[2])
+                return
+            }
             if (snatchSuppressed()) { snatch.reset(); return }
             var x = event.values[0]; var y = event.values[1]; var z = event.values[2]
             // For a raw accelerometer, remove ~gravity so magnitude ~0 at rest.
@@ -927,6 +1069,24 @@ class AntiTheftService : Service(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
+    /** antitheft2: screen-down = gravity on -z. "Still" face-down for
+     *  REST_MS; kept 2 s after it ends (the grab itself tilts the phone). */
+    private fun onGravity(z: Float) {
+        val now = System.currentTimeMillis()
+        if (z < -7.0f) {
+            if (faceDownSince == 0L) faceDownSince = now
+        } else {
+            if (faceDownSince > 0L && now - faceDownSince >= SnatchPolicy.REST_MS) {
+                faceDownStillUntil = now + 2_000L
+            }
+            faceDownSince = 0L
+        }
+    }
+
+    private fun faceDownNow(now: Long): Boolean =
+        (faceDownSince > 0L && now - faceDownSince >= SnatchPolicy.REST_MS) ||
+            now < faceDownStillUntil
+
     private fun screenUnlocked(): Boolean = try {
         val km = getSystemService(Context.KEYGUARD_SERVICE)
                 as? android.app.KeyguardManager
@@ -943,7 +1103,9 @@ class AntiTheftService : Service(), SensorEventListener {
             hourAt = now
         }
         val since = if (lastUnlockAt > 0L) now - lastUnlockAt else null
-        return SnatchContext(chargingNow, screenOn, unlockedNow, since, hourNow)
+        val wifi = wifiHashNow
+        return SnatchContext(chargingNow, screenOn, unlockedNow, since, hourNow,
+            faceDownNow(now), wifi != null && homeWifi.contains(wifi), nightGuard)
     }
 
     private fun onSnatchDetected() {
@@ -965,42 +1127,64 @@ class AntiTheftService : Service(), SensorEventListener {
      * opened. Not answered within SnatchPolicy.CONFIRM_WINDOW_MS -> sent as
      * usual (family alerted). No texts stored yet -> sent at once (as before).
      */
+    /** antitheft2: the facts the SERVER re-checks (charging, face-down,
+     *  night at home) — a second line behind SnatchPolicy. */
+    private fun grabFacts(locked: Boolean): JSONObject {
+        val d = JSONObject().put("locked", locked)
+        try {
+            val now = System.currentTimeMillis()
+            d.put("charging", chargingNow)
+            d.put("face_down_still", faceDownNow(now))
+            d.put("hour", hourNow)
+            wifiHashNow?.let { d.put("wifi", it) }
+        } catch (_: Throwable) {}
+        return d
+    }
+
     private fun beginGrabCheck(locked: Boolean) {
         val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val title = p.getString(K_GRAB_TITLE, "") ?: ""
+        val facts = grabFacts(locked)
         if (title.isBlank()) {
-            capture("snatch", JSONObject().put("locked", locked))
+            capture("snatch", facts)
             return
         }
+        val at = System.currentTimeMillis()
         synchronized(grabLock) {
             if (p.getLong(K_GRAB_AT, 0L) > 0L) return // one at a time
-            p.edit().putLong(K_GRAB_AT, System.currentTimeMillis())
+            p.edit().putLong(K_GRAB_AT, at)
                 .putBoolean(K_GRAB_LOCKED, locked).commit()
         }
+        // antitheft2 (owner 27 Oct): the grab reaches the SERVER at once,
+        // marked "pending". The server holds it for the "Are you OK?"
+        // window and escalates it to the trusted contacts itself — even if
+        // the phone is switched off meanwhile.
+        capture("snatch", facts.put("confirm", "pending"), at)
         postGrabNotif(title, p.getString(K_GRAB_BODY, "") ?: "")
         bg.removeCallbacks(grabCommit)
         bg.postDelayed(grabCommit, SnatchPolicy.CONFIRM_WINDOW_MS)
     }
 
-    /** Worker thread: the pending grab goes to the queue (original time). */
+    /** Worker thread: the local "Are you OK?" window ended (answered or
+     *  not) — clear it; the server already has the grab and decides. */
     private fun commitGrab() {
-        var at = 0L
-        var locked = false
         synchronized(grabLock) {
             val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            at = p.getLong(K_GRAB_AT, 0L)
-            if (at <= 0L) return // cancelled ("it was me") or already sent
-            locked = p.getBoolean(K_GRAB_LOCKED, false)
+            if (p.getLong(K_GRAB_AT, 0L) <= 0L) return
             p.edit().remove(K_GRAB_AT).remove(K_GRAB_LOCKED).commit()
         }
         cancelGrabNotif(applicationContext)
-        capture("snatch", JSONObject().put("locked", locked).put("confirm_wait", true), at)
     }
 
     fun postCommitGrab() {
         if (!this::bg.isInitialized) return
         bg.removeCallbacks(grabCommit)
         bg.post(grabCommit)
+        bg.post(flushRun) // make sure the pending grab reached the server
+    }
+
+    fun postFlush() {
+        if (this::bg.isInitialized) bg.post(flushRun)
     }
 
     fun dropGrabTimer() {
@@ -1059,6 +1243,8 @@ class AntiTheftService : Service(), SensorEventListener {
                 addAction(Intent.ACTION_USER_PRESENT)
                 addAction(Intent.ACTION_POWER_CONNECTED)
                 addAction(Intent.ACTION_POWER_DISCONNECTED)
+                // antitheft2: catch "battery about to die" (<= 5 %) once
+                addAction(Intent.ACTION_BATTERY_CHANGED)
             }
             sysReceiver = object : BroadcastReceiver() {
                 override fun onReceive(c: Context?, i: Intent?) {
@@ -1088,8 +1274,18 @@ class AntiTheftService : Service(), SensorEventListener {
                 unlockedNow = true
                 lastUnlockAt = System.currentTimeMillis()
             }
-            Intent.ACTION_POWER_CONNECTED -> chargingNow = true
+            Intent.ACTION_POWER_CONNECTED -> { chargingNow = true; criticalSent = false }
             Intent.ACTION_POWER_DISCONNECTED -> chargingNow = false
+            Intent.ACTION_BATTERY_CHANGED -> {
+                val level = i.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = i.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                val pct = if (level >= 0 && scale > 0) level * 100 / scale else -1
+                if (pct in 0..5 && !chargingNow && !criticalSent) {
+                    criticalSent = true
+                    capture("low_battery", JSONObject().put("battery", pct)
+                        .put("critical", true))
+                }
+            }
             Intent.ACTION_AIRPLANE_MODE_CHANGED -> {
                 val on = i.getBooleanExtra("state", false)
                 if (on) capture("offline", JSONObject().put("reason", "airplane"))
@@ -1099,8 +1295,30 @@ class AntiTheftService : Service(), SensorEventListener {
             // Debounced; compared to the owner's baseline in checkSim().
             "android.intent.action.SIM_STATE_CHANGED" -> scheduleSimCheck(SIM_DEBOUNCE_MS)
             else -> {
+                if (!this::bg.isInitialized) return
                 if (networkKind() == "none") {
-                    capture("offline", JSONObject().put("reason", "no_network"))
+                    // antitheft2: a 2-second Wi-Fi->mobile switch is not
+                    // "offline" — confirm after 20 s (original time kept).
+                    if (offlineAt == 0L) offlineAt = System.currentTimeMillis()
+                    bg.removeCallbacks(offlineCheck)
+                    bg.postDelayed(offlineCheck, 20_000L)
+                } else {
+                    offlineAt = 0L
+                    bg.removeCallbacks(offlineCheck)
+                    // antitheft2 (owner 27 Oct: alerts 2-3 h late): back
+                    // online -> send the queue NOW, not at the next
+                    // heartbeat / app open.
+                    bg.post {
+                        try {
+                            refreshWifi()
+                            val queued = queue?.count() ?: 0
+                            if (FlushPolicy.flushOnConnectivity(true, queued)) {
+                                retryAttempt = 0
+                                bg.removeCallbacks(flushRun)
+                                bg.postDelayed(flushRun, FlushPolicy.CONNECTIVITY_DELAY_MS)
+                            }
+                        } catch (_: Throwable) {}
+                    }
                 }
             }
         }

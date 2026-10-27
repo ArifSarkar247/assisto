@@ -79,6 +79,16 @@ TURN_MAX_ICE_HOSTS = int(os.getenv("TURN_MAX_ICE_HOSTS", "3"))
 TURN_TOTAL_QUOTA = int(os.getenv("TURN_TOTAL_QUOTA", "600"))           # allocations
 TURN_BPS_CAPACITY = int(os.getenv("TURN_BPS_CAPACITY", "31250000"))    # bytes/s, 0 = off
 TURN_MAX_BPS = int(os.getenv("TURN_MAX_BPS", "250000"))                # bytes/s per allocation
+
+# Vehicle tracking map tiles (app flutter_map). XYZ template, e.g. MapTiler:
+#   https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=<KEY>
+# Empty = the app shows its tile-free route canvas. NEVER tile.openstreetmap.org
+# (OSMF usage policy forbids app traffic; the API also refuses it).
+MAP_TILE_URL = os.getenv("MAP_TILE_URL", "")
+MAP_TILE_ATTRIBUTION = os.getenv("MAP_TILE_ATTRIBUTION",
+                                 "© MapTiler © OpenStreetMap contributors")
+MAP_TILE_MAX_ZOOM = int(os.getenv("MAP_TILE_MAX_ZOOM", "19"))
+
 # Relay bandwidth budget the bandwidth alert compares against (bytes/s;
 # 31250000 = 250 Mbit/s = half the t3.large 512 Mbit/s network baseline).
 TURN_RELAY_BUDGET_BYTES_S = int(os.getenv("TURN_RELAY_BUDGET_BYTES_S", "31250000"))

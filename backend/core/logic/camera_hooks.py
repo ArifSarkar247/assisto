@@ -30,6 +30,10 @@ _INTRUSION = {
     "crosslinedetection", "crossregiondetection", "intrusion",
 }
 _MOTION = {"vmd", "videomotion", "motiondetection"}
+# someone covered / spray-painted / turned the lens (Hikvision "shelteralarm"
+# = Video Tampering, Dahua "VideoBlind") — the camera's own alarm
+_TAMPER = {"shelteralarm", "videotampering", "videoblind", "tamperdetection"}
+_HUMAN_TARGETS = ("human", "person", "people", "humanbody")
 
 MAX_IMAGE_BYTES = 2 * 1024 * 1024   # refuse anything bigger than a still photo
 
@@ -57,6 +61,8 @@ def _parse_hik_xml(raw):
         "active": _xml_text(root, "eventState").lower() == "active",
         "at": _xml_text(root, "dateTime") or None,
         "channel": _xml_text(root, "channelID") or _xml_text(root, "dynChannelID"),
+        # AcuSense / smart events name what crossed: detectionTarget human|vehicle
+        "target": _xml_text(root, "detectionTarget").lower(),
     }
 
 
@@ -102,7 +108,9 @@ def _dahua_from_obj(obj):
     code = str(obj.get("Code") or obj.get("code") or "").lower()
     action = str(obj.get("Action") or obj.get("action") or "").lower()
     data = obj.get("Data") if isinstance(obj.get("Data"), dict) else {}
+    o = data.get("Object") if isinstance(data.get("Object"), dict) else {}
     return {
+        "target": str(o.get("ObjectType") or "").lower(),
         "event": code,
         "active": action in ("start", "pulse"),
         "at": data.get("LocaleTime") or data.get("UTC") or None,
@@ -184,6 +192,10 @@ def map_event(ev, zone_config, local_now):
     zc = zone_config if isinstance(zone_config, dict) else {}
     after = is_after_hours(zc.get("hours"), local_now)
     base = {"camera_rule": code, "source": "camera_webhook"}
+    if (ev.get("target") or "") in _HUMAN_TARGETS:
+        base["human"] = True              # the camera's own AI saw a person
+    if code in _TAMPER:
+        return ("camera_alarm", dict(base, tamper=True))
     if code in _INTRUSION:
         if after:
             return ("after_hours", dict(base, after_hours=True))

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% if en %}{{ owner }}'s phone{% else %}{{ owner }}-এর ফোন{% endif %} · Assisto</title>
+<style>
+  :root{--bg:#f4f6fb;--card:#fff;--fg:#16203a;--muted:#4a5672;--accent:#0E7C66;--warn:#9a3b00;--line:#dfe4ee}
+  @media (prefers-color-scheme: dark){:root{--bg:#0d1424;--card:#16203a;--fg:#eef2fa;--muted:#b9c3d8;--accent:#5fd3b8;--warn:#ffb38a;--line:#2a3654}}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Noto Sans Bengali',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
+  .wrap{max-width:640px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;border:1px solid var(--line)}
+  h1{font-size:21px;margin:.2em 0}
+  .muted{color:var(--muted);font-size:14px}
+  a.btn{display:inline-block;min-height:48px;padding:12px 18px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none}
+  ul{list-style:none;padding:0;margin:0}
+  li{padding:10px 0;border-top:1px solid var(--line)}
+  li:first-child{border-top:0}
+  .late{color:var(--warn);font-size:13px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>{% if en %}{{ owner }}'s phone{% else %}{{ owner }}-এর ফোন{% endif %}</h1>
+  <p class="muted">{% if en %}Only you can open this page. It shows what Assisto knows, as of {{ now }}.{% else %}এই পাতাটি শুধু আপনি খুলতে পারবেন। {{ now }} পর্যন্ত Assisto যা জানে তা দেখাচ্ছে।{% endif %}</p>
+  {% if lost_mode %}<div class="card"><strong>{% if en %}The owner marked this phone as lost.{% else %}মালিক ফোনটিকে হারানো হিসেবে চিহ্নিত করেছেন।{% endif %}</strong></div>{% endif %}
+  <section class="card" aria-label="{% if en %}Last location{% else %}শেষ অবস্থান{% endif %}">
+    <h2 style="font-size:18px;margin:0 0 6px">{% if en %}Last location{% else %}শেষ অবস্থান{% endif %}</h2>
+    <p>{{ loc_line }}</p>
+    {% if map %}<a class="btn" href="{{ map }}" rel="noopener noreferrer">{% if en %}Open in Maps{% else %}ম্যাপে খুলুন{% endif %}</a>{% endif %}
+  </section>
+  <section class="card" aria-label="{% if en %}Recent alerts{% else %}সাম্প্রতিক সতর্কবার্তা{% endif %}">
+    <h2 style="font-size:18px;margin:0 0 6px">{% if en %}Recent alerts{% else %}সাম্প্রতিক সতর্কবার্তা{% endif %}</h2>
+    {% if rows %}<ul>
+      {% for r in rows %}<li><strong>{{ r.label }}</strong><br><span class="muted">{{ r.when }}</span>
+        {% if r.late %}<br><span class="late">{% if en %}Arrived late (the phone was offline).{% else %}দেরিতে পৌঁছেছে (ফোনটি অফলাইন ছিল)।{% endif %}</span>{% endif %}
+        {% if r.map %}<br><a href="{{ r.map }}" rel="noopener noreferrer">{% if en %}Location{% else %}অবস্থান{% endif %}{% if r.acc %} ({{ r.acc }}){% endif %}</a>{% if r.fix %} <span class="muted">· {{ r.fix }}</span>{% endif %}{% endif %}
+      </li>{% endfor %}
+    </ul>{% else %}<p class="muted">{% if en %}No alerts yet.{% else %}এখনো কোনো সতর্কবার্তা নেই।{% endif %}</p>{% endif %}
+  </section>
+  <p class="muted">{% if en %}Please call the owner first. If you think the phone was stolen, open Assisto → My lost phone for the police steps.{% else %}আগে মালিককে ফোন করুন। চুরি হয়েছে মনে হলে Assisto → আমার হারানো ফোন খুলে পুলিশের ধাপগুলো দেখুন।{% endif %}</p>
+</main>
+</body>
+</html>

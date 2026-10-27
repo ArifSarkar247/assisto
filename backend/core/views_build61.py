@@ -1442,7 +1442,9 @@ class JourneySosView(APIView):
         payload = SJ.sos_journey_payload(request.user.name or "", loc,
                                          silent=silent, lang=lang)
         PUSH.hook_sos(request.user, lat=d.get("lat"), lng=d.get("lng"),
-                      silent=silent, journey_id=j.id if j else None)
+                      silent=silent, journey_id=j.id if j else None,
+                      client_id=str(d.get("client_id") or ""),
+                      source=str(d.get("source") or "journey"))
         return Response({"ok": True, "silent": silent, "payload": payload,
                          "web_link": JW.web_url(j) if j else None})
 

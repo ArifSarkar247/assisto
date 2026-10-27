@@ -2,7 +2,9 @@
 import io
 from PIL import Image, ImageDraw, ImageFont
 
-FONT_PATH = "/home/ubuntu/assisto/app/assets/fonts/NotoSansBengali.ttf"
+from pathlib import Path as _P
+# repo-relative (was a server-only absolute path; broke on CI and any other host)
+FONT_PATH = str(_P(__file__).resolve().parents[3] / "app" / "assets" / "fonts" / "NotoSansBengali.ttf")
 try:
     _LAYOUT = ImageFont.Layout.RAQM
 except Exception:  # pragma: no cover

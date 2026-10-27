@@ -684,12 +684,12 @@ REGISTRY = {
              "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
              "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
              "test": None},
-    # ---- p4-world ---- Unseen World: live web search answers, sports scores,
+    # ---- p4-world ---- Daily info and services: live web search answers, sports scores,
     # job alerts. Each is HIDDEN for users until connected (no fake data).
     "web_search": {
         "name": "Web search (live AI answers with sources)", "category": "AI",
-        "unlocks_bn": "অদেখা দুনিয়া → “যেকোনো প্রশ্ন”: লাইভ ওয়েব সার্চ করে সূত্রসহ ([১][২]) বাংলা/ইংরেজি উত্তর। প্রতি উত্তরে ক্রেডিট কাটে (web_answer)।",
-        "unlocks_en": "Unseen World → “Ask anything”: live web search answers with numbered sources [1][2], Bangla/English. Each answer costs credits (web_answer).",
+        "unlocks_bn": "আজকের তথ্য ও সেবা → “যেকোনো প্রশ্ন”: লাইভ ওয়েব সার্চ করে সূত্রসহ ([১][২]) বাংলা/ইংরেজি উত্তর। প্রতি উত্তরে ক্রেডিট কাটে (web_answer)।",
+        "unlocks_en": "Daily info and services → “Ask anything”: live web search answers with numbered sources [1][2], Bangla/English. Each answer costs credits (web_answer).",
         "guide_bn": ["প্রোভাইডার বাছুন: brave (api-dashboard.search.brave.com → API key) অথবা tavily (app.tavily.com → API key)",
                      "provider ঘরে brave বা tavily লিখুন, ওই প্রোভাইডারের key পেস্ট করুন",
                      "সার্চ প্রতি খরচ (USD) লিখুন — Brave ≈ 0.005, Tavily ≈ 0.008",

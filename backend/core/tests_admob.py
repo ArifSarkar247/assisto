@@ -13,6 +13,8 @@
   Owner Admin table.
 * app-ads.txt + legal pages (EN + BN) mention ads and the Advertising ID.
 """
+from core import legal as _core_legal
+from web import legal_content as _web_legal
 import base64
 from unittest import mock
 from urllib.parse import urlencode
@@ -385,7 +387,7 @@ class PublicPagesTests(SimpleTestCase):
         for s in ("Google AdMob", "Advertising ID", "com.google.android.gms.permission.AD_ID",
                   "Premium and Business plans have no ads", "non-personalised",
                   "Personalised vs non-personalised", "UMP", "US states",
-                  "Ad privacy choices", "Android Settings → Privacy → Ads", "2026-10-26"):
+                  "Ad privacy choices", "Android Settings → Privacy → Ads", _web_legal.LAST_UPDATED):
             self.assertIn(s, en.replace("&#x27;", "'"), s)
         self.assertNotIn("shows no ads today", en)
         bn = Client().get("/privacy").content.decode()
@@ -401,7 +403,7 @@ class PublicPagesTests(SimpleTestCase):
         self.assertIn("Advertising ID", body)
         self.assertIn("Google AdMob", body)
         self.assertNotIn("contains no advertising SDK", body)
-        self.assertEqual(en.get("last_updated", "2026-10-26"), "2026-10-26")
+        self.assertEqual(en.get("last_updated"), _core_legal.LAST_UPDATED)
         bn = Client().get("/api/v1/legal/privacy", HTTP_ACCEPT_LANGUAGE="bn").json()
         body = bn["body"] if isinstance(bn.get("body"), str) else str(bn)
         self.assertIn("Advertising ID", body)

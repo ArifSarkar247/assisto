@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -87,11 +88,13 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
           appBar: AppBar(title: Text(tr.wellTitle)),
           body: const SkeletonList());
     }
     if (_error) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
@@ -107,6 +110,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
     }
     if (_rows.isEmpty) {
       return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: ListView(children: [
           StateMessage(
@@ -133,6 +137,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
     final streaks = _Well.streaks(_rows, _todayIso);
 
     return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
       appBar: AppBar(title: Text(tr.wellTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _logToday,

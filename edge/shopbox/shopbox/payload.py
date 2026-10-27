@@ -152,6 +152,11 @@ def build_request(event: Dict[str, object], *, site_token: Optional[str],
                  single snapshot as `snapshot` (image/jpeg)
     """
     body: Dict[str, object] = dict(auth_fields(site_token, camera_token))
+    # A camera added + checked from the app has no token of its own: with the
+    # SITE token, name the server camera so the alert is attributed to it
+    # (its schedule, grouping and name apply) instead of "some camera".
+    if "site_token" in body and event.get("server_camera_id") not in (None, ""):
+        body["camera_id"] = int(event["server_camera_id"])
     body["type"] = event["type"]
     body["at"] = float(event["at"])
     transport = transport_for(str(event["type"]), bool(snapshot), snapshot_mode)
