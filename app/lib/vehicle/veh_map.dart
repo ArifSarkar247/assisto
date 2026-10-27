@@ -229,6 +229,7 @@ class _VehMapState extends State<VehMap> {
               // OSM / provider credit, always visible; wraps instead of
               // overflowing at large text sizes.
               Align(
+                key: const ValueKey('veh-map-attribution'),
                 alignment: AlignmentDirectional.bottomEnd,
                 child: Container(
                   margin: const EdgeInsets.all(4),
@@ -239,6 +240,8 @@ class _VehMapState extends State<VehMap> {
                   ),
                   child: Text(w.config.attribution,
                       textAlign: TextAlign.end,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 11, color: Colors.black87, height: 1.2)),
                 ),
               ),

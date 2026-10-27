@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../vehicle/car_mode_engine.dart';
@@ -105,7 +106,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
         _usual = route;
         _useRoute = (p.getBool(_kUseRoute) ?? false) && route.length >= 2;
       });
-    } catch (_) {} // prefs unavailable: defaults (no alerts) are safe
+    } catch (_) {} // best-effort: prefs unavailable, defaults (no alerts) are safe
   }
 
   Future<void> _savePrefs() async {
@@ -114,7 +115,9 @@ class _CarModeScreenState extends State<CarModeScreen> {
       await p.setInt(_kLimit, _limit);
       await p.setBool(_kUseRoute, _useRoute);
       await p.setString(_kRoute, jsonEncode([for (final g in _usual) [g.lat, g.lng]]));
-    } catch (_) {} // best-effort persistence; the current trip still uses the values
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'carMode.savePrefs', e);
+    }
   }
 
   Future<void> _saveUsualRoute() async {
@@ -167,7 +170,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
   Future<void> _keepOn(bool on) async {
     try {
       await _screenCh.invokeMethod('keepScreenOn', {'on': on});
-    } catch (_) {}
+    } catch (_) {} // best-effort: keep-screen-on is a convenience, never blocks the trip
   }
 
   void _snack(String m) {

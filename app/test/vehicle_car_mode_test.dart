@@ -139,7 +139,7 @@ Widget _app(Widget home, ApiClient api,
     );
 
 void _phone(WidgetTester tester, {double height = 2400}) {
-  tester.view.physicalSize = Size(400 * 3, height * 3);
+  tester.view.physicalSize = Size(360 * 3, height * 3); // smallest common BD phone width
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.reset);
 }
@@ -447,7 +447,8 @@ void main() {
       await _settle(tester);
       expect(api.patched.last['routes'], isEmpty);
       expect(find.byKey(const ValueKey('veh-plan-set')), findsOneWidget);
-      expect(tester.takeException(), isNull);
+      final ex = tester.takeException();
+      expect(ex, isNull, reason: ex is FlutterError ? ex.toStringDeep() : '$ex');
       await tester.pumpWidget(const SizedBox());
     });
 
