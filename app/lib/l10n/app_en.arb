@@ -22554,5 +22554,250 @@
   "truthCourierManualNote": "Assisto doesn't book the courier from here — book it in the courier's own app.",
   "@truthCourierManualNote": {
     "description": "Orders: marking an order shipped does not book a courier (no fake tracking number is made)."
+  },
+  "ijAddPhoto": "Add a photo (optional)",
+  "@ijAddPhoto": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijAlready": "You're already in {name}'s circle.",
+  "@ijAlready": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijAppBar": "Join a circle",
+  "@ijAppBar": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijBadTitle": "This invite can't be used",
+  "@ijBadTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijContinueApp": "Continue to Assisto",
+  "@ijContinueApp": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijCopied": "Link copied",
+  "@ijCopied": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijCopyLink": "Copy link",
+  "@ijCopyLink": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijEmailLabel": "Email",
+  "@ijEmailLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijExpiresIn": "The link works for {days} days. You can send it again any time.",
+  "@ijExpiresIn": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "ijForWhom": "Who is it for? (optional)",
+  "@ijForWhom": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijForWhomHint": "e.g. Ammu",
+  "@ijForWhomHint": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijGroupLink": "Family group link",
+  "@ijGroupLink": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijGroupLinkSub": "Up to 10 people can join with one link",
+  "@ijGroupLinkSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijHaveAccount": "Already have an account? Sign in",
+  "@ijHaveAccount": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijInviteTile": "Invite with a link",
+  "@ijInviteTile": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijInviteTileSub": "WhatsApp, imo, Messenger or SMS — they join in 2 taps",
+  "@ijInviteTileSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinButton": "Join",
+  "@ijJoinButton": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinSub": "Chat, calls and family safety — in one app.",
+  "@ijJoinSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinTitle": "Join {name}'s circle",
+  "@ijJoinTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijJoinedSnack": "You joined {name}'s circle — say hi!",
+  "@ijJoinedSnack": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijLoading": "Opening the invite…",
+  "@ijLoading": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNameLabel": "Your name",
+  "@ijNameLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedEmail": "Please enter a valid email.",
+  "@ijNeedEmail": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedName": "Please type your name.",
+  "@ijNeedName": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedPhone": "Please enter your mobile number.",
+  "@ijNeedPhone": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNoLabel": "Invite link",
+  "@ijNoLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNoPassword": "No password needed.",
+  "@ijNoPassword": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNotNow": "Not now",
+  "@ijNotNow": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijOffline": "No internet. Check your connection and try again.",
+  "@ijOffline": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijOpenChat": "Open chat",
+  "@ijOpenChat": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhoneHint": "e.g. 01712345678",
+  "@ijPhoneHint": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhoneLabel": "Mobile number",
+  "@ijPhoneLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhotoAdded": "Photo added — tap to change",
+  "@ijPhotoAdded": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijResend": "Send again",
+  "@ijResend": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRetry": "Try again",
+  "@ijRetry": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRevoke": "Cancel link",
+  "@ijRevoke": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRevoked": "Link cancelled",
+  "@ijRevoked": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentEmpty": "You haven't invited anyone yet.",
+  "@ijSentEmpty": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentTileSub": "See who joined, send again",
+  "@ijSentTileSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentTitle": "Invited, not joined yet",
+  "@ijSentTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareFailed": "Couldn't open that app. Try another way.",
+  "@ijShareFailed": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareLead": "Send this link. They tap it, type their name and they're in — no password.",
+  "@ijShareLead": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareTitle": "Invite to your circle",
+  "@ijShareTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShowQr": "QR",
+  "@ijShowQr": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSmsFailed": "The SMS code didn't go through. Try again, or continue with email below.",
+  "@ijSmsFailed": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijStatusExpired": "Link expired — send it again",
+  "@ijStatusExpired": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijStatusJoined": "Joined: {name}",
+  "@ijStatusJoined": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijStatusWaiting": "Not joined yet",
+  "@ijStatusWaiting": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSwitchLang": "বাংলা",
+  "@ijSwitchLang": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijUseEmail": "SMS not coming? Continue with email",
+  "@ijUseEmail": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijUsePhone": "Use mobile number instead",
+  "@ijUsePhone": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijVerifyTitle": "Confirm your number",
+  "@ijVerifyTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaMore": "imo, Messenger, more",
+  "@ijViaMore": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaSms": "SMS",
+  "@ijViaSms": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaWhatsApp": "WhatsApp",
+  "@ijViaWhatsApp": {
+    "description": "invite-join (passwordless join from a circle invite link)"
   }
 }

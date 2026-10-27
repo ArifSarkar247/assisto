@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0101_antitheft2_location_routing'),
+        ('core', '0103_ops_watch'),
     ]
 
     operations = [
