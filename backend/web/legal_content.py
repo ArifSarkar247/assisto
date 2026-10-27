@@ -446,10 +446,12 @@ PRIVACY = [
     S("ai", "AI ফিচার", "AI features",
       P("আপনি AI ফিচার (AI চ্যাট, ডকুমেন্ট/বিল পড়া, CV/স্ক্যাম বিশ্লেষণ, ফটো স্টুডিওর AI এডিট ইত্যাদি) ব্যবহার করলে শুধু সেই কাজের জন্য দরকারি লেখা বা ছবি আমাদের সার্ভার থেকে একটি AI প্রদানকারীর কাছে পাঠানো হয় এবং উত্তর ফেরত আসে। "
         "প্রদানকারী হতে পারে Anthropic (Claude), OpenAI, Google (Gemini) বা ছবির জন্য Replicate — যেটি আমরা সেই সময় চালু রেখেছি। তারা তাদের API শর্ত অনুযায়ী তথ্য প্রক্রিয়া করে। "
-        "আপনার end-to-end এনক্রিপ্টেড বার্তা AI-তে কখনো যায় না। AI ভুল করতে পারে — গুরুত্বপূর্ণ সিদ্ধান্তের আগে যাচাই করুন।",
+        "আপনার end-to-end এনক্রিপ্টেড বার্তা AI-তে কখনো যায় না। AI ভুল করতে পারে — গুরুত্বপূর্ণ সিদ্ধান্তের আগে যাচাই করুন। "
+        "কোনো AI উত্তর আপত্তিকর, ক্ষতিকর বা ভুল মনে হলে অ্যাপে উত্তরের পাশের পতাকা চিহ্ন বা লম্বা চাপ দিয়ে সেটি রিপোর্ট করতে পারেন। রিপোর্টে থাকে শুধু উত্তরের লেখা (কোনো ছবি নয়), কারণ, আপনার ঐচ্ছিক মন্তব্য, আপনার অ্যাকাউন্ট ও সময়; Assisto টিম রিপোর্ট করা উত্তরগুলো পর্যালোচনা করে AI-এর ভুল ঠিক করতে ও অপব্যবহার ঠেকাতে।",
         "When you use an AI feature (AI chat, reading a document or bill, CV/scam analysis, Photo Studio AI edits and so on), only the text or image needed for that task is sent from our server to an AI provider, and the answer comes back. "
         "The provider may be Anthropic (Claude), OpenAI, Google (Gemini) or, for images, Replicate — whichever we have switched on at the time. They process it under their API terms. "
-        "Your end-to-end encrypted messages are never sent to AI. AI can be wrong — check before important decisions.")),
+        "Your end-to-end encrypted messages are never sent to AI. AI can be wrong — check before important decisions. "
+        "If an AI answer seems offensive, harmful or wrong, you can report it in the app with the flag next to the answer or by long-pressing it. A report keeps only the text of the answer (never a photo), the reason, your optional note, your account and the time; the Assisto team reviews reported answers to fix AI mistakes and prevent misuse.")),
     S("ads", "বিজ্ঞাপন (Google AdMob)", "Advertising (Google AdMob)",
       P("ফ্রি প্ল্যানে অ্যাপে <b>Google AdMob</b>-এর বিজ্ঞাপন দেখানো হয় — এভাবেই ফ্রি প্ল্যান চলে। <b>প্রিমিয়াম ও বিজনেস প্ল্যানে কোনো বিজ্ঞাপন নেই।</b> "
         "বিজ্ঞাপন দেখাতে, একই বিজ্ঞাপন কতবার দেখানো হলো তা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর বিজ্ঞাপন SDK এই তথ্য সংগ্রহ ও Google-কে পাঠায়: "

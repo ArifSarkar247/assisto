@@ -1,0 +1,33 @@
+{
+  "_comment": "prelaunch (Google Play AI-generated content policy): report / flag an AI answer from the home chat, Assisto AI chat, photo answers and the business AI draft. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_prelaunch_arb.json",
+  "en": {
+    "aiReportAction": "Report this answer",
+    "aiReportBody": "Tell us what is wrong. Only the text of this answer is sent to the Assisto team for review.",
+    "aiReportOffensive": "Offensive",
+    "aiReportHarmful": "Harmful or dangerous",
+    "aiReportWrong": "Wrong or misleading",
+    "aiReportOther": "Something else",
+    "aiReportNoteHint": "Add details (optional)",
+    "aiReportSend": "Send report",
+    "aiReportPickReason": "Choose a reason",
+    "aiReportThanks": "Thank you. We will review this answer.",
+    "aiReportFailed": "Could not send the report. Please try again.",
+    "aiReportLimit": "Too many reports. Please try again later.",
+    "aiAnswerMenu": "Answer options"
+  },
+  "bn": {
+    "aiReportAction": "উত্তরটি রিপোর্ট করুন",
+    "aiReportBody": "কী সমস্যা জানান। শুধু এই উত্তরের লেখা পর্যালোচনার জন্য Assisto টিমের কাছে যাবে।",
+    "aiReportOffensive": "আপত্তিকর",
+    "aiReportHarmful": "ক্ষতিকর বা বিপজ্জনক",
+    "aiReportWrong": "ভুল বা বিভ্রান্তিকর",
+    "aiReportOther": "অন্য কিছু",
+    "aiReportNoteHint": "বিস্তারিত লিখুন (ঐচ্ছিক)",
+    "aiReportSend": "রিপোর্ট পাঠান",
+    "aiReportPickReason": "একটি কারণ বেছে নিন",
+    "aiReportThanks": "ধন্যবাদ। আমরা উত্তরটি পর্যালোচনা করব।",
+    "aiReportFailed": "রিপোর্ট পাঠানো যায়নি। আবার চেষ্টা করুন।",
+    "aiReportLimit": "অনেকগুলো রিপোর্ট পাঠানো হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "aiAnswerMenu": "উত্তরের বিকল্প"
+  }
+}

@@ -145,6 +145,7 @@ urlpatterns = [
     path("chat/sessions/<int:sid>/send", chatv.ChatSendView.as_view()),
     path("chat/sessions/<int:sid>/stream", chatv.ChatStreamView.as_view()),
     path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
+    path("chat/report", chatv.AiReportView.as_view()),  # ai-report
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),

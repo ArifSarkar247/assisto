@@ -9,6 +9,7 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/ai_report.dart'; // ai-report
 import 'cv_backend.dart';
 import 'cv_controller.dart';
 import 'on_device_vision.dart';
@@ -352,7 +353,15 @@ class _AnswerCard extends StatelessWidget {
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(c.answer, style: const TextStyle(height: 1.45)),
           const SizedBox(height: Gap.sm),
-          _Note(icon: Icons.lock_outline_rounded, text: t.h1PrivacyNote),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+                child: _Note(
+                    icon: Icons.lock_outline_rounded, text: t.h1PrivacyNote)),
+            // ai-report: flag this AI photo answer (text only, never the photo)
+            if (c.answer.trim().isNotEmpty)
+              AiReportButton(
+                  target: AiReportTarget(surface: 'photo', text: c.answer)),
+          ]),
         ]);
       case CvPhase.refused:
         body = _Note(

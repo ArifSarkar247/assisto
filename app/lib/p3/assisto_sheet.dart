@@ -22,6 +22,7 @@ import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../widgets/journey_api.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/reminders_nlp.dart' as nlp;
+import '../widgets/ai_report.dart'; // ai-report
 import 'assisto_card.dart';
 import 'assisto_card_view.dart' show p3When, p3Taka;
 import 'assisto_intent.dart';
@@ -650,6 +651,14 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
           },
           icon: const Icon(Icons.copy_rounded),
           label: Text(t.p3Copy),
+        ),
+        // ai-report: flag this @Assisto answer (text only)
+        TextButton.icon(
+          key: const ValueKey('p3-ai-report'),
+          onPressed: () => AiReport.open(
+              context, AiReportTarget(surface: 'circle', text: _result)),
+          icon: const Icon(Icons.outlined_flag_rounded),
+          label: Text(t.aiReportAction),
         ),
       ];
 

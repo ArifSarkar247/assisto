@@ -1,0 +1,25 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_ai_reports }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.air_intro }}</p>
+<div class="tiles">{% for s, n in counts %}<a class="tile" href="?status={{ s }}"><span>{% if s == 'open' %}{{ T.air_s_open }}{% else %}{{ T.air_s_resolved }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<form method="get" class="inline card">
+  <label>{{ T.status }}<select name="status"><option value="open" {% if st == 'open' %}selected{% endif %}>{{ T.air_s_open }}</option><option value="resolved" {% if st == 'resolved' %}selected{% endif %}>{{ T.air_s_resolved }}</option><option value="all" {% if st == 'all' %}selected{% endif %}>{{ T.all }}</option></select></label>
+  <label>{{ T.air_reason }}<select name="reason"><option value="">{{ T.all }}</option>{% for c in reasons %}<option value="{{ c }}" {% if c == reason %}selected{% endif %}>{% if c == 'offensive' %}{{ T.air_r_offensive }}{% elif c == 'harmful' %}{{ T.air_r_harmful }}{% elif c == 'wrong' %}{{ T.air_r_wrong }}{% else %}{{ T.air_r_other }}{% endif %}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <span class="mut small">{{ total }}</span>
+</form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.air_reason }}</th><th>{{ T.air_where }}</th><th>{{ T.fb_from }}</th><th>{{ T.air_answer }}</th><th>{{ T.note }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>#{{ r.id }}</td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+<td><span class="pill {% if r.status == 'open' %}spons{% else %}ok{% endif %}">{% if r.status == 'open' %}{{ T.air_s_open }}{% else %}{{ T.air_s_resolved }}{% endif %}</span></td>
+<td>{% if r.reason == 'offensive' %}{{ T.air_r_offensive }}{% elif r.reason == 'harmful' %}{{ T.air_r_harmful }}{% elif r.reason == 'wrong' %}{{ T.air_r_wrong }}{% else %}{{ T.air_r_other }}{% endif %}</td>
+<td>{{ r.surface }}{% if r.message_id %} · msg {{ r.message_id }}{% endif %}{% if r.session_id_ref %} · s{{ r.session_id_ref }}{% endif %}</td>
+<td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:"" }}</a></td>
+<td><details><summary>{{ r.answer_text|truncatechars:90 }}</summary><p class="pre">{{ r.answer_text|linebreaksbr }}</p></details></td>
+<td>{{ r.note|default:"—" }}</td>
+<td><form method="post" action="/owner/ai-reports/{{ r.id }}/resolve">{% include "owner/_csrf.html" %}<input type="hidden" name="next" value="/owner/ai-reports?status={{ st }}&reason={{ reason }}">{% if r.status == 'open' %}<button class="btn primary">{{ T.air_resolve }}</button>{% else %}<input type="hidden" name="undo" value="1"><button class="btn ghost">{{ T.air_reopen }}</button>{% endif %}</form></td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?status={{ st }}&reason={{ reason }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?status={{ st }}&reason={{ reason }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.air_none }}</p>{% endif %}
+{% endblock %}

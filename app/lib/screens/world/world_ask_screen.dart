@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/voice_input.dart';
+import '../../widgets/ai_report.dart'; // ai-report
 import '../../world/world_api.dart';
 import '../../world/world_widgets.dart';
 import '../../payments/credits_out_sheet.dart'; // credout
@@ -323,6 +324,12 @@ class _TurnCard extends StatelessWidget {
                               ),
                               UwSpeakButton(
                                   text: '${b['answer'] ?? ''}', compact: true),
+                              // ai-report: flag this AI web answer
+                              if ('${b['answer'] ?? ''}'.trim().isNotEmpty)
+                                AiReportButton(
+                                    target: AiReportTarget(
+                                        surface: 'world',
+                                        text: '${b['answer'] ?? ''}')),
                             ]),
                             Text(t.uwAiReview,
                                 style: Theme.of(context)

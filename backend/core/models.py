@@ -5658,3 +5658,34 @@ class RemittanceProfile(models.Model):
     missing_alert_month = models.CharField(max_length=7, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /budget-remittance ----
+
+
+# ---- ai-report ---- Google Play AI-Generated Content policy: a user can
+# report / flag an offensive or harmful AI answer from inside the app. We keep
+# a TEXT-ONLY snapshot of the answer (never photos, never the whole chat), the
+# reason, an optional note, who and when. Only the reporter (API) and the owner
+# (Owner Admin -> AI reports) can see a report.
+class AiAnswerReport(models.Model):
+    REASONS = ("offensive", "harmful", "wrong", "other")
+    SURFACES = ("chat", "home", "photo", "business", "world", "circle", "other")
+    STATUSES = ("open", "resolved")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="ai_reports")
+    surface = models.CharField(max_length=12, default="chat")
+    # the stored assistant message when the answer lives in a ChatSession
+    message = models.ForeignKey("ChatMessage", null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="+")
+    session_id_ref = models.CharField(max_length=40, blank=True, default="")
+    reason = models.CharField(max_length=12)
+    note = models.CharField(max_length=500, blank=True, default="")
+    answer_text = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=10, default="open", db_index=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "created_at"])]
+# ---- /ai-report ----

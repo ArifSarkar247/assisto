@@ -142,6 +142,21 @@ def _privacy(lang):
              "version and a hidden install ID; crash reports to fix bugs (no "
              "message or personal text); anonymous usage statistics only with "
              "your consent."),
+        _sec(lang, "AI উত্তর রিপোর্ট করা", "Reporting AI answers",
+             "কোনো AI উত্তর আপত্তিকর, ক্ষতিকর বা ভুল মনে হলে উত্তরের পাশের "
+             "পতাকা চিহ্ন বা লম্বা চাপ দিয়ে \"উত্তরটি রিপোর্ট করুন\" বেছে নিন। "
+             "রিপোর্টে থাকে শুধু সেই উত্তরের লেখা (কোনো ছবি নয়), আপনার বাছাই "
+             "করা কারণ, আপনার লেখা ঐচ্ছিক মন্তব্য, আপনার অ্যাকাউন্ট ও সময়। "
+             "Assisto টিম রিপোর্ট করা উত্তরগুলো পর্যালোচনা করে AI-এর ভুল ঠিক "
+             "করতে ও অপব্যবহার ঠেকাতে; এগুলো বিজ্ঞাপন বা অন্য কারো সাথে শেয়ার "
+             "করা হয় না।",
+             "If an AI answer seems offensive, harmful or wrong, tap the flag "
+             "next to it or long-press it and choose \"Report this answer\". "
+             "A report keeps only the text of that answer (never a photo), the "
+             "reason you pick, any note you write, your account and the time. "
+             "The Assisto team reviews reported answers to fix AI mistakes and "
+             "prevent misuse; they are not used for ads or shared with anyone "
+             "else."),
         _sec(lang, "সিসিটিভি ওয়াচম্যান", "CCTV watchman",
              "বাড়ি বা দোকানের ক্যামেরা যুক্ত করলে ভিডিও আপনার গেটওয়েতেই "
              "(পুরনো ফোন, Shop Box বা কম্পিউটার) থাকে ও সেখানেই বিশ্লেষণ হয় — "
