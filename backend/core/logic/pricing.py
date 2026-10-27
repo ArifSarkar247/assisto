@@ -855,7 +855,7 @@ AD_BOOLS = ("hero_enabled", "hero_start_muted", "consent_debug_eea",
 BANNER_SCREENS = (
     "saved_items", "dictionary", "health_tips",
     "money", "budget", "money_report", "money_trends", "money_networth", "money_tax",
-    "reminders", "notes_todos", "birthdays", "meetings", "documents",
+    "reminders", "notes_todos", "birthdays", "meetings",
     "jobs", "cv_builder", "business", "crm", "contract", "prepaid_meter",
     "all_services", "guide", "nearby", "quick_tools", "medicine_db", "ramadan", "exam",
     "photo_gallery", "circle_list", "settings",

@@ -45,8 +45,7 @@ class AdPlacements {
     'money_tax',
     // personal organiser
     'reminders', 'notes_todos', 'birthdays', 'meetings',
-    // documents LIST (after the PIN gate; the gate itself never has an ad)
-    'documents',
+    // NOT documents: it is the PIN vault (owner: never on chat lock / vault)
     // work / business
     'jobs', 'cv_builder', 'business', 'crm', 'contract', 'prepaid_meter',
     // discovery / info

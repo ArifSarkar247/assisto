@@ -108,7 +108,7 @@ void main() {
   group('allowlist vs never-list', () {
     test('the owner-listed normal screens are on the allowlist', () {
       for (final s in [
-        'money', 'budget', 'reminders', 'notes_todos', 'documents', 'jobs',
+        'money', 'budget', 'reminders', 'notes_todos', 'jobs',
         'prepaid_meter', 'contract', 'business', 'crm', 'all_services',
         'dictionary', 'health_tips', 'saved_items', 'photo_gallery',
         'circle_list', 'settings',
@@ -400,5 +400,10 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const ValueKey('ad-banner-slot')), findsNothing);
     });
+  });
+
+  test('documents (PIN vault) never carries a banner', () {
+    expect(AdPlacements.screenAllowed(AdSurface.banner, 'documents'), isFalse);
+    expect(AdPlacements.bannerScreens.contains('documents'), isFalse);
   });
 }

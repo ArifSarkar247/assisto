@@ -21105,5 +21105,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "adBannerRemoveAds": "Remove ads",
+  "adBannerRemoveAdsHint": "Remove ads. Opens the Premium plans"
 }
