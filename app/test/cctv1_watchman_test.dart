@@ -153,7 +153,7 @@ void main() {
   testWidgets('zones: draw a no-entry area on the grid and save (schema v2)', (tester) async {
     _phone(tester, height: 2000);
     final src = FakeWatchman();
-    await tester.pumpWidget(_app(WatchmanZonesScreen(source: src, camera: FakeWatchman.camera())));
+    await tester.pumpWidget(_app(WatchmanZonesScreen(source: src, camera: FakeWatchman.cameraRow())));
     await _settle(tester);
     expect(find.text(en.wmZonesNoPreview), findsOneWidget);
     final canvas = find.bySemanticsLabel(en.wmZonesCanvasLabel);

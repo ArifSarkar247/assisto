@@ -19,7 +19,7 @@ class FakeWatchman implements WatchmanSource {
   /// What the gateway answers for a check: 'ok', 'auth', 'unreachable'.
   String checkOutcome = 'ok';
 
-  static Map<String, dynamic> camera({int id = 11, String name = 'Front door', String vendor = 'imou',
+  static Map<String, dynamic> cameraRow({int id = 11, String name = 'Front door', String vendor = 'imou',
           bool online = true, Map<String, dynamic>? compat}) =>
       {
         'id': id, 'name': name, 'kind': 'shopbox', 'enabled': true, 'vendor': vendor,
@@ -40,9 +40,9 @@ class FakeWatchman implements WatchmanSource {
           'never_seen': false,
         },
         'cameras_list': [
-          camera(),
+          cameraRow(),
           if (kind == 'shop')
-            camera(id: 12, name: 'Cash counter', vendor: 'hikvision', online: online,
+            cameraRow(id: 12, name: 'Cash counter', vendor: 'hikvision', online: online,
                 compat: {'ok': false, 'steps': [{'key': 'auth', 'ok': false, 'code': 'auth_failed'}]}),
         ],
         'open_alerts': kind == 'home' ? 2 : 0,
@@ -88,7 +88,7 @@ class FakeWatchman implements WatchmanSource {
   Future<Map<String, dynamic>> addCamera(int siteId, Map<String, dynamic> body) async {
     calls.add('addCamera:${body['vendor']}');
     if ((body['source'] as Map?)?['password'] != null) throw StateError('password sent');
-    return camera(id: 21, name: body['name'].toString(), vendor: body['vendor'].toString())
+    return cameraRow(id: 21, name: body['name'].toString(), vendor: body['vendor'].toString())
       ..['compat'] = {};
   }
 

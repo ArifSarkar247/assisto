@@ -41,6 +41,7 @@ SEGMENTS = ("free", "premium", "business")
 # In-app route keys the app can open (mirror of ChatNav.routes in
 # app/lib/widgets/chatnav.dart — a test asserts they stay in lock-step).
 ROUTE_KEYS = (
+    "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",
