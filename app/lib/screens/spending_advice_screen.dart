@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -388,6 +389,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
   }
 
   Widget _aiSeamCard(BuildContext context, AppLocalizations tr) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
       color: scheme.surfaceContainerHighest,

@@ -1,3 +1,4 @@
+import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -445,7 +446,9 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
     );
   }
 
-  Widget _aiSeamCard(AppLocalizations tr, ColorScheme scheme) => Container(
+  Widget _aiSeamCard(AppLocalizations tr, ColorScheme scheme) => !kShowKeySeams
+      ? const SizedBox.shrink() // truth: no key dead end
+      : Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           color: scheme.surface,

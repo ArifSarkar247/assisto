@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -961,6 +962,7 @@ class _AiSeamCard extends StatelessWidget {
   const _AiSeamCard();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
       icon: Icons.auto_awesome_rounded,
@@ -974,6 +976,7 @@ class _BookingSeamCard extends StatelessWidget {
   const _BookingSeamCard();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
       icon: Icons.confirmation_number_rounded,

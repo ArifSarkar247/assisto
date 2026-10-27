@@ -1,3 +1,4 @@
+import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -541,6 +542,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
   }
 
   Widget _partnerSeamCard(BuildContext context, AppLocalizations tr) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
       color: scheme.surfaceContainerHighest,

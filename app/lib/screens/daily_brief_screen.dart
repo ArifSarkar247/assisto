@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -456,6 +457,7 @@ class _KeyGatedChip extends StatelessWidget {
   const _KeyGatedChip({required this.icon, required this.text});
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(Gap.md),

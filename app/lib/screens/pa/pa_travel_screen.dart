@@ -1,3 +1,4 @@
+import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -579,6 +580,7 @@ class _BookingSeamCard extends StatelessWidget {
   const _BookingSeamCard();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
@@ -1114,9 +1116,11 @@ class _ItinerarySummarySheet extends StatelessWidget {
           if (packTotal > 0)
             Text(t.paTravelPackingProgress(checked, packTotal),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.md),
-          Text(t.paTravelBookingSeamBody,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          if (kShowKeySeams) ...[ // truth: no key dead end
+            const SizedBox(height: Gap.md),
+            Text(t.paTravelBookingSeamBody,
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
         ],
       ),
     );

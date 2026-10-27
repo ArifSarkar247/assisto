@@ -1,3 +1,4 @@
+import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
@@ -75,8 +76,12 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         BizNote(text: tr.bizNeverHoldMoney, icon: Icons.account_balance_rounded),
         const SizedBox(height: Gap.md),
         if (hasMerchant) _merchantCard(tr) else _setupCard(tr),
-        const SizedBox(height: Gap.md),
-        _linkCard(tr),
+        // truth: online payment links are not built (no partner checkout is
+        // wired), so the card is hidden instead of promising them.
+        if (kShowKeySeams) ...[
+          const SizedBox(height: Gap.md),
+          _linkCard(tr),
+        ],
       ]),
     );
   }

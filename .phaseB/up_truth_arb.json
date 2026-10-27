@@ -41,6 +41,10 @@
     "truthSpendTitle": "Spending insights",
     "@truthSpendTitle": {
       "description": "Title of the rule-based spending observations (was \"AI spending insights\"; no AI runs there)."
+    },
+    "truthCourierManualNote": "Assisto doesn't book the courier from here — book it in the courier's own app.",
+    "@truthCourierManualNote": {
+      "description": "Orders: marking an order shipped does not book a courier (no fake tracking number is made)."
     }
   },
   "bn": {
@@ -56,6 +60,7 @@
     "truthNearbyLoadFailed": "কাছের জায়গাগুলো আনা গেল না",
     "truthNearbyNoneNearby": "আপনার কাছে এই ধরনের কোনো জায়গা পাওয়া যায়নি",
     "truthNearbySource": "ম্যাপের তথ্য: {source}",
-    "truthSpendTitle": "খরচের পর্যবেক্ষণ"
+    "truthSpendTitle": "খরচের পর্যবেক্ষণ",
+    "truthCourierManualNote": "অ্যাসিস্টো এখান থেকে কুরিয়ার বুক করে না — কুরিয়ারের নিজের অ্যাপে বুক করুন।"
   }
 }
