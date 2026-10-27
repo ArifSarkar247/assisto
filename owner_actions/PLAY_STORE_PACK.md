@@ -286,6 +286,9 @@ End-to-end encrypted personal/group text messages are also exempt (we cannot rea
 | Personal info — Other info (family members, emergency card) | Yes | No | No | Optional | App functionality |
 | Financial info — Purchase history | Yes | No | No | Optional | Account management (plans/credits) |
 | Financial info — Other financial info (ledger, budgets, loans you type) | Yes | No | No | Optional | App functionality |
+
+Probashi family plan + Budget & Remittance (flags `probashi_plan`, `budget_remittance`; add/confirm BEFORE either is ON in Play):
+Financial info — Other financial info also covers remittance received, family budget plan vs spending and bills (encrypted at rest with Fernet: FINANCE_FERNET_KEY first, else INTEGRATIONS_FERNET_KEY; never used for ads/analytics/AI; not sold; deletable in-app). A family member's figures are shown to the paying relative ONLY when that member turns on "budget" sharing in the app — a user-initiated transfer to another user, which Play does not count as "Shared". Purchase history also covers the `assisto_probashi` subscription. No new data type is collected. Details: owner_actions/PROBASHI_PLAN_BN.md §৬.
 | Health and fitness — Fitness info (steps, heart rate, sleep via Health Connect, read only) | Yes | No | No | Optional | App functionality |
 | Messages — Other in-app messages (channels, communities, business inbox; NOT the E2E chats) | Yes | No | No | Optional | App functionality |
 | Photos and videos — Photos / Videos | Yes | No | No | Optional | App functionality (vault, profile, status, Photo Studio, intruder photo, shop snapshots) |

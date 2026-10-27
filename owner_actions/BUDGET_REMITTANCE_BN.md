@@ -36,6 +36,8 @@
 | Audio | **কিছু বদলাবেন না** — মুখের কথা ফোনেই লেখা হয়, অডিও আমাদের কাছে আসে না |
 | SMS / Call logs | **কিছু বদলাবেন না** — SMS পড়া হয় না |
 
+**প্রবাসী পরিবার প্ল্যান (`probashi_plan`) চালু হলে:** নতুন কোনো Data type লাগবে না — একই "Other financial info" (Collected, **Shared নয়**, Optional, App functionality)। পরিবারের সদস্য অ্যাপে নিজে "বাজেট শেয়ার" চালু করলে তবেই প্রবাসী তাঁর আসা টাকা বনাম বাজেট দেখেন — এটা ব্যবহারকারীর নিজের নির্দেশে অন্য ব্যবহারকারীকে দেখানো, Play-এর সংজ্ঞায় "Shared" নয়। বিস্তারিত: PROBASHI_PLAN_BN.md §৬।
+
 শেষে **Save → Submit**। (Financial info-তে "Purchase history", "Credit score" বা "User payment info" টিক দেবেন না — আমরা এগুলো রাখি না।)
 
 ## সুইচ চালু করার ক্রম
