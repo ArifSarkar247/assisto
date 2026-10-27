@@ -214,8 +214,12 @@ jobs:
               '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>'
               '\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>'
               '\n    <uses-permission android:name="android.permission.WAKE_LOCK"/>'
-              # #70 Health Connect reads
-              '\n    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>'
+              # #70 Health Connect reads — healthfit (least privilege): ONLY the four
+              # READ permissions the Smartwatch & fitness screen uses (steps, heart
+              # rate, sleep, active calories). ACTIVITY_RECOGNITION is removed (Health
+              # Connect reads never need it); the remove line keeps any plugin from
+              # merging it back. Gate: app/test/healthfit_policy_test.dart.
+              '\n    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" tools:node="remove"/>'
               '\n    <uses-permission android:name="android.permission.health.READ_STEPS"/>'
               '\n    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>'
               '\n    <uses-permission android:name="android.permission.health.READ_SLEEP"/>'

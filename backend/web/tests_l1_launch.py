@@ -67,7 +67,7 @@ class LegalPagesTests(TestCase):
                      "FOREGROUND_SERVICE_MICROPHONE", "FOREGROUND_SERVICE_LOCATION",
                      "CALL_PHONE", "SET_ALARM", "BLUETOOTH_CONNECT", "health.READ_STEPS",
                      "health.READ_HEART_RATE", "health.READ_SLEEP",
-                     "health.READ_ACTIVE_CALORIES_BURNED", "ACTIVITY_RECOGNITION",
+                     "health.READ_ACTIVE_CALORIES_BURNED",
                      "Photo Picker", "BIND_DEVICE_ADMIN", "BIND_VOICE_INTERACTION",
                      "REQUEST_INSTALL_PACKAGES", "RECEIVE_BOOT_COMPLETED", "VIBRATE"):
             self.assertIn(perm, html, perm)

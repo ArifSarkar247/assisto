@@ -30,8 +30,8 @@ NOT A MEDICAL / MENTAL-HEALTH SERVICE
     suggestions are supportive, everyday, widely-published self-care nudges
     (rest, a short walk, reaching out to someone) — never clinical advice. When
     the recent trend looks persistently low we surface an HONEST, non-alarming
-    pointer to reach a real professional / helpline (the UI localises a Bangla
-    national mental-health helpline). We point to help; we never pretend to be
+    support line (healthfit, 27 Oct: talk to someone you trust; call 999 —
+    the national emergency number — if you feel unsafe). We point to help; we never pretend to be
     help.
 
 Run self-tests:
@@ -54,7 +54,7 @@ ENERGY_MAX = 5
 
 TREND_DAYS = 7
 
-# A trend is "persistently low" (→ show the gentle helpline pointer) when, over
+# A trend is "persistently low" (→ show the neutral 999 support line) when, over
 # the logged days in the window, the average mood score is at/below this AND at
 # least this many days were actually logged (so one bad day never trips it).
 _LOW_AVG_THRESHOLD = 2.0
@@ -63,7 +63,7 @@ _LOW_MIN_LOGGED = 3
 # Supportive suggestion KEYS (UI localises to real bn/en copy). Never clinical.
 # Keyed by mood bucket; the engine only ever returns keys, never prose.
 SUGGESTION_KEYS = {
-    "low":   ["rest", "reach_out", "breathe", "helpline"],
+    "low":   ["rest", "reach_out", "breathe", "support"],
     "down":  ["walk", "reach_out", "breathe"],
     "ok":    ["walk", "gratitude"],
     "good":  ["keep_going", "gratitude"],
@@ -194,7 +194,7 @@ def trend(rows, today, days=TREND_DAYS):
         avg_score   — mean mood score over logged days (0 if none), 2dp
         avg_energy  — mean energy over days with a non-zero rating (0 if none)
         low_streak  — count of trailing logged days at/below "down"
-        persistently_low — bool: honest flag to show the helpline pointer
+        persistently_low — bool: honest flag to show the 999 support line
     All pure; `today` is passed in so there is no clock here.
     """
     t = _date_key(today)
@@ -254,12 +254,12 @@ def trend(rows, today, days=TREND_DAYS):
 def suggestions(mood, persistently_low=False):
     """Supportive, NON-CLINICAL suggestion KEYS for a mood. UI localises them.
 
-    We always append 'helpline' when the recent trend is persistently low, even
+    We always append 'support' when the recent trend is persistently low, even
     if the single mood is okay, so the gentle "reach real help" pointer is never
     missed — and we never surface it as alarming prose here (it's one key)."""
     keys = list(SUGGESTION_KEYS.get(mood, SUGGESTION_KEYS["ok"]))
-    if persistently_low and "helpline" not in keys:
-        keys.append("helpline")
+    if persistently_low and "support" not in keys:
+        keys.append("support")
     # de-dupe preserving order
     seen = set()
     return [k for k in keys if not (k in seen or seen.add(k))]
