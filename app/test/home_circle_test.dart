@@ -260,7 +260,7 @@ void main() {
       expect(got, isNot(contains('circle')));
       expect(got, isNot(contains('messages')));
       // a layout WITHOUT it is unchanged
-      const mine = ['budget', 'tax', 'crm', 'jobs', 'inbox', 'dictionary'];
+      const mine = ['budget', 'tax', 'crm', 'jobs', 'scam', 'nearby'];
       await HomeQuickButtons.save(mine);
       expect(await HomeQuickButtons.load(), mine);
       // a server owner default that lists it never duplicates it either
