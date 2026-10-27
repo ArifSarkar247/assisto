@@ -567,7 +567,14 @@ class _Banner extends StatelessWidget {
                       style: TextStyle(color: fg, fontWeight: FontWeight.w600))),
             ]),
           ),
-          if (action != null) action!,
+          if (action != null)
+            // a11y: the banner's own ink colour (primary on the container
+            // failed 4.5:1 in dark)
+            TextButtonTheme(
+              data: TextButtonThemeData(
+                  style: TextButton.styleFrom(foregroundColor: fg)),
+              child: action!,
+            ),
         ],
       ),
     );

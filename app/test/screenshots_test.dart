@@ -727,7 +727,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'ldg_free': (build: (_) => const Scaffold(body: SafeArea(child: KhataFreePromiseDetails())), mode: FakeMode.data, full: true),
     'ldg_statement': (build: (l) => khataStatementPreview(const {'id': 1, 'role': 'owner'}, fakeKhataParties('customer', l == 'bn')[0]), mode: FakeMode.data, full: true),
     'ldg_khata_pending': (build: (l) { SharedPreferences.setMockInitialValues({'khata_outbox_v1': jsonEncode([{'cid': 'kx-shot0001', 'biz': 1, 'party': 1, 'pname': 'Karim Store', 'book': 'customer', 'kind': 'entry', 'dir': 'gave', 'amt': 50000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:00:00Z', 'state': 'pending'}, {'cid': 'kx-shot0002', 'biz': 1, 'party': 3, 'pname': 'Salma', 'book': 'customer', 'kind': 'payment', 'dir': '', 'amt': 10000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:01:00Z', 'state': 'failed', 'err': l == 'bn' ? 'এন্ট্রি ভুল।' : 'Invalid entry.'}])}); return KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}); }, mode: FakeMode.data, full: true),
-    'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
+    'biz_khata_error': (build: (l) { SharedPreferences.setMockInitialValues({}); return KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}); }, mode: FakeMode.fail, full: false), // ledger100: no saved copy -> the error state
     'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
     // a2-cctv Premium QA batch 2
     'crm_home': (build: (_) => const CrmHomeScreen(previewOrg: 1), mode: FakeMode.data, full: true),
