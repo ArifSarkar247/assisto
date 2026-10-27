@@ -1,29 +1,23 @@
-"""Daily Profit-Guard rollover + owner summary (Business Model, Build 2).
+"""Daily Profit-Guard rollover + owner summary.
 
-Run once per day (local midnight) to:
-  * expire purchased credits that passed their 12-month validity,
-  * grant each paid user's monthly included pool (once per month), and
-  * print / alert the owner with the trailing-7-day profit-guard state.
+billing-v2 (owner order 27 Oct, audit #5): pack credits NEVER expire any
+more, so this no longer expires packs. It now runs the credits safety settle
+(staged unlocks, plan allowance whose paid period ended, annual months, base
+plan months) and reports the trailing-7-day guard. Safe to run any time;
+billing_daily covers the rest (voided poll, reconcile, per-user guard).
 
-The DailyLedger rows are append-only and written live by core.billing
-(record_revenue / record_cost); this command does NOT fabricate any numbers —
-it only sweeps expiries and reports the current guard state.
-
-Crontab (Asia/Dhaka), add on the Assisto-owned box only:
-    5 0 * * *  cd /home/ubuntu/assisto/backend && \
-        /home/ubuntu/assisto/.venv/bin/python manage.py profit_guard_rollover
+Crontab (Asia/Dhaka), on the Assisto box:
+    5 0 * * *  ubuntu  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py profit_guard_rollover
 """
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Expire old credits + report the daily profit-guard state."
+    help = "Settle credit buckets + report the daily profit-guard state."
 
     def handle(self, *args, **opts):
         from core import billing
         expired = billing.expire_credits()
-        # paid plans: this month's included pool (Premium 90 / Business 240),
-        # once per month per user, unused last-month pool expired (no rollover)
         pooled = billing.grant_all_monthly_pools()
         st = billing.guard_state()
         self.stdout.write(

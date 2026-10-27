@@ -214,6 +214,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     # blocked BEFORE any provider call (fixes under-funded-start). The charge is
     # REFUNDED below if every provider fails (the existing "queued" path).
     charged = 0
+    spend_ref = ""
     if user is not None:
         from . import billing
         from .logic import pricing
@@ -231,6 +232,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             raise AIUnavailable("budget" if res.get("reason") == "guard_over"
                                 else "credits")
         charged = res["charged"]
+        spend_ref = res.get("spend_ref", "")
 
     model = TIER_MODEL.get(tier, TIER_MODEL["cheap"])
     system = _INJECTION_GUARD + (("\n" + extra_system) if extra_system else "")
@@ -271,7 +273,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     # Refund the pre-charged credits so a user is never billed for a non-answer.
     if user is not None and charged:
         from . import billing
-        billing.credit(user, "adjust", charged, note="ai_refund")
+        # billing-v2 rule N: back to the SAME bucket(s) the charge came from
+        billing.credit(user, "adjust", charged, note="ai_refund", spend_ref=spend_ref)
     raise AIUnavailable("queued")
 
 

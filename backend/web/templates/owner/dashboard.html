@@ -3,7 +3,7 @@
 {% block content %}
 {% if disk %}<div class="flash bad" role="alert" id="disk-alert"><b>{{ T.disk_h }}</b> — {{ T.disk_used }}: {{ disk_txt.used_pct }}% · {{ T.disk_free }}: {{ disk_txt.free_gb }} GB · {{ T.disk_limit }}: {{ disk_txt.threshold }}%<br><small>{{ T.disk_hint }}</small></div>{% endif %}
 <div class="tiles">
-  <div class="tile"><span>{{ T.users_total }}</span><b>{{ segments.total|default:"0" }}</b><small>{{ T.paid }}: {{ segments.paid|default:"0" }} · {{ T.signups_today }}: {{ signups_today }}</small></div>
+  <div class="tile"><span>{{ T.users_total }}</span><b>{{ segments.total|default:"0" }}</b><small>{{ T.paid }}: {{ segments.paid|default:"0" }} · {{ T.b2_seg_test }}: {{ segments.test|default:"0" }} · {{ T.b2_seg_trial }}: {{ segments.trial|default:"0" }} · {{ T.b2_seg_grants }}: {{ segments.grants|default:"0" }} · {{ T.signups_today }}: {{ signups_today }}</small></div>
   <div class="tile"><span>{{ T.rev_7d }}</span>{% if pnl7_has %}<b>৳{{ pnl7.revenue }}</b><small>{{ T.profit }}: ৳{{ pnl7.profit }}</small>{% else %}<b class="mut">—</b><small>{{ T.no_ledger }}</small>{% endif %}</div>
   <div class="tile"><span>{{ T.guard }}</span>{% if guard %}<b class="st-{{ guard.state }}">{{ guard.state }}</b>{% else %}<b class="mut">—</b>{% endif %}<small>{{ T.guard_note }}</small></div>
   <div class="tile"><span>{{ T.nav_integrations }}</span>{% if integ %}<b>{{ integ.connected }}/{{ integ.total }}</b><small>{{ T.needs_fix }}: {{ integ.not_working }}</small>{% else %}<b class="mut">—</b>{% endif %}</div>

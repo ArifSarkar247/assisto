@@ -83,10 +83,15 @@ class RestoreTwoAccountTests(PlayBase):
         self.assertEqual(CreditPurchase.objects.filter(provider="play_billing").count(), 1)
 
     def test_pack_without_account_id_binds_to_first_verifier_only(self):
+        # billing-v2 rule F: a purchase without obfuscatedExternalAccountId is
+        # never given to whoever submits it first
         self.g.products["ptok"] = _pack_body(self.u, aid=False)
-        self.assertEqual(self.verify("ptok", kind="pack", product="credits_p20").status_code, 200)
+        r = self.verify("ptok", kind="pack", product="credits_p20")
+        self.assertEqual((r.status_code, r.json()["reason"]), (409, "unbound_purchase"))
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
         r = self.verify("ptok", kind="pack", product="credits_p20", api=self.api_b)
-        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.status_code, 409)
         self.b.refresh_from_db()
         self.assertEqual(self.b.ai_credits, 0)
 
@@ -173,6 +178,7 @@ class PlayStatusSummaryTests(PlayBase):
     def test_revoked_and_expired_not_shown(self):
         self.g.subs["t"] = sub_body(self.u)
         self.verify("t")
+        self.g.subs["t"]["subscriptionState"] = "SUBSCRIPTION_STATE_EXPIRED"
         self.rtdn_push(self.sn("t", 12), mid="v1")
         s = self.state()
         self.assertIsNone(s["play"])

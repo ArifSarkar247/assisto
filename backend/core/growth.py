@@ -218,6 +218,13 @@ def claim(invitee, raw_code, device_id="", now=None):
     if inviter.date_joined and inviter.date_joined > joined:
         return False, "not_eligible", None
     dh = _h("dev:%s" % device_id) if device_id else ""
+    if not dh:
+        # billing-v2 rule P: no device id -> no referral (the device check
+        # used to be skipped silently)
+        return False, "device_required", None
+    from . import antifarm
+    if antifarm.claimed("referral", antifarm.keys_for(invitee, device_id)):
+        return False, "device_used", None
     if dh and InstallPing.objects.filter(user_id=inviter.pk, device_hash=dh).exists():
         return False, "self", None
     if dh and ReferralClaim.objects.filter(device_hash=dh).exclude(
@@ -285,6 +292,11 @@ def _reward(claim_id, c, now):
         give_invitee = int(c["invite_credits_invitee"])
         if give_inviter:
             billing.credit(inviter, "grant", give_inviter, note="referral:inviter")
+        if give_invitee and row.invitee is not None:
+            from . import antifarm
+            if not antifarm.claim("referral", antifarm.keys_for(row.invitee)
+                                  + ([row.device_hash] if row.device_hash else [])):
+                give_invitee, reason = 0, "device_used"
         if give_invitee and row.invitee is not None:
             billing.credit(row.invitee, "grant", give_invitee, note="referral:invitee")
         row.state = "rewarded"
@@ -355,10 +367,14 @@ def grant_seat(user, c=None, now=None):
         if num > seats:
             return None
         credits = int(c["founding_seat_credits"])
+        from . import antifarm
+        if credits and antifarm.claimed("founding", antifarm.keys_for(user)):
+            credits = 0     # rule P: this phone / device already had a seat's credits
         try:
             with transaction.atomic():
                 seat = FoundingSeat.objects.create(user=user, number=num, credits=credits)
                 if credits:
+                    antifarm.claim("founding", antifarm.keys_for(user))
                     billing.credit(user, "grant", credits, note="founding:%d" % num)
                 seat.cost_bdt = _book_cost(credits)
                 seat.save(update_fields=["cost_bdt"])
@@ -469,6 +485,8 @@ def claim_message(reason, lang="bn"):
                         "An invite was already used on this phone."),
         "phone_used": ("এই নম্বরে আগেই একটি আমন্ত্রণ ব্যবহার হয়েছে।",
                        "An invite was already used with this number."),
+        "device_required": ("আমন্ত্রণ কোড দিতে অ্যাপটি আপডেট করে আবার চেষ্টা করুন।",
+                            "Please update the app and try the invite code again."),
     }
     bn, en = m.get(reason, m["bad_code"])
     return pick(lang, bn, en)

@@ -55,7 +55,9 @@ ENTITLED_STATES = ("SUBSCRIPTION_STATE_ACTIVE", "SUBSCRIPTION_STATE_CANCELED",
 NOTIF = {1: "RECOVERED", 2: "RENEWED", 3: "CANCELED", 4: "PURCHASED", 5: "ON_HOLD",
          6: "IN_GRACE_PERIOD", 7: "RESTARTED", 8: "PRICE_CHANGE_CONFIRMED",
          9: "DEFERRED", 10: "PAUSED", 11: "PAUSE_SCHEDULE_CHANGED", 12: "REVOKED",
-         13: "EXPIRED", 19: "PRICE_CHANGE_UPDATED", 20: "PENDING_PURCHASE_CANCELED"}
+         13: "EXPIRED", 17: "ITEMS_CHANGED", 18: "CANCELLATION_SCHEDULED",
+         19: "PRICE_CHANGE_UPDATED", 20: "PENDING_PURCHASE_CANCELED",
+         22: "PRICE_STEP_UP_CONSENT_UPDATED"}
 
 
 class PlayError(Exception):
@@ -222,6 +224,81 @@ def consume_product(product_id, token, c=None):
                 % (quote(product_id, safe=""), quote(token, safe="")), c)
 
 
+# billing-v2 seams (owner order 27 Oct). Every Google call goes through
+# _api/_http, so tests mock them; the refund calls are NEVER made in tests.
+def get_order(order_id, c=None):
+    """orders.get — the real price paid (total + currency) of one order.
+    Best-effort: callers fall back to the list / catalog price."""
+    return _api("GET", "orders/" + quote(order_id, safe=""), c)
+
+
+def refund_order_api(order_id, revoke=True, c=None):
+    """orders.refund — a FULL refund of one order (Play cannot refund a part
+    of an order through the API; partial refunds are done in Play Console)."""
+    return _api("POST", "orders/%s:refund%s" % (quote(order_id, safe=""),
+                                                "?revoke=true" if revoke else ""), c)
+
+
+def revoke_subscription_api(token, prorated=False, c=None):
+    """purchases.subscriptionsv2.revoke — end the subscription now with a
+    full or prorated refund (used when an approved refund must also stop it)."""
+    ctx = {"proratedRefund": {}} if prorated else {"fullRefund": {}}
+    c = c or cfg()
+    url = "%s/%s/purchases/subscriptionsv2/tokens/%s:revoke" % (
+        API, quote(c["package_name"], safe=""), quote(token, safe=""))
+    st, js = _http("POST", url, {"revocationContext": ctx},
+                   {"Authorization": "Bearer " + access_token(c),
+                    "Content-Type": "application/json"})
+    if st >= 400:
+        raise PlayError("google_error", 502, str(st))
+    return js or {}
+
+
+def voided_list(start_ms, end_ms=None, c=None, max_pages=20):
+    """purchases.voidedpurchases.list?type=1 (subscriptions + one-time),
+    paginated. Returns the list of voided purchase dicts."""
+    out = []
+    token = ""
+    for _ in range(max_pages):
+        q = "purchases/voidedpurchases?type=1&maxResults=1000&startTime=%d" % int(start_ms)
+        if end_ms:
+            q += "&endTime=%d" % int(end_ms)
+        if token:
+            q += "&token=" + quote(token, safe="")
+        js = _api("GET", q, c)
+        out += list(js.get("voidedPurchases") or [])
+        token = ((js.get("tokenPagination") or {}).get("nextPageToken") or "")
+        if not token:
+            break
+    return out
+
+
+def order_id_of(js, line=None):
+    """The order id of the CURRENT paid period. subscriptionsv2 deprecated the
+    top-level latestOrderId in favour of lineItems[].latestSuccessfulOrderId;
+    read the new field first and fall back to the old one."""
+    if line is not None and line.get("latestSuccessfulOrderId"):
+        return str(line["latestSuccessfulOrderId"])
+    for li in (js.get("lineItems") or []):
+        if li.get("latestSuccessfulOrderId"):
+            return str(li["latestSuccessfulOrderId"])
+    return str(js.get("latestOrderId") or "")
+
+
+def _real_price(order_id, fallback, c=None):
+    """(price, currency, source) of one order: Play orders API when it
+    answers, else the given fallback."""
+    try:
+        js = get_order(order_id, c) if order_id else {}
+        m = js.get("total") or ((js.get("lineItems") or [{}])[0] or {}).get("total")
+        price, cur = _money(m)
+        if price is not None and cur:
+            return price, cur, "play_order"
+    except Exception:
+        pass
+    return fallback
+
+
 # ----------------------------------------------------------------- helpers
 def _ts(v):
     if not v:
@@ -252,6 +329,14 @@ def _owner_for(token, aid, user=None):
     by_aid = user_for_account_id(aid) if aid else None
     if aid and by_aid is None:
         raise PlayError("other_account", 403)
+    if bound is not None and bound.user_id is None:
+        # billing-v2 (rule F): the account that bought it was deleted — the
+        # tombstone keeps the binding, so no other account can ever claim it
+        raise PlayError("other_account", 403)
+    if bound is None and not aid:
+        # billing-v2 (rule F): a token with no obfuscatedExternalAccountId is
+        # never given to whoever submits it first
+        raise PlayError("unbound_purchase", 409)
     owner = (bound.user if bound else None) or by_aid or user
     if owner is None:
         raise PlayError("unknown_account", 400)
@@ -266,19 +351,53 @@ def _charge_once(user, order_id, sku, amount, kind_src):
     """Count Google revenue once per Play order id (each renewal has its own
     order id, e.g. GPA.1234-..-..0, ..1). NET = after the Play fee."""
     from ..models import PaymentEvent
+    from django.db import IntegrityError, transaction
     if not order_id or PaymentEvent.objects.filter(kind="play.charge", ref=order_id[:80]).exists():
         return False
     net = catalog.net(amount, sku, "play")
-    E.event(user, "play.charge", "play", order_id, amount=amount, net=net, sku=sku)
+    try:
+        with transaction.atomic():      # DB-unique (kind, ref): counted once
+            E.event(user, "play.charge", "play", order_id, amount=amount, net=net, sku=sku)
+    except IntegrityError:
+        return False
     E.ledger(kind_src, net)
     return True
 
 
 # ----------------------------------------------------------------- subscriptions
+NO_ALLOWANCE_STATES = ("SUBSCRIPTION_STATE_ON_HOLD", "SUBSCRIPTION_STATE_PAUSED",
+                       "SUBSCRIPTION_STATE_EXPIRED", "SUBSCRIPTION_STATE_PENDING",
+                       "SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED")
+GRANT_STATES = ("SUBSCRIPTION_STATE_ACTIVE", "SUBSCRIPTION_STATE_CANCELED")
+
+
+def _period_start(pp, order_id, expiry, months, js, now):
+    """Start of the paid period an order bought: one billing period before
+    Google's expiryTime, never before the subscription start nor before the
+    previous recorded period of this token ended (test renewals are 5 min)."""
+    from .. import credits as CR
+    from ..models import PaidOrder
+    ps = CR.add_months(expiry, -months)
+    st = _ts(js.get("startTime"))
+    if st and ps < st:
+        ps = st
+    prev = (PaidOrder.objects.filter(channel="play", token_hash=pp.token_hash, kind="sub",
+                                     period_end__lte=expiry).exclude(order_id=order_id)
+            .order_by("-period_end").first())
+    if prev and prev.period_end and ps < prev.period_end:
+        ps = prev.period_end
+    return min(ps, now) if ps > now else ps
+
+
 def sync_subscription(token, user=None, now=None, c=None):
-    """Fetch the token from Google and mirror it into the entitlement service.
+    """Fetch the token from Google (never trust the client or the RTDN body)
+    and mirror it: plan access (PlanPeriod), the paid order (PaidOrder) and
+    its plan allowance (credit lots). Order: plan + grant FIRST, acknowledge
+    only after the grant succeeded (rule G).
     Returns {"ok", "state", "sku", "plan", "entitled", "expires_at"}."""
     from ..models import PlayPurchase
+    from .. import credits as CR
+    from . import orders as O
     now = now or timezone.now()
     c = c or cfg()
     js = get_subscription(token, c)
@@ -298,29 +417,65 @@ def sync_subscription(token, user=None, now=None, c=None):
     expiry = _ts(line.get("expiryTime")) or now
     entitled = state in ENTITLED_STATES and expiry > now
     auto = bool((line.get("autoRenewingPlan") or {}).get("autoRenewEnabled"))
+    is_test = "testPurchase" in js
     th = token_hash(token)
     pp, _ = PlayPurchase.objects.get_or_create(
         token_hash=th, defaults={"user": owner, "purchase_token": token, "kind": "sub",
-                                 "product_id": product_id})
+                                 "product_id": product_id, "owner_ref": account_id(owner)})
     linked = str(js.get("linkedPurchaseToken") or "")
+    order_id = order_id_of(js, line)
     pp.product_id, pp.base_plan_id, pp.sku = product_id, base_plan, sku
     pp.state, pp.expires_at, pp.auto_renewing = state, expiry, auto
-    pp.order_id = str(js.get("latestOrderId") or pp.order_id)[:64]
+    pp.order_id = (order_id or pp.order_id)[:64]
     pp.linked_token_hash = token_hash(linked) if linked else ""
+    pp.is_test = is_test
+    if not pp.owner_ref:
+        pp.owner_ref = account_id(owner)
     pp.raw = {k: js.get(k) for k in ("subscriptionState", "startTime", "latestOrderId",
                                     "acknowledgementState", "regionCode")}
+    pp.raw["latestSuccessfulOrderId"] = line.get("latestSuccessfulOrderId")
     price, cur = _money((line.get("autoRenewingPlan") or {}).get("recurringPrice"))
     amount = price if (price and cur == "BDT") else Decimal(catalog.price(sku, "play") or 0)
     pp.price_bdt = amount
     pp.save()
     if linked:
+        # upgrade / downgrade / resubscribe: the old token's plan ends now and
+        # its remaining plan allowance expires (never doubled, rule H)
         E.mark_replaced("play", ref_for(linked), ref_for(token), now)
+        old = PlayPurchase.objects.filter(token_hash=token_hash(linked)).first()
+        CR.expire_source(old.user if old and old.user_id else owner,
+                         source_prefix=ref_for(linked), why="replaced", now=now)
     if pp.revoked:
         return {"ok": False, "state": "revoked", "sku": sku, "plan": d["plan"],
                 "entitled": False, "expires_at": expiry.isoformat()}
+    # plan access mirrors Google (the paid-period end is Google's expiryTime,
+    # never our own +N days)
     E.upsert_play_period(owner, ref=ref_for(token), plan=d["plan"],
                          starts=_ts(js.get("startTime")) or now, ends=expiry,
                          entitled=entitled, auto_renew=auto, state=state, now=now)
+    if state in NO_ALLOWANCE_STATES or not entitled:
+        # on hold / paused / expired / pending: no access, the remaining plan
+        # allowance of this token expires now (the owner's leak)
+        CR.expire_source(owner, source_prefix=ref_for(token),
+                         why=state.replace("SUBSCRIPTION_STATE_", "").lower() or "ended", now=now)
+    elif state in GRANT_STATES and order_id:
+        # a successful paid period: record the order + grant its allowance
+        # (grace period = access kept but NO new allowance)
+        months = int(d["months"] or 1)
+        fallback = (amount, "BDT", "recurring" if (price and cur == "BDT") else "catalog")
+        from ..models import PaidOrder
+        known = PaidOrder.objects.filter(channel="play", order_id=order_id[:80]).first()
+        if known is None:
+            rp, rc, src = _real_price(order_id, fallback, c)
+            known, _ = O.record(
+                channel="play", order_id=order_id, user=owner, sku=sku, kind="sub",
+                plan=d["plan"], months=months, price=rp, currency=rc, price_source=src,
+                is_test=is_test, purchased_at=now,
+                period_start=_period_start(pp, order_id, expiry, months, js, now),
+                period_end=expiry, token_hash=th, owner_ref=pp.owner_ref,
+                raw={"state": state, "product": product_id, "base_plan": base_plan})
+        if known.status == "paid":
+            O.grant_allowance(known, source_prefix=ref_for(token), now=now)
     if entitled and js.get("acknowledgementState") != "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED" \
             and not pp.acknowledged:
         try:
@@ -333,10 +488,10 @@ def sync_subscription(token, user=None, now=None, c=None):
         if not pp.acknowledged:
             pp.acknowledged = True
             pp.save(update_fields=["acknowledged", "updated_at"])
-    if entitled and pp.order_id and "testPurchase" not in js:
+    if entitled and pp.order_id and not is_test:
         _charge_once(owner, pp.order_id, sku, amount, "subs")
     elif entitled and pp.order_id:
-        E.event(owner, "play.test_charge", "play", pp.order_id, sku=sku)
+        E.event(owner, "play.test_charge", "play", pp.order_id, sku=sku, test=True)
     return {"ok": True, "state": state, "sku": sku, "plan": d["plan"],
             "entitled": entitled, "expires_at": expiry.isoformat(), "user": owner}
 
@@ -394,8 +549,10 @@ def sub_status(user, now=None):
 
 # ----------------------------------------------------------------- packs
 def sync_pack(token, product_id, user=None, now=None, c=None):
-    """Verify + grant + consume one credit pack token (idempotent)."""
+    """Verify + grant + consume one credit pack token (idempotent). Grants
+    only in PURCHASED state; consumes only AFTER the grant succeeded."""
     from ..models import PlayPurchase
+    from . import orders as O
     now = now or timezone.now()
     c = c or cfg()
     sku = catalog.sku_for_play(product_id)
@@ -407,11 +564,14 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     th = token_hash(token)
     pp, _ = PlayPurchase.objects.get_or_create(
         token_hash=th, defaults={"user": owner, "purchase_token": token, "kind": "pack",
-                                 "product_id": product_id, "sku": sku})
+                                 "product_id": product_id, "sku": sku,
+                                 "owner_ref": account_id(owner)})
     pp.order_id = str(js.get("orderId") or pp.order_id)[:64]
     pp.state = {0: "PURCHASED", 1: "CANCELED", 2: "PENDING"}.get(ps, "UNKNOWN")
     pp.raw = {k: js.get(k) for k in ("purchaseState", "consumptionState", "orderId",
                                     "acknowledgementState", "purchaseType", "regionCode")}
+    ptype = js.get("purchaseType")
+    pp.is_test = ptype is not None and int(ptype) == 0
     pp.save()
     if ps == 2:
         return {"ok": False, "state": "pending", "sku": sku}
@@ -420,15 +580,23 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     granted = 0
     amount = Decimal(catalog.price(sku, "play") or 0)
     if not pp.granted:
+        oid = pp.order_id or ("tok:" + th[:40])
+        rp, rc, src = _real_price(pp.order_id, (amount, "BDT", "catalog"), c)
+        order, _ = O.record(channel="play", order_id=oid, user=owner, sku=sku, kind="pack",
+                            price=rp, currency=rc, price_source=src, is_test=pp.is_test,
+                            purchased_at=now, token_hash=th, owner_ref=pp.owner_ref,
+                            credits_planned=int((catalog.describe(sku) or {}).get("credits") or 0),
+                            raw={"purchaseType": ptype})
         granted = E.grant_pack(owner, channel="play", ref=ref_for(token), sku=sku,
-                               amount_bdt=amount, now=now)
+                               amount_bdt=amount, now=now, order=order)
         pp.granted = True
         pp.price_bdt = amount
         pp.save(update_fields=["granted", "price_bdt", "updated_at"])
-        if js.get("purchaseType") is None and pp.order_id:   # 0 = test purchase
+        if ptype is None and pp.order_id:   # 0 = test, 1 = promo, 2 = rewarded
             _charge_once(owner, pp.order_id, sku, amount, "packs")
         else:
-            E.event(owner, "play.test_charge", "play", pp.order_id or ref_for(token), sku=sku)
+            E.event(owner, "play.test_charge", "play", pp.order_id or ref_for(token), sku=sku,
+                    test=pp.is_test)
     if not pp.consumed and int(js.get("consumptionState", 0) or 0) == 0:
         try:
             consume_product(product_id, token, c)
@@ -438,6 +606,7 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     elif int(js.get("consumptionState", 0) or 0) == 1:
         pp.consumed = True
     pp.save(update_fields=["consumed", "updated_at"])
+    owner.refresh_from_db(fields=["ai_credits"])
     # credout: `consumed` tells the app whether Play still holds the item; when
     # the server-side consume failed the app consumes it itself (the grant is
     # once per token either way) so the same pack can be bought again.
@@ -447,34 +616,21 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
 
 
 # ----------------------------------------------------------------- refunds / voided
-def revoke_token(token, reason, now=None, order_id=""):
-    """Refund / revoke. `order_id` is the refunded order when Google names it
-    (voidedPurchaseNotification.orderId): a subscription has one order id per
-    renewal (GPA.x, GPA.x..0, GPA.x..1), so the refund reverses THAT order's
-    revenue, not the latest one. Without it (REVOKED RTDN) the latest order
-    is reversed. Each order's revenue is reversed at most once."""
+def revoke_token(token, reason, now=None, order_id="", refund_type=1, source="google"):
+    """A CONFIRMED refund / revoke of one order of a token (the caller has
+    re-checked Google first). Delegates to payments.refunds.void_order, which
+    removes that order's credits (spent ones -> negative balance), ends the
+    plan only when the refunded order is the CURRENT paid period (refunding
+    an old renewal never revokes the running subscription — audit #9),
+    reverses that order's revenue once, and counts the refund."""
     from ..models import PlayPurchase
+    from . import refunds as R
     now = now or timezone.now()
-    pp = PlayPurchase.objects.filter(token_hash=token_hash(token)).select_related("user").first()
+    pp = PlayPurchase.objects.filter(token_hash=token_hash(token)).first()
     if pp is None:
         return None
-    if not pp.revoked:
-        pp.revoked = True
-        pp.save(update_fields=["revoked", "updated_at"])
-        if pp.kind == "sub":
-            E.revoke_period("play", ref_for(token), reason, now)
-        else:
-            E.revoke_pack(pp.user, channel="play", ref=ref_for(token), reason=reason)
-    # reverse the revenue of the refunded order (once)
-    from ..models import PaymentEvent
-    ref = str(order_id or pp.order_id or "")[:80]
-    ch = PaymentEvent.objects.filter(kind="play.charge", ref=ref).first() if ref else None
-    if ch and ch.user_id not in (None, pp.user_id):
-        ch = None                                   # never another account's order
-    if ch and not PaymentEvent.objects.filter(kind="play.refund", ref=ch.ref).exists():
-        E.event(pp.user, "play.refund", "play", ch.ref, amount=-ch.amount_bdt,
-                net=-ch.net_bdt, reason=reason)
-        E.ledger("subs" if pp.kind == "sub" else "packs", -float(ch.net_bdt))
+    R.void_play(pp, order_id=order_id, reason=reason, refund_type=refund_type,
+                source=source, now=now)
     return pp
 
 
@@ -558,7 +714,7 @@ def handle_rtdn(envelope, now=None):
         data = json.loads(base64.b64decode(msg.get("data") or "").decode("utf-8"))
     except Exception:
         raise PlayError("bad_payload", 400)
-    if data.get("packageName") and data["packageName"] != c["package_name"]:
+    if data.get("packageName") != c["package_name"]:      # billing-v2: mandatory
         raise PlayError("wrong_package", 400)
     try:
         with transaction.atomic():
@@ -584,6 +740,19 @@ def _other_account(token):
     return "ignored:other_account"
 
 
+def _confirm_voided(token, order_id, now, c=None):
+    """Re-check a refund with Google (never trust the RTDN body, rule E):
+    the Voided Purchases API must list this token (and order)."""
+    start = int(((now or timezone.now()) - timedelta(days=30)).timestamp() * 1000)
+    for v in voided_list(start, c=c):
+        if str(v.get("purchaseToken") or "") != token:
+            continue
+        if order_id and v.get("orderId") and str(v["orderId"]) != order_id:
+            continue
+        return v
+    return None
+
+
 def _dispatch(data, now):
     if "testNotification" in data:
         return "test"
@@ -593,13 +762,12 @@ def _dispatch(data, now):
         nt = int(sn.get("notificationType") or 0)
         if not token:
             raise PlayError("bad_payload", 400)
-        if nt == 12:                                  # REVOKED (refund)
-            revoke_token(token, "play_revoked", now)
-            return "revoked"
+        if nt == 12:                                  # REVOKED: verify with Google
+            return _revoked(token, now)
         try:
             r = sync_subscription(token, None, now)
         except PlayError as e:
-            if e.reason in ("unknown_account", "not_found"):
+            if e.reason in ("unknown_account", "not_found", "unbound_purchase"):
                 return "ignored:" + e.reason       # never bought through our app
             if e.reason == "other_account":
                 return _other_account(token)
@@ -613,7 +781,8 @@ def _dispatch(data, now):
         try:
             sync_pack(token, sku, None, now)
         except PlayError as e:
-            if e.reason in ("unknown_account", "not_found", "unknown_product"):
+            if e.reason in ("unknown_account", "not_found", "unknown_product",
+                            "unbound_purchase"):
                 return "ignored:" + e.reason
             if e.reason == "other_account":
                 return _other_account(token)
@@ -621,10 +790,41 @@ def _dispatch(data, now):
         return "pack:purchased"
     vp = data.get("voidedPurchaseNotification")
     if vp:
-        revoke_token(str(vp.get("purchaseToken") or ""), "play_voided", now,
-                     order_id=str(vp.get("orderId") or ""))
+        token = str(vp.get("purchaseToken") or "")
+        oid = str(vp.get("orderId") or "")
+        v = _confirm_voided(token, oid, now)
+        if v is None:
+            E.event(None, "play.void_unconfirmed", "play", oid or ref_for(token))
+            return "voided:unconfirmed"            # the daily voided poll retries
+        revoke_token(token, "play_voided", now, order_id=oid or str(v.get("orderId") or ""),
+                     refund_type=int(vp.get("refundType") or v.get("refundType") or 1))
         return "voided"
     return "ignored"
+
+
+def _revoked(token, now):
+    """REVOKED RTDN: re-fetch the subscription. Only when Google confirms the
+    access is gone (or lists it as voided) is it treated as a refund."""
+    try:
+        js = get_subscription(token)
+        state = str(js.get("subscriptionState") or "")
+        items = js.get("lineItems") or []
+        exp = max((_ts(i.get("expiryTime")) for i in items if i.get("expiryTime")),
+                  default=None)
+        if state in ENTITLED_STATES and exp and exp > (now or timezone.now()):
+            E.event(None, "play.revoke_unconfirmed", "play", ref_for(token), state=state)
+            return "revoked:unconfirmed"
+        oid = order_id_of(js)
+    except PlayError as e:
+        if e.reason != "not_found":
+            raise
+        v = _confirm_voided(token, "", now)
+        if v is None:
+            E.event(None, "play.revoke_unconfirmed", "play", ref_for(token), state="not_found")
+            return "revoked:unconfirmed"
+        oid = str(v.get("orderId") or "")
+    revoke_token(token, "play_revoked", now, order_id=oid)
+    return "revoked"
 
 
 # ----------------------------------------------------------------- ack sweep

@@ -277,36 +277,17 @@ def funding_message(reason, lang):
 
 # ------------------------------------------------------------------ debit
 def _debit(user, credits, note, *, allow_ad_wallet):
-    """Atomic debit of `credits` from User.ai_credits (then the ad wallet for
-    free users). Unlike billing.charge this ALSO debits paid plans: Premium /
-    Business Photo Studio cloud jobs come out of the monthly pool."""
-    from .models import AdWallet, CreditLedger, User
+    """Atomic debit of `credits` through the bucketed engine (billing-v2:
+    plan -> free/rewarded/referral -> pack, row-locked). Rewarded ad credits
+    are part of the balance now, so `allow_ad_wallet` no longer changes
+    anything (kept for the call sites)."""
+    from . import credits as CR
     credits = int(credits or 0)
     if credits <= 0:
         return True
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        bal = int(locked.ai_credits or 0)
-        wallet = None
-        ad = 0
-        if allow_ad_wallet:
-            wallet = AdWallet.objects.select_for_update().get_or_create(user=locked)[0]
-            ad = wallet.spendable_credits()
-        if bal + ad < credits:
-            return False
-        from_bal = min(bal, credits)
-        from_ad = credits - from_bal
-        if from_bal:
-            User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - from_bal)
-            CreditLedger.objects.create(user=locked, delta=-from_bal, reason="consume",
-                                        note=note[:120])
-        if from_ad:
-            AdWallet.objects.filter(pk=wallet.pk).update(
-                balance_paisa=F("balance_paisa") - from_ad * 100)
-            CreditLedger.objects.create(user=locked, delta=-from_ad, reason="ad_spend",
-                                        note=note[:120])
+    res = CR.spend(user, credits, note=note[:120])
     user.refresh_from_db(fields=["ai_credits"])
-    return True
+    return bool(res["ok"])
 
 
 def _refund(user, credits, note):

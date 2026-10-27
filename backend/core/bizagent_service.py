@@ -304,14 +304,15 @@ def charge_wa_billable(channel, status_event):
     except IntegrityError:
         return 0
     user = channel.business.user
-    from .models import User, CreditLedger
+    # billing-v2: through the bucketed engine (row lock, owner spend order);
+    # takes what the balance covers, never below zero
+    from . import credits as CR
     with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        take = min(int(locked.ai_credits or 0), credits)
+        u = CR._lock(user)
+        CR._settle(u, timezone.now())
+        take = min(max(0, int(u.ai_credits or 0)), credits)
         if take:
-            User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - take)
-            CreditLedger.objects.create(user=locked, delta=-take, reason="consume",
-                                        note=("wa_%s" % cat)[:120])
+            CR.spend(None, take, note=("wa_%s" % cat)[:120], _u=u)
     sa = BZ.cfg_normalize(full_cfg().get("seller_agent"))
     try:
         billing.record_cost("whatsapp", float(sa["wa_cost_bdt"].get(cat, 0)))

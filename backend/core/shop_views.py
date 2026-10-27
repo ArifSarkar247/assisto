@@ -944,30 +944,15 @@ def _extra_camera_credits():
 
 
 def _debit_camera_credits(user, need, note=""):
-    """ATOMICALLY debit `need` purchased credits for an EXTRA camera entitlement,
-    writing one CreditLedger row. This is NOT an AI action (the included-camera
-    count already gave Business its free allowance), so it is debited here
-    directly rather than through billing.charge. Returns the amount actually charged (0 if
-    it couldn't cover it — the balance stays untouched then)."""
-    from django.db import transaction
-    from django.db.models import F
-    from .models import User, CreditLedger
+    """ATOMICALLY debit `need` credits for an EXTRA camera entitlement through
+    the bucketed engine (billing-v2). Returns the amount charged (0 if it
+    couldn't cover it — the balance stays untouched then)."""
+    from . import credits as CR
     need = int(need or 0)
     if need <= 0:
         return 0
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        bal = int(locked.ai_credits or 0)
-        if bal < need:
-            return 0
-        User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - need)
-        CreditLedger.objects.create(user=locked, delta=-need, reason="consume",
-                                    note=(note or "shop_extra_camera")[:120])
-    try:
-        user.ai_credits = bal - need
-    except Exception:
-        pass
-    return need
+    res = CR.spend(user, need, note=(note or "shop_extra_camera")[:120])
+    return need if res["ok"] else 0
 
 
 def _iso(dt):

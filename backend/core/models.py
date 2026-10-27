@@ -731,15 +731,41 @@ class CreditLedger(models.Model):
                ("ad_appopen", "ad: app open"),
                ("ad_interstitial", "ad: interstitial"),
                ("ad_spend", "spent ad-wallet credits"),
-               ("expire", "credits expired")]
+               ("expire", "credits expired"),
+               # billing v2 (owner order 27 Oct, rule A)
+               ("unlock", "staged unlock"),
+               ("revoke", "revoked (refund / void)"),
+               ("refund", "owner-approved refund"),
+               ("return", "failed call returned")]
+    BUCKETS = [("plan", "plan allowance"), ("pack", "pack"), ("free", "free"),
+               ("rewarded", "rewarded ad"), ("referral", "referral"),
+               ("legacy", "legacy (pre-buckets)"), ("debt", "refund debt")]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="credit_ledger")
     delta = models.IntegerField()               # +grant / -consume
     reason = models.CharField(max_length=20, choices=REASONS)
     note = models.CharField(max_length=120, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    # billing v2 — APPEND-ONLY: bucket + source of every change, the cached
+    # balance right after it, and a unique key that makes a grant idempotent.
+    bucket = models.CharField(max_length=10, blank=True, default="")
+    source_type = models.CharField(max_length=24, blank=True, default="")
+    source_id = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    grant_key = models.CharField(max_length=160, null=True, blank=True, unique=True)
+    balance_after = models.IntegerField(null=True, blank=True)
+    lot = models.ForeignKey("CreditLot", on_delete=models.SET_NULL, null=True,
+                            blank=True, related_name="ledger_rows")
 
     class Meta:
         ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        # append-only (rule A): a row is written once and never edited
+        if self.pk is not None and not getattr(self, "_allow_edit", False):
+            raise ValueError("CreditLedger is append-only")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValueError("CreditLedger is append-only")
 
 
 class WaitlistEntry(models.Model):
@@ -2569,6 +2595,9 @@ class CreditPurchase(models.Model):
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "status"]),
                    models.Index(fields=["user", "expires_at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["provider", "txn_ref"], condition=~models.Q(txn_ref=""),
+            name="bill2_creditpurchase_txn_once")]
 
 
 class AdWallet(models.Model):
@@ -4344,8 +4373,13 @@ class PlayPurchase(models.Model):
     """One Google Play purchase token (subscription or one-time pack). The
     token is bound to the FIRST account that verified it (unique token hash),
     so a token can never unlock a second account."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
+    # billing v2 (rule F): never cascade — a deleted account leaves a
+    # tombstone (user NULL, owner_ref kept) so a later refund still matches
+    # and the token can never be claimed by another account.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                              related_name="play_purchases")
+    owner_ref = models.CharField(max_length=40, blank=True, default="")
+    is_test = models.BooleanField(default=False)          # rule S
     token_hash = models.CharField(max_length=64, unique=True)
     purchase_token = models.TextField()
     kind = models.CharField(max_length=8)                 # sub|pack
@@ -4430,6 +4464,10 @@ class PaymentEvent(models.Model):
 
     class Meta:
         ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["kind", "ref"],
+            condition=models.Q(kind__in=("play.charge", "play.refund")),
+            name="bill2_play_revenue_once")]
 
 
 class WebhookReceipt(models.Model):
@@ -5658,3 +5696,166 @@ class RemittanceProfile(models.Model):
     missing_alert_month = models.CharField(max_length=7, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /budget-remittance ----
+
+
+
+# ====================================================================
+# ---- billing-v2 ---- (owner order 27 Oct: BILLING, CREDIT AND REFUND
+# HARDENING, rules A-V; core/credits.py is the engine)
+class PaidOrder(models.Model):
+    """ONE row per real payment order (a Play orderId — every renewal has its
+    own — or an EPS merchant tx). Grants, refunds and the payment audit all key
+    off it. The user link survives account deletion as a tombstone."""
+    STATUS = [("paid", "paid"), ("refunded", "refunded"),
+              ("partial", "partially refunded"), ("voided", "voided by Google")]
+    channel = models.CharField(max_length=10)                 # play|gateway
+    order_id = models.CharField(max_length=80)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="paid_orders")
+    owner_ref = models.CharField(max_length=40, blank=True, default="")
+    token_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    sku = models.CharField(max_length=32, blank=True, default="")
+    kind = models.CharField(max_length=8)                     # sub|pack|seller
+    plan = models.CharField(max_length=16, blank=True, default="")
+    months = models.PositiveSmallIntegerField(default=0)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    currency = models.CharField(max_length=3, default="BDT")
+    price_source = models.CharField(max_length=16, blank=True, default="")
+    is_test = models.BooleanField(default=False)
+    purchased_at = models.DateTimeField()
+    period_start = models.DateTimeField(null=True, blank=True)
+    period_end = models.DateTimeField(null=True, blank=True)
+    credits_planned = models.IntegerField(default=0)
+    status = models.CharField(max_length=10, choices=STATUS, default="paid")
+    refunded_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    refund_source = models.CharField(max_length=10, blank=True, default="")  # owner|google
+    refunded_at = models.DateTimeField(null=True, blank=True)
+    raw = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-purchased_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["channel", "order_id"],
+                                               name="bill2_paid_order_once")]
+        indexes = [models.Index(fields=["user", "purchased_at"])]
+
+
+class CreditLot(models.Model):
+    """One grant of credits into ONE bucket. `remaining` is usable now (it is
+    part of User.ai_credits); `locked` is the staged-unlock part (not yet in
+    the balance). scheduled = a future annual month, not granted yet.
+    Invariant: sum(active remaining) == User.ai_credits == sum(ledger)."""
+    STATUS = [("scheduled", "scheduled"), ("active", "active"), ("closed", "closed")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="credit_lots")
+    bucket = models.CharField(max_length=10)
+    granted = models.IntegerField(default=0)
+    remaining = models.IntegerField(default=0)
+    locked = models.IntegerField(default=0)
+    unlocks_at = models.DateTimeField(null=True, blank=True)
+    spent = models.IntegerField(default=0)
+    starts_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, default="active")
+    close_reason = models.CharField(max_length=40, blank=True, default="")
+    source_type = models.CharField(max_length=24, blank=True, default="")
+    source_id = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    order = models.ForeignKey(PaidOrder, on_delete=models.SET_NULL, null=True, blank=True,
+                              related_name="lots")
+    grant_key = models.CharField(max_length=160, null=True, blank=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["user", "status", "bucket"]),
+                   models.Index(fields=["status", "expires_at"]),
+                   models.Index(fields=["status", "unlocks_at"])]
+
+
+class CreditAccount(models.Model):
+    """Per-user refund / abuse state (rule L): Google refunds counted, a
+    second one blocks new purchases until the owner unblocks."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="credit_account")
+    refund_count = models.PositiveIntegerField(default=0)
+    flagged = models.BooleanField(default=False)
+    flag_reason = models.CharField(max_length=120, blank=True, default="")
+    purchase_blocked = models.BooleanField(default=False)
+    blocked_at = models.DateTimeField(null=True, blank=True)
+    unblocked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                     blank=True, related_name="+")
+    unblocked_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class RefundRequest(models.Model):
+    """A user's refund request (rule K). It never refunds by itself; the owner
+    decides in Owner Admin -> Payments -> Refund requests."""
+    STATUS = [("pending", "pending"), ("approved", "approved"),
+              ("manual", "approved - manual step left"), ("rejected", "rejected")]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="refund_requests")
+    order = models.ForeignKey(PaidOrder, on_delete=models.SET_NULL, null=True,
+                              related_name="refund_requests")
+    reason = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUS, default="pending")
+    requested_at = models.DateTimeField(default=timezone.now)
+    snapshot = models.JSONField(default=dict, blank=True)   # numbers at request time
+    decided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="+")
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decision_note = models.CharField(max_length=300, blank=True, default="")
+    approved_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    action = models.CharField(max_length=16, blank=True, default="")
+    result = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-requested_at", "-id"]
+
+
+class FreeGrantClaim(models.Model):
+    """Anti-farming tombstone (rule P): one row per (kind, hashed phone /
+    device) that ever received a free grant. No user link, never deleted, so
+    delete + re-signup on the same phone or device cannot claim again."""
+    kind = models.CharField(max_length=16)          # founding|trial|referral
+    key_hash = models.CharField(max_length=64)       # sha256 of ph:/dev:
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["kind", "key_hash"],
+                                               name="bill2_free_claim_once")]
+
+
+class EntitlementGrant(models.Model):
+    """A plan / credit grant that is NOT a verified payment: owner edit, Play
+    reviewer seed, founding, trial, referral. Recorded with actor + reason and
+    never counted as revenue (owner order 27 Oct, add-on)."""
+    SOURCES = [("owner_grant", "owner grant"), ("play_reviewer", "Play reviewer"),
+               ("founding", "founding"), ("trial", "trial"), ("referral", "referral"),
+               ("system", "system"), ("migration", "migration")]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="entitlement_grants")
+    source = models.CharField(max_length=16, choices=SOURCES)
+    plan = models.CharField(max_length=16, blank=True, default="")
+    starts_at = models.DateTimeField(default=timezone.now)
+    ends_at = models.DateTimeField(null=True, blank=True)
+    credits = models.IntegerField(default=0)
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                              related_name="+")
+    reason = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "ends_at"])]
+
+
+class BillingReport(models.Model):
+    """Saved output of a daily billing job (reconcile, voided poll, credits
+    verify, profit guard, entitlements audit) for Owner Admin."""
+    kind = models.CharField(max_length=24, db_index=True)
+    ok = models.BooleanField(default=True)
+    summary = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+# ---- /billing-v2 ----

@@ -78,28 +78,32 @@ class ChargeInvariantTests(TestCase):
         r = billing.charge(self.u, STRONG)
         self.assertTrue(r["ok"])
         self.u.refresh_from_db()
-        self.assertEqual(self.u.ai_credits, 0)
+        # billing-v2: whole wallet credits moved into the `rewarded` bucket
+        # (one ledger row, balance == ledger); the spend took the 1 free
+        # credit first, then rewarded; 1 rewarded credit + 50 paisa remain
+        self.assertEqual(self.u.ai_credits, 1)
         w = AdWallet.objects.get(user=self.u)
-        self.assertEqual(w.balance_paisa, (self.need) * 100 + 50 - (self.need - 1) * 100)
-        self.assertGreaterEqual(w.balance_paisa, 0)
+        self.assertEqual(w.balance_paisa, 50)
         reasons = sorted(CreditLedger.objects.filter(user=self.u)
                          .values_list("reason", flat=True))
-        self.assertEqual(reasons, ["ad_spend", "consume"])
+        self.assertEqual(reasons, ["consume", "consume", "rewarded"])
 
     def test_sub_credit_ad_paisa_is_not_spendable(self):
         self._set(self.need - 1, ad_paisa=99)   # 0.99 credit in the wallet
         self.assertFalse(billing.charge(self.u, STRONG)["ok"])
         self.assertEqual(AdWallet.objects.get(user=self.u).balance_paisa, 99)
 
-    def test_paid_user_cannot_spend_ad_wallet(self):
+    def test_paid_user_wallet_credits_are_rewarded_bucket(self):
         User.objects.filter(pk=self.u.pk).update(
             plan="premium", plan_until=timezone.now() + timedelta(days=30))
         self.u.refresh_from_db()
         with mock.patch.object(billing, "ensure_monthly_pool", return_value=0):
             self._set(0, ad_paisa=10_000)
             r = billing.charge(self.u, STRONG)
-        self.assertFalse(r["ok"])
-        self.assertEqual(AdWallet.objects.get(user=self.u).balance_paisa, 10_000)
+        # billing-v2: whole wallet credits are the `rewarded` bucket of the
+        # balance for everyone (spend order plan -> free/rewarded -> pack)
+        self.assertTrue(r["ok"])
+        self.assertEqual(AdWallet.objects.get(user=self.u).balance_paisa, 0)
 
     def test_guard_over_blocks_free_costly_but_never_safety(self):
         self._set(100)
@@ -155,17 +159,17 @@ class TopupAndExpiryTests(TestCase):
         self.assertEqual(self.u.ai_credits, 55)
         self.assertEqual(CreditLedger.objects.filter(user=self.u).count(), 1)
 
-    def test_expire_never_below_zero_and_runs_once(self):
+    def test_packs_never_expire(self):
+        # billing-v2 rule B: purchased pack credits NEVER expire
         now = timezone.now()
         CreditPurchase.objects.create(user=self.u, pack_id="p50", price_bdt=50,
                                       credits=55, provider="eps",
                                       status="confirmed", granted=True,
                                       expires_at=now - timedelta(days=1))
         User.objects.filter(pk=self.u.pk).update(ai_credits=7)   # spent most
-        self.assertEqual(billing.expire_credits(now), 7)
         self.assertEqual(billing.expire_credits(now), 0)
         self.u.refresh_from_db()
-        self.assertEqual(self.u.ai_credits, 0)
+        self.assertEqual(self.u.ai_credits, 7)
 
 
 class NoWithdrawalRouteTests(TestCase):

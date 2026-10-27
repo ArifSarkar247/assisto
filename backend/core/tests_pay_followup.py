@@ -134,6 +134,8 @@ class PlayRenewalRefundTests(PlayHBase):
         self.assertEqual(self.charges(), 3)
 
         def voided(order, mid):
+            if order != "GPA.unknown":
+                self.g.void("t", order)             # Google lists it (rule E)
             v = {"packageName": "com.assisto.assisto",
                  "voidedPurchaseNotification": {"purchaseToken": "t", "orderId": order,
                                                 "productType": 1, "refundType": 1}}
@@ -149,13 +151,16 @@ class PlayRenewalRefundTests(PlayHBase):
         self.assertEqual(sorted(refunds.all()), [self.ORD, self.ORD + "..0"])
         voided("GPA.unknown", "v3")                        # unknown order: nothing
         self.assertEqual(refunds.all().count(), 2)
-        self.assertEqual(_plan(self.u), "free")
+        # billing-v2 (audit #9): refunding OLD renewals never revokes the
+        # subscription that is running now (order ..1)
+        self.assertEqual(_plan(self.u), "premium")
 
     def test_revoked_without_order_reverses_latest(self):
         self.g.subs["t"] = T.sub_body(self.u, order=self.ORD)
         self.verify("t")
         self.g.subs["t"] = T.sub_body(self.u, order=self.ORD + "..0", ack=True, expiry_days=60)
         self.rtdn_push(self.sn("t", 2), mid="r1")
+        self.g.subs["t"]["subscriptionState"] = "SUBSCRIPTION_STATE_EXPIRED"   # Google's truth
         self.rtdn_push(self.sn("t", 12), mid="rev")
         self.rtdn_push(self.sn("t", 12), mid="rev2")
         self.assertEqual([e.ref for e in PaymentEvent.objects.filter(kind="play.refund")],

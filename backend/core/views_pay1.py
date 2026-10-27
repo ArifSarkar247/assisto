@@ -171,3 +171,48 @@ class GatewayIpnView(APIView):
 def _ip(request):
     xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
     return (xff.split(",")[0].strip() if xff else request.META.get("REMOTE_ADDR", ""))[:45]
+
+
+# ---- billing-v2 ---- (owner order 27 Oct) API for the app's Plan & credits
+# and Help screens. Contract: owner_actions/BILLING_FIXES_BN.md.
+class CreditsStateView(APIView):
+    """GET credits/state -> {balance, now_usable, locked, unlocks_at, negative,
+    blocked, purchase_blocked, buckets, plan_expires_at, unlock_pct,
+    unlock_hours, refund_window_hours, server_time}"""
+    def get(self, request):
+        from . import credits as CR
+        return Response(CR.state(request.user))
+
+
+class RefundListView(APIView):
+    """GET credits/refunds -> {window_hours, policy, purchases[], requests[]}
+    POST credits/refunds {purchase_id, reason} -> 201 {ok, request} or
+    409 {ok:false, reason: outside_window|already_requested|not_refundable,
+    message, policy}"""
+    def get(self, request):
+        from .payments import refunds as R
+        return Response(R.refundable(request.user, lang=req_lang(request)))
+
+    def post(self, request):
+        from .payments import refunds as R
+        lang = req_lang(request)
+        d = request.data or {}
+        try:
+            pid = int(d.get("purchase_id") or 0)
+        except (TypeError, ValueError):
+            pid = 0
+        try:
+            r = R.create_request(request.user, pid, str(d.get("reason") or "")[:2000])
+        except R.RefundError as e:
+            msg = {"outside_window": ("রিফান্ডের সময় শেষ। নিচের নীতিটি দেখুন।",
+                                      "The refund window has passed. See the policy below."),
+                   "already_requested": ("এই কেনাকাটার জন্য আগেই অনুরোধ করা হয়েছে।",
+                                         "A request for this purchase was already sent."),
+                   "not_refundable": ("এই কেনাকাটা রিফান্ড করা যায় না।",
+                                      "This purchase can't be refunded."),
+                   "not_found": ("খুঁজে পাওয়া যায়নি।", "Not found.")}.get(e.reason, ("", ""))
+            from .i18n import pick
+            return Response({"ok": False, "reason": e.reason, "message": pick(lang, *msg),
+                             "policy": R.policy(lang)}, status=e.status)
+        return Response({"ok": True, "request": R._req_json(r)}, status=status.HTTP_201_CREATED)
+# ---- /billing-v2 ----

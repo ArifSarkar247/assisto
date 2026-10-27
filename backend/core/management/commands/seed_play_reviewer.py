@@ -49,9 +49,14 @@ class Command(BaseCommand):
             user.set_password(password)
         now = timezone.now()
         user.is_active = True
-        user.plan = "premium"
-        user.plan_until = now + timedelta(days=365)
         user.save()
+        # billing-v2 (owner 27 Oct): the reviewer's Premium is a RECORDED
+        # system grant (EntitlementGrant source=play_reviewer), never a
+        # payment and never revenue — tagged as such in Owner Admin.
+        from core.payments import entitlement as E
+        E.owner_grant(user, plan="premium", until=now + timedelta(days=365),
+                      source="play_reviewer", actor=None,
+                      reason="seed_play_reviewer: Google Play review demo account")
 
         # Sample data (replaced on every run so it always looks fresh).
         Reminder.objects.filter(user=user).delete()
