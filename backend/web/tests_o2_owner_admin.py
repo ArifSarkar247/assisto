@@ -518,6 +518,35 @@ class PricingAdsTests(OwnerBase):
         # the pricing engine's own audit trail is written too (same function)
         self.assertEqual(billing.get_config().audit[0]["reason"], "launch")
 
+    def test_plans_v2_card_edits_limits_and_refuses_out_of_range(self):
+        """plans-v2: the Owner Admin card (bn/en) edits every limit, bounded."""
+        from core import billing
+        r = self.c.get("/owner/pricing?lang=en")
+        self.assertContains(r, 'id="plans_v2"')
+        self.assertContains(r, 'name="plans_v2.free_crm_contacts"')
+        self.assertContains(self.c.get("/owner/pricing?lang=bn"), 'id="plans_v2"')
+        pv = billing.cfg()["plans_v2"]
+        data = {"section": "plans_v2", "reason": "test"}
+        for k, v in pv.items():
+            if isinstance(v, bool):
+                if v:
+                    data["plans_v2.%s" % k] = "on"
+            else:
+                data["plans_v2.%s" % k] = str(v)
+        data["plans_v2.free_crm_contacts"] = "25"
+        data["plans_v2.business_crm_contacts"] = "60000"
+        data.pop("plans_v2.premium_crm_followup_reminders", None)   # untick
+        r = self.post("/owner/pricing", data)
+        self.assertEqual(r.status_code, 302, r.content[:400])
+        c = billing.cfg()["plans_v2"]
+        self.assertEqual((c["free_crm_contacts"], c["business_crm_contacts"]), (25, 60000))
+        self.assertFalse(c["premium_crm_followup_reminders"])
+        self.assertTrue(OwnerAudit.objects.filter(action="pricing.update").exists())
+        data["plans_v2.free_crm_contacts"] = "999999"                 # out of bounds
+        r = self.post("/owner/pricing", data)
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(billing.cfg()["plans_v2"]["free_crm_contacts"], 25)
+
     def test_invalid_rejected_by_engine(self):
         from core import billing
         r = self.post("/owner/pricing", {"section": "scalars", "s.margin": "0.1"})

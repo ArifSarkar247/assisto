@@ -449,6 +449,60 @@ class WebCrmTests(_Crm):
         self.org_for(f)
         self.assertEqual(self.web(f).post("/crm/leads/new", {"name": "L"}).status_code, 302)
 
+    def test_web_over_limit_legacy_data_readable_and_editable(self):
+        u = user("free")
+        org = self.org_for(u)
+        self.contacts(org, 25)                              # made before plans-v2
+        lead = Lead.objects.create(org=org, name="Legacy")
+        pipe = org.pipelines.filter(is_default=True).first()
+        deal = Deal.objects.create(org=org, title="Old deal", pipeline=pipe,
+                                   stage=pipe.stages.first())
+        c = self.web(u)
+        self.assertEqual(c.get("/crm/contacts").status_code, 200)
+        self.assertEqual(c.get("/crm/leads/%d" % lead.id).status_code, 200)
+        self.assertEqual(c.get("/crm/deals/%d" % deal.id).status_code, 200)
+        self.assertEqual(c.post("/crm/leads/%d/update" % lead.id,
+                                {"status": "contacted"}).status_code, 302)
+        lead.refresh_from_db()
+        self.assertEqual(lead.status, "contacted")
+        self.assertEqual(c.post("/crm/deals/%d/update" % deal.id,
+                                {"title": "Renamed"}).status_code, 302)
+        deal.refresh_from_db()
+        self.assertEqual(deal.title, "Renamed")
+        # a NEW follow-up date is Premium; refused without changing anything
+        r = c.post("/crm/deals/%d/update" % deal.id,
+                   {"title": "X", "next_step_due": "2026-11-05"})
+        self.assertEqual(r.status_code, 402)
+        deal.refresh_from_db()
+        self.assertEqual((deal.title, deal.next_step_due), ("Renamed", None))
+        self.assertEqual(c.post("/crm/contacts/new", {"name": "N"}).status_code, 402)
+        self.assertEqual(Contact.objects.filter(org=org).count(), 25)
+
+    def test_web_import_respects_the_limit(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        u = user("premium")
+        org = self.org_for(u)
+        set_cfg(premium_crm_contacts=3)
+        c = self.web(u)
+        csv = b"name,phone\nA,1\nB,2\nC,3\nD,4\n"
+        r = c.post("/crm/leads/import",
+                   {"file": SimpleUploadedFile("l.csv", csv, "text/csv")})
+        self.assertEqual(r.status_code, 402)
+        self.assertFalse(Lead.objects.filter(org=org).exists())
+
+    def test_web_staff_follows_the_org_owner(self):
+        free_owner, rich_staff = user("free"), user("business")
+        org = self.org_for(free_owner)
+        CrmMember.objects.create(org=org, user=rich_staff, role=CrmMember.SALES)
+        self.assertEqual(self.web(rich_staff).post("/crm/leads/new",
+                                                   {"name": "L"}).status_code, 402)
+        biz_owner, free_staff = user("business"), user("free")
+        org2 = self.org_for(biz_owner, "Rich")
+        CrmMember.objects.create(org=org2, user=free_staff, role=CrmMember.MANAGER)
+        self.assertEqual(self.web(free_staff).post("/crm/leads/new",
+                                                   {"name": "L"}).status_code, 302)
+        self.assertTrue(Lead.objects.filter(org=org2).exists())
+
 
 # ================================================================ shop / business
 class _Shop(_V2):
