@@ -194,6 +194,12 @@ def _tick(run, ctx):
         if plan.get("done") and tool_steps and all(s.state == "done" for s in tool_steps):
             _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
             return "stop"
+        # the user REJECTED a card of a finished plan: answer from templates
+        # (0 credits) instead of paying for another planner call
+        if plan.get("done") and tool_steps and all(s.state in ("done", "rejected") for s in tool_steps) \
+                and any(s.state == "rejected" and s.error_code == "rejected_by_user" for s in tool_steps):
+            _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
+            return "stop"
     return _plan(run, steps, ctx)
 
 
@@ -390,6 +396,10 @@ def _template_answer(run, tool_steps, lang):
     lines = []
     for s in tool_steps:
         t = TL.get(s.tool)
+        if t and s.state == "rejected":
+            lines.append("“%s” বাতিল করা হয়েছে — কিছু করা হয়নি।" % t.label_bn if lang == "bn"
+                         else "“%s” was rejected — nothing was done." % t.label_en)
+            continue
         out = T.unseal(s.result_sealed).get("r")
         if t and out is not None:
             lines.append(t.summarize(out, lang))
