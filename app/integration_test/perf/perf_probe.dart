@@ -247,6 +247,26 @@ class PerfFlowCtx {
       };
 }
 
+/// What is on screen when a flow stops (no screenshots reach us when the
+/// artifact download is capped): top route, app state, first visible texts.
+String _diag(RFlow f) {
+  try {
+    final top = PerfFlowCtx.topRoute();
+    final texts = find
+        .byType(Text)
+        .evaluate()
+        .map((e) => (e.widget as Text).data ?? '')
+        .where((s) => s.trim().isNotEmpty)
+        .take(12)
+        .join(' | ');
+    final a = f.h.app;
+    return 'route=${top?.settings.name ?? top.runtimeType} loading=${a?.loading} '
+        'loggedIn=${a?.loggedIn} onboarded=${a?.onboarded} texts=$texts';
+  } catch (e) {
+    return 'diag failed: $e';
+  }
+}
+
 /// PERF_ONLY filter (flow id prefixes); null = every flow.
 List<String>? perfOnly;
 
@@ -271,6 +291,7 @@ void perfFlow(String id, String board, String feature,
       ok = true;
     } catch (e) {
       p.notes.add('stopped: ${'$e'.split('\n').first}');
+      p.notes.add('screen: ${_diag(f)}');
       rethrow;
     } finally {
       p.out['ok'] = ok;
