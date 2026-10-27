@@ -221,20 +221,23 @@ class MainActivity : FlutterFragmentActivity() {
             false
         }
         setOverLockScreen(isCall)
-        // ring-everywhere: the call screen takes over from the native ring
-        // (Answer / tap / full-screen) -> the Telecom ringing call ends here.
-        if (isCall && callId.isNotEmpty()) {
+        // calls-a: ONLY Accept takes over from the native ring (Telecom marked
+        // answered + the ring notification cancelled on the tap). A tap /
+        // full-screen launch just SHOWS the ringing screen: the native ring
+        // (insistent notification sound + Telecom RINGING) keeps ringing until
+        // Accept / Decline / timeout / call_cancel — before calls-a every call
+        // launch ended the Telecom ring here, and over the lock screen that
+        // left a silent ringing screen.
+        if (isCall && callId.isNotEmpty() &&
+            i?.getStringExtra("actionId") ==
+            com.assisto.assisto.calls.IncomingCall.ACTION_ACCEPT &&
+            ((i?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
             try {
                 com.assisto.assisto.calls.TelecomBridge.answered(callId)
             } catch (e: Throwable) {
             }
-            // calls-a: Accept -> the ringtone stops on the tap, not seconds
-            // later when Dart has started.
             try {
-                if (i?.getStringExtra("actionId") ==
-                    com.assisto.assisto.calls.IncomingCall.ACTION_ACCEPT) {
-                    com.assisto.assisto.calls.CallLaunch.answeredHere(applicationContext, callId)
-                }
+                com.assisto.assisto.calls.CallLaunch.answeredHere(applicationContext, callId)
             } catch (e: Throwable) {
             }
         }

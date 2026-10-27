@@ -523,7 +523,11 @@ class PushService {
     // (MainActivity) usually got there first, then this copy is a no-op.
     if (p.isCall &&
         (action == null || action == PushNotifier.actionAccept)) {
-      unawaited(PushNotifier.cancelCall(p.callId));
+      // calls-a: only Accept stops the ring; a tap / full-screen launch
+      // shows the ringing screen while the phone KEEPS ringing.
+      if (action == PushNotifier.actionAccept) {
+        unawaited(PushNotifier.cancelCall(p.callId));
+      }
       final l = CallLaunch(
           action: action == PushNotifier.actionAccept
               ? CallLaunch.actionAccept

@@ -43,9 +43,17 @@ class CallEntryActivity : Activity() {
         try {
             val src = intent
             if (savedInstanceState == null && CallLaunch.parse(src) != null) {
+                // calls-a CI fix (API 30 warm Accept): do NOT copy this
+                // activity's launch flags (the system adds EXCLUDE_FROM_RECENTS
+                // for it, and with that Android 11 started a SECOND
+                // MainActivity + Flutter engine instead of re-using the
+                // running one). NEW_TASK brings Assisto's own task forward;
+                // CLEAR_TOP + SINGLE_TOP delivers onNewIntent to the running
+                // MainActivity (warm) or creates it (cold).
                 val fwd = Intent(src)
                     .setClass(this, com.assisto.assisto.MainActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                fwd.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(fwd)
                 Log.i("AssistoCall", "CALL_ENTRY_FORWARD ok")
             }

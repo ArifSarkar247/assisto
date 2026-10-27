@@ -280,6 +280,11 @@ object IncomingCall {
     private fun nm(ctx: Context): NotificationManager? =
         ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
 
+    /** calls-a: is the native ring for [callId] still posted (= audible)? */
+    @JvmStatic
+    fun ringActive(ctx: Context, callId: String): Boolean =
+        isActive(ctx, notificationId(callId))
+
     private fun isActive(ctx: Context, nid: Int): Boolean = try {
         nm(ctx)?.activeNotifications?.any { it.id == nid && it.tag == null } == true
     } catch (_: Throwable) {

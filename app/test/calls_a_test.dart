@@ -13,6 +13,9 @@
 //   keeps the controller alive, ads blocked during a full-screen call.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
+
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +29,7 @@ import 'package:assisto/calls/call_runtime.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
+import 'package:assisto/push/push_service.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/state.dart';
 
@@ -150,6 +154,11 @@ Future<void> _finish(WidgetTester tester, AppState app) async {
   await tester.pumpAndSettle(const Duration(seconds: 1));
 }
 
+/// Every call on com.assisto/calls (method + call_id) and what ringActive
+/// answers.
+final List<String> nativeCalls = [];
+bool? nativeRingActive = true;
+
 void _mockChannels(List<String> lockCalls) {
   final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   m.setMockMethodCallHandler(const MethodChannel('com.assisto/lockscreen'),
@@ -158,7 +167,12 @@ void _mockChannels(List<String> lockCalls) {
     return null;
   });
   m.setMockMethodCallHandler(const MethodChannel('com.assisto/calls'),
-      (c) async => null);
+      (c) async {
+    final a = c.arguments;
+    nativeCalls.add('${c.method}:${a is Map ? (a['call_id'] ?? '') : ''}');
+    if (c.method == 'ringActive') return nativeRingActive;
+    return null;
+  });
 }
 
 void main() {
@@ -166,6 +180,9 @@ void main() {
 
   setUp(() {
     lockCalls = [];
+    nativeCalls.clear();
+    nativeRingActive = true;
+    debugRingActive = null;
     SharedPreferences.setMockInitialValues({});
     _mockChannels(lockCalls);
     CallLaunchRouter.instance.resetForTest();
@@ -391,6 +408,169 @@ void main() {
               .openWarm(CallLaunch(action: 'accept', payload: _p())),
           isFalse);
       expect(CallLaunchRouter.instance.handled('501'), isFalse);
+    });
+  });
+
+  group('CI fix 1: opening the ringing screen keeps the phone ringing', () {
+    Future<void> openFromNotification(WidgetTester tester, AppState app,
+        GlobalKey<NavigatorState> nav) async {
+      CallLaunchRouter.instance.attach(nav);
+      await tester.pumpWidget(_App(nav: nav, app: app));
+      // full-screen intent / tap while the app runs (lock screen, warm)
+      CallLaunchRouter.instance
+          .openWarm(CallLaunch(action: 'open', payload: _p()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      // let every platform-channel round trip finish (a cancel would land)
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(find.byType(IncomingCallScreen), findsOneWidget);
+    }
+
+    testWidgets('native ring still posted -> it is KEPT (never cancelled on '
+        '"open"), no second in-app ringtone', (tester) async {
+      final nav = GlobalKey<NavigatorState>();
+      final app = _starting();
+      await openFromNotification(tester, app, nav);
+      expect(nativeCalls, contains('ringActive:501'));
+      expect(nativeCalls.where((c) => c.startsWith('cancelRing')), isEmpty,
+          reason: 'before the fix the open path cancelled the ring');
+      expect(nativeCalls.where((c) => c.startsWith('startRingtone')), isEmpty);
+      final st = tester.state(find.byType(IncomingCallScreen));
+      expect((st as dynamic).ringingInApp, isFalse);
+      // Accept: NOW the ring stops
+      await tester.tap(find.byKey(const Key('incoming-accept')));
+      await tester.pump();
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(nativeCalls, contains('cancelRing:501'));
+      await _finish(tester, app);
+    });
+
+    testWidgets('native ring gone (OEM dropped it) -> rings IN-APP, never a '
+        'silent ringing screen; Decline stops everything', (tester) async {
+      nativeRingActive = false;
+      final nav = GlobalKey<NavigatorState>();
+      final app = _starting();
+      await openFromNotification(tester, app, nav);
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(nativeCalls.any((c) => c.startsWith('startRingtone')), isTrue);
+      final st = tester.state(find.byType(IncomingCallScreen));
+      expect((st as dynamic).ringingInApp, isTrue);
+      await tester.tap(find.byKey(const Key('incoming-decline')));
+      await tester.pumpAndSettle();
+      expect(nativeCalls, contains('stopRingtone:'));
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(nativeCalls, contains('cancelRing:501'));
+      expect(find.byType(IncomingCallScreen), findsNothing);
+      await _finish(tester, app);
+    });
+
+    testWidgets('caller hangs up / rings out while the screen is up -> the '
+        'native ring is stopped too', (tester) async {
+      final nav = GlobalKey<NavigatorState>();
+      final app = _starting();
+      await openFromNotification(tester, app, nav);
+      CallRuntime.instance.onPushCancel(_p());
+      await tester.pump();
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(nativeCalls, contains('cancelRing:501'));
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(find.byType(IncomingCallScreen), findsNothing);
+      await _finish(tester, app);
+    });
+
+    testWidgets('notification TAP response (flutter_local_notifications) '
+        'never cancels the ring; its Accept does', (tester) async {
+      final nav = GlobalKey<NavigatorState>();
+      CallLaunchRouter.instance.attach(nav);
+      final app = _starting();
+      await tester.pumpWidget(_App(nav: nav, app: app));
+      PushService.instance.resetForTest();
+      PushService.instance.localResponseForTest(NotificationResponse(
+          notificationResponseType: NotificationResponseType.selectedNotification,
+          payload: _p().encode()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(find.byType(IncomingCallScreen), findsOneWidget);
+      expect(nativeCalls.where((c) => c.startsWith('cancelRing')), isEmpty);
+      PushService.instance.localResponseForTest(NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotificationAction,
+          actionId: 'accept',
+          payload: _p().encode()));
+      await tester.pump();
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump();
+      expect(nativeCalls, contains('cancelRing:501'));
+      expect(find.byType(CircleCallScreen), findsOneWidget);
+      PushService.instance.resetForTest();
+      await _finish(tester, app);
+    });
+
+    test('native contract: only ACCEPT answers Telecom / cancels the ring', () {
+      final a = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/'
+              'MainActivity.kt')
+          .readAsStringSync();
+      final i = a.indexOf('TelecomBridge.answered(callId)');
+      expect(i, greaterThan(0));
+      final guard = a.substring(a.lastIndexOf('if (isCall', i), i);
+      expect(guard, contains('IncomingCall.ACTION_ACCEPT'),
+          reason: 'a tap / full-screen "open" must keep the native ring');
+      expect(guard, contains('FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY'));
+    });
+  });
+
+  group('CI fix 2: warm Accept re-uses the running activity (API 30)', () {
+    test('CallEntryActivity sets its own flags (no copied EXCLUDE_FROM_RECENTS) '
+        'with CLEAR_TOP + SINGLE_TOP so MainActivity gets onNewIntent', () {
+      final k = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/'
+              'calls/CallEntryActivity.kt')
+          .readAsStringSync();
+      final m = RegExp(r'fwd\.flags\s*=\s*([^\n]+\n[^\n]+)').firstMatch(k);
+      expect(m, isNotNull, reason: 'flags must be SET, not added to a copy');
+      final f = m!.group(1)!;
+      expect(f, contains('FLAG_ACTIVITY_NEW_TASK'));
+      expect(f, contains('FLAG_ACTIVITY_CLEAR_TOP'));
+      expect(f, contains('FLAG_ACTIVITY_SINGLE_TOP'));
+      expect(k, isNot(contains('.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)')));
+    });
+
+    testWidgets('a warm Accept that arrives on the running engine opens the '
+        'call screen (native "callLaunch" handler, Dart side)', (tester) async {
+      final nav = GlobalKey<NavigatorState>();
+      CallLaunchRouter.instance.attach(nav);
+      CallNative.onCallLaunch = CallLaunchRouter.instance.onNative;
+      CallNative.listen();
+      final app = _starting();
+      await tester.pumpWidget(_App(nav: nav, app: app));
+      // exactly what CallsChannel.sendCallLaunch posts to Dart
+      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+              'com.assisto/calls',
+              const StandardMethodCodec().encodeMethodCall(MethodCall(
+                  'callLaunch', {
+                'action': 'accept',
+                'call_id': '501',
+                'payload': _p().encode(),
+              })),
+              (_) {});
+      await tester.pump();
+      expect(find.byType(CircleCallScreen), findsOneWidget);
+      expect(CallLaunchRouter.instance.decisions.last,
+          contains('entry=warmAccept action=accept id=501 result=top=call'));
+      await _finish(tester, app);
     });
   });
 

@@ -120,6 +120,11 @@ class CallNative {
       _invoke<bool>('setNativeConfig',
           {'api_base': apiBase, 'app_version': appVersion});
 
+  /// calls-a: is the native ring notification for [callId] still posted?
+  /// null = can't tell (no native side / no activity yet).
+  static Future<bool?> ringActive(String callId) =>
+      _invoke<bool>('ringActive', {'call_id': callId});
+
   /// Stop the native ring + its Telecom call for [callId] (idempotent).
   static Future<void> cancelRing(String callId) =>
       _invoke<bool>('cancelRing', {'call_id': callId});
