@@ -164,6 +164,12 @@ def run():
         need("setup: home site created", r.status_code == 201, r.text)
         site = r.json()
         site_id, enroll = site["id"], site["enrollment_token"]
+        # Open all day (open == close) so the person/zone checks below don't
+        # depend on the clock: with the default 09:00-22:00 Dhaka hours a run
+        # at night is correctly classed after_hours and the person check fails.
+        r = owner.patch(API + "/shop/sites/%d" % site_id,
+                        json={"hours": {"open": "00:00", "close": "00:00"}}, timeout=10)
+        need("setup: site open all day (clock-independent run)", r.status_code == 200, r.text)
         r = owner.post(API + "/shop/sites/%d/viewers" % site_id,
                        json={"phone": FAMILY_PHONE}, timeout=10)
         check("setup: family viewer added", r.status_code == 201, r.text)
