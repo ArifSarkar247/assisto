@@ -22987,5 +22987,256 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "pbsTitle": "Probashi family plan",
+  "pbsIntro": "Living abroad? Pay once and your family in Bangladesh gets Premium too.",
+  "pbsIncludesTitle": "What the plan includes",
+  "pbsCreditsNotCash": "Credits are for AI features only. They are not money and cannot be withdrawn.",
+  "pbsNotOnPlay": "This plan is not available on Google Play yet. We will show the price here when it is.",
+  "pbsBuyMonthly": "Monthly — {price}",
+  "@pbsBuyMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsBuyAnnual": "Yearly — {price}",
+  "@pbsBuyAnnual": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsBuyDone": "Done! Your Probashi plan is on.",
+  "pbsBuyPending": "Payment is being confirmed. It will turn on by itself.",
+  "pbsBuyCancelled": "Purchase cancelled.",
+  "pbsInviteFrom": "{name} invited you",
+  "@pbsInviteFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsInviteBody": "Join their Probashi family to get Premium and use the family's shared credits. You choose what they can see.",
+  "pbsAccept": "Accept",
+  "pbsDecline": "Decline",
+  "pbsDeclineTitle": "Decline the invite?",
+  "pbsDeclineBody": "They will see that you did not join. They can invite you again later.",
+  "pbsConsentTitle": "What may they see?",
+  "pbsConsentBody": "Everything is off until you turn it on. You can change this any time.",
+  "pbsConsentJourneys": "Safe Journeys",
+  "pbsConsentJourneysHint": "When your recent journeys started and if you arrived. No map trail.",
+  "pbsConsentSos": "Safety alerts and SOS",
+  "pbsConsentSosHint": "A list of your SOS and safety alerts. An SOS always reaches family anyway.",
+  "pbsConsentBudget": "Money received and budget",
+  "pbsConsentBudgetHint": "This month's totals only: money received, budget and spending. Not each entry.",
+  "pbsConsentReminders": "Reminders done",
+  "pbsConsentRemindersHint": "Only how many reminders you finished this month.",
+  "pbsConsentReport": "Monthly family report",
+  "pbsConsentReportHint": "Put what you share above into their monthly report.",
+  "pbsJoin": "Join",
+  "pbsJoined": "You joined the Probashi family.",
+  "pbsMemberTitle": "In {name}'s Probashi family",
+  "@pbsMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsPaused": "Paused: the payer's plan payment is not active now. It comes back by itself when it is fixed.",
+  "pbsUsedOfCap": "{used} of {cap} credits used this month",
+  "@pbsUsedOfCap": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsPoolLeftShort": "{left} credits left in the family pool",
+  "@pbsPoolLeftShort": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsChangeSharing": "What I share",
+  "pbsLeave": "Leave",
+  "pbsLeaveTitle": "Leave the Probashi family?",
+  "pbsLeaveBody": "Premium and the shared credits stop at once. You cannot join another family for a while.",
+  "pbsPoolTitle": "Shared credit pool",
+  "pbsPoolLeft": "{left} of {total} credits left",
+  "@pbsPoolLeft": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsWhoSpent": "Who used what",
+  "pbsSeatsTitle": "Family seats ({used}/{max})",
+  "@pbsSeatsTitle": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsNoSeats": "No one yet. Invite family from My Circle.",
+  "pbsSlotFreeAt": "A seat frees up on {date}.",
+  "@pbsSlotFreeAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsInvite": "Invite family",
+  "pbsInvited": "Invite sent.",
+  "pbsSeatActions": "Seat options",
+  "pbsSetCap": "Monthly credit limit",
+  "pbsCapHint": "How many pool credits this person may use each month.",
+  "pbsLess": "Less",
+  "pbsMore": "More",
+  "pbsTransfer": "Give seat to someone else",
+  "pbsTransferTitle": "Move this seat?",
+  "pbsTransferBody": "{from} loses the seat now and {to} gets an invite.",
+  "@pbsTransferBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsRemove": "Remove",
+  "pbsRemoveTitle": "Remove from the family?",
+  "pbsRemoveBody": "{name} loses Premium and the shared credits now. This seat can be given again after {days} days.",
+  "@pbsRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsCancelInvite": "Cancel invite",
+  "pbsCancelInviteBody": "The invite is withdrawn. The seat is free at once.",
+  "pbsPickTitle": "Choose from My Circle",
+  "pbsPickBody": "Seats are for family in Bangladesh who are connected with you in My Circle.",
+  "pbsPickEmpty": "No one in My Circle yet. Add family in My Circle first.",
+  "pbsMoreTitle": "Family",
+  "pbsFamilyTitle": "Family dashboard",
+  "pbsFamilyEmpty": "No family member has joined yet.",
+  "pbsLocationOn": "Shares location with you",
+  "pbsLocationOff": "Not sharing location with you",
+  "pbsNotShared": "{what}: not shared by {name}",
+  "@pbsNotShared": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsJourneysMonth": "{n} Safe Journeys this month",
+  "@pbsJourneysMonth": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsJourneyArrived": "arrived",
+  "pbsJourneyActive": "on the way",
+  "pbsJourneyEnded": "ended",
+  "pbsSafetyMonth": "{n} safety alerts / SOS this month",
+  "@pbsSafetyMonth": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsMoneyLine": "This month: received {got}, budget {plan}, spent {spent}",
+  "@pbsMoneyLine": {
+    "placeholders": {
+      "got": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsMoneyUnavailable": "Money totals could not be read right now.",
+  "pbsRemindersDone": "{n} reminders done this month",
+  "@pbsRemindersDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsReportsTitle": "Monthly reports",
+  "pbsReportsEmpty": "No report yet. The first one comes on the 1st of next month.",
+  "pbsReportOf": "Report for {month}",
+  "@pbsReportOf": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsUnread": "New",
+  "pbsReportNoSections": "No family member chose to share a report this month.",
+  "pbsReportNothingShared": "Nothing shared this month.",
+  "pbsPoolUsedBy": "{name}: {n} credits",
+  "@pbsPoolUsedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsLedgerTitle": "This month",
+  "pbsLedgerEmpty": "No credits used from the pool this month.",
+  "pbsEntryTitle": "Probashi family plan",
+  "pbsEntryBody": "Abroad? Give Premium to family in Bangladesh.",
+  "pbsLoading": "Loading",
+  "pbsOffTitle": "Not available yet",
+  "pbsOffBody": "The Probashi family plan is being finished. It will appear here when it is ready.",
+  "pbsOfflineTitle": "No internet",
+  "pbsOfflineBody": "Connect to the internet and try again.",
+  "pbsErrorTitle": "Something went wrong",
+  "pbsErrorBody": "Please try again in a little while.",
+  "pbsRetry": "Try again",
+  "pbsCancel": "Cancel",
+  "pbsSave": "Save",
+  "pbsSaved": "Saved."
 }

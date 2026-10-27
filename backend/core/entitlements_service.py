@@ -46,7 +46,13 @@ def on(user, play=False):
 
 def _paid_active(user):
     from . import plans
-    return plans.lifetime_founder(user) or plans.plan_active(user)
+    if plans.lifetime_founder(user) or plans.plan_active(user):
+        return True
+    try:   # probashi-plan: a live family seat is paid Premium (by the payer)
+        from . import probashi_plan as PB
+        return PB.member_premium(user)
+    except Exception:
+        return False
 
 
 def tier(user, c=None):

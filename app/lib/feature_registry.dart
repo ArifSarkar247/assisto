@@ -103,6 +103,8 @@ const Map<String, bool> kFeatureDefaults = {
   'retention_auto': false,
   // plans-v2 (owner 27 Oct): Free / Premium / Business limits + trial
   'plans_v2': false,
+  // probashi-plan (owner 27 Oct): expat family plan - hidden until 100.
+  'probashi_plan': false,
   'corporate_meetings': false,
   'remote_support': false,
   'marketing': false,
@@ -147,6 +149,7 @@ const Map<String, String> kRouteFeature = {
   'money': 'money',
   'budget': 'budget',
   'remittance': 'budget_remittance',
+  'probashi_plan': 'probashi_plan',
   'tax': 'tax_zakat',
   'wrapped': 'money_wrapped',
   'money_voice': 'money_voice',

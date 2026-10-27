@@ -46,6 +46,10 @@ _PLAY_PRODUCTS = {
     "plus_yearly": {"product_id": "assisto_plus", "base_plan": "annual"},
     "premium_pro_monthly": {"product_id": "assisto_premium_pro", "base_plan": "monthly"},
     "premium_pro_yearly": {"product_id": "assisto_premium_pro", "base_plan": "annual"},
+    # probashi-plan (owner 27 Oct): Play ONLY (local-currency prices set per
+    # country in Play Console; never sold through the BDT gateway)
+    "probashi_monthly": {"product_id": "assisto_probashi", "base_plan": "monthly"},
+    "probashi_yearly": {"product_id": "assisto_probashi", "base_plan": "annual"},
 }
 
 

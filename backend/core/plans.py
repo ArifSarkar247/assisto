@@ -179,6 +179,13 @@ def effective_plan(user):
             return "premium"
         if user.plan in PLANS:
             return user.plan
+    # probashi-plan: a live family seat (payer's Probashi plan) = Premium
+    try:
+        from . import probashi_plan as PB
+        if PB.member_premium(user):
+            return "premium"
+    except Exception:
+        pass
     if trial_active(user):
         return "premium"          # full trial
     return "free"

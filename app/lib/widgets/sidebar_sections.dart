@@ -107,6 +107,7 @@ import '../screens/crm/crm_home_screen.dart';
 import '../feature_gates.dart'
     show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
 // / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
 // functions now live INSIDE the Messenger hub (people icon, ⋮ hub-settings,
@@ -350,6 +351,11 @@ class SidebarSections {
           feature: 'safe_journey',
           (_) => const JourneyStartScreen(),
           synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track']),
+      // probashi-plan (flag probashi_plan, default OFF)
+      SidebarItem(Icons.flight_takeoff_rounded, (t) => t.pbsTitle,
+          feature: 'probashi_plan',
+          (_) => const ProbashiPlanScreen(),
+          synonyms: ['probashi', 'expat', 'abroad', 'family plan']),
       SidebarItem(Icons.emergency_rounded, (t) => t.moduleEmergency,
           feature: 'emergency',
           (_) => const EmergencyScreen(),
