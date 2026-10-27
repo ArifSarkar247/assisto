@@ -9,7 +9,9 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../vehicle/car_mode_engine.dart';
 import '../vehicle/route_canvas.dart';
+import '../vehicle/veh_map.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
@@ -32,8 +34,9 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
   Map<String, dynamic>? _t;
   Map<String, dynamic> _route = const {};
   List<Map<String, dynamic>> _commands = const [];
-  bool _loading = true, _error = false, _sending = false;
+  bool _loading = true, _error = false, _sending = false, _planBusy = false;
   Timer? _poll;
+  VehMapConfig _mapCfg = const VehMapConfig();
 
   // playback
   Timer? _play;
@@ -74,6 +77,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       _t = res[0];
       _route = res[1];
       _commands = vehList(res[2]['commands']);
+      _mapCfg = await VehMapConfig.load(api); // never throws (canvas fallback)
     } catch (_) {
       _error = _t == null;
     }
@@ -99,6 +103,62 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       .map((p) => GeoPt(vehNum(p['lat']) ?? 0, vehNum(p['lng']) ?? 0,
           at: vehDate(p['at']), speed: vehNum(p['speed_kmh']) ?? 0))
       .toList();
+
+  List<GeoPt> _planned(Map<String, dynamic> t) {
+    final routes = vehList(vehMap(t['settings'])['routes']);
+    if (routes.isEmpty) return const [];
+    final pts = routes.first['points'];
+    if (pts is! List) return const [];
+    return [
+      for (final p in pts)
+        if (p is List && p.length >= 2)
+          GeoPt(vehNum(p[0]) ?? 0, vehNum(p[1]) ?? 0),
+    ];
+  }
+
+  /// Owner: the latest trip (else the whole 24 h route) becomes the planned
+  /// route — off-route + long-stop alerts are then raised SERVER-side.
+  Future<void> _setPlanned(bool clear) async {
+    final tr = AppLocalizations.of(context);
+    var pts = _points;
+    final trips = vehList(_route['trips']);
+    if (trips.isNotEmpty) {
+      final s = vehDate(trips.last['start']), e = vehDate(trips.last['end']);
+      if (s != null && e != null) {
+        final sub = pts
+            .where((p) => p.at != null && !p.at!.isBefore(s) && !p.at!.isAfter(e))
+            .toList();
+        if (sub.length >= 2) pts = sub;
+      }
+    }
+    if (!clear && pts.length < 2) {
+      _snack(tr.e2eVehPlanNeedsTrip);
+      return;
+    }
+    setState(() => _planBusy = true);
+    try {
+      final t = await context.read<AppState>().api.vehSetRoutes(
+          widget.trackerId,
+          clear
+              ? const []
+              : [
+                  {
+                    'id': 'r1',
+                    'name': '${_t?['name'] ?? ''}',
+                    'points': [
+                      for (final g in CarModeEngine.simplify(pts, max: 200)) [g.lat, g.lng]
+                    ],
+                    'corridor_m': 300,
+                    'stop_alert_min': 15,
+                  }
+                ]);
+      if (mounted) setState(() => _t = t);
+      _snack(clear ? tr.e2eVehPlanCleared : tr.e2eVehPlanSaved);
+    } catch (e) {
+      _snack(vehReasonText(tr, e));
+    }
+    if (mounted) setState(() => _planBusy = false);
+  }
 
   void _togglePlay() {
     final pts = _points;
@@ -410,13 +470,15 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.sm),
           AspectRatio(
             aspectRatio: 1.25,
-            child: RouteCanvas(
+            child: VehMap(
+              config: _mapCfg,
               route: pts,
+              plannedRoute: _planned(t),
               live: (lat != null && lng != null) ? GeoPt(lat, lng) : null,
               playIndex: _playIdx,
               fences: fences,
               semanticsLabel: tr.vehMapSemantics(vehNumStr(context, km, decimals: 1)),
-              scaleLabel: pts.isEmpty ? tr.vehNoRoute : null,
+              emptyLabel: tr.vehNoRoute,
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -459,6 +521,43 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+          if (t['is_owner'] == true) ...[
+            const SizedBox(height: Gap.sm),
+            if (_planned(t).length >= 2) ...[
+              // Info line + its action stacked, so long Bangla / large-font
+              // labels wrap instead of overflowing at 360 dp.
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.alt_route_rounded, color: Brand.purple),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                  child: Text(
+                      tr.e2eVehPlanInfo(vehNumStr(context,
+                          vehInt(vehList(vehMap(t['settings'])['routes']).first['corridor_m']) ??
+                              300)),
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                ),
+              ]),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton(
+                  key: const ValueKey('veh-plan-clear'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: _planBusy ? null : () => _setPlanned(true),
+                  child: Text(tr.e2eVehPlanClear, textAlign: TextAlign.center),
+                ),
+              ),
+            ] else
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('veh-plan-set'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: _planBusy || pts.length < 2 ? null : () => _setPlanned(false),
+                  icon: const Icon(Icons.alt_route_rounded),
+                  label: Text(tr.e2eVehPlanSave),
+                ),
+              ),
+          ],
         ]),
       ),
     );
