@@ -852,24 +852,21 @@ def hook_family_alert(user, title_bn, title_en, body_bn="", body_en="",
         return False
 
 
-def hook_sos(user, lat=None, lng=None, silent=False, journey_id=None):
-    """SOS -> every accepted circle peer, data-only + high priority. A SILENT
-    (duress) SOS still reaches family — only the sender's own screen is quiet;
-    nothing is ever sent back to the sender's devices."""
+def hook_sos(user, lat=None, lng=None, silent=False, journey_id=None,
+             client_id="", source=""):
+    """SOS -> every consenting circle peer, data-only + high priority, via
+    family100's single delivery function (idempotent, audited, rings in
+    quiet hours, location to family because SOS is explicit consent).
+    A SILENT (duress) SOS still reaches family and still rings there — only
+    the sender's own screen is quiet; nothing is ever sent back to the
+    sender's devices. Returns True when at least one member was addressed."""
     try:
-        if not is_available() or user is None:
+        if user is None:
             return False
-        name = display_name(user)
-        data = {"from_user_id": user.id, "from_name": name,
-                "lat": "" if lat is None else lat,
-                "lng": "" if lng is None else lng,
-                "silent": bool(silent), "journey_id": journey_id or "",
-                "route": "safety/sos"}
-        targets = circle_family_users(user)
-        for t in targets:
-            safe_push(t, "sos", "জরুরি: %s সাহায্য চাইছেন" % name,
-                      "SOS: %s needs help" % name,
-                      "এখনই যোগাযোগ করুন", "Please contact them now", data=data)
-        return bool(targets)
+        from . import family_alerts
+        st = family_alerts.sos(user, lat=lat, lng=lng, duress=bool(silent),
+                               journey_id=journey_id, client_id=client_id,
+                               source=source)
+        return bool(st.get("recipients"))
     except Exception:
         return False

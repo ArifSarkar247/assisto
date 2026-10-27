@@ -6005,3 +6005,40 @@ class AiAnswerReport(models.Model):
         ordering = ["-created_at", "-id"]
         indexes = [models.Index(fields=["user", "created_at"])]
 # ---- /ai-report ----
+
+
+# ---- family100: family alerts delivered by SERVER push ----
+class FamilyAlertDelivery(models.Model):
+    """family100: ONE row per (family event, recipient) — the audit trail and
+    the idempotency guard of core/family_alerts.py. A second attempt to send
+    the same event to the same person hits the UNIQUE constraint and sends
+    nothing. `status`: sent (FCM accepted / queued) · no_device (no push
+    token: the in-app card + foreground poll only) · push_off (server push not
+    configured) · held (recipient's quiet hours — released by the sweep) ·
+    rate_limited (per-recipient cap; in-app card only) · failed ·
+    revoked (held, then the recipient left the circle: never sent)."""
+    event_key = models.CharField(max_length=120)
+    kind = models.CharField(max_length=24)
+    sender = models.ForeignKey(User, null=True, blank=True,
+                               on_delete=models.SET_NULL,
+                               related_name="family_alerts_sent")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="family_alert_deliveries")
+    alert = models.ForeignKey("FamilyAlert", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="deliveries")
+    status = models.CharField(max_length=16, default="sent")
+    with_location = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    # quality bar D/৭: the recipient's phone acks the push the moment it
+    # arrives (any isolate) -> received_at - pushed_at = delivery time.
+    received_at = models.DateTimeField(null=True, blank=True)
+    seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["event_key", "recipient"], name="uniq_family_alert_delivery")]
+        indexes = [models.Index(fields=["sender", "created_at"]),
+                   models.Index(fields=["recipient", "created_at"]),
+                   models.Index(fields=["status"])]

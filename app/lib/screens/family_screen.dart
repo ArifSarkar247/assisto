@@ -19,6 +19,9 @@ import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import '../family_alerts_api.dart'; // family100
+import '../widgets/family_push_banner.dart'; // family100
+import 'family_alerts_screen.dart'; // family100
 
 class FamilyScreen extends StatefulWidget {
   const FamilyScreen({super.key});
@@ -68,7 +71,42 @@ class _FamilyScreenState extends State<FamilyScreen> {
           ? today.isEmpty && meds.isEmpty
           : members.isEmpty && school.isEmpty;
     }
+    // family100: unseen family alerts for the entry tile (best effort —
+    // never turns the whole screen into an error).
+    try {
+      final fa = await api.familyAlerts();
+      _alertsUnseen = (fa['unseen'] as num?)?.toInt() ?? 0;
+    } catch (_) {}
     if (mounted) setState(() => loading = false);
+  }
+
+  int _alertsUnseen = 0;
+
+  /// family100: the family alerts entry (SOS / check-ins pushed by the
+  /// server) — one tap from the Family screen.
+  Widget _alertsTile() {
+    final t = _t;
+    final n = _alertsUnseen;
+    return Card(
+      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+      child: ListTile(
+        key: const ValueKey('fa100-tile'),
+        minTileHeight: 56,
+        leading: Icon(Icons.notifications_active_rounded,
+            color: n > 0 ? Brand.danger : Theme.of(context).colorScheme.primary),
+        title: Text(t.fa100Title,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(n > 0
+            ? t.fa100TileNew(notifLocalizeDigits(context, '$n'))
+            : t.fa100TileSub),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const FamilyAlertsScreen()));
+          if (mounted) _load();
+        },
+      ),
+    );
   }
 
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -203,7 +241,14 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     label: Text(_t.retry),
                   ),
                 )
-              : TabBarView(children: [
+              : Column(children: [
+                  // family100: honest push-off banner + alerts entry
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+                    child: FamilyPushBanner(),
+                  ),
+                  _alertsTile(),
+                  Expanded(child: TabBarView(children: [
                   if (medical) ...[
                     _todayTab(),
                     _medsTab(),
@@ -221,6 +266,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   FamShareSection(members: members),
                   FamCardSection(members: members),
                   const FamProbashiSection(),
+                ])),
                 ]),
         ));
   }

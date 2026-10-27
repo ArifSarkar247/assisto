@@ -16,6 +16,7 @@ from . import views_account_deletion as acctdel
 from . import views_chat as chatv
 from . import shop_views as shop
 from . import views_push as pushv
+from . import views_family100 as fam100
 from . import views_ads as ads_views
 from . import views_voice as voicev
 
@@ -267,6 +268,12 @@ urlpatterns = [
     # per-item consent. MUST precede router.urls so the literal `family/sharing*`
     # routes win over the FamilyMember router's `family/<pk>`. Trailing slashes
     # match the client's createItem/listItems path convention (api.dart _withSlash).
+    # family100: family alerts over server push (MUST precede router.urls).
+    path("family/sos", fam100.FamilySosView.as_view()),
+    path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
+    path("family/alerts", fam100.FamilyAlertsView.as_view()),
+    path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
+    path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
     path("family/sharing/consent", views.FamilySharingConsentView.as_view()),
     path("family/sharing/grant/", views.FamilySharingGrantView.as_view()),

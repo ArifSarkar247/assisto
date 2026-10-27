@@ -20,6 +20,8 @@ import '../widgets/journey_api.dart';
 import 'fall_detect_screen.dart';
 import '../widgets/subs_common.dart' show fmtInt;
 import '../theme.dart';
+import '../family_alerts_api.dart'; // family100
+import '../widgets/notif_models.dart' show notifLocalizeDigits; // family100
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -120,9 +122,46 @@ class _SafetyScreenState extends State<SafetyScreen> {
     }
     final fire = await SafetySosCountdown.show(context, _sosCountdown);
     if (!fire || !mounted) return;
+    // family100: the server pushes the SOS to every family member first
+    // (rings even when their Assisto is closed); then share + call.
+    await _alertFamilyServer();
+    if (!mounted) return;
     // share location best-effort, then call the primary contact
     await _shareLocationBestEffort();
     await _call(primary['phone'].toString());
+  }
+
+  Future<void> _alertFamilyServer() async {
+    final t = AppLocalizations.of(context);
+    final m = ScaffoldMessenger.of(context);
+    final api = context.read<AppState>().api;
+    double? lat, lng;
+    try {
+      if (await Geolocator.isLocationServiceEnabled()) {
+        final perm = await Geolocator.checkPermission();
+        if (perm == LocationPermission.always ||
+            perm == LocationPermission.whileInUse) {
+          final p = await Geolocator.getCurrentPosition()
+              .timeout(const Duration(seconds: 8));
+          lat = p.latitude;
+          lng = p.longitude;
+        }
+      }
+    } catch (_) {} // no location: the SOS still goes out
+    try {
+      final r = await api
+          .familySos(
+              lat: lat, lng: lng, source: 'safety', clientId: newSosClientId())
+          .timeout(const Duration(seconds: 12));
+      final n = (r['recipients'] as num?)?.toInt() ?? 0;
+      if (!mounted) return;
+      m.showSnackBar(SnackBar(
+          content: Text(n > 0
+              ? t.fa100SosSent(notifLocalizeDigits(context, '$n'))
+              : t.fa100SosNoCircle)));
+    } catch (_) {
+      m.showSnackBar(SnackBar(content: Text(t.fa100SosOffline)));
+    }
   }
 
   Future<void> _shareLocationBestEffort() async {
