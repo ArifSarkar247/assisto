@@ -607,7 +607,7 @@ class _PlansScreenState extends State<PlansScreen> {
         Row(children: [
           const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 6),
-          Text(t.aiCreditsCount(credits),
+          Text(t.aiCreditsCount(fmtInt(context, _int(credits))),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w600)),
         ]),
