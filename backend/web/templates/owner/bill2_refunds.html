@@ -1,0 +1,28 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.b2_nav_refunds }}{% endblock %}
+{% block content %}
+<p><a href="/owner/payments">← {{ T.nav_payments }}</a></p>
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<p class="mut small">{{ T.b2_refund_intro }} ({{ window }} h)</p>
+{% if rows %}{% for x in rows %}<section class="card">
+<h2>#{{ x.r.pk }} · {% if x.r.user_id %}<a href="/owner/users/{{ x.r.user_id }}">#{{ x.r.user_id }}</a>{% else %}{{ T.b2_deleted }}{% endif %} · <span class="pill {% if x.r.status == 'pending' %}warn{% elif x.r.status == 'rejected' %}off{% else %}ok{% endif %}">{{ x.r.get_status_display }}</span></h2>
+{% if x.o %}<div class="kv">
+<div>{{ T.b2_order }}: <code>{{ x.o.order_id }}</code> ({{ x.o.channel }}){% if x.o.is_test %} <span class="pill off">TEST</span>{% endif %}</div>
+<div>{{ T.b2_purchased }}: {{ x.o.purchased_at|date:"Y-m-d H:i" }} · {{ T.b2_hours_since }}: {{ x.hours_since }} h{% if not x.in_window %} <span class="pill off">{{ T.b2_outside_window }}</span>{% endif %}</div>
+<div>{{ T.b2_item }}: <code>{{ x.o.sku }}</code> {{ x.o.plan }}</div>
+<div>{{ T.b2_price }}: {{ x.o.price }} {{ x.o.currency }}</div>
+<div>{{ T.b2_granted }}: +{{ x.usage.credits_granted }} {{ T.b2_credits_word }} ({{ T.b2_planned }} {{ x.usage.credits_planned }}) · {{ T.b2_used }}: {{ x.usage.credits_used }}</div>
+<div>{{ T.b2_days_used }}: {{ x.usage.days_used }} / {{ x.usage.days_total }}</div>
+<div><b>{{ T.b2_suggested }}: {{ x.suggested }} {{ x.o.currency }}</b> <span class="mut small">= {{ T.b2_price }} × min({{ x.usage.credits_share }}, {{ x.usage.days_share }})</span></div>
+</div>{% endif %}
+<p>{{ T.b2_user_reason }}: {{ x.r.reason|default:"—" }}</p>
+{% if x.r.status == "pending" %}
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="req" value="{{ x.r.pk }}"><input type="hidden" name="action" value="approve"><input name="note" maxlength="300" placeholder="{{ T.note }}" class="grow"><button class="btn primary small">{{ T.b2_approve_suggested }} ({{ x.suggested }})</button></form>
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="req" value="{{ x.r.pk }}"><input type="hidden" name="action" value="approve_custom"><input name="amount" inputmode="decimal" required size="8" placeholder="0.00"><input name="note" maxlength="300" placeholder="{{ T.note }}" class="grow"><button class="btn small">{{ T.b2_approve_custom }}</button></form>
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="req" value="{{ x.r.pk }}"><input type="hidden" name="action" value="reject"><input name="note" maxlength="300" required placeholder="{{ T.note }}" class="grow"><button class="btn danger small">{{ T.b2_reject }}</button></form>
+<p class="mut small">{{ T.b2_partial_note }}</p><ol class="small">{% for s in x.steps %}<li>{{ s }}</li>{% endfor %}</ol>
+{% else %}<p class="mut small">{{ x.r.decided_at|date:"Y-m-d H:i" }} · {{ x.r.approved_amount }} · {{ x.r.action }} · {{ x.r.decision_note }}</p>
+{% if x.r.status == "manual" %}<ol class="small">{% for s in x.r.result.steps %}<li>{{ s }}</li>{% endfor %}</ol>{% endif %}{% endif %}
+</section>{% endfor %}
+{% else %}<p class="empty">{{ T.b2_no_requests }}</p>{% endif %}
+{% endblock %}

@@ -219,7 +219,37 @@ def grant_prepaid(user, *, order, now=None):
           plan=plan, starts=start.isoformat(), ends=end.isoformat(),
           bonus_seconds=int(bonus.total_seconds()), converted=",".join(converted))
     recompute(user, now, reason=ref)
+    # billing-v2 (rule T): the same allowance rules as Play — per paid period,
+    # month by month for annual, staged unlock; an upgrade's old allowance
+    # expires (replace, not add).
+    from .. import credits as CR
+    from . import orders as O
+    for old_ref in converted:
+        CR.expire_source(user, source_prefix=old_ref, why="upgraded", now=now)
+    po = paid_order_for_gateway(order, kind="sub", start=start, end=end)
+    O.grant_allowance(po, source_prefix=ref, now=now)
     return p
+
+
+def paid_order_for_gateway(order, *, kind, start=None, end=None):
+    """The PaidOrder row of a verified EPS order (price = what the gateway
+    confirmed; sandbox mode tagged as TEST)."""
+    from . import orders as O
+    test = False
+    try:
+        from . import eps
+        test = eps._mode(eps._cfg()) != "live"
+    except Exception:
+        test = False
+    d = catalog.describe(order.sku) or {}
+    po, _ = O.record(channel="gateway", order_id=order.merchant_tx_id, user=order.user,
+                     sku=order.sku, kind=kind, plan=order.plan, months=order.months,
+                     price=order.amount_bdt, currency=order.currency, price_source="gateway",
+                     is_test=test, purchased_at=order.paid_at or timezone.now(),
+                     period_start=start, period_end=end,
+                     credits_planned=int(d.get("credits") or 0) if kind == "pack" else 0,
+                     raw={"provider": order.provider})
+    return po
 
 
 # ----------------------------------------------------------------- play (auto-renew)
@@ -270,6 +300,8 @@ def revoke_period(source, ref, reason="", now=None):
         p.save(update_fields=["status", "note", "ends_at", "updated_at"])
     event(p.user, "entitlement.revoke", source, ref, reason=reason)
     recompute(p.user, now, reason="revoke:" + ref)
+    from .. import credits as CR
+    CR.expire_source(p.user, source_prefix=ref, why="revoked", now=now)
     return p
 
 
@@ -286,14 +318,42 @@ def mark_replaced(source, ref, by_ref, now=None):
     p.ends_at = max(p.starts_at, min(p.ends_at, now))
     p.save(update_fields=["status", "note", "ends_at", "updated_at"])
     event(p.user, "entitlement.replaced", source, ref, by=by_ref)
+    from .. import credits as CR
+    CR.expire_source(p.user, source_prefix=ref, why="replaced", now=now)
     return p
 
 
+# ----------------------------------------------------------------- owner / system grants
+def owner_grant(user, *, plan, until, source="owner_grant", actor=None, reason="",
+                now=None):
+    """A plan that is NOT a payment (owner edit, Play reviewer seed, ...):
+    recorded as an EntitlementGrant (source, actor, reason), written as the
+    account's BASE plan, never counted as revenue. plan 'free' ends it."""
+    from ..models import EntitlementGrant, User
+    now = now or timezone.now()
+    plan = plan or "free"
+    g = EntitlementGrant.objects.create(
+        user=user, source=source, plan=plan, starts_at=now,
+        ends_at=until if plan != "free" else now, actor=actor if getattr(actor, "pk", None) else None,
+        reason=(reason or "")[:200])
+    User.objects.filter(pk=user.pk).update(plan=plan, plan_until=until if plan != "free" else None)
+    user.plan, user.plan_until = plan, (until if plan != "free" else None)
+    event(user, "entitlement.owner_grant", "grant", "eg:%d" % g.pk, plan=plan,
+          until=until.isoformat() if until and plan != "free" else "", source=source,
+          actor=getattr(actor, "pk", None) or 0, reason=(reason or "")[:120])
+    recompute(user, now, reason="grant:%d" % g.pk)
+    from .. import credits as CR
+    CR.settle(user, now)
+    return g
+
+
 # ----------------------------------------------------------------- credits
-def grant_pack(user, *, channel, ref, sku, amount_bdt, now=None):
-    """Grant a credit pack once per (provider, ref). Returns credits granted
-    (0 when this ref was already granted)."""
-    from ..models import CreditLedger, CreditPurchase, User
+def grant_pack(user, *, channel, ref, sku, amount_bdt, now=None, order=None):
+    """Grant a credit pack once per (provider, ref) into the `pack` bucket
+    (never expires, rule B). Returns credits granted (0 when this ref was
+    already granted)."""
+    from ..models import CreditPurchase
+    from .. import credits as CR
     now = now or timezone.now()
     d = catalog.describe(sku)
     if not d or d["kind"] != "pack":
@@ -301,42 +361,45 @@ def grant_pack(user, *, channel, ref, sku, amount_bdt, now=None):
     provider = "play_billing" if channel == "play" else "eps"
     txn = ref[:120]
     with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
+        u = CR._lock(user)
         if CreditPurchase.objects.filter(provider=provider, txn_ref=txn).exists():
             return 0
         CreditPurchase.objects.create(
-            user=locked, pack_id=d["pack_id"], price_bdt=int(Decimal(str(amount_bdt))),
+            user=u, pack_id=d["pack_id"], price_bdt=int(Decimal(str(amount_bdt))),
             credits=d["credits"], provider=provider, status="confirmed", txn_ref=txn,
-            granted=True, confirmed_at=now,
-            expires_at=now + timedelta(days=30 * int(d["valid_months"] or 12)))
-        User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") + d["credits"])
-        CreditLedger.objects.create(user=locked, delta=d["credits"], reason="topup",
-                                    note=f"pack:{d['pack_id']} {channel}")
-    user.ai_credits = int(getattr(locked, "ai_credits", 0) or 0) + d["credits"]
-    event(user, "credits.grant", channel, ref, amount=amount_bdt,
-          credits=d["credits"], sku=sku)
+            granted=True, confirmed_at=now, expires_at=None)
+        CR.grant(None, CR.PACK, d["credits"], reason="topup",
+                 note=f"pack:{d['pack_id']} {channel}", source_type=channel,
+                 source_id="packref:%s:%s" % (provider, txn),
+                 key="packref:%s:%s" % (provider, txn), order=order, now=now, _u=u)
+    user.ai_credits = int(u.ai_credits or 0)
+    event(user, "credits.grant", channel, ref, amount=0, credits=d["credits"], sku=sku,
+          price=str(amount_bdt), test=bool(order and order.is_test))
     return d["credits"]
 
 
-def revoke_pack(user, *, channel, ref, reason=""):
-    """Refund of a pack: debit what is still unspent (never below zero)."""
-    from ..models import CreditLedger, CreditPurchase, User
+def revoke_pack(user, *, channel, ref, reason="", debt=False, now=None):
+    """Refund of a pack: remove what is still unspent of THAT pack; with
+    `debt` (Google refunded the money) the spent part becomes a negative
+    balance. Returns credits removed."""
+    from ..models import CreditLot, CreditPurchase
+    from .. import credits as CR
     provider = "play_billing" if channel == "play" else "eps"
-    with transaction.atomic():
-        cp = CreditPurchase.objects.select_for_update().filter(
-            provider=provider, txn_ref=ref[:120], granted=True).first()
-        if cp is None:
-            return 0
-        locked = User.objects.select_for_update().get(pk=cp.user_id)
-        take = min(int(locked.ai_credits or 0), int(cp.credits or 0))
-        if take > 0:
-            User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - take)
-            CreditLedger.objects.create(user=locked, delta=-take, reason="adjust",
-                                        note=f"refund pack:{cp.pack_id}"[:120])
-        cp.granted = False
-        cp.status = "failed"
-        cp.save(update_fields=["granted", "status"])
-    event(locked, "credits.revoke", channel, ref, credits=take, reason=reason)
+    lot = CreditLot.objects.filter(grant_key="packref:%s:%s" % (provider, ref[:120])).first()
+    cp = CreditPurchase.objects.filter(provider=provider, txn_ref=ref[:120], granted=True).first()
+    take = 0
+    if lot is not None:
+        out = CR.revoke_lots(lot.user, CreditLot.objects.filter(pk=lot.pk), why=reason or "refund",
+                             debt=debt, debt_key="debt:packref:%s:%s" % (provider, ref[:120]),
+                             now=now)
+        take = out["removed"]
+    elif cp is not None:
+        # pre-buckets pack: its credits sit in the legacy lot
+        take = CR.revoke_amount(cp.user, int(cp.credits or 0), why=reason or "refund",
+                                debt=debt, key="debt:cp:%d" % cp.pk, now=now)
+    if cp is not None:
+        CreditPurchase.objects.filter(pk=cp.pk).update(granted=False, status="failed")
+    event(user, "credits.revoke", channel, ref, credits=take, reason=reason)
     return take
 
 
@@ -347,6 +410,7 @@ def summary(user, now=None):
     from .. import plans
     now = now or timezone.now()
     recompute(user, now)
+    cstate = _credits_state(user, now)
     try:
         user.refresh_from_db(fields=["ai_credits", "plan", "plan_until"])
     except Exception:
@@ -374,4 +438,13 @@ def summary(user, now=None):
     return {"plan": plans.effective_plan(user),
             "plan_until": user.plan_until.isoformat() if user.plan_until else None,
             "credits": int(user.ai_credits or 0), "periods": periods,
+            "credits_state": cstate,
             "managed_by_play": bool(play), "renew": renew, "play": play_sub}
+
+
+def _credits_state(user, now):
+    try:
+        from .. import credits as CR
+        return CR.state(user, now)
+    except Exception:
+        return None

@@ -29,6 +29,7 @@ from . import home_defaults as HD
 from . import photo_studio as _PS
 from . import chat_vision as _CV
 from . import payments_cfg as _PAY   # pay1
+from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
 
 # --------------------------------------------------------------- currency basis
@@ -578,6 +579,7 @@ def DEFAULTS():
         "home_hero": _CV.hero_defaults(),
         # pay1: payment channels, switches, fees, per-channel prices
         "payments": _PAY.defaults(),
+        "billing": _BILL.defaults(),     # billing-v2
         # p1-bizagent: seller AI-agent plans (monthly AI replies), trial,
         # WhatsApp per-message cost, per-channel kill switches
         "seller_agent": _BA.cfg_defaults(),
@@ -706,6 +708,7 @@ def normalize(data):
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
         "home_hero": _CV.normalize_hero(d.get("home_hero")),
         "payments": _PAY.normalize(d.get("payments")),   # pay1
+        "billing": _BILL.normalize(d.get("billing")),    # billing-v2
         "seller_agent": _BA.cfg_normalize(d.get("seller_agent")),   # p1
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
         "retention": _norm_retention(d.get("retention"), base["retention"]),
@@ -1108,6 +1111,8 @@ def validate_edit(data):
             n = _num(d.get(k), None)
             if n is None or n < 0:
                 problems.append("price_negative")
+    if "billing" in d:                       # billing-v2 bounds
+        problems.extend(_BILL.problems(d.get("billing")))
     if "home_quick_defaults" in d:
         problems.extend(HD.validate(d.get("home_quick_defaults")))
     if "photo_studio" in d:

@@ -48,9 +48,16 @@
 {% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
 </section>
 
+<section class="card"><h2>{{ T.b2_h_orders }}</h2>
+<p><a href="/owner/payments/refunds">{{ T.b2_nav_refunds }}</a> · <a href="/owner/payments/flagged">{{ T.b2_nav_flagged }}</a> · <a href="/owner/payments/reports">{{ T.b2_nav_reports }}</a> · <a href="/owner/payments/unverified">{{ T.b2_nav_unverified }}</a></p>
+{% if paid_orders %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_user }}</th><th>{{ T.b2_order }}</th><th>{{ T.pay_sku }}</th><th>{{ T.b2_price }}</th><th>{{ T.pay_status }}</th></tr></thead><tbody>
+{% for o in paid_orders %}<tr><td>{{ o.purchased_at|date:"Y-m-d H:i" }}</td><td>{% if o.user_id %}<a href="/owner/users/{{ o.user_id }}">#{{ o.user_id }}</a>{% else %}{{ T.b2_deleted }}{% endif %}</td><td><code>…{{ o.order_id|slice:"-8:" }}</code> · {{ o.channel }}</td><td><code>{{ o.sku }}</code>{% if o.is_test %} <span class="pill off">TEST</span>{% endif %}</td><td>{{ o.price }} {{ o.currency }}{% if o.refunded_amount %}<br><span class="neg small">−{{ o.refunded_amount }} {{ o.currency }}</span>{% endif %}</td><td>{{ o.status }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
+</section>
+
 <section class="card"><h2>{{ T.pay_h_events }}</h2>
-{% if events %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_kind }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_amount }}</th><th>Ref</th></tr></thead><tbody>
-{% for e in events %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td>{{ e.kind }} {{ e.channel }}</td><td>{% if e.user_id %}#{{ e.user_id }}{% endif %}</td><td>{% if e.amount_bdt %}৳{{ e.amount_bdt }}{% endif %}</td><td><code>{{ e.ref|truncatechars:28 }}</code></td></tr>{% endfor %}
+{% if event_rows %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_kind }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_amount }}</th><th>Ref</th></tr></thead><tbody>
+{% for x in event_rows %}<tr><td>{{ x.e.created_at|date:"Y-m-d H:i" }}</td><td>{{ x.label }}{% if x.test %} <span class="pill off">TEST</span>{% endif %}<br><span class="mut small">{{ x.e.kind }} {{ x.e.channel }}</span></td><td>{% if x.e.user_id %}#{{ x.e.user_id }}{% endif %}</td><td>{{ x.amount }}</td><td><code>{{ x.e.ref|truncatechars:28 }}</code></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
 </section>
 {% endblock %}

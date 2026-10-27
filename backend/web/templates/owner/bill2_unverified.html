@@ -1,0 +1,13 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.b2_nav_unverified }}{% endblock %}
+{% block content %}
+<p><a href="/owner/payments">← {{ T.nav_payments }}</a></p>
+<p class="mut small">{{ T.b2_unverified_intro }}</p>
+<section class="card"><h2>{{ T.b2_need_attention }} ({{ out.users }})</h2>
+{% if out.rows %}<div class="tbl"><table><thead><tr><th>{{ T.pay_user }}</th><th>{{ T.b2_what }}</th><th>{{ T.b2_fix }}</th></tr></thead><tbody>
+{% for r in out.rows %}{% for it in r.items %}<tr><td><a href="/owner/users/{{ r.user }}">#{{ r.user }}</a></td><td>{{ it.what }} {% if it.plan %}{{ it.plan }} → {{ it.until|default:"" }}{% endif %}{% if it.credits %}+{{ it.credits }} {{ T.b2_credits_word }} ({{ it.bucket }}){% endif %}{% if it.known_source %} <span class="pill fm">{{ it.known_source }}</span>{% endif %}</td><td>{{ it.fix }}</td></tr>{% endfor %}{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.b2_all_backed }}</p>{% endif %}</section>
+<section class="card"><h2>{{ T.b2_confirmed_grants }}</h2>
+{% if out.confirmed %}<ul>{% for g in out.confirmed %}<li><a href="/owner/users/{{ g.user }}">#{{ g.user }}</a> <span class="pill {% if g.source == 'play_reviewer' %}fm{% else %}ok{% endif %}">{% if g.source == 'play_reviewer' %}{{ T.b2_reviewer_grant }}{% else %}{{ g.label }}{% endif %}</span> {{ g.plan }} → {{ g.until|slice:":10" }} <span class="mut small">{{ g.reason }}</span></li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
+<p class="mut small">{{ T.b2_fix_cmd }}</p></section>
+{% endblock %}

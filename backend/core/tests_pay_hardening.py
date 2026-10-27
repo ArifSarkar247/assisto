@@ -684,8 +684,13 @@ class PlayLifecycleTests(PlayHBase):
 
     def test_revoke_exactly_once_and_never_resurrected(self):
         self.rt(4, "p")
-        self.assertEqual(self.rt(12, "r1"), "revoked")
-        self.assertEqual(self.rt(12, "r2"), "revoked")          # Google resends
+        # billing-v2 rule E: Google's own state must confirm the revoke
+        self.assertEqual(self.rt(12, "r0"), "revoked:unconfirmed")
+        self.assertEqual(_plan(self.u), "premium")
+        gone = dict(state="SUBSCRIPTION_STATE_EXPIRED", expiry_days=-1)
+        self.assertEqual(self.rt(12, "r1", **gone), "revoked")
+        self.assertEqual(self.rt(12, "r2", **gone), "revoked")          # Google resends
+        self.g.void("t", self.ORD)
         r = self.rtdn_push({"packageName": "com.assisto.assisto",
                             "voidedPurchaseNotification": {"purchaseToken": "t",
                                                            "orderId": self.ORD}}, mid="v")
@@ -717,7 +722,7 @@ class PlayLifecycleTests(PlayHBase):
         self.g.subs["t"] = T.sub_body(self.u, test=True)
         self.verify("t")
         self.assertEqual(_plan(self.u), "premium")
-        self.rt(12, "r")
+        self.rt(12, "r", test=True, state="SUBSCRIPTION_STATE_EXPIRED", expiry_days=-1)
         self.assertEqual(_plan(self.u), "free")
         self.assertEqual(self.charges(), 0)
         self.assertEqual(self.refunds(), 0)
@@ -742,7 +747,8 @@ class PlayLifecycleTests(PlayHBase):
     def test_rtdn_for_other_apps_or_strangers_is_ignored(self):
         self.g.subs["s"] = T.sub_body(self.u)
         del self.g.subs["s"]["externalAccountIdentifiers"]
-        self.assertEqual(self.push_raw(self.sn("s", 4), "stranger"), "ignored:unknown_account")
+        # billing-v2 rule F: no obfuscatedExternalAccountId -> never bound
+        self.assertEqual(self.push_raw(self.sn("s", 4), "stranger"), "ignored:unbound_purchase")
         self.assertEqual(self.push_raw(self.sn("gone", 4), "gone"), "ignored:not_found")
         self.assertEqual(self.push_raw({"packageName": "com.assisto.assisto"}, "empty"),
                          "ignored")
@@ -784,7 +790,8 @@ class PlayLifecycleTests(PlayHBase):
                                  content_type="application/json",
                                  HTTP_AUTHORIZATION="Bearer " + T.oidc())
             self.assertEqual(r.status_code, 400)
-        r = self.rtdn_push({"subscriptionNotification": {"notificationType": 2}}, mid="nt")
+        r = self.rtdn_push({"packageName": "com.assisto.assisto",
+                            "subscriptionNotification": {"notificationType": 2}}, mid="nt")
         self.assertEqual(r.status_code, 400)
 
 
@@ -851,30 +858,35 @@ class PlayPackTests(PlayHBase):
         self.assertEqual(self.charges(), 0)
         self.assertEqual(PaymentEvent.objects.filter(kind="play.test_charge").count(), 2)
 
-    def test_voided_after_spend_never_negative_and_once(self):
+    def test_voided_after_spend_goes_negative_once(self):
+        # billing-v2 rule L (owner 27 Oct): credits already spent from a
+        # refunded pack make the balance NEGATIVE (credit features blocked)
         self.pack()
         self.verify("ptok", kind="pack", product="credits_p20")
-        User.objects.filter(pk=self.u.pk).update(ai_credits=2)
+        User.objects.filter(pk=self.u.pk).update(ai_credits=2)      # 18 spent
+        self.g.void("ptok", "GPA.7777-0001")
         v = {"packageName": "com.assisto.assisto",
              "voidedPurchaseNotification": {"purchaseToken": "ptok", "orderId": "GPA.7777-0001",
                                             "productType": 2}}
         self.rt(v, "v1")
         self.rt(v, "v2")
-        self.assertEqual(_credits(self.u), 0)
-        self.assertEqual([x.delta for x in CreditLedger.objects.filter(user=self.u, delta__lt=0)],
-                         [-2])
+        self.assertEqual(_credits(self.u), 2 - self.n)
+        self.assertEqual(sorted(x.delta for x in CreditLedger.objects.filter(
+            user=self.u, reason="revoke", delta__lt=0)), [-(self.n - 2), -2])
         self.assertEqual(self.refunds(), 1)
         # Google still says PURCHASED (stale) -> a revoked token is never re-granted
         r = self.verify("ptok", kind="pack", product="credits_p20")
         self.assertEqual(r.json()["state"], "canceled")
-        self.assertEqual(_credits(self.u), 0)
+        self.assertEqual(_credits(self.u), 2 - self.n)
         self.assertAlmostEqual(_rev().get("packs", 0), 0.0, 2)
 
     def test_voided_pending_pack_debits_nothing(self):
         self.pack(purchaseState=2)
         self.verify("ptok", kind="pack", product="credits_p20")
         User.objects.filter(pk=self.u.pk).update(ai_credits=5)    # credits from elsewhere
-        self.rt({"voidedPurchaseNotification": {"purchaseToken": "ptok"}}, "vp")
+        self.g.void("ptok")
+        self.rt({"packageName": "com.assisto.assisto",
+                 "voidedPurchaseNotification": {"purchaseToken": "ptok"}}, "vp")
         self.assertEqual(_credits(self.u), 5)
         self.assertTrue(PlayPurchase.objects.get().revoked)
 

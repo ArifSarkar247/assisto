@@ -1,0 +1,10 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.b2_nav_flagged }}{% endblock %}
+{% block content %}
+<p><a href="/owner/payments">← {{ T.nav_payments }}</a></p>
+<p class="mut small">{{ T.b2_flagged_intro }}</p>
+{% if rows %}<div class="tbl"><table><thead><tr><th>{{ T.pay_user }}</th><th>{{ T.b2_refund_count }}</th><th>{{ T.b2_flagged }}</th><th>{{ T.b2_purchase_blocked }}</th><th></th></tr></thead><tbody>
+{% for a in rows %}<tr><td><a href="/owner/users/{{ a.user_id }}">#{{ a.user_id }}</a></td><td>{{ a.refund_count }}</td><td>{{ a.flag_reason }}</td><td>{% if a.purchase_blocked %}<b class="neg">{{ T.b2_yes }}</b>{% else %}{{ T.b2_no }}{% endif %}</td>
+<td>{% if a.purchase_blocked %}<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="user" value="{{ a.user_id }}"><input name="note" maxlength="200" required placeholder="{{ T.reason }}"><button class="btn small">{{ T.b2_unblock }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
+{% endblock %}

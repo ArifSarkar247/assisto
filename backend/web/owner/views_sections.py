@@ -316,7 +316,8 @@ _SCALARS = ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt", "play_fee"
             "probashi_price_usd", "ai_daily_budget_usd", "ai_user_daily_limit")
 _DICT_SECTIONS = ("guarantees", "limits", "referral", "profit_guard", "shop", "otp",
                   "vehicle", "photo_studio", "world",   # p4-world
-                  "retention")   # retention1
+                  "retention",   # retention1
+                  "billing")     # billing-v2: staged unlock + refund window
 
 
 # Plan-row keys the editor never shows or posts. Owner decision: nothing is
@@ -471,8 +472,9 @@ def pricing(request):
         "packs": [(str(i), _fields_of(row)) for i, row in enumerate(cfg["topup_packs"])],
         "pack_cols": [k for k, _, _ in _fields_of(cfg["topup_packs"][0])]
         if cfg["topup_packs"] else ["id", "price", "credits", "valid_months"],
-        "sections": [(s, _fields_of(cfg[s])) for s in _DICT_SECTIONS
-                     if isinstance(cfg.get(s), dict)],
+        # billing-v2: bn/en labels for the section fields (key when unnamed)
+        "sections": [(s, [(k, v, kind, T.get("pf_" + k, k)) for k, v, kind in _fields_of(cfg[s])])
+                     for s in _DICT_SECTIONS if isinstance(cfg.get(s), dict)],
         "home_quick": ", ".join(cfg.get("home_quick_defaults") or []),
         "problem_text": ([T.get("p_" + p, p) for p in ctx.get("problems", [])]
                          + ctx.get("problem_text_flag", [])),
@@ -734,21 +736,12 @@ def _user_state(u):
             "ad_wallet": wallet, "status": u.account_status}
 
 
-def _adjust_credits(user, delta, note):
-    """Owner credit adjustment. +delta via billing.credit (same ledger path as
-    refunds/top-ups); -delta atomically, never below 0, ledger reason 'adjust'."""
-    from core import billing
-    from core.models import CreditLedger
-    if delta > 0:
-        return billing.credit(user, "adjust", delta, note=note)
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        take = min(int(locked.ai_credits or 0), -delta)
-        if take > 0:
-            User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - take)
-            CreditLedger.objects.create(user=locked, delta=-take, reason="adjust",
-                                        note=note[:120])
-        return int(locked.ai_credits or 0) - take
+def _adjust_credits(user, delta, note, actor=None):
+    """Owner credit adjustment through the bucketed engine (billing-v2):
+    +delta into the free bucket, -delta in spend order, never below 0,
+    ledger reason 'adjust' with the acting owner id as the source."""
+    from core import credits as CR
+    return CR.owner_adjust(user, delta, note[:120], actor=actor)
 
 
 @require_http_methods(["GET", "POST"])
@@ -773,21 +766,23 @@ def user_detail(request, pk):
             if not delta or abs(delta) > 100000:
                 err = T["err_delta"]
             else:
-                _adjust_credits(u, delta, "owner: " + reason)
+                _adjust_credits(u, delta, "owner: " + reason, actor=request.owner)
         elif action == "plan":
             plan = request.POST.get("plan", "")
             days = to_int(request.POST.get("days"), 0) or 0
             if plan not in plans.PLANS or plan == "founder":
                 err = T["err_plan"]
             elif plan == "free":
-                u.plan, u.plan_until = "free", None
-                u.save(update_fields=["plan", "plan_until"])
+                # billing-v2: a recorded owner grant (actor + reason), never revenue
+                from core.payments import entitlement as _E
+                _E.owner_grant(u, plan="free", until=None, source="owner_grant",
+                               actor=request.owner, reason=reason)
             elif not (1 <= days <= 3660):
                 err = T["err_days"]
             else:
-                u.plan = plan
-                u.plan_until = timezone.now() + timedelta(days=days)
-                u.save(update_fields=["plan", "plan_until"])
+                from core.payments import entitlement as _E
+                _E.owner_grant(u, plan=plan, until=timezone.now() + timedelta(days=days),
+                               source="owner_grant", actor=request.owner, reason=reason)
         elif action in ("block", "unblock"):
             if u.pk == request.owner.pk or u.is_superuser:
                 err = T["err_block_owner"]
@@ -819,6 +814,8 @@ def user_detail(request, pk):
             S.audit(request, request.owner, "user." + action, "user:%s" % u.pk,
                     before=b, after={**a, "_reason": reason})
             return done("/owner/users/%d" % u.pk)
+    from .views_bill2 import user_billing
+    ctx.update(user_billing(u))
     ctx.update({"u": u, "state": _user_state(u),
                 "ledger": CreditLedger.objects.filter(user=u)[:20],
                 "plan_ids": [p for p in plans.PLANS if p != "founder"],

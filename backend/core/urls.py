@@ -892,6 +892,8 @@ urlpatterns += [
     path("payments/play/verify", pay1.PlayVerifyView.as_view()),
     path("payments/play/rtdn", pay1.PlayRtdnView.as_view()),
     path("payments/gateway/ipn", pay1.GatewayIpnView.as_view()),
+    path("credits/state", pay1.CreditsStateView.as_view()),       # billing-v2
+    path("credits/refunds", pay1.RefundListView.as_view()),       # billing-v2
 ]
 # ---- /pay1 ----
 

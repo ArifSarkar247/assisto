@@ -125,50 +125,15 @@ def monthly_pool_credits(user):
 
 
 def grant_monthly_pool(user, now=None):
-    """Grant this calendar month's (Asia/Dhaka) included pool to a paid user,
-    exactly once per month. Returns the credits granted (0 if not due).
-
-    No rollover (DEFAULTS: "reset not accumulated"): before the new grant, the
-    UNUSED part of the previous pool grant is expired. Pool credits are counted
-    as spent FIRST, so purchased top-up credits are never expired here:
-        unused = min(balance, prev_grant - net_spent_since_prev_grant)
-    where net_spent = consumes minus refunds ('adjust') since that grant.
-    Atomic (row lock on the user) + idempotent (one grant row per month)."""
-    from .models import User, CreditLedger
-    pool = monthly_pool_credits(user)
-    if pool <= 0:
+    """billing-v2: plan allowance follows the PAID PERIOD (core.credits), not
+    calendar months. Paid Play / EPS periods grant their own allowance when
+    the payment is verified; plan time that is NOT a payment (owner grant,
+    reviewer, founder) gets one month at a time here. Settles the user's
+    lots (unlock / expiry) and returns the base-month credits granted now."""
+    from . import credits as CR
+    if user is None or not getattr(user, "pk", None):
         return 0
-    now = now or timezone.now()
-    month = timezone.localtime(now).strftime("%Y-%m")
-    note = POOL_NOTE + month
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        mine = CreditLedger.objects.filter(user=locked, reason="grant",
-                                           note__startswith=POOL_NOTE)
-        if mine.filter(note=note).exists():
-            return 0
-        bal = int(locked.ai_credits or 0)
-        prev = mine.order_by("-created_at", "-id").first()
-        if prev is not None:
-            net = CreditLedger.objects.filter(
-                user=locked, reason__in=("consume", "adjust"),
-                created_at__gte=prev.created_at).aggregate(s=Sum("delta"))["s"] or 0
-            spent = max(0, -int(net))
-            unused = max(0, min(bal, int(prev.delta) - spent))
-            if unused:
-                bal -= unused
-                CreditLedger.objects.create(
-                    user=locked, delta=-unused, reason="expire",
-                    note=("%s unused (no rollover)" % prev.note)[:120])
-        bal += pool
-        User.objects.filter(pk=locked.pk).update(ai_credits=bal)
-        CreditLedger.objects.create(user=locked, delta=pool, reason="grant",
-                                    note=note)
-    try:
-        user.ai_credits = bal
-    except Exception:
-        pass
-    return pool
+    return int(CR.settle(user, now=now).get("base_granted", 0))
 
 
 def ensure_monthly_pool(user):
@@ -183,21 +148,11 @@ def ensure_monthly_pool(user):
 
 
 def grant_all_monthly_pools(now=None):
-    """Daily sweep (profit_guard_rollover): grant the month's pool to every
-    user with an active paid plan or lifetime founder, so balances are right
-    even for users who have not opened the app yet. Returns users granted."""
-    from django.db.models import Q
-    from .models import User
-    now = now or timezone.now()
-    n = 0
-    qs = User.objects.filter(Q(plan_until__gt=now) | Q(is_founder=True))
-    for u in qs.iterator():
-        try:
-            if grant_monthly_pool(u, now=now):
-                n += 1
-        except Exception:
-            pass
-    return n
+    """Daily safety sweep: settle every user with something due (staged
+    unlocks, expiries even when an RTDN was missed, annual months, base plan
+    months). Returns users settled."""
+    from . import credits as CR
+    return CR.settle_all(now=now)
 
 
 def _is_free(user):
@@ -219,10 +174,17 @@ def get_ad_wallet(user):
 
 
 def ad_wallet_credits(user):
-    """Whole spendable credits currently in the user's ad wallet."""
+    """Rewarded-ad credits the user can spend: billing-v2 moves every whole
+    ad credit into the `rewarded` bucket (part of the balance), so this is
+    that bucket plus any whole credit still waiting in the wallet."""
     if user is None:
         return 0
-    return get_ad_wallet(user).spendable_credits()
+    from . import credits as CR
+    try:
+        b = CR.buckets(user).get(CR.REWARDED, 0)
+    except Exception:
+        b = 0
+    return int(b) + get_ad_wallet(user).spendable_credits()
 
 
 # --------------------------------------------------------------- storage (Build 3)
@@ -390,20 +352,57 @@ def guard_state(now=None):
 
 # --------------------------------------------------------------- owner P&L (Build 3)
 
-def plan_segment_counts(now=None):
-    """Active-user counts by EFFECTIVE plan segment {free, premium, business}.
+def verified_paid_orders(now=None):
+    """{user_id: plan} of users with a VERIFIED, REAL (non-test) Play or EPS
+    subscription payment whose paid period is active now (owner 27 Oct:
+    trials, test purchases and owner/system grants are NOT paid)."""
+    from .models import PaidOrder, PlanPeriod
+    now = now or timezone.now()
+    out = {}
+    live = set(PlanPeriod.objects.filter(status="active", starts_at__lte=now, ends_at__gt=now)
+               .values_list("user_id", flat=True))
+    for o in PaidOrder.objects.filter(kind="sub", is_test=False, status="paid",
+                                      period_end__gt=now, user_id__in=live).only(
+            "user_id", "plan", "period_start"):
+        if o.period_start and o.period_start > now:
+            continue
+        if out.get(o.user_id) != "business":
+            out[o.user_id] = "business" if o.plan == "business" else "premium"
+    return out
 
-    'paid' = premium + business (plus annual/founder/probashi folded into premium
-    for the segment view). Real counts from the User table — never fabricated."""
-    from .models import User
-    counts = {"free": 0, "premium": 0, "business": 0}
+
+def plan_segment_counts(now=None):
+    """Active-user counts for the owner Overview / P&L.
+
+    billing-v2: `paid`, `premium` and `business` count ONLY users with a
+    verified real payment whose paid period is active (verified_paid_orders).
+    Trials, test purchases and owner/system grants are shown separately and
+    counted inside `free` for the P&L (they bring no revenue)."""
+    from . import plans
+    from .models import PaidOrder, User
+    now = now or timezone.now()
+    paid = verified_paid_orders(now)
+    test_ids = set(PaidOrder.objects.filter(kind="sub", is_test=True, status="paid",
+                                            period_end__gt=now)
+                   .values_list("user_id", flat=True))
+    counts = {"free": 0, "premium": 0, "business": 0, "trial": 0, "test": 0, "grants": 0}
     for u in User.objects.filter(is_active=True).only(
             "plan", "plan_until", "trial_until", "is_founder", "founder_since"):
+        seg = paid.get(u.pk)
+        if seg:
+            counts[seg] += 1
+            continue
+        counts["free"] += 1
         try:
-            seg = _segment_of(u)
+            eff = plans.effective_plan(u)
         except Exception:
-            seg = "free"
-        counts[seg] = counts.get(seg, 0) + 1
+            eff = "free"
+        if u.pk in test_ids:
+            counts["test"] += 1
+        elif eff != "free" and plans.trial_active(u) and not plans.plan_active(u):
+            counts["trial"] += 1
+        elif eff != "free":
+            counts["grants"] += 1
     counts["paid"] = counts["premium"] + counts["business"]
     counts["total"] = counts["free"] + counts["paid"]
     return counts
@@ -637,9 +636,9 @@ def guard_can(user, action, qty=1):
                 return False, "guard_over"
         except Exception:
             pass
-        bal = int(getattr(user, "ai_credits", 0) or 0) + ad_wallet_credits(user)
-    else:
-        bal = int(getattr(user, "ai_credits", 0) or 0)
+    # billing-v2: rewarded ad credits are part of the balance (bucket
+    # `rewarded`); a negative balance (refund debt) blocks everything.
+    bal = int(getattr(user, "ai_credits", 0) or 0)
     if bal < need:
         return False, "insufficient"
     return True, "ok"
@@ -702,67 +701,46 @@ def charge(user, action, qty=1, note=""):
             return {"ok": False, "reason": "guard_over", "charged": 0,
                     "balance": int(user.ai_credits or 0)}
 
-    from .models import AdWallet
-
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        bal = int(locked.ai_credits or 0)
-        ad_credits = 0
-        if free:
-            # include ad-wallet credits in the affordability check
-            wallet = AdWallet.objects.select_for_update().get_or_create(
-                user=locked)[0]
-            ad_credits = wallet.spendable_credits()
-
-        if bal + (ad_credits if free else 0) < need:
-            return {"ok": False, "reason": "insufficient", "charged": 0,
-                    "balance": bal}
-
-        # spend INCLUDED/purchased credits first, then the ad wallet (free only)
-        from_credits = min(bal, need)
-        from_ad = need - from_credits
-        if from_credits:
-            User.objects.filter(pk=locked.pk).update(
-                ai_credits=F("ai_credits") - from_credits)
-            CreditLedger.objects.create(
-                user=locked, delta=-from_credits, reason="consume",
-                note=(note or action)[:120])
-        if from_ad:
-            AdWallet.objects.filter(pk=wallet.pk).update(
-                balance_paisa=F("balance_paisa") - from_ad * 100)
-            CreditLedger.objects.create(
-                user=locked, delta=-from_ad, reason="ad_spend",
-                note=(note or action)[:120])
-        new_bal = bal - from_credits
-
-    # keep the in-memory object consistent for the caller
-    try:
-        user.ai_credits = new_bal
-    except Exception:
-        pass
-    return {"ok": True, "reason": "ok", "charged": need, "balance": new_bal}
+    # billing-v2: ONE atomic spend in the owner's bucket order (plan ->
+    # free/rewarded/referral -> pack) under the user row lock; rewarded ad
+    # credits are a bucket of the balance now, not a side wallet.
+    from . import credits as CR
+    res = CR.spend(user, need, note=(note or action))
+    return {"ok": res["ok"], "reason": res["reason"], "charged": res["charged"],
+            "balance": res["balance"], "spend_ref": res.get("spend_ref", ""),
+            **({"negative": True} if res.get("negative") else {})}
 
 
-def credit(user, source, amount, note=""):
-    """Grant `amount` credits (top-up / refund / adjust) atomically + ledger row.
-    Used by ai.generate to REFUND a failed-provider pre-charge. source maps to a
-    CreditLedger reason ('topup'|'adjust'|'grant'|'rewarded')."""
-    from .models import User, CreditLedger
+_SOURCE_BUCKET = {"topup": "pack", "rewarded": "rewarded", "trial": "free"}
+
+
+def credit(user, source, amount, note="", spend_ref=None):
+    """Grant `amount` credits atomically + one ledger row.
+
+    billing-v2: a REFUND of a failed call (source 'adjust' with a refund
+    note, or an explicit spend_ref) goes back to the SAME lots the charge
+    came from (rule N); other grants land in their bucket: topup -> pack,
+    rewarded -> rewarded, trial / founding / owner -> free, referral notes
+    -> referral."""
+    from . import credits as CR
     amount = int(amount or 0)
     if user is None or amount <= 0:
         return int(getattr(user, "ai_credits", 0) or 0) if user else 0
+    is_return = bool(spend_ref) or (source == "adjust" and "refund" in (note or "").lower())
+    if is_return:
+        ref = spend_ref or CR.last_spend_ref(user, amount)
+        if ref:
+            CR.return_spend(user, ref, note=(note or "returned"))
+            user.refresh_from_db(fields=["ai_credits"])
+            return int(user.ai_credits or 0)
+    bucket = _SOURCE_BUCKET.get(source, "free")
+    if (note or "").startswith("referral"):
+        bucket = "referral"
+    from .models import CreditLedger
     reason = source if source in dict(CreditLedger.REASONS) else "adjust"
-    with transaction.atomic():
-        locked = User.objects.select_for_update().get(pk=user.pk)
-        User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") + amount)
-        CreditLedger.objects.create(user=locked, delta=amount, reason=reason,
-                                    note=(note or source)[:120])
-        new_bal = int(locked.ai_credits or 0) + amount
-    try:
-        user.ai_credits = new_bal
-    except Exception:
-        pass
-    return new_bal
+    CR.grant(user, bucket, amount, reason=reason, note=(note or source),
+             source_type=source[:24], source_id=(note or source)[:120])
+    return int(user.ai_credits or 0)
 
 
 # --------------------------------------------------------------- credit packs
@@ -832,25 +810,20 @@ def confirm_topup(purchase_id, txn_ref="", now=None):
         if p.granted or p.status == "confirmed":
             return {"ok": True, "granted": 0, "balance": None,
                     "expires_at": p.expires_at.isoformat() if p.expires_at else None}
-        pack = pricing.pack_by_id(p.pack_id, cfg()) or {}
-        months = int(pack.get("valid_months", 12) or 12)
         p.status = "confirmed"
         p.granted = True
         p.txn_ref = (txn_ref or p.txn_ref)[:120]
         p.confirmed_at = now
-        p.expires_at = now + timedelta(days=30 * months)
+        p.expires_at = None          # billing-v2 (rule B): packs never expire
         p.save(update_fields=["status", "granted", "txn_ref", "confirmed_at",
                               "expires_at"])
-        locked = User.objects.select_for_update().get(pk=p.user_id)
-        User.objects.filter(pk=locked.pk).update(
-            ai_credits=F("ai_credits") + p.credits)
-        CreditLedger.objects.create(
-            user=locked, delta=p.credits, reason="topup",
-            note=f"pack:{p.pack_id}")
-        new_bal = int(locked.ai_credits or 0) + p.credits
+    from . import credits as CR
+    CR.grant(p.user, CR.PACK, p.credits, reason="topup", note=f"pack:{p.pack_id}",
+             source_type="pack", source_id="cp:%d" % p.pk, key="cp:%d" % p.pk, now=now)
+    p.user.refresh_from_db(fields=["ai_credits"])
+    new_bal = int(p.user.ai_credits or 0)
     record_revenue("packs", p.price_bdt)
-    return {"ok": True, "granted": p.credits, "balance": new_bal,
-            "expires_at": p.expires_at.isoformat()}
+    return {"ok": True, "granted": p.credits, "balance": new_bal, "expires_at": None}
 
 
 def credit_history(user, now=None):
@@ -860,22 +833,27 @@ def credit_history(user, now=None):
     the month they expire, so the app can warn 'N credits expire in <month>'."""
     from .models import CreditLedger, CreditPurchase
     now = now or timezone.now()
+    from . import credits as CR
+    from .models import CreditLot
+    st = CR.state(user, now)
     ledger = [{
         "delta": r.delta, "reason": r.reason, "note": r.note,
-        "at": r.created_at.isoformat(),
+        "at": r.created_at.isoformat(), "bucket": r.bucket,
     } for r in CreditLedger.objects.filter(user=user)[:200]]
+    # billing-v2: only PLAN allowance expires (end of its paid period); packs
+    # never do. expiry_buckets keeps its shape for the app.
     buckets = {}
-    active = CreditPurchase.objects.filter(
-        user=user, granted=True, expires_at__gt=now)
-    for p in active:
-        key = p.expires_at.date().isoformat()
-        buckets[key] = buckets.get(key, 0) + int(p.credits)
+    for lot in CreditLot.objects.filter(user=user, status="active", bucket=CR.PLAN,
+                                        expires_at__gt=now):
+        key = lot.expires_at.date().isoformat()
+        buckets[key] = buckets.get(key, 0) + int(lot.remaining + lot.locked)
     return {
-        "balance": int(getattr(user, "ai_credits", 0) or 0),
+        "balance": int(st["balance"]),
         "ad_wallet_credits": ad_wallet_credits(user) if _is_free(user) else 0,
         "ledger": ledger,
         "expiry_buckets": [{"expires_on": k, "credits": v}
                            for k, v in sorted(buckets.items())],
+        "credits_state": st,
     }
 
 
@@ -979,43 +957,40 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
 
     paisa = _ad_reward_paisa(ad_cfg)
     moved = 0
+    whole = 0
+    from . import credits as CR
     with transaction.atomic():
-        w = AdWallet.objects.select_for_update().get_or_create(user=user)[0]
-        before_credits = w.spendable_credits()
+        u = CR._lock(user)
+        w = AdWallet.objects.select_for_update().get_or_create(user=u)[0]
         AdWallet.objects.filter(pk=w.pk).update(
             balance_paisa=F("balance_paisa") + paisa)
         AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
                                ad_id=ad_id[:80], credited_paisa=paisa, at=now)
         w.refresh_from_db()
-        after_credits = w.spendable_credits()
-        whole_gained = after_credits - before_credits
-        if paid and after_credits > 0:
-            # paid opt-in rewarded: whole credits leave the wallet (which a paid
-            # user can't spend) and land in their own balance, one ledger row.
-            from .models import CreditLedger, User
+        whole = w.spendable_credits()
+        if whole > 0:
+            # billing-v2 (audit #7): a whole ad credit leaves the wallet and
+            # lands in the `rewarded` bucket of the balance with ONE ledger
+            # row, so balance == ledger sum always holds.
             AdWallet.objects.filter(pk=w.pk).update(
-                balance_paisa=F("balance_paisa") - after_credits * 100)
-            User.objects.filter(pk=user.pk).update(
-                ai_credits=F("ai_credits") + after_credits)
-            CreditLedger.objects.create(user=user, delta=after_credits,
-                                        reason="rewarded",
-                                        note="ad:rewarded:paid")
-            moved = after_credits
-            whole_gained = 0
-            after_credits = 0
-        if whole_gained > 0:
-            # unify the audit trail: a whole credit crossing writes a ledger row
-            from .models import CreditLedger
+                balance_paisa=F("balance_paisa") - whole * 100)
             reason = {"app_open": "ad_appopen", "interstitial": "ad_interstitial",
-                      "rewarded": "rewarded", "native": "ad_appopen"}.get(
-                          kind, "rewarded")
-            CreditLedger.objects.create(user=user, delta=whole_gained,
-                                        reason=reason, note=f"ad:{kind}")
+                      "rewarded": "rewarded", "native": "ad_appopen"}.get(kind, "rewarded")
+            CR.grant(None, CR.REWARDED, whole, reason=reason,
+                     note="ad:%s%s" % (kind, ":paid" if paid else ""),
+                     source_type="ad", source_id="ad:%s" % kind, now=now, _u=u)
+            moved = whole
+    try:
+        user.ai_credits = u.ai_credits
+    except Exception:
+        pass
+    after_credits = ad_wallet_credits(user)
     # ad revenue into the DailyLedger (we got paid the eCPM; the user share is a cost
     # we recognise as the credit grant — we only book the NET we actually keep here).
     record_revenue("ads", paisa / 100.0)
     out = {"ok": True, "reason": "ok", "credited_paisa": paisa,
-           "credited_credits": after_credits, "wallet_credits": after_credits}
+           "credited_credits": whole if not paid else 0,
+           "wallet_credits": after_credits}
     if paid:
         out["moved_to_balance"] = moved
     return out
@@ -1065,30 +1040,17 @@ def models_q_user_or_device(user, device_id):
 # --------------------------------------------------------------- expiry sweep
 
 def expire_credits(now=None):
-    """Zero out expired purchased credits (12-month validity). Append-only: for
-    each purchase that has passed its expiry and not yet been swept, debit the
-    still-held credits (bounded by the live balance) and write an 'expire'
-    ledger row. Idempotent via the `granted` flag flip to a swept marker.
-
-    Returns the number of credits expired. Called by the daily management
-    command; safe to run repeatedly."""
-    from .models import CreditPurchase, User, CreditLedger
+    """billing-v2 (rule B): purchased PACK credits NEVER expire, so this no
+    longer touches packs. It expires PLAN allowance whose paid period ended
+    (also when an RTDN was missed) via the bucket settle. Returns credits
+    expired."""
+    from . import credits as CR
+    from .models import CreditLot, User
+    from django.db.models import Sum as _S
     now = now or timezone.now()
+    ids = set(CreditLot.objects.filter(status="active", bucket=CR.PLAN,
+                                       expires_at__lte=now).values_list("user_id", flat=True))
     total = 0
-    due = CreditPurchase.objects.filter(
-        granted=True, status="confirmed", expires_at__lte=now)
-    for p in due:
-        with transaction.atomic():
-            locked = User.objects.select_for_update().get(pk=p.user_id)
-            take = min(int(locked.ai_credits or 0), int(p.credits or 0))
-            if take > 0:
-                User.objects.filter(pk=locked.pk).update(
-                    ai_credits=F("ai_credits") - take)
-                CreditLedger.objects.create(
-                    user=locked, delta=-take, reason="expire",
-                    note=f"pack:{p.pack_id} expired")
-                total += take
-            p.status = "failed"   # reuse as a "swept/closed" terminal marker
-            p.granted = False
-            p.save(update_fields=["status", "granted"])
+    for u in User.objects.filter(pk__in=ids):
+        total += int(CR.settle(u, now).get("expired", 0))
     return total

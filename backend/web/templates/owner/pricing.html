@@ -61,7 +61,7 @@
 {% for sec, fields in sections %}
 <form method="post" class="card" id="{{ sec }}">{% include "owner/_csrf.html" %}<input type="hidden" name="section" value="{{ sec }}">
   <h2>{{ sec }}</h2>
-  <div class="kv">{% for k, v, kind in fields %}<label>{{ k }} {% with name=sec|add:"."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
+  <div class="kv">{% for k, v, kind, lbl in fields %}<label>{{ lbl }} {% with name=sec|add:"."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
   {% include "owner/_reason.html" with reprice=False %}
 </form>
 {% endfor %}

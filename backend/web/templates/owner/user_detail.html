@@ -41,9 +41,19 @@
   <button class="btn {% if blocked %}primary{% else %}danger{% endif %}">{% if blocked %}{{ T.unblock }}{% else %}{{ T.block }}{% endif %}</button>
 </form>
 </div>
-<section class="card"><h2>{{ T.credit_history }}</h2>
-{% if ledger %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.delta }}</th><th>{{ T.kind }}</th><th>{{ T.note }}</th></tr></thead><tbody>
-{% for l in ledger %}<tr><td>{{ l.created_at|date:"Y-m-d H:i" }}</td><td class="num {% if l.delta < 0 %}neg{% else %}pos{% endif %}">{{ l.delta }}</td><td>{{ l.reason }}</td><td>{{ l.note }}</td></tr>{% endfor %}
+<section class="card"><h2>{{ T.b2_h_buckets }}</h2>
+<p>{% if b2_verify.ok %}<span class="pill ok">{{ T.b2_invariant_ok }}</span>{% else %}<span class="pill off">{{ T.b2_invariant_bad }}</span>{% endif %}
+ <span class="mut small">{{ T.credits }} {{ b2_verify.balance }} · {{ T.b2_ledger_sum }} {{ b2_verify.ledger_sum }} · {{ T.b2_lots_sum }} {{ b2_verify.lots_sum }}</span></p>
+<div class="tiles">{% for k, v in b2_buckets.items %}<div class="tile"><span>{{ k }}</span><b class="{% if v < 0 %}neg{% endif %}">{% if v > 0 %}+{% endif %}{{ v }}</b><small>{{ T.b2_credits_word }}</small></div>{% endfor %}</div>
+{% if b2_account and b2_account.flagged %}<p class="flash warn">{{ T.b2_flagged }}: {{ b2_account.flag_reason }} · {{ T.b2_refund_count }} {{ b2_account.refund_count }}{% if b2_account.purchase_blocked %} · <b>{{ T.b2_purchase_blocked }}</b> — <a href="/owner/payments/flagged">{{ T.b2_unblock }}</a>{% endif %}</p>{% endif %}
+{% if b2_grants %}<h3>{{ T.b2_h_grants }}</h3><ul>{% for g in b2_grants %}<li>{% if g.source == "play_reviewer" %}<span class="pill fm">{{ T.b2_reviewer_grant }}</span>{% else %}<span class="pill">{{ g.get_source_display }}</span>{% endif %} {{ g.plan }} {% if g.ends_at %}→ {{ g.ends_at|date:"Y-m-d" }}{% endif %} · <span class="mut small">{{ g.reason }}{% if g.actor_id %} · #{{ g.actor_id }}{% endif %}</span></li>{% endfor %}</ul>{% endif %}
+{% if b2_orders %}<h3>{{ T.b2_h_orders }}</h3><div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.b2_order }}</th><th>{{ T.b2_price }}</th><th>{{ T.status }}</th></tr></thead><tbody>
+{% for o in b2_orders %}<tr><td>{{ o.purchased_at|date:"Y-m-d H:i" }}</td><td><code>{{ o.sku }}</code> · …{{ o.order_id|slice:"-8:" }}{% if o.is_test %} <span class="pill off">TEST</span>{% endif %}</td><td>{{ o.price }} {{ o.currency }}</td><td>{{ o.status }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+</section>
+<section class="card"><h2>{{ T.credit_history }} ({{ T.b2_full_ledger }})</h2>
+{% if b2_ledger %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.delta }}</th><th>{{ T.b2_bucket }}</th><th>{{ T.kind }}</th><th>{{ T.b2_after }}</th><th>{{ T.note }}</th></tr></thead><tbody>
+{% for l in b2_ledger %}<tr><td>{{ l.created_at|date:"Y-m-d H:i" }}</td><td class="num {% if l.delta < 0 %}neg{% else %}pos{% endif %}">{% if l.delta > 0 %}+{% endif %}{{ l.delta }} {{ T.b2_credits_word }}</td><td>{{ l.bucket|default:"—" }}</td><td>{{ l.reason }}</td><td>{{ l.balance_after|default_if_none:"" }}</td><td>{{ l.note }}{% if l.source_id %} <span class="mut small">{{ l.source_id|truncatechars:24 }}</span>{% endif %}</td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
 </section>
 {% endblock %}

@@ -156,12 +156,16 @@ class TrialStartView(APIView):
     def post(self, request):
         from . import plans
         lang = req_lang(request)
-        ok, why = plans.start_trial_button(request.user)
+        from .otp import device_id as _dev
+        ok, why = plans.start_trial_button(request.user, device_id=_dev(request))
         if not ok:
             return Response({"ok": False, "reason": why,
                              "msg": pick(lang, "ফ্রি ট্রায়াল একবারই পাওয়া যায় — আপনি আগেই নিয়েছেন।",
                                          "The free trial is once per account — you already used it.")
                              if why == "trial_used" else
+                             pick(lang, "এই ফোন, নম্বর বা ইমেইলে আগেই একটি ফ্রি ট্রায়াল নেওয়া হয়েছে। ট্রায়াল প্রতি ব্যক্তি একবার।",
+                                  "A free trial was already used on this phone, number or email. The trial is once per person.")
+                             if why == "trial_used_person" else
                              pick(lang, "আপনার প্ল্যানে ট্রায়াল প্রযোজ্য নয়।",
                                   "The trial isn't available on your plan.")},
                             status=status.HTTP_409_CONFLICT)

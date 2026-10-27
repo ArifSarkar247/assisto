@@ -249,36 +249,55 @@ def trial_available(user):
     return trial_days() > 0
 
 
-def start_trial_button(user):
-    """POST /plans/trial/start -> (ok, reason). Server-enforced once."""
+def start_trial_button(user, device_id=""):
+    """POST /plans/trial/start -> (ok, reason). Server-enforced ONCE PER
+    PERSON (owner 27 Oct): not again on the same account, the same device
+    (hashed install / device id), the same phone number or the same email —
+    even after deleting the account and signing up again (hashed
+    FreeGrantClaim tombstones). Under the user row lock."""
     from django.db import transaction
     from .models import User
+    from . import antifarm
     with transaction.atomic():
         u = User.objects.select_for_update().get(pk=user.pk)
         if u.trial_until:
             return False, "trial_used"
         if not trial_available(u):
             return False, "not_eligible"
-        start_trial(u)
+        keys = antifarm.keys_for(u, device_id)
+        if antifarm.claimed("trial", keys):
+            return False, "trial_used_person"
+        start_trial(u, device_id=device_id)
     user.refresh_from_db()
     return True, "ok"
 
 
-def start_trial(user):
+def start_trial(user, device_id=""):
+    """Start the trial (row-locked caller). Its credits are PLAN allowance
+    with source=trial and expire when the trial ends (ledger expire row)."""
     if not user.trial_until:
+        from . import antifarm, credits as CR
         days = trial_days()
-        user.trial_until = timezone.now() + timedelta(days=days)
+        now = timezone.now()
+        user.trial_until = now + timedelta(days=days)
         user.save(update_fields=["trial_until"])
-        _grant(user, trial_credits(), "trial", f"{days}-day trial start")
+        keys = antifarm.keys_for(user, device_id)
+        fresh = antifarm.claim("trial", keys)
+        n = trial_credits()
+        if n > 0 and fresh:
+            CR.grant(user, CR.PLAN, n, reason="trial", note=f"{days}-day trial start",
+                     source_type="trial", source_id="trial:%d" % user.pk,
+                     key="trial:%d" % user.pk, expires_at=user.trial_until, now=now)
 
 
 def _grant(user, n, reason, note=""):
-    from .models import CreditLedger
+    """billing-v2: free credits through the bucketed engine (row lock, one
+    ledger row)."""
+    from . import credits as CR
     if n <= 0:
         return
-    user.ai_credits = (user.ai_credits or 0) + n
-    user.save(update_fields=["ai_credits"])
-    CreditLedger.objects.create(user=user, delta=n, reason=reason, note=note)
+    CR.grant(user, CR.REWARDED if reason == "rewarded" else CR.FREE, n, reason=reason,
+             note=note, source_type=reason, source_id="%s:%d" % (reason, user.pk))
 
 
 def grant_monthly_if_due(user):
@@ -309,12 +328,8 @@ def consume_credit(user, note="ai"):
     """Consume one credit (every plan is credit-limited)."""
     if user is None:
         return
-    from .models import CreditLedger
-    if (user.ai_credits or 0) <= 0:
-        return
-    user.ai_credits -= 1
-    user.save(update_fields=["ai_credits"])
-    CreditLedger.objects.create(user=user, delta=-1, reason="consume", note=note)
+    from . import credits as CR
+    CR.spend(user, 1, note=note)
 
 
 def reward_ad(user):

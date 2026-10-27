@@ -65,6 +65,7 @@ def facts(lang):
         "hosting": _fact("LEGAL_HOSTING", lang),
         "site": site,
         "updated": LAST_UPDATED,
+        **_refund_window(),
     }
 
 
@@ -691,6 +692,42 @@ DELETION = [
 ]
 
 
+# ---------------------------------------------------------------- refund (billing-v2, owner order 27 Oct, rule M)
+REFUND = [
+    S("google", "Google Play-র কেনাকাটা", "Google Play purchases",
+      P("Google Play-তে কেনা প্ল্যান ও ক্রেডিট প্যাকের টাকা Google তার নিজের নিয়মে কেনার ৪৮ ঘণ্টার মধ্যে ফেরত দিতে পারে (play.google.com-এ \"Request a refund\")। Google টাকা ফেরত দিলে সেই কেনাকাটার প্ল্যান ও ক্রেডিট আমরা সরিয়ে দিই।",
+        "Google may refund Google Play purchases of plans and credit packs within 48 hours under Google's own rules (\"Request a refund\" on play.google.com). When Google refunds a purchase, we remove the plan and credits that purchase gave.")),
+    S("in_app", "অ্যাপ থেকে রিফান্ড চাওয়া", "Asking us for a refund in the app",
+      UL(("কেনা বা নবায়নের {window_bn} ঘণ্টার মধ্যে অ্যাপের <b>প্ল্যান ও ক্রেডিট</b> বা <b>সাহায্য</b> স্ক্রিন থেকে \"রিফান্ড চান\" চেপে কারণ লিখে অনুরোধ করুন।",
+          "Within {window} hours of a purchase or renewal, tap \"Request a refund\" on the <b>Plan &amp; credits</b> or <b>Help</b> screen and write the reason."),
+         ("অনুরোধ নিজে থেকে টাকা ফেরত দেয় না; আমরা দেখে সিদ্ধান্ত নিই এবং অ্যাপে জানাই।",
+          "A request does not refund by itself; we review it and tell you the decision in the app."),
+         ("শুধু <b>অব্যবহৃত অংশ</b> ফেরত হয়: ব্যবহার করা ক্রেডিট ও ব্যবহার করা দিন ফেরত হয় না। প্রস্তাবিত পরিমাণ = দাম × (অব্যবহৃত ক্রেডিটের ভাগ ও অব্যবহৃত দিনের ভাগের মধ্যে যেটা কম)।",
+          "Only the <b>unused part</b> is refunded: used credits and used days are not. The suggested amount = price × the lower of the unused-credits share and the unused-days share."))),
+    S("after", "সময়সীমার পরে", "After the refund window",
+      P("{window_bn} ঘণ্টার পরে রিফান্ড হয় না। ব্যতিক্রম শুধু দুটি, এবং মালিকের অনুমোদনে: একই কেনাকাটার জন্য দুবার টাকা কাটা (ডুপ্লিকেট চার্জ), অথবা আমাদের ভুলে টাকা দেওয়া কোনো ফিচার কাজ না করা।",
+        "There is no refund after {window} hours. The only exceptions, with the owner's approval: a duplicate charge for the same purchase, or a paid feature that did not work because of our fault.")),
+    S("cancel", "বাতিল করা রিফান্ড নয়", "Cancelling is not a refund",
+      P("সাবস্ক্রিপশন বাতিল করলে পরের নবায়ন বন্ধ হয়; চলতি মেয়াদ শেষ পর্যন্ত প্ল্যান থাকে। বাতিল করা মানে রিফান্ড নয়।",
+        "Cancelling a subscription stops the next renewal; the plan stays until the current period ends. Cancelling is not a refund.")),
+    S("credits", "ক্রেডিট নিয়ে", "About credits",
+      UL(("ক্রেডিট নগদ টাকা নয়, তোলা বা কাউকে দেওয়া যায় না।", "Credits are not cash and cannot be withdrawn or transferred."),
+         ("প্ল্যানের মাসিক ক্রেডিট প্রতিটি মেয়াদ শেষে শেষ হয়ে যায়, পরের মাসে জমা হয় না। কেনা ক্রেডিট প্যাক কখনো শেষ হয় না।",
+          "A plan's monthly credits end with each paid period and do not roll over. Bought credit packs never expire."),
+         ("নতুন মেয়াদের শুরুতে প্ল্যানের ক্রেডিটের একটি অংশ সঙ্গে সঙ্গে পাওয়া যায়, বাকিটা কিছু সময় পরে নিজে থেকে খুলে যায়।",
+          "At the start of each new paid period part of the plan credits is usable at once and the rest unlocks automatically a little later."),
+         ("রিফান্ড হওয়া কেনাকাটার ক্রেডিট আগেই খরচ হয়ে থাকলে ব্যালান্স শূন্যের নিচে যেতে পারে; তখন শূন্যে না ফেরা পর্যন্ত ক্রেডিটের ফিচার বন্ধ থাকে।",
+          "If credits from a refunded purchase were already spent, the balance can go below zero; credit features stay off until it is back to zero."))),
+    S("abuse", "অপব্যবহার", "Abuse",
+      P("বারবার রিফান্ড নিলে (যেমন দ্বিতীয় রিফান্ডের পরে) নতুন কেনাকাটা বা অ্যাকাউন্ট সীমিত করা হতে পারে।",
+        "Repeated refunds (for example after a second refund) can lead to new purchases or the account being restricted.")),
+    S("contact", "যোগাযোগ", "Contact",
+      UL(("অ্যাপে: সেটিংস → সাহায্য / সমস্যা রিপোর্ট।", "In the app: Settings → Help / report a problem."),
+         ("ইমেইল: {email}", "Email: {email}"),
+         ("প্রতিষ্ঠান: {entity}", "Company: {entity}"))),
+]
+
+
 PAGES = {
     "privacy": {"path": "/privacy", "sections": PRIVACY,
                 "title": ("গোপনীয়তা নীতি", "Privacy Policy"),
@@ -699,11 +736,25 @@ PAGES = {
     "terms": {"path": "/terms", "sections": TERMS,
               "title": ("ব্যবহারের শর্তাবলী", "Terms of Service"),
               "desc": ("Assisto অ্যাপ ও lifeassisto.com ব্যবহারের শর্তাবলী।", "The terms for using the Assisto app and lifeassisto.com.")},
+    "refund": {"path": "/refund-policy", "sections": REFUND,
+               "title": ("রিফান্ড নীতি", "Refund policy"),
+               "desc": ("Assisto-র প্ল্যান ও ক্রেডিট প্যাকের রিফান্ড: কখন, কতটা, কীভাবে চাইবেন।",
+                        "Refunds for Assisto plans and credit packs: when, how much and how to ask.")},
     "deletion": {"path": "/delete-account", "sections": DELETION,
                  "title": ("অ্যাকাউন্ট ও ডেটা মুছে ফেলা", "Delete your account and data"),
                  "desc": ("অ্যাপ থেকে বা ওয়েবে অনুরোধ করে Assisto অ্যাকাউন্ট ও সব ডেটা মুছুন — কী মুছবে, কী থাকবে, কত দিনে।",
                           "Delete your Assisto account and all data from the app or by web request — what is deleted, what remains, and when.")},
 }
+
+
+def _refund_window():
+    """billing-v2: the owner-editable refund window (24 or 48 h)."""
+    try:
+        from core import credits as CR
+        w = int(CR.bcfg()["refund_window_hours"])
+    except Exception:
+        w = 48
+    return {"window": w, "window_bn": str(w).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))}
 
 
 def render_sections(key, lang):
