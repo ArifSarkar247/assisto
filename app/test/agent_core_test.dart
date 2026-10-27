@@ -466,6 +466,15 @@ void main() {
       expect(AgentCorePush.approvalId(p), 12);
     });
 
+    test('agent_nudge (WP-PROACTIVE) taps open the agent screen', () {
+      final n = PushPayload({'kind': 'agent_nudge', 'route': 'agent'});
+      expect(n.isKnownKind, isTrue);
+      expect(n.channel, PushChannels.alerts);
+      expect(PushRouting.targetFor(n)?.chatNavRoute, 'agent_core');
+      expect(PushRouting.targetFor(PushPayload({'kind': 'agent_nudge'}))?.chatNavRoute,
+          'agent_core');
+    });
+
     test('tap routes to the approval inbox', () {
       expect(PushRouting.targetFor(p)?.chatNavRoute, 'agent_approvals');
       final noRoute = PushPayload({'kind': 'agent_approval', 'approval_id': '3'});
