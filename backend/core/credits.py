@@ -659,7 +659,58 @@ def state(user, now=None):
         "unlock_pct": int(k["unlock_pct"]), "unlock_hours": int(k["unlock_hours"]),
         "refund_window_hours": int(k["refund_window_hours"]),
         "server_time": now.isoformat(),
+        # billapp (27 Oct): what the app's Credits screen lists per bucket,
+        # the debt as a positive number, what each action costs (credits
+        # only, never our provider cost) and the never-cash rule.
+        "bucket_detail": bucket_detail(user, now),
+        "debt": max(0, -int(buckets(user, now).get(DEBT) or 0)),
+        "action_costs": action_costs(),
+        "withdrawable": False,
     }
+
+
+def bucket_detail(user, now=None):
+    """[{bucket, remaining, locked, expires_at, unlocks_at}] for every bucket
+    that holds something. expires_at = the soonest real expiry of that
+    bucket's active lots (None = never expires, e.g. packs); unlocks_at = the
+    soonest staged unlock still pending in it."""
+    from .models import CreditLot
+    now = now or timezone.now()
+    far = _far().year
+    rows = {}
+    for lot in CreditLot.objects.filter(user=user, status="active").order_by("id"):
+        r = rows.setdefault(lot.bucket, {"bucket": lot.bucket, "remaining": 0, "locked": 0,
+                                         "expires_at": None, "unlocks_at": None})
+        r["remaining"] += int(lot.remaining or 0)
+        r["locked"] += int(lot.locked or 0)
+        exp = lot.expires_at
+        if exp is not None and exp.year < far and (r["expires_at"] is None or exp < r["expires_at"]):
+            r["expires_at"] = exp
+        ua = lot.unlocks_at
+        if lot.locked and ua is not None and (r["unlocks_at"] is None or ua < r["unlocks_at"]):
+            r["unlocks_at"] = ua
+    order = {b: i for i, b in enumerate(BUCKETS + (DEBT,))}
+    out = []
+    for b in sorted(rows, key=lambda x: order.get(x, 99)):
+        r = rows[b]
+        if not (r["remaining"] or r["locked"]):
+            continue
+        r["expires_at"] = r["expires_at"].isoformat() if r["expires_at"] else None
+        r["unlocks_at"] = r["unlocks_at"].isoformat() if r["unlocks_at"] else None
+        out.append(r)
+    return out
+
+
+def action_costs():
+    """{action: credits per use} from the live pricing config (owner-set).
+    Credits only — the provider cost behind it is never sent to users."""
+    try:
+        from . import billing
+        return {k: int(v.get("credits") or 0)
+                for k, v in sorted((billing.cfg().get("action_costs") or {}).items())
+                if isinstance(v, dict)}
+    except Exception:
+        return {}
 
 
 def verify(user):

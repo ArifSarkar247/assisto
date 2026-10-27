@@ -95,6 +95,10 @@ class PlansV2State {
   /// The CRM org OWNER's tier (their plan decides the CRM, not the viewer's).
   final String? crmOwnerTier;
 
+  /// billapp: the caller's OWN CRM contact usage (when they own a CRM org),
+  /// for the Plan screen's usage meter.
+  final ContactUsage? ownContacts;
+
   const PlansV2State({
     this.on = false,
     this.tier = 'free',
@@ -109,6 +113,7 @@ class PlansV2State {
     this.crmCaps = const {},
     this.contacts,
     this.crmOwnerTier,
+    this.ownContacts,
   });
 
   /// Flag off / not loaded: nothing locked by the app (server still decides).
@@ -140,6 +145,10 @@ class PlansV2State {
       crmOwnerTier: crm?['owner_tier'] == null ? null : '${crm!['owner_tier']}',
       contacts: crm?['contacts'] is Map
           ? ContactUsage.fromJson((crm!['contacts'] as Map).cast<String, dynamic>())
+          : null,
+      ownContacts: j['own_crm_contacts'] is Map
+          ? ContactUsage.fromJson(
+              (j['own_crm_contacts'] as Map).cast<String, dynamic>())
           : null,
     );
   }

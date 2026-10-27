@@ -121,8 +121,71 @@ class FakeApi extends ApiClient {
         'storage': {'used': 1200000000, 'quota_bytes': 5368709120},
       };
     }
-    if (path == '/credits/history') {
-      return {'items': const [], 'expiry_buckets': const []};
+    if (path.startsWith('/credits/history')) {
+      // billapp: the real paged ledger shape (newest first)
+      return {
+        'ledger': [
+          {'id': 3, 'delta': -1, 'reason': 'consume', 'note': 'ai_msg_cheap', 'bucket': 'plan',
+            'at': '2026-10-27T09:10:00+00:00', 'balance_after': 17},
+          {'id': 2, 'delta': 18, 'reason': 'grant', 'note': '', 'bucket': 'plan',
+            'at': '2026-10-27T08:00:00+00:00', 'balance_after': 18},
+          {'id': 1, 'delta': 20, 'reason': 'topup', 'note': '', 'bucket': 'pack',
+            'at': '2026-10-20T08:00:00+00:00', 'balance_after': 20},
+        ],
+        'next_offset': null, 'total': 3, 'expiry_buckets': const [],
+      };
+    }
+    if (path == '/credits/refunds') {
+      // billapp: one eligible purchase (server suggestion), one past the
+      // window, and a decided request with the owner's note
+      final now = DateTime.now().toUtc();
+      return {
+        'window_hours': 48,
+        'policy': {'window_hours': 48, 'url': '/refund-policy',
+          'text': _bn
+              ? 'কেনা বা নবায়নের 48 ঘণ্টার মধ্যে অ্যাপ থেকে রিফান্ড চাওয়া যায়। শুধু অব্যবহৃত অংশ ফেরত হয়।'
+              : 'You can ask for a refund in the app within 48 hours of a purchase or renewal. Only the unused part is refunded.'},
+        'purchases': [
+          {'id': 12, 'channel': 'play', 'order_ref': '00012', 'sku': 'premium_monthly', 'kind': 'sub',
+            'plan': 'premium', 'price': '199.00', 'currency': 'BDT', 'test': true,
+            'purchased_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
+            'window_ends_at': now.add(const Duration(hours: 45)).toIso8601String(),
+            'eligible': true, 'reason': '', 'suggested': '179.10', 'request': null,
+            'usage': {'credits_planned': 90, 'credits_used': 9, 'days_total': 30.0, 'days_used': 0.1}},
+          {'id': 9, 'channel': 'play', 'order_ref': '00009', 'sku': 'pack_p50', 'kind': 'pack',
+            'plan': '', 'price': '50.00', 'currency': 'BDT', 'test': false,
+            'purchased_at': now.subtract(const Duration(days: 5)).toIso8601String(),
+            'eligible': false, 'reason': 'already_requested', 'suggested': null},
+        ],
+        'requests': [
+          {'id': 3, 'status': 'rejected', 'order': 9,
+            'requested_at': now.subtract(const Duration(days: 4)).toIso8601String(),
+            'note': _bn ? 'প্যাকের বেশিরভাগ ক্রেডিট ব্যবহার হয়েছে' : 'Most of the pack was used',
+            'approved_amount': '0.00'},
+        ],
+      };
+    }
+    if (path == '/credits/state') {
+      // billapp: 18 usable now, 72 locked (opens in 2 days), a pack
+      final now = DateTime.now().toUtc();
+      return {
+        'balance': 38, 'now_usable': 38, 'locked': 72,
+        'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String(),
+        'negative': false, 'blocked': false, 'purchase_blocked': false, 'debt': 0,
+        'buckets': {'plan': 18, 'pack': 20},
+        'bucket_detail': [
+          {'bucket': 'plan', 'remaining': 18, 'locked': 72,
+            'expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+            'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String()},
+          {'bucket': 'pack', 'remaining': 20, 'locked': 0, 'expires_at': null, 'unlocks_at': null},
+        ],
+        'plan_expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+        'unlock_pct': 20, 'unlock_hours': 48, 'refund_window_hours': 48,
+        'action_costs': {'ai_msg_cheap': 1, 'ai_msg_medium': 3, 'scan_ocr': 2,
+          'photo_generate': 9, 'retention_in_app': 0},
+        'withdrawable': false,
+        'server_time': now.toIso8601String(),
+      };
     }
     return null;
   }

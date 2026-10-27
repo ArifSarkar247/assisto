@@ -11,6 +11,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/rewarded_ad_sheet.dart';
 import '../widgets/subs_common.dart' show fmtInt;
+import '../screens/credits_screen.dart'; // billapp: "see my credits"
 import 'checkout_sheet.dart';
 import 'payments_api.dart';
 import 'play_prices.dart';
@@ -65,6 +66,7 @@ class CreditsOut {
   static Future<bool> offer(BuildContext context,
       {required String screen,
       bool draftKept = false,
+      int need = 0,
       PaymentsBackend? backend,
       String? flavour}) async {
     final o = debugOffer;
@@ -82,6 +84,7 @@ class CreditsOut {
         builder: (_) => CreditsOutSheet(
           screen: screen,
           draftKept: draftKept,
+          need: need,
           backend: b!,
           flavour: flavour ?? payFlavour(),
         ),
@@ -130,8 +133,11 @@ class CreditsOutSheet extends StatefulWidget {
     this.adsAvailable,
     this.watchAd,
     this.gatewayCheckout,
+    this.need = 0,
   });
 
+  /// billapp: credits the refused task needs (the server's 402 `need`).
+  final int need;
   final String screen;
   final bool draftKept;
   final PaymentsBackend backend;
@@ -416,6 +422,13 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
     setState(() => _busySku = null);
   }
 
+  void _seeCredits() {
+    final nav = Navigator.of(context);
+    final reason = CreditsOpenReason(need: widget.need);
+    nav.pop(false);
+    nav.push(MaterialPageRoute(builder: (_) => CreditsScreen(reason: reason)));
+  }
+
   // ------------------------------------------------------------ UI
   @override
   Widget build(BuildContext context) {
@@ -473,7 +486,15 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
                     style: TextStyle(
                         fontSize: 12, color: scheme.onSurfaceVariant))),
           ]),
-          const SizedBox(height: Gap.sm),
+          // billapp: the exact why (locked credits, debt, what it costs) lives
+          // on the Credits screen; one tap opens it with this reason.
+          TextButton.icon(
+            key: const Key('credout-see-credits'),
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busySku != null ? null : _seeCredits,
+            icon: const Icon(Icons.account_balance_wallet_rounded),
+            label: Text(t.billSeeMyCredits),
+          ),
           TextButton(
             key: const Key('credout-not-now'),
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),

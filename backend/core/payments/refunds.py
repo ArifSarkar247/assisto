@@ -318,6 +318,7 @@ class RefundError(Exception):
 def refundable(user, now=None, lang="bn"):
     """The user's recent orders for the app's "Request a refund" list."""
     from ..models import PaidOrder, RefundRequest
+    from . import orders as O
     now = now or timezone.now()
     w = window_hours()
     rows = []
@@ -326,7 +327,11 @@ def refundable(user, now=None, lang="bn"):
         ok = o.status == "paid" and in_window(o, now) and req is None
         why = "" if ok else ("already_requested" if req is not None else
                              "refunded" if o.status != "paid" else "outside_window")
-        rows.append({"id": o.pk, "channel": o.channel, "order_ref": o.order_id[-6:],
+        # billapp: the suggested amount and the usage behind it are shown to
+        # the user BEFORE they ask (the owner still decides; never a promise)
+        sug, use = (O.suggested_refund(o, now) if ok else (None, None))
+        rows.append({"suggested": str(sug) if sug is not None else None, "usage": use,
+                     "id": o.pk, "channel": o.channel, "order_ref": o.order_id[-6:],
                      "sku": o.sku, "kind": o.kind, "plan": o.plan,
                      "price": str(o.price), "currency": o.currency, "test": o.is_test,
                      "purchased_at": o.purchased_at.isoformat(),
@@ -342,6 +347,24 @@ def _req_json(r):
             "requested_at": r.requested_at.isoformat(),
             "decided_at": r.decided_at.isoformat() if r.decided_at else None,
             "note": r.decision_note, "approved_amount": str(r.approved_amount)}
+
+
+RATE_PER_HOUR = 6
+
+
+def rate_limited(user):
+    """billapp: at most RATE_PER_HOUR refund-request attempts per user per
+    hour (good or bad), so the endpoint cannot be hammered."""
+    from django.core.cache import cache
+    key = "refund_req:%s:%s" % (user.pk, timezone.now().strftime("%Y%m%d%H"))
+    if cache.add(key, 1, 3600):
+        return False
+    try:
+        n = cache.incr(key)
+    except ValueError:
+        cache.set(key, 1, 3600)
+        n = 1
+    return n > RATE_PER_HOUR
 
 
 def create_request(user, order_pk, reason="", now=None):

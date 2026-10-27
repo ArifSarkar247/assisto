@@ -826,7 +826,7 @@ def confirm_topup(purchase_id, txn_ref="", now=None):
     return {"ok": True, "granted": p.credits, "balance": new_bal, "expires_at": None}
 
 
-def credit_history(user, now=None):
+def credit_history(user, now=None, offset=0, limit=200):
     """Ledger list + balance + expiry buckets for /credits/history.
 
     expiry_buckets = active (granted, un-expired) CreditPurchase rows grouped by
@@ -836,10 +836,15 @@ def credit_history(user, now=None):
     from . import credits as CR
     from .models import CreditLot
     st = CR.state(user, now)
+    offset = max(0, int(offset or 0))
+    limit = max(1, min(200, int(limit or 200)))
+    qs = CreditLedger.objects.filter(user=user).order_by("-created_at", "-id")
+    total = qs.count()
     ledger = [{
-        "delta": r.delta, "reason": r.reason, "note": r.note,
+        "id": r.pk, "delta": r.delta, "reason": r.reason, "note": r.note,
         "at": r.created_at.isoformat(), "bucket": r.bucket,
-    } for r in CreditLedger.objects.filter(user=user)[:200]]
+        "balance_after": r.balance_after,
+    } for r in qs[offset:offset + limit]]
     # billing-v2: only PLAN allowance expires (end of its paid period); packs
     # never do. expiry_buckets keeps its shape for the app.
     buckets = {}
@@ -851,6 +856,9 @@ def credit_history(user, now=None):
         "balance": int(st["balance"]),
         "ad_wallet_credits": ad_wallet_credits(user) if _is_free(user) else 0,
         "ledger": ledger,
+        # billapp: paging (newest first); next_offset None = no more rows
+        "total": total, "offset": offset,
+        "next_offset": offset + limit if offset + limit < total else None,
         "expiry_buckets": [{"expires_on": k, "credits": v}
                            for k, v in sorted(buckets.items())],
         "credits_state": st,

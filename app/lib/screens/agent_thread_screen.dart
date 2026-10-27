@@ -301,6 +301,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     _toBottom();
     final app = context.read<AppState>();
     var outOfCredits = false;
+    var creditsNeed = 0; // billapp: the server's 402 `need`
     try {
       final r = await app.api.agent(text, sessionId: _sessionId);
       final sid = r['session_id']?.toString();
@@ -326,6 +327,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         // credout: nothing was saved server-side — put the text back in the
         // box (never lost) and open the buy-credits sheet at once.
         outOfCredits = true;
+        final n = (e as ApiException).body?['need'];
+        creditsNeed = n is num ? n.toInt() : 0;
         setState(() {
           _msgs.remove(mine);
           if (_input.text.trim().isEmpty) _input.text = text;
@@ -340,7 +343,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     if (outOfCredits && mounted) {
       final ok = creditsRetry
           ? false // already retried once after a purchase: keep the draft
-          : await CreditsOut.offer(context, screen: 'home', draftKept: true);
+          : await CreditsOut.offer(context,
+              screen: 'home', draftKept: true, need: creditsNeed);
       // after a verified purchase / reward: the same request, once
       if (ok && mounted && _input.text.trim() == text) {
         _input.clear();

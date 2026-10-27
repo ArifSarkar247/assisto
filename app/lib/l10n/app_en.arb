@@ -22183,5 +22183,330 @@
     }
   },
   "mtrTokenCopy": "Copy token",
-  "mtrCopied": "Copied"
+  "mtrCopied": "Copied",
+  "billNowUsable": "Usable now",
+  "billNowAndLocked": "{now} usable now, {locked} more unlock {when}",
+  "@billNowAndLocked": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "locked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenDays": "in {n} days",
+  "@billWhenDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenHours": "in {n} hours",
+  "@billWhenHours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenSoon": "within the hour",
+  "billLockedExplain": "New plan credits open in steps: {pct}% right away, the rest {hours} hours later. Nothing is lost; they open on their own.",
+  "@billLockedExplain": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "billBucketsTitle": "Where your credits are",
+  "billBucketPlan": "Plan allowance",
+  "billBucketPack": "Credit packs",
+  "billBucketFree": "Free credits",
+  "billBucketRewarded": "Earned from ads",
+  "billBucketReferral": "Referral reward",
+  "billBucketLegacy": "Earlier balance",
+  "billBucketDebt": "Owed after a refund",
+  "billBucketsEmpty": "You have no credits right now.",
+  "billNeverExpires": "Never expires",
+  "billLockedUntil": "{n} locked · opens {date}",
+  "@billLockedUntil": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billDebtTitle": "Balance below zero",
+  "billDebtBody": "A refund removed credits you had already used, so {n} credits are owed. Credit features are paused until the balance is back to zero. A credit pack clears it first.",
+  "@billDebtBody": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billPurchaseBlockedTitle": "Purchases paused",
+  "billPurchaseBlocked": "New purchases are paused on this account after repeated refunds. Write to us from Help & support to reopen them.",
+  "billCostsTitle": "What each task costs",
+  "billCostsNote": "Set on our server and always current. Safety features, calls and chat with people never use credits.",
+  "billCostsEmpty": "Costs couldn't be loaded right now.",
+  "billCostAiCheap": "AI message (quick)",
+  "billCostAiMedium": "AI message (detailed)",
+  "billCostAiStrong": "AI message (expert)",
+  "billCostScan": "Document scan",
+  "billCostPhotoEnhance": "Photo enhance",
+  "billCostPhotoCloud": "Photo enhance (cloud HD)",
+  "billCostPhotoEdit": "Edit a photo by typing",
+  "billCostPhotoGenerate": "Create an image",
+  "billCostPhotoColorize": "Colour an old photo",
+  "billCostPhotoRestore": "Restore an old photo",
+  "billCostPhotoDeblur": "Fix a blurry photo",
+  "billCostChatPhoto": "Ask about a photo in chat",
+  "billCostWebAnswer": "Live web answer with sources",
+  "billCostVideoMin": "Video call, per minute",
+  "billCostSms": "SMS, per message",
+  "billCostAiSales": "AI sales reply",
+  "billCostShopCamera": "Extra shop camera",
+  "billCostShopRelay": "Shop live view via relay, per minute",
+  "billCostVehicle": "Vehicle tracking, per 30 days",
+  "billCostIvr": "Voice-call alert",
+  "billCostRemote": "Remote help, per minute",
+  "billLedTopup": "Credit pack bought",
+  "billLedPlan": "Plan credits added",
+  "billLedTrial": "Trial credits",
+  "billLedFree": "Free credits added",
+  "billLedRewarded": "Ad reward",
+  "billLedReferral": "Referral reward",
+  "billLedUnlock": "Locked credits opened",
+  "billLedExpire": "Expired (plan period ended)",
+  "billLedRevoke": "Removed — Google refunded the purchase",
+  "billLedRefund": "Removed — refund approved",
+  "billLedReturn": "Returned — the task didn't finish",
+  "billLedAdjust": "Adjusted by support",
+  "billHistoryMore": "Show more",
+  "billHistoryEmpty": "No credit activity yet.",
+  "billHistoryFailed": "Couldn't load the history.",
+  "billBalanceAfter": "Balance {n}",
+  "@billBalanceAfter": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billCachedAt": "Offline — showing what was saved {when}",
+  "@billCachedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billUpdatedAt": "Updated {when}",
+  "@billUpdatedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonNeed": "This task needs {need} credits. You can use {now} right now.",
+  "@billReasonNeed": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "now": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonNoCredits": "You're out of usable credits for this task.",
+  "billReasonLocked": "{locked} of your credits are locked and open {when}.",
+  "@billReasonLocked": {
+    "placeholders": {
+      "locked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonBlocked": "Credit features are paused because the balance is below zero.",
+  "billSeeMyCredits": "See my credits",
+  "billRefundEntry": "Request a refund",
+  "billRefundEntrySub": "Within {h} hours of a purchase · only the unused part",
+  "@billRefundEntrySub": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundTitle": "Refunds",
+  "billRefundPurchases": "Your recent purchases",
+  "billRefundNoPurchases": "No purchases in the last 60 days.",
+  "billRefundAsk": "Ask for a refund",
+  "billRefundWindowLeft": "You can ask until {date}",
+  "@billRefundWindowLeft": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNotEligibleWindow": "The {h}-hour refund window has passed.",
+  "@billRefundNotEligibleWindow": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNotEligibleRefunded": "Already refunded.",
+  "billRefundNotEligibleRequested": "A request was already sent.",
+  "billRefundTest": "Test purchase",
+  "billRefundPack": "Credit pack",
+  "billRefundBoughtOn": "Bought {date}",
+  "@billRefundBoughtOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundReasonLabel": "Why do you want a refund? (optional)",
+  "billRefundSuggested": "If approved, about {amount} (the unused part)",
+  "@billRefundSuggested": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundUsageCredits": "Credits used: {used} of {planned}",
+  "@billRefundUsageCredits": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "planned": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundUsageDays": "Days used: {used} of {total}",
+  "@billRefundUsageDays": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNoPromise": "This is a request, not a promise. We check it and decide; the final amount can differ. Used credits and used days are not refunded. Credits are never paid out as cash.",
+  "billRefundSend": "Send request",
+  "billRefundSent": "Request sent. The decision will show here and you'll get a notification.",
+  "billRefundStatusPending": "Waiting for review",
+  "billRefundStatusApproved": "Approved — {amount}",
+  "@billRefundStatusApproved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundStatusManual": "Approved — {amount}, being refunded by hand (can take a few days)",
+  "@billRefundStatusManual": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundStatusRejected": "Not approved",
+  "billRefundOwnerNote": "Note: {note}",
+  "@billRefundOwnerNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundRateLimited": "Too many tries. Please try again in an hour.",
+  "billRefundNetwork": "No internet — the request wasn't sent. Try again.",
+  "billRefundFailed": "The request couldn't be sent. Try again.",
+  "billRefundRequestsTitle": "Your refund requests",
+  "billRefundRequestedOn": "Requested {date}",
+  "@billRefundRequestedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundPolicyTitle": "Refund policy",
+  "billPackNeverExpires": "Never expires",
+  "billPlanTrialLeft": "Trial: {n} days left",
+  "@billPlanTrialLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanTrialLastDay": "Trial: last day",
+  "billPlanTrialEnds": "When it ends on {date}, the plan's features stop, unused trial credits expire and you go back to Free. Nothing is charged.",
+  "@billPlanTrialEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanCreditsUntil": "This period's plan credits are valid until {date}",
+  "@billPlanCreditsUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanUsageTitle": "Your usage",
+  "billPlanUsageCredits": "AI credits used this month: {used} · {pool} included",
+  "@billPlanUsageCredits": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "pool": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanUsageContacts": "CRM contacts",
+  "billPlanLimitReached": "Limit reached — upgrade to add more",
+  "billFaqRefundA": "Within {h} hours of a purchase or renewal you can ask from the app: Plan & credits › Balance › Request a refund. Only the unused part can be refunded and we decide each request. Cancelling stops the next renewal; it is not a refund.",
+  "@billFaqRefundA": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  }
 }
