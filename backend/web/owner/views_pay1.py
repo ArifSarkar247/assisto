@@ -115,7 +115,11 @@ def payments(request):
                       (T["pay_ch_gateway"], pnl["channels"]["gateway"])],
         "gw_ready": gw is not None, "play_ready": play.configured(),
         "orders": PaymentOrder.objects.select_related("user")[:50],
-        "events": PaymentEvent.objects.select_related("user")[:40],
+        "events": PaymentEvent.objects.select_related("user").exclude(
+            kind__in=("entitlement.update", "play.rtdn"))[:60],
+        "event_rows": _event_rows(PaymentEvent.objects.select_related("user").exclude(
+            kind__in=("entitlement.update", "play.rtdn"))[:60], request.owner_lang),
+        "paid_orders": _paid_orders(),
         "reminder_days": ", ".join(str(d) for d in cfg["payments"]["reminder_days"]),
         "urls": service.urls(),
         "rtdn_url": service.api_base() + "/api/v1/payments/play/rtdn",
@@ -125,3 +129,13 @@ def payments(request):
     if msg in ("refunded", "not_refundable"):
         ctx["flash"] = T["pay_refunded"] if msg == "refunded" else T["pay_not_refundable"]
     return page(request, "owner/payments.html", ctx, status=status, nav="payments")
+
+
+def _event_rows(qs, lang):
+    from .views_bill2 import event_rows
+    return event_rows(qs, lang)
+
+
+def _paid_orders():
+    from core.models import PaidOrder
+    return PaidOrder.objects.select_related("user")[:50]

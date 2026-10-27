@@ -52,6 +52,10 @@ MESSAGES = {
     "unknown_product": ("এই পণ্যটি চেনা যায়নি।", "Unknown product."),
     "already_active": ("এই প্ল্যান আপনার আগে থেকেই চালু আছে (Google Play)।",
                        "You already have this plan through Google Play."),
+    "purchase_blocked": ("একাধিক রিফান্ডের কারণে নতুন কেনাকাটা বন্ধ আছে। সাহায্যের জন্য সাপোর্টে যোগাযোগ করুন।",
+                         "New purchases are blocked after repeated refunds. Please contact support."),
+    "unbound_purchase": ("এই কেনাকাটা কোন অ্যাকাউন্টের, তা যাচাই করা যায়নি। অ্যাপ আপডেট করে আবার চেষ্টা করুন।",
+                         "We could not confirm which account made this purchase. Update the app and try again."),
 }
 
 
@@ -135,8 +139,12 @@ def config_for(user, flavour, lang="bn"):
     from . import play
     chans = channel_state(flavour)
     products = {c["id"]: catalog.products(c["id"], lang) for c in chans}
+    from . import refunds as R
+    blocked = R.purchase_blocked(user)
     return {"channels": chans, "products": products,
-            "purchasable": any(c["enabled"] and c["ready"] for c in chans),
+            "purchasable": (not blocked) and any(c["enabled"] and c["ready"] for c in chans),
+            "purchase_blocked": blocked,
+            "refund_policy": R.policy(lang),
             "play_account_id": play.account_id(user) if user else "",
             "state": E.summary(user) if user else None,
             "server_time": timezone.now().isoformat()}
@@ -171,6 +179,9 @@ def checkout(user, sku, *, source="app", idem="", flavour="apk", ip="", lang="bn
     amount = catalog.price(sku, "gateway")
     if not d or not amount:
         raise PayError("not_for_sale", 400)
+    from . import refunds as R
+    if R.purchase_blocked(user):                 # billing-v2 rule L
+        raise PayError("purchase_blocked", 403)
     gw = G.get()
     if gw is None:
         raise PayError("not_configured", 503)
@@ -289,8 +300,9 @@ def complete(order, now=None, via="return"):
             BA.activate_plan_for_user(o.user, o.plan, months=o.months or 1, now=now)
             E.ledger("seller", net)
         else:
+            po = E.paid_order_for_gateway(o, kind="pack")
             E.grant_pack(o.user, channel="gateway", ref="gw:" + o.merchant_tx_id,
-                         sku=o.sku, amount_bdt=o.amount_bdt, now=now)
+                         sku=o.sku, amount_bdt=o.amount_bdt, now=now, order=po)
             E.ledger("packs", net)
     _notify_paid(o)
     return o
@@ -365,6 +377,8 @@ def refund_order(order, actor=None, reason="", now=None):
         o.detail = ("refunded: " + (reason or ""))[:200]
         o.save(update_fields=["status", "detail", "updated_at"])
     net = catalog.net(o.amount_bdt, o.sku, "gateway")
+    from . import refunds as R
+    R.owner_refund_gateway(o, actor=actor, reason=reason, now=now)   # billing-v2 buckets
     if o.kind == "sub":
         E.revoke_period("gateway", "gw:" + o.merchant_tx_id, "refund", now)
         E.ledger("subs", -float(net))
@@ -467,6 +481,13 @@ def sweep(now=None):
             o.status = "expired"
             o.save(update_fields=["status", "updated_at"])
             out["expired_orders"] += 1
+    # 3b) billing-v2 safety: staged unlocks + plan allowance whose paid
+    #     period ended (also when an RTDN was missed)
+    try:
+        from .. import credits as CR
+        out["credits_settled"] = CR.settle_all(now)
+    except Exception:
+        log.exception("payments sweep: credits settle failed")
     # 4) Google Play: retry failed acknowledge / consume (< 3 days old), or
     #    Google auto-refunds the purchase
     try:

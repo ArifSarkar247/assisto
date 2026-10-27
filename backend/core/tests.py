@@ -2929,8 +2929,8 @@ class BusinessModelV2Tests(APITestCase):
         from core.models import CreditPurchase
         p = CreditPurchase.objects.get(pk=pid)
         self.assertTrue(p.granted)
-        days = (p.expires_at - _tz.now()).days
-        self.assertGreater(days, 350)                     # ~12 months out
+        # billing-v2 rule B (owner 27 Oct): pack credits NEVER expire
+        self.assertIsNone(p.expires_at)
         # idempotent: confirming again grants nothing more
         self.client.post("/api/v1/credits/topup/confirm",
                          {"purchase_id": pid}, format="json")
@@ -2940,7 +2940,8 @@ class BusinessModelV2Tests(APITestCase):
         self.client.force_authenticate(self.u)
         h = self.client.get("/api/v1/credits/history")
         self.assertEqual(h.data["balance"], 115)
-        self.assertEqual(sum(b["credits"] for b in h.data["expiry_buckets"]), 115)
+        self.assertEqual(sum(b["credits"] for b in h.data["expiry_buckets"]), 0)
+        self.assertEqual(h.data["credits_state"]["buckets"]["pack"], 115)
 
     # ---- ad wallet: credits within caps, rejects over-cap + fraud ---------
     def test_ad_event_credits_wallet_within_caps(self):
@@ -3185,6 +3186,17 @@ class BusinessModelV3Tests(APITestCase):
         u.plan = "business"
         u.plan_until = self._tz.now() + self._td(days=30)
         u.save()
+        # billing-v2 (owner 27 Oct): "paid" counts only a VERIFIED payment
+        # whose paid period is active -> back the plan with a real order
+        from core.models import PaidOrder, PlanPeriod
+        now = self._tz.now()
+        PlanPeriod.objects.create(user=u, source="gateway", ref="gw:biz%d" % u.pk,
+                                  plan="business", starts_at=now - self._td(days=1),
+                                  ends_at=u.plan_until)
+        PaidOrder.objects.create(channel="gateway", order_id="biz%d" % u.pk, user=u,
+                                 kind="sub", plan="business", months=1, price=499,
+                                 purchased_at=now - self._td(days=1),
+                                 period_start=now - self._td(days=1), period_end=u.plan_until)
         return u
 
     # ---- storage counts an upload + per-plan quota in the meter -----------
@@ -3820,7 +3832,11 @@ class ShopGuardTests(APITestCase):
             self.assertEqual(r.status_code, 201, r.data)
             self.assertEqual(r.data.get("charged_credits", 0), 0)
         self.assertEqual(ShopCamera.objects.filter(site=self.site).count(), 4)
-        # the 5th camera is charged credits
+        # the 5th camera is charged credits (billing-v2: settle first, the
+        # owner-edited Business plan's base month lands on the first spend)
+        from core import credits as _CR
+        _CR.settle(self.owner)
+        self.owner.refresh_from_db()
         before = self.owner.ai_credits
         r = self.client.post("/api/v1/shop/sites/%d/cameras" % self.site.id,
                              {"name": "cam5"}, format="json")

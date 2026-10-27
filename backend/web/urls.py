@@ -39,6 +39,7 @@ urlpatterns = [
     # ---- l1-launch: Play/AdMob legal pages, app-ads.txt, sitemap ----
     path("privacy", views_legal.privacy),
     path("terms", views_legal.terms),
+    path("refund-policy", views_legal.refund_policy),   # billing-v2
     path("delete-account", views_legal.delete_account),
     path("app-ads.txt", views_legal.app_ads_txt),
     path("sitemap.xml", views_legal.sitemap_xml),

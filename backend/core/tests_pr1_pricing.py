@@ -120,7 +120,8 @@ class PremiumMonthlyPoolTests(APITestCase):
 
     def test_next_month_resets_pool_but_keeps_purchased_credits(self):
         oct_ = datetime(2026, 10, 15, 12, 0, tzinfo=dt_tz.utc)
-        nov_ = datetime(2026, 11, 3, 12, 0, tzinfo=dt_tz.utc)
+        # billing-v2: the month follows the plan's own anniversary (the 15th)
+        nov_ = datetime(2026, 11, 15, 12, 0, tzinfo=dt_tz.utc)
         self.u.plan_until = datetime(2027, 1, 1, tzinfo=dt_tz.utc)
         self.u.save()
         with mock.patch("django.utils.timezone.now", return_value=oct_):

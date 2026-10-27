@@ -82,5 +82,10 @@ def purge_user(user):
     """Hard-delete `user` and everything they own. Call inside a transaction.
     Returns the number of files removed from disk."""
     files = _delete_user_files(user)
+    try:   # billing-v2 rule P: hashed anti-farming tombstone survives
+        from .antifarm import tombstone
+        tombstone(user)
+    except Exception:
+        pass
     user.delete()  # cascades all data + the deletion_request row
     return files

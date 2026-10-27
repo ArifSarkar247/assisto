@@ -507,6 +507,12 @@ class FakeGoogle:
         self.subs = {}       # token -> subscriptionsv2 body
         self.products = {}   # token -> products body
         self.acks, self.consumed = [], []
+        self.voided = []     # billing-v2: purchases.voidedpurchases.list items
+        self.refunds = []    # billing-v2: orders.refund calls (never real)
+
+    def void(self, token, order="", refund_type=1):
+        self.voided.append({"purchaseToken": token, "orderId": order,
+                            "voidedTimeMillis": "1792656283478", "refundType": refund_type})
 
     def __call__(self, method, url, body=None, headers=None):
         if url == play.TOKEN_URI:
@@ -515,6 +521,13 @@ class FakeGoogle:
             return 200, {"keys": [_jwk(_OIDC_KEY.public_key(), "k1")]}
         assert headers["Authorization"] == "Bearer ya29.fake"
         path = urlparse(url).path
+        if "/purchases/voidedpurchases" in path:
+            return 200, {"voidedPurchases": list(self.voided)}
+        if "/orders/" in path:
+            if path.endswith(":refund"):
+                self.refunds.append(path.rsplit("/orders/", 1)[-1])
+                return 200, {}
+            return 404, {}
         tok = path.rsplit("/tokens/", 1)[-1]
         from urllib.parse import unquote
         if "/subscriptionsv2/tokens/" in path:
@@ -765,6 +778,8 @@ class RtdnTests(PlayBase):
         self.assertEqual(self._state(), "free")
 
     def test_revoked_refunds_and_reverses_revenue(self):
+        # billing-v2 rule E: the REVOKED payload is re-checked with Google
+        self.g.subs["tok1"]["subscriptionState"] = "SUBSCRIPTION_STATE_EXPIRED"
         self.rtdn_push(self.sn("tok1", 12))
         self.assertEqual(self._state(), "free")
         self.assertEqual(PlanPeriod.objects.get(ref=play.ref_for("tok1")).status, "revoked")
@@ -779,12 +794,17 @@ class RtdnTests(PlayBase):
                                    "orderId": "GPA.9999", "acknowledgementState": 0,
                                    "obfuscatedExternalAccountId": play.account_id(self.u)}
         self.verify("ptok", kind="pack", product="credits_p20")
+        self.g.void("ptok", "GPA.9999")            # Google lists it as voided
         r = self.rtdn_push({"packageName": "com.assisto.assisto",
                        "voidedPurchaseNotification": {"purchaseToken": "ptok", "orderId": "GPA.9999",
                                                       "productType": 2, "refundType": 1}}, mid="v")
         self.assertEqual(r.json()["outcome"], "voided")
         self.u.refresh_from_db()
-        self.assertEqual(self.u.ai_credits, 0)
+        # billing-v2: the pack's credits are gone; what is left is the
+        # Premium period's staged allowance (20% of 90 usable now)
+        from core import credits as CR
+        self.assertEqual(CR.buckets(self.u)["pack"], 0)
+        self.assertEqual(self.u.ai_credits, 90 * 20 // 100)
 
     def test_rtdn_for_unverified_token_finds_account(self):
         self.g.subs["fresh"] = sub_body(self.u, product="assisto_business",

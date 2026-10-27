@@ -16,6 +16,7 @@ from . import views_d1photo as D1P   # d1-photo v2
 from . import views_p5 as P5         # p5-growth funnel
 from . import views_pv1 as PV1       # play-vitals
 from . import views_ff1 as FF1       # feature-flags
+from . import views_bill2 as B2      # billing-v2
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -79,6 +80,10 @@ urlpatterns = [
     path("feedback/<int:pk>", F1.feedback_detail),
     # ---- /f1-founders ----
     path("payments", PAY1.payments),   # pay1
+    path("payments/refunds", B2.refunds),        # billing-v2
+    path("payments/flagged", B2.flagged),        # billing-v2
+    path("payments/reports", B2.reports),        # billing-v2
+    path("payments/unverified", B2.unverified),  # billing-v2
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
     # ---- p2-money ---- direct sponsors, campaigns, reports, ad impact

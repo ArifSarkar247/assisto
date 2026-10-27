@@ -1,0 +1,10 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.b2_nav_reports }}{% endblock %}
+{% block content %}
+<p><a href="/owner/payments">← {{ T.nav_payments }}</a></p>
+<p class="mut small">{{ T.b2_reports_intro }}</p>
+{% for x in latest %}<section class="card"><h2>{{ x.kind }}</h2>
+{% if x.r %}<p>{% if x.r.ok %}<span class="pill ok">OK</span>{% else %}<span class="pill off">{{ T.b2_attention }}</span>{% endif %} <span class="mut small">{{ x.r.created_at|date:"Y-m-d H:i" }}</span></p>
+<pre class="small" style="white-space:pre-wrap;max-height:22em;overflow:auto">{{ x.r.summary|pprint }}</pre>
+{% else %}<p class="empty">{{ T.b2_not_run }}</p>{% endif %}</section>{% endfor %}
+{% endblock %}
