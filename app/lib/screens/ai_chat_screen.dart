@@ -12,6 +12,7 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
+import '../widgets/ai_report.dart'; // ai-report
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -738,6 +739,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
         ),
       );
     }
+    // ai-report: every finished server answer can be reported (long-press
+    // menu + flag). Local notices ("send failed") have no id/source.
+    final report = !m.streaming &&
+            m.text.trim().isNotEmpty &&
+            (m.id != null || m.source != null)
+        ? AiReportTarget(
+            surface: 'chat',
+            text: m.text,
+            messageId: m.id,
+            sessionId: _active?.id)
+        : null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -746,10 +758,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
         Flexible(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            bubble,
+            report == null
+                ? bubble
+                : AiAnswerLongPress(target: report, child: bubble),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),
+        if (report != null) AiReportButton(target: report),
       ]),
     );
   }

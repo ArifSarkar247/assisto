@@ -1371,3 +1371,25 @@ BN.update({
 })
 # ---- /plans-v2 ----
 
+# ---- ai-report: Owner Admin -> AI reports (user-flagged AI answers) ----
+EN.update({
+    "nav_ai_reports": "AI reports",
+    "air_intro": "AI answers that users reported from inside the app (Google Play AI-generated content policy). Only the text of the answer is kept, never photos. Review each one, fix the cause if needed, then mark it resolved.",
+    "air_s_open": "Open", "air_s_resolved": "Resolved",
+    "air_reason": "Reason", "air_where": "Where", "air_answer": "AI answer",
+    "air_r_offensive": "Offensive", "air_r_harmful": "Harmful",
+    "air_r_wrong": "Wrong or misleading", "air_r_other": "Other",
+    "air_resolve": "Mark resolved", "air_reopen": "Re-open",
+    "air_none": "No AI reports here.",
+})
+BN.update({
+    "nav_ai_reports": "AI রিপোর্ট",
+    "air_intro": "ব্যবহারকারীরা অ্যাপের ভেতর থেকে যেসব AI উত্তর রিপোর্ট করেছেন (Google Play-এর AI কনটেন্ট নীতি)। শুধু উত্তরের লেখা রাখা হয়, কোনো ছবি নয়। প্রতিটি দেখুন, দরকার হলে কারণ ঠিক করুন, তারপর সমাধান হয়েছে চিহ্ন দিন।",
+    "air_s_open": "খোলা", "air_s_resolved": "সমাধান হয়েছে",
+    "air_reason": "কারণ", "air_where": "কোথায়", "air_answer": "AI উত্তর",
+    "air_r_offensive": "আপত্তিকর", "air_r_harmful": "ক্ষতিকর",
+    "air_r_wrong": "ভুল বা বিভ্রান্তিকর", "air_r_other": "অন্যান্য",
+    "air_resolve": "সমাধান হয়েছে", "air_reopen": "আবার খুলুন",
+    "air_none": "এখানে কোনো AI রিপোর্ট নেই।",
+})
+# ---- /ai-report ----

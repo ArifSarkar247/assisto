@@ -1492,9 +1492,13 @@ class AgentView(APIView):
                           "model": "reminder", "id": r.id, "undo": True})
         elif intent in ("expense", "income"):
             acc = ensure_account()
+            # "কাল ৫০০ টাকা খরচ করেছি" is YESTERDAY's spend: past-biased date,
+            # never later than today (nlp_datetime.expense_date).
+            from .logic.nlp_datetime import expense_date
             t = Transaction.objects.create(user=u, account=acc, kind=intent,
                 amount=Decimal(p["amount"]), category=p.get("category", ""),
-                date=timezone.localdate(), source="ai")
+                date=expense_date(text, now=timezone.localtime().replace(tzinfo=None)),
+                source="ai")
             log(u, f"agent.{intent}", id=t.id)
             reply = pick(lang,
                          ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।",
@@ -1641,10 +1645,11 @@ class AgentView(APIView):
             route = screen_synonyms.resolve_command(text)
         else:
             route = brain_route or screen_synonyms.resolve(text)
-        session_id = _persist_home_turn(u, request.data.get("session_id"),
-                                        text, reply, cards, intent, route)
+        session_id, message_id = _persist_home_turn(
+            u, request.data.get("session_id"), text, reply, cards, intent, route)
         return Response({"reply": reply, "cards": cards, "intent": intent,
                          "route": route, "session_id": session_id,
+                         "message_id": message_id,  # ai-report: report this answer
                          "ai_used": ai_used, "ai_enabled": ai.key_present()})
 
 
@@ -1652,7 +1657,8 @@ def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
     """Save one home-chat turn (user text + agent reply/cards) so the home
     conversation survives restarts and shows in the sidebar history. Reuses an
     existing home session of THIS user, else starts one. Never breaks the
-    reply: returns the session id, or None if saving failed."""
+    reply: returns (session id, assistant message id), or (None, None) if
+    saving failed."""
     from .models import ChatSession, ChatMessage
     try:
         s = None
@@ -1664,13 +1670,14 @@ def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
             s.derive_title(text)
             s.save()
         ChatMessage.objects.create(session=s, role="user", text=text)
-        ChatMessage.objects.create(session=s, role="assistant", text=reply or "",
-                                   meta={"source": "agent", "cards": cards,
-                                         "intent": intent, "route": route})
+        am = ChatMessage.objects.create(
+            session=s, role="assistant", text=reply or "",
+            meta={"source": "agent", "cards": cards,
+                  "intent": intent, "route": route})
         s.save(update_fields=["updated_at"])
-        return s.id
+        return s.id, am.id
     except Exception:
-        return None
+        return None, None
 
 
 # ---------- AI status (needs-key state surfaced to the app) ----------

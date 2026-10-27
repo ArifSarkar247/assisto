@@ -17,6 +17,7 @@ from . import views_p5 as P5         # p5-growth funnel
 from . import views_pv1 as PV1       # play-vitals
 from . import views_ff1 as FF1       # feature-flags
 from . import views_bill2 as B2      # billing-v2
+from . import views_air as AIR       # ai-report
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -102,4 +103,6 @@ urlpatterns = [
     path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
     path("features", FF1.features),                              # feature-flags
     path("features/<str:key>", FF1.feature_save),                # feature-flags
+    path("ai-reports", AIR.ai_reports),                          # ai-report
+    path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report
 ]

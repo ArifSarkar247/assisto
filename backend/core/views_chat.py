@@ -390,3 +390,101 @@ class ChatRegenerateView(APIView):
             "ai_used": meta.get("source") == "ai",
             "ai_enabled": ai.key_present(),
         })
+
+
+# ---------------------------------------------------------------------------
+# ai-report: report / flag an AI answer (Google Play AI-Generated Content policy)
+# ---------------------------------------------------------------------------
+# POST chat/report {message_id?, session_id?, surface?, reason, note?, text?}
+#   message_id  — a stored assistant ChatMessage of THIS user (home / AI chat);
+#                 the snapshot is then taken from the server copy, not the app.
+#   text        — the answer as shown, for answers that are not stored in a
+#                 chat session (photo answers, business AI drafts). Text only.
+# GET  chat/report -> the caller's own reports (newest first, max 50).
+# Rate limit: AI_REPORT_PER_HOUR (10) / AI_REPORT_PER_DAY (30) per user; the
+# same message reported twice returns the first report (no duplicate row).
+AI_REPORT_PER_HOUR = 10
+AI_REPORT_PER_DAY = 30
+_AI_REPORT_MAX_TEXT = 4000
+
+_AI_REPORT_MSG = {
+    "bad_reason": ("একটি কারণ বেছে নিন।", "Choose a reason."),
+    "not_found": ("উত্তরটি পাওয়া যায়নি।", "That answer was not found."),
+    "no_text": ("রিপোর্ট করার মতো কোনো উত্তর নেই।", "There is no answer to report."),
+    "rate_limited": ("অনেকগুলো রিপোর্ট পাঠানো হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+                     "Too many reports. Please try again later."),
+    "ok": ("ধন্যবাদ। আমরা উত্তরটি পর্যালোচনা করব।",
+           "Thank you. We will review this answer."),
+}
+
+
+def _ai_report_row(r):
+    return {"id": r.id, "surface": r.surface, "reason": r.reason,
+            "status": r.status, "message_id": r.message_id,
+            "created_at": r.created_at.isoformat()}
+
+
+class AiReportView(APIView):
+    def get(self, request):
+        from .models import AiAnswerReport
+        rows = AiAnswerReport.objects.filter(user=request.user)[:50]
+        return Response({"ok": True, "results": [_ai_report_row(r) for r in rows]})
+
+    def post(self, request):
+        from datetime import timedelta
+        from .models import AiAnswerReport
+        lang = req_lang(request)
+        d = request.data or {}
+
+        def err(code, st=400):
+            bn, en = _AI_REPORT_MSG[code]
+            return Response({"ok": False, "code": code, "detail": pick(lang, bn, en)},
+                            status=st)
+
+        reason = str(d.get("reason") or "").strip().lower()
+        if reason not in AiAnswerReport.REASONS:
+            return err("bad_reason")
+        surface = str(d.get("surface") or "chat").strip().lower()
+        if surface not in AiAnswerReport.SURFACES:
+            surface = "other"
+        note = str(d.get("note") or "").strip()[:500]
+
+        msg = None
+        mid = d.get("message_id")
+        if mid not in (None, ""):
+            try:
+                mid = int(mid)
+            except (TypeError, ValueError):
+                return err("not_found", 404)
+            msg = (ChatMessage.objects.select_related("session")
+                   .filter(pk=mid, role="assistant", session__user=request.user)
+                   .first())
+            if msg is None:
+                return err("not_found", 404)
+            mine = AiAnswerReport.objects.filter(user=request.user, message=msg).first()
+            if mine is not None:     # already reported: idempotent
+                return Response({"ok": True, "duplicate": True,
+                                 "detail": pick(lang, *_AI_REPORT_MSG["ok"]),
+                                 **_ai_report_row(mine)}, status=200)
+            text = msg.text or ""
+            sid = str(msg.session_id)
+        else:
+            text = str(d.get("text") or "")
+            sid = str(d.get("session_id") or "")[:40]
+        text = text.strip()[:_AI_REPORT_MAX_TEXT]
+        if not text:
+            return err("no_text")
+
+        now = timezone.now()
+        recent = AiAnswerReport.objects.filter(user=request.user)
+        if (recent.filter(created_at__gte=now - timedelta(hours=1)).count() >= AI_REPORT_PER_HOUR
+                or recent.filter(created_at__gte=now - timedelta(days=1)).count() >= AI_REPORT_PER_DAY):
+            resp = err("rate_limited", 429)
+            resp["Retry-After"] = "3600"
+            return resp
+
+        r = AiAnswerReport.objects.create(
+            user=request.user, surface=surface, message=msg, session_id_ref=sid,
+            reason=reason, note=note, answer_text=text)
+        return Response({"ok": True, "detail": pick(lang, *_AI_REPORT_MSG["ok"]),
+                         **_ai_report_row(r)}, status=201)

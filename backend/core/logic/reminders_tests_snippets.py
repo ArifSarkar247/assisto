@@ -321,7 +321,15 @@ def test_golden():
         text = case["input"]
         now = datetime.fromisoformat(case["now"])
         exp = case["expected"]
+        if case.get("mode") == "expense":
+            got = nlp.expense_date(text, now=now).isoformat()
+            ok(got == exp["expense_date"],
+               "golden expense_date %r: got %r want %r" % (text, got, exp["expense_date"]))
+            continue
         r = parse(text, now=now)
+        for k in ("past", "needs_time"):
+            if k in exp:
+                ok(r[k] == exp[k], "golden %s %r: got %r want %r" % (k, text, r[k], exp[k]))
         ok(r["datetime"] == exp["datetime"],
            "golden datetime %r: got %r want %r" % (text, r["datetime"], exp["datetime"]))
         ok(r["recurrence_rule"] == exp["recurrence_rule"],
@@ -373,6 +381,114 @@ def test_interval_monthly_yearly():
     anchor = datetime(2026, 1, 1, 9, 0)
     nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 6, 1, 0, 0))
     ok(nxt == datetime(2029, 1, 1, 9, 0), "every 3 years: %r" % nxt)
+
+
+# ================================================= pre-launch Bangla fixes
+def test_today_no_time_never_past():
+    # NOW 10:00, default 09:00 already gone -> next full hour, still today
+    r = parse("আজকে রিপোর্ট জমা", now=NOW)
+    ok(di(r["datetime"]) == datetime(2026, 10, 13, 11, 0), "আজকে -> 11:00 (next hour)")
+    ok(di(r["datetime"]) > NOW, "never in the past")
+    r = parse("আজকে রিপোর্ট জমা", now=datetime(2026, 10, 13, 10, 20))
+    ok(di(r["datetime"]) == datetime(2026, 10, 13, 11, 0), "10:20 -> 11:00")
+    r = parse("today submit report", now=datetime(2026, 10, 13, 7, 0))
+    ok(di(r["datetime"]).hour == 9, "before 09:00 keeps default 09:00")
+    r = parse("আজ রিপোর্ট", now=datetime(2026, 10, 13, 23, 20))
+    ok(r["needs_time"] is True and di(r["datetime"]) > datetime(2026, 10, 13, 23, 20),
+       "late night -> 23:59 + needs_time")
+    r = parse("আজ সকালে হাঁটা", now=NOW)
+    ok(di(r["datetime"]).hour == 8, "explicit day-part keeps its hour")
+
+
+def test_kal_past_vs_future():
+    y, t = date(2026, 10, 12), date(2026, 10, 14)
+    for s in ["কাল ৫০০ টাকা খরচ করেছি", "গতকাল", "কাল গিয়েছিলাম", "কাল বাজারে গেলাম",
+              "কালকে চাল কিনলাম", "কাল ছুটি ছিল", "কাল ও এসেছিল", "kal 500 taka khoroch korechi",
+              "kal gelam", "kalke kinlam", "gotokal bazar", "yesterday lunch",
+              "কাল ধার দিছি"]:
+        ok(di(parse(s, now=NOW)["datetime"]).date() == y, "past -> yesterday: " + s)
+        ok(parse(s, now=NOW)["past"] is True, "past flag: " + s)
+    for s in ["কাল সকালে মিটিং", "কাল মনে করিয়ে দিও", "কাল মিটিং আছে", "কাল যাচ্ছি",
+              "কাল বাজার করব", "আগামীকাল", "kal office jabo", "tomorrow",
+              "কাল যা কিনেছি তার হিসাব মনে করিয়ে দিও"]:
+        ok(di(parse(s, now=NOW)["datetime"]).date() == t, "future/neutral -> tomorrow: " + s)
+        ok(parse(s, now=NOW)["past"] is False, "not past: " + s)
+    ok(di(parse("পরশু গিয়েছিলাম", now=NOW)["datetime"]).date() == date(2026, 10, 11), "পরশু past -2")
+    ok(di(parse("পরশু মিটিং", now=NOW)["datetime"]).date() == date(2026, 10, 15), "পরশু +2")
+    ok(di(parse("৩ দিন আগে বিল দিয়েছি", now=NOW)["datetime"]).date() == date(2026, 10, 10), "৩ দিন আগে")
+    ok(di(parse("2 days ago paid", now=NOW)["datetime"]).date() == date(2026, 10, 11), "2 days ago")
+    ok(di(parse("শুক্রবার গিয়েছিলাম", now=NOW)["datetime"]).date() == date(2026, 10, 9),
+       "past weekday -> last Friday")
+
+
+def test_kal_not_inside_other_words():
+    # regression: সকাল/বিকাল contain কাল but are NOT "tomorrow"
+    ok(di(parse("বিকাল ৫টা চা", now=NOW)["datetime"]) == datetime(2026, 10, 13, 17, 0), "বিকাল today")
+    ok(di(parse("সকাল ১১টা মিটিং", now=NOW)["datetime"]) == datetime(2026, 10, 13, 11, 0), "সকাল ১১টা today")
+    ok(parse("আজকাল খুব ব্যস্ত", now=NOW)["datetime"] is None, "আজকাল is not a date")
+
+
+def test_past_tense_helper():
+    for s in ["করেছি", "গিয়েছিলাম", "কিনলাম", "গেল", "হয়েছে", "korechi", "gelam", "khaisi", "ছিল"]:
+        ok(nlp.is_past_tense(s), "past: " + s)
+    for s in ["আছি", "আছে", "করছি", "যাচ্ছি", "সকাল", "চাল তেল", "সালাম", "করব", "মনে করিয়ে দিও করেছি"]:
+        ok(not nlp.is_past_tense(s), "not past: " + s)
+
+
+def test_time_words():
+    def hm(s, now=NOW):
+        d = di(parse(s, now=now)["datetime"])
+        return (d.hour, d.minute)
+    ok(hm("বিকাল সাড়ে পাঁচটা চা") == (17, 30), "সাড়ে পাঁচটা বিকাল")
+    ok(hm("সাড়ে ৫টায় মিটিং") == (5, 30), "সাড়ে ৫টায়")
+    ok(hm("পৌনে ১০টায় ক্লাস") == (9, 45), "পৌনে ১০টা -> 9:45")
+    ok(hm("পৌনে একটা দুপুরে") == (12, 45), "পৌনে একটা দুপুর -> 12:45")
+    ok(hm("সকাল সোয়া আটটা নাস্তা") == (8, 15), "সোয়া আটটা")
+    ok(hm("দেড়টায় লাঞ্চ") == (13, 30), "দেড়টা -> 13:30")
+    ok(hm("আড়াইটায় মিটিং") == (14, 30), "আড়াইটা -> 14:30")
+    ok(hm("রাত দেড়টা ওষুধ") == (1, 30), "রাত দেড়টা -> 01:30")
+    ok(hm("রাত সাড়ে ৯টা খবর") == (21, 30), "রাত সাড়ে ৯টা")
+    ok(hm("সকাল সাতটা হাঁটা") == (7, 0), "number word with day-part")
+    ok(hm("পাঁচটায় মিটিং") == (5, 0), "number word + টায়")
+    # money amounts are NOT times
+    ok(parse("সাড়ে পাঁচ হাজার টাকা", now=NOW)["datetime"] is None, "amount untouched")
+    ok(parse("একটা আপেল", now=NOW)["datetime"] is None, "একটা is 'a', not 1 o'clock")
+    ok(parse("৫০ টাকা খরচ", now=NOW)["datetime"] is None, "৫০ টাকা is money, not 50 o'clock")
+    ok(parse("৫০টা ডিম", now=NOW)["datetime"] is None, "৫০টা is a count")
+    # snooze: বিকালে must not mean tomorrow
+    t = eng.snooze(datetime(2026, 10, 13, 9, 0), "বিকালে", now=NOW)
+    ok(t.date() == date(2026, 10, 13) and t.hour == 16, "snooze বিকালে -> today 16:00: %r" % t)
+
+
+def test_number_words_and_month_end():
+    ok(di(parse("পাঁচ তারিখ বিল", now=NOW)["datetime"]).date() == date(2026, 11, 5), "পাঁচ তারিখ")
+    ok(di(parse("তিন দিন পর পরীক্ষা", now=NOW)["datetime"]).date() == date(2026, 10, 16), "তিন দিন পর")
+    ok(di(parse("দুই সপ্তাহ পর", now=NOW)["datetime"]).date() == date(2026, 10, 27), "দুই সপ্তাহ পর")
+    r = parse("প্রতি মাসের পাঁচ তারিখ ভাড়া", now=NOW)
+    ok(r["recurrence_rule"]["day_of_month"] == 5, "monthly with number word")
+    r = parse("প্রতি মাসের ৫ তারিখ বাড়ি ভাড়া", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "monthly" and r["recurrence_rule"]["day_of_month"] == 5,
+       "regression monthly digits")
+    ok(di(parse("মাসের শেষে বেতন", now=NOW)["datetime"]).date() == date(2026, 10, 31), "month end")
+    ok(di(parse("end of the month report", now=NOW)["datetime"]).date() == date(2026, 10, 31), "eom en")
+    r = parse("মাসের শেষে বেতন", now=datetime(2026, 10, 31, 23, 30))
+    ok(di(r["datetime"]).date() == date(2026, 11, 30), "month end passed -> next month end")
+    r = parse("প্রতি মাসের শেষে বিল", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "monthly" and r["recurrence_rule"]["day_of_month"] == 31,
+       "every month end -> monthly dom 31")
+
+
+def test_expense_date():
+    ed = lambda s: nlp.expense_date(s, now=NOW)
+    ok(ed("কাল ৫০০ টাকা খরচ") == date(2026, 10, 12), "expense bare কাল -> yesterday")
+    ok(ed("কাল ৫০০ টাকা খরচ করেছি") == date(2026, 10, 12), "expense past কাল")
+    ok(ed("৫০০ টাকা চা") == date(2026, 10, 13), "no date -> today")
+    ok(ed("পরশু ২০০ টাকা রিকশা") == date(2026, 10, 11), "expense পরশু -> -2")
+    ok(ed("আগামীকাল ১০০ টাকা") == date(2026, 10, 13), "never in the future")
+    ok(ed("২০ তারিখ ভাড়া ৫০০০") == date(2026, 9, 20), "N তারিখ ahead -> last month")
+    ok(ed("শুক্রবার বাজার ৮০০") == date(2026, 10, 9), "weekday -> last one")
+    ok(nlp.day_offset("কাল সকাল ৮টা") == 1 and nlp.day_offset("সকাল ৮টা") is None
+       and nlp.day_offset("গতকাল") == -1, "day_offset helper")
 
 
 def run():

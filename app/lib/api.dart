@@ -1548,6 +1548,26 @@ class ApiClient {
       postJson('/chat/sessions/$sessionId/regenerate',
           {if (edit != null && edit.isNotEmpty) 'edit': edit});
 
+  /// ai-report: POST chat/report — report / flag an AI answer (Google Play
+  /// AI-generated content policy). Pass [messageId] for a stored chat answer
+  /// (the server takes its own snapshot), else [text] (photo / business AI).
+  Future<Map<String, dynamic>> aiReport({
+    required String reason,
+    required String surface,
+    String? messageId,
+    String? sessionId,
+    String? text,
+    String? note,
+  }) =>
+      postJson('/chat/report', {
+        'reason': reason,
+        'surface': surface,
+        if (messageId != null && messageId.isNotEmpty) 'message_id': messageId,
+        if (sessionId != null && sessionId.isNotEmpty) 'session_id': sessionId,
+        if (text != null && text.isNotEmpty) 'text': text,
+        if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+      });
+
   /// SSE stream of chat/sessions/<id>/stream (POST {text}). Yields `token`
   /// chunks as they arrive and a final `done` event carrying
   /// {message_id, cards, source}. Parses the standard text/event-stream
