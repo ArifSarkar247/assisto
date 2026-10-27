@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['-created_at', '-id'],
-                'indexes': [models.Index(fields=['sender', 'created_at'], name='core_family_sender__idx'), models.Index(fields=['recipient', 'created_at'], name='core_family_recipie_idx'), models.Index(fields=['status'], name='core_family_status_idx')],
+                'indexes': [models.Index(fields=['sender', 'created_at'], name='core_family_sender__5c724d_idx'), models.Index(fields=['recipient', 'created_at'], name='core_family_recipie_c9e6a3_idx'), models.Index(fields=['status'], name='core_family_status_ce4385_idx')],
                 'constraints': [models.UniqueConstraint(fields=('event_key', 'recipient'), name='uniq_family_alert_delivery')],
             },
         ),
