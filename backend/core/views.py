@@ -26,6 +26,8 @@ from .serializers import (
 )
 from . import ai
 from .i18n import req_lang, pick
+# repo-relative Bangla font for server-drawn images (was a server-only absolute path)
+_NOTO_BN_TTF = str(__import__("pathlib").Path(__file__).resolve().parents[2] / "app" / "assets" / "fonts" / "NotoSansBengali.ttf")
 
 API_VERSION = "v1"
 BUILD_PART = 1  # which V1 part this backend serves
@@ -866,7 +868,7 @@ class DoctorVisitPdfView(APIView):
         try:
             if "Noto" not in pdfmetrics.getRegisteredFontNames():
                 pdfmetrics.registerFont(TTFont(
-                    "Noto", "/home/ubuntu/assisto/app/assets/fonts/NotoSansBengali.ttf"))
+                    "Noto", _NOTO_BN_TTF))
             FONT = "Noto"
         except Exception:
             FONT = "Helvetica"
@@ -1749,7 +1751,7 @@ class ExportPdfView(APIView):
         try:
             if "Noto" not in pdfmetrics.getRegisteredFontNames():
                 pdfmetrics.registerFont(TTFont(
-                    "Noto", "/home/ubuntu/assisto/app/assets/fonts/NotoSansBengali.ttf"))
+                    "Noto", _NOTO_BN_TTF))
             FONT = "Noto"   # note: reportlab lacks complex shaping; conjuncts imperfect
         except Exception:
             FONT = "Helvetica"
