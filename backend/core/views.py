@@ -1959,9 +1959,19 @@ def nearby(request):
         return Response({"detail": pick(lang, "লোকেশন (lat/lon) দরকার।",
                                         "Location (lat/lon) is required.")}, status=400)
     ptype = request.query_params.get("type", "restaurant")
-    results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
+    try:
+        results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
+    except Exception:
+        # truth: the live source is down -> an honest error, never sample rows
+        lang = req_lang(request)
+        return Response({"type": ptype, "source": "", "places": [],
+                         "error": "source_down",
+                         "detail": pick(lang, "এখন কাছের জায়গার তথ্য আনা গেল না। একটু পরে আবার চেষ্টা করুন।",
+                                        "Couldn't load nearby places right now. Please try again soon.")},
+                        status=503)
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
-    out = {"type": ptype, "source": source, "places": results}
+    out = {"type": ptype, "source": source, "places": results,
+           "attribution": nb.attribution(source)}
     if source == "unavailable":
         # srvperf/H: maps providers down — honest state, not "nothing here"
         lang = req_lang(request)

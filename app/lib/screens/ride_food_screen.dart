@@ -311,8 +311,8 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
                 onOpen: () => _openFood(p),
               ),
 
-          const SizedBox(height: Gap.lg),
-          const RideInAppComingNote(),
+          // truth: no "in-app booking when a partner is connected" promise —
+          // the screen opens the provider's own app, nothing more.
         ],
       ),
     );

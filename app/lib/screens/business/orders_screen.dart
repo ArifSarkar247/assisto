@@ -215,7 +215,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       final r = await api.orderAdvance(widget.orderId, target, courier: courier);
       _dirty = true;
       if (r['courier_live'] == false && target == 'shipped') {
-        _snack(tr.courierMockNote);
+        _snack(tr.truthCourierManualNote);
       }
       await _load();
     } catch (e) {
@@ -248,7 +248,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
           Padding(
             padding: const EdgeInsets.all(Gap.md),
-            child: BizMockBanner(text: tr.courierMockNote),
+            child: BizMockBanner(text: tr.truthCourierManualNote),
           ),
         ]),
       ),
@@ -329,7 +329,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ],
           if (_order['courier_live'] == false && _status == 'shipped') ...[
             const SizedBox(height: Gap.sm),
-            BizMockBanner(text: tr.courierMockNote),
+            BizMockBanner(text: tr.truthCourierManualNote),
           ],
         ]),
       ),

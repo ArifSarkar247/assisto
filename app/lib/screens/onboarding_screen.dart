@@ -13,6 +13,7 @@ import 'family_screen.dart';
 import 'money_screen.dart';
 import 'vault_screen.dart';
 import 'journey_start_screen.dart';
+import 'business/khata_entry_screen.dart';
 import '../widgets/robo_id.dart';
 import 'offers_screens.dart' show OnbOffersStep; // p2-money
 
@@ -133,6 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       OnbWin.bill => const VaultScreen(),
       OnbWin.journey => const JourneyStartScreen(),
       OnbWin.expense => const MoneyScreen(),
+      OnbWin.ledger => const KhataEntryScreen(),
     };
     _open(screen);
   }

@@ -22508,5 +22508,51 @@
         "type": "String"
       }
     }
+  },
+  "truthPackNeverExpires": "Never expires",
+  "@truthPackNeverExpires": {
+    "description": "Credits screen: a bought credit pack row. Pack credits never expire (core/credits.py rule B)."
+  },
+  "truthOnbWinLedgerTitle": "Add your first ledger customer",
+  "@truthOnbWinLedgerTitle": {
+    "description": "Onboarding first win (business role): opens the Digital Khata."
+  },
+  "truthOnbWinLedgerSub": "Write who owes you; send a polite reminder later.",
+  "truthOnbWinBillTitle": "Save a bill or receipt photo",
+  "@truthOnbWinBillTitle": {
+    "description": "Onboarding first win: opens the document vault. It stores the photo; it does not read the amount."
+  },
+  "truthOnbWinBillSub": "Keep it safe in your vault and find it in seconds.",
+  "truthOnbWinJourneySub": "Pick who watches your trip; they are alerted if you don't arrive on time.",
+  "@truthOnbWinJourneySub": {
+    "description": "Onboarding first win: Safe Journey. Alerts go only to the watchers the user picks."
+  },
+  "truthJourneyAddFamily": "Add a family member",
+  "@truthJourneyAddFamily": {
+    "description": "Safe Journey start: button shown when the user has nobody in My Circle to watch the trip."
+  },
+  "truthNearbyNeedLocation": "Turn on location to see real places near you",
+  "@truthNearbyNeedLocation": {
+    "description": "Nearby: no location — no list is shown (no sample data)."
+  },
+  "truthNearbyNeedLocationBody": "We only show places that really are around you, from live map data.",
+  "truthNearbyLoadFailed": "Couldn't load nearby places",
+  "truthNearbyNoneNearby": "No places of this type found near you",
+  "truthNearbySource": "Map data: {source}",
+  "@truthNearbySource": {
+    "description": "Nearby: licence line of the live source, e.g. \"© OpenStreetMap contributors (ODbL)\".",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "truthSpendTitle": "Spending insights",
+  "@truthSpendTitle": {
+    "description": "Title of the rule-based spending observations (was \"AI spending insights\"; no AI runs there)."
+  },
+  "truthCourierManualNote": "Assisto doesn't book the courier from here — book it in the courier's own app.",
+  "@truthCourierManualNote": {
+    "description": "Orders: marking an order shipped does not book a courier (no fake tracking number is made)."
   }
 }

@@ -20,7 +20,7 @@
 | বিষয় | কোডের মান |
 |---|---|
 | Premium / Business / Free | ৳১৯৯ (মাসে ৯০ ক্রেডিট) / ৳৪৯৯ (মাসে ২৪০ ক্রেডিট) / ৳০ |
-| ক্রেডিট প্যাক | ৳২০=২০ · ৳৫০=৫৫ · ৳১০০=১১৫ · ৳২০০=২৪০ (মেয়াদ ১২ মাস) |
+| ক্রেডিট প্যাক | ৳২০=২০ · ৳৫০=৫৫ · ৳১০০=১১৫ · ৳২০০=২৪০ (প্যাকের ক্রেডিট **কখনো মেয়াদোত্তীর্ণ হয় না** — `core/credits.py` নিয়ম B; শুধু প্ল্যানের মাসিক ক্রেডিট পেইড পিরিয়ড শেষে চলে যায়) |
 | হাতে থাকা অংশ (net fraction) | `(1 − Play 0.15 − gateway 0.02) ÷ (1 + VAT 0.15)` = **০.৭২২** (`net_fraction()`) |
 | ডলারের দর | `usd_bdt` = ১২০ |
 | সেলার এজেন্ট প্ল্যান | Starter ৳১,৪৯০ = ১,০০০ উত্তর · Pro ৳৩,৯৯০ = ৩,০০০ উত্তর (`logic/bizagent.py` `cfg_defaults`) |
@@ -114,7 +114,7 @@
 
 ---
 
-## ২. নিরাপদ যাত্রা (Safe Journey), ১৯টি স্তর
+## ২. নিরাপদ যাত্রা (Safe Journey) — ১৯টি পরিকল্পিত স্তরের ১৮টি কাজ করে; এনক্রিপ্টেড প্রমাণ-অডিও ইচ্ছা করে বাদ (SAFE_JOURNEY_100_BN.md)
 
 উৎস: `backend/core/logic/safety_journey.py` (pure logic), `backend/core/views_build61.py` (`Journey*View`), `app/lib/screens/journey_*.dart`, `safe_arrival_screen.dart`, `voice_sos_screen.dart`, `emergency_screen.dart`
 

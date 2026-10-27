@@ -2360,11 +2360,24 @@ class LostPhoneRecoveryTests(APITestCase):
         none = self.client.get("/api/v1/recovery/police-stations")
         self.assertEqual(none.status_code, 200)
         self.assertFalse(none.data["available"])
-        with_loc = self.client.get(
-            "/api/v1/recovery/police-stations?lat=23.739&lng=90.395")
+        # truth: real source (OSM/Places) with attribution, never a sample.
+        from unittest import mock as _m
+        real = [{"name": "Ramna Model Thana", "lat": 23.74, "lon": 90.40,
+                 "distance_m": 900, "phone": None, "maps": "https://maps"}]
+        with _m.patch("core.nearby.search", return_value=(real, "osm")):
+            with_loc = self.client.get(
+                "/api/v1/recovery/police-stations?lat=23.739&lng=90.395")
         self.assertEqual(with_loc.status_code, 200)
-        self.assertEqual(with_loc.data["source"], "mock")
+        self.assertEqual(with_loc.data["source"], "osm")
+        self.assertIn("OpenStreetMap", with_loc.data["attribution"])
         self.assertTrue(with_loc.data["available"])
+        self.assertEqual(with_loc.data["stations"][0]["name"], "Ramna Model Thana")
+        with _m.patch("core.nearby.search", side_effect=OSError("down")):
+            down = self.client.get(
+                "/api/v1/recovery/police-stations?lat=23.739&lng=90.395")
+        self.assertFalse(down.data["available"])
+        self.assertEqual(down.data["reason"], "source_down")
+        self.assertEqual(down.data["stations"], [])
 
 
 class ProfilePhotoTests(APITestCase):

@@ -298,7 +298,9 @@ TIER_ACTION = {
 
 # ---------------------------------------------------------------- v2 packs / fees / storage
 # Business Model Build 2. 1 credit == ৳1 face (credit_bdt). Packs grant bonus
-# credits (buy more, get more) and expire 12 months after purchase.
+# credits (buy more, get more) and NEVER expire (core/credits.py rule B:
+# only plan allowance expires). `valid_months` is a legacy admin field that
+# nothing enforces; the app does not show it (truth: never promise it).
 _TOPUP_PACKS = [
     {"id": "p20",  "price": 20,  "credits": 20,  "valid_months": 12},
     {"id": "p50",  "price": 50,  "credits": 55,  "valid_months": 12},

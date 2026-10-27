@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -335,6 +336,7 @@ class _SttSeamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
@@ -619,9 +621,11 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
                 alignLabelWithHint: true,
                 border: const OutlineInputBorder()),
           ),
-          const SizedBox(height: Gap.sm),
-          Text(tr.tnSttSeamBody,
-              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+          if (kShowKeySeams) ...[ // truth: no key dead end
+            const SizedBox(height: Gap.sm),
+            Text(tr.tnSttSeamBody,
+                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+          ],
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(

@@ -224,6 +224,10 @@ WIN_MEDICINE = "medicine"
 WIN_BILL = "bill"
 WIN_JOURNEY = "journey"
 WIN_EXPENSE = "expense"
+# truth (owner 27 Oct): a business owner's first win is the real Digital
+# Khata (add the first customer), not the vault "scan a bill" tile — the
+# vault does not read amounts and OCR needs a key.
+WIN_LEDGER = "ledger"
 
 
 def normalize_role(role):
@@ -248,7 +252,7 @@ def first_win_for_role(role):
         ROLE_SELF: WIN_JOURNEY,       # a safe-journey check-in is a fast self-win
         ROLE_PARENT: WIN_MEDICINE,    # add a parent's medicine reminder
         ROLE_FAMILY: WIN_MEDICINE,
-        ROLE_BUSINESS: WIN_BILL,      # scan a bill / receipt
+        ROLE_BUSINESS: WIN_LEDGER,    # add the first khata customer
     }[normalize_role(role)]
 
 
