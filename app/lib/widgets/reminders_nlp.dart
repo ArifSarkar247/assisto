@@ -3,6 +3,21 @@
 // user gets an INSTANT, offline preview of what Assisto understood before they
 // confirm. The backend endpoint (POST /reminders/parse) remains the source of
 // truth for AI-captured reminders; this is purely for responsive local preview.
+// Parity is locked by test/reminders_golden_test.dart (shared golden JSON).
+//
+// Rules mirrored from the Python module docstring:
+//  * Missing time: a date with no clock gets 09:00. For a one-off that resolves
+//    to TODAY with no clock and no day-part, once 09:00 has passed we use the
+//    next full hour; at/after 23:00 we use 23:59 and set needsTime (ask).
+//  * Bare "kal" (yesterday OR tomorrow) is YESTERDAY in a past-tense sentence
+//    (korechi / gelam / kinlam ...) with no future/imperative marker, else
+//    TOMORROW. gotokal/yesterday always -1, agamikal/tomorrow always +1;
+//    porshu + past = -2. "kal" is only matched as a standalone word.
+//  * Time words: sare N (N:30), shoa N (N:15), poune N ((N-1):45), der-Ta
+//    (13:30), arai-Ta (14:30; 01:30/02:30 with raat/bhor), Bangla number words.
+//  * "masher sheshe" / end of month = last day of this month.
+//  * preferPast (expense mode, see [expenseDate]): ambiguous day words resolve
+//    backwards and the date is never later than today.
 //
 // NOTE: no Bangla characters appear literally in this file (language gate) --
 // every Bangla keyword is written with \u escapes.
@@ -14,12 +29,16 @@ class ParsedReminder {
   final RecurrenceRule? recurrence;
   final String cleanTitle; // phrase with date/time words stripped
   final double confidence; // 0..1
+  final bool isPast; // phrase talks about the past (past tense / date < today)
+  final bool needsTime; // "today" with no clock, too late for a slot -> ask
   const ParsedReminder({
     this.dateTime,
     this.dateOnly = true,
     this.recurrence,
     this.cleanTitle = '',
     this.confidence = 0,
+    this.isPast = false,
+    this.needsTime = false,
   });
 
   bool get hasSchedule => dateTime != null || recurrence != null;
@@ -51,13 +70,13 @@ class RecurrenceRule {
       };
 }
 
+// Default clock for a date with no time (see the missing-time rule above).
 const _defaultHour = 9;
 
 // ---- Bangla keyword constants (escaped so no Bangla literals in source) ----
 const _biTomorrow = ['\u0986\u0997\u09be\u09ae\u09c0\u0995\u09be\u09b2',
   '\u0986\u0997\u09be\u09ae\u09bf\u0995\u09be\u09b2', '\u0995\u09be\u09b2\u0995\u09c7',
   '\u0995\u09be\u09b2']; // agamikal, kalke, kal
-const _biToday = ['\u0986\u099c\u0995\u09c7', '\u0986\u099c']; // ajke, aj
 const _biDayAfter = '\u09aa\u09b0\u09b6\u09c1'; // porshu
 const _biDaily = ['\u09aa\u09cd\u09b0\u09a4\u09bf\u09a6\u09bf\u09a8',
   '\u09b0\u09cb\u099c']; // protidin, roj
@@ -73,6 +92,164 @@ const _biHour = ['\u0998\u09a3\u09cd\u099f\u09be', '\u0998\u09a8\u09cd\u099f\u09
 const _biHalf = ['\u0986\u09a7\u09be', '\u0986\u09a7']; // adha
 const _biThisMonth = ['\u098f\u0987', '\u099a\u09b2\u09a4\u09bf']; // ei, cholti
 
+// Bangla block for standalone-word look-arounds.
+const _bnCls = '[\u0980-\u09ff]';
+const _nb = '(?<!$_bnCls)';
+const _na = '(?!$_bnCls)';
+
+/// Fold decomposed nukta letters (ya/da/dha + nukta) to precomposed forms.
+String _fold(String s) => s
+    .replaceAll('\u09af\u09bc', '\u09df')
+    .replaceAll('\u09a1\u09bc', '\u09dc')
+    .replaceAll('\u09a2\u09bc', '\u09dd');
+
+/// Regex for a Bangla word matching both nukta spellings.
+String _nk(String word) {
+  var out = RegExp.escape(_fold(word));
+  for (final pd in const [
+    ['\u09df', '\u09af\u09bc'],
+    ['\u09dc', '\u09a1\u09bc'],
+    ['\u09dd', '\u09a2\u09bc'],
+  ]) {
+    out = out.replaceAll(pd[0], '(?:${pd[0]}|${pd[1]})');
+  }
+  return out;
+}
+
+// Bangla number words 1..31 (mirror of _BN_NUMBER_WORDS).
+const Map<String, int> _bnNumberWords = {
+  '\u098f\u0995': 1, '\u09a6\u09c1\u0987': 2, '\u09a6\u09c1': 2, '\u09a4\u09bf\u09a8': 3, '\u099a\u09be\u09b0': 4, '\u09aa\u09be\u0981\u099a': 5, '\u099b\u09af\u09bc': 6,
+  '\u099b': 6, '\u09b8\u09be\u09a4': 7, '\u0986\u099f': 8, '\u09a8\u09af\u09bc': 9, '\u09a6\u09b6': 10, '\u098f\u0997\u09be\u09b0\u09cb': 11, '\u098f\u0997\u09be\u09b0': 11,
+  '\u09ac\u09be\u09b0\u09cb': 12, '\u09ac\u09be\u09b0': 12, '\u09a4\u09c7\u09b0\u09cb': 13, '\u09a4\u09c7\u09b0': 13, '\u099a\u09cb\u09a6\u09cd\u09a6': 14, '\u099a\u09cc\u09a6\u09cd\u09a6': 14,
+  '\u09aa\u09a8\u09c7\u09b0\u09cb': 15, '\u09aa\u09a8\u09c7\u09b0': 15, '\u09b7\u09cb\u09b2\u09cb': 16, '\u09b7\u09cb\u09b2': 16, '\u09b8\u09a4\u09c7\u09b0\u09cb': 17, '\u09b8\u09a4\u09c7\u09b0': 17,
+  '\u0986\u09a0\u09be\u09b0\u09cb': 18, '\u0986\u09a0\u09be\u09b0': 18, '\u0989\u09a8\u09bf\u09b6': 19, '\u09ac\u09bf\u09b6': 20, '\u0995\u09c1\u09a1\u09bc\u09bf': 20, '\u098f\u0995\u09c1\u09b6': 21,
+  '\u09ac\u09be\u0987\u09b6': 22, '\u09a4\u09c7\u0987\u09b6': 23, '\u099a\u09ac\u09cd\u09ac\u09bf\u09b6': 24, '\u09aa\u0981\u099a\u09bf\u09b6': 25, '\u099b\u09be\u09ac\u09cd\u09ac\u09bf\u09b6': 26, '\u09b8\u09be\u09a4\u09be\u09b6': 27,
+  '\u0986\u09a0\u09be\u09b6': 28, '\u0989\u09a8\u09a4\u09cd\u09b0\u09bf\u09b6': 29, '\u09a4\u09cd\u09b0\u09bf\u09b6': 30, '\u098f\u0995\u09a4\u09cd\u09b0\u09bf\u09b6': 31,
+};
+
+final String _numAlt = (() {
+  final ws = _bnNumberWords.keys.map(_fold).toSet().toList()
+    ..sort((a, b) => b.length.compareTo(a.length));
+  return ws.map(_nk).join('|');
+})();
+
+int? _numValue(String tok) {
+  final d = int.tryParse(tok);
+  if (d != null) return d;
+  final f = _fold(tok);
+  for (final e in _bnNumberWords.entries) {
+    if (_fold(e.key) == f) return e.value;
+  }
+  return null;
+}
+
+final String _tay = _nk('\u099f\u09be\u09af\u09bc');
+const _unitAfterNum = '(?:\u09a4\u09be\u09b0\u09bf\u0996|\u09a6\u09bf\u09a8|\u09b8\u09aa\u09cd\u09a4\u09be\u09b9|\u09ae\u09be\u09b8|\u0998\u09a3\u09cd\u099f\u09be|\u0998\u09a8\u09cd\u099f\u09be|\u09ae\u09bf\u09a8\u09bf\u099f)';
+const _daypartAlt = '\u09b8\u0995\u09be\u09b2|\u09ad\u09cb\u09b0|\u09a6\u09c1\u09aa\u09c1\u09b0|\u09ac\u09bf\u0995\u09be\u09b2|\u09ac\u09bf\u0995\u09c7\u09b2|\u09b8\u09a8\u09cd\u09a7\u09cd\u09af\u09be|\u09b8\u09a8\u09cd\u09a7\u09cd\u09af\u09c7|\u09b0\u09be\u09a4';
+
+final RegExp _halfRx = RegExp(
+    '$_nb(${_nk('\u09b8\u09be\u09a1\u09bc\u09c7')}|${_nk('\u09b8\u09cb\u09af\u09bc\u09be')}|\u09aa\u09cc\u09a8\u09c7)\\s*(\\d{1,2}|$_numAlt)'
+    '\\s*(?:$_tay|$_biTa(?:\\s*\u09ac\u09be\u099c\u09c7)?|\u09ac\u09be\u099c\u09c7)$_na');
+final RegExp _derRx =
+    RegExp('$_nb(${_nk('\u09a6\u09c7\u09a1\u09bc')}|${_nk('\u0986\u09a1\u09bc\u09be\u0987')})\\s*(?:$_tay|$_biTa)$_na');
+final RegExp _numUnitRx = RegExp('$_nb($_numAlt)\\s*($_unitAfterNum)');
+final RegExp _numTayRx = RegExp('$_nb($_numAlt)\\s*($_tay|$_biTa\\s*\u09ac\u09be\u099c\u09c7)');
+final RegExp _numPartTaRx =
+    RegExp('((?:$_daypartAlt)(?:\u09c7|\u09b0)?\\s+)($_numAlt)\\s*$_biTa');
+
+/// Mirror of nlp_datetime._preprocess: Bangla time phrases / number words to
+/// digit forms (only in clearly date/time contexts).
+String _preprocess(String norm) {
+  var out = norm.replaceAllMapped(_halfRx, (m) {
+    final word = _fold(m.group(1)!);
+    final n = _numValue(m.group(2)!);
+    if (n == null || n == 0 || n > 12) return m.group(0)!;
+    int h, mi;
+    if (word.startsWith('\u09aa')) {
+      h = (n - 1) == 0 ? 12 : n - 1;
+      mi = 45;
+    } else if (word.startsWith('\u09b8\u09cb')) {
+      h = n;
+      mi = 15;
+    } else {
+      h = n;
+      mi = 30;
+    }
+    return '$h:${mi.toString().padLeft(2, '0')}';
+  });
+  final late = RegExp('\u09b0\u09be\u09a4|\u09ad\u09cb\u09b0|night').hasMatch(out);
+  out = out.replaceAllMapped(_derRx, (m) {
+    final der = m.group(1)!.startsWith('\u09a6');
+    return der ? (late ? '1:30' : '13:30') : (late ? '2:30' : '14:30');
+  });
+  out = out.replaceAllMapped(
+      _numUnitRx, (m) => '${_numValue(m.group(1)!)} ${m.group(2)}');
+  out = out.replaceAllMapped(
+      _numTayRx, (m) => '${_numValue(m.group(1)!)}${m.group(2)}');
+  out = out.replaceAllMapped(
+      _numPartTaRx, (m) => '${m.group(1)}${_numValue(m.group(2)!)}$_biTa');
+  return out;
+}
+
+// ---- tense (mirror of is_past_tense / has_future_marker) ----
+final RegExp _pastTokenRx = RegExp(
+    '(?:\u09c7\u099b\u09bf(?:\u09b2\u09be\u09ae|\u09b2\u09c7|\u09b2\u09c7\u09a8|\u09b2|\u09b2\u09cb|\u09b8)?|\u09c7\u099b\u09c7(?:\u09a8)?|\u09b2\u09be\u09ae|\u099b\u09bf\u09b2|\u099b\u09bf\u09b2\u09cb|\u099b\u09bf\u09b2\u09be\u09ae|\u099b\u09bf\u09b2\u09c7\u09a8|\u099b\u09bf\u09b2\u09c7)\$');
+final RegExp _pastStemRx = RegExp(
+    '^(?:\u0995\u09b0|\u0997\u09c7|\u09a6\u09bf|\u09a8\u09bf|\u0996\u09c7|\u098f|\u0995\u09bf\u09a8|\u09aa\u09c7|\u09b9|\u09ac\u09b2|\u09a6\u09c7\u0996|\u09aa\u09be\u09a0\u09be|\u09ab\u09c7\u09b2|\u0986\u09b8|\u09ad\u09b0|\u09a4\u09c1|\u09b0\u09be\u0996|\u0995\u09be\u099f|\u09b6\u09c1\u09a8|${_nk('\u09aa\u09a1\u09bc')}|'
+    '\u0998\u09c1\u09b0|\u099a\u09b2|\u09ab\u09bf\u09b0|\u0989\u09a0|\u0998\u09c1\u09ae\u09be|\u09ac\u09b8\u09be|${_nk('\u099b\u09be\u09a1\u09bc')}|\u09b9\u09be\u09b0\u09be|\u09aa\u09be\u09a0\u09bf)(?:\u09b2|\u09b2\u09cb|\u09b2\u09c7\u09a8|\u09b2\u09bf)\$');
+final Set<String> _pastTokensExtra = {
+  '\u09a6\u09bf\u099b\u09bf', '\u09a8\u09bf\u099b\u09bf', '\u0996\u09be\u0987\u099b\u09bf', '\u0997\u09c7\u099b\u09bf', '\u09aa\u09be\u0987\u099b\u09bf', '\u0986\u0987\u099b\u09bf', '\u0995\u09b0\u099b\u09bf\u09b2\u09be\u09ae', '\u09b9\u0987\u099b\u09c7', '\u0997\u09c7\u099b\u09bf\u09b2\u09be\u09ae',
+}.map(_fold).toSet();
+final Set<String> _pastExclude = {
+  '\u09b8\u09be\u09b2\u09be\u09ae', '\u0987\u09b8\u09b2\u09be\u09ae', '\u0995\u09be\u09b2\u09be\u09ae', '\u0997\u09cb\u09b2\u09be\u09ae', '\u09ac\u09c7\u099b\u09c7', '\u0986\u099b\u09bf', '\u0986\u099b\u09c7', '\u0986\u099b\u09c7\u09a8', '\u09b8\u0995\u09be\u09b2',
+  '\u09ac\u09bf\u0995\u09be\u09b2', '\u0995\u09be\u09b2',
+}.map(_fold).toSet();
+final RegExp _pastEnRx = RegExp(
+    r'^[a-z]+(?:echi|esi|eche|echilam|esilam|chilam|silam|chilo|silo|chilen|lam)$');
+const Set<String> _pastEnExtra = {
+  'korsi', 'khaisi', 'disi', 'nisi', 'gesi', 'gelo', 'korlo', 'dilo', 'khelo',
+  'kinlo', 'pelo', 'holo', 'korse', 'gese', 'khaise', 'hoise', 'spent', 'paid',
+  'bought', 'went', 'was', 'did', 'yesterday',
+};
+const Set<String> _pastEnExclude = {'salam', 'islam', 'kalam', 'golam'};
+const List<String> _futurePhrases = [
+  '\u09ae\u09a8\u09c7 \u0995\u09b0\u09bf\u09af\u09bc\u09c7', '\u09ae\u09a8\u09c7 \u0995\u09b0\u09be\u0993', '\u09ae\u09a8\u09c7 \u0995\u09b0\u09be\u09ac\u09c7', '\u09b0\u09bf\u09ae\u09be\u0987\u09a8\u09cd\u09a1', 'remind', 'will ', 'going to',
+];
+final Set<String> _futureTokens = {
+  '\u09a6\u09bf\u0993', '\u09a6\u09be\u0993', '\u09a6\u09bf\u09af\u09bc\u09cb', '\u09a6\u09bf\u09ac\u09c7\u09a8', '\u09a6\u09c7\u09ac\u09c7\u09a8', '\u0995\u09b0\u09cb', '\u0995\u09b0\u09c1\u09a8', '\u0995\u09cb\u09b0\u09cb', '\u09af\u09c7\u0993', '\u098f\u09b8\u09cb',
+  '\u0986\u09b8\u09cb', '\u09a8\u09bf\u0993', '\u0996\u09c7\u0993', '\u0995\u09b0\u09ac', '\u0995\u09b0\u09ac\u09cb', '\u09af\u09be\u09ac', '\u09af\u09be\u09ac\u09cb', '\u09a6\u09c7\u09ac', '\u09a6\u09c7\u09ac\u09cb', '\u09a6\u09bf\u09ac', '\u09a6\u09bf\u09ac\u09cb',
+  '\u0996\u09be\u09ac', '\u0996\u09be\u09ac\u09cb', '\u0995\u09bf\u09a8\u09ac', '\u0995\u09bf\u09a8\u09ac\u09cb', '\u09a8\u09c7\u09ac', '\u09a8\u09c7\u09ac\u09cb', '\u09a8\u09bf\u09ac', '\u09aa\u09be\u09ac', '\u0986\u09b8\u09ac', '\u0986\u09b8\u09ac\u09cb',
+  '\u09ab\u09bf\u09b0\u09ac', '\u09a6\u09c7\u0996\u09ac', '\u09ac\u09b2\u09ac', '\u09aa\u09be\u09a0\u09be\u09ac', '\u09b9\u09ac\u09c7', '\u09af\u09be\u09ac\u09c7', '\u0995\u09b0\u09ac\u09c7', '\u0986\u09b8\u09ac\u09c7', '\u09a6\u09c7\u09ac\u09c7', '\u09a6\u09bf\u09ac\u09c7',
+  '\u09a5\u09be\u0995\u09ac\u09c7', '\u09a5\u09be\u0995\u09ac', '\u09b6\u09c1\u09b0\u09c1', 'korbo', 'jabo', 'dibo', 'debo', 'khabo', 'kinbo',
+  'nibo', 'asbo', 'hobe', 'jabe', 'korbe', 'dio', 'dao', 'koro',
+}.map(_fold).toSet();
+
+List<String> _tokens(String low) => low
+    .split(RegExp('[\\s,\u0964!?.;:\\-]+'))
+    .where((t) => t.isNotEmpty)
+    .toList();
+
+/// True when the phrase carries a future / imperative marker (reminder style).
+bool hasFutureMarker(String text) {
+  final low = _fold(_normalizeDigits(text).toLowerCase());
+  if (_futurePhrases.any((p) => low.contains(_fold(p)))) return true;
+  return _tokens(low).any(_futureTokens.contains);
+}
+
+/// True when the sentence uses a past-tense verb (Bangla or Banglish) and has
+/// no future / imperative marker. Mirror of nlp_datetime.is_past_tense.
+bool isPastTense(String text) {
+  final low = _fold(_normalizeDigits(text).toLowerCase());
+  if (hasFutureMarker(low)) return false;
+  for (final t in _tokens(low)) {
+    if (_pastExclude.contains(t) || _pastEnExclude.contains(t)) continue;
+    if (_pastTokensExtra.contains(t) || _pastEnExtra.contains(t)) return true;
+    if (_pastTokenRx.hasMatch(t) || _pastStemRx.hasMatch(t)) return true;
+    final ascii = t.codeUnits.every((c) => c < 128);
+    if (ascii && _pastEnRx.hasMatch(t)) return true;
+  }
+  return false;
+}
 
 // day-part -> default hour; the bool marks PM-ish parts for bare-hour handling.
 const Map<String, List<Object>> _dayparts = {
@@ -142,7 +319,7 @@ int _daysInMonth(int y, int m) => DateTime(y, m + 1, 0).day;
 
 DateTime _addMonths(DateTime d, int n) {
   var m = d.month - 1 + n;
-  final y = d.year + (m ~/ 12);
+  final y = d.year + (m / 12).floor(); // floor (negative n = months back)
   m = m % 12 + 1;
   return DateTime(y, m, d.day > _daysInMonth(y, m) ? _daysInMonth(y, m) : d.day);
 }
@@ -154,13 +331,27 @@ DateTime _nextWeekday(DateTime from, int weekday, {bool allowToday = false}) {
   return DateTime(from.year, from.month, from.day).add(Duration(days: delta));
 }
 
+
+DateTime _monthEnd(DateTime d) => DateTime(d.year, d.month, _daysInMonth(d.year, d.month));
+
+const _monthEndEveryRx = '(?:\u09aa\u09cd\u09b0\u09a4\u09bf\\s*\u09ae\u09be\u09b8\u09c7\u09b0?\\s*\u09b6\u09c7\u09b7(?:\u09c7|\\s*\u09a6\u09bf\u09a8(?:\u09c7)?)?'
+    '|every\\s+month\\s*end|(?:at\\s+the\\s+)?end\\s+of\\s+every\\s+month)';
+const _monthEndRx = '(?:(?:\u098f\u0987\\s*)?\u09ae\u09be\u09b8\u09c7\u09b0?\\s*\u09b6\u09c7\u09b7(?:\u09c7|\\s*\u09a6\u09bf\u09a8(?:\u09c7)?)?'
+    '|(?:at\\s+the\\s+)?end\\s+of\\s+(?:the\\s+|this\\s+)?month|month[\\s-]end)';
+
+bool _monthEndHit(List<String> matched) => matched.any(
+    (m) => m.isNotEmpty && RegExp('^$_monthEndRx\$').hasMatch(m.toLowerCase()));
+
 /// Parse a natural-language reminder. `now` defaults to [DateTime.now].
-ParsedReminder parseReminder(String text, {DateTime? now}) {
+/// `preferPast` is the expense/money-log mode (see [expenseDate]).
+ParsedReminder parseReminder(String text, {DateTime? now, bool preferPast = false}) {
   now = now ?? DateTime.now();
-  final norm = _normalizeDigits(text);
+  final norm = _preprocess(_normalizeDigits(text));
   final low = norm.toLowerCase();
   double conf = 0;
   final matched = <String>[];
+  final future = hasFutureMarker(low);
+  final past = isPastTense(low) || (preferPast && !future);
 
   // day-part + time
   String? partWord;
@@ -173,20 +364,27 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
       partPm = v[1] as bool;
     }
   });
+  String? dpSpan;
+  if (partWord != null) {
+    final dm = RegExp('${RegExp.escape(partWord!)}(?:\u09c7\u09b0|\u09c7|\u09b0)?').firstMatch(low);
+    dpSpan = dm?.group(0) ?? partWord;
+  }
 
-  final tod = _extractTime(norm, partPm);
+  final night = partWord == '\u09b0\u09be\u09a4' || partWord == 'night';
+  final tod = _extractTime(norm, partPm, night);
   bool dateOnly = true;
   int? hour, minute;
   if (tod != null) {
     hour = tod[0] as int;
     minute = tod[1] as int;
-    matched.add(tod[2].toString());
+    matched.add(tod[2].toString().trim());
+    if (dpSpan != null) matched.add(dpSpan);
     dateOnly = false;
     conf += 0.35;
   } else if (partHour != null) {
     hour = partHour;
     minute = 0;
-    matched.add(partWord!);
+    matched.add(dpSpan!);
     conf += 0.15;
   }
   final todStr = hour != null
@@ -211,6 +409,17 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
       baseDate = now;
       matched.add(everyM.group(0)!);
       conf = (conf > 0.6 ? conf : 0.6) + 0.3;
+    }
+  }
+
+  // monthly at month end: "proti masher sheshe" / "every month end"
+  if (rec == null) {
+    final me = RegExp(_monthEndEveryRx).firstMatch(low);
+    if (me != null) {
+      rec = RecurrenceRule(freq: 'monthly', dayOfMonth: 31, time: todStr);
+      baseDate = _monthEnd(now);
+      matched.add(me.group(0)!);
+      conf = 0.9;
     }
   }
 
@@ -251,7 +460,7 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
 
   // one-off relative
   if (baseDate == null) {
-    final r = _relativeDate(low, now);
+    final r = _relativeDate(low, now, past);
     if (r != null) {
       baseDate = r.$1;
       matched.add(r.$2);
@@ -261,7 +470,7 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
 
   // "agami masher N tarikh" / bare "N tarikh"
   if (baseDate == null) {
-    final r = _monthDate(low, now);
+    final r = _monthDate(low, now, past);
     if (r != null) {
       baseDate = r.$1;
       matched.add(r.$2);
@@ -271,7 +480,7 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
 
   // bare weekday one-off
   if (baseDate == null) {
-    final r = _bareWeekday(low, now);
+    final r = _bareWeekday(low, now, past);
     if (r != null) {
       baseDate = r.$1;
       matched.add(r.$2);
@@ -281,7 +490,7 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
 
   // dd/mm[/yy]
   if (baseDate == null) {
-    final r = _explicitDate(norm, now);
+    final r = _explicitDate(norm, now, past);
     if (r != null) {
       baseDate = r.$1;
       matched.add(r.$2);
@@ -289,34 +498,80 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
     }
   }
 
-  // time only -> today or tomorrow if already past
+  // time only -> today or tomorrow if already past (past tense: today, or
+  // yesterday when that time is still ahead)
   if (baseDate == null && hour != null) {
     final cand = DateTime(now.year, now.month, now.day, hour, minute!);
-    baseDate = cand.isAfter(now) ? now : now.add(const Duration(days: 1));
+    if (past) {
+      baseDate = cand.isAfter(now) ? now.subtract(const Duration(days: 1)) : now;
+    } else {
+      baseDate = cand.isAfter(now) ? now : now.add(const Duration(days: 1));
+    }
     conf = conf > 0.5 ? conf : 0.5;
   }
 
   DateTime? result;
+  bool needsTime = false;
   if (baseDate != null) {
-    result = DateTime(baseDate.year, baseDate.month, baseDate.day,
+    var dt = DateTime(baseDate.year, baseDate.month, baseDate.day,
         hour ?? _defaultHour, minute ?? 0);
+    final monthEnd = _monthEndHit(matched) && rec == null && !past;
+    if (monthEnd && !dt.isAfter(now) && (hour != null || now.hour >= 23)) {
+      final nxt = _monthEnd(_addMonths(DateTime(now.year, now.month, 1), 1));
+      dt = DateTime(nxt.year, nxt.month, nxt.day, hour ?? _defaultHour, minute ?? 0);
+    }
+    // Missing-time rule: "today" with no clock and no day-part never lands on
+    // a moment that already passed.
+    final sameDay =
+        dt.year == now.year && dt.month == now.month && dt.day == now.day;
+    if (hour == null && rec == null && !past && sameDay && !dt.isAfter(now)) {
+      if (now.hour + 1 <= 23) {
+        dt = DateTime(now.year, now.month, now.day, now.hour + 1);
+      } else {
+        dt = DateTime(now.year, now.month, now.day, 23, 59);
+        needsTime = true;
+      }
+    }
+    result = dt;
   }
+
+  final today = DateTime(now.year, now.month, now.day);
+  final resDay =
+      result == null ? null : DateTime(result.year, result.month, result.day);
+  final isPast = (past && (resDay == null || !resDay.isAfter(today))) ||
+      (resDay != null && resDay.isBefore(today));
 
   if (conf > 1) conf = 1;
   return ParsedReminder(
     dateTime: result,
     dateOnly: dateOnly,
     recurrence: rec,
-    cleanTitle: _cleanTitle(text, matched),
+    cleanTitle: _cleanTitle(text, matched, pre: norm),
     confidence: double.parse(conf.toStringAsFixed(2)),
+    isPast: isPast,
+    needsTime: needsTime,
   );
 }
 
-List<Object>? _extractTime(String norm, bool partPm) {
+/// Date an expense / income log refers to (money voice + chat expense).
+/// Past-biased: bare "kal" = yesterday, "porshu" = 2 days ago, a weekday = the
+/// most recent one, unless an explicit future word is used; never later than
+/// today. No date words -> today. Mirror of nlp_datetime.expense_date.
+DateTime expenseDate(String text, {DateTime? now}) {
+  now = now ?? DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final r = parseReminder(text, now: now, preferPast: true);
+  final dt = r.dateTime;
+  if (dt == null || r.recurrence != null) return today;
+  final d = DateTime(dt.year, dt.month, dt.day);
+  return d.isAfter(today) ? today : d;
+}
+
+List<Object>? _extractTime(String norm, bool partPm, [bool night = false]) {
   final rx = RegExp(
       r'(\d{1,2})\s*[:.]\s*(\d{2})\s*(am|pm)?'
       r'|(\d{1,2})\s*(am|pm)'
-      r'|(\d{1,2})\s*' + _biTa + r'(?:\s*(\d{1,2})\s*' + _biMinute + r')?',
+      '|(?<!\\d)(\\d{1,2})\\s*$_biTa(?!\u0995\u09be)(?:\\s*(\\d{1,2})\\s*$_biMinute)?',
       caseSensitive: false);
   final m = rx.firstMatch(norm);
   if (m == null) return null;
@@ -333,13 +588,15 @@ List<Object>? _extractTime(String norm, bool partPm) {
   } else if (m.group(6) != null) {
     h = int.parse(m.group(6)!);
     mi = m.group(7) != null ? int.parse(m.group(7)!) : 0;
+    if (h > 24) return null; // "50Ta" is a count, not a clock
   }
   if (h == null) return null;
   if (ampm.startsWith('p')) {
     if (h < 12) h = h + 12;
   } else if (ampm.startsWith('a')) {
     if (h == 12) h = 0;
-  } else if (partPm && h >= 1 && h <= 11) {
+  } else if (partPm && h >= 1 && h <= 11 && !(night && h < 6)) {
+    // (raat/night: only 6..11 are evening hours -- "raat 1Ta" is 01:00)
     h = h + 12;
   }
   if (h > 23) h = 23;
@@ -360,42 +617,78 @@ DateTime _nextDom(DateTime from, int dom) {
   return cand;
 }
 
-(DateTime, String, double)? _relativeDate(String low, DateTime now) {
+/// Most recent date (<= from) whose day-of-month is dom.
+DateTime _prevDom(DateTime from, int dom) {
+  dom = dom.clamp(1, 31);
+  final f = DateTime(from.year, from.month, from.day);
+  var d = dom > _daysInMonth(f.year, f.month) ? _daysInMonth(f.year, f.month) : dom;
+  var cand = DateTime(f.year, f.month, d);
+  if (cand.isAfter(f)) {
+    final pm = _addMonths(DateTime(f.year, f.month, 1), -1);
+    d = dom > _daysInMonth(pm.year, pm.month) ? _daysInMonth(pm.year, pm.month) : dom;
+    cand = DateTime(pm.year, pm.month, d);
+  }
+  return cand;
+}
+
+final RegExp _kalRx = RegExp('$_nb\u0995\u09be\u09b2(?:\u0995\u09c7|\u0995\u09c7\u0987|\u0995\u09c7\u09b0|\u0987)?$_na');
+final RegExp _ajRx = RegExp('$_nb\u0986\u099c(?:\u0995\u09c7|\u0995\u09c7\u0987|\u0995\u09c7\u09b0|\u0987)?$_na');
+
+(DateTime, String, double)? _relativeDate(String low, DateTime now, bool past) {
   final today = DateTime(now.year, now.month, now.day);
-  for (final w in _biTomorrow) {
-    if (low.contains(w)) return (today.add(const Duration(days: 1)), w, 0.85);
-  }
-  if (low.contains('tomorrow')) {
-    return (today.add(const Duration(days: 1)), 'tomorrow', 0.85);
-  }
-  for (final w in _biToday) {
-    if (low.contains(w)) return (today, w, 0.8);
-  }
-  if (RegExp(r'\btoday\b').hasMatch(low)) return (today, 'today', 0.8);
-  if (low.contains(_biDayAfter) || low.contains('day after tomorrow')) {
-    return (today.add(const Duration(days: 2)),
-        low.contains(_biDayAfter) ? _biDayAfter : 'day after tomorrow', 0.85);
-  }
+  DateTime plus(int d) => DateTime(today.year, today.month, today.day + d);
+  // yesterday -- always past
+  var m = RegExp(
+          '\u0997\u09a4\u0995\u09be\u09b2(?:\u0995\u09c7|\u0995\u09c7\u09b0|\u0987)?|\u0997\u09a4\\s+\u0995\u09be\u09b2|\\byesterday\\b|\\bgotokal\\b|\\bgotokaal\\b')
+      .firstMatch(low);
+  if (m != null) return (plus(-1), m.group(0)!, 0.85);
+  m = RegExp('\u0997\u09a4\\s*\u09aa\u09b0\u09b6\u09c1|day before yesterday').firstMatch(low);
+  if (m != null) return (plus(-2), m.group(0)!, 0.85);
+  // explicit tomorrow (agamikal contains kal, so test it first)
+  m = RegExp('\u0986\u0997\u09be\u09ae\u09c0\\s*\u0995\u09be\u09b2(?:\u0995\u09c7|\u0987)?|\u0986\u0997\u09be\u09ae\u09bf\\s*\u0995\u09be\u09b2|\\btomorrow\\b').firstMatch(low);
+  if (m != null) return (plus(1), m.group(0)!, 0.85);
+  // bare kal: yesterday in a past-tense sentence, tomorrow otherwise
+  m = _kalRx.firstMatch(low) ?? RegExp(r'\bkalke\b|\bkal\b').firstMatch(low);
+  if (m != null) return (plus(past ? -1 : 1), m.group(0)!, 0.85);
+  // today
+  m = _ajRx.firstMatch(low) ?? RegExp(r'\btoday\b|\bajke\b|\baj\b').firstMatch(low);
+  if (m != null) return (today, m.group(0)!, 0.8);
+  m = RegExp('day after tomorrow').firstMatch(low);
+  if (m != null) return (plus(2), m.group(0)!, 0.85);
+  m = RegExp('\u09aa\u09b0\u09b6\u09c1(?:\u09a6\u09bf\u09a8)?').firstMatch(low);
+  if (m != null) return (plus(past ? -2 : 2), m.group(0)!, 0.85);
+  // N din age / N days ago
+  m = RegExp('(\\d{1,3})\\s*\u09a6\u09bf\u09a8\\s*\u0986\u0997\u09c7').firstMatch(low) ??
+      RegExp(r'(\d{1,3})\s*days?\s+ago').firstMatch(low);
+  if (m != null) return (plus(-int.parse(m.group(1)!)), m.group(0)!, 0.85);
+  m = RegExp('(\\d{1,3})\\s*\u09b8\u09aa\u09cd\u09a4\u09be\u09b9\\s*\u0986\u0997\u09c7').firstMatch(low) ??
+      RegExp(r'(\d{1,3})\s*weeks?\s+ago').firstMatch(low);
+  if (m != null) return (plus(-7 * int.parse(m.group(1)!)), m.group(0)!, 0.85);
+  m = RegExp('(\\d{1,3})\\s*\u09ae\u09be\u09b8\\s*\u0986\u0997\u09c7').firstMatch(low) ??
+      RegExp(r'(\d{1,3})\s*months?\s+ago').firstMatch(low);
+  if (m != null) return (_addMonths(today, -int.parse(m.group(1)!)), m.group(0)!, 0.8);
   // N din por / in N days
-  var m = RegExp('(\\d{1,3})\\s*$_biDay\\s*(?:${_biAfter.join('|')})').firstMatch(low) ??
+  m = RegExp('(\\d{1,3})\\s*$_biDay\\s*(?:${_biAfter.join('|')})').firstMatch(low) ??
       RegExp(r'(?:in|after)\s+(\d{1,3})\s*days?').firstMatch(low);
-  if (m != null) {
-    return (today.add(Duration(days: int.parse(m.group(1)!))), m.group(0)!, 0.85);
-  }
-  // in N weeks
-  m = RegExp(r'(?:in|after)\s+(\d{1,3})\s*weeks?').firstMatch(low);
-  if (m != null) {
-    return (today.add(Duration(days: 7 * int.parse(m.group(1)!))), m.group(0)!, 0.85);
-  }
+  if (m != null) return (plus(int.parse(m.group(1)!)), m.group(0)!, 0.85);
+  // N soptah por / in N weeks
+  m = RegExp('(\\d{1,3})\\s*\u09b8\u09aa\u09cd\u09a4\u09be\u09b9\\s*(?:\u09aa\u09b0|\u09aa\u09b0\u09c7)').firstMatch(low) ??
+      RegExp(r'(?:in|after)\s+(\d{1,3})\s*weeks?').firstMatch(low);
+  if (m != null) return (plus(7 * int.parse(m.group(1)!)), m.group(0)!, 0.85);
+  // N mash por / in N months
+  m = RegExp('(\\d{1,3})\\s*\u09ae\u09be\u09b8\\s*(?:\u09aa\u09b0|\u09aa\u09b0\u09c7)').firstMatch(low) ??
+      RegExp(r'(?:in|after)\s+(\d{1,3})\s*months?').firstMatch(low);
+  if (m != null) return (_addMonths(today, int.parse(m.group(1)!)), m.group(0)!, 0.8);
   // next week
-  if (RegExp('$_biNextWord\\s*\\S*week|next\\s+week').hasMatch(low) ||
-      low.contains('next week')) {
-    return (today.add(const Duration(days: 7)), 'next week', 0.7);
-  }
+  m = RegExp('\u0986\u0997\u09be\u09ae\u09c0\\s*\u09b8\u09aa\u09cd\u09a4\u09be\u09b9|next\\s+week').firstMatch(low);
+  if (m != null) return (plus(7), m.group(0)!, 0.7);
+  // masher sheshe / end of the month
+  m = RegExp(_monthEndRx).firstMatch(low);
+  if (m != null) return (_monthEnd(today), m.group(0)!, 0.8);
   return null;
 }
 
-(DateTime, String, double)? _monthDate(String low, DateTime now) {
+(DateTime, String, double)? _monthDate(String low, DateTime now, bool past) {
   // agami masher N tarikh
   var m = RegExp('$_biNextWord\\s*$_biMonthOf[^0-9]*(\\d{1,2})\\s*$_biDateWord')
       .firstMatch(low);
@@ -445,12 +738,14 @@ DateTime _nextDom(DateTime from, int dom) {
   // phrase is stripped from the title (no dangling connector left).
   m = RegExp('(\\d{1,2})\\s*$_biDateWord(?:\u09c7)?').firstMatch(low);
   if (m != null) {
-    return (_nextDom(now, int.parse(m.group(1)!)), m.group(0)!, 0.7);
+    final dom = int.parse(m.group(1)!);
+    // past tense: this month's N, or last month's if still ahead
+    return (past ? _prevDom(now, dom) : _nextDom(now, dom), m.group(0)!, 0.7);
   }
   return null;
 }
 
-(DateTime, String, double)? _bareWeekday(String low, DateTime now) {
+(DateTime, String, double)? _bareWeekday(String low, DateTime now, bool past) {
   for (final entry in _weekdays.entries) {
     final tok = entry.key;
     final isAscii = tok.codeUnits.every((c) => c < 128);
@@ -462,12 +757,18 @@ DateTime _nextDom(DateTime from, int dom) {
     if (RegExp('(?:$_biEvery|every|each)\\s+${RegExp.escape(tok)}').hasMatch(low)) {
       return null;
     }
+    if (past) {
+      // "shukrobar giyechilam" -> the most recent past Friday
+      var back = ((now.weekday - 1) - entry.value) % 7;
+      if (back == 0) back = 7;
+      return (DateTime(now.year, now.month, now.day - back), tok, 0.65);
+    }
     return (_nextWeekday(now, entry.value), tok, 0.65);
   }
   return null;
 }
 
-(DateTime, String, double)? _explicitDate(String norm, DateTime now) {
+(DateTime, String, double)? _explicitDate(String norm, DateTime now, bool past) {
   final m = RegExp(r'(?<!\d)(\d{1,2})[/\-.](\d{1,2})(?:[/\-.](\d{2,4}))?(?!\d)')
       .firstMatch(norm);
   if (m == null) return null;
@@ -478,19 +779,35 @@ DateTime _nextDom(DateTime from, int dom) {
   if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
   final day = d > _daysInMonth(y, mo) ? _daysInMonth(y, mo) : d;
   var cand = DateTime(y, mo, day);
-  if (m.group(3) == null && cand.isBefore(DateTime(now.year, now.month, now.day))) {
+  final today = DateTime(now.year, now.month, now.day);
+  if (m.group(3) == null && past && cand.isAfter(today)) {
+    final py = y - 1;
+    cand = DateTime(py, mo, d > _daysInMonth(py, mo) ? _daysInMonth(py, mo) : d);
+  } else if (m.group(3) == null && !past && cand.isBefore(today)) {
     cand = DateTime(y + 1, mo, day);
   }
   return (cand, m.group(0)!, 0.8);
 }
 
+// mirror of nlp_datetime._FILLER (same order)
 const _fillers = [
-  'remind me to', 'remind me', 'reminder to', 'set a reminder to',
-  'set reminder', 'please',
+  '\u0986\u09ae\u09be\u0995\u09c7',
+  '\u09ae\u09a8\u09c7 \u0995\u09b0\u09bf\u09af\u09bc\u09c7 \u09a6\u09be\u0993',
+  '\u09ae\u09a8\u09c7 \u0995\u09b0\u09bf\u09af\u09bc\u09c7 \u09a6\u09bf\u0993',
+  '\u09ae\u09a8\u09c7 \u0995\u09b0\u09be\u0993',
+  '\u09b0\u09bf\u09ae\u09be\u0987\u09a8\u09cd\u09a1\u09be\u09b0 \u09a6\u09be\u0993',
+  'remind me to',
+  'remind me',
+  'reminder to',
+  'set a reminder to',
+  'set reminder',
+  'please',
+  '\u098f\u0995\u099f\u09be \u09b0\u09bf\u09ae\u09be\u0987\u09a8\u09cd\u09a1\u09be\u09b0',
+  '\u09a8\u09bf\u0993',
 ];
 
-String _cleanTitle(String raw, List<String> matched) {
-  var out = _normalizeDigits(raw);
+String _cleanTitle(String raw, List<String> matched, {String? pre}) {
+  var out = pre ?? _normalizeDigits(raw);
   final sorted = matched.where((m) => m.isNotEmpty).toList()
     ..sort((a, b) => b.length.compareTo(a.length));
   for (final p in sorted) {
@@ -592,7 +909,10 @@ DateTime? snoozeReminder(DateTime? currentDue, String text, {DateTime? now}) {
     final d = now.add(const Duration(days: 2));
     return DateTime(d.year, d.month, d.day, _partHour(low, _defaultHour), 0);
   }
-  if (_biTomorrow.any(low.contains) || low.contains('tomorrow')) {
+  // standalone "kal" only -- never the kal inside sokal / bikal
+  if (_biTomorrow.take(2).any(low.contains) ||
+      _kalRx.hasMatch(low) ||
+      low.contains('tomorrow')) {
     final d = now.add(const Duration(days: 1));
     return DateTime(d.year, d.month, d.day, _partHour(low, 8), 0);
   }

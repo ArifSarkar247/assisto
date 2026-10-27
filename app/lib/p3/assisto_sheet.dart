@@ -742,7 +742,9 @@ class _ReminderComposerState extends State<ReminderComposer> {
       _title.text = p.cleanTitle.isNotEmpty ? p.cleanTitle : rest;
       final dt = p.dateTime;
       if (dt != null && dt.isAfter(DateTime.now())) {
-        _at = p.dateOnly ? DateTime(dt.year, dt.month, dt.day, 9) : dt;
+        // the parser already applies the default / day-part / "today, next
+        // full hour" missing-time rule, so never force 09:00 (could be past)
+        _at = dt;
       }
     } else {
       final n = DateTime.now().add(const Duration(hours: 1));

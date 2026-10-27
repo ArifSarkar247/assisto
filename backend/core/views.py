@@ -1487,9 +1487,13 @@ class AgentView(APIView):
                           "model": "reminder", "id": r.id, "undo": True})
         elif intent in ("expense", "income"):
             acc = ensure_account()
+            # "কাল ৫০০ টাকা খরচ করেছি" is YESTERDAY's spend: past-biased date,
+            # never later than today (nlp_datetime.expense_date).
+            from .logic.nlp_datetime import expense_date
             t = Transaction.objects.create(user=u, account=acc, kind=intent,
                 amount=Decimal(p["amount"]), category=p.get("category", ""),
-                date=timezone.localdate(), source="ai")
+                date=expense_date(text, now=timezone.localtime().replace(tzinfo=None)),
+                source="ai")
             log(u, f"agent.{intent}", id=t.id)
             reply = pick(lang,
                          ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।",

@@ -161,6 +161,16 @@ def _reminder_when(text, now=None):
     return out
 
 
+def _expense_date(text, now=None):
+    """ISO date an expense refers to: past-biased (bare কাল = yesterday, পরশু =
+    2 days ago), never in the future, today when no day word. Never raises."""
+    try:
+        from . import nlp_datetime
+        return nlp_datetime.expense_date(text or "", now=now).isoformat()
+    except Exception:
+        return None
+
+
 def _resolve_route(text):
     """Resolve a screen route via the shared synonym map (bn + en)."""
     try:
@@ -220,7 +230,7 @@ def map_command(text, now=None):
             "intent": INTENT_EXPENSE,
             "route": "money",
             "title": body or text.strip(),
-            "args": {"amount": amount, "note": body},
+            "args": {"amount": amount, "note": body, "date": _expense_date(text, now)},
             "confirm": True,
         }
 

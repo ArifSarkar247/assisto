@@ -631,7 +631,9 @@ class VaExecutor {
       'amount': i.amount.toString(),
       'category': cat,
       'note': i.message ?? '',
-      'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      // "kal 500 taka khoroch korechi" is YESTERDAY's spend: past-biased,
+      // never later than today (reminders_nlp.expenseDate).
+      'date': DateFormat('yyyy-MM-dd').format(expenseDate(i.raw)),
       'source': 'voice',
     });
     final amount = NumberFormat.decimalPattern(_lang).format(i.amount);

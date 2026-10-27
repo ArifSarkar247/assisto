@@ -670,7 +670,9 @@ def assisto_actions(text, now=None, lang=None):
                 "category_guess": m.get("category_guess"),
                 "counterparty": m.get("counterparty"),
                 "txn_type": m.get("type"),
-                "date": m.get("date"),
+                # SMS date when present, else the past-biased spoken date
+                # ("কাল ৫০০ টাকা খরচ করেছি" -> yesterday, never the future)
+                "date": m.get("date") or NLP.expense_date(body, now=now).isoformat(),
             },
             "label_bn": "খরচ হিসেবে যোগ করুন",
             "label_en": "Add as expense",
@@ -681,7 +683,8 @@ def assisto_actions(text, now=None, lang=None):
         d = NLP.parse(body, now=now, lang=lang)
     except Exception:
         d = None
-    if d and d.get("datetime"):
+    # a past-tense sentence ("কাল গিয়েছিলাম") is a record, not a reminder/event
+    if d and d.get("datetime") and not d.get("past"):
         conf = float(d.get("confidence") or 0.0)
         # A recurrence or an explicit title tends to read as a reminder; a one-
         # off dated thing with a place/title reads as an event.  We offer BOTH

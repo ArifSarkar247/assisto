@@ -46,7 +46,25 @@ void main() {
       final now = DateTime.parse(c['now'] as String);
       final expected = c['expected'] as Map<String, dynamic>;
 
+      if (c['mode'] == 'expense') {
+        final d = expenseDate(input, now: now);
+        final got = '${d.year.toString().padLeft(4, '0')}-'
+            '${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+        if (got != expected['expense_date']) {
+          failures.add('[$input] expense_date: got $got, want ${expected['expense_date']}');
+        }
+        continue;
+      }
+
       final parsed = parseReminder(input, now: now);
+      if (expected.containsKey('past') && parsed.isPast != expected['past']) {
+        failures.add('[$input] past: got ${parsed.isPast}, want ${expected['past']}');
+      }
+      if (expected.containsKey('needs_time') &&
+          parsed.needsTime != expected['needs_time']) {
+        failures.add(
+            '[$input] needs_time: got ${parsed.needsTime}, want ${expected['needs_time']}');
+      }
 
       final gotDt = _iso(parsed.dateTime);
       final wantDt = expected['datetime'] as String?;

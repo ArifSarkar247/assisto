@@ -16,7 +16,7 @@ import re
 from datetime import datetime, date, time, timedelta
 
 from .nlp_datetime import (
-    normalize_digits, _add_months, _days_in_month, _next_weekday,
+    normalize_digits, _add_months, _days_in_month, _next_weekday, _KAL_RX,
 )
 
 DEFAULT_HOUR = 9
@@ -231,7 +231,7 @@ def snooze(current_due, text, now=None):
         d = now.date() + timedelta(days=2)
         hr = _part_hour(low, default=DEFAULT_HOUR)
         return datetime(d.year, d.month, d.day, hr, 0)
-    if re.search(r"tomorrow|আগামীকাল|আগামিকাল|\bকাল\b|\bkal\b", low):
+    if re.search(r"tomorrow|আগামীকাল|আগামিকাল|\bkal\b", low) or re.search(_KAL_RX, low):
         d = now.date() + timedelta(days=1)
         hr = _part_hour(low, default=8)  # tomorrow defaults to morning 8
         return datetime(d.year, d.month, d.day, hr, 0)
