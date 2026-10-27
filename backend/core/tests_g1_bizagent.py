@@ -13,6 +13,7 @@ notes (no key = honest fallback; key = transcript → rules) · website widget
 (key, origin, rate limit, same pipeline) · comment-to-DM with post→product ·
 follow-ups (once, 24 h window, opt-out) · quiet hours + morning summary ·
 agent report · Owner Admin rules-vs-AI stats."""
+import atexit
 import base64
 import io
 import json
@@ -40,10 +41,10 @@ from core.tests_p1_bizagent import Base, PAGE, mpayload, wapayload
 
 TPAGE = "990000000000111"
 _MEDIA = tempfile.mkdtemp(prefix="g1media")
-
-
-def tearDownModule():
-    shutil.rmtree(_MEDIA, ignore_errors=True)
+# Removed once at the very end, not in tearDownModule: `manage.py test --parallel`
+# imports this module BEFORE forking, so every worker shares this one folder and a
+# worker finishing first deleted the photos another worker was still reading.
+atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 def _png(color, shape="circle", size=400, white_bars=False):

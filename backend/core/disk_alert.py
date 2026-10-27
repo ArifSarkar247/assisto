@@ -121,7 +121,8 @@ def _alert_rows(st):
         t_bn, b_bn = message(st, "bn")
         t_en, b_en = message(st, "en")
         # owner 25 Oct: an ADMIN notification, not a Family alert
-        for o in User.objects.filter(is_superuser=True, is_active=True)[:5]:
+        from .push import owner_admin_users   # owner-admin accounts only
+        for o in owner_admin_users():
             NotifEvent.objects.create(
                 user=o, type="admin", title_en=t_en[:200], title_bn=t_bn[:200],
                 body_en=b_en, body_bn=b_bn, route="owner",

@@ -21833,5 +21833,144 @@
         "type": "String"
       }
     }
+  },
+  "at2OkTitle": "Are you OK?",
+  "@at2OkTitle": {
+    "description": "antitheft2: title of the local heads-up notification AND the in-app dialog on the owner's own phone after a sudden grab was detected."
+  },
+  "at2OkNotifBody": "Your phone was suddenly grabbed and moved. Open Assisto within 1 minute and tell us you are OK — otherwise your trusted contacts will be alerted.",
+  "@at2OkNotifBody": {
+    "description": "antitheft2: body of the local 'Are you OK?' notification (owner's own phone only)."
+  },
+  "at2OkBody": "Assisto felt your phone being grabbed and carried away. If you are OK, confirm with your Security PIN and no one will be alerted. If you need help, tap \"I need help\". With no answer, your trusted contacts are alerted in about a minute.",
+  "@at2OkBody": {
+    "description": "antitheft2: body of the in-app 'Are you OK?' dialog."
+  },
+  "at2OkYes": "I'm OK (Security PIN)",
+  "@at2OkYes": {
+    "description": "antitheft2: dialog button — confirm with the Security PIN that the owner is fine; the held grab is dropped."
+  },
+  "at2OkNo": "I need help — alert now",
+  "@at2OkNo": {
+    "description": "antitheft2: dialog button — alert the trusted contacts immediately."
+  },
+  "at2OkSent": "Your trusted contacts are being alerted.",
+  "@at2OkSent": {
+    "description": "antitheft2: snackbar after 'I need help'."
+  },
+  "at2OkWrongPin": "Wrong PIN. Your trusted contacts are being alerted.",
+  "@at2OkWrongPin": {
+    "description": "antitheft2: snackbar after a wrong Security PIN on 'Are you OK?' — the server escalates the grab."
+  },
+  "at2NoContactTitle": "Add a trusted contact",
+  "@at2NoContactTitle": {
+    "description": "antitheft2: warning card title when nobody is chosen to receive this phone's alerts."
+  },
+  "at2NoContactBody": "Alerts about this phone go only to the people you tick below, on THEIR phones — never to this phone, because a thief holding it would see them. Nobody is ticked yet, so nobody would be told.",
+  "@at2NoContactBody": {
+    "description": "antitheft2: warning card body (no trusted contact)."
+  },
+  "at2NoContactCircle": "First add a family member or friend in My Circle, then tick them here.",
+  "@at2NoContactCircle": {
+    "description": "antitheft2: extra line when the user has nobody in My Circle yet."
+  },
+  "at2LocTitle": "Location in alerts",
+  "@at2LocTitle": {
+    "description": "antitheft2: location status card title."
+  },
+  "at2LocOk": "Alerts include the last location with its time and accuracy.",
+  "@at2LocOk": {
+    "description": "antitheft2: location works."
+  },
+  "at2LocNoPerm": "Location permission is off, so alerts cannot say where the phone is.",
+  "@at2LocNoPerm": {
+    "description": "antitheft2: location permission missing."
+  },
+  "at2LocOff": "Location is switched off on this phone. Turn it on from the quick settings so alerts can say where the phone is.",
+  "@at2LocOff": {
+    "description": "antitheft2: device location switched off."
+  },
+  "at2LocNoFix": "No location yet. It usually comes within a few minutes, faster outdoors.",
+  "@at2LocNoFix": {
+    "description": "antitheft2: permission ok but no fix received yet."
+  },
+  "at2LocLast": "Last location: {when}, ±{acc} m",
+  "@at2LocLast": {
+    "description": "antitheft2: time and accuracy of the newest fix the server has.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "acc": {
+        "type": "String"
+      }
+    }
+  },
+  "at2LocLastNoAcc": "Last location: {when}",
+  "@at2LocLastNoAcc": {
+    "description": "antitheft2: time of the newest fix (accuracy unknown).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "at2LocAllow": "Allow location",
+  "@at2LocAllow": {
+    "description": "antitheft2: button that asks for the while-in-use location permission."
+  },
+  "at2NightTitle": "Night guard",
+  "@at2NightTitle": {
+    "description": "antitheft2: switch title."
+  },
+  "at2NightBody": "Off: at night (11 PM–6 AM) on your home Wi-Fi, a sudden jolt is treated as the phone falling or being tossed on the bed. On: keep watching at home at night too.",
+  "@at2NightBody": {
+    "description": "antitheft2: switch explanation."
+  },
+  "at2HomeWifiSave": "Save this Wi-Fi as home",
+  "@at2HomeWifiSave": {
+    "description": "antitheft2: button — save the current Wi-Fi (as a code) as the home network."
+  },
+  "at2HomeWifiClear": "Forget home Wi-Fi",
+  "@at2HomeWifiClear": {
+    "description": "antitheft2: button — remove the saved home Wi-Fi."
+  },
+  "at2HomeWifiSaved": "{count, plural, =1{1 home Wi-Fi saved} other{{count} home Wi-Fi networks saved}}",
+  "@at2HomeWifiSaved": {
+    "description": "antitheft2: how many home Wi-Fi networks are saved.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "at2HomeWifiNoneSaved": "No home Wi-Fi saved yet. Only a code is stored, never the Wi-Fi name.",
+  "@at2HomeWifiNoneSaved": {
+    "description": "antitheft2: nothing saved yet."
+  },
+  "at2HomeWifiNone": "Connect to your home Wi-Fi first. Android shows the Wi-Fi to apps only when location is allowed and switched on.",
+  "@at2HomeWifiNone": {
+    "description": "antitheft2: snackbar when the current Wi-Fi could not be read."
+  },
+  "at2SentTo": "{count, plural, =1{Sent to 1 trusted contact} other{Sent to {count} trusted contacts}}",
+  "@at2SentTo": {
+    "description": "antitheft2: timeline — how many people got this alert.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "at2NoOneTold": "Nobody was told: no trusted contact was set",
+  "@at2NoOneTold": {
+    "description": "antitheft2: timeline — alert recorded but no recipient."
+  },
+  "at2Held": "Waiting for your answer to \"Are you OK?\"",
+  "@at2Held": {
+    "description": "antitheft2: timeline — a grab held for the owner's answer."
+  },
+  "at2Suppressed": "Ignored: most likely a drop or a toss",
+  "@at2Suppressed": {
+    "description": "antitheft2: timeline — a grab ignored (charging / face-down still / night at home)."
   }
 }

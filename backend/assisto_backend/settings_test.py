@@ -43,3 +43,7 @@ CALLS_FREE_TESTING_DEFAULT = False   # dl1: tests exercise the paid plan gate un
 import tempfile as _tf  # noqa: E402
 CIRCLE_BLOB_ROOT = _tf.mkdtemp(prefix="md1_blobs_")
 CIRCLE_BLOB_X_ACCEL = False
+
+# antitheft2: no in-process escalation timer thread in tests (tests call
+# views_antitheft.escalate_due directly).
+ANTITHEFT_ESCALATE_TIMER = False
