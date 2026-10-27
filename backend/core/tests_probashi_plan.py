@@ -416,9 +416,23 @@ class PlayLifecycleTests(PlayBase):
         self.verify("pt", product="assisto_probashi")
         self.assertEqual(plans.effective_plan(self.mem), "premium")
 
+    def test_annual_ten_times_credits(self):
+        from core.models import CreditLot
+        self.assertEqual(CR.plan_credits("probashi"), 180)
+        self.assertEqual(CR.plan_credits("probashi", months=12), 150)
+        self.g.subs["at"] = sub_body(self.u, product="assisto_probashi", base_plan="annual",
+                                     expiry_days=365, order="GPA.3300-0000-0000-00777")
+        r = self.verify("at", product="assisto_probashi")
+        self.assertEqual(r.status_code, 200, r.content)
+        lots = CreditLot.objects.filter(user=self.u, bucket="plan", source_type="play")
+        total = sum(l.granted for l in lots)                     # 10 x 180, 150 a month
+        self.assertTrue(1780 <= total <= 1801, total)            # Google's 365-day end vs 12 calendar months
+        self.assertTrue(all(l.granted <= 150 for l in lots))
+
     def test_grace_keeps_benefits(self):
         self.g.subs["pt"] = sub_body(self.u, product="assisto_probashi")
         self.verify("pt", product="assisto_probashi")
+        self.u.refresh_from_db()
         s = PB.invite(self.u, self.mem.pk)
         PB.respond(self.mem, s.pk, True)
         self.g.subs["pt"] = sub_body(self.u, product="assisto_probashi",
@@ -431,6 +445,7 @@ class PlayLifecycleTests(PlayBase):
         from core.payments import play
         self.g.subs["pt"] = sub_body(self.u, product="assisto_probashi")
         self.verify("pt", product="assisto_probashi")
+        self.u.refresh_from_db()
         s = PB.invite(self.u, self.mem.pk)
         PB.respond(self.mem, s.pk, True)
         E.revoke_period("play", play.ref_for("pt"), reason="refund")

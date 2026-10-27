@@ -16,8 +16,9 @@ Method (the same inputs as owner_actions/AI_ROUTER_BN.md and the domestic
   profit      >= 40 % of net
   => AI cost  <= 50 % of net   (per month)
 
-  The ANNUAL base plan is 10 x monthly but serves 12 months, so the binding
-  case is the annual one: AI cost per month <= 0.5 * net_annual / 12.
+  The ANNUAL base plan (owner 27 Oct) is 10 x the monthly price AND carries
+  10 x the monthly credits (1800 a year = 150 a month), so per credit it is
+  exactly as profitable as the monthly plan: AI cost <= 0.5 * net for both.
 
   AI cost per credit, worst case = the most expensive model (Opus 5.5,
   $4 in / $20 out per 1M tokens; thinking billed as output) on the action
@@ -42,7 +43,7 @@ GOOGLE_FEE = Decimal("0.15")        # Play: every auto-renewing subscription
 OVERHEAD = Decimal("0.10")          # of net: server, SMS, push
 PROFIT_MIN = Decimal("0.40")        # of net
 AI_SHARE = 1 - OVERHEAD - PROFIT_MIN   # 0.50 of net may go to AI, worst case
-ANNUAL_MULT = 10                    # annual = 10 x monthly (owner)
+ANNUAL_MULT = 10                    # annual = 10 x monthly price AND credits (owner)
 
 # USD per 1M tokens (owner's table, = core.ai_config.DEFAULT_PRICES)
 MODEL_PRICES = {
@@ -117,7 +118,7 @@ def net_usd(price, vat, inclusive, fx):
 def ai_budget_month_usd(monthly, annual, vat, inclusive, fx):
     """Max AI spend per month that keeps >= 40 % profit on BOTH base plans."""
     m = net_usd(monthly, vat, inclusive, fx)
-    y = net_usd(annual, vat, inclusive, fx) / 12
+    y = net_usd(annual, vat, inclusive, fx) / ANNUAL_MULT   # per month of credits
     return AI_SHARE * min(m, y)
 
 
@@ -129,10 +130,9 @@ def pool_credits(budget_usd, per_credit_usd, free_haiku_cost_usd=Decimal(0)):
 
 
 def min_monthly_price(pool, per_credit_usd, vat, inclusive, fx, free_haiku_cost_usd=Decimal(0)):
-    """Lowest local monthly price (annual = 10x) at which `pool` credits/month
-    still meet the rule: the annual case binds (net_y/12 = 10/12 net_m)."""
+    """Lowest local monthly price (annual = 10x price, 10x credits) at which
+    `pool` credits/month still meet the rule."""
     need_net_m = (_d(pool) * _d(per_credit_usd) + _d(free_haiku_cost_usd)) / AI_SHARE
-    need_net_m = need_net_m * 12 / ANNUAL_MULT
     ex = need_net_m * _d(fx) / (1 - GOOGLE_FEE)
     return ex * (1 + _d(vat)) if inclusive else ex
 
@@ -161,6 +161,7 @@ def table(pool=None, per_credit_usd=None, free_haiku_calls=0, people=5):
                      "usd_monthly": _d(mo) / _d(fx),
                      "net_usd_m": net_usd(mo, vat, inc, fx),
                      "net_usd_y_per_m": net_usd(yr, vat, inc, fx) / 12,
+                     "net_usd_y": net_usd(yr, vat, inc, fx),
                      "ai_budget_usd_m": budget,
                      "max_pool": pool_credits(budget, per_credit_usd, haiku)})
     final_pool = pool if pool is not None else min(r["max_pool"] for r in rows)
@@ -169,7 +170,8 @@ def table(pool=None, per_credit_usd=None, free_haiku_calls=0, people=5):
         ai = _d(final_pool) * _d(per_credit_usd) + haiku
         r["ai_cost_usd_m"] = ai
         r["margin_monthly"] = margin(r["monthly"], r["vat"], r["inclusive"], r["fx"], ai)
-        r["margin_annual"] = margin(r["annual"], r["vat"], r["inclusive"], r["fx"], ai * 12)
+        r["margin_annual"] = margin(r["annual"], r["vat"], r["inclusive"], r["fx"],
+                                    ai * ANNUAL_MULT)
         r["min_monthly"] = min_monthly_price(final_pool, per_credit_usd, r["vat"],
                                              r["inclusive"], r["fx"], haiku)
         r["ok"] = (r["margin_monthly"] >= PROFIT_MIN and r["margin_annual"] >= PROFIT_MIN

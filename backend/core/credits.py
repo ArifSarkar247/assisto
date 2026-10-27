@@ -58,14 +58,19 @@ def bcfg():
         return billing_cfg.defaults()
 
 
-def plan_credits(plan):
+def plan_credits(plan, months=1):
     """Monthly allowance of a plan from PricingConfig (founder/annual/probashi
     -> Premium)."""
     from . import billing
     c = billing.cfg()
     if plan == "probashi":
-        # probashi-plan: the family's SHARED monthly pool (payer + seats)
-        return max(0, int(c["probashi_plan"]["pool_credits"]))
+        # probashi-plan: the family's SHARED monthly pool (payer + seats).
+        # Annual (owner 27 Oct): 10 x price AND 10 x credits = annual_pool_credits
+        # a year, granted as 12 monthly slices (1800 -> 150 a month).
+        pp = c["probashi_plan"]
+        if int(months or 1) >= 12:
+            return max(0, int(pp["annual_pool_credits"]) // 12)
+        return max(0, int(pp["pool_credits"]))
     row = c["plans"].get(plan) or c["plans"]["premium"]
     return max(0, int(row["credits"]))
 

@@ -15,6 +15,9 @@ DEFAULTS = {
     # owner_actions/PROBASHI_PLAN_BN.md §৩ — 194 is the most every country
     # carries; 180 keeps ~7 % headroom for FX moves)
     "pool_credits": 180,
+    # annual base plan (owner 27 Oct): 10 x monthly price AND 10 x monthly
+    # credits = 1800 a year, granted 150 a month (never rolled over)
+    "annual_pool_credits": 1800,
     # default per-member monthly cap the payer can change (0 = no pool use)
     "default_member_cap": 40,
     "invite_ttl_days": 7,
@@ -31,6 +34,7 @@ DEFAULTS = {
 BOUNDS = {
     "seats": (3, 4),
     "pool_credits": (0, 2000),
+    "annual_pool_credits": (0, 24000),
     "default_member_cap": (0, 2000),
     "invite_ttl_days": (1, 30),
     "cooldown_days": (0, 365),
