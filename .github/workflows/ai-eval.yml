@@ -1,0 +1,75 @@
+# AI quality evals (owner MASTER QUALITY ORDER G): every AI feature's
+# Bangla + Banglish + English eval set (>= 200 cases each), graded
+# deterministically. NEVER calls an AI provider and uses no secrets: model
+# features replay recorded outputs through the product's own guards; rule
+# features (date parser, intents, SMS/expense parsing, sales rules,
+# bargaining, order capture, contracts, CRM) are checked against exact
+# expected outputs. Fails when any feature drops below
+# backend/core/ai_evals/thresholds.json. Live runs are owner-only
+# (manage.py ai_eval --live --confirm --budget-usd N) and refuse to run in CI.
+name: ai-eval
+
+on:
+  # ci/aieval* (agent checks) and main (the owner's merges), whenever the AI
+  # code, the guards, the eval sets or the deterministic logic change
+  push:
+    branches: ['main', 'ci/aieval*']
+    paths:
+      - 'backend/core/ai*'
+      - 'backend/core/ai_evals/**'
+      - 'backend/core/logic/**'
+      - 'backend/core/agent.py'
+      - 'backend/core/bills.py'
+      - 'backend/core/business*.py'
+      - 'backend/core/bizagent*.py'
+      - 'backend/core/jobs.py'
+      - 'backend/core/views*.py'
+      - 'backend/core/world_service.py'
+      - 'backend/core/chat_vision_service.py'
+      - 'backend/crm/views.py'
+      - '.github/workflows/ai-eval.yml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to evaluate'
+        required: false
+
+concurrency:
+  group: ai-eval-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -q -r backend/requirements.txt
+      - name: eval tests (thresholds, guards, live-mode safety)
+        working-directory: backend
+        run: python manage.py test core.tests_ai_eval --settings=assisto_backend.settings_test --noinput
+      - name: scorecard
+        if: always()
+        working-directory: backend
+        env:
+          CI: 'true'
+        run: python manage.py ai_eval --out ../ai-eval-scorecard --settings=assisto_backend.settings_test
+      - name: job summary
+        if: always()
+        run: cat ai-eval-scorecard/scorecard.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-eval-scorecard
+          path: ai-eval-scorecard/
+          retention-days: 30

@@ -97,6 +97,9 @@ class AssistoRunView(APIView):
                     "no_key": ("ai_off", status.HTTP_503_SERVICE_UNAVAILABLE),
                     }.get(e.reason, ("busy", status.HTTP_503_SERVICE_UNAVAILABLE))
             return _err(code[0], code[1], balance=_spendable(request.user))
+        if req["action"] == "ask":
+            from . import ai_guard     # aieval: same cleanup as the home chat
+            text, _flags = ai_guard.clean_assistant_answer(text, lang)
         request.user.refresh_from_db()
         after = _spendable(request.user)
         return Response({"ok": True, "action": req["action"],

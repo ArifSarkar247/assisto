@@ -369,7 +369,9 @@ def answer(text, ctx):
         line = order_status_line(lang, ctx.get("orders"))
         if line:
             return {"text": line, "rule": R_ORDER_STATUS}
-    asks_delivery = _has(low, _ASK_DELIVERY)
+    # "cash on delivery" is a PAYMENT question, not a delivery-charge one (aieval)
+    asks_delivery = _has(low.replace("cash on delivery", " ").replace("ক্যাশ অন ডেলিভারি", " "),
+                         _ASK_DELIVERY)
     if asks_delivery and not (p is not None and (_has(low, _ASK_PRICE) or _has(low, _ASK_STOCK))):
         line = delivery_line(lang, ctx.get("delivery"))
         if line:

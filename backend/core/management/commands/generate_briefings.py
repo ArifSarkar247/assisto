@@ -52,6 +52,8 @@ class Command(BaseCommand):
                             "briefing in English (3-4 lines)."),
                         data=data, tier="cheap", feature="briefing.batch",
                         max_tokens=300, user=u)
+                    from core import ai_guard   # aieval: no medical claims
+                    text, _flags = ai_guard.clean_assistant_answer(text, lang, actions=False)
                     ai_used = True
                 except ai.AIUnavailable:
                     text = ""

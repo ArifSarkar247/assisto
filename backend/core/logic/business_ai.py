@@ -313,12 +313,27 @@ def draft_reply(customer_text, context, reply_provider=None, ai_key=None,
 
     needs_human = confidence < HANDOFF_CONFIDENCE
     reason = "low_confidence" if needs_human else None
-    return {
+    # aieval guard: a REAL model draft is post-checked — a price/number that is
+    # not in the facts or the customer's own text, a refund promise or a
+    # "human" claim never goes out as-is; the owner reviews it.
+    problems = []
+    if used_ai and text:
+        from .. import ai_guard
+        problems = ai_guard.check_sales_answer(
+            text, context.get("facts", ""), customer_text,
+            extra=[v for v in (context.get("delivery") or {}).values()])
+        if problems:
+            needs_human, reason = True, "unverified_numbers"
+            confidence = min(confidence, CONF_LOW)
+    out = {
         "text": text, "lang": lang, "confidence": confidence,
         "needs_human": needs_human, "handoff_reason": reason,
         "used_ai": used_ai, "disclosure": assistant_disclosure(lang),
         "intent": intent,
     }
+    if problems:
+        out["problems"] = problems
+    return out
 
 
 # ===========================================================================

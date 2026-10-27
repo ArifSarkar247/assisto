@@ -710,6 +710,10 @@ class TrackerAiSummaryView(APIView):
             text, _cost = ai.generate(task, data=json.dumps(base["facts"])[:4000],
                                       tier="cheap", max_tokens=250,
                                       feature="vehicle_summary", user=request.user)
+            from . import ai_guard
+            if ai_guard.accusations(text):
+                # aieval: never accuse anyone — the factual rule summary instead
+                return R({**base, "ai": False, "reason": "guard", "text": rule})
             return R({**base, "ai": True, "text": text})
         except ai.AIUnavailable as e:
             return R({**base, "ai": False, "reason": e.reason, "text": rule})

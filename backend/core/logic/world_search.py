@@ -214,8 +214,22 @@ def finalize(answer, results, question, lang):
     sources = [{"n": remap[k], "title": results[k - 1]["title"], "url": results[k - 1]["url"],
                 "site": results[k - 1]["site"]} for k in order]
     kinds = caution_of(question)
+    caution = caution_notes(kinds, lang)
+    # aieval guard: a number that is in none of the sources (nor the
+    # question) is flagged to the reader — never shown as a verified fact.
+    from ..ai_guard import ungrounded_numbers
+    src = [question] + ["%s %s" % (r.get("title", ""), r.get("snippet", "")) for r in results]
+    plain = _CITE_RE.sub(" ", text)
+    if ungrounded_numbers(plain, src):
+        caution = caution + [UNVERIFIED_NOTE["en" if lang == "en" else "bn"]]
     return {"answer": text, "sources": sources, "cited": bool(sources),
-            "caution": caution_notes(kinds, lang)}
+            "caution": caution}
+
+
+UNVERIFIED_NOTE = {
+    "bn": "এই উত্তরের কোনো সংখ্যা সূত্রে পাওয়া যায়নি — ব্যবহারের আগে নিজে যাচাই করুন।",
+    "en": "A number in this answer was not found in the sources — check it before you rely on it.",
+}
 
 
 NO_RESULTS = {

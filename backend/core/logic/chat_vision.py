@@ -345,7 +345,11 @@ def postprocess(parsed, *, question="", device_text="", lang="bn", face_in_photo
     """Safety post-processing of a provider reply. Returns
     {answer, kind, medicine, doses_removed, face_refused}."""
     lang = "bn" if lang == "bn" else "en"
-    answer = (parsed.get("answer") or "").strip()
+    # aieval: the vision path does not pass through core.ai.generate, so the
+    # shared provider-neutral cleanup (no model/provider name, no leaked
+    # reasoning tags) is applied here too.
+    from ..ai_prompt import normalize_output
+    answer = normalize_output(parsed.get("answer") or "")
     kind = parsed.get("kind") or "other"
     label = "%s\n%s" % (parsed.get("label_text") or "", device_text or "")
     out = {"kind": kind, "medicine": False, "doses_removed": 0, "face_refused": False}

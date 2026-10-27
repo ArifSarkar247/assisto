@@ -77,6 +77,11 @@ def parse_bill(user, raw_text, biller_hint=""):
         fields = json.loads(text[text.find("{"): text.rfind("}") + 1])
     except Exception:
         fields = {}
+    # aieval guard: an amount / account / meter number / late fee not in
+    # the scanned text is blanked, never shown as read from the bill.
+    from . import ai_guard
+    fields, _dropped = ai_guard.ground_fields(
+        fields, raw_text, ("amount", "account_no", "meter_no", "late_fee"))
     b = (fields.get("biller") or biller or "").strip()
     if b:
         BillTemplate.objects.update_or_create(

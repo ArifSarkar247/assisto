@@ -92,10 +92,17 @@ def reply_for(user, incoming_text, lang="bn"):
     try:
         text, _ = ai.generate(task=task, data=data, tier="cheap",
                                feature="business.reply", max_tokens=300, user=user)
-        return (text, False, True)
     except ai.AIUnavailable:
         lines = [f"{p.name} — ৳{p.price}" for p in products]
         return ("\n".join(lines), False, False)
+    # aieval guard: a price/number not in the catalog facts or the customer's
+    # own text, a refund promise or a "I am human" claim is NEVER sent — the
+    # customer gets the plain catalog facts instead (honest, no AI wording).
+    from . import ai_guard
+    if ai_guard.check_sales_answer(text, facts, incoming_text):
+        lines = [f"{p.name} — ৳{p.price}" for p in products]
+        return ("\n".join(lines), False, False)
+    return (text, False, True)
 
 
 # NOTE for integrator: core/views.py BusinessOrderCaptureView.post calls
