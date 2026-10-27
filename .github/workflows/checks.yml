@@ -42,7 +42,12 @@ jobs:
         run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
       - name: core crm web
         working-directory: backend
-        run: python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
+        # A throwaway Fernet key made fresh on every run (never a real secret):
+        # integration tests encrypt/decrypt with it. Locally the key comes from
+        # the server's secrets file, which CI does not (and must not) have.
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
 
   flutter-static:
     runs-on: ubuntu-latest
@@ -87,4 +92,6 @@ jobs:
         run: flutter pub get && flutter gen-l10n
       - name: flutter test shard ${{ matrix.shard }}/8
         working-directory: app
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
         run: flutter test --no-pub --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }}
