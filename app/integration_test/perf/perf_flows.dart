@@ -29,6 +29,7 @@ import 'package:assisto/screens/credits_screen.dart';
 import 'package:assisto/screens/crm/crm_leads_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/photo_studio_screen.dart';
+import 'package:assisto/state.dart' show Settings;
 
 import '../../test/c2_calls_fakes.dart' show FakeSurface, previewController;
 import '../support/harness.dart';
@@ -69,7 +70,10 @@ void registerPerfSignIn() {
       await f.net(() => f.app.login(identifier: Seed.phoneA, password: Seed.password));
     }
     if (!f.app.loggedIn) throw TestFailure('login did not sign in');
-    if (!f.app.onboarded) f.app.markOnboarded();
+    // persisted exactly like OnboardingScreen does (the in-memory flag alone
+    // was lost on the next app open: run 40584598327)
+    await f.net(() => Settings.setBool('onboarded', true));
+    f.app.markOnboarded();
     await f.home();
   });
 }
