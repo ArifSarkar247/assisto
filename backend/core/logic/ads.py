@@ -68,7 +68,32 @@ BLOCKED_SCREENS = (
     "vault", "onboarding", "permission", "language_picker",
     # budget-remittance: family money screens
     "remittance", "budget_remittance",
+    # banners-everywhere (owner 26 Oct): still never an ad here
+    "safe_arrival", "safe_journey", "journey_live", "journey_settings",
+    "fall_detection", "antitheft_alarm", "lost_phone", "family_alerts",
+    "incoming_call", "in_call", "call_log", "call_history",
+    "circle_chat", "group_chat", "chat_conversation", "messenger_chat",
+    "chat_vault", "vault_pin", "checkout", "business_plans", "credits_topup",
+    "sign_up", "password_reset", "language_pick", "ring_check",
+    "account_security", "delete_account", "privacy",
 )
+# Hard token fence (same idea as AdRules.blockedTokens in the app): a banner
+# name containing one of these is dropped even if an owner types it.
+BLOCKED_TOKENS = (
+    "sos", "safety", "safe", "emergency", "fall_detect", "journey", "lost",
+    "security", "theft", "alert", "alarm", "guard", "pay", "topup", "top_up",
+    "checkout", "billing", "plans", "purchase", "login", "otp", "signup",
+    "sign_up", "register", "password", "onboarding", "welcome", "permission",
+    "language_pick", "ring_check", "call", "chat", "messenger", "conversation",
+    "lock", "vault", "remit", "account", "delete", "privacy", "pin", "family",
+    "location", "track", "kid", "live",
+)
+BANNER_MIN_REFRESH_SEC = 60
+
+
+def is_blocked_screen(name):
+    s = _s(name).lower()
+    return not s or s in BLOCKED_SCREENS or any(t in s for t in BLOCKED_TOKENS)
 
 # admob: the only screens an ad may appear on (the app has the same
 # allowlist in ad_placements.dart; it can only narrow it from the server's
@@ -77,7 +102,16 @@ NATIVE_SCREENS = ("home",)
 APP_OPEN_SCREENS = ("home",)
 REWARDED_SCREENS = ("credits", "photo_studio")
 # same tuples as core/logic/pricing.py (the owner can only narrow them)
-BANNER_SCREENS = ("saved_items", "dictionary", "health_tips")
+# banners-everywhere (owner 26 Oct): one bottom banner on every normal
+# Free-user feature screen (mirrors AdPlacements.bannerScreens).
+BANNER_SCREENS = (
+    "saved_items", "dictionary", "health_tips",
+    "money", "budget", "money_report", "money_trends", "money_networth", "money_tax",
+    "reminders", "notes_todos", "birthdays", "meetings", "documents",
+    "jobs", "cv_builder", "business", "crm", "contract", "prepaid_meter",
+    "all_services", "guide", "nearby", "quick_tools", "medicine_db", "ramadan", "exam",
+    "photo_gallery", "circle_list", "settings",
+)
 INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
 
 
@@ -198,8 +232,9 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     inter_cap = int(caps.get("interstitial_daily_cap", 0) or 0)
     rew_cap = int(caps.get("rewarded_daily_cap", 0) or 0)
     hero = bool(caps.get("hero_enabled", False)) and not paid
-    banner_screens = _csv(caps.get("banner_screens", ",".join(BANNER_SCREENS)),
-                          BANNER_SCREENS)
+    # banners-everywhere: allowlist first, then the hard never-fence
+    banner_screens = [b for b in _csv(caps.get("banner_screens", ",".join(BANNER_SCREENS)),
+                                      BANNER_SCREENS) if not is_blocked_screen(b)]
     moments = _csv(caps.get("interstitial_moments", ",".join(INTERSTITIAL_MOMENTS)),
                    INTERSTITIAL_MOMENTS)
     placements = {
@@ -233,6 +268,9 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "interstitial_min_gap_sec": max(300, i_gap),
         "interstitial_daily_cap": inter_cap,
         "banner_screens": banner_screens if placements["banner"] else [],
+        # banners-everywhere: the app refreshes a banner no faster than this
+        # (AdMob console auto-refresh for the banner unit stays OFF)
+        "banner_refresh_sec": BANNER_MIN_REFRESH_SEC,
         "interstitial_moments": moments if placements["interstitial"] else [],
         "native_screens": list(NATIVE_SCREENS) if hero else [],
         "blocked_screens": list(BLOCKED_SCREENS),

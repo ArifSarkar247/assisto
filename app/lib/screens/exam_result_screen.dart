@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -158,6 +159,8 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
     final urlFlag = urlText.isNotEmpty && !isOfficialResultUrl(urlText);
 
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'exam'),
       appBar: AppBar(title: Text(t.examTitle)),
       body: ListView(
         padding: const EdgeInsets.all(Gap.md),

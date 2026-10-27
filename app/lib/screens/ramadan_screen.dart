@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -144,6 +145,8 @@ class _RamadanScreenState extends State<RamadanScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'ramadan'),
       appBar: AppBar(title: Text(t.ramadanTitle), actions: [
         IconButton(
           tooltip: t.ramadanRefresh,

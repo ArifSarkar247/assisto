@@ -20,10 +20,11 @@ class AdmobBannerBridge implements BannerBridge {
     if (unitId.isEmpty || !await AdmobSdk.ensureReady()) return null;
     AdSize size = AdSize.banner;
     try {
-      // the standard (not "large") anchored height keeps the list readable
+      // banners-everywhere: anchored adaptive banner for the current
+      // orientation (standard, not "large", height keeps pages readable)
       // ignore: deprecated_member_use
-      final a = await AdSize.getAnchoredAdaptiveBannerAdSize(
-          Orientation.portrait, width.truncate());
+      final a = await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+          width.truncate());
       if (a != null) size = a;
     } catch (_) {}
     final done = Completer<BannerAdHandle?>();

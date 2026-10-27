@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import 'package:provider/provider.dart';
@@ -594,6 +595,8 @@ class _VaultScreenState extends State<VaultScreen> {
         ? _docs
         : _docs.where((d) => (d['title'] ?? '').toString().toLowerCase().contains(_query.toLowerCase())).toList();
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'documents'),
       appBar: AppBar(title: Text(t.vaultTitle), actions: [
         IconButton(
           icon: const Icon(Icons.search_rounded),

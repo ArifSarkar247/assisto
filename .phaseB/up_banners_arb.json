@@ -1,0 +1,11 @@
+{
+  "_comment": "banners-everywhere (owner 26 Oct): the small Remove-ads text link next to every bottom banner (AdBannerSlot, app/lib/ads/ad_banner_slot.dart) + its TalkBack label. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_banners_arb.json",
+  "en": {
+    "adBannerRemoveAds": "Remove ads",
+    "adBannerRemoveAdsHint": "Remove ads. Opens the Premium plans"
+  },
+  "bn": {
+    "adBannerRemoveAds": "বিজ্ঞাপন সরান",
+    "adBannerRemoveAdsHint": "বিজ্ঞাপন সরান। প্রিমিয়াম প্ল্যান খুলবে"
+  }
+}

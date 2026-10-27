@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -147,6 +148,8 @@ class _JobsScreenState extends State<JobsScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+        bottomNavigationBar: const AdBannerSlot(screen: 'jobs'),
         appBar: AppBar(
           title: Text(tr.jobHunter),
           actions: [

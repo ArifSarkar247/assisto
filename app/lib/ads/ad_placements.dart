@@ -9,9 +9,11 @@
 /// containing sos / safety / theft / alert / call / chat / lock / pay / login /
 /// onboarding / permission ... is refused even if someone lists it.
 ///
-/// Max ONE ad per screen: the native card lives only on home, banners only
-/// on the three list pages below, and the interstitial moments belong to
-/// screens that carry no banner.
+/// Max ONE persistent ad per screen: the native card lives only on home,
+/// one anchored banner on each normal feature screen below (never home),
+/// never two banners on one route ([BannerPacer.claim]). Interstitials are
+/// full-screen moments, never shown while a banner page is being used
+/// mid-task (they follow a finished action).
 library;
 
 import 'ad_rules.dart';
@@ -27,9 +29,38 @@ class AdPlacements {
   /// The native card: home only, BELOW the quick shortcuts (h1 hero slot).
   static const nativeScreens = {'home'};
 
-  /// Banner: safe, calm list pages only (no safety, money, chat or
-  /// account screens). Each carries `AdBannerSlot(screen: ...)`.
-  static const bannerScreens = {'saved_items', 'dictionary', 'health_tips'};
+  /// Banner — owner decision 26 Oct ("banners-everywhere"): one adaptive
+  /// anchored banner at the bottom of every NORMAL Free-user feature
+  /// screen. Each key below is used by exactly one screen through
+  /// `AdBannerSlot(screen: '<key>')`. Never a safety, anti-theft, family,
+  /// call, chat-conversation, lock/vault-PIN, payment/plans, login/OTP,
+  /// onboarding, language or permission screen (see [neverScreens] and the
+  /// token fence). The server's `banner_screens` can only NARROW this.
+  /// Mirrored in backend core/logic/ads.py + pricing.py BANNER_SCREENS.
+  static const bannerScreens = {
+    // the three original calm list pages (owner 25 Oct)
+    'saved_items', 'dictionary', 'health_tips',
+    // money / expense tracking (NOT payment, checkout, top-up, remittance)
+    'money', 'budget', 'money_report', 'money_trends', 'money_networth',
+    'money_tax',
+    // personal organiser
+    'reminders', 'notes_todos', 'birthdays', 'meetings',
+    // documents LIST (after the PIN gate; the gate itself never has an ad)
+    'documents',
+    // work / business
+    'jobs', 'cv_builder', 'business', 'crm', 'contract', 'prepaid_meter',
+    // discovery / info
+    'all_services', 'guide', 'nearby', 'quick_tools', 'medicine_db',
+    'ramadan', 'exam',
+    // Photo Studio landing / picker (never while editing or exporting)
+    'photo_gallery',
+    // My Circle chat LIST only (Chats tab). The conversation screen, calls
+    // tab, chat lock and vault keep NO ad (their keys hit the fence).
+    'circle_list',
+    // the plain Settings list (never account security / password /
+    // delete-account / permission sub-pages)
+    'settings',
+  };
 
   /// Interstitial: natural breaks only -> the screen it appears over.
   static const interstitialMoments = {
@@ -50,6 +81,18 @@ class AdPlacements {
     'plans', 'topup', 'login', 'otp', 'signup', 'password_reset',
     'onboarding', 'language_picker', 'permission', 'ring_check',
     'remittance', 'budget_remittance', // budget-remittance: money screens
+    // banners-everywhere (owner 26 Oct): spelled out so the tests prove
+    // each is refused even if someone lists it.
+    'safe_journey', 'journey', 'journey_live', 'journey_settings',
+    'journey_history', 'fall_detection', 'anti_theft', 'antitheft_alarm',
+    'phone_safety', 'vehicle_tracking', 'family', 'family_alert',
+    'in_call', 'call_log', 'circle_calls', 'chat_conversation',
+    'circle_conversation', 'messenger_chat', 'chat_vault', 'vault_pin',
+    'documents_pin', 'payment_ladder', 'business_plans', 'top_up',
+    'credits_topup', 'sign_up', 'otp_verify', 'language_pick',
+    'ring_checklist', 'battery_permission', 'settings_account',
+    'account_security', 'security', 'security_checkup', 'password',
+    'delete_account', 'privacy', 'circle_privacy',
   ];
 
   static Set<String> _allow(AdSurface slot) => switch (slot) {
@@ -114,6 +157,47 @@ class AdPlacements {
       return const AdDecision(false, 'daily_cap');
     }
     return AdDecision.ok;
+  }
+}
+
+/// banners-everywhere (owner 26 Oct) caps, pure Dart so they are unit-tested:
+///  * ONE banner per route: the first slot on a route claims it, any other
+///    slot on the same route stays empty.
+///  * a screen's banner is (re)loaded no faster than [AdConfig.bannerRefresh]
+///    (floor [AdRules.minBannerRefresh] = 60 s) — also across leaving and
+///    re-opening the screen.
+class BannerPacer {
+  BannerPacer._();
+
+  static final Map<Object, Object> _claims = {};
+  static final Map<String, DateTime> _lastLoad = {};
+
+  /// [owner] wants to show a banner on [route]. true = it may (first one).
+  static bool claim(Object route, Object owner) {
+    final cur = _claims[route];
+    if (cur != null && !identical(cur, owner)) return false;
+    _claims[route] = owner;
+    return true;
+  }
+
+  static void release(Object route, Object owner) {
+    if (identical(_claims[route], owner)) _claims.remove(route);
+  }
+
+  /// How long [screen] must wait before its next banner request.
+  static Duration wait(String screen, DateTime now, Duration refresh) {
+    final r = refresh < AdRules.minBannerRefresh ? AdRules.minBannerRefresh : refresh;
+    final last = _lastLoad[screen];
+    if (last == null) return Duration.zero;
+    final left = r - now.difference(last);
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  static void markLoaded(String screen, DateTime now) => _lastLoad[screen] = now;
+
+  static void resetForTest() {
+    _claims.clear();
+    _lastLoad.clear();
   }
 }
 

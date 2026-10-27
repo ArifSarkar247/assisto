@@ -1,3 +1,4 @@
+import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -247,6 +248,8 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     final bizId = (biz['id'] as num?)?.toInt() ?? 0;
 
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'business'),
       appBar: AppBar(
         title: Text(t.business),
         actions: [

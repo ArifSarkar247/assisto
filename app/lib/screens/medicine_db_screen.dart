@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -130,6 +131,8 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'medicine_db'),
       appBar: AppBar(
         title: Text(t.medicineDbTitle),
         bottom: TabBar(controller: _tabs, tabs: [

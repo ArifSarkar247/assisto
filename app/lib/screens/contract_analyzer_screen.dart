@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -397,6 +398,8 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'contract'),
       appBar: AppBar(
         title: Text(t.caTitle),
         bottom: TabBar(

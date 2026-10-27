@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_firstrun_screen.dart';
@@ -102,6 +103,8 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
+        // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+        bottomNavigationBar: const AdBannerSlot(screen: 'crm'),
         appBar: AppBar(
           title: Text(t.crmTitle),
           actions: [

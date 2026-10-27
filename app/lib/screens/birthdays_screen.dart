@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -357,6 +358,8 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
+      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      bottomNavigationBar: const AdBannerSlot(screen: 'birthdays'),
       appBar: AppBar(title: Text(t.birthdaysTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
