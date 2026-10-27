@@ -21700,5 +21700,82 @@
         "type": "String"
       }
     }
-  }
+  },
+  "e2eVehMoving": "Moving",
+  "e2eVehStoppedFor": "Stopped · {minutes} min",
+  "@e2eVehStoppedFor": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehOnRoute": "On your usual route",
+  "e2eVehOffRoute": "{meters} m off your usual route",
+  "@e2eVehOffRoute": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertOverspeed": "Slow down — {speed} (limit {limit})",
+  "@e2eVehAlertOverspeed": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertOffRoute": "You left your usual route ({meters} m)",
+  "@e2eVehAlertOffRoute": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehAlertLongStop": "Stopped for {minutes} min on your route",
+  "@e2eVehAlertLongStop": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehSpeedAlert": "Speed alert",
+  "e2eVehOff": "Off",
+  "e2eVehUseRoute": "Alert if I leave my usual route",
+  "e2eVehNoRouteYet": "No usual route yet. Finish a trip, then save it.",
+  "e2eVehSaveRoute": "Save this trip as my usual route",
+  "e2eVehRouteSaved": "Saved as your usual route",
+  "e2eVehCarMapSemantics": "Live map. Speed {speed}. {state}",
+  "@e2eVehCarMapSemantics": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehPlanSave": "Set as planned route",
+  "e2eVehPlanClear": "Remove planned route",
+  "e2eVehPlanSaved": "Planned route saved. You get an alert if the vehicle leaves it or stops for long.",
+  "e2eVehPlanCleared": "Planned route removed",
+  "e2eVehPlanInfo": "Planned route · alert beyond {meters} m",
+  "@e2eVehPlanInfo": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "e2eVehPlanNeedsTrip": "Needs at least one recorded trip first",
+  "e2eVehBadDeviceId": "Enter the 10–15 digit device ID",
+  "e2eVehH02Help": "Sinotrack/H02: the 10-digit ID on the label"
 }
