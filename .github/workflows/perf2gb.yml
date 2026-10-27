@@ -1,0 +1,252 @@
+name: Perf 2 GB (speed + memory on a low-RAM emulator)
+
+# OWNER ORDER (27 Oct, maximum mode): every launch-critical feature must be
+# fast on a 2 GB phone, MEASURED. This job boots the same throw-away Django as
+# reality.yml (settings_ci + seed_reality + seed_perf bulk data), builds two
+# x86_64 PROFILE APKs (real AOT timings, release-like) and runs them on a
+# GitHub-hosted emulator:
+#   * 2gb: 2048 MB RAM, 2 cores, 720x1600 @ 320 dpi, Java heap 128 MB,
+#          animations ON (like a real phone)
+#   * mid: 4096 MB RAM, 4 cores, 1080x2400 @ 420 dpi (quality bar #1)
+# Firebase Test Lab is NOT used: secret GCP_TESTLAB_SA is not set (testlab.yml).
+#
+# Evidence (artifact perf2gb-<profile>): perf2gb.json + perf2gb.md (cold
+# start, per-screen open time, frame p50/p90/p99 + janky %, dumpsys meminfo
+# PSS per flow, LMK kills, 5-min background batterystats, APK sizes).
+# tools/perf2gb/to_bangla.py turns the JSON into owner_actions/PERF_2GB_BN.md.
+# Never touches api.lifeassisto.com, the live DB, flags or money.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: "Comma list: 2gb,mid"
+        required: false
+        default: "2gb,mid"
+      only:
+        description: "Perf flow id prefixes (e.g. p02,p07); empty = all"
+        required: false
+        default: ""
+  push:
+    branches: ["ci/perf2gb*"]
+
+concurrency:
+  group: perf2gb-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read   # shipped APK sizes from android.yml artifacts
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      profiles: ${{ steps.p.outputs.profiles }}
+    steps:
+      - id: p
+        env:
+          P: ${{ github.event.inputs.profiles }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          want = [x.strip() for x in (os.environ.get("P") or "2gb,mid").split(",") if x.strip()]
+          print("profiles=" + json.dumps([w for w in want if w in ("2gb", "mid")] or ["2gb"]))
+          PY
+
+  perf:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJson(needs.plan.outputs.profiles) }}
+    name: perf (${{ matrix.profile }})
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      PERF_OUT: ${{ github.workspace }}/perf_out
+      PERF_ONLY: ${{ github.event.inputs.only }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # ------------------------------------------------ backend (in-runner)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Migrate + seed (reality accounts + perf bulk data)
+        working-directory: backend
+        run: |
+          mkdir -p "$PERF_OUT"
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$PERF_OUT/seed.json"
+          timeout 300 python manage.py seed_perf --settings=assisto_backend.settings_ci --out "$PERF_OUT/seed_perf.json"
+      - name: Start Django on :8700 (10.0.2.2:8700 from the emulator)
+        working-directory: backend
+        run: |
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+            > "$PERF_OUT/django.log" 2>&1 &
+          echo $! > "$PERF_OUT/django.pid"
+          for i in $(seq 1 60); do
+            curl -fsS -m 5 http://127.0.0.1:8700/api/v1/health >/dev/null && { echo "django up"; exit 0; }
+            sleep 2
+          done
+          echo "::error::Django did not come up"; tail -50 "$PERF_OUT/django.log"; exit 1
+
+      # ------------------------------------------------ app (android.yml build prep)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Dev deps + a real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n", 1)
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Profile-only cleartext to the in-runner backend (Skia, like reality.yml)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          p = "android/app/src/profile/AndroidManifest.xml"
+          os.makedirs(os.path.dirname(p), exist_ok=True)
+          s = open(p).read() if os.path.exists(p) else (
+              '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '    <uses-permission android:name="android.permission.INTERNET"/>\n</manifest>\n')
+          if "usesCleartextTraffic" not in s:
+              # Skia: Impeller-GLES on the swiftshader emulator segfaulted
+              # (reality.yml rf1). Real phones run Impeller (Vulkan) — noted.
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          print(open(p).read())
+          PY
+      - name: Analyze the perf flows (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test > ia.txt 2>&1; cat ia.txt | tail -40
+          grep -qE "error •" ia.txt && { echo "::error::perf flows do not compile"; exit 1; }
+          exit 0
+      - name: Build the two x86_64 PROFILE APKs (perf test + real app)
+        working-directory: app
+        run: |
+          D="--dart-define=REALITY_API_BASE=http://10.0.2.2:8700 --dart-define=ASSISTO_PERF=true"
+          timeout 2400 flutter build apk --profile --target-platform=android-x64 \
+            --target=integration_test/perf_all_test.dart $D --dart-define=PERF_ONLY="$PERF_ONLY"
+          mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_test.apk"
+          timeout 1800 flutter build apk --profile --target-platform=android-x64 $D
+          mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_app.apk"
+          ls -la "$RUNNER_TEMP"/*.apk
+          echo "PERF_TEST_APK=$RUNNER_TEMP/perf_test.apk" >> "$GITHUB_ENV"
+          echo "PERF_APP_APK=$RUNNER_TEMP/perf_app.apk" >> "$GITHUB_ENV"
+      - name: APK sizes (this profile build + the latest shipped android.yml artifacts)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          out = {"profile_x86_64_app": "%.1f MB" % (os.path.getsize(os.environ["PERF_APP_APK"]) / 1048576)}
+          try:
+              rid = subprocess.run(["gh", "run", "list", "-R", os.environ["GITHUB_REPOSITORY"],
+                  "--workflow", "android.yml", "--branch", "main", "--status", "success",
+                  "--limit", "1", "--json", "databaseId", "-q", ".[0].databaseId"],
+                  capture_output=True, text=True, timeout=60).stdout.strip()
+              if rid:
+                  arts = json.loads(subprocess.run(["gh", "api",
+                      f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{rid}/artifacts"],
+                      capture_output=True, text=True, timeout=60).stdout or "{}")
+                  out["shipped_run"] = rid
+                  for a in arts.get("artifacts", []):
+                      out["shipped:" + a["name"]] = "%.1f MB (zip)" % (a["size_in_bytes"] / 1048576)
+          except Exception as e:
+              out["shipped_error"] = repr(e)[:200]
+          json.dump(out, open(os.environ["PERF_OUT"] + "/apk_sizes.json", "w"), indent=1)
+          print(out)
+          PY
+
+      # ------------------------------------------------ emulator
+      - name: Free the runner (stop Gradle/Kotlin daemons)
+        working-directory: app
+        run: |
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          free -m
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run perf flows on API 33 (${{ matrix.profile }})
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          PERF_TOTAL_SECONDS: "3000"
+        with:
+          api-level: 33
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: false
+          emulator-boot-timeout: 600
+          ram-size: ${{ matrix.profile == 'mid' && '4096M' || '2048M' }}
+          heap-size: ${{ matrix.profile == 'mid' && '256M' || '128M' }}
+          cores: ${{ matrix.profile == 'mid' && 4 || 2 }}
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none ${{ matrix.profile == 'mid' && '-prop dalvik.vm.heapgrowthlimit=256m' || '-prop dalvik.vm.heapgrowthlimit=128m' }}
+          # ONE line: screen size/density of the profile + a hardware keyboard
+          # (no IME window). 2gb = 720x1600 @ 320, mid = 1080x2400 @ 420.
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i -e '/^hw.keyboard=/d' -e '/^hw.lcd.width=/d' -e '/^hw.lcd.height=/d' -e '/^hw.lcd.density=/d' "$c" && printf 'hw.keyboard=yes\nhw.lcd.width=%s\nhw.lcd.height=%s\nhw.lcd.density=%s\n' ${{ matrix.profile == 'mid' && '1080 2400 420' || '720 1600 320' }} >> "$c" && echo "profile -> $c"; done; true
+          script: bash tools/perf2gb/run_perf.sh
+
+      # ------------------------------------------------ evidence
+      - name: Collect perf2gb.json / perf2gb.md
+        if: always()
+        run: |
+          python3 tools/perf2gb/collect.py "$PERF_OUT" --profile ${{ matrix.profile }} --run-id ${{ github.run_id }} > /dev/null || true
+          cat "$PERF_OUT/perf2gb.md" >> "$GITHUB_STEP_SUMMARY" || true
+          head -80 "$PERF_OUT/perf2gb.md" || true
+      - name: Stop Django
+        if: always()
+        run: kill "$(cat "$PERF_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf2gb-${{ matrix.profile }}
+          path: perf_out/
+          retention-days: 21
+          if-no-files-found: warn

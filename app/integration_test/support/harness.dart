@@ -211,7 +211,7 @@ class Harness {
   /// Boots the REAL app widget tree (same providers as lib/main.dart) with a
   /// FRESH AppState that re-reads storage — calling it again is how flows
   /// simulate "close and reopen the app".
-  Future<AppState> boot(WidgetTester tester) async {
+  Future<AppState> boot(WidgetTester tester, {double settleSeconds = 4}) async {
     final a = http.runWithClient(() => AppState(), () => recorder);
     unawaited(a.init());
     final a11y = A11yPrefs();
@@ -235,7 +235,8 @@ class Harness {
     // 19_circle_ticks never saw "typing…". Firebase stays off (no FCM on
     // CI), exactly like startup safe mode. Re-boots re-bind the new AppState.
     unawaited(PushService.instance.start(a, realtimeOnly: true));
-    await settle(tester, seconds: 4);
+    // perf2gb: 0 = return at once (the perf flows time boot -> home themselves)
+    if (settleSeconds > 0) await settle(tester, seconds: settleSeconds);
     return a;
   }
 }
