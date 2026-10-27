@@ -140,7 +140,15 @@ class ImouClient:
 
 
 # ---------------------------------------------------------------- parsing
-_HUMAN_WORDS = ("human", "humanoid", "people", "person", "body")
+_HUMAN_WORDS = ("human", "humanoid", "people", "person", "body",
+                # newer PTZ / AI models report human detection as
+                # "e_multiVideoAiPerArea" (per = person) instead of "human"
+                "aiper")
+# msgType values that are NOT alarms: device status / privacy-mode toggles
+# ("openCamera"/"closeCamera" = the owner switched the lens on/off in the
+# Imou app) — acting on them would raise false alerts.
+_NOT_ALARM = ("devicestatus", "online", "offline", "status", "heartbeat",
+              "opencamera", "closecamera", "devicereboot", "sdcardstatus")
 
 
 def parse_alarm(msg):
@@ -150,7 +158,7 @@ def parse_alarm(msg):
     if not isinstance(msg, dict):
         return None
     mtype = str(msg.get("msgType") or "").lower()
-    if mtype in ("devicestatus", "online", "offline", "status", "heartbeat"):
+    if mtype in _NOT_ALARM:
         return None
     did = str(msg.get("did") or msg.get("deviceId") or "").strip()
     if not did:

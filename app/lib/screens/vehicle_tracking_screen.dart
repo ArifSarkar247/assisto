@@ -293,8 +293,10 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
   Future<void> _submit() async {
     final tr = AppLocalizations.of(context);
     final imei = _imei.text.replaceAll(RegExp(r'\D'), '');
-    if (imei.length != 15) {
-      setState(() => _err = tr.vehErrBadImei);
+    // H02 (Sinotrack ST-901 family) trackers use a 10-digit device id.
+    final ok = _protocol == 'h02' ? (imei.length >= 10 && imei.length <= 15) : imei.length == 15;
+    if (!ok) {
+      setState(() => _err = _protocol == 'h02' ? tr.e2eVehBadDeviceId : tr.vehErrBadImei);
       return;
     }
     setState(() {
@@ -336,7 +338,9 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         maxLength: 15,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(
-            labelText: tr.vehImeiLabel, helperText: tr.vehImeiHelp, helperMaxLines: 2),
+            labelText: tr.vehImeiLabel,
+            helperText: _protocol == 'h02' ? tr.e2eVehH02Help : tr.vehImeiHelp,
+            helperMaxLines: 2),
       ),
       const SizedBox(height: Gap.sm),
       TextField(
@@ -368,16 +372,22 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       const SizedBox(height: Gap.md),
       Text(tr.vehProtocolLabel, style: Theme.of(context).textTheme.labelLarge),
       const SizedBox(height: Gap.xs),
-      SegmentedButton<String>(
-        segments: [
-          // qa1: the long Bangla label wrapped to 2 lines in the segment
-          ButtonSegment(value: 'auto', label: Text(tr.qa1VehProtocolAuto)),
-          const ButtonSegment(value: 'gt06', label: Text('GT06')),
-          const ButtonSegment(value: 'teltonika', label: Text('Teltonika')),
-        ],
-        selected: {_protocol},
-        onSelectionChanged: (s) => setState(() => _protocol = s.first),
-      ),
+      // e2e-vehicle: 4 protocols no longer fit one segmented row at 400 dp /
+      // large font — chips wrap instead (48 dp targets).
+      Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+        for (final p in const ['auto', 'gt06', 'h02', 'teltonika'])
+          ChoiceChip(
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            label: Text(switch (p) {
+              'auto' => tr.qa1VehProtocolAuto,
+              'gt06' => 'GT06',
+              'h02' => 'H02 / Sinotrack',
+              _ => 'Teltonika',
+            }),
+            selected: _protocol == p,
+            onSelected: (_) => setState(() => _protocol = p),
+          ),
+      ]),
       const SizedBox(height: Gap.md),
       Text(tr.vehMonthlyCost(vehNumStr(context, widget.monthCredits)),
           style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -403,8 +413,9 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
     final t = vehMap(_done!['tracker']);
     final proto = '${t['protocol']}';
     final lines = <String>[
-      if (proto != 'teltonika') '${sms['gt06'] ?? ''}',
-      if (proto != 'gt06') '${sms['teltonika'] ?? ''}',
+      if (proto == 'auto' || proto == 'gt06') '${sms['gt06'] ?? ''}',
+      if ((proto == 'auto' || proto == 'h02') && sms['h02'] != null) '${sms['h02']}',
+      if (proto == 'auto' || proto == 'teltonika') '${sms['teltonika'] ?? ''}',
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Icon(Icons.timer_rounded, size: 40, color: Brand.warning),

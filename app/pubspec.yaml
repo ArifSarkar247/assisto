@@ -41,6 +41,12 @@ dependencies:
   permission_handler: ^11.3.1 # camera/mic/photos permission flow + openAppSettings
   image_cropper: ^8.0.2       # crop + rotate in the capture/edit screen
   geolocator: ^13.0.1         # SOS GPS location
+  # e2e-vehicle: real map for vehicle tracking + Car Mode (BSD-3, pure Dart,
+  # no native code). Tiles come from a SERVER-configured XYZ URL (vehicle
+  # config "map"); with none configured the app keeps the tile-free canvas.
+  # Never tile.openstreetmap.org (OSMF usage policy).
+  flutter_map: 8.3.2
+  latlong2: 0.9.1
   # Stolen-while-unlocked protection (Section 8): class-3 (strong) biometric
   # used LAZILY only when gating a sensitive security action (SecurityGuard).
   # Never invoked at app launch; all calls try/catch so a device without

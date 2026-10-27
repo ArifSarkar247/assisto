@@ -21,6 +21,8 @@ abstract class WatchmanSource {
   Future<void> removeViewer(int siteId, int userId);
   Future<Map<String, dynamic>> patchSite(int siteId, Map<String, dynamic> body);
   Future<void> deleteCamera(int cameraId);
+  /// Owner-only camera row WITH its token (Hikvision / Dahua push link).
+  Future<Map<String, dynamic>> camera(int cameraId);
 }
 
 class ApiWatchmanSource implements WatchmanSource {
@@ -77,6 +79,9 @@ class ApiWatchmanSource implements WatchmanSource {
   @override
   Future<Map<String, dynamic>> patchSite(int siteId, Map<String, dynamic> body) =>
       api.patchJson('/shop/sites/$siteId', body);
+  @override
+  Future<Map<String, dynamic>> camera(int cameraId) =>
+      api.getJson('/shop/cameras/$cameraId');
   @override
   Future<void> deleteCamera(int cameraId) async {
     await api.deleteJson('/shop/cameras/$cameraId');

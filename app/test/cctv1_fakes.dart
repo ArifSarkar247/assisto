@@ -219,4 +219,9 @@ class FakeWatchman implements WatchmanSource {
 
   @override
   Future<void> deleteCamera(int cameraId) async => calls.add('deleteCamera:$cameraId');
+  @override
+  Future<Map<String, dynamic>> camera(int cameraId) async {
+    calls.add('camera:$cameraId');
+    return {'id': cameraId, 'camera_token': 'tok$cameraId'};
+  }
 }

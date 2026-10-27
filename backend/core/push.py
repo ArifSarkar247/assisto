@@ -221,7 +221,7 @@ def get_access_token(sa=None, force=False):
                 "assertion": build_jwt(sa, now),
             }).encode("ascii")
             code, js = _http_post(
-                TOKEN_URI, body,
+                getattr(settings, "FCM_TOKEN_URI", "") or TOKEN_URI, body,
                 {"Content-Type": "application/x-www-form-urlencoded"})
             if code != 200 or not js.get("access_token"):
                 log.warning("push: token exchange failed (http %s)", code)
@@ -319,7 +319,9 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
         payload = build_message(token, data, notification, priority, ttl_s,
                                 collapse_key, android_channel)
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        url = SEND_URL.format(project_id=sa["project_id"])
+        # e2e: settings.FCM_SEND_URL points the harness at a local mock FCM
+        url = (getattr(settings, "FCM_SEND_URL", "") or SEND_URL).format(
+            project_id=sa["project_id"])
         for attempt in (0, 1):
             access = get_access_token(sa, force=bool(attempt))
             if not access:
