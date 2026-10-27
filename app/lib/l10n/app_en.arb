@@ -21136,5 +21136,32 @@
   "ffPreviewTag": "Preview",
   "@ffPreviewTag": {
     "description": "Small tag on a sidebar / All Services entry that only the owner / staff / testers see (hidden feature in preview)."
-  }
+  },
+  "smsotpEmailInstead": "Send the code by email instead",
+  "smsotpEmailGet": "Get the code by email",
+  "smsotpEmailSentNeutral": "If your account has a verified email, we sent the code there. Check Spam too.",
+  "smsotpEmailSentTo": "We sent the code to {email}. Check Spam too.",
+  "@smsotpEmailSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "smsotpEmailOff": "Codes by email aren't set up yet.",
+  "smsotpEmailCap": "We can't email more codes today. Use SMS, or try again later.",
+  "smsotpEmailNoVerified": "You have no verified email. Add one in Settings, then Email for sign-in codes.",
+  "smsotpSmsCap": "Today's SMS limit is used up. Get the code by email or sign in with your password.",
+  "smsotpEmailTile": "Email for sign-in codes",
+  "smsotpEmailTileSub": "A backup way to get codes when an SMS doesn't arrive",
+  "smsotpEmailTitle": "Email for codes",
+  "smsotpEmailIntro": "Add an email you can open. If an SMS code doesn't arrive, we can send the code there instead. We never send ads to this address.",
+  "smsotpEmailLabel": "Email address",
+  "smsotpEmailInvalid": "Enter a valid email address.",
+  "smsotpEmailSend": "Send code",
+  "smsotpEmailVerify": "Verify email",
+  "smsotpEmailVerified": "Verified",
+  "smsotpEmailNotVerified": "Not verified yet",
+  "smsotpEmailDone": "Email verified.",
+  "smsotpEmailCodeHint": "Enter the 6-digit code from the email"
 }
