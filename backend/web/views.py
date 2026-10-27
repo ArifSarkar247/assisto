@@ -239,6 +239,11 @@ def landing(request):
     return render(request, "web/landing.html", _ctx(request))
 
 
+def khata_free(request):
+    """ledger100: the written 'digital khata free forever' promise."""
+    return render(request, "web/khata_free.html", _ctx(request))
+
+
 def get_app(request):
     data = {}
     try:

@@ -431,3 +431,16 @@ class TagadaCronTests(_Shop):
         from core.ops_health import JOB_BY_NAME
         self.assertIn("flock -n /tmp/assisto-tagada-sweep.lock",
                       JOB_BY_NAME["tagada_sweep"].cron_line())
+
+
+class FreePromisePageTests(TestCase):
+    def test_promise_page_bn_en_and_says_sms_is_paid(self):
+        r = self.client.get("/khata-free")
+        self.assertEqual(r.status_code, 200)
+        body = r.content.decode()
+        self.assertIn("চিরকাল ফ্রি", body)
+        self.assertIn("ক্রেডিট", body)                 # paid part said plainly
+        en = self.client.get("/khata-free?lang=en").content.decode()
+        self.assertIn("free forever", en)
+        self.assertIn("uses credits", en)
+        self.assertIn("/khata-free", self.client.get("/").content.decode())
