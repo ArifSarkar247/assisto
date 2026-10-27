@@ -114,6 +114,9 @@ class GuardUnitTests(SimpleTestCase):
         kinds = {p["type"] for p in G.check_sales_answer(
             "আমি একজন মানুষ। সমস্যা হলে পুরো টাকা ফেরত দেব।", "")}
         self.assertEqual(kinds, {"refund_promise", "human_claim"})
+        # the honest disclosure is never a "human" claim
+        self.assertEqual(G.human_claims("আমি দোকানের AI সহকারী, আমি একজন মানুষ নই।"), [])
+        self.assertEqual(G.human_claims("ami manush na, AI"), [])
 
     def test_action_claim_scrub(self):
         out, n = G.scrub_action_claims("ঠিক আছে। রহিমকে SMS পাঠিয়ে দিয়েছি। আর কিছু?", "bn")

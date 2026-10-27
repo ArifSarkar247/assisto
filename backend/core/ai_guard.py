@@ -163,8 +163,25 @@ def refund_promises(text):
     return _has((text or "").lower(), REFUND_PROMISES)
 
 
+_NEGATED = re.compile(r"^\s*(?:নই|নয়|নয়|না\b|nai\b|noi\b|na\b)", re.I)
+
+
 def human_claims(text):
-    return _has((text or "").lower(), HUMAN_CLAIMS)
+    """"I am human" claims — but never the honest "আমি একজন মানুষ নই"
+    ("I am not a human") that the shop's own disclosure says."""
+    low = (text or "").lower()
+    hits = []
+    for w in HUMAN_CLAIMS:
+        start = 0
+        while True:
+            i = low.find(w, start)
+            if i < 0:
+                break
+            if not _NEGATED.match(low[i + len(w):]):
+                hits.append(w)
+                break
+            start = i + len(w)
+    return hits
 
 
 def check_sales_answer(answer, facts="", customer_text="", extra=()):
