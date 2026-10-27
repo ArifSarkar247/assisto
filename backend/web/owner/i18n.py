@@ -756,9 +756,9 @@ BN.update({
     "ak_offers_premium_notifs": "প্রিমিয়াম ব্যবহারকারীরাও ব্র্যান্ড অফার পাবেন (ডিফল্ট বন্ধ)",
 })
 # ---- /p2-money ----
-# ---- p4-world ---- owner panel: Unseen World data sources + gold/fuel values
+# ---- p4-world ---- owner panel: Daily info and services (was "Unseen World") data sources + gold/fuel values
 EN.update({
-    "nav_world": "Unseen World",
+    "nav_world": "Daily info and services",
     "w_sources": "Data sources", "w_source": "Source", "w_kind": "Kind",
     "w_last_ok": "Last refresh", "w_last_err": "Last error", "w_calls": "Calls today",
     "w_cost": "Cost today (USD)", "w_items": "Items", "w_on": "On", "w_off": "Off",
@@ -773,7 +773,7 @@ EN.update({
     "w_open_official": "Open official page",
 })
 BN.update({
-    "nav_world": "অদেখা দুনিয়া",
+    "nav_world": "আজকের তথ্য ও সেবা",
     "w_sources": "তথ্যের উৎস", "w_source": "উৎস", "w_kind": "ধরন",
     "w_last_ok": "শেষ হালনাগাদ", "w_last_err": "শেষ ত্রুটি", "w_calls": "আজকের কল",
     "w_cost": "আজকের খরচ (USD)", "w_items": "আইটেম", "w_on": "চালু", "w_off": "বন্ধ",

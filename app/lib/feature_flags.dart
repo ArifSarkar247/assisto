@@ -9,8 +9,8 @@ import 'state.dart' show Settings;
 
 /// One answer of GET /features (status 200 with a body, or 304 = unchanged).
 typedef FeaturesFetch
-    = Future<({int status, Map<String, dynamic>? body, String? etag})>
-        Function(String? etag);
+    = Future<({int status, Map<String, dynamic>? body, String? etag})> Function(
+        String? etag);
 
 /// feature-flags — the ONE central "may this user see feature X?" check
 /// (owner rule 26 Oct: a feature is visible only when all 9 Definition-of-Done
@@ -105,8 +105,9 @@ class FeatureFlags extends ChangeNotifier {
       final before = _snapshot();
       _apply(r.body!, notify: false);
       _etag = r.etag;
-      unawaited(Settings.setString(
-          prefsKey, jsonEncode({...r.body!, '_etag': _etag})).catchError((_) {}));
+      unawaited(
+          Settings.setString(prefsKey, jsonEncode({...r.body!, '_etag': _etag}))
+              .catchError((_) {}));
       final changed = !mapEquals(before, _snapshot());
       if (changed) notifyListeners();
       return changed;
@@ -117,7 +118,8 @@ class FeatureFlags extends ChangeNotifier {
 
   /// Convenience for the app: GET /features through the shared client.
   Future<bool> refreshWith(ApiClient api, {bool force = false}) =>
-      refresh((etag) => api.getJsonEtag('/features', etag), force: force);
+      refresh((etag) => api.getJsonEtag('/features?fv=$kFeaturesVersion', etag),
+          force: force);
 
   /// Sign-out: the next person on this phone must not keep the owner's /
   /// tester's preview of hidden features, and the next fetch is fresh.
@@ -131,23 +133,41 @@ class FeatureFlags extends ChangeNotifier {
     _preview = {};
     _etag = null;
     _fetchedAt = null;
-    unawaited(Settings.setString(prefsKey, jsonEncode({
-      'features': _server ?? const <String, bool>{},
-      'preview': const <String>[],
-    })).catchError((_) {}));
+    unawaited(Settings.setString(
+        prefsKey,
+        jsonEncode({
+          'features': _server ?? const <String, bool>{},
+          'preview': const <String>[],
+        })).catchError((_) {}));
     notifyListeners();
   }
 
   void _apply(Map<String, dynamic> j, {bool notify = true}) {
     final f = j['features'];
+    // unseen-rename: an answer WITHOUT the new key comes from a server (or a
+    // prefs cache) of before the rename, where `unseen_world` meant the daily
+    // info hub. Read it as `daily_info`, and drop `unseen_world` so the new
+    // travel feature keeps its own default (hidden) until a fresh answer.
+    final legacy = f is Map && !f.containsKey('daily_info');
     if (f is Map) {
       _server = {
         for (final e in f.entries)
           if (e.value is bool) '${e.key}': e.value as bool,
       };
+      if (legacy) {
+        for (final e in kLegacyFeatureKeys.entries) {
+          final v = _server!.remove(e.key);
+          if (v != null) _server![e.value] = v;
+        }
+      }
     }
     final p = j['preview'];
     _preview = p is List ? {for (final k in p) '$k'} : {};
+    if (legacy) {
+      for (final e in kLegacyFeatureKeys.entries) {
+        if (_preview.remove(e.key)) _preview.add(e.value);
+      }
+    }
     if (notify) notifyListeners();
   }
 
