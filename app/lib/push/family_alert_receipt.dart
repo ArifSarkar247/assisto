@@ -12,7 +12,7 @@ import '../messaging/receipt_ack.dart' show ReceiptAck;
 /// for a family alert / SOS push: POST /family/alerts/received with its
 /// `delivery_id`, using the token stored at sign-in. The server records the
 /// receipt time, so (a) the sender sees "received" next to each member and
-/// (b) quality bar D/৭ (push -> phone within 60 s) is measured on real
+/// (b) quality bar D, row 7 (push to phone within 60 s) is measured on real
 /// phones (`manage.py family_alerts_report`). Best effort: a failed receipt
 /// never blocks drawing the alert, and nothing is queued (the "seen" tap
 /// later records receipt too).

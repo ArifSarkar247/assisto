@@ -76,7 +76,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     try {
       final fa = await api.familyAlerts();
       _alertsUnseen = (fa['unseen'] as num?)?.toInt() ?? 0;
-    } catch (_) {}
+    } catch (_) {} // best-effort: only the tile's unseen count
     if (mounted) setState(() => loading = false);
   }
 
