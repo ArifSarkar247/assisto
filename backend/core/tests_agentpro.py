@@ -190,8 +190,10 @@ class TriggerTests(_Base):
     def test_meter_low_is_brief_only(self):
         now = at(10)
         m = PaCollectionItem.objects.create(user=self.u, collection="meter/meters",
+                                            # ৳50 at ৳25/day = 2 days left: inside the
+                                            # meter's default 3-day alert window (remmeter)
                                             data={"name": "DESCO", "kind": "electricity",
-                                                  "balance": "100", "balance_date": "2026-11-10"})
+                                                  "balance": "50", "balance_date": "2026-11-10"})
         for d in ("2026-10-01", "2026-10-21"):
             PaCollectionItem.objects.create(user=self.u, collection="meter/recharges",
                                             data={"meter": m.id, "date": d, "amount": "500"})
