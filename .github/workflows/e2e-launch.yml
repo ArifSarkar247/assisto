@@ -40,8 +40,8 @@ jobs:
       - name: Install backend + edge dependencies
         run: |
           python -m pip install --upgrade pip
-          # the edge pins an older requests; the backend's pin wins here
-          grep -v '^requests' edge/shopbox/requirements.txt > /tmp/edge-req.txt
+          # the edge pins older requests/cryptography; the backend's pins win here
+          grep -v -e '^requests' -e '^cryptography' edge/shopbox/requirements.txt > /tmp/edge-req.txt
           pip install -r backend/requirements.txt -r /tmp/edge-req.txt
       - uses: actions/cache@v4
         with:
