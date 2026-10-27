@@ -813,6 +813,9 @@ class CircleCallsView(APIView):
                              "events": A1.call_events(request.user, edge)})
         rows = CallRecord.objects.filter(
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
+        # callsB: the silent pair links of a group call are not calls the
+        # user placed / received — the history shows the ring / base call.
+        rows = rows.exclude(room_link__via="mesh")
         out = []
         for r in rows.distinct().select_related("caller", "callee", "circle",
                                                "session")[:100]:

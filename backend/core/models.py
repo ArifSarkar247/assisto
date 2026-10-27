@@ -5658,3 +5658,68 @@ class RemittanceProfile(models.Model):
     missing_alert_month = models.CharField(max_length=7, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /budget-remittance ----
+
+
+# ---- callsB ---- group calls (mesh, max 4) + screen share
+class CallRoom(models.Model):
+    """callsB: a GROUP call (2-4 people) on the current MESH: every pair of
+    joined participants has its own CallRecord (a peer connection + signalling
+    + relay-minute accounting through the existing 1:1 machinery). The room is
+    only the ROSTER (who is invited / ringing / joined / left). >4 people
+    moves to the SFU of the meetings plan (not built)."""
+    STATES = [("live", "live"), ("ended", "ended")]
+    host = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="call_rooms_hosted")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="call_rooms")
+    base_call = models.ForeignKey(CallRecord, null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name="+")
+    kind = models.CharField(max_length=8, default="voice")
+    state = models.CharField(max_length=8, choices=STATES, default="live")
+    max_participants = models.PositiveSmallIntegerField(default=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["group", "state"], name="callsb_room_group")]
+
+
+class CallRoomMember(models.Model):
+    """One person on a room's roster. state: ringing (invited, the normal
+    incoming-call ring) | joined | left | declined | missed | busy |
+    offline. `call` = the ring record (or the base 1:1 call)."""
+    room = models.ForeignKey(CallRoom, on_delete=models.CASCADE,
+                             related_name="members")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="call_room_memberships")
+    state = models.CharField(max_length=10, default="ringing")
+    invited_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    call = models.ForeignKey(CallRecord, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    muted = models.BooleanField(default=False)
+    camera = models.BooleanField(default=True)
+    screen = models.BooleanField(default=False)
+    invited_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["invited_at", "id"]
+        constraints = [models.UniqueConstraint(fields=["room", "user"],
+                                               name="callsb_member_once")]
+
+
+class CallRoomLink(models.Model):
+    """One PAIR link of a room = one CallRecord. via: base (the original 1:1
+    call) | ring (inviter -> invitee, rang like a 1:1 call) | mesh (created
+    silently when someone joins, caller = the newer participant = offerer;
+    hidden from call history)."""
+    room = models.ForeignKey(CallRoom, on_delete=models.CASCADE,
+                             related_name="links")
+    call = models.OneToOneField(CallRecord, on_delete=models.CASCADE,
+                                related_name="room_link")
+    via = models.CharField(max_length=6, default="mesh")
+    created_at = models.DateTimeField(auto_now_add=True)
+# ---- /callsB ----

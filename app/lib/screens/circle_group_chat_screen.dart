@@ -31,6 +31,7 @@ import '../l10n/app_localizations.dart';
 import '../messenger_admin_api.dart';
 import '../messenger_group_api.dart';
 import '../state.dart';
+import '../calls/group/group_chat_call.dart'; // callsB
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
@@ -834,21 +835,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Future<void> _call(String kind) async {
     // Group VOICE is free; group VIDEO requires a Premium initiator. The server
     // is the authority (can_place_group_call); the client shows the result.
+    // callsB: a REAL group call (mesh, max 4): join the ongoing one, or ring
+    // up to 3 members who are my contacts (the others tap "Join call").
     try {
-      final r = await _api
-          .postJson('/circle/groups/$_groupId/call', {'kind': kind});
-      if (!mounted) return;
-      if (r['allowed'] == false &&
-          (r['upgrade_required'] == true || r['needs_video_plan'] == true)) {
-        _showVideoUpgrade();
-        return;
-      }
-      if (r['allowed'] == false) {
-        _toast(_t.grpActionFailed);
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_t.circleGroupCallStarting)));
+      await startGroupCallFromChat(context,
+          api: _api,
+          groupId: _gid,
+          groupName: '${widget.group['name'] ?? ''}',
+          kind: kind,
+          members: _members,
+          onUpgrade: _showVideoUpgrade);
     } catch (e) {
       _fail(e);
     }
@@ -1686,6 +1682,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                     // t1-ticks: min-version gate (never blocks sending).
                     if (!_searching && _gid > 0)
                       McVersionBanner(api: _api, kind: 'group', chatId: _gid),
+                    // callsB: "Group call in progress · Join call"
+                    if (!_searching && !_selecting && _gid > 0)
+                      GroupCallJoinBanner(
+                          api: _api,
+                          groupId: _gid,
+                          groupName: '${widget.group['name'] ?? ''}'),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
                     Expanded(

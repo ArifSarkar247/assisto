@@ -1142,3 +1142,18 @@ urlpatterns += [
     path("remit/delete-all", rmv.DeleteAllView.as_view()),
 ]
 # ---- /budget-remittance ----
+# ---- callsB ---- group calls (mesh, max 4): add person, roster, join from
+# chat, leave. PREPENDED so the literal paths win over circle/calls/<id> and
+# the circle/groups/<pk>/<slug> catch-all.
+from . import views_call_rooms as rooms  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/calls/<int:call_id>/add", rooms.AddPersonView.as_view()),
+    path("circle/calls/<int:call_id>/room", rooms.CallRoomOfCallView.as_view()),
+    path("circle/rooms/<int:room_id>", rooms.RoomView.as_view()),
+    path("circle/rooms/<int:room_id>/join", rooms.RoomJoinView.as_view()),
+    path("circle/rooms/<int:room_id>/leave", rooms.RoomLeaveView.as_view()),
+    path("circle/rooms/<int:room_id>/media", rooms.RoomMediaView.as_view()),
+    path("circle/groups/<int:gid>/call/start", rooms.GroupCallStartView.as_view()),
+    path("circle/groups/<int:gid>/call/active", rooms.GroupCallActiveView.as_view()),
+]
+# ---- /callsB ----

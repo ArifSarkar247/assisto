@@ -6,6 +6,9 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'call_controller.dart';
 import 'call_video.dart';
 import 'call_log.dart';
+import 'media_ext.dart';
+
+part 'webrtc_link_media.dart';
 
 /// [CallMedia] on flutter_webrtc — the ONLY call file that touches the
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
@@ -14,7 +17,15 @@ import 'call_log.dart';
 /// Audio: Android "communication" mode (echo cancellation, earpiece by
 /// default, Bluetooth headsets routed by the plugin's audio switch). Speaker
 /// ON prefers a connected Bluetooth headset (WhatsApp behaviour).
-class WebRtcCallMedia implements CallMedia, CallVideoSurface {
+class WebRtcCallMedia
+    implements
+        CallMedia,
+        CallVideoSurface,
+        // callsB: screen share + the shared mic/camera of group pair links
+        ScreenShareMedia,
+        ScreenShareSurface,
+        AudioLevelMedia,
+        MeshHost {
   RTCPeerConnection? _pc;
   MediaStream? _local;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
@@ -104,7 +115,9 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> startVideo() async {
-    final pc = _peer;
+    // callsB: a group host without its own 1:1 peer connection (joined from
+    // the chat) only opens the camera; its links attach it themselves.
+    final pc = _pc;
     MediaStream cam;
     try {
       cam = await navigator.mediaDevices
@@ -123,10 +136,12 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     final track = tracks.first;
     _videoTrack = track;
     final sender = _videoSender;
-    if (sender != null) {
+    if (_screenTrack != null) {
+      // callsB: sharing the screen — the camera waits until sharing stops
+    } else if (sender != null) {
       // used before (video -> voice -> video): same m-line, same stream id
       await sender.replaceTrack(track);
-    } else {
+    } else if (pc != null) {
       // first time: reuses the receive-only video transceiver of the voice
       // offer and tags the track with the AUDIO stream id, so the other
       // phone's onTrack gets one stream with both (its renderer shows it).
@@ -142,7 +157,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
   @override
   Future<void> stopVideo() async {
     try {
-      await _videoSender?.replaceTrack(null);
+      if (_screenTrack == null) await _videoSender?.replaceTrack(null);
     } catch (e) {
       callLog('webrtc_media#8', e);
     }
@@ -401,6 +416,32 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> dispose() async {
+    if (_links.isNotEmpty) {
+      // callsB: this phone's 1:1 link ended but group links still send the
+      // same mic/camera: close only our own peer connection now; the rest
+      // goes when the last link closes (or [releaseAll]).
+      _releaseWhenFree = true;
+      try {
+        await _pc?.close();
+      } catch (e) {
+        callLog('webrtc_media#13', e);
+      }
+      _pc = null;
+      _videoSender = null;
+      try {
+        remoteRenderer.srcObject = null;
+      } catch (e) {
+        callLog('webrtc_media#14', e);
+      }
+      hasRemoteVideo.value = false;
+      return;
+    }
+    await _disposeAll();
+  }
+
+  Future<void> _disposeAll() async {
+    _releaseWhenFree = false;
+    await _releaseScreen();
     await _releaseCamera();
     _videoSender = null;
     try {
@@ -434,6 +475,236 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     } catch (e) {
       callLog('webrtc_media#6', e);
     }
+  }
+
+  // ------------------------------------------------- callsB: screen share
+  MediaStream? _screen;
+  MediaStreamTrack? _screenTrack;
+
+  /// What every peer connection sends as video right now.
+  MediaStreamTrack? get _sendTrack => _screenTrack ?? _videoTrack;
+
+  @override
+  bool get screenSharing => _screenTrack != null;
+
+  @override
+  Future<List<Object>> startScreenShare(
+      {required Future<bool> Function() beforeCapture}) async {
+    if (_screenTrack != null) return const [];
+    bool consent;
+    try {
+      // the SYSTEM MediaProjection dialog (every time: Android 14 tokens are
+      // single-use)
+      consent = await Helper.requestCapturePermission();
+    } catch (e) {
+      throw ScreenShareFailed('consent:$e');
+    }
+    if (!consent) throw const ScreenShareDenied();
+    // Android 14+: the mediaProjection foreground service must run now —
+    // after consent, before the projection is created.
+    if (!await beforeCapture()) throw const ScreenShareFailed('service');
+    MediaStream s;
+    try {
+      s = await navigator.mediaDevices
+          .getDisplayMedia({'video': true, 'audio': false});
+    } catch (e) {
+      final m = '$e'.toLowerCase();
+      if (m.contains('permission')) throw const ScreenShareDenied();
+      throw ScreenShareFailed('capture:$e');
+    }
+    final tracks = s.getVideoTracks();
+    if (tracks.isEmpty) {
+      await s.dispose();
+      throw const ScreenShareFailed('no screen track');
+    }
+    _screen = s;
+    _screenTrack = tracks.first;
+    final needs = <Object>[];
+    if (await _sendOnPrimary(_screenTrack, screen: true)) needs.add(this);
+    for (final l in List<_WebRtcLinkMedia>.from(_links)) {
+      if (await l._sendVideo(_screenTrack, screen: true)) needs.add(l);
+    }
+    return needs;
+  }
+
+  @override
+  Future<void> stopScreenShare() async {
+    if (_screenTrack == null) return;
+    final cam = _videoTrack;
+    try {
+      await _sendOnPrimary(cam, screen: false, addIfMissing: false);
+    } catch (e) {
+      callLog('webrtc_media#15', e);
+    }
+    for (final l in List<_WebRtcLinkMedia>.from(_links)) {
+      try {
+        await l._sendVideo(cam, screen: false, addIfMissing: false);
+      } catch (e) {
+        callLog('webrtc_media#16', e);
+      }
+    }
+    await _releaseScreen();
+  }
+
+  Future<void> _releaseScreen() async {
+    final t = _screenTrack, s = _screen;
+    _screenTrack = null;
+    _screen = null;
+    try {
+      await t?.stop();
+    } catch (e) {
+      callLog('webrtc_media#17', e);
+    }
+    try {
+      await s?.dispose();
+    } catch (e) {
+      callLog('webrtc_media#18', e);
+    }
+  }
+
+  /// Put [track] on the 1:1 peer connection's video sender. true = there
+  /// was no video sender: a track was ADDED and a renegotiation is needed.
+  Future<bool> _sendOnPrimary(MediaStreamTrack? track,
+      {required bool screen, bool addIfMissing = true}) async {
+    final pc = _pc;
+    if (pc == null) return false;
+    final sender = _videoSender;
+    if (sender != null) {
+      await sender.replaceTrack(track);
+      await _tuneSender(sender, screen: screen, low: _low);
+      return false;
+    }
+    if (!addIfMissing || track == null) return false;
+    final local = _local;
+    _videoSender = local != null
+        ? await pc.addTrack(track, local)
+        : await pc.addTrack(track, _screen!);
+    await _tuneSender(_videoSender!, screen: screen, low: _low);
+    return true;
+  }
+
+  @override
+  Widget remoteScreenView() => _renderersReady
+      ? RTCVideoView(remoteRenderer,
+          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain)
+      : const SizedBox.shrink();
+
+  // ------------------------------------------------- callsB: group links
+  final List<_WebRtcLinkMedia> _links = [];
+  bool _releaseWhenFree = false;
+  bool _low = false;
+  Future<void>? _opening;
+
+  @override
+  CallMedia createLinkMedia() {
+    final l = _WebRtcLinkMedia(this);
+    _links.add(l);
+    return l;
+  }
+
+  Future<void> _linkClosed(_WebRtcLinkMedia l) async {
+    _links.remove(l);
+    if (_links.isEmpty && _releaseWhenFree) await _disposeAll();
+  }
+
+  @override
+  Future<void> openLocal({required bool video}) async {
+    if (_local != null) return;
+    final f = _opening ??= open(video: video);
+    await f;
+  }
+
+  @override
+  Future<void> setLowBandwidth(bool on) async {
+    if (_low == on) return;
+    _low = on;
+    final s = _videoSender;
+    if (s != null) {
+      await _tuneSender(s, screen: _screenTrack != null, low: on);
+    }
+    for (final l in List<_WebRtcLinkMedia>.from(_links)) {
+      await l._retune();
+    }
+  }
+
+  @override
+  Future<double?> localAudioLevel() async {
+    final pc = _pc ?? (_links.isEmpty ? null : _links.first._pc);
+    if (pc == null) return null;
+    return _audioLevel(pc, 'media-source');
+  }
+
+  @override
+  Future<double?> remoteAudioLevel() async {
+    final pc = _pc;
+    if (pc == null) return null;
+    return _audioLevel(pc, 'inbound-rtp');
+  }
+
+  @override
+  Widget localPreview({bool mirror = true}) => localView(mirror: mirror);
+
+  @override
+  Future<void> releaseAll() async {
+    for (final l in List<_WebRtcLinkMedia>.from(_links)) {
+      await l.dispose();
+    }
+    _links.clear();
+    await _disposeAll();
+  }
+}
+
+/// callsB: the audio level (0..1) of [type] ('inbound-rtp' = what I hear on
+/// this link, 'media-source' = my own mic) from getStats. null = unknown.
+Future<double?> _audioLevel(RTCPeerConnection pc, String type) async {
+  try {
+    double? best;
+    for (final r in await pc.getStats()) {
+      if (r.type != type) continue;
+      final v = r.values;
+      final kind = v['kind'] ?? v['mediaType'];
+      if (kind != null && kind != 'audio') continue;
+      final a = v['audioLevel'];
+      if (a is num) {
+        final d = a.toDouble();
+        best = best == null || d > best ? d : best;
+      }
+    }
+    return best;
+  } catch (e) {
+    callLog('webrtc_media#19', e);
+    return null;
+  }
+}
+
+/// callsB: video encoding for a sender — 3-4 people on the mesh send their
+/// video 2-3 times, so it goes down to ~360p / 15 fps / 350 kbit/s; a shared
+/// screen is sent at half resolution, 10 fps (text stays readable, the TURN
+/// relay stays cheap). Never throws (an OEM libwebrtc may refuse).
+Future<void> _tuneSender(RTCRtpSender sender,
+    {required bool screen, required bool low}) async {
+  try {
+    final p = sender.parameters;
+    final enc = p.encodings;
+    if (enc == null || enc.isEmpty) return;
+    for (final e in enc) {
+      if (screen) {
+        e.maxBitrate = low ? 600000 : 1000000;
+        e.maxFramerate = 10;
+        e.scaleResolutionDownBy = 2.0;
+      } else if (low) {
+        e.maxBitrate = 350000;
+        e.maxFramerate = 15;
+        e.scaleResolutionDownBy = 1.5;
+      } else {
+        e.maxBitrate = null;
+        e.maxFramerate = null;
+        e.scaleResolutionDownBy = 1.0;
+      }
+    }
+    await sender.setParameters(p);
+  } catch (e) {
+    callLog('webrtc_media#20', e);
   }
 }
 

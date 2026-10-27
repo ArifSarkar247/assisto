@@ -21107,5 +21107,83 @@
     }
   },
   "adBannerRemoveAds": "Remove ads",
-  "adBannerRemoveAdsHint": "Remove ads. Opens the Premium plans"
+  "adBannerRemoveAdsHint": "Remove ads. Opens the Premium plans",
+  "cgAdd": "Add",
+  "cgAddPerson": "Add person",
+  "cgAddPersonTitle": "Add to this call",
+  "cgAddPersonHint": "Up to 4 people in a call. Only your My Circle contacts can be added — their phone rings like a normal call.",
+  "cgAddPersonNone": "No more contacts to add.",
+  "cgAddPersonRinging": "Ringing {name}…",
+  "@cgAddPersonRinging": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgAddFull": "This call already has 4 people — the most a call can have.",
+  "cgAddNotContact": "Only accepted My Circle contacts can be added.",
+  "cgAddAlreadyIn": "They are already in the call.",
+  "cgAddRateLimited": "Too many invites in a short time. Try again in a minute.",
+  "cgAddBlocked": "This person can't be added right now.",
+  "cgAddUpgrade": "Adding people to a video call needs Premium.",
+  "cgAddEnded": "This call has ended.",
+  "cgAddFailed": "Couldn't ring them. Please try again.",
+  "cgGroupCall": "Group call",
+  "cgTitle": "Group call · {count}",
+  "@cgTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cgYou": "You",
+  "cgRinging": "Ringing…",
+  "cgConnecting": "Connecting…",
+  "cgReconnecting": "Reconnecting…",
+  "cgMutedA11y": "muted",
+  "cgSpeakingA11y": "speaking",
+  "cgCameraOffA11y": "camera off",
+  "cgSharingA11y": "sharing their screen",
+  "cgLeave": "Leave call",
+  "cgEnded": "Group call ended",
+  "cgJoinBanner": "Group call in progress · {count} in the call",
+  "@cgJoinBanner": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cgJoin": "Join call",
+  "cgJoinFull": "This call is full (4 people).",
+  "cgJoinFailed": "Couldn't join the call. Please try again.",
+  "cgStartTitle": "Start a group call",
+  "cgStartHint": "Pick up to 3 people to ring. Everyone else in the group can tap Join call.",
+  "cgStartNoContacts": "None of the group members are in your My Circle yet, so no one can be rung. They can still join from this chat once a call is running.",
+  "cgStartRing": "Ring",
+  "cgStartNoOne": "Couldn't ring anyone. Please try again.",
+  "cgStartFailed": "Couldn't start the group call. Please try again.",
+  "ssShare": "Share screen",
+  "ssStop": "Stop",
+  "ssStarting": "Starting screen share…",
+  "ssSharingBar": "You're sharing your screen",
+  "ssConsentTitle": "Share your screen?",
+  "ssConsentBody": "Everyone in this call will see everything on your screen — including messages and notifications that pop up. Android will ask you to confirm. You can stop any time with one tap.",
+  "ssConsentGo": "Continue",
+  "ssConsentNo": "Not now",
+  "ssDenied": "Screen sharing was not allowed.",
+  "ssFailed": "Couldn't start screen sharing. Please try again.",
+  "ssRemoteSharing": "{name} is sharing their screen",
+  "@ssRemoteSharing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ssNotifTitle": "Sharing your screen in an Assisto call",
+  "ssNotifBody": "Everyone in the call can see your screen.",
+  "ssNotifStop": "Stop sharing"
 }

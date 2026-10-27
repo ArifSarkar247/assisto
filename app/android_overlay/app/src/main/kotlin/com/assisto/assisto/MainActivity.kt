@@ -320,6 +320,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // callsB: screen share in a video call ("com.assisto/screenshare").
+        // Handler only — the mediaProjection foreground service starts ONLY
+        // after the user's consent while sharing (crash-guarded).
+        try {
+            com.assisto.assisto.calls.ScreenShareChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {
