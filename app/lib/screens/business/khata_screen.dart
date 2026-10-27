@@ -548,30 +548,39 @@ class _Banner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final bg = error ? scheme.errorContainer : scheme.secondaryContainer;
     final fg = error ? scheme.onErrorContainer : scheme.onSecondaryContainer;
+    final big = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final ic = Icon(icon, size: 20, color: fg);
+    const gap = SizedBox(width: Gap.sm);
+    final label = Text(text,
+        style: TextStyle(color: fg, fontWeight: FontWeight.w600));
+    // a11y: the banner's own ink colour (primary on the container failed
+    // 4.5:1 in dark)
+    final button = action == null
+        ? null
+        : TextButtonTheme(
+            data: TextButtonThemeData(
+                style: TextButton.styleFrom(foregroundColor: fg)),
+            child: action!,
+          );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
       decoration:
           BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.md)),
       constraints: const BoxConstraints(minHeight: 56),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: fg),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-              child: Text(text,
-                  style: TextStyle(color: fg, fontWeight: FontWeight.w600))),
-          if (action != null) ...[
-            const SizedBox(width: Gap.xs),
-            // a11y: the banner's own ink colour (primary on the container
-            // failed 4.5:1 in dark)
-            TextButtonTheme(
-              data: TextButtonThemeData(
-                  style: TextButton.styleFrom(foregroundColor: fg)),
-              child: action!,
-            ),
-          ],
-        ],
-      ),
+      child: big
+          // 200% font: the button goes under the sentence instead of
+          // squeezing it to one word per line
+          ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [ic, gap, Expanded(child: label)]),
+              if (button != null)
+                Align(alignment: AlignmentDirectional.centerEnd, child: button),
+            ])
+          : Row(children: [
+              ic,
+              gap,
+              Expanded(child: label),
+              if (button != null) ...[const SizedBox(width: Gap.xs), button],
+            ]),
     );
   }
 }
