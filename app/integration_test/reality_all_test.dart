@@ -12,6 +12,7 @@ import 'flows/budget_remittance_flow.dart';
 import 'flows/business_flow.dart';
 import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
+import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/home_flow.dart';
 import 'flows/my_circle_add_flow.dart';
@@ -32,6 +33,7 @@ void main() {
   if (on('personal')) registerBudgetRemittanceFlows(); // budrem (flag allow-listed for A by the seed)
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
+  if (on('family')) registerFamilyAlertsFlows(); // family100
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.
   if (on('circle')) registerMyCircleAddFlows(); // m3-circle

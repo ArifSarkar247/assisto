@@ -1004,12 +1004,14 @@ class ScamReportView(APIView):
             user=u, kind=payload.get("kind", "scam_report"),
             title=payload.get("title", ""), body=payload.get("body", ""),
             severity="high", payload=payload)
-        try:  # FCM to the reporter's family (key-gated, never raises)
-            from . import push
-            push.hook_family_alert(
-                u, payload.get("title", ""), payload.get("title", ""),
-                payload.get("body", ""), payload.get("body", ""),
-                data={"alert_kind": payload.get("kind", "scam_report")})
+        try:  # family100: push + in-app card to the reporter's circle
+            from . import family_alerts
+
+            def _txt(name, la):
+                pl = scamlogic.family_alert_payload(name, result, la)
+                return pl.get("title", ""), pl.get("body", "")
+            family_alerts.alert(u, "scam_report", "scam:%d" % int(timezone.now().timestamp()),
+                                payload={"event": "scam_report"}, texts=_txt)
         except Exception:
             pass
         log(u, "scam.report", verdict=result["verdict"])

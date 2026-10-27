@@ -2,7 +2,9 @@
 
 Every minute: overdue -> "Are you OK?" -> watchers alerted; undelivered
 journey events re-sent; prolonged stop / off route / signal lost; wellness
-checks; overdue safe-arrival check-ins; routine reminders; privacy purge of
+checks; overdue safe-arrival check-ins (family100: via core/family_alerts —
+consent, audit, quiet hours); held family alerts released after the
+recipient's quiet hours; routine reminders; privacy purge of
 expired journeys (points, last location, ride photo).
 
 Idempotent (JourneyEvent is unique per journey+kind+key) and safe to overlap
