@@ -320,12 +320,13 @@ class PresetAppliedTests(Base):
         before = self.balance()
         self.send(mode="pro")                       # free user: not allowed -> smart
         self.assertEqual(self.calls[-1]["model"], "claude-sonnet-5-5")
+        free_spent = before - self.balance()
         self.set_plan("premium_pro")
         mid = self.balance()
         self.send()                                 # Pro plan default = pro
         self.assertEqual(self.calls[-1]["model"], "claude-opus-5-5")
         self.assertEqual(self.calls[-1]["max_tokens"], 700)
-        self.assertEqual((before - mid, mid - self.balance()), (2, 5))
+        self.assertEqual((free_spent, mid - self.balance()), (2, 5))
 
     def test_premium_hard_question_auto_upgrade_capped(self):
         self.set_plan("premium")
