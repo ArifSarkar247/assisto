@@ -1,0 +1,465 @@
+{
+ "en": {
+  "pv2AddContact": "Add contact",
+  "@pv2AddContact": {
+   "description": "plans-v2"
+  },
+  "pv2TabContacts": "Contacts",
+  "@pv2TabContacts": {
+   "description": "plans-v2"
+  },
+  "pv2NoContacts": "No contacts yet",
+  "@pv2NoContacts": {
+   "description": "plans-v2"
+  },
+  "pv2NoContactsHint": "Keep your customers and the people you deal with here — a name and a phone are enough.",
+  "@pv2NoContactsHint": {
+   "description": "plans-v2"
+  },
+  "pv2ContactName": "Name",
+  "@pv2ContactName": {
+   "description": "plans-v2"
+  },
+  "pv2ContactPhone": "Phone",
+  "@pv2ContactPhone": {
+   "description": "plans-v2"
+  },
+  "pv2ContactEmail": "Email",
+  "@pv2ContactEmail": {
+   "description": "plans-v2"
+  },
+  "pv2ContactTitle": "Job title (optional)",
+  "@pv2ContactTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ContactNameNeeded": "Enter a name.",
+  "@pv2ContactNameNeeded": {
+   "description": "plans-v2"
+  },
+  "pv2CrmViewOnlyNote": "On Free, leads, deals, pipeline and tasks are view only; you can add contacts.",
+  "@pv2CrmViewOnlyNote": {
+   "description": "plans-v2"
+  },
+  "pv2UsageContacts": "{used}/{limit} contacts",
+  "@pv2UsageContacts": {
+   "description": "plans-v2",
+   "placeholders": {
+    "used": {
+     "type": "String"
+    },
+    "limit": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2UsageContactsUnlimited": "{used} contacts · Unlimited",
+  "@pv2UsageContactsUnlimited": {
+   "description": "plans-v2",
+   "placeholders": {
+    "used": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2PlanFree": "Free",
+  "@pv2PlanFree": {
+   "description": "plans-v2"
+  },
+  "pv2PlanPremium": "Premium",
+  "@pv2PlanPremium": {
+   "description": "plans-v2"
+  },
+  "pv2PlanBusiness": "Business",
+  "@pv2PlanBusiness": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonContactsTitle": "Contact limit reached",
+  "@pv2ReasonContactsTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonContactsBody": "You have {used} of {limit} contacts on your plan. Upgrade to {plan} to add more — every contact you already have stays as it is.",
+  "@pv2ReasonContactsBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "used": {
+     "type": "String"
+    },
+    "limit": {
+     "type": "String"
+    },
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonCrmWriteTitle": "CRM is view only on Free",
+  "@pv2ReasonCrmWriteTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonCrmWriteBody": "On Free you can view leads, deals, pipeline and tasks but not add new ones. Upgrade to {plan} to add leads and tasks.",
+  "@pv2ReasonCrmWriteBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonFollowupTitle": "Follow-up reminders",
+  "@pv2ReasonFollowupTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonFollowupBody": "Follow-up dates, reminders and suggestions come with {plan}.",
+  "@pv2ReasonFollowupBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonAutomationTitle": "Automation needs Business",
+  "@pv2ReasonAutomationTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonAutomationBody": "Automatic rules and customer messages come with {plan}. Your existing rules stay visible and can be switched off.",
+  "@pv2ReasonAutomationBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonAgentTitle": "The AI Sales Agent needs Business",
+  "@pv2ReasonAgentTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonAgentBody": "AI replies to customers on Messenger, WhatsApp and your website, and COD order confirmation, come with {plan}. Message and AI costs come from credits.",
+  "@pv2ReasonAgentBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonBookingTitle": "The booking page needs Business",
+  "@pv2ReasonBookingTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonBookingBody": "Putting your booking page live needs {plan}. Your setup stays as it is.",
+  "@pv2ReasonBookingBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonReportsTitle": "Weekly and monthly reports",
+  "@pv2ReasonReportsTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonReportsBody": "Weekly and monthly reports come with {plan}. Daily totals stay free.",
+  "@pv2ReasonReportsBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonLedgerAiTitle": "Khata AI tools",
+  "@pv2ReasonLedgerAiTitle": {
+   "description": "plans-v2"
+  },
+  "pv2ReasonLedgerAiBody": "Voice entry, paper-khata scan and payment matching come with {plan}. The basic digital khata is always free.",
+  "@pv2ReasonLedgerAiBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonGenericTitle": "A {plan} feature",
+  "@pv2ReasonGenericTitle": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2ReasonGenericBody": "This needs the {plan} plan.",
+  "@pv2ReasonGenericBody": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2WhatYouGet": "What {plan} adds",
+  "@pv2WhatYouGet": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2BenefitPremiumContacts": "Up to 500 CRM contacts",
+  "@pv2BenefitPremiumContacts": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitPremiumCrm": "Add and edit leads, deals, pipeline and tasks",
+  "@pv2BenefitPremiumCrm": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitPremiumFollowup": "Follow-up reminders",
+  "@pv2BenefitPremiumFollowup": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessContacts": "Unlimited CRM contacts",
+  "@pv2BenefitBusinessContacts": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessAutomation": "CRM automation: rule-based follow-up tasks and alerts",
+  "@pv2BenefitBusinessAutomation": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessRetention": "Automatic thank-you and review ask, win-back, birthday wishes, dues and back-in-stock messages",
+  "@pv2BenefitBusinessRetention": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessAgent": "AI Sales Agent, with COD order confirmation",
+  "@pv2BenefitBusinessAgent": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessBooking": "Booking bot (appointment page)",
+  "@pv2BenefitBusinessBooking": {
+   "description": "plans-v2"
+  },
+  "pv2BenefitBusinessReports": "Weekly and monthly reports, bank-loan report",
+  "@pv2BenefitBusinessReports": {
+   "description": "plans-v2"
+  },
+  "pv2UpgradeTo": "Upgrade to {plan} — {price}/month",
+  "@pv2UpgradeTo": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    },
+    "price": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2PriceLoading": "Getting the price from Google Play…",
+  "@pv2PriceLoading": {
+   "description": "plans-v2"
+  },
+  "pv2PlayNote": "Price and payment are Google Play's. Cancel any time in Play.",
+  "@pv2PlayNote": {
+   "description": "plans-v2"
+  },
+  "pv2TrialButton": "Start the free {days}-day {plan} trial",
+  "@pv2TrialButton": {
+   "description": "plans-v2",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    },
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2TrialNote": "Once per account, no card needed. It ends on {date} — then the account returns to Free; nothing is charged.",
+  "@pv2TrialNote": {
+   "description": "plans-v2",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2TrialStarted": "Your {plan} trial has started — it ends on {date}.",
+  "@pv2TrialStarted": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2TrialUsed": "The free trial is once per account — you already used it.",
+  "@pv2TrialUsed": {
+   "description": "plans-v2"
+  },
+  "pv2TrialActiveUntil": "{plan} trial · ends {date}",
+  "@pv2TrialActiveUntil": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2TrialBanner": "Your {plan} trial ends on {date}. After that the account returns to Free — nothing is charged and all your data stays.",
+  "@pv2TrialBanner": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2SeePlans": "See all plans",
+  "@pv2SeePlans": {
+   "description": "plans-v2"
+  },
+  "pv2NotNow": "Not now",
+  "@pv2NotNow": {
+   "description": "plans-v2"
+  },
+  "pv2FollowupLocked": "Follow-up suggestions come with {plan}",
+  "@pv2FollowupLocked": {
+   "description": "plans-v2",
+   "placeholders": {
+    "plan": {
+     "type": "String"
+    }
+   }
+  },
+  "pv2CmpGroup": "Business & CRM",
+  "@pv2CmpGroup": {
+   "description": "plans-v2"
+  },
+  "pv2CmpLedger": "Digital ledger (basic)",
+  "@pv2CmpLedger": {
+   "description": "plans-v2"
+  },
+  "pv2CmpCrmContacts": "CRM contacts",
+  "@pv2CmpCrmContacts": {
+   "description": "plans-v2"
+  },
+  "pv2CmpCrmWrite": "Leads, deals, pipeline and tasks",
+  "@pv2CmpCrmWrite": {
+   "description": "plans-v2"
+  },
+  "pv2CmpViewOnly": "View only",
+  "@pv2CmpViewOnly": {
+   "description": "plans-v2"
+  },
+  "pv2CmpFollowup": "Follow-up reminders",
+  "@pv2CmpFollowup": {
+   "description": "plans-v2"
+  },
+  "pv2CmpAutomation": "CRM automation",
+  "@pv2CmpAutomation": {
+   "description": "plans-v2"
+  },
+  "pv2CmpAutomationRetention": "Automation (CRM rules and customer messages)",
+  "@pv2CmpAutomationRetention": {
+   "description": "plans-v2"
+  },
+  "pv2CmpAgent": "AI Sales Agent",
+  "@pv2CmpAgent": {
+   "description": "plans-v2"
+  },
+  "pv2CmpBooking": "Booking bot",
+  "@pv2CmpBooking": {
+   "description": "plans-v2"
+  },
+  "pv2CmpReports": "Weekly and monthly reports",
+  "@pv2CmpReports": {
+   "description": "plans-v2"
+  },
+  "pv2CmpUnlimited": "Unlimited",
+  "@pv2CmpUnlimited": {
+   "description": "plans-v2"
+  }
+ },
+ "bn": {
+  "pv2AddContact": "কন্টাক্ট যোগ করুন",
+  "pv2TabContacts": "কন্টাক্ট",
+  "pv2NoContacts": "এখনো কোনো কন্টাক্ট নেই",
+  "pv2NoContactsHint": "আপনার গ্রাহক ও যোগাযোগের মানুষদের এখানে রাখুন — নাম আর ফোন দিলেই হবে।",
+  "pv2ContactName": "নাম",
+  "pv2ContactPhone": "ফোন",
+  "pv2ContactEmail": "ইমেইল",
+  "pv2ContactTitle": "পদবি (ঐচ্ছিক)",
+  "pv2ContactNameNeeded": "নাম লিখুন।",
+  "pv2CrmViewOnlyNote": "ফ্রি প্ল্যানে লিড, ডিল, পাইপলাইন ও কাজ শুধু দেখা যায়; কন্টাক্ট যোগ করা যায়।",
+  "pv2UsageContacts": "{used}/{limit} কন্টাক্ট",
+  "pv2UsageContactsUnlimited": "{used}টি কন্টাক্ট · সীমাহীন",
+  "pv2PlanFree": "ফ্রি",
+  "pv2PlanPremium": "প্রিমিয়াম",
+  "pv2PlanBusiness": "বিজনেস",
+  "pv2ReasonContactsTitle": "কন্টাক্টের সীমা পূর্ণ",
+  "pv2ReasonContactsBody": "আপনার প্ল্যানে {limit}টির মধ্যে {used}টি কন্টাক্ট আছে। আরও যোগ করতে {plan} নিন — আগের সব কন্টাক্ট যেমন আছে তেমনই থাকবে।",
+  "pv2ReasonCrmWriteTitle": "ফ্রি প্ল্যানে CRM শুধু দেখার জন্য",
+  "pv2ReasonCrmWriteBody": "ফ্রি প্ল্যানে লিড, ডিল, পাইপলাইন ও কাজ দেখা যায়, নতুন যোগ করা যায় না। নতুন লিড ও কাজ যোগ করতে {plan} নিন।",
+  "pv2ReasonFollowupTitle": "ফলো-আপ রিমাইন্ডার",
+  "pv2ReasonFollowupBody": "ফলো-আপের তারিখ, রিমাইন্ডার ও পরামর্শ {plan} প্ল্যানে আছে।",
+  "pv2ReasonAutomationTitle": "অটোমেশনের জন্য বিজনেস দরকার",
+  "pv2ReasonAutomationBody": "স্বয়ংক্রিয় নিয়ম ও গ্রাহক-বার্তা {plan} প্ল্যানে আছে। আপনার আগের নিয়মগুলো দেখা ও বন্ধ করা যাবে।",
+  "pv2ReasonAgentTitle": "AI সেলস এজেন্টের জন্য বিজনেস দরকার",
+  "pv2ReasonAgentBody": "Messenger, WhatsApp ও ওয়েবসাইটে গ্রাহকের প্রশ্নের AI উত্তর ও COD অর্ডার নিশ্চিতকরণ {plan} প্ল্যানে আছে। বার্তা ও AI খরচ ক্রেডিট থেকে কাটে।",
+  "pv2ReasonBookingTitle": "বুকিং পেজ চালুর জন্য বিজনেস দরকার",
+  "pv2ReasonBookingBody": "আপনার বুকিং পেজ সবার জন্য চালু করতে {plan} প্ল্যান লাগে। সেটআপ আগের মতোই থাকবে।",
+  "pv2ReasonReportsTitle": "সাপ্তাহিক ও মাসিক রিপোর্ট",
+  "pv2ReasonReportsBody": "সাপ্তাহিক ও মাসিক রিপোর্ট {plan} প্ল্যানে আছে। দিনের হিসাব ফ্রি-তেই দেখা যায়।",
+  "pv2ReasonLedgerAiTitle": "খাতার AI টুল",
+  "pv2ReasonLedgerAiBody": "মুখে বলে এন্ট্রি, কাগজের খাতা স্ক্যান ও পেমেন্ট মেলানো {plan} প্ল্যানে আছে। সাধারণ ডিজিটাল খাতা সবসময় ফ্রি।",
+  "pv2ReasonGenericTitle": "{plan} প্ল্যানের সুবিধা",
+  "pv2ReasonGenericBody": "এটি ব্যবহার করতে {plan} প্ল্যান লাগে।",
+  "pv2WhatYouGet": "{plan} প্ল্যানে যা পাবেন",
+  "pv2BenefitPremiumContacts": "CRM-এ ৫০০ পর্যন্ত কন্টাক্ট",
+  "pv2BenefitPremiumCrm": "লিড, ডিল, পাইপলাইন ও কাজ যোগ ও বদলানো",
+  "pv2BenefitPremiumFollowup": "ফলো-আপ রিমাইন্ডার",
+  "pv2BenefitBusinessContacts": "CRM-এ সীমাহীন কন্টাক্ট",
+  "pv2BenefitBusinessAutomation": "CRM অটোমেশন: নিয়ম মেনে ফলো-আপ কাজ ও নোটিফিকেশন",
+  "pv2BenefitBusinessRetention": "স্বয়ংক্রিয় ধন্যবাদ ও রিভিউ অনুরোধ, ফিরে আসার বার্তা, জন্মদিনের শুভেচ্ছা, বাকির কথা ও স্টকে আসার খবর",
+  "pv2BenefitBusinessAgent": "AI সেলস এজেন্ট, COD অর্ডার নিশ্চিতকরণসহ",
+  "pv2BenefitBusinessBooking": "বুকিং বট (অ্যাপয়েন্টমেন্ট পেজ)",
+  "pv2BenefitBusinessReports": "সাপ্তাহিক ও মাসিক রিপোর্ট, ব্যাংক-লোন রিপোর্ট",
+  "pv2UpgradeTo": "{plan} নিন — {price}/মাস",
+  "pv2PriceLoading": "Google Play থেকে দাম আনা হচ্ছে…",
+  "pv2PlayNote": "দাম ও পেমেন্ট Google Play-এর। যেকোনো সময় Play থেকে বাতিল করা যায়।",
+  "pv2TrialButton": "{days} দিনের ফ্রি {plan} ট্রায়াল শুরু করুন",
+  "pv2TrialNote": "একবারই, কার্ড লাগে না। শেষ হবে {date}-এ — তখন অ্যাকাউন্ট ফ্রি-তে ফিরবে, কোনো টাকা কাটবে না।",
+  "pv2TrialStarted": "{plan} ট্রায়াল চালু হয়েছে — শেষ হবে {date}-এ।",
+  "pv2TrialUsed": "ফ্রি ট্রায়াল প্রতি অ্যাকাউন্টে একবারই — আপনি আগেই নিয়েছেন।",
+  "pv2TrialActiveUntil": "{plan} ট্রায়াল · শেষ {date}",
+  "pv2TrialBanner": "আপনার {plan} ট্রায়াল শেষ হবে {date}-এ। এরপর অ্যাকাউন্ট ফ্রি-তে ফিরবে — কোনো টাকা কাটবে না, আপনার সব তথ্য থাকবে।",
+  "pv2SeePlans": "সব প্ল্যান দেখুন",
+  "pv2NotNow": "এখন না",
+  "pv2FollowupLocked": "ফলো-আপ পরামর্শ {plan} প্ল্যানে",
+  "pv2CmpGroup": "ব্যবসা ও CRM",
+  "pv2CmpLedger": "ডিজিটাল খাতা (বেসিক)",
+  "pv2CmpCrmContacts": "CRM কন্টাক্ট",
+  "pv2CmpCrmWrite": "লিড, ডিল, পাইপলাইন ও কাজ",
+  "pv2CmpViewOnly": "শুধু দেখা",
+  "pv2CmpFollowup": "ফলো-আপ রিমাইন্ডার",
+  "pv2CmpAutomation": "CRM অটোমেশন",
+  "pv2CmpAutomationRetention": "অটোমেশন (CRM নিয়ম ও গ্রাহক-বার্তা)",
+  "pv2CmpAgent": "AI সেলস এজেন্ট",
+  "pv2CmpBooking": "বুকিং বট",
+  "pv2CmpReports": "সাপ্তাহিক ও মাসিক রিপোর্ট",
+  "pv2CmpUnlimited": "সীমাহীন"
+ }
+}

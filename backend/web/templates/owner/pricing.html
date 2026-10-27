@@ -58,6 +58,24 @@
   {% include "owner/_reason.html" with reprice=False %}
 </form>
 
+{% if pv2 %}
+<form method="post" class="card" id="plans_v2">{% include "owner/_csrf.html" %}<input type="hidden" name="section" value="plans_v2">
+  <h2>{{ T.pv2_title }}</h2>
+  <p class="muted">{{ T.pv2_intro }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.pv2_feature }}</th>{% for t in pv2.tiers %}<th>{% if t == "free" %}{{ T.pv2_free }}{% elif t == "premium" %}{{ T.pv2_premium }}{% else %}{{ T.pv2_business }}{% endif %}</th>{% endfor %}</tr></thead><tbody>
+  <tr><td>{{ T.pv2_crm_contacts }}</td>{% for c in pv2.contacts %}<td><input name="{{ c.name }}" value="{{ c.value }}" inputmode="numeric" class="short" aria-label="{{ T.pv2_crm_contacts }} {{ c.tier }}"></td>{% endfor %}</tr>
+  {% for r in pv2.rows %}<tr><td>{{ r.label }}</td>{% for cell in r.cells %}<td><input type="checkbox" name="{{ cell.name }}" {% if cell.on %}checked{% endif %} aria-label="{{ r.label }}"></td>{% endfor %}</tr>{% endfor %}
+  </tbody></table></div>
+  <div class="kv">
+    <label>{{ T.pv2_trial_days }} <input name="plans_v2.trial_days" value="{{ pv2.trial_days }}" inputmode="numeric" class="short"></label>
+    <label>{{ T.pv2_trial_plan }} <select name="plans_v2.trial_plan">{% for tp in pv2.trial_plans %}<option value="{{ tp }}" {% if tp == pv2.trial_plan %}selected{% endif %}>{% if tp == "premium" %}{{ T.pv2_premium }}{% else %}{{ T.pv2_business }}{% endif %}</option>{% endfor %}</select></label>
+    <label>{{ T.pv2_unlimited_at }} <input name="plans_v2.unlimited_display_at" value="{{ pv2.unlimited_display_at }}" inputmode="numeric" class="short"></label>
+  </div>
+  <p class="muted">{{ T.pv2_note }}</p>
+  {% include "owner/_reason.html" with reprice=False %}
+</form>
+{% endif %}
+
 {% for sec, fields in sections %}
 <form method="post" class="card" id="{{ sec }}">{% include "owner/_csrf.html" %}<input type="hidden" name="section" value="{{ sec }}">
   <h2>{{ sec }}</h2>

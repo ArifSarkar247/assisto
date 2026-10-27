@@ -98,12 +98,19 @@ def webhook_whatsapp(request):
 
 
 # =========================================================== seller API
-def _ctx(request, owner=True):
+def _ctx(request, owner=True, cap=None):
     prof, role, bad = _require_business(request)
     if bad:
         return None, None, None, bad
     if owner:
         g = _owner_only(request, role)
+        if g:
+            return None, None, None, g
+    if cap:
+        # plans-v2: setting the AI Sales Agent up (switching it on,
+        # connecting a channel) needs the shop owner's Business plan.
+        from . import entitlements_service as ES
+        g = ES.check(prof.user, cap, req_lang(request))
         if g:
             return None, None, None, g
     return prof, role, S.agent_for(prof), None
@@ -185,7 +192,17 @@ class SetupView(APIView):
             # ---- biz-v2: what the app may show + today's paid AI calls ----
             "features": GD.features(prof, meta_ready(), _g1_state(a)["vision_ready"]),
             "ai_today": {"used": GD.ai_calls_today(prof), "cap": a.daily_ai_cap},
+            # plans-v2: may the AI agent run for this shop (owner's plan)?
+            "plans_v2": _agent_entitled(prof),
         })
+
+
+def _agent_entitled(prof):
+    from . import entitlements_service as ES
+    owner = prof.user
+    on = ES.on(owner)
+    return {"on": on, "allowed": (not on) or ES.allows(owner, "ai_sales_agent"),
+            "needed_plan": "business"}
 
 
 def _g1_state(a):
@@ -203,7 +220,9 @@ def _g1_state(a):
 
 class SettingsView(APIView):
     def post(self, request):
-        prof, role, a, bad = _ctx(request)
+        d0 = request.data or {}
+        turning_on = str(d0.get("ai_enabled", "")).lower() in ("1", "true", "on", "yes")
+        prof, role, a, bad = _ctx(request, cap="ai_sales_agent" if turning_on else None)
         if bad:
             return bad
         lang = req_lang(request)
@@ -290,7 +309,7 @@ class ChannelsView(APIView):
         status); a channel already owned by another business is refused."""
         from .models import SellerChannel
         from . import bizagent_graph as G
-        prof, role, a, bad = _ctx(request)
+        prof, role, a, bad = _ctx(request, cap="ai_sales_agent")
         if bad:
             return bad
         lang = req_lang(request)

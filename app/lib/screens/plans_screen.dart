@@ -17,6 +17,8 @@ import '../payments/payments_api.dart'
 import '../payments/play_restore.dart'; // pay-e2e
 import '../payments/store_billing.dart'; // pay-e2e
 import '../payments/play_prices.dart'; // credout: Play's own prices
+import '../plans_v2/plans_v2.dart'; // plans-v2
+import '../feature_flags.dart';
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -65,6 +67,10 @@ class _PlansScreenState extends State<PlansScreen> {
   // pay1 + NO SHOWPIECES: which payment channels are live (null = none).
   PayConfig? _payCfg;
   bool _showHistory = false;
+  // plans-v2: tier / trial / live matrix (flag off -> PlansV2State.off)
+  PlansV2State _v2 = PlansV2State.off;
+  bool _trialBusy = false;
+  String? _trialMsg;
 
   @override
   void initState() {
@@ -99,6 +105,7 @@ class _PlansScreenState extends State<PlansScreen> {
       _payCfg = null;
     }
     _reconcileOnce();
+    if (mounted) _v2 = await loadPlansV2(api);
     await _loadPlayPrices();
     // Referral loads separately so a referral outage never blanks the paywall.
     try {
@@ -340,6 +347,7 @@ class _PlansScreenState extends State<PlansScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       if (!online) _offlineBanner(t, scheme),
       _currentCard(t),
+      ..._v2Trial(t, scheme),
       ..._payBanner(t, scheme),
       const SizedBox(height: Gap.lg),
       _safetyPromise(t, scheme),
@@ -398,7 +406,13 @@ class _PlansScreenState extends State<PlansScreen> {
         Text(t.plansCompareSubtitle,
             style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),
-        PlansCompareTable(plans: _all, current: current),
+        PlansCompareTable(
+          plans: _all,
+          current: current,
+          v2: _v2.on && _v2.matrix.isNotEmpty ? _v2.matrix : null,
+          showBooking: FeatureFlags.instance.isOn('booking_bot'),
+          showRetention: FeatureFlags.instance.isOn('retention_auto'),
+        ),
       ],
 
       // No live payment channel: no footer at all (NO SHOWPIECES — users are
@@ -434,6 +448,56 @@ class _PlansScreenState extends State<PlansScreen> {
       ),
       const SizedBox(height: Gap.xl),
     ]);
+  }
+
+  /// plans-v2: the 7-day Business trial — once per account, no card, a
+  /// clear end date, nothing is charged when it ends (it simply returns to
+  /// Free). Shown only while the server says it is available.
+  List<Widget> _v2Trial(AppLocalizations t, ColorScheme scheme) {
+    if (!_v2.on || (!_v2.trialAvailable && _trialMsg == null)) return const [];
+    final end = trialDate(context, DateTime.now().add(Duration(days: _v2.trialDays)));
+    return [
+      const SizedBox(height: Gap.md),
+      if (_trialMsg != null)
+        Text(_trialMsg!,
+            key: const Key('pv2-plans-trial-msg'),
+            style: TextStyle(
+                color: Brand.onTint(context, Brand.success),
+                fontWeight: FontWeight.w600))
+      else ...[
+        FilledButton.icon(
+          key: const Key('pv2-plans-trial'),
+          onPressed: _trialBusy ? null : _startTrial,
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+          icon: const Icon(Icons.card_giftcard_rounded),
+          label: Text(
+              t.pv2TrialButton(fmtInt(context, _v2.trialDays), planName(t, _v2.trialPlan)),
+              textAlign: TextAlign.center),
+        ),
+        const SizedBox(height: Gap.xs),
+        Text(t.pv2TrialNote(end),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+      ],
+    ];
+  }
+
+  Future<void> _startTrial() async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _trialBusy = true);
+    try {
+      final r = await context.read<AppState>().api.postJson('/plans/trial/start');
+      final until = DateTime.tryParse('${r['trial_until'] ?? ''}')?.toLocal();
+      if (r['ok'] == true && mounted) {
+        _trialMsg = t.pv2TrialStarted(planName(t, '${r['trial_plan'] ?? _v2.trialPlan}'),
+            until != null ? trialDate(context, until) : '');
+        await _load();
+      }
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.pv2TrialUsed)));
+    } finally {
+      if (mounted) setState(() => _trialBusy = false);
+    }
   }
 
   Widget _offlineBanner(AppLocalizations t, ColorScheme scheme) => Padding(
@@ -500,7 +564,11 @@ class _PlansScreenState extends State<PlansScreen> {
         if (trial)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
-            child: _pill(t.freeTrialActive),
+            // plans-v2: say WHICH plan the trial gives and its clear end date
+            child: _pill(_v2.on && _v2.trialUntil != null
+                ? t.pv2TrialActiveUntil(planName(t, _v2.trialPlan),
+                    trialDate(context, _v2.trialUntil!))
+                : t.freeTrialActive),
           ),
         const SizedBox(height: Gap.md),
         Row(children: [

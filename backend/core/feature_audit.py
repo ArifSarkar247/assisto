@@ -142,6 +142,8 @@ _A = {
                     "বুকিং বট ফেজ ১: দুই-অ্যাকাউন্টের সার্ভার-টেস্ট ও অ্যাপ টেস্ট পাস; দুই ফোনে আসল পরীক্ষা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Play Data safety-তে বুকিংয়ের ফোন নম্বর লাইন বাকি, ১০ মিনিটের পরীক্ষা BOOKING_BOT_BN.md-তে (STATUS-এ এখনো নয়)।"),
     "offers": ("?P????F?F", "hide", "~45% (big-week G); not in the reality sweep.", "~৪৫% (বড় সপ্তাহ G); রিয়ালিটি সুইপে নেই।"),
     "referral": ("?P??PP??F", "show", "Referral rate / min redeem editable (pricing tests).", "রেফারেল হার / সর্বনিম্ন রিডিম বদলানো যায় (প্রাইসিং টেস্ট)।"),
+    "plans_v2": ("?PP?P??P?", "hide", "plans-v2: server gates + tests for every gate, Owner Admin limits, upgrade sheet with Play prices; real two-phone run, reality-audit flow and the owner's 10-minute check (PLANS_V2_BN.md) pending.",
+                 "প্ল্যান v2: সার্ভারে প্রতিটি গেট ও টেস্ট, Owner Admin-এ সীমা, Play দামের আপগ্রেড শিট; আসল দুই ফোনে পরীক্ষা, রিয়ালিটি-অডিট ফ্লো ও মালিকের ১০ মিনিটের পরীক্ষা (PLANS_V2_BN.md) বাকি।"),
     # ---- Upcoming (nothing built yet)
     "corporate_meetings": ("FFFFFFFFF", "hide", "~10%: not built (needs its own SFU server).", "~১০%: তৈরি হয়নি (আলাদা SFU সার্ভার লাগবে)।"),
     "remote_support": ("FFFFFFFFF", "hide", "~2%: design only.", "~২%: শুধু নকশা।"),

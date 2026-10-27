@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import '../../plans_v2/upgrade_sheet.dart';
 
 /// Lead create/edit form (CRM_SPEC RICH MANUAL ENTRY — works WITHOUT AI).
 ///
@@ -91,9 +92,12 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      // plans-v2: view-only / contact limit -> the honest upgrade sheet
+      if (await UpgradeSheet.handle(context, e)) return;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
-        setState(() => _saving = false);
       }
     }
   }

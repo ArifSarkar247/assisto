@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import '../../plans_v2/upgrade_sheet.dart';
+import '../../plans_v2/plans_v2.dart';
+import '../../state.dart';
+import 'package:provider/provider.dart';
 import 'crm_advanced_api.dart';
 import '../../widgets/crm_rule_builder.dart';
 
@@ -21,6 +25,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
   List<Map<String, dynamic>> _rules = [];
   bool _loading = true;
   CrmError? _error;
+  PlansV2State _v2 = PlansV2State.off;
 
   @override
   void initState() {
@@ -38,10 +43,22 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     } catch (e) {
       _error = CrmError.from(e);
     }
+    if (mounted) {
+      _v2 = await loadPlansV2(context.read<AppState>().api, org: widget.org);
+    }
     if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _edit(Map<String, dynamic>? existing) async {
+    // plans-v2: automation is a Business feature (org owner's plan). The
+    // server refuses too; this says why before the form is filled in.
+    if (existing == null) {
+      final lock = _v2.crmLock('automation');
+      if (lock != null) {
+        await UpgradeSheet.show(context, lock);
+        return;
+      }
+    }
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -94,8 +111,9 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.crmAutomation)),
       floatingActionButton: FloatingActionButton.extended(
+        key: const Key('crm-new-rule'),
         onPressed: () => _edit(null),
-        icon: const Icon(Icons.add_rounded),
+        icon: Icon(_v2.crmLock('automation') != null ? Icons.lock_rounded : Icons.add_rounded),
         label: Text(t.crmNewRule),
       ),
       body: _body(t),

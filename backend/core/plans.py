@@ -5,7 +5,7 @@ Prices/limits from spec §17 + owner's 23-Sept plan. Credits are consumable AI
 units. NOTHING is unlimited in any plan (owner decision 2026-10): every paid
 plan carries a monthly credit POOL (Premium 90, Business 240 — live values in
 PricingConfig), granted once per calendar month by billing.grant_monthly_pool,
-and every AI action debits credits. Safety actions stay free. New users may start a 3-day Premium trial once (p2-money; live length in limits.trial_days). Rewarded ads grant +1 credit
+and every AI action debits credits. Safety actions stay free. New users may start a 3-day Premium trial once (p2-money; live length in limits.trial_days); with plans-v2 ON it is a 7-day BUSINESS trial (plans_v2.trial_days / trial_plan), still once per account, no card, no auto-charge. Rewarded ads grant +1 credit
 (daily cap). Ads only on free, non-personalized, never on sensitive screens
 (enforced in the app).
 """
@@ -75,9 +75,34 @@ def _cfg():
         return None
 
 
-def trial_days():
+def _v2(user):
+    """plans-v2: is the new plan matrix ON for this account?"""
+    if user is None:
+        return False
+    try:
+        from . import entitlements_service as ES
+        return ES.on(user)
+    except Exception:
+        return False
+
+
+def trial_days(user=None):
+    """Trial length. plans-v2 ON (for `user`): the Business trial length
+    (plans_v2.trial_days, default 7); otherwise the old Premium trial
+    (limits.trial_days, default 3) — unchanged."""
     c = _cfg()
+    if c and _v2(user):
+        return int(c["plans_v2"]["trial_days"])
     return int(c["limits"]["trial_days"]) if c else TRIAL_DAYS
+
+
+def trial_plan(user=None):
+    """What a running trial grants: "business" under plans-v2 (configurable),
+    else the old Premium trial."""
+    c = _cfg()
+    if c and _v2(user):
+        return c["plans_v2"]["trial_plan"]
+    return "premium"
 
 
 def trial_credits():
@@ -184,9 +209,15 @@ def entitlements(user, lang="bn"):
     cp = _config_plan(p)
     ads = (cp["ads"] if cp else spec["ads"])
     max_family = cp["family"] if cp else spec["family"]
+    name = pick(lang, spec["name_bn"], spec["name_en"])
+    if (trial_active(user) and not plan_active(user) and not lifetime_founder(user)
+            and _v2(user)):
+        # plans-v2: a free account on the trial sees WHICH plan it is trying
+        tp = PLANS.get(trial_plan(user)) or spec
+        name = pick(lang, tp["name_bn"], tp["name_en"])
     return {
         "plan": p,
-        "name": pick(lang, spec["name_bn"], spec["name_en"]),
+        "name": name,
         "name_bn": spec["name_bn"],
         "desc": pick(lang, spec["desc_bn"], spec["desc_en"]),
         "benefits": _benefits(p, lang, spec),
@@ -198,9 +229,22 @@ def entitlements(user, lang="bn"):
         "trial_until": user.trial_until.isoformat() if user.trial_until else None,
         # p2-money: the "Start free trial" button (once per user)
         "trial_available": trial_available(user),
-        "trial_days": trial_days(),
+        "trial_days": trial_days(user),
+        # plans-v2: what the trial grants (Business while the flag is ON) and
+        # the Business-feature tier (founder = Business, trial = trial plan)
+        "trial_plan": trial_plan(user),
+        "plans_v2": _v2(user),
+        "tier": _tier(user),
         "plan_until": user.plan_until.isoformat() if user.plan_until else None,
     }
+
+
+def _tier(user):
+    try:
+        from . import entitlements_service as ES
+        return ES.tier(user)
+    except Exception:
+        return "free"
 
 
 def plans_public(lang="bn"):
@@ -246,7 +290,7 @@ def trial_available(user):
         return False
     if user.is_founder or plan_active(user):
         return False
-    return trial_days() > 0
+    return trial_days(user) > 0
 
 
 def start_trial_button(user):
@@ -265,11 +309,16 @@ def start_trial_button(user):
 
 
 def start_trial(user):
+    """Start the ONE free trial. No card, nothing to cancel: when trial_until
+    passes the account simply returns to Free — the server never charges
+    anyone at the end of a trial (a Google Play subscription the user buys
+    themself is the only renewal there is)."""
     if not user.trial_until:
-        days = trial_days()
+        days = trial_days(user)
         user.trial_until = timezone.now() + timedelta(days=days)
         user.save(update_fields=["trial_until"])
-        _grant(user, trial_credits(), "trial", f"{days}-day trial start")
+        _grant(user, trial_credits(), "trial",
+               f"{days}-day {trial_plan(user)} trial start")
 
 
 def _grant(user, n, reason, note=""):

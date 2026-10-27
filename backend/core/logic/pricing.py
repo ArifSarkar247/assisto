@@ -30,6 +30,7 @@ from . import photo_studio as _PS
 from . import chat_vision as _CV
 from . import payments_cfg as _PAY   # pay1
 from . import bizagent as _BA        # p1-bizagent: seller plans
+from . import entitlements as _ENT   # plans-v2
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -579,6 +580,9 @@ def DEFAULTS():
         "seller_agent": _BA.cfg_defaults(),
         "world": dict(_WORLD_DEFAULTS),   # p4-world
         "retention": dict(_RETENTION_DEFAULTS),   # retention1
+        # plans-v2 (owner 27 Oct): Free / Premium / Business limits + the
+        # 7-day Business trial, used only while feature flag plans_v2 is ON.
+        "plans_v2": _ENT.defaults(),
     }
 
 
@@ -705,6 +709,7 @@ def normalize(data):
         "seller_agent": _BA.cfg_normalize(d.get("seller_agent")),   # p1
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
         "retention": _norm_retention(d.get("retention"), base["retention"]),
+        "plans_v2": _ENT.normalize(d.get("plans_v2")),
     }
 
 
@@ -1094,6 +1099,8 @@ def validate_edit(data):
                 problems.append("price_negative")
     if "home_quick_defaults" in d:
         problems.extend(HD.validate(d.get("home_quick_defaults")))
+    if "plans_v2" in d:
+        problems.extend(_ENT.problems(d.get("plans_v2")))
     if "photo_studio" in d:
         problems.extend(_PS.validate_cfg(d.get("photo_studio")))
     if "ad_rewards" in d:

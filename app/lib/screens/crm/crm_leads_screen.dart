@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import 'crm_contacts_tab.dart' show CrmUsageBanner;
+import '../../plans_v2/upgrade_sheet.dart';
+import '../../plans_v2/plans_v2.dart';
+import '../../state.dart';
+import 'package:provider/provider.dart';
 import 'crm_lead_detail_screen.dart';
 import 'crm_lead_form_screen.dart';
 
@@ -20,6 +25,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
   CrmError? _error;
   String _q = '';
   String? _priority, _industry;
+  PlansV2State _v2 = PlansV2State.off; // plans-v2: owner's plan for this org
 
   @override
   void initState() {
@@ -38,6 +44,9 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     } catch (e) {
       _error = CrmError.from(e);
     }
+    if (mounted) {
+      _v2 = await loadPlansV2(context.read<AppState>().api, org: widget.org);
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -46,15 +55,31 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        key: const Key('crm-add-lead'),
         onPressed: () async {
+          // plans-v2: Free is view only; a full contact list asks to
+          // upgrade — the server refuses too, this just says why up front.
+          final lock = _v2.crmLock('crm_write') ?? _v2.contactLock();
+          if (lock != null) {
+            final up = await UpgradeSheet.show(context, lock);
+            if (up == true) _load();
+            return;
+          }
           final added = await Navigator.push<bool>(context,
               MaterialPageRoute(builder: (_) => CrmLeadFormScreen(org: widget.org)));
           if (added == true) _load();
         },
-        icon: const Icon(Icons.person_add_alt_rounded),
+        icon: Icon(_v2.crmLock('crm_write') != null || _v2.contactLock() != null
+            ? Icons.lock_rounded
+            : Icons.person_add_alt_rounded),
         label: Text(t.crmAddLead),
       ),
       body: Column(children: [
+        if (_v2.on && _v2.contacts != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+            child: CrmUsageBanner(usage: _v2.contacts!, viewOnly: !_v2.crmAllows('crm_write')),
+          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
           child: TextField(

@@ -109,7 +109,7 @@ def rule_sentiment(text):
     return "neu"
 
 
-def refine_with_ai(base, inbound_texts, feature="crm.scoring"):
+def refine_with_ai(base, inbound_texts, feature="crm.scoring", user=None):
     """OPTIONAL, honest refinement. If ai.available(), ask the model for a
     sentiment read + one-line summary and allow a small (±5) nudge within the
     rule-based band. If AI is off or fails, return the base unchanged — we never
@@ -132,7 +132,7 @@ def refine_with_ai(base, inbound_texts, feature="crm.scoring"):
     )
     try:
         text, _ = ai.generate(task=task, data=data, tier="cheap",
-                              max_tokens=120, feature=feature, user=None)
+                              max_tokens=120, feature=feature, user=user)
     except Exception:
         return base, ""
 
