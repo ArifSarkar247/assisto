@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
-import '../shop_camera_settings.dart' show shopSeenLabel;
+import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -247,6 +247,34 @@ class _SiteCard extends StatelessWidget {
         await nav.push(MaterialPageRoute(
             builder: (_) => WatchmanAddCameraScreen(
                 source: source, site: site, recheck: cam, limits: const {}, credits: 0)));
+      case 'push':
+        // Hikvision HTTP Listening / Dahua event push: the camera posts its
+        // OWN alarms (+ one still) straight to the server — needs this
+        // camera's private link (owner-only token).
+        String token = '';
+        try {
+          token = ((await source.camera((cam['id'] as num).toInt()))['camera_token'] ?? '')
+              .toString();
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(wmError(e) ?? t.wmGenericError)));
+          }
+          return;
+        }
+        if (!context.mounted) return;
+        await showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
+          builder: (ctx) => SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: ShopWebhookCard(token: token),
+            ),
+          ),
+        );
+        return;
       case 'remove':
         final ok = await showDialog<bool>(
           context: context,
@@ -437,6 +465,8 @@ class _CameraRow extends StatelessWidget {
             itemBuilder: (_) => [
               PopupMenuItem(value: 'zones', child: Text(t.wmZonesSchedule)),
               if (vendor != 'phone') PopupMenuItem(value: 'check', child: Text(t.wmCheckAgain)),
+              if (vendor == 'hikvision' || vendor == 'dahua')
+                PopupMenuItem(value: 'push', child: Text(t.shopHookTitle)),
               PopupMenuItem(value: 'remove', child: Text(t.wmRemove)),
             ],
           ),

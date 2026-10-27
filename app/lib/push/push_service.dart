@@ -35,6 +35,8 @@ import '../messaging/msg_notify.dart';
 import '../messaging/receipt_ack.dart';
 import '../messaging/receipt_bus.dart';
 import '../realtime/realtime_channel.dart';
+import '../family_alerts_api.dart'; // family100
+import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
@@ -457,6 +459,8 @@ class PushService {
               : ReceiptAck(token: () async => tok)));
       if ('${data['kind']}' == 'msg_sync') return;
     }
+    // family100: receipt for an SOS / family alert (delivery-time bar)
+    unawaited(ackFamilyAlertReceipt(data));
     final p = PushPayload.fromData(data);
     // x1-calls: call-signal nudge -> poll the call queue now (no UI)
     if (p.isCallNudge) {
@@ -565,6 +569,12 @@ class PushService {
             builder: AgentCorePush.builderFor(p, action: action)));
       }
       return;
+    }
+    // family100: tapping a family alert / SOS marks it SEEN on both sides
+    // (the sender's screen shows who saw it).
+    final fid = familyDeliveryId(p.data);
+    if (fid != null && action == null) {
+      unawaited(app.api.familyAlertSeen(fid).then((_) {}, onError: (_) {}));
     }
     final target = PushRouting.targetFor(p, action: action);
     final nav = _nav?.currentState;

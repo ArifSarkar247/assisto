@@ -1,10 +1,12 @@
 """
-Device simulator for the Assisto tracker server — speaks GT06 and Teltonika.
+Device simulator for the Assisto tracker server — speaks GT06, H02 (Sinotrack
+ST-901 text) and Teltonika.
 
 Used by the end-to-end test (core/tests_v1_vehicle.py) and by hand:
 
     python -m tracker.sim gt06 --imei 359339077003915 --port 15023 --fixes 20
     python -m tracker.sim teltonika --imei 356307042441013 --port 15023
+    python -m tracker.sim h02 --imei 9171234567 --port 15023
 
 Each simulated device auto-answers server commands like real firmware does:
 GT06 replies to a 0x80 online command with a 0x15 string reply carrying the
@@ -16,7 +18,7 @@ import asyncio
 import struct
 from datetime import datetime, timedelta, timezone
 
-from .protocols import gt06, teltonika
+from .protocols import gt06, h02, teltonika
 
 
 class GT06Device:
@@ -57,6 +59,15 @@ class GT06Device:
         self.writer.write(gt06.status_packet(self._ser(), ignition, relay_cut))
         await self.writer.drain()
 
+    async def alarm(self, lat, lng, alarm="sos", speed_kmh=0, at=None):
+        at = at or datetime.now(timezone.utc)
+        self.writer.write(gt06.alarm_packet(at, lat, lng, speed_kmh, alarm, self._ser()))
+        await self.writer.drain()
+
+    async def raw(self, data: bytes):
+        self.writer.write(data)
+        await self.writer.drain()
+
     async def _listen(self):
         buf = b""
         try:
@@ -79,6 +90,67 @@ class GT06Device:
                         if proto == gt06.P_LOGIN:
                             self._login_ok.set()
         except (ConnectionError, asyncio.CancelledError, gt06.FrameError):
+            return
+
+    async def close(self):
+        if self._task:
+            self._task.cancel()
+        if self.writer:
+            self.writer.close()
+
+
+class H02Device:
+    """Sinotrack ST-901-style text tracker: no login, IMEI in every frame,
+    answers S20 / S71 server commands with a V4 reply (like real firmware)."""
+
+    def __init__(self, imei, reply_result="DONE"):
+        self.imei = imei
+        self.reply_result = reply_result
+        self.commands = []
+        self.reader = self.writer = None
+        self._task = None
+        self._eof = asyncio.Event()
+
+    async def connect(self, host, port):
+        self.reader, self.writer = await asyncio.open_connection(host, port)
+        self._task = asyncio.create_task(self._listen())
+
+    async def fix(self, lat, lng, speed_kmh, ignition=True, at=None, course=90,
+                  sos=False, valid=True):
+        at = at or datetime.now(timezone.utc)
+        self.writer.write(h02.v1_packet(self.imei, at, lat, lng, speed_kmh, course,
+                                        valid=valid, ignition=ignition, sos=sos))
+        await self.writer.drain()
+
+    async def heartbeat(self):
+        self.writer.write(h02.heartbeat_packet(self.imei))
+        await self.writer.drain()
+
+    async def closed(self, timeout=2.0):
+        """True if the server hung up on us (refused IMEI)."""
+        try:
+            await asyncio.wait_for(self._eof.wait(), timeout)
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+    async def _listen(self):
+        buf = b""
+        try:
+            while True:
+                data = await self.reader.read(4096)
+                if not data:
+                    self._eof.set()
+                    return
+                buf += data
+                frames, buf = h02.split_frames(buf)
+                for fr in frames:
+                    code, params = h02.parse_server_command(fr)
+                    self.commands.append(",".join([code] + params))
+                    self.writer.write(h02.reply_packet(
+                        self.imei, code, self.reply_result, datetime.now(timezone.utc)))
+                    await self.writer.drain()
+        except (ConnectionError, asyncio.CancelledError, h02.FrameError):
             return
 
     async def close(self):
@@ -186,6 +258,16 @@ async def _cli(a):
         await asyncio.sleep(a.listen)
         print("commands received:", d.commands)
         await d.close()
+    elif a.proto == "h02":
+        d = H02Device(a.imei)
+        await d.connect(a.host, a.port)
+        for p in path:
+            await d.fix(p["lat"], p["lng"], p["speed_kmh"], True, p["at"])
+            await asyncio.sleep(a.delay)
+        await d.heartbeat()
+        await asyncio.sleep(a.listen)
+        print("frames sent:", len(path) + 1, "commands received:", d.commands)
+        await d.close()
     else:
         d = TeltonikaDevice(a.imei)
         await d.connect(a.host, a.port)
@@ -204,7 +286,7 @@ async def _cli(a):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Assisto tracker device simulator")
-    ap.add_argument("proto", choices=["gt06", "teltonika"])
+    ap.add_argument("proto", choices=["gt06", "h02", "teltonika"])
     ap.add_argument("--imei", required=True)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=15023)

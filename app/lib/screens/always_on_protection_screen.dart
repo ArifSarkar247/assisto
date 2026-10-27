@@ -248,6 +248,9 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     bool? snatchLock,
     bool? intruderPhoto,
     List<int>? alertIds,
+    bool? nightGuard,
+    String? homeWifi,
+    String? wifiHash,
   }) async {
     final tr = AppLocalizations.of(context);
     final pin = await const SecurityGuard().askPin(context, tr);
@@ -259,8 +262,13 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         snatchLock: snatchLock,
         intruderPhoto: intruderPhoto,
         alertMemberIds: alertIds,
+        nightGuard: nightGuard,
+        homeWifi: homeWifi,
+        wifiHash: wifiHash,
       );
-      if (resp['ok'] == true) {
+      if (resp['reason'] == 'no_wifi') {
+        _snack(tr.at2HomeWifiNone);
+      } else if (resp['ok'] == true) {
         // Hand the running engine its new settings (adds/removes the camera
         // foreground type for the intruder photo). Best-effort, never throws.
         final cfg = resp['config'];
@@ -375,6 +383,182 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         ],
       );
 
+  // ---- antitheft2: trusted contacts, location, Night guard ---------------
+
+  /// Location permission asked from the open app; then the running engine
+  /// re-declares its foreground type so it may read location.
+  Future<void> _askLocation() async {
+    try {
+      final st = await Permission.locationWhenInUse.request();
+      if (st.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+      final cfg = _state['config'];
+      if (st.isGranted && cfg is Map) {
+        await AntiTheftService.configure(cfg.cast<String, dynamic>());
+        await AntiTheftService.flushNow();
+      }
+    } catch (e) {
+      reportNonFatal('antitheft.location_permission', e);
+    }
+    if (mounted) await _load();
+  }
+
+  Future<void> _saveHomeWifi() async {
+    final hash = await AntiTheftService.wifiHash();
+    await _saveSettings(homeWifi: 'save_current', wifiHash: hash);
+  }
+
+  Widget _trustedContactCard(AppLocalizations tr, ColorScheme scheme) {
+    final candidates = (_state['candidates'] as List?) ?? const [];
+    final style = Theme.of(context).textTheme;
+    return Card(
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.person_add_alt_1_rounded,
+                    color: scheme.onErrorContainer),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                  child: Text(tr.at2NoContactTitle,
+                      style: style.titleMedium
+                          ?.copyWith(color: scheme.onErrorContainer)),
+                ),
+              ],
+            ),
+            const SizedBox(height: Gap.xs),
+            Text(tr.at2NoContactBody,
+                style: style.bodyMedium
+                    ?.copyWith(color: scheme.onErrorContainer)),
+            if (candidates.isEmpty) ...[
+              const SizedBox(height: Gap.xs),
+              Text(tr.at2NoContactCircle,
+                  style: style.bodyMedium
+                      ?.copyWith(color: scheme.onErrorContainer)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _locationCard(AppLocalizations tr) {
+    final loc = (_state['location'] as Map?) ?? const {};
+    final perm = _caps['locationPermission'] ?? loc['permission'];
+    final on = _caps['locationEnabled'] ?? loc['enabled'];
+    final hasFix = loc['has_fix'] == true;
+    final String msg;
+    if (perm == false) {
+      msg = tr.at2LocNoPerm;
+    } else if (on == false) {
+      msg = tr.at2LocOff;
+    } else if (hasFix) {
+      msg = tr.at2LocOk;
+    } else {
+      msg = tr.at2LocNoFix;
+    }
+    final fixAt = '${loc['last_fix_at'] ?? ''}';
+    final acc = (loc['last_fix_acc'] as num?)?.round();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: Icon(hasFix && perm != false
+                  ? Icons.location_on_rounded
+                  : Icons.location_off_rounded),
+              title: Text(tr.at2LocTitle),
+              subtitle: Text(msg),
+            ),
+            if (fixAt.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+                child: Text(acc != null
+                    ? tr.at2LocLast(_fmtWhen(fixAt), '$acc')
+                    : tr.at2LocLastNoAcc(_fmtWhen(fixAt))),
+              ),
+            if (perm == false)
+              Padding(
+                padding: const EdgeInsets.all(Gap.sm),
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 48)),
+                  onPressed: _busy ? null : _askLocation,
+                  icon: const Icon(Icons.my_location_rounded),
+                  label: Text(tr.at2LocAllow, softWrap: true),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _fmtWhen(String iso) {
+    final d = DateTime.tryParse(iso);
+    if (d == null) return iso;
+    final lang = Localizations.localeOf(context).languageCode;
+    return DateFormat('d MMM, h:mm a', lang).format(d.toLocal());
+  }
+
+  Widget _nightGuardCard(AppLocalizations tr) {
+    final count = (_state['home_wifi_count'] as num?)?.toInt() ?? 0;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              value: _state['night_guard'] == true,
+              title: Text(tr.at2NightTitle),
+              subtitle: Text(tr.at2NightBody),
+              onChanged: _busy ? null : (v) => _saveSettings(nightGuard: v),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+              child: Text(count > 0
+                  ? tr.at2HomeWifiSaved(count)
+                  : tr.at2HomeWifiNoneSaved),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(Gap.sm),
+              child: Wrap(
+                spacing: Gap.sm,
+                runSpacing: Gap.xs,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(48, 48)),
+                    onPressed: _busy ? null : _saveHomeWifi,
+                    icon: const Icon(Icons.wifi_rounded),
+                    label: Text(tr.at2HomeWifiSave, softWrap: true),
+                  ),
+                  if (count > 0)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                          minimumSize: const Size(48, 48)),
+                      onPressed: _busy
+                          ? null
+                          : () => _saveSettings(homeWifi: 'clear'),
+                      child: Text(tr.at2HomeWifiClear, softWrap: true),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _content(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
@@ -382,6 +566,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       children: [
         _statusCard(tr, scheme),
         const SizedBox(height: Gap.md),
+        // antitheft2: alerts go to trusted contacts only — none set yet
+        if (_enabled && _state['needs_trusted_contact'] == true) ...[
+          _trustedContactCard(tr, scheme),
+          const SizedBox(height: Gap.md),
+        ],
         if (FalseAlarmButton.shouldShow(_state)) ...[
           Card(
             child: Padding(
@@ -397,6 +586,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           _optionsCard(tr),
           const SizedBox(height: Gap.md),
           _alertMembersCard(tr),
+          const SizedBox(height: Gap.md),
+          _locationCard(tr),
+          const SizedBox(height: Gap.md),
+          _nightGuardCard(tr),
           const SizedBox(height: Gap.md),
           _timelineLink(tr),
           const SizedBox(height: Gap.md),
@@ -838,13 +1031,27 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
     final late = e['late'] == true;
     final hasPhoto = e['has_photo'] == true;
     final id = int.tryParse('${e['id']}');
+    // antitheft2: honest delivery line (who was told, or why not)
+    final data = (e['data'] as Map?) ?? const {};
+    final rc = (e['recipients'] as num?)?.toInt();
+    String? info;
+    if (e['held'] == true) {
+      info = tr.at2Held;
+    } else if (data['suppressed'] != null) {
+      info = tr.at2Suppressed;
+    } else if (data['no_recipients'] == true || rc == 0) {
+      info = tr.at2NoOneTold;
+    } else if (rc != null && rc > 0) {
+      info = tr.at2SentTo(rc);
+    }
     return Card(
       child: Column(
         children: [
           ListTile(
             leading: Icon(_icon(kind)),
             title: Text(_label(tr, kind)),
-            subtitle: Text(late ? tr.atLateAt(when) : when),
+            subtitle: Text([late ? tr.atLateAt(when) : when, if (info != null) info]
+                .join('\n')),
           ),
           if (hasPhoto && id != null)
             Padding(

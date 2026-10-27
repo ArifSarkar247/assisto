@@ -10,6 +10,7 @@ import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/family_screen.dart';
+import '../screens/family_alerts_screen.dart'; // family100
 import '../screens/emergency_screen.dart';
 import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
@@ -169,6 +170,7 @@ class ChatNav {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
     'family': (_) => const FamilyScreen(),
+    'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle

@@ -495,11 +495,12 @@ class SidebarSections {
           feature: 'nearby',
           (_) => const NearbyScreen(),
           synonyms: ['nearby', 'around me', 'places']),
-      // p4-world: Unseen World — Today cards, web answers, jobs, hubs.
-      SidebarItem(Icons.public_rounded, (t) => t.uwTitle,
-          feature: 'unseen_world',
+      // p4-world: Daily info and services (was "Unseen World", renamed
+      // 27 Oct) — Today cards, web answers, jobs, hubs. Flag `daily_info`.
+      SidebarItem(Icons.public_rounded, (t) => t.dailyInfoTitle,
+          feature: 'daily_info',
           (_) => const WorldHubScreen(),
-          synonyms: ['world', 'today', 'news', 'weather', 'prayer time',
+          synonyms: ['daily info', 'services', 'world news', 'today', 'news', 'weather', 'prayer time',
               'currency', 'gold price', 'fuel price', 'jobs', 'expat', 'visa',
               'bcs', 'farmer', 'crop', 'passport', 'nid', 'prescription',
               'web search', 'ask anything']),
@@ -637,10 +638,10 @@ class SidebarSections {
           synonyms: ['travel', 'trip', 'itinerary', 'tour', 'journey', 'vacation']),
       // §6 AI-core: #15 voice mood (on-device opt-in), #6 proactive AI;
       // §20 #194 area community (local-area board).
-      SidebarItem(Icons.mood_rounded, (t) => t.moodTitle,
+      SidebarItem(Icons.mood_rounded, (t) => t.moodJournalTitle,
           feature: 'voice_mood',
           (_) => const VoiceMoodScreen(),
-          synonyms: ['mood', 'wellbeing', 'feeling', 'mental', 'check-in']),
+          synonyms: ['mood', 'journal', 'energy', 'relax', 'breathing', 'check-in']),
       SidebarItem(Icons.lightbulb_outline_rounded, (t) => t.proTitle,
           feature: 'proactive_ai',
           (_) => const ProactiveAiScreen(),

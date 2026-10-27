@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
+import '../services/action_feedback.dart' show openForUser;
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// VOICE MOOD SENSING — ADVANCED (#15, SPEC v2.1 §21).
 ///
@@ -17,9 +21,13 @@ import '../widgets/skeleton.dart';
 /// a JSON list of rows that hold ONLY {mood, energy, date}. No audio, no
 /// transcript. There is an explicit opt-in gate and a one-tap "delete all".
 ///
-/// NOT A MEDICAL / MENTAL-HEALTH SERVICE. This never diagnoses. When the recent
-/// trend looks persistently low we show an honest, non-alarming pointer to a
-/// real helpline. We point to help; we never pretend to be help.
+/// healthfit (owner decision 27 Oct): a WELLNESS JOURNAL AND RELAXATION feature
+/// only — a daily mood + energy check-in with an optional one-line note, a
+/// one-minute breathing break and everyday self-care ideas. Never a medical
+/// or treatment service, never counselling; it never labels how you feel.
+/// The "not medical advice" strip (HealthDisclaimerBar) is always visible.
+/// When the recent trend looks persistently low we show ONE neutral line:
+/// talk to someone you trust, and call 999 if you ever feel unsafe.
 ///
 /// The on-screen math mirrors backend/core/logic/voice_mood.py VERBATIM
 /// (fold-latest-wins, 7-day trend over logged days, persistently-low flag,
@@ -168,6 +176,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
       'id': DateTime.now().millisecondsSinceEpoch,
       'mood': result['mood'],
       'energy': result['energy'],
+      if ((result['note']?.toString() ?? '').isNotEmpty) 'note': result['note'],
       'date': _todayIso,
     });
     setState(() {});
@@ -180,7 +189,8 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
     final tr = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
-          appBar: AppBar(title: Text(tr.moodTitle)),
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
+          appBar: AppBar(title: Text(tr.moodJournalTitle)),
           body: const SkeletonList());
     }
     if (!_optedIn) return _OptInGate(onOptIn: _optIn);
@@ -192,8 +202,9 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
         trend.persistentlyLow);
 
     return Scaffold(
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
       appBar: AppBar(
-        title: Text(tr.moodTitle),
+        title: Text(tr.moodJournalTitle),
         actions: [
           PopupMenuButton<String>(
             onSelected: (v) {
@@ -230,6 +241,10 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
                 padding: EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.lg),
                 child: Column(children: [_PrivacyNote(), _SafetyNote()]),
               ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, 96),
+                child: _BreathingCard(),
+              ),
             ])
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
@@ -239,9 +254,11 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
                 _TrendCard(trend: trend),
                 const SizedBox(height: Gap.md),
                 _SuggestionsCard(keys: suggestions),
+                const SizedBox(height: Gap.md),
+                const _BreathingCard(),
                 if (trend.persistentlyLow) ...[
                   const SizedBox(height: Gap.md),
-                  const _HelplineCard(),
+                  const _SupportCard(),
                 ],
                 const SizedBox(height: Gap.md),
                 const _PrivacyNote(),
@@ -269,7 +286,8 @@ class _OptInGate extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr.moodTitle)),
+        bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
+      appBar: AppBar(title: Text(tr.moodJournalTitle)),
       body: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
@@ -283,14 +301,14 @@ class _OptInGate extends StatelessWidget {
                   .titleLarge
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
-          Text(tr.moodOptInBody,
+          Text(tr.moodOptInBody2,
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
           const SizedBox(height: Gap.lg),
           _Bullet(icon: Icons.phonelink_lock_rounded, text: tr.moodOptInPoint1),
           _Bullet(icon: Icons.mic_off_rounded, text: tr.moodOptInPoint2),
           _Bullet(icon: Icons.delete_outline_rounded, text: tr.moodOptInPoint3),
-          _Bullet(icon: Icons.medical_services_rounded, text: tr.moodOptInPoint4),
+          _Bullet(icon: Icons.spa_rounded, text: tr.moodOptInPoint4b),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             onPressed: onOptIn,
@@ -336,6 +354,7 @@ class _TodayCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final mood = row?['mood']?.toString();
     final energy = _Mood.intOf(row?['energy'], 0);
+    final note = row?['note']?.toString() ?? '';
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -363,6 +382,14 @@ class _TodayCard extends StatelessWidget {
                       if (energy > 0)
                         Text(tr.moodEnergyValue(/* (max, value) */ 5, energy),
                             style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                      if (note.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: Gap.xs),
+                          child: Text(note,
+                              style: AType.bodyMedium.copyWith(
+                                  fontStyle: FontStyle.italic,
+                                  color: scheme.onSurface)),
+                        ),
                     ]),
               ),
             ]),
@@ -465,7 +492,7 @@ class _SuggestionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final visible = keys.where((k) => k != 'helpline').toList();
+    final visible = keys.where((k) => k != 'support').toList();
     if (visible.isEmpty) return const SizedBox.shrink();
     return Card(
       margin: EdgeInsets.zero,
@@ -502,14 +529,19 @@ class _SuggestionsCard extends StatelessWidget {
   }
 }
 
-// ======================= HELPLINE (persistently-low only) =======================
-class _HelplineCard extends StatelessWidget {
-  const _HelplineCard();
+// ======================= SUPPORT (persistently-low only) =======================
+// healthfit: a wellness journal never offers counselling or treatment. When
+// the recent check-ins are persistently low it shows ONE neutral line: talk to
+// someone you trust, and the national emergency number 999 if you feel unsafe
+// (a safety resource, not a service we provide).
+class _SupportCard extends StatelessWidget {
+  const _SupportCard();
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
+      key: const Key('mood-support-card'),
       margin: EdgeInsets.zero,
       color: scheme.secondaryContainer,
       child: Padding(
@@ -521,16 +553,139 @@ class _HelplineCard extends StatelessWidget {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tr.moodHelplineTitle,
+                  Text(tr.moodSupportTitle,
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: scheme.onSecondaryContainer)),
                   const SizedBox(height: Gap.xs),
-                  Text(tr.moodHelplineBody,
+                  Text(tr.moodSupportBody,
                       style: TextStyle(
                           color: scheme.onSecondaryContainer, height: 1.4)),
+                  const SizedBox(height: Gap.sm),
+                  FilledButton.tonalIcon(
+                    onPressed: () => openForUser(context, Uri.parse('tel:999'),
+                        where: 'mood.call999'),
+                    icon: const Icon(Icons.call_rounded),
+                    label: Text(tr.moodCall999),
+                  ),
                 ]),
           ),
+        ]),
+      ),
+    );
+  }
+}
+
+// ======================= BREATHING / RELAXATION =======================
+// healthfit: a one-minute paced-breathing break (4 s in, 4 s out). Pure
+// relaxation — no measurement, nothing stored, nothing sent.
+class _BreathingCard extends StatefulWidget {
+  const _BreathingCard();
+  @override
+  State<_BreathingCard> createState() => _BreathingCardState();
+}
+
+class _BreathingCardState extends State<_BreathingCard> {
+  static const int _total = 60; // seconds
+  static const int _phase = 4; // seconds per in / out
+  Timer? _timer;
+  int _elapsed = 0;
+  bool _done = false;
+
+  bool get _running => _timer != null;
+
+  void _start() {
+    _timer?.cancel();
+    setState(() {
+      _elapsed = 0;
+      _done = false;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return t.cancel();
+      setState(() {
+        _elapsed++;
+        if (_elapsed >= _total) {
+          t.cancel();
+          _timer = null;
+          _done = true;
+        }
+      });
+    });
+  }
+
+  void _stop() {
+    _timer?.cancel();
+    setState(() {
+      _timer = null;
+      _elapsed = 0;
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final inhale = (_elapsed ~/ _phase).isEven;
+    final left = _total - _elapsed;
+    return Card(
+      key: const Key('mood-breathing-card'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.air_rounded, size: 20, color: Brand.blue),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: Text(tr.moodBreathTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ]),
+          const SizedBox(height: Gap.xs),
+          Text(_done ? tr.moodBreathDone : tr.moodBreathBody,
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          if (_running) ...[
+            const SizedBox(height: Gap.md),
+            Center(
+              child: AnimatedContainer(
+                duration: const Duration(seconds: _phase),
+                curve: Curves.easeInOut,
+                width: inhale ? 120 : 64,
+                height: inhale ? 120 : 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Brand.blue.withValues(alpha: 0.18),
+                  border: Border.all(color: Brand.blue, width: 2),
+                ),
+              ),
+            ),
+            const SizedBox(height: Gap.sm),
+            Center(
+              child: Text(inhale ? tr.moodBreathIn : tr.moodBreathOut,
+                  textAlign: TextAlign.center,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+            ),
+            Center(
+              child: Text(tr.moodBreathLeft(notifLocalizeDigits(context, '$left')),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            ),
+          ],
+          const SizedBox(height: Gap.md),
+          _running
+              ? OutlinedButton.icon(
+                  onPressed: _stop,
+                  icon: const Icon(Icons.stop_rounded),
+                  label: Text(tr.moodBreathStop))
+              : FilledButton.tonalIcon(
+                  onPressed: _start,
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: Text(tr.moodBreathStart)),
         ]),
       ),
     );
@@ -578,7 +733,7 @@ class _SafetyNote extends StatelessWidget {
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.sm),
           Expanded(
-            child: Text(tr.moodSafetyNote,
+            child: Text(tr.moodSafetyNote2,
                 style:
                     AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
@@ -599,6 +754,14 @@ class _CheckInSheetState extends State<_CheckInSheet> {
   String? _mood;
   int _energy = 0; // 0 = not rated
   bool _voiceExpanded = false;
+  // healthfit: an optional one-line journal note (kept on this phone only).
+  final TextEditingController _note = TextEditingController();
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -631,6 +794,20 @@ class _CheckInSheetState extends State<_CheckInSheet> {
               ],
             ),
             const SizedBox(height: Gap.lg),
+            TextField(
+              key: const Key('mood-note-field'),
+              controller: _note,
+              maxLength: 200,
+              maxLines: 2,
+              minLines: 1,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: tr.moodNoteLabel,
+                hintText: tr.moodNoteHint,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: Gap.md),
             // Optional on-device voice-energy self-rating (collapsed by default).
             InkWell(
               onTap: () => setState(() => _voiceExpanded = !_voiceExpanded),
@@ -689,7 +866,8 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                   onPressed: _mood == null
                       ? null
                       : () => Navigator.pop(context,
-                          {'mood': _mood, 'energy': _energy}),
+                          {'mood': _mood, 'energy': _energy,
+                           'note': _note.text.trim()}),
                   child: Text(tr.save),
                 ),
               ),
@@ -970,7 +1148,7 @@ class _Mood {
   }
 
   static const Map<String, List<String>> _suggestionKeys = {
-    'low': ['rest', 'reach_out', 'breathe', 'helpline'],
+    'low': ['rest', 'reach_out', 'breathe', 'support'],
     'down': ['walk', 'reach_out', 'breathe'],
     'ok': ['walk', 'gratitude'],
     'good': ['keep_going', 'gratitude'],
@@ -979,7 +1157,7 @@ class _Mood {
 
   static List<String> suggestions(String mood, bool persistentlyLow) {
     final keys = List<String>.from(_suggestionKeys[mood] ?? _suggestionKeys['ok']!);
-    if (persistentlyLow && !keys.contains('helpline')) keys.add('helpline');
+    if (persistentlyLow && !keys.contains('support')) keys.add('support');
     final seen = <String>{};
     return [
       for (final k in keys)

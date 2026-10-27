@@ -5,10 +5,13 @@ from . import views_legal
 from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
 from . import views_journey   # journey100
+from . import views_at_watch   # antitheft2
 
 urlpatterns = [
     path("", views.landing),
     path("get", views.get_app),
+    # antitheft2: a trusted contact's signed web view of a protected phone
+    path("w/phone/<str:token>", views_at_watch.phone_page),
 
     # ---- o2-admin: web owner admin panel (2FA, own session cookie) ----
     # Replaces the old password-only /owner/integrations page (same URL now

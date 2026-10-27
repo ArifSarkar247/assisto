@@ -172,7 +172,10 @@ class PushRouting {
     'circle/calls': 'circle_calls',
     'reminders': 'reminders',
     'alerts': 'notifications',
-    'safety/sos': 'family',
+    // family100: SOS + family alerts open the family alerts screen
+    'safety/sos': 'family_alerts',
+    'family/alerts': 'family_alerts',
+    'security/lost-phone': 'my_lost_phone',
     // journey100: Safe Journey pushes
     'journey': 'journey', // the traveller: Are you OK? / routine
     'journey/watch': 'journey_watch', // a watcher: started/late/arrived...
@@ -198,7 +201,7 @@ class PushRouting {
     'family_alert': 'notifications',
     'owner_alert': 'notifications',
     'shop_alert': 'shop_box',
-    'sos': 'family',
+    'sos': 'family_alerts',
     'agent_approval': 'agent_approvals', // agent-core WP-APP
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
   };

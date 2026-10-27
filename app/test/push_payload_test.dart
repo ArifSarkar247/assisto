@@ -109,14 +109,14 @@ void main() {
       expect(go({'kind': 'message', 'route': 'circle/group'})!.chatNavRoute, 'messages');
       expect(go({'kind': 'reminder', 'route': 'reminders'})!.chatNavRoute, 'reminders');
       expect(go({'kind': 'family_alert', 'route': 'alerts'})!.chatNavRoute, 'notifications');
-      expect(go({'kind': 'sos', 'route': 'safety/sos'})!.chatNavRoute, 'family');
+      expect(go({'kind': 'sos', 'route': 'safety/sos'})!.chatNavRoute, 'family_alerts');
       expect(go({'kind': 'shop_alert', 'route': 'business/shop-box'})!.chatNavRoute, 'shop_box');
       expect(go({'kind': 'owner_alert', 'route': 'owner'})!.chatNavRoute, 'analytics');
     });
 
     test('missing/unknown route falls back by kind; unknown kind -> null', () {
       expect(go({'kind': 'reminder'})!.chatNavRoute, 'reminders');
-      expect(go({'kind': 'sos', 'route': '??'})!.chatNavRoute, 'family');
+      expect(go({'kind': 'sos', 'route': '??'})!.chatNavRoute, 'family_alerts');
       expect(go({'kind': 'mystery'}), isNull);
     });
   });

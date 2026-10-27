@@ -2,7 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../family_alerts_api.dart'; // family100
+import '../state.dart';
+import 'notif_models.dart' show notifLocalizeDigits;
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'safety_sos_countdown.dart';
@@ -39,7 +43,12 @@ class EmergencySosPanel extends StatefulWidget {
     required this.contacts,
     required this.countdownSeconds,
     required this.onNoContact,
+    this.sendSos,
   });
+
+  /// family100 test seam: the server SOS (default: POST /family/sos).
+  final Future<Map<String, dynamic>> Function(double? lat, double? lng)?
+      sendSos;
 
   @override
   State<EmergencySosPanel> createState() => _EmergencySosPanelState();
@@ -77,7 +86,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
     _buzz = null;
   }
 
-  Future<String?> _maybeLocationLink(AppLocalizations t) async {
+  Future<Position?> _maybePosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
       var perm = await Geolocator.checkPermission();
@@ -88,10 +97,31 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
           perm == LocationPermission.deniedForever) {
         return null;
       }
-      final pos = await Geolocator.getCurrentPosition();
-      return 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
+      return await Geolocator.getCurrentPosition()
+          .timeout(const Duration(seconds: 8));
     } catch (_) {
       return null;
+    }
+  }
+
+  /// family100: the SERVER alerts every consenting family member at once
+  /// (push rings their phone even when Assisto is closed). Honest result:
+  /// how many were alerted / nobody in My Circle / offline.
+  Future<void> _alertFamilyServer(
+      AppLocalizations t, ScaffoldMessengerState m, Position? pos) async {
+    try {
+      final send = widget.sendSos ??
+          (double? la, double? ln) => context.read<AppState>().api.familySos(
+              lat: la, lng: ln, source: 'emergency', clientId: newSosClientId());
+      final r = await send(pos?.latitude, pos?.longitude)
+          .timeout(const Duration(seconds: 12));
+      final n = (r['recipients'] as num?)?.toInt() ?? 0;
+      if (!mounted) return;
+      final count = notifLocalizeDigits(context, '$n');
+      m.showSnackBar(SnackBar(
+          content: Text(n > 0 ? t.fa100SosSent(count) : t.fa100SosNoCircle)));
+    } catch (_) {
+      m.showSnackBar(SnackBar(content: Text(t.fa100SosOffline)));
     }
   }
 
@@ -100,8 +130,14 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
   }
 
   Future<void> _fire(AppLocalizations t, Map<String, dynamic> primary) async {
-    // 1) alert family with a live-location link (best-effort, non-blocking UX)
-    final link = await _maybeLocationLink(t);
+    final m = ScaffoldMessenger.of(context);
+    // 1) family100: the server pushes the SOS to every family member's phone
+    // (full-screen alarm there) — then the share sheet for SMS / any app.
+    final pos = await _maybePosition();
+    await _alertFamilyServer(t, m, pos);
+    final link = pos == null
+        ? null
+        : 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
     final msg = link == null ? t.emergencySosAlertText : t.sosShareText(link);
     // Share sheet lets the user fire it to the family contact / any channel;
     // the SMS/push auto-send is the integrator's native path (see note).

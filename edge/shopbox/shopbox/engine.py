@@ -296,6 +296,8 @@ class Engine:
                 snap = None
         event = payload.build_event(trig.type, trig.signals, camera_id=cam_id,
                                     at=trig.at)
+        if cam is not None and cam.server_id is not None:
+            event["server_camera_id"] = int(cam.server_id)
         self.outbox.put(event, snap)
         self.events.add(camera=cam.name if cam else cam_id, type=trig.type,
                         status="queued", signals=trig.signals)

@@ -302,6 +302,18 @@ def gps_packet(at: datetime, lat: float, lng: float, speed_kmh: float,
     return _build(P_GPS_LBS_2, info, serial)
 
 
+def alarm_packet(at: datetime, lat: float, lng: float, speed_kmh: float,
+                 alarm: str, serial: int, ignition=True, course=0) -> bytes:
+    """0x16 alarm: GPS block + LBS (len-prefixed) + terminal info + voltage +
+    GSM + alarm byte + language."""
+    gps = gps_packet(at, lat, lng, speed_kmh, course, 0)[4:4 + 18]
+    code = {v: k for k, v in ALARMS.items()}.get(alarm, 0)
+    term = 0x40 | (0x02 if ignition else 0)
+    info = gps + bytes([9]) + b"\x01\xd6\x01\x00\x01\x00\x00\x01" \
+        + bytes([term, 4, 4, code, 0x02])
+    return _build(P_ALARM, info, serial)
+
+
 def status_packet(serial: int, ignition=False, relay_cut=False) -> bytes:
     b = 0x40 | (0x02 if ignition else 0) | (0x80 if relay_cut else 0)
     return _build(P_STATUS, bytes([b, 4, 4, 0, 2]), serial)
