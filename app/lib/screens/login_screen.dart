@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import 'password_reset_screen.dart';
 import '../otp_api.dart';
+import '../services/phone_canon.dart';
 import 'otp/otp_login_screen.dart';
 import 'otp/otp_verify_screen.dart';
 import '../widgets/robo_id.dart';
@@ -57,7 +58,15 @@ class _LoginScreenState extends State<LoginScreen> {
         final st = await otpB.status();
         if (!mounted) return;
         String? proof;
-        if (st.smsEnabled && phone.isNotEmpty) {
+        // probashi-otp: SMS reaches Bangladeshi mobiles only. A valid number
+        // abroad (+966, +44, ...) signs up with the password (the server
+        // allows it while password-only sign-up is ON); it is never sent to
+        // the BD SMS check, which would wrongly call it invalid.
+        final abroad = phone.isNotEmpty &&
+            !looksLikeBdMobile(phone) &&
+            PhoneCanon.canonical(phone) != null;
+        if (abroad && !st.passwordOnlySignup) throw t.otpPhoneInvalid;
+        if (st.smsEnabled && phone.isNotEmpty && !abroad) {
           if (!looksLikeBdMobile(phone)) throw t.otpPhoneInvalid;
           proof = await OtpVerifyScreen.run(context,
               backend: otpB,

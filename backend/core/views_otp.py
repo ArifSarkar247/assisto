@@ -81,8 +81,31 @@ def _resolve_phone(request, purpose, lang):
         return mine, None
     canon = otp.normalize_bd_phone(raw)
     if not canon:
+        intl = _intl_no_sms(raw, lang)
+        if intl is not None:
+            return None, intl
         return None, _fail("bad_phone", lang, status.HTTP_400_BAD_REQUEST)
     return canon, None
+
+
+def _intl_no_sms(raw, lang):
+    """probashi-otp: a VALID non-Bangladesh number (+966, +971, +44, ...).
+    Our SMS gateways reach Bangladeshi mobiles only, so instead of the
+    misleading "enter a valid Bangladeshi number" say exactly that and point
+    to the paths that DO work abroad: email code / password. No SMS is sent,
+    so there is no international SMS cost and no SMS-pumping surface."""
+    from .phone import canonical_phone
+    c = canonical_phone(raw)
+    if not c or c.startswith("+880"):
+        return None
+    msg = pick(lang,
+               "SMS কোড শুধু বাংলাদেশের মোবাইল নম্বরে যায়। বিদেশি নম্বরে ইমেইলে কোড নিন, "
+               "অথবা পাসওয়ার্ড দিয়ে ঢুকুন।",
+               "SMS codes go only to Bangladeshi mobile numbers. With a number "
+               "abroad, get the code by email or sign in with your password.")
+    return Response({"ok": False, "reason": "intl_sms_unavailable", "message": msg,
+                     "detail": msg, "intl": True, "use_email": True},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class OtpStatusView(APIView):
