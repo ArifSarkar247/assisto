@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/screens/business/khata_screen.dart'; // ledger100
 import 'package:assisto/screens/business/quick_sell_screen.dart';
 import 'package:assisto/screens/crm/crm_lead_form_screen.dart';
 
@@ -99,6 +100,52 @@ void registerBusinessFlows() {
         final r = await api.getJson('/business/khata/parties?business_id=${b['selected_id']}&book=customer');
         return r.toString().contains(name);
       });
+    });
+  });
+
+  // ledger100: due entry from the UI lands once on the server (client_id),
+  // then the per-customer tagada sender shows THAT customer's own due.
+  realityFlow('18b_ledger_entry_tagada', 'Business',
+      'Khata: add a due in the app -> server balance; one reminder per customer',
+      (f) async {
+    await f.home();
+    final api = await f.h.backend();
+    final name = 'Ledger Nasir l$_tag';
+    late Map<String, dynamic> biz;
+    late int partyId;
+    await f.step('a customer on the server', () async {
+      final b = await f.net(() => api.getJson('/business/profiles'));
+      final list = (b['businesses'] as List).cast<Map<String, dynamic>>();
+      biz = list.firstWhere((x) => x['id'] == b['selected_id'], orElse: () => list.first);
+      final p = await f.net(() => api.postJson('/business/khata/parties',
+          {'business': biz['id'], 'book': 'customer', 'name': name, 'phone': '01700000032'}));
+      partyId = (p['id'] as num).toInt();
+    });
+    await f.step('open the khata and the customer', () async {
+      await f.pushScreen(KhataScreen(business: biz));
+      await f.shot('khata-list');
+      await f.scrollTo(find.text(name));
+      await f.tap(find.text(name), settleSeconds: 3);
+      await f.shot('statement');
+    });
+    await f.step('add a 500 taka due', () async {
+      await f.tap(find.text(f.t.entryAddCredit));
+      await f.enter('500', label: f.t.entryAmount);
+      await f.tap(find.byKey(const ValueKey('ldg-entry-save')), settleSeconds: 3);
+      await f.shot('due-added');
+      f.expectHttp('POST', '/business/khata/parties/$partyId/entries');
+      await f.eventually('server balance is 500 taka, booked once', () async {
+        final st = await api.getJson('/business/khata/parties/$partyId/statement');
+        return st['balance_poisha'] == 50000 && (st['lines'] as List).length == 1;
+      });
+    });
+    await f.step('tagada: one card for this customer with its own due', () async {
+      await f.tap(find.byTooltip(f.t.tagadaSendReminder), settleSeconds: 3);
+      await f.shot('tagada-send');
+      if (!await f.appears(find.byKey(ValueKey('ldg-row-$partyId')))) {
+        throw TestFailure('no per-customer reminder card');
+      }
+      f.expectHttp('POST', '/business/khata/tagada/bulk');
     });
   });
 

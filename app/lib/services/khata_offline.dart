@@ -178,11 +178,11 @@ class KhataOffline {
 
   // ----------------------------------------------------------------- queue
   static Future<List<KhataOp>> all() async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.reload();
-    final raw = sp.getString(_qKey);
-    if (raw == null || raw.isEmpty) return [];
     try {
+      final sp = await SharedPreferences.getInstance();
+      await sp.reload();
+      final raw = sp.getString(_qKey);
+      if (raw == null || raw.isEmpty) return [];
       final list = jsonDecode(raw) as List;
       return list
           .whereType<Map>()
@@ -194,9 +194,13 @@ class KhataOffline {
     }
   }
 
+  /// Throws when the phone's storage refuses the write — the caller (the
+  /// save button) must then say so instead of claiming "saved offline".
   static Future<void> _save(List<KhataOp> ops) async {
     final sp = await SharedPreferences.getInstance();
-    await sp.setString(_qKey, jsonEncode(ops.map((o) => o.toJson()).toList()));
+    final ok = await sp.setString(
+        _qKey, jsonEncode(ops.map((o) => o.toJson()).toList()));
+    if (!ok) throw StateError('khata outbox not written');
     _changes.add(null);
   }
 
@@ -226,7 +230,10 @@ class KhataOffline {
   /// Sync every PENDING op, oldest first. Single-flight: a second caller
   /// while a pass runs gets the same result.
   static Future<KhataSyncResult> sync(ApiClient api) {
-    return _inFlight ??= _sync(api).whenComplete(() => _inFlight = null);
+    return _inFlight ??= _sync(api)
+        // storage trouble mid-pass: nothing is lost (ops stay queued)
+        .catchError((Object _) => const KhataSyncResult(offline: true))
+        .whenComplete(() => _inFlight = null);
   }
 
   static Future<KhataSyncResult> _sync(ApiClient api) async {

@@ -235,6 +235,11 @@ import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
 import 'package:assisto/screens/business/products_screen.dart';
 import 'package:assisto/screens/business/khata_screen.dart';
+import 'package:assisto/screens/business/tagada_send_screen.dart'; // ledger100
+import 'package:assisto/screens/business/tagada_schedule_sheet.dart'; // ledger100
+import 'package:assisto/widgets/khata_free_promise.dart'; // ledger100
+import 'dart:convert' show jsonEncode; // ledger100
+import 'fake_khata.dart' show fakeKhataParties; // ledger100
 import 'package:assisto/screens/business/cashbox_screen.dart';
 import 'package:assisto/screens/business/customers_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
@@ -704,7 +709,7 @@ Map<String, GallerySpec> gallerySpecs() {
     // a2-cctv Premium QA (Business + Money)
     'biz_hub': (build: (_) => const BusinessHubScreen(), mode: FakeMode.data, full: true),
     'biz_products': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.data, full: true),
-    'biz_khata': (build: (l) => KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_khata': (build: (l) { SharedPreferences.setMockInitialValues({}); return KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}); }, mode: FakeMode.data, full: true),
     'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
     'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
@@ -716,6 +721,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'money_trends': (build: (_) => const MoneyTrendsScreen(), mode: FakeMode.data, full: true),
     'money_loan_detail': (build: (l) => MoneyLoanDetailScreen(item: {'localId': 'l1', 'serverId': 1, 'data': {'id': 1, 'kind': 'given', 'person': l == 'bn' ? 'রহিম' : 'Rahim', 'amount': '2000', 'paid': '500'}}), mode: FakeMode.data, full: true),
     'biz_products_empty': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    // ledger100: digital khata to 100
+    'ldg_send': (build: (l) => TagadaSendScreen(business: const {'id': 1, 'name': 'Rahim Store', 'role': 'owner'}, parties: fakeKhataParties('customer', l == 'bn')), mode: FakeMode.data, full: true),
+    'ldg_schedule': (build: (l) => Scaffold(body: SafeArea(child: TagadaScheduleSheet(business: const {'id': 1, 'role': 'owner'}, party: fakeKhataParties('customer', l == 'bn')[0]))), mode: FakeMode.data, full: true),
+    'ldg_free': (build: (_) => const Scaffold(body: SafeArea(child: KhataFreePromiseDetails())), mode: FakeMode.data, full: true),
+    'ldg_statement': (build: (l) => khataStatementPreview(const {'id': 1, 'role': 'owner'}, fakeKhataParties('customer', l == 'bn')[0]), mode: FakeMode.data, full: true),
+    'ldg_khata_pending': (build: (l) { SharedPreferences.setMockInitialValues({'khata_outbox_v1': jsonEncode([{'cid': 'kx-shot0001', 'biz': 1, 'party': 1, 'pname': 'Karim Store', 'book': 'customer', 'kind': 'entry', 'dir': 'gave', 'amt': 50000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:00:00Z', 'state': 'pending'}, {'cid': 'kx-shot0002', 'biz': 1, 'party': 3, 'pname': 'Salma', 'book': 'customer', 'kind': 'payment', 'dir': '', 'amt': 10000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:01:00Z', 'state': 'failed', 'err': l == 'bn' ? 'এন্ট্রি ভুল।' : 'Invalid entry.'}])}); return KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}); }, mode: FakeMode.data, full: true),
     'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
     'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
     // a2-cctv Premium QA batch 2

@@ -10,6 +10,7 @@ import 'md1_shots.dart' show fakeMd1Get;
 import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
+import 'fake_khata.dart'; // ledger100
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
 
 enum FakeMode { data, empty, fail, slow }
@@ -1662,7 +1663,11 @@ class FakeApi extends ApiClient {
         ],
       };
     }
-    // khata
+    // ledger100: khata in the server's real shape (fake_khata.dart)
+    final khG = fakeKhataGet(bare, p.contains('?') ? p.split('?').last : '',
+        bn: _bn, empty: mode == FakeMode.empty);
+    if (khG != null) return khG;
+    // khata (legacy shapes, unreachable now — kept for reference)
     if (bare == 'business/khata/parties') {
       final book = Uri.parse('http://x/$path').queryParameters['book'] ?? 'customer';
       return {'parties': mode == FakeMode.empty ? const [] : _bizParties(book), 'role': 'owner'};
@@ -1845,6 +1850,23 @@ class FakeApi extends ApiClient {
   }
 
   @override
+  Future<Map<String, dynamic>> postJsonRaw(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    final p = (path.startsWith('/') ? path.substring(1) : path).split('?').first;
+    final kh = fakeKhataPost(p, body, bn: _bn); // ledger100
+    if (kh != null) return kh;
+    return super.postJsonRaw(path, body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteJson(String path) async {
+    if (path.contains('/business/khata/tagada/schedule/')) {
+      return {'ok': true}; // ledger100
+    }
+    return super.deleteJson(path);
+  }
+
+  @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     if (path == '/account/delete/preview') {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
@@ -1852,6 +1874,13 @@ class FakeApi extends ApiClient {
     }
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
     if (p1P != null) return p1P;
+    final khP = fakeKhataPost(
+        (path.startsWith('/') ? path.substring(1) : path).split('?').first, body,
+        bn: _bn); // ledger100
+    if (khP != null) {
+      if (mode == FakeMode.fail) _fail();
+      return khP;
+    }
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
     if (vehP != null) return vehP;
     final c1P = fakeC1Post(path, body); // c1-contacts

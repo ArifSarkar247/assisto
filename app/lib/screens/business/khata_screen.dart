@@ -1420,7 +1420,14 @@ class _EntrySheetState extends State<_EntrySheet> {
         return;
       }
       // no internet / our server down: keep it on the phone, sync later
-      await KhataOffline.enqueue(op);
+      try {
+        await KhataOffline.enqueue(op);
+      } catch (e2) {
+        if (!mounted) return;
+        setState(() => _saving = false);
+        showActionFailed(context, 'khata.enqueue', e2);
+        return;
+      }
       if (mounted) Navigator.pop(context, 'offline');
     }
   }
@@ -1520,3 +1527,9 @@ class _EntrySheetState extends State<_EntrySheet> {
 Widget khataEntrySheetPreview(Map<String, dynamic> business,
         {int partyId = 1, String book = 'customer', bool isDue = true}) =>
     _EntrySheet(business: business, partyId: partyId, book: book, isDue: isDue);
+
+/// ledger100: gallery/preview access to the private statement screen.
+@visibleForTesting
+Widget khataStatementPreview(Map<String, dynamic> business,
+        Map<String, dynamic> party) =>
+    _PartyStatementScreen(business: business, party: party, book: 'customer');
