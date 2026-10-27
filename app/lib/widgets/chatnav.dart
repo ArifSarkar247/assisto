@@ -72,6 +72,8 @@ import '../screens/business_screen.dart';
 import '../screens/business/bargain_rules_screen.dart';
 import '../screens/business/business_plans_screen.dart';
 import '../screens/journey_start_screen.dart';
+import '../screens/journey_watch_screen.dart'; // journey100
+import '../screens/journey_settings_screen.dart'; // journey100
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
 import '../screens/circle_call_history_screen.dart';
@@ -255,6 +257,10 @@ class ChatNav {
     'bargain_rules': (_) => const BargainRulesScreen(),
     'business_plans': (_) => const BusinessPlansScreen(),
     'journey': (_) => const JourneyStartScreen(),
+    // journey100: a watcher's push opens their watch list; a wellness
+    // "Is everything OK?" push opens the safety settings (I'm fine).
+    'journey_watch': (_) => const JourneyWatchScreen(),
+    'journey_settings': (_) => const JourneySettingsScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),

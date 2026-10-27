@@ -137,6 +137,8 @@ const Map<String, String> kRouteFeature = {
   'family': 'family',
   'nominee': 'nominee',
   'journey': 'safe_journey',
+  'journey_watch': 'safe_journey', // journey100
+  'journey_settings': 'safe_journey', // journey100
   'safety': 'safe_journey',
   'emergency': 'emergency',
   'voice_sos': 'emergency',

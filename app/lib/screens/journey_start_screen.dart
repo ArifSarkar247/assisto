@@ -7,6 +7,8 @@ import '../l10n/app_localizations.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/permission_reason.dart';
 import 'journey_live_screen.dart';
+import 'journey_watch_screen.dart';
+import '../services/journey_tracker.dart' show kPhonesKey;
 import '../services/action_feedback.dart'; // db1
 
 /// Start a Safe Journey (item 1 + 3): pick a destination (saved place or map
@@ -33,6 +35,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   int _graceMin = 10;
   bool _routeDeviation = false;
   int _retentionHours = 24;
+  // journey100: night trip (tighter grace) defaults on between 20:00-06:00
+  bool _night = DateTime.now().hour >= 20 || DateTime.now().hour < 6;
+  bool _stopAlert = true;
   bool _loading = true;
   bool _starting = false;
 
@@ -44,6 +49,19 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   Future<void> _load() async {
     final api = context.read<AppState>().api;
+    // journey100: a journey already running -> straight back to it (a push
+    // "Are you OK?" / the notification lands here too)
+    try {
+      final a = await api.journeyActive();
+      final id = (a['id'] as num?)?.toInt();
+      if (id != null && mounted) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (_) => JourneyLiveScreen(journeyId: id)));
+        return;
+      }
+    } catch (_) {
+      // best-effort: offline — the start form still loads below
+    }
     try {
       _places = await api.savedPlaces();
     } catch (_) {}
@@ -105,6 +123,18 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
     };
     setState(() => _starting = true);
+    // location for the live share (while-in-use only; the journey's own
+    // foreground service keeps it going with the screen off)
+    try {
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied && mounted &&
+          await showPermissionReason(context, PermKind.location)) {
+        perm = await Geolocator.requestPermission();
+      }
+    } catch (_) {
+      // best-effort: the live screen says "location is off" if it stays off
+    }
+    if (!mounted) return;
     try {
       final r = await context.read<AppState>().api.journeyStart(
             destination: dest,
@@ -117,8 +147,16 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             overdueGraceMin: _graceMin,
             routeDeviationOn: _routeDeviation,
             locationRetentionHours: _retentionHours,
+            night: _night,
+            stopAlertMin: _stopAlert ? 20 : 0,
           );
       final id = (r['id'] as num?)?.toInt();
+      final phones = _watchers
+          .where((m) => _selectedWatchers.contains((m['id'] as num?)?.toInt()))
+          .map((m) => (m['phone'] ?? '').toString())
+          .where((p) => p.isNotEmpty)
+          .join(',');
+      await Settings.setString(kPhonesKey, phones);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (_) => JourneyLiveScreen(journeyId: id ?? 0)));
@@ -139,7 +177,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           body: const Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
-      appBar: AppBar(title: Text(t.journeyStartTitle)),
+      appBar: AppBar(title: Text(t.journeyStartTitle), actions: [
+        IconButton(
+            key: const ValueKey('j100_watching'),
+            icon: const Icon(Icons.visibility_rounded),
+            tooltip: t.j100Watching,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const JourneyWatchScreen()))),
+      ]),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Text(t.journeyDestSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
@@ -162,6 +207,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           ]),
         const SizedBox(height: Gap.sm),
         TextField(
+            key: const ValueKey('j100_dest'),
             controller: _destName,
             decoration: InputDecoration(
                 labelText: t.journeyDestLabel,
@@ -192,6 +238,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         ..._watchers.map((m) {
           final id = (m['id'] as num?)?.toInt();
           return CheckboxListTile(
+            key: ValueKey('j100_w_$id'),
             contentPadding: EdgeInsets.zero,
             value: id != null && _selectedWatchers.contains(id),
             title: Text((m['name'] ?? m['phone'] ?? '').toString()),
@@ -246,6 +293,19 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 label: '$_graceMin',
                 onChanged: (v) => setState(() => _graceMin = v.round())),
             SwitchListTile(
+                key: const ValueKey('j100_night'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.j100Night),
+                subtitle: Text(t.j100NightDesc),
+                value: _night,
+                onChanged: (v) => setState(() => _night = v)),
+            SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.j100StopAlert),
+                subtitle: Text(t.j100StopAlertDesc(20)),
+                value: _stopAlert,
+                onChanged: (v) => setState(() => _stopAlert = v)),
+            SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(t.journeyRouteDeviation),
                 subtitle: Text(t.journeyRouteDeviationDesc),
@@ -269,6 +329,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
+            key: const ValueKey('j100_start'),
             style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
             onPressed: _starting ? null : _start,

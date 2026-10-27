@@ -54,6 +54,8 @@ Play Console → **App content → Foreground service permissions**-এ তি�
 
 ---
 
+**journey100 (Safe Journey):** LOCATION ঘোষণায় তৃতীয় ফিচার (3) Safe Journey যোগ করতে হবে — কপি-লেখা আর ভিডিওর ধাপ `owner_actions/SAFE_JOURNEY_100_BN.md`-এর **খ** অংশে।
+
 ## ৩. CAMERA (FOREGROUND_SERVICE_CAMERA)
 
 **Feature name / description (copy):**

@@ -1030,7 +1030,12 @@ class SafetyCheckinView(APIView):
                                             "Please provide an arrival time.")}, status=400)
         u.checkins.filter(arrived=False).update(arrived=True,
                                                 arrived_at=timezone.now())
-        c = SafetyCheckin.objects.create(user=u, place=place, eta=eta, arrived=False)
+        try:   # journey100: night safety -> a shorter wait before family hears
+            grace = max(0, min(60, int(request.data.get("grace_min", 15))))
+        except (TypeError, ValueError):
+            grace = 15
+        c = SafetyCheckin.objects.create(user=u, place=place, eta=eta, arrived=False,
+                                         grace_min=grace)
         log(u, "safety.checkin.start", id=c.id)
         return Response({"ok": True, "id": c.id})
 

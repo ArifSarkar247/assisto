@@ -4,6 +4,7 @@ from .owner.urls import site_robots
 from . import views_legal
 from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
+from . import views_journey   # journey100
 
 urlpatterns = [
     path("", views.landing),
@@ -56,4 +57,8 @@ urlpatterns = [
 
     # m3-circle: My Circle invite link landing (QR / share / SMS)
     path("i/<str:token>", views.circle_invite),
+
+    # journey100: Safe Journey watcher page (signed expiring token, noindex)
+    path("j/<str:token>/data", views_journey.watch_data),
+    path("j/<str:token>", views_journey.watch_page),
 ]

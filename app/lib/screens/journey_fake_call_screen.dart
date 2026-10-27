@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 
 /// Fake incoming call (item 9). After a user-chosen delay, a realistic
@@ -26,26 +27,37 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
   bool _answered = false;
   int _talkSeconds = 0;
   Timer? _talkTimer;
+  Timer? _buzz; // journey100: vibrate like a real incoming call
 
   @override
   void initState() {
     super.initState();
     if (widget.delaySeconds <= 0) {
-      _ringing = true;
+      _ring();
     } else {
-      _delayTimer = Timer(Duration(seconds: widget.delaySeconds),
-          () => setState(() => _ringing = true));
+      _delayTimer = Timer(Duration(seconds: widget.delaySeconds), _ring);
     }
+  }
+
+  void _ring() {
+    if (!mounted) return;
+    setState(() => _ringing = true);
+    HapticFeedback.vibrate();
+    _buzz = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+      if (!_answered) HapticFeedback.vibrate();
+    });
   }
 
   @override
   void dispose() {
     _delayTimer?.cancel();
     _talkTimer?.cancel();
+    _buzz?.cancel();
     super.dispose();
   }
 
   void _answer() {
+    _buzz?.cancel();
     setState(() => _answered = true);
     _talkTimer = Timer.periodic(const Duration(seconds: 1),
         (_) => setState(() => _talkSeconds++));
@@ -53,6 +65,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
 
   void _hangUp() {
     _talkTimer?.cancel();
+    _buzz?.cancel();
     Navigator.of(context).maybePop();
   }
 
@@ -102,6 +115,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
             child: _answered
                 ? Center(
                     child: _CallBtn(
+                        key: const ValueKey('j100_fake_end'),
                         color: Brand.dangerFill,
                         icon: Icons.call_end_rounded,
                         label: t.fakeCallEnd,
@@ -109,11 +123,13 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
                   )
                 : Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                     _CallBtn(
+                        key: const ValueKey('j100_fake_decline'),
                         color: Brand.dangerFill,
                         icon: Icons.call_end_rounded,
                         label: t.fakeCallDecline,
                         onTap: _hangUp),
                     _CallBtn(
+                        key: const ValueKey('j100_fake_answer'),
                         color: Brand.successFill,
                         icon: Icons.call_rounded,
                         label: t.fakeCallAnswer,
@@ -132,7 +148,8 @@ class _CallBtn extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   const _CallBtn(
-      {required this.color,
+      {super.key,
+      required this.color,
       required this.icon,
       required this.label,
       required this.onTap});

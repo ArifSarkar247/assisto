@@ -128,7 +128,9 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     // REUSE the existing check-in endpoint so the family poll detects overdue.
     try {
       await context.read<AppState>().api.safetyCheckinStart(
-          place: _place, etaIso: _eta!.toIso8601String());
+          place: _place,
+          etaIso: _eta!.toIso8601String(),
+          graceMin: aEffectiveGrace(_eta, nightMode: _nightMode));
     } catch (_) {
       // q1-seams: the family poll only sees a SERVER check-in — say so instead
       // of a silent local-only check-in (same copy as safety_screen).
@@ -255,11 +257,15 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
       'time': hhmm,
       'destination': {'name': AppLocalizations.of(context).aRoutineHomeBy},
       'watcher_ids': _alertIds.toList(),
+      'minutes': 30,
+      'night': _nightMode,
       'enabled': true,
     };
     setState(() => _routines = [..._routines, routine]);
     try {
       await context.read<AppState>().api.saveJourneyRoutine(routine);
+      if (mounted) _routines = await context.read<AppState>().api.journeyRoutines();
+      if (mounted) setState(() {});
     } catch (_) {
       // q1-seams: an optimistic routine that never reached the server would
       // never alert anyone — take it back out and say so.
@@ -350,7 +356,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
               label: Text(AppLocalizations.of(context).aRoutineAdd),
             ),
           ]),
-          Text(AppLocalizations.of(context).aRoutineDesc,
+          Text(AppLocalizations.of(context).j100RoutineDesc,
               style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 6),
           if (_routines.isEmpty)
@@ -392,8 +398,23 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
           color: enabled ? Theme.of(context).colorScheme.primary : Colors.grey),
       title: Text('${AppLocalizations.of(context).aRoutineHomeBy}: $time'),
       subtitle: Text(days),
-      trailing: Text(enabled ? AppLocalizations.of(context).aRoutineEnabled : '',
-          style: AType.bodySmall.copyWith(color: Colors.green)),
+      trailing: (r['id'] as num?) == null
+          ? null
+          : IconButton(
+              tooltip: AppLocalizations.of(context).j100RoutineDelete,
+              icon: const Icon(Icons.delete_outline_rounded),
+              onPressed: () => _deleteRoutine((r['id'] as num).toInt())),
     );
+  }
+
+  Future<void> _deleteRoutine(int id) async {
+    try {
+      await context.read<AppState>().api.deleteJourneyRoutine(id);
+      if (!mounted) return;
+      setState(() => _routines =
+          _routines.where((x) => (x['id'] as num?)?.toInt() != id).toList());
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'safeArrival.routineDelete', e);
+    }
   }
 }

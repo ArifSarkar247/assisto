@@ -958,6 +958,8 @@ class SafetyCheckin(models.Model):
     arrived = models.BooleanField(default=False)
     arrived_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    alerted_at = models.DateTimeField(null=True, blank=True)  # journey100: family escalated
+    grace_min = models.IntegerField(default=15)  # journey100: night safety = 7
 
     class Meta:
         ordering = ["-created_at"]
@@ -1292,9 +1294,67 @@ class Journey(models.Model):
     sos_active = models.BooleanField(default=False)
     silent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ---- journey100: server sweeper state (core/journey_watch.py) ----
+    stopped_at = models.DateTimeField(null=True, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)   # last "I'm OK"
+    ask_sent_at = models.DateTimeField(null=True, blank=True)    # "Are you OK?" pushed
+    escalated_at = models.DateTimeField(null=True, blank=True)   # watchers alerted (overdue)
+    escalations = models.IntegerField(default=0)
+    extended_count = models.IntegerField(default=0)
+    low_batt_pct = models.IntegerField(null=True, blank=True)    # % at the last low-battery alert
+    anchor = models.JSONField(null=True, blank=True)             # {lat,lng} where the last stop began
+    moved_at = models.DateTimeField(null=True, blank=True)       # last real movement (>60 m)
+    stop_alert_min = models.IntegerField(default=20)             # prolonged stop; 0 = off
+    stop_alerted_at = models.DateTimeField(null=True, blank=True)
+    offroute_alerted_at = models.DateTimeField(null=True, blank=True)
+    lost_alerted_at = models.DateTimeField(null=True, blank=True)  # no location for a while
+    night = models.BooleanField(default=False)                   # night routine (tighter grace)
+    vehicle_photo = models.FileField(upload_to="journey/", blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class JourneyEvent(models.Model):
+    """journey100: one watcher-facing event (started / arrived / extended /
+    low_battery / overdue_ask / overdue_alert / ok_again / off_route /
+    long_stop / signal_lost / ended / duress / vehicle). (journey, kind, key)
+    is UNIQUE, so the sweeper and the views can both emit the same event and
+    watchers still get it once (idempotent). `delivered_at` is set after the
+    push + in-app rows are written; the sweeper retries undelivered rows."""
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="events")
+    kind = models.CharField(max_length=24)
+    key = models.CharField(max_length=64, blank=True, default="")
+    payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    attempts = models.IntegerField(default=0)
+    recipients = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [models.UniqueConstraint(fields=["journey", "kind", "key"],
+                                               name="uniq_journey_event")]
+        indexes = [models.Index(fields=["delivered_at"])]
+
+
+class JourneyRoutine(models.Model):
+    """journey100: a saved routine trip ("home by 21:00, Sun-Thu"). At the
+    time the sweeper pushes the traveller a reminder to start the journey (a
+    location service can only be started by the user, from the app)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="journey_routines")
+    days = models.JSONField(default=list, blank=True)        # ["sun","mon",...]
+    time = models.CharField(max_length=5, default="21:00")   # HH:MM, Asia/Dhaka
+    destination = models.JSONField(default=dict, blank=True)
+    watcher_ids = models.JSONField(default=list, blank=True)
+    minutes = models.IntegerField(default=30)
+    night = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
+    last_fired_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["time", "id"]
 
 
 class JourneyWatcher(models.Model):
@@ -1329,6 +1389,7 @@ class WellnessWatch(models.Model):
     watcher_ids = models.JSONField(default=list, blank=True)
     last_activity_at = models.DateTimeField(null=True, blank=True)
     prompt_sent_at = models.DateTimeField(null=True, blank=True)
+    alert_sent_at = models.DateTimeField(null=True, blank=True)  # journey100 sweeper
 
 
 class DuressPin(models.Model):
