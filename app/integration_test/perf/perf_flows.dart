@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:assisto/calls/call_controller.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/crypto/key_wiring.dart';
+import 'package:assisto/perf/low_ram.dart';
 import 'package:assisto/photo_studio/ps_backend.dart';
 import 'package:assisto/photo_studio/ps_controller.dart';
 import 'package:assisto/photo_studio/ps_tools.dart';
@@ -69,6 +70,10 @@ void registerPerfSignIn() {
       await f.net(() => f.app.login(identifier: Seed.phoneA, password: Seed.password));
     }
     if (!f.app.loggedIn) throw TestFailure('login did not sign in');
+    // the app's own startup tuning (lib/main.dart runs it after the first
+    // frame; the harness pumps AssistoApp without main())
+    await f.net(() => LowRamTuning.apply());
+    f.note('image cache budget: ${LowRamTuning.applied ?? 'default (not a 2-3 GB phone)'}');
     // persisted exactly like OnboardingScreen does (the in-memory flag alone
     // was lost on the next app open: run 40584598327)
     await f.net(() => Settings.setBool('onboarded', true));
@@ -84,10 +89,16 @@ void registerPerfFlows({List<String>? only}) {
       'Home + Assisto chat', (p) async {
     final f = p.f;
     await p.scroll('home', downs: 2, ups: 2);
-    final t0 = Stopwatch()..start();
-    await f.openHomeChat();
-    p.opens['assisto_chat'] = {'ready_ms': t0.elapsedMilliseconds, 'first_frame_ms': null,
-        'timed_out': false, 'frames': const {}};
+    if (f.isHomeV2) {
+      final ask = find.byKey(const ValueKey('hv2_ask'));
+      await f.tester.ensureVisible(ask);
+      await f.pumpFor(const Duration(milliseconds: 600));
+      await p.openTimed('assisto_chat', () async {
+        await f.tester.tap(ask, warnIfMissed: false);
+      }, ready: find.text(f.t.inputHint));
+    } else {
+      p.notes.add('old home: the chat IS the home (no separate screen to open)');
+    }
     await p.scroll('assisto_chat', downs: 2, ups: 2, older: true);
     await p.memory('after');
   });

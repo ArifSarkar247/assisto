@@ -36,6 +36,23 @@ import 'plans_screen.dart';
 ///   check passes.
 /// * Prompt edits need the cloud image-AI key: without it the section is
 ///   hidden; the owner sees a small "add a key" note instead.
+/// perf2gb: decode width of the on-screen preview. Free users keep the
+/// watermarked preview size; everyone else gets twice the screen's pixel
+/// width (sharp, room for the compare slider), never the full camera size:
+/// a 12 MP photo decoded at full size is ~48 MB per image, and the compare
+/// view shows two (2 GB CI run 40594862540: native heap +80 MB). Export and
+/// edits always use the original bytes — this is display only.
+int? psPreviewCacheWidth({
+  required bool free,
+  required int previewMaxPx,
+  required double screenWidth,
+  required double dpr,
+}) {
+  if (free) return math.min(previewMaxPx, 1024);
+  if (screenWidth <= 0 || dpr <= 0) return null;
+  return math.min(2048, (screenWidth * dpr * 2).round());
+}
+
 class PhotoStudioScreen extends StatefulWidget {
   const PhotoStudioScreen(
       {super.key, this.deps, this.controller, this.webImport});
@@ -752,12 +769,19 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       );
 
   // ------------------------------------------------------------------ preview
-  Widget _image(Uint8List bytes) => Image.memory(
-        bytes,
-        fit: BoxFit.cover,
-        gaplessPlayback: true,
-        cacheWidth: _c.free ? math.min(_c.config.previewMaxPx, 1024) : null,
-      );
+  Widget _image(Uint8List bytes) {
+    final mq = MediaQuery.maybeOf(context);
+    return Image.memory(
+      bytes,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      cacheWidth: psPreviewCacheWidth(
+          free: _c.free,
+          previewMaxPx: _c.config.previewMaxPx,
+          screenWidth: mq?.size.width ?? 0,
+          dpr: mq?.devicePixelRatio ?? 0),
+    );
+  }
 
   Widget _preview(AppLocalizations t) {
     final s = _c.session!;
