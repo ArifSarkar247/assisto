@@ -15,6 +15,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/journey_fake_call_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
+import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/journey_watch_screen.dart';
 import 'package:assisto/services/journey_tracker.dart';
 import 'package:assisto/state.dart';
@@ -43,11 +44,13 @@ class _JApi extends ApiClient {
   Object? stopError;
   List<Map<String, dynamic>> watching = [];
   bool watchFails = false;
+  Map<String, dynamic> circle = {'results': []};
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     hits.add(_Hit('GET', path, const {}));
     if (path == '/journey/active') return active;
+    if (path == '/circle/members') return circle;
     if (path == '/journey/watching') {
       if (watchFails) throw ApiException('down', 500);
       return {'journeys': watching};
@@ -345,6 +348,51 @@ void main() {
     await _settle(tester);
     expect(find.text(en.j100WatchError), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); // drop the 30 s refresh timer
+  });
+
+  test('watcher rows: real /circle/members shape, accepted only', () {
+    final rows = journeyWatcherRows({
+      'results': [
+        {'id': 7, 'name': 'Karim', 'state': 'accepted'},
+        {'id': 8, 'name': 'Pending Pal', 'state': 'pending'},
+        {'id': 9, 'name': 'Old Shape'},
+      ]
+    });
+    expect(rows.map((m) => m['id']), [7, 9]);
+    expect(journeyWatcherRows({}), isEmpty);
+    expect(journeyWatcherRows(null), isEmpty);
+    expect(journeyWatcherRows([{'id': 1, 'status': 'accepted'}]).single['id'], 1);
+  });
+
+  testWidgets('start form lists accepted circle members as watchers', (tester) async {
+    final api = _JApi()
+      ..active = {}
+      ..circle = {
+        'results': [
+          {'id': 7, 'name': 'Reality Karim', 'phone': '01711000002', 'state': 'accepted'},
+          {'id': 8, 'name': 'Pending Pal', 'state': 'pending'},
+        ]
+      };
+    await tester.pumpWidget(_app(api));
+    unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
+    await _settle(tester);
+    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim');
+    expect(karim, findsOneWidget);
+    expect(find.text('Pending Pal'), findsNothing);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsNothing);
+    await tester.ensureVisible(karim);
+    await tester.tap(karim);
+    await _settle(tester, 3);
+    expect(tester.widget<CheckboxListTile>(karim).value, isTrue);
+  });
+
+  testWidgets('start form with an empty circle shows the add-family step', (tester) async {
+    final api = _JApi()..active = {};
+    await tester.pumpWidget(_app(api));
+    unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
+    await _settle(tester);
+    expect(find.byType(CheckboxListTile), findsNothing);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsOneWidget);
   });
 
   testWidgets('live screen in Bangla + dark mode: Bangla only, 48dp targets', (tester) async {
