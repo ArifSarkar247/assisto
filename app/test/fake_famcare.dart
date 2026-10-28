@@ -62,5 +62,35 @@ Map<String, dynamic>? fakeFamCareGet(String path, {required bool bn, required bo
       'shared_with_me': const [],
     };
   }
+  // the accounting tab (server: m1 reality, integer poisha)
+  if (path.startsWith('/family/accounting/summary')) {
+    return empty
+        ? {'total_poisha': 0, 'members': const [], 'settlements': const [], 'pool': const {}}
+        : {
+            'total_poisha': 240000,
+            'members': [
+              {'member': 'self', 'paid_poisha': 240000, 'share_poisha': 120000, 'net_poisha': 120000},
+              {'member': 1, 'paid_poisha': 0, 'share_poisha': 120000, 'net_poisha': -120000},
+            ],
+            'settlements': [
+              {'from': 1, 'to': 'self', 'amount_poisha': 120000},
+            ],
+            'pool': {'target': 500000, 'collected': 200000, 'remaining': 300000, 'pct': 40},
+          };
+  }
+  if (path.startsWith('/family/accounting/expenses')) {
+    return {
+      'expenses': empty
+          ? const []
+          : [
+              {'id': 1, 'total_poisha': 240000, 'note': bn ? 'বাজার' : 'Groceries', 'payer': 'self',
+               'payer_name': bn ? 'আমি' : 'Me',
+               'shares': [
+                 {'member': 'self', 'share_poisha': 120000},
+                 {'member': 1, 'share_poisha': 120000},
+               ]},
+            ],
+    };
+  }
   return null;
 }
