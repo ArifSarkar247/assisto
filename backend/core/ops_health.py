@@ -121,6 +121,8 @@ JOBS = (
     Job("vehicle_tracking_billing", DAY, "20 4 * * *", "nice -n15 ionice -c3"),
     Job("play_vitals_pull", DAY, "40 6 * * *"),
     Job("bizagent_daily", DAY, "0 15 * * *"),
+    # AF-7: agent vault 30 days after a run, audit trail 12 months
+    Job("agent_core_retention", DAY, "50 3 * * *", "nice -n15 ionice -c3", lock=True),
     # monthly backup-restore drill (owner order: "tested backup and restore")
     Job("restore_test", 31 * DAY, "30 2 1 * *", kind="restore_test", grace=3 * DAY),
 )

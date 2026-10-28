@@ -425,11 +425,15 @@ def _msg_row(m):
             "image_url": (m.meta or {}).get("image_url", ""),
             "status": m.status, "kind": m.kind, "risk_reason": m.risk_reason,
             "send_error": m.send_error, "confidence": m.confidence,
+            # AF-10: the rule-made handoff summary (bn + en lines, contacts
+            # partly hidden) on approval / handoff rows
+            "handoff_card": (m.meta or {}).get("card") if m.direction == "out" else None,
             "created_at": m.created_at.isoformat()}
 
 
 def _thread_row(t):
     last = t.messages.order_by("-created_at", "-id").first()
+    pend = t.messages.filter(status="pending_approval").order_by("-created_at", "-id").first()
     now = timezone.now()
     paused = t.ai_paused_until if (t.ai_paused_until and t.ai_paused_until > now) else None
     return {"id": t.id, "channel": t.channel, "customer_name": t.customer_name or
@@ -446,6 +450,8 @@ def _thread_row(t):
             "last_text": last.text[:120] if last else "",
             "last_at": (t.last_message_at or t.created_at).isoformat(),
             "pending": t.messages.filter(status="pending_approval").count(),
+            # AF-10: thread-header handoff card = the newest open handoff's card
+            "handoff_card": (pend.meta or {}).get("card") if pend else None,
             "in_window": bai.within_service_window(
                 t.last_inbound_at.timestamp() if t.last_inbound_at else None,
                 timezone.now().timestamp()),
@@ -466,7 +472,11 @@ class ApprovalsView(APIView):
             last_in = m.thread.messages.filter(direction="in", created_at__lte=m.created_at) \
                 .order_by("-created_at").first()
             r = _msg_row(m)
+            from .logic import bizagent_handoff as HC
+            lbl = HC.REASON_LABEL.get(m.risk_reason)
             r.update({"thread_id": m.thread_id, "channel": m.thread.channel,
+                      # AF-4/AF-10: a readable reason in the app's language
+                      "risk_label": (lbl[0] if req_lang(request) == "bn" else lbl[1]) if lbl else "",
                       "customer_name": m.thread.customer_name or m.thread.customer_phone,
                       "customer_text": last_in.text if last_in else "",
                       "problems": (m.meta or {}).get("problems") or []})

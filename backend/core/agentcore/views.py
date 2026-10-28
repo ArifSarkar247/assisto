@@ -78,6 +78,9 @@ def _run_out(run, lang, detail=False):
          "topic_label": TP.label(run.topic, lang),
          "goal": vault.unmask(run.goal.text_masked),
          "answer": RN.answer_of(run) if run.state == "done" else "",
+         # AF-1: what the answer stands on + whether its numbers were checked
+         "sources": RN.answer_sources(run, lang) if run.state == "done" else [],
+         "answer_check": RN.answer_check(run),
          "error": code, "error_text": pick(lang, *msg) if msg else "",
          "credits": run.credits_spent, "steps": run.steps_used,
          "created_at": run.created_at.isoformat(),

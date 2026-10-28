@@ -12,6 +12,7 @@ A run is a resumable state machine stored in the DB (AgentRun + AgentStep):
   * risk external/money/delete -> an AgentApproval; the run pauses in
     waiting_approval until the user decides (approve() / reject()).
 """
+import json
 import logging
 import time as _time
 from dataclasses import dataclass
@@ -108,6 +109,13 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
         run.save()
         T.audit(run, "run.created", topic=topic or "general", channel=goal.channel,
                 goal=masked[:300])
+    # AF-4: the goal's toxicity SCORE is logged (never the words); the user's
+    # own wording to their own assistant is not refused — but nothing toxic
+    # is ever SENT for them (_exec_step) or answered back (_finish).
+    from .. import ai_guard as G
+    tx = G.toxicity(text)
+    if tx["toxic"]:
+        T.audit(run, "guard.toxicity_in", **G.tox_log(tx))
     if topic == "memory":
         # WP-MEMORY: "remember my password / PIN / OTP / card / NID" is refused
         # BEFORE any AI call — the secret never reaches a model, 0 credits.
@@ -147,6 +155,13 @@ def _finish(run, state, error="", answer=None):
         answer, removed = HG.filter_answer(answer, run.topic, _answer_lang(run))
         if removed:
             T.audit(run, "guard.health", removed=removed)
+        # AF-4 OUTBOUND: an abusive / hateful / threatening / sexual final
+        # answer is never shown — honest fallback, score audited
+        from .. import ai_guard as G
+        tx = G.toxicity(answer)
+        if tx["toxic"]:
+            T.audit(run, "guard.toxicity", **G.tox_log(tx))
+            answer = G.SAFE_FALLBACK_LINE[_answer_lang(run)]
     run.state = state
     run.error_code = error[:40]
     run.finished_at = timezone.now()
@@ -322,7 +337,8 @@ def _plan(run, steps, ctx):
     T.audit(run, "plan.ok", step=pstep, credits=pstep.credits, tools=[s["tool"] for s in plan["steps"]],
             done=bool(plan.get("done")))
     if not plan["steps"]:
-        _finish(run, "done", answer=vault.unmask(plan["answer"].strip()))
+        ans = _checked_answer(run, plan["answer"].strip(), steps, obs, memory, tp, ctx)
+        _finish(run, "done", answer=vault.unmask(ans))
         return "stop"
     for i, s in enumerate(plan["steps"]):
         t = TL.get(s["tool"])
@@ -332,6 +348,80 @@ def _plan(run, steps, ctx):
                                  args_sealed=T.seal({"a": s["args"]}),
                                  summary=vault.mask(t.label_en)[:400])
     return "continue"
+
+
+# ------------------------------------------------------------------ AF-1 checked answers
+# Numbers the product itself states in fixed lines (the 999 emergency line).
+TRUSTED_NUMBERS = ("999",)
+NOT_SURE_LINE = {
+    "bn": "দুঃখিত, এই উত্তরের সংখ্যাগুলো আপনার তথ্যের সাথে মিলিয়ে নিশ্চিত হতে পারিনি, তাই বলছি না। "
+          "আপনার হিসাব থেকে দেখে দিতে বললে আমি সেটা খুঁজে দেখব।",
+    "en": "Sorry, I couldn't check the numbers in that answer against your data, so I won't "
+          "state them. Ask me to look it up in your records and I will.",
+}
+
+
+def grounding_sources(run, ctx, obs, memory, tp):
+    """Everything a final answer's numbers may come from: the user's own goal,
+    this run's tool results, the scoped memory, the topic rules, today's date
+    (+/- 7 days) and the product's fixed lines. All MASKED (same space as the
+    planner's answer)."""
+    from . import health_guard as HG
+    now = timezone.localtime(ctx.now)
+    days = " ".join((now + timedelta(days=d)).strftime("%Y-%m-%d %H:%M")
+                    for d in range(-7, 8))
+    src = [run.goal.text_masked or "", json.dumps(obs or [], ensure_ascii=False, default=str),
+           json.dumps(memory or [], ensure_ascii=False, default=str), (tp or {}).get("rules") or "",
+           days, " ".join(TRUSTED_NUMBERS), HG.DOCTOR_999_LINE["bn"], HG.DOCTOR_999_LINE["en"]]
+    src += [o["result"] for o in obs or [] if isinstance(o.get("result"), dict)]
+    return src
+
+
+def _checked_answer(run, masked_answer, steps, obs, memory, tp, ctx):
+    """AF-1 (Agentforce 'grounded answers' parity), PRODUCTION check: every
+    number / amount / date in the model's own final text must trace to this
+    run's tool results, the user's goal or saved memory. An invented one ->
+    the answer is rewritten from the tool templates (0 credits) when tools
+    ran, else an honest "not sure" line. Audit guard.grounding (counts and
+    kinds only, never the numbers)."""
+    from . import health_guard as HG
+    from .. import ai_guard as G
+    lang = _answer_lang(run)
+    clean, _ = HG.filter_answer(masked_answer, run.topic, lang)
+    clean = T.TOKEN_RX.sub(" ", clean)        # ⟦ACCT_12⟧ is a token, not a number
+    bad = G.ungrounded_numbers(clean, *grounding_sources(run, ctx, obs, memory, tp))
+    if not bad:
+        return masked_answer
+    done = [s for s in steps if s.kind == "tool" and s.state in ("done", "rejected")]
+    T.audit(run, "guard.grounding", invented=len(bad),
+            kinds=sorted({b["type"] for b in bad}), action="template" if done else "not_sure")
+    if done:
+        return _template_answer(run, done, lang) or NOT_SURE_LINE[lang]
+    return NOT_SURE_LINE[lang]
+
+
+def answer_sources(run, lang="bn"):
+    """AF-1: which tools / data the final answer stands on — [{tool, label,
+    label_bn, label_en, step}] from this run's DONE tool steps (+ the saved
+    memory when it was used). Shown on the answer card as 'উৎস / Sources'."""
+    out = []
+    for s in run.steps.filter(kind="tool", state="done").order_by("no"):
+        t = TL.get(s.tool)
+        bn_l, en_l = (t.label_bn, t.label_en) if t else (s.tool, s.tool)
+        out.append({"tool": s.tool, "label": bn_l if lang == "bn" else en_l,
+                    "label_bn": bn_l, "label_en": en_l, "step": s.no})
+    if run.audit.filter(event="memory.used").exists():
+        out.append({"tool": "memory", "label": "আপনার রাখা তথ্য" if lang == "bn" else "Your saved facts",
+                    "label_bn": "আপনার রাখা তথ্য", "label_en": "Your saved facts", "step": None})
+    return out
+
+
+def answer_check(run):
+    """AF-1: 'checked' (no invented number found) | 'rewritten' (an invented
+    number was replaced) | '' (no final answer yet)."""
+    if run.state != "done":
+        return ""
+    return "rewritten" if run.audit.filter(event="guard.grounding").exists() else "checked"
 
 
 def _memory_for(run, vault):
@@ -365,6 +455,15 @@ def _exec_step(run, step, ctx):
     masked_args = T.unseal(step.args_sealed).get("a") or {}
     if tool is None or tool.version != step.tool_version:
         return _fail_step(run, step, "tool_gone")
+    if tool.risk == "external" and step.state == "pending":
+        # AF-4: a message / post the agent would send for the user is never
+        # abusive / hateful / threatening / sexual — blocked before the
+        # approval card, score audited (never the words)
+        from .. import ai_guard as G
+        tx = G.toxicity("\n".join(_strings(masked_args)))
+        if tx["toxic"] and not AgentApproval.objects.filter(step=step).exists():
+            T.audit(run, "guard.toxicity", step=step, tool=tool.ref, **G.tox_log(tx))
+            return _fail_step(run, step, "toxic_blocked")
     if tool.needs_approval:
         ap = AgentApproval.objects.filter(step=step).first()
         if ap is None or ap.status == "pending":
@@ -420,6 +519,16 @@ def _exec_step(run, step, ctx):
     T.audit(run, "tool.done", step=step, credits=step.credits, tool=tool.ref, risk=tool.risk,
             summary=step.summary)
     return "done"
+
+
+def _strings(obj):
+    if isinstance(obj, str):
+        return [obj]
+    if isinstance(obj, dict):
+        return [x for v in obj.values() for x in _strings(v)]
+    if isinstance(obj, (list, tuple)):
+        return [x for v in obj for x in _strings(v)]
+    return []
 
 
 def _fail_step(run, step, code):

@@ -118,7 +118,7 @@ def _refine_sentiment(text, fallback, user=None):
             "POS, NEU, or NEG (buying sentiment). Reply with the token only.")
     try:
         out, _ = ai.generate(task=task, data=text or "", tier="cheap",
-                             max_tokens=5, feature="crm.sentiment", user=user)
+                             max_tokens=5, feature="crm.sentiment", user=user, pii=True)
     except Exception:
         return fallback
     tok = (out or "").strip().upper()
@@ -146,7 +146,7 @@ def _update_insight(conversation):
                     "buyer wants and how interested they seem. Only use <data>.")
             summary, _ = ai.generate(task=task, data="\n".join(inbound),
                                      tier="cheap", max_tokens=120,
-                                     feature="crm.insight",
+                                     feature="crm.insight", pii=True,
                                      user=_payer(conversation.lead.org))
     except Exception:
         summary = ""
@@ -188,7 +188,7 @@ def suggest_followup(lead):
                     "assistant, not a human.")
             draft, _ = ai.generate(task=task, data="\n".join(texts),
                                    tier="cheap", max_tokens=200,
-                                   feature="crm.followup",
+                                   feature="crm.followup", pii=True,
                                    user=_payer(lead.org))
             source = "ai" if draft else "template"
     except Exception as e:
@@ -243,7 +243,7 @@ def generate_proposal(lead, requirements=""):
     )
     try:
         body, _ = ai.generate(task=task, data=data, tier="medium",
-                             max_tokens=1200, feature="crm.proposal",
+                             max_tokens=1200, feature="crm.proposal", pii=True,
                              user=_payer(lead.org))
     except Exception as e:
         reason = getattr(e, "reason", "queued")

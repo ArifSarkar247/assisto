@@ -91,7 +91,8 @@ def reply_for(user, incoming_text, lang="bn"):
                 f"Customer: {incoming_text}\n\nCatalog facts:\n{facts}")
     try:
         text, _ = ai.generate(task=task, data=data, tier="cheap",
-                               feature="business.reply", max_tokens=300, user=user)
+                               feature="business.reply", max_tokens=300, user=user,
+                               pii=True)   # AF-2: customer text masked
     except ai.AIUnavailable:
         lines = [f"{p.name} — ৳{p.price}" for p in products]
         return ("\n".join(lines), False, False)

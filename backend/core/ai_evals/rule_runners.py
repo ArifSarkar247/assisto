@@ -150,6 +150,54 @@ def crm_extract(inp):
     return extract_contact(inp["text"])
 
 
+# ------------------------------------------------------------ AF-2 / AF-4 / AF-10 trust
+def sales_pii_mask(inp):
+    """AF-2: the sales agent's provider request goes through the SAME masking
+    ai.generate(pii=True) applies; nothing raw may remain, every value comes
+    back on unmask (also when the provider answers in Bangla digits)."""
+    from .. import ai
+    from ..agentcore import trust as T
+    hist = inp.get("history") or None
+    vault, task, data, history, extra = ai.mask_for_provider(
+        inp.get("task", ""), inp.get("data", ""), hist, "", True)
+    sent = "\n".join([task or "", data or ""] + [h.get("content", "") for h in history or []])
+    back = vault.unmask(data or "")
+    bn = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    return {
+        "raw_pii": T.has_raw_pii(sent),
+        "tokens": len(vault.t2v),
+        "kinds": ",".join(sorted({t.split("_")[0].strip("⟦") for t in vault.t2v})),
+        "roundtrip": back == inp.get("data", ""),
+        "bn_digit_tokens_ok": all(vault.unmask(t.translate(bn)) == v for t, v in vault.t2v.items()),
+    }
+
+
+def toxicity(inp):
+    """AF-4: the deterministic abuse / hate / threat / sexual guard."""
+    from .. import ai_guard as G
+    r = G.toxicity(inp["text"])
+    return {"toxic": r["toxic"], "category": r["category"], "severity": r["severity"]}
+
+
+def handoff_card(inp):
+    """AF-10: the rule-made seller handoff summary."""
+    import re
+    from ..agentcore import trust as T
+    from ..logic import bizagent_handoff as HC
+    c = HC.build(inp["messages"], inp.get("catalog") or [], inp.get("draft") or {},
+                 inp.get("reason", ""))
+    bn, en = c["lines"]["bn"], c["lines"]["en"]
+    return {
+        "want": c["want"], "sentiment": c["sentiment"], "reason": c["reason"],
+        "lines": len(bn) == 3 and len(en) == 3 and all(x.strip() for x in bn + en),
+        "raw_pii": T.has_raw_pii("\n".join(bn + en)),
+        "bn_ascii_digits": bool(re.search(r"[0-9]", "\n".join(bn))),
+        "en_bn_digits": bool(re.search(r"[০-৯]", "\n".join(en))),
+        "items": " | ".join(i["name"] for i in c["items"]),
+        "quoted": bool(c["last_question"]),
+    }
+
+
 RUNNERS = {
     "reminders_nlp": reminders_nlp,
     "home_intent": home_intent,
@@ -161,4 +209,7 @@ RUNNERS = {
     "order_capture": order_capture,
     "contract_analyzer": contract_analyzer,
     "crm_extract": crm_extract,
+    "sales_pii_mask": sales_pii_mask,
+    "toxicity": toxicity,
+    "handoff_card": handoff_card,
 }

@@ -26,7 +26,8 @@ _PATTERNS = (
     # account / card numbers: 11-19 digits, single spaces or dashes between
     ("ACCT", re.compile(r"(?<![0-9০-৯])%s(?:[ -]?%s){10,18}(?![0-9০-৯])" % (D, D))),
 )
-TOKEN_RX = re.compile(r"⟦(EMAIL|PHONE|NID|ACCT)_(\d+)⟧")
+TOKEN_RX = re.compile(r"⟦(EMAIL|PHONE|NID|ACCT)_([0-9০-৯]+)⟧")
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
 
 class Vault:
@@ -60,7 +61,24 @@ class Vault:
     def unmask(self, text):
         if not isinstance(text, str) or "⟦" not in text:
             return text
-        return TOKEN_RX.sub(lambda m: self.t2v.get(m.group(0), m.group(0)), text)
+        # AF-2: a provider answer turned to Bangla digits (digits="bn") carries
+        # ⟦PHONE_১⟧ — still our token
+        return TOKEN_RX.sub(lambda m: self.t2v.get(
+            "⟦%s_%s⟧" % (m.group(1), m.group(2).translate(_BN_DIGITS)), m.group(0)), text)
+
+    def mask_request(self, task="", data="", history=None, extra_system=""):
+        """AF-2: mask EVERY text part of one AI-router request with this vault
+        (the same value -> the same token across task, data and history), so
+        no raw phone / NID / account / e-mail reaches a provider. Returns
+        (task, data, history, extra_system)."""
+        hist = None
+        if history:
+            hist = []
+            for h in history:
+                if isinstance(h, dict):
+                    h = dict(h, content=self.mask_obj(h.get("content")))
+                hist.append(h)
+        return self.mask(task), self.mask(data), hist, self.mask(extra_system)
 
     def mask_obj(self, obj):
         return _walk(obj, self.mask)
@@ -77,6 +95,12 @@ def _walk(obj, fn):
     if isinstance(obj, (list, tuple)):
         return [_walk(v, fn) for v in obj]
     return obj
+
+
+def leftover_tokens(text):
+    """AF-2: vault tokens still in a text after unmask (the model invented or
+    damaged one) — such a reply is never sent to a customer as is."""
+    return [m.group(0) for m in TOKEN_RX.finditer(text or "")] if isinstance(text, str) else []
 
 
 def has_raw_pii(text):

@@ -1,0 +1,227 @@
+{"id": "toxicity-0001", "lang": "bn", "input": {"text": "তুই একটা হারামি"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0002", "lang": "bn", "input": {"text": "হারামির বাচ্চা দোকান চালাস"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0003", "lang": "bn", "input": {"text": "কুত্তার বাচ্চা উত্তর দে"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0004", "lang": "bn", "input": {"text": "শুয়োরের বাচ্চা কোথাকার"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0005", "lang": "bn", "input": {"text": "বেজন্মা দোকানদার"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0006", "lang": "bn", "input": {"text": "খানকির পোলা"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0007", "lang": "bn", "input": {"text": "মাগি কোথাকার"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0008", "lang": "bn", "input": {"text": "চুদির ভাই"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0009", "lang": "bn", "input": {"text": "বোকাচোদা নাকি"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0010", "lang": "bn", "input": {"text": "মাদারচোদ সব"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0011", "lang": "bn", "input": {"text": "বালের দোকান"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0012", "lang": "bn", "input": {"text": "বাল ছিঁড়বি"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0013", "lang": "bn", "input": {"text": "হারামজাদা টাকা ফেরত দে"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0014", "lang": "bn", "input": {"text": "শালার পুত ফোন ধর"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0015", "lang": "bn", "input": {"text": "জারজ কোথাকার"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0016", "lang": "bn", "input": {"text": "বেশ্যার দোকান"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0017", "lang": "banglish", "input": {"text": "tui ekta harami"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0018", "lang": "banglish", "input": {"text": "haramir baccha"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0019", "lang": "banglish", "input": {"text": "kuttar baccha uttor de"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0020", "lang": "banglish", "input": {"text": "shuorer bacca kothakar"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0021", "lang": "banglish", "input": {"text": "bejonma dokandar"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0022", "lang": "banglish", "input": {"text": "khankir pola"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0023", "lang": "banglish", "input": {"text": "magi kothakar"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0024", "lang": "banglish", "input": {"text": "chudir bhai"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0025", "lang": "banglish", "input": {"text": "bokachoda naki"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0026", "lang": "banglish", "input": {"text": "madarchod sob"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0027", "lang": "banglish", "input": {"text": "baler dokan"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0028", "lang": "banglish", "input": {"text": "haramjada taka ferot de"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0029", "lang": "banglish", "input": {"text": "kuttar bachcha"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0030", "lang": "banglish", "input": {"text": "haramiiii"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0031", "lang": "banglish", "input": {"text": "h.a.r.a.m.i"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0032", "lang": "en", "input": {"text": "fuck you"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0033", "lang": "en", "input": {"text": "what the fuck is this"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0034", "lang": "en", "input": {"text": "you motherfucker"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0035", "lang": "en", "input": {"text": "this is bullshit"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0036", "lang": "en", "input": {"text": "stupid bitch"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0037", "lang": "en", "input": {"text": "you bastard"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0038", "lang": "en", "input": {"text": "asshole seller"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0039", "lang": "en", "input": {"text": "f*ck off"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0040", "lang": "en", "input": {"text": "f.u.c.k this shop"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0041", "lang": "en", "input": {"text": "fuuuuck"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0042", "lang": "en", "input": {"text": "b1tch"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0043", "lang": "en", "input": {"text": "piece of shit"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0044", "lang": "en", "input": {"text": "dickhead"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0045", "lang": "en", "input": {"text": "you whore"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0046", "lang": "en", "input": {"text": "sh1t service"}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse"]}
+{"id": "toxicity-0047", "lang": "bn", "input": {"text": "তুই একটা গাধা"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0048", "lang": "bn", "input": {"text": "তুমি একটা বলদ"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0049", "lang": "bn", "input": {"text": "আপনি একটা ছাগল"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0050", "lang": "bn", "input": {"text": "বাটপার দোকান"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0051", "lang": "bn", "input": {"text": "ফকিন্নি কোথাকার"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0052", "lang": "bn", "input": {"text": "লুচ্চা লোক"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0053", "lang": "bn", "input": {"text": "বেয়াদব কোথাকার"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0054", "lang": "banglish", "input": {"text": "tui ekta gadha"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0055", "lang": "banglish", "input": {"text": "tumi ekta boldo"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0056", "lang": "banglish", "input": {"text": "apni chagol"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0057", "lang": "banglish", "input": {"text": "batpar dokan"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0058", "lang": "banglish", "input": {"text": "fokinni kothakar"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0059", "lang": "banglish", "input": {"text": "beyadob"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0060", "lang": "en", "input": {"text": "you idiot"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0061", "lang": "en", "input": {"text": "you are stupid"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0062", "lang": "en", "input": {"text": "you're a moron"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0063", "lang": "en", "input": {"text": "you are useless"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0064", "lang": "en", "input": {"text": "stfu"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0065", "lang": "en", "input": {"text": "screw you"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0066", "lang": "en", "input": {"text": "go to hell"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0067", "lang": "en", "input": {"text": "you are such a fool"}, "expect": {"toxic": true, "category": "insult"}, "tags": ["insult"]}
+{"id": "toxicity-0068", "lang": "bn", "input": {"text": "তোকে মেরে ফেলব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0069", "lang": "bn", "input": {"text": "খুন করব তোকে"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0070", "lang": "bn", "input": {"text": "জানে মেরে ফেলব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0071", "lang": "bn", "input": {"text": "তোর দোকানে আগুন লাগিয়ে দেব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0072", "lang": "bn", "input": {"text": "তোকে দেখে নেব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0073", "lang": "bn", "input": {"text": "গলা কেটে ফেলব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0074", "lang": "bn", "input": {"text": "এসিড মারব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0075", "lang": "bn", "input": {"text": "হাত পা ভেঙে দেব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0076", "lang": "bn", "input": {"text": "পিটাবো তোকে"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0077", "lang": "bn", "input": {"text": "তোকে জবাই করব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0078", "lang": "bn", "input": {"text": "লাশ ফেলে দেব"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0079", "lang": "banglish", "input": {"text": "toke mere felbo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0080", "lang": "banglish", "input": {"text": "khun korbo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0081", "lang": "banglish", "input": {"text": "jane mere felbo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0082", "lang": "banglish", "input": {"text": "dokane agun lagiye dibo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0083", "lang": "banglish", "input": {"text": "tore dekhe nimu"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0084", "lang": "banglish", "input": {"text": "gola kete felbo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0085", "lang": "banglish", "input": {"text": "acid marbo"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0086", "lang": "banglish", "input": {"text": "pitabo tore"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0087", "lang": "banglish", "input": {"text": "tore deikha nimu"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0088", "lang": "en", "input": {"text": "i will kill you"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0089", "lang": "en", "input": {"text": "i'll kill you"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0090", "lang": "en", "input": {"text": "gonna kill you"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0091", "lang": "en", "input": {"text": "i will beat you up"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0092", "lang": "en", "input": {"text": "i'll burn your shop"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0093", "lang": "en", "input": {"text": "watch your back"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0094", "lang": "en", "input": {"text": "you're dead"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0095", "lang": "en", "input": {"text": "kill you tomorrow"}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat"]}
+{"id": "toxicity-0096", "lang": "bn", "input": {"text": "মালাউনের দোকান"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0097", "lang": "bn", "input": {"text": "মালাউন সব"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0098", "lang": "bn", "input": {"text": "কাফেরের বাচ্চা"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0099", "lang": "bn", "input": {"text": "নাস্তিকের বাচ্চা"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0100", "lang": "banglish", "input": {"text": "malaun er dokan"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0101", "lang": "banglish", "input": {"text": "malaun sob"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0102", "lang": "banglish", "input": {"text": "kaferer baccha"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0103", "lang": "banglish", "input": {"text": "nastiker bacca"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0104", "lang": "en", "input": {"text": "you nigger"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0105", "lang": "en", "input": {"text": "faggot seller"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0106", "lang": "en", "input": {"text": "retard shop owner"}, "expect": {"toxic": true, "category": "hate"}, "tags": ["hate"]}
+{"id": "toxicity-0107", "lang": "bn", "input": {"text": "নুড ছবি পাঠাও"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0108", "lang": "bn", "input": {"text": "ভোদা"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0109", "lang": "bn", "input": {"text": "সেক্স করবি"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0110", "lang": "bn", "input": {"text": "দুধ দেখাও"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0111", "lang": "bn", "input": {"text": "পর্ন পাঠাও"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0112", "lang": "bn", "input": {"text": "রেপ করব"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0113", "lang": "banglish", "input": {"text": "nude chobi pathao"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0114", "lang": "banglish", "input": {"text": "sex korbi"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0115", "lang": "banglish", "input": {"text": "dudh dekhao"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0116", "lang": "banglish", "input": {"text": "voda"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0117", "lang": "banglish", "input": {"text": "rape korbo"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0118", "lang": "banglish", "input": {"text": "nangta chobi dao"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0119", "lang": "en", "input": {"text": "send nudes"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0120", "lang": "en", "input": {"text": "send me nude pics"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0121", "lang": "en", "input": {"text": "show boobs"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0122", "lang": "en", "input": {"text": "sleep with me"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0123", "lang": "en", "input": {"text": "dick pic chai"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0124", "lang": "en", "input": {"text": "porn link dao"}, "expect": {"toxic": true, "category": "sexual"}, "tags": ["sexual"]}
+{"id": "toxicity-0125", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, তুই একটা হারামি "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0126", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, হারামির বাচ্চা দোকান চালাস "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0127", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, কুত্তার বাচ্চা উত্তর দে "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0128", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, শুয়োরের বাচ্চা কোথাকার "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0129", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, বেজন্মা দোকানদার "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0130", "lang": "banglish", "input": {"text": "parcel ashe nai, tui ekta harami "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0131", "lang": "banglish", "input": {"text": "parcel ashe nai, haramir baccha "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0132", "lang": "banglish", "input": {"text": "parcel ashe nai, kuttar baccha uttor de "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0133", "lang": "banglish", "input": {"text": "parcel ashe nai, shuorer bacca kothakar "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0134", "lang": "banglish", "input": {"text": "parcel ashe nai, bejonma dokandar "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0135", "lang": "en", "input": {"text": "my parcel did not arrive, fuck you "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0136", "lang": "en", "input": {"text": "my parcel did not arrive, what the fuck is this "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0137", "lang": "en", "input": {"text": "my parcel did not arrive, you motherfucker "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0138", "lang": "en", "input": {"text": "my parcel did not arrive, this is bullshit "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0139", "lang": "en", "input": {"text": "my parcel did not arrive, stupid bitch "}, "expect": {"toxic": true, "category": "abuse"}, "tags": ["abuse", "inline"]}
+{"id": "toxicity-0140", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, তোকে মেরে ফেলব "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0141", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, খুন করব তোকে "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0142", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, জানে মেরে ফেলব "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0143", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, তোর দোকানে আগুন লাগিয়ে দেব "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0144", "lang": "bn", "input": {"text": "পার্সেল এখনো আসেনি, তোকে দেখে নেব "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0145", "lang": "banglish", "input": {"text": "parcel ashe nai, toke mere felbo "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0146", "lang": "banglish", "input": {"text": "parcel ashe nai, khun korbo "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0147", "lang": "banglish", "input": {"text": "parcel ashe nai, jane mere felbo "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0148", "lang": "banglish", "input": {"text": "parcel ashe nai, dokane agun lagiye dibo "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0149", "lang": "banglish", "input": {"text": "parcel ashe nai, tore dekhe nimu "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0150", "lang": "en", "input": {"text": "my parcel did not arrive, i will kill you "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0151", "lang": "en", "input": {"text": "my parcel did not arrive, i'll kill you "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0152", "lang": "en", "input": {"text": "my parcel did not arrive, gonna kill you "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0153", "lang": "en", "input": {"text": "my parcel did not arrive, i will beat you up "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0154", "lang": "en", "input": {"text": "my parcel did not arrive, i'll burn your shop "}, "expect": {"toxic": true, "category": "threat"}, "tags": ["threat", "inline"]}
+{"id": "toxicity-0155", "lang": "bn", "input": {"text": "একটা বালতি দরকার"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0156", "lang": "bn", "input": {"text": "বালিশের কভার আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0157", "lang": "bn", "input": {"text": "বালু কত টাকা ট্রাক?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0158", "lang": "bn", "input": {"text": "বালকদের জামা আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0159", "lang": "bn", "input": {"text": "মাগুর মাছ আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0160", "lang": "bn", "input": {"text": "চোদ্দ তারিখে ডেলিভারি দিবেন?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0161", "lang": "bn", "input": {"text": "আমার শালা আসবে নিতে"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0162", "lang": "bn", "input": {"text": "শালিক পাখির খাঁচা আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0163", "lang": "bn", "input": {"text": "পণ্যটা হাতে পেয়ে দেখে নেব"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0164", "lang": "bn", "input": {"text": "কোরবানির গরু জবাই করব, ছুরি আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0165", "lang": "bn", "input": {"text": "এটা কি হালাল না হারাম?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0166", "lang": "bn", "input": {"text": "ধন্যবাদ ভাই"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0167", "lang": "bn", "input": {"text": "ধনেপাতা আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0168", "lang": "bn", "input": {"text": "বাল্য শিক্ষা বই আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0169", "lang": "bn", "input": {"text": "বাল-বাচ্চা নিয়ে আসব"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0170", "lang": "bn", "input": {"text": "কুকুরের খাবার আছে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0171", "lang": "bn", "input": {"text": "দাম একটু বেশি মনে হচ্ছে"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0172", "lang": "bn", "input": {"text": "পার্সেল এখনো পাইনি, একটু দেখবেন?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0173", "lang": "bn", "input": {"text": "মালুম হলো, ধন্যবাদ"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0174", "lang": "bn", "input": {"text": "কাপড়টা পিটিয়ে ধোয়া যাবে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0175", "lang": "bn", "input": {"text": "আমি মাল তুলে নিয়ে যাব দোকান থেকে"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0176", "lang": "bn", "input": {"text": "গলাকাটা দাম না তো?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0177", "lang": "bn", "input": {"text": "খুব সুন্দর পাঞ্জাবি"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0178", "lang": "bn", "input": {"text": "রাতে দোকান খোলা থাকে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0179", "lang": "bn", "input": {"text": "আপনি কি মানুষ?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0180", "lang": "bn", "input": {"text": "দুধ চা পাওয়া যাবে?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0181", "lang": "bn", "input": {"text": "আমি তোমাকে স্টেশন থেকে তুলে নিয়ে যাব"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0182", "lang": "bn", "input": {"text": "আপনাকে দেখে নেব কাল দোকানে এসে"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0183", "lang": "banglish", "input": {"text": "ekta balti lagbe"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0184", "lang": "banglish", "input": {"text": "balish cover ache?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0185", "lang": "banglish", "input": {"text": "magur mach ache?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0186", "lang": "banglish", "input": {"text": "amar shala ashbe"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0187", "lang": "banglish", "input": {"text": "product ta hate peye dekhe nibo"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0188", "lang": "banglish", "input": {"text": "goru jobai korbo churi ache?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0189", "lang": "banglish", "input": {"text": "eta ki halal na haram?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0190", "lang": "banglish", "input": {"text": "dhonnobad bhai"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0191", "lang": "banglish", "input": {"text": "dam ta beshi lagche"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0192", "lang": "banglish", "input": {"text": "parcel ekhono pai nai"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0193", "lang": "banglish", "input": {"text": "khub sundor panjabi"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0194", "lang": "banglish", "input": {"text": "dokan kokhon khola"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0195", "lang": "banglish", "input": {"text": "bhai ekta discount den"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0196", "lang": "banglish", "input": {"text": "magic mouse ache?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0197", "lang": "banglish", "input": {"text": "class 10 er boi ache?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0198", "lang": "banglish", "input": {"text": "chudi ache? churi set"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0199", "lang": "banglish", "input": {"text": "balti 2 ta"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0200", "lang": "banglish", "input": {"text": "ami nijei tule niye jabo"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0201", "lang": "banglish", "input": {"text": "ami tomake tule niye jabo station theke"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0202", "lang": "en", "input": {"text": "I need a bucket"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0203", "lang": "en", "input": {"text": "do you have class 10 books?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0204", "lang": "en", "input": {"text": "please pass the message"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0205", "lang": "en", "input": {"text": "are you an assistant?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0206", "lang": "en", "input": {"text": "shipping to Scunthorpe?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0207", "lang": "en", "input": {"text": "shiitake mushrooms available?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0208", "lang": "en", "input": {"text": "nude lipstick shade?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0209", "lang": "en", "input": {"text": "fire retardant fabric?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0210", "lang": "en", "input": {"text": "this dress is so sexy"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0211", "lang": "en", "input": {"text": "cocktail dress size M"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0212", "lang": "en", "input": {"text": "bass guitar strings?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0213", "lang": "en", "input": {"text": "hello, is it in stock?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0214", "lang": "en", "input": {"text": "I'll check the product and tell you"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0215", "lang": "en", "input": {"text": "the price is a bit high"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0216", "lang": "en", "input": {"text": "thank you so much"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0217", "lang": "en", "input": {"text": "skill development course?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0218", "lang": "en", "input": {"text": "assassin's creed game?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0219", "lang": "en", "input": {"text": "Dick Francis novels?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0220", "lang": "en", "input": {"text": "it's killing me how good this is"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0221", "lang": "en", "input": {"text": "can I pick it up myself?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0222", "lang": "en", "input": {"text": "what a hell of a deal"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0223", "lang": "en", "input": {"text": "is this sexual wellness product legal?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0224", "lang": "en", "input": {"text": "my son is a fool for cricket"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0225", "lang": "en", "input": {"text": "matchbox cars?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0226", "lang": "en", "input": {"text": "do you ship to Essex?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}
+{"id": "toxicity-0227", "lang": "en", "input": {"text": "magic marker pen?"}, "expect": {"toxic": false, "category": ""}, "tags": ["benign"]}

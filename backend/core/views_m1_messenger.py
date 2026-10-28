@@ -785,7 +785,8 @@ class GroupAiView(APIView):
             text, _cost = ai.generate(
                 _ai_task_prompt(task, lang, str(d.get("target_lang", ""))),
                 data=data, tier="cheap", max_tokens=700,
-                feature="group_ai_%s" % task, user=request.user)
+                feature="group_ai_%s" % task, user=request.user,
+                pii=True)       # AF-2: friends' numbers / e-mails masked
         except ai.AIUnavailable as e:
             reason = e.reason
             body = {"allowed": False, "reason": reason,

@@ -69,6 +69,16 @@ FEATURES = [
          title_bn="চুক্তি বিশ্লেষণ (ঝুঁকির ধারা)", call_site="core/logic/contract_analyzer.py analyze()"),
     dict(id="crm_extract", kind=RULE, router_feature="", tier="",
          title_bn="CRM — পেস্ট থেকে যোগাযোগ বের করা", call_site="crm/views.py extract_contact()"),
+    # AF-2 / AF-4 / AF-10 (Agentforce trust parity, 28 Oct)
+    dict(id="sales_pii_mask", kind=RULE, router_feature="", tier="",
+         title_bn="সেলস এজেন্ট — AI-কে পাঠানোর আগে ফোন/NID/অ্যাকাউন্ট/ইমেইল লুকানো",
+         call_site="core/ai.py mask_for_provider() (bizagent_service._llm_draft pii=True)"),
+    dict(id="toxicity", kind=RULE, router_feature="", tier="",
+         title_bn="গালি / হুমকি / ঘৃণা / যৌন হয়রানি শনাক্ত (বাংলা, Banglish, English)",
+         call_site="core/ai_guard.py toxicity()"),
+    dict(id="handoff_card", kind=RULE, router_feature="", tier="",
+         title_bn="বিক্রেতার কাছে হস্তান্তরের সারাংশ কার্ড",
+         call_site="core/logic/bizagent_handoff.py build()"),
 ]
 
 BY_ID = {f["id"]: f for f in FEATURES}
