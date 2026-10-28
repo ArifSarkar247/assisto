@@ -25747,5 +25747,9 @@
         "type": "String"
       }
     }
+  },
+  "hv2TileBizAccounts": "Business Accounts",
+  "@hv2TileBizAccounts": {
+    "description": "Home shortcut tile for the Business hub (khata, cashbox, reports) — owner 28 Oct 'Business Accounts and Finance'. Optional: wire in home_v2_shortcuts.dart _owner 'business' after merge (today it shows sidebarBusiness)."
   }
 }

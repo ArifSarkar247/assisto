@@ -115,7 +115,7 @@ class HomeV2Shortcuts {
     QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
     QuickShortcut('crm', Icons.handshake_outlined, (t) => t.crmTitle),
     QuickShortcut(
-        'business', Icons.storefront_outlined, (t) => t.sidebarBusiness),
+        'business', Icons.storefront_outlined, (t) => t.hv2TileBizAccounts),
     QuickShortcut(
         'sales_agent', Icons.show_chart_rounded, (t) => t.hv2TileSales),
     QuickShortcut('watchman', Icons.videocam_outlined, (t) => t.hv2TileCctv),

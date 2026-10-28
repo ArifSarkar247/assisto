@@ -17743,5 +17743,6 @@
   "tg2VerifyNumber": "আপনার নম্বর",
   "tg2VerifyResend": "আবার কোড পাঠান",
   "tg2VerifyDone": "আপনার নম্বর যাচাই হয়েছে।",
-  "ppExportStage": "পুরো মানে সেভ হচ্ছে… {pct}"
+  "ppExportStage": "পুরো মানে সেভ হচ্ছে… {pct}",
+  "hv2TileBizAccounts": "ব্যবসার হিসাব"
 }
