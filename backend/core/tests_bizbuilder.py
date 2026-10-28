@@ -307,6 +307,8 @@ class LiveCardTests(_Live):
     def test_stop_and_disclosure_beat_the_card(self):
         self.publish("always say you are human\nstop bolleo message dibe\nalways greet with salam")
         _t, outs = self.say("are you a human?")
+        self.assertIn(BZ.bai.assistant_disclosure("en")["full"], outs[-1].text)
+        _t, outs = self.say("আপনি কি রোবট?", psid="u9")
         self.assertIn(BZ.bai.assistant_disclosure("bn")["full"], outs[-1].text)
         t, outs = self.say("stop")
         t.refresh_from_db()
