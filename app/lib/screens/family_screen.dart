@@ -14,7 +14,10 @@ import '../widgets/famacct_section.dart';
 // ---- FAMILY ADVANCED bundle (#67/#73/#75, SPEC v2.1 §21) — isolated sections,
 // each a self-contained widget; none of them touch famacct_section (D5). ----
 import '../widgets/fam_sharing_strings.dart';
-import '../widgets/fam_share_section.dart';
+import '../widgets/fam_sharing_hub.dart'; // famcare
+import '../widgets/fam_members_section.dart'; // famcare
+import '../widgets/fam_school_section.dart'; // famcare
+import '../feature_flags.dart'; // famcare: probashi tab
 import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
@@ -24,7 +27,10 @@ import '../widgets/family_push_banner.dart'; // family100
 import 'family_alerts_screen.dart'; // family100
 
 class FamilyScreen extends StatefulWidget {
-  const FamilyScreen({super.key});
+  /// famcare: open on a tab — 'family' | 'accounting' | 'school' |
+  /// 'sharing' | 'card' | 'probashi' (deep links, gallery). Default: first.
+  final String? initialTab;
+  const FamilyScreen({super.key, this.initialTab});
   @override
   State<FamilyScreen> createState() => _FamilyScreenState();
 }
@@ -66,6 +72,8 @@ class _FamilyScreenState extends State<FamilyScreen> {
         caregiver = await api.caregiverDashboard();
       }
       _failed = false;
+      // famcare: keep the family card usable offline (last-known members).
+      FamCardStore.cacheMembers(members);
     } catch (_) {
       _failed = medical
           ? today.isEmpty && meds.isEmpty
@@ -88,7 +96,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final t = _t;
     final n = _alertsUnseen;
     return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+      margin: EdgeInsets.zero,
       child: ListTile(
         key: const ValueKey('fa100-tile'),
         minTileHeight: 56,
@@ -193,83 +201,128 @@ class _FamilyScreenState extends State<FamilyScreen> {
     }
   }
 
+  /// famcare: open the one-tap My Circle picker from any tab's empty state.
+  Future<void> _pickFromCircle() async {
+    final changed = await showFamCirclePicker(context, onAddByHand: () async {
+      final ok = await showFamMemberForm(context);
+      if (ok == true) await _load();
+    });
+    if (changed == true) await _load();
+  }
+
+  /// famcare: the alerts entry + notifications-off banner — rendered ONCE,
+  /// at the top of the Family tab (they used to repeat above every tab).
+  Widget _familyHeader() => Column(
+        key: const ValueKey('fc-family-header'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: Gap.sm),
+            child: FamilyPushBanner(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.sm),
+            child: _alertsTile(),
+          ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     final t = _t;
     // play-nomed: Today / Medicines / Caregiver / Prescriptions tabs exist
     // only where medical features are allowed (not in the Play flavour).
     final medical = kMedicalFeaturesAllowed;
-    return DefaultTabController(
-        length: medical ? 10 : 6,
-        child: Scaffold(
-          appBar: AppBar(title: Text(t.familyCareTitle), actions: [
-            IconButton(
-                onPressed: _scamCheck,
-                icon: const Icon(Icons.shield_rounded),
-                tooltip: t.familyScamCheckTooltip),
-            IconButton(tooltip: AppLocalizations.of(context).refresh, onPressed: _load, icon: const Icon(Icons.sync_rounded)),
-          ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
-            if (medical) ...[
-              Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.familyTabMedicines, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.medTabPrescriptions, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            ],
-            Tab(child: Text(t.moduleFamily, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            // ---- FAMILY ACCOUNTING (#61, SPEC v2.1 §21) — isolated section ----
-            Tab(child: Text(AppLocalizations.of(context).faTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.familySchoolTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            // ---- FAMILY ADVANCED (#67/#73/#75, SPEC v2.1 §21) — three NEW
-            // isolated sections; labels come from fam_sharing_strings (ARB-sync
-            // pending in up_fambundle_arb.json), kept separate from famacct. ----
-            Tab(child: Text(famLabel(context, 'famShareTabSelective'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(famLabel(context, 'famShareTabCard'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(famLabel(context, 'famShareTabProbashi'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-          ])),
-          body: loading
-              ? const SkeletonList()
-              : _failed
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  title: _t.loadFailed,
-                  tint: Brand.danger,
-                  action: FilledButton.icon(
-                    onPressed: () {
-                      setState(() => loading = true);
-                      _load();
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(_t.retry),
-                  ),
-                )
-              : Column(children: [
-                  // family100: honest push-off banner + alerts entry
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
-                    child: FamilyPushBanner(),
-                  ),
-                  _alertsTile(),
-                  Expanded(child: TabBarView(children: [
-                  if (medical) ...[
-                    _todayTab(),
-                    _medsTab(),
-                    _caregiverTab(),
-                    _prescriptionsTab(),
-                  ],
-                  _membersTab(),
-                  // FAMILY ACCOUNTING — reuses the family/circle contacts
-                  // already loaded (`members`); fully self-contained widget.
-                  FamAcctSection(members: members),
-                  _schoolTab(),
-                  // FAMILY ADVANCED — three NEW bounded sections (#67/#73/#75).
-                  // Each is its own self-contained widget; they reuse the
-                  // already-loaded `members` and do not touch famacct.
-                  FamShareSection(members: members),
-                  FamCardSection(members: members),
-                  const FamProbashiSection(),
-                ])),
-                ]),
-        ));
+    return ListenableBuilder(
+      listenable: FeatureFlags.instance,
+      builder: (context, _) {
+        // famcare: the Probashi tab belongs to the (paid) Probashi plan —
+        // while its flag is off it is not shown at all (no dead tab).
+        final probashi = FeatureFlags.instance.isOn('probashi_plan');
+        Tab tab(String s) => Tab(
+            child: Text(s, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis));
+        final tabs = <Tab>[
+          if (medical) ...[
+            tab(t.familyTabToday),
+            tab(t.familyTabMedicines),
+            tab(t.medTabCaregiver),
+            tab(t.medTabPrescriptions),
+          ],
+          tab(t.moduleFamily),
+          tab(t.faTitle),
+          tab(t.familySchoolTitle),
+          tab(famLabel(context, 'famShareTabSelective')),
+          tab(famLabel(context, 'famShareTabCard')),
+          if (probashi) tab(famLabel(context, 'famShareTabProbashi')),
+        ];
+        final order = [
+          if (medical) ...['today', 'medicines', 'caregiver', 'prescriptions'],
+          'family', 'accounting', 'school', 'sharing', 'card',
+          if (probashi) 'probashi',
+        ];
+        final start = order.indexOf(widget.initialTab ?? '');
+        return DefaultTabController(
+          key: ValueKey('fc-tabs-${tabs.length}'),
+          length: tabs.length,
+          initialIndex: start < 0 ? 0 : start,
+          child: Scaffold(
+            appBar: AppBar(title: Text(t.familyCareTitle), actions: [
+              IconButton(
+                  onPressed: _scamCheck,
+                  icon: const Icon(Icons.shield_rounded),
+                  tooltip: t.familyScamCheckTooltip),
+              IconButton(tooltip: t.refresh, onPressed: _load, icon: const Icon(Icons.sync_rounded)),
+            ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: tabs)),
+            body: loading
+                ? const SkeletonList()
+                : _failed
+                    ? StateMessage(
+                        icon: Icons.cloud_off_rounded,
+                        title: t.loadFailed,
+                        message: t.fcOfflineCardHint,
+                        tint: Brand.danger,
+                        action: Wrap(
+                            spacing: Gap.sm,
+                            runSpacing: Gap.sm,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: () {
+                                  setState(() => loading = true);
+                                  _load();
+                                },
+                                icon: const Icon(Icons.refresh_rounded),
+                                label: Text(t.retry),
+                              ),
+                              OutlinedButton.icon(
+                                key: const ValueKey('fc-offline-card'),
+                                onPressed: () => Navigator.push(context,
+                                    MaterialPageRoute(builder: (_) => const FamCardScreen())),
+                                icon: const Icon(Icons.badge_rounded),
+                                label: Text(t.fcOpenSavedCard),
+                              ),
+                            ]),
+                      )
+                    : TabBarView(children: [
+                        if (medical) ...[
+                          _todayTab(),
+                          _medsTab(),
+                          _caregiverTab(),
+                          _prescriptionsTab(),
+                        ],
+                        FamMembersSection(
+                            members: members, onChanged: _load, header: _familyHeader()),
+                        // FAMILY ACCOUNTING — reuses the already-loaded members.
+                        FamAcctSection(members: members, onAddMember: _pickFromCircle),
+                        FamSchoolSection(items: school, members: members, onChanged: _load),
+                        FamSharingHub(members: members, onAddMember: _pickFromCircle),
+                        FamCardSection(members: members, onAddMember: _pickFromCircle),
+                        if (probashi) const FamProbashiSection(),
+                      ]),
+          ),
+        );
+      },
+    );
   }
 
   // ---------------- TODAY ----------------
@@ -1131,174 +1184,4 @@ class _FamilyScreenState extends State<FamilyScreen> {
     );
   }
 
-  // ---------------- FAMILY MEMBERS ----------------
-  Future<void> _addMember({Map<String, dynamic>? existing}) async {
-    final t = _t;
-    final editing = existing != null;
-    final name = TextEditingController(text: existing?['name']?.toString() ?? '');
-    final rel = TextEditingController(text: existing?['relation']?.toString() ?? '');
-    final phone = TextEditingController(text: existing?['phone']?.toString() ?? '');
-    final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-              scrollable: true, // insets: 200% text / keyboard
-              title: Text(editing ? t.medEditMember : t.familyMemberTitle),
-              content: Column(mainAxisSize: MainAxisSize.min, children: [
-                TextField(controller: name, decoration: InputDecoration(labelText: t.name)),
-                TextField(
-                    controller: rel,
-                    decoration: InputDecoration(labelText: t.familyRelationLabel)),
-                TextField(
-                    controller: phone,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(labelText: t.phoneOptional)),
-              ]),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-                FilledButton(
-                    onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
-              ],
-            ));
-    if (ok == true && name.text.trim().isNotEmpty) {
-      final body = {
-        'name': name.text.trim(),
-        'relation': rel.text.trim(),
-        'phone': phone.text.trim()
-      };
-      final api = context.read<AppState>().api;
-      if (editing) {
-        await api.updateItem('family', existing['id'] as int, body);
-      } else {
-        await api.createItem('family', body);
-      }
-      _load();
-    }
-  }
-
-  Widget _membersTab() {
-    final t = _t;
-    return Scaffold(
-      floatingActionButton:
-          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addMember, child: const Icon(Icons.add_rounded)),
-      body: members.isEmpty
-          ? StateMessage(icon: Icons.group_rounded, title: t.familyAddMemberEmpty)
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
-              children: [
-                for (final m in members)
-                  Card(
-                      child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
-                    title: Text(m['name'] ?? ''),
-                    subtitle: Text([(m['relation'] ?? ''), (m['phone'] ?? '')]
-                        .where((e) => e.toString().isNotEmpty)
-                        .join(' · ')),
-                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                      if ((m['phone']?.toString() ?? '').trim().isNotEmpty)
-                        IconButton(
-                            icon: const Icon(Icons.call_rounded),
-                            tooltip: t.call,
-                            onPressed: () => _call(m['phone'].toString().trim())),
-                      IconButton(
-                          icon: const Icon(Icons.edit_rounded),
-                          tooltip: t.edit,
-                          onPressed: () => _addMember(existing: m)),
-                      IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                          icon: const Icon(Icons.delete_outline_rounded),
-                          onPressed: () async {
-                            await context.read<AppState>().api.deleteItem('family', m['id']);
-                            _load();
-                          }),
-                    ]),
-                  )),
-              ]),
-    );
-  }
-
-  // ---------------- SCHOOL ----------------
-  Future<void> _addSchool() async {
-    final t = _t;
-    final child = TextEditingController();
-    final title = TextEditingController();
-    final date = TextEditingController();
-    String kind = 'fee';
-    final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => StatefulBuilder(
-            builder: (ctx, setD) => AlertDialog(
-                  scrollable: true, // insets: 200% text / keyboard
-                  title: Text(t.familySchoolTitle),
-                  content: Column(mainAxisSize: MainAxisSize.min, children: [
-                    TextField(
-                        controller: child,
-                        decoration: InputDecoration(labelText: t.familyChildNameLabel)),
-                    DropdownButtonFormField<String>(
-                        initialValue: kind,
-                        decoration: InputDecoration(labelText: t.moneyFieldType),
-                        items: [
-                          DropdownMenuItem(value: 'fee', child: Text(t.familyKindFee)),
-                          DropdownMenuItem(value: 'exam', child: Text(t.familyKindExam)),
-                          DropdownMenuItem(
-                              value: 'meeting', child: Text(t.familyKindMeeting))
-                        ],
-                        onChanged: (v) => setD(() => kind = v ?? 'fee')),
-                    TextField(
-                        controller: title,
-                        decoration: InputDecoration(labelText: t.familyDescriptionLabel)),
-                    TextField(
-                        controller: date,
-                        decoration: InputDecoration(labelText: t.familyDateLabel)),
-                  ]),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-                    FilledButton(
-                        onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
-                  ],
-                )));
-    if (ok == true && title.text.trim().isNotEmpty) {
-      await context.read<AppState>().api.createItem('school', {
-        'child_name': child.text.trim(),
-        'kind': kind,
-        'title': title.text.trim(),
-        if (date.text.trim().isNotEmpty) 'date': date.text.trim()
-      });
-      _load();
-    }
-  }
-
-  Widget _schoolTab() {
-    final t = _t;
-    return Scaffold(
-      floatingActionButton:
-          FloatingActionButton(tooltip: AppLocalizations.of(context).add, onPressed: _addSchool, child: const Icon(Icons.add_rounded)),
-      body: school.isEmpty
-          ? StateMessage(icon: Icons.school_rounded, title: t.familyAddSchoolEmpty)
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
-              children: [
-                for (final s in school)
-                  Card(
-                      child: ListTile(
-                    leading: Icon({
-                          'fee': Icons.payments_rounded,
-                          'exam': Icons.edit_note_rounded,
-                          'meeting': Icons.groups_rounded,
-                        }[s['kind']] ??
-                        Icons.push_pin_rounded),
-                    title: Text(s['title'] ?? ''),
-                    subtitle: Text([(s['child_name'] ?? ''), (s['date'] ?? '')]
-                        .where((e) => e.toString().isNotEmpty)
-                        .join(' · ')),
-                    trailing: IconButton(tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                        icon: const Icon(Icons.delete_outline_rounded),
-                        onPressed: () async {
-                          await context.read<AppState>().api.deleteItem('school', s['id']);
-                          _load();
-                        }),
-                  )),
-              ]),
-    );
-  }
 }

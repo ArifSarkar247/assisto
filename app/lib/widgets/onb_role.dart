@@ -22,7 +22,13 @@ extension OnbRoleCode on OnbRole {
 class OnbRoleStep extends StatelessWidget {
   final OnbRole? selected;
   final ValueChanged<OnbRole> onPick;
-  const OnbRoleStep({super.key, required this.selected, required this.onPick});
+
+  /// famcare (owner decision 6, 28 Oct): "Simple home (for elders)" can be
+  /// chosen right here — it turns on the EXISTING elderly simple home.
+  final bool simpleHome;
+  final ValueChanged<bool>? onSimpleHome;
+  const OnbRoleStep({super.key, required this.selected, required this.onPick,
+      this.simpleHome = false, this.onSimpleHome});
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +74,18 @@ class OnbRoleStep extends StatelessWidget {
               subtitle: it.$4,
               selected: selected == it.$1,
               onTap: () => onPick(it.$1),
+            ),
+          ),
+        if (onSimpleHome != null)
+          Card(
+            key: const ValueKey('onb-simple-home'),
+            child: SwitchListTile(
+              secondary: const Icon(Icons.elderly_woman_rounded, size: 32),
+              value: simpleHome,
+              onChanged: onSimpleHome,
+              title: Text(t.onbSimpleHome,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(t.onbSimpleHomeSub),
             ),
           ),
       ],

@@ -22,7 +22,10 @@ import 'famacct_sheets.dart';
 /// honest "settled/—" instead of fake zeros. The server is the ledger.
 class FamAcctSection extends StatefulWidget {
   final List<Map<String, dynamic>> members;
-  const FamAcctSection({super.key, required this.members});
+
+  /// famcare: the empty Members sub-tab opens the My Circle picker.
+  final VoidCallback? onAddMember;
+  const FamAcctSection({super.key, required this.members, this.onAddMember});
 
   @override
   State<FamAcctSection> createState() => _FamAcctSectionState();
@@ -159,6 +162,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+          tooltip: AppLocalizations.of(context).faAddExpense,
           onPressed: _openAddExpense, child: const Icon(Icons.add_rounded)),
       body: expenses.isEmpty
           ? StateMessage(
@@ -203,6 +207,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
               Text(FamAcctLocal.fmtPoisha(totalP),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               IconButton(
+                  tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                   icon: const Icon(Icons.delete_outline_rounded),
                   onPressed: () => _deleteExpense(e)),
             ]),
@@ -446,7 +451,15 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     if (rows.isEmpty) {
       return StateMessage(
           icon: Icons.groups_rounded,
-          title: AppLocalizations.of(context).faMembersEmpty);
+          title: AppLocalizations.of(context).faMembersEmpty,
+          message: AppLocalizations.of(context).fcAcctMembersBenefit,
+          action: widget.onAddMember == null
+              ? null
+              : FilledButton.icon(
+                  key: const ValueKey('fam-empty-primary'),
+                  onPressed: widget.onAddMember,
+                  icon: const Icon(Icons.group_add_rounded),
+                  label: Text(AppLocalizations.of(context).fcPickFromCircle)));
     }
     return ListView(
       padding: const EdgeInsets.all(Gap.md),

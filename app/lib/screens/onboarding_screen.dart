@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/onb_common.dart';
 import '../widgets/onb_role.dart';
+import '../widgets/elderly_mode.dart' show EldersModeController; // famcare
 import '../widgets/onb_first_win.dart';
 import '../widgets/onb_permissions.dart';
 import '../widgets/onb_link_parent.dart';
@@ -114,7 +115,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _pc.nextPage(duration: Motion.base, curve: Curves.easeOut);
   }
 
+  // famcare (owner decision 6): the elderly simple home, chosen at setup.
+  bool _simpleHome = false;
+
+  Future<void> _setSimpleHome(bool on) async {
+    if (on && _role == OnbRole.parent &&
+        !await EldersModeController.confirmParentPermission(context)) {
+      return; // setting it up for a parent needs their permission first
+    }
+    if (mounted) setState(() => _simpleHome = on);
+  }
+
   Future<void> _finish() async {
+    if (_simpleHome) await EldersModeController.set(context, true);
     await Settings.setBool('onboarded', true);
     await Settings.setString(_resumeKey, '0');
     if (mounted) context.read<AppState>().markOnboarded();
@@ -171,7 +184,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 _welcomeLang(t, scheme),
                 OnbRoleStep(
-                    selected: _role, onPick: (r) => setState(() => _role = r)),
+                    selected: _role,
+                    onPick: (r) => setState(() => _role = r),
+                    simpleHome: _simpleHome,
+                    onSimpleHome: _setSimpleHome),
                 const OnbPermissions(),
                 // Part 3: set Assisto as the default digital assistant.
                 const VaOnboardingStep(),

@@ -1,3 +1,4 @@
+import 'fake_famcare.dart'; // famcare
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -314,8 +315,10 @@ class FakeApi extends ApiClient {
         ]);
       case 'family':
         return _maybe([
-          {'id': 1, 'name': _bn ? 'আম্মা' : 'Mother', 'relation': _bn ? 'মা' : 'Mother', 'phone': '01710000000'},
-          {'id': 2, 'name': _bn ? 'আব্বা' : 'Father', 'relation': _bn ? 'বাবা' : 'Father', 'phone': '01720000000'},
+          // famcare: Mother was picked from My Circle (gets the SOS); Father
+          // was typed by hand (honest "not in My Circle" chip).
+          {'id': 1, 'name': _bn ? 'আম্মা' : 'Mother', 'relation': 'mother', 'phone': '01710000000', 'circle_member': 1, 'in_circle': true},
+          {'id': 2, 'name': _bn ? 'আব্বা' : 'Father', 'relation': 'father', 'phone': '01720000000', 'circle_member': null, 'in_circle': false},
         ]);
       case 'medicines':
         return _maybe([
@@ -334,7 +337,9 @@ class FakeApi extends ApiClient {
         ]);
       case 'school':
         return _maybe([
-          {'id': 1, 'title': _bn ? 'স্কুল ফি' : 'School fee', 'item_type': 'fee', 'due_date': '2026-10-15'},
+          // famcare: the server's real shape (kind / date / amount / done)
+          {'id': 1, 'title': _bn ? 'স্কুল ফি' : 'School fee', 'child_name': _bn ? 'রাফি' : 'Rafi', 'kind': 'fee', 'date': '2026-11-10', 'amount': '2500.00', 'done': false},
+          {'id': 2, 'title': _bn ? 'অর্ধবার্ষিক পরীক্ষা' : 'Half-yearly exam', 'child_name': _bn ? 'রাফি' : 'Rafi', 'kind': 'exam', 'date': '2026-11-20', 'amount': null, 'done': false},
         ]);
       case 'reminders':
         return _maybe([
@@ -1526,6 +1531,12 @@ class FakeApi extends ApiClient {
     // ===== Business v2 (khata / selling / AI) GET stubs =====
     final biz = _businessGet(path);
     if (biz != null) return biz;
+    // famcare: Family Care (circle pick, tasks, shopping, docs, limits)
+    final fc = fakeFamCareGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (fc != null) {
+      if (mode == FakeMode.fail) _fail();
+      return fc;
+    }
     return super.getJson(path);
   }
 

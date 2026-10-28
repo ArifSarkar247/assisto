@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'fam_sharing_strings.dart';
+import 'fam_empty.dart' show famDigits, famDate;
 import 'wrapped_share.dart';
 
 /// #75 PROBASHI FAMILY (SPEC v2.1 §21) — ADVANCED upgrade of the FAMILY
@@ -34,6 +37,36 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
   final _amount = TextEditingController();
   bool _weekly = false;
   DateTime? _lastSent;
+
+  // famcare: the remittance reminder used to vanish when the tab closed
+  // ("Mark sent" was saved nowhere). It is now kept on this phone.
+  static const _kRemit = 'famcare_probashi_remit_v1';
+
+  @override
+  void initState() {
+    super.initState();
+    _restore();
+  }
+
+  Future<void> _restore() async {
+    try {
+      final raw = await Settings.getString(_kRemit);
+      if (raw == null || raw.isEmpty || !mounted) return;
+      final d = jsonDecode(raw);
+      if (d is! Map) return;
+      setState(() {
+        _amount.text = '${d['amount'] ?? ''}';
+        _weekly = d['weekly'] == true;
+        _lastSent = DateTime.tryParse('${d['last'] ?? ''}');
+      });
+    } catch (_) {} // best-effort: an unreadable value starts empty
+  }
+
+  Future<void> _persist() => Settings.setString(_kRemit, jsonEncode({
+        'amount': _amount.text.trim(),
+        'weekly': _weekly,
+        'last': _lastSent?.toIso8601String(),
+      }));
 
   @override
   void dispose() {
@@ -124,7 +157,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     return Column(children: [
       Text(label, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
-      Text('$hh:$mm',
+      Text(famDigits(context, '$hh:$mm'),
           style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
     ]);
   }
@@ -205,8 +238,8 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: const Icon(Icons.call_rounded, size: 18),
-      title: Text('${famLabel(context, 'famProbashiMyTime')} ${hm(my)}'
-          '  ·  ${famLabel(context, 'famProbashiBdTime')} ${hm(bd)}'),
+      title: Text(famDigits(context, '${famLabel(context, 'famProbashiMyTime')} ${hm(my)}'
+          '  ·  ${famLabel(context, 'famProbashiBdTime')} ${hm(bd)}')),
       trailing: TextButton(
         onPressed: () => _scheduleCall(utc),
         child: Text(famLabel(context, 'famProbashiScheduleCall')),
@@ -242,8 +275,6 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     final nextDue = _lastSent == null
         ? null
         : _lastSent!.add(Duration(days: _weekly ? 7 : 30));
-    String d(DateTime x) =>
-        '${x.year}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -260,6 +291,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _amount,
+            onChanged: (_) => _persist(),
             decoration: InputDecoration(
                 labelText: famLabel(context, 'famProbashiRemitAmount'),
                 isDense: true),
@@ -275,14 +307,17 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
                   label: Text(famLabel(context, 'famProbashiRemitCadenceW'))),
             ],
             selected: {_weekly},
-            onSelectionChanged: (s) => setState(() => _weekly = s.first),
+            onSelectionChanged: (s) {
+              setState(() => _weekly = s.first);
+              _persist();
+            },
           ),
           const SizedBox(height: Gap.sm),
           if (_lastSent != null) ...[
-            Text(AppLocalizations.of(context).famProbashiRemitLastSent(d(_lastSent!)),
+            Text(AppLocalizations.of(context).famProbashiRemitLastSent(famDate(context, _lastSent)),
                 style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
             if (nextDue != null)
-              Text(AppLocalizations.of(context).famProbashiRemitNextDue(d(nextDue)),
+              Text(AppLocalizations.of(context).famProbashiRemitNextDue(famDate(context, nextDue)),
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
@@ -290,7 +325,10 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
           Align(
             alignment: Alignment.centerLeft,
             child: FilledButton.tonalIcon(
-              onPressed: () => setState(() => _lastSent = DateTime.now()),
+              onPressed: () {
+                setState(() => _lastSent = DateTime.now());
+                _persist();
+              },
               icon: const Icon(Icons.check_rounded, size: 18),
               label: Text(famLabel(context, 'famProbashiRemitMarkSent')),
             ),
@@ -356,7 +394,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
               child: Column(children: [
                 Text(famLabel(context, 'famProbashiMyTime'),
                     style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                Text(hm(my),
+                Text(famDigits(context, hm(my)),
                     style: const TextStyle(
                         color: Colors.black,
                         fontSize: 24,
@@ -368,7 +406,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
               child: Column(children: [
                 Text(famLabel(context, 'famProbashiBdTime'),
                     style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                Text(hm(bd),
+                Text(famDigits(context, hm(bd)),
                     style: const TextStyle(
                         color: Colors.black,
                         fontSize: 24,
