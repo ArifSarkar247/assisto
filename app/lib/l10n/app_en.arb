@@ -26654,5 +26654,9 @@
   "fcDocsOpenFile": "Open the scan",
   "@fcDocsOpenFile": {
     "description": "famcare: recipient opens the shared document's attached file"
+  },
+  "p2OffersNotifsOptIn": "While this is off you get no brand-offer notifications — that is the default. Turn it on to get offers only for what you picked, within the daily limit, each labelled \"Offer · brand name\". Turn it off here any time; the Offers page always stays open.",
+  "@p2OffersNotifsOptIn": {
+    "description": "Offers & brands screen, under the 'Offer notifications' switch: brand-offer pushes are OPT-IN only (default OFF). Today the app shows the same text from the server (/offers/prefs notifs_note) so no ARB key is referenced yet; integrate when convenient and prefer this key."
   }
 }

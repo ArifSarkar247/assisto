@@ -15,7 +15,7 @@ def offers_opt_in_only(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0116_tagada2'),
+        ("core", "0118_famcare"),
     ]
 
     operations = [
