@@ -2828,7 +2828,6 @@
   "nomineeScopeEmergency": "Emergency card",
   "nomineeScopeEmergencyDesc": "Blood group, allergies, emergency contacts and basic medical info.",
   "nomineeScopeDocuments": "Document vault list",
-  "nomineeScopeDocumentsDesc": "The list and pointers of what is in the vault — never the encrypted files themselves.",
   "nomineeScopeAccounts": "Account list",
   "nomineeScopeAccountsDesc": "Which banks, mobile-banking and bills exist — never passwords or PINs.",
   "nomineeScopeInsurance": "Insurance",
@@ -2861,7 +2860,6 @@
   "nomineeStatusOpenDesc": "This person can now see the chosen categories. You can revoke it right now.",
   "nomineeHowReleaseWorks": "How release works",
   "nomineeGraceWindowNote": "After a release is requested, access does not open at once — a grace window runs, and a single tap cancels it.",
-  "nomineeNoSecretsNote": "No secret passwords, PINs or encrypted files are shown here — only pointers and instructions. The vault stays end-to-end encrypted.",
   "nomineeArmedNote": "To open access you must request a release below, then confirm a second time.",
   "nomineePendingNote": "A release is pending. You can safely cancel it while the grace window runs.",
   "nomineeAccessOpenNote": "Access is currently open. For safety, revoke it once it is no longer needed.",
@@ -24280,7 +24278,6 @@
   "vaultHowStored": "Your documents are kept with your Assisto account, so they stay safe even if this phone is lost, reset or repaired. Only you can open them, after signing in.",
   "vaultHowPin": "The PIN locks the vault on this phone. It never leaves the phone and is not stored on our server.",
   "vaultHowOffline": "Offline copies are encrypted on this phone with a separate key, not with your PIN.",
-  "vaultHowNotE2e": "Honest note: documents on our server are not end-to-end encrypted. That is why a forgotten PIN never loses a document — you can reset it after proving it's you.",
   "vaultMethodSms": "Code by SMS",
   "vaultMethodSmsOff": "Not available right now",
   "vaultMethodEmail": "Code by email",
@@ -24416,5 +24413,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "vaultHowRecover": "Forgot your PIN? Reset it after proving it's you (a code or your password), or use your recovery code. Your documents are never lost."
 }

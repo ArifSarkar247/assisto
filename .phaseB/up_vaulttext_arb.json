@@ -1,0 +1,9 @@
+{
+  "_comment": "Owner decision 28 Oct: the vault stays recoverable (not E2E); no text may say end-to-end. Replaces vaultHowNotE2e.",
+  "en": {
+    "vaultHowRecover": "Forgot your PIN? Reset it after proving it's you (a code or your password), or use your recovery code. Your documents are never lost."
+  },
+  "bn": {
+    "vaultHowRecover": "PIN ভুলে গেছেন? নিজের পরিচয় প্রমাণ করে (কোড বা পাসওয়ার্ড দিয়ে) নতুন PIN দিন, অথবা রিকভারি-কোড ব্যবহার করুন। আপনার দলিল কখনো হারায় না।"
+  }
+}

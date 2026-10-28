@@ -54,7 +54,7 @@ final _banned = <RegExp, String>{
       'rule/template output labelled AI-generated',
   RegExp(r'\.(spendTitle|memConsentSample|mEtaMockNote|courierMockNote|'
       r'bAiPreview|nearbyMockBanner|onbWinBillSub|onbWinJourneySub|'
-      r'creditsPackValidity|nomineeNoSecretsNote|nomineeScopeDocumentsDesc)\b'):
+      r'creditsPackValidity|nomineeNoSecretsNote|nomineeScopeDocumentsDesc|vaultHowNotE2e)\b'):
       'retired untrue copy (the vault is NOT end-to-end encrypted)',
   RegExp(r"'sample'\s*:\s*true|isSample\s*:\s*true"): 'a row flagged sample',
   RegExp(r'\+8801[0-9]00000+\b'): 'made-up phone number in data',

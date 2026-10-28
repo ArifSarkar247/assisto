@@ -187,7 +187,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  for (final line in [t.vaultHowStored, t.vaultHowPin, t.vaultHowOffline, t.vaultHowNotE2e])
+                  for (final line in [t.vaultHowStored, t.vaultHowPin, t.vaultHowOffline, t.vaultHowRecover])
                     Padding(
                       padding: const EdgeInsets.only(bottom: Gap.sm),
                       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
