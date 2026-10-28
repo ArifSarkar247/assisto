@@ -640,6 +640,8 @@ void main() {
     final strip = find.byKey(const ValueKey('aichat_nokey_strip'));
     await tester.scrollUntilVisible(strip, -200,
         scrollable: find.byType(Scrollable).first);
+    await tester.ensureVisible(strip); // built in the cache area -> on screen
+    await _settle(tester, 3);
     await tester.tap(strip);
     await _settle(tester, 3);
     expect(tester.takeException(), isNull);
