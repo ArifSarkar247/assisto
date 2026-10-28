@@ -23238,5 +23238,433 @@
   "pbsRetry": "Try again",
   "pbsCancel": "Cancel",
   "pbsSave": "Save",
-  "pbsSaved": "Saved."
+  "pbsSaved": "Saved.",
+  "at100Title": "Remote switches",
+  "@at100Title": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Subtitle": "Lost mode, a loud alarm, lock and a lock-screen message for {owner}'s phone.",
+  "@at100Subtitle": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "at100OwnerHint": "Use this from any phone where you are signed in to Assisto — for example a family member's phone.",
+  "@at100OwnerHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Online": "Checking in now · last {time}",
+  "@at100Online": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100Offline": "Not checking in · last seen {time}",
+  "@at100Offline": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100NeverSeen": "Has not checked in yet",
+  "@at100NeverSeen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ProtectionOff": "Protection is off on that phone, so nothing can be sent to it.",
+  "@at100ProtectionOff": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100OfflineTruth": "A phone that is switched off or has no internet can't receive anything — not from Assisto, not from any app. What you send waits here and runs the moment the phone is back online.",
+  "@at100OfflineTruth": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostMode": "Lost mode",
+  "@at100LostMode": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostModeOn": "Lost mode is on",
+  "@at100LostModeOn": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Alarm": "Ring loudly ({seconds} s)",
+  "@at100Alarm": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100AlarmStop": "Stop alarm",
+  "@at100AlarmStop": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Lock": "Lock screen",
+  "@at100Lock": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Message": "Lock-screen message",
+  "@at100Message": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100NeedActive": "Turn on lost mode first — then you can ring, lock and show a message.",
+  "@at100NeedActive": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostOffHint": "Only you can turn lost mode off, with your Security PIN, from My lost phone.",
+  "@at100LostOffHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmTitle": "Ring the phone loudly?",
+  "@at100AlarmConfirmTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmBody": "It rings at full alarm volume for {seconds} seconds, even when it is on silent (unless Do Not Disturb blocks alarms). Whoever holds the phone can press Stop.",
+  "@at100AlarmConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100LockConfirmTitle": "Lock the phone's screen?",
+  "@at100LockConfirmTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LockConfirmBody": "The screen locks at once. This works only if Assisto is a device admin on that phone; the result below says so if it is not.",
+  "@at100LockConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostConfirmBody": "The phone checks in every few minutes, shows your message on its lock screen, and your trusted contacts are told. Only the owner can turn it off, with the Security PIN.",
+  "@at100LostConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgConfirmBody": "Your message appears on the phone's lock screen and the screen locks (if Assisto is a device admin there).",
+  "@at100MsgConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgLabel": "Message",
+  "@at100MsgLabel": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgHint": "e.g. This phone is lost. Please call the number below.",
+  "@at100MsgHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ContactLabel": "Number to call (optional)",
+  "@at100ContactLabel": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgNeeded": "Please write a message.",
+  "@at100MsgNeeded": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Send": "Send",
+  "@at100Send": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOnline": "Sent to the phone. The result appears below.",
+  "@at100SentOnline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOffline": "Saved. The phone is not checking in right now — it will run when the phone is back online.",
+  "@at100SentOffline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ErrRate": "Too many in the last hour. Please try again later.",
+  "@at100ErrRate": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100CancelTooLate": "It already reached the phone, so it can't be cancelled.",
+  "@at100CancelTooLate": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LoadFailed": "Couldn't load the switches.",
+  "@at100LoadFailed": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Refresh": "Refresh",
+  "@at100Refresh": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100History": "Recent",
+  "@at100History": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100HistoryEmpty": "Nothing sent yet.",
+  "@at100HistoryEmpty": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaitingOffline": "Waiting — the phone is offline or switched off. Runs when it is back online.",
+  "@at100PhWaitingOffline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaiting": "Waiting for the phone's next check-in",
+  "@at100PhWaiting": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhSent": "Sent — waiting for the phone to answer",
+  "@at100PhSent": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhReached": "Reached the phone at {time}",
+  "@at100PhReached": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhDone": "Done at {time}",
+  "@at100PhDone": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhFailed": "Didn't work: {reason}",
+  "@at100PhFailed": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhExpired": "The phone never came online — expired",
+  "@at100PhExpired": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhCancelled": "Cancelled",
+  "@at100PhCancelled": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNoAdmin": "device admin is off on that phone",
+  "@at100FailNoAdmin": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNotif": "notifications are blocked on that phone",
+  "@at100FailNotif": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailSound": "the phone couldn't play a sound",
+  "@at100FailSound": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailOther": "the phone couldn't do it",
+  "@at100FailOther": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100By": "by {name}",
+  "@at100By": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "at100ByYou": "by you",
+  "@at100ByYou": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ByOwner": "by the owner",
+  "@at100ByOwner": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeTitle": "Erase the phone",
+  "@at100WipeTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeBody": "Assisto never asks for the power to erase your phone. Google Find Hub can erase it for free — sign in there with the phone's Google account.",
+  "@at100WipeBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeOpen": "Open Google Find Hub",
+  "@at100WipeOpen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTitle": "Phones I help protect",
+  "@at100WatchTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchCount": "{count, plural, =1{1 phone} other{{count} phones}}",
+  "@at100WatchCount": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100WatchEmpty": "No one has chosen you as a trusted contact yet. When someone does, their phone appears here.",
+  "@at100WatchEmpty": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchPhone": "{owner}'s phone",
+  "@at100WatchPhone": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "at100WatchLostBadge": "Lost mode on",
+  "@at100WatchLostBadge": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchDarkBadge": "Stopped checking in",
+  "@at100WatchDarkBadge": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchLastLoc": "Last location",
+  "@at100WatchLastLoc": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchNoLoc": "No location yet.",
+  "@at100WatchNoLoc": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchOpenMap": "Open in Maps",
+  "@at100WatchOpenMap": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTimeline": "Alert history",
+  "@at100WatchTimeline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Accuracy": "±{meters} m",
+  "@at100Accuracy": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100OptIntruderBody": "Off until you agree. Only while Assisto is open: after several wrong Security PINs typed in Assisto, one front-camera photo with a shutter sound. Encrypted; only you and your trusted contacts see it.",
+  "@at100OptIntruderBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcTitle": "Intruder photo",
+  "@at100IcTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLead": "This stays off until you agree. Please read what it does.",
+  "@at100IcLead": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhatT": "What",
+  "@at100IcWhatT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhat": "One photo with this phone's front camera.",
+  "@at100IcWhat": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhenT": "When",
+  "@at100IcWhenT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhen": "Only while Assisto is open on the screen: after several wrong Security PINs in a row inside Assisto (3 by default) — for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off. Never on the lock screen and never in the background.",
+  "@at100IcWhen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNoticeT": "Never hidden",
+  "@at100IcNoticeT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN box says that a wrong PIN takes a photo.",
+  "@at100IcNotice": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhereT": "Where it is kept",
+  "@at100IcWhereT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhere": "Encrypted on this phone until it is sent, then encrypted on Assisto's server. There is no public link.",
+  "@at100IcWhere": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhoT": "Who sees it",
+  "@at100IcWhoT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWho": "Only you and the trusted contacts you chose, in the protection timeline. No face recognition, never used for anything else.",
+  "@at100IcWho": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeepT": "How long",
+  "@at100IcKeepT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeep": "Deleted automatically after 30 days.",
+  "@at100IcKeep": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDeleteT": "Turn off and delete",
+  "@at100IcDeleteT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDelete": "Switch it off here any time with your Security PIN. Turning protection off deletes photos still waiting on the phone; deleting your Assisto account deletes the rest.",
+  "@at100IcDelete": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLaw": "Use it only on your own phone. Photographing people without telling them can be against the law.",
+  "@at100IcLaw": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcAgree": "I agree — turn it on",
+  "@at100IcAgree": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNo": "Not now",
+  "@at100IcNo": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNeeded": "Please agree on the intruder photo screen first.",
+  "@at100IcNeeded": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PinNotice": "A wrong PIN takes a front-camera photo (the owner turned this on).",
+  "@at100PinNotice": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminTitle": "Assisto as device admin",
+  "@at100DiscAdminTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminBody": "To protect this phone if it is lost or stolen, Assisto asks Android to make it a device admin. It is used for exactly two things:\n• lock the screen when you, or a trusted contact you chose, press Lock from another phone (or right after a detected grab, if you turn that on);\n• notice wrong screen-unlock attempts and tell your trusted contacts.\nAssisto never asks for the power to erase the phone and never reads your screen-lock code. While it is on, Android asks you to switch it off before Assisto can be uninstalled. You can switch it off any time in Android Settings → Security → Device admin apps.\nNext, Android shows its own screen — tap Activate there.",
+  "@at100DiscAdminBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocTitle": "Location for lost-phone protection",
+  "@at100DiscLocTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocBody": "While you keep Lost/Stolen protection on, Assisto reads this phone's location so the trusted contacts you chose can see where it was last — in every alert (grab, SIM change, offline, low battery) and when lost mode is on. A notification is always shown while protection runs. Location is sent only to your account and those contacts, kept for 24 hours (alerts 30 days), and never sold or used for ads. Assisto does not ask for \"Allow all the time\". Turn it off by switching protection off, or in Android Settings → Apps → Assisto → Permissions.\nNext, Android asks for the location permission.",
+  "@at100DiscLocBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscContinue": "Continue",
+  "@at100DiscContinue": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  }
 }
