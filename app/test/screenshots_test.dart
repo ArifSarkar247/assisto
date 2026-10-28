@@ -32,6 +32,7 @@ import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
+import 'at100_shots.dart'; // at100
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -166,6 +167,11 @@ import 'package:assisto/screens/crm/crm_team_screen.dart';
 import 'package:assisto/screens/crm/crm_companies_screen.dart';
 import 'package:assisto/screens/crm/crm_reports_screen.dart';
 import 'package:assisto/screens/crm/crm_lead_detail_screen.dart';
+import 'package:assisto/screens/crm/crm100_api.dart' show CustomerTarget; // crm100
+import 'package:assisto/screens/crm/customer_history_screen.dart'; // crm100
+import 'package:assisto/screens/crm/customer_list_screen.dart'; // crm100
+import 'package:assisto/screens/crm/shop_quote_screens.dart'; // crm100
+import 'package:assisto/screens/crm/crm_send_sheet.dart'; // crm100
 import 'package:assisto/screens/crm/crm_home_screen.dart';
 import 'package:assisto/screens/money_import_screen.dart';
 import 'package:assisto/screens/crm/crm_proposal_screen.dart';
@@ -220,6 +226,7 @@ import 'pay1_shots.dart'; // pay1
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
+import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'booking1_shots.dart'; // booking1 booking bot
 import 'budrem_shots.dart'; // budrem Budget and Remittance
 import 'retention1_shots.dart'; // retention1 Retention automation
@@ -682,6 +689,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
+    for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
     for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in budremShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // budrem
@@ -734,6 +742,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'crm_companies': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmCompaniesScreen(org: 1)), mode: FakeMode.data, full: true),
     'crm_reports': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmReportsScreen(org: 1)), mode: FakeMode.data, full: true),
     'crm_lead_detail': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    // crm100: one customer history page, merged customer list, quotes, send
+    'crm100_history': (build: (_) => const CustomerHistoryScreen(target: CustomerTarget(phone: '01712345678')), mode: FakeMode.data, full: true),
+    'crm100_history_empty': (build: (_) => const CustomerHistoryScreen(target: CustomerTarget(phone: '01811111111')), mode: FakeMode.empty, full: false),
+    'crm100_customers': (build: (_) => const CustomerListScreen(), mode: FakeMode.data, full: true),
+    'crm100_customers_empty': (build: (_) => const CustomerListScreen(), mode: FakeMode.empty, full: false),
+    'crm100_quotes': (build: (_) => const ShopQuoteListScreen(), mode: FakeMode.data, full: true),
+    'crm100_quote_builder': (build: (_) => const ShopQuoteBuilderScreen(customerName: 'Karim Mia', customerPhone: '01712345678'), mode: FakeMode.data, full: true),
+    'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
     'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
     'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
@@ -809,6 +825,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolishShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // wa-polish2: bubble grouping, composer mic + recording strip, Call info
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // at100: remote switches (owner / offline / trusted), watched phones, intruder consent
+    for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

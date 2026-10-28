@@ -232,6 +232,7 @@ class AdRules {
     'sos', 'safety', 'safe', 'emergency', 'fall_detect', 'journey', 'lost',
     'security',
     'theft', 'alert', 'alarm', 'guard',
+    'watched_phone', // at100: a trusted contact's view of a lost phone
     'pay', 'topup', 'top_up', 'checkout', 'billing', 'plans', 'purchase',
     'login', 'otp', 'signup', 'register', 'password', 'onboarding', 'welcome',
     'permission', 'language_picker', 'ring_check',

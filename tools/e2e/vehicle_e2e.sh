@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # VEHICLE TRACKING end-to-end harness — no secrets, no network, no live DB.
-#   1. Django tests: protocol vectors (GT06 / H02 / Teltonika), alert logic
+#   1. Django tests: protocol vectors (GT06 / H02 / TK103 / Teltonika), alert logic
 #      (geofence, overspeed, OFF-ROUTE, long stop, night), idempotent ingest,
 #      and REAL-TCP runs of tracker/server.py driven by tracker/sim.py with
 #      every alert pushed through core.push (FCM HTTP seam mocked).
@@ -24,7 +24,7 @@ cleanup() { if [ -z "${E2E_KEEP:-}" ]; then rm -rf "$E2E_DIR"; else echo "[vehic
 trap cleanup EXIT
 
 echo "[vehicle-e2e] 1/2 django tests"
-(cd "$ROOT/backend" && "$PY" manage.py test core.tests_e2e_vehicle core.tests_v1_vehicle \
+(cd "$ROOT/backend" && "$PY" manage.py test core.tests_e2e_vehicle core.tests_v1_vehicle core.tests_veh100 \
    --settings=assisto_backend.settings_test --parallel 1 --noinput)
 
 echo "[vehicle-e2e] 2/2 real tracker process on 127.0.0.1:$PORT"

@@ -39,6 +39,8 @@ class PushChannels {
     'meter_low': alerts, // remmeter: prepaid meter running low
     'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
+    'doc_expiry': reminders, // vault100: a vault document expires soon
+    'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
   };
 }
 
@@ -177,6 +179,8 @@ class PushRouting {
     'safety/sos': 'family_alerts',
     'family/alerts': 'family_alerts',
     'security/lost-phone': 'my_lost_phone',
+    // at100: a trusted contact's anti-theft alert -> the phones they help protect
+    'security/watch-phone': 'watched_phones',
     // journey100: Safe Journey pushes
     'journey': 'journey', // the traveller: Are you OK? / routine
     'journey/watch': 'journey_watch', // a watcher: started/late/arrived...
@@ -192,6 +196,8 @@ class PushRouting {
     'prepaid_meter': 'prepaid_meter', // remmeter
     'agent/approval': 'agent_approvals', // agent-core WP-APP
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
+    'vault': 'documents', // vault100: expiry push / PIN-reset notice
+    'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -208,7 +214,21 @@ class PushRouting {
     'meter_low': 'prepaid_meter', // remmeter
     'agent_approval': 'agent_approvals', // agent-core WP-APP
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
+    'doc_expiry': 'documents', // vault100
+    'dues': 'my_dues', // tagada2
   };
+
+  /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,
+  /// party_id, party_name?} opens that customer's khata chat. Null when any
+  /// id is missing (then the plain khata route applies).
+  static ({int businessId, int partyId, String name})? khataChatOf(
+      PushPayload p) {
+    if (p.route != 'business/khata' || p.data['open'] != 'chat') return null;
+    final b = int.tryParse(p.data['business_id'] ?? '');
+    final party = int.tryParse(p.data['party_id'] ?? '');
+    if (b == null || party == null || b <= 0 || party <= 0) return null;
+    return (businessId: b, partyId: party, name: (p.data['party_name'] ?? '').trim());
+  }
 
   /// [action] is the local-notification action id ('accept' / 'decline' /
   /// null for a plain tap). Decline never opens anything.

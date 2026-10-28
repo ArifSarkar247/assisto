@@ -13,6 +13,7 @@ import '../../plans_v2/trial_banner.dart'; // plans-v2
 import 'business_setup_screen.dart';
 import 'khata_screen.dart';
 import 'cashbox_screen.dart';
+import 'sms_balance_screen.dart'; // tagada2
 // Sibling-agent screens (selling + AI, already present at integration). These
 // take a businessId / handle their own gating. See the routing contract in the
 // integrator report.
@@ -28,6 +29,8 @@ import 'demand_map_screen.dart';
 import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
 import 'bizagent/seller_agent_screen.dart'; // p1-bizagent
+import '../crm/customer_list_screen.dart'; // crm100
+import '../crm/shop_quote_screens.dart'; // crm100
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -328,6 +331,23 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               onTap: () => _showSelling(bizId),
             ),
             const SizedBox(height: Gap.md),
+            // crm100: one page per customer + price quotes with an accept link
+            _HubCard(
+              icon: Icons.person_search_rounded,
+              tint: Brand.blue,
+              title: t.c100CustomersTitle,
+              subtitle: t.c100HubCustomersSub,
+              onTap: () => _go(CustomerListScreen(business: bizId)),
+            ),
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.request_quote_rounded,
+              tint: Brand.purple,
+              title: t.c100QuotesTitle,
+              subtitle: t.c100HubQuotesSub,
+              onTap: () => _go(ShopQuoteListScreen(business: bizId)),
+            ),
+            const SizedBox(height: Gap.md),
             _HubCard(
               icon: Icons.account_balance_wallet_rounded,
               tint: AssistoTokens.of(context).success,
@@ -335,6 +355,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               subtitle: t.businessCashboxSub,
               onTap: () => _go(CashboxScreen(business: biz)),
             ),
+            if (!isStaff) ...[
+              // tagada2: Assisto SMS balance (plan SMS + packs)
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.sms_rounded,
+                tint: scheme.primary,
+                title: t.tg2BalTitle,
+                subtitle: t.tg2BalHubSub,
+                onTap: () => _go(SmsBalanceScreen(businessId: bizId)),
+              ),
+            ],
             if (!isStaff) ...[
               const SizedBox(height: Gap.md),
               _HubCard(

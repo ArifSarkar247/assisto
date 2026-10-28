@@ -39,6 +39,11 @@ def _delete_user_files(user):
         for phone in user.protected_phones.all():
             for cap in phone.captured_events.all():
                 _wipe(getattr(cap, "photo", None))
+            # at100: the always-on engine's encrypted intruder photos
+            # (AntiTheftEvent.photo, upload_to="theft/engine/") too — the
+            # consent screen promises account deletion removes them.
+            for ev in phone.engine_events.exclude(photo=""):
+                _wipe(getattr(ev, "photo", None))
     except Exception:
         pass
 

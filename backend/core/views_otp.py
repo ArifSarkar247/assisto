@@ -72,7 +72,7 @@ def _resolve_phone(request, purpose, lang):
     user = _authed(request)
     if purpose in otp.AUTHED_PURPOSES and user is None:
         return None, _fail("auth_required", lang, status.HTTP_401_UNAUTHORIZED)
-    if purpose in ("delete_account", "section8"):
+    if purpose in otp.OWN_ACCOUNT_PURPOSES:
         mine = otp.user_phone(user)
         if not mine:
             return None, _fail("bad_phone", lang, status.HTTP_400_BAD_REQUEST)
@@ -311,7 +311,7 @@ class OtpEmailRequestView(APIView):
             # an address another account owns: same answer, nothing sent
             kw.update(email=addr, target=addr,
                       send=not otp.email_taken_by_other(user, addr))
-        elif purpose in ("delete_account", "section8"):
+        elif purpose in otp.OWN_ACCOUNT_PURPOSES:
             if user is None:
                 return _fail("auth_required", lang, status.HTTP_401_UNAUTHORIZED)
             mine = otp.user_phone(user)

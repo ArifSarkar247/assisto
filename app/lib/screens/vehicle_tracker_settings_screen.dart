@@ -8,6 +8,7 @@ import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
+import 'vehicle_fence_editor_screen.dart'; // veh100
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -33,6 +34,12 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
   List<Map<String, dynamic>> _members = [];
   List<Map<String, dynamic>> _grants = [];
   bool _saving = false;
+  // veh100: opt-in alert switches + quiet hours + odometer base
+  late bool _ignOn, _ignOff;
+  late int _stopMin, _silentMin;
+  late String _quietStart, _quietEnd;
+  late final TextEditingController _odo;
+  late final String _odoStart;
 
   int get _id => widget.tracker['id'] as int;
 
@@ -50,6 +57,16 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
     _approval = s['cutoff_requires_approval'] == true;
     _approver = vehInt(s['approver_member_id']);
     _fences = vehList(s['geofences']);
+    final ap = vehMap(s['alert_prefs']);
+    _ignOn = ap['ignition_on'] == true;
+    _ignOff = ap['ignition_off'] == true;
+    _stopMin = vehInt(ap['stop_alert_min']) ?? 0;
+    _silentMin = vehInt(ap['silent_min']) ?? 30;
+    _quietStart = '${ap['quiet_start'] ?? ''}';
+    _quietEnd = '${ap['quiet_end'] ?? ''}';
+    final odo = vehNum(widget.tracker['odometer_km']);
+    _odoStart = odo == null || odo <= 0 ? '' : odo.toStringAsFixed(0);
+    _odo = TextEditingController(text: _odoStart);
     _loadPeople();
   }
 
@@ -86,6 +103,16 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
         'geofences': _fences,
         'cutoff_requires_approval': _approval,
         'approver_member_id': _approval ? _approver : null,
+        'alert_prefs': {
+          'ignition_on': _ignOn,
+          'ignition_off': _ignOff,
+          'stop_alert_min': _stopMin,
+          'silent_min': _silentMin,
+          'quiet_start': _quietStart,
+          'quiet_end': _quietEnd,
+        },
+        if (_odo.text.trim().isNotEmpty && _odo.text.trim() != _odoStart)
+          'odometer_km': double.tryParse(_odo.text.trim()) ?? -1,
       });
       _snack(tr.vehSaved);
     } catch (e) {
@@ -106,6 +133,35 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
     if (t == null) return;
     final s = '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
     setState(() => start ? _nightStart = s : _nightEnd = s);
+  }
+
+  Future<void> _pickQuiet(bool start) async {
+    final cur = (start ? _quietStart : _quietEnd).isEmpty
+        ? (start ? '23:00' : '06:00')
+        : (start ? _quietStart : _quietEnd);
+    final parts = cur.split(':');
+    final t = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+          hour: int.tryParse(parts.first) ?? 23,
+          minute: int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0),
+    );
+    if (t == null) return;
+    final v = '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+    setState(() => start ? _quietStart = v : _quietEnd = v);
+  }
+
+  Future<void> _drawFence() async {
+    final live = vehMap(widget.tracker['live']);
+    final f = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VehicleFenceEditorScreen(
+            centerLat: vehNum(live['lat']), centerLng: vehNum(live['lng'])),
+      ),
+    );
+    if (f == null || !mounted) return;
+    setState(() => _fences = [..._fences, f]);
   }
 
   Future<void> _addFenceHere() async {
@@ -253,6 +309,19 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
     }
   }
 
+  String _fenceSub(AppLocalizations tr, Map<String, dynamic> f) {
+    final pts = f['points'];
+    final shape = pts is List
+        ? tr.v100FenceShape(vehNumStr(context, pts.length))
+        : tr.vehMeters(vehNumStr(context, vehInt(f['radius_m']) ?? 300));
+    final dir = switch ('${f['alert'] ?? 'both'}') {
+      'enter' => tr.v100FenceAlertEnter,
+      'exit' => tr.v100FenceAlertExit,
+      _ => tr.v100FenceAlertBoth,
+    };
+    return '$shape · $dir';
+  }
+
   String _memberName(int? id) {
     for (final m in _members) {
       if (m['id'] == id) return '${m['name'] ?? ''}';
@@ -321,28 +390,108 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
                   onPressed: () => _pickTime(false),
                   child: Text(notifLocalizeDigits(context, tr.vehNightTo(_nightEnd)))),
             ]),
+          SwitchListTile(
+            key: const ValueKey('veh-ign-on'),
+            contentPadding: EdgeInsets.zero,
+            value: _ignOn,
+            onChanged: (v) => setState(() => _ignOn = v),
+            title: Text(tr.v100IgnOnAlert),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: _ignOff,
+            onChanged: (v) => setState(() => _ignOff = v),
+            title: Text(tr.v100IgnOffAlert),
+            subtitle: Text(tr.v100IgnNote),
+          ),
+          const SizedBox(height: Gap.sm),
+          DropdownButtonFormField<int>(
+            initialValue: [0, 10, 15, 30, 60, 120].contains(_stopMin) ? _stopMin : 0,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: tr.v100StopAlert),
+            items: [
+              for (final m in [0, 10, 15, 30, 60, 120])
+                DropdownMenuItem(
+                    value: m,
+                    child: Text(m == 0 ? tr.vehOff : tr.v100Minutes(vehNumStr(context, m)))),
+            ],
+            onChanged: (v) => setState(() => _stopMin = v ?? 0),
+          ),
+          const SizedBox(height: Gap.sm),
+          DropdownButtonFormField<int>(
+            initialValue: [0, 15, 30, 60, 120].contains(_silentMin) ? _silentMin : 30,
+            isExpanded: true,
+            decoration: InputDecoration(
+                labelText: tr.v100SilentAlert, helperText: tr.v100SilentHelp, helperMaxLines: 3),
+            items: [
+              for (final m in [0, 15, 30, 60, 120])
+                DropdownMenuItem(
+                    value: m,
+                    child: Text(m == 0 ? tr.vehOff : tr.v100Minutes(vehNumStr(context, m)))),
+            ],
+            onChanged: (v) => setState(() => _silentMin = v ?? 30),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: _quietStart.isNotEmpty && _quietEnd.isNotEmpty,
+            onChanged: (v) => setState(() {
+              _quietStart = v ? '23:00' : '';
+              _quietEnd = v ? '06:00' : '';
+            }),
+            title: Text(tr.v100QuietTitle),
+            subtitle: Text(tr.v100QuietBody),
+          ),
+          if (_quietStart.isNotEmpty && _quietEnd.isNotEmpty)
+            Wrap(spacing: Gap.sm, children: [
+              OutlinedButton(
+                  onPressed: () => _pickQuiet(true),
+                  child: Text(notifLocalizeDigits(context, tr.vehNightFrom(_quietStart)))),
+              OutlinedButton(
+                  onPressed: () => _pickQuiet(false),
+                  child: Text(notifLocalizeDigits(context, tr.vehNightTo(_quietEnd)))),
+            ]),
           section(tr.vehFencesSection),
           if (_fences.isEmpty)
             Text(tr.vehFencesEmpty, style: TextStyle(color: scheme.onSurfaceVariant)),
           for (final f in _fences)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.radio_button_checked_rounded, color: Brand.purple),
+              leading: Icon(
+                  f['points'] is List
+                      ? Icons.pentagon_outlined
+                      : Icons.radio_button_checked_rounded,
+                  color: Brand.purple),
               title: Text('${f['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text(tr.vehMeters(vehNumStr(context, vehInt(f['radius_m']) ?? 300))),
+              subtitle: Text(_fenceSub(tr, f), maxLines: 2),
               trailing: IconButton(
                 tooltip: tr.delete,
                 icon: const Icon(Icons.delete_outline_rounded),
                 onPressed: () => setState(() => _fences = [..._fences]..remove(f)),
               ),
             ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton.icon(
+          Wrap(spacing: Gap.sm, children: [
+            TextButton.icon(
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               onPressed: _fences.length >= 10 ? null : _addFenceHere,
               icon: const Icon(Icons.add_location_alt_rounded),
               label: Text(tr.vehFenceAddHere),
             ),
+            TextButton.icon(
+              key: const ValueKey('veh-fence-draw'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _fences.length >= 10 ? null : _drawFence,
+              icon: const Icon(Icons.draw_rounded),
+              label: Text(tr.v100FenceDraw),
+            ),
+          ]),
+          section(tr.v100OdoSection),
+          TextField(
+            key: const ValueKey('veh-odo'),
+            controller: _odo,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            maxLength: 9,
+            decoration: InputDecoration(
+                labelText: tr.v100OdoLabel, helperText: tr.v100OdoHelp, helperMaxLines: 3),
           ),
           section(tr.vehIntervalSection),
           const SizedBox(height: Gap.sm),

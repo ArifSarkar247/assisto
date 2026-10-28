@@ -531,6 +531,51 @@ from . import tools_business as _TB, tools_personal as _TPS   # noqa: E402
 
 TOOLS = TOOLS + _TPS.TOOLS + _TB.TOOLS
 
+# ------------------------------------------------------------------ memory (WP-MEMORY)
+# Life-graph tools (core/agentcore/memory.py). remember/update only ever
+# create a SUGGESTION the user approves on the "AI knows" page; forget is a
+# delete and always needs the one-tap approval. Secrets are refused in code.
+from . import memory as _MEM  # noqa: E402
+
+_MEM_TYPES = {"type": "string", "enum": list(_MEM.TYPES)}
+_MEM_TOPICS = ("memory",)
+TOOLS = TOOLS + (
+    Tool("memory.recall", 1, "মেমরি খোঁজা", "Recall saved facts",
+         "Find facts the user saved about their life (people, places, routines, "
+         "preferences, important dates, business). Empty query = latest.", "read",
+         obj({"query": {"type": "string", "maxLength": 100}, "type": _MEM_TYPES,
+              "limit": {"type": "integer", "minimum": 1, "maximum": 10}}),
+         obj({"query": _STR, "count": _INT, "items": _list_out({"id": _INT, "label": _STR})},
+             ("count", "items"), extra=True),
+         _MEM.tool_recall, _MEM.tool_recall_sum, topics=_MEM_TOPICS),
+    Tool("memory.remember", 1, "মনে রাখার প্রস্তাব", "Suggest a fact to remember",
+         "Propose ONE fact the user asked you to remember. It is saved only after the user "
+         "approves it. Never for passwords, PINs, OTPs, card/account/NID numbers.",
+         "write_low",
+         obj({"type": _MEM_TYPES, "label": {"type": "string", "minLength": 1, "maxLength": 80},
+              "value": {"type": "string", "maxLength": 300},
+              "relation": {"type": "string", "maxLength": 40},
+              "when": {"type": "string", "maxLength": 60}}, ("type", "label")),
+         obj({"suggested": _BOOL, "id": _INT, "refused": _STR}, ("suggested", "id", "refused")),
+         _MEM.tool_remember, _MEM.tool_remember_sum, rate_per_hour=20, topics=_MEM_TOPICS),
+    Tool("memory.update", 1, "মেমরি বদলের প্রস্তাব", "Suggest a change to a fact",
+         "Propose a new value for one saved fact (by id from memory.recall). It changes only "
+         "after the user approves.", "write_low",
+         obj({"id": {"type": "integer", "minimum": 1},
+              "label": {"type": "string", "maxLength": 80},
+              "value": {"type": "string", "minLength": 1, "maxLength": 300},
+              "relation": {"type": "string", "maxLength": 40},
+              "when": {"type": "string", "maxLength": 60}}, ("id", "value")),
+         obj({"suggested": _BOOL, "id": _INT, "refused": _STR}, ("suggested", "id", "refused")),
+         _MEM.tool_update, _MEM.tool_update_sum, rate_per_hour=20, topics=_MEM_TOPICS),
+    Tool("memory.forget", 1, "মেমরি থেকে মোছা", "Forget a fact",
+         "Delete one saved fact by id (from memory.recall). Always needs the user's approval.",
+         "delete", obj({"id": {"type": "integer", "minimum": 1}}, ("id",)),
+         obj({"id": _INT, "deleted": _BOOL, "label": _STR}, ("id", "deleted", "label")),
+         _MEM.tool_forget, _MEM.tool_forget_sum, rate_per_hour=20, topics=_MEM_TOPICS,
+         approval_title=_MEM.tool_forget_title),
+)
+
 REGISTRY = {t.name: t for t in TOOLS}
 
 

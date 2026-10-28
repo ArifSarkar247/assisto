@@ -55,6 +55,13 @@ def prune(now=None):
             ev.save(update_fields=["snapshot"])
             removed += 1
     removed += prune_watchman(now)
+    # cashguard: encrypted clips past 24 h (the hourly shop_clip_purge does
+    # this too; here as a daily safety net)
+    try:
+        from core.cashguard_views import purge_clips
+        removed += purge_clips(now)
+    except Exception:
+        pass
     return removed
 
 

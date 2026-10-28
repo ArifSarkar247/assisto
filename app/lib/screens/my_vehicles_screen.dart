@@ -9,6 +9,9 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vehicle_tracking_screen.dart';
+import 'vehicle_drivers_screen.dart'; // veh100
+import '../vehicle/vehicle_api.dart'; // veh100
+import '../vehicle/veh_format.dart' show vehNumStr; // veh100
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// MY VEHICLES — anti-theft module Batch 2 (vehicle profile + expiry reminders
@@ -45,6 +48,8 @@ const String _vehiclePath = 'vehicle/records';
 
 class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   List<Map<String, dynamic>> _vehicles = [];
+  // veh100: what the SERVER says is due (the same rules its reminder pushes use)
+  List<Map<String, dynamic>> _due = const [];
   bool _loading = true, _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
@@ -65,6 +70,11 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     } catch (e) {
       _error = true;
       _failCause = e;
+    }
+    try {
+      _due = vehList((await api.vehMaintenance())['due']);
+    } catch (_) {
+      _due = const []; // the list still works; the banner just stays hidden
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -118,6 +128,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       'tax_token_expiry': tr.vehiclesTaxToken,
       'fitness_expiry': tr.vehiclesFitness,
       'insurance_expiry': tr.vehiclesInsurance,
+      'route_permit_expiry': tr.v100RoutePermit,
     };
     for (final entry in fields.entries) {
       final iso = (data[entry.key] ?? '').toString();
@@ -197,6 +208,12 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         appBar: AppBar(
           title: Text(tr.vehiclesTitle),
           actions: [
+            IconButton(
+              tooltip: tr.v100DriversTitle,
+              icon: const Icon(Icons.badge_rounded),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const VehicleDriversScreen())),
+            ),
             // v1-vehicle: live GPS tracking of paired hardware trackers
             // (feature-flags: its own flag, vehicle_tracking)
             if (FeatureFlags.instance.isOn('vehicle_tracking'))
@@ -261,9 +278,11 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         onRefresh: _load,
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
-          itemCount: _vehicles.length,
+          itemCount: _vehicles.length + 1,
           separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
-          itemBuilder: (_, i) => _vehicleCard(_vehicles[i], tr, scheme),
+          itemBuilder: (_, i) => i == 0
+              ? _dueBanner(tr, scheme)
+              : _vehicleCard(_vehicles[i - 1], tr, scheme),
         ),
       ),
     );
@@ -322,13 +341,68 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
             _expiryChip(tr.vehiclesTaxToken, data['tax_token_expiry'], tr),
             _expiryChip(tr.vehiclesFitness, data['fitness_expiry'], tr),
             _expiryChip(tr.vehiclesInsurance, data['insurance_expiry'], tr),
+            if ((data['route_permit_expiry'] ?? '').toString().isNotEmpty)
+              _expiryChip(tr.v100RoutePermit, data['route_permit_expiry'], tr),
           ]),
+          if (data['maintenance'] is List && (data['maintenance'] as List).isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Text(tr.v100ServiceRulesN(
+                    vehNumStr(context, (data['maintenance'] as List).length)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          ],
         ]),
       ),
     );
   }
 
   /// Expiry badge — mirrors vault_screen: red <7 days (and expired), orange <30.
+  /// veh100: everything due soon, as the server computes it (papers 30/7/1
+  /// days, service by km or date, driver licences). Hidden when nothing is due.
+  Widget _dueBanner(AppLocalizations tr, ColorScheme scheme) {
+    if (_due.isEmpty) return const SizedBox.shrink();
+    final bn = Localizations.localeOf(context).languageCode != 'en';
+    String line(Map<String, dynamic> d) {
+      final label = '${bn ? d['label_bn'] : d['label_en']}';
+      final who = '${d['name'] ?? ''}'.trim();
+      final days = vehInt(d['days_left']);
+      final km = vehNum(d['km_left']);
+      final when = d['by'] == 'km' && km != null
+          ? (km <= 0 ? tr.v100DueNow : tr.v100DueKm(vehNumStr(context, km.round())))
+          : (days == null
+              ? ''
+              : (days <= 0 ? tr.v100DueToday : tr.v100DueDays(vehNumStr(context, days))));
+      return [if (who.isNotEmpty) who, label, if (when.isNotEmpty) when].join(' · ');
+    }
+
+    return Card(
+      key: const ValueKey('veh-due-banner'),
+      margin: EdgeInsets.zero,
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.notification_important_rounded, color: scheme.onErrorContainer),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+                child: Text(tr.v100DueTitle,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700, color: scheme.onErrorContainer))),
+          ]),
+          const SizedBox(height: Gap.xs),
+          for (final d in _due.take(6))
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(line(d), style: TextStyle(color: scheme.onErrorContainer)),
+            ),
+          const SizedBox(height: Gap.xs),
+          Text(tr.v100DueFoot,
+              style: AType.bodySmall.copyWith(color: scheme.onErrorContainer)),
+        ]),
+      ),
+    );
+  }
+
   Widget _expiryChip(String label, dynamic iso, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     final d = iso == null ? null : DateTime.tryParse(iso.toString());
@@ -383,12 +457,20 @@ class _VehicleFormState extends State<_VehicleForm> {
   late final TextEditingController _reg;
   late final TextEditingController _chassis;
   late final TextEditingController _engine;
-  DateTime? _tax, _fitness, _insurance;
+  DateTime? _tax, _fitness, _insurance, _permit;
+  late final TextEditingController _odo; // veh100: manual odometer (no tracker)
+  late List<Map<String, dynamic>> _rules; // veh100: service by km and/or date
 
   @override
   void initState() {
     super.initState();
     final d = widget.initial;
+    _permit = DateTime.tryParse((d['route_permit_expiry'] ?? '').toString());
+    _odo = TextEditingController(text: (d['odometer_km'] ?? '').toString());
+    _rules = [
+      for (final r in (d['maintenance'] is List ? d['maintenance'] as List : const []))
+        if (r is Map) Map<String, dynamic>.from(r),
+    ];
     _type = (d['type'] ?? 'car').toString() == 'motorcycle' ? 'motorcycle' : 'car';
     _name = TextEditingController(text: (d['name'] ?? '').toString());
     _reg = TextEditingController(text: (d['registration_no'] ?? '').toString());
@@ -405,7 +487,25 @@ class _VehicleFormState extends State<_VehicleForm> {
     _reg.dispose();
     _chassis.dispose();
     _engine.dispose();
+    _odo.dispose();
     super.dispose();
+  }
+
+  Future<void> _editRule([int? index]) async {
+    final r = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (_) => _RuleDialog(
+          initial: index == null ? const {} : _rules[index],
+          odometerKm: double.tryParse(_odo.text.trim())),
+    );
+    if (r == null) return;
+    setState(() {
+      if (index == null) {
+        _rules.add(r);
+      } else {
+        _rules[index] = r;
+      }
+    });
   }
 
   Future<void> _pickDate(DateTime? current, ValueChanged<DateTime> onPick) async {
@@ -504,6 +604,50 @@ class _VehicleFormState extends State<_VehicleForm> {
                 label: Text(_dateLabel(tr.vehiclesInsurance, _insurance, tr)),
                 onPressed: () => _pickDate(_insurance, (d) => _insurance = d),
               ),
+              const SizedBox(height: Gap.sm),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.event_rounded, size: 18),
+                label: Text(_dateLabel(tr.v100RoutePermit, _permit, tr)),
+                onPressed: () => _pickDate(_permit, (d) => _permit = d),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(tr.v100PapersPushNote,
+                    style: AType.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
+              const SizedBox(height: Gap.lg),
+              Text(tr.v100ServiceHeader, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: Gap.sm),
+              TextField(
+                controller: _odo,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                    labelText: tr.v100OdoLabel,
+                    helperText: tr.v100OdoManualHelp,
+                    helperMaxLines: 3,
+                    border: const OutlineInputBorder()),
+              ),
+              for (var i = 0; i < _rules.length; i++)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.build_circle_rounded),
+                  title: Text('${_rules[i]['name'] ?? ''}',
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  subtitle: Text(_ruleText(tr, _rules[i]), maxLines: 2),
+                  onTap: () => _editRule(i),
+                  trailing: IconButton(
+                    tooltip: tr.delete,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    onPressed: () => setState(() => _rules.removeAt(i)),
+                  ),
+                ),
+              TextButton.icon(
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _rules.length >= 20 ? null : () => _editRule(),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(tr.v100ServiceAdd),
+              ),
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
@@ -536,7 +680,20 @@ class _VehicleFormState extends State<_VehicleForm> {
       if (iso(_tax) != null) 'tax_token_expiry': iso(_tax),
       if (iso(_fitness) != null) 'fitness_expiry': iso(_fitness),
       if (iso(_insurance) != null) 'insurance_expiry': iso(_insurance),
+      if (iso(_permit) != null) 'route_permit_expiry': iso(_permit),
+      if (double.tryParse(_odo.text.trim()) != null)
+        'odometer_km': double.parse(_odo.text.trim()),
+      if (_rules.isNotEmpty) 'maintenance': _rules,
     });
+  }
+
+  String _ruleText(AppLocalizations tr, Map<String, dynamic> r) {
+    final km = vehInt(r['every_km']) ?? 0;
+    final days = vehInt(r['every_days']) ?? 0;
+    return [
+      if (km > 0) tr.v100EveryKm(vehNumStr(context, km)),
+      if (days > 0) tr.v100EveryDays(vehNumStr(context, days)),
+    ].join(' · ');
   }
 }
 
@@ -722,6 +879,128 @@ class _BuyingGuideTab extends StatelessWidget {
             child: Text(text,
                 style: AType.bodyMedium.copyWith(color: scheme.onSurface))),
       ]),
+    );
+  }
+}
+
+/// veh100: one service rule — every N km and/or every N days, with the last
+/// time it was done ("done today" fills today + the current odometer).
+class _RuleDialog extends StatefulWidget {
+  final Map<String, dynamic> initial;
+  final double? odometerKm;
+  const _RuleDialog({required this.initial, this.odometerKm});
+
+  @override
+  State<_RuleDialog> createState() => _RuleDialogState();
+}
+
+class _RuleDialogState extends State<_RuleDialog> {
+  late final _name = TextEditingController(text: '${widget.initial['name'] ?? ''}');
+  late final _km = TextEditingController(text: '${widget.initial['every_km'] ?? ''}');
+  late final _days = TextEditingController(text: '${widget.initial['every_days'] ?? ''}');
+  late final _lastKm = TextEditingController(text: '${widget.initial['last_km'] ?? ''}');
+  DateTime? _lastDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastDate = DateTime.tryParse('${widget.initial['last_date'] ?? ''}');
+  }
+
+  @override
+  void dispose() {
+    for (final c in [_name, _km, _days, _lastKm]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final presets = <(String, int, int)>[
+      (tr.v100SvcOil, 3000, 120),
+      (tr.v100SvcGeneral, 5000, 180),
+      (tr.v100SvcTyres, 20000, 0),
+      (tr.v100SvcBrakes, 10000, 365),
+    ];
+    final ok = _name.text.trim().isNotEmpty &&
+        ((int.tryParse(_km.text.trim()) ?? 0) > 0 || (int.tryParse(_days.text.trim()) ?? 0) > 0);
+    return AlertDialog(
+      title: Text(tr.v100ServiceAdd),
+      content: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
+            for (final p in presets)
+              ActionChip(
+                label: Text(p.$1),
+                onPressed: () => setState(() {
+                  _name.text = p.$1;
+                  _km.text = p.$2 > 0 ? '${p.$2}' : '';
+                  _days.text = p.$3 > 0 ? '${p.$3}' : '';
+                }),
+              ),
+          ]),
+          TextField(controller: _name, maxLength: 40,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: tr.v100SvcName)),
+          TextField(controller: _km, keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: tr.v100SvcEveryKm)),
+          TextField(controller: _days, keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: tr.v100SvcEveryDays)),
+          TextField(controller: _lastKm, keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: tr.v100SvcLastKm)),
+          const SizedBox(height: Gap.sm),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.event_rounded),
+            label: Text(_lastDate == null
+                ? tr.v100SvcLastDate
+                : DateFormat('d MMM yyyy', Localizations.localeOf(context).languageCode)
+                    .format(_lastDate!)),
+            onPressed: () async {
+              final d = await showDatePicker(
+                  context: context,
+                  initialDate: _lastDate ?? DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime.now());
+              if (d != null) setState(() => _lastDate = d);
+            },
+          ),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => setState(() {
+              _lastDate = DateTime.now();
+              if (widget.odometerKm != null) {
+                _lastKm.text = widget.odometerKm!.round().toString();
+              }
+            }),
+            child: Text(tr.v100SvcDoneToday),
+          ),
+        ]),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(tr.cancel)),
+        FilledButton(
+          onPressed: !ok
+              ? null
+              : () => Navigator.pop(context, <String, dynamic>{
+                    'id': '${widget.initial['id'] ?? 's${DateTime.now().millisecondsSinceEpoch % 100000}'}',
+                    'name': _name.text.trim(),
+                    if ((int.tryParse(_km.text.trim()) ?? 0) > 0)
+                      'every_km': int.parse(_km.text.trim()),
+                    if ((int.tryParse(_days.text.trim()) ?? 0) > 0)
+                      'every_days': int.parse(_days.text.trim()),
+                    if ((int.tryParse(_lastKm.text.trim()) ?? -1) >= 0)
+                      'last_km': int.parse(_lastKm.text.trim()),
+                    if (_lastDate != null)
+                      'last_date': DateFormat('yyyy-MM-dd').format(_lastDate!),
+                  }),
+          child: Text(tr.save),
+        ),
+      ],
     );
   }
 }

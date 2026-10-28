@@ -46,6 +46,8 @@ const Map<String, bool> kFeatureDefaults = {
   'cctv_watchman': true,
   // launch (owner 27 Oct): CCTV + vehicle tracking are launch features.
   'home_watchman': true,
+  // cashguard: Guard Box (old phone reads a shop IP camera) — OFF until proof.
+  'guard_box_mode': false,
   'disaster_alerts': true,
   'blood_donor': true,
   'kid_school': true,
@@ -65,6 +67,8 @@ const Map<String, bool> kFeatureDefaults = {
   'ride_food': true,
   'vehicles': true,
   'vehicle_tracking': true,
+  // veh100: remote engine cut OFF until a real relay test (server-enforced).
+  'vehicle_engine_cut': false,
   'student_corner': true,
   'wedding_events': true,
   'qurbani': true,
@@ -169,6 +173,7 @@ const Map<String, String> kRouteFeature = {
   'fall_detect': 'fall_detect',
   'lost_stolen': 'anti_theft',
   'my_lost_phone': 'anti_theft',
+  'watched_phones': 'anti_theft',
   'recovery': 'anti_theft',
   'phone_safety': 'anti_theft',
   'security': 'anti_theft',

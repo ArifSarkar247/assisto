@@ -418,52 +418,70 @@ class TagadaSmsTests(APITestCase):
         self.client.force_authenticate(self.owner)
         self.url = "/api/v1/business/khata/tagada/sms/%d" % self.party.pk
 
+    # tagada2: Assisto tagada SMS is paid in SMS PARTS (core/sms_wallet), never
+    # AI credits; one tagada per customer per day across every channel.
+    def _parts(self):
+        from core import sms_wallet
+        return sms_wallet.state(self.owner)["parts_left"]
+
+    def _give(self, n, key="t"):
+        from core import sms_wallet
+        sms_wallet.grant_pack(self.owner, "smspack_100", n, key="test:%s" % key)
+
     def _credits(self):
         return User.objects.get(pk=self.owner.pk).ai_credits
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
-    def test_charged_as_credits_per_segment(self, http, _q):
+    def test_charged_as_sms_parts_per_segment_not_credits(self, http, _q):
         User.objects.filter(pk=self.owner.pk).update(ai_credits=10)
+        self._give(10)
         r = self.client.post(self.url, {}, format="json", HTTP_ACCEPT_LANGUAGE="bn")
         self.assertEqual(r.status_code, 200, r.data)
         segs = r.data["segments"]
         self.assertGreaterEqual(segs, 1)
-        self.assertEqual(r.data["credits"], segs)          # 1 credit per segment
-        self.assertEqual(self._credits(), 10 - segs)
+        self.assertEqual(r.data["credits"], segs)          # 1 SMS part per segment
+        self.assertEqual(self._parts(), 10 - segs)
+        self.assertEqual(r.data["balance"], 10 - segs)
+        self.assertEqual(self._credits(), 10)               # AI credits untouched
         row = SmsLog.objects.get()
-        self.assertEqual((row.purpose, row.business_id, row.credits), ("tagada", self.biz.pk, segs))
+        self.assertEqual((row.purpose, row.business_id), ("tagada", self.biz.pk))
         self.assertGreater(row.cost_bdt, 0)                 # company cost logged too
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
-    def test_refused_at_zero_credits(self, http, _q):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=0)
+    def test_refused_at_zero_parts(self, http, _q):
+        User.objects.filter(pk=self.owner.pk).update(ai_credits=50)   # credits don't pay SMS
         r = self.client.post(self.url, {}, format="json")
         self.assertEqual(r.status_code, 402)
-        self.assertEqual(r.data["reason"], "insufficient_credits")
+        self.assertEqual(r.data["reason"], "no_balance")
         self.assertEqual(http.call_count, 0)
 
     @mock.patch("core.sms_gateway._http", return_value=(500, "down"))
     def test_refund_on_gateway_failure(self, http, _q):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=10)
+        self._give(10)
         r = self.client.post(self.url, {}, format="json")
         self.assertEqual(r.status_code, 502)
-        self.assertEqual(self._credits(), 10)
+        self.assertEqual(self._parts(), 10)
+        # the day's slot was given back too: a retry is allowed
+        from core.models import TagadaSend
+        self.assertFalse(TagadaSend.objects.exists())
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
     def test_opt_out_and_per_customer_cap(self, http, _q):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=50)
+        self._give(50)
         self.assertEqual(self.client.post(self.url, {}, format="json").status_code, 200)
         r = self.client.post(self.url, {}, format="json")     # 1 per customer per day
-        self.assertEqual((r.status_code, r.data["reason"]), (429, "phone_daily_cap"))
+        self.assertEqual((r.status_code, r.data["reason"]), (429, "daily_limit"))
         from core.logic import msg_guard as MG
         from core.logic.business_selling import normalize_phone
+        from core.models import TagadaSend
+        TagadaSend.objects.all().delete()
         MG.record_opt_out(self.biz.pk, normalize_phone(CANON))
         r = self.client.post(self.url, {}, format="json")
         self.assertEqual((r.status_code, r.data["reason"]), (409, "opted_out"))
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
     def test_business_daily_cap(self, http, _q):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=50)
+        self._give(50)
         set_cfg("sms", tagada_per_business_day=1)
         p2 = KhataParty.objects.create(business=self.biz, book="customer", name="B",
                                        phone="01811111111")
@@ -476,10 +494,10 @@ class TagadaSmsTests(APITestCase):
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
     def test_quiet_hours(self, http, q):
         q.return_value = True
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=50)
+        self._give(50)
         r = self.client.post(self.url, {}, format="json")
         self.assertEqual((r.status_code, r.data["reason"]), (409, "quiet_hours"))
-        self.assertEqual(self._credits(), 50)
+        self.assertEqual(self._parts(), 50)
 
     def test_no_gateway_is_honest(self, _q):
         Integration.objects.update(status="not_set")

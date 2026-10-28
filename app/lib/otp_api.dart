@@ -90,7 +90,10 @@ class EmailState {
 }
 
 /// smsotp — purposes whose code may also be delivered by email.
-const otpEmailPurposes = {'login', 'password_reset', 'delete_account', 'section8'};
+const otpEmailPurposes = {
+  'login', 'password_reset', 'delete_account', 'section8',
+  'vault_reset', // vault100
+};
 
 abstract class OtpBackend {
   Future<OtpStatus> status();

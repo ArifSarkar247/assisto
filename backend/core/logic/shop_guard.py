@@ -68,7 +68,10 @@ META_KEYS = frozenset({"detector", "edge_version", "source", "camera_rule",
                        # cctv1: schedule state / geometry ids / counters are
                        # context, not independent evidence
                        "armed", "conf", "zone", "line", "count", "vendor",
-                       "alarm_type"})
+                       "alarm_type",
+                       # cashguard: the clip reference and the owner-away
+                       # state are context, never extra evidence
+                       "clip_ref", "away", "server_check"})
 
 
 def _corroborations(extra):
@@ -210,6 +213,11 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
         conf = 0.7
         if extra.get("multiple_frames"):
             reasons.append("multiple_frames")
+            conf += 0.1
+        # cashguard: a PERSON (model) inside the cash zone after closing is a
+        # third, independent signal
+        if extra.get("person_in_zone"):
+            reasons.append("person_in_cash_zone")
             conf += 0.1
         return _result(True, etype, min(conf, 0.9), reasons)
 

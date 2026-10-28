@@ -76,6 +76,8 @@ class AntiTheftService : Service(), SensorEventListener {
         // at-heartbeat: restart after an app update / reboot (background).
         // Never declares the CAMERA type; never re-records the SIM baseline.
         const val ACTION_RESTART = "com.assisto.assisto.antitheft.RESTART"
+        // at100: the remote alarm notification's Stop button.
+        const val ACTION_ALARM_STOP = "com.assisto.assisto.antitheft.ALARM_STOP"
         private const val RESUME_NOTIF_ID = 8441
 
         @Volatile var running = false
@@ -200,13 +202,13 @@ class AntiTheftService : Service(), SensorEventListener {
         fun start(ctx: Context, token: String, apiBase: String,
                   config: JSONObject, title: String, body: String,
                   offLabel: String = "Turn off", rebaseline: Boolean = false): Boolean {
-            // Android 14+: startForeground() with a location/camera type throws
+            // Android 14+: startForeground() with the location type throws
             // without that permission, and a startForegroundService() that
             // never reaches startForeground() kills the process. So we refuse
             // to start (false -> the UI shows the honest "not running" state)
-            // unless at least one declared type is actually allowed.
-            if (Build.VERSION.SDK_INT >= 34 && !hasLocationPerm(ctx) &&
-                !(config.optBoolean("intruder_photo", false) && IntruderCamera.canAttempt(ctx))) {
+            // unless the location type is actually allowed (at100: the
+            // camera type is gone, so it can no longer stand in).
+            if (Build.VERSION.SDK_INT >= 34 && !hasLocationPerm(ctx)) {
                 return false
             }
             return try {
@@ -309,7 +311,8 @@ class AntiTheftService : Service(), SensorEventListener {
                 val ok = RestartPolicy.canStart(trigger, sdk, bgLoc) &&
                     (sdk < 34 || hasLocationPerm(ctx))
                 if (!ok) {
-                    if (trigger == RestartPolicy.UPDATE || trigger == RestartPolicy.BOOT) {
+                    if (RestartPolicy.needsTapToResume(trigger, sdk, bgLoc) ||
+                        trigger == RestartPolicy.PUSH) {
                         postTapToResume(ctx)
                     }
                     return false
@@ -392,6 +395,42 @@ class AntiTheftService : Service(), SensorEventListener {
                 if (running) svc.postFlush()
             } catch (_: Throwable) {}
         }
+
+        /**
+         * at100: a silent "at_command" FCM push (a remote switch is waiting on
+         * the server). Running -> check in now. Not running -> start it only
+         * where Android allows a background start (RestartPolicy.PUSH: a
+         * high-priority FCM message is an allowed background-start reason;
+         * Android 14+ still needs background location for the location type),
+         * else the quiet "tap to resume" notification. The switch itself is
+         * only ever read from the server's check-in response. Never throws.
+         */
+        fun onCommandPush(ctx: Context) {
+            try {
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                if ((p.getString("token", "") ?: "").isBlank()) return
+                val svc = instance
+                if (svc != null && running) {
+                    svc.postFlush()
+                } else {
+                    restartFromBackground(ctx, RestartPolicy.PUSH)
+                }
+            } catch (_: Throwable) {}
+        }
+
+        /**
+         * at100: the intruder photo, ONLY while Assisto is open on screen —
+         * the owner-consented front photo after wrong Security PINs typed in
+         * the app (the server says when: intruder_snap). Android lets a
+         * visible app use the camera; there is no background camera and no
+         * camera foreground-service type. A shutter sound plays and the
+         * camera privacy dot lights up — never covert. Returns false when
+         * the engine is not running, the option is off or there is no camera.
+         */
+        fun inAppIntruder(ctx: Context): Boolean = try {
+            val svc = instance
+            if (svc != null && running) svc.postInAppIntruder() else false
+        } catch (_: Throwable) { false }
 
         /** Owner changed settings in the open app: store + re-declare types. */
         fun configure(ctx: Context, config: JSONObject): Boolean {
@@ -506,6 +545,12 @@ class AntiTheftService : Service(), SensorEventListener {
                 stopSelf()
                 return START_NOT_STICKY
             }
+            if (intent?.action == ACTION_ALARM_STOP) {
+                // at100: whoever holds the phone may stop the remote alarm
+                // (like Find Hub). Never stops protection.
+                RemoteAlarm.stop(applicationContext)
+                if (running) return START_STICKY
+            }
             loadPrefs()
             // startForeground() only when needed: on the first start, or when
             // the open app (START / RECONFIG) asks to re-declare the types.
@@ -573,10 +618,9 @@ class AntiTheftService : Service(), SensorEventListener {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
         var t = 0
         if (hasLocationPerm(this)) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-        if (allowCamera && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && intruderPhoto &&
-            IntruderCamera.canAttempt(this)) {
-            t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
-        }
+        // at100: NO camera foreground-service type any more (Play's FGS
+        // policy allows it only for ongoing, user-visible camera use). The
+        // intruder photo is taken only while Assisto is open (inAppIntruder).
         return t
     }
 
@@ -624,13 +668,11 @@ class AntiTheftService : Service(), SensorEventListener {
             .also { b -> offAction()?.let { b.addAction(it) } }
             .build()
         val want = wantedTypes(allowCamera)
-        // Try the full set, then without the camera, then (pre-Android-14
-        // only, where types are not permission-checked) the manifest default.
+        // Try the location type, then (pre-Android-14 only, where types are
+        // not permission-checked) the manifest default.
         val attempts = ArrayList<Int>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && want != 0) {
             attempts.add(want)
-            val noCam = want and ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA.inv()
-            if (noCam != want && noCam != 0) attempts.add(noCam)
         }
         for (t in attempts) {
             try {
@@ -647,15 +689,6 @@ class AntiTheftService : Service(), SensorEventListener {
             } catch (_: Throwable) {
             }
         }
-    }
-
-    /** Can the camera be used right now from this service? */
-    private fun cameraReady(): Boolean {
-        if (fgTypes == -1 || !IntruderCamera.canAttempt(this)) return false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return (fgTypes and ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA) != 0
-        }
-        return true // API 26-29: a foreground service counts as foreground
     }
 
     private fun loadPrefs() {
@@ -793,19 +826,37 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     }
 
-    /** Worker thread. One photo per streak (>= threshold, 60 s apart). */
+    /** Worker thread. at100: a wrong SCREEN-unlock (lock screen, Assisto
+     *  in the background) is recorded as failed_unlock only — no photo:
+     *  Android does not let a background app use the camera, and we no
+     *  longer hold a camera foreground-service type. */
     private fun onFailedUnlockBg(count: Int) {
-        if (!intruderPhoto || count < failThreshold) return
-        if (!cameraReady()) return // the photo-less failed_unlock is already queued
+        // the photo-less failed_unlock is already queued by the receiver
+    }
+
+    /** at100: open-app intruder photo (see inAppIntruder). */
+    internal fun postInAppIntruder(): Boolean {
+        if (!this::bg.isInitialized) return false
+        if (!intruderPhoto || !IntruderCamera.canAttempt(this)) return false
+        bg.post {
+            try { snapInApp() } catch (_: Throwable) {}
+            try { doHeartbeat() } catch (_: Throwable) {}
+        }
+        return true
+    }
+
+    private fun snapInApp() {
         val now = System.currentTimeMillis()
         if (now - lastPhotoAt < 60_000L) return
         lastPhotoAt = now
+        // never covert: the system shutter sound (and Android's camera dot)
+        try { android.media.MediaActionSound().play(android.media.MediaActionSound.SHUTTER_CLICK) } catch (_: Throwable) {}
         val jpeg = IntruderCamera.captureJpeg(applicationContext) ?: return
         val cid = "intr-" + UUID.randomUUID().toString().take(12)
         val path = IntruderVault.seal(applicationContext, cid, jpeg) ?: return
         val loc = LastLocation.get(applicationContext)
         queue?.add(cid, "intruder_photo", now, loc?.first, loc?.second, batteryPct(),
-            JSONObject().put("count", count), path)
+            JSONObject().put("source", "in_app_wrong_pin"), path)
     }
 
     /** Upload up to 3 queued (encrypted) photos; keep them on a network error. */
@@ -945,8 +996,19 @@ class AntiTheftService : Service(), SensorEventListener {
         } catch (_: Throwable) {}
         // reflect server's lost_mode back into prefs for the interval policy
         try {
-            getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putBoolean("lost_mode", resp.optBoolean("lost_mode", false)).apply()
+            val lost = resp.optBoolean("lost_mode", false)
+            val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            if (p.getBoolean("lost_mode", false) && !lost) {
+                // at100: lost mode turned off (owner + Security PIN) -> the
+                // lock-screen "this phone is lost" message goes away.
+                RemoteCommands.clearLostMessage(applicationContext)
+            }
+            p.edit().putBoolean("lost_mode", lost).apply()
+        } catch (_: Throwable) {}
+        // at100: remote switches waiting on the server (owner / trusted
+        // contact). Each runs once; its honest result is queued and sent.
+        try {
+            resp.optJSONArray("commands")?.let { runCommands(it) }
         } catch (_: Throwable) {}
         // antitheft2: the server's grab rules (Night guard, home Wi-Fi)
         try {
@@ -964,6 +1026,33 @@ class AntiTheftService : Service(), SensorEventListener {
             }
         } catch (_: Throwable) {}
         return true
+    }
+
+    /** at100: worker thread. Run each new command once, queue its result. */
+    private fun runCommands(arr: JSONArray) {
+        if (arr.length() == 0) return
+        val done = RemoteCommands.doneSet(applicationContext)
+        var ran = 0
+        for (i in 0 until arr.length()) {
+            val c = arr.optJSONObject(i) ?: continue
+            val id = c.optLong("id", 0L)
+            val kind = c.optString("kind", "")
+            if (!RemoteCommands.shouldRun(kind, id, done)) continue
+            RemoteCommands.markDone(applicationContext, id)
+            val (ok, detail) = RemoteCommands.run(applicationContext, c)
+            try {
+                queue?.add("cmd-$id", "command_result", System.currentTimeMillis(),
+                    null, null, batteryPct(),
+                    JSONObject().put("command_id", id).put("ok", ok)
+                        .put("detail", detail).put("kind", kind))
+            } catch (_: Throwable) {}
+            ran++
+        }
+        if (ran > 0) {
+            // report the results right away (not at the next heartbeat)
+            bg.removeCallbacks(flushRun)
+            bg.postDelayed(flushRun, 1_500L)
+        }
     }
 
     private fun nowIso(): String {

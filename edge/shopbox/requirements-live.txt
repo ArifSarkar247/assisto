@@ -6,5 +6,5 @@ av==13.1.0
 pyopenssl==24.2.1
 aioice==0.10.2
 pylibsrtp==1.0.0
-pyee==15.0.0
+pyee==13.0.0                         # 15.x needs Python >= 3.12; CI + the .exe build run 3.11 (cashguard fix)
 google-crc32c==1.9.0

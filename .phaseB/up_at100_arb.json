@@ -1,0 +1,525 @@
+{
+ "en": {
+  "at100Title": "Remote switches",
+  "@at100Title": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Subtitle": "Lost mode, a loud alarm, lock and a lock-screen message for {owner}'s phone.",
+  "@at100Subtitle": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "owner": {
+     "type": "String"
+    }
+   }
+  },
+  "at100OwnerHint": "Use this from any phone where you are signed in to Assisto — for example a family member's phone.",
+  "@at100OwnerHint": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Online": "Checking in now · last {time}",
+  "@at100Online": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "at100Offline": "Not checking in · last seen {time}",
+  "@at100Offline": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "at100NeverSeen": "Has not checked in yet",
+  "@at100NeverSeen": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ProtectionOff": "Protection is off on that phone, so nothing can be sent to it.",
+  "@at100ProtectionOff": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100OfflineTruth": "A phone that is switched off or has no internet can't receive anything — not from Assisto, not from any app. What you send waits here and runs the moment the phone is back online.",
+  "@at100OfflineTruth": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostMode": "Lost mode",
+  "@at100LostMode": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostModeOn": "Lost mode is on",
+  "@at100LostModeOn": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Alarm": "Ring loudly ({seconds} s)",
+  "@at100Alarm": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "seconds": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "at100AlarmStop": "Stop alarm",
+  "@at100AlarmStop": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Lock": "Lock screen",
+  "@at100Lock": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Message": "Lock-screen message",
+  "@at100Message": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100NeedActive": "Turn on lost mode first — then you can ring, lock and show a message.",
+  "@at100NeedActive": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostOffHint": "Only you can turn lost mode off, with your Security PIN, from My lost phone.",
+  "@at100LostOffHint": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmTitle": "Ring the phone loudly?",
+  "@at100AlarmConfirmTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmBody": "It rings at full alarm volume for {seconds} seconds, even when it is on silent (unless Do Not Disturb blocks alarms). Whoever holds the phone can press Stop.",
+  "@at100AlarmConfirmBody": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "seconds": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "at100LockConfirmTitle": "Lock the phone's screen?",
+  "@at100LockConfirmTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LockConfirmBody": "The screen locks at once. This works only if Assisto is a device admin on that phone; the result below says so if it is not.",
+  "@at100LockConfirmBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostConfirmBody": "The phone checks in every few minutes, shows your message on its lock screen, and your trusted contacts are told. Only the owner can turn it off, with the Security PIN.",
+  "@at100LostConfirmBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgConfirmBody": "Your message appears on the phone's lock screen and the screen locks (if Assisto is a device admin there).",
+  "@at100MsgConfirmBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgLabel": "Message",
+  "@at100MsgLabel": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgHint": "e.g. This phone is lost. Please call the number below.",
+  "@at100MsgHint": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ContactLabel": "Number to call (optional)",
+  "@at100ContactLabel": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgNeeded": "Please write a message.",
+  "@at100MsgNeeded": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Send": "Send",
+  "@at100Send": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOnline": "Sent to the phone. The result appears below.",
+  "@at100SentOnline": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOffline": "Saved. The phone is not checking in right now — it will run when the phone is back online.",
+  "@at100SentOffline": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ErrRate": "Too many in the last hour. Please try again later.",
+  "@at100ErrRate": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100CancelTooLate": "It already reached the phone, so it can't be cancelled.",
+  "@at100CancelTooLate": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LoadFailed": "Couldn't load the switches.",
+  "@at100LoadFailed": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Refresh": "Refresh",
+  "@at100Refresh": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100History": "Recent",
+  "@at100History": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100HistoryEmpty": "Nothing sent yet.",
+  "@at100HistoryEmpty": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaitingOffline": "Waiting — the phone is offline or switched off. Runs when it is back online.",
+  "@at100PhWaitingOffline": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaiting": "Waiting for the phone's next check-in",
+  "@at100PhWaiting": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhSent": "Sent — waiting for the phone to answer",
+  "@at100PhSent": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhReached": "Reached the phone at {time}",
+  "@at100PhReached": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "at100PhDone": "Done at {time}",
+  "@at100PhDone": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "at100PhFailed": "Didn't work: {reason}",
+  "@at100PhFailed": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "reason": {
+     "type": "String"
+    }
+   }
+  },
+  "at100PhExpired": "The phone never came online — expired",
+  "@at100PhExpired": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhCancelled": "Cancelled",
+  "@at100PhCancelled": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNoAdmin": "device admin is off on that phone",
+  "@at100FailNoAdmin": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNotif": "notifications are blocked on that phone",
+  "@at100FailNotif": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailSound": "the phone couldn't play a sound",
+  "@at100FailSound": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailOther": "the phone couldn't do it",
+  "@at100FailOther": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100By": "by {name}",
+  "@at100By": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "at100ByYou": "by you",
+  "@at100ByYou": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ByOwner": "by the owner",
+  "@at100ByOwner": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeTitle": "Erase the phone",
+  "@at100WipeTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeBody": "Assisto never asks for the power to erase your phone. Google Find Hub can erase it for free — sign in there with the phone's Google account.",
+  "@at100WipeBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeOpen": "Open Google Find Hub",
+  "@at100WipeOpen": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTitle": "Phones I help protect",
+  "@at100WatchTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchCount": "{count, plural, =1{1 phone} other{{count} phones}}",
+  "@at100WatchCount": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "count": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "at100WatchEmpty": "No one has chosen you as a trusted contact yet. When someone does, their phone appears here.",
+  "@at100WatchEmpty": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchPhone": "{owner}'s phone",
+  "@at100WatchPhone": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "owner": {
+     "type": "String"
+    }
+   }
+  },
+  "at100WatchLostBadge": "Lost mode on",
+  "@at100WatchLostBadge": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchDarkBadge": "Stopped checking in",
+  "@at100WatchDarkBadge": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchLastLoc": "Last location",
+  "@at100WatchLastLoc": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchNoLoc": "No location yet.",
+  "@at100WatchNoLoc": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchOpenMap": "Open in Maps",
+  "@at100WatchOpenMap": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTimeline": "Alert history",
+  "@at100WatchTimeline": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Accuracy": "±{meters} m",
+  "@at100Accuracy": {
+   "description": "at100 anti-theft remote switches / intruder consent",
+   "placeholders": {
+    "meters": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "at100OptIntruderBody": "Off until you agree. Only while Assisto is open: after several wrong Security PINs typed in Assisto, one front-camera photo with a shutter sound. Encrypted; only you and your trusted contacts see it.",
+  "@at100OptIntruderBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcTitle": "Intruder photo",
+  "@at100IcTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLead": "This stays off until you agree. Please read what it does.",
+  "@at100IcLead": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhatT": "What",
+  "@at100IcWhatT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhat": "One photo with this phone's front camera.",
+  "@at100IcWhat": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhenT": "When",
+  "@at100IcWhenT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhen": "Only while Assisto is open on the screen: after several wrong Security PINs in a row inside Assisto (3 by default) — for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off. Never on the lock screen and never in the background.",
+  "@at100IcWhen": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNoticeT": "Never hidden",
+  "@at100IcNoticeT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN box says that a wrong PIN takes a photo.",
+  "@at100IcNotice": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhereT": "Where it is kept",
+  "@at100IcWhereT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhere": "Encrypted on this phone until it is sent, then encrypted on Assisto's server. There is no public link.",
+  "@at100IcWhere": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhoT": "Who sees it",
+  "@at100IcWhoT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWho": "Only you and the trusted contacts you chose, in the protection timeline. No face recognition, never used for anything else.",
+  "@at100IcWho": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeepT": "How long",
+  "@at100IcKeepT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeep": "Deleted automatically after 30 days.",
+  "@at100IcKeep": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDeleteT": "Turn off and delete",
+  "@at100IcDeleteT": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDelete": "Switch it off here any time with your Security PIN. Turning protection off deletes photos still waiting on the phone; deleting your Assisto account deletes the rest.",
+  "@at100IcDelete": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLaw": "Use it only on your own phone. Photographing people without telling them can be against the law.",
+  "@at100IcLaw": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcAgree": "I agree — turn it on",
+  "@at100IcAgree": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNo": "Not now",
+  "@at100IcNo": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNeeded": "Please agree on the intruder photo screen first.",
+  "@at100IcNeeded": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PinNotice": "A wrong PIN takes a front-camera photo (the owner turned this on).",
+  "@at100PinNotice": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminTitle": "Assisto as device admin",
+  "@at100DiscAdminTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminBody": "To protect this phone if it is lost or stolen, Assisto asks Android to make it a device admin. It is used for exactly two things:\n• lock the screen when you, or a trusted contact you chose, press Lock from another phone (or right after a detected grab, if you turn that on);\n• notice wrong screen-unlock attempts and tell your trusted contacts.\nAssisto never asks for the power to erase the phone and never reads your screen-lock code. While it is on, Android asks you to switch it off before Assisto can be uninstalled. You can switch it off any time in Android Settings → Security → Device admin apps.\nNext, Android shows its own screen — tap Activate there.",
+  "@at100DiscAdminBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocTitle": "Location for lost-phone protection",
+  "@at100DiscLocTitle": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocBody": "While you keep Lost/Stolen protection on, Assisto reads this phone's location so the trusted contacts you chose can see where it was last — in every alert (grab, SIM change, offline, low battery) and when lost mode is on. A notification is always shown while protection runs. Location is sent only to your account and those contacts, kept for 24 hours (alerts 30 days), and never sold or used for ads. Assisto does not ask for \"Allow all the time\". Turn it off by switching protection off, or in Android Settings → Apps → Assisto → Permissions.\nNext, Android asks for the location permission.",
+  "@at100DiscLocBody": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscContinue": "Continue",
+  "@at100DiscContinue": {
+   "description": "at100 anti-theft remote switches / intruder consent"
+  }
+ },
+ "bn": {
+  "at100Title": "দূর থেকে চালান",
+  "at100Subtitle": "{owner}-এর ফোনে হারানো মোড, জোরে অ্যালার্ম, লক আর লক-স্ক্রিনে বার্তা।",
+  "at100OwnerHint": "যেকোনো ফোন থেকে ব্যবহার করুন যেখানে আপনি Assisto-তে লগইন করেছেন — যেমন পরিবারের কারও ফোন।",
+  "at100Online": "এখন খবর দিচ্ছে · শেষ {time}",
+  "at100Offline": "খবর দিচ্ছে না · শেষ দেখা {time}",
+  "at100NeverSeen": "এখনো কোনো খবর দেয়নি",
+  "at100ProtectionOff": "ওই ফোনে সুরক্ষা বন্ধ, তাই কিছুই পাঠানো যাবে না।",
+  "at100OfflineTruth": "বন্ধ বা ইন্টারনেট-ছাড়া ফোনে কিছুই পৌঁছায় না — Assisto বা অন্য কোনো অ্যাপ থেকেও না। যা পাঠাবেন তা এখানে অপেক্ষায় থাকবে, ফোন অনলাইনে ফিরলেই চলবে।",
+  "at100LostMode": "হারানো মোড",
+  "at100LostModeOn": "হারানো মোড চালু আছে",
+  "at100Alarm": "জোরে বাজান ({seconds} সে.)",
+  "at100AlarmStop": "অ্যালার্ম থামান",
+  "at100Lock": "স্ক্রিন লক",
+  "at100Message": "লক-স্ক্রিনে বার্তা",
+  "at100NeedActive": "আগে হারানো মোড চালু করুন — তারপর বাজানো, লক করা আর বার্তা দেখানো যাবে।",
+  "at100LostOffHint": "হারানো মোড শুধু আপনিই বন্ধ করতে পারবেন, সিকিউরিটি পিন দিয়ে, \"আমার হারানো ফোন\" থেকে।",
+  "at100AlarmConfirmTitle": "ফোনটি জোরে বাজাবেন?",
+  "at100AlarmConfirmBody": "ফোনটি পুরো অ্যালার্ম-ভলিউমে {seconds} সেকেন্ড বাজবে, সাইলেন্টে থাকলেও (যদি \"বিরক্ত করবেন না\" অ্যালার্ম আটকে না রাখে)। যার হাতে ফোন, সে Stop চাপতে পারবে।",
+  "at100LockConfirmTitle": "ফোনের স্ক্রিন লক করবেন?",
+  "at100LockConfirmBody": "স্ক্রিন সাথে সাথে লক হবে। এটা কাজ করে শুধু ওই ফোনে Assisto ডিভাইস অ্যাডমিন হলে; না হলে নিচের ফলাফলে তা লেখা থাকবে।",
+  "at100LostConfirmBody": "ফোনটি কয়েক মিনিট পরপর খবর দেবে, লক-স্ক্রিনে আপনার বার্তা দেখাবে, আর বিশ্বস্ত মানুষদের জানানো হবে। শুধু মালিক সিকিউরিটি পিন দিয়ে এটি বন্ধ করতে পারবেন।",
+  "at100MsgConfirmBody": "আপনার বার্তা ফোনের লক-স্ক্রিনে দেখা যাবে আর স্ক্রিন লক হবে (সেখানে Assisto ডিভাইস অ্যাডমিন হলে)।",
+  "at100MsgLabel": "বার্তা",
+  "at100MsgHint": "যেমন: এই ফোনটি হারানো। দয়া করে নিচের নম্বরে ফোন করুন।",
+  "at100ContactLabel": "যে নম্বরে ফোন করবে (ঐচ্ছিক)",
+  "at100MsgNeeded": "একটি বার্তা লিখুন।",
+  "at100Send": "পাঠান",
+  "at100SentOnline": "ফোনে পাঠানো হয়েছে। ফলাফল নিচে দেখা যাবে।",
+  "at100SentOffline": "রাখা হয়েছে। ফোনটি এখন খবর দিচ্ছে না — ফোন অনলাইনে ফিরলেই চলবে।",
+  "at100ErrRate": "গত এক ঘণ্টায় অনেকবার পাঠানো হয়েছে। একটু পরে আবার চেষ্টা করুন।",
+  "at100CancelTooLate": "এটি এর মধ্যে ফোনে পৌঁছে গেছে, তাই বাতিল করা যাবে না।",
+  "at100LoadFailed": "সুইচগুলো লোড করা যায়নি।",
+  "at100Refresh": "আবার দেখুন",
+  "at100History": "সাম্প্রতিক",
+  "at100HistoryEmpty": "এখনো কিছু পাঠানো হয়নি।",
+  "at100PhWaitingOffline": "অপেক্ষায় — ফোনটি অফলাইন বা বন্ধ। অনলাইনে ফিরলে চলবে।",
+  "at100PhWaiting": "ফোনের পরের খবরের অপেক্ষায়",
+  "at100PhSent": "পাঠানো হয়েছে — ফোনের উত্তরের অপেক্ষায়",
+  "at100PhReached": "{time}-এ ফোনে পৌঁছেছে",
+  "at100PhDone": "{time}-এ হয়েছে",
+  "at100PhFailed": "হয়নি: {reason}",
+  "at100PhExpired": "ফোন আর অনলাইনে আসেনি — মেয়াদ শেষ",
+  "at100PhCancelled": "বাতিল",
+  "at100FailNoAdmin": "ওই ফোনে ডিভাইস অ্যাডমিন বন্ধ",
+  "at100FailNotif": "ওই ফোনে নোটিফিকেশন বন্ধ",
+  "at100FailSound": "ফোনটি শব্দ বাজাতে পারেনি",
+  "at100FailOther": "ফোনটি কাজটি করতে পারেনি",
+  "at100By": "{name} পাঠিয়েছেন",
+  "at100ByYou": "আপনি পাঠিয়েছেন",
+  "at100ByOwner": "মালিক পাঠিয়েছেন",
+  "at100WipeTitle": "ফোন মুছে ফেলা",
+  "at100WipeBody": "Assisto কখনো আপনার ফোন মুছে ফেলার ক্ষমতা চায় না। Google Find Hub বিনা খরচে মুছে দিতে পারে — ফোনের Google অ্যাকাউন্ট দিয়ে সেখানে লগইন করুন।",
+  "at100WipeOpen": "Google Find Hub খুলুন",
+  "at100WatchTitle": "যাঁদের ফোন আমি দেখে রাখি",
+  "at100WatchCount": "{count, plural, =1{১টি ফোন} other{{count}টি ফোন}}",
+  "at100WatchEmpty": "এখনো কেউ আপনাকে বিশ্বস্ত মানুষ হিসেবে বাছাই করেননি। কেউ করলে তাঁর ফোন এখানে দেখা যাবে।",
+  "at100WatchPhone": "{owner}-এর ফোন",
+  "at100WatchLostBadge": "হারানো মোড চালু",
+  "at100WatchDarkBadge": "খবর আসা বন্ধ",
+  "at100WatchLastLoc": "শেষ অবস্থান",
+  "at100WatchNoLoc": "এখনো কোনো অবস্থান নেই।",
+  "at100WatchOpenMap": "ম্যাপে খুলুন",
+  "at100WatchTimeline": "সতর্কবার্তার ইতিহাস",
+  "at100Accuracy": "±{meters} মিটার",
+  "at100OptIntruderBody": "আপনি সম্মতি না দেওয়া পর্যন্ত বন্ধ। শুধু Assisto খোলা থাকলে: Assisto-তে কয়েকবার ভুল সিকিউরিটি পিন দিলে শাটার-শব্দসহ সামনের ক্যামেরায় একটি ছবি। এনক্রিপ্ট করা; শুধু আপনি ও আপনার বিশ্বস্ত মানুষেরা দেখতে পান।",
+  "at100IcTitle": "অনুপ্রবেশকারীর ছবি",
+  "at100IcLead": "আপনি সম্মতি না দেওয়া পর্যন্ত এটি বন্ধ থাকবে। কী করে, দয়া করে পড়ুন।",
+  "at100IcWhatT": "কী",
+  "at100IcWhat": "এই ফোনের সামনের ক্যামেরায় একটি ছবি।",
+  "at100IcWhenT": "কখন",
+  "at100IcWhen": "শুধু Assisto স্ক্রিনে খোলা থাকলে: Assisto-র ভেতরে পরপর কয়েকবার ভুল সিকিউরিটি পিন দিলে (সাধারণত ৩ বার) — যেমন টানের পরে \"আপনি ঠিক আছেন?\" প্রশ্নে, বা কেউ সুরক্ষা বন্ধ করার চেষ্টা করলে। লক-স্ক্রিনে বা ব্যাকগ্রাউন্ডে কখনো নয়।",
+  "at100IcNoticeT": "কখনো লুকিয়ে নয়",
+  "at100IcNotice": "ফোনে ক্যামেরার শাটার-শব্দ হয়, Android ক্যামেরার সবুজ বিন্দু দেখায়, আর প্রতিটি সিকিউরিটি পিনের বাক্সে লেখা থাকে যে ভুল পিন দিলে ছবি তোলা হয়।",
+  "at100IcWhereT": "কোথায় থাকে",
+  "at100IcWhere": "পাঠানো পর্যন্ত এই ফোনে এনক্রিপ্ট করা থাকে, তারপর Assisto-র সার্ভারে এনক্রিপ্ট করা থাকে। কোনো পাবলিক লিংক নেই।",
+  "at100IcWhoT": "কে দেখতে পায়",
+  "at100IcWho": "শুধু আপনি ও আপনার বেছে নেওয়া বিশ্বস্ত মানুষেরা, সুরক্ষার টাইমলাইনে। কোনো মুখ-চেনা নেই, অন্য কোনো কাজে ব্যবহার হয় না।",
+  "at100IcKeepT": "কতদিন",
+  "at100IcKeep": "৩০ দিন পরে নিজে থেকেই মুছে যায়।",
+  "at100IcDeleteT": "বন্ধ করা ও মোছা",
+  "at100IcDelete": "যেকোনো সময় এখানে সিকিউরিটি পিন দিয়ে বন্ধ করুন। সুরক্ষা বন্ধ করলে ফোনে অপেক্ষায় থাকা ছবি মুছে যায়; Assisto অ্যাকাউন্ট মুছলে বাকিগুলোও মুছে যায়।",
+  "at100IcLaw": "শুধু নিজের ফোনে ব্যবহার করুন। না জানিয়ে কারও ছবি তোলা আইনবিরোধী হতে পারে।",
+  "at100IcAgree": "আমি রাজি — চালু করুন",
+  "at100IcNo": "এখন নয়",
+  "at100IcNeeded": "আগে অনুপ্রবেশকারীর ছবির পাতায় সম্মতি দিন।",
+  "at100PinNotice": "ভুল পিন দিলে সামনের ক্যামেরায় ছবি তোলা হয় (মালিক এটি চালু করেছেন)।",
+  "at100DiscAdminTitle": "Assisto-কে ডিভাইস অ্যাডমিন করা",
+  "at100DiscAdminBody": "ফোন হারালে বা চুরি হলে সুরক্ষার জন্য Assisto Android-কে অনুরোধ করে একে ডিভাইস অ্যাডমিন করতে। এটা শুধু দুটি কাজে লাগে:\n• আপনি বা আপনার বেছে নেওয়া বিশ্বস্ত মানুষ অন্য ফোন থেকে \"লক\" চাপলে স্ক্রিন লক করা (আর আপনি চালু করলে টান ধরা পড়ার সাথে সাথে);\n• ভুল স্ক্রিন-আনলক চেষ্টা টের পেয়ে বিশ্বস্ত মানুষদের জানানো।\nAssisto কখনো ফোন মুছে ফেলার ক্ষমতা চায় না এবং আপনার স্ক্রিন-লকের কোড পড়ে না। চালু থাকলে Assisto আনইনস্টল করার আগে Android আপনাকে এটা বন্ধ করতে বলবে। যেকোনো সময় Android সেটিংস → নিরাপত্তা → ডিভাইস অ্যাডমিন অ্যাপ থেকে বন্ধ করতে পারবেন।\nএরপর Android নিজের একটি পাতা দেখাবে — সেখানে Activate চাপুন।",
+  "at100DiscLocTitle": "হারানো-ফোন সুরক্ষার জন্য লোকেশন",
+  "at100DiscLocBody": "আপনি হারানো/চুরি সুরক্ষা চালু রাখলে Assisto এই ফোনের লোকেশন পড়ে, যাতে আপনার বেছে নেওয়া বিশ্বস্ত মানুষেরা দেখতে পান ফোনটি শেষ কোথায় ছিল — প্রতিটি সতর্কবার্তায় (টান, সিম বদল, অফলাইন, চার্জ কম) আর হারানো মোড চালু থাকলে। সুরক্ষা চলার সময় সবসময় একটি নোটিফিকেশন থাকে। লোকেশন শুধু আপনার অ্যাকাউন্ট ও ওই মানুষদের কাছে যায়, ২৪ ঘণ্টা রাখা হয় (সতর্কবার্তা ৩০ দিন), কখনো বিক্রি বা বিজ্ঞাপনে ব্যবহার হয় না। Assisto \"সবসময় অনুমতি দিন\" চায় না। বন্ধ করতে সুরক্ষা বন্ধ করুন, অথবা Android সেটিংস → অ্যাপ → Assisto → অনুমতি।\nএরপর Android লোকেশনের অনুমতি চাইবে।",
+  "at100DiscContinue": "এগিয়ে যান"
+ }
+}

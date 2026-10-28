@@ -19,6 +19,10 @@ PURPOSES (never marketing — refused):
                 business OWNER as credits ("sms" action × segments, refunded
                 if the gateway fails); STOP opt-out + quiet hours 21:00-09:00
                 (core/logic/msg_guard). Refused at zero credits.
+  crm           crm100: ONE message a seller writes to ONE of their own
+                customers from the CRM and taps Send on (never automatic,
+                never a blast — bulk is one card per customer). Charged and
+                guarded exactly like tagada; caps crm_* (Pricing → sms).
   safety        SOS / Safe Journey / family alerts to trusted contacts. Free
                 to the user, strict per-day caps, company cost logged.
 
@@ -43,9 +47,12 @@ from . import sms_gateway, sms_segments
 
 log = logging.getLogger(__name__)
 
-PURPOSES = ("otp", "phone_verify", "tagada", "safety")
+PURPOSES = ("otp", "phone_verify", "tagada", "safety", "crm")
 _CAP_PREFIX = {"otp": "otp", "phone_verify": "verify", "tagada": "tagada",
-               "safety": "safety"}
+               "safety": "safety", "crm": "crm"}
+# Purposes charged to the business owner as credits + guarded by the
+# business' STOP list and quiet hours (msg_guard).
+_BUSINESS_PURPOSES = ("tagada", "crm")
 
 
 def ready():
@@ -149,11 +156,15 @@ def _tagada_guard(business, canon, now):
     return None
 
 
-def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None):
+def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None,
+             prepaid=False):
     """Send one SMS for `purpose` (see module doc). Never raises.
     `user` = the person it is for/from (OTP: the account; safety: the user
     raising the alert; tagada: the business owner who pays). `business` =
-    BusinessProfile for tagada (required)."""
+    BusinessProfile for tagada (required). tagada2: `prepaid=True` = the
+    caller already took the SMS PARTS (core/sms_wallet via
+    core/tagada_engine) — no AI credits are charged here; the caller gives
+    the parts back when this returns not ok."""
     from .otp import normalize_bd_phone
     now = now or timezone.now()
     if purpose not in PURPOSES:
@@ -171,7 +182,7 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
     ads = sms_gateway.active()
     if not ads:
         return _out(False, "sms_not_configured")
-    if purpose == "tagada":
+    if purpose in _BUSINESS_PURPOSES:
         if business is None:
             return _out(False, "business_required")
         user = user or business.user
@@ -187,9 +198,11 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
         return _out(False, why, segments=si["segments"], encoding=si["encoding"])
 
     credits = 0
-    if purpose == "tagada":
+    # crm100: business purposes (tagada, crm) are charged from credits;
+    # tagada2: a prepaid send (SMS parts already taken) is never charged twice
+    if purpose in _BUSINESS_PURPOSES and not prepaid:
         from . import billing
-        ch = billing.charge(user, "sms", qty=si["segments"], note="tagada.sms")
+        ch = billing.charge(user, "sms", qty=si["segments"], note=purpose + ".sms")
         if not ch.get("ok"):
             reason = "insufficient_credits" if ch.get("reason") == "insufficient" \
                 else (ch.get("reason") or "charge_failed")
@@ -203,7 +216,7 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
     if not res.ok:
         if credits:
             from . import billing
-            billing.credit(user, "adjust", credits, note="tagada.sms_refund")
+            billing.credit(user, "adjust", credits, note=purpose + ".sms_refund")
         lid = _record(purpose, canon, user, business, "failed", "send_failed",
                       provider=res.provider, segments=si["segments"],
                       encoding=si["encoding"], failover=failed_over, detail=res.detail)

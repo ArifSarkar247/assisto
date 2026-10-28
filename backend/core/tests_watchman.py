@@ -221,9 +221,13 @@ class SetupTests(_Base):
         self.assertTrue(cam["zones_v2"])
         self.assertNotIn("password", cam["source"])
         self.assertNotIn("LEAK", json.dumps(cam))
-        # personal plan: 0 included -> the camera costs credits per 30 days
-        self.assertGreater(cam["charged_credits"], 0)
-        self.assertIsNotNone(cam["billed_until"])
+        # cashguard (owner 28 Oct): Free includes 1 camera -> the first is
+        # free; the second costs credits per 30 days
+        self.assertEqual(cam["charged_credits"], 0)
+        self.assertIsNone(cam["billed_until"])
+        cam2 = self.add_camera(site["id"], name="Back door")
+        self.assertGreater(cam2["charged_credits"], 0)
+        self.assertIsNotNone(cam2["billed_until"])
 
     def test_feature_flag_off_hides_owner_endpoints(self):
         with mock.patch("core.watchman_views.feature_on", return_value=False):
@@ -621,10 +625,18 @@ class NoVideoTests(_Base):
                     self.assertFalse(looks_like_video(fh.read(1024)), f)
 
     def test_models_have_no_video_field(self):
-        from core.models import ShopEvent, ShopCamera, ShopGatewayTask, ShopSite
+        """No readable video anywhere. cashguard (owner order 28 Oct): the ONE
+        exception is ShopEvent.clip — a 3-5 s clip stored ONLY as edge-sealed
+        ciphertext (ShopEventClip, deleted after 24 h / once watched)."""
+        from core.models import (ShopEvent, ShopCamera, ShopGatewayTask,
+                                 ShopSite, ShopEventClip)
         for m in (ShopEvent, ShopCamera, ShopGatewayTask, ShopSite):
             names = {f.name for f in m._meta.get_fields()}
-            self.assertFalse(any("video" in n or "clip" in n for n in names), m)
+            self.assertFalse(any("video" in n for n in names), m)
+            clipish = {n for n in names if "clip" in n}
+            self.assertEqual(clipish, {"clip"} if m is ShopEvent else set(), m)
+        self.assertEqual(ShopEvent._meta.get_field("clip").related_model, ShopEventClip)
+        self.assertIn("expires_at", {f.name for f in ShopEventClip._meta.get_fields()})
 
 
 # ============================================================ Imou

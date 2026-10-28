@@ -43,6 +43,28 @@ IMEI_B = luhn_imei("35630704244101")
 IMEI_C = luhn_imei("86123404000001")
 
 
+def enable_engine_cut(on=True):
+    """veh100: the remote engine cut is behind the `vehicle_engine_cut` flag
+    (OFF by default). Tests that exercise the command flow switch it on."""
+    from core import feature_flags as FF
+    from core.models import FeatureFlag
+    FF.ensure_seeded()
+    FeatureFlag.objects.filter(key="vehicle_engine_cut").update(enabled_all=on,
+                                                                enabled_play=on)
+    FF.invalidate()
+
+
+def cut_confirmed(client, tracker_id, kind="engine_cut", pin=PIN):
+    """POST the command; an engine cut answers 202 + confirm_token and is then
+    confirmed (second step). Returns the LAST response."""
+    r = client.post("/api/v1/vehicle/trackers/%d/commands" % tracker_id,
+                    {"kind": kind, "pin": pin}, format="json")
+    if r.status_code == 202 and r.data.get("confirm_token"):
+        r = client.post("/api/v1/vehicle/commands/%d/confirm" % r.data["command"]["id"],
+                        {"confirm_token": r.data["confirm_token"]}, format="json")
+    return r
+
+
 def T(sec):
     return datetime(2026, 10, 20, 8, 0, 0, tzinfo=dtz.utc) + timedelta(seconds=sec)
 
@@ -363,6 +385,12 @@ class _Setup:
             protocol="gt06", paired_at=now, billed_until=now + timedelta(days=30),
             last_seen_at=now, last_fix_at=now - timedelta(seconds=10),
             last_lat=23.78, last_lng=90.41, last_speed_kmh=0)
+        # veh100: engine cut needs the last 3 stored fixes stopped
+        for s in (30, 20, 10):
+            VehiclePosition.objects.create(tracker=self.t, at=now - timedelta(seconds=s),
+                                           lat=23.78, lng=90.41, speed_kmh=0)
+        enable_engine_cut(True)
+        self.addCleanup(enable_engine_cut, False)
         self.client.force_authenticate(self.owner)
 
     def as_(self, u):
@@ -372,8 +400,8 @@ class _Setup:
         return "/api/v1/vehicle/trackers/%d%s" % (self.t.id, path)
 
     def cut(self, pin=PIN, kind="engine_cut"):
-        return self.client.post(self.u("/commands"), {"kind": kind, "pin": pin},
-                                format="json")
+        """Request + (veh100) the second confirmation, like the app does."""
+        return cut_confirmed(self.client, self.t.id, kind, pin)
 
 
 class _Base(_Setup, APITestCase):
@@ -835,8 +863,7 @@ class TrackerEndToEndTests(_Setup, APITransactionTestCase):
                 self.assertTrue(await self._wait(lambda: any(
                     c.startswith("TIMER,") for c in dev.commands)))
                 # engine cut through the real HTTP API (owner PIN)
-                r = self.client.post("/api/v1/vehicle/trackers/%d/commands" % tid,
-                                     {"kind": "engine_cut", "pin": PIN}, format="json")
+                r = cut_confirmed(self.client, tid)
                 self.assertEqual(r.status_code, 201, r.data)
                 cid = r.data["command"]["id"]
                 self.assertTrue(await self._wait(
@@ -894,8 +921,7 @@ class TrackerEndToEndTests(_Setup, APITransactionTestCase):
                 self.assertEqual(await dev.send(parked, teltonika.CODEC_8), 3)
                 self.assertTrue(await self._wait(lambda: VehiclePosition.objects.filter(
                     tracker_id=tid).count() == 23))
-                r = self.client.post("/api/v1/vehicle/trackers/%d/commands" % tid,
-                                     {"kind": "engine_cut", "pin": PIN}, format="json")
+                r = cut_confirmed(self.client, tid)
                 self.assertEqual(r.status_code, 201, r.data)
                 cid = r.data["command"]["id"]
                 self.assertTrue(await self._wait(

@@ -14,7 +14,13 @@ import '../../widgets/msgr_set_tiles.dart';
 /// account until the code is confirmed (see
 /// [MessengerSettingsApi.changeNumberRequest] / changeNumberConfirm).
 class MsgrSetChangeNumberScreen extends StatefulWidget {
-  const MsgrSetChangeNumberScreen({super.key});
+  const MsgrSetChangeNumberScreen({super.key, this.verifyOwn = false});
+
+  /// tagada2: VERIFY the account's CURRENT number through the same flow
+  /// (server: request with new_phone == own number is allowed until it is
+  /// verified). The number is prefilled from the account and locked; the
+  /// wording says "verify". Absent -> the normal change-number flow.
+  final bool verifyOwn;
 
   @override
   State<MsgrSetChangeNumberScreen> createState() =>
@@ -38,6 +44,9 @@ class _MsgrSetChangeNumberScreenState
   @override
   void initState() {
     super.initState();
+    if (widget.verifyOwn) {
+      _phone.text = context.read<AppState>().user?.phone ?? '';
+    }
     _loadStatus();
   }
 
@@ -109,8 +118,10 @@ class _MsgrSetChangeNumberScreenState
           pin: _pinRequired ? _pin.text.trim() : null);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_t.msgrSetChangeNumberDone)));
-      Navigator.of(context).maybePop();
+          SnackBar(content: Text(widget.verifyOwn
+              ? _t.tg2VerifyDone
+              : _t.msgrSetChangeNumberDone)));
+      Navigator.of(context).maybePop(widget.verifyOwn ? true : null);
     } catch (e) {
       if (mounted) {
         setState(() => _error = _errText(e, _t.msgrSetChangeNumberCodeFailed));
@@ -124,12 +135,20 @@ class _MsgrSetChangeNumberScreenState
   Widget build(BuildContext context) {
     final t = _t;
     return Scaffold(
-      appBar: AppBar(title: Text(t.msgrSetChangeNumberTitle)),
+      appBar: AppBar(
+          title: Text(widget.verifyOwn
+              ? t.tg2VerifyTitle
+              : t.msgrSetChangeNumberTitle)),
       body: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          MsgrSetNote(t.msgrSetChangeNumberIntro,
-              icon: Icons.swap_horiz_rounded),
+          MsgrSetNote(
+              widget.verifyOwn
+                  ? t.tg2VerifyIntro
+                  : t.msgrSetChangeNumberIntro,
+              icon: widget.verifyOwn
+                  ? Icons.verified_user_rounded
+                  : Icons.swap_horiz_rounded),
           const SizedBox(height: Gap.sm),
           if (_statusLoading)
             const Center(child: CircularProgressIndicator())
@@ -143,13 +162,17 @@ class _MsgrSetChangeNumberScreenState
             MsgrSetNote(t.msgChangeNumberSmsOff, icon: Icons.sms_failed_rounded)
           else if (_step == 0) ...[
             TextField(
+              key: const ValueKey('chg-phone'),
               controller: _phone,
+              readOnly: widget.verifyOwn, // tagada2: own number, locked
               keyboardType: TextInputType.phone,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
               ],
               decoration: InputDecoration(
-                labelText: t.msgrSetChangeNumberNew,
+                labelText: widget.verifyOwn
+                    ? t.tg2VerifyNumber
+                    : t.msgrSetChangeNumberNew,
                 border: const OutlineInputBorder(),
                 errorText: _error,
                 prefixIcon: const Icon(Icons.phone_rounded),
@@ -204,10 +227,16 @@ class _MsgrSetChangeNumberScreenState
                       child: CircularProgressIndicator(strokeWidth: 2))
                   : Text(t.msgrSetChangeNumberConfirm),
             ),
-            TextButton(
-              onPressed: _busy ? null : () => setState(() => _step = 0),
-              child: Text(t.msgrSetChangeNumberEditNumber),
-            ),
+            if (!widget.verifyOwn)
+              TextButton(
+                onPressed: _busy ? null : () => setState(() => _step = 0),
+                child: Text(t.msgrSetChangeNumberEditNumber),
+              )
+            else
+              TextButton(
+                onPressed: _busy ? null : _request,
+                child: Text(t.tg2VerifyResend),
+              ),
           ],
         ],
       ),

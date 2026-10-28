@@ -1,12 +1,13 @@
 """
 Device simulator for the Assisto tracker server — speaks GT06, H02 (Sinotrack
-ST-901 text) and Teltonika.
+ST-901 text), Coban TK103 / GPS103 text (veh100) and Teltonika.
 
 Used by the end-to-end test (core/tests_v1_vehicle.py) and by hand:
 
     python -m tracker.sim gt06 --imei 359339077003915 --port 15023 --fixes 20
     python -m tracker.sim teltonika --imei 356307042441013 --port 15023
     python -m tracker.sim h02 --imei 9171234567 --port 15023
+    python -m tracker.sim tk103 --imei 359586015829802 --port 15023
 
 Each simulated device auto-answers server commands like real firmware does:
 GT06 replies to a 0x80 online command with a 0x15 string reply carrying the
@@ -18,7 +19,7 @@ import asyncio
 import struct
 from datetime import datetime, timedelta, timezone
 
-from .protocols import gt06, h02, teltonika
+from .protocols import gt06, h02, teltonika, tk103
 
 
 class GT06Device:
@@ -160,6 +161,90 @@ class H02Device:
             self.writer.close()
 
 
+class TK103Device:
+    """Coban TK103-style text tracker: '##,imei:..,A;' login (server answers
+    LOAD), '<imei>;' heartbeat (ON), position frames, and J / K / C commands
+    answered with a 'jt' / 'kt' keyword frame (TK103B firmware behaviour)."""
+
+    def __init__(self, imei, confirm=True):
+        self.imei = imei
+        self.confirm = confirm
+        self.commands = []
+        self.replies = []             # LOAD / ON tokens from the server
+        self.reader = self.writer = None
+        self._task = None
+        self._loaded = asyncio.Event()
+        self._eof = asyncio.Event()
+
+    async def connect(self, host, port):
+        self.reader, self.writer = await asyncio.open_connection(host, port)
+        self._task = asyncio.create_task(self._listen())
+
+    async def login(self, timeout=5.0):
+        self.writer.write(tk103.login_packet(self.imei))
+        await self.writer.drain()
+        try:
+            await asyncio.wait_for(self._loaded.wait(), timeout)
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+    async def heartbeat(self):
+        self.writer.write(tk103.heartbeat_packet(self.imei))
+        await self.writer.drain()
+
+    async def fix(self, lat, lng, speed_kmh, at=None, course=90, keyword="tracker"):
+        at = at or datetime.now(timezone.utc)
+        self.writer.write(tk103.position_packet(self.imei, at, lat, lng, speed_kmh,
+                                                course, keyword=keyword))
+        await self.writer.drain()
+
+    async def closed(self, timeout=2.0):
+        try:
+            await asyncio.wait_for(self._eof.wait(), timeout)
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+    async def _listen(self):
+        buf = b""
+        try:
+            while True:
+                data = await self.reader.read(4096)
+                if not data:
+                    self._eof.set()
+                    return
+                buf += data
+                while True:
+                    for tok in (tk103.LOGIN_REPLY, tk103.HEARTBEAT_REPLY):
+                        if buf.startswith(tok) and not buf.startswith(b"**"):
+                            self.replies.append(tok.decode())
+                            if tok == tk103.LOGIN_REPLY:
+                                self._loaded.set()
+                            buf = buf[len(tok):]
+                            break
+                    else:
+                        break
+                j = buf.find(b";")
+                while buf.startswith(b"**") and j >= 0:
+                    _imei, cmd = tk103.parse_server_command(buf[:j + 1])
+                    buf = buf[j + 1:]
+                    self.commands.append(cmd)
+                    kw = {"J": "jt", "K": "kt"}.get(cmd)
+                    if kw and self.confirm:
+                        self.writer.write(tk103.reply_packet(self.imei, kw))
+                        await self.writer.drain()
+                    j = buf.find(b";")
+        except (ConnectionError, asyncio.CancelledError, tk103.FrameError):
+            return
+
+    async def close(self):
+        if self._task:
+            self._task.cancel()
+        if self.writer:
+            self.writer.close()
+
+
 class TeltonikaDevice:
     def __init__(self, imei, reply_text="DOUT1:1 DOUT2:0 Timeout:INFINITY"):
         self.imei = imei
@@ -268,6 +353,20 @@ async def _cli(a):
         await asyncio.sleep(a.listen)
         print("frames sent:", len(path) + 1, "commands received:", d.commands)
         await d.close()
+    elif a.proto == "tk103":
+        d = TK103Device(a.imei)
+        await d.connect(a.host, a.port)
+        ok = await d.login()
+        print("login LOAD:", ok)
+        if not ok:
+            return
+        for p in path:
+            await d.fix(p["lat"], p["lng"], p["speed_kmh"], p["at"])
+            await asyncio.sleep(a.delay)
+        await d.heartbeat()
+        await asyncio.sleep(a.listen)
+        print("commands received:", d.commands)
+        await d.close()
     else:
         d = TeltonikaDevice(a.imei)
         await d.connect(a.host, a.port)
@@ -286,7 +385,7 @@ async def _cli(a):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Assisto tracker device simulator")
-    ap.add_argument("proto", choices=["gt06", "h02", "teltonika"])
+    ap.add_argument("proto", choices=["gt06", "h02", "tk103", "teltonika"])
     ap.add_argument("--imei", required=True)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=15023)

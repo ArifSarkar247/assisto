@@ -63,7 +63,46 @@ def _parse_hik_xml(raw):
         "channel": _xml_text(root, "channelID") or _xml_text(root, "dynChannelID"),
         # AcuSense / smart events name what crossed: detectionTarget human|vehicle
         "target": _xml_text(root, "detectionTarget").lower(),
+        # cashguard: the target's box when the firmware reports one
+        "box": _hik_box(root),
     }
+
+
+def _num(v):
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if f == f else None
+
+
+def _norm_box(x1, y1, x2, y2, scale):
+    """Box in vendor units -> normalised (0..1) x1, y1, x2, y2, or None."""
+    vals = [_num(v) for v in (x1, y1, x2, y2)]
+    if any(v is None for v in vals) or scale <= 0:
+        return None
+    vals = [min(max(v / scale, 0.0), 1.0) for v in vals]
+    if vals[2] <= vals[0] or vals[3] <= vals[1]:
+        return None
+    return tuple(round(v, 4) for v in vals)
+
+
+def _hik_box(root):
+    """cashguard: Hikvision smart-event target rectangle, when present
+    (`targetRect` / `TargetRect` with x, y, width, height). Newer firmware
+    reports 0..1 floats; older 0..1000 ints. Not every model sends it — then
+    None and the server falls back to the camera's own alarm (honest)."""
+    for el in root.iter():
+        if _strip_ns(el.tag).lower() != "targetrect":
+            continue
+        kv = {_strip_ns(c.tag).lower(): (c.text or "").strip() for c in el}
+        x, y = _num(kv.get("x")), _num(kv.get("y"))
+        w, h = _num(kv.get("width")), _num(kv.get("height"))
+        if None in (x, y, w, h):
+            return None
+        scale = 1.0 if max(x, y, w, h) <= 1.0 else 1000.0
+        return _norm_box(x, y, x + w, y + h, scale)
+    return None
 
 
 def _multipart_parts(content_type, body):
@@ -109,7 +148,13 @@ def _dahua_from_obj(obj):
     action = str(obj.get("Action") or obj.get("action") or "").lower()
     data = obj.get("Data") if isinstance(obj.get("Data"), dict) else {}
     o = data.get("Object") if isinstance(data.get("Object"), dict) else {}
+    box = None
+    bb = o.get("BoundingBox")
+    if isinstance(bb, list) and len(bb) == 4:
+        # Dahua IVS coordinates are 0..8191 ("8192 coordinate system")
+        box = _norm_box(bb[0], bb[1], bb[2], bb[3], 8191.0)
     return {
+        "box": box,
         "target": str(o.get("ObjectType") or "").lower(),
         "event": code,
         "active": action in ("start", "pulse"),
@@ -180,6 +225,11 @@ def is_after_hours(hours, local_now):
     return c <= t < o        # overnight: closed between close and open
 
 
+def _cash_zone(zc):
+    from .cash_guard import cash_zone_of
+    return cash_zone_of(zc)
+
+
 def map_event(ev, zone_config, local_now):
     """Vendor event -> (shop_guard type, signals) or None (acknowledge + drop).
 
@@ -196,6 +246,23 @@ def map_event(ev, zone_config, local_now):
         base["human"] = True              # the camera's own AI saw a person
     if code in _TAMPER:
         return ("camera_alarm", dict(base, tamper=True))
+    # cashguard SERVER CHECK (no model, no image decode): the camera's own
+    # target box falls inside the owner's CASH zone -> a cash-zone event the
+    # guard correlates with POS sales like the Shop Box one.
+    cash = _cash_zone(zc)
+    box = ev.get("box")
+    if cash and (box or ev.get("server_person_in_zone")) and \
+            (code in _INTRUSION or code in _MOTION):
+        from .cash_guard import box_in_zone
+        by_box = bool(box) and box_in_zone(box, cash)
+        if by_box or ev.get("server_person_in_zone"):
+            sig = dict(base, server_check="box_in_zone" if by_box else "snapshot_model")
+            sig["camera_box_in_zone" if by_box else "person_in_cash_zone"] = True
+            if after:
+                return ("after_hours", dict(sig, after_hours=True,
+                                            person_in_zone=bool(base.get("human") or
+                                                               ev.get("server_person_in_zone"))))
+            return ("hand_in_cash_zone", sig)
     if code in _INTRUSION:
         if after:
             return ("after_hours", dict(base, after_hours=True))

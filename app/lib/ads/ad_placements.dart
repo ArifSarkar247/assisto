@@ -75,6 +75,7 @@ class AdPlacements {
   static const neverScreens = [
     'sos', 'voice_sos', 'journey_sos', 'safety', 'safe_arrival', 'fall_detect',
     'emergency', 'antitheft', 'lost_stolen', 'my_lost_phone', 'family_alerts',
+    'watched_phones', // at100
     'circle_call', 'incoming_call', 'call_history', 'chat', 'circle_chat',
     'group_chat', 'messenger', 'chat_lock', 'vault', 'payment', 'checkout',
     'plans', 'topup', 'login', 'otp', 'signup', 'password_reset',

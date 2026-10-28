@@ -1,12 +1,11 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/password_field.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../state.dart';
@@ -14,106 +13,114 @@ import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/vault_doc_types.dart';
 import '../widgets/scam_safety_api.dart';
-import '../services/error_kind.dart' show honestFailText; // qa2
+import '../services/error_kind.dart' show FailKind, failKindOf, honestFailText; // qa2
+import '../otp_api.dart' show ApiOtpBackend, OtpBackend;
+import '../photo_studio/ps_engines.dart' show ChannelSecureScreen, SecureScreen;
+import '../vault/vault_api.dart';
+import '../vault/vault_lock.dart';
+import '../vault/vault_lock_view.dart';
+import '../vault/vault_offline.dart';
+import '../vault/vault_recovery_screen.dart';
+import '../vault/vault_security_screen.dart';
+import '../vault/vault_viewer.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../theme.dart' show AType, Brand, Gap, Radii; // qa1
 
 class VaultScreen extends StatefulWidget {
   /// Preview/screenshot: skip the PIN gate and load straight to the list.
   final bool previewUnlocked;
-  const VaultScreen({super.key, this.previewUnlocked = false});
+
+  /// vault100 seams (tests inject fakes; the app uses the real ones).
+  final VaultLock? lock;
+  final VaultOffline? offline;
+  final VaultBackend? backend;
+  final OtpBackend? otpBackend;
+  final SecureScreen secure;
+  const VaultScreen(
+      {super.key,
+      this.previewUnlocked = false,
+      this.lock,
+      this.offline,
+      this.backend,
+      this.otpBackend,
+      this.secure = const ChannelSecureScreen()});
   @override
   State<VaultScreen> createState() => _VaultScreenState();
 }
 
+enum _Gate { checking, setPin, enterPin, open }
+
 class _VaultScreenState extends State<VaultScreen> {
-  final _secure = const FlutterSecureStorage();
-  bool _unlocked = false;
-  bool _checking = true;
+  late final VaultLock _lock = widget.lock ?? VaultLock();
+  late final VaultOffline _offline = widget.offline ?? VaultOffline.instance;
+  VaultBackend? _backendCache;
+  VaultBackend get _backend =>
+      _backendCache ??= widget.backend ?? ApiVaultBackend(context.read<AppState>().api);
+  OtpBackend get _otp => widget.otpBackend ?? ApiOtpBackend(context.read<AppState>().api);
+
+  _Gate _gateState = _Gate.checking;
+  String? _gateNotice;
   List<Map<String, dynamic>> _docs = [];
   bool _loading = false;
   bool _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _query = '';
+  // vault100: offline copies
+  Set<int> _offlineIds = {};
+  bool _offlineMode = false; // the list below is the phone's saved copies
+  final Set<int> _busyIds = {};
+  bool _hasRecoveryCode = true;
+  bool _nudgeDismissed = false;
 
   @override
   void initState() {
     super.initState();
+    widget.secure.enable(); // vault100: no screenshots / recents preview
     if (widget.previewUnlocked) {
-      _unlocked = true;
-      _checking = false;
+      _gateState = _Gate.open;
       _load();
     } else {
       _gate();
     }
   }
 
+  @override
+  void dispose() {
+    widget.secure.disable();
+    super.dispose();
+  }
+
   // ------------------------------------------------------------------ PIN gate
   Future<void> _gate() async {
-    final pin = await _secure.read(key: 'vault_pin');
-    setState(() => _checking = false);
-    if (pin == null) {
-      await _setPin();
-    } else {
-      await _enterPin(pin);
-    }
-    if (_unlocked) _load();
+    final has = await _lock.hasPin();
+    if (!mounted) return;
+    setState(() => _gateState = has ? _Gate.enterPin : _Gate.setPin);
   }
 
-  Future<void> _setPin() async {
-    final ctrl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context, barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context).vaultSetPinTitle),
-        content: ObscureTextField(
-          controller: ctrl, keyboardType: TextInputType.number,
-          maxLength: 6,
-          decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultPinLengthHint),
-        ),
-        actions: [FilledButton(
-            onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).vaultSetButton))],
-      ),
-    );
-    if (ok == true && ctrl.text.length >= 4) {
-      await _secure.write(key: 'vault_pin', value: ctrl.text);
-      setState(() => _unlocked = true);
-    } else if (mounted) {
-      Navigator.pop(context);
-    }
+  void _opened() {
+    setState(() {
+      _gateState = _Gate.open;
+      _gateNotice = null;
+    });
+    _load();
   }
 
-  Future<void> _enterPin(String real) async {
-    final ctrl = TextEditingController();
-    String? err;
-    final ok = await showDialog<bool>(
-      context: context, barrierDismissible: false,
-      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: Text(AppLocalizations.of(context).vaultLockedTitle),
-        content: ObscureTextField(
-          controller: ctrl, keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultEnterPinHint, errorText: err),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
-          FilledButton(onPressed: () {
-            if (ctrl.text == real) {
-              Navigator.pop(ctx, true);
-            } else {
-              setD(() => err = AppLocalizations.of(context).vaultWrongPin);
-            }
-          }, child: Text(AppLocalizations.of(context).vaultUnlockButton)),
-        ],
-      )),
-    );
-    if (ok == true) {
-      setState(() => _unlocked = true);
-    } else if (mounted) {
-      Navigator.pop(context);
-    }
+  Future<void> _forgot() async {
+    final ok = await VaultRecoveryScreen.run(context,
+        lock: _lock, backend: _backend, otpBackend: _otp);
+    if (!ok || !mounted) return;
+    setState(() {
+      _gateState = _Gate.setPin;
+      _gateNotice = AppLocalizations.of(context).vaultRecoverSetNew;
+    });
   }
 
   // ------------------------------------------------------------------ data
+  static const _localWait = Duration(seconds: 3);
+
+  Future<Map<int, OfflineEntry>> _savedCopies() =>
+      _offline.index().timeout(_localWait, onTimeout: () => <int, OfflineEntry>{});
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -121,11 +128,40 @@ class _VaultScreenState extends State<VaultScreen> {
     });
     try {
       _docs = await context.read<AppState>().api.listDocuments();
+      _offlineMode = false;
+      // keep the phone's copies in step (never blocks the list)
+      // best-effort: syncWith never throws (every store call is caught inside);
+      // if it ever failed, the copies just keep their last saved details and
+      // still open offline — the next load retries. The badges refresh anyway.
+      unawaited(_offline.syncWith(_docs).then((_) => _refreshLocal(),
+          onError: (_) => _refreshLocal()));
     } catch (e) {
-      _error = true;
       _failCause = e;
+      final saved = failKindOf(e) == FailKind.network
+          ? await _savedCopies()
+          : const <int, OfflineEntry>{};
+      if (saved.isNotEmpty) {
+        // vault100: no internet -> the copies saved on this phone, honestly labelled
+        _docs = [for (final x in saved.values) x.meta];
+        _offlineMode = true;
+      } else {
+        _error = true;
+      }
     }
     if (mounted) setState(() => _loading = false);
+    unawaited(_refreshLocal());
+  }
+
+  /// Offline badges + the recovery-code nudge: local reads AFTER the list is
+  /// shown (a slow phone store never holds the list back).
+  Future<void> _refreshLocal() async {
+    final ids = (await _offline.index()).keys.toSet();
+    final has = await _lock.hasRecoveryCode();
+    if (!mounted) return;
+    setState(() {
+      _offlineIds = ids;
+      _hasRecoveryCode = has;
+    });
   }
 
   Future<String?> _pickImage() async {
@@ -164,15 +200,118 @@ class _VaultScreenState extends State<VaultScreen> {
     return f;
   }
 
-  Future<void> _viewFile(int id) async {
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      final f = await _downloadFile(id);
-      if (f != null) await OpenFilex.open(f.path);
-    } catch (_) {
-      messenger.showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).vaultNoFileAttached)));
+  void _snack(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  /// vault100: the phone's encrypted copy first (works with no internet),
+  /// else the server; shown in the in-app viewer (bytes stay in memory).
+  Future<void> _viewFile(Map<String, dynamic> doc) async {
+    final t = AppLocalizations.of(context);
+    final id = doc['id'] as int;
+    final nav = Navigator.of(context);
+    final title = '${doc['title'] ?? ''}';
+    if (_offlineIds.contains(id)) {
+      final bytes = await _offline.openFile(id);
+      if (bytes != null) {
+        nav.push(MaterialPageRoute(
+            builder: (_) => VaultViewer(bytes: bytes, title: title, fromOfflineCopy: true)));
+        return;
+      }
     }
+    if (_offlineMode) {
+      _snack(t.vaultNotOfflineYet);
+      return;
+    }
+    try {
+      final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+      if (!mounted) return;
+      nav.push(MaterialPageRoute(
+          builder: (_) => VaultViewer(bytes: Uint8List.fromList(bytes), title: title)));
+    } catch (e) {
+      _snack(failKindOf(e) == FailKind.network
+          ? t.vaultNeedInternetOpen
+          : honestFailText(t, e, otherwise: t.vaultNoFileAttached));
+    }
+  }
+
+  /// vault100: keep / drop the encrypted copy on this phone.
+  Future<void> _setOffline(Map<String, dynamic> doc, bool on) async {
+    final t = AppLocalizations.of(context);
+    final id = doc['id'] as int;
+    setState(() => _busyIds.add(id));
+    var ok = true;
+    try {
+      if (on) {
+        List<int>? bytes;
+        if (doc['file_url'] != null) {
+          bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+        }
+        ok = await _offline.save(doc, bytes);
+      } else {
+        await _offline.remove(id);
+      }
+    } catch (e) {
+      if (mounted) {
+        _snack(failKindOf(e) == FailKind.network ? t.vaultNeedInternetSave : t.vaultOfflineSaveFailed);
+      }
+      if (mounted) setState(() => _busyIds.remove(id));
+      return;
+    }
+    _offlineIds = (await _offline.index()).keys.toSet();
+    if (!mounted) return;
+    setState(() => _busyIds.remove(id));
+    if (!ok) {
+      _snack(t.vaultOfflineSaveFailed);
+    } else {
+      _snack(on ? t.vaultOfflineSaved : t.vaultOfflineRemoved);
+    }
+  }
+
+  Future<void> _setAlerts(Map<String, dynamic> doc, bool on) async {
+    final t = AppLocalizations.of(context);
+    try {
+      await _backend.setExpiryAlerts(doc['id'] as int, on);
+      setState(() => doc['expiry_alerts'] = on);
+    } catch (e) {
+      _snack(failKindOf(e) == FailKind.network ? t.vaultNeedInternet : honestFailText(t, e));
+    }
+  }
+
+  Future<void> _delete(Map<String, dynamic> doc) async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.vaultDeleteTitle),
+        content: Text(t.vaultDeleteBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              key: const Key('vault_delete_confirm'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.delete)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await context.read<AppState>().api.deleteDocument(doc['id'] as int);
+      await _offline.remove(doc['id'] as int);
+      _load();
+    } catch (e) {
+      _snack(failKindOf(e) == FailKind.network ? t.vaultNeedInternet : honestFailText(t, e));
+    }
+  }
+
+  Future<void> _openSecurity() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => VaultSecurityScreen(lock: _lock, offline: _offline, backend: _backend)));
+    if (!mounted) return;
+    _offlineIds = (await _offline.index()).keys.toSet();
+    _hasRecoveryCode = await _lock.hasRecoveryCode();
+    if (mounted) setState(() {});
   }
 
   // ------------------------------------------------------------------ add/edit
@@ -269,6 +408,11 @@ class _VaultScreenState extends State<VaultScreen> {
                 if (d != null) setD(() => expiry = d);
               },
             ),
+            if (expiry != null)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(t.vaultExpiryRemindNote, style: AType.bodySmall),
+              ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
               icon: Icon(filePath == null ? Icons.attach_file_rounded : Icons.check_circle_rounded,
@@ -326,11 +470,12 @@ class _VaultScreenState extends State<VaultScreen> {
     final t = AppLocalizations.of(context);
     final dt = vaultTypeOf(doc['doc_type']);
     final decoded = readDocDetails(doc);
+    final id = doc['id'] as int;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (ctx) => DraggableScrollableSheet(
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setS) => DraggableScrollableSheet(
         expand: false, initialChildSize: 0.6, maxChildSize: 0.9,
         builder: (ctx, scroll) => ListView(controller: scroll,
             padding: const EdgeInsets.fromLTRB(20, 0, 20, Gap.xl), children: [
@@ -382,29 +527,63 @@ class _VaultScreenState extends State<VaultScreen> {
             const SizedBox(height: 10),
             Text(decoded.note),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: Gap.md),
+          // vault100: keep an encrypted copy on this phone (opens offline)
+          SwitchListTile(
+            key: const Key('vault_offline_switch'),
+            contentPadding: EdgeInsets.zero,
+            secondary: _busyIds.contains(id)
+                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                : Icon(_offlineIds.contains(id) ? Icons.offline_pin_rounded : Icons.download_for_offline_outlined),
+            title: Text(t.vaultAvailableOffline),
+            subtitle: Text(_offlineIds.contains(id) ? t.vaultAvailableOfflineOn : t.vaultAvailableOfflineOff),
+            value: _offlineIds.contains(id),
+            onChanged: _busyIds.contains(id) || (_offlineMode && !_offlineIds.contains(id))
+                ? null
+                : (v) async {
+                    await _setOffline(doc, v);
+                    setS(() {});
+                  },
+          ),
+          if (doc['expiry_date'] != null)
+            SwitchListTile(
+              key: const Key('vault_alerts_switch'),
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.notifications_active_outlined),
+              title: Text(t.vaultExpiryAlerts),
+              subtitle: Text(t.vaultExpiryAlertsSub),
+              value: doc['expiry_alerts'] != false,
+              onChanged: _offlineMode
+                  ? null
+                  : (v) async {
+                      await _setAlerts(doc, v);
+                      setS(() {});
+                    },
+            ),
+          const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (doc['file_url'] != null)
               FilledButton.tonalIcon(
-                onPressed: () { Navigator.pop(ctx); _viewFile(doc['id']); },
+                key: const Key('vault_view'),
+                onPressed: () { Navigator.pop(ctx); _viewFile(doc); },
                 icon: const Icon(Icons.visibility_rounded), label: Text(t.view)),
             FilledButton.tonalIcon(
-              onPressed: () { Navigator.pop(ctx); _shareToNominee(doc); },
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (_offlineMode) { _snack(t.vaultNeedInternet); } else { _shareToNominee(doc); }
+              },
               icon: const Icon(Icons.ios_share_rounded), label: Text(t.vaultShareToNominee)),
             if (dt.guideKey != null)
               FilledButton.tonalIcon(
                 onPressed: () { Navigator.pop(ctx); _showRenewal(dt); },
                 icon: const Icon(Icons.autorenew_rounded), label: Text(t.vaultRenewalSteps)),
             OutlinedButton.icon(
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await context.read<AppState>().api.deleteDocument(doc['id']);
-                _load();
-              },
+              key: const Key('vault_delete'),
+              onPressed: () { Navigator.pop(ctx); _delete(doc); },
               icon: const Icon(Icons.delete_outline_rounded), label: Text(t.delete)),
           ]),
         ]),
-      ),
+      )),
     );
   }
 
@@ -578,17 +757,65 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   // ------------------------------------------------------------------ build
+  Widget _nudge(AppLocalizations t) => Card(
+        key: const Key('vault_recovery_nudge'),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Icon(Icons.key_rounded, color: Theme.of(context).colorScheme.onSecondaryContainer),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                  child: Text(t.vaultNudgeTitle,
+                      style: AType.titleSmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSecondaryContainer))),
+            ]),
+            const SizedBox(height: Gap.xs),
+            Text(t.vaultNudgeBody,
+                style: AType.bodyMedium
+                    .copyWith(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+            const SizedBox(height: Gap.sm),
+            Wrap(spacing: Gap.sm, children: [
+              FilledButton(
+                  onPressed: () async {
+                    final code = await _lock.newRecoveryCode();
+                    if (code == null || !mounted) return;
+                    await showVaultRecoveryCode(context, code);
+                    _hasRecoveryCode = await _lock.hasRecoveryCode();
+                    if (mounted) setState(() {});
+                  },
+                  child: Text(t.vaultRecoveryCodeCreate)),
+              TextButton(
+                  onPressed: () => setState(() => _nudgeDismissed = true),
+                  child: Text(t.vaultNudgeLater)),
+            ]),
+          ]),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_checking) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (!_unlocked) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.vaultTitle)),
-        body: Center(child: Text(t.vaultLockedMessage)),
-      );
+    switch (_gateState) {
+      case _Gate.checking:
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      case _Gate.setPin:
+      case _Gate.enterPin:
+        return Scaffold(
+          appBar: AppBar(title: Text(t.vaultTitle)),
+          body: VaultLockView(
+            key: ValueKey(_gateState),
+            lock: _lock,
+            mode: _gateState == _Gate.setPin ? VaultLockMode.set : VaultLockMode.enter,
+            notice: _gateNotice,
+            onUnlocked: _opened,
+            onForgot: _forgot,
+          ),
+        );
+      case _Gate.open:
+        break;
     }
     final filtered = _query.isEmpty
         ? _docs
@@ -600,9 +827,16 @@ class _VaultScreenState extends State<VaultScreen> {
           tooltip: t.vaultQuickLookup,
           onPressed: _quickLookup,
         ),
+        IconButton(
+          key: const Key('vault_security'),
+          icon: const Icon(Icons.shield_outlined),
+          tooltip: t.vaultSecurityTitle,
+          onPressed: _openSecurity,
+        ),
       ]),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add, icon: const Icon(Icons.add_rounded), label: Text(t.add)),
+          onPressed: _offlineMode ? () => _snack(t.vaultNeedInternet) : _add,
+          icon: const Icon(Icons.add_rounded), label: Text(t.add)),
       body: _loading
           ? const SkeletonList()
           : _error
@@ -620,24 +854,45 @@ class _VaultScreenState extends State<VaultScreen> {
                       icon: Icons.folder_open_rounded,
                       title: t.vaultEmptyTitle,
                       message: t.vaultEmptyMessage)
-                  : ListView(
+                  : RefreshIndicator(
+                      onRefresh: _load,
+                      child: ListView(
                       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
                       children: [
+                        if (_offlineMode)
+                          Card(
+                            key: const Key('vault_offline_banner'),
+                            child: ListTile(
+                              leading: const Icon(Icons.cloud_off_rounded),
+                              title: Text(t.vaultOfflineBanner(fmtInt(context, _docs.length))),
+                              subtitle: Text(t.vaultOfflineBannerSub),
+                              trailing: TextButton(onPressed: _load, child: Text(t.retry)),
+                            ),
+                          ),
+                        if (!_offlineMode && !_hasRecoveryCode && !_nudgeDismissed && !widget.previewUnlocked)
+                          _nudge(t),
                         for (final doc in filtered)
                           Card(child: ListTile(
+                            minVerticalPadding: Gap.sm,
                             onTap: () => _openDoc(doc),
                             leading: Icon(vaultTypeOf(doc['doc_type']).icon),
                             title: Text(doc['title'] ?? ''),
-                            subtitle: Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center,
+                            subtitle: Wrap(spacing: Gap.sm, runSpacing: Gap.xs,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(vaultTypeOf(doc['doc_type']).label(t)),
                                 if (_expiryBadge(doc['expiry_date']) != null)
                                   _expiryBadge(doc['expiry_date'])!,
+                                if (_offlineIds.contains(doc['id']))
+                                  Semantics(
+                                    label: t.vaultAvailableOffline,
+                                    child: const Icon(Icons.offline_pin_rounded, size: 18),
+                                  ),
                               ]),
                             trailing: const Icon(Icons.chevron_right_rounded),
                           )),
                       ],
-                    ),
+                    )),
     );
   }
 }

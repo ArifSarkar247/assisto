@@ -1029,7 +1029,7 @@ def cfg_defaults():
         # monthly AI replies per plan; price in whole taka (owner proposal,
         # BUSINESS_PLAN_BN.md). Sold through the payment gateway (EPS).
         "plans": {"starter": {"price": 1490, "replies": 1000},
-                  "pro": {"price": 3990, "replies": 3000}},
+                  "pro": {"price": 3990, "replies": 2700}},
         "trial_days": 7,
         "trial_replies": 100,
         # Meta's WhatsApp charge per BILLABLE message/conversation, in ৳, per

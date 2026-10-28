@@ -72,7 +72,11 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
         _when = DateTime.tryParse('${s['next_at']}')?.toLocal() ?? _when;
         _interval = (s['interval_days'] as num?)?.toInt() ?? 7;
         _untilPaid = s['until_paid'] != false;
-        _mode = s['mode'] == 'sms' ? 'sms' : 'push';
+        _mode = switch (s['mode']) {
+          'sms' => 'sms',
+          'assisto' => 'assisto', // tagada2
+          _ => 'push',
+        };
       }
     } catch (e) {
       _loadFail = e;
@@ -114,7 +118,7 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
         'next_at': _when.toUtc().toIso8601String(),
         'interval_days': _interval,
         'until_paid': _interval == 0 ? true : _untilPaid,
-        'channel': _mode == 'sms' ? 'sms' : 'push',
+        'channel': _mode, // push | sms | assisto (tagada2)
         'preset': 'reminder',
       });
       if (!mounted) return;
@@ -236,6 +240,16 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
               groupValue: _mode,
               onChanged: (v) => setState(() => _mode = v ?? 'push'),
               child: Column(children: [
+                // tagada2: free in-app reminder when the customer is on
+                // Assisto (verified phone); otherwise the server falls back
+                // to the owner push below.
+                RadioListTile<String>(
+                  key: const ValueKey('tg2-sched-assisto'),
+                  contentPadding: EdgeInsets.zero,
+                  value: 'assisto',
+                  title: Text(t.tg2SchedModeAssisto),
+                  subtitle: Text(t.tg2SchedModeAssistoSub),
+                ),
                 RadioListTile<String>(
                   contentPadding: EdgeInsets.zero,
                   value: 'push',

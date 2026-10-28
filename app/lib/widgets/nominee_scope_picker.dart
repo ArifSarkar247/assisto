@@ -49,7 +49,7 @@ class NomineeScope {
   String describe(AppLocalizations tr) {
     switch (key) {
       case 'documents':
-        return tr.nomineeScopeDocumentsDesc;
+        return tr.nomineeScopeDocumentsDesc2;
       case 'accounts':
         return tr.nomineeScopeAccountsDesc;
       case 'insurance':

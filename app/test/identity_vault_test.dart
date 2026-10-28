@@ -43,7 +43,12 @@ void main() {
     tmp = await Directory.systemTemp.createTemp('sec');
     legacy = FakeLegacy();
   });
-  tearDown(() async => tmp.delete(recursive: true));
+  tearDown(() async {
+    // root cause of the CI flake: get() returns before its background
+    // key-ring write finishes; wait for it before removing the directory
+    await IdentityVault.backgroundIdle();
+    await tmp.delete(recursive: true);
+  });
 
   group('SecretStore (app sandbox, Keystore never required)', () {
     test('write/read/delete round trip, survives a new instance (app restart)', () async {

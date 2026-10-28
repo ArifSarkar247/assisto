@@ -120,6 +120,13 @@ def on_device_connect(imei, protocol, remote="", now=None):
     imei = normalize_imei(imei)
     t = VehicleTracker.objects.filter(imei=imei).select_related("owner").first()
     if t is None:
+        t = _alias_match(imei, now)
+        if t is not None:
+            audit(t, "imei_alias_matched", remote=remote, reported=imei,
+                  protocol=protocol)
+            t.imei = imei                     # the id the device really sends
+            t.save(update_fields=["imei", "updated_at"])
+    if t is None:
         last = _unknown_logged.get(imei)
         if last is None or (now - last).total_seconds() >= UNKNOWN_LOG_EVERY_S:
             _unknown_logged[imei] = now
@@ -161,6 +168,26 @@ def on_device_connect(imei, protocol, remote="", now=None):
     return t.id, "paired"
 
 
+def _alias_match(reported, now):
+    """veh100 setup helper: Sinotrack / Coban labels print a 10-12 digit
+    DEVICE ID while the box says a 15-digit IMEI (or the reverse). A device
+    whose id is contained in (or contains) exactly ONE pending tracker's
+    number, inside that tracker's pairing window, is that tracker. Never for
+    paired / disabled trackers, never ambiguous, never under 10 digits."""
+    from .models import VehicleTracker
+    if not reported or len(reported) < 10:
+        return None
+    cands = [t for t in VehicleTracker.objects.filter(
+        state="pending", pair_expires_at__gte=now).select_related("owner")[:500]
+        if len(t.imei) >= 10 and t.imei != reported
+        and (reported in t.imei or t.imei in reported)]
+    if len(cands) != 1:
+        return None
+    if VehicleTracker.objects.filter(imei=reported).exists():
+        return None
+    return cands[0]
+
+
 def touch(tracker_id, now=None):
     from .models import VehicleTracker
     VehicleTracker.objects.filter(pk=tracker_id).update(
@@ -194,6 +221,7 @@ def ingest(batch, now=None):
     trackers = {t.id: t for t in VehicleTracker.objects.filter(
         pk__in=list(batch.keys())).select_related("owner")}
     pending_alerts = []
+    delivered = []
     for tid, item in batch.items():
         t = trackers.get(tid)
         if t is None:
@@ -205,12 +233,21 @@ def ingest(batch, now=None):
             fields["ignition"] = st["ignition"]
         if "relay_cut" in st:
             fields["relay_cut"] = st["relay_cut"]
+        for k in ("ext_voltage_v", "battery_v"):
+            if st.get(k) is not None:
+                fields[k] = st[k]
         alert_state = dict(t.alert_state or {})
         circles, routes = split_fences(t.geofences)
+        prefs = alert_prefs(t)
         settings = {"speed_limit_kmh": t.speed_limit_kmh,
                     "night_start": t.night_start, "night_end": t.night_end,
                     "night_ignition": t.night_ignition_alert,
-                    "geofences": circles, "routes": routes}
+                    "geofences": circles, "routes": routes,
+                    "ignition_on": prefs["ignition_on"],
+                    "ignition_off": prefs["ignition_off"],
+                    "stop_alert_min": prefs["stop_alert_min"]}
+        odo_m = float(t.odometer_m or 0)
+        last_pt = alert_state.get("odo_pt")      # [lat, lng, iso] of the last counted fix
         # Idempotency: a tracker that never got our ACK (or a flaky link)
         # re-sends the same fix. One fix per (tracker, device time): skip any
         # `at` already stored or already seen in this batch.
@@ -255,15 +292,142 @@ def ingest(batch, now=None):
             local_hour = at.astimezone(LOCAL_TZ).hour
             alert_state, alerts = VT.evaluate_alerts(alert_state, f, settings,
                                                      local_hour)
+            # veh100: device alarms (levels or events) + power signals
+            alert_state, dev = VT.evaluate_device(
+                alert_state, f.get("alarms") or (), {
+                    "ext_voltage_v": f.get("ext_voltage_v"),
+                    "battery_v": f.get("battery_v")})
+            for a in alerts + dev:
+                if a.get("lat") is None and f.get("valid", True):
+                    a.update(lat=f.get("lat"), lng=f.get("lng"))
+                pending_alerts.append((t, a, at))
+            # veh100: server odometer (valid, jump-free, parked wander ignored)
+            if f.get("valid", True) and f.get("lat") is not None:
+                odo_m, last_pt = _odo_step(odo_m, last_pt, f, at)
+        # status reports (GT06 heartbeat terminal-info bits, TK103 keyword
+        # frames): their own alarm slot, so a GPS fix without alarm bits never
+        # "clears" a heartbeat alarm (and re-alerts it on the next heartbeat).
+        if "ignition" in st and st["ignition"] is not None and \
+                not any(f.get("ignition") is not None for f in fixes):
+            # ACC from a heartbeat / keyword frame (GT06 0x13, TK103 "acc on"):
+            # same ignition rules as a fix, without a location.
+            alert_state, alerts = VT.evaluate_alerts(
+                alert_state, {"ignition": bool(st["ignition"]), "valid": False, "at": now},
+                settings, now.astimezone(LOCAL_TZ).hour)
             for a in alerts:
-                pending_alerts.append((t, a))
+                a.update(lat=t.last_lat, lng=t.last_lng)
+                pending_alerts.append((t, a, now))
+        if st:
+            alert_state, dev = VT.evaluate_device(
+                alert_state, st.get("alarms") or (), {
+                    "ext_voltage_v": st.get("ext_voltage_v"),
+                    "battery_v": st.get("battery_v"),
+                    "voltage_level": st.get("voltage_level")}, slot="st_alarms")
+            for a in dev:
+                a.update(lat=t.last_lat, lng=t.last_lng)
+                pending_alerts.append((t, a, now))
+        if last_pt is not None:
+            alert_state["odo_pt"] = last_pt
+        alert_state.pop("silent_for", None)       # seen again: re-arm "silent"
+        if odo_m != float(t.odometer_m or 0):
+            fields["odometer_m"] = round(odo_m, 1)
+        # caps / cooldown / quiet hours (pure gate; state kept in alert_state)
+        gated = []
+        cap = alert_state.get("cap")
+        for (tt, a, a_at) in [x for x in pending_alerts if x[0] is t]:
+            # cooldown on the EVENT time (a batch can hold minutes of fixes)
+            decision, cap = VT.gate_alert(cap, a, min(a_at, now).astimezone(LOCAL_TZ),
+                                          prefs)
+            gated.append((tt, a, decision))
+        pending_alerts = [x for x in pending_alerts if x[0] is not t]
+        delivered.extend(gated)
+        if cap is not None:
+            alert_state["cap"] = cap
         fields["alert_state"] = alert_state
         VehicleTracker.objects.filter(pk=tid).update(**fields)
     if rows:
         VehiclePosition.objects.bulk_create(rows, batch_size=500)
-    for t, a in pending_alerts:
-        deliver_alert(t, a)
+    for t, a, decision in delivered:
+        if decision != "drop":
+            deliver_alert(t, a, push=decision == "push")
+        else:
+            audit(t, "alert_dropped", kind=a.get("kind"), alarm=a.get("alarm"))
     return len(rows)
+
+
+def _odo_step(odo_m, last_pt, f, at):
+    """Add the distance from the last counted fix to this one, unless it is
+    parked wander (< JITTER_M), an implied >MAX_JUMP_KMH jump, or a fix older
+    than the last counted one (out-of-order re-send)."""
+    if last_pt:
+        try:
+            from datetime import datetime as _dt
+            p_at = _dt.fromisoformat(last_pt[2])
+        except (ValueError, IndexError, TypeError):
+            p_at = None
+        if p_at is not None and at <= p_at:
+            return odo_m, last_pt
+        d = VT.haversine_m(float(last_pt[0]), float(last_pt[1]), f["lat"], f["lng"])
+        dt = (at - p_at).total_seconds() if p_at else 0
+        if dt > 0 and d / dt * 3.6 > VT.MAX_JUMP_KMH:
+            return odo_m, last_pt                      # GPS jump: ignore the fix
+        if d < VT.JITTER_M:
+            return odo_m, last_pt                      # parked wander: keep anchor
+        odo_m += d
+    return odo_m, [f["lat"], f["lng"], at.isoformat()]
+
+
+PREF_DEFAULTS = {"ignition_on": False, "ignition_off": False, "stop_alert_min": 0,
+                 "silent_min": 30, "quiet_start": "", "quiet_end": "",
+                 "daily_push_cap": VT.DAILY_PUSH_CAP}
+
+
+def alert_prefs(t):
+    """The tracker's alert switches with defaults + bounds (never unbounded)."""
+    raw = t.alert_prefs if isinstance(t.alert_prefs, dict) else {}
+    out = dict(PREF_DEFAULTS)
+    for k in ("ignition_on", "ignition_off"):
+        if k in raw:
+            out[k] = bool(raw[k])
+    for k, lo, hi in (("stop_alert_min", 0, 720), ("silent_min", 0, 1440),
+                      ("daily_push_cap", 1, 100)):
+        try:
+            out[k] = max(lo, min(hi, int(raw.get(k, out[k]))))
+        except (TypeError, ValueError):
+            pass
+    for k in ("quiet_start", "quiet_end"):
+        v = str(raw.get(k) or "")
+        if len(v) == 5 and v[2] == ":" and v[:2].isdigit() and v[3:].isdigit():
+            out[k] = v
+    return out
+
+
+def sweep_silent(now=None):
+    """Tracker went silent (veh100). Run by the tracker daemon's housekeeper
+    every 30 s: a PAIRED tracker last seen > silent_min ago alerts once per
+    silence (re-armed by the next packet in ingest)."""
+    from .models import VehicleTracker
+    now = now or timezone.now()
+    n = 0
+    qs = VehicleTracker.objects.filter(
+        state="paired", last_seen_at__isnull=False,
+        last_seen_at__lt=now - timedelta(minutes=10),
+        last_seen_at__gte=now - timedelta(days=2)).select_related("owner")
+    for t in qs[:2000]:
+        prefs = alert_prefs(t)
+        st = dict(t.alert_state or {})
+        st2, alert = VT.silent_alert(st, t.last_seen_at, now, prefs["silent_min"],
+                                     was_moving=(t.last_speed_kmh or 0) >= VT.MOVING_KMH)
+        if alert is None:
+            continue
+        alert.update(lat=t.last_lat, lng=t.last_lng)
+        decision, cap = VT.gate_alert(st2.get("cap"), alert, now.astimezone(LOCAL_TZ), prefs)
+        st2["cap"] = cap
+        VehicleTracker.objects.filter(pk=t.pk).update(alert_state=st2)
+        if decision != "drop":
+            deliver_alert(t, alert, push=decision == "push")
+            n += 1
+    return n
 
 
 def split_fences(raw):
@@ -302,7 +466,7 @@ def mark_sent(cmd_id, text, server_flag, now=None):
         sent_at=now or timezone.now())
 
 
-def mark_reply(tracker_id, text, ok, server_flag=None, now=None):
+def mark_reply(tracker_id, text, ok, server_flag=None, now=None, kind=None):
     """Attach a device reply to the oldest 'sent' command (matching the GT06
     server flag when given). ok True -> acked, False -> failed, None -> acked
     only if the device-reported relay state agrees later; we store it as
@@ -312,6 +476,8 @@ def mark_reply(tracker_id, text, ok, server_flag=None, now=None):
     qs = VehicleCommand.objects.filter(tracker_id=tracker_id, state="sent")
     if server_flag:
         qs = qs.filter(server_flag=server_flag)
+    if kind:                       # TK103 'jt' / 'kt' say which command they confirm
+        qs = qs.filter(kind=kind)
     cmd = qs.order_by("sent_at").first()
     if cmd is None:
         return None
@@ -356,6 +522,10 @@ def expire_commands(now=None):
         state="awaiting_approval",
         created_at__lt=now - timedelta(minutes=30)).update(
         state="expired", done_at=now)
+    n += VehicleCommand.objects.filter(       # veh100: second confirmation never came
+        state="awaiting_confirm",
+        created_at__lt=now - timedelta(minutes=2)).update(
+        state="expired", done_at=now)
     return n
 
 
@@ -380,14 +550,17 @@ def _vehicle_name(tracker):
         return tracker.name
     try:
         if tracker.vehicle_record and isinstance(tracker.vehicle_record.data, dict):
-            return str(tracker.vehicle_record.data.get("name") or "")
+            d = tracker.vehicle_record.data
+            if isinstance(d.get("data"), dict):      # My Vehicles posts {"data": {...}}
+                d = {**d, **d["data"]}
+            return str(d.get("name") or "")
     except Exception:
         pass
     return ""
 
 
 def _send(users, title_bn, title_en, body_bn, body_en, meta, family_alert_for=None,
-          severity="high"):
+          severity="high", push_it=True):
     from .models import NotifEvent, FamilyAlert
     for u in users:
         try:
@@ -396,6 +569,8 @@ def _send(users, title_bn, title_en, body_bn, body_en, meta, family_alert_for=No
                                       body_en=body_en, route="vehicles", meta=meta)
         except Exception:
             pass
+        if not push_it:
+            continue          # quiet hours / daily cap: in-app only (veh100)
         try:
             from . import push
             push.safe_push(u, "family_alert", title_bn, title_en, body_bn, body_en,
@@ -413,19 +588,24 @@ def _send(users, title_bn, title_en, body_bn, body_en, meta, family_alert_for=No
             pass
 
 
-def deliver_alert(tracker, alert):
+def deliver_alert(tracker, alert, push=True):
+    """In-app notification + FamilyAlert for every viewer; a push too unless
+    the gate (quiet hours / daily cap) said in-app only."""
     name = _vehicle_name(tracker)
     tb, bb = VT.alert_text(alert, name, "bn")
     te, be = VT.alert_text(alert, name, "en")
     meta = {"tracker_id": tracker.id, "alert": alert["kind"]}
+    if alert.get("alarm"):
+        meta["alarm"] = alert["alarm"]
     if alert.get("lat") is not None:
         meta.update(lat=alert["lat"], lng=alert["lng"])
-    audit(tracker, "alert_" + alert["kind"], **{k: v for k, v in alert.items()
-                                               if k != "kind"})
+    audit(tracker, "alert_" + alert["kind"], pushed=bool(push),
+          **{k: v for k, v in alert.items() if k != "kind"})
     _send(_viewers(tracker), tb, te, bb, be, meta, family_alert_for=tracker.owner,
           severity="high" if alert["kind"] in ("night_ignition", "geofence_exit",
-                                                 "off_route")
-          else "med")
+                                                 "off_route", "device_alarm",
+                                                 "tracker_silent")
+          else "med", push_it=push)
 
 
 def _notify_owner(tracker, what):

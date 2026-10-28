@@ -53,11 +53,11 @@ def access_for(user, tracker):
     if not user or not user.is_authenticated:
         return {"view": False, "command": False, "manage": False}
     if tracker.owner_id == user.id:
-        return {"view": True, "command": True, "manage": True}
+        return {"view": True, "command": True, "manage": True, "user": user}
     g = tracker.grants.filter(grantee=user).first()
     if g is None or not _grant_valid(g, tracker.owner):
         return {"view": False, "command": False, "manage": False}
-    return {"view": True, "command": bool(g.can_command), "manage": False}
+    return {"view": True, "command": bool(g.can_command), "manage": False, "user": user}
 
 
 def _load(request, pk, need="view"):
@@ -96,8 +96,17 @@ def _tracker_json(t, acc, now, cfg):
             "moving": (t.last_speed_kmh or 0) >= VT.MOVING_KMH},
         "ignition": t.ignition, "relay_cut": t.relay_cut,
         "ext_voltage_v": t.ext_voltage_v, "battery_v": t.battery_v,
-        "access": acc, "is_owner": acc["manage"],
+        "access": {k: v for k, v in acc.items() if k != "user"},
+        "is_owner": acc["manage"],
+        "odometer_km": t.odometer_km,
+        "engine_cut_enabled": engine_cut_on(acc.get("user")),
     }
+    try:
+        from . import vehicle100 as V1
+        sh = V1.current_shift(t)
+        out["driver"] = V1.shift_json(sh) if sh else None
+    except Exception:
+        out["driver"] = None
     if acc["manage"]:
         out["imei"] = t.imei
         out["settings"] = {
@@ -110,8 +119,20 @@ def _tracker_json(t, acc, now, cfg):
             "routes": VS.split_fences(t.geofences)[1],
             "cutoff_requires_approval": t.cutoff_requires_approval,
             "approver_member_id": t.approver_id,
+            "alert_prefs": VS.alert_prefs(t),
+            "odometer_base_km": t.odometer_base_km,
         }
     return out
+
+
+def engine_cut_on(user):
+    """veh100: remote engine cut is behind the `vehicle_engine_cut` flag (OFF
+    until a real relay test). Owner / staff / allow-listed testers preview."""
+    try:
+        from . import feature_flags as FF
+        return bool(FF.is_on("vehicle_engine_cut", user))
+    except Exception:
+        return False
 
 
 def _cmd_json(c):
@@ -185,7 +206,7 @@ class TrackerListView(APIView):
             acc = access_for(request.user, t)
             if acc["view"]:
                 shared.append((t, acc))
-        full = {"view": True, "command": True, "manage": True}
+        full = {"view": True, "command": True, "manage": True, "user": request.user}
         return R({"trackers": [_tracker_json(t, full, now, cfg) for t in own] +
                   [_tracker_json(t, a, now, cfg) for t, a in shared],
                   "month_credits": VS.month_credits()})
@@ -217,7 +238,8 @@ class TrackerListView(APIView):
         if need > 0 and not paid_through and int(request.user.ai_credits or 0) < need:
             return R({"reason": "no_credits", "ok": False, "need": need,
                       "balance": int(request.user.ai_credits or 0)}, status=402)
-        proto = d.get("protocol") if d.get("protocol") in ("gt06", "h02", "teltonika") \
+        proto = d.get("protocol") if d.get("protocol") in ("gt06", "h02", "teltonika",
+                                                            "tk103") \
             else "auto"
         t = existing or VehicleTracker(owner=request.user, imei=imei)
         t.name = str(d.get("name") or t.name or "")[:80]
@@ -232,7 +254,7 @@ class TrackerListView(APIView):
             t.parked_interval_s = cfg["parked_interval_s"]
         t.save()
         VS.audit(t, "pair_requested", actor=request.user)
-        full = {"view": True, "command": True, "manage": True}
+        full = {"view": True, "command": True, "manage": True, "user": request.user}
         return R({"ok": True, "tracker": _tracker_json(t, full, now, cfg),
                   "server": _server_info(), "month_credits": need},
                  status=201 if existing is None else 200)
@@ -292,22 +314,36 @@ class TrackerDetailView(APIView):
                 return R({"reason": "bad_geofence", "ok": False}, status=400)
             clean = []
             for i, f in enumerate(fences):
-                try:
-                    lat, lng = float(f["lat"]), float(f["lng"])
-                    rad = int(f.get("radius_m") or 300)
-                except (KeyError, TypeError, ValueError):
+                c = _clean_fence(f, i)
+                if c is None:
                     return R({"reason": "bad_geofence", "ok": False}, status=400)
-                if not (-90 <= lat <= 90 and -180 <= lng <= 180 and 50 <= rad <= 50000):
-                    return R({"reason": "bad_geofence", "ok": False}, status=400)
-                clean.append({"id": str(f.get("id") or i + 1)[:12],
-                              "name": str(f.get("name") or "")[:40],
-                              "lat": lat, "lng": lng, "radius_m": rad})
+                clean.append(c)
             t.geofences = clean + VS.split_fences(t.geofences)[1]
         if "routes" in d:
             routes, bad = _clean_routes(d["routes"])
             if bad:
                 return R({"reason": "bad_route", "ok": False}, status=400)
             t.geofences = VS.split_fences(t.geofences)[0] + routes
+        if "alert_prefs" in d:
+            ap = d["alert_prefs"]
+            if not isinstance(ap, dict):
+                return R({"reason": "bad_prefs", "ok": False}, status=400)
+            for k in ("quiet_start", "quiet_end"):
+                if ap.get(k) not in (None, "") and not HHMM.match(str(ap[k])):
+                    return R({"reason": "bad_time", "ok": False}, status=400)
+            merged = dict(t.alert_prefs or {})
+            merged.update({k: ap[k] for k in VS.PREF_DEFAULTS if k in ap})
+            t.alert_prefs = merged
+            t.alert_prefs = VS.alert_prefs(t)        # bounded + normalized
+        if "odometer_km" in d:
+            try:
+                v = float(d["odometer_km"])
+            except (TypeError, ValueError):
+                return R({"reason": "bad_odometer", "ok": False}, status=400)
+            if not 0 <= v <= 2000000:
+                return R({"reason": "bad_odometer", "ok": False}, status=400)
+            t.odometer_base_km = round(v, 1)
+            t.odometer_base_m = t.odometer_m or 0
         if "cutoff_requires_approval" in d:
             t.cutoff_requires_approval = bool(d["cutoff_requires_approval"])
         if "approver_member_id" in d:
@@ -354,6 +390,50 @@ class TrackerDetailView(APIView):
         t.delete()
         VS.audit(None, "tracker_removed", actor=request.user, imei=imei)
         return R({"ok": True})
+
+
+MAX_POLY_POINTS = 50
+
+
+def _clean_fence(f, i):
+    """A circle {lat, lng, radius_m} or (veh100) a polygon {points:[[lat,lng]..]}
+    with 3-50 vertices; optional alert 'both' | 'enter' | 'exit'. None = bad."""
+    if not isinstance(f, dict):
+        return None
+    alert = f.get("alert") if f.get("alert") in ("both", "enter", "exit") else "both"
+    base = {"id": str(f.get("id") or i + 1)[:12], "name": str(f.get("name") or "")[:40],
+            "alert": alert}
+    pts = f.get("points")
+    if pts is not None:
+        if not isinstance(pts, list) or not 3 <= len(pts) <= MAX_POLY_POINTS:
+            return None
+        clean = []
+        for p in pts:
+            try:
+                lat, lng = (float(p[0]), float(p[1])) if isinstance(p, (list, tuple)) \
+                    else (float(p["lat"]), float(p["lng"]))
+            except (KeyError, TypeError, ValueError, IndexError):
+                return None
+            if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+                return None
+            clean.append([round(lat, 6), round(lng, 6)])
+        lats = [p[0] for p in clean]
+        lngs = [p[1] for p in clean]
+        # centre + rough radius so the old app / list view can still draw it
+        clat, clng = sum(lats) / len(lats), sum(lngs) / len(lngs)
+        rad = max(VT.haversine_m(clat, clng, p[0], p[1]) for p in clean)
+        if rad > 50000 or rad < 20:
+            return None
+        return {**base, "type": "polygon", "points": clean, "lat": round(clat, 6),
+                "lng": round(clng, 6), "radius_m": int(rad)}
+    try:
+        lat, lng = float(f["lat"]), float(f["lng"])
+        rad = int(f.get("radius_m") or 300)
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180 and 50 <= rad <= 50000):
+        return None
+    return {**base, "lat": lat, "lng": lng, "radius_m": rad}
 
 
 def _clean_routes(raw):
@@ -468,10 +548,28 @@ def _verify_requester_pin(request):
 
 
 def _cutoff_gate(t, now, cfg):
+    """Engine cut is allowed only when the tracker is online, the latest fix is
+    fresh, the vehicle is under the crawl speed AND (veh100) the last
+    VT.STOPPED_FIXES stored fixes were ALL stopped — never while moving."""
+    from .models import VehiclePosition
     online = VT.is_online(t.last_seen_at, now, cfg["online_window_s"])
-    return VT.decide_cutoff(t.last_fix_at, t.last_speed_kmh, now,
-                            cfg["cutoff_max_speed_kmh"], cfg["cutoff_max_fix_age_s"],
-                            online=online)
+    ok, reason = VT.decide_cutoff(t.last_fix_at, t.last_speed_kmh, now,
+                                  cfg["cutoff_max_speed_kmh"], cfg["cutoff_max_fix_age_s"],
+                                  online=online)
+    if not ok:
+        return ok, reason
+    recent = [{"at": p.at, "speed_kmh": p.speed_kmh} for p in
+              VehiclePosition.objects.filter(tracker=t).order_by("-at")[:VT.STOPPED_FIXES]]
+    return VT.stopped_for(recent, now, VT.STOPPED_FIXES, cfg["cutoff_max_speed_kmh"],
+                          cfg["cutoff_max_fix_age_s"])
+
+
+CONFIRM_WITHIN_S = 60
+
+
+def _confirm_hash(token):
+    import hashlib
+    return hashlib.sha256(str(token or "").encode()).hexdigest()
 
 
 class TrackerCommandView(APIView):
@@ -496,6 +594,10 @@ class TrackerCommandView(APIView):
         kind = str((request.data or {}).get("kind") or "")
         if kind not in ("engine_cut", "engine_restore"):
             return R({"reason": "bad_kind", "ok": False}, status=400)
+        if kind == "engine_cut" and not engine_cut_on(request.user):
+            VS.audit(t, "command_denied", actor=request.user, kind=kind,
+                     reason="feature_off")
+            return R({"reason": "feature_off", "ok": False}, status=403)
         if t.state != "paired":
             return R({"reason": "not_paired", "ok": False}, status=409)
         bad = _verify_requester_pin(request)
@@ -512,20 +614,87 @@ class TrackerCommandView(APIView):
             return R({"reason": reason, "ok": False,
                       "max_speed_kmh": cfg["cutoff_max_speed_kmh"],
                       "max_fix_age_s": cfg["cutoff_max_fix_age_s"]}, status=409)
+        # an unconfirmed engine-cut that timed out never blocks a new request
+        t.commands.filter(state="awaiting_confirm",
+                          created_at__lt=now - timedelta(seconds=CONFIRM_WITHIN_S)) \
+            .update(state="expired", done_at=now)
         if t.commands.filter(kind__in=["engine_cut", "engine_restore"],
-                             state__in=["awaiting_approval", "queued", "sent"]).exists():
+                             state__in=["awaiting_confirm", "awaiting_approval",
+                                        "queued", "sent"]).exists():
             return R({"reason": "busy", "ok": False}, status=409)
-        approver_user = t.approver.peer_user if t.approver_id else None
-        needs_ok = (kind == "engine_cut" and t.cutoff_requires_approval
-                    and approver_user is not None and approver_user.id != request.user.id)
-        c = VehicleCommand.objects.create(
-            tracker=t, kind=kind, requested_by=request.user,
-            state="awaiting_approval" if needs_ok else "queued",
-            payload={"speed_kmh": t.last_speed_kmh,
-                     "fix_age_s": int((now - t.last_fix_at).total_seconds())
-                     if t.last_fix_at else None})
+        payload = {"speed_kmh": t.last_speed_kmh,
+                   "fix_age_s": int((now - t.last_fix_at).total_seconds())
+                   if t.last_fix_at else None}
+        if kind == "engine_cut":
+            # veh100: a SECOND, separate confirmation (fresh token, 60 s) —
+            # the gate is checked again at confirm time.
+            import secrets
+            token = secrets.token_urlsafe(16)
+            c = VehicleCommand.objects.create(
+                tracker=t, kind=kind, requested_by=request.user,
+                state="awaiting_confirm", confirm_hash=_confirm_hash(token),
+                payload=payload)
+            VS.audit(t, "command_requested", actor=request.user, kind=kind,
+                     command_id=c.id, state=c.state)
+            return R({"ok": True, "command": _cmd_json(c), "confirm_token": token,
+                      "confirm_within_s": CONFIRM_WITHIN_S}, status=202)
+        c = VehicleCommand.objects.create(tracker=t, kind=kind, requested_by=request.user,
+                                          state="queued", payload=payload)
         VS.audit(t, "command_requested", actor=request.user, kind=kind,
                  command_id=c.id, state=c.state)
+        return R({"ok": True, "command": _cmd_json(c)}, status=201)
+
+
+class CommandConfirmView(APIView):
+    """veh100: the second confirmation of an engine cut. Only the requester,
+    within CONFIRM_WITHIN_S, with the one-time token; the stopped-only gate
+    runs AGAIN here (the car may have started moving in between)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, cid):
+        from .models import VehicleCommand
+        c = VehicleCommand.objects.filter(pk=cid).select_related(
+            "tracker", "tracker__approver", "tracker__owner").first()
+        if c is None or c.requested_by_id != request.user.id:
+            return R({"reason": "not_found", "ok": False}, status=404)
+        t = c.tracker
+        if not access_for(request.user, t)["command"]:
+            return R({"reason": "not_found", "ok": False}, status=404)
+        if c.state != "awaiting_confirm":
+            return R({"reason": "not_pending", "ok": False, "state": c.state}, status=409)
+        now = timezone.now()
+        if (now - c.created_at).total_seconds() > CONFIRM_WITHIN_S:
+            c.state, c.done_at = "expired", now
+            c.save(update_fields=["state", "done_at"])
+            VS.audit(t, "command_expired", actor=request.user, command_id=c.id,
+                     reason="confirm_timeout")
+            return R({"reason": "confirm_timeout", "ok": False}, status=409)
+        import hmac
+        if not hmac.compare_digest(c.confirm_hash or "x",
+                                   _confirm_hash((request.data or {}).get("confirm_token"))):
+            VS.audit(t, "command_denied", actor=request.user, command_id=c.id,
+                     reason="bad_confirm")
+            return R({"reason": "bad_confirm", "ok": False}, status=403)
+        if not engine_cut_on(request.user):
+            return R({"reason": "feature_off", "ok": False}, status=403)
+        cfg = VS.vcfg()
+        ok, reason = _cutoff_gate(t, now, cfg)
+        if not ok:
+            c.state, c.done_at, c.fail_reason = "cancelled", now, reason[:24]
+            c.save(update_fields=["state", "done_at", "fail_reason"])
+            VS.audit(t, "command_denied", actor=request.user, command_id=c.id,
+                     reason=reason, speed=t.last_speed_kmh, fix_at=t.last_fix_at)
+            return R({"reason": reason, "ok": False,
+                      "max_speed_kmh": cfg["cutoff_max_speed_kmh"],
+                      "max_fix_age_s": cfg["cutoff_max_fix_age_s"]}, status=409)
+        approver_user = t.approver.peer_user if t.approver_id else None
+        needs_ok = (t.cutoff_requires_approval and approver_user is not None
+                    and approver_user.id != request.user.id)
+        c.state = "awaiting_approval" if needs_ok else "queued"
+        c.confirm_hash = ""
+        c.save(update_fields=["state", "confirm_hash"])
+        VS.audit(t, "command_confirmed", actor=request.user, command_id=c.id,
+                 state=c.state)
         if needs_ok:
             VS.notify_approval_needed(c, approver_user)
         return R({"ok": True, "command": _cmd_json(c)}, status=201)
@@ -546,6 +715,8 @@ class CommandApproveView(APIView):
             return R({"reason": "not_found", "ok": False}, status=404)
         if c.state != "awaiting_approval":
             return R({"reason": "not_pending", "ok": False, "state": c.state}, status=409)
+        if not engine_cut_on(request.user) and not engine_cut_on(c.requested_by):
+            return R({"reason": "feature_off", "ok": False}, status=403)
         bad = _verify_requester_pin(request)
         if bad is not None:
             return bad
@@ -575,7 +746,7 @@ class CommandCancelView(APIView):
         if not (acc["manage"] or c.requested_by_id == request.user.id
                 or appr == request.user.id):
             return R({"reason": "not_found", "ok": False}, status=404)
-        if c.state not in ("awaiting_approval", "queued"):
+        if c.state not in ("awaiting_confirm", "awaiting_approval", "queued"):
             return R({"reason": "too_late", "ok": False, "state": c.state}, status=409)
         c.state = "rejected" if (appr == request.user.id and
                                  c.state == "awaiting_approval") else "cancelled"

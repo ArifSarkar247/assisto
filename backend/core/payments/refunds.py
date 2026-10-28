@@ -207,6 +207,12 @@ def void_play(pp, *, order_id="", reason="play_voided", refund_type=1, source="g
         return order
     from .. import credits as CR
     res = CR.revoke_order(order, why=reason, debt=True, refund_reason="revoke", now=now)
+    if order.user_id and catalog.is_smspack(order.sku or ""):
+        # tagada2: an SMS pack — take back its still-unspent SMS parts.
+        from .. import sms_wallet
+        sms_wallet.revoke_pack(order.user, sms_wallet.pack_parts_of(order.sku),
+                               key="revoke:play:%s" % order.order_id,
+                               ref="refund:%s" % order.order_id[-12:])
     ended = _end_plan_if_current(order, reason, now)
     if pp.kind == "pack" and not pp.revoked:
         pp.revoked = True

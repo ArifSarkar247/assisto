@@ -1,0 +1,173 @@
+{
+ "en": {
+  "lgTitle": "Agent memory",
+  "lgEntryTitle": "Agent memory (life graph)",
+  "lgEntryBody": "People, places, routines and dates the agent may use — encrypted, only for you.",
+  "lgPrivacyNote": "Encrypted on our server and visible only to you. For a task the agent gets only the few facts that matter, with phone and account numbers hidden. Sensitive facts never go to the AI.",
+  "lgLoading": "Loading memory",
+  "lgEmptyTitle": "Nothing saved yet",
+  "lgEmptyBody": "The agent remembers only what you add here or approve. Nothing is saved by itself.",
+  "lgAdd": "Add a fact",
+  "lgAll": "All",
+  "lgTypePerson": "People",
+  "lgTypePlace": "Places",
+  "lgTypeRoutine": "Routines",
+  "lgTypePreference": "Preferences",
+  "lgTypeDate": "Important dates",
+  "lgTypeBusiness": "Business",
+  "lgSuggestionsTitle": "Waiting for your OK ({count})",
+  "@lgSuggestionsTitle": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lgSuggestionsHint": "Nothing is remembered until you tap Keep.",
+  "lgKeep": "Keep",
+  "lgReject": "Don't keep",
+  "lgKept": "Saved to memory",
+  "lgRejected": "Removed — it won't be suggested again",
+  "lgChangeTo": "Change to: {value}",
+  "@lgChangeTo": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "lgOriginUser": "You added",
+  "lgOriginRun": "Suggested by the agent",
+  "lgOriginLearn": "Weekly learning",
+  "lgSensitive": "Sensitive · never sent to AI",
+  "lgNotForAi": "Not used by the AI",
+  "lgStillRight": "Not used for a long time — still right?",
+  "lgStillRightYes": "Yes, keep",
+  "lgEdit": "Edit",
+  "lgDelete": "Delete",
+  "lgDeleted": "Deleted",
+  "lgSave": "Save",
+  "lgSaved": "Saved",
+  "lgCancel": "Cancel",
+  "lgAddTitle": "New fact",
+  "lgEditTitle": "Edit fact",
+  "lgFieldType": "Type",
+  "lgFieldLabel": "Name or title",
+  "lgFieldRelation": "Relation (optional)",
+  "lgFieldValue": "What to remember",
+  "lgFieldWhen": "When (optional)",
+  "lgFieldSensitive": "Sensitive (health, religion, politics…)",
+  "lgFieldUseInAi": "The agent may use this",
+  "lgNeedText": "Write a name or what to remember.",
+  "lgUpdated": "Updated {time}",
+  "@lgUpdated": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "lgPauseLearning": "Pause weekly learning",
+  "lgLearningOn": "Each week the agent may suggest facts from your own data — recurring expenses, family in My Circle, Safe Journey routines. Never health, religion or politics. You decide what to keep.",
+  "lgLearningPaused": "Paused — the agent makes no new suggestions.",
+  "lgRetentionTitle": "Delete facts not used for",
+  "lgRetentionMonths": "{months} months",
+  "@lgRetentionMonths": {
+   "placeholders": {
+    "months": {
+     "type": "String"
+    }
+   }
+  },
+  "lgRetentionHint": "We ask “still right?” 6 months before deleting.",
+  "lgExport": "Export (JSON file)",
+  "lgExportDone": "Your memory file is ready — share or save it where you want.",
+  "lgExportFailed": "Could not export — please try again.",
+  "lgDeleteAll": "Delete all agent memory",
+  "lgDeleteAllTitle": "Delete everything?",
+  "lgDeleteAllBody": "Every fact and suggestion in the agent's memory will be deleted for good. This cannot be undone.",
+  "lgDeleteAllConfirm": "Delete everything",
+  "lgDeleteAllDone": "Deleted {count} items",
+  "@lgDeleteAllDone": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lgErrorLoad": "Could not load the memory. Check the internet and try again.",
+  "lgRetry": "Try again",
+  "lgFeatureOff": "Agent memory is not switched on yet.",
+  "lgFilterEmpty": "Nothing saved in this group.",
+  "lgActionFailed": "Could not do that — please try again.",
+  "lgMenu": "More options"
+ },
+ "bn": {
+  "lgTitle": "এজেন্টের মেমরি",
+  "lgEntryTitle": "এজেন্টের মেমরি (লাইফ গ্রাফ)",
+  "lgEntryBody": "মানুষ, জায়গা, রুটিন আর তারিখ, যা এজেন্ট কাজে লাগাতে পারে — এনক্রিপ্টেড, শুধু আপনার জন্য।",
+  "lgPrivacyNote": "আমাদের সার্ভারে এনক্রিপ্ট করা থাকে, শুধু আপনি দেখতে পান। কোনো কাজের জন্য এজেন্ট শুধু দরকারি কয়েকটি তথ্য পায়, ফোন ও অ্যাকাউন্ট নম্বর লুকানো থাকে। স্পর্শকাতর তথ্য কখনো AI-তে যায় না।",
+  "lgLoading": "মেমরি লোড হচ্ছে",
+  "lgEmptyTitle": "এখনো কিছু রাখা নেই",
+  "lgEmptyBody": "আপনি এখানে যা যোগ করবেন বা অনুমোদন দেবেন, এজেন্ট শুধু সেটাই মনে রাখে। নিজে থেকে কিছুই রাখা হয় না।",
+  "lgAdd": "তথ্য যোগ করুন",
+  "lgAll": "সব",
+  "lgTypePerson": "মানুষ",
+  "lgTypePlace": "জায়গা",
+  "lgTypeRoutine": "রুটিন",
+  "lgTypePreference": "পছন্দ",
+  "lgTypeDate": "জরুরি তারিখ",
+  "lgTypeBusiness": "ব্যবসা",
+  "lgSuggestionsTitle": "আপনার অনুমোদনের অপেক্ষায় ({count})",
+  "lgSuggestionsHint": "“রাখুন” না চাপা পর্যন্ত কিছুই মনে রাখা হয় না।",
+  "lgKeep": "রাখুন",
+  "lgReject": "রাখবেন না",
+  "lgKept": "মেমরিতে রাখা হলো",
+  "lgRejected": "সরানো হলো — আর প্রস্তাব করা হবে না",
+  "lgChangeTo": "বদলে হবে: {value}",
+  "lgOriginUser": "আপনি লিখেছেন",
+  "lgOriginRun": "এজেন্ট প্রস্তাব করেছে",
+  "lgOriginLearn": "সাপ্তাহিক শেখা",
+  "lgSensitive": "স্পর্শকাতর · AI-তে যায় না",
+  "lgNotForAi": "AI ব্যবহার করে না",
+  "lgStillRight": "অনেক দিন ব্যবহার হয়নি — এখনো ঠিক আছে?",
+  "lgStillRightYes": "হ্যাঁ, রাখুন",
+  "lgEdit": "বদলান",
+  "lgDelete": "মুছুন",
+  "lgDeleted": "মুছে ফেলা হয়েছে",
+  "lgSave": "সংরক্ষণ করুন",
+  "lgSaved": "সংরক্ষণ হয়েছে",
+  "lgCancel": "বাতিল",
+  "lgAddTitle": "নতুন তথ্য",
+  "lgEditTitle": "তথ্য বদলান",
+  "lgFieldType": "ধরন",
+  "lgFieldLabel": "নাম বা শিরোনাম",
+  "lgFieldRelation": "সম্পর্ক (ঐচ্ছিক)",
+  "lgFieldValue": "কী মনে রাখবে",
+  "lgFieldWhen": "কখন (ঐচ্ছিক)",
+  "lgFieldSensitive": "স্পর্শকাতর (স্বাস্থ্য, ধর্ম, রাজনীতি…)",
+  "lgFieldUseInAi": "এজেন্ট এটি ব্যবহার করতে পারবে",
+  "lgNeedText": "নাম বা কী মনে রাখবে লিখুন।",
+  "lgUpdated": "হালনাগাদ {time}",
+  "lgPauseLearning": "সাপ্তাহিক শেখা বন্ধ রাখুন",
+  "lgLearningOn": "প্রতি সপ্তাহে এজেন্ট আপনার নিজের ডেটা থেকে তথ্য প্রস্তাব করতে পারে — নিয়মিত খরচ, My Circle-এর পরিবার, নিরাপদ যাত্রার রুটিন। স্বাস্থ্য, ধর্ম বা রাজনীতি কখনো নয়। কী রাখবেন, আপনি ঠিক করবেন।",
+  "lgLearningPaused": "বন্ধ আছে — নতুন কোনো প্রস্তাব আসবে না।",
+  "lgRetentionTitle": "যে তথ্য ব্যবহার হয়নি তা মুছে যাবে",
+  "lgRetentionMonths": "{months} মাস পরে",
+  "lgRetentionHint": "মোছার ৬ মাস আগে “এখনো ঠিক আছে?” জিজ্ঞেস করা হয়।",
+  "lgExport": "রপ্তানি (JSON ফাইল)",
+  "lgExportDone": "আপনার মেমরি ফাইল তৈরি — যেখানে চান শেয়ার বা সেভ করুন।",
+  "lgExportFailed": "রপ্তানি করা যায়নি — আবার চেষ্টা করুন।",
+  "lgDeleteAll": "এজেন্টের সব মেমরি মুছুন",
+  "lgDeleteAllTitle": "সব মুছে ফেলবেন?",
+  "lgDeleteAllBody": "এজেন্টের মেমরির সব তথ্য ও প্রস্তাব চিরতরে মুছে যাবে। আর ফেরত আনা যাবে না।",
+  "lgDeleteAllConfirm": "সব মুছুন",
+  "lgDeleteAllDone": "{count}টি মুছে ফেলা হয়েছে",
+  "lgErrorLoad": "মেমরি লোড করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "lgRetry": "আবার চেষ্টা করুন",
+  "lgFeatureOff": "এজেন্টের মেমরি এখনো চালু হয়নি।",
+  "lgFilterEmpty": "এই ভাগে কিছু রাখা নেই।",
+  "lgActionFailed": "করা যায়নি — আবার চেষ্টা করুন।",
+  "lgMenu": "আরও অপশন"
+ }
+}

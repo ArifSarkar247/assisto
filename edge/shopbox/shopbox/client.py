@@ -186,3 +186,121 @@ class Sender(threading.Thread):
                          res.detail or res.status, delay, len(self.outbox))
                 self._sleep(delay)
         log.info("sender stopped")
+
+
+# ---------------------------------------------------------------- cashguard
+CLIP_PATH = "shop/clips"
+CLIP_GIVE_UP_S = 15 * 60       # the server accepts a clip for 15 min only
+
+
+def classify_clip_response(status: int, data: dict, retry_after=None) -> SendResult:
+    """404 `no_event` = the alert itself has not reached the server yet (or
+    was not raised): retry until CLIP_GIVE_UP_S, then drop."""
+    if status == 404 and data.get("error") == "no_event":
+        return SendResult(RETRY, status=status, detail="no_event")
+    if status in (410, 413, 415, 422, 429):
+        return SendResult(DROP, status=status, detail=str(data.get("error") or status))
+    return classify_response(status, data, retry_after)
+
+
+class ClipClient:
+    """POST shop/clips — multipart: auth + clip_ref + meta (JSON) + blob."""
+
+    def __init__(self, base_url: str, timeout: float = 30.0, session=None):
+        import requests
+
+        if not base_url.lower().startswith("https://") and \
+                not base_url.lower().startswith("http://127.0.0.1") and \
+                not base_url.lower().startswith("http://localhost"):
+            raise ValueError("base URL must be https://")
+        self.url = urljoin(base_url, CLIP_PATH)
+        self.timeout = float(timeout)
+        self.s = session or requests.Session()
+        self.s.headers.update({"User-Agent": "AssistoShopBox/%s" % __version__,
+                               "Accept": "application/json"})
+
+    def send(self, item: dict, blob: bytes, *, site_token, camera_token) -> SendResult:
+        import json
+        import requests
+
+        try:
+            form = dict(payload.auth_fields(site_token, camera_token))
+        except ValueError as exc:
+            return SendResult(UNAUTHORIZED, detail=str(exc))
+        if "site_token" in form and item.get("server_camera_id") not in (None, ""):
+            form["camera_id"] = str(int(item["server_camera_id"]))
+        form["clip_ref"] = str(item["clip_ref"])
+        form["meta"] = json.dumps(item["meta"], separators=(",", ":"))
+        files = {"blob": ("clip.bin", blob, "application/octet-stream")}
+        try:
+            r = self.s.post(self.url, data=form, files=files, timeout=self.timeout)
+        except requests.RequestException as exc:
+            return SendResult(RETRY, detail=type(exc).__name__)
+        return classify_clip_response(r.status_code, _safe_json(r),
+                                      r.headers.get("Retry-After"))
+
+
+class ClipSender(threading.Thread):
+    """Drains the clip outbox. Clips are best-effort: the alert + photo
+    already went out through the normal Sender."""
+
+    def __init__(self, outbox, client: ClipClient, get_tokens: Callable,
+                 clock=None):
+        import time as _t
+        super().__init__(name="clip-sender", daemon=True)
+        self.outbox = outbox
+        self.client = client
+        self.get_tokens = get_tokens
+        self.clock = clock or _t.time
+        self._halt = threading.Event()
+        self._wake = threading.Event()
+        self.sent = 0
+        self.dropped = 0
+
+    def stop(self) -> None:
+        self._halt.set()
+        self._wake.set()
+
+    def wake(self) -> None:
+        self._wake.set()
+
+    def step(self) -> Optional[float]:
+        """Send the oldest clip once. Returns seconds to wait, or None if the
+        queue is empty."""
+        item = self.outbox.peek()
+        if item is None:
+            return None
+        item_id, rec, blob = item
+        ev = rec["event"]
+        if blob is None or self.clock() - float(rec.get("queued_at", 0)) > CLIP_GIVE_UP_S:
+            self.outbox.remove(item_id)
+            self.dropped += 1
+            return 0.0
+        site_tok, cam_tok = self.get_tokens(ev.get("camera_id"))
+        res = self.client.send(ev, blob, site_token=site_tok, camera_token=cam_tok)
+        if res.outcome == SENT:
+            self.outbox.remove(item_id)
+            self.sent += 1
+            return 0.0
+        if res.outcome == DROP:
+            log.info("clip dropped by the server (%s)", res.detail)
+            self.outbox.remove(item_id)
+            self.dropped += 1
+            return 0.0
+        self.outbox.mark_attempt(item_id)
+        if res.outcome == UNAUTHORIZED:
+            return 600.0
+        return min(60.0, 3.0 * (1 + int(rec.get("attempts", 0))))
+
+    def run(self) -> None:
+        while not self._halt.is_set():
+            try:
+                wait = self.step()
+            except Exception:
+                log.exception("clip sender error")
+                wait = 30.0
+            if wait is None:
+                wait = 10.0
+            if wait > 0:
+                self._wake.wait(timeout=wait)
+                self._wake.clear()

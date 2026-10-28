@@ -31,6 +31,7 @@ import '../screens/car_mode_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/my_lost_phone_screen.dart';
+import '../screens/watched_phones_screen.dart'; // at100
 import '../screens/recovery_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
@@ -99,6 +100,7 @@ import '../screens/business/khata_entry_screen.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart';
 import '../screens/prepaid_meter_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
+import '../screens/my_dues_screen.dart'; // tagada2
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -196,6 +198,10 @@ class ChatNav {
     // Recovery help toolkit (GD draft / SP letter / evidence / stations).
     // Recovery is also reachable from inside My lost phone and Lost/Stolen.
     'my_lost_phone': (_) => const MyLostPhoneScreen(),
+    // at100: the trusted contact's side — phones whose owner chose me
+    // (status, last location, alert history, remote switches). A trusted
+    // contact's anti-theft push opens here (route security/watch-phone).
+    'watched_phones': (_) => const WatchedPhonesScreen(),
     'recovery': (_) => const RecoveryScreen(),
     'phone_safety': (_) => const PhoneSafetyScreen(),
     // Section 8: Stolen-while-unlocked protection hub.
@@ -308,6 +314,8 @@ class ChatNav {
     'sales_agent': (_) => const SellerAgentScreen(),
     'prepaid_meter': (_) => const PrepaidMeterScreen(),
     'contract': (_) => const ContractAnalyzerScreen(),
+    // tagada2: the customer's dues per shop (push target + chat open-phrase)
+    'my_dues': (_) => const MyDuesScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -357,6 +365,8 @@ class ChatNav {
     // Anti-theft Batch 5.
     'my_lost_phone': ['my lost phone', 'lost phone', 'find my phone',
         'track my phone', 'where is my phone', 'lost mode', 'locate my phone'],
+    'watched_phones': ['phones i protect', 'phones i watch', 'trusted contact',
+        'family phone lost', 'ring their phone', 'lock their phone'],
     'recovery': ['recovery help', 'recover phone', 'gd draft',
         'general diary', 'police station', 'sp letter', 'get my phone back'],
     'circle_add': ['add to my circle', 'add to circle', 'add someone',
@@ -425,6 +435,7 @@ class ChatNav {
     'sales_agent': ['ai sales agent', 'sales agent', 'sales assistant'],
     'prepaid_meter': ['prepaid meter', 'electricity meter', 'meter recharge'],
     'contract': ['contract analyzer', 'contract scanner', 'check contract'],
+    'my_dues': ['my dues', 'shop dues', 'what i owe', 'my baki'],
     'feedback': ['send feedback', 'give feedback', 'feedback',
         'report a problem', 'report a bug', 'report an issue'],
   };

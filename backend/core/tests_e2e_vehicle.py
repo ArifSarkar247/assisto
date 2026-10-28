@@ -30,7 +30,7 @@ from core.logic import vehicle_tracking as VT
 from core.models import (User, Device, VehicleTracker, VehiclePosition,
                          VehicleCommand, VehicleAuditLog, NotifEvent, FamilyAlert)
 from core.tests_push import SA, FakeFCM
-from core.tests_v1_vehicle import _Setup, IMEI_A, IMEI_C, PIN
+from core.tests_v1_vehicle import _Setup, IMEI_A, IMEI_C, PIN, cut_confirmed
 from tracker.protocols import gt06, h02
 
 PORT_GT06 = 15024
@@ -263,6 +263,7 @@ class RoutesApiAndIdempotencyTests(_Setup, APITestCase):
 
     def test_ingest_is_idempotent(self):
         from core import vehicle_service as VS
+        VehiclePosition.objects.filter(tracker=self.t).delete()   # _Setup's stopped fixes
         now = timezone.now()
         fixes = [{"at": now - timedelta(seconds=30 - i * 5), "lat": 23.78 + i * 1e-4,
                   "lng": 90.41, "speed_kmh": 20, "valid": True} for i in range(5)]
@@ -517,8 +518,7 @@ class H02EndToEndTests(_TcpBase):
                     lambda: any(c.startswith("S71,") for c in dev.commands)))
                 self.assertTrue(await self.wait(lambda: VehicleCommand.objects.filter(
                     tracker_id=tid, kind="set_interval", state="acked").exists()))
-                r = self.client.post("/api/v1/vehicle/trackers/%d/commands" % tid,
-                                     {"kind": "engine_cut", "pin": PIN}, format="json")
+                r = cut_confirmed(self.client, tid)
                 self.assertEqual(r.status_code, 201, r.data)
                 cid = r.data["command"]["id"]
                 self.assertTrue(await self.wait(

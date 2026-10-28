@@ -12,6 +12,8 @@ import 'fake_discover.dart';
 import 'fake_vehicle.dart';
 import 'fake_khata.dart'; // ledger100
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
+import 'fake_crm100.dart'; // crm100
+import 'at100_fakes.dart'; // at100
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -959,6 +961,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final c100 = fakeCrm100Get(path, empty: mode == FakeMode.empty); // crm100
+    if (c100 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return c100;
+    }
     if (path == '/account/delete/status') {
       return delPending
           ? {'state': 'pending', 'effective_at': '2026-10-29T10:00:00Z',
@@ -1009,6 +1016,16 @@ class FakeApi extends ApiClient {
            'late': false, 'data': {'count': 3}, 'has_photo': false},
         ],
       };
+    }
+    // at100: remote switches + the trusted contact's watched phones
+    if (path.startsWith('/security/engine/commands')) {
+      if (mode == FakeMode.fail) _fail();
+      return at100FakeCommands(bn: _bn, empty: mode == FakeMode.empty,
+          trusted: path.contains('phone_id='));
+    }
+    if (path == '/security/engine/watching') {
+      if (mode == FakeMode.fail) _fail();
+      return {'watching': mode == FakeMode.empty ? [] : at100FakeWatching(_bn)};
     }
     final pay1 = _pay1Get(path); // pay1 (plans / credits / checkout)
     if (pay1 != null) {
@@ -1971,6 +1988,8 @@ class FakeApi extends ApiClient {
     if (path.contains('/onboard/')) {
       return {'ok': false, 'message': _bn ? 'Axon ERP কানেক্ট হলে হ্যান্ড-অফ চালু হবে।' : 'Hand-off available when Axon ERP is connected.'};
     }
+    final c100P = fakeCrm100Post(path, body); // crm100
+    if (c100P != null) return c100P;
     if (path.startsWith('/crm/')) return {'ok': true, ...body};
     // ===== Business v2 POST stubs =====
     final biz = _businessPost(path, body);

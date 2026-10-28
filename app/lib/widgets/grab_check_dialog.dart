@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_service.dart';
 import '../services/security_guard.dart';
+import '../services/intruder_snap.dart'; // at100
 
 /// grab-guard (owner 25 Oct) / antitheft2 (owner 27 Oct) — on the OWN phone
 /// a detected grab first asks "Are you OK?" (at2OkTitle, bn + en) (native heads-up
@@ -81,6 +82,7 @@ class GrabCheck {
           const SecurityGuard().askPin(context, tr));
       if (pin == null || pin.isEmpty || !context.mounted) return;
       final r = await send(pin);
+      IntruderSnap.after(r); // at100: wrong PIN -> the consented photo
       if (!context.mounted) return;
       final st = r['_status'] as int?;
       if (r['ok'] == true && (st == null || st < 400)) {

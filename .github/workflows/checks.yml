@@ -23,8 +23,44 @@ concurrency:
 permissions:
   contents: read
 
+# Cost control (owner 28 Oct, ready for a PRIVATE repo): integration builds
+# (ci/b<number>) and manual runs always run EVERYTHING with 8 shards. Agent
+# branches run only the suites their diff touches (vs origin/main) with 4
+# shards; a docs-only push runs nothing. The integrator's ci/bNNN run is the
+# full gate before anything reaches main.
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.c.outputs.backend }}
+      app: ${{ steps.c.outputs.app }}
+      shards: ${{ steps.c.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+          fetch-depth: 0
+      - id: c
+        run: |
+          REF='${{ github.event.inputs.ref || github.ref_name }}'
+          if [ '${{ github.event_name }}' = workflow_dispatch ] || echo "$REF" | grep -Eq '^ci/b[0-9]+$'; then
+            echo "full run ($REF)"; B=true; A=true; SH='[0,1,2,3,4,5,6,7]'
+          else
+            BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo)
+            if [ -z "$BASE" ]; then CH=ALL; else CH=$(git diff --name-only "$BASE" HEAD); fi
+            echo "changed files:"; echo "$CH" | head -50
+            B=false; A=false
+            if [ "$CH" = ALL ] || echo "$CH" | grep -Eq '^(backend/|edge/|tools/e2e/|\.github/workflows/checks\.yml)'; then B=true; fi
+            if [ "$CH" = ALL ] || echo "$CH" | grep -Eq '^(app/|\.phaseB/up_.*_arb\.json|\.github/workflows/checks\.yml)'; then A=true; fi
+            SH='[0,1,2,3]'
+          fi
+          echo "backend=$B app=$A shards=$SH"
+          { echo "backend=$B"; echo "app=$A"; echo "shards=$SH"; } >> "$GITHUB_OUTPUT"
+
   backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -52,6 +88,8 @@ jobs:
           python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
 
   flutter-static:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -74,12 +112,14 @@ jobs:
         run: python3 tool/lang_gate.py
 
   flutter-test:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+        shard: ${{ fromJSON(needs.changes.outputs.shards) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,8 +132,8 @@ jobs:
       - name: pub get + gen-l10n
         working-directory: app
         run: flutter pub get && flutter gen-l10n
-      - name: flutter test shard ${{ matrix.shard }}/8
+      - name: flutter test shard ${{ matrix.shard }}/${{ strategy.job-total }}
         working-directory: app
         env:
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
-        run: flutter test --no-pub --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }}
+        run: flutter test --no-pub --concurrency=2 --total-shards ${{ strategy.job-total }} --shard-index ${{ matrix.shard }}

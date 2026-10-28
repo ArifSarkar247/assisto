@@ -12,6 +12,8 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
+import 'watched_phones_screen.dart'; // at100
+import '../antitheft_api.dart'; // at100
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -41,6 +43,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
   bool _failed = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   Map<String, dynamic> _data = const {};
+  int _watching = 0; // at100
 
   @override
   void initState() {
@@ -56,9 +59,16 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
     try {
       final api = context.read<AppState>().api;
       final d = await api.securityLostPhone();
+      // at100: best-effort — how many phones I help protect (trusted contact)
+      var watching = 0;
+      try {
+        final w = await api.engineWatching();
+        watching = ((w['watching'] as List?) ?? const []).length;
+      } catch (_) {} // best-effort: the "phones I protect" card is optional
       if (!mounted) return;
       setState(() {
         _data = d;
+        _watching = watching;
         _loading = false;
       });
     } catch (e) {
@@ -146,6 +156,25 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       children: [
         Text(t.mlpSubtitle, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: Gap.md),
+        // at100: a trusted contact reaches the phones they help protect
+        // from here too (an alert tap opens that list directly).
+        if (_watching > 0) ...[
+          Card(
+            child: ListTile(
+              key: const Key('at100-mlp-watching'),
+              minVerticalPadding: Gap.md,
+              leading: const Icon(Icons.shield_rounded),
+              title: Text(t.at100WatchTitle),
+              subtitle: Text(t.at100WatchCount(_watching)),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WatchedPhonesScreen()),
+              ),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+        ],
         _statusCard(t, scheme),
         const SizedBox(height: Gap.md),
         _locationCard(t, scheme),

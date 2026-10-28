@@ -109,11 +109,14 @@ PERMISSIONS = [
         "perm": "CAMERA",
         "name": ("ক্যামেরা", "Camera"),
         "why": ("ডকুমেন্ট ভল্টে কাগজের ছবি, ফটো স্টুডিও (পাসপোর্ট/ভিসা ছবি), প্রোফাইল ও স্ট্যাটাস ছবি/ভিডিও, "
-                "ভিডিও কল, পুরনো ফোনকে দোকানের ক্যামেরা (Shop Box) বানানো, এবং আপনি চালু করলে চুরি-সুরক্ষার "
-                "\"অনুপ্রবেশকারীর ছবি\"।",
+                "ভিডিও কল, পুরনো ফোনকে দোকানের ক্যামেরা (Shop Box) বানানো, এবং আপনি সম্মতি দিয়ে চালু করলে "
+                "চুরি-সুরক্ষার \"অনুপ্রবেশকারীর ছবি\" — শুধু Assisto খোলা থাকা অবস্থায় অ্যাপের ভেতরে ভুল "
+                "সিকিউরিটি পিন দিলে, শাটার-শব্দসহ একটি সামনের ক্যামেরার ছবি (ব্যাকগ্রাউন্ডে কখনো নয়)।",
                 "Photos of papers for the Document Vault, Photo Studio (passport/visa photos), profile and "
                 "status photos/videos, video calls, turning an old phone into a shop camera (Shop Box), and — "
-                "only if you turn it on — the anti-theft \"intruder photo\"."),
+                "only if you agree and turn it on — the anti-theft \"intruder photo\": one front-camera photo, "
+                "with a shutter sound, when a wrong Security PIN is typed while Assisto is open on screen "
+                "(never in the background)."),
         "when": ("প্রথমবার এসব ফিচার খোলার সময়। লঞ্চের সময় কখনো নয়।",
                  "The first time you open one of these features. Never at app launch."),
         "revoke": _REVOKE_STD,
@@ -205,24 +208,23 @@ PERMISSIONS = [
     },
     {
         "id": "fgs_antitheft",
-        "perm": "FOREGROUND_SERVICE_CAMERA (FOREGROUND_SERVICE_LOCATION)",
-        "name": ("সার্বক্ষণিক চুরি-সুরক্ষা (লোকেশন, ক্যামেরা)", "Always-on anti-theft (location, camera)"),
-        "why": ("আপনার নিজের ফোন হারালে/চুরি হলে শেষ লোকেশন, সিম বদল ও অফলাইন হওয়ার খবর আপনাকে ও আপনার অনুমোদিত "
-                "পরিবারকে জানানো। ক্যামেরা শুধু তখনই ব্যবহার হয় যদি আপনি \"অনুপ্রবেশকারীর ছবি\" চালু করেন: কয়েকবার "
-                "ভুল স্ক্রিন-আনলক চেষ্টার পর সামনের ক্যামেরায় একটি ছবি, এনক্রিপ্ট করা, শুধু আপনি ও অনুমোদিত পরিবার "
-                "দেখতে পারেন। চলার সময় সবসময় একটি নোটিফিকেশন দেখা যায়।",
-                "Telling you and the family you approved the last location, a SIM change or the phone going "
-                "offline if your own phone is lost or stolen. The camera is used only if you turn on \"intruder "
-                "photo\": one front-camera photo after several wrong screen-unlock attempts, encrypted, visible "
-                "only to you and your approved family. A notification is always visible while it runs."),
+        "perm": "FOREGROUND_SERVICE_LOCATION (always-on anti-theft)",
+        "name": ("সার্বক্ষণিক চুরি-সুরক্ষা (লোকেশন)", "Always-on anti-theft (location)"),
+        "why": ("আপনার নিজের ফোন হারালে/চুরি হলে শেষ লোকেশন, সিম বদল ও অফলাইন হওয়ার খবর আপনার বেছে নেওয়া "
+                "বিশ্বস্ত মানুষদের জানানো, আর আপনি বা তাঁরা দূর থেকে হারানো মোড, অ্যালার্ম, লক বা লক-স্ক্রিন বার্তা "
+                "পাঠালে তা গ্রহণ করা। এই সার্ভিস ক্যামেরা ব্যবহার করে না। চলার সময় সবসময় একটি নোটিফিকেশন দেখা যায়।",
+                "Telling the trusted contacts you chose the last location, a SIM change or the phone going "
+                "offline if your own phone is lost or stolen, and receiving the lost mode, alarm, lock or "
+                "lock-screen message that you or they send from another phone. This service never uses the "
+                "camera. A notification is always visible while it runs."),
         "when": ("শুধু আপনি সিকিউরিটি পিন দিয়ে সুরক্ষা চালু করলে। সুরক্ষা চালু থাকলে ফোন রিস্টার্ট, অ্যাপ আপডেট "
                  "বা অ্যাপ খোলার পরে এটি আবার চালু হয়, যাতে সুরক্ষা চুপচাপ বন্ধ না থাকে। সুরক্ষা বন্ধ থাকলে "
                  "কখনো নিজে থেকে চালু হয় না।",
                  "Only when you turn protection on with your Security PIN. While protection is on, it comes "
                  "back after a phone restart, an app update or when you open the app, so protection never "
                  "silently stops. With protection off it never starts by itself."),
-        "revoke": ("অ্যাপে সার্বক্ষণিক সুরক্ষা বন্ধ করুন (সিকিউরিটি পিন), অথবা ক্যামেরার অনুমতি তুলে নিন।",
-                   "Turn always-on protection off in the app (Security PIN), or remove the camera permission."),
+        "revoke": ("অ্যাপে সার্বক্ষণিক সুরক্ষা বন্ধ করুন (সিকিউরিটি পিন), অথবা লোকেশনের অনুমতি তুলে নিন।",
+                   "Turn always-on protection off in the app (Security PIN), or remove the location permission."),
     },
     {
         "id": "call_phone",
@@ -317,11 +319,11 @@ PERMISSIONS = [
         "id": "device_admin",
         "perm": "BIND_DEVICE_ADMIN (Device administrator)",
         "name": ("ডিভাইস অ্যাডমিন (চুরি-সুরক্ষা)", "Device administrator (anti-theft)"),
-        "why": ("ফোন হারালে/চুরি হলে দূর থেকে স্ক্রিন লক করা, স্ক্রিন লক বাধ্যতামূলক করা এবং ভুল আনলক চেষ্টা টের পাওয়া। "
+        "why": ("ফোন হারালে/চুরি হলে আপনি বা আপনার বিশ্বস্ত মানুষ দূর থেকে স্ক্রিন লক করতে পারেন, আর ভুল আনলক চেষ্টা টের পাওয়া যায়। "
                 "আমরা ফোনের ডেটা মুছে ফেলার (wipe) ক্ষমতা চাই না। চালু থাকলে Android আগে অ্যাডমিন বন্ধ না করে "
                 "অ্যাপ আনইনস্টল করতে দেয় না — যাতে চোর সহজে সুরক্ষা সরাতে না পারে।",
-                "If the phone is lost or stolen: lock the screen remotely, require a screen lock and notice "
-                "wrong unlock attempts. We do not ask for the power to wipe your phone. While it is on, Android "
+                "If the phone is lost or stolen: you or your trusted contact can lock the screen remotely, and "
+                "wrong unlock attempts are noticed. We do not ask for the power to wipe your phone. While it is on, Android "
                 "asks you to switch it off before uninstalling — so a thief can't simply remove the protection."),
         "when": ("শুধু আপনি চুরি-সুরক্ষা সেটআপে \"Enable\" চাপলে, Android-এর নিজস্ব সম্মতি স্ক্রিনে।",
                  "Only when you tap Enable in anti-theft setup, on Android's own consent screen."),
@@ -422,8 +424,8 @@ PRIVACY = [
           "<b>Messages and calls:</b> text messages of personal and group chats in encrypted form (we cannot read them) plus what is needed to deliver them (who, to whom, when). Channel posts, communities and the business inbox are not end-to-end encrypted. Photos/files you send are kept on the server so recipients can download them. Call records (who, when, how long) — we never record call audio or video."),
          ("<b>নিরাপত্তা ফিচার:</b> SOS ও Safe Journey-র লোকেশন, আপনার বেছে নেওয়া পরিচিত নিরাপদ জায়গা, চেক-ইন, বিশ্বস্ত পরিচিতজন।",
           "<b>Safety features:</b> SOS and Safe Journey locations, the trusted places you choose, check-ins, your trusted contacts."),
-         ("<b>চুরি-সুরক্ষা (আপনি চালু করলে):</b> সুরক্ষিত ফোনের তথ্য (মডেল, IMEI যা আপনি দেন), নিয়মিত \"আমি ঠিক আছি\" সংকেত, এবং ফোন হারানো অবস্থায় ধরা ঘটনা — যেমন SIM বদল, ভুল আনলক, লোকেশন এবং অনুপ্রবেশকারীর ছবি। এগুলো শুধু আপনি দেখতে পান।",
-          "<b>Anti-theft (if you turn it on):</b> details of the protected phone (model, the IMEI you enter), regular \"I'm OK\" heartbeats, and events captured while the phone is lost — such as SIM change, wrong unlocks, location and an intruder photo. Only you can see them."),
+         ("<b>চুরি-সুরক্ষা (আপনি চালু করলে):</b> সুরক্ষিত ফোনের তথ্য (মডেল, IMEI যা আপনি দেন), নিয়মিত \"আমি ঠিক আছি\" সংকেত, এবং ফোন হারানো অবস্থায় ধরা ঘটনা — যেমন SIM বদল, ভুল আনলক, লোকেশন, আপনি বা আপনার বিশ্বস্ত মানুষেরা দূর থেকে যা পাঠিয়েছেন (হারানো মোড, অ্যালার্ম, লক, বার্তা — কে পাঠিয়েছেন ও ফল কী) এবং শুধু আপনি সম্মতি দিলে অনুপ্রবেশকারীর ছবি। এগুলো শুধু আপনি ও আপনার বেছে নেওয়া বিশ্বস্ত মানুষেরা দেখতে পান; ঘটনা ও ছবি ৩০ দিন পরে মুছে যায়।",
+          "<b>Anti-theft (if you turn it on):</b> details of the protected phone (model, the IMEI you enter), regular \"I'm OK\" heartbeats, and events captured while the phone is lost — such as SIM change, wrong unlocks, location, the remote switches you or your trusted contacts sent (lost mode, alarm, lock, message — with who sent them and the result) and, only if you agreed to it, an intruder photo. Only you and the trusted contacts you chose can see them; events and photos are deleted after 30 days."),
          ("<b>গাড়ি ট্র্যাকিং (আপনি ট্র্যাকার যোগ করলে):</b> আপনার GPS ট্র্যাকারের অবস্থান, গতি ও ইগনিশন অবস্থা।",
           "<b>Vehicle tracking (if you add a tracker):</b> your GPS tracker's positions, speed and ignition state."),
          ("<b>ব্যবসা মোড ও Shop Box (আপনি ব্যবহার করলে):</b> পণ্য, গ্রাহক, বিক্রি, খাতা, খরচ, কুরিয়ার তথ্য; দোকানের ক্যামেরার ঘটনার স্ন্যাপশট (লাইভ ভিডিও রেকর্ড হয় না)।",

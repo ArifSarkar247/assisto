@@ -954,3 +954,105 @@ class AutomationFire(models.Model):
 
     class Meta:
         unique_together = [("rule", "entity_kind", "entity_id", "due_at")]
+
+
+# =====================================================================
+# crm100 (owner final order 27 Oct) — the SHOP side of the CRM:
+#   * ShopQuote: a price quote built from the seller's OWN catalog
+#     (core.Product prices, never typed by the client), shared as a public
+#     link /q/<token> the customer accepts or declines without logging in.
+#     Accepting creates ONE core.Order (stock taken, COD/payment status set)
+#     and pushes the seller. Money in integer poisha.
+#   * CustomerMessage: what the seller did to reach one customer from the
+#     CRM — opened WhatsApp / the phone's SMS composer (we record "opened",
+#     never "sent", because the seller's own phone sends it) or an Assisto
+#     SMS (sent / blocked / failed via core.sms_service). Feeds the one
+#     customer history page. Nothing is ever sent automatically.
+# =====================================================================
+
+
+class ShopQuote(models.Model):
+    ISSUED, VIEWED, ACCEPTED, DECLINED, EXPIRED, REVOKED = (
+        "issued", "viewed", "accepted", "declined", "expired", "revoked")
+    STATES = [(s, s) for s in (ISSUED, VIEWED, ACCEPTED, DECLINED, EXPIRED,
+                               REVOKED)]
+    COD, BKASH, NAGAD, PAID = "cod", "bkash", "nagad", "paid"
+    PAYMENTS = [(p, p) for p in (COD, BKASH, NAGAD, PAID)]
+
+    business = models.ForeignKey("core.BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="crm_quotes")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                   null=True, blank=True, related_name="+")
+    lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="shop_quotes")
+    customer_name = models.CharField(max_length=120, blank=True, default="")
+    customer_phone = models.CharField(max_length=40, blank=True, default="")
+    phone_key = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    lang = models.CharField(max_length=2, default="bn")
+    # [{product_id, vkey, name, size, colour, qty, unit_poisha, list_poisha}]
+    items = models.JSONField(default=list, blank=True)
+    subtotal_poisha = models.BigIntegerField(default=0)
+    discount_poisha = models.BigIntegerField(default=0)
+    delivery_poisha = models.BigIntegerField(default=0)
+    total_poisha = models.BigIntegerField(default=0)
+    payment = models.CharField(max_length=8, choices=PAYMENTS, default=COD)
+    note = models.CharField(max_length=300, blank=True, default="")
+    valid_until = models.DateTimeField()
+    # random part of the public link; the link itself is signed (see
+    # crm/shop_quote.py) so a guessed nonce without the signature is refused
+    # before any database lookup.
+    nonce = models.CharField(max_length=40, unique=True)
+    state = models.CharField(max_length=10, choices=STATES, default=ISSUED)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decline_reason = models.CharField(max_length=200, blank=True, default="")
+    accept_name = models.CharField(max_length=120, blank=True, default="")
+    accept_address = models.TextField(blank=True, default="")
+    order = models.ForeignKey("core.Order", on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name="crm_quotes")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["business", "-created_at"],
+                                name="crm_shopquo_busines_5c9d2e_idx"),
+                   models.Index(fields=["business", "phone_key"],
+                                name="crm_shopquo_busines_8a1f3b_idx")]
+
+    def __str__(self):
+        return f"quote#{self.pk} ({self.state})"
+
+
+class CustomerMessage(models.Model):
+    WA_LINK, SMS_APP, ASSISTO_SMS = "whatsapp_link", "sms_app", "assisto_sms"
+    CHANNELS = [(c, c) for c in (WA_LINK, SMS_APP, ASSISTO_SMS)]
+    OPENED, SENT, BLOCKED, FAILED = "opened", "sent", "blocked", "failed"
+    STATUSES = [(s, s) for s in (OPENED, SENT, BLOCKED, FAILED)]
+    PURPOSES = [(p, p) for p in ("message", "tagada", "quote", "offer")]
+
+    business = models.ForeignKey("core.BusinessProfile", on_delete=models.CASCADE,
+                                 null=True, blank=True, related_name="crm_messages")
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE, null=True, blank=True,
+                            related_name="customer_messages")
+    lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="customer_messages")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                             null=True, blank=True, related_name="+")
+    phone_key = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    name = models.CharField(max_length=120, blank=True, default="")
+    channel = models.CharField(max_length=14, choices=CHANNELS)
+    purpose = models.CharField(max_length=8, choices=PURPOSES, default="message")
+    status = models.CharField(max_length=8, choices=STATUSES, default=OPENED)
+    reason = models.CharField(max_length=40, blank=True, default="")
+    text = models.TextField(blank=True, default="")      # the seller's own words
+    credits = models.IntegerField(default=0)
+    bulk_id = models.CharField(max_length=24, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["business", "phone_key", "-created_at"],
+                                name="crm_custome_busines_3f0a1c_idx"),
+                   models.Index(fields=["org", "phone_key", "-created_at"],
+                                name="crm_custome_org_id_7b2e4d_idx")]

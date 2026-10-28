@@ -327,7 +327,7 @@ class _SafeguardExplainer extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12.5, height: 1.4, color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.sm),
-        Text(tr.nomineeNoSecretsNote,
+        Text(tr.nomineeNoSecretsNote2,
             style: TextStyle(
                 fontSize: 12.5, height: 1.4, color: scheme.onSurfaceVariant)),
       ]),

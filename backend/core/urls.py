@@ -8,6 +8,7 @@ from . import views_build61 as b61
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
+from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
@@ -18,6 +19,7 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_ads as ads_views
+from . import vault_recovery as vaultrec  # vault100
 from . import views_voice as voicev
 
 router = DefaultRouter()
@@ -82,6 +84,9 @@ urlpatterns = [
     path("actions/log", views.ActionLogView.as_view()),
     path("sources", views.SourcePermissionView.as_view()),
     path("documents/<int:pk>/file", views.DocumentFileView.as_view()),
+    # vault100: forgotten-PIN recovery (verification only; the PIN stays on the phone)
+    path("vault/recovery/status", vaultrec.VaultRecoveryStatusView.as_view()),
+    path("vault/recovery/verify", vaultrec.VaultRecoveryVerifyView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),
     path("money/summary", views.MoneySummaryView.as_view()),
     path("money/trends", views.MoneyTrendsView.as_view()),
@@ -232,6 +237,15 @@ urlpatterns = [
     path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
     path("business/khata/tagada/schedule/<int:pk>", bz.TagadaScheduleDetailView.as_view()),   # ledger100
     path("business/khata/entries/<int:pk>", bz.KhataEntryEditView.as_view()),   # ledger100
+    # tagada2: send order + shop <-> customer chat + invite + SMS parts + My Dues
+    path("business/khata/tagada/send/<int:pk>", tg2.TagadaSendView.as_view()),
+    path("business/khata/parties/<int:pk>/chat", tg2.KhataChatView.as_view()),
+    path("business/khata/parties/<int:pk>/invite", tg2.KhataInviteView.as_view()),
+    path("business/sms/balance", tg2.SmsBalanceView.as_view()),
+    path("me/dues", tg2.MyDuesView.as_view()),
+    path("me/dues/<int:bid>", tg2.MyDuesShopView.as_view()),
+    path("me/dues/<int:bid>/prefs", tg2.MyDuesPrefsView.as_view()),
+    path("me/dues/<int:bid>/chat", tg2.MyDuesChatView.as_view()),
     path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
     path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
     path("business/cashbox/<str:day>/entries", bz.CashboxEntryView.as_view()),
@@ -614,6 +628,7 @@ urlpatterns += [
 
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
+from . import cashguard_views as cg  # noqa: E402
 urlpatterns += [
     path("shop/watchman", wm.WatchmanOverviewView.as_view()),
     path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
@@ -628,6 +643,13 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    # cashguard (Smart Cash Guard, owner 28 Oct)
+    path("shop/clips", cg.ShopClipUploadView.as_view()),
+    path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),
+    path("shop/events/<int:pk>/clip/viewed", cg.EventClipViewedView.as_view()),
+    path("shop/sites/<int:pk>/away", cg.SiteAwayView.as_view()),
+    path("shop/cashguard", cg.CashGuardOverviewView.as_view()),
+    path("shop/cameras/<int:pk>/ezviz", cg.CameraEzvizView.as_view()),
 ]
 # ---- /cctv1 ----
 
@@ -720,6 +742,7 @@ urlpatterns += [
 # 24h route + trips, engine cut (PIN + speed gate + approval), grants, OBD,
 # AI trip summary, Car Mode trips, Business fleet dashboard.
 from . import views_vehicle as veh  # noqa: E402
+from . import views_vehicle100 as veh100  # noqa: E402
 urlpatterns += [
     path("vehicle/config", veh.VehicleConfigView.as_view()),
     path("vehicle/trackers", veh.TrackerListView.as_view()),
@@ -737,6 +760,16 @@ urlpatterns += [
     path("vehicle/obd/decode", veh.ObdDecodeView.as_view()),
     path("vehicle/carmode/trip", veh.CarModeTripView.as_view()),
     path("vehicle/fleet", veh.FleetDashboardView.as_view()),
+    # veh100: 2nd engine-cut confirmation, share links, reports, drivers,
+    # maintenance, setup guide
+    path("vehicle/commands/<int:cid>/confirm", veh.CommandConfirmView.as_view()),
+    path("vehicle/trackers/<int:pk>/share", veh100.TrackerShareView.as_view()),
+    path("vehicle/trackers/<int:pk>/share/<int:lid>", veh100.TrackerShareRevokeView.as_view()),
+    path("vehicle/trackers/<int:pk>/report", veh100.TrackerReportView.as_view()),
+    path("vehicle/trackers/<int:pk>/driver", veh100.TrackerDriverView.as_view()),
+    path("vehicle/drivers/<int:did>/report", veh100.DriverReportView.as_view()),
+    path("vehicle/maintenance", veh100.MaintenanceView.as_view()),
+    path("vehicle/setup-guide", veh100.SetupGuideView.as_view()),
 ]
 # ---- /v1-vehicle ----
 
@@ -886,6 +919,7 @@ urlpatterns[:0] = [
 # ---- b6-antitheft ---- Batch 6: native always-on Lost/Stolen engine (opt-in,
 # per-phone engine token for ingestion; alerts only to owner + approved family).
 from . import views_antitheft as atv  # noqa: E402
+from . import views_at_remote as atr  # noqa: E402
 urlpatterns += [
     path("security/engine/state", atv.EngineStateView.as_view()),
     path("security/engine/enable", atv.EngineEnableView.as_view()),
@@ -899,6 +933,10 @@ urlpatterns += [
     path("security/engine/watching", atv.EngineWatchingView.as_view()),
     path("security/engine/event/<int:pk>/photo-link", atv.EnginePhotoLinkView.as_view()),
     path("security/engine/event/<int:pk>/photo", atv.EnginePhotoBytesView.as_view()),
+    # at100: remote switches (owner / trusted contact -> the protected phone)
+    path("security/engine/command", atr.CommandView.as_view()),
+    path("security/engine/commands", atr.CommandListView.as_view()),
+    path("security/engine/command/<int:pk>/cancel", atr.CommandCancelView.as_view()),
 ]
 # ---- /b6-antitheft ----
 
@@ -1212,6 +1250,17 @@ urlpatterns += [
     path("agent-core/brief", acn.BriefView.as_view()),
 ]
 # ---- /agent-proactive ----
+# ---- agentmem ---- life-graph memory (WP-MEMORY; flag agent_core, default OFF)
+from .agentcore import memory_views as acm  # noqa: E402
+urlpatterns += [
+    path("agent-core/memory", acm.MemoryListView.as_view()),
+    path("agent-core/memory/export", acm.MemoryExportView.as_view()),
+    path("agent-core/memory/prefs", acm.MemoryPrefsView.as_view()),
+    path("agent-core/memory/delete-all", acm.MemoryDeleteAllView.as_view()),
+    path("agent-core/memory/<int:pk>", acm.MemoryItemView.as_view()),
+    path("agent-core/memory/<int:pk>/<str:action>", acm.MemoryActionView.as_view()),
+]
+# ---- /agentmem ----
 # ---- probashi-plan ---- (flag probashi_plan, default OFF)
 from . import views_probashi as pbv  # noqa: E402
 urlpatterns += [

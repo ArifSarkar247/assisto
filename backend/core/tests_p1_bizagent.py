@@ -635,7 +635,7 @@ class BillingTests(Base):
         S.activate_plan_for_user(self.user, "pro")
         self.agent.refresh_from_db()
         self.assertEqual(self.agent.plan, "pro")
-        self.assertEqual(S.plan_status(self.agent)["quota"], 3000)
+        self.assertEqual(S.plan_status(self.agent)["quota"], 2700)   # owner 28 Oct: Pro = 2700 replies
 
 
 # ------------------------------------------------------------------ comments + IG

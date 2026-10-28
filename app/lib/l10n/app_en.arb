@@ -2828,7 +2828,6 @@
   "nomineeScopeEmergency": "Emergency card",
   "nomineeScopeEmergencyDesc": "Blood group, allergies, emergency contacts and basic medical info.",
   "nomineeScopeDocuments": "Document vault list",
-  "nomineeScopeDocumentsDesc": "The list and pointers of what is in the vault — never the encrypted files themselves.",
   "nomineeScopeAccounts": "Account list",
   "nomineeScopeAccountsDesc": "Which banks, mobile-banking and bills exist — never passwords or PINs.",
   "nomineeScopeInsurance": "Insurance",
@@ -2861,7 +2860,6 @@
   "nomineeStatusOpenDesc": "This person can now see the chosen categories. You can revoke it right now.",
   "nomineeHowReleaseWorks": "How release works",
   "nomineeGraceWindowNote": "After a release is requested, access does not open at once — a grace window runs, and a single tap cancels it.",
-  "nomineeNoSecretsNote": "No secret passwords, PINs or encrypted files are shown here — only pointers and instructions. The vault stays end-to-end encrypted.",
   "nomineeArmedNote": "To open access you must request a release below, then confirm a second time.",
   "nomineePendingNote": "A release is pending. You can safely cancel it while the grace window runs.",
   "nomineeAccessOpenNote": "Access is currently open. For safety, revoke it once it is no longer needed.",
@@ -23725,5 +23723,2020 @@
   "ldgTone": "Tone",
   "@ldgTone": {
     "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
-  }
+  },
+  "lgTitle": "Agent memory",
+  "lgEntryTitle": "Agent memory (life graph)",
+  "lgEntryBody": "People, places, routines and dates the agent may use — encrypted, only for you.",
+  "lgPrivacyNote": "Encrypted on our server and visible only to you. For a task the agent gets only the few facts that matter, with phone and account numbers hidden. Sensitive facts never go to the AI.",
+  "lgLoading": "Loading memory",
+  "lgEmptyTitle": "Nothing saved yet",
+  "lgEmptyBody": "The agent remembers only what you add here or approve. Nothing is saved by itself.",
+  "lgAdd": "Add a fact",
+  "lgAll": "All",
+  "lgTypePerson": "People",
+  "lgTypePlace": "Places",
+  "lgTypeRoutine": "Routines",
+  "lgTypePreference": "Preferences",
+  "lgTypeDate": "Important dates",
+  "lgTypeBusiness": "Business",
+  "lgSuggestionsTitle": "Waiting for your OK ({count})",
+  "@lgSuggestionsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lgSuggestionsHint": "Nothing is remembered until you tap Keep.",
+  "lgKeep": "Keep",
+  "lgReject": "Don't keep",
+  "lgKept": "Saved to memory",
+  "lgRejected": "Removed — it won't be suggested again",
+  "lgChangeTo": "Change to: {value}",
+  "@lgChangeTo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lgOriginUser": "You added",
+  "lgOriginRun": "Suggested by the agent",
+  "lgOriginLearn": "Weekly learning",
+  "lgSensitive": "Sensitive · never sent to AI",
+  "lgNotForAi": "Not used by the AI",
+  "lgStillRight": "Not used for a long time — still right?",
+  "lgStillRightYes": "Yes, keep",
+  "lgEdit": "Edit",
+  "lgDelete": "Delete",
+  "lgDeleted": "Deleted",
+  "lgSave": "Save",
+  "lgSaved": "Saved",
+  "lgCancel": "Cancel",
+  "lgAddTitle": "New fact",
+  "lgEditTitle": "Edit fact",
+  "lgFieldType": "Type",
+  "lgFieldLabel": "Name or title",
+  "lgFieldRelation": "Relation (optional)",
+  "lgFieldValue": "What to remember",
+  "lgFieldWhen": "When (optional)",
+  "lgFieldSensitive": "Sensitive (health, religion, politics…)",
+  "lgFieldUseInAi": "The agent may use this",
+  "lgNeedText": "Write a name or what to remember.",
+  "lgUpdated": "Updated {time}",
+  "@lgUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lgPauseLearning": "Pause weekly learning",
+  "lgLearningOn": "Each week the agent may suggest facts from your own data — recurring expenses, family in My Circle, Safe Journey routines. Never health, religion or politics. You decide what to keep.",
+  "lgLearningPaused": "Paused — the agent makes no new suggestions.",
+  "lgRetentionTitle": "Delete facts not used for",
+  "lgRetentionMonths": "{months} months",
+  "@lgRetentionMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "lgRetentionHint": "We ask “still right?” 6 months before deleting.",
+  "lgExport": "Export (JSON file)",
+  "lgExportDone": "Your memory file is ready — share or save it where you want.",
+  "lgExportFailed": "Could not export — please try again.",
+  "lgDeleteAll": "Delete all agent memory",
+  "lgDeleteAllTitle": "Delete everything?",
+  "lgDeleteAllBody": "Every fact and suggestion in the agent's memory will be deleted for good. This cannot be undone.",
+  "lgDeleteAllConfirm": "Delete everything",
+  "lgDeleteAllDone": "Deleted {count} items",
+  "@lgDeleteAllDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lgErrorLoad": "Could not load the memory. Check the internet and try again.",
+  "lgRetry": "Try again",
+  "lgFeatureOff": "Agent memory is not switched on yet.",
+  "lgFilterEmpty": "Nothing saved in this group.",
+  "lgActionFailed": "Could not do that — please try again.",
+  "lgMenu": "More options",
+  "at100Title": "Remote switches",
+  "@at100Title": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Subtitle": "Lost mode, a loud alarm, lock and a lock-screen message for {owner}'s phone.",
+  "@at100Subtitle": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "at100OwnerHint": "Use this from any phone where you are signed in to Assisto — for example a family member's phone.",
+  "@at100OwnerHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Online": "Checking in now · last {time}",
+  "@at100Online": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100Offline": "Not checking in · last seen {time}",
+  "@at100Offline": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100NeverSeen": "Has not checked in yet",
+  "@at100NeverSeen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ProtectionOff": "Protection is off on that phone, so nothing can be sent to it.",
+  "@at100ProtectionOff": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100OfflineTruth": "A phone that is switched off or has no internet can't receive anything — not from Assisto, not from any app. What you send waits here and runs the moment the phone is back online.",
+  "@at100OfflineTruth": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostMode": "Lost mode",
+  "@at100LostMode": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostModeOn": "Lost mode is on",
+  "@at100LostModeOn": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Alarm": "Ring loudly ({seconds} s)",
+  "@at100Alarm": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100AlarmStop": "Stop alarm",
+  "@at100AlarmStop": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Lock": "Lock screen",
+  "@at100Lock": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Message": "Lock-screen message",
+  "@at100Message": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100NeedActive": "Turn on lost mode first — then you can ring, lock and show a message.",
+  "@at100NeedActive": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostOffHint": "Only you can turn lost mode off, with your Security PIN, from My lost phone.",
+  "@at100LostOffHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmTitle": "Ring the phone loudly?",
+  "@at100AlarmConfirmTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100AlarmConfirmBody": "It rings at full alarm volume for {seconds} seconds, even when it is on silent (unless Do Not Disturb blocks alarms). Whoever holds the phone can press Stop.",
+  "@at100AlarmConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100LockConfirmTitle": "Lock the phone's screen?",
+  "@at100LockConfirmTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LockConfirmBody": "The screen locks at once. This works only if Assisto is a device admin on that phone; the result below says so if it is not.",
+  "@at100LockConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LostConfirmBody": "The phone checks in every few minutes, shows your message on its lock screen, and your trusted contacts are told. Only the owner can turn it off, with the Security PIN.",
+  "@at100LostConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgConfirmBody": "Your message appears on the phone's lock screen and the screen locks (if Assisto is a device admin there).",
+  "@at100MsgConfirmBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgLabel": "Message",
+  "@at100MsgLabel": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgHint": "e.g. This phone is lost. Please call the number below.",
+  "@at100MsgHint": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ContactLabel": "Number to call (optional)",
+  "@at100ContactLabel": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100MsgNeeded": "Please write a message.",
+  "@at100MsgNeeded": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Send": "Send",
+  "@at100Send": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOnline": "Sent to the phone. The result appears below.",
+  "@at100SentOnline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100SentOffline": "Saved. The phone is not checking in right now — it will run when the phone is back online.",
+  "@at100SentOffline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ErrRate": "Too many in the last hour. Please try again later.",
+  "@at100ErrRate": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100CancelTooLate": "It already reached the phone, so it can't be cancelled.",
+  "@at100CancelTooLate": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100LoadFailed": "Couldn't load the switches.",
+  "@at100LoadFailed": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Refresh": "Refresh",
+  "@at100Refresh": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100History": "Recent",
+  "@at100History": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100HistoryEmpty": "Nothing sent yet.",
+  "@at100HistoryEmpty": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaitingOffline": "Waiting — the phone is offline or switched off. Runs when it is back online.",
+  "@at100PhWaitingOffline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhWaiting": "Waiting for the phone's next check-in",
+  "@at100PhWaiting": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhSent": "Sent — waiting for the phone to answer",
+  "@at100PhSent": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhReached": "Reached the phone at {time}",
+  "@at100PhReached": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhDone": "Done at {time}",
+  "@at100PhDone": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhFailed": "Didn't work: {reason}",
+  "@at100PhFailed": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "at100PhExpired": "The phone never came online — expired",
+  "@at100PhExpired": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PhCancelled": "Cancelled",
+  "@at100PhCancelled": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNoAdmin": "device admin is off on that phone",
+  "@at100FailNoAdmin": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailNotif": "notifications are blocked on that phone",
+  "@at100FailNotif": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailSound": "the phone couldn't play a sound",
+  "@at100FailSound": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100FailOther": "the phone couldn't do it",
+  "@at100FailOther": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100By": "by {name}",
+  "@at100By": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "at100ByYou": "by you",
+  "@at100ByYou": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100ByOwner": "by the owner",
+  "@at100ByOwner": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeTitle": "Erase the phone",
+  "@at100WipeTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeBody": "Assisto never asks for the power to erase your phone. Google Find Hub can erase it for free — sign in there with the phone's Google account.",
+  "@at100WipeBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WipeOpen": "Open Google Find Hub",
+  "@at100WipeOpen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTitle": "Phones I help protect",
+  "@at100WatchTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchCount": "{count, plural, =1{1 phone} other{{count} phones}}",
+  "@at100WatchCount": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100WatchEmpty": "No one has chosen you as a trusted contact yet. When someone does, their phone appears here.",
+  "@at100WatchEmpty": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchPhone": "{owner}'s phone",
+  "@at100WatchPhone": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "at100WatchLostBadge": "Lost mode on",
+  "@at100WatchLostBadge": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchDarkBadge": "Stopped checking in",
+  "@at100WatchDarkBadge": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchLastLoc": "Last location",
+  "@at100WatchLastLoc": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchNoLoc": "No location yet.",
+  "@at100WatchNoLoc": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchOpenMap": "Open in Maps",
+  "@at100WatchOpenMap": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100WatchTimeline": "Alert history",
+  "@at100WatchTimeline": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100Accuracy": "±{meters} m",
+  "@at100Accuracy": {
+    "description": "at100 anti-theft remote switches / intruder consent",
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "at100OptIntruderBody": "Off until you agree. Only while Assisto is open: after several wrong Security PINs typed in Assisto, one front-camera photo with a shutter sound. Encrypted; only you and your trusted contacts see it.",
+  "@at100OptIntruderBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcTitle": "Intruder photo",
+  "@at100IcTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLead": "This stays off until you agree. Please read what it does.",
+  "@at100IcLead": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhatT": "What",
+  "@at100IcWhatT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhat": "One photo with this phone's front camera.",
+  "@at100IcWhat": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhenT": "When",
+  "@at100IcWhenT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhen": "Only while Assisto is open on the screen: after several wrong Security PINs in a row inside Assisto (3 by default) — for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off. Never on the lock screen and never in the background.",
+  "@at100IcWhen": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNoticeT": "Never hidden",
+  "@at100IcNoticeT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN box says that a wrong PIN takes a photo.",
+  "@at100IcNotice": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhereT": "Where it is kept",
+  "@at100IcWhereT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhere": "Encrypted on this phone until it is sent, then encrypted on Assisto's server. There is no public link.",
+  "@at100IcWhere": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWhoT": "Who sees it",
+  "@at100IcWhoT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcWho": "Only you and the trusted contacts you chose, in the protection timeline. No face recognition, never used for anything else.",
+  "@at100IcWho": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeepT": "How long",
+  "@at100IcKeepT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcKeep": "Deleted automatically after 30 days.",
+  "@at100IcKeep": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDeleteT": "Turn off and delete",
+  "@at100IcDeleteT": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcDelete": "Switch it off here any time with your Security PIN. Turning protection off deletes photos still waiting on the phone; deleting your Assisto account deletes the rest.",
+  "@at100IcDelete": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcLaw": "Use it only on your own phone. Photographing people without telling them can be against the law.",
+  "@at100IcLaw": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcAgree": "I agree — turn it on",
+  "@at100IcAgree": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNo": "Not now",
+  "@at100IcNo": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100IcNeeded": "Please agree on the intruder photo screen first.",
+  "@at100IcNeeded": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100PinNotice": "A wrong PIN takes a front-camera photo (the owner turned this on).",
+  "@at100PinNotice": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminTitle": "Assisto as device admin",
+  "@at100DiscAdminTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscAdminBody": "To protect this phone if it is lost or stolen, Assisto asks Android to make it a device admin. It is used for exactly two things:\n• lock the screen when you, or a trusted contact you chose, press Lock from another phone (or right after a detected grab, if you turn that on);\n• notice wrong screen-unlock attempts and tell your trusted contacts.\nAssisto never asks for the power to erase the phone and never reads your screen-lock code. While it is on, Android asks you to switch it off before Assisto can be uninstalled. You can switch it off any time in Android Settings → Security → Device admin apps.\nNext, Android shows its own screen — tap Activate there.",
+  "@at100DiscAdminBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocTitle": "Location for lost-phone protection",
+  "@at100DiscLocTitle": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscLocBody": "While you keep Lost/Stolen protection on, Assisto reads this phone's location so the trusted contacts you chose can see where it was last — in every alert (grab, SIM change, offline, low battery) and when lost mode is on. A notification is always shown while protection runs. Location is sent only to your account and those contacts, kept for 24 hours (alerts 30 days), and never sold or used for ads. Assisto does not ask for \"Allow all the time\". Turn it off by switching protection off, or in Android Settings → Apps → Assisto → Permissions.\nNext, Android asks for the location permission.",
+  "@at100DiscLocBody": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "at100DiscContinue": "Continue",
+  "@at100DiscContinue": {
+    "description": "at100 anti-theft remote switches / intruder consent"
+  },
+  "nomineeScopeDocumentsDesc2": "The list and pointers of what is in the vault — never the document files themselves.",
+  "nomineeNoSecretsNote2": "No passwords, PINs or document files are shown here — only pointers and instructions. Your documents stay private to your account.",
+  "docTypeTradeLicence": "Trade licence",
+  "docTypeVehicle": "Vehicle papers",
+  "vaultVehicleHelp": "Add each paper separately — registration, tax token, fitness, route permit, insurance — each with its own expiry date, so each gets its own reminder.",
+  "vaultAvailableOffline": "Available offline",
+  "vaultAvailableOfflineOn": "An encrypted copy is on this phone — opens without internet.",
+  "vaultAvailableOfflineOff": "Turn on to keep an encrypted copy on this phone.",
+  "vaultBioNotConfirmed": "Fingerprint not confirmed. Try again.",
+  "vaultBioReason": "Unlock your documents",
+  "vaultBioUnavailable": "Fingerprint isn't available on this phone right now. Use your PIN.",
+  "vaultChangePin": "Change PIN",
+  "vaultChangePinCurrent": "First enter your current PIN.",
+  "vaultChangePinNew": "Now choose a new PIN and enter it twice.",
+  "vaultDeleteTitle": "Delete this document?",
+  "vaultDeleteBody": "It will be removed from your account and from this phone. This can't be undone.",
+  "vaultExpiryAlerts": "Expiry reminders",
+  "vaultExpiryAlertsSub": "A notification 60, 30, 7 and 1 day before. It shows only the document type, never its number.",
+  "vaultExpiryRemindNote": "We'll remind you 60, 30, 7 and 1 day before (not between 9 pm and 9 am).",
+  "vaultFingerprintSub": "Your PIN still works too.",
+  "vaultForgotPin": "Forgot PIN?",
+  "vaultHowTitle": "How your vault is protected",
+  "vaultHowStored": "Your documents are kept with your Assisto account, so they stay safe even if this phone is lost, reset or repaired. Only you can open them, after signing in.",
+  "vaultHowPin": "The PIN locks the vault on this phone. It never leaves the phone and is not stored on our server.",
+  "vaultHowOffline": "Offline copies are encrypted on this phone with a separate key, not with your PIN.",
+  "vaultMethodSms": "Code by SMS",
+  "vaultMethodSmsOff": "Not available right now",
+  "vaultMethodEmail": "Code by email",
+  "vaultMethodEmailOff": "Verify an email in your account settings to use this",
+  "vaultMethodPassword": "Account password",
+  "vaultMethodPasswordOff": "No password set — add one in your account settings",
+  "vaultNeedInternet": "This needs internet. Please connect and try again.",
+  "vaultNeedInternetOpen": "No internet. Only documents marked “Available offline” open without internet.",
+  "vaultNeedInternetSave": "Saving a copy needs internet once. Please connect and try again.",
+  "vaultNoPreview": "This file type can't be shown here.",
+  "vaultNoRecoveryWarn": "No recovery method is set yet. If you forget your PIN you won't be able to open the vault until you verify. Make a recovery code now, or add a password or verified email to your account.",
+  "vaultNotOfflineYet": "This document isn't saved on this phone, so it needs internet to open.",
+  "vaultNudgeTitle": "Never get locked out",
+  "vaultNudgeBody": "Make a recovery code. If you forget your PIN it lets you set a new one — even without internet.",
+  "vaultNudgeLater": "Later",
+  "vaultOfflineBanner": "No internet — showing {n} documents saved on this phone",
+  "@vaultOfflineBanner": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultOfflineBannerSub": "Other documents will appear when you're back online.",
+  "vaultOfflineHowTo": "Open a document and turn on “Available offline”.",
+  "vaultOfflineNone": "No documents saved on this phone",
+  "vaultOfflineRemoveAll": "Remove all offline copies",
+  "vaultOfflineRemoveAllConfirm": "The copies on this phone will be deleted. Your documents stay safe in your account.",
+  "vaultOfflineRemoved": "Copy removed from this phone",
+  "vaultOfflineSaveFailed": "Couldn't save a copy on this phone. Please try again.",
+  "vaultOfflineSaved": "Saved on this phone — it will open without internet",
+  "vaultOfflineSection": "Offline copies",
+  "vaultOfflineUsage": "{n} documents · {size} on this phone",
+  "@vaultOfflineUsage": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultOpenWithApp": "Open with another app",
+  "vaultOpenedFromPhone": "Opened from this phone (offline copy)",
+  "vaultPinChanged": "PIN changed",
+  "vaultPinConfirm": "Enter the PIN again",
+  "vaultPinMismatch": "The two PINs don't match",
+  "vaultPinSaveFailed": "Couldn't save on this phone. Please try again.",
+  "vaultPinSection": "PIN and unlock",
+  "vaultRecoverByCode": "Get a code",
+  "vaultRecoverCodeTo": "Sent to {to}",
+  "@vaultRecoverCodeTo": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultRecoverByPassword": "Use my account password",
+  "vaultRecoverByRecoveryCode": "Use my recovery code",
+  "vaultRecoverByRecoveryCodeSub": "Works without internet",
+  "vaultRecoverCapToday": "The PIN was reset many times today. Please try again tomorrow, or use your recovery code.",
+  "vaultRecoverChoose": "Prove it's you",
+  "vaultRecoverFailed": "Couldn't verify. Please try again.",
+  "vaultRecoverNeverPin": "Your PIN and recovery code never leave this phone. Only the code or password you enter is checked by Assisto.",
+  "vaultRecoverNoNet": "No internet. Connect to verify, or use your recovery code.",
+  "vaultRecoverNone": "This account has no way to verify right now (no password, and codes can't be sent). Your documents are not lost. Please try again later, or contact Assisto support from Help.",
+  "vaultRecoverOffline": "No internet — can't check your account right now",
+  "vaultRecoverOtpTitle": "Reset vault PIN",
+  "vaultRecoverOtpIntro": "We'll send a code to your account's own number or verified email.",
+  "vaultRecoverPasswordTitle": "Your account password",
+  "vaultRecoverPasswordLabel": "Password",
+  "vaultRecoverSafeTitle": "Your documents are safe",
+  "vaultRecoverSafeBody": "They are kept with your account, not inside the PIN. Prove it's you and set a new PIN — nothing is deleted.",
+  "vaultRecoverSetNew": "Verified. Now choose a new PIN.",
+  "vaultRecoveryCodeCreate": "Make a recovery code",
+  "vaultRecoveryCodeEnterTitle": "Enter your recovery code",
+  "vaultRecoveryCodeIsSet": "Set on this phone. It works once; then make a new one.",
+  "vaultRecoveryCodeLabel": "Recovery code",
+  "vaultRecoveryCodeNew": "Make a new code",
+  "vaultRecoveryCodeNotSet": "Not set",
+  "vaultRecoveryCodeReplaceWarn": "Your old recovery code will stop working.",
+  "vaultRecoveryCodeSaved": "I've written it down",
+  "vaultRecoveryCodeShowOnce": "Write this code on paper and keep it safe. It is shown only now.",
+  "vaultRecoveryCodeTitle": "Recovery code",
+  "vaultRecoveryCodeWarn": "Anyone with this code and your unlocked phone can reset the vault PIN. Don't share it or keep it in your photos.",
+  "vaultRecoveryCodeWrong": "That recovery code didn't match.",
+  "vaultRecoverySection": "If you forget your PIN",
+  "vaultSecurityTitle": "Security and storage",
+  "vaultSetPinButton": "Set PIN",
+  "vaultSetPinInfo": "This PIN locks your documents on this phone. It never leaves the phone.",
+  "vaultTooManyTries": "Too many wrong tries.",
+  "vaultTriesLeft": "{n} tries left before a short wait",
+  "@vaultTriesLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultTryAgainIn": "Try again in {time}.",
+  "@vaultTryAgainIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultUnlockInfo": "Enter your vault PIN.",
+  "vaultUseFingerprint": "Use fingerprint",
+  "vaultVerify": "Verify",
+  "vaultWaitMinutes": "{n} min",
+  "@vaultWaitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultWaitSeconds": "{n} sec",
+  "@vaultWaitSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultWrongPinLeft": "Wrong PIN. {n} tries left.",
+  "@vaultWrongPinLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultHowRecover": "Forgot your PIN? Reset it after proving it's you (a code or your password), or use your recovery code. Your documents are never lost.",
+  "c100AcCall": "Call",
+  "c100AcEmail": "Email",
+  "c100AcMeeting": "Meeting",
+  "c100AcNote": "Note",
+  "c100AcStage": "Stage changed",
+  "c100AcSystem": "Logged",
+  "c100AcTask": "Task",
+  "c100AcWhatsapp": "WhatsApp",
+  "c100ActAddCrm": "Add to CRM",
+  "c100ActCall": "Call",
+  "c100ActMessage": "Message",
+  "c100ActQuote": "Price quote",
+  "c100AddProduct": "Add a product",
+  "c100AddedToCrm": "Added to the CRM.",
+  "c100BelowMin": "Below your lowest price",
+  "c100BuilderIntro": "Prices come from your catalog. The customer gets a link to accept or decline — no app or login needed.",
+  "c100BulkDefault": "{token}, new stock has arrived at our shop.",
+  "@c100BulkDefault": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "c100BulkIntro": "{count} customers picked. Each one gets their own message card — you send them one by one.",
+  "@c100BulkIntro": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100BulkMakeCards": "Make one card per customer",
+  "c100BulkNoCards": "None of these customers could be found.",
+  "c100BulkTitle": "Message each customer",
+  "c100CantOpen": "Couldn't open the app on this phone.",
+  "c100ChInstagram": "Instagram",
+  "c100ChMessenger": "Messenger",
+  "c100ChWebsite": "Website chat",
+  "c100ChWhatsapp": "WhatsApp",
+  "c100ChatTitle": "AI sales chat on {channel} · {count} messages",
+  "@c100ChatTitle": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100ChooseHow": "Next: choose how to send",
+  "c100CopyLink": "Copy link",
+  "c100CountLine": "{count} customers",
+  "@c100CountLine": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100CrmValue": "{deals} open deals · {tasks} tasks",
+  "@c100CrmValue": {
+    "placeholders": {
+      "deals": {
+        "type": "String"
+      },
+      "tasks": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Customer": "Customer",
+  "c100CustomerName": "Customer name",
+  "c100CustomerPhone": "Customer mobile number",
+  "c100CustomersTab": "Customers",
+  "c100CustomersTitle": "All customers",
+  "c100DaysN": "{n} days",
+  "@c100DaysN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Deal": "Deal",
+  "c100OneDay": "1 day",
+  "c100DealLost": "Lost",
+  "c100DealOpen": "Open",
+  "c100DealWon": "Won",
+  "c100DeclineReason": "Reason: {reason}",
+  "@c100DeclineReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "c100DefaultText": "Hello {name}, ",
+  "@c100DefaultText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Delivery": "Delivery charge (৳)",
+  "c100Discount": "Discount (৳)",
+  "c100Done": "Done",
+  "c100EmptyBody": "Khata entries, orders, chats, notes and messages for this customer will all show here.",
+  "c100EmptyFilter": "Nothing of this kind yet.",
+  "c100EmptyTitle": "No history yet",
+  "c100Extend": "Extend",
+  "c100ExtendTitle": "Keep this price for",
+  "c100FAll": "All",
+  "c100FChats": "Chats",
+  "c100FCrm": "CRM",
+  "c100FKhata": "Khata & sales",
+  "c100FMessages": "Messages",
+  "c100FOrders": "Orders",
+  "c100HistoryShort": "History",
+  "c100HubCustomersSub": "One page per customer: due, orders, chats, notes",
+  "c100HubQuotesSub": "Send a price; the customer accepts with one tap",
+  "c100ItemsN": "{n} items",
+  "@c100ItemsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100KhataGave": "Gave on credit",
+  "c100KhataGot": "Got paid",
+  "c100LeadAdded": "Added to the CRM",
+  "c100LinkCopied": "Link copied",
+  "c100LinkPromise": "If they accept, the order is made at this price, stock is taken and you get a notification.",
+  "c100LoadMore": "Show more",
+  "c100LoadOlder": "Show older",
+  "c100Lowest": "Lowest: {amount}",
+  "@c100Lowest": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100MakeLink": "Make the quote link",
+  "c100MaxDiscount": "Most you can give: {amount}",
+  "@c100MaxDiscount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100MessageEach": "Message each",
+  "c100MessageLabel": "Message",
+  "c100MsgAssistoBlocked": "Assisto SMS not sent",
+  "c100MsgAssistoSent": "Sent by Assisto SMS",
+  "c100MsgSmsApp": "Phone SMS app opened",
+  "c100MsgWa": "WhatsApp opened",
+  "c100NameHint": "Write {token} and each customer's own name goes there.",
+  "@c100NameHint": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "c100NeedShopBody": "Set up your business first — then you can send price quotes.",
+  "c100NeedShopTitle": "No business yet",
+  "c100NeverAuto": "Nothing is sent without your tap.",
+  "c100NewQuote": "New price quote",
+  "c100NoCatalog": "Your catalog is empty. Add products with a selling price first.",
+  "c100NoCrmOrg": "Start your CRM first (CRM → Start).",
+  "c100NoCustomersBody": "Customers from your khata, shop sales, online orders, AI chats and CRM will show here.",
+  "c100NoCustomersTitle": "No customers yet",
+  "c100NoMatch": "Nothing matches",
+  "c100NoName": "No name",
+  "c100NoPhone": "No valid mobile number for this customer.",
+  "c100NoQuotesBody": "Make a quote from your catalog and send the link. The customer accepts or declines on their phone.",
+  "c100NoQuotesTitle": "No price quotes yet",
+  "c100NoSources": "Not in your records yet",
+  "c100NoteLabel": "Note for the customer (optional)",
+  "c100Offline": "No internet. Try again when you're online.",
+  "c100OfflineList": "This list needs internet. Your khata still works offline.",
+  "c100OfflineNoCopy": "There's no saved copy of this customer yet. Open it once online and it will open offline next time.",
+  "c100OfflineTitle": "No internet",
+  "c100OnlyDue": "Has a due",
+  "c100OpenedSms": "SMS app opened — send it from there.",
+  "c100OpenedWa": "WhatsApp opened — send it from there.",
+  "c100OptedOutBanner": "This customer said STOP. Assisto SMS will not go to them.",
+  "c100OrderMade": "Order #{id} made",
+  "@c100OrderMade": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrderTitle": "Order #{id}",
+  "@c100OrderTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrdersN": "{n} orders",
+  "@c100OrdersN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrdersValue": "{total} ({open} open)",
+  "@c100OrdersValue": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "open": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OsCancelled": "Cancelled",
+  "c100OsConfirmed": "Confirmed",
+  "c100OsDelivered": "Delivered",
+  "c100OsNew": "New",
+  "c100OsPacked": "Packed",
+  "c100OsReturned": "Returned",
+  "c100OsShipped": "Shipped",
+  "c100PayBkash": "bKash advance",
+  "c100PayCash": "Cash",
+  "c100PayCod": "Cash on delivery",
+  "c100PayDue": "On credit",
+  "c100PayNagad": "Nagad advance",
+  "c100PayPaid": "Already paid",
+  "c100PayToCheck": "payment to check",
+  "c100PayVerified": "payment checked",
+  "c100Payment": "Payment",
+  "c100PickA11y": "Pick {name}",
+  "@c100PickA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100PickProduct": "Add at least one product.",
+  "c100Picked": "{count} picked",
+  "@c100Picked": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100PreviewFailed": "Couldn't get the sending options. Try again.",
+  "c100Products": "Products",
+  "c100QsAccepted": "Accepted",
+  "c100QsDeclined": "Declined",
+  "c100QsExpired": "Expired",
+  "c100QsIssued": "Sent, not opened yet",
+  "c100QsRevoked": "Withdrawn",
+  "c100QsViewed": "Opened by the customer",
+  "c100QtyLess": "One less",
+  "c100QtyMore": "One more",
+  "c100QuoteShareText": "{name}, here is your price quote for {amount}. Open the link to accept or decline: {url}",
+  "@c100QuoteShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "c100QuoteTitle": "Price quote sent",
+  "c100QuotesTitle": "Price quotes",
+  "c100RemoveLine": "Remove",
+  "c100Revoke": "Withdraw",
+  "c100RevokeBody": "The customer will no longer be able to accept this quote.",
+  "c100RevokeTitle": "Withdraw this quote?",
+  "c100Sale": "Shop sale",
+  "c100SaleDue": "{amount} due",
+  "@c100SaleDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SaleVoided": "Shop sale (voided)",
+  "c100SavedCopy": "No internet — showing the copy saved on {date}.",
+  "@c100SavedCopy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SearchHint": "Search name or number",
+  "c100SearchProduct": "Search products",
+  "c100SendTitle": "Message {name}",
+  "@c100SendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Share": "Share",
+  "c100ShareOther": "Share another way",
+  "c100ShareToCustomer": "Send to the customer",
+  "c100Skip": "Skip",
+  "c100Skipped": "Skipped",
+  "c100SmsConfirmBody": "Send this SMS to {name}? It costs {credits} credits. You have {balance}.",
+  "@c100SmsConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsConfirmTitle": "Send by Assisto SMS?",
+  "c100SmsFailed": "The SMS didn't go.",
+  "c100SmsNoBusiness": "Assisto SMS needs your business set up first.",
+  "c100SmsNoCredits": "Needs {credits} credits — you have {balance}.",
+  "@c100SmsNoCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsNoGateway": "Not connected yet — use WhatsApp or your phone's SMS.",
+  "c100SmsNotYours": "Only for your own customers.",
+  "c100SmsOptedOut": "This customer said STOP — not sent.",
+  "c100SmsOwnerOnly": "Only the business owner can send it (the credits are theirs).",
+  "c100SmsQuiet": "No SMS from 9 pm to 9 am. Try in the morning.",
+  "c100SmsSend": "Send",
+  "c100SmsSent": "Sent. {credits} credits used, {balance} left.",
+  "@c100SmsSent": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsTooLong": "The message is too long for an SMS.",
+  "c100SmsUnavailable": "Not available right now.",
+  "c100SrcChat": "AI chat",
+  "c100SrcCrm": "CRM",
+  "c100SrcKhata": "Khata",
+  "c100SrcOrder": "Online orders",
+  "c100SrcSale": "Shop sales",
+  "c100StatAdvance": "Advance with you",
+  "c100StatCod": "COD to collect",
+  "c100StatCrm": "CRM",
+  "c100StatDue": "Due (baki)",
+  "c100StatLast": "Last contact",
+  "c100StatOrders": "Orders",
+  "c100StatPayCheck": "Payments to check",
+  "c100StatQuotes": "Open quotes",
+  "c100StatReturned": "Returned orders",
+  "c100StatSales": "Shop sales",
+  "c100StockLeft": "In stock: {n}",
+  "@c100StockLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100StockOut": "This item is out of stock — the customer can't accept until you restock.",
+  "c100Subtotal": "Subtotal",
+  "c100TagadaPrefix": "Tagada: {how}",
+  "@c100TagadaPrefix": {
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TagadaSmsBlocked": "Tagada SMS not sent",
+  "c100TagadaSmsSent": "Tagada sent by SMS",
+  "c100TallyDone": "Done: {n}",
+  "@c100TallyDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TallySkipped": "Skipped: {n}",
+  "@c100TallySkipped": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TallyWaiting": "Waiting: {n}",
+  "@c100TallyWaiting": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TaskDone": "done",
+  "c100TaskOpen": "to do",
+  "c100ThisCustomer": "this customer",
+  "c100Timeline": "Everything, newest first",
+  "c100Total": "Total",
+  "c100UnitPrice": "Price each (৳)",
+  "c100ValidUntil": "Price holds until {date}",
+  "@c100ValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Validity": "How long the price holds",
+  "c100WayAssisto": "Assisto SMS",
+  "c100WayAssistoCost": "{credits} credits ({segments} SMS part) · you have {balance}",
+  "@c100WayAssistoCost": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "segments": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100WayAssistoShort": "Assisto SMS · {credits} credits",
+  "@c100WayAssistoShort": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "c100WaySms": "Phone SMS",
+  "c100WaySmsSub": "Free — your own SIM sends it",
+  "c100WayWa": "WhatsApp",
+  "c100WayWaSub": "Free — opens WhatsApp with the text ready",
+  "v100BrandLabel": "Tracker brand (written on the box)",
+  "v100BrandUnsure": "Not sure",
+  "v100ByDriver": "By driver",
+  "v100CutFinalBody": "The tracker reports {speed}, last update {ago}. The server checks again that the vehicle is standing still and refuses if it has moved. Only continue if you are sure nobody is in danger.",
+  "@v100CutFinalBody": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "v100CutFinalCta": "Yes, cut the engine",
+  "v100CutFinalLeft": "This choice closes in {n} s",
+  "@v100CutFinalLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100CutFinalTitle": "Last check before engine cut",
+  "v100CutKeepRunning": "Do not cut",
+  "v100CutNotSent": "Engine cut cancelled. Nothing was sent to the vehicle.",
+  "v100CutSafetyNote": "Safety and law: the server sends this only when the last 3 positions show the vehicle standing still — never while it moves. The tracker must have a relay fitted by a mechanic. Use it only on your own vehicle; every request is logged with who, when and the vehicle's speed.",
+  "v100Days": "{n} days",
+  "@v100Days": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DaysDriven": "Days driven",
+  "v100DriverAdd": "Add driver",
+  "v100DriverCleared": "Nobody is set as the driver now.",
+  "v100DriverDeleteBody": "Their past trips stay in the vehicle's reports, but no longer under their name.",
+  "v100DriverDeleteTitle": "Remove this driver?",
+  "v100DriverFormTitle": "Driver details",
+  "v100DriverLicenceExpiry": "Licence expiry date",
+  "v100DriverLicenceExpiryOn": "Licence expires {date}",
+  "@v100DriverLicenceExpiryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DriverLicenceHint": "You get a reminder 30, 7 and 1 day before the licence expires.",
+  "v100DriverLicenceNo": "Driving licence number (optional)",
+  "v100DriverMonth": "This month, all vehicles",
+  "v100DriverName": "Name",
+  "v100DriverNameNeeded": "Please type the driver's name.",
+  "v100DriverNoTrips": "No trips for this driver this month.",
+  "v100DriverNobody": "Nobody / not set",
+  "v100DriverNone": "No driver set. Add drivers to see each driver's trips and score.",
+  "v100DriverNow": "Driving now: {name}",
+  "@v100DriverNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DriverPhone": "Phone (optional)",
+  "v100DriverSet": "Driver set. Trips from now count for this driver.",
+  "v100DriverTitle": "Driver",
+  "v100DriverWhoNow": "Who is driving now?",
+  "v100DriversEmptyBody": "Tap Add driver to add the first one.",
+  "v100DriversEmptyTitle": "No drivers yet",
+  "v100DriversIntro": "Add the people who drive your vehicles. Choose who is driving now, and every trip, distance and driving score is counted for that driver. Drivers do not need the app.",
+  "v100DriversTitle": "Drivers",
+  "v100DueDays": "in {n} days",
+  "@v100DueDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DueFoot": "You also get one reminder push a day for these (never at night).",
+  "v100DueKm": "in {km} km",
+  "@v100DueKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DueNow": "due now",
+  "v100DueTitle": "Due soon",
+  "v100DueToday": "today",
+  "v100ErrBadDriver": "That driver was not found. Add the driver first.",
+  "v100ErrBadFence": "That area is not valid. Draw at least 3 points, no bigger than 50 km.",
+  "v100ErrBadOdometer": "Please type the odometer reading in km (numbers only).",
+  "v100ErrConfirmFailed": "The confirmation did not match. Nothing was sent.",
+  "v100ErrConfirmTimeout": "You did not confirm within 60 seconds. Nothing was sent. Start again if you still need it.",
+  "v100ErrCutOff": "Remote engine cut is switched off until it has been tested on a real vehicle.",
+  "v100ErrFewFixes": "The tracker has not sent enough stopped positions yet. Wait a minute with the vehicle standing still, then try again.",
+  "v100ErrTooManyLinks": "This vehicle already has 5 live links open. Turn one off first.",
+  "v100EveryDays": "every {n} days",
+  "@v100EveryDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100EveryKm": "every {km} km",
+  "@v100EveryKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceA11y": "Map for drawing an area, {n} points placed",
+  "@v100FenceA11y": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceAlertBoth": "alert on entering and leaving",
+  "v100FenceAlertEnter": "alert on entering",
+  "v100FenceAlertExit": "alert on leaving",
+  "v100FenceClear": "Clear",
+  "v100FenceDraw": "Draw an area on the map",
+  "v100FenceDrawHelp": "Tap the map at each corner of the area — at least 3 points, for example your factory gate, road corners and back wall.",
+  "v100FenceNoMap": "Drawing an area needs the street map, which is not set up yet on our server. Use \"Add an area here\" (a circle around the vehicle) for now.",
+  "v100FencePoints": "{n} points",
+  "@v100FencePoints": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceShape": "Drawn area, {n} points",
+  "@v100FenceShape": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceUndo": "Undo",
+  "v100FenceWhen": "When to alert",
+  "v100HarshAccel": "Sudden speed-up",
+  "v100HarshBrake": "Hard braking",
+  "v100Hours": "{n} h",
+  "@v100Hours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100Idling": "Engine on, standing",
+  "v100IgnNote": "Needs the tracker's ignition (ACC) wire connected. A start at night always alerts, even with these off.",
+  "v100IgnOffAlert": "Tell me when the engine stops",
+  "v100IgnOnAlert": "Tell me when the engine starts",
+  "v100LegendA11y": "Route colours: blue is calm, amber is near the {limit} km/h limit, red is over it.",
+  "@v100LegendA11y": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LegendCalm": "Calm",
+  "v100LegendNear": "Near the limit",
+  "v100LegendOver": "Over {limit} km/h",
+  "@v100LegendOver": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LicenceExpired": "Licence expired",
+  "v100LicenceIn": "Licence expires in {n} days",
+  "@v100LicenceIn": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LimitDefault": "No speed limit is set, so {limit} km/h is used. Set your own in the tracker settings.",
+  "@v100LimitDefault": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100Minutes": "{n} min",
+  "@v100Minutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100More": "More",
+  "v100OdoHelp": "Type it once. From then on we add the distance the tracker measures, and service reminders by km use it.",
+  "v100OdoLabel": "Dashboard reading now (km)",
+  "v100OdoManualHelp": "Only needed without a GPS tracker. With a tracker the distance is counted for you.",
+  "v100OdoSection": "Odometer (for service reminders)",
+  "v100OperatorLabel": "SIM in the tracker",
+  "v100OverLimit": "Above {limit} km/h",
+  "@v100OverLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100PapersPushNote": "Tax token, fitness, insurance and route permit: a reminder push 30, 7 and 1 day before each expires.",
+  "v100QuietBody": "Normal alerts stay in the app without a sound. Safety alerts (power cut, SOS, leaving an area, night start, tracker silent) always ring.",
+  "v100QuietTitle": "Quiet hours",
+  "v100ReportDay": "Day",
+  "v100ReportDays": "Days",
+  "v100ReportEmptyBody": "The tracker sent no trips for this day or month. If the vehicle did move, check that the tracker is online.",
+  "v100ReportEmptyTitle": "No driving in this period",
+  "v100ReportExport": "Save as spreadsheet (CSV)",
+  "v100ReportMonth": "Month",
+  "v100ReportNext": "Later",
+  "v100ReportOld": "Detailed positions are kept for 30 days. For older days only the daily totals remain, and none were saved for this day.",
+  "v100ReportPrev": "Earlier",
+  "v100ReportShareText": "Vehicle report from Assisto",
+  "v100ReportSource": "Worked out on our server from the positions your tracker sent. Distance ignores GPS jumps and parked wander.",
+  "v100ReportSub": "Distance, trips, driving time, top speed and the driving score. Save as a spreadsheet.",
+  "v100ReportTitle": "Daily and monthly report",
+  "v100RoutePermit": "Route permit",
+  "v100ScoreA11y": "Driving score {score} out of 100, {band}",
+  "@v100ScoreA11y": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ScoreGood": "Good driving",
+  "v100ScoreHow": "Starts at 100. Hard braking, sudden speed-ups and minutes above the limit lower it, counted per 100 km. It comes from GPS speed only — no phone sensors.",
+  "v100ScoreImprove": "Needs improvement",
+  "v100ScoreLimited": "Limited: the tracker reported too rarely (more than 10 s apart) to see every hard brake. Set a 5–10 s interval for a fuller score.",
+  "v100ScoreNone": "No driving yet",
+  "v100ScoreOk": "Fair — a little care needed",
+  "v100ScoreShort": "score {score}",
+  "@v100ScoreShort": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ScoreTitle": "Driving score",
+  "v100ServiceAdd": "Add a service reminder",
+  "v100ServiceHeader": "Servicing (by km and date)",
+  "v100ServiceRulesN": "{n} service reminders set",
+  "@v100ServiceRulesN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupConnected": "Tracker connected",
+  "v100SetupDisabled": "The tracker could not start",
+  "v100SetupElapsed": "Setup time so far {time}",
+  "@v100SetupElapsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupExpired": "Time is over",
+  "v100SetupExpiredBody": "The tracker did not connect in time. Check the SMS replies (\"OK\"), that the SIM has data, then try again.",
+  "v100SetupFirstFix": "Done — the first location arrived",
+  "v100SetupFirstFixBody": "Your vehicle is on the map now.",
+  "v100SetupIdHint10": "Sinotrack: if the label shows a 10-digit ID, that is the number the tracker sends. Either number works — we match them.",
+  "v100SetupLater": "Close — I'll finish later",
+  "v100SetupQr": "QR code",
+  "v100SetupQrBody": "The phone's camera opens the SMS app with this command and the tracker's number filled in.",
+  "v100SetupQrTitle": "Scan with another phone",
+  "v100SetupReplyOk": "After each SMS the tracker usually replies \"{ok}\". No reply? Check the tracker's password (default in its manual).",
+  "@v100SetupReplyOk": {
+    "placeholders": {
+      "ok": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupRetry": "Try again (new 10 minutes)",
+  "v100SetupSendSms": "Send SMS",
+  "v100SetupSendThese": "Send these SMS to the tracker's SIM ({op})",
+  "@v100SetupSendThese": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupTook": "Set up in {time} (minutes:seconds). Your vehicle is on the map now.",
+  "@v100SetupTook": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupWaiting": "Waiting for the tracker's first signal",
+  "v100SetupWaitingBody": "Send the SMS below to the tracker's SIM. Time left: {time}",
+  "@v100SetupWaitingBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupWaitingFix": "Waiting for the first GPS location. Keep the vehicle under the open sky for a minute.",
+  "v100ShareActive": "Open links",
+  "v100ShareCreate": "Make a link",
+  "v100ShareHowLong": "Keep the link open for",
+  "v100ShareLabel": "Who is it for? (optional)",
+  "v100ShareLabelHelp": "Only you see this name, to tell your links apart.",
+  "v100ShareMessage": "See where my vehicle is right now: {url}",
+  "@v100ShareMessage": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ShareNeedsPaired": "The tracker must be connected before you can share it.",
+  "v100ShareNone": "No open links.",
+  "v100ShareOnce": "Copy or send it now — for safety the full link is shown only once.",
+  "v100SharePrivacy": "The person sees only where the vehicle is now, its speed and when it was updated — never where it went before. The link stops by itself at the time you choose.",
+  "v100ShareReady": "Your link is ready",
+  "v100ShareRevoked": "Link turned off. It no longer shows any location.",
+  "v100ShareSend": "Send",
+  "v100ShareSub": "A link anyone can open without the app. It ends by itself; you can turn it off any time.",
+  "v100ShareTitle": "Share live location",
+  "v100ShareTurnOff": "Turn off",
+  "v100ShareUnnamed": "Link",
+  "v100ShareUntil": "Open until {when} · opened {n} times",
+  "@v100ShareUntil": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SilentAlert": "Alert when the tracker goes silent",
+  "v100SilentHelp": "No signal for this long can mean the tracker was unplugged, lost power, ran out of SIM data or has no network.",
+  "v100SimHelp": "With it we open your SMS app with each setup command filled in. It stays on this phone.",
+  "v100SimLabel": "Tracker SIM number (optional)",
+  "v100StepApn": "Set the internet (APN) of the tracker's SIM",
+  "v100StepGprs": "Switch on internet reporting",
+  "v100StepInterval": "Report every few seconds while driving",
+  "v100StepReset": "Start the tracker's setup",
+  "v100StepServer": "Point the tracker to Assisto's server",
+  "v100StopAlert": "Alert when stopped for a long time",
+  "v100SvcBrakes": "Brake check",
+  "v100SvcDoneToday": "Done today",
+  "v100SvcEveryDays": "Every … days (optional)",
+  "v100SvcEveryKm": "Every … km (optional)",
+  "v100SvcGeneral": "General service",
+  "v100SvcLastDate": "Date last done",
+  "v100SvcLastKm": "Odometer when last done (km)",
+  "v100SvcName": "What to do",
+  "v100SvcOil": "Engine oil",
+  "v100SvcTyres": "Tyres",
+  "v100TripsN": "{n} trips",
+  "@v100TripsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cgTitle": "Smart Cash Guard",
+  "cgPossibleCashRemoval": "Possible cash removal",
+  "cgDecideHint": "Watch the clip and decide — it may be nothing.",
+  "cgDecideTitle": "Possible cash removal — watch the clip and decide",
+  "cgAwayPill": "You were away",
+  "cgWatchClip": "Watch the clip",
+  "cgClipComing": "Clip on its way — tap to check",
+  "cgClipWatchedGone": "You watched the clip, so it was deleted. The photo stays.",
+  "cgClipExpiredGone": "The clip was deleted after 24 hours. The photo stays.",
+  "cgClipOpening": "Opening the clip on this phone…",
+  "cgClipPending": "The shop's device is still sending the clip. Try again in a few seconds.",
+  "cgClipGone": "This clip is no longer kept. The photo stays.",
+  "cgClipNotSealed": "This clip was locked for a different key on your account (for example before you reinstalled). Please look at the photo.",
+  "cgClipFailed": "Couldn't open the clip. Check your internet and try again.",
+  "cgClipLabel": "Clip from the cash camera, {seconds} seconds",
+  "@cgClipLabel": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "cgClipProgress": "Clip progress",
+  "cgClipSeconds": "{seconds}-second clip",
+  "@cgClipSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlay": "Play",
+  "cgPause": "Pause",
+  "cgClipDeleteOnView": "When you finish watching, our server deletes its copy. You can replay it until you close this.",
+  "cgClipDeletedNow": "Deleted from our server. It stays on this screen until you close it.",
+  "cgClipViewerNote": "Only the owner's watch deletes the clip. Otherwise it is deleted after 24 hours.",
+  "cgClipE2e": "Cut at your shop and locked with your phone's key — our server cannot open it.",
+  "cgAwayTitle": "I'm away",
+  "cgAwayBody": "While you are away every camera here is on guard, quiet hours are skipped and alerts ring loud.",
+  "cgAwayActive": "Away mode is on",
+  "cgAwayUntil": "Away until {time}",
+  "@cgAwayUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cgImAway": "I'm away",
+  "cgImBack": "I'm back",
+  "cgAwayHowLong": "How long will you be away?",
+  "cgAwayHours": "{hours} hours",
+  "@cgAwayHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cgAwayOnSaved": "Away mode is on. Alerts will ring loud.",
+  "cgAwayOffSaved": "Saved.",
+  "cgAwayEveryDay": "Away every day at a set time",
+  "cgAwayEveryDayBody": "For example lunch or prayer time, when you leave the shop.",
+  "cgSetupTitle": "Set up in 2 minutes",
+  "cgSetupStepZone": "Draw the cash drawer area with your finger",
+  "cgDrawZone": "Draw",
+  "cgSetupStepCamera": "A camera that sees the counter is added",
+  "cgSetupStepKeyOk": "Your phone's key is ready — clips can be locked for you",
+  "cgSetupStepKeyMissing": "Your phone's key is not ready yet — open the app once with internet; until then alerts come with a photo only",
+  "cgPlanTitle": "What your plan includes",
+  "cgPlanFree": "Free plan",
+  "cgPlanPremium": "Premium plan",
+  "cgPlanBusiness": "Business plan",
+  "cgPlanCaps": "{cameras} camera(s) included · {alerts} alerts a day · {clips} clips a day",
+  "@cgPlanCaps": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "alerts": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlanUsed": "Using {cameras} camera(s) · {clips} clip(s) today",
+  "@cgPlanUsed": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlanUpsell": "Business includes 4 cameras, 30 alerts and 10 clips a day. Past the limit you still get the alert count, never a silent miss.",
+  "cgPrivacyTitle": "Your video stays yours",
+  "cgPrivacyBody": "No full video ever reaches our server. For an alert we keep one photo, and a 3–5 second clip locked with your phone's key that our server cannot open — deleted after 24 hours or as soon as you watch it.",
+  "cgNeverAccuse": "We never blame anyone. An alert says what the camera saw; you decide.",
+  "cgHandPocketOff": "A \"hand to pocket\" label is off: we have not yet measured how accurate it is on real shop clips.",
+  "cgHandPocketOn": "The \"hand to pocket\" label is on (accuracy measured on real clips).",
+  "cgEzvizLink": "Link EZVIZ cloud alarms",
+  "cgEzvizHelp": "Enter the serial number (SN) and the 6-letter Verification Code from the sticker under the camera. The code is used once and never stored.",
+  "cgEzvizSerial": "Serial number (SN)",
+  "cgEzvizCode": "Verification Code",
+  "cgEzvizLinkButton": "Link",
+  "cgEzvizLinked": "Linked. The camera's own alarms now reach you within about a minute.",
+  "gbTitle": "Guard Box (old phone)",
+  "gbIntro": "Turn an old Android phone on the shop's Wi-Fi into a guard: it watches your shop camera, checks the cash area on the phone, and sends only alert photos and locked clips.",
+  "gbOpen": "Set up Guard Box",
+  "gbNotYet": "Guard Box is not available yet.",
+  "gbHonest": "Works with cameras that give a still picture on the local network (most ONVIF, Hikvision and Dahua/Imou cameras). Cameras that only give a live stream (such as TP-Link Tapo) still need the Shop Box PC.",
+  "gbStepPair": "1. Connect to your place",
+  "gbPairHelp": "On the owner's phone open Watchman → Connect device and copy the pairing code here.",
+  "gbPairCode": "Pairing code",
+  "gbPair": "Connect",
+  "gbPairWrong": "This pairing code is not right. Copy it again from the owner's phone.",
+  "gbOffline": "No internet. Check the Wi-Fi and try again.",
+  "gbPairedTo": "Connected to {place}",
+  "@gbPairedTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "gbPickCamera": "Which camera does this phone watch?",
+  "gbStepCamera": "2. The shop camera",
+  "gbCamReady": "Camera ready: {camera}",
+  "@gbCamReady": {
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      }
+    }
+  },
+  "gbFind": "Find cameras on this Wi-Fi",
+  "gbFindHelp": "Nothing found? Turn ONVIF on in the camera's settings, or type its IP address below.",
+  "gbVendor": "Camera type",
+  "gbCamIp": "Camera IP address",
+  "gbCamUser": "Camera user name",
+  "gbCamPass": "Camera password",
+  "gbCamPassNote": "Kept only on this phone, never sent to Assisto.",
+  "gbTest": "Test the camera",
+  "gbCamAuth": "The camera says the user name or password is wrong.",
+  "gbCamUnreachable": "Can't reach the camera. Is this phone on the same Wi-Fi?",
+  "gbCamNoSnapshot": "The camera answered but gave no picture. Choose another camera type, or use the Shop Box PC.",
+  "gbSetupTook": "Set up in {seconds} seconds",
+  "@gbSetupTook": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "gbStepRun": "3. Start guarding",
+  "gbRunHelp": "Keep this phone plugged in and on this screen. The screen stays on while it guards.",
+  "gbRunning": "Guarding the cash area",
+  "gbPlugIn": "Please plug the phone in — guarding uses the battery.",
+  "gbNoZone": "No cash area drawn yet. Draw it in Watchman → camera → Zones, then start again.",
+  "gbStats": "{frames} pictures checked · {ms} ms each · {events} alerts · {clips} clips sent",
+  "@gbStats": {
+    "placeholders": {
+      "frames": {
+        "type": "String"
+      },
+      "ms": {
+        "type": "String"
+      },
+      "events": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "gbDetectorPerson": "Person check on this phone: on",
+  "gbDetectorMotion": "Person check on this phone: not available — using movement in the cash area only",
+  "gbStart": "Start guarding",
+  "gbStop": "Stop",
+  "tg2AlreadyToday": "Already reminded today — one reminder a day per customer.",
+  "tg2BalAllowance": "This month's plan SMS: {left} of {total} left",
+  "@tg2BalAllowance": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2BalAllowanceNone": "Your plan has no monthly SMS. The Business plan includes SMS every month.",
+  "tg2BalBuy": "Buy",
+  "tg2BalEmpty": "No SMS balance. Assisto never sends an SMS without balance — buy a pack or send free on Assisto or WhatsApp.",
+  "tg2BalFreeFirst": "Free first: customers on Assisto get the reminder in the app, and WhatsApp or your own SIM are always free. Use Assisto SMS only for customers you can't reach any other way.",
+  "tg2BalHubSub": "Plan SMS and SMS packs for reminders",
+  "tg2BalLow": "Low balance — buy an SMS pack before your next Assisto SMS.",
+  "tg2BalNoExpiry": "Pack SMS never expire. Plan SMS reset at the start of each month.",
+  "tg2BalNotReady": "Assisto SMS isn't connected yet — send on Assisto, WhatsApp or your own SIM.",
+  "tg2BalPack": "SMS pack balance: {n}",
+  "@tg2BalPack": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2BalPackRow": "{parts} SMS",
+  "@tg2BalPackRow": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2BalPacksTitle": "SMS packs",
+  "tg2BalParts": "One Bangla SMS holds 70 letters (67 per part when the message is longer). English: 160 (153). Each part counts as one SMS.",
+  "tg2BalSoon": "SMS packs aren't on sale yet. Until then, send free in Assisto, on WhatsApp or from your own SIM.",
+  "tg2BalSoonShort": "Not on sale yet",
+  "tg2BalTitle": "SMS balance",
+  "tg2BalTotal": "You can send {n} SMS",
+  "@tg2BalTotal": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2Block": "Block this shop",
+  "tg2BlockAction": "Block",
+  "tg2BlockConfirmBody": "{shop} won't be able to send you reminders or messages in Assisto, and you can't chat with them. The shop only sees \"not reachable\" — it isn't told that you blocked it. Your dues stay in the shop's khata.",
+  "@tg2BlockConfirmBody": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2BlockConfirmTitle": "Block {shop}?",
+  "@tg2BlockConfirmTitle": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2BlockSub": "No reminders or messages from this shop.",
+  "tg2Blocked": "Blocked",
+  "tg2BlockedNote": "Blocked — no reminders or messages from this shop. Unblock below to chat again.",
+  "tg2Chat": "Chat",
+  "tg2ChatBlockedYou": "You blocked this shop. Unblock it to chat.",
+  "tg2ChatEmpty": "No messages yet. Say hello.",
+  "tg2ChatFailed": "Couldn't send. Try again.",
+  "tg2ChatHint": "Type a message",
+  "tg2ChatNotOnAssisto": "{name} isn't on Assisto yet. Invite them — then you can chat here and every reminder is free.",
+  "@tg2ChatNotOnAssisto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2ChatPrivacy": "Only you and the other side see this chat. It is kept on Assisto's server (not end-to-end encrypted).",
+  "tg2ChatReminderTag": "Reminder",
+  "tg2ChatSend": "Send",
+  "tg2ChatTitle": "Chat: {name}",
+  "@tg2ChatTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2ChatWithShop": "Chat with the shop",
+  "tg2Done": "Done",
+  "tg2DuesEmptyBody": "No shop using Assisto has recorded a due for your number.",
+  "tg2DuesEmptyTitle": "No dues",
+  "tg2DuesIntro": "What shops wrote in their khata for your number {phone} — only their entries for you.",
+  "@tg2DuesIntro": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2DuesLast": "Last entry {date}",
+  "@tg2DuesLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2DuesMuted": "Muted",
+  "tg2DuesSavedCopy": "No internet — showing your last saved copy.",
+  "tg2DuesTitle": "My dues",
+  "tg2DuesTotal": "You owe in total",
+  "tg2DuesUnread": "{n} new",
+  "@tg2DuesUnread": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2DuesUnverifiedBody": "Shops record dues by mobile number. To protect you, we show them only after your number is verified with a code.",
+  "tg2DuesUnverifiedTitle": "Verify your phone number",
+  "tg2EntryDue": "Due added",
+  "tg2EntryPaid": "Paid",
+  "tg2GatewayBtn": "Assisto SMS · {parts} SMS",
+  "@tg2GatewayBtn": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2InvBody": "When {name} joins Assisto with this number, your reminders reach them in the app — free, no SMS cost.",
+  "@tg2InvBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2InvCreate": "Create invite",
+  "tg2InvFailed": "Couldn't create the invite. Try again.",
+  "tg2InvSendSms": "Send by my SMS",
+  "tg2InvSendWa": "Send on WhatsApp",
+  "tg2InvShare": "Share",
+  "tg2InvStatusInvited": "Invited — waiting for them to join.",
+  "tg2InvStatusJoined": "{name} is on Assisto — reminders are free.",
+  "@tg2InvStatusJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2InvTitle": "Invite to Assisto",
+  "tg2InviteFree": "Invite to Assisto (future reminders free)",
+  "tg2InvitedAgain": "Invited — send again",
+  "tg2LowBalanceBuy": "Low balance — buy SMS",
+  "tg2Mute": "Mute this shop",
+  "tg2MuteSub": "No notifications from this shop. Reminders still show here.",
+  "tg2NotReachable": "Not reachable",
+  "tg2PayCopied": "Number copied — paste it in the app.",
+  "tg2PayCopyOpen": "Copy number and open {app}",
+  "@tg2PayCopyOpen": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2PayDial": "Dial {code}",
+  "@tg2PayDial": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2PayMerchant": "Merchant number",
+  "tg2PayNever": "Assisto never takes or moves your money — you pay the shop directly from your own app.",
+  "tg2PayNoNumber": "This shop hasn't shared a bKash or Nagad number yet. Ask the shop in chat how to pay.",
+  "tg2PayOpenFailed": "Couldn't open the app. The number is copied — you can also pay by dialling the code.",
+  "tg2PayPersonal": "Personal number",
+  "tg2PayStepAmount": "Enter the amount ({amount}) and write your name as the reference.",
+  "@tg2PayStepAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2PayStepMerchantPay": "Tap \"Merchant Pay\".",
+  "tg2PayStepNumber": "Paste or type the number {number}.",
+  "@tg2PayStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2PayStepOpen": "Open {app}.",
+  "@tg2PayStepOpen": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2PayStepPayment": "Tap \"Payment\".",
+  "tg2PayStepPin": "Enter your PIN and confirm. Keep the transaction ID.",
+  "tg2PayStepSendMoney": "Tap \"Send Money\".",
+  "tg2PayStepTell": "Tell the shop in chat that you paid — the shop updates its khata.",
+  "tg2PayTitle": "How to pay",
+  "tg2Rocket": "Rocket",
+  "tg2RouteAssistoNote": "{name} uses Assisto — the reminder goes into the app, free.",
+  "@tg2RouteAssistoNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2RouteShareNote": "Not on Assisto yet — send free on WhatsApp or from your own SIM.",
+  "tg2SaveFailed": "Couldn't save. Try again.",
+  "tg2SendAssistoFree": "Send in Assisto — free",
+  "tg2SentAssisto": "Sent in Assisto (free)",
+  "tg2ShopEntries": "Recent entries",
+  "tg2ShopNoEntries": "No entries yet.",
+  "tg2SmsBalanceLine": "SMS balance: {allowance} plan SMS this month + {pack} pack SMS",
+  "@tg2SmsBalanceLine": {
+    "placeholders": {
+      "allowance": {
+        "type": "String"
+      },
+      "pack": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2SmsBalanceOpen": "SMS balance",
+  "tg2SmsConfirmBody": "Send {name} an SMS from Assisto? It uses {parts} SMS from your balance. Left after this: {left}.",
+  "@tg2SmsConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "parts": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2SmsSentParts": "SMS sent — {parts} SMS used",
+  "@tg2SmsSentParts": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "tg2SchedModeAssisto": "In Assisto (free) when the customer is on Assisto",
+  "tg2SchedModeAssistoSub": "Sent automatically in the app at the set time. If they aren't on Assisto, you get a reminder to send it yourself.",
+  "tg2VerifyButton": "Verify my number",
+  "tg2VerifyTitle": "Verify your number",
+  "tg2VerifyIntro": "We'll send a code to your own number. Once you enter it, your number is verified and dues shops recorded for it show up here.",
+  "tg2VerifyNumber": "Your number",
+  "tg2VerifyResend": "Send the code again",
+  "tg2VerifyDone": "Your number is verified."
 }

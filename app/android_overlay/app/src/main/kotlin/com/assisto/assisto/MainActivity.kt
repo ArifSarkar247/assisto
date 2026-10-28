@@ -348,6 +348,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // cashguard: Guard Box on-device person model ("com.assisto/guardbox").
+        // Handler only — the ORT session is created on the first detect()
+        // from an open Guard Box screen (flag guard_box_mode), never at launch.
+        try {
+            com.assisto.assisto.guardbox.GuardBoxChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

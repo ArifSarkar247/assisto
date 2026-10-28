@@ -444,16 +444,30 @@ _SMS_DEFAULTS = {
     # ledger due reminders — charged to the business owner as credits
     "tagada_per_phone_day": 1, "tagada_per_user_day": 200,
     "tagada_per_business_day": 200, "tagada_global_day": 5000,
+    # crm100: a seller's own 1:1 message to one customer from the CRM (the
+    # seller taps Send on each one) — charged like tagada, same STOP + quiet
+    # hours guard; never marketing blasts (bulk = one card per customer)
+    "crm_per_phone_day": 1, "crm_per_user_day": 100,
+    "crm_per_business_day": 100, "crm_global_day": 3000,
     # safety (SOS / journey / family alerts) — free, strict, company cost
     "safety_per_phone_day": 6, "safety_per_user_day": 20, "safety_global_day": 1000,
+    # tagada2: Assisto-sent tagada SMS are paid in SMS PARTS (core/sms_wallet),
+    # never AI credits. Business plan monthly allowance (proposal, owner
+    # approves — owner_actions/SMS_PACKS_BN.md), the low-balance prompt line,
+    # and the SMS-pack switch (0 = packs NOT sold even when Play verifies them).
+    "business_monthly_parts": 30, "low_balance_parts": 10, "packs_on_sale": 0,
 }
 _SMS_INT_BOUNDS = {
+    "business_monthly_parts": (0, 2000), "low_balance_parts": (0, 500),
+    "packs_on_sale": (0, 1),
     "max_segments": (1, 10),
     "otp_per_phone_day": (0, 50), "otp_per_user_day": (0, 50), "otp_global_day": (0, 100000),
     "verify_per_phone_day": (0, 50), "verify_per_user_day": (0, 50),
     "verify_global_day": (0, 100000),
     "tagada_per_phone_day": (0, 5), "tagada_per_user_day": (0, 1000),
     "tagada_per_business_day": (0, 1000), "tagada_global_day": (0, 200000),
+    "crm_per_phone_day": (0, 3), "crm_per_user_day": (0, 500),
+    "crm_per_business_day": (0, 500), "crm_global_day": (0, 100000),
     "safety_per_phone_day": (0, 30), "safety_per_user_day": (0, 100),
     "safety_global_day": (0, 50000),
 }
@@ -1480,6 +1494,11 @@ def plan_benefits(pid, lang, cfg):
         msg = _P40.plan_message_line(pid, n, cfg, bn)
         if msg:
             lines[0] = msg
+            # the message line already says "+ 10 free quick replies a day":
+            # never list it a second time (seen live on Premium Pro, 28 Oct)
+            dup = "ফ্রি দ্রুত উত্তর" if bn else "free quick replies"
+            if dup in msg:
+                lines = [lines[0]] + [x for x in lines[1:] if dup not in x]
     if pid == "premium":
         fam = s["family"]
         if fam > 0:
@@ -1535,7 +1554,7 @@ def plan_public(lang, cfg):
         "id": "annual",
         "name": pick(lang, "বার্ষিক (প্রিমিয়াম)", "Annual (Premium)"),
         "price": yearly, "cur": CUR, "period": "yr",
-        "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
+        "desc": pick(lang, f"প্রিমিয়াম — বছরে, {_bn_num(disc)}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
         "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],

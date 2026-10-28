@@ -139,6 +139,16 @@ class OTPCode(models.Model):
         indexes = [models.Index(fields=["identifier", "purpose", "used"])]
 
 
+class LegacyMemoryManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(kind="")
+
+
+class LifeGraphManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(kind="")
+
+
 class MemoryItem(models.Model):
     """'AI কী জানে' page. Every item is editable and deletable by the user.
     source marks whether the AI captured it or the user wrote it (design #1)."""
@@ -155,9 +165,29 @@ class MemoryItem(models.Model):
     needs_review = models.BooleanField(default=False)        # low-confidence → review queue
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # ---- agentmem ---- life-graph memory (core/agentcore/memory.py, flag
+    # agent_core). A row with kind != "" is a typed life-graph fact: its
+    # content (label/value/relation/when/provenance/history) is a Fernet-
+    # sealed JSON node in `detail`; title is a content-free placeholder.
+    # Legacy "AI knows" rows keep kind="" and are untouched.
+    kind = models.CharField(max_length=12, blank=True, default="", db_index=True)
+    status = models.CharField(max_length=10, blank=True, default="active")  # active|suggested|rejected
+    sensitive = models.BooleanField(default=False)          # health/religion/politics… never sent to AI
+    origin = models.CharField(max_length=10, blank=True, default="")  # user|run|learn
+    fingerprint = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    # Default manager = legacy items only, so every old path (list, search,
+    # export, PDF/XLSX, badges, job matching, admin) never sees sealed graph
+    # rows. Cascades use the unfiltered base manager, so deleting a user still
+    # removes every row. Life-graph code uses MemoryItem.graph.
+    objects = LegacyMemoryManager()
+    graph = LifeGraphManager()
+    all_rows = models.Manager()
 
     class Meta:
         ordering = ["-updated_at"]
+        base_manager_name = "all_rows"
 
 
 class AuditLog(models.Model):
@@ -519,11 +549,35 @@ class Document(models.Model):
     # Type-specific structured fields (e.g. passport number, policy no.) kept as a
     # real JSON map so values with ; | = are never corrupted (vault P1 fix).
     details = models.JSONField(default=dict, blank=True)
+    # vault100: per-document opt-out of the server expiry pushes (60/30/7/1
+    # days before expiry_date). Metadata only — the push never carries the
+    # title, numbers or the file.
+    expiry_alerts = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["expiry_date", "-updated_at"]
+
+
+class DocExpiryPush(models.Model):
+    """vault100 — one row per (document, stage, expiry date) expiry push.
+    The UNIQUE constraint is the claim: a row is inserted BEFORE the push is
+    sent, so overlapping cron runs / retries can never send one stage twice
+    (at-most-once). A changed expiry date starts a fresh cycle."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                 related_name="expiry_pushes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="doc_expiry_pushes")
+    stage = models.PositiveSmallIntegerField()        # 60 / 30 / 7 / 1
+    expiry_date = models.DateField()
+    sent_at = models.DateTimeField(default=timezone.now)  # the sweep's clock
+    delivered = models.PositiveSmallIntegerField(default=0)  # devices reached
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["document", "stage", "expiry_date"], name="uniq_doc_expiry_stage")]
+        indexes = [models.Index(fields=["user", "sent_at"])]
 
 
 class EmergencyCard(models.Model):
@@ -1998,10 +2052,23 @@ class KhataParty(models.Model):
     vip = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # tagada2: the canonical E.164 form of `phone` (core.phone.canonical_phone),
+    # kept in step by save(). My Dues finds a customer's shops by it and the
+    # send-order engine matches it to a VERIFIED Assisto account.
+    phone_canon = models.CharField(max_length=24, blank=True, default="",
+                                   db_index=True)
 
     class Meta:
         indexes = [models.Index(fields=["business", "book"]),
                    models.Index(fields=["business", "phone"])]
+
+    def save(self, *args, **kwargs):
+        from .phone import canonical_phone
+        self.phone_canon = canonical_phone(self.phone or "") or ""
+        uf = kwargs.get("update_fields")
+        if uf is not None and "phone" in uf and "phone_canon" not in uf:
+            kwargs["update_fields"] = list(uf) + ["phone_canon"]
+        super().save(*args, **kwargs)
 
 
 class KhataEntry(models.Model):
@@ -3257,6 +3324,11 @@ class ShopSite(models.Model):
                                blank=True)
     # {"day": "YYYY-MM-DD", "suppressed": n} — alerts held back by the daily cap
     stats = models.JSONField(default=dict, blank=True)
+    # ---- cashguard (Smart Cash Guard, owner 28 Oct) ---- owner-away mode:
+    # {"until": ISO-8601 | null, "schedule": zones-v2 schedule | null}. While
+    # away every camera is armed, quiet hours are ignored, alerts are high
+    # priority. Server-side only — a device can never claim it.
+    away = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created"]
@@ -3398,6 +3470,30 @@ class ShopEvent(models.Model):
         indexes = [models.Index(fields=["site", "-created"]),
                    models.Index(fields=["site", "status"]),
                    models.Index(fields=["site", "type"])]
+
+
+class ShopEventClip(models.Model):
+    """cashguard: the ONE short clip (3-5 s) an event may carry — as
+    CIPHERTEXT ONLY. The edge cuts it from the local stream and seals it with
+    a per-event key wrapped for the owner's / viewers' X25519 public keys
+    (core/logic/cash_guard.py), so this server cannot open it. Kept at most
+    24 h (`expires_at`) or until the site owner has watched it; then the
+    bytes are deleted and only this tombstone row (no media) remains."""
+    STATUS = [("ready", "ready"), ("viewed", "viewed"), ("expired", "expired")]
+    event = models.OneToOneField(ShopEvent, on_delete=models.CASCADE,
+                                 related_name="clip")
+    blob = models.FileField(upload_to="shop/clip/", null=True, blank=True)
+    meta = models.JSONField(default=dict, blank=True)   # public envelope only
+    size = models.PositiveIntegerField(default=0)
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    status = models.CharField(max_length=8, choices=STATUS, default="ready")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["status", "expires_at"])]
 
 
 class ShopPosEvent(models.Model):
@@ -3737,7 +3833,8 @@ class VehicleTracker(models.Model):
               ("paired", "paired"),
               ("expired", "expired"),       # pairing window passed, never connected
               ("disabled", "disabled")]     # unpaid / owner turned off
-    PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika")]
+    PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika"),
+                 ("h02", "h02"), ("tk103", "tk103")]
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="vehicle_trackers")
     vehicle_record = models.ForeignKey("PaCollectionItem", null=True, blank=True,
@@ -3776,11 +3873,24 @@ class VehicleTracker(models.Model):
                                  on_delete=models.SET_NULL,
                                  related_name="approver_for_vehicles")
     alert_state = models.JSONField(default=dict, blank=True)   # evaluate_alerts state
+    # veh100: opt-in alert switches + caps {ignition_on, ignition_off,
+    # stop_alert_min, silent_min, quiet_start, quiet_end, daily_push_cap}
+    alert_prefs = models.JSONField(default=dict, blank=True)
+    # veh100: server-measured distance since pairing (metres, GPS, jumps and
+    # parked wander removed) + the owner's dashboard reading as a base.
+    odometer_m = models.FloatField(default=0)
+    odometer_base_km = models.FloatField(default=0)
+    odometer_base_m = models.FloatField(default=0)    # odometer_m when the base was set
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]
+
+    @property
+    def odometer_km(self):
+        return round(self.odometer_base_km +
+                     max(0.0, self.odometer_m - self.odometer_base_m) / 1000.0, 1)
 
 
 class VehiclePosition(models.Model):
@@ -3810,7 +3920,8 @@ class VehicleCommand(models.Model):
     it is never set from our side alone."""
     KINDS = [("engine_cut", "engine_cut"), ("engine_restore", "engine_restore"),
              ("set_interval", "set_interval")]
-    STATES = [("awaiting_approval", "awaiting_approval"), ("queued", "queued"),
+    STATES = [("awaiting_confirm", "awaiting_confirm"),   # veh100: 2nd confirmation
+              ("awaiting_approval", "awaiting_approval"), ("queued", "queued"),
               ("sent", "sent"), ("acked", "acked"), ("failed", "failed"),
               ("cancelled", "cancelled"), ("rejected", "rejected"),
               ("expired", "expired")]
@@ -3829,6 +3940,7 @@ class VehicleCommand(models.Model):
     server_flag = models.BigIntegerField(default=0)   # GT06 reply matching
     response = models.TextField(blank=True, default="")
     fail_reason = models.CharField(max_length=24, blank=True, default="")
+    confirm_hash = models.CharField(max_length=64, blank=True, default="")  # veh100
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     done_at = models.DateTimeField(null=True, blank=True)
@@ -3869,6 +3981,88 @@ class VehicleAuditLog(models.Model):
 
     class Meta:
         ordering = ["-at"]
+
+
+# ---- veh100 ---- share link, drivers, daily report rows, reminder claims
+class VehicleShareLink(models.Model):
+    """A no-login live-location link lifeassisto.com/v/<token>. Only the
+    SHA-256 of the token is stored; it shows ONLY the current position (no
+    history), stops at expires_at or when revoked, and is rate-limited."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="share_links")
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    token_hash = models.CharField(max_length=64, unique=True)
+    label = models.CharField(max_length=40, blank=True, default="")
+    expires_at = models.DateTimeField()
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    views = models.PositiveIntegerField(default=0)
+    last_view_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class VehicleDriverShift(models.Model):
+    """Who drove which vehicle when. `driver` is the owner's driver record
+    (PaCollectionItem collection='vehicle/drivers'); one open shift per
+    tracker (ended_at null)."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="driver_shifts")
+    driver = models.ForeignKey("PaCollectionItem", on_delete=models.CASCADE,
+                               related_name="vehicle_shifts")
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField(null=True, blank=True)
+    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+
+    class Meta:
+        ordering = ["-started_at"]
+        indexes = [models.Index(fields=["tracker", "started_at"]),
+                   models.Index(fields=["driver", "started_at"])]
+
+
+class VehicleDailyStat(models.Model):
+    """One Dhaka day of one tracker (driver_id 0 = whole vehicle; >0 = that
+    driver's share). Rolled up nightly (vehicle_daily_rollup) so a monthly
+    report never re-reads a month of raw fixes and survives position pruning."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="daily_stats")
+    day = models.DateField()
+    driver_id = models.IntegerField(default=0)
+    km = models.FloatField(default=0)
+    trips = models.IntegerField(default=0)
+    moving_s = models.IntegerField(default=0)
+    idle_s = models.IntegerField(default=0)
+    max_kmh = models.FloatField(default=0)
+    overspeed_s = models.IntegerField(default=0)
+    harsh_brake = models.IntegerField(default=0)
+    harsh_accel = models.IntegerField(default=0)
+    night_trips = models.IntegerField(default=0)
+    score = models.IntegerField(null=True, blank=True)
+    coverage = models.FloatField(default=0)
+    alerts = models.IntegerField(default=0)
+    computed_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["day"]
+        constraints = [models.UniqueConstraint(
+            fields=["tracker", "day", "driver_id"], name="uniq_vehicle_day_driver")]
+
+
+class VehicleReminderClaim(models.Model):
+    """At-most-once claim for a vehicle reminder push (paper expiry stage or a
+    maintenance rule's due cycle). The UNIQUE key is inserted BEFORE the push."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    key = models.CharField(max_length=120)
+    sent_at = models.DateTimeField(default=timezone.now)
+    delivered = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "key"],
+                                               name="uniq_vehicle_reminder_claim")]
+        indexes = [models.Index(fields=["user", "sent_at"])]
+# ---- /veh100 ----
 # ---- /v1-vehicle ----
 
 
@@ -4511,6 +4705,12 @@ class AntiTheftEngine(models.Model):
     # hash of the Wi-Fi the engine last reported (for "save my home Wi-Fi").
     last_wifi_hash = models.CharField(max_length=64, blank=True, default="")
     last_wifi_at = models.DateTimeField(null=True, blank=True)
+    # at100: the owner's explicit, versioned consent to the intruder photo
+    # (the full consent screen — what, when, where, who, retention, delete).
+    # intruder_photo cannot be switched on without it; switching it off keeps
+    # the record (when consent was given) for the audit trail.
+    intruder_consent_at = models.DateTimeField(null=True, blank=True)
+    intruder_consent_v = models.PositiveSmallIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -4556,6 +4756,52 @@ class AntiTheftEvent(models.Model):
     class Meta:
         ordering = ["-at", "-id"]
         unique_together = [("phone", "client_id")]
+
+
+class AntiTheftCommand(models.Model):
+    """at100 — one remote switch sent to a protected phone (lost mode, loud
+    alarm, lock, lock-screen message, stop alarm) by its owner or an approved
+    trusted contact. The server is the only path: authenticated, rate-limited,
+    audited. `state` is the HONEST delivery state:
+
+      queued    stored; the phone has not checked in since (offline / off —
+                it runs when the phone reconnects, until expires_at)
+      sent      a wake-up push was handed to Google (FCM) for the phone
+      delivered the phone's engine fetched it (it reached the phone)
+      done      the phone reported it did it (detail = what exactly)
+      failed    the phone reported it could not (detail = why)
+      expired   the phone never came online before expires_at
+      cancelled the requester / owner cancelled it, or a newer one replaced it
+
+    A switched-off phone can receive nothing; we never claim otherwise."""
+    KINDS = [("lost_mode", "lost_mode"), ("alarm", "alarm"),
+             ("alarm_stop", "alarm_stop"), ("lock", "lock"),
+             ("message", "message")]
+    STATES = [("queued", "queued"), ("sent", "sent"),
+              ("delivered", "delivered"), ("done", "done"),
+              ("failed", "failed"), ("expired", "expired"),
+              ("cancelled", "cancelled")]
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="remote_commands")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    requested_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                     blank=True, related_name="+")
+    by_owner = models.BooleanField(default=False)
+    message = models.CharField(max_length=300, blank=True, default="")
+    contact = models.CharField(max_length=120, blank=True, default="")
+    state = models.CharField(max_length=12, choices=STATES, default="queued",
+                             db_index=True)
+    detail = models.CharField(max_length=80, blank=True, default="")
+    push_sent = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["phone", "state"])]
 # ---- /b6-antitheft ----
 
 
@@ -6458,3 +6704,123 @@ class ProbashiReport(models.Model):
         constraints = [models.UniqueConstraint(fields=["recipient", "month"],
                                                name="probashi_report_once")]
 # ---- /probashi-plan ----
+
+
+# ---- agentmem ---- per-user life-graph memory settings (pause learning,
+# retention). A missing row = learning ON, 18-month retention.
+class AgentMemoryPrefs(models.Model):
+    RETENTION_CHOICES = (6, 12, 18, 24)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agent_memory_prefs")
+    learning_paused = models.BooleanField(default=False)
+    retention_months = models.SmallIntegerField(default=18)
+    last_learned_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /agentmem ----
+
+
+# ---- tagada2 ---- send order (Assisto free -> WhatsApp/own SIM free ->
+# Assisto SMS paid), My Dues, shop <-> customer chat, SMS allowance + packs.
+# Logic: core/tagada_engine.py, core/sms_wallet.py, core/logic/tagada_route.py.
+class KhataInvite(models.Model):
+    """The shop invited THIS khata customer to Assisto (invite-join short
+    code). Joined = the customer's number is now a VERIFIED account."""
+    party = models.OneToOneField(KhataParty, on_delete=models.CASCADE,
+                                 related_name="assisto_invite")
+    code = models.CharField(max_length=16, blank=True, default="")
+    invited_at = models.DateTimeField(default=timezone.now)
+    times = models.PositiveIntegerField(default=1)
+    joined_user = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    joined_at = models.DateTimeField(null=True, blank=True)
+
+
+class ShopPref(models.Model):
+    """A customer's choice about ONE shop: mute (no push for its reminders /
+    messages) or block (no tagada on any channel, no chat; the shop only
+    ever sees "not reachable")."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shop_prefs")
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="customer_prefs")
+    muted = models.BooleanField(default=False)
+    blocked = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "business"],
+                                               name="shop_pref_once")]
+
+
+class TagadaSend(models.Model):
+    """One tagada that went to one customer (any channel). The unique
+    (business, phone_key, day) row IS the server-side "max 1 per customer per
+    day" rule: a second claim the same Dhaka day fails at the database."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="tagada_sends")
+    party = models.ForeignKey(KhataParty, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="tagada_sends")
+    phone_key = models.CharField(max_length=40)     # +8801… or "p:<party id>"
+    day = models.DateField()                        # Asia/Dhaka calendar day
+    channel = models.CharField(max_length=16)       # assisto|whatsapp|own_sms|gateway_sms
+    parts = models.PositiveSmallIntegerField(default=0)
+    pay_hint = models.JSONField(default=dict, blank=True)
+    by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                           related_name="+")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["business", "phone_key", "day"],
+                                               name="tagada_once_a_day")]
+        indexes = [models.Index(fields=["business", "day"])]
+
+
+class KhataChat(models.Model):
+    """One message between a shop and ONE verified Assisto customer, about
+    their khata. Plain server-side text (not E2E — said in the app), max
+    1000 chars; kind 'tagada' = a reminder the shop sent in Assisto."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="khata_chats")
+    party = models.ForeignKey(KhataParty, on_delete=models.CASCADE,
+                              related_name="chats")
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="khata_chats")
+    sender = models.CharField(max_length=8)          # shop|customer
+    kind = models.CharField(max_length=8, default="text")   # text|tagada
+    text = models.TextField(max_length=1000)
+    sent_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["business", "customer", "created_at"]),
+                   models.Index(fields=["party", "created_at"])]
+
+
+class SmsWallet(models.Model):
+    """SMS PARTS a shop owner can spend on Assisto-sent SMS (never AI
+    credits, never cash). `month_used` counts the Business plan's monthly
+    allowance used in `month` (YYYY-MM Dhaka; resets, never rolls over);
+    `pack_parts` are bought SMS-pack parts (never expire)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="sms_wallet")
+    pack_parts = models.IntegerField(default=0)
+    month = models.CharField(max_length=7, blank=True, default="")
+    month_used = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SmsPartLedger(models.Model):
+    """Append-only: every change of an SmsWallet (spend / refund / pack
+    grant / refund-revoke). grant_key makes a retried grant a no-op."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sms_part_ledger")
+    bucket = models.CharField(max_length=10)         # allowance|pack
+    delta = models.IntegerField()
+    reason = models.CharField(max_length=12)         # spend|refund|grant|revoke|adjust
+    ref = models.CharField(max_length=120, blank=True, default="")
+    grant_key = models.CharField(max_length=160, null=True, blank=True, unique=True)
+    pack_after = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["user", "created_at"])]
+# ---- /tagada2 ----

@@ -18,11 +18,11 @@ name: iOS compile check (Assisto)
 
 on:
   workflow_dispatch: {}
-  push:
-    branches: [ main ]
-    paths:
-      - 'app/**'
-      - '.github/workflows/ios.yml'
+  # Cost control (owner 28 Oct): macOS minutes bill at 10x Linux on a private
+  # repo, so the iOS compile check runs weekly (Sunday 20:00 UTC) and on
+  # demand instead of on every main push. Android is the launch platform.
+  schedule:
+    - cron: '0 20 * * 0'
 
 concurrency:
   group: ios-check-${{ github.ref }}

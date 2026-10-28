@@ -579,15 +579,18 @@ class ImouCallbackView(APIView):
                 continue
             ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now)
             snap = None
+            raw = None
             if a["pic"] and cam.site.snapshot_retention_days > 0:
                 raw = IM.fetch_snapshot(a["pic"])
                 if raw and not SV.looks_like_video(raw):
                     snap = SV._small_jpeg(raw, "imou%d.jpg" % cam.id)
+            etype, sig = SV.vendor_alarm_event(
+                cam, raw if snap is not None else None,
+                {"human": a["human"], "vendor": "imou",
+                 "alarm_type": "human" if a["human"] else "motion"}, now)
             decision, ev = SV._ingest_event(
-                cam.site, cam, {"type": "camera_alarm", "at": now.timestamp(),
-                                "signals": {"human": a["human"], "vendor": "imou",
-                                            "alarm_type": "human" if a["human"]
-                                            else "motion"}}, now, snap)
+                cam.site, cam, {"type": etype, "at": now.timestamp(),
+                                "signals": sig}, now, snap)
             out.append({"raised": ev is not None,
                         "grouped": bool(decision.get("grouped"))})
         return Response({"ok": True, "events": out})

@@ -34,11 +34,15 @@ object RestartPolicy {
     const val APP = "app"
     const val UPDATE = "update"
     const val BOOT = "boot"
+    // at100: a silent high-priority "at_command" FCM push (a remote switch is
+    // waiting). Android 12+ allows a foreground-service start for a
+    // high-priority FCM message; Android 14+ still checks the location type.
+    const val PUSH = "push"
 
     /** Start the foreground service now from [trigger]? */
     fun canStart(trigger: String, sdk: Int, hasBackgroundLocation: Boolean): Boolean {
         if (trigger == APP) return true
-        if (trigger != UPDATE && trigger != BOOT) return false
+        if (trigger != UPDATE && trigger != BOOT && trigger != PUSH) return false
         if (sdk >= 34) return hasBackgroundLocation
         return true
     }
@@ -48,5 +52,6 @@ object RestartPolicy {
 
     /** Show the "tap to resume protection" notification instead? */
     fun needsTapToResume(trigger: String, sdk: Int, hasBackgroundLocation: Boolean): Boolean =
-        (trigger == UPDATE || trigger == BOOT) && !canStart(trigger, sdk, hasBackgroundLocation)
+        (trigger == UPDATE || trigger == BOOT || trigger == PUSH) &&
+            !canStart(trigger, sdk, hasBackgroundLocation)
 }

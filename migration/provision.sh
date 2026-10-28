@@ -191,6 +191,7 @@ cat > /etc/cron.d/assisto-app <<CRON
 0 * * * * $APP_USER nice -n15 $V $M purge_deletions >> $ASSISTO/backend/logs/purge_deletions.log 2>&1
 15 3 * * * $APP_USER nice -n15 $V $M storage_recompute >/dev/null 2>&1
 30 3 * * * $APP_USER nice -n15 $V $M shop_prune_snapshots >/dev/null 2>&1
+17 * * * * $APP_USER nice -n15 ionice -c3 $V $M shop_clip_purge >/dev/null 2>&1
 CRON
 mkdir -p "$ASSISTO/backend/logs"; chown -R "$APP_USER:$APP_USER" "$ASSISTO/backend/logs"
 cat > /etc/cron.d/assisto-backup <<CRON

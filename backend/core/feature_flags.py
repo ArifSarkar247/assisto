@@ -65,11 +65,15 @@ REGISTRY = (
     ('emergency', 'family_safety', 'Emergency', 'ইমার্জেন্সি', True, ('emergency', 'voice_sos')),
     ('scam_check', 'family_safety', 'Scam protection', 'প্রতারণা সুরক্ষা', True, ('scam',)),
     ('fall_detect', 'family_safety', 'Accident / fall detection', 'দুর্ঘটনা/পতন শনাক্তকরণ', False, ('fall_detect',)),
-    ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
+    ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'watched_phones', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
     ('cctv_watchman', 'family_safety', 'CCTV watchman (Shop Box)', 'সিসিটিভি ওয়াচম্যান (শপ বক্স)', True, ('shop_box',)),
     # launch (owner 27 Oct): CCTV + vehicle tracking are LAUNCH features, not
     # previews — visible by default once their E2E passed (tests_e2e_cctv).
     ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', True, ('watchman',)),
+    # cashguard (owner 28 Oct): an old phone on the shop Wi-Fi reads a shop IP
+    # camera and runs the cash-zone check on the phone. OFF until a real-phone
+    # proof (owner order); opened from the Smart Cash Guard screen, no route.
+    ('guard_box_mode', 'family_safety', 'Guard Box (old phone watches the shop camera)', 'গার্ড বক্স (পুরনো ফোন দোকানের ক্যামেরা দেখে)', False, ()),
     ('disaster_alerts', 'family_safety', 'Disaster alerts', 'দুর্যোগ সতর্কতা', True, ('disaster',)),
     ('blood_donor', 'family_safety', 'Blood donors', 'রক্তদাতা নেটওয়ার্ক', True, ()),
     ('kid_school', 'family_safety', 'School corner', 'স্কুল কর্নার', True, ()),
@@ -94,6 +98,10 @@ REGISTRY = (
     ('ride_food', 'daily_life', 'Ride & food', 'রাইড ও খাবার', True, ('ride_food',)),
     ('vehicles', 'daily_life', 'My Vehicles', 'আমার গাড়ি', True, ('vehicles',)),
     ('vehicle_tracking', 'daily_life', 'Live tracking', 'লাইভ ট্র্যাকিং', True, ('vehicle_tracking', 'car_mode')),
+    # veh100 (owner 28 Oct): remote engine cut stays OFF until a real
+    # relay-wired tracker passed the stopped-only test on a real vehicle.
+    # Server-enforced (views_vehicle refuses 'feature_off'); owns no route.
+    ('vehicle_engine_cut', 'daily_life', 'Remote engine cut (stopped vehicles only)', 'দূর থেকে ইঞ্জিন বন্ধ (শুধু থামা গাড়িতে)', False, ()),
     ('student_corner', 'daily_life', 'Student corner', 'স্টুডেন্ট কর্নার', True, ()),
     ('wedding_events', 'daily_life', 'Wedding & events', 'বিয়ে ও অনুষ্ঠান', True, ()),
     ('qurbani', 'daily_life', 'Qurbani & Eid planner', 'কোরবানি ও ঈদ পরিকল্পনা', True, ()),
