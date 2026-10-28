@@ -97,3 +97,10 @@ jobs:
         env:
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
         run: flutter test --no-pub --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }}
+      - name: upload crm shots (ci-only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-shots-${{ matrix.shard }}
+          path: ${{ runner.temp }}/shots/crm*
+          if-no-files-found: ignore

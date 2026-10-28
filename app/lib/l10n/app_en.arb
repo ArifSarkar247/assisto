@@ -24416,5 +24416,476 @@
         "type": "String"
       }
     }
-  }
+  },
+  "c100AcCall": "Call",
+  "c100AcEmail": "Email",
+  "c100AcMeeting": "Meeting",
+  "c100AcNote": "Note",
+  "c100AcStage": "Stage changed",
+  "c100AcSystem": "Logged",
+  "c100AcTask": "Task",
+  "c100AcWhatsapp": "WhatsApp",
+  "c100ActAddCrm": "Add to CRM",
+  "c100ActCall": "Call",
+  "c100ActMessage": "Message",
+  "c100ActQuote": "Price quote",
+  "c100AddProduct": "Add a product",
+  "c100AddedToCrm": "Added to the CRM.",
+  "c100BelowMin": "Below your lowest price",
+  "c100BuilderIntro": "Prices come from your catalog. The customer gets a link to accept or decline — no app or login needed.",
+  "c100BulkDefault": "{token}, new stock has arrived at our shop.",
+  "@c100BulkDefault": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "c100BulkIntro": "{count} customers picked. Each one gets their own message card — you send them one by one.",
+  "@c100BulkIntro": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100BulkMakeCards": "Make one card per customer",
+  "c100BulkNoCards": "None of these customers could be found.",
+  "c100BulkTitle": "Message each customer",
+  "c100CantOpen": "Couldn't open the app on this phone.",
+  "c100ChInstagram": "Instagram",
+  "c100ChMessenger": "Messenger",
+  "c100ChWebsite": "Website chat",
+  "c100ChWhatsapp": "WhatsApp",
+  "c100ChatTitle": "AI sales chat on {channel} · {count} messages",
+  "@c100ChatTitle": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100ChooseHow": "Next: choose how to send",
+  "c100CopyLink": "Copy link",
+  "c100CountLine": "{count} customers",
+  "@c100CountLine": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100CrmValue": "{deals} open deals · {tasks} tasks",
+  "@c100CrmValue": {
+    "placeholders": {
+      "deals": {
+        "type": "String"
+      },
+      "tasks": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Customer": "Customer",
+  "c100CustomerName": "Customer name",
+  "c100CustomerPhone": "Customer mobile number",
+  "c100CustomersTab": "Customers",
+  "c100CustomersTitle": "All customers",
+  "c100DaysN": "{n} days",
+  "@c100DaysN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Deal": "Deal",
+  "c100OneDay": "1 day",
+  "c100DealLost": "Lost",
+  "c100DealOpen": "Open",
+  "c100DealWon": "Won",
+  "c100DeclineReason": "Reason: {reason}",
+  "@c100DeclineReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "c100DefaultText": "Hello {name}, ",
+  "@c100DefaultText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Delivery": "Delivery charge (৳)",
+  "c100Discount": "Discount (৳)",
+  "c100Done": "Done",
+  "c100EmptyBody": "Khata entries, orders, chats, notes and messages for this customer will all show here.",
+  "c100EmptyFilter": "Nothing of this kind yet.",
+  "c100EmptyTitle": "No history yet",
+  "c100Extend": "Extend",
+  "c100ExtendTitle": "Keep this price for",
+  "c100FAll": "All",
+  "c100FChats": "Chats",
+  "c100FCrm": "CRM",
+  "c100FKhata": "Khata & sales",
+  "c100FMessages": "Messages",
+  "c100FOrders": "Orders",
+  "c100HistoryShort": "History",
+  "c100HubCustomersSub": "One page per customer: due, orders, chats, notes",
+  "c100HubQuotesSub": "Send a price; the customer accepts with one tap",
+  "c100ItemsN": "{n} items",
+  "@c100ItemsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100KhataGave": "Gave on credit",
+  "c100KhataGot": "Got paid",
+  "c100LeadAdded": "Added to the CRM",
+  "c100LinkCopied": "Link copied",
+  "c100LinkPromise": "If they accept, the order is made at this price, stock is taken and you get a notification.",
+  "c100LoadMore": "Show more",
+  "c100LoadOlder": "Show older",
+  "c100Lowest": "Lowest: {amount}",
+  "@c100Lowest": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100MakeLink": "Make the quote link",
+  "c100MaxDiscount": "Most you can give: {amount}",
+  "@c100MaxDiscount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100MessageEach": "Message each",
+  "c100MessageLabel": "Message",
+  "c100MsgAssistoBlocked": "Assisto SMS not sent",
+  "c100MsgAssistoSent": "Sent by Assisto SMS",
+  "c100MsgSmsApp": "Phone SMS app opened",
+  "c100MsgWa": "WhatsApp opened",
+  "c100NameHint": "Write {token} and each customer's own name goes there.",
+  "@c100NameHint": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "c100NeedShopBody": "Set up your business first — then you can send price quotes.",
+  "c100NeedShopTitle": "No business yet",
+  "c100NeverAuto": "Nothing is sent without your tap.",
+  "c100NewQuote": "New price quote",
+  "c100NoCatalog": "Your catalog is empty. Add products with a selling price first.",
+  "c100NoCrmOrg": "Start your CRM first (CRM → Start).",
+  "c100NoCustomersBody": "Customers from your khata, shop sales, online orders, AI chats and CRM will show here.",
+  "c100NoCustomersTitle": "No customers yet",
+  "c100NoMatch": "Nothing matches",
+  "c100NoName": "No name",
+  "c100NoPhone": "No valid mobile number for this customer.",
+  "c100NoQuotesBody": "Make a quote from your catalog and send the link. The customer accepts or declines on their phone.",
+  "c100NoQuotesTitle": "No price quotes yet",
+  "c100NoSources": "Not in your records yet",
+  "c100NoteLabel": "Note for the customer (optional)",
+  "c100Offline": "No internet. Try again when you're online.",
+  "c100OfflineList": "This list needs internet. Your khata still works offline.",
+  "c100OfflineNoCopy": "There's no saved copy of this customer yet. Open it once online and it will open offline next time.",
+  "c100OfflineTitle": "No internet",
+  "c100OnlyDue": "Has a due",
+  "c100OpenedSms": "SMS app opened — send it from there.",
+  "c100OpenedWa": "WhatsApp opened — send it from there.",
+  "c100OptedOutBanner": "This customer said STOP. Assisto SMS will not go to them.",
+  "c100OrderMade": "Order #{id} made",
+  "@c100OrderMade": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrderTitle": "Order #{id}",
+  "@c100OrderTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrdersN": "{n} orders",
+  "@c100OrdersN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OrdersValue": "{total} ({open} open)",
+  "@c100OrdersValue": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "open": {
+        "type": "String"
+      }
+    }
+  },
+  "c100OsCancelled": "Cancelled",
+  "c100OsConfirmed": "Confirmed",
+  "c100OsDelivered": "Delivered",
+  "c100OsNew": "New",
+  "c100OsPacked": "Packed",
+  "c100OsReturned": "Returned",
+  "c100OsShipped": "Shipped",
+  "c100PayBkash": "bKash advance",
+  "c100PayCash": "Cash",
+  "c100PayCod": "Cash on delivery",
+  "c100PayDue": "On credit",
+  "c100PayNagad": "Nagad advance",
+  "c100PayPaid": "Already paid",
+  "c100PayToCheck": "payment to check",
+  "c100PayVerified": "payment checked",
+  "c100Payment": "Payment",
+  "c100PickA11y": "Pick {name}",
+  "@c100PickA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100PickProduct": "Add at least one product.",
+  "c100Picked": "{count} picked",
+  "@c100Picked": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c100PreviewFailed": "Couldn't get the sending options. Try again.",
+  "c100Products": "Products",
+  "c100QsAccepted": "Accepted",
+  "c100QsDeclined": "Declined",
+  "c100QsExpired": "Expired",
+  "c100QsIssued": "Sent, not opened yet",
+  "c100QsRevoked": "Withdrawn",
+  "c100QsViewed": "Opened by the customer",
+  "c100QtyLess": "One less",
+  "c100QtyMore": "One more",
+  "c100QuoteShareText": "{name}, here is your price quote for {amount}. Open the link to accept or decline: {url}",
+  "@c100QuoteShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "c100QuoteTitle": "Price quote sent",
+  "c100QuotesTitle": "Price quotes",
+  "c100RemoveLine": "Remove",
+  "c100Revoke": "Withdraw",
+  "c100RevokeBody": "The customer will no longer be able to accept this quote.",
+  "c100RevokeTitle": "Withdraw this quote?",
+  "c100Sale": "Shop sale",
+  "c100SaleDue": "{amount} due",
+  "@c100SaleDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SaleVoided": "Shop sale (voided)",
+  "c100SavedCopy": "No internet — showing the copy saved on {date}.",
+  "@c100SavedCopy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SearchHint": "Search name or number",
+  "c100SearchProduct": "Search products",
+  "c100SendTitle": "Message {name}",
+  "@c100SendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Share": "Share",
+  "c100ShareOther": "Share another way",
+  "c100ShareToCustomer": "Send to the customer",
+  "c100Skip": "Skip",
+  "c100Skipped": "Skipped",
+  "c100SmsConfirmBody": "Send this SMS to {name}? It costs {credits} credits. You have {balance}.",
+  "@c100SmsConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsConfirmTitle": "Send by Assisto SMS?",
+  "c100SmsFailed": "The SMS didn't go.",
+  "c100SmsNoBusiness": "Assisto SMS needs your business set up first.",
+  "c100SmsNoCredits": "Needs {credits} credits — you have {balance}.",
+  "@c100SmsNoCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsNoGateway": "Not connected yet — use WhatsApp or your phone's SMS.",
+  "c100SmsNotYours": "Only for your own customers.",
+  "c100SmsOptedOut": "This customer said STOP — not sent.",
+  "c100SmsOwnerOnly": "Only the business owner can send it (the credits are theirs).",
+  "c100SmsQuiet": "No SMS from 9 pm to 9 am. Try in the morning.",
+  "c100SmsSend": "Send",
+  "c100SmsSent": "Sent. {credits} credits used, {balance} left.",
+  "@c100SmsSent": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100SmsTooLong": "The message is too long for an SMS.",
+  "c100SmsUnavailable": "Not available right now.",
+  "c100SrcChat": "AI chat",
+  "c100SrcCrm": "CRM",
+  "c100SrcKhata": "Khata",
+  "c100SrcOrder": "Online orders",
+  "c100SrcSale": "Shop sales",
+  "c100StatAdvance": "Advance with you",
+  "c100StatCod": "COD to collect",
+  "c100StatCrm": "CRM",
+  "c100StatDue": "Due (baki)",
+  "c100StatLast": "Last contact",
+  "c100StatOrders": "Orders",
+  "c100StatPayCheck": "Payments to check",
+  "c100StatQuotes": "Open quotes",
+  "c100StatReturned": "Returned orders",
+  "c100StatSales": "Shop sales",
+  "c100StockLeft": "In stock: {n}",
+  "@c100StockLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100StockOut": "This item is out of stock — the customer can't accept until you restock.",
+  "c100Subtotal": "Subtotal",
+  "c100TagadaPrefix": "Tagada: {how}",
+  "@c100TagadaPrefix": {
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TagadaSmsBlocked": "Tagada SMS not sent",
+  "c100TagadaSmsSent": "Tagada sent by SMS",
+  "c100TallyDone": "Done: {n}",
+  "@c100TallyDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TallySkipped": "Skipped: {n}",
+  "@c100TallySkipped": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TallyWaiting": "Waiting: {n}",
+  "@c100TallyWaiting": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "c100TaskDone": "done",
+  "c100TaskOpen": "to do",
+  "c100ThisCustomer": "this customer",
+  "c100Timeline": "Everything, newest first",
+  "c100Total": "Total",
+  "c100UnitPrice": "Price each (৳)",
+  "c100ValidUntil": "Price holds until {date}",
+  "@c100ValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "c100Validity": "How long the price holds",
+  "c100WayAssisto": "Assisto SMS",
+  "c100WayAssistoCost": "{credits} credits ({segments} SMS part) · you have {balance}",
+  "@c100WayAssistoCost": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "segments": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "c100WayAssistoShort": "Assisto SMS · {credits} credits",
+  "@c100WayAssistoShort": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "c100WaySms": "Phone SMS",
+  "c100WaySmsSub": "Free — your own SIM sends it",
+  "c100WayWa": "WhatsApp",
+  "c100WayWaSub": "Free — opens WhatsApp with the text ready"
 }
