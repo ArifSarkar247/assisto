@@ -141,6 +141,14 @@ extension BizAgentApi on ApiClient {
     return getJson('/bizagent/inbox$qs');
   }
 
+  /// sales2: catalog quick replies for one chat (price/stock cards, delivery,
+  /// payment) in the customer's language. Fills the composer — never sends.
+  /// → {lang, replies: [{kind, text, product_id?, name?, price?, in_stock?, mentioned?}]}
+  Future<List<Map<String, dynamic>>> bizAgentQuickReplies(int threadId) async {
+    final r = await getJson('/bizagent/threads/$threadId/quick-replies');
+    return ((r['replies'] ?? const []) as List).cast<Map<String, dynamic>>();
+  }
+
   Future<Map<String, dynamic>> bizAgentMarkRead(int threadId) =>
       postJson('/bizagent/threads/$threadId/read');
 
