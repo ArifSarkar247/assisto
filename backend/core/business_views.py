@@ -1309,7 +1309,7 @@ def _pay_hint(raw):
     return {"method": method, "number": num}
 
 
-def _reminder_row(p, bal, prof, preset, pay_hint, lang, role=None, wallet=None):
+def _reminder_row(p, bal, prof, preset, pay_hint, lang, role=None, wallet=None, pre=None):
     text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
                                 preset=preset, pay_hint=pay_hint, lang=lang)
     from . import sms_segments
@@ -1323,7 +1323,8 @@ def _reminder_row(p, bal, prof, preset, pay_hint, lang, role=None, wallet=None):
            # tagada2: Assisto SMS is paid in SMS PARTS (1 part = 1 segment)
            "sms_segments": seg, "sms_credits": seg}
     # tagada2: the server-decided send order for this customer
-    f = TE.facts(prof, p, owner=role is None or is_owner(role), text=text, wallet=wallet)
+    f = TE.facts(prof, p, owner=role is None or is_owner(role), text=text, wallet=wallet,
+                 pre=pre)
     row.update(TE.row_fields(prof, p, f))
     return row
 
@@ -1385,14 +1386,16 @@ class TagadaBulkView(APIView):
         parties = list(qs.order_by("name", "id"))
         rows, reminders, skipped = [], [], []
         from . import sms_wallet
+        from . import tagada_engine as TE
         wallet = sms_wallet.state(prof.user) if is_owner(role) and prof.user_id else None
+        pre = TE.prefetch(prof, parties)
         for p in parties:
             bal = bals.get(p.id, 0)
             rows.append({"party": {"id": p.id, "name": p.name, "phone": p.phone},
                          "balance": bal})
             if bal > max(0, khata.to_poisha(request.data.get("min_due", 0))):
                 reminders.append(_reminder_row(p, bal, prof, preset, hint, lang, role,
-                                               wallet=wallet))
+                                               wallet=wallet, pre=pre))
             else:
                 skipped.append({"party_id": p.id, "name": p.name, "reason": "no_due"})
         res = khata.plan_tagada_bulk(

@@ -268,7 +268,9 @@
           "type": "String"
         }
       }
-    }
+    },
+    "tg2SchedModeAssisto": "In Assisto (free) when the customer is on Assisto",
+    "tg2SchedModeAssistoSub": "Sent automatically in the app at the set time. If they aren't on Assisto, you get a reminder to send it yourself."
   },
   "bn": {
     "tg2AlreadyToday": "আজ একবার তাগাদা দেওয়া হয়েছে — প্রতি গ্রাহককে দিনে একবারই।",
@@ -365,6 +367,8 @@
     "tg2SmsBalanceLine": "SMS ব্যালেন্স: এ মাসের প্ল্যানে {allowance}টি + প্যাকে {pack}টি",
     "tg2SmsBalanceOpen": "SMS ব্যালেন্স",
     "tg2SmsConfirmBody": "{name}-কে Assisto থেকে SMS পাঠাবেন? এতে আপনার ব্যালেন্স থেকে {parts}টি SMS যাবে। এরপর বাকি থাকবে {left}টি।",
-    "tg2SmsSentParts": "SMS পাঠানো হয়েছে — {parts}টি SMS খরচ হয়েছে"
+    "tg2SmsSentParts": "SMS পাঠানো হয়েছে — {parts}টি SMS খরচ হয়েছে",
+    "tg2SchedModeAssisto": "গ্রাহক Assisto-তে থাকলে অ্যাপেই পাঠান (ফ্রি)",
+    "tg2SchedModeAssistoSub": "ঠিক করা সময়ে অ্যাপেই নিজে থেকে চলে যাবে। গ্রাহক Assisto-তে না থাকলে আপনাকে মনে করিয়ে দেওয়া হবে, আপনি নিজে পাঠাবেন।"
   }
 }

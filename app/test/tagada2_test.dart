@@ -8,7 +8,6 @@
 //  * My Dues (customer): data / empty / unverified / error, pay steps,
 //    block needs a confirm, chat send;
 //  * bn + en, TalkBack 48 dp, dark.
-import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/push/push_payload.dart';
@@ -25,133 +24,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'fake_api.dart';
 import 'fake_khata.dart' show fmtPair;
+import 'tagada2_fakes.dart';
 
 const _biz = {'id': 1, 'name': 'Rahim Store', 'role': 'owner'};
-
-Map<String, String> _pr(String bn, String en) => {'bn': bn, 'en': en};
-
-Map<String, dynamic> _wallet({int allowance = 30, int pack = 0, bool low = false}) =>
-    {
-      'ready': true,
-      'available': true,
-      'owner_only': false,
-      'allowance_total': 30,
-      'allowance_left': allowance,
-      'pack_left': pack,
-      'parts_left': allowance + pack,
-      'balance': allowance + pack,
-      'low': low,
-      'packs_on_sale': false,
-    };
-
-Map<String, dynamic> _rem(int id, String name, String phone,
-        {bool assisto = false,
-        bool reachable = true,
-        bool today = false,
-        int parts = 2,
-        String invite = 'none'}) =>
-    {
-      'party_id': id,
-      'name': name,
-      'phone': phone,
-      'phone_ok': phone.isNotEmpty,
-      'balance_poisha': 150000,
-      'balance_display': fmtPair(150000),
-      'message': 'Hello $name. Your due at Rahim Store is 1500.',
-      'wa_url': phone.isEmpty ? '' : 'https://wa.me/88$phone?text=x',
-      'sms_uri': phone.isEmpty ? '' : 'sms:+88$phone?body=x',
-      'sms_segments': parts,
-      'sms_credits': parts,
-      'assisto_user': assisto,
-      'reachable': reachable,
-      'sent_today': today,
-      'sent_today_channel': today ? 'whatsapp' : '',
-      'route': assisto ? 'assisto' : 'share',
-      'sms_parts': parts,
-      'invite_status': invite,
-    };
-
-/// The tagada2 server, faked in its real response shape.
-class _Tg2Api extends FakeApi {
-  _Tg2Api({super.lang = 'en'});
-  final posts = <String, List<Map<String, dynamic>>>{};
-  List<Map<String, dynamic>> reminders = [];
-  Map<String, dynamic> wallet = _wallet();
-  Map<String, dynamic>? balance;
-  Map<String, dynamic>? dues;
-  Map<String, dynamic>? shop;
-  bool failDues = false;
-  final chat = <Map<String, dynamic>>[];
-
-  void _log(String path, Map<String, dynamic> body) =>
-      posts.putIfAbsent(path.split('?').first, () => []).add(body);
-
-  @override
-  Future<Map<String, dynamic>> getJson(String path) async {
-    if (path.startsWith('/business/sms/balance')) return balance ?? {};
-    if (path == '/me/dues') {
-      if (failDues) throw ApiException('server', 500);
-      return dues ?? {};
-    }
-    if (RegExp(r'^/me/dues/\d+/chat').hasMatch(path)) {
-      return {'messages': chat};
-    }
-    if (RegExp(r'^/me/dues/\d+$').hasMatch(path)) return shop ?? {};
-    return super.getJson(path);
-  }
-
-  @override
-  Future<Map<String, dynamic>> postJson(String path,
-      [Map<String, dynamic> body = const {}]) async {
-    if (path == '/business/khata/tagada/bulk') {
-      _log(path, body);
-      return {
-        'reminders': [for (final r in reminders) Map<String, dynamic>.from(r)],
-        'skipped': const [],
-        'sms': wallet,
-      };
-    }
-    if (path.startsWith('/me/dues/') && path.endsWith('/prefs')) {
-      _log(path, body);
-      return {
-        'muted': body['muted'] ?? shop?['muted'] ?? false,
-        'blocked': body['blocked'] ?? shop?['blocked'] ?? false,
-      };
-    }
-    return super.postJson(path, body);
-  }
-
-  @override
-  Future<Map<String, dynamic>> postJsonRaw(String path,
-      [Map<String, dynamic> body = const {}]) async {
-    if (path.startsWith('/business/khata/tagada/send/')) {
-      _log(path, body);
-      final ch = '${body['channel']}';
-      return {
-        'ok': true,
-        'channel': ch,
-        if (ch == 'whatsapp') 'url': 'https://wa.me/8801712345678?text=x',
-        'sms': wallet,
-        '_status': 200,
-      };
-    }
-    if (RegExp(r'^/me/dues/\d+/chat$').hasMatch(path)) {
-      _log(path, body);
-      final m = {
-        'id': chat.length + 1,
-        'from': 'customer',
-        'kind': 'text',
-        'text': body['text'],
-        'at': '2026-10-28T10:00:00+06:00',
-        'read': false,
-      };
-      return {'ok': true, 'message': m, '_status': 200};
-    }
-    return super.postJsonRaw(path, body);
-  }
-}
 
 Widget _app(Widget child, {String lang = 'en', bool dark = false}) =>
     MaterialApp(
@@ -169,7 +45,7 @@ Widget _app(Widget child, {String lang = 'en', bool dark = false}) =>
       home: child,
     );
 
-Future<AppLocalizations> _pump(WidgetTester tester, Widget screen, _Tg2Api api,
+Future<AppLocalizations> _pump(WidgetTester tester, Widget screen, Tg2Api api,
     {String lang = 'en', bool dark = false}) async {
   SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(1080, 2400);
@@ -202,8 +78,8 @@ void main() {
   group('send order on the tagada screen', () {
     testWidgets('Assisto user → free in-app send; it goes through the server',
         (tester) async {
-      final api = _Tg2Api()
-        ..reminders = [_rem(1, 'Karim Store', '01712345678', assisto: true)];
+      final api = Tg2Api()
+        ..reminders = [tg2Rem(1, 'Karim Store', '01712345678', assisto: true)];
       final t = await _pump(tester,
           TagadaSendScreen(business: _biz, parties: [_party(1, 'Karim Store', '01712345678')]),
           api);
@@ -222,7 +98,7 @@ void main() {
 
     testWidgets('not on Assisto → WhatsApp / own SIM free + invite; WhatsApp claims first',
         (tester) async {
-      final api = _Tg2Api()..reminders = [_rem(2, 'Salma', '01812345678')];
+      final api = Tg2Api()..reminders = [tg2Rem(2, 'Salma', '01812345678')];
       final t = await _pump(tester,
           TagadaSendScreen(business: _biz, parties: [_party(2, 'Salma', '01812345678')]),
           api);
@@ -238,10 +114,10 @@ void main() {
 
     testWidgets('reminded today → disabled; blocked → only "Not reachable"',
         (tester) async {
-      final api = _Tg2Api()
+      final api = Tg2Api()
         ..reminders = [
-          _rem(3, 'Rina', '01912345678', today: true),
-          _rem(4, 'Babu', '01612345678', reachable: false),
+          tg2Rem(3, 'Rina', '01912345678', today: true),
+          tg2Rem(4, 'Babu', '01612345678', reachable: false),
         ];
       final t = await _pump(
           tester,
@@ -263,9 +139,9 @@ void main() {
 
     testWidgets('not enough SMS balance → "Low balance — buy SMS", never a send',
         (tester) async {
-      final api = _Tg2Api()
-        ..wallet = _wallet(allowance: 1, low: true)
-        ..reminders = [_rem(5, 'Moni', '01512345678', parts: 2)];
+      final api = Tg2Api()
+        ..wallet = tg2Wallet(allowance: 1, low: true)
+        ..reminders = [tg2Rem(5, 'Moni', '01512345678', parts: 2)];
       final t = await _pump(tester,
           TagadaSendScreen(business: _biz, parties: [_party(5, 'Moni', '01512345678')]),
           api);
@@ -278,9 +154,9 @@ void main() {
 
     testWidgets('gateway SMS asks first with parts + what is left (bn digits)',
         (tester) async {
-      final api = _Tg2Api(lang: 'bn')
-        ..wallet = _wallet(allowance: 10, pack: 5)
-        ..reminders = [_rem(6, 'Kamal', '01312345678', parts: 2)];
+      final api = Tg2Api(lang: 'bn')
+        ..wallet = tg2Wallet(allowance: 10, pack: 5)
+        ..reminders = [tg2Rem(6, 'Kamal', '01312345678', parts: 2)];
       final t = await _pump(tester,
           TagadaSendScreen(business: _biz, parties: [_party(6, 'Kamal', '01312345678')]),
           api, lang: 'bn');
@@ -311,7 +187,7 @@ void main() {
         };
 
     testWidgets('packs not yet on sale → honest coming soon, no Buy', (tester) async {
-      final api = _Tg2Api()..balance = bal();
+      final api = Tg2Api()..balance = bal();
       final t = await _pump(tester, const SmsBalanceScreen(businessId: 1), api);
       expect(find.text(t.tg2BalTotal('30')), findsOneWidget);
       expect(find.text(t.tg2BalAllowance('30', '30')), findsOneWidget);
@@ -322,7 +198,7 @@ void main() {
 
     testWidgets('on sale → Buy; empty balance says it never sends without (dark)',
         (tester) async {
-      final api = _Tg2Api()..balance = bal(sale: true, left: 0);
+      final api = Tg2Api()..balance = bal(sale: true, left: 0);
       final t = await _pump(tester, const SmsBalanceScreen(businessId: 1), api,
           dark: true);
       expect(find.byKey(const ValueKey('tg2-buy-smspack_100')), findsOneWidget);
@@ -334,13 +210,13 @@ void main() {
   group('My Dues (customer)', () {
     Map<String, dynamic> shopRow() => {
           'business_id': 7, 'shop_name': 'Rahim Store', 'balance_poisha': 150000,
-          'balance_display': fmtPair(150000), 'status': _pr('বাকি', 'Due'),
+          'balance_display': fmtPair(150000), 'status': tg2Pr('বাকি', 'Due'),
           'owes': true, 'last_entry_at': '2026-10-20T10:00:00+06:00',
           'unread': 2, 'muted': false, 'blocked': false,
         };
 
     testWidgets('lists shops with total and unread', (tester) async {
-      final api = _Tg2Api()
+      final api = Tg2Api()
         ..dues = {
           'verified': true, 'phone_masked': '01712***678',
           'shops': [shopRow()], 'total_display': fmtPair(150000),
@@ -353,27 +229,27 @@ void main() {
     });
 
     testWidgets('empty, unverified and error states (bn)', (tester) async {
-      var api = _Tg2Api(lang: 'bn')
+      var api = Tg2Api(lang: 'bn')
         ..dues = {'verified': true, 'shops': const [], 'phone_masked': ''};
       var t = await _pump(tester, const MyDuesScreen(), api, lang: 'bn');
       expect(find.byKey(const ValueKey('tg2-dues-empty')), findsOneWidget);
       expect(find.text(t.tg2DuesEmptyTitle), findsOneWidget);
 
-      api = _Tg2Api(lang: 'bn')..dues = {'verified': false, 'shops': const []};
+      api = Tg2Api(lang: 'bn')..dues = {'verified': false, 'shops': const []};
       t = await _pump(tester, const MyDuesScreen(key: ValueKey('u')), api, lang: 'bn');
       expect(find.text(t.tg2DuesUnverifiedTitle), findsOneWidget);
 
-      api = _Tg2Api(lang: 'bn')..failDues = true;
+      api = Tg2Api(lang: 'bn')..failDues = true;
       t = await _pump(tester, const MyDuesScreen(key: ValueKey('f')), api, lang: 'bn');
       expect(find.text(t.retry), findsOneWidget);
     });
 
     testWidgets('shop: pay steps, block asks first, then saves', (tester) async {
-      final api = _Tg2Api()
+      final api = Tg2Api()
         ..shop = {
           'shop': {'id': 7, 'name': 'Rahim Store'},
           'balance_poisha': 150000, 'balance_display': fmtPair(150000),
-          'status': _pr('বাকি', 'Due'),
+          'status': tg2Pr('বাকি', 'Due'),
           'entries': [
             {'at': '2026-10-20T10:00:00+06:00', 'kind': 'due',
              'amount_display': fmtPair(200000), 'note': 'rice'},
@@ -409,7 +285,7 @@ void main() {
     });
 
     testWidgets('chat with the shop sends and shows the message', (tester) async {
-      final api = _Tg2Api();
+      final api = Tg2Api();
       final t = await _pump(
           tester,
           const KhataChatScreen(
@@ -422,6 +298,16 @@ void main() {
       expect(api.posts['/me/dues/7/chat']!.single['text'], 'Paid 500 today');
       expect(find.text('Paid 500 today'), findsOneWidget);
     });
+  });
+
+  test('shop push open:chat carries the ids for the khata chat', () {
+    final p = PushPayload.fromData({'kind': 'dues', 'route': 'business/khata',
+      'open': 'chat', 'business_id': '1', 'party_id': '9', 'party_name': 'Salma'});
+    final kc = PushRouting.khataChatOf(p)!;
+    expect((kc.businessId, kc.partyId, kc.name), (1, 9, 'Salma'));
+    expect(PushRouting.khataChatOf(PushPayload.fromData(
+        {'kind': 'dues', 'route': 'business/khata', 'open': 'chat'})), isNull);
+    expect(PushRouting.targetFor(p)?.chatNavRoute, 'khata');
   });
 
   test('push kind dues opens My Dues', () {

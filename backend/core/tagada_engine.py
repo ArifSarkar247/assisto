@@ -170,6 +170,11 @@ def sent_today(business, key, now=None):
                                      day=dhaka_day(now)).first()
 
 
+def _opted_key(canon):
+    from .logic.business_selling import normalize_phone
+    return normalize_phone(canon) if canon else "\0"
+
+
 def _opted_out(business, canon):
     if not canon:
         return False
@@ -200,25 +205,63 @@ def message_text(prof, party, bal, preset, pay_hint, lang):
                                 preset=preset or "polite", pay_hint=pay_hint, lang=lang)
 
 
-def facts(prof, party, *, owner=True, text="", now=None, wallet=None, cust="?"):
-    """Everything decide() needs for ONE customer, from the DB."""
+def prefetch(prof, parties, now=None):
+    """One pass of lookups for a bulk send screen (500 customers must not be
+    thousands of queries): verified accounts by number, the customers' shop
+    prefs, today's sends and the invites."""
+    from .models import KhataInvite, PhoneVerification, ShopPref, TagadaSend, User
+    now = _now(now)
+    canons = {p.phone_canon for p in parties if p.phone_canon}
+    users = {}
+    if canons:
+        locals_ = {"0" + c[4:] for c in canons if c.startswith("+880")}
+        pv = PhoneVerification.objects.filter(
+            phone__in=canons | locals_ | {c.lstrip("+") for c in canons})
+        for u in User.objects.filter(pk__in=pv.values_list("user_id", flat=True),
+                                     is_active=True).select_related("phone_verification"):
+            c = _canon(u.phone)
+            if c in canons and _canon(u.phone_verification.phone) == c:
+                users[c] = u
+    prefs = {p.user_id: (p.muted, p.blocked) for p in ShopPref.objects.filter(
+        business=prof, user__in=list(users.values()))}
+    sent = {t.phone_key: t for t in TagadaSend.objects.filter(business=prof,
+                                                             day=dhaka_day(now))}
+    invited = set(KhataInvite.objects.filter(party__in=parties)
+                  .values_list("party_id", flat=True))
+    from .logic import msg_guard as MG
+    try:
+        opted = MG.opted_out_keys(prof.pk)
+    except Exception:  # noqa: BLE001
+        opted = set()
+    return {"users": users, "prefs": prefs, "sent": sent, "invited": invited,
+            "opted": opted}
+
+
+def facts(prof, party, *, owner=True, text="", now=None, wallet=None, cust="?", pre=None):
+    """Everything decide() needs for ONE customer, from the DB (or `pre`)."""
     from . import sms_segments, sms_service, sms_wallet
     from .logic import msg_guard as MG
     now = _now(now)
     canon = party.phone_canon or _canon(party.phone)
-    if cust == "?":
-        cust = verified_user_for(canon)
-    muted, blocked = pref(prof, cust)
-    sent = sent_today(prof, phone_key(party), now)
+    if pre is not None:
+        cust = pre["users"].get(canon)
+        muted, blocked = pre["prefs"].get(cust.pk, (False, False)) if cust else (False, False)
+        sent = pre["sent"].get(phone_key(party))
+    else:
+        if cust == "?":
+            cust = verified_user_for(canon)
+        muted, blocked = pref(prof, cust)
+        sent = sent_today(prof, phone_key(party), now)
     parts = max(1, sms_segments.segments(text)) if text else 1
     w = wallet if wallet is not None else (sms_wallet.state(prof.user, now)
                                            if owner and prof.user_id else None)
     return {"canon": canon, "cust": cust, "assisto_user": cust is not None,
             "reachable": not blocked, "muted": muted, "sent": sent,
             "phone_ok": bool(khata.bd_msisdn(party.phone)),
-            "opted_out": _opted_out(prof, canon), "quiet": MG.in_quiet_hours(now),
+            "opted_out": (_opted_key(canon) in pre["opted"]) if pre else _opted_out(prof, canon),
+            "quiet": MG.in_quiet_hours(now),
             "sms_ready": sms_service.ready(), "parts": parts, "wallet": w,
-            "owner": owner}
+            "owner": owner, "invited": (party.pk in pre["invited"]) if pre else None}
 
 
 def _decide(f):
@@ -237,7 +280,8 @@ def row_fields(prof, party, f):
             "sent_today": f["sent"] is not None,
             "sent_today_channel": f["sent"].channel if f["sent"] else "",
             "route": d["route"], "options": d["options"], "sms_parts": f["parts"],
-            "invite_status": invite_status(party, f["cust"])}
+            "invite_status": invite_status(party, f["cust"]) if f.get("invited") is None
+            else ("joined" if f["cust"] else ("invited" if f["invited"] else "none"))}
 
 
 def sms_offer(prof, owner, now=None):
@@ -627,5 +671,6 @@ def customer_chat_post(user, prof, text, lang="bn", now=None):
     if prof.user_id:
         _push(prof.user, "খাতা: %s" % party.name, "Khata: %s" % party.name,
               text[:120], text[:120],
-              {"route": "business/khata", "party_id": party.pk, "open": "chat"})
+              {"route": "business/khata", "party_id": party.pk, "business_id": prof.pk,
+               "party_name": party.name[:60], "open": "chat"})
     return 200, {"ok": True, "message": _msg_row(m)}

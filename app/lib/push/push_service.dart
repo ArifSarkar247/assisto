@@ -1,3 +1,4 @@
+import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
 import 'dart:async';
 
@@ -575,6 +576,21 @@ class PushService {
     final fid = familyDeliveryId(p.data);
     if (fid != null && action == null) {
       unawaited(app.api.familyAlertSeen(fid).then((_) {}, onError: (_) {}));
+    }
+    // tagada2: a customer's reply to the shop -> that khata chat directly
+    // (needs business_id + party_id; otherwise the khata screen below).
+    final kc = PushRouting.khataChatOf(p);
+    if (kc != null && action == null) {
+      final n = _nav?.currentState;
+      if (n != null) {
+        n.push(MaterialPageRoute(
+            builder: (_) => KhataChatScreen(
+                side: ChatSide.shop,
+                businessId: kc.businessId,
+                partyId: kc.partyId,
+                title: kc.name)));
+        return;
+      }
     }
     final target = PushRouting.targetFor(p, action: action);
     final nav = _nav?.currentState;

@@ -218,6 +218,18 @@ class PushRouting {
     'dues': 'my_dues', // tagada2
   };
 
+  /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,
+  /// party_id, party_name?} opens that customer's khata chat. Null when any
+  /// id is missing (then the plain khata route applies).
+  static ({int businessId, int partyId, String name})? khataChatOf(
+      PushPayload p) {
+    if (p.route != 'business/khata' || p.data['open'] != 'chat') return null;
+    final b = int.tryParse(p.data['business_id'] ?? '');
+    final party = int.tryParse(p.data['party_id'] ?? '');
+    if (b == null || party == null || b <= 0 || party <= 0) return null;
+    return (businessId: b, partyId: party, name: (p.data['party_name'] ?? '').trim());
+  }
+
   /// [action] is the local-notification action id ('accept' / 'decline' /
   /// null for a plain tap). Decline never opens anything.
   static PushTarget? targetFor(PushPayload p, {String? action}) {
