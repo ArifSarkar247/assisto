@@ -1684,3 +1684,34 @@ BN.update({
     "ago_thresholds_note": "শতাংশ ১–১০০; সময় মিলিসেকেন্ডে; খরচ মার্কিন ডলারে। ফাঁকা রাখলে আগের মান থাকে।",
 })
 # ---- /af-8 ----
+
+# ---- af-12: Agent runs -> feedback -> test cases ----
+EN.update({
+    "agf_title": "Feedback → test cases",
+    "agf_intro": "Every thumbs-down on an agent run lands here as a candidate test case. Only MASKED text is kept (phone, NID, account numbers and e-mails are tokens). Write what the agent should have done and approve: `manage.py agent_eval_export_feedback` then adds it to the topic's eval set file (evals/feedback/<topic>.jsonl) for the next commit and the live eval.",
+    "agf_tile": "Feedback cases waiting", "agf_pending": "Waiting", "agf_approved": "Approved",
+    "agf_rejected": "Rejected", "agf_withdrawn": "Withdrawn (user changed to thumbs-up)",
+    "agf_note": "User's note (masked)", "agf_ran": "Tools that ran",
+    "agf_must_run": "Tools that must run", "agf_no_tools": "No tool — an answer only",
+    "agf_never": "Tools that must never run", "agf_state": "End state",
+    "agf_expected": "Expected behaviour (note)",
+    "agf_expected_note": "No phone, NID or account numbers — a note with one is refused.",
+    "agf_approve": "Approve as a test case", "agf_reject": "Reject",
+    "agf_none": "No feedback waiting.", "agf_decided": "Decided",
+    "agf_exported": "exported", "agf_not_exported": "waiting for export",
+})
+BN.update({
+    "agf_title": "মতামত → টেস্ট কেস",
+    "agf_intro": "এজেন্ট রানে প্রতিটি “ভালো হয়নি” মতামত এখানে একটি সম্ভাব্য টেস্ট কেস হয়ে আসে। শুধু মাস্ক করা লেখা রাখা হয় (ফোন, NID, অ্যাকাউন্ট নম্বর ও ইমেইল টোকেন হয়ে থাকে)। এজেন্টের কী করা উচিত ছিল লিখে অনুমোদন দিন: তারপর `manage.py agent_eval_export_feedback` সেটি বিষয়ের eval সেট ফাইলে (evals/feedback/<topic>.jsonl) যোগ করে — পরের কমিট ও লাইভ eval-এর জন্য।",
+    "agf_tile": "অপেক্ষায় থাকা মতামত-কেস", "agf_pending": "অপেক্ষায়", "agf_approved": "অনুমোদিত",
+    "agf_rejected": "বাতিল", "agf_withdrawn": "ফিরিয়ে নেওয়া (ইউজার পরে “ভালো” দিয়েছেন)",
+    "agf_note": "ইউজারের নোট (মাস্ক করা)", "agf_ran": "যে টুলগুলো চলেছে",
+    "agf_must_run": "যে টুলগুলো চলতেই হবে", "agf_no_tools": "কোনো টুল নয় — শুধু উত্তর",
+    "agf_never": "যে টুল কখনো চলবে না", "agf_state": "শেষ অবস্থা",
+    "agf_expected": "যা হওয়া উচিত (নোট)",
+    "agf_expected_note": "ফোন, NID বা অ্যাকাউন্ট নম্বর লিখবেন না — থাকলে নোটটি নেওয়া হবে না।",
+    "agf_approve": "টেস্ট কেস হিসেবে অনুমোদন", "agf_reject": "বাতিল",
+    "agf_none": "কোনো মতামত অপেক্ষায় নেই।", "agf_decided": "সিদ্ধান্ত হয়েছে",
+    "agf_exported": "এক্সপোর্ট হয়েছে", "agf_not_exported": "এক্সপোর্টের অপেক্ষায়",
+})
+# ---- /af-12 ----

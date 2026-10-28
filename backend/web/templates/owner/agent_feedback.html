@@ -1,0 +1,30 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.agf_title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.agf_intro }}</p>
+<p><a class="btn ghost" href="/owner/agent-runs">← {{ T.nav_agent_runs }}</a></p>
+<div class="tiles">
+  <div class="tile"><span>{{ T.agf_pending }}</span><b>{{ stats.pending }}</b></div>
+  <div class="tile"><span>{{ T.agf_approved }}</span><b>{{ stats.approved }}</b></div>
+  <div class="tile"><span>{{ T.agf_rejected }}</span><b>{{ stats.rejected }}</b></div>
+  <div class="tile"><span>{{ T.agf_withdrawn }}</span><b>{{ stats.withdrawn }}</b></div>
+</div>
+{% for r in rows %}<div class="card">
+  <p><b>fb-{{ r.d.run_id }}</b> · <a href="/owner/agent-runs/{{ r.d.run_id }}">#{{ r.d.run_id }}</a> · {{ r.d.topics|join:" + "|default:"general" }} · {{ r.d.state }}{% if r.d.error %} <span class="mut small">{{ r.d.error }}</span>{% endif %}</p>
+  <p>{{ T.agr_goal }}: <code>{{ r.d.goal }}</code></p>
+  <p>{{ T.agf_note }}: {% if r.d.note %}<code>{{ r.d.note }}</code>{% else %}<span class="mut">—</span>{% endif %}</p>
+  <p class="small">{{ T.agf_ran }}: {% for t in r.d.tools_ran %}<code>{{ t }}</code> {% empty %}—{% endfor %}</p>
+  <form method="post" action="/owner/agent-runs/feedback/{{ r.id }}">{% include "owner/_csrf.html" %}
+    <fieldset><legend>{{ T.agf_must_run }}</legend>{% for t in r.tools %}<label class="small"><input type="checkbox" name="tools" value="{{ t }}"> {{ t }}</label> {% endfor %}
+      <br><label class="small"><input type="checkbox" name="no_tools" value="1"> {{ T.agf_no_tools }}</label></fieldset>
+    <fieldset><legend>{{ T.agf_never }}</legend>{% for t in all_tools %}<label class="small"><input type="checkbox" name="forbid" value="{{ t }}"> {{ t }}</label> {% endfor %}</fieldset>
+    <p><label>{{ T.agf_state }} <select name="state">{% for s in states %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></label></p>
+    <p><label>{{ T.agf_expected }}<br><input type="text" name="expected" maxlength="300" value="{{ r.d.note }}"></label><br><small class="mut">{{ T.agf_expected_note }}</small></p>
+    <button class="btn" name="action" value="approve">{{ T.agf_approve }}</button>
+    <button class="btn ghost" name="action" value="reject">{{ T.agf_reject }}</button>
+  </form>
+</div>{% empty %}<p class="empty">{{ T.agf_none }}</p>{% endfor %}
+{% if decided %}<div class="card tbl"><b>{{ T.agf_decided }}</b><table><tbody>
+{% for r in decided %}<tr><td>fb-{{ r.d.run_id }}</td><td>{{ r.d.status }}</td><td>{{ r.d.expect_tools|join:", " }}</td><td>{% if r.d.exported_at %}{{ T.agf_exported }}{% elif r.d.status == 'approved' %}{{ T.agf_not_exported }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+{% endblock %}

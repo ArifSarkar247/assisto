@@ -15,6 +15,7 @@
   <div class="tile"><span>{{ T.agr_ai_cost }}</span><b>${{ ai_cost }}</b></div>
   <div class="tile"><span>{{ T.agr_avg }}</span><b>{{ avg_steps }} / {{ avg_llm }}</b></div>
   <div class="tile"><span>{{ T.agr_feedback }}</span><b>+{{ up }} / −{{ down }}</b></div>
+  {% if fb %}<div class="tile"><span>{{ T.agf_tile }}</span><b><a href="/owner/agent-runs/feedback">{{ fb.pending }}</a></b></div>{% endif %}
 </div>
 {% if obs %}<div class="card"><b>{{ T.ago_title }}</b><p class="mut small">{{ T.ago_intro }}</p>
 <div class="tiles">

@@ -44,7 +44,7 @@ jobs:
           AGENT_EVAL_REPORT: ${{ runner.temp }}/agent_eval_money.json
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test core.tests_agentcore core.tests_agentcore_eval core.tests_agentcore_tools core.tests_agentcore_topics core.tests_aftrust core.tests_afcrisis core.tests_afinject core.tests_afobs core.tests_afmulti web.tests_agentcore_owner --parallel 2 --settings=assisto_backend.settings_test --noinput -v 2
+          python manage.py test core.tests_agentcore core.tests_agentcore_eval core.tests_agentcore_tools core.tests_agentcore_topics core.tests_aftrust core.tests_afcrisis core.tests_afinject core.tests_afobs core.tests_afmulti core.tests_affeedback web.tests_agentcore_owner --parallel 2 --settings=assisto_backend.settings_test --noinput -v 2
       - name: agent core integration points (flags, routes, pricing, owner admin)
         working-directory: backend
         run: |

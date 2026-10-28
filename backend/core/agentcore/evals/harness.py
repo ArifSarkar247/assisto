@@ -51,7 +51,8 @@ def run_case(case, seam):
     from ...models import User
     user = make_user()
     for t in case.get("seed") or [case["topic"]]:      # AF-11: two-topic cases seed both
-        SEEDERS[t](user)
+        if t in SEEDERS:
+            SEEDERS[t](user)
     bal0 = User.objects.get(pk=user.pk).ai_credits
     n0 = len(seam.prompts)
     # AF-11: "classify" cases go through the real classifier (no topic given)

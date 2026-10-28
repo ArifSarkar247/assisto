@@ -232,6 +232,14 @@ class RunFeedbackView(_Gated):
         run.feedback_note = T.vault_of(run).mask(str(b.get("note") or ""))[:300]
         run.save(update_fields=["feedback", "feedback_note", "updated_at"])
         T.audit(run, "run.feedback", value=v)
+        try:
+            # AF-12: a thumbs-down becomes a candidate eval case (masked) for
+            # the owner's review queue; a thumbs-up withdraws a pending one
+            from . import feedback_cases as FB
+            FB.on_feedback(run, v, run.feedback_note)
+        except Exception:  # noqa: BLE001 — feedback is never refused for this
+            import logging
+            logging.getLogger(__name__).exception("agentcore: feedback case for run %s", run.pk)
         return Response({"ok": True, "feedback": v})
 
 
