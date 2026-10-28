@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,6 +23,8 @@ import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/robo_id.dart';
+import '../widgets/paywall_sheet.dart'; // circle2
+import 'referral_screen.dart'; // circle2
 import 'package:assisto/widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
@@ -77,6 +79,11 @@ class CircleCallScreen extends StatefulWidget {
     this.previewSwapped = false,
     this.previewFullscreen = false,
   });
+
+  /// circle2 test seam: the video gate's navigation ('voice' | 'video' |
+  /// 'points') goes here instead of pushing real screens.
+  @visibleForTesting
+  static void Function(String action)? debugGateAction;
 
   /// b1: how the mini call bar re-opens a minimized call.
   static void registerReopen() {
@@ -1118,14 +1125,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     );
   }
 
-  /// The SERVER refused video for a free caller: upgrade / points path.
+  /// The SERVER refused video for a free caller: an HONEST paywall moment.
+  ///
+  /// circle2 (owner checklist "dead buttons"): "Get Premium" and "Unlock
+  /// with points" used to pop('upgrade') / pop('points') — and no caller read
+  /// the result, so both buttons just closed the screen. Now: who pays (only
+  /// the caller), the free alternative one tap away (voice call to the same
+  /// person), the real price + free trial (PaywallSheet, server offer), and
+  /// the points screen. The video RULE is unchanged (owner decision).
   Widget _gateScreen(ColorScheme scheme) => Scaffold(
         appBar: AppBar(title: Text(_t.circleCallVideoPremiumTitle)),
         body: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Gap.xl),
+            padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Icon(Icons.workspace_premium_rounded,
                     size: 56, color: scheme.primary),
@@ -1136,19 +1151,45 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 const SizedBox(height: Gap.sm),
                 Text(_t.circleCallVideoPremiumBody,
                     textAlign: TextAlign.center,
-                    style:
-                        Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: scheme.onSurfaceVariant)),
+                const SizedBox(height: Gap.sm),
+                Text(_t.circle2VideoWhoPays(_name),
+                    key: const Key('circle2-gate-who-pays'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: scheme.onSurface, height: 1.4)),
                 const SizedBox(height: Gap.xl),
+                // the free path first: the person still gets their call
                 FilledButton.icon(
-                  icon: const Icon(Icons.workspace_premium_rounded),
-                  label: Text(_t.circleCallGetPremium),
-                  onPressed: () => Navigator.of(context).pop('upgrade'),
+                  key: const Key('circle2-gate-voice'),
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52)),
+                  icon: const Icon(Icons.call_rounded),
+                  label: Text(_t.circle2VoiceInstead),
+                  onPressed: () => _redial('voice'),
                 ),
                 const SizedBox(height: Gap.sm),
                 OutlinedButton.icon(
+                  key: const Key('circle2-gate-premium'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48)),
+                  icon: const Icon(Icons.workspace_premium_rounded),
+                  label: Text(_t.circleCallGetPremium),
+                  onPressed: _openPremium,
+                ),
+                const SizedBox(height: Gap.sm),
+                OutlinedButton.icon(
+                  key: const Key('circle2-gate-points'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48)),
                   icon: const Icon(Icons.redeem_rounded),
                   label: Text(_t.circleCallUnlockWithPoints),
-                  onPressed: () => Navigator.of(context).pop('points'),
+                  onPressed: _openPoints,
                 ),
                 const SizedBox(height: Gap.md),
                 TextButton(
@@ -1160,6 +1201,30 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           ),
         ),
       );
+
+  /// circle2: place a NEW call to the same person (this screen's call ended
+  /// at the gate, so nothing live is replaced).
+  void _redial(String kind) {
+    final seam = CircleCallScreen.debugGateAction;
+    if (seam != null) return seam(kind);
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (_) => CircleCallScreen(
+            member: widget.member, kind: kind, outgoing: true)));
+  }
+
+  void _openPoints() {
+    final seam = CircleCallScreen.debugGateAction;
+    if (seam != null) return seam('points');
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ReferralScreen()));
+  }
+
+  /// circle2: the real offer (price, yearly saving, one free trial) — a
+  /// started trial unlocks video at once, so try the video call again.
+  Future<void> _openPremium() async {
+    final started = await PaywallSheet.show(context, PaywallReason.videoCall);
+    if (started == true && mounted) _redial('video');
+  }
 }
 
 /// A failure the user should notice (red status), vs a normal outcome.

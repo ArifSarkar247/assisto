@@ -1,0 +1,46 @@
+{
+ "en": {
+  "circle2VideoWhoPays": "Only you, the caller, need Premium — {name} pays nothing. Voice calls stay free on every plan.",
+  "@circle2VideoWhoPays": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "circle2VoiceInstead": "Voice call instead — free",
+  "@circle2VoiceInstead": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyBenefit": "Voice calls to your circle are free and ad-free — they ring even when the other phone's app is closed.",
+  "@circle2CallsEmptyBenefit": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyCta": "Call someone in My Circle",
+  "@circle2CallsEmptyCta": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyHow": "1. Open a chat or pick someone below\n2. Tap the phone icon at the top\n3. Missed calls show here with a call-back button",
+  "@circle2CallsEmptyHow": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2QueuedOffline": "No connection — your message will send by itself when you're back online.",
+  "@circle2QueuedOffline": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2ChatsEmptyHow": "1. Tap \"Add to My Circle\" and enter their number\n2. They accept your request\n3. Chat and call — free, no ads",
+  "@circle2ChatsEmptyHow": {
+   "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  }
+ },
+ "bn": {
+  "circle2VideoWhoPays": "প্রিমিয়াম লাগবে শুধু আপনার (যিনি কল করছেন) — {name}-কে কিছুই দিতে হবে না। ভয়েস কল সব প্ল্যানে ফ্রি।",
+  "circle2VoiceInstead": "ভয়েস কল করুন — ফ্রি",
+  "circle2CallsEmptyBenefit": "সার্কেলের মানুষকে ভয়েস কল ফ্রি, কোনো বিজ্ঞাপন নেই — অন্য ফোনে অ্যাপ বন্ধ থাকলেও বাজে।",
+  "circle2CallsEmptyCta": "My Circle-এ কাউকে কল করুন",
+  "circle2CallsEmptyHow": "১. একটা চ্যাট খুলুন বা নিচ থেকে কাউকে বাছুন\n২. ওপরে ফোনের চিহ্নে চাপুন\n৩. মিসড কল এখানে দেখাবে, পাশে কল-ব্যাক বোতাম",
+  "circle2QueuedOffline": "নেট নেই — নেট ফিরলে মেসেজটা নিজে থেকেই চলে যাবে।",
+  "circle2ChatsEmptyHow": "১. \"আমার সার্কেলে যোগ করুন\" চেপে নম্বর লিখুন\n২. উনি রিকোয়েস্ট গ্রহণ করবেন\n৩. চ্যাট ও কল — ফ্রি, বিজ্ঞাপন নেই"
+ }
+}

@@ -45,6 +45,7 @@ import '../messaging/msg_request_widgets.dart'; // mr1
 import '../messaging/connect_flow.dart'; // connect-flow
 import '../messaging/msg_widgets.dart';
 import '../messaging/outbox.dart';
+import '../services/error_kind.dart' show FailKind, failKindOf; // circle2
 import '../messaging/echo_reconcile.dart'; // md2
 import '../messaging/forward.dart'; // md2
 import '../services/action_feedback.dart';
@@ -1313,6 +1314,33 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       unawaited(_adoptDefaultTimer(sent)); // chat-actions
       if (mounted) _countRequestSend(); // mr1: pre-accept budget
     } catch (e) {
+      // circle2: NO ANSWER from the server (no network, Wi-Fi <-> data, a
+      // 5xx) is not a failure the user must fix — like WhatsApp the message
+      // waits with its clock in the persistent outbox and goes by itself
+      // (network back, app resume, retry timer; the same client_msg_id, so
+      // the server never stores it twice). Only a REFUSAL (4xx) stays red.
+      final id = _memberId;
+      if (id != null && failKindOf(e) != FailKind.refused) {
+        final item = OutboxItem(
+            id: clientMsgId,
+            chatId: id,
+            text: plain,
+            at: sentAt,
+            replyTo: replyId);
+        await Outbox.instance.add(item);
+        if (mounted) {
+          setState(() {
+            _messages = _messages.where((m) => m.id != clientMsgId).toList();
+            if (!_queued.any((q) => q.id == clientMsgId)) {
+              _queued = [..._queued, item];
+            }
+            _sending = false;
+          });
+          _toast(_t.circle2QueuedOffline);
+        }
+        unawaited(Outbox.instance.kick(onlyChat: id));
+        return;
+      }
       // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
       // never resolves); long-press it to resend.
       if (mounted) {

@@ -13,6 +13,7 @@ import '../crypto/identity_vault.dart';
 import 'circle_call_info_screen.dart';
 import 'circle_call_screen.dart';
 import 'circle_chat_screen.dart';
+import 'messenger/contacts_screen.dart'; // circle2
 
 /// Connected Circle call history (M1 item 5): voice/video log with missed
 /// calls, outgoing/incoming direction, duration and one-tap call-back.
@@ -177,9 +178,14 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         ]),
       );
 
+  /// circle2 (owner checklist): an empty call log is not a dead end — one
+  /// line of benefit, a big primary button (pick someone from My Circle and
+  /// call), and a 3-step how-to.
   Widget _empty(ColorScheme scheme) => ListView(
+        key: const Key('circle2-calls-empty'),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
         children: [
-          const SizedBox(height: 96),
+          const SizedBox(height: 72),
           Icon(Icons.call_rounded,
               size: 56, color: scheme.primary.withValues(alpha: 0.7)),
           const SizedBox(height: Gap.md),
@@ -188,8 +194,44 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
                 ? _t.circleCallHistoryEmpty
                 : _t.circleBackendPending,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
+          if (!_backendReady) ...[
+            const SizedBox(height: Gap.lg),
+            Center(
+              child: FilledButton.icon(
+                key: const Key('circle2-calls-retry'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(_t.retry),
+                onPressed: () {
+                  setState(() => _loading = true);
+                  _load();
+                },
+              ),
+            ),
+          ],
+          if (_backendReady) ...[
+            const SizedBox(height: Gap.sm),
+            Text(_t.circle2CallsEmptyBenefit,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            const SizedBox(height: Gap.lg),
+            Center(
+              child: FilledButton.icon(
+                key: const Key('circle2-calls-empty-cta'),
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
+                icon: const Icon(Icons.add_call),
+                label: Text(_t.circle2CallsEmptyCta),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ContactsScreen())),
+              ),
+            ),
+            const SizedBox(height: Gap.lg),
+            Text(_t.circle2CallsEmptyHow,
+                textAlign: TextAlign.start,
+                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.6)),
+          ],
+          const SizedBox(height: Gap.xl),
         ],
       );
 
