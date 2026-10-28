@@ -52,6 +52,8 @@ import 'antitheft_api.dart'; // grab-guard
 import 'widgets/grab_check_dialog.dart'; // grab-guard
 import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
+import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
+import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/invite_router.dart'; // invite-join
 
@@ -61,6 +63,7 @@ void main() {
   // silently instead of taking the whole app down.
   runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
+    PerfMarks.once('dart_main'); // perf2gb: no-op unless ASSISTO_PERF
 
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
@@ -113,6 +116,11 @@ void main() {
         child: AssistoApp(a11y: a11y),
       ),
     );
+    if (PerfMarks.enabled) {
+      // perf2gb: the first Flutter frame on screen (CI profile APK only)
+      unawaited(WidgetsBinding.instance.waitUntilFirstFrameRasterized
+          .then((_) => PerfMarks.once('first_frame')));
+    }
 
     // Deferred, post-first-frame, SAFE-MODE-aware init. If the previous launch
     // never reached the home screen, we SKIP all of this and the app still opens.
@@ -131,6 +139,9 @@ void main() {
       // own-device: load the hashed install id for the X-Device-Id header
       // (SharedPreferences only, never throws, not awaited).
       unawaited(DeviceId.get());
+      // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
+      // time-boxed device_info read, after the first frame; never throws).
+      unawaited(LowRamTuning.apply());
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.
@@ -483,6 +494,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }));
   }
 
+  /// perf2gb: mark the first frame of a root screen (CI profile APK only).
+  void _perfMark(String name) => WidgetsBinding.instance
+      .addPostFrameCallback((_) => PerfMarks.once(name));
+
   void _resolveElderly() {
     if (_resolving) return;
     _resolving = true;
@@ -511,6 +526,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (app.locale == null) {
       AdsService.instance.rootScreen = 'language_picker'; // admob: no ads
+      if (PerfMarks.enabled) _perfMark('language_frame');
       return const LanguagePickerScreen();
     }
     if (!app.loggedIn) {
@@ -525,6 +541,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           appNavigatorKey.currentState?.popUntil((r) => r.isFirst);
         });
       }
+      if (PerfMarks.enabled) _perfMark('login_frame');
       return const LoginScreen();
     }
     _wasLoggedIn = true;
@@ -584,6 +601,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     // app start so a background flag refresh never swaps the home under the
     // user; OFF = the previous home, unchanged (one-week fallback).
     final v2 = _homeV2 ??= FeatureFlags.instance.isOn('home_v2');
+    if (PerfMarks.enabled) _perfMark('home_frame');
     return selectHome(v2: v2);
   }
 }

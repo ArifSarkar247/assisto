@@ -275,7 +275,11 @@ class AppState extends ChangeNotifier {
         user = await api.me();
         unawaited(OwnDeviceGuard.rememberUser(user?.id)); // grab-guard
         await reconcileLanguage();
-        await sync();
+        // perf2gb: the memory sync (pending uploads + a full server list)
+        // no longer holds the cold start — home opens on the local copy
+        // loaded above and the list refreshes when it lands. sync() never
+        // throws (it records online/lastError itself).
+        unawaited(sync());
         _syncAll();
         // Background poller must never block or crash startup.
         unawaited(Background.start());
