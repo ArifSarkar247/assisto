@@ -179,6 +179,14 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 if ctx.get("level") == "L4":
                     summary = "-"
             meta_out = {}
+            # AF-2 (maskall): the user's text, the Brain summary of their own
+            # data and the earlier turns go to the provider MASKED (phones,
+            # NID, account/card numbers, e-mails -> tokens); the reply comes
+            # back with the real values. History is masked FIRST so the same
+            # earlier turn gets the same tokens every time (prompt cache).
+            from .agentcore import trust as _T
+            vault = _T.Vault()
+            history = vault.mask_request(history=history)[2]
             if mode:
                 # pricing-40: the chat instruction goes into the SYSTEM block so
                 # system + instruction (>= 512 tokens) is one cacheable prefix
@@ -190,13 +198,13 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
                     user=user, history=history, mode=mode, out_meta=meta_out,
-                    upgrade=(mode == "smart" and P40.is_hard_question(text)))
+                    upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault)
             else:
                 reply, cost = ai.generate(
                     task=pick(lang, *CHAT_TASK),
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat", max_tokens=700,
-                    user=user, history=history)
+                    user=user, history=history, pii=vault)
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.

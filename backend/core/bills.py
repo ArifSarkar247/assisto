@@ -67,9 +67,15 @@ def parse_bill(user, raw_text, biller_hint=""):
     if not ai.available():
         return ({"needs_key": True}, False, False)
 
+    # AF-2 (maskall) PARTIAL mask: the reader must see the account / meter
+    # number itself (it is the field it extracts), so only phone numbers and
+    # e-mails on the bill are masked; ONLY the scanned text is sent (no
+    # history, no other contacts) — owner_actions/AI_PRIVACY_PATHS_BN.md.
+    from .agentcore import trust as _T
     try:
-        text, _ = ai.generate(task=_task(lang), data=raw_text, tier="cheap",
-                               feature="bill_guide", max_tokens=300, user=user)
+        text, _ = ai.generate(task=_task(lang), data=(raw_text or "")[:6000], tier="cheap",
+                               feature="bill_guide", max_tokens=300, user=user,
+                               pii=_T.Vault(kinds=("PHONE", "EMAIL")))
     except ai.AIUnavailable:
         return ({"needs_key": True}, False, False)
 

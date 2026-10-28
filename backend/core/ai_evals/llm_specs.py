@@ -356,9 +356,42 @@ GUARDED = {
 
 # AF-2 / AF-4: features whose product call masks PII (ai.generate pii=True) —
 # the replay builds the provider request the same way and FAILS a case whose
-# request still carries a raw phone / NID / account / e-mail
+# request still carries a raw phone / NID / account / e-mail.
+# maskall (28 Oct): every remaining text path joined; bill_guide is a PARTIAL
+# mask (phones + e-mails only — the reader must read the account number).
 PII_MASKED = ("bizagent_reply", "business_reply", "business_ai_reply", "circle_assisto",
-              "group_ai")
+              "group_ai",
+              "home_chat", "agent_qa", "studio", "briefing", "jobs_cv", "world_web_answer",
+              "world_hub", "vehicle_summary", "chat_vision", "bill_guide")
+PII_KINDS = {"bill_guide": ("PHONE", "EMAIL")}
+
+# a synthetic private line injected into every case's request by the privacy
+# probe (Latin + Bangla digits, NID, account no, e-mail)
+PII_PROBE = ("Contact 01711223344 / ০১৯১১২২৩৩৪৪, NID 1990123456789, "
+             "a/c 1234-5678-9012-3456, rahim.probe@example.com")
+PII_PROBE_VALUES = ("01711223344", "০১৯১১২২৩৩৪৪", "1990123456789", "1234-5678-9012-3456",
+                    "rahim.probe@example.com")
+
+
+def _vault_for(fid):
+    from ..agentcore import trust as T
+    return T.Vault(kinds=PII_KINDS.get(fid))
+
+
+def mask_request(fid, req, vault=None):
+    """Mask `req` in place the way the product call does -> the vault."""
+    from .. import ai
+    vault = vault or _vault_for(fid)
+    if fid == "home_chat" and req.get("history"):
+        # views_chat masks the earlier turns first (stable tokens per turn)
+        req["history"] = vault.mask_request(history=req["history"])[2]
+    if fid == "chat_vision":
+        # chat_vision_service masks the question + on-device text only
+        req["data"] = vault.mask(req.get("data", ""))
+        return vault
+    _v, req["task"], req["data"], req["history"], req["extra_system"] = ai.mask_for_provider(
+        req["task"], req.get("data", ""), req.get("history"), req.get("extra_system", ""), vault)
+    return vault
 
 
 def provider_request(fid, case):
@@ -366,10 +399,32 @@ def provider_request(fid, case):
     product masks)."""
     req = build(fid, case)
     if fid in PII_MASKED:
-        from .. import ai
-        _v, req["task"], req["data"], req["history"], req["extra_system"] = ai.mask_for_provider(
-            req["task"], req.get("data", ""), req.get("history"), req.get("extra_system", ""), True)
+        mask_request(fid, req)
     return req
+
+
+def request_text(req):
+    return (req.get("extra_system", "") + req["task"] + req.get("data", "")
+            + "".join(h.get("content", "") for h in req.get("history") or []))
+
+
+def pii_probe(fid, case):
+    """maskall privacy probe on the feature's REAL request shape: the case's
+    request plus PII_PROBE in its data. -> {"raw_before": the unmasked request
+    carried raw PII, "masked_ok": nothing raw left after the product's
+    masking, "roundtrip": every masked value comes back on unmask}."""
+    from ..agentcore import trust as T
+    kinds = PII_KINDS.get(fid)
+    before = build(fid, case)
+    raw_before = T.has_raw_pii(request_text(before), kinds)
+    req = build(fid, case)
+    req["data"] = (req.get("data", "") + "\n" + PII_PROBE).strip()
+    vault = mask_request(fid, req)
+    sent = request_text(req)
+    back = vault.unmask(sent)
+    want = [v for v in PII_PROBE_VALUES if kinds is None or "@" in v or v.startswith(("01", "০১"))]
+    return {"raw_before": raw_before, "masked_ok": not T.has_raw_pii(sent, kinds),
+            "roundtrip": all(v in back for v in want)}
 
 
 def synthetic_bads(fid, case, good_text):

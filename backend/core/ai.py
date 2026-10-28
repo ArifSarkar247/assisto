@@ -239,8 +239,33 @@ def _flatten_history(history, prompt):
 
 
 # ------------------------------------------------------------------ anthropic
+# AF-13: the SDK / HTTP client loggers print whole request bodies (prompts) at
+# DEBUG (e.g. ANTHROPIC_LOG=debug). The server never logs a raw prompt, so they
+# are held at WARNING or above whatever the environment says.
+_SDK_LOGGERS = ("anthropic", "anthropic._base_client", "openai", "httpx", "httpcore",
+                "urllib3", "requests")
+
+
+def quiet_sdk_loggers():
+    for name in _SDK_LOGGERS:
+        lg = logging.getLogger(name)
+        if lg.getEffectiveLevel() < logging.WARNING:
+            lg.setLevel(logging.WARNING)
+
+
+def _safe_detail(detail):
+    """AF-13: an error detail for the server log with any PII masked (a
+    provider 400 message can quote the request)."""
+    try:
+        from .agentcore import trust as _T
+        return _T.Vault().mask(str(detail or ""))[:200]
+    except Exception:  # noqa: BLE001
+        return "-"
+
+
 def _anthropic_client(key, timeout):
     import anthropic
+    quiet_sdk_loggers()
     # max_retries=0: the ROUTER fails over instead of the SDK retrying.
     return anthropic.Anthropic(api_key=key, timeout=timeout, max_retries=0)
 
@@ -354,6 +379,7 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
 # ------------------------------------------------------------------ REST providers
 def _http():
     import requests
+    quiet_sdk_loggers()
     return requests
 
 
@@ -423,10 +449,20 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
     return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model}
 
 
+# AF-13 provider retention hygiene: the request options each provider's API
+# offers for "do not keep / do not train". OpenAI Chat Completions: store=False
+# (never kept for distillation / evals / the dashboard log). Anthropic: no
+# training on API data by default and no per-request retention switch (zero
+# data retention is an account agreement). Gemini API: no per-request switch
+# either — paid-tier (billing on) data is not used to improve Google products;
+# the free tier IS. See owner_actions/AI_PROVIDER_RETENTION_BN.md.
+OPENAI_NO_STORE = {"store": False}
+
+
 def _call_openai(key, model, system, prompt, max_tokens, history=None):
     body = {"model": model,
             "messages": [{"role": "system", "content": system}] + _messages(history, prompt),
-            "max_completion_tokens": int(max_tokens)}
+            "max_completion_tokens": int(max_tokens), **OPENAI_NO_STORE}
     r = _post("https://api.openai.com/v1/chat/completions", body,
               {"authorization": "Bearer %s" % key, "content-type": "application/json"})
     choices = r.get("choices") or []
@@ -536,6 +572,10 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
                                                                  extra_system, pii)
     if vault is not None and isinstance(out_meta, dict):
         out_meta["pii_masked"] = len(vault.t2v)
+    if vault is not None and vault.t2v:
+        # the model is told what a token is, so it copies it instead of
+        # guessing the hidden value (the router puts the real value back)
+        extra_system = (extra_system + "\n" if extra_system else "") + P.PII_TOKEN_NOTE
     providers = _providers()
     if _ONLY_PROVIDER.get():
         providers = [p for p in providers if p[0] == _ONLY_PROVIDER.get()]
@@ -667,7 +707,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             if err.circuit:
                 R.record(name, False, conf, error=err.kind)
             if not err.failover:
-                log.error("ai: %s %s bad request (no failover): %s", name, model, err.detail)
+                log.error("ai: %s %s bad request (no failover): %s", name, model,
+                          _safe_detail(err.detail))
                 stop_kind = err.kind
                 break
             continue

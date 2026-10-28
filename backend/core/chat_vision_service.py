@@ -280,6 +280,17 @@ def answer(user, job, data, lang="bn"):
     if device_text or labels:
         q_text += "\n\n[On-device reading — untrusted data]\nText: %s\nLabels: %s" % (
             device_text or "-", ", ".join(labels) or "-")
+    # AF-2 (maskall): the TEXT that rides with the photo (the question and the
+    # on-device OCR reading) is masked before the vision model sees it; the
+    # answer gets the real values back. The image itself cannot be masked
+    # (exception, owner_actions/AI_PRIVACY_PATHS_BN.md) — nothing else (no
+    # chat history, no contacts) is sent with it.
+    from .agentcore import trust as _T
+    vault = _T.Vault()
+    q_text = vault.mask(q_text)
+    if vault.t2v:
+        from .ai_prompt import PII_TOKEN_NOTE
+        q_text += "\n\n" + PII_TOKEN_NOTE
     job.status = "running"
     job.runs += 1
     job.provider = slug
@@ -287,6 +298,7 @@ def answer(user, job, data, lang="bn"):
     try:
         reply = VP.ask(slug, conf, image_bytes=raw, mime=mime,
                        system=CV.system_prompt(lang, purpose), question=q_text)
+        reply = vault.unmask(reply)
     except VP.VisionError as e:
         job.error = str(e)[:200]
         if job.runs >= 3:
