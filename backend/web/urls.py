@@ -70,4 +70,5 @@ urlpatterns = [
     # crm100: a shop's price quote — the customer accepts / declines (signed
     # link, no login, noindex, rate-limited, bn/en)
     path("q/<str:token>", views_quote.quote_page),
+    path("qp/<str:token>", views_quote.proposal_page),
 ]

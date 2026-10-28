@@ -633,3 +633,69 @@ class PureTests(TestCase):
         n = SQ.new_nonce()
         self.assertEqual(SQ.nonce_from(SQ.token_for(n)), n)
         self.assertIsNone(SQ.nonce_from(SQ.token_for(n) + "x"))
+
+
+# ====================================================== B2B proposal accept page
+class ProposalAcceptTests(_World):
+    def setUp(self):
+        super().setUp()
+        from .models import Proposal
+        self.lead = Lead.objects.create(org=self.org, name="Karim", company="Karim Garments")
+        self.prop = Proposal.objects.create(
+            lead=self.lead, title="HRM + Payroll", status="sent", valid_days=7,
+            line_items=[{"sku": "HRM", "label": "HRM module", "qty": 1,
+                         "unit_price": 50000.0, "amount": 50000.0}],
+            subtotal=Decimal("50000"), total=Decimal("50000"))
+        self.c = APIClient()
+
+    def _link(self):
+        r = self.client.get(A + "/proposals/%d/acceptance_link/" % self.prop.pk)
+        self.assertEqual(r.status_code, 200, r.data)
+        return r.data
+
+    def test_token_is_random_and_legacy_guessable_one_is_rotated(self):
+        from . import logic_quote as lq
+        from .models import QuoteAcceptance
+        legacy = lq.make_acceptance_token(quote_id=self.prop.id, version=self.prop.version,
+                                          salt=str(self.org.id))
+        QuoteAcceptance.objects.create(proposal=self.prop, token=legacy)
+        d = self._link()
+        self.assertNotEqual(d["token"], legacy)
+        self.assertTrue(d["url"].endswith("/qp/" + d["token"]))
+        self.assertEqual(self.c.get("/qp/" + legacy).status_code, 404)
+        self.assertEqual(self.c.get("/api/v1/crm/accept/%s/" % legacy).status_code, 404)
+        self.assertEqual(self._link()["token"], d["token"])        # stable after rotation
+
+    def test_web_page_accept_once_and_seller_pushed(self):
+        tok = self._link()["token"]
+        r = self.c.get("/qp/" + tok)
+        self.assertEqual(r.status_code, 200)
+        html = r.content.decode()
+        self.assertIn("প্রপোজাল", html)
+        self.assertIn("HRM module", html)
+        self.assertIn("৳৫০,০০০", html)
+        self.assertIn("noindex", r["X-Robots-Tag"])
+        with mock.patch("core.push.push_to_user_async") as push:
+            self.c.post("/qp/" + tok, {"action": "accept"})
+            self.c.post("/qp/" + tok, {"action": "decline"})      # too late: decided
+        self.prop.refresh_from_db()
+        self.assertEqual(self.prop.status, "accepted")
+        self.assertEqual(push.call_count, 1)
+        self.assertNotIn('value="accept"', self.c.get("/qp/" + tok).content.decode())
+
+    def test_expired_proposal_cannot_be_accepted_page_or_api(self):
+        from .models import Proposal
+        tok = self._link()["token"]
+        Proposal.objects.filter(pk=self.prop.pk).update(
+            created_at=timezone.now() - timedelta(days=30))
+        r = self.c.post("/api/v1/crm/accept/%s/" % tok, {"action": "accept"}, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.c.post("/qp/" + tok, {"action": "accept"})
+        self.prop.refresh_from_db()
+        self.assertEqual(self.prop.status, "sent")
+        self.assertIn("মেয়াদ শেষ", self.c.get("/qp/" + tok).content.decode())
+
+    def test_public_api_is_rate_limited(self):
+        codes = [self.c.get("/api/v1/crm/accept/nope/").status_code for _ in range(32)]
+        self.assertEqual(codes[0], 404)
+        self.assertEqual(codes[-1], 429)

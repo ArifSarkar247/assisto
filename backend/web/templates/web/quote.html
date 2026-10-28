@@ -1,5 +1,5 @@
 {% extends "web/base.html" %}
-{% block title %}{{ B.title }}{% if shop %} — {{ shop }}{% endif %}{% endblock %}
+{% block title %}{% if b2b %}{{ B.p_title }}{% else %}{{ B.title }}{% endif %}{% if shop %} — {{ shop }}{% endif %}{% endblock %}
 {% block og %}{% endblock %}
 {% block head %}<meta name="robots" content="noindex, nofollow">
 <style>
@@ -23,11 +23,11 @@ textarea{min-height:90px}
 <div class="card" role="alert"><p>{{ B.limited }}</p></div>
 {% else %}
 {% if done == "accepted" or state == "accepted" %}
-<div class="ok" role="status"><b>{{ B.ok_h }}</b></div>
+<div class="ok" role="status"><b>{% if b2b %}{{ B.p_ok }}{% else %}{{ B.ok_h }}{% endif %}</b></div>
 {% endif %}
 <div class="card">
   <div class="small">{{ shop }}</div>
-  <h1>{{ B.title }}</h1>
+  <h1>{% if b2b %}{{ B.p_title }}{% else %}{{ B.title }}{% endif %}</h1>
   {% if q.customer_name %}<p class="small">{{ B.for }}: <b>{{ q.customer_name }}</b></p>{% endif %}
   <div style="overflow-x:auto">
   <table class="qt">
@@ -41,11 +41,12 @@ textarea{min-height:90px}
     <div class="sum"><span>{{ B.subtotal }}</span><span>{{ subtotal }}</span></div>
     {% if discount %}<div class="sum"><span>{{ B.discount }}</span><span>− {{ discount }}</span></div>{% endif %}
     {% if delivery %}<div class="sum"><span>{{ B.delivery }}</span><span>{{ delivery }}</span></div>{% endif %}
+    {% if tax %}<div class="sum"><span>{{ B.tax }}</span><span>{{ tax }}</span></div>{% endif %}
     <div class="sum t"><span>{{ B.total }}</span><span>{{ total }}</span></div>
   </div>
-  <p><b>{{ B.pay }}:</b> {{ pay_text }}</p>
+  {% if pay_text %}<p><b>{{ B.pay }}:</b> {{ pay_text }}</p>{% endif %}
   {% if q.note %}<p><b>{{ B.note }}:</b> {{ q.note }}</p>{% endif %}
-  {% if state == "issued" or state == "viewed" %}
+  {% if valid_until and state == "issued" or valid_until and state == "viewed" %}
   <p class="small">{{ B.valid }}: <b>{{ valid_until }}</b>{% if left %} · {{ left }}{% endif %}</p>
   {% endif %}
 </div>
@@ -61,20 +62,20 @@ textarea{min-height:90px}
 {% else %}
 {% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
 <div class="card">
-  <form method="post" action="/q/{{ q_token }}{{ qlang }}">{% csrf_token %}
+  <form method="post" action="{{ post_base }}{{ q_token }}{{ qlang }}">{% csrf_token %}
     <input type="hidden" name="action" value="accept">
-    <label for="qn">{{ B.name }}</label>
-    <input type="text" id="qn" name="name" maxlength="120" autocomplete="name" value="{% if form %}{{ form.name }}{% else %}{{ q.customer_name }}{% endif %}">
+    {% if not b2b %}<label for="qn">{{ B.name }}</label>
+    <input type="text" id="qn" name="name" maxlength="120" autocomplete="name" value="{% if form %}{{ form.name }}{% else %}{{ q.customer_name }}{% endif %}">{% endif %}
     {% if need_address %}
     <label for="qa">{{ B.address }}</label>
     <textarea id="qa" name="address" maxlength="600" autocomplete="street-address" required>{{ form.address }}</textarea>
     {% endif %}
-    <p class="small">{{ B.accept_hint }}</p>
-    <button class="btn" type="submit">{{ B.accept }}</button>
+    <p class="small">{% if b2b %}{{ B.p_hint }}{% else %}{{ B.accept_hint }}{% endif %}</p>
+    <button class="btn" type="submit">{% if b2b %}{{ B.p_accept }}{% else %}{{ B.accept }}{% endif %}</button>
   </form>
 </div>
 <div class="card">
-  <form method="post" action="/q/{{ q_token }}{{ qlang }}">{% csrf_token %}
+  <form method="post" action="{{ post_base }}{{ q_token }}{{ qlang }}">{% csrf_token %}
     <input type="hidden" name="action" value="decline">
     <label for="qr">{{ B.reason }}</label>
     <input type="text" id="qr" name="reason" maxlength="200">
@@ -83,7 +84,7 @@ textarea{min-height:90px}
   </form>
 </div>
 {% endif %}
-<p class="small">{{ B.privacy }}</p>
+<p class="small">{% if b2b %}{{ B.p_privacy }}{% else %}{{ B.privacy }}{% endif %}</p>
 <p class="small">{{ B.by }}</p>
 {% endif %}
 {% endblock %}

@@ -8,7 +8,9 @@ import 'crm_common.dart';
 
 /// q1-seams: true only once a customer-facing acceptance PAGE exists (an
 /// absolute https link that renders accept / decline), not a JSON API path.
-const bool kQuoteAcceptPageWired = false;
+/// crm100: wired — the server now returns https://lifeassisto.com/qp/<token>
+/// (random token, noindex, rate-limited, bn/en, expiry enforced).
+const bool kQuoteAcceptPageWired = true;
 
 /// ADVANCED proposal/quote surface (CRM_SPEC §6): version history (v1/v2…),
 /// discount-approval workflow, validity/expiry, branded-PDF data model (honest
@@ -330,9 +332,8 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       .approveDiscount((p['id'] as num).toInt())),
                   icon: const Icon(Icons.gavel_rounded, size: 18),
                   label: Text(t.crmApproveDiscount)),
-            // q1-seams: hidden — the server hands back a RELATIVE JSON API
-            // path (/api/crm/accept/<token>/), not a page a customer can open,
-            // so sharing it could never get a real acceptance.
+            // crm100: the server hands back the customer's web page
+            // (/qp/<token>); before, it was a relative JSON path (hidden).
             if (kQuoteAcceptPageWired &&
                 (status == 'sent' || status == 'viewed' || status == 'approved'))
               OutlinedButton.icon(

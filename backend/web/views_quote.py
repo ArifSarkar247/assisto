@@ -58,6 +58,11 @@ TXT = {
         "limited": "অনেকবার চেষ্টা হয়েছে। কয়েক মিনিট পরে আবার খুলুন।",
         "privacy": "আপনার নাম ও ঠিকানা শুধু এই দোকান দেখবে। এখানে কোনো টাকা নেওয়া হয় না।",
         "by": "Assisto দিয়ে পাঠানো",
+        "p_title": "প্রপোজাল", "tax": "ভ্যাট/কর",
+        "p_accept": "প্রপোজাল গ্রহণ করুন",
+        "p_hint": "গ্রহণ করলে বিক্রেতাকে জানানো হবে; অর্ডার ও পেমেন্টের ধাপ বিক্রেতা আপনার সাথে ঠিক করবেন।",
+        "p_ok": "ধন্যবাদ! আপনি প্রপোজালটি গ্রহণ করেছেন। বিক্রেতাকে জানানো হয়েছে।",
+        "p_privacy": "এই লিংক শুধু আপনার জন্য। এখানে কোনো টাকা নেওয়া হয় না।",
     },
     "en": {
         "title": "Price quote", "for": "For", "item": "Item", "qty": "Qty", "price": "Price",
@@ -82,6 +87,11 @@ TXT = {
         "limited": "Too many tries. Please open it again in a few minutes.",
         "privacy": "Only this shop sees your name and address. No money is taken on this page.",
         "by": "Sent with Assisto",
+        "p_title": "Proposal", "tax": "VAT / tax",
+        "p_accept": "Accept the proposal",
+        "p_hint": "Accepting tells the seller; they will agree the order and payment steps with you.",
+        "p_ok": "Thank you! You accepted the proposal. The seller has been told.",
+        "p_privacy": "This link is only for you. No money is taken on this page.",
     },
 }
 
@@ -158,7 +168,7 @@ def _ctx(request, q, lang, now):
             "total": money(q.total_poisha, lang), "valid_until": when(q.valid_until, lang),
             "left": left_txt, "pay_text": B.get("pay_" + q.payment, B["pay_cod"]),
             "order_no": num(q.order_id, lang) if q.order_id else "",
-            "qlang": "?lang=" + lang,
+            "qlang": "?lang=" + lang, "post_base": "/q/",
             "need_address": q.payment != "paid"}
 
 
@@ -206,3 +216,67 @@ def quote_page(request, token):
     ctx = _ctx(request, q, lang, now)
     ctx.update(error=error, form={"name": name, "address": address}, q_token=token)
     return _render(request, ctx, 400 if error else 200)
+
+
+def _taka_p(v):
+    try:
+        return int(round(float(v or 0) * 100))
+    except (TypeError, ValueError):
+        return 0
+
+
+@require_http_methods(["GET", "POST"])
+def proposal_page(request, token):
+    """crm100: lifeassisto.com/qp/<token> — a B2B CRM proposal the buyer
+    accepts or declines (random token, crm.views.proposal_decide)."""
+    from crm.models import QuoteAcceptance
+    from crm.views import proposal_decide, proposal_expired
+    now = timezone.now()
+    acc = (QuoteAcceptance.objects.filter(token=str(token or "")[:64])
+           .select_related("proposal__lead__org").first())
+    lang = _lang(request)
+    B = TXT[lang]
+    if acc is None or not _rate_ok(request, "pg" if request.method == "GET" else "pp",
+                                   GET_PER_MIN if request.method == "GET" else POST_PER_10MIN,
+                                   60 if request.method == "GET" else 600):
+        st = "bad" if acc is None else "limited"
+        return _render(request, {"lang": lang, "B": B, "state": st, "qlang": ""},
+                       404 if acc is None else 429)
+    prop = acc.proposal
+    if request.method == "POST":
+        act = request.POST.get("action", "")
+        if act in ("accept", "decline"):
+            proposal_decide(acc, act, now)
+            return HttpResponseRedirect("/qp/%s?lang=%s" % (token, lang))
+    if acc.state in ("issued", "viewed") and proposal_expired(prop, now):
+        QuoteAcceptance.objects.filter(pk=acc.pk, state__in=("issued", "viewed")).update(
+            state="expired")
+        acc.state = "expired"
+    if acc.state == "issued":
+        QuoteAcceptance.objects.filter(pk=acc.pk, state="issued").update(
+            state="viewed", viewed_at=now)
+        acc.state = "viewed"
+    items = []
+    for li in prop.line_items or []:
+        qty = int(li.get("qty") or 1)
+        unit = _taka_p(li.get("unit_price"))
+        items.append({"name": li.get("label") or li.get("sku") or "", "qty": num(qty, lang),
+                      "unit": money(unit, lang),
+                      "line": money(_taka_p(li.get("amount")) or unit * qty, lang)})
+    valid = None
+    if prop.valid_days:
+        from datetime import datetime, time as dtime
+        d = prop.created_at.date() + timedelta(days=int(prop.valid_days))
+        valid = when(timezone.make_aware(datetime.combine(d, dtime(12, 0))), lang)
+    disc = _taka_p(prop.discount_amount)
+    tax = _taka_p(prop.tax_amount)
+    ctx = {"lang": lang, "B": B, "b2b": True, "state": acc.state, "items": items,
+           "shop": prop.lead.org.name,
+           "q": {"customer_name": prop.lead.company or prop.lead.name, "note": prop.title},
+           "subtotal": money(_taka_p(prop.subtotal), lang),
+           "discount": money(disc, lang) if disc else "",
+           "tax": money(tax, lang) if tax else "", "delivery": "",
+           "total": money(_taka_p(prop.total), lang), "valid_until": valid or "",
+           "left": "", "pay_text": "", "order_no": "", "need_address": False,
+           "qlang": "?lang=" + lang, "q_token": token, "post_base": "/qp/"}
+    return _render(request, ctx)
