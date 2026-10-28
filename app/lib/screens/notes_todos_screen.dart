@@ -21,12 +21,16 @@ import '../widgets/rn_bits.dart';
 /// §21 pillars: empty / loading / offline / no-search-results / bilingual /
 /// WCAG. Zero Bangla glyph literals in source.
 class NotesTodosScreen extends StatelessWidget {
-  const NotesTodosScreen({super.key});
+  const NotesTodosScreen({super.key, this.initialIndex = 0});
+
+  /// 0 = Notes, 1 = To-do (remnotes: gallery / deep links).
+  final int initialIndex;
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
+      initialIndex: initialIndex.clamp(0, 1),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
         bottomNavigationBar: const AdBannerSlot(screen: 'notes_todos'),
@@ -134,12 +138,12 @@ class _NotesTabState extends State<_NotesTab> {
         SyncRefusalStrip(message: app.notes.refusal),
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
         if (labels.isNotEmpty)
-          SizedBox(
-            height: 52,
-            child: ListView(
-              key: const ValueKey('rn-label-row'),
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+          // grows with the text size (200% never clips a chip)
+          SingleChildScrollView(
+            key: const ValueKey('rn-label-row'),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+            child: Row(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(right: Gap.xs),

@@ -343,13 +343,19 @@ AppState _stub({required String lang, FakeMode mode = FakeMode.data}) {
     s.reminders.items = [
       {'localId': 'r1', 'serverId': 1, 'pendingOp': 'none', 'data': {'title': bn ? 'বিদ্যুৎ বিল দিন' : 'Pay electricity bill', 'due_at': '2026-10-14T10:00:00', 'done': false, 'recurrence': 'none'}},
       {'localId': 'r2', 'serverId': 2, 'pendingOp': 'none', 'data': {'title': bn ? 'ডাক্তার অ্যাপয়েন্টমেন্ট' : 'Doctor appointment', 'due_at': '2026-10-16T17:30:00', 'done': false, 'recurrence': 'none'}},
+      // remnotes: a weekly Friday reminder (weekday name in the app language)
+      {'localId': 'r3', 'serverId': 6, 'pendingOp': 'none', 'data': {'title': bn ? 'বাজার' : 'Groceries', 'due_at': '2030-01-04T02:00:00Z', 'done': false, 'recurrence': 'weekly', 'recurrence_rule': {'freq': 'weekly', 'interval': 1, 'weekday': 4, 'time': '08:00'}, 'priority': 'high', 'category': bn ? 'সংসার' : 'Home'}},
     ];
     s.notes.items = [
-      {'localId': 'n1', 'serverId': 3, 'pendingOp': 'none', 'data': {'title': bn ? 'বাজারের লিস্ট' : 'Market list', 'body': bn ? 'চাল, ডাল, তেল, ডিম' : 'Rice, lentils, oil, eggs', 'pinned': true}},
+      {'localId': 'n1', 'serverId': 3, 'pendingOp': 'none', 'data': {'title': bn ? 'বাজারের লিস্ট' : 'Market list', 'body': bn ? 'শুক্রবার সকালে' : 'Friday morning', 'pinned': true, 'color': 'green', 'tags': [bn ? 'বাজার' : 'groceries'], 'checklist': [{'text': bn ? 'চাল' : 'Rice', 'done': true}, {'text': bn ? 'ডাল' : 'Lentils', 'done': false}, {'text': bn ? 'তেল' : 'Oil', 'done': false}, {'text': bn ? 'ডিম' : 'Eggs', 'done': false}]}},
+      // remnotes: a note a Circle member sent, with a vault paper attached
+      {'localId': 'n2', 'serverId': 7, 'pendingOp': 'none', 'data': {'title': bn ? 'ভাড়ার চুক্তি' : 'Rent agreement', 'body': bn ? 'নভেম্বরে নবায়ন' : 'Renew in November', 'color': 'blue', 'tags': [bn ? 'বাসা' : 'house'], 'attachments': [{'doc_id': 1, 'title': 'NID'}], 'shared_from': {'user': 2, 'name': bn ? 'মা' : 'Mom'}}},
     ];
     s.todos.items = [
       {'localId': 't1', 'serverId': 4, 'pendingOp': 'none', 'data': {'title': bn ? 'পাসপোর্ট রিনিউ' : 'Renew passport', 'done': false, 'due_at': null}},
       {'localId': 't2', 'serverId': 5, 'pendingOp': 'none', 'data': {'title': bn ? 'গাড়ির কাগজ' : 'Car papers', 'done': true, 'due_at': null}},
+      // remnotes: a repeating monthly task
+      {'localId': 't3', 'serverId': 8, 'pendingOp': 'none', 'data': {'title': bn ? 'বাড়িভাড়া দেওয়া' : 'Pay rent', 'done': false, 'due_at': '2030-01-05T04:00:00Z', 'priority': 'high', 'recurrence_rule': {'freq': 'monthly', 'interval': 1, 'day_of_month': 5, 'time': '10:00'}}},
     ];
     s.memory = [
       MemoryItem(localId: 'm1', title: bn ? 'বাসার ওয়াইফাই পাসওয়ার্ড: ***' : 'Home wifi password: ***', category: bn ? 'ব্যক্তিগত' : 'Personal', detail: '', source: 'manual', needsReview: false, updatedAt: DateTime(2026, 10, 10), pendingOp: 'none'),
@@ -598,6 +604,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'famcare_card': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.data, full: true),
     'famcare_card_empty': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.empty, full: false),
     'famcare_error': (build: (_) => const FamilyScreen(), mode: FakeMode.fail, full: false),
+    // remnotes (owner Reminders & Notes review 28 Oct): before = 'reminders' /
+    // 'notes_tasks' on main; after = these + the same two names here.
+    'remnotes_reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
+    'remnotes_reminders_empty': (build: (_) => const RemindersScreen(), mode: FakeMode.empty, full: true),
+    'remnotes_notes': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),
+    'remnotes_notes_empty': (build: (_) => const NotesTodosScreen(), mode: FakeMode.empty, full: true),
+    'remnotes_todos': (build: (_) => const NotesTodosScreen(initialIndex: 1), mode: FakeMode.data, full: true),
+    'remnotes_todos_empty': (build: (_) => const NotesTodosScreen(initialIndex: 1), mode: FakeMode.empty, full: true),
     'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
