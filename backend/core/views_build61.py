@@ -393,6 +393,11 @@ class CreditTopupConfirmView(APIView):
         return Response(res, status=code)
 
 
+def _json_scalar(v):
+    """v if it is a plain JSON scalar, else None (never an arbitrary object)."""
+    return v if v is None or isinstance(v, (bool, int, float, str)) else None
+
+
 class AdEventView(APIView):
     """POST /ads/event {kind, [ad_id], [device_id]} — an AdMob impression.
 
@@ -425,7 +430,11 @@ class AdEventView(APIView):
                     res = billing.ad_event(request.user, fmt,
                                            device_id=str(d.get("device_id", ""))[:64],
                                            ad_id=str(d.get("ad_id", ""))[:80])
-                    body["wallet"] = {k: res.get(k) for k in
+                    # only plain JSON scalars reach the response: a non-dict
+                    # (e.g. a test MagicMock) once sent DRF's JSON encoder
+                    # into an endless .tolist() chain that ate 5 GB
+                    res = res if isinstance(res, dict) else {}
+                    body["wallet"] = {k: _json_scalar(res.get(k)) for k in
                                       ("ok", "reason", "credited_credits")}
                     if res.get("reason") not in ("fraud", "bad_kind", "not_free"):
                         from . import sponsor_service as SS

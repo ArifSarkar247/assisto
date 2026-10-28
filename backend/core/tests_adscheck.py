@@ -349,7 +349,10 @@ class NoIncentiveTests(_Base):
 
     def test_clicks_never_reach_any_credit_path(self):
         self._admob_live()
-        with mock.patch.object(billing, "ad_event") as m:
+        # a plain dict: a bare MagicMock here once made DRF's encoder loop
+        # for ever (.tolist() -> new mock -> ...) and ate 5 GB
+        with mock.patch.object(billing, "ad_event",
+                               return_value={"ok": True, "reason": "ok"}) as m:
             self.post(kind="impression", format="interstitial", placement=PL,
                       ad_event_id="1111111111111111")
             self.post(kind="click", format="interstitial", placement=PL,
@@ -357,6 +360,26 @@ class NoIncentiveTests(_Base):
         self.assertEqual(m.call_count, 1)                 # the impression only
         src = Path(__file__).with_name("views_build61.py").read_text()
         self.assertIn('kind == "impression"', src)
+
+    def test_wallet_result_of_any_shape_is_safe_to_render(self):
+        """Regression guard (5 GB runaway): whatever ad_event returns, the
+        /ads/event response holds only plain JSON scalars and renders."""
+        from core import views_build61 as V
+        self.assertIsNone(V._json_scalar(mock.MagicMock()))
+        self.assertIsNone(V._json_scalar(object()))
+        self.assertEqual(V._json_scalar("ok"), "ok")
+        for bad in (mock.MagicMock(), None, ["x"], {"ok": mock.MagicMock(), "reason": 3}):
+            AdEventSeen.objects.all().delete()
+            with mock.patch.object(billing, "ad_event", return_value=bad):
+                r = self.post(kind="impression", format="native", placement="home_native",
+                              ad_event_id="2222222222222222")
+            self.assertTrue(r["ok"], bad)
+            for v in (r.get("wallet") or {}).values():
+                self.assertIn(type(v), (type(None), bool, int, float, str))
+
+    def test_no_test_uses_a_bare_mock_for_ad_event(self):
+        src = Path(__file__).read_text()
+        self.assertNotIn("patch.object(billing, " + '"ad_event") as', src)
 
     def test_server_copy_never_asks_for_ad_clicks(self):
         en = re.compile(r"(click|tap)\w*\s+(on\s+)?(the\s+|an\s+)?(ad|ads|banner)\b"

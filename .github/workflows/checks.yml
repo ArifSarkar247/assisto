@@ -62,7 +62,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,7 +85,7 @@ jobs:
         # the server's secrets file, which CI does not (and must not) have.
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          ulimit -v 4000000; python -X faulthandler manage.py test core.tests_adscheck core.tests_admob core.tests_p2_money core.tests_billing2 core.tests_a6 --settings=assisto_backend.settings_test --parallel 1 -v 2 --noinput
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
 
   flutter-static:
     needs: changes
