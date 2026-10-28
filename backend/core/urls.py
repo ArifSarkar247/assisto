@@ -993,6 +993,19 @@ urlpatterns += [
     path("bizagent/orders/<int:pk>/cancel", bv2.DraftCancelView.as_view()),
     path("bizagent/audit", bv2.AuditView.as_view()),
 ]
+# ---- WP-BIZBUILDER ---- business agent builder (card, preview, test chat, takeover inbox)
+from . import views_bizbuilder as bbv  # noqa: E402
+urlpatterns += [
+    path("bizagent/builder", bbv.BuilderStateView.as_view()),
+    path("bizagent/builder/parse", bbv.BuilderParseView.as_view()),
+    path("bizagent/builder/draft", bbv.BuilderDraftView.as_view()),
+    path("bizagent/builder/draft/discard", bbv.BuilderDiscardView.as_view()),
+    path("bizagent/builder/publish", bbv.BuilderPublishView.as_view()),
+    path("bizagent/builder/rollback", bbv.BuilderRollbackView.as_view()),
+    path("bizagent/builder/preview", bbv.BuilderPreviewView.as_view()),
+    path("bizagent/builder/test", bbv.BuilderTestView.as_view()),
+    path("bizagent/builder/inbox", bbv.BuilderInboxView.as_view()),
+]
 # ---- /p1-bizagent ----
 
 # ---- p2-money ---- sponsors / app-open / offers / rewarded SSV / trial

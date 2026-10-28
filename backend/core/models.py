@@ -5027,6 +5027,32 @@ class BizFaq(models.Model):
         indexes = [models.Index(fields=["business", "status"], name="g1_faq_status")]
 
 
+class BizAgentCard(models.Model):
+    """WP-BIZBUILDER: one VERSION of a shop's business-agent card (schema
+    agent_card@1, core.logic.bizbuilder). status: draft (the builder form,
+    one per shop) | published (the ONE live card) | archived (history; a
+    rollback publishes a copy as a new version). card = the parsed, validated
+    card (DATA, never instructions); source = the owner's own form text."""
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="agent_cards")
+    version = models.IntegerField()
+    status = models.CharField(max_length=10, default="draft")
+    card = models.JSONField(default=dict, blank=True)
+    source = models.JSONField(default=dict, blank=True)
+    changed = models.JSONField(default=list, blank=True)       # fields changed vs the live card
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-version"]
+        constraints = [models.UniqueConstraint(fields=["business", "version"],
+                                               name="bb_card_version_once")]
+        indexes = [models.Index(fields=["business", "status"], name="bb_card_status")]
+
+
 class BizPostLink(models.Model):
     """Which product a Facebook/Instagram post shows — so a "price?" comment
     under that post gets that product's real price in the inbox."""

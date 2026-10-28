@@ -16,6 +16,7 @@ Flow (one inbound customer message):
 Pure decisions live in core.logic.bizagent / business_ai. This module touches
 the DB, billing, push and the Graph/courier clients.
 """
+import contextvars
 import json
 import logging
 import threading
@@ -37,6 +38,22 @@ log = logging.getLogger(__name__)
 
 PLAN_DAYS = 30
 MAX_INBOUND = 4096          # e2e-sales: characters kept from one customer message
+
+# WP-BIZBUILDER: the builder's TEST CHAT runs the real compose() inside a
+# rolled-back transaction with this set. While it is set NOTHING can reach a
+# customer or the owner's phone: send_text/send_image/send_template raise,
+# notify_seller only records, and the LLM is used only when the owner asked
+# (billed to the owner, see core.bizbuilder_service).
+SANDBOX = contextvars.ContextVar("bizagent_sandbox", default=None)
+
+
+class SandboxSend(RuntimeError):
+    """A send was attempted inside the builder's test chat (never allowed)."""
+
+
+def _no_send_in_sandbox():
+    if SANDBOX.get() is not None:
+        raise SandboxSend("test chat: nothing is ever sent")
 
 
 # ===================================================================== config
@@ -347,6 +364,11 @@ def notify_seller(business, kind, title_bn, title_en, body_bn="", body_en="", da
                 return
         except Exception:
             pass
+    sb = SANDBOX.get()
+    if sb is not None:
+        sb.setdefault("pushes", []).append({"kind": kind, "title_bn": title_bn, "title_en": title_en,
+                                            "body_bn": body_bn, "body_en": body_en})
+        return
     payload = {"route": "bizagent", "section": kind}
     payload.update(data or {})
     try:
@@ -518,6 +540,7 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
     g1: `source` = rule | ai | fallback | human | system (rules-vs-AI stats);
     the website widget channel stores the reply for the visitor's poll."""
     from .models import Message
+    _no_send_in_sandbox()
     ch = thread.seller_channel
     now = timezone.now()
     m = Message(thread=thread, direction="out", text=text, is_ai=is_ai, kind=kind,
@@ -572,6 +595,7 @@ def send_image(thread, url, caption=""):
     """g1: one product photo (+ caption) on the thread's channel. Same honesty
     rules as send_text (test channels never hit the network)."""
     from .models import Message
+    _no_send_in_sandbox()
     ch = thread.seller_channel
     m = Message(thread=thread, direction="out", text=caption, is_ai=True, kind="image",
                 meta={"image_url": url}, reply_source="rule")
@@ -606,6 +630,7 @@ def send_image(thread, url, caption=""):
 
 def send_template(thread, name, lang_code="bn", params=None):
     """Outside the 24 h window WhatsApp allows ONLY an approved template."""
+    _no_send_in_sandbox()
     from .models import Message
     ch = thread.seller_channel
     m = Message(thread=thread, direction="out", text="[template:%s]" % name, is_ai=False,
@@ -635,18 +660,34 @@ def _llm_draft(ctx, lang, tone, text, history):
     ONCE by consume_reply (ai_sales), not again by ai.generate; the provider
     spend is still booked into AIUsage + the daily P&L ledger."""
     from . import ai
+    from .logic import bizbuilder as BB
     if not ai.key_present():
         return None
+    sb = SANDBOX.get()
+    if sb is not None:
+        # builder test chat: the AI runs only when the owner tapped "use AI",
+        # billed to the owner as ONE ai_sales reply (refunded if it fails)
+        # (pre-paid by the service OUTSIDE the rolled-back transaction)
+        sb["ai_needed"] = True
+        if not sb.get("allow_ai") or sb.get("ai_used"):
+            return None
+        sb["ai_used"] = True
     try:
         task = BZ.llm_task(ctx, lang, tone)
         if ctx.get("style"):
             task += ("\n\nTONE ONLY (the owner's own past wording — copy the style, never "
                      "facts or numbers from it):\n" + str(ctx["style"])[:400])
+        # WP-BIZBUILDER: the card's style notes, fenced as DATA (never rules)
+        task += BB.notes_block(ctx.get("card"))
         out, _cost = ai.generate(task=task, data=text, tier="cheap",
                                  max_tokens=300, feature="bizagent.reply", user=None,
                                  history=history)
-    except ai.AIUnavailable:
+    except ai.AIUnavailable as e:
+        if sb is not None:
+            sb["ai_error"] = str(e) or "unavailable"
         return None
+    if sb is not None:
+        sb["ai_cost_usd"] = float(_cost or 0)
     return BZ.parse_llm(out)
 
 
@@ -684,8 +725,10 @@ def _bargain(thread, text, lang, matched, intent):
         return None
     if intent != "bargain" and not BZ.bargain_cue(text):
         return None
-    # an unset minimum (0) means NO discount: the floor is the list price
-    floor = p["min_price"] if (BZ._dec(p["min_price"]) or 0) > 0 else p["price"]
+    # an unset minimum (0) means NO discount: the floor is the list price.
+    # WP-BIZBUILDER: the owner's card can only RAISE this floor.
+    from . import bizbuilder_service as BBS
+    floor = BBS.floor_for(thread.business, p)
     neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
                                 "min_price": floor}, lang=lang)
     neg["offer_value"] = offer
@@ -705,6 +748,10 @@ def compose(business, agent, thread, text, lang, *, allow_order=True, post_id=""
     d = _compose(business, agent, thread, text, lang, allow_order=allow_order, post_id=post_id,
                  G1S=G1S)
     d.setdefault("source", "rule")
+    # WP-BIZBUILDER: the card's greeting / address / tone on what the customer
+    # reads (never a digit, never on the seller's proposal)
+    from . import bizbuilder_service as BBS
+    BBS.style(business, thread, d, lang)
     return d
 
 
@@ -725,6 +772,15 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
         return {"text": BZ.holding_message(lang, risk, hours), "kind": "holding", "risk": risk,
                 "proposal": bai.handoff_message(lang, bai.handoff_trigger(text)),
                 "confidence": 0.0}
+
+    # WP-BIZBUILDER: the owner's own hand-over words ("পাইকারি", "wholesale")
+    # send the chat to the owner (keywords are data: they only ADD hand-overs)
+    from . import bizbuilder_service as BBS
+    kw = BBS.handoff_keyword(business, text)
+    if kw:
+        return {"text": BZ.holding_message(lang, BBS.RISK_CARD, hours), "kind": "holding",
+                "risk": BBS.RISK_CARD, "proposal": "", "confidence": 0.0, "rule": "card_keyword",
+                "meta": {"card_keyword": kw}}
 
     # ---- booking-bot (flag booking_bot): appointment chats — REAL free slots
     # from the business' calendar only, rule reply (no AI, cost 0) ----
@@ -807,7 +863,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                 return {"text": BZ.holding_message(lang, BZ.RISK_UNKNOWN_PRODUCT, hours),
                         "kind": "holding", "risk": BZ.RISK_UNKNOWN_PRODUCT,
                         "proposal": "", "confidence": 0.0}
-            big = priced["total"] >= bai.BIG_ORDER_THRESHOLD
+            big = priced["total"] >= BBS.big_order_limit(business)
             draft["state"] = "awaiting_confirm"
             draft["total"] = str(priced["total"])
             thread.order_draft = draft
@@ -850,6 +906,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
 
     # ---- free reply: LLM (key) or deterministic mock, then POST-CHECK ----
     ctx = context_for(business, agent, lang, only=matched or None)
+    ctx["card"] = BBS.card_for(business)
     d = _llm_draft(ctx, lang, agent.tone, text, _history(thread))
     used_ai = d is not None
     if d is None:
@@ -901,11 +958,19 @@ def _queue_approval(thread, proposal, risk, *, comment_id="", problems=None, con
         thread=thread, direction="out", text=proposal or "", is_ai=True,
         status="pending_approval", risk_reason=risk, needs_human=True,
         handoff_reason=risk, confidence=confidence, kind="text", meta=meta)
+    # WP-BIZBUILDER: the push says WHY the agent is unsure (below-minimum
+    # bargain, complaint, unknown product, low confidence, the owner's rule)
+    from .logic import bizbuilder as BB
+    who = (thread.customer_name or "").strip()[:40]
     notify_seller(thread.business, "approvals",
                   "অনুমোদন দরকার", "Approval needed",
-                  "একটি AI উত্তর আপনার অনুমোদনের অপেক্ষায়।",
-                  "An AI reply is waiting for your approval.",
-                  data={"thread_id": str(thread.pk), "message_id": str(m.pk)})
+                  "%s%s — একটি উত্তর আপনার অনুমোদনের অপেক্ষায়।" % (
+                      (who + ": ") if who else "", BB.reason_text(risk, "bn")),
+                  "%s%s — a reply is waiting for your approval." % (
+                      (who + ": ") if who else "", BB.reason_text(risk, "en")),
+                  data={"thread_id": str(thread.pk), "message_id": str(m.pk), "reason": risk or ""})
+    from . import bizbuilder_service as BBS
+    BBS.after_handoff(thread, risk)
     return m
 
 

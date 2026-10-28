@@ -49,9 +49,13 @@ def _minute_of_day(now=None):
 
 # ===================================================================== rules
 def faqs_for(business):
+    """The seller's approved FAQ rows + the live agent card's FAQs
+    (WP-BIZBUILDER; card FAQs carry no row id, so no hit counter)."""
+    from . import bizbuilder_service as BBS
     from .models import BizFaq
-    return [{"id": f.id, "q": f.question, "a": f.answer}
-            for f in BizFaq.objects.filter(business=business, status="approved")[:200]]
+    card = [{"id": None, "q": f["q"], "a": f["a"]} for f in (BBS.card_for(business) or {}).get("faqs") or []]
+    return card + [{"id": f.id, "q": f.question, "a": f.answer}
+                   for f in BizFaq.objects.filter(business=business, status="approved")[:200]]
 
 
 def orders_for_thread(thread, limit=3):
@@ -99,6 +103,12 @@ def rule_answer(business, agent, thread, text, lang, catalog, post_id=""):
         probs = [p for p in probs if p["type"] in ("money", "stock_claim")]
     if probs:
         return None
+    if r["rule"] == R.R_GREETING:
+        from . import bizbuilder_service as BBS
+        from .logic import bizbuilder as BB
+        g = BB.greeting_line(BBS.card_for(business), lang, business.shop_name)
+        if g:
+            r["text"] = g
     if r.get("faq_id"):
         from .models import BizFaq
         BizFaq.objects.filter(pk=r["faq_id"]).update(hits=F("hits") + 1)
