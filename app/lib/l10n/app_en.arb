@@ -26658,5 +26658,229 @@
   "p2OffersNotifsOptIn": "While this is off you get no brand-offer notifications — that is the default. Turn it on to get offers only for what you picked, within the daily limit, each labelled \"Offer · brand name\". Turn it off here any time; the Offers page always stays open.",
   "@p2OffersNotifsOptIn": {
     "description": "Offers & brands screen, under the 'Offer notifications' switch: brand-offer pushes are OPT-IN only (default OFF). Today the app shows the same text from the server (/offers/prefs notifs_note) so no ARB key is referenced yet; integrate when convenient and prefer this key."
+  },
+  "rnAllLabels": "All",
+  "@rnAllLabels": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttach": "Attach from Vault",
+  "@rnAttach": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachEmpty": "Your Vault is empty — add a paper there first.",
+  "@rnAttachEmpty": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachOpen": "Open in Vault",
+  "@rnAttachOpen": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachRemove": "Remove paper",
+  "@rnAttachRemove": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnCircleNone": "No one in My Circle yet — type a name instead.",
+  "@rnCircleNone": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColor": "Colour",
+  "@rnColor": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorBlue": "Blue",
+  "@rnColorBlue": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorGray": "Grey",
+  "@rnColorGray": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorGreen": "Green",
+  "@rnColorGreen": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorNone": "No colour",
+  "@rnColorNone": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorOrange": "Orange",
+  "@rnColorOrange": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorPurple": "Purple",
+  "@rnColorPurple": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorRed": "Red",
+  "@rnColorRed": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorTeal": "Teal",
+  "@rnColorTeal": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorYellow": "Yellow",
+  "@rnColorYellow": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnEveryN": "Every {n} {unit}",
+  "@rnEveryN": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "rnFilterByLabel": "Show notes with this label",
+  "@rnFilterByLabel": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnFromCircle": "From My Circle",
+  "@rnFromCircle": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnGiveFamily": "Give a task to family",
+  "@rnGiveFamily": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnLoadFailed": "Couldn't load — check the internet and try again.",
+  "@rnLoadFailed": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesAddFirst": "Write your first note",
+  "@rnNotesAddFirst": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesBenefit": "Lists, ideas and papers — kept on this phone and in your account, even offline.",
+  "@rnNotesBenefit": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep1": "Tap the button, then write — or tap the mic and say it",
+  "@rnNotesStep1": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep2": "Add a checklist (rice, dal, oil) and tick items at the shop",
+  "@rnNotesStep2": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep3": "Pin it, give it a colour or label, or send it to someone in My Circle",
+  "@rnNotesStep3": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotifDone": "Done",
+  "@rnNotifDone": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotifSnooze10": "Snooze 10 min",
+  "@rnNotifSnooze10": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemAddFirst": "Add your first reminder",
+  "@rnRemAddFirst": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemBenefit": "Write or say it in plain words — it rings on time, even with the app closed.",
+  "@rnRemBenefit": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep1": "Type in the box above, e.g. \"tomorrow 8am medicine\" — or tap the mic and say it",
+  "@rnRemStep1": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep2": "Check the time and repeat shown under it, then tap Add",
+  "@rnRemStep2": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep3": "When it rings, tap Done or Snooze 10 min right on the notification",
+  "@rnRemStep3": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShare": "Share",
+  "@rnShare": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareCircle": "Send to someone in My Circle",
+  "@rnShareCircle": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareCircleSub": "A copy lands in their notes. Vault papers stay private.",
+  "@rnShareCircleSub": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareNeedsSync": "Still saving — connect to the internet and try again.",
+  "@rnShareNeedsSync": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareOther": "Share as text (WhatsApp, SMS…)",
+  "@rnShareOther": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareSent": "Sent to {name}",
+  "@rnShareSent": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rnSharedFrom": "From {name}",
+  "@rnSharedFrom": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rnSnoozeEvening": "This evening, 7 pm",
+  "@rnSnoozeEvening": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnSyncRefused": "One item wasn't saved to your account: {msg}",
+  "@rnSyncRefused": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "rnTodoRepeatNeedsDate": "A repeating task needs a date — today was set.",
+  "@rnTodoRepeatNeedsDate": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodoRepeated": "Done — it comes back on {date}",
+  "@rnTodoRepeated": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rnTodosAddFirst": "Add your first task",
+  "@rnTodosAddFirst": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosBenefit": "Small jobs in one list — with a date, and regular ones come back by themselves.",
+  "@rnTodosBenefit": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep1": "Write the task, e.g. \"Pay electricity bill\"",
+  "@rnTodosStep1": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep2": "Set a date, and pick Repeat for monthly jobs",
+  "@rnTodosStep2": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep3": "Tick it when done — a repeating task comes back on its next date",
+  "@rnTodosStep3": {
+    "description": "remnotes (owner Reminders & Notes review 28 Oct)"
   }
 }
