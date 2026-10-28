@@ -541,7 +541,7 @@ class DocExpiryPush(models.Model):
                              related_name="doc_expiry_pushes")
     stage = models.PositiveSmallIntegerField()        # 60 / 30 / 7 / 1
     expiry_date = models.DateField()
-    sent_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(default=timezone.now)  # the sweep's clock
     delivered = models.PositiveSmallIntegerField(default=0)  # devices reached
 
     class Meta:
