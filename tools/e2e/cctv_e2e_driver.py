@@ -565,9 +565,13 @@ def run():
                       json={"escalation": [fam_uid], "shop_phone": "01710009001"}, timeout=10)
         check("cctvx: escalation chain saved (Circle member only)",
               g.status_code == 200 and g.json()["settings"]["escalation"] == [fam_uid], g.text)
+        # the FREE plan allows 5 alerts a day: clear this run's earlier test
+        # alerts (keep the no-sale one for the report check below)
+        ShopEvent.objects.filter(site_id=site_id).exclude(pk=nev.id).delete()
         r = hdev.post(API + "/shop/ingest", json={"type": "zone_intrusion", "signals": {
             "detector": "yolox_nano", "zone_breach": True, "person": True}}, timeout=10)
         eid = (r.json() or {}).get("event_id")
+        need("cctvx: a fresh alert for the escalation test", eid is not None, r.text)
         wait_for(lambda: len([c for c in fcm_calls()
                               if (c.get("data") or {}).get("event_id") == str(eid)]) >= 2, 15)
         n_push = len(fcm_calls())

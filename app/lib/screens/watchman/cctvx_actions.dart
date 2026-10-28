@@ -65,7 +65,9 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
       if (mounted) setState(() => _d = d);
       try {
         await widget.source.opened(widget.eventId);
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: the alert list marks it seen too
+      }
     } catch (e) {
       if (mounted) setState(() => _error = wmError(e) ?? '');
     }

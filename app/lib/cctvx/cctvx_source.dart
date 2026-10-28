@@ -119,7 +119,9 @@ class ApiCctvxSource implements CctvxSource {
     try {
       final j = r.body.isEmpty ? null : jsonDecode(r.body);
       if (j is Map<String, dynamic>) body = j;
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: a non-JSON error body still throws ApiException below
+    }
     if (r.statusCode >= 200 && r.statusCode < 300) return body;
     throw ApiException((body['detail'] ?? 'Error ${r.statusCode}').toString(), r.statusCode,
         null, body['error']?.toString(), body);

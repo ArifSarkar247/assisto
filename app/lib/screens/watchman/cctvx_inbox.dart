@@ -40,7 +40,9 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
         final api = context.read<AppState>().api;
         _src ??= ApiCctvxSource(api);
         _cash ??= ApiCashGuardSource(api);
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: no AppState (tests) -> the honest load error below
+      }
     }
     _load();
   }
@@ -65,7 +67,9 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
         if (e['role'] == 'escalated' && e['opened_at'] == null) {
           try {
             await src.opened((e['id'] as num).toInt());
-          } catch (_) {}
+          } catch (_) {
+            // best-effort: opening the alert again (or the actions sheet) retries it
+          }
         }
       }
     } catch (e) {

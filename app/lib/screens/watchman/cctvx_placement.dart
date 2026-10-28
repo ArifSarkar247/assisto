@@ -73,7 +73,9 @@ class _PlacementSheetState extends State<PlacementSheet> {
         final s = await w.task(id);
         if (const ['done', 'failed', 'expired'].contains(s['status'])) break;
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the check below shows the latest picture's result either way
+    }
     await _load();
   }
 

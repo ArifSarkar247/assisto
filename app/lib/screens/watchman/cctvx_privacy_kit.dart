@@ -187,7 +187,7 @@ class _Sticker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const ink = Color(0xFF111111);
+    const ink = Colors.black;
     Text line(String s, double size, {bool bold = false}) => Text(s,
         textAlign: TextAlign.center,
         textScaler: TextScaler.noScaling,
@@ -210,7 +210,7 @@ class _Sticker extends StatelessWidget {
               Container(
                 width: 92,
                 height: 92,
-                decoration: const BoxDecoration(color: Color(0xFFFFC107), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
                 child: const Icon(Icons.videocam_rounded, size: 58, color: ink),
               ),
               const SizedBox(height: 12),
