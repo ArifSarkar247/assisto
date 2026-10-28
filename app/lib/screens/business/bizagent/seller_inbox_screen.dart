@@ -753,11 +753,11 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
         ? _handoffCard(t, th, card)
         : _modeHeader(t, th);
     final lead = _orderCards(t, th);
-    return Column(children: [
-      // the pinned header never takes more than ~40% of the screen (200%
+    return LayoutBuilder(builder: (context, box) => Column(children: [
+      // the pinned header never takes more than ~45% of the chat area (200%
       // font, small phone): it scrolls inside itself instead of overflowing
       ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+        constraints: BoxConstraints(maxHeight: box.maxHeight * 0.45),
         child: SingleChildScrollView(child: top),
       ),
       Expanded(
@@ -802,7 +802,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           ),
         ]),
       ),
-    ]);
+    ]));
   }
 
   Widget _bubble(AppLocalizations t, Map m) {

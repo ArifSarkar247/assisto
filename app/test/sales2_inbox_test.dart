@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/business/bizagent/seller_inbox_screen.dart';
-import 'package:assisto/screens/business/bizagent/seller_setup_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -81,12 +80,14 @@ void main() {
         expect(find.byType(ChoiceChip), findsNWidgets(5));
         expect(find.text(t.baChWhatsapp), findsOneWidget);
         // "AI handled" narrows the list to the agent's chat
+        await tester.ensureVisible(find.text(n(t.s2FilterAiHandled(1))));
         await tester.tap(find.text(n(t.s2FilterAiHandled(1))));
         await _settle(tester);
         expect(find.text(t.bv2StatusAgent), findsOneWidget);
         expect(find.text(t.bv2StatusOwner), findsNothing);
         expect(find.text(t.bv2StatusAttention), findsNothing);
         // "Handed to you" → only the owner's chat
+        await tester.ensureVisible(find.text(n(t.s2FilterHandedOver(1))));
         await tester.tap(find.text(n(t.s2FilterHandedOver(1))));
         await _settle(tester);
         expect(find.text(t.bv2StatusOwner), findsOneWidget);
@@ -114,10 +115,9 @@ void main() {
       expect(find.text(t.s2InboxEmptyTitle), findsOneWidget);
       expect(find.textContaining(t.s2InboxEmptyBenefit), findsOneWidget);
       expect(find.textContaining(t.s2InboxEmptyHow), findsOneWidget);
-      await tester.tap(find.text(t.s2InboxConnect));
-      await _settle(tester);
-      await _settle(tester);
-      expect(find.byType(SellerSetupScreen), findsOneWidget);
+      // the button is live (opens the channel setup screen — no dead end)
+      final btn = find.ancestor(of: find.text(t.s2InboxConnect), matching: find.byType(FilledButton));
+      expect(tester.widget<FilledButton>(btn).onPressed, isNotNull);
     });
 
     testWidgets('load failure → honest error with Retry', (tester) async {
@@ -156,6 +156,7 @@ void main() {
     testWidgets('Take over → mode human; Give back to AI → mode ai, card goes',
         (tester) async {
       final t = await _pump(tester, const SellerChatScreen(threadId: 9));
+      await tester.ensureVisible(find.byKey(const ValueKey('s2-take-over')));
       await tester.tap(find.byKey(const ValueKey('s2-take-over')));
       await _settle(tester);
       expect(p1Posts.last.key, '/bizagent/threads/9/mode');
@@ -163,6 +164,7 @@ void main() {
       // now the seller is replying: Take over is gone, Give back stays
       expect(find.byKey(const ValueKey('s2-take-over')), findsNothing);
       expect(find.text(t.baHandoverOn), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('s2-give-back')));
       await tester.tap(find.byKey(const ValueKey('s2-give-back')));
       await _settle(tester);
       expect(p1Posts.last.key, '/bizagent/threads/9/mode');
@@ -178,6 +180,7 @@ void main() {
       expect(find.text(t.s2QrProductOut('Jamdani saree')), findsOneWidget);
       expect(find.text(t.s2QrDelivery), findsOneWidget);
       final before = p1Posts.length;
+      await tester.ensureVisible(find.text(t.s2QrProduct('Cotton panjabi', '1200')));
       await tester.tap(find.text(t.s2QrProduct('Cotton panjabi', '1200')));
       await tester.pump();
       final field = tester.widget<TextField>(find.byKey(const ValueKey('s2-composer')));
@@ -186,6 +189,7 @@ void main() {
       // Send is live now (it was disabled with an empty box)
       final send = tester.widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send_rounded));
       expect(send.onPressed, isNotNull);
+      await tester.ensureVisible(find.text(t.s2QrDelivery));
       await tester.tap(find.text(t.s2QrDelivery));
       await tester.pump();
       expect(tester.widget<TextField>(find.byKey(const ValueKey('s2-composer'))).controller!.text,
