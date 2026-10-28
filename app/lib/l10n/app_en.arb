@@ -26658,5 +26658,809 @@
   "p2OffersNotifsOptIn": "While this is off you get no brand-offer notifications — that is the default. Turn it on to get offers only for what you picked, within the daily limit, each labelled \"Offer · brand name\". Turn it off here any time; the Offers page always stays open.",
   "@p2OffersNotifsOptIn": {
     "description": "Offers & brands screen, under the 'Offer notifications' switch: brand-offer pushes are OPT-IN only (default OFF). Today the app shows the same text from the server (/offers/prefs notifs_note) so no ARB key is referenced yet; integrate when convenient and prefer this key."
+  },
+  "kwActionFailed": "That did not work. Check the internet and try again.",
+  "@kwActionFailed": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAdd": "Add",
+  "@kwAdd": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAddPhonePlan": "School Mode on my child's phone",
+  "@kwAddPhonePlan": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAddPhonePlanSub": "One big button the child presses. Not automatic.",
+  "@kwAddPhonePlanSub": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAddWatch": "Add a kids watch",
+  "@kwAddWatch": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAddWatchSub": "Fully automatic: left home, at school, home, late.",
+  "@kwAddWatchSub": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwAgree": "I agree — turn it on",
+  "@kwAgree": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwBattery": "Battery {pct}%",
+  "@kwBattery": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "kwChildEmpty": "Nobody has turned on School Mode for you.",
+  "@kwChildEmpty": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwChildInvite": "{names} would like School Mode for you. Nothing starts until you agree.",
+  "@kwChildInvite": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "kwChildName": "Child's name",
+  "@kwChildName": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwChildOff": "School Mode is off. Nobody sees anything.",
+  "@kwChildOff": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwChildOnSeenBy": "School Mode is on. Seen by: {names}",
+  "@kwChildOnSeenBy": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "kwChildTitle": "School Mode",
+  "@kwChildTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwChildWhatPhone": "They see only what you send with the button: the time, your location at that moment (if you allow) and your voice note. Nothing is tracked in the background.",
+  "@kwChildWhatPhone": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwChildWhatWatch": "Your watch sends its location on school days so your family knows you are safe. You can stop it here.",
+  "@kwChildWhatWatch": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwClassMode": "Class mode on the watch",
+  "@kwClassMode": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwClassModeSub": "No calls or games during school hours. SOS still works.",
+  "@kwClassModeSub": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwClearHistory": "Delete history",
+  "@kwClearHistory": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCodeHelp": "10 to 15 digits. Not sure? Send pw,123456,ts# to the watch SIM — the reply shows it.",
+  "@kwCodeHelp": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCodeInvalid": "The code must be 10 to 15 digits.",
+  "@kwCodeInvalid": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCodeLabel": "Watch code (registration code)",
+  "@kwCodeLabel": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCommute": "Travel time school to home",
+  "@kwCommute": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCopied": "Copied",
+  "@kwCopied": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwCopy": "Copy",
+  "@kwCopy": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDayFri": "Fri",
+  "@kwDayFri": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDayMon": "Mon",
+  "@kwDayMon": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDaySat": "Sat",
+  "@kwDaySat": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDaySun": "Sun",
+  "@kwDaySun": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDayThu": "Thu",
+  "@kwDayThu": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDayTue": "Tue",
+  "@kwDayTue": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDayWed": "Wed",
+  "@kwDayWed": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDecline": "No thanks",
+  "@kwDecline": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDelivered": "Delivered to the watch",
+  "@kwDelivered": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDiscard": "Discard",
+  "@kwDiscard": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwDone": "Done",
+  "@kwDone": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEditSchoolMode": "School Mode settings",
+  "@kwEditSchoolMode": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEmptyBenefit": "A kids GPS watch tells you when your child leaves home, reaches school and comes back — and alerts you if they are late. The watch SOS button reaches the family, free.",
+  "@kwEmptyBenefit": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEmptyTitle": "Know your child reached school",
+  "@kwEmptyTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvArrivedSchool": "Reached school",
+  "@kwEvArrivedSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvAskOk": "Asked: are you OK?",
+  "@kwEvAskOk": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvBackInSchool": "Back at school",
+  "@kwEvBackInSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvChildOk": "Said they are OK",
+  "@kwEvChildOk": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvLateHome": "Late home — family told",
+  "@kwEvLateHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvLateSchool": "Late for school — family told",
+  "@kwEvLateSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvLeftHome": "Left home",
+  "@kwEvLeftHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvLeftSchool": "Left school",
+  "@kwEvLeftSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvLeftSchoolEarly": "Left the school area during class",
+  "@kwEvLeftSchoolEarly": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvReachedHome": "Reached home",
+  "@kwEvReachedHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvSchoolOver": "School over — tracking on",
+  "@kwEvSchoolOver": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwEvSos": "SOS from the watch",
+  "@kwEvSos": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwExpectedBy": "Expected at school by {school}, home by {home}.",
+  "@kwExpectedBy": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "school": {
+        "type": "String"
+      },
+      "home": {
+        "type": "String"
+      }
+    }
+  },
+  "kwFindSent": "The watch will ring when it gets the message.",
+  "@kwFindSent": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwFromChild": "From the watch at {time}",
+  "@kwFromChild": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kwFromYou": "Your reply at {time}",
+  "@kwFromYou": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kwHeard": "Heard",
+  "@kwHeard": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHistory": "History",
+  "@kwHistory": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHistoryCleared": "History deleted.",
+  "@kwHistoryCleared": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHistoryEmpty": "Nothing yet.",
+  "@kwHistoryEmpty": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHome": "Home",
+  "@kwHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHonestFree": "Free on every plan: watch SOS, school alerts and the last location.",
+  "@kwHonestFree": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHonestPhone": "Phone: not automatic. Your child presses one big button (leaving now / reached). If nothing comes in time, we first ask the child, then tell you with the last known location.",
+  "@kwHonestPhone": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHonestTitle": "What works how",
+  "@kwHonestTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwHonestWatch": "Watch: fully automatic. It tells you when your child leaves home, reaches school, leaves the school area during class, and gets home.",
+  "@kwHonestWatch": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwImOk": "I'm OK",
+  "@kwImOk": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLastSeenAt": "Last location at {time}",
+  "@kwLastSeenAt": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kwLateAfter": "Alert me if late by",
+  "@kwLateAfter": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLeavingNow": "Leaving now",
+  "@kwLeavingNow": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLoadFailed": "Could not load. Check the internet.",
+  "@kwLoadFailed": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLocateNow": "Locate now",
+  "@kwLocateNow": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLocateSent": "Asked the watch for its location.",
+  "@kwLocateSent": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwLocationUnavailable": "Location is off or not allowed. Turn it on and try again.",
+  "@kwLocationUnavailable": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwMinutes": "{n} minutes",
+  "@kwMinutes": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "kwModeFull": "Full",
+  "@kwModeFull": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwModeSafety": "Safety only",
+  "@kwModeSafety": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNameRequired": "Please write the child's name.",
+  "@kwNameRequired": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNew": "New",
+  "@kwNew": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNoCirclePeople": "Add your child to My Circle first.",
+  "@kwNoCirclePeople": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNoListening": "Assisto never turns on the watch microphone to listen secretly.",
+  "@kwNoListening": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNoLocationSent": "(location was not available)",
+  "@kwNoLocationSent": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNoLocationYet": "No location yet. The watch sends one when it sees GPS.",
+  "@kwNoLocationYet": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNotDelivered": "Not delivered — the watch did not answer",
+  "@kwNotDelivered": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwNotSet": "Not set — tap to choose",
+  "@kwNotSet": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwOffline": "Offline",
+  "@kwOffline": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwOnline": "Online",
+  "@kwOnline": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPairExpired": "Not connected",
+  "@kwPairExpired": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPairHint": "Send the setup SMS to the watch to connect it.",
+  "@kwPairHint": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPairIntro": "The code is under the QR code on the box or on the back of the watch (often 10 digits). Your child's own phone is not needed.",
+  "@kwPairIntro": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPairNext": "Next: setup SMS",
+  "@kwPairNext": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPauseToday": "Pause today",
+  "@kwPauseToday": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPhonePlansHeading": "School Mode on a phone",
+  "@kwPhonePlansHeading": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPickChild": "Choose the child.",
+  "@kwPickChild": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlacesRequired": "Set both home and school.",
+  "@kwPlacesRequired": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanActivePhone": "On. Your child presses the button when leaving and on arrival.",
+  "@kwPlanActivePhone": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanDeleteBody": "Its history and voice notes are deleted too.",
+  "@kwPlanDeleteBody": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanDeleteQ": "Delete this School Mode?",
+  "@kwPlanDeleteQ": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanPhoneHonest": "A phone cannot tell us on its own that your child left or arrived — Assisto does not use background location. Only the button does.",
+  "@kwPlanPhoneHonest": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanPhoneIntro": "On a phone your child presses one button when leaving and on arrival. Your child must agree on their phone first.",
+  "@kwPlanPhoneIntro": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanStopped": "School Mode is off.",
+  "@kwPlanStopped": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanWaitingChild": "Waiting for your child to agree on their phone.",
+  "@kwPlanWaitingChild": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanWatchHonest": "Location every minute while travelling, every 10 minutes at home or school, every hour at night — to save the battery.",
+  "@kwPlanWatchHonest": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlanWatchIntro": "With the watch everything is automatic: tracking turns on when your child leaves home and goes quiet at school.",
+  "@kwPlanWatchIntro": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlay": "Play",
+  "@kwPlay": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwPlayFailed": "Could not play this message.",
+  "@kwPlayFailed": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwReached": "Reached",
+  "@kwReached": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordFailed": "Could not record. Try again.",
+  "@kwRecordFailed": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordNoteTitle": "Voice note",
+  "@kwRecordNoteTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordReply": "Record a reply (15 seconds)",
+  "@kwRecordReply": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordReplyTitle": "Reply to the watch",
+  "@kwRecordReplyTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordStarting": "Starting the microphone…",
+  "@kwRecordStarting": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRecordingOf": "Recording… {secs} / {max} seconds",
+  "@kwRecordingOf": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "secs": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "kwRemove": "Remove",
+  "@kwRemove": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRemoveBody": "Its locations, voice messages and settings are deleted.",
+  "@kwRemoveBody": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRemoveQ": "Remove this watch?",
+  "@kwRemoveQ": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwReplyQueued": "Reply sent. It plays when the watch is online.",
+  "@kwReplyQueued": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwResumeToday": "Resume today",
+  "@kwResumeToday": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRetry": "Try again",
+  "@kwRetry": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwRingWatch": "Ring the watch",
+  "@kwRingWatch": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSafetyOnlyNote": "SOS and school alerts still work. Live map, history and voice need {credits} credits a month.",
+  "@kwSafetyOnlyNote": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "kwSave": "Save",
+  "@kwSave": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSchool": "School",
+  "@kwSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSchoolDays": "School days",
+  "@kwSchoolDays": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSchoolEnds": "School ends",
+  "@kwSchoolEnds": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSchoolModeTitle": "School Mode",
+  "@kwSchoolModeTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSchoolStarts": "School starts",
+  "@kwSchoolStarts": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSendToChild": "Send to my child",
+  "@kwSendToChild": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSendVoice": "Send",
+  "@kwSendVoice": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSending": "Sending to the watch",
+  "@kwSending": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSentArrived": "Sent: reached.",
+  "@kwSentArrived": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSentLeaving": "Sent: leaving now.",
+  "@kwSentLeaving": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSentOk": "Sent: you are OK.",
+  "@kwSentOk": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSet": "Set",
+  "@kwSet": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSetSchoolMode": "Set School Mode",
+  "@kwSetSchoolMode": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwShareLocationNow": "Send my location with it",
+  "@kwShareLocationNow": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwShareLocationSub": "Only this once, when you press.",
+  "@kwShareLocationSub": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsCheck": "Check the watch (it replies with its settings)",
+  "@kwSmsCheck": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsInterval": "Save battery (location every 10 minutes)",
+  "@kwSmsInterval": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsIntro": "Send these SMS from your phone to the watch's SIM number, one by one. Do it within {mins} minutes.",
+  "@kwSmsIntro": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "mins": {
+        "type": "String"
+      }
+    }
+  },
+  "kwSmsLockedNote": "If the check SMS still shows the old server after you sent the server SMS, this watch is locked to its maker and cannot use Assisto.",
+  "@kwSmsLockedNote": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsPassword": "Change the watch password (write your own 6 digits)",
+  "@kwSmsPassword": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsPasswordNote": "123456 is the factory password and everyone knows it. Change it so nobody else can send commands to the watch.",
+  "@kwSmsPasswordNote": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsServer": "Connect to the Assisto server",
+  "@kwSmsServer": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsSetup": "Setup SMS",
+  "@kwSmsSetup": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsTimezone": "Bangladesh time",
+  "@kwSmsTimezone": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSmsTitle": "Point the watch to Assisto",
+  "@kwSmsTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSosNumbers": "SOS numbers (up to 3)",
+  "@kwSosNumbers": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSosNumbersHelp": "The watch calls these in turn when SOS is held. Separate with commas.",
+  "@kwSosNumbersHelp": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSourceGps": "From the watch GPS. Tap to open the map.",
+  "@kwSourceGps": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwSourceWifi": "Indoors (Wi-Fi seen at a saved place). Tap to open the map.",
+  "@kwSourceWifi": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateAtHome": "at home",
+  "@kwStateAtHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateAtSchool": "at school",
+  "@kwStateAtSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateHome": "home",
+  "@kwStateHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateIdle": "waiting for the first location",
+  "@kwStateIdle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateNoSchool": "no school today",
+  "@kwStateNoSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateToHome": "on the way home",
+  "@kwStateToHome": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStateToSchool": "on the way to school",
+  "@kwStateToSchool": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStep1": "Buy a watch whose box says SeTracker (or SeTracker2).",
+  "@kwStep1": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStep2": "Put a SIM with internet in the watch.",
+  "@kwStep2": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStep3": "Enter the watch code here, then send the SMS we show from your phone.",
+  "@kwStep3": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStep4": "Set home, school and school hours.",
+  "@kwStep4": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStop": "Stop",
+  "@kwStop": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStopBody": "Your family will be told it is off.",
+  "@kwStopBody": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwStopQ": "Turn School Mode off?",
+  "@kwStopQ": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTitle": "Kids watch & School Mode",
+  "@kwTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTodayLine": "Today: {state}",
+  "@kwTodayLine": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "kwTranscribe": "Show as text (paid plans)",
+  "@kwTranscribe": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTranscriptCap": "Today's limit for text from voice is used up.",
+  "@kwTranscriptCap": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTranscriptNoKey": "Text from voice is not set up yet.",
+  "@kwTranscriptNoKey": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTranscriptPaidOnly": "Text from voice is on paid plans.",
+  "@kwTranscriptPaidOnly": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwTurnOn": "Turn on",
+  "@kwTurnOn": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwUseHereNow": "I am here now",
+  "@kwUseHereNow": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwUseHereNowSub": "Uses this phone's location once.",
+  "@kwUseHereNowSub": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwVoiceEmpty": "No voice messages yet.",
+  "@kwVoiceEmpty": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwVoiceIntro": "Your child presses the voice button on the watch; you hear it here with the time. Your reply plays on the watch. No credits.",
+  "@kwVoiceIntro": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwVoiceKeepNote": "Voice messages are encrypted and deleted after {days} days.",
+  "@kwVoiceKeepNote": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "kwVoiceMessages": "Voice messages",
+  "@kwVoiceMessages": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwVoiceNeedsFull": "Voice messages need the monthly credits for this watch.",
+  "@kwVoiceNeedsFull": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwVoiceTitle": "Voice messages — {name}",
+  "@kwVoiceTitle": {
+    "description": "kidswatch (owner idea 2, 28 Oct)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kwWaitingWatch": "Waiting for the watch",
+  "@kwWaitingWatch": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwWhichChild": "Which child (from My Circle)",
+  "@kwWhichChild": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwWhoElseSees": "Who else sees and gets alerts",
+  "@kwWhoElseSees": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
+  },
+  "kwWithVoice": "Add a voice note",
+  "@kwWithVoice": {
+    "description": "kidswatch (owner idea 2, 28 Oct)"
   }
 }
