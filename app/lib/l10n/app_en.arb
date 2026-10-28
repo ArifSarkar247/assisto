@@ -23725,5 +23725,106 @@
   "ldgTone": "Tone",
   "@ldgTone": {
     "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
-  }
+  },
+  "lgTitle": "Agent memory",
+  "lgEntryTitle": "Agent memory (life graph)",
+  "lgEntryBody": "People, places, routines and dates the agent may use — encrypted, only for you.",
+  "lgPrivacyNote": "Encrypted on our server and visible only to you. For a task the agent gets only the few facts that matter, with phone and account numbers hidden. Sensitive facts never go to the AI.",
+  "lgLoading": "Loading memory",
+  "lgEmptyTitle": "Nothing saved yet",
+  "lgEmptyBody": "The agent remembers only what you add here or approve. Nothing is saved by itself.",
+  "lgAdd": "Add a fact",
+  "lgAll": "All",
+  "lgTypePerson": "People",
+  "lgTypePlace": "Places",
+  "lgTypeRoutine": "Routines",
+  "lgTypePreference": "Preferences",
+  "lgTypeDate": "Important dates",
+  "lgTypeBusiness": "Business",
+  "lgSuggestionsTitle": "Waiting for your OK ({count})",
+  "@lgSuggestionsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lgSuggestionsHint": "Nothing is remembered until you tap Keep.",
+  "lgKeep": "Keep",
+  "lgReject": "Don't keep",
+  "lgKept": "Saved to memory",
+  "lgRejected": "Removed — it won't be suggested again",
+  "lgChangeTo": "Change to: {value}",
+  "@lgChangeTo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lgOriginUser": "You added",
+  "lgOriginRun": "Suggested by the agent",
+  "lgOriginLearn": "Weekly learning",
+  "lgSensitive": "Sensitive · never sent to AI",
+  "lgNotForAi": "Not used by the AI",
+  "lgStillRight": "Not used for a long time — still right?",
+  "lgStillRightYes": "Yes, keep",
+  "lgEdit": "Edit",
+  "lgDelete": "Delete",
+  "lgDeleted": "Deleted",
+  "lgSave": "Save",
+  "lgSaved": "Saved",
+  "lgCancel": "Cancel",
+  "lgAddTitle": "New fact",
+  "lgEditTitle": "Edit fact",
+  "lgFieldType": "Type",
+  "lgFieldLabel": "Name or title",
+  "lgFieldRelation": "Relation (optional)",
+  "lgFieldValue": "What to remember",
+  "lgFieldWhen": "When (optional)",
+  "lgFieldSensitive": "Sensitive (health, religion, politics…)",
+  "lgFieldUseInAi": "The agent may use this",
+  "lgNeedText": "Write a name or what to remember.",
+  "lgUpdated": "Updated {time}",
+  "@lgUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lgPauseLearning": "Pause weekly learning",
+  "lgLearningOn": "Each week the agent may suggest facts from your own data — recurring expenses, family in My Circle, Safe Journey routines. Never health, religion or politics. You decide what to keep.",
+  "lgLearningPaused": "Paused — the agent makes no new suggestions.",
+  "lgRetentionTitle": "Delete facts not used for",
+  "lgRetentionMonths": "{months} months",
+  "@lgRetentionMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "lgRetentionHint": "We ask “still right?” 6 months before deleting.",
+  "lgExport": "Export (JSON file)",
+  "lgExportDone": "Your memory file is ready — share or save it where you want.",
+  "lgExportFailed": "Could not export — please try again.",
+  "lgDeleteAll": "Delete all agent memory",
+  "lgDeleteAllTitle": "Delete everything?",
+  "lgDeleteAllBody": "Every fact and suggestion in the agent's memory will be deleted for good. This cannot be undone.",
+  "lgDeleteAllConfirm": "Delete everything",
+  "lgDeleteAllDone": "Deleted {count} items",
+  "@lgDeleteAllDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lgErrorLoad": "Could not load the memory. Check the internet and try again.",
+  "lgRetry": "Try again",
+  "lgFeatureOff": "Agent memory is not switched on yet.",
+  "lgFilterEmpty": "Nothing saved in this group.",
+  "lgActionFailed": "Could not do that — please try again.",
+  "lgMenu": "More options"
 }
