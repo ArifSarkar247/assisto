@@ -26654,5 +26654,247 @@
   "fcDocsOpenFile": "Open the scan",
   "@fcDocsOpenFile": {
     "description": "famcare: recipient opens the shared document's attached file"
-  }
+  },
+  "j2AppIndrive": "inDrive",
+  "j2AppLabel": "Ride app (if any)",
+  "j2AppNone": "None",
+  "j2AppObhai": "Obhai",
+  "j2AppOther": "Other app",
+  "j2AppPathao": "Pathao",
+  "j2AppUber": "Uber",
+  "j2BgRiskBody": "Many phones (Realme, Xiaomi, Oppo, Vivo, Samsung) stop apps in the background to save battery. Two quick settings keep your journey shared.",
+  "j2BgRiskFix": "Fix it now",
+  "j2BgRiskTitle": "This phone may stop sharing when the screen is off",
+  "j2Driver": "Driver: {name}",
+  "@j2Driver": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "j2DriverName": "Driver's name (optional)",
+  "j2DriverPhone": "Driver's phone (optional)",
+  "j2IntroBody": "Choose where you're going, by when, and who should know. They see you live, hear when you arrive, and are alerted if you're late — even if your phone goes off.",
+  "j2IntroTitle": "Get there safely — your family is with you",
+  "j2LinkNote": "Opens in any browser, no login. It stops showing your location when the trip ends.",
+  "j2LinkOff": "Turn off shared links",
+  "j2LinkOffBody": "Anyone you sent the link to will stop seeing your journey at once. People watching in Assisto still can. You can share a new link afterwards.",
+  "j2LinkOffConfirm": "Turn off",
+  "j2LinkOffDone": "Links turned off. Share a new one if you want.",
+  "j2LinkOffTitle": "Turn off the shared links?",
+  "j2LinkShare": "Share the live link",
+  "j2LinkSheetTitle": "Live link for family without Assisto",
+  "j2ModeBike": "Bike",
+  "j2ModeRide": "Other ride",
+  "j2NoAppPeople": "Family without Assisto? After you start, tap the link icon to share a live link with them.",
+  "j2NoMapNote": "The map isn't set up yet. Use a saved place, your current location or a Google Maps link.",
+  "j2NoPin": "No pin yet, so your arrival won't be noticed by itself. Add a pin (saved place, current location or a Maps link) — or tap “I've arrived safely” at the end.",
+  "j2Paste": "Paste",
+  "j2PasteLink": "Paste a Maps link",
+  "j2PasteLinkBad": "No location found in that. In Google Maps, open the place, tap Share, copy the link and paste it here.",
+  "j2PasteLinkField": "Link or coordinates",
+  "j2PasteLinkHint": "In Google Maps: open the place, tap Share, then Copy link. Paste it here.",
+  "j2PasteLinkTitle": "Paste a Google Maps link",
+  "j2PasteLinkUse": "Use this place",
+  "j2PickMap": "Pick on map",
+  "j2PickMapTitle": "Move the map to the place",
+  "j2PickMapUse": "Use this spot",
+  "j2Pinned": "Pinned. Your people are told by themselves when you get there.",
+  "j2PinnedFar": "{km} km from here in a straight line",
+  "@j2PinnedFar": {
+    "placeholders": {
+      "km": {
+        "type": "Object"
+      }
+    }
+  },
+  "j2PlaceHome": "Home",
+  "j2PlaceLongPress": "Long-press to remove",
+  "j2PlaceOffice": "Office",
+  "j2PlaceOther": "Other place",
+  "j2PlaceRemove": "Remove",
+  "j2PlaceRemoveTitle": "Remove {place} from saved places?",
+  "@j2PlaceRemoveTitle": {
+    "placeholders": {
+      "place": {
+        "type": "Object"
+      }
+    }
+  },
+  "j2PlaceSchool": "School",
+  "j2PlacesEmpty": "Save Home, School or Office once (pin it, then “Save this place”) and next time it's one tap.",
+  "j2RideAdd": "Add ride details",
+  "j2RideCardTitle": "Your ride",
+  "j2RideChange": "Change",
+  "j2RideEmpty": "Add the CNG number, the Pathao/Uber plate or the driver's name — your people get it at once.",
+  "j2RideHint": "Your people see these at once. A CNG's number is painted on its back; in Pathao/Uber it's on the ride screen.",
+  "j2RideSaved": "Ride details sent to your people.",
+  "j2RideShare": "Send to my people",
+  "j2Rough": "Rough trip time: about {min} min (typical speed, not live traffic)",
+  "@j2Rough": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "j2RoughUse": "Set arrival time from this",
+  "j2SavePlace": "Save this place",
+  "j2SavePlaceDone": "Saved. Next time it's one tap.",
+  "j2SavePlaceName": "Name (optional)",
+  "j2SavePlaceTitle": "Save as",
+  "j2Search": "Search a place",
+  "j2SearchFailed": "Search isn't working right now. Paste a Google Maps link or use a saved place.",
+  "j2SearchField": "Place name",
+  "j2SearchNone": "Nothing found. Try another name, or paste a Google Maps link.",
+  "j2SelectAll": "Select all",
+  "j2SelectNone": "Clear",
+  "j2ToGo": "About {km} km to go (straight line)",
+  "@j2ToGo": {
+    "placeholders": {
+      "km": {
+        "type": "Object"
+      }
+    }
+  },
+  "j2Unpin": "Remove pin",
+  "j2WatchEmptyBenefit": "See your family get home safe — live, without calling them again and again.",
+  "j2WatchEmptyHow": "When someone in your My Circle starts a Safe Journey and picks you, it shows here and you get a notification.",
+  "j2WatchStartOwn": "Start my own journey",
+  "gjTitle": "Follow a trip",
+  "gjAccept": "Accept",
+  "gjDecline": "Decline",
+  "gjAccepted": "Accepted. Sharing starts when the time comes.",
+  "gjDeclined": "Declined. Nothing will be shared.",
+  "gjStopped": "Sharing stopped. They have been told.",
+  "gjCancelled": "Request cancelled.",
+  "gjAsk": "{name} wants to follow your trip",
+  "@gjAsk": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjAskSchool": "{name} wants to follow your school trips",
+  "@gjAskSchool": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjWatchingYou": "{name} is watching your trip",
+  "@gjWatchingYou": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjWindow": "{day}, {start} to {end}",
+  "@gjWindow": {
+    "placeholders": {
+      "day": {
+        "type": "Object"
+      },
+      "start": {
+        "type": "Object"
+      },
+      "end": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjSchoolWindow": "School days, {start} to {end}",
+  "@gjSchoolWindow": {
+    "placeholders": {
+      "start": {
+        "type": "Object"
+      },
+      "end": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjConsentNote": "If you agree, they see your location only in this time window. You can stop any time.",
+  "gjBannerNote": "Your screen always shows who is watching. The trip's path is deleted when it ends.",
+  "gjStartNow": "Start sharing now",
+  "gjOpenTrip": "Open the trip",
+  "gjStopSharing": "Stop sharing",
+  "gjWithdraw": "Withdraw my consent",
+  "gjStop": "Stop",
+  "gjNotifText": "Sharing your location until the time window ends. Open Assisto to stop.",
+  "gjAskedOfMe": "Asked of me",
+  "gjAskedByMe": "Asked by me",
+  "gjAutoStartNote": "When the time comes, sharing starts by itself if Assisto is open. Otherwise a notification asks for one tap — Android does not let apps start location in the background.",
+  "gjCancel": "Cancel request",
+  "gjSchoolOff": "Turn school mode off",
+  "gjLog": "History of this request",
+  "gjLogAsked": "Asked",
+  "gjLogAccepted": "Accepted",
+  "gjLogStarted": "Sharing started",
+  "gjLogReminder": "Start reminder sent",
+  "gjLogEscalated": "No answer — alert sent",
+  "gjStPending": "Waiting for an answer",
+  "gjStAccepted": "Accepted — starts at the time",
+  "gjStActive": "Sharing now",
+  "gjStArrived": "Arrived safely",
+  "gjStDeclined": "Declined",
+  "gjStExpired": "No answer in time",
+  "gjStStopped": "Stopped by the traveller",
+  "gjStWindowEnd": "Ended at the end of the time",
+  "gjStNotStarted": "Sharing never started",
+  "gjStCancelled": "Cancelled",
+  "gjStWithdrawn": "Consent withdrawn",
+  "gjStEnded": "Ended",
+  "gjEmptyTitle": "Know they reached — without calling ten times",
+  "gjEmptyBody": "Ask your daughter, son or a family member abroad to share one trip with you: where and between which times. They accept with one tap; you're told when they arrive.",
+  "gjEmptyHow": "If they're late, they are asked first if they're OK; only without an answer you get their last location. Sharing stops by itself at the end of the time.",
+  "gjAskButton": "Ask to follow a trip",
+  "gjFreeNote": "Free on every plan, always.",
+  "gjHistory": "Earlier",
+  "gjAskTitle": "Ask to follow a trip",
+  "gjAskIntro": "They decide: nothing is shared unless they accept, and they can stop any time.",
+  "gjWho": "Whose trip?",
+  "gjWhen": "When?",
+  "gjFrom": "From {time}",
+  "@gjFrom": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjTo": "Until {time}",
+  "@gjTo": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "gjNote": "Note (optional)",
+  "gjRulesNote": "Up to 24 hours, up to 7 days ahead. Sharing ends by itself when the time is over and the path is deleted.",
+  "gjSend": "Send request",
+  "gjSent": "Request sent. You'll be told when they answer.",
+  "gjNeedPerson": "Choose whose trip.",
+  "gjNeedMinor": "School mode is only for your child under 18. Please confirm.",
+  "gjSchoolMode": "School mode (every school day)",
+  "gjSchoolModeDesc": "Your child accepts once. Their screen always shows that you are watching, and they can stop any single trip.",
+  "gjMinor": "My child is under 18",
+  "gjErrLong": "The time window can be at most 24 hours.",
+  "gjErrFar": "You can ask at most 7 days ahead.",
+  "gjErrWindow": "Check the times: the end must be after the start and in the future.",
+  "gjErrSpam": "Too many requests. Wait for an answer first.",
+  "gjErrCircle": "You both need to be in each other's My Circle.",
+  "gjErrChild": "School mode is only for your own child who has you as parent in their My Circle.",
+  "gjDaySat": "Sat",
+  "gjDaySun": "Sun",
+  "gjDayMon": "Mon",
+  "gjDayTue": "Tue",
+  "gjDayWed": "Wed",
+  "gjDayThu": "Thu",
+  "gjDayFri": "Fri"
 }
