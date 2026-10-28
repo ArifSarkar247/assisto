@@ -1387,7 +1387,8 @@ def _briefing_payload(u, lang):
                 task=pick(lang,
                           "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।",
                           "Using the information below, write a short, warm morning briefing for the user (3-4 lines). Write in English."),
-                data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
+                data=text, tier="cheap", feature="briefing", max_tokens=300, user=u,
+                pii=True)   # AF-2: reminder titles / alerts can carry a phone or account no
             from . import ai_guard
             ai_text, _flags = ai_guard.clean_assistant_answer(ai_text, lang, actions=False)
         except ai.AIUnavailable:
@@ -1660,7 +1661,8 @@ class AgentView(APIView):
                                   "Answer the user's question briefly and truthfully in English. "
                                   "The DATA below summarises their own data — treat only it as true."),
                         data=f"Question: {text}\n\n{ctx['reply']}",
-                        tier="cheap", feature="agent_qa", max_tokens=400, user=u)
+                        tier="cheap", feature="agent_qa", max_tokens=400, user=u,
+                        pii=True)   # AF-2: question + own-data summary masked
                     from . import ai_guard
                     reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
                     cards = ctx.get("cards", [])
@@ -2387,8 +2389,11 @@ class AgentStudioView(APIView):
                                          "Available when an AI key is added.")})
         task = pick(lang, *_STUDIO_TASKS.get(kind, _STUDIO_TASKS["letter"]))
         try:
+            # AF-2: a letter / CV / email request carries the user's phone, NID
+            # or e-mail — masked for the provider, put back in the draft
             text, _ = ai.generate(task=task, data=prompt, tier="medium",
-                                   feature=f"studio.{kind}", max_tokens=900, user=request.user)
+                                   feature=f"studio.{kind}", max_tokens=900, user=request.user,
+                                   pii=True)
             from . import ai_guard     # aieval: a draft never claims it was sent
             text, _n = ai_guard.scrub_action_claims(text, lang)
             return Response({"kind": kind, "text": text, "ai_used": True})

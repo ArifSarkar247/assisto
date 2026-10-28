@@ -132,7 +132,8 @@ def refine_with_ai(base, inbound_texts, feature="crm.scoring", user=None):
     )
     try:
         text, _ = ai.generate(task=task, data=data, tier="cheap",
-                              max_tokens=120, feature=feature, user=user)
+                              max_tokens=120, feature=feature, user=user,
+                              pii=True)   # AF-2: buyer messages masked
     except Exception:
         return base, ""
 

@@ -31,9 +31,12 @@ _BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
 
 class Vault:
-    """token <-> original for one run."""
-    def __init__(self, data=None):
+    """token <-> original for one run. `kinds` (maskall) limits masking to
+    some kinds, e.g. Vault(kinds=("PHONE", "EMAIL")) for the bill reader,
+    which must read the account number itself."""
+    def __init__(self, data=None, kinds=None):
         data = data or {}
+        self.kinds = tuple(kinds) if kinds else None
         self.t2v = dict(data.get("t2v") or {})
         self.n = dict(data.get("n") or {})
         self.v2t = {v: t for t, v in self.t2v.items()}
@@ -55,10 +58,17 @@ class Vault:
             return text
         out = text
         for kind, rx in _PATTERNS:
+            if self.kinds is not None and kind not in self.kinds:
+                continue
             out = rx.sub(lambda m, k=kind: self._token(k, m.group(0)), out)
         return out
 
     def unmask(self, text):
+        if isinstance(text, str) and "\\u27e6" in text.lower():
+            # maskall: a JSON answer with ASCII escapes (\u27e6PHONE_1\u27e7) —
+            # the literal brackets are the same JSON string
+            text = re.sub(r"\\u27e([67])", lambda m: "⟦" if m.group(1) == "6" else "⟧",
+                          text, flags=re.I)
         if not isinstance(text, str) or "⟦" not in text:
             return text
         # AF-2: a provider answer turned to Bangla digits (digits="bn") carries
@@ -103,11 +113,12 @@ def leftover_tokens(text):
     return [m.group(0) for m in TOKEN_RX.finditer(text or "")] if isinstance(text, str) else []
 
 
-def has_raw_pii(text):
-    """True when `text` still contains an unmasked phone/NID/account/email."""
+def has_raw_pii(text, kinds=None):
+    """True when `text` still contains an unmasked phone/NID/account/email
+    (only the given `kinds` when set)."""
     if not isinstance(text, str):
         text = json.dumps(text, ensure_ascii=False, default=str)
-    return any(rx.search(text) for _, rx in _PATTERNS)
+    return any(rx.search(text) for k, rx in _PATTERNS if kinds is None or k in kinds)
 
 
 # ------------------------------------------------------------------ sealing

@@ -53,7 +53,7 @@ class Command(BaseCommand):
                             "Using the information below, write a short, warm morning "
                             "briefing in English (3-4 lines)."),
                         data=data, tier="cheap", feature="briefing.batch",
-                        max_tokens=300, user=u)
+                        max_tokens=300, user=u, pii=True)   # AF-2 masked
                     from core import ai_guard   # aieval: no medical claims
                     text, _flags = ai_guard.clean_assistant_answer(text, lang, actions=False)
                     ai_used = True
