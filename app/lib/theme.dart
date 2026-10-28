@@ -840,6 +840,11 @@ class HomeV2Palette {
     'prepaid_meter': [Color(0xFFF59E0B), Color(0xFFB45309)],
     'budget': [Color(0xFF22C55E), Color(0xFF15803D)],
     'contract': [Color(0xFFEC4899), Color(0xFFBE185D)],
+    // homeshort (owner 28 Oct): the new default shortcuts
+    'crm': [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+    'business': [Color(0xFF22C55E), Color(0xFF15803D)],
+    'emergency': [Color(0xFFEF4444), Color(0xFFB91C1C)],
+    'money': [Color(0xFF14B8A6), Color(0xFF0F766E)],
   };
   static const tileFallback = <List<Color>>[
     [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
