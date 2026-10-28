@@ -23725,5 +23725,165 @@
   "ldgTone": "Tone",
   "@ldgTone": {
     "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "docTypeTradeLicence": "Trade licence",
+  "docTypeVehicle": "Vehicle papers",
+  "vaultVehicleHelp": "Add each paper separately — registration, tax token, fitness, route permit, insurance — each with its own expiry date, so each gets its own reminder.",
+  "vaultAvailableOffline": "Available offline",
+  "vaultAvailableOfflineOn": "An encrypted copy is on this phone — opens without internet.",
+  "vaultAvailableOfflineOff": "Turn on to keep an encrypted copy on this phone.",
+  "vaultBioNotConfirmed": "Fingerprint not confirmed. Try again.",
+  "vaultBioReason": "Unlock your documents",
+  "vaultBioUnavailable": "Fingerprint isn't available on this phone right now. Use your PIN.",
+  "vaultChangePin": "Change PIN",
+  "vaultChangePinCurrent": "First enter your current PIN.",
+  "vaultChangePinNew": "Now choose a new PIN and enter it twice.",
+  "vaultDeleteTitle": "Delete this document?",
+  "vaultDeleteBody": "It will be removed from your account and from this phone. This can't be undone.",
+  "vaultExpiryAlerts": "Expiry reminders",
+  "vaultExpiryAlertsSub": "A notification 60, 30, 7 and 1 day before. It shows only the document type, never its number.",
+  "vaultExpiryRemindNote": "We'll remind you 60, 30, 7 and 1 day before (not between 9 pm and 9 am).",
+  "vaultFingerprintSub": "Your PIN still works too.",
+  "vaultForgotPin": "Forgot PIN?",
+  "vaultHowTitle": "How your vault is protected",
+  "vaultHowStored": "Your documents are kept with your Assisto account, so they stay safe even if this phone is lost, reset or repaired. Only you can open them, after signing in.",
+  "vaultHowPin": "The PIN locks the vault on this phone. It never leaves the phone and is not stored on our server.",
+  "vaultHowOffline": "Offline copies are encrypted on this phone with a separate key, not with your PIN.",
+  "vaultHowNotE2e": "Honest note: documents on our server are not end-to-end encrypted. That is why a forgotten PIN never loses a document — you can reset it after proving it's you.",
+  "vaultMethodSms": "Code by SMS",
+  "vaultMethodSmsOff": "Not available right now",
+  "vaultMethodEmail": "Code by email",
+  "vaultMethodEmailOff": "Verify an email in your account settings to use this",
+  "vaultMethodPassword": "Account password",
+  "vaultMethodPasswordOff": "No password set — add one in your account settings",
+  "vaultNeedInternet": "This needs internet. Please connect and try again.",
+  "vaultNeedInternetOpen": "No internet. Only documents marked “Available offline” open without internet.",
+  "vaultNeedInternetSave": "Saving a copy needs internet once. Please connect and try again.",
+  "vaultNoPreview": "This file type can't be shown here.",
+  "vaultNoRecoveryWarn": "No recovery method is set yet. If you forget your PIN you won't be able to open the vault until you verify. Make a recovery code now, or add a password or verified email to your account.",
+  "vaultNotOfflineYet": "This document isn't saved on this phone, so it needs internet to open.",
+  "vaultNudgeTitle": "Never get locked out",
+  "vaultNudgeBody": "Make a recovery code. If you forget your PIN it lets you set a new one — even without internet.",
+  "vaultNudgeLater": "Later",
+  "vaultOfflineBanner": "No internet — showing {n} documents saved on this phone",
+  "@vaultOfflineBanner": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultOfflineBannerSub": "Other documents will appear when you're back online.",
+  "vaultOfflineHowTo": "Open a document and turn on “Available offline”.",
+  "vaultOfflineNone": "No documents saved on this phone",
+  "vaultOfflineRemoveAll": "Remove all offline copies",
+  "vaultOfflineRemoveAllConfirm": "The copies on this phone will be deleted. Your documents stay safe in your account.",
+  "vaultOfflineRemoved": "Copy removed from this phone",
+  "vaultOfflineSaveFailed": "Couldn't save a copy on this phone. Please try again.",
+  "vaultOfflineSaved": "Saved on this phone — it will open without internet",
+  "vaultOfflineSection": "Offline copies",
+  "vaultOfflineUsage": "{n} documents · {size} on this phone",
+  "@vaultOfflineUsage": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultOpenWithApp": "Open with another app",
+  "vaultOpenedFromPhone": "Opened from this phone (offline copy)",
+  "vaultPinChanged": "PIN changed",
+  "vaultPinConfirm": "Enter the PIN again",
+  "vaultPinMismatch": "The two PINs don't match",
+  "vaultPinSaveFailed": "Couldn't save on this phone. Please try again.",
+  "vaultPinSection": "PIN and unlock",
+  "vaultRecoverByCode": "Get a code",
+  "vaultRecoverCodeTo": "Sent to {to}",
+  "@vaultRecoverCodeTo": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultRecoverByPassword": "Use my account password",
+  "vaultRecoverByRecoveryCode": "Use my recovery code",
+  "vaultRecoverByRecoveryCodeSub": "Works without internet",
+  "vaultRecoverCapToday": "The PIN was reset many times today. Please try again tomorrow, or use your recovery code.",
+  "vaultRecoverChoose": "Prove it's you",
+  "vaultRecoverFailed": "Couldn't verify. Please try again.",
+  "vaultRecoverNeverPin": "Your PIN and recovery code never leave this phone. Only the code or password you enter is checked by Assisto.",
+  "vaultRecoverNoNet": "No internet. Connect to verify, or use your recovery code.",
+  "vaultRecoverNone": "This account has no way to verify right now (no password, and codes can't be sent). Your documents are not lost. Please try again later, or contact Assisto support from Help.",
+  "vaultRecoverOffline": "No internet — can't check your account right now",
+  "vaultRecoverOtpTitle": "Reset vault PIN",
+  "vaultRecoverOtpIntro": "We'll send a code to your account's own number or verified email.",
+  "vaultRecoverPasswordTitle": "Your account password",
+  "vaultRecoverPasswordLabel": "Password",
+  "vaultRecoverSafeTitle": "Your documents are safe",
+  "vaultRecoverSafeBody": "They are kept with your account, not inside the PIN. Prove it's you and set a new PIN — nothing is deleted.",
+  "vaultRecoverSetNew": "Verified. Now choose a new PIN.",
+  "vaultRecoveryCodeCreate": "Make a recovery code",
+  "vaultRecoveryCodeEnterTitle": "Enter your recovery code",
+  "vaultRecoveryCodeIsSet": "Set on this phone. It works once; then make a new one.",
+  "vaultRecoveryCodeLabel": "Recovery code",
+  "vaultRecoveryCodeNew": "Make a new code",
+  "vaultRecoveryCodeNotSet": "Not set",
+  "vaultRecoveryCodeReplaceWarn": "Your old recovery code will stop working.",
+  "vaultRecoveryCodeSaved": "I've written it down",
+  "vaultRecoveryCodeShowOnce": "Write this code on paper and keep it safe. It is shown only now.",
+  "vaultRecoveryCodeTitle": "Recovery code",
+  "vaultRecoveryCodeWarn": "Anyone with this code and your unlocked phone can reset the vault PIN. Don't share it or keep it in your photos.",
+  "vaultRecoveryCodeWrong": "That recovery code didn't match.",
+  "vaultRecoverySection": "If you forget your PIN",
+  "vaultSecurityTitle": "Security and storage",
+  "vaultSetPinButton": "Set PIN",
+  "vaultSetPinInfo": "This PIN locks your documents on this phone. It never leaves the phone.",
+  "vaultTooManyTries": "Too many wrong tries.",
+  "vaultTriesLeft": "{n} tries left before a short wait",
+  "@vaultTriesLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultTryAgainIn": "Try again in {time}.",
+  "@vaultTryAgainIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultUnlockInfo": "Enter your vault PIN.",
+  "vaultUseFingerprint": "Use fingerprint",
+  "vaultVerify": "Verify",
+  "vaultWaitMinutes": "{n} min",
+  "@vaultWaitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultWaitSeconds": "{n} sec",
+  "@vaultWaitSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultWrongPinLeft": "Wrong PIN. {n} tries left.",
+  "@vaultWrongPinLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
   }
 }
