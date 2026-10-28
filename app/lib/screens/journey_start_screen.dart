@@ -16,6 +16,22 @@ import '../services/action_feedback.dart'; // db1
 /// lat/lng), an expected-arrival time, the watchers (circle members), and
 /// optional ride details (item 3 — CNG/rickshaw plate). One-tap presets reuse
 /// saved places. Watchers are the ONLY audience.
+/// The watcher picker's rows from GET /circle/members. The server answers
+/// `{"results": [...]}` with each edge's `state`; only accepted circle members
+/// can watch. (sjfix: this used to read `members`/`accepted` + `status`, keys
+/// the server never sends, so the picker was always empty.)
+List<Map<String, dynamic>> journeyWatcherRows(Object? r) {
+  final raw = r is List
+      ? r
+      : (r is Map ? (r['results'] ?? r['members'] ?? r['accepted']) : null);
+  if (raw is! List) return [];
+  return raw
+      .whereType<Map>()
+      .map((m) => m.cast<String, dynamic>())
+      .where((m) => '${m['state'] ?? m['status'] ?? 'accepted'}' == 'accepted')
+      .toList();
+}
+
 class JourneyStartScreen extends StatefulWidget {
   const JourneyStartScreen({super.key});
   @override
@@ -68,10 +84,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     } catch (_) {} // best-effort: no saved places offline, form still works
     try {
       final r = await api.getJson('/circle/members');
-      _watchers = ((r['members'] ?? r['accepted'] ?? []) as List)
-          .cast<Map<String, dynamic>>()
-          .where((m) => (m['status'] ?? 'accepted') == 'accepted')
-          .toList();
+      _watchers = journeyWatcherRows(r);
     } catch (_) {} // best-effort: offline -> empty list shows the add-family step
     if (mounted) setState(() => _loading = false);
   }
@@ -139,7 +152,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     try {
       final r = await context.read<AppState>().api.journeyStart(
             destination: dest,
-            etaIso: eta.toIso8601String(),
+            etaIso: eta.toUtc().toIso8601String(), // sjfix: absolute instant, not phone-local wall time
             watcherIds: _selectedWatchers.toList(),
             mode: _mode,
             vehicle: _plate.text.trim().isEmpty

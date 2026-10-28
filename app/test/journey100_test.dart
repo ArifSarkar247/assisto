@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/journey_fake_call_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
+import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/journey_watch_screen.dart';
 import 'package:assisto/services/journey_tracker.dart';
 import 'package:assisto/state.dart';
@@ -43,11 +45,13 @@ class _JApi extends ApiClient {
   Object? stopError;
   List<Map<String, dynamic>> watching = [];
   bool watchFails = false;
+  Map<String, dynamic> circle = {'results': []};
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     hits.add(_Hit('GET', path, const {}));
     if (path == '/journey/active') return active;
+    if (path == '/circle/members') return circle;
     if (path == '/journey/watching') {
       if (watchFails) throw ApiException('down', 500);
       return {'journeys': watching};
@@ -62,6 +66,9 @@ class _JApi extends ApiClient {
     if (path.endsWith('/location')) {
       return onLocation?.call(body) ?? {'status': 'active', 'overdue_state': 'on_time'};
     }
+    // the start form test only checks what is SENT; failing here keeps the
+    // real live screen (tracker, plugins) out of the widget test
+    if (path == '/journey/start') throw ApiException('test: not started', 500);
     if (path.endsWith('/stop') && stopError != null) throw stopError!;
     if (path.endsWith('/stop')) return {'ok': true, 'outcome': 'cancel', 'status': 'stopped'};
     return {'ok': true};
@@ -345,6 +352,70 @@ void main() {
     await _settle(tester);
     expect(find.text(en.j100WatchError), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); // drop the 30 s refresh timer
+  });
+
+  test('watcher rows: real /circle/members shape, accepted only', () {
+    final rows = journeyWatcherRows({
+      'results': [
+        {'id': 7, 'name': 'Karim', 'state': 'accepted'},
+        {'id': 8, 'name': 'Pending Pal', 'state': 'pending'},
+        {'id': 9, 'name': 'Old Shape'},
+      ]
+    });
+    expect(rows.map((m) => m['id']), [7, 9]);
+    expect(journeyWatcherRows({}), isEmpty);
+    expect(journeyWatcherRows(null), isEmpty);
+    expect(journeyWatcherRows([{'id': 1, 'status': 'accepted'}]).single['id'], 1);
+  });
+
+  testWidgets('start form lists accepted circle members as watchers', (tester) async {
+    // plugin channels never answer in the test VM: location already allowed
+    final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    m.setMockMethodCallHandler(const MethodChannel('flutter.baseflow.com/geolocator'),
+        (call) async => call.method == 'checkPermission' ? 2 : null);
+    addTearDown(() => m.setMockMethodCallHandler(
+        const MethodChannel('flutter.baseflow.com/geolocator'), null));
+    final api = _JApi()
+      ..active = {}
+      ..circle = {
+        'results': [
+          {'id': 7, 'name': 'Reality Karim', 'phone': '01711000002', 'state': 'accepted'},
+          {'id': 8, 'name': 'Pending Pal', 'state': 'pending'},
+        ]
+      };
+    await tester.pumpWidget(_app(api));
+    unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
+    await _settle(tester);
+    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim');
+    expect(karim, findsOneWidget);
+    expect(find.text('Pending Pal'), findsNothing);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsNothing);
+    await tester.ensureVisible(karim);
+    await tester.tap(karim);
+    await _settle(tester, 3);
+    expect(tester.widget<CheckboxListTile>(karim).value, isTrue);
+    // sjfix: the ETA goes out as an absolute UTC instant. A naive local
+    // time was read by the server as Asia/Dhaka, so any phone on another
+    // timezone started its journey already overdue.
+    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
+    await tester.tap(find.byKey(const ValueKey('j100_start')));
+    await _settle(tester);
+    final eta = '${api.posts('/journey/start').single.body['eta']}';
+    expect(eta, endsWith('Z'));
+    final at = DateTime.parse(eta);
+    expect(at.isAfter(DateTime.now().toUtc()), isTrue);
+    expect(at.difference(DateTime.now().toUtc()).inHours, lessThan(25));
+    expect(api.posts('/journey/start').single.body['watcher_ids'], [7]);
+  });
+
+  testWidgets('start form with an empty circle shows the add-family step', (tester) async {
+    final api = _JApi()..active = {};
+    await tester.pumpWidget(_app(api));
+    unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
+    await _settle(tester);
+    expect(find.byType(CheckboxListTile), findsNothing);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsOneWidget);
   });
 
   testWidgets('live screen in Bangla + dark mode: Bangla only, 48dp targets', (tester) async {

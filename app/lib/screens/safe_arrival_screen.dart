@@ -129,7 +129,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     try {
       await context.read<AppState>().api.safetyCheckinStart(
           place: _place,
-          etaIso: _eta!.toIso8601String(),
+          etaIso: _eta!.toUtc().toIso8601String(),
           graceMin: aEffectiveGrace(_eta, nightMode: _nightMode));
     } catch (_) {
       // q1-seams: the family poll only sees a SERVER check-in — say so instead
