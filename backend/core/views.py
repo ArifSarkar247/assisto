@@ -297,6 +297,16 @@ class ReminderViewSet(SyncedViewSet):
     kind = "reminder"
     serializer_class = ReminderSerializer
 
+    def perform_update(self, serializer):
+        # famcare: a family task ticked done tells the assigner (once).
+        was_done = bool(serializer.instance.done)
+        super().perform_update(serializer)
+        try:
+            from . import famcare as FC
+            FC.on_reminder_saved(serializer.instance, was_done)
+        except Exception:
+            pass
+
 
 class NoteViewSet(SyncedViewSet):
     model = Note
@@ -559,9 +569,21 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
     serializer_class = FamilyMemberSerializer
 
     def get_queryset(self):
-        return FamilyMember.objects.filter(user=self.request.user)
+        return FamilyMember.objects.filter(user=self.request.user) \
+            .select_related("circle_member")
 
     def perform_create(self, serializer):
+        # famcare: every plan (Free included) keeps up to 5 — server-enforced.
+        from . import famcare as FC
+        from rest_framework.exceptions import PermissionDenied
+        if FC.over_cap(self.request.user):
+            cap = FC.family_cap(self.request.user)
+            from .family_alerts import bn_num
+            raise PermissionDenied(detail={
+                "reason": "family_limit", "limit": cap,
+                "detail": pick(req_lang(self.request),
+                               "পরিবারে সর্বোচ্চ %s জন রাখা যায়।" % bn_num(cap),
+                               "You can keep up to %d family members." % cap)})
         serializer.save(user=self.request.user)
 
 
