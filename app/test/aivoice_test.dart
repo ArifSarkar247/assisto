@@ -635,9 +635,15 @@ void main() {
             debugLoopPhase: LoopPhase.listening),
         lang: 'bn', scale: 2, dark: true));
     await _settle(tester);
-    await tester.tap(find.byKey(const ValueKey('aichat_nokey_strip')));
+    expect(tester.takeException(), isNull);
+    // the thread opens at its newest message; the strip is row 0 above it
+    final strip = find.byKey(const ValueKey('aichat_nokey_strip'));
+    await tester.scrollUntilVisible(strip, -200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(strip);
     await _settle(tester, 3);
     expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('aichat_nokey_card')), findsOneWidget);
     expect(find.text(_tl('bn').aivConvListening), findsOneWidget);
   });
 
