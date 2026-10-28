@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -115,6 +116,11 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   // ------------------------------------------------------------------ data
+  static const _localWait = Duration(seconds: 3);
+
+  Future<Map<int, OfflineEntry>> _savedCopies() =>
+      _offline.index().timeout(_localWait, onTimeout: () => <int, OfflineEntry>{});
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -123,11 +129,14 @@ class _VaultScreenState extends State<VaultScreen> {
     try {
       _docs = await context.read<AppState>().api.listDocuments();
       _offlineMode = false;
-      await _offline.syncWith(_docs);
+      // keep the phone's copies in step (never blocks the list)
+      unawaited(_offline.syncWith(_docs).then((_) => _refreshLocal(), onError: (_) {}));
     } catch (e) {
       _failCause = e;
-      final saved = await _offline.index();
-      if (failKindOf(e) == FailKind.network && saved.isNotEmpty) {
+      final saved = failKindOf(e) == FailKind.network
+          ? await _savedCopies()
+          : const <int, OfflineEntry>{};
+      if (saved.isNotEmpty) {
         // vault100: no internet -> the copies saved on this phone, honestly labelled
         _docs = [for (final x in saved.values) x.meta];
         _offlineMode = true;
@@ -135,9 +144,20 @@ class _VaultScreenState extends State<VaultScreen> {
         _error = true;
       }
     }
-    _offlineIds = (await _offline.index()).keys.toSet();
-    _hasRecoveryCode = await _lock.hasRecoveryCode();
     if (mounted) setState(() => _loading = false);
+    unawaited(_refreshLocal());
+  }
+
+  /// Offline badges + the recovery-code nudge: local reads AFTER the list is
+  /// shown (a slow phone store never holds the list back).
+  Future<void> _refreshLocal() async {
+    final ids = (await _offline.index()).keys.toSet();
+    final has = await _lock.hasRecoveryCode();
+    if (!mounted) return;
+    setState(() {
+      _offlineIds = ids;
+      _hasRecoveryCode = has;
+    });
   }
 
   Future<String?> _pickImage() async {
