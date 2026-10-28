@@ -318,3 +318,119 @@ class HandoffCardTests(Base):
             self.post_meta(mpayload("worst service ever", "m.af10b"))
         ap = Message.objects.get(status="pending_approval")
         self.assertNotIn("card", ap.meta)
+
+
+# ============================================================ AF-7 retention
+class RetentionTests(_FlagOn):
+    def _run(self):
+        from core.models import BusinessProfile, KhataEntry, KhataParty
+        from django.utils import timezone
+        biz = BusinessProfile.objects.create(user=self.u, shop_name="Dokan")
+        p = KhataParty.objects.create(business=biz, book="customer", name="Karim",
+                                      phone="01811223344")
+        KhataEntry.objects.create(party=p, direction="gave", amount_poisha=50000, at=timezone.now())
+        PL.set_planner(_Scripted({"v": 1, "steps": [{"tool": "khata.dues", "args": {}}], "done": False},
+                                 {"v": 1, "steps": [], "answer": "Karim ⟦PHONE_1⟧ owes 500"}))
+        run = RN.start(self.u, "কার কাছে বাকি? 01811223344", topic="business", lang="en")
+        self.assertIn("01811223344", RN.answer_of(run))
+        return run
+
+    def test_kept_before_30_days_wiped_after_history_stays_masked(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core.agentcore import retention as RT
+        from core.models import AgentRun
+        run = self._run()
+        AgentRun.objects.filter(pk=run.pk).update(finished_at=timezone.now() - timedelta(days=29))
+        self.assertEqual(RT.sweep()["runs_wiped"], 0)
+        run.refresh_from_db()
+        self.assertTrue(run.vault_sealed)
+        AgentRun.objects.filter(pk=run.pk).update(finished_at=timezone.now() - timedelta(days=31))
+        st = RT.sweep()
+        self.assertEqual(st["runs_wiped"], 1)
+        self.assertGreaterEqual(st["steps_wiped"], 1)
+        run.refresh_from_db()
+        self.assertEqual(run.vault_sealed, "")
+        self.assertEqual(run.goal.text_sealed, "")
+        self.assertFalse(run.steps.exclude(args_sealed="", result_sealed="").exists())
+        ans = RN.answer_of(run)
+        self.assertIn("⟦PHONE_1⟧", ans)                    # still readable, masked
+        self.assertNotIn("01811223344", ans)
+        self.assertIn("⟦PHONE_1⟧", run.goal.text_masked)
+        self.assertEqual(RT.sweep()["runs_wiped"], 0)       # idempotent
+
+    def test_audit_kept_12_months(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core.agentcore import retention as RT
+        run = self._run()
+        n = run.audit.count()
+        old = run.audit.first()
+        AgentAuditEvent.objects.filter(pk=old.pk).update(created_at=timezone.now() - timedelta(days=366))
+        AgentAuditEvent.objects.filter(pk=run.audit.last().pk).update(
+            created_at=timezone.now() - timedelta(days=364))
+        self.assertEqual(RT.sweep()["audit_deleted"], 1)
+        self.assertEqual(run.audit.count(), n - 1)
+
+    def test_registered_for_the_owner_cron_list(self):
+        from core import ops_health as H
+        line = H.JOB_BY_NAME["agent_core_retention"].cron_line()
+        self.assertIn("manage.py agent_core_retention", line)
+        self.assertIn("flock -n", line)
+
+
+# ============================================================ AF-9 resolution
+class ResolutionMetricsTests(SimpleTestCase):
+    def test_seeded_threads_exact_percentages(self):
+        from core.logic import bizagent_metrics as BM
+        now = 1_000_000
+
+        def m(d, ts, source="", status="sent", risk="", text=""):
+            return {"direction": d, "source": source, "status": status, "risk": risk, "ts": ts,
+                    "text": text}
+        threads = [
+            {"messages": [m("in", 0, status="received"), m("out", 10, "ai")],
+             "orders": [{"total": "1200", "status": "delivered"}]},                  # resolved
+            {"messages": [m("in", 0, status="received"), m("out", 20, "rule"),
+                          m("in", 100, status="received"),
+                          m("out", 101, "system"),
+                          m("out", 101, "ai", "pending_approval", BZ.RISK_COMPLAINT)]},  # customer handoff
+            {"messages": [m("in", 0, status="received"), m("out", 5, "ai"),
+                          m("out", 500, "human")],
+             "orders": [{"total": "900", "status": "cancelled"}]},                   # resolved, not deflected
+            {"messages": [m("in", 0, status="received", text="lal juta ache? 01712345678"),
+                          m("out", 2, "system"),
+                          m("out", 2, "ai", "pending_approval", BZ.RISK_UNKNOWN_PRODUCT)]},  # not AI-handled
+            {"messages": [m("in", now - 100, status="received"), m("out", now - 90, "ai")]},  # window open
+        ]
+        r = BM.summarize(threads, now)
+        self.assertEqual((r["chats"], r["ai_handled"], r["resolved"], r["unresolved"], r["pending"]),
+                         (5, 4, 2, 1, 1))
+        self.assertEqual(r["resolution_rate"], 66.7)
+        self.assertEqual((r["deflected"], r["deflection_base"], r["deflection_rate"]), (1, 3, 33.3))
+        self.assertEqual(r["handoff_by_reason"], {BZ.RISK_COMPLAINT: 1, BZ.RISK_UNKNOWN_PRODUCT: 1})
+        self.assertEqual(r["handoff_rate"], 40.0)
+        self.assertEqual((r["ai_orders"], r["ai_revenue"]), (1, "1200"))
+        self.assertEqual((r["frt_p50_s"], r["frt_p95_s"]), (5, 20))
+        self.assertEqual(r["knowledge_gaps"], [{"q": "lal juta ache? 017•••••678", "n": 1}])
+
+    def test_report_line_bn_digits_and_en(self):
+        st = {"orders": 0, "revenue": 0, "messages": 0, "ai_replies": 0, "pending_approvals": 0,
+              "resolution_7d": {"resolution_rate": 66.7, "resolved": 2, "unresolved": 1}}
+        self.assertIn("৬৬.৭% চ্যাট শেষ করেছে (২/৩)", BZ.daily_report("bn", st)["body"])
+        self.assertIn("66.7% of chats on its own (2/3)", BZ.daily_report("en", st)["body"])
+        st["resolution_7d"] = {"resolution_rate": None}
+        self.assertNotIn("AI", BZ.daily_report("en", st)["body"].split("approval.")[-1])
+
+
+class ResolutionServiceTests(Base):
+    def test_daily_stats_carries_resolution(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        with mock.patch.object(S, "_llm_draft",
+                               return_value={"text": "Yes, Panjabi is cotton.", "confidence": 0.9}):
+            self.post_meta(mpayload("Panjabi ta ki cotton?", "m.af9"))
+        Message.objects.update(created_at=timezone.now() - timedelta(days=5))
+        st = S.daily_stats(self.biz, timezone.localdate())["resolution_7d"]
+        self.assertEqual((st["chats"], st["ai_handled"], st["resolved"]), (1, 1, 1))
+        self.assertEqual(st["resolution_rate"], 100.0)

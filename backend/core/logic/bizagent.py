@@ -1252,4 +1252,17 @@ def daily_report(lang, stats):
     if ls:
         names = ", ".join("%s (%d)" % (x["name"], x["stock"]) for x in ls[:5])
         body += pick(lang, f" কম স্টক: {names}।", f" Low stock: {names}.")
+    res = stats.get("resolution_7d") or {}
+    if res.get("resolution_rate") is not None:
+        # AF-9: measured on chats whose 72 h window has closed
+        rate, ok = res["resolution_rate"], res["resolved"]
+        base = res["resolved"] + res["unresolved"]
+        line = pick(lang, " গত সপ্তাহে AI নিজে %s%% চ্যাট শেষ করেছে (%s/%s)।"
+                    % (_bn_num(rate), _bn_num(ok), _bn_num(base)),
+                    " Last week the AI finished %s%% of chats on its own (%s/%s)." % (rate, ok, base))
+        body += line
     return {"title": title, "body": body}
+
+
+def _bn_num(v):
+    return str(v).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))

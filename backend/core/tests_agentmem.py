@@ -496,7 +496,8 @@ class HealthFilterTests(_Base):
         run = RN.start(self.u, "how is my budget", topic="money", lang="en")
         self.assertNotIn("paracetamol", RN.answer_of(run))
         self.assertIn("Budget is fine", RN.answer_of(run))
-        # a clean money answer is untouched
+        # a clean money answer is untouched by the health filter (its amount is
+        # the user's own number — AF-1 rewrites an amount no source supports)
         PL.set_planner(_Scripted({"v": 1, "steps": [], "answer": "এই মাসে খরচ ৳১২,০০০।"}))
-        run = RN.start(self.u, "এই মাসে খরচ কত", topic="money")
+        run = RN.start(self.u, "এই মাসে খরচ ১২০০০ টাকা হয়েছে, ঠিক আছে?", topic="money")
         self.assertEqual(RN.answer_of(run), "এই মাসে খরচ ৳১২,০০০।")

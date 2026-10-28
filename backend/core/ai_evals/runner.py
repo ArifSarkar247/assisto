@@ -413,7 +413,13 @@ def check(result, th):
         if got is None:
             continue
         if got + 1e-9 < v:
-            bad.append("%s: %s %.4f < threshold %.4f" % (fid, k, got, v))
+            hint = ""
+            if result.get("kind") == "rule" and result.get("failures"):
+                # name the first failing cases so a red CI run says WHAT broke
+                hint = " — e.g. " + "; ".join(
+                    "%s %s" % (f["id"], json.dumps(f.get("diff"), ensure_ascii=False)[:160])
+                    for f in result["failures"][:4])
+            bad.append("%s: %s %.4f < threshold %.4f%s" % (fid, k, got, v, hint))
     return bad
 
 

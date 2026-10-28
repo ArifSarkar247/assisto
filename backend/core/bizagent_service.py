@@ -642,9 +642,11 @@ def _llm_draft(ctx, lang, tone, text, history):
     floor-price / number post-check runs on it. `pii_tokens` = how many values
     were masked (logged on the reply, never the values)."""
     from . import ai
+    from .agentcore import trust as _T
     if not ai.key_present():
         return None
     meta = {}
+    vault = _T.Vault()
     try:
         task = BZ.llm_task(ctx, lang, tone)
         if ctx.get("style"):
@@ -652,10 +654,13 @@ def _llm_draft(ctx, lang, tone, text, history):
                      "facts or numbers from it):\n" + str(ctx["style"])[:400])
         out, _cost = ai.generate(task=task, data=text, tier="cheap",
                                  max_tokens=300, feature="bizagent.reply", user=None,
-                                 history=history, pii=True, out_meta=meta)
+                                 history=history, pii=vault, out_meta=meta)
     except ai.AIUnavailable:
         return None
     d = BZ.parse_llm(out)
+    # a JSON reply may carry the token \u-escaped ("\u27e6EMAIL_1\u27e7"): the
+    # router's unmask saw no token, the parsed text has it -> unmask again
+    d["text"] = vault.unmask(d.get("text") or "")
     d["pii_tokens"] = int(meta.get("pii_masked") or 0)
     return d
 
@@ -1672,7 +1677,41 @@ def daily_stats(business, day):
             "pending_approvals": Message.objects.filter(thread__business=business,
                                                         status="pending_approval").count(),
             "threads": ChatThread.objects.filter(business=business).count(),
-            "low_stock": BZ.low_stock(catalog_for(business), th) if agent.low_stock_alert else []}
+            "low_stock": BZ.low_stock(catalog_for(business), th) if agent.low_stock_alert else [],
+            # AF-9: chats of 3-10 days ago (their 72 h window has closed)
+            "resolution_7d": resolution_stats(business, timezone.now() - timedelta(days=10),
+                                              timezone.now() - timedelta(days=3))}
+
+
+def resolution_stats(business, since, until, now=None, limit=2000):
+    """AF-9: resolution / deflection / handoff-by-reason / AI-assisted orders /
+    first-response p50-p95 / knowledge gaps for chats with a customer message
+    in [since, until). See core.logic.bizagent_metrics."""
+    from .logic import bizagent_metrics as BM
+    from .models import ChatThread, Message, Order
+    now = now or timezone.now()
+    horizon = until + timedelta(seconds=BM.WINDOW_S)
+    ids = list(Message.objects.filter(thread__business=business, direction="in",
+                                      created_at__gte=since, created_at__lt=until)
+               .values_list("thread_id", flat=True).distinct()[:limit])
+    rows = {i: {"messages": [], "orders": []} for i in ids}
+    for m in Message.objects.filter(thread_id__in=ids, created_at__gte=since,
+                                    created_at__lt=horizon).order_by("created_at", "id") \
+            .values("thread_id", "direction", "reply_source", "status", "risk_reason",
+                    "created_at", "text"):
+        rows[m["thread_id"]]["messages"].append({
+            "direction": m["direction"], "source": m["reply_source"], "status": m["status"],
+            "risk": m["risk_reason"], "ts": m["created_at"].timestamp(),
+            "text": (m["text"] or "")[:300] if m["direction"] == "in" else ""})
+    for o in Order.objects.filter(thread_id__in=ids, created_at__gte=since,
+                                  created_at__lt=horizon).values("thread_id", "total", "status",
+                                                                 "created_at"):
+        rows[o["thread_id"]]["orders"].append({"total": str(o["total"] or 0),
+                                               "status": o["status"],
+                                               "ts": o["created_at"].timestamp()})
+    out = BM.summarize(list(rows.values()), now.timestamp())
+    out.update({"since": since.isoformat(), "until": until.isoformat()})
+    return out
 
 
 def run_daily_reports(now=None):
