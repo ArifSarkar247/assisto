@@ -277,6 +277,18 @@ abstract class PsProxyEngine {
   /// at full size (AI upscale, AI restore: they ARE the result).
   PsStep? get lastStep;
 
+  /// photoperf2: the classical step of the last [EnhanceEngine.enhance] whose
+  /// AI step WAS used (null otherwise) — with [aiAnchor] the export renders
+  /// that version as a recipe too.
+  PsStep? get lastAiStep;
+
+  /// photoperf2: the AI step of an on-device enhance on the full original,
+  /// exactly as the enhance's own export runs it (no preview cap), WITHOUT
+  /// the classical pass — that comes from the recorded [lastAiStep]. The
+  /// original itself when the AI step is not usable or fails the identity
+  /// check (classical only, like [EnhanceEngine.enhance]).
+  Future<Uint8List> aiAnchor(Uint8List original);
+
   /// Tools for a photo whose FULL size is [w]×[h] (the proxy may be smaller).
   Future<ToolsAvailability> toolsAt(int w, int h);
 
@@ -306,9 +318,26 @@ BandRgba Function(void Function(int, int)) _bandJob(TransferableTypedData rgba, 
 
 PngBand Function(void Function(int, int)) _pngBandJob(TransferableTypedData src, int srcRow0,
         int w, int h, ClassicStep st, int from, int to, MarkPatch? mark, bool alpha, bool first,
-        bool last) =>
+        bool last, int stripRows) =>
     (p) => exportBand(src.materialize().asUint8List(), srcRow0, w, h, st, from, to,
-        mark: mark, alpha: alpha, first: first, last: last, progress: p);
+        mark: mark, alpha: alpha, first: first, last: last, progress: p, stripRows: stripRows);
+
+/// photoperf2: one band of the band-decoded export — the worker isolate
+/// reads its rows (decoded natively into [path]), deletes the file, filters
+/// + deflates them. The UI isolate never holds the pixels.
+PngBand Function(void Function(int, int)) _pngFileBandJob(String path, int r0, int r1, int w,
+        int h, ClassicStep st, int from, int to, MarkPatch? mark, bool first, bool last,
+        int stripRows) =>
+    (p) {
+      final f = File(path);
+      final src = f.readAsBytesSync();
+      try {
+        f.deleteSync();
+      } catch (_) {}
+      if (src.length != (r1 - r0) * w * 4) throw StateError('band_size');
+      return exportBand(src, r0, w, h, st, from, to,
+          mark: mark, first: first, last: last, stripRows: stripRows, progress: p);
+    };
 
 /// photoperf: isolates one pixel job is split over — the cores, at most 2 on
 /// ≤ 3 GB phones (each band has its own working memory).
@@ -323,9 +352,9 @@ int psBandWorkers() {
 }
 
 Uint8List Function(void Function(int, int)) _exportJob(TransferableTypedData rgba, int w,
-        int h, List<PsStep> steps, MarkPatch? mark, Uint8List extra) =>
+        int h, List<PsStep> steps, MarkPatch? mark, Uint8List extra, int stripRows) =>
     (p) => renderRecipePng(rgba.materialize().asUint8List(), w, h, steps,
-        mark: mark, extraChunks: extra, progress: p);
+        mark: mark, extraChunks: extra, progress: p, stripRows: stripRows);
 
 class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngine {
   StudioEnhanceEngine({
@@ -354,10 +383,26 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
 
   /// Bands a single classic step is split into (tests: 2, inline).
   int bands = 0;
+
+  /// photoperf2: strip height of the full-size export (0 = by the phone's
+  /// RAM, [psExportStripRows]; tests set it).
+  int exportStripRows = 0;
+  int get _exportStrip => exportStripRows > 0
+      ? exportStripRows
+      : psExportStripRows(ramMb: LowRamTuning.ramMb, lowRam: LowRamTuning.lowRam);
+
+  /// photoperf2: rows per natively decoded export band (tests: small).
+  int regionBandRows = 512;
+
+  /// photoperf2: how the last export got its pixels: 'bands' (native band
+  /// decoding) or 'full' (the whole photo decoded at once). Perf report.
+  String lastExportPath = '';
   int get _bands => bands > 0 ? bands : (worker.inline ? 2 : psBandWorkers());
-  PsStep? _lastStep;
+  PsStep? _lastStep, _lastAiStep;
   @override
   PsStep? get lastStep => _lastStep;
+  @override
+  PsStep? get lastAiStep => _lastAiStep;
 
   /// Last pixel job timings (ms) for the perf report / diagnostics.
   final Map<String, int> timings = {};
@@ -417,6 +462,16 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
     _cancelled = false;
     final sw = Stopwatch()..start();
     progress?.call(const PsProgress(PsStage.export, done: 0, total: 1000));
+    final extra0 = note.isEmpty ? Uint8List(0) : PngMeta.aiChunks(note: note, generated: generated);
+    final sr = _exportStrip;
+    final one = steps.length == 1 ? steps.single : null;
+    if (one is ClassicStep && one.plan != null && native is PhotoNativeRegions) {
+      // photoperf2: decode in bands natively, never the whole photo
+      final png = await _regionExport(anchor, one, mark, extra0, sr, sw);
+      if (png != null) return png;
+      _checkCancel();
+    }
+    lastExportPath = 'full';
     var img = await codec.decode(anchor);
     timings['export_decode_ms'] = sw.elapsedMilliseconds;
     _checkCancel();
@@ -430,14 +485,14 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
         rethrow; // never a free user's file without the corner mark
       }
     }
-    final extra = note.isEmpty ? Uint8List(0) : PngMeta.aiChunks(note: note, generated: generated);
+    final extra = extra0;
     final w = img.w, h = img.h;
     final n = _bands;
-    final single = steps.length == 1 ? steps.single : null;
+    final single = one;
     if (n > 1 && single is ClassicStep && single.plan != null) {
       // photoperf: bands over the cores, each with only its rows (+ context);
       // each band deflates its own part of the PNG stream
-      final bands = psBands(h, 256, n);
+      final bands = psBands(h, sr, n);
       final pad = classicPad(w, h, single.faces);
       final alpha = psMayHaveAlpha(anchor);
       final jobs = <PngBand Function(void Function(int, int))>[];
@@ -448,9 +503,9 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
         final first = i == 0, last = i == bands.length - 1;
         jobs.add(worker.inline
             ? (p) => exportBand(rows, r0, w, h, single, a, b,
-                mark: patch, alpha: alpha, first: first, last: last, progress: p)
+                mark: patch, alpha: alpha, first: first, last: last, progress: p, stripRows: sr)
             : _pngBandJob(TransferableTypedData.fromList([rows]), r0, w, h, single, a, b, patch,
-                alpha, first, last));
+                alpha, first, last, sr));
       }
       img = RgbaImage._empty(); // the UI isolate keeps no full-size copy
       try {
@@ -466,9 +521,10 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
     final Uint8List Function(void Function(int, int)) job;
     if (worker.inline) {
       final rgba = img.rgba;
-      job = (p) => renderRecipePng(rgba, w, h, steps, mark: patch, extraChunks: extra, progress: p);
+      job = (p) => renderRecipePng(rgba, w, h, steps,
+          mark: patch, extraChunks: extra, progress: p, stripRows: sr);
     } else {
-      job = _exportJob(TransferableTypedData.fromList([img.rgba]), w, h, steps, patch, extra);
+      job = _exportJob(TransferableTypedData.fromList([img.rgba]), w, h, steps, patch, extra, sr);
     }
     img = RgbaImage._empty(); // the UI isolate keeps no full-size copy
     try {
@@ -478,6 +534,86 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
       return png;
     } on PsWorkCancelled {
       throw const PsCancelled();
+    }
+  }
+
+  /// photoperf2: the export with the photo decoded natively in bands
+  /// ([PhotoNativeRegions]): each band (its rows + the filters' context
+  /// rows) goes to a worker as a file, at most [_bands] at a time while the
+  /// next band decodes — the full-size RGBA image never exists. null = not
+  /// possible here (format, older APK, size mismatch, any native or band
+  /// error, reported): the caller decodes the whole photo as before.
+  /// Cancel and a failing corner mark propagate (never a free user's file
+  /// without its mark).
+  Future<Uint8List?> _regionExport(Uint8List anchor, ClassicStep st, MarkPainter? mark,
+      Uint8List extra, int sr, Stopwatch sw) async {
+    PsRegionSource? src;
+    try {
+      src = await (native as PhotoNativeRegions).openRegions(anchor);
+    } catch (_) {
+      src = null;
+    }
+    if (src == null) return null;
+    final files = <String>[];
+    var markFailed = false;
+    try {
+      _checkCancel();
+      final sz = await codec.size(anchor);
+      if (sz.w != src.w || sz.h != src.h) {
+        // e.g. EXIF orientation read differently: never export rotated
+        report(PhotoStudioFailure('export', 'region_size', model: model.version));
+        return null;
+      }
+      final w = src.w, h = src.h;
+      MarkPatch? patch;
+      if (mark != null) {
+        try {
+          patch = await mark.paint(w, h);
+        } catch (e) {
+          report(PhotoStudioFailure('export', 'mark:${psErrorCode(e)}', model: model.version));
+          markFailed = true;
+          rethrow;
+        }
+      }
+      final pad = classicPad(w, h, st.faces);
+      final bands = psRegionBands(h, sr, bandRows: regionBandRows);
+      var decodeMs = 0;
+      final s0 = src;
+      Future<PngBand Function(void Function(int, int))> make(int i) async {
+        final (a, b) = bands[i];
+        final r0 = math.max(0, a - pad), r1 = math.min(h, b + pad);
+        final t = sw.elapsedMilliseconds;
+        final path = await s0.band(r0, r1);
+        decodeMs += sw.elapsedMilliseconds - t;
+        if (path == null) throw StateError('region_band');
+        files.add(path);
+        return _pngFileBandJob(
+            path, r0, r1, w, h, st, a, b, patch, i == 0, i == bands.length - 1, sr);
+      }
+
+      final parts = await worker.runPool<PngBand>(bands.length, make,
+          parallel: math.max(1, _bands),
+          onProgress: (d, t) => progress?.call(PsProgress(PsStage.export, done: d, total: t)));
+      final png = joinPngBands(parts, w, h, extraChunks: extra);
+      timings['export_decode_ms'] = decodeMs;
+      timings['export_bands'] = bands.length;
+      timings['export_ms'] = sw.elapsedMilliseconds;
+      lastExportPath = 'bands';
+      return png;
+    } on PsWorkCancelled {
+      throw const PsCancelled();
+    } on PsCancelled {
+      rethrow;
+    } catch (e) {
+      if (_cancelled) throw const PsCancelled();
+      if (markFailed) rethrow;
+      report(PhotoStudioFailure('export', 'region:${psErrorCode(e)}', model: model.version));
+      return null;
+    } finally {
+      await src.close();
+      for (final f in files) {
+        unawaited(File(f).delete().then((_) {}, onError: (_) {}));
+      }
     }
   }
 
@@ -694,6 +830,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
   Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) async {
     _cancelled = false;
     _lastStep = null;
+    _lastAiStep = null;
     final sw = Stopwatch()..start();
     var aiUsed = false, aiRejected = false, aiFailed = false;
     var ep = '';
@@ -742,10 +879,32 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
     final out = await _encodeOut(RgbaImage(r.rgba, r.w, r.h));
     sw.stop();
     _lastStep = aiUsed ? null : r.steps.single;
+    _lastAiStep = aiUsed ? r.steps.single : null;
     _last = EnhanceReport(
         aiUsed: aiUsed, aiRejected: aiRejected, aiFailed: aiFailed,
         ms: sw.elapsedMilliseconds, ep: ep);
     return out;
+  }
+
+  @override
+  Future<Uint8List> aiAnchor(Uint8List original) async {
+    _cancelled = false;
+    if (_ai != AiState.ready || _modelPath == null) return original;
+    final src = await codec.size(original);
+    List<NativeFace>? found;
+    try {
+      found = await native.faces(original);
+    } catch (_) {}
+    await perf.load();
+    final plan = AiPlan.of(src.w, src.h,
+        maxTiles: AiPlan.budgetTiles(perf.msPerTile), tile: model.tile - 2 * model.pad);
+    final r = await _upscale(original, found,
+        maxInputLong: plan.maxInputLong, targetLong: plan.targetLong, stage: 'upscale');
+    if (r == null) return original; // reported in _upscale
+    final aiBytes = await File(r.path).readAsBytes();
+    unawaited(File(r.path).delete().then((_) {}, onError: (_) {}));
+    final v = await guard.check(original, aiBytes);
+    return v.pass ? aiBytes : original;
   }
 
   static List<ClassicFace> _classicFaces(List<NativeFace>? found) => [
