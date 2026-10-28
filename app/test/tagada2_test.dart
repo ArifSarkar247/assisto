@@ -88,6 +88,7 @@ void main() {
       // never a paid SMS when a free route exists
       expect(find.byKey(const ValueKey('tg2-gw-1')), findsNothing);
       await tester.ensureVisible(find.byKey(const ValueKey('tg2-assisto-1')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('tg2-assisto-1')));
       await tester.pumpAndSettle();
       final sent = api.posts['/business/khata/tagada/send/1']!.single;
@@ -107,8 +108,12 @@ void main() {
       expect(find.text(t.tg2InviteFree), findsOneWidget);
       expect(find.text(t.tg2GatewayBtn('2')), findsOneWidget);
       await tester.ensureVisible(find.byKey(const ValueKey('tg2-wa-2')));
-      await tester.tap(find.byKey(const ValueKey('tg2-wa-2')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('tg2-wa-2')));
+      // the screen then opens WhatsApp (a platform call the test can't
+      // finish), so pump a little instead of settling.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(api.posts['/business/khata/tagada/send/2']!.single['channel'], 'whatsapp');
     });
 
@@ -161,6 +166,7 @@ void main() {
           TagadaSendScreen(business: _biz, parties: [_party(6, 'Kamal', '01312345678')]),
           api, lang: 'bn');
       await tester.ensureVisible(find.byKey(const ValueKey('tg2-gw-6')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('tg2-gw-6')));
       await tester.pumpAndSettle();
       expect(find.text(t.tg2SmsConfirmBody('Kamal', '২', '১৩')), findsOneWidget);
@@ -269,7 +275,11 @@ void main() {
       expect(find.byKey(const ValueKey('tg2-pay-bkash')), findsOneWidget);
       expect(find.text(t.tg2PayStepSendMoney), findsOneWidget);
       expect(find.text(t.tg2PayStepMerchantPay), findsOneWidget);
+      await tester.scrollUntilVisible(find.text(t.tg2EntryDue), 300,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text(t.tg2EntryDue), findsOneWidget);
+      await tester.scrollUntilVisible(find.text(t.tg2EntryPaid), 300,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text(t.tg2EntryPaid), findsOneWidget);
       await tester.scrollUntilVisible(find.byKey(const ValueKey('tg2-block')), 300,
           scrollable: find.byType(Scrollable).first);
