@@ -211,6 +211,56 @@ extension BusinessKhataApi on ApiClient {
   Future<Map<String, dynamic>> tagadaSaveSchedule(Map<String, dynamic> body) =>
       postJson('/business/khata/tagada/schedule', body);
 
+  // ======================= tagada2: send order + chat + invite + SMS =====
+
+  /// tagada2: POST tagada/send/<party> {business, channel, preset, pay_hint?}.
+  /// channel ∈ assisto | whatsapp | own_sms | gateway_sms. The SERVER picks
+  /// what is allowed (verified-phone match only, 1 reminder per customer per
+  /// day across every channel, STOP / quiet hours, SMS balance). Returns the
+  /// raw body + `_status` (never throws on a refusal): {ok, channel, url?,
+  /// parts?, sms?, reason?, detail?}.
+  Future<Map<String, dynamic>> tagadaSend({
+    required int businessId,
+    required int partyId,
+    required String channel,
+    required String preset,
+    Map<String, String>? payHint,
+  }) =>
+      postJsonRaw('/business/khata/tagada/send/$partyId', {
+        'business': businessId,
+        'channel': channel,
+        'preset': preset,
+        if (payHint != null) 'pay_hint': payHint,
+      });
+
+  /// tagada2: GET parties/<id>/chat -> {assisto_user, reachable, party,
+  /// messages:[{id, from:'shop'|'customer', kind, text, at, read}]}.
+  Future<Map<String, dynamic>> khataChat(int businessId, int partyId) =>
+      getJson('/business/khata/parties/$partyId/chat?business=$businessId');
+
+  /// tagada2: POST parties/<id>/chat {business, text} -> {ok, message} or a
+  /// refusal (raw + `_status`).
+  Future<Map<String, dynamic>> khataChatSend(
+          int businessId, int partyId, String text) =>
+      postJsonRaw('/business/khata/parties/$partyId/chat',
+          {'business': businessId, 'text': text});
+
+  /// tagada2: GET parties/<id>/invite -> {status: none|invited|joined}.
+  Future<Map<String, dynamic>> khataInviteStatus(int businessId, int partyId) =>
+      getJson('/business/khata/parties/$partyId/invite?business=$businessId');
+
+  /// tagada2: POST parties/<id>/invite -> {status, code, link, share_text,
+  /// wa_url, sms_uri} (raw + `_status`).
+  Future<Map<String, dynamic>> khataInvite(int businessId, int partyId) =>
+      postJsonRaw('/business/khata/parties/$partyId/invite',
+          {'business': businessId});
+
+  /// tagada2: GET business/sms/balance -> {allowance_total, allowance_left,
+  /// allowance_month, pack_left, parts_left, low, low_threshold, ready,
+  /// packs_on_sale, packs:[{sku, parts, price_bdt, on_sale, play_product_id}]}.
+  Future<Map<String, dynamic>> smsBalance(int businessId) =>
+      getJson('/business/sms/balance?business=$businessId');
+
   // ======================= cashbox (plan §2) ============================
 
   /// GET /business/cashbox/<day>?business_id= -> {day, opening_poisha,

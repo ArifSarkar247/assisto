@@ -42,6 +42,7 @@ SEGMENTS = ("free", "premium", "business")
 # app/lib/widgets/chatnav.dart — a test asserts they stay in lock-step).
 ROUTE_KEYS = (
     "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
+    "my_dues",         # tagada2: the customer's My Dues (push tap target)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",

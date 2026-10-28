@@ -40,6 +40,7 @@ class PushChannels {
     'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
     'doc_expiry': reminders, // vault100: a vault document expires soon
+    'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
   };
 }
 
@@ -196,6 +197,7 @@ class PushRouting {
     'agent/approval': 'agent_approvals', // agent-core WP-APP
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
     'vault': 'documents', // vault100: expiry push / PIN-reset notice
+    'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -213,6 +215,7 @@ class PushRouting {
     'agent_approval': 'agent_approvals', // agent-core WP-APP
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
     'doc_expiry': 'documents', // vault100
+    'dues': 'my_dues', // tagada2
   };
 
   /// [action] is the local-notification action id ('accept' / 'decline' /

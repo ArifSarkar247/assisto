@@ -1,0 +1,370 @@
+{
+  "_comment": "tagada2: send order (Assisto free -> WhatsApp/own SIM -> Assisto SMS from balance), SMS balance + packs, My Dues (customer), shop<->customer chat, invite. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_tagada2_arb.json",
+  "en": {
+    "tg2AlreadyToday": "Already reminded today — one reminder a day per customer.",
+    "tg2BalAllowance": "This month's plan SMS: {left} of {total} left",
+    "@tg2BalAllowance": {
+      "placeholders": {
+        "left": {
+          "type": "String"
+        },
+        "total": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2BalAllowanceNone": "Your plan has no monthly SMS. The Business plan includes SMS every month.",
+    "tg2BalBuy": "Buy",
+    "tg2BalEmpty": "No SMS balance. Assisto never sends an SMS without balance — buy a pack or send free on Assisto or WhatsApp.",
+    "tg2BalFreeFirst": "Free first: customers on Assisto get the reminder in the app, and WhatsApp or your own SIM are always free. Use Assisto SMS only for customers you can't reach any other way.",
+    "tg2BalHubSub": "Plan SMS and SMS packs for reminders",
+    "tg2BalLow": "Low balance — buy an SMS pack before your next Assisto SMS.",
+    "tg2BalNoExpiry": "Pack SMS never expire. Plan SMS reset at the start of each month.",
+    "tg2BalNotReady": "Assisto SMS isn't connected yet — send on Assisto, WhatsApp or your own SIM.",
+    "tg2BalPack": "SMS pack balance: {n}",
+    "@tg2BalPack": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2BalPackRow": "{parts} SMS",
+    "@tg2BalPackRow": {
+      "placeholders": {
+        "parts": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2BalPacksTitle": "SMS packs",
+    "tg2BalParts": "One Bangla SMS holds 70 letters (67 per part when the message is longer). English: 160 (153). Each part counts as one SMS.",
+    "tg2BalSoon": "SMS packs are coming soon. They will appear here once Google Play approves them.",
+    "tg2BalSoonShort": "Coming soon",
+    "tg2BalTitle": "SMS balance",
+    "tg2BalTotal": "You can send {n} SMS",
+    "@tg2BalTotal": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2Block": "Block this shop",
+    "tg2BlockAction": "Block",
+    "tg2BlockConfirmBody": "{shop} won't be able to send you reminders or messages in Assisto, and you can't chat with them. The shop only sees \"not reachable\" — it isn't told that you blocked it. Your dues stay in the shop's khata.",
+    "@tg2BlockConfirmBody": {
+      "placeholders": {
+        "shop": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2BlockConfirmTitle": "Block {shop}?",
+    "@tg2BlockConfirmTitle": {
+      "placeholders": {
+        "shop": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2BlockSub": "No reminders or messages from this shop.",
+    "tg2Blocked": "Blocked",
+    "tg2BlockedNote": "Blocked — no reminders or messages from this shop. Unblock below to chat again.",
+    "tg2Chat": "Chat",
+    "tg2ChatBlockedYou": "You blocked this shop. Unblock it to chat.",
+    "tg2ChatEmpty": "No messages yet. Say hello.",
+    "tg2ChatFailed": "Couldn't send. Try again.",
+    "tg2ChatHint": "Type a message",
+    "tg2ChatNotOnAssisto": "{name} isn't on Assisto yet. Invite them — then you can chat here and every reminder is free.",
+    "@tg2ChatNotOnAssisto": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2ChatPrivacy": "Only you and the other side see this chat. It is kept on Assisto's server (not end-to-end encrypted).",
+    "tg2ChatReminderTag": "Reminder",
+    "tg2ChatSend": "Send",
+    "tg2ChatTitle": "Chat: {name}",
+    "@tg2ChatTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2ChatWithShop": "Chat with the shop",
+    "tg2Done": "Done",
+    "tg2DuesEmptyBody": "No shop using Assisto has recorded a due for your number.",
+    "tg2DuesEmptyTitle": "No dues",
+    "tg2DuesIntro": "What shops wrote in their khata for your number {phone} — only their entries for you.",
+    "@tg2DuesIntro": {
+      "placeholders": {
+        "phone": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2DuesLast": "Last entry {date}",
+    "@tg2DuesLast": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2DuesMuted": "Muted",
+    "tg2DuesSavedCopy": "No internet — showing your last saved copy.",
+    "tg2DuesTitle": "My dues",
+    "tg2DuesTotal": "You owe in total",
+    "tg2DuesUnread": "{n} new",
+    "@tg2DuesUnread": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2DuesUnverifiedBody": "Shops record dues by mobile number. To protect you, we show them only after your number is verified with a code.",
+    "tg2DuesUnverifiedTitle": "Verify your phone number",
+    "tg2EntryDue": "Due added",
+    "tg2EntryPaid": "Paid",
+    "tg2GatewayBtn": "Assisto SMS · {parts} SMS",
+    "@tg2GatewayBtn": {
+      "placeholders": {
+        "parts": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2InvBody": "When {name} joins Assisto with this number, your reminders reach them in the app — free, no SMS cost.",
+    "@tg2InvBody": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2InvCreate": "Create invite",
+    "tg2InvFailed": "Couldn't create the invite. Try again.",
+    "tg2InvSendSms": "Send by my SMS",
+    "tg2InvSendWa": "Send on WhatsApp",
+    "tg2InvShare": "Share",
+    "tg2InvStatusInvited": "Invited — waiting for them to join.",
+    "tg2InvStatusJoined": "{name} is on Assisto — reminders are free.",
+    "@tg2InvStatusJoined": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2InvTitle": "Invite to Assisto",
+    "tg2InviteFree": "Invite to Assisto (future reminders free)",
+    "tg2InvitedAgain": "Invited — send again",
+    "tg2LowBalanceBuy": "Low balance — buy SMS",
+    "tg2Mute": "Mute this shop",
+    "tg2MuteSub": "No notifications from this shop. Reminders still show here.",
+    "tg2NotReachable": "Not reachable",
+    "tg2PayCopied": "Number copied — paste it in the app.",
+    "tg2PayCopyOpen": "Copy number and open {app}",
+    "@tg2PayCopyOpen": {
+      "placeholders": {
+        "app": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2PayDial": "Dial {code}",
+    "@tg2PayDial": {
+      "placeholders": {
+        "code": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2PayMerchant": "Merchant number",
+    "tg2PayNever": "Assisto never takes or moves your money — you pay the shop directly from your own app.",
+    "tg2PayNoNumber": "This shop hasn't shared a bKash or Nagad number yet. Ask the shop in chat how to pay.",
+    "tg2PayOpenFailed": "Couldn't open the app. The number is copied — you can also pay by dialling the code.",
+    "tg2PayPersonal": "Personal number",
+    "tg2PayStepAmount": "Enter the amount ({amount}) and write your name as the reference.",
+    "@tg2PayStepAmount": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2PayStepMerchantPay": "Tap \"Merchant Pay\".",
+    "tg2PayStepNumber": "Paste or type the number {number}.",
+    "@tg2PayStepNumber": {
+      "placeholders": {
+        "number": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2PayStepOpen": "Open {app}.",
+    "@tg2PayStepOpen": {
+      "placeholders": {
+        "app": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2PayStepPayment": "Tap \"Payment\".",
+    "tg2PayStepPin": "Enter your PIN and confirm. Keep the transaction ID.",
+    "tg2PayStepSendMoney": "Tap \"Send Money\".",
+    "tg2PayStepTell": "Tell the shop in chat that you paid — the shop updates its khata.",
+    "tg2PayTitle": "How to pay",
+    "tg2Rocket": "Rocket",
+    "tg2RouteAssistoNote": "{name} uses Assisto — the reminder arrives in the app, free.",
+    "@tg2RouteAssistoNote": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2RouteShareNote": "Not on Assisto yet — send free on WhatsApp or from your own SIM.",
+    "tg2SaveFailed": "Couldn't save. Try again.",
+    "tg2SendAssistoFree": "Send in Assisto — free",
+    "tg2SentAssisto": "Sent in Assisto (free)",
+    "tg2ShopEntries": "Recent entries",
+    "tg2ShopNoEntries": "No entries yet.",
+    "tg2SmsBalanceLine": "SMS balance: {allowance} plan SMS this month + {pack} pack SMS",
+    "@tg2SmsBalanceLine": {
+      "placeholders": {
+        "allowance": {
+          "type": "String"
+        },
+        "pack": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2SmsBalanceOpen": "SMS balance",
+    "tg2SmsConfirmBody": "Send {name} an SMS from Assisto? It uses {parts} SMS from your balance. Left after this: {left}.",
+    "@tg2SmsConfirmBody": {
+      "placeholders": {
+        "left": {
+          "type": "String"
+        },
+        "name": {
+          "type": "String"
+        },
+        "parts": {
+          "type": "String"
+        }
+      }
+    },
+    "tg2SmsSentParts": "SMS sent — {parts} SMS used",
+    "@tg2SmsSentParts": {
+      "placeholders": {
+        "parts": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "tg2AlreadyToday": "আজ একবার তাগাদা দেওয়া হয়েছে — প্রতি গ্রাহককে দিনে একবারই।",
+    "tg2BalAllowance": "এ মাসের প্ল্যানের SMS: {total}টির মধ্যে {left}টি বাকি",
+    "tg2BalAllowanceNone": "আপনার প্ল্যানে মাসিক SMS নেই। বিজনেস প্ল্যানে প্রতি মাসে SMS থাকে।",
+    "tg2BalBuy": "কিনুন",
+    "tg2BalEmpty": "SMS ব্যালেন্স নেই। ব্যালেন্স ছাড়া Assisto কখনো SMS পাঠায় না — প্যাক কিনুন, অথবা Assisto বা WhatsApp-এ বিনা খরচে পাঠান।",
+    "tg2BalFreeFirst": "আগে বিনা খরচের পথ: Assisto ব্যবহারকারী গ্রাহক অ্যাপেই তাগাদা পান, আর WhatsApp বা নিজের সিমের SMS সবসময় ফ্রি। অন্য কোনোভাবে যাঁকে পাওয়া যায় না, শুধু তাঁর জন্য Assisto SMS ব্যবহার করুন।",
+    "tg2BalHubSub": "তাগাদার জন্য প্ল্যানের SMS আর SMS প্যাক",
+    "tg2BalLow": "ব্যালেন্স কম — পরের Assisto SMS-এর আগে একটি SMS প্যাক কিনে নিন।",
+    "tg2BalNoExpiry": "প্যাকের SMS কখনো মেয়াদোত্তীর্ণ হয় না। প্ল্যানের SMS প্রতি মাসের শুরুতে নতুন হয়।",
+    "tg2BalNotReady": "Assisto SMS এখনো চালু হয়নি — Assisto, WhatsApp বা নিজের সিম দিয়ে পাঠান।",
+    "tg2BalPack": "SMS প্যাকে বাকি: {n}টি",
+    "tg2BalPackRow": "{parts}টি SMS",
+    "tg2BalPacksTitle": "SMS প্যাক",
+    "tg2BalParts": "একটি বাংলা SMS-এ ৭০ অক্ষর ধরে (বড় মেসেজে প্রতি অংশে ৬৭)। ইংরেজিতে ১৬০ (১৫৩)। প্রতিটি অংশ একটি SMS হিসেবে গোনা হয়।",
+    "tg2BalSoon": "SMS প্যাক শিগগিরই আসছে। Google Play অনুমোদন দিলেই এখানে দেখা যাবে।",
+    "tg2BalSoonShort": "শিগগিরই আসছে",
+    "tg2BalTitle": "SMS ব্যালেন্স",
+    "tg2BalTotal": "আপনি {n}টি SMS পাঠাতে পারবেন",
+    "tg2Block": "এই দোকান ব্লক করুন",
+    "tg2BlockAction": "ব্লক করুন",
+    "tg2BlockConfirmBody": "{shop} আর Assisto-তে আপনাকে তাগাদা বা মেসেজ পাঠাতে পারবে না, আপনিও তাদের সঙ্গে চ্যাট করতে পারবেন না। দোকান শুধু দেখবে \"যোগাযোগ করা যাচ্ছে না\" — আপনি ব্লক করেছেন, তা জানানো হবে না। আপনার বাকি দোকানের খাতায় থেকেই যাবে।",
+    "tg2BlockConfirmTitle": "{shop} ব্লক করবেন?",
+    "tg2BlockSub": "এই দোকান থেকে কোনো তাগাদা বা মেসেজ আসবে না।",
+    "tg2Blocked": "ব্লক করা",
+    "tg2BlockedNote": "ব্লক করা — এই দোকান থেকে কোনো তাগাদা বা মেসেজ আসবে না। আবার চ্যাট করতে নিচে আনব্লক করুন।",
+    "tg2Chat": "চ্যাট",
+    "tg2ChatBlockedYou": "আপনি এই দোকান ব্লক করেছেন। চ্যাট করতে আনব্লক করুন।",
+    "tg2ChatEmpty": "এখনো কোনো মেসেজ নেই। সালাম দিয়ে শুরু করুন।",
+    "tg2ChatFailed": "পাঠানো যায়নি। আবার চেষ্টা করুন।",
+    "tg2ChatHint": "মেসেজ লিখুন",
+    "tg2ChatNotOnAssisto": "{name} এখনো Assisto-তে নেই। দাওয়াত পাঠান — তারপর এখানেই চ্যাট করা যাবে, আর প্রতিটি তাগাদা হবে বিনা খরচে।",
+    "tg2ChatPrivacy": "এই চ্যাট শুধু আপনি আর অপর পক্ষ দেখেন। এটি Assisto-র সার্ভারে রাখা হয় (এন্ড-টু-এন্ড এনক্রিপ্টেড নয়)।",
+    "tg2ChatReminderTag": "তাগাদা",
+    "tg2ChatSend": "পাঠান",
+    "tg2ChatTitle": "চ্যাট: {name}",
+    "tg2ChatWithShop": "দোকানের সঙ্গে চ্যাট",
+    "tg2Done": "ঠিক আছে",
+    "tg2DuesEmptyBody": "Assisto ব্যবহারকারী কোনো দোকান আপনার নম্বরে কোনো বাকি লেখেনি।",
+    "tg2DuesEmptyTitle": "কোনো বাকি নেই",
+    "tg2DuesIntro": "আপনার নম্বর {phone}-এ দোকানগুলো তাদের খাতায় যা লিখেছে — শুধু আপনার হিসাব।",
+    "tg2DuesLast": "শেষ লেনদেন {date}",
+    "tg2DuesMuted": "নীরব",
+    "tg2DuesSavedCopy": "ইন্টারনেট নেই — শেষবার সেভ করা কপি দেখানো হচ্ছে।",
+    "tg2DuesTitle": "আমার বাকি",
+    "tg2DuesTotal": "আপনার মোট বাকি",
+    "tg2DuesUnread": "{n}টি নতুন",
+    "tg2DuesUnverifiedBody": "দোকানগুলো মোবাইল নম্বর দিয়ে বাকি লেখে। আপনার সুরক্ষার জন্য নম্বরটি কোড দিয়ে যাচাই হওয়ার পরেই আমরা তা দেখাই।",
+    "tg2DuesUnverifiedTitle": "আপনার ফোন নম্বর যাচাই করুন",
+    "tg2EntryDue": "বাকি লেখা হয়েছে",
+    "tg2EntryPaid": "পরিশোধ",
+    "tg2GatewayBtn": "Assisto SMS · {parts}টি SMS",
+    "tg2InvBody": "{name} এই নম্বর দিয়ে Assisto-তে যোগ দিলে আপনার তাগাদা অ্যাপেই পৌঁছাবে — বিনা খরচে, SMS-এর খরচ নেই।",
+    "tg2InvCreate": "দাওয়াত তৈরি করুন",
+    "tg2InvFailed": "দাওয়াত তৈরি করা যায়নি। আবার চেষ্টা করুন।",
+    "tg2InvSendSms": "আমার SMS-এ পাঠান",
+    "tg2InvSendWa": "WhatsApp-এ পাঠান",
+    "tg2InvShare": "শেয়ার",
+    "tg2InvStatusInvited": "দাওয়াত পাঠানো হয়েছে — যোগ দেওয়ার অপেক্ষা।",
+    "tg2InvStatusJoined": "{name} এখন Assisto-তে — তাগাদা বিনা খরচে।",
+    "tg2InvTitle": "Assisto-তে দাওয়াত",
+    "tg2InviteFree": "Assisto-তে দাওয়াত দিন (পরের তাগাদা ফ্রি)",
+    "tg2InvitedAgain": "দাওয়াত পাঠানো হয়েছে — আবার পাঠান",
+    "tg2LowBalanceBuy": "ব্যালেন্স কম — SMS কিনুন",
+    "tg2Mute": "এই দোকান নীরব করুন",
+    "tg2MuteSub": "এই দোকানের কোনো নোটিফিকেশন আসবে না। তাগাদা এখানে দেখা যাবে।",
+    "tg2NotReachable": "যোগাযোগ করা যাচ্ছে না",
+    "tg2PayCopied": "নম্বর কপি হয়েছে — অ্যাপে পেস্ট করুন।",
+    "tg2PayCopyOpen": "নম্বর কপি করে {app} খুলুন",
+    "tg2PayDial": "{code} ডায়াল করুন",
+    "tg2PayMerchant": "মার্চেন্ট নম্বর",
+    "tg2PayNever": "Assisto কখনো আপনার টাকা নেয় না বা পাঠায় না — আপনি নিজের অ্যাপ থেকে সরাসরি দোকানকে দেন।",
+    "tg2PayNoNumber": "এই দোকান এখনো বিকাশ বা নগদ নম্বর দেয়নি। কীভাবে দেবেন, চ্যাটে দোকানকে জিজ্ঞেস করুন।",
+    "tg2PayOpenFailed": "অ্যাপ খোলা যায়নি। নম্বর কপি হয়েছে — কোড ডায়াল করেও দিতে পারেন।",
+    "tg2PayPersonal": "ব্যক্তিগত নম্বর",
+    "tg2PayStepAmount": "টাকার পরিমাণ ({amount}) লিখুন, রেফারেন্সে আপনার নাম দিন।",
+    "tg2PayStepMerchantPay": "\"মার্চেন্ট পে\" ট্যাপ করুন।",
+    "tg2PayStepNumber": "{number} নম্বরটি পেস্ট করুন বা লিখুন।",
+    "tg2PayStepOpen": "{app} খুলুন।",
+    "tg2PayStepPayment": "\"পেমেন্ট\" ট্যাপ করুন।",
+    "tg2PayStepPin": "পিন দিয়ে নিশ্চিত করুন। ট্রানজেকশন আইডি রেখে দিন।",
+    "tg2PayStepSendMoney": "\"সেন্ড মানি\" ট্যাপ করুন।",
+    "tg2PayStepTell": "চ্যাটে দোকানকে জানান যে টাকা দিয়েছেন — দোকান খাতায় তুলে নেবে।",
+    "tg2PayTitle": "কীভাবে দেবেন",
+    "tg2Rocket": "রকেট",
+    "tg2RouteAssistoNote": "{name} Assisto ব্যবহার করেন — তাগাদা অ্যাপেই পৌঁছাবে, বিনা খরচে।",
+    "tg2RouteShareNote": "এখনো Assisto-তে নেই — WhatsApp বা নিজের সিম দিয়ে বিনা খরচে পাঠান।",
+    "tg2SaveFailed": "সেভ করা যায়নি। আবার চেষ্টা করুন।",
+    "tg2SendAssistoFree": "Assisto-তে পাঠান — ফ্রি",
+    "tg2SentAssisto": "Assisto-তে পাঠানো হয়েছে (ফ্রি)",
+    "tg2ShopEntries": "সাম্প্রতিক লেনদেন",
+    "tg2ShopNoEntries": "এখনো কোনো লেনদেন নেই।",
+    "tg2SmsBalanceLine": "SMS ব্যালেন্স: এ মাসের প্ল্যানে {allowance}টি + প্যাকে {pack}টি",
+    "tg2SmsBalanceOpen": "SMS ব্যালেন্স",
+    "tg2SmsConfirmBody": "{name}-কে Assisto থেকে SMS পাঠাবেন? এতে আপনার ব্যালেন্স থেকে {parts}টি SMS যাবে। এরপর বাকি থাকবে {left}টি।",
+    "tg2SmsSentParts": "SMS পাঠানো হয়েছে — {parts}টি SMS খরচ হয়েছে"
+  }
+}

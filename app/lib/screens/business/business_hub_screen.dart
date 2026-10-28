@@ -13,6 +13,7 @@ import '../../plans_v2/trial_banner.dart'; // plans-v2
 import 'business_setup_screen.dart';
 import 'khata_screen.dart';
 import 'cashbox_screen.dart';
+import 'sms_balance_screen.dart'; // tagada2
 // Sibling-agent screens (selling + AI, already present at integration). These
 // take a businessId / handle their own gating. See the routing contract in the
 // integrator report.
@@ -335,6 +336,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               subtitle: t.businessCashboxSub,
               onTap: () => _go(CashboxScreen(business: biz)),
             ),
+            if (!isStaff) ...[
+              // tagada2: Assisto SMS balance (plan SMS + packs)
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.sms_rounded,
+                tint: scheme.primary,
+                title: t.tg2BalTitle,
+                subtitle: t.tg2BalHubSub,
+                onTap: () => _go(SmsBalanceScreen(businessId: bizId)),
+              ),
+            ],
             if (!isStaff) ...[
               const SizedBox(height: Gap.md),
               _HubCard(

@@ -14,6 +14,8 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
+import 'khata_invite_sheet.dart'; // tagada2
+import 'sms_balance_screen.dart'; // tagada2
 
 /// ledger100 — bulk tagada, done right: ONE SEPARATE reminder per customer
 /// (their own due, the shop name, the optional pay-to number), sent one by
@@ -51,6 +53,15 @@ class _Row {
   _Row(this.r);
   int get partyId => (r['party_id'] as num?)?.toInt() ?? 0;
   int get credits => (r['sms_credits'] as num?)?.toInt() ?? 1;
+
+  // tagada2: the server's per-customer send order. Absent on an older server
+  // (then the screen behaves exactly as ledger100 did).
+  bool get hasRoute => r.containsKey('route');
+  bool get assistoUser => r['assisto_user'] == true;
+  bool get reachable => r['reachable'] != false;
+  bool get sentToday => r['sent_today'] == true;
+  int get parts => (r['sms_parts'] as num?)?.toInt() ?? credits;
+  String get inviteStatus => '${r['invite_status'] ?? 'none'}';
 }
 
 class _TagadaSendScreenState extends State<TagadaSendScreen> {
@@ -128,9 +139,9 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           _carry(old, _Row(m))
       ];
       _noDue = ((r['skipped'] ?? []) as List).cast<Map<String, dynamic>>();
-      _sms = ((r['sms'] ?? const {}) as Map).cast<String, dynamic>();
-      _balance = (_sms['balance'] as num?)?.toInt() ?? 0;
+      _setSms(r['sms']);
       _offlineBuilt = false;
+      if (mounted) _markServerStates();
     } catch (e) {
       if (failKindOf(e) == FailKind.network && mounted) {
         _buildOffline();
@@ -140,6 +151,32 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
       }
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  /// tagada2: the wallet in SMS PARTS (plan allowance + pack); `balance`
+  /// is the legacy credits figure on an older server.
+  void _setSms(Object? raw) {
+    if (raw is! Map) return;
+    _sms = raw.cast<String, dynamic>();
+    _balance = ((_sms['parts_left'] ?? _sms['balance']) as num?)?.toInt() ?? 0;
+  }
+
+  bool get _partsWallet => _sms.containsKey('parts_left');
+
+  /// tagada2: a customer reminded today (any channel) or not reachable is
+  /// shown as such — never a second reminder the same day.
+  void _markServerStates() {
+    final t = AppLocalizations.of(context);
+    for (final row in _rows) {
+      if (row.st != _St.waiting || !row.hasRoute) continue;
+      if (!row.reachable) {
+        row.st = _St.skipped;
+        row.detail = t.tg2NotReachable;
+      } else if (row.sentToday) {
+        row.st = _St.skipped;
+        row.detail = t.tg2AlreadyToday;
+      }
+    }
   }
 
   _Row _carry(Map<int, _Row> old, _Row n) {
@@ -313,6 +350,117 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
       });
       reportNonFatal('khata.tagadaSms', e);
     }
+  }
+
+  /// tagada2: every send through the server first — it claims the
+  /// customer's one reminder for today (all channels), checks STOP / quiet
+  /// hours / block, and for Assisto SMS the balance. WhatsApp / own SMS
+  /// then open the url it returns (the owner's own tap sends it).
+  Future<void> _sendVia(_Row row, String channel) async {
+    final t = AppLocalizations.of(context);
+    if (channel == 'gateway_sms') {
+      final left = _balance - row.parts;
+      final go = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t.ldgSmsConfirmTitle),
+          content: Text(t.tg2SmsConfirmBody('${row.r['name'] ?? ''}',
+              _d(row.parts), _d(left < 0 ? 0 : left))),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(t.cancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(t.ldgSmsSendNow)),
+          ],
+        ),
+      );
+      if (go != true || !mounted) return;
+    }
+    setState(() => row.busy = true);
+    Map<String, dynamic> r;
+    try {
+      r = await context.read<AppState>().api.tagadaSend(
+          businessId: _bizId,
+          partyId: row.partyId,
+          channel: channel,
+          preset: _preset,
+          payHint: _payHint);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => row.busy = false);
+      // No server: WhatsApp / own SMS still work from the saved message
+      // (the owner's own phone sends it); Assisto + Assisto SMS need us.
+      if (failKindOf(e) == FailKind.network &&
+          (channel == 'whatsapp' || channel == 'own_sms')) {
+        final url = '${row.r[channel == 'whatsapp' ? 'wa_url' : 'sms_uri'] ?? ''}';
+        if (url.isNotEmpty) {
+          return _open(row, url, channel == 'whatsapp' ? _St.sentWa : _St.sentSms);
+        }
+      }
+      setState(() {
+        row.st = _St.failed;
+        row.detail = honestFailText(t, e, otherwise: t.ldgStatusFailed);
+      });
+      reportNonFatal('khata.tagadaSend', e);
+      return;
+    }
+    if (!mounted) return;
+    _setSms(r['sms']);
+    if (r['ok'] == true) {
+      final url = '${r['url'] ?? ''}';
+      if (channel == 'whatsapp' || channel == 'own_sms') {
+        setState(() => row.busy = false);
+        final fallback =
+            '${row.r[channel == 'whatsapp' ? 'wa_url' : 'sms_uri'] ?? ''}';
+        return _open(row, url.isNotEmpty ? url : fallback,
+            channel == 'whatsapp' ? _St.sentWa : _St.sentSms);
+      }
+      setState(() {
+        row.busy = false;
+        row.st = _St.sentAssisto;
+        row.detail = channel == 'assisto'
+            ? t.tg2SentAssisto
+            : t.tg2SmsSentParts(_d((r['parts'] as num?)?.toInt() ?? row.parts));
+      });
+      _ack(row);
+      return;
+    }
+    final reason = '${r['reason'] ?? ''}';
+    setState(() {
+      row.busy = false;
+      switch (reason) {
+        case 'daily_limit':
+          row.st = _St.skipped;
+          row.detail = t.tg2AlreadyToday;
+          row.r['sent_today'] = true;
+        case 'not_reachable':
+          row.st = _St.skipped;
+          row.detail = t.tg2NotReachable;
+          row.r['reachable'] = false;
+        case 'no_balance':
+          row.st = _St.failed;
+          row.detail = t.tg2LowBalanceBuy;
+        default:
+          row.st = _St.failed;
+          row.detail = '${r['detail'] ?? t.ldgStatusFailed}';
+      }
+    });
+  }
+
+  Future<void> _openBalance() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => SmsBalanceScreen(businessId: _bizId)));
+    if (mounted) _load();
+  }
+
+  Future<void> _invite(_Row row) async {
+    final st = await showKhataInviteSheet(context,
+        businessId: _bizId,
+        partyId: row.partyId,
+        name: '${row.r['name'] ?? ''}');
+    if (st != null && mounted) setState(() => row.r['invite_status'] = st);
   }
 
   void _skip(_Row row) => setState(() {
@@ -501,8 +649,34 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
       line = t.ldgSmsOwnerOnly;
     } else if (_sms['ready'] != true) {
       line = t.ldgSmsNotReady;
+    } else if (_partsWallet) {
+      line = t.tg2SmsBalanceLine(
+          _d((_sms['allowance_left'] as num?)?.toInt() ?? 0),
+          _d((_sms['pack_left'] as num?)?.toInt() ?? 0));
     } else {
       line = t.ldgSmsBalance(_d(_balance));
+    }
+    if (_partsWallet && _sms['owner_only'] != true) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _note(Icons.sms_outlined, line),
+          if (_sms['low'] == true) ...[
+            const SizedBox(height: Gap.xs),
+            _note(Icons.warning_amber_rounded, t.tg2BalLow),
+          ],
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton.icon(
+              key: const ValueKey('tg2-open-balance'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              label: Text(t.tg2SmsBalanceOpen),
+              onPressed: _openBalance,
+            ),
+          ),
+        ]),
+      );
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.md),
@@ -577,6 +751,8 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           const SizedBox(height: Gap.sm),
           if (row.busy)
             const LinearProgressIndicator()
+          else if (row.hasRoute)
+            _routeButtons(t, row, wa, sms, done)
           else
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               if (wa.isNotEmpty)
@@ -620,5 +796,95 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
         ]),
       ),
     );
+  }
+
+  /// tagada2: the buttons in the server's send order — (1) Assisto, free,
+  /// when the customer is an Assisto user by VERIFIED phone; (2) WhatsApp /
+  /// own SIM, free; (3) Assisto SMS from the SMS balance (never without).
+  Widget _routeButtons(
+      AppLocalizations t, _Row row, String wa, String sms, bool done) {
+    final scheme = Theme.of(context).colorScheme;
+    if (!row.reachable) {
+      return Text(t.tg2NotReachable,
+          key: ValueKey('tg2-unreach-${row.partyId}'),
+          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant));
+    }
+    final blocked = row.sentToday || row.st == _St.sentAssisto ||
+        row.st == _St.sentWa || row.st == _St.sentSms;
+    final smsOn = _sms['available'] == true && row.r['phone_ok'] == true;
+    final enough = _balance >= row.parts;
+    final free = row.assistoUser;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(free ? t.tg2RouteAssistoNote('${row.r['name'] ?? ''}') : t.tg2RouteShareNote,
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.sm),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        if (free)
+          FilledButton.icon(
+            key: ValueKey('tg2-assisto-${row.partyId}'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.notifications_active_rounded),
+            label: Text(t.tg2SendAssistoFree),
+            onPressed: blocked ? null : () => _sendVia(row, 'assisto'),
+          ),
+        if (wa.isNotEmpty && free)
+          OutlinedButton.icon(
+            key: ValueKey('tg2-wa-${row.partyId}'),
+            icon: const Icon(Icons.chat_rounded),
+            label: Text(t.ldgBtnWhatsApp),
+            onPressed: blocked ? null : () => _sendVia(row, 'whatsapp'),
+          )
+        else if (wa.isNotEmpty)
+          FilledButton.icon(
+            key: ValueKey('tg2-wa-${row.partyId}'),
+            icon: const Icon(Icons.chat_rounded),
+            label: Text(t.ldgBtnWhatsApp),
+            onPressed: blocked ? null : () => _sendVia(row, 'whatsapp'),
+          )
+        else if (!free)
+          FilledButton.icon(
+            icon: const Icon(Icons.ios_share_rounded),
+            label: Text(t.ldgBtnShare),
+            onPressed: blocked ? null : () => _share(row),
+          ),
+        if (sms.isNotEmpty && !free)
+          OutlinedButton.icon(
+            key: ValueKey('tg2-own-${row.partyId}'),
+            icon: const Icon(Icons.sms_rounded),
+            label: Text(t.ldgBtnPhoneSms),
+            onPressed: blocked ? null : () => _sendVia(row, 'own_sms'),
+          ),
+        if (smsOn && !free)
+          enough
+              ? OutlinedButton.icon(
+                  key: ValueKey('tg2-gw-${row.partyId}'),
+                  icon: const Icon(Icons.outbox_rounded),
+                  label: Text(t.tg2GatewayBtn(_d(row.parts))),
+                  onPressed: blocked ? null : () => _sendVia(row, 'gateway_sms'),
+                )
+              : OutlinedButton.icon(
+                  key: ValueKey('tg2-buy-${row.partyId}'),
+                  icon: const Icon(Icons.add_shopping_cart_rounded),
+                  label: Text(t.tg2LowBalanceBuy),
+                  onPressed: _openBalance,
+                ),
+        if (!done)
+          TextButton(onPressed: () => _skip(row), child: Text(t.ldgBtnSkip)),
+      ]),
+      if (!free && row.inviteStatus != 'joined') ...[
+        const SizedBox(height: Gap.xs),
+        TextButton.icon(
+          key: ValueKey('tg2-invite-${row.partyId}'),
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: Icon(row.inviteStatus == 'invited'
+              ? Icons.schedule_send_rounded
+              : Icons.person_add_alt_1_rounded),
+          label: Text(row.inviteStatus == 'invited'
+              ? t.tg2InvitedAgain
+              : t.tg2InviteFree),
+          onPressed: () => _invite(row),
+        ),
+      ],
+    ]);
   }
 }
