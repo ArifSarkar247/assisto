@@ -161,16 +161,44 @@ class _ApprovalCardState extends State<_ApprovalCard> {
     final t = AppLocalizations.of(context);
     final it = widget.item;
     final id = (it['id'] as num).toInt();
-    final problems = ((it['problems'] as List?) ?? const []).cast<Map>();
+    // only NUMBER problems go in the "not in your catalog" note (AF-4/AF-2
+    // problems — toxic wording, a broken privacy token — are explained by
+    // the handoff card's "why" line instead)
+    final problems = ((it['problems'] as List?) ?? const [])
+        .whereType<Map>()
+        .where((p) => p['type'] == null ||
+            const {'money', 'stock', 'number', 'stock_claim'}.contains(p['type']))
+        .toList();
     final api = context.read<AppState>().api;
+    // AF-10: the server's rule-made handoff summary (3 lines, bn + en, phone
+    // numbers already partly hidden)
+    final card = it['handoff_card'];
+    final lang = Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en';
+    final cardLines = (card is Map && card['lines'] is Map && card['lines'][lang] is List)
+        ? (card['lines'][lang] as List).map((e) => '$e').where((e) => e.isNotEmpty).toList()
+        : const <String>[];
+    final risk = '${it['risk_reason']}';
+    final serverLabel = '${it['risk_label'] ?? ''}';
+    final riskLabel = (const {'abuse', 'unsafe_reply'}.contains(risk) && serverLabel.isNotEmpty)
+        ? serverLabel
+        : baRiskLabel(t, risk);
     return BizCard(
       title: bd(context, '${it['customer_name'] ?? ''}'.isEmpty
           ? baChannelLabel(t, '${it['channel']}')
           : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}'),
       icon: Icons.fact_check_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: AssistoTokens.of(context).warning),
+        BizStatusChip(label: riskLabel, color: AssistoTokens.of(context).warning),
         const SizedBox(height: Gap.md),
+        if (cardLines.isNotEmpty) ...[
+          BizNote(
+            key: const ValueKey('ba_handoff_card'),
+            text: cardLines.join('\n'),
+            icon: Icons.summarize_outlined,
+            tint: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: Gap.md),
+        ],
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Gap.xs),

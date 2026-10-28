@@ -472,7 +472,11 @@ class ApprovalsView(APIView):
             last_in = m.thread.messages.filter(direction="in", created_at__lte=m.created_at) \
                 .order_by("-created_at").first()
             r = _msg_row(m)
+            from .logic import bizagent_handoff as HC
+            lbl = HC.REASON_LABEL.get(m.risk_reason)
             r.update({"thread_id": m.thread_id, "channel": m.thread.channel,
+                      # AF-4/AF-10: a readable reason in the app's language
+                      "risk_label": (lbl[0] if req_lang(request) == "bn" else lbl[1]) if lbl else "",
                       "customer_name": m.thread.customer_name or m.thread.customer_phone,
                       "customer_text": last_in.text if last_in else "",
                       "problems": (m.meta or {}).get("problems") or []})
