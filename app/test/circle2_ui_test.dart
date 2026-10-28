@@ -145,9 +145,9 @@ void main() {
         expect(find.byKey(const Key('circle2-calls-empty')), findsOneWidget);
         expect(find.text(t.circle2CallsEmptyBenefit), findsOneWidget);
         expect(find.text(t.circle2CallsEmptyHow), findsOneWidget);
-        final cta = tester.widget<ButtonStyleButton>(find.descendant(
-            of: find.byKey(const Key('circle2-calls-empty-cta')),
-            matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)));
+        // FilledButton.icon IS the keyed widget (a ButtonStyleButton)
+        final cta = tester.widget<ButtonStyleButton>(
+            find.byKey(const Key('circle2-calls-empty-cta')));
         expect(cta.onPressed, isNotNull);
         if (lang == 'bn') {
           expect(t.circle2CallsEmptyHow, contains('১.'));

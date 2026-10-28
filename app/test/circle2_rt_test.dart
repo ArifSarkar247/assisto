@@ -4,6 +4,7 @@
 // (printed into the CI log; the owner saw ~1,350 polls in 15 min from 3
 // phones on 28 Oct).
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -130,6 +131,21 @@ class _Seg {
     if (s.isCall) t.setFast(false);
   }
   return (before, after);
+}
+
+/// The replay numbers also go to $ASSISTO_SHOT_DIR/circle2_rt_measure.txt
+/// (uploaded with the CI shots artifact) — the CI log hides passing tests'
+/// prints.
+void _measure(String line) {
+  // ignore: avoid_print
+  print(line);
+  final dir = Platform.environment['ASSISTO_SHOT_DIR'];
+  if (dir == null) return;
+  try {
+    Directory(dir).createSync(recursive: true);
+    File('$dir/circle2_rt_measure.txt')
+        .writeAsStringSync('$line\n', mode: FileMode.append);
+  } catch (_) {}
 }
 
 void main() {
@@ -362,8 +378,7 @@ void main() {
         _Seg(180),
       ];
       final (b, a) = _replay(day);
-      // ignore: avoid_print
-      print('circle2 measure: test-day mix, 15 min, 1 phone: '
+      _measure('circle2 measure: test-day mix, 15 min, 1 phone: '
           'before=$b after=$a (${(100 - a * 100 / b).round()}% fewer)');
       expect(a, lessThan(b * 0.4));
     });
@@ -374,16 +389,14 @@ void main() {
         _Seg(300),
       ];
       final (b, a) = _replay(away);
-      // ignore: avoid_print
-      print('circle2 measure: peer away, 15 min, 1 phone: '
+      _measure('circle2 measure: peer away, 15 min, 1 phone: '
           'before=$b after=$a (${(100 - a * 100 / b).round()}% fewer)');
       expect(a, lessThan(b * 0.5));
     });
 
     test('a 10-minute connected call', () {
       final (b, a) = _replay(const [_Seg(600, setup: 15, callEventEvery: 45)]);
-      // ignore: avoid_print
-      print('circle2 measure: 10-min call: before=$b after=$a '
+      _measure('circle2 measure: 10-min call: before=$b after=$a '
           '(${(100 - a * 100 / b).round()}% fewer)');
       // hang-up still reaches the phone within 0.8 s + RTT
       expect(a, lessThan(b * 0.5));
