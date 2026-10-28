@@ -26882,5 +26882,73 @@
   "rnTodosStep3": "Tick it when done — a repeating task comes back on its next date",
   "@rnTodosStep3": {
     "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "s2RiskAbuse": "Abuse / threat",
+  "s2RiskUnsafe": "The AI draft was not safe",
+  "s2RiskScam": "Possible scam — don't click links, never share codes",
+  "s2RiskOrderChange": "Wants to change or cancel an order",
+  "s2RiskAiCap": "Today's AI limit is used up",
+  "s2RiskOutOfReplies": "Out of AI replies",
+  "s2RiskOther": "Needs your look",
+  "s2FilterNeedsReply": "Needs reply ({count})",
+  "@s2FilterNeedsReply": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "s2FilterAiHandled": "AI handled ({count})",
+  "@s2FilterAiHandled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "s2FilterHandedOver": "Handed to you ({count})",
+  "@s2FilterHandedOver": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "s2InboxEmptyTitle": "All your customer chats in one place",
+  "s2InboxEmptyBenefit": "Messenger, Instagram, WhatsApp and website chats arrive here. The AI answers price, stock and delivery any time and hands you only the chats that need you.",
+  "s2InboxEmptyHow": "How: tap Connect a channel, add your Facebook Page or WhatsApp number, then send a test message.",
+  "s2InboxConnect": "Connect a channel",
+  "s2InboxNoChatsHow": "Your channel is connected. When a customer messages your Page or number, the chat shows here — send a test message from another account to try it.",
+  "s2InboxCheckChannels": "Check channels",
+  "s2ClearSearch": "Clear search",
+  "s2ShowAllChats": "Show all chats",
+  "s2HandoffTitle": "Handed over to you",
+  "s2HandoffAiWaiting": "The AI is holding this chat for you. Take over to reply yourself, or give it back to the AI.",
+  "s2HandoffDraftWaiting": "An AI draft reply is waiting for your approval.",
+  "s2TakeOver": "Take over — I'll reply",
+  "s2GiveBack": "Give back to AI",
+  "s2ReviewDraft": "Review the draft",
+  "s2QuickReplies": "Quick replies from your catalog",
+  "s2QuickReplyHint": "Fills the message box — you still tap Send",
+  "s2QrDelivery": "Delivery charge",
+  "s2QrPayment": "Payment",
+  "s2QrProduct": "{name} · ৳{price}",
+  "@s2QrProduct": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "s2QrProductOut": "{name} · out of stock",
+  "@s2QrProductOut": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }
