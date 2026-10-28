@@ -284,6 +284,8 @@ _KW_STOP = {
     "চাই", "dakbe", "ডাকবে", "malik", "মালিক", "মালিককে", "pathabe", "পাঠাবে", "ke", "কে",
     "দাম", "dam", "daam", "price", "নিচে", "niche", "below", "under", "কম", "kom", "চায়",
     "জানাও", "janaw", "দিও", "dio", "দিবেন", "diben", "জানাবেন", "janaben", "দেবেন", "debe",
+    "এজেন্ট", "agent", "চুপ", "chup", "থাকবে", "thakbe", "pause", "quiet", "stay", "silent",
+    "korbe", "করবে", "replying", "stop", "বন্ধ", "রাখবে", "rakhbe", "থামবে", "thambe",
 }
 _BIG_CUE = ("বেশি", "beshi", "উপরে", "upore", "above", "over", "more than", "er beshi", "এর বেশি")
 _IDLE_CUE = ("আবার এজেন্ট", "এজেন্ট আবার", "agent abar", "abar agent", "hand back", "handback",

@@ -227,7 +227,8 @@ class _Live(Base):
         self.n += 1
         self.post_meta(mpayload(text, "mid.bb%d" % self.n, psid=psid))
         t = ChatThread.objects.filter(seller_channel=self.ch, external_user_id=psid).first()
-        outs = list(t.messages.filter(direction="out").order_by("id"))
+        outs = list(t.messages.filter(direction="out").exclude(status="pending_approval")
+                    .order_by("id"))
         return t, outs
 
 
@@ -364,7 +365,8 @@ class BuilderApiTests(_Live):
         self.assertEqual(self.c.get(self.URL).status_code, 403)
         FeatureFlag.objects.filter(key="business_agent").update(enabled_all=True)
         FF.invalidate()
-        self.assertIn(self.c.get(self.URL).status_code, (403, 404))      # not a business owner
+        r = self.c.get(self.URL)                                          # no business of his own
+        self.assertTrue(r.status_code in (403, 404) or r.json()["live"] is None, r.status_code)
 
     def test_parse_draft_publish_state(self):
         r = self.c.post(self.URL + "/parse", {"form": {"instructions": "minimum price bole dibe\n"

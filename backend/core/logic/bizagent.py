@@ -562,7 +562,8 @@ RISK_APPROVE_ALL = "seller_approves_all"
 RISKS = (RISK_COMPLAINT, RISK_REFUND, RISK_BELOW_MIN, RISK_UNKNOWN_PRODUCT,
          RISK_LOW_CONF, RISK_NUMBERS, RISK_BIG_ORDER, RISK_APPROVE_ALL)
 
-_HUMAN_Q = ("are you human", "are you a bot", "are you real", "bot naki", "robot",
+_HUMAN_Q = ("are you human", "are you a human", "are you a person", "is this a bot", "is this ai",
+            "are you a bot", "are you real", "bot naki", "robot",
             "মানুষ", "রোবট", "বট", "manush", "ai naki", "are you ai")
 
 
