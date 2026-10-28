@@ -25751,5 +25751,16 @@
   "hv2TileBizAccounts": "Business Accounts",
   "@hv2TileBizAccounts": {
     "description": "Home shortcut tile for the Business hub (khata, cashbox, reports) — owner 28 Oct 'Business Accounts and Finance'. Optional: wire in home_v2_shortcuts.dart _owner 'business' after merge (today it shows sidebarBusiness)."
-  }
+  },
+  "crisisCallNumber": "Call {number}",
+  "@crisisCallNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "crisisFamilySending": "Telling your family…",
+  "crisisFamilyFailed": "Could not reach your family. Please call someone yourself or call 999.",
+  "crisisCardA11y": "Help is available. Emergency numbers and an option to tell your family."
 }

@@ -17744,5 +17744,9 @@
   "tg2VerifyResend": "আবার কোড পাঠান",
   "tg2VerifyDone": "আপনার নম্বর যাচাই হয়েছে।",
   "ppExportStage": "পুরো মানে সেভ হচ্ছে… {pct}",
-  "hv2TileBizAccounts": "ব্যবসার হিসাব"
+  "hv2TileBizAccounts": "ব্যবসার হিসাব",
+  "crisisCallNumber": "{number}-এ কল করুন",
+  "crisisFamilySending": "আপনার পরিবারকে জানানো হচ্ছে…",
+  "crisisFamilyFailed": "পরিবারের কাউকে জানানো গেল না। দয়া করে নিজে কাউকে ফোন করুন বা ৯৯৯-এ কল করুন।",
+  "crisisCardA11y": "সাহায্য পাওয়া যাবে। জরুরি নম্বর আর পরিবারকে জানানোর সুযোগ।"
 }
