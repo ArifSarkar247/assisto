@@ -103,7 +103,11 @@ class _Session {
 class AiChatScreen extends StatefulWidget {
   /// A saved Assisto AI chat to open directly (sidebar history row JSON).
   final Map<String, dynamic>? initialSession;
-  const AiChatScreen({super.key, this.initialSession});
+
+  /// aivoice (tests / gallery only): render the voice-conversation bar in
+  /// this phase without starting the mic.
+  final LoopPhase? debugLoopPhase;
+  const AiChatScreen({super.key, this.initialSession, this.debugLoopPhase});
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
 }
@@ -866,7 +870,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         if (_offlineCopy) _offlineStrip(),
         if (_noKey && _msgs.isNotEmpty) _noKeyStrip(),
         Expanded(child: _body()),
-        if (_loop.active) _loopBar(),
+        if (_loop.active || widget.debugLoopPhase != null) _loopBar(),
         _inputBar(),
       ]),
     );
@@ -1084,8 +1088,9 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _assistantActions(_Msg m) {
     final scheme = Theme.of(context).colorScheme;
+    // aivoice: 48dp touch targets (was compact = 40dp).
     final style = TextButton.styleFrom(
-        visualDensity: VisualDensity.compact,
+        minimumSize: const Size(48, 48),
         foregroundColor: scheme.onSurfaceVariant,
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm));
     return Wrap(children: [
@@ -1198,7 +1203,12 @@ class _AiChatScreenState extends State<AiChatScreen>
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: _noKeyOpen
-                ? _noKeyCard(scheme)
+                // 200% font: the open card scrolls inside a third of the
+                // screen instead of pushing the input off it.
+                ? ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.34),
+                    child: SingleChildScrollView(child: _noKeyCard(scheme)))
                 : Row(children: [
                     Icon(Icons.key_off_rounded,
                         size: 18, color: scheme.onSecondaryContainer),
@@ -1249,13 +1259,14 @@ class _AiChatScreenState extends State<AiChatScreen>
   /// and the End control (always one tap away).
   Widget _loopBar() {
     final scheme = Theme.of(context).colorScheme;
-    final (icon, label) = switch (_loop.phase) {
+    final phase = widget.debugLoopPhase ?? _loop.phase;
+    final (icon, label) = switch (phase) {
       LoopPhase.listening => (Icons.mic_rounded, t.aivConvListening),
       LoopPhase.thinking => (Icons.more_horiz_rounded, t.aivConvThinking),
       LoopPhase.speaking => (Icons.volume_up_rounded, t.aivConvSpeaking),
       LoopPhase.off => (Icons.mic_off_rounded, ''),
     };
-    final live = _loop.phase == LoopPhase.listening;
+    final live = phase == LoopPhase.listening;
     return Container(
       key: const ValueKey('aichat_conv_bar'),
       margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, 0),
