@@ -1,1 +1,1 @@
-Build 264: Phone protection — remote lost mode, loud alarm, lock and lock-screen message from your trusted contact, with clear delivery status; 'Phones I help protect' screen; intruder photo only with your consent; clearer explanations before each permission; honest wording about how documents are stored.
+Build 265: Safe Journey fixed — you can now choose family members to watch your trip (the list was always empty before), and arrival times are correct on every phone (journeys no longer start as 'late').
