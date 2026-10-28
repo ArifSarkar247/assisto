@@ -40,6 +40,10 @@ LIMITS = {
     "business": {"runs_per_day": 50, "credits": 60, "steps": 15},
 }
 MAX_LLM_CALLS = 3
+# AF-18: a goal may follow up the user's own run finished this recently; the
+# planner then sees up to MAX_PREVIOUS earlier turns (masked, inside DATA)
+FOLLOW_UP_WINDOW = timedelta(hours=2)
+MAX_PREVIOUS = 2
 
 
 class AgentError(Exception):
@@ -78,13 +82,18 @@ def flag_on(user, play=False):
 
 # ------------------------------------------------------------------ start
 def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=False,
-          inline=True, now=None, topic2=""):
+          inline=True, now=None, topic2="", follow_up=None):
     """Create (idempotently) a goal + run; optionally drive it right away.
 
     AF-11: with no explicit `topic` the classifier may pick TWO topics
     (topics.plan_topics); an explicit `topic` stays single unless `topic2`
     names the second one too. The run's own `topic` is the primary; the pair
-    is in the run.created audit (topics_of())."""
+    is in the run.created audit (topics_of()).
+
+    AF-18: `follow_up` = the id of the user's previous run in this
+    conversation (own, finished, within FOLLOW_UP_WINDOW; else ignored). A
+    goal with no topic of its own keeps that run's topics; "undo that" takes
+    back that run's own-data writes (undo.py, no AI call)."""
     from ..models import AgentGoal, AgentRun
     text = (text or "").strip()
     from . import crisis_guard as CG
@@ -106,6 +115,11 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
     # nothing else is done in this turn. Only {score, category} is logged.
     if crisis["crisis"]:
         return _crisis_run(user, text, crisis, channel, client_id, lang, lim, now)
+    prev = _prev_turn(user, follow_up, now) if follow_up else None
+    if prev is not None:
+        from . import undo as UN
+        if UN.is_undo(text):            # deterministic, 0 credits, before any cap
+            return UN.undo_run(user, text, prev, channel, client_id, lang, lim, now)
     if channel != "eval":
         day0 = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
         if AgentRun.objects.filter(user=user, created_at__gte=day0).count() >= lim["runs_per_day"]:
@@ -114,6 +128,8 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
         pair = [topic] + ([topic2] if topic2 in TP.TOPICS and topic2 != topic else [])
     else:
         pair = TP.plan_topics(text)
+        if not pair and prev is not None:          # "and last month?" keeps the topic
+            pair = [k for k in topics_of(prev) if k]
     pair = pair[:TP.MAX_TOPICS]
     topic = pair[0] if pair else ""
     vault = T.Vault()
@@ -128,6 +144,8 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
         T.save_vault(run, vault)
         run.save()
         extra = {"topics": pair, "secondary": pair[1]} if len(pair) > 1 else {}
+        if prev is not None:
+            extra["follow_up"] = prev.pk
         T.audit(run, "run.created", topic=topic or "general", channel=goal.channel,
                 goal=masked[:300], **extra)
     run._topics = pair or [""]
@@ -174,6 +192,49 @@ def _crisis_run(user, text, crisis, channel, client_id, lang, lim, now):
     reply, _card = CG.respond(user, crisis, lang, surface="agent", event_id="run:%d" % run.pk)
     _finish(run, "done", answer=reply)
     return run
+
+
+def _prev_turn(user, follow_up, now):
+    """AF-18: the run `follow_up` names, when it may be followed up."""
+    from ..models import AgentRun
+    try:
+        pk = int(follow_up)
+    except (TypeError, ValueError):
+        return None
+    prev = AgentRun.objects.filter(pk=pk, user=user).select_related("goal").first()
+    if prev is None or prev.state in AgentRun.OPEN_STATES:
+        return None
+    if (prev.finished_at or prev.created_at) < (now or timezone.now()) - FOLLOW_UP_WINDOW:
+        return None
+    if crisis_of(prev):
+        return None                      # a crisis handover is never continued by the planner
+    return prev
+
+
+def follow_up_of(run):
+    ev = run.audit.filter(event="run.created").order_by("id").first()
+    return (ev.detail or {}).get("follow_up") if ev is not None else None
+
+
+def previous_turns(run, vault):
+    """AF-18: up to MAX_PREVIOUS earlier turns, oldest first, MASKED with
+    this run's vault: [{goal, answer, tools, undo}]."""
+    from ..models import AgentRun
+    out, cur, seen = [], follow_up_of(run), {run.pk}
+    while cur and cur not in seen and len(out) < MAX_PREVIOUS:
+        seen.add(cur)
+        p = AgentRun.objects.filter(pk=cur, user_id=run.user_id).select_related("goal").first()
+        if p is None:
+            break
+        goal = (T.unseal(p.goal.text_sealed) or {}).get("t") or p.goal.text_masked or ""
+        ans = answer_of(p) if p.state == "done" else ""
+        ev = p.audit.filter(event="run.created").order_by("id").first()
+        d = (ev.detail or {}) if ev is not None else {}
+        out.insert(0, {"goal": vault.mask(goal)[:600], "answer": vault.mask(ans)[:600],
+                       "tools": sorted({s.tool for s in p.steps.filter(kind="tool", state="done")}),
+                       "undo": bool(d.get("undo"))})
+        cur = d.get("follow_up")
+    return out
 
 
 def topics_of(run):
@@ -366,6 +427,8 @@ def _plan(run, steps, ctx):
     invalid = sum(1 for s in steps if s.kind == "plan" and s.state == "failed")
     obs = _observations(run, steps, vault)
     memory = _memory_for(run, vault)
+    previous = previous_turns(run, vault)      # AF-18 (masked; may mint tokens)
+    run._previous = previous
     _note_taint(run, obs, memory)      # AF-5: instructions found inside DATA
     T.save_vault(run, vault)           # observation/memory masking may mint tokens
     run.save(update_fields=["vault_sealed", "updated_at"])
@@ -376,7 +439,7 @@ def _plan(run, steps, ctx):
                          tool_topics={t.name: TP.tool_topic(t.name, pair) for t in allowed}
                          if len(pair) > 1 else {},
                          tools=allowed, goal_masked=run.goal.text_masked,
-                         observations=obs, memory=memory, lang=ctx.lang,
+                         observations=obs, memory=memory, lang=ctx.lang, previous=previous,
                          now_iso=timezone.localtime(ctx.now).isoformat(timespec="minutes"),
                          attempt=invalid,
                          last_error=(steps[-1].error_code if steps and steps[-1].kind == "plan"
@@ -471,6 +534,8 @@ def grounding_sources(run, ctx, obs, memory, tp):
            json.dumps(memory or [], ensure_ascii=False, default=str), (tp or {}).get("rules") or "",
            days, " ".join(TRUSTED_NUMBERS), HG.DOCTOR_999_LINE["bn"], HG.DOCTOR_999_LINE["en"]]
     src += [o["result"] for o in obs or [] if isinstance(o.get("result"), dict)]
+    # AF-18: a follow-up may repeat a number from an earlier turn of this chat
+    src += [json.dumps(getattr(run, "_previous", None) or [], ensure_ascii=False, default=str)]
     return src
 
 

@@ -137,10 +137,41 @@ def _memory_think(goal, obs, lang, retry, mem):
     return {"v": 1, "steps": steps, "done": True, "answer": None}
 
 
+# AF-18: follow-ups. "him / ওকে / oke" needs a name from the last answer;
+# "again", "and last month?" (nothing to do on its own) reuses the last goal.
+_PRONOUN = re.compile(r"\b(?:him|her|them)\b|ওকে|ওনাকে|তাকে|\boke\b", re.I)
+_CANNOT = ("এটা আমি এখনো করতে পারি না", "I cannot do that yet")
+
+
+def _with(task, data, **kw):
+    d = dict(data, **kw)
+    return task + "\n\n<data>\n" + json.dumps(d, ensure_ascii=False) + "\n</data>"
+
+
+def _is_cannot(plan):
+    return not plan.get("steps") and (plan.get("answer") or "").startswith(_CANNOT)
+
+
 def think(task, prompt):
     if "\nSecond topic rules (" in task:            # AF-11: a two-topic plan
         from . import multi_brain
         return multi_brain.think(task, prompt, think)
+    data = _data(prompt)
+    prevs = [p for p in data.get("previous_turns") or [] if not p.get("undo")]
+    goal = data.get("goal") or ""
+    if not prevs or not goal:
+        return _think_one(task, prompt)
+    last = prevs[-1]
+    if _PRONOUN.search(goal):
+        eff = goal + " — " + last["goal"] + " — " + (last.get("answer") or "")
+        return _think_one(task, _with(task, data, goal=eff))
+    alone = _think_one(task, _with(task, data, observations=[]))
+    if _is_cannot(alone):
+        return _think_one(task, _with(task, data, goal=goal + " — " + last["goal"]))
+    return _think_one(task, prompt)
+
+
+def _think_one(task, prompt):
     data = _data(prompt)
     goal = data.get("goal") or ""
     obs = data.get("observations") or []

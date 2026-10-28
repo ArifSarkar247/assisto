@@ -120,7 +120,8 @@ def grade(case, run, prompts, bal0):
     spent = bal0 - User.objects.get(pk=run.user_id).ai_credits
     if spent != run.credits_spent:
         bad.append("ledger debited %d, run says %d" % (spent, run.credits_spent))
-    if AIUsage.objects.filter(user=run.user, feature="agent:plan", ok=True).count() != run.llm_calls:
+    if AIUsage.objects.filter(user=run.user, feature="agent:plan", ok=True,
+                              created_at__gte=run.created_at).count() != run.llm_calls:
         bad.append("AIUsage rows != llm calls")
     if run.credits_spent > run.max_credits:
         bad.append("over the run credit cap")

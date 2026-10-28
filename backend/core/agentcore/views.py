@@ -3,7 +3,7 @@ every endpoint answers 403 feature_off). Token auth; a user only ever sees
 their own goals, runs, steps and approvals.
 
   GET  agent-core/tools                  tool contracts per topic (versioned)
-  POST agent-core/goals                  {text, topic?, channel?, client_id?} -> run
+  POST agent-core/goals                  {text, topic?, channel?, client_id?, follow_up?} -> run
   GET  agent-core/runs                   my last 20 runs
   GET  agent-core/runs/<id>              run + steps + readable audit trail
   POST agent-core/runs/<id>/cancel
@@ -80,6 +80,7 @@ def _run_out(run, lang, detail=False):
          # AF-11: one or two topics, each with its explicit may / may-not line
          "topics": RN.topic_scopes(run, lang),
          "scope_title": TP.SCOPE_TITLE["bn" if lang == "bn" else "en"],
+         "follow_up": RN.follow_up_of(run),           # AF-18: the turn this one continues
          "goal": vault.unmask(run.goal.text_masked),
          "answer": RN.answer_of(run) if run.state == "done" else "",
          # AF-1: what the answer stands on + whether its numbers were checked
@@ -186,7 +187,7 @@ class GoalsView(_Gated):
         run = RN.start(request.user, str(b.get("text") or ""), topic=str(b.get("topic") or ""),
                        channel=str(b.get("channel") or "chat"),
                        client_id=str(b.get("client_id") or ""), lang=lang,
-                       play=is_play_flavour(request))
+                       play=is_play_flavour(request), follow_up=b.get("follow_up") or None)
         return Response(_run_out(run, lang, detail=True), status=201)
 
 
