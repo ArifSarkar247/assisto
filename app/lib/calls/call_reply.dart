@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// call-reply — WhatsApp-style "Reply with message" on an incoming call.
 ///
@@ -69,7 +70,7 @@ class CallQuickReplySheet extends StatelessWidget {
   final String name;
 
   static Future<CallReplyChoice?> show(BuildContext context, String name) =>
-      showModalBottomSheet<CallReplyChoice>(
+      showAppSheet<CallReplyChoice>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,

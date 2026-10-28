@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'money_common.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// One loan: principal, running balance, partial-repayment history + ledger.
 /// Repayments are stored on the synced loan item (data['repayments'] list) so
@@ -60,6 +61,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
+                  scrollable: true, // insets: 200% text / keyboard
                   title: Text(t.moneyAddRepayment),
                   content: Column(mainAxisSize: MainAxisSize.min, children: [
                     TextField(
@@ -139,7 +141,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
               onPressed: _addRepayment,
               icon: const Icon(Icons.add_rounded),
               label: Text(t.moneyAddRepayment)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Card(
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),

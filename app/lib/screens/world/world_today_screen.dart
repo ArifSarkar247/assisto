@@ -7,6 +7,7 @@ import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import '../../world/world_api.dart';
 import '../../world/world_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// p4-world TODAY: daily cards the user turns on/off (synced to the account):
 /// prayer times (calculated on the server, no key), weather (MET Norway),
@@ -116,7 +117,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     final hidden = worldMap(_data?['hidden']);
     var city = '${prefs['city'] ?? worldMap(_data?['city'])['id'] ?? 'dhaka'}';
     final cities = worldList(cfg['cities']);
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

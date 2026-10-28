@@ -14,6 +14,7 @@ import '../widgets/emergency_first_aid.dart';
 import '../widgets/emergency_nearest_help.dart';
 import '../widgets/emergency_sos_panel.dart';
 import 'safety_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// ADVANCED Emergency + SOS screen.
@@ -212,7 +213,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   Future<void> _shareCard() async {
     final t = AppLocalizations.of(context);
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showAppSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -271,6 +272,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.emergencyContactTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(
@@ -337,7 +339,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 icon: Icon(_editing ? Icons.save_rounded : Icons.edit_rounded),
               ),
       ]),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         if (_offline)
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),

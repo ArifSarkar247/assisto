@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// q1-seams: true only once a customer-facing acceptance PAGE exists (an
 /// absolute https link that renders accept / decline), not a JSON API path.
@@ -73,6 +74,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.crmQuoteValidity),
         content: TextField(
           controller: ctl,
@@ -162,7 +164,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
       final m = await CrmAfterSaleApi.of(context).pdfModel((p['id'] as num).toInt());
       if (!mounted) return;
       final rendered = m['rendered'] == true;
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         builder: (ctx) => DraggableScrollableSheet(

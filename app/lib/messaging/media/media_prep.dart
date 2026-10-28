@@ -228,6 +228,7 @@ Future<bool> ensureMediaPermission(BuildContext context, Permission p,
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(title),
           content: Text(body),
           actions: [
@@ -248,6 +249,7 @@ Future<bool> ensureMediaPermission(BuildContext context, Permission p,
     final open = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(denied),
         actions: [
           TextButton(

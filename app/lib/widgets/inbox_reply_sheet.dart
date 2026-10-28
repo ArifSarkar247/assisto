@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'inbox_mock.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Quick-reply bottom sheet. Shows the item summary, up to 3 AI-suggested
 /// quick-reply labels (MOCK - deterministic, from inbox_mock.replyKeysFor),
@@ -13,7 +14,7 @@ class InboxReplySheet extends StatelessWidget {
   const InboxReplySheet({super.key, required this.item, required this.accountConnected});
 
   static Future<String?> show(BuildContext context, InboxItem item, bool connected) {
-    return showModalBottomSheet<String>(
+    return showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

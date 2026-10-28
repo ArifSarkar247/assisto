@@ -10,6 +10,7 @@ import '../crypto/key_service.dart';
 import '../l10n/app_localizations.dart';
 import '../services/error_report.dart';
 import 'outbox.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// md2 — WhatsApp forward from ANY My Circle chat to ANY chat: a 1:1 member
 /// or a group (1:1 → group, group → 1:1, group → group).
@@ -95,7 +96,7 @@ Future<ForwardTarget?> pickForwardTarget(
             style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
                 color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
       );
-  return showModalBottomSheet<ForwardTarget>(
+  return showAppSheet<ForwardTarget>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

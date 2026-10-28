@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CORPORATE · VIP & stakeholder tracker — ADVANCED
@@ -548,7 +549,7 @@ class _VipEditorState extends State<_VipEditor> {
       appBar: AppBar(
           title: Text(widget.existing == null ? tr.paVipNew : tr.paVipEdit)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
         children: [
           TextField(
             controller: _name,

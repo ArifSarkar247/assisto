@@ -8,6 +8,7 @@ import '../../theme.dart';
 import '../../widgets/circle_extras_backup.dart';
 import '../../widgets/circle_extras_wallpaper.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../feature_gates.dart' show kMsgrChatBackupWired; // f6
 
 /// Chats settings for the hub: THEME (reuses the app's ThemeMode via
@@ -65,7 +66,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
     context.read<AppState>().setThemeMode(mode);
   }
 
-  void _openBackup() => showModalBottomSheet<void>(
+  void _openBackup() => showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         builder: (_) => BackupSheet(
@@ -77,7 +78,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
         ),
       );
 
-  void _openRestore() => showModalBottomSheet<void>(
+  void _openRestore() => showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         builder: (_) => RestoreSheet(
@@ -93,6 +94,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.msgrSetChatHistoryClear),
         content: Text(_t.msgrSetChatHistoryClearBody),
         actions: [
@@ -118,7 +120,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetChats)),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: Gap.xxl)),
         children: [
           MsgrSetSection(t.msgrSetChatsThemeSection),
           // Theme + wallpaper picker (reused widget). Theme maps to the app's

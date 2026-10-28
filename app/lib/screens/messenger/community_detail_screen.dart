@@ -145,6 +145,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(message),
         actions: [
@@ -168,6 +169,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.communitySetRules),
         content: TextField(
           controller: controller,
@@ -201,6 +203,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.communitySetSizeLimit),
         content: TextField(
           controller: controller,
@@ -252,6 +255,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text('${widget.community['name'] ?? _t.communityTitle}'),
         content: Text(desc.isEmpty ? _t.communityNoTopics : desc),
         actions: [
@@ -277,6 +281,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.communityLeave),
         content: Text(_t.communityLeaveConfirm),
         actions: [

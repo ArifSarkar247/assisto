@@ -3,6 +3,7 @@ import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import '../../plans_v2/upgrade_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Lead create/edit form (CRM_SPEC RICH MANUAL ENTRY — works WITHOUT AI).
 ///
@@ -109,6 +110,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.crmQuickAdd),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(controller: name, decoration: InputDecoration(labelText: t.name)),
@@ -184,7 +186,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
             IconButton(onPressed: () => _paste(t), icon: const Icon(Icons.content_paste_rounded), tooltip: t.crmPasteTitle),
         ],
       ),
-      body: ListView(padding: const EdgeInsets.all(Gap.md), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
         _field(_name, t.name),
         _field(_phone, t.phone, keyboard: TextInputType.phone),
         _field(_whatsapp, t.crmWhatsApp, keyboard: TextInputType.phone),

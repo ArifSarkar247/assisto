@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · Call & Email handling — ADVANCED (#106, §14).
@@ -175,6 +176,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.paCeDeleteTitle),
         content: Text(tr.paCeDeleteBody((r['subject'] ?? r['contact'] ?? '').toString())),
         actions: [
@@ -200,7 +202,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   }
 
   Future<void> _addOrEdit(AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -221,7 +223,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   }
 
   Future<void> _openDraft(Map<String, dynamic> r, AppLocalizations tr) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

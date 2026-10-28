@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// CV / RESUME BUILDER — standalone, KEY-FREE (student & job-seeker front door).
@@ -238,7 +239,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   // ---- education -----------------------------------------------------------
   Future<void> _editEducation({int? index}) async {
     final existing = index == null ? null : _education[index];
-    final result = await showModalBottomSheet<_Education>(
+    final result = await showAppSheet<_Education>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -258,7 +259,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   // ---- experience ----------------------------------------------------------
   Future<void> _editExperience({int? index}) async {
     final existing = index == null ? null : _experience[index];
-    final result = await showModalBottomSheet<_Experience>(
+    final result = await showAppSheet<_Experience>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -277,7 +278,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
   // ---- skills --------------------------------------------------------------
   Future<void> _addSkill() async {
-    final result = await showModalBottomSheet<String>(
+    final result = await showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -302,7 +303,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   Future<void> _preview() async {
     FocusScope.of(context).unfocus();
     final text = buildCvText(_toBody(), t);
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

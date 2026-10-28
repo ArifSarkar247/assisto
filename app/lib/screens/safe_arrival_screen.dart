@@ -12,6 +12,7 @@ import '../widgets/arrival_setup_sheet.dart';
 import '../widgets/arrival_history_tile.dart';
 import '../widgets/scam_safety_api.dart';
 import '../widgets/journey_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Safe-arrival / "I've arrived" check-in — ADVANCED (SPEC v2.1 §21).
@@ -103,7 +104,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
 
   // ---- set / edit a check-in -------------------------------------------
   Future<void> _setCheckin() async {
-    final result = await showModalBottomSheet<ArrivalSetupResult>(
+    final result = await showAppSheet<ArrivalSetupResult>(
       context: context,
       isScrollControlled: true,
       builder: (_) => ArrivalSetupSheet(

@@ -21,6 +21,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'permission_reason.dart';
 import 'voice_intent.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 enum _Phase { idle, listening, understood, unavailable, error }
 
@@ -28,7 +29,7 @@ enum _Phase { idle, listening, understood, unavailable, error }
 /// caller can run it through its full chat pipeline — backend route + agent),
 /// or null if the user cancelled / nothing was confirmed.
 Future<String?> showVoiceCommandSheet(BuildContext context) {
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/fall_alarm_overlay.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// P14 — Accident / fall-detection RUNTIME screen.
 ///
@@ -119,6 +120,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.family_restroom_rounded, color: Brand.blue),
         title: Text(t.fallParentPermissionTitle),
         content: Text(t.fallParentPermissionBody),
@@ -140,6 +142,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.battery_alert_rounded, color: Brand.warning),
         title: Text(t.fallBatteryDisclosureTitle),
         content: Text(t.fallBatteryDisclosureBody),
@@ -336,7 +339,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.fallDetectTitle)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _hero(t),
         const SizedBox(height: Gap.lg),
 

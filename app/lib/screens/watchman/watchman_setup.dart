@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cctv1 first-time wizard: 1) home or shop → 2) gateway (old Android phone /
 /// Shop Box PC / existing PC) → 3) name → the place is created and the
@@ -65,7 +66,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
                 onPressed: _busy ? null : () => setState(() => _step--)),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 24)),
         children: [
           Text(t.wmStepOf(wmDigits(lang, _step + 1), wmDigits(lang, 3)),
               style: Theme.of(context).textTheme.labelLarge),

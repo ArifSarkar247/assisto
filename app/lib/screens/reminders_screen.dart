@@ -14,6 +14,7 @@ import '../widgets/offline_banner.dart';
 import 'reminders_quick_add.dart';
 import '../reminders/exact_alarm_ui.dart'; // remmeter
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Reminders & Memory brain — the daily natural-language reminder screen.
 ///
@@ -595,7 +596,7 @@ class _ReminderCard extends StatelessWidget {
     final current = d['due_at'] != null
         ? DateTime.tryParse(d['due_at'])?.toLocal()
         : null;
-    final chosen = await showModalBottomSheet<DateTime>(
+    final chosen = await showAppSheet<DateTime>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => _SnoozeSheet(current: current),
@@ -627,6 +628,7 @@ class _ReminderCard extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.remCategorySet),
         content: TextField(
           controller: c,

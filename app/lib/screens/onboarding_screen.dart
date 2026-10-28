@@ -82,6 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final resume = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.onbResumeTitle),
         content: Text(t.onbResumeBody),
         actions: [

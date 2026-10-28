@@ -276,6 +276,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.msgrReadAllTitle),
         content: Text(t.msgrReadAllBody),
         actions: [

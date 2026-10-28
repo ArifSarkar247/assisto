@@ -158,6 +158,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.communityMessageMemberTitle('${member['name'] ?? ''}')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -195,6 +196,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.communityRemoveMemberTitle),
         content: Text(_t.communityRemoveMemberConfirm(name)),
         actions: [

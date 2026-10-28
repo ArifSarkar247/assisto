@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Shared OWNER-ADMIN list controls (SPEC v2.1 §21 — #174 users, #175
 /// moderation queue). Advanced list surfaces need more than a single filter
@@ -113,7 +114,7 @@ class AdminSortSheet {
     required List<AdminChoice> options,
     required String selected,
   }) {
-    return showModalBottomSheet<String>(
+    return showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {

@@ -64,6 +64,7 @@ class FullScreenCallPrompt {
     return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         key: const Key('fsi-prompt'),
         icon: const Icon(Icons.ring_volume_rounded),
         title: Text(t.fsiTitle),

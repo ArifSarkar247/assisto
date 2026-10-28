@@ -7,6 +7,7 @@ import '../screens/plans_screen.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'ladder_common.dart' show fmtInt;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// p2-money: the PAYWALL at the moment of need. It says WHY it opened (out of
 /// credits, video call, family circle full, ad-free, storage full), lists
@@ -61,7 +62,7 @@ class PaywallSheet extends StatefulWidget {
   /// Returns true when a trial was started.
   static Future<bool?> show(BuildContext context, PaywallReason reason,
           {SponsorBackend? backend}) =>
-      showModalBottomSheet<bool>(
+      showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

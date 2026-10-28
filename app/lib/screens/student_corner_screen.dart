@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/student_gpa_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// STUDENT CORNER — ADVANCED (#192, SPEC v2.1 §20).
@@ -168,6 +169,7 @@ Future<bool> _confirmDelete(
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(tr.studentDeleteTitle),
       content: Text(body),
       actions: [
@@ -298,7 +300,7 @@ class _RoutineTab extends StatelessWidget {
   }
 
   Future<void> _edit(BuildContext context, Map<String, dynamic>? existing) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _PeriodEditor(existing: existing),
@@ -564,7 +566,7 @@ class _TrackerTab extends StatelessWidget {
   }
 
   Future<void> _edit(BuildContext context, Map<String, dynamic>? existing) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _AssignmentEditor(existing: existing),
@@ -951,7 +953,7 @@ class _CgpaTab extends StatelessWidget {
 
 Future<bool?> _showCourseEditor(
     BuildContext context, Map<String, dynamic>? existing) {
-  return showModalBottomSheet<bool>(
+  return showAppSheet<bool>(
     context: context,
     isScrollControlled: true,
     builder: (_) => _CourseEditor(existing: existing),
@@ -1184,6 +1186,7 @@ class _GoalsTab extends StatelessWidget {
     final text = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.studentAddGoal),
         content: TextField(
           controller: ctrl,

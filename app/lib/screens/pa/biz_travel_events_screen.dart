@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE — CORPORATE BUSINESS TRAVEL & EVENTS (#119, §14, ADVANCED).
@@ -161,7 +162,7 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openEventEditor([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -656,7 +657,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   OutlinedButton.icon(
                     icon: const Icon(Icons.summarize_rounded),
                     label: Text(t.paBizSummaryButton),
-                    onPressed: () => showModalBottomSheet(
+                    onPressed: () => showAppSheet(
                       context: context,
                       isScrollControlled: true,
                       showDragHandle: true,
@@ -684,7 +685,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
   // ---- editors ----
   Future<void> _editAttendee([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -700,7 +701,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
   }
 
   Future<void> _editAgenda([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -715,7 +716,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
   }
 
   Future<void> _editBudget([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -1623,6 +1624,7 @@ Future<String?> _promptText(BuildContext context, String label) {
   return showDialog<String>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(label),
       content: TextField(
           controller: c,

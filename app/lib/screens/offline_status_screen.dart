@@ -87,6 +87,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(message),
         actions: [
           TextButton(

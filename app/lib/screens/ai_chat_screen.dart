@@ -12,6 +12,7 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../widgets/ai_report.dart'; // ai-report
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -144,7 +145,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   // ---------------- sessions ----------------
   Future<void> _openHistory() async {
-    final picked = await showModalBottomSheet<_Session?>(
+    final picked = await showAppSheet<_Session?>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -551,6 +552,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: TextField(
           controller: ctrl,
@@ -1049,6 +1051,7 @@ class _HistorySheetState extends State<_HistorySheet> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.aichatRename),
         content: TextField(
           controller: ctrl,
@@ -1092,6 +1095,7 @@ class _HistorySheetState extends State<_HistorySheet> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(t.aichatDeleteConfirm),
         actions: [
           TextButton(

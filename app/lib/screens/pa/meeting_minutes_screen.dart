@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE · MEETING MINUTES — ADVANCED, KEY-GATED TRANSCRIPTION
@@ -108,6 +109,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.paMinDeleteTitle),
         content: Text(tr.paMinDeleteBody((r['title'] ?? '').toString())),
         actions: [
@@ -482,7 +484,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
 
   Future<void> _editAction([int? index]) async {
     final existing = index != null ? _actions[index] : null;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -528,7 +530,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           _SttSeamCard(ready: widget.sttReady),
           const SizedBox(height: Gap.lg),

@@ -23,6 +23,7 @@ import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/robo_id.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
@@ -951,7 +952,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       await c.toggleSpeaker();
       return;
     }
-    final picked = await showModalBottomSheet<AudioRoute>(
+    final picked = await showAppSheet<AudioRoute>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

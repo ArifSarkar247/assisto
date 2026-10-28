@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/ladder_cards.dart';
 import '../widgets/ladder_builder_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -99,7 +100,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
 
   Future<void> _addOrEdit([Map<String, dynamic>? row]) async {
     final (debt, ladder) = row != null ? _split(row) : (<String, dynamic>{}, <String, dynamic>{});
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: false,
@@ -170,7 +171,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
           // (amount, party): generated signature order
           ? t.plMsgReceivable(amount, party)
           : t.plMsgPayable(amount, party);
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         builder: (_) => _SharePreview(
           channel: channel,
@@ -182,6 +183,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           icon: const Icon(Icons.account_balance_wallet_rounded),
           title: Text(actionLabel(t, action)),
           content: Text(t.plKeyGatedBanner),
@@ -203,6 +205,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.plMarkPaid),
         content: Text(t.plMarkPaidBody(party, taka(context, outstandingPoisha(row)))),
         actions: [
@@ -248,6 +251,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.plDeleteTitle),
         content: Text(t.plDeleteBody('${row['party'] ?? ''}')),
         actions: [
@@ -411,7 +415,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       Map<String, dynamic> row, Map<String, dynamic> ladder, DateTime now) {
     final t = AppLocalizations.of(context);
     final steps = scheduleOf(row, ladder, now: now);
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (_) => ListView(

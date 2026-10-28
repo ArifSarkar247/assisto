@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/subs_common.dart';
 import '../widgets/subs_cards.dart';
 import '../widgets/subs_edit_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -70,7 +71,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
   Future<void> _add() async {
     final t = AppLocalizations.of(context);
-    final form = await showModalBottomSheet<Map<String, dynamic>>(
+    final form = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: false,
@@ -88,7 +89,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
   Future<void> _edit(Map<String, dynamic> sub) async {
     final t = AppLocalizations.of(context);
-    final form = await showModalBottomSheet<Map<String, dynamic>>(
+    final form = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => SubsEditSheet(initial: sub),
@@ -159,6 +160,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.subsDeleteTitle),
         content: Text(t.subsDeleteBody('${sub['name']}')),
         actions: [

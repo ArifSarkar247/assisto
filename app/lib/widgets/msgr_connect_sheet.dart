@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The mandatory relationship + ONE optional note form shown before a personal
 /// connection request is sent. Mirrors the circle request vocabulary
@@ -21,7 +22,7 @@ Future<MsgrConnectResult?> showMsgrConnectSheet(
   BuildContext context, {
   required String peerName,
 }) {
-  return showModalBottomSheet<MsgrConnectResult>(
+  return showAppSheet<MsgrConnectResult>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -79,6 +79,7 @@ import '../messaging/share/share_flow.dart'
 import '../messaging/share/share_payload.dart'
     show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -858,6 +859,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleGroupVideoPremiumTitle),
         content: Text(_t.circleGroupVideoPremiumBody),
         actions: [
@@ -1429,6 +1431,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.grpMenuExitGroup),
         content: Text(_t.circleGroupLeaveConfirm),
         actions: [
@@ -1516,6 +1519,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.grpConfirmDeleteMsgsTitle),
         content: Text(_t.grpConfirmDeleteMsgsBody('$count')),
         actions: [
@@ -2247,7 +2251,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   void _showActions(Map<String, dynamic> msg) {
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(

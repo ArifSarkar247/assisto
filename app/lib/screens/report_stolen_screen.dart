@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'registry_imei.dart';
 import 'used_phone_check_screen.dart' show openOnlineGd;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Report-my-phone-stolen + mark-recovered, backed by the COMMUNITY registry.
 ///
@@ -109,6 +110,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.upRecoverConfirmTitle),
         content: Text(t.upRecoverConfirmBody),
         actions: [
@@ -142,7 +144,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.upReportTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Text(t.upReportIntro, style: const TextStyle(height: 1.35)),
           const SizedBox(height: Gap.md),

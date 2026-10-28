@@ -145,6 +145,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(_t.circlePrivacyIncomingCalls),
           content: Text(body),
           actions: [

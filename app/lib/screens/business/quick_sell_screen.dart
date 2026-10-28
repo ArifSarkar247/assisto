@@ -6,6 +6,7 @@ import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 import 'sale_void_dialog.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Quick sell (§3): tap a product → cart → qty / price → payment → done.
 ///
@@ -79,7 +80,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           variantKey: only is Map ? only['key']?.toString() : null);
       return;
     }
-    final chosen = await showModalBottomSheet<String>(
+    final chosen = await showAppSheet<String>(
       context: context,
       builder: (_) => _VariantPicker(product: product),
     );
@@ -133,7 +134,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
 
   Future<void> _checkout() async {
     if (_lines.isEmpty) return;
-    final res = await showModalBottomSheet<Map<String, dynamic>>(
+    final res = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -306,7 +307,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
   }
 
   void _openCartSheet(AppLocalizations t) {
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -640,7 +641,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
   void _saleOptions(BuildContext host, Map<String, dynamic> sale, int id) {
     if (!host.mounted) return;
     final t = AppLocalizations.of(host);
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: host,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

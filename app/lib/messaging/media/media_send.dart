@@ -146,6 +146,7 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
       builder: (ctx) {
         final t = AppLocalizations.of(ctx);
         return AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(d.kind == 'video' ? t.mc2VideoSendTitle : t.md1DocSendTitle),
           content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(d.name, style: const TextStyle(fontWeight: FontWeight.w600)),

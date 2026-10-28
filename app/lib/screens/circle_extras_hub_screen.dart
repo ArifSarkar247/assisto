@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Per-chat EXTRAS hub (M2 items 9 + 10). Opened from a chat's menu.
 ///
@@ -105,7 +106,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
   }
 
   void _openTimerSheet(AppLocalizations t) {
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       builder: (_) => SafeArea(
         child: Column(

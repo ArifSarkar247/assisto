@@ -167,6 +167,7 @@ class _CommunityMessageRequestsScreenState
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(message),
         actions: [

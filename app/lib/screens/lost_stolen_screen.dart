@@ -222,6 +222,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.lostStolenAlarmPlaying),
         content: Text(tr.lostStolenAlarmPlayingBody),
         actions: [
@@ -316,6 +317,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(tr.lostStolenRecoveryPin),
           content: Column(
             mainAxisSize: MainAxisSize.min,

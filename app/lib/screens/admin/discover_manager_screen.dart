@@ -13,6 +13,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/home_suggestions.dart' show DiscoverCardTile;
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_kind.dart' show honestFailText; // qa2
 import '../../messaging/date_separators.dart' show localDigits, fmtDate; // qa2
@@ -126,6 +127,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(t.discoverMgrDeleteConfirm),
         actions: [
           TextButton(
@@ -165,7 +167,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
           builder: (_) => DiscoverReportScreen(
               cardId: _i(c['id']), title: '${c['title_en'] ?? ''}')));
 
-  void _preview() => showModalBottomSheet(
+  void _preview() => showAppSheet(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,
@@ -660,7 +662,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
           ],
         ),
         body: ListView(
-          padding: const EdgeInsets.all(Gap.lg),
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
             Text(t.discoverMgrPreview,
                 style: AType.titleSmall.copyWith(color: scheme.onSurfaceVariant,

@@ -152,6 +152,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
+                                    scrollable: true, // insets: 200% text / keyboard
                                     title: Text('${r['emoji']} ${r['label']}'),
                                     content: Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -596,6 +597,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(t.medEscalationTitle),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 for (final e in events)
@@ -1002,6 +1004,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(editing ? t.medEditDoctor : t.medAddDoctor),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 TextField(
@@ -1138,6 +1141,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(editing ? t.medEditMember : t.familyMemberTitle),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 TextField(controller: name, decoration: InputDecoration(labelText: t.name)),
@@ -1223,6 +1227,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
+                  scrollable: true, // insets: 200% text / keyboard
                   title: Text(t.familySchoolTitle),
                   content: Column(mainAxisSize: MainAxisSize.min, children: [
                     TextField(

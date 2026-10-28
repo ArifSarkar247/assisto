@@ -207,6 +207,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.rmtDeleteEntryTitle),
         content: Text(t.rmtDeleteEntryBody),
         actions: [

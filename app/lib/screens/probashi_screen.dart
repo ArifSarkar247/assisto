@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/probashi_reminders.dart'; // f6
 
@@ -920,7 +921,7 @@ Future<Map<String, dynamic>?> _remitSheet(
   DateTime date = _PMath._asDate(existing?['date']) ?? DateTime.now();
   String d(DateTime x) =>
       '${x.year}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1021,7 +1022,7 @@ Future<Map<String, dynamic>?> _docSheet(
   DateTime? expiry = _PMath._asDate(existing?['expiry']);
   String d(DateTime x) =>
       '${x.year}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1124,7 +1125,7 @@ Future<int?> _offsetSheet(BuildContext context, int current) async {
     -240, // US East (DST)
   ];
   final sorted = [...offsets]..sort();
-  return showModalBottomSheet<int>(
+  return showAppSheet<int>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1162,6 +1163,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
   return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: Text(body),
       actions: [

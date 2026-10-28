@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/loading_gate.dart';
 import 'messenger/messenger_home_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Phone Safety Check-up — premium, HONEST anti-theft phone-hardening guidance.
 ///
@@ -273,7 +274,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
           onPressed: _shareChecklist,
         ),
       ]),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _ScoreCard(score: _score, confirmed: _confirmedCount, total: _steps.length),
         const SizedBox(height: Gap.md),
         // Honest: this phone's storage failed, ticks last until the app closes.

@@ -8,6 +8,7 @@ import '../reminders/exact_alarm_ui.dart' show maybeAskExactAlarms; // remmeter
 import '../widgets/reminders_nlp.dart';
 import 'reminders_screen.dart' show recurrenceLabel;
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// A single-line natural-language quick-add with a live parsed preview.
 /// Typing "every friday 8am jumma" shows a preview chip row (time, recurrence)
@@ -202,7 +203,7 @@ class _Preview extends StatelessWidget {
 Future<Map<String, dynamic>?> pickLink(BuildContext context) async {
   final t = AppLocalizations.of(context);
   final types = const ['person', 'bill', 'document', 'event'];
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

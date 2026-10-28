@@ -8,6 +8,7 @@ import '../../cashguard/clip_crypto.dart';
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cashguard — the 3-5 s clip of a cash alert, opened ON THIS PHONE.
 ///
@@ -28,7 +29,7 @@ class CashClipSheet extends StatefulWidget {
   const CashClipSheet({super.key, required this.source, required this.eventId, required this.owner, this.preview});
 
   static Future<void> show(BuildContext context, CashGuardSource source, int eventId, bool owner) =>
-      showModalBottomSheet<void>(
+      showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · Letters / notices / memos — ADVANCED (#107, §14).
@@ -110,6 +111,7 @@ class _LettersScreenState extends State<LettersScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.paLetDeleteTitle),
         content: Text(tr.paLetDeleteBody((r['subject'] ?? '').toString())),
         actions: [
@@ -457,7 +459,7 @@ class _LetterEditorState extends State<_LetterEditor> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.existing == null ? tr.paLetNew : tr.paLetEdit)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32)),
         children: [
           Text(tr.paLetTypeLabel, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: Gap.xs),

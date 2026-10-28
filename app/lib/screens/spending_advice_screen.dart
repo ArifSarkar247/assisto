@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 // qa1: the insight engine builds Latin-digit strings; show them in the UI's digits.
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// AI SPENDING ADVICE — ADVANCED (#51, SPEC v2.1 §21).
 ///
@@ -472,7 +473,7 @@ Future<Map<String, dynamic>?> _entrySheet(
       text: existing?['previous'] == null
           ? ''
           : existing!['previous'].toString());
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) {
@@ -569,6 +570,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
   return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: Text(body),
       actions: [

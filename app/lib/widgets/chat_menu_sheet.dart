@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The 1:1 CHAT overflow (⋮) menu actions — exact order and dividers per
 /// .phaseB/MESSENGER_UI_FULL.md §3. Original Assisto identity (own icons, own
@@ -92,7 +93,7 @@ Future<ChatMenuAction?> showChatMenu(
     _Row(ChatMenuAction.clearChat, Icons.delete_sweep_rounded, (t) => t.msgrChatClear),
   ];
 
-  return showModalBottomSheet<ChatMenuAction>(
+  return showAppSheet<ChatMenuAction>(
     context: context,
     showDragHandle: true,
     useSafeArea: true,

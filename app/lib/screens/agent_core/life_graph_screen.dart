@@ -13,6 +13,7 @@ import '../../theme.dart';
 import '../../widgets/offline_banner.dart';
 import 'agent_core_widgets.dart';
 import 'life_graph_source.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// agentmem (WP-MEMORY, flag `agent_core`): the agent's life-graph memory,
 /// opened from the "AI knows" page. Browse by type, edit, delete, delete all
@@ -147,6 +148,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.delete_forever_rounded),
         title: Text(t.lgDeleteAllTitle),
         content: Text(t.lgDeleteAllBody),
@@ -173,7 +175,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
   }
 
   Future<void> _edit({LgFact? fact}) async {
-    final res = await showModalBottomSheet<_EditResult>(
+    final res = await showAppSheet<_EditResult>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

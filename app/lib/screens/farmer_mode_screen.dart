@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/farmer_engine.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// FARMER / VILLAGE MODE — ADVANCED (#199, SPEC v2.1 §20).
@@ -190,7 +191,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
   Future<void> _editRecord([Map<String, dynamic>? existing]) async {
     final t = _t;
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -233,7 +234,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
   Future<void> _editLivestock([Map<String, dynamic>? existing]) async {
     final t = _t;
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -271,6 +272,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
   Future<bool?> _confirmDelete(String title, String body) => showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger, size: 30),
           title: Text(title, style: _title),
           content: Text(body, style: _body),

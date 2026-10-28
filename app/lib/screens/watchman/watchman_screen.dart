@@ -14,6 +14,7 @@ import 'watchman_source.dart';
 import 'watchman_viewers.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -265,7 +266,7 @@ class _SiteCard extends StatelessWidget {
           return;
         }
         if (!context.mounted) return;
-        await showModalBottomSheet<void>(
+        await showAppSheet<void>(
           context: context,
           isScrollControlled: true,
           showDragHandle: true,
@@ -283,6 +284,7 @@ class _SiteCard extends StatelessWidget {
         final ok = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
+            scrollable: true, // insets: 200% text / keyboard
             title: Text(t.wmRemoveCamTitle),
             content: Text(t.wmRemoveCamBody((cam['name'] ?? '').toString())),
             actions: [
@@ -504,7 +506,7 @@ class _CameraRow extends StatelessWidget {
 Future<void> showEzvizLinkSheet(BuildContext context, Map<String, dynamic> cam) async {
   final api = context.read<AppState>().api;
   final src = ApiCashGuardSource(api);
-  await showModalBottomSheet<void>(
+  await showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

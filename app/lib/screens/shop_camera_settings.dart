@@ -190,6 +190,7 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.shopCamRotateTitle),
         content: Text(t.shopCamRotateBody),
         actions: [
@@ -206,6 +207,7 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.shopCamDeleteTitle),
         content: Text(t.shopCamDeleteBody),
         actions: [

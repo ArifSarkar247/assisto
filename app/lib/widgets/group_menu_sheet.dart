@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Every action the GROUP CHAT ⋮ overflow can trigger. The group-flavoured
 /// mirror of the 1:1 chat ⋮ (spec §3 last para): same core behaviours, plus the
@@ -44,7 +45,7 @@ Future<GroupMenuAction?> showGroupMenuSheet(
   bool locked = false, // e-gaps
 }) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<GroupMenuAction>(
+  return showAppSheet<GroupMenuAction>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -147,7 +148,7 @@ Future<String?> showGroupOptionPicker(
   required List<(String value, String label)> options,
   String? current,
 }) {
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

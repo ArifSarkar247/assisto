@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'action_models.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Bottom sheet to review + optionally edit a PENDING action before it runs
 /// (SPEC v2.1 §21 — Approve/Reject/EDIT). For draftable actions (a message /
@@ -19,7 +20,7 @@ Future<Map<String, dynamic>?> showActionEditSheet(
   BuildContext context,
   PendingAction item,
 ) {
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

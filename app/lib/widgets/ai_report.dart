@@ -7,6 +7,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ai-report (Google Play AI-generated content policy): every AI answer the
 /// user sees can be reported / flagged from inside the app. Shared by the home
@@ -65,7 +66,7 @@ class AiReport {
   static Future<void> open(BuildContext context, AiReportTarget target) async {
     final messenger = ScaffoldMessenger.maybeOf(context);
     final t = AppLocalizations.of(context);
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -82,7 +83,7 @@ class AiReport {
       BuildContext context, AiReportTarget target) async {
     final t = AppLocalizations.of(context);
     HapticFeedback.selectionClick();
-    final pick = await showModalBottomSheet<String>(
+    final pick = await showAppSheet<String>(
       context: context,
       useSafeArea: true,
       showDragHandle: true,

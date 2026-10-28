@@ -14,6 +14,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'feedback_api.dart';
 import 'feedback_capture.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// f1-founders: "Send feedback / report a problem".
 ///
@@ -34,7 +35,7 @@ class FeedbackSheet {
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.maybeOf(context);
     final t = AppLocalizations.of(context);
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

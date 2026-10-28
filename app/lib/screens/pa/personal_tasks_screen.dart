@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/pa_tasks_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// PA SECRETARY MODE — personal-task OVERSIGHT (#115, §14, ADVANCED).
 ///
@@ -60,7 +61,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
   Future<void> _persist() async => PaTasksStore.save(_tasks);
 
   Future<void> _addOrEdit([PaTask? existing]) async {
-    final result = await showModalBottomSheet<PaTask>(
+    final result = await showAppSheet<PaTask>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -94,6 +95,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.delete_outline_rounded, color: Brand.danger),
         title: Text(t.paTaskDeleteTitle),
         content: Text(t.paTaskDeleteBody(task.title)),

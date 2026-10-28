@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/quick_tools_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// QUICK TOOLS (#17, SPEC v2.1 §6, built to ADVANCED §21).
 ///
@@ -173,7 +174,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
       bottomNavigationBar: const AdBannerSlot(screen: 'quick_tools'),
       appBar: AppBar(title: Text(t.qtTitle)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
         children: [
           _AiMarker(text: t.f6QtRuleMarker, note: t.qtNeverSends) /* f6: rule-based, not AI */,
           const SizedBox(height: Gap.lg),

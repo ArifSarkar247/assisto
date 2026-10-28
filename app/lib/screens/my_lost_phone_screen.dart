@@ -12,6 +12,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'watched_phones_screen.dart'; // at100
 import '../antitheft_api.dart'; // at100
 import '../services/action_feedback.dart'; // db1
@@ -600,7 +601,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
 
   Future<void> _turnOnLost() async {
     final t = AppLocalizations.of(context);
-    final result = await showModalBottomSheet<_LostForm>(
+    final result = await showAppSheet<_LostForm>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => _LostModeSheet(

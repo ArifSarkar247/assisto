@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'date_separators.dart' show fmtDate, fmtTime;
 import 'msg_ticks.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// c3-msg — SWIPE TO REPLY. Received messages swipe RIGHT, my own swipe LEFT
 /// (WhatsApp). Past [threshold] a reply icon fills in and the phone ticks once
@@ -119,7 +120,7 @@ const List<String> kC3MoreReactions = [
 ];
 
 Future<String?> showMoreReactions(BuildContext context) {
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -145,7 +146,7 @@ Future<String?> showMoreReactions(BuildContext context) {
 /// seen hidden when read receipts are off on either side).
 Future<void> showMessageInfoSheet(
     BuildContext context, Future<Map<String, dynamic>> Function() load) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

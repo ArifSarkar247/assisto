@@ -66,6 +66,7 @@ class _RemitReportScreenState extends State<RemitReportScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.rmtShareConfirmTitle),
         content: Text(t.rmtShareConfirmBody('${m['name'] ?? ''}')),
         actions: [

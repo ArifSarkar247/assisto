@@ -265,6 +265,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
     final link = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.m3PasteLinkTitle),
         content: TextField(
           key: const Key('m3-paste-field'),
