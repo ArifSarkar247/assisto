@@ -151,7 +151,7 @@ class _CashClipSheetState extends State<CashClipSheet> {
       final r = await widget.source.clipViewed(widget.eventId);
       if (mounted) setState(() => _deletedOnServer = r['deleted'] == true);
     } catch (_) {
-      // best effort: the server deletes it after 24 h anyway
+      // best-effort: the server deletes it after 24 h anyway
     }
   }
 

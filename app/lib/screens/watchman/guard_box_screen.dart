@@ -199,7 +199,9 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
       await _secure.write(key: _kSite, value: _site);
       await _secure.write(key: _kCamName, value: _camName);
       if (_cameraId != null) await _secure.write(key: _kCam, value: '$_cameraId');
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: pairing works this session; only the restore after a restart is lost
+    }
   }
 
   Future<void> _scan() async {
@@ -252,7 +254,9 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         await _secure.write(key: _kUrl, value: ok);
         await _secure.write(key: _kUser, value: _user.text);
         await _secure.write(key: _kPass, value: _pass.text);
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: the tested camera works now; it is just re-typed after a restart
+      }
     } else {
       _msg = status == 401 ? t.gbCamAuth : (status == 0 ? t.gbCamUnreachable : t.gbCamNoSnapshot);
     }
@@ -280,7 +284,9 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
       try {
         await _shopbox.invokeMethod('keepScreenOn', {'on': true});
         _charging = await _shopbox.invokeMethod<bool>('isCharging');
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: keep-screen-on / charging hint are optional helpers
+      }
       _loop = Timer.periodic(const Duration(milliseconds: 500), (_) => _tick());
       _hb = Timer.periodic(const Duration(seconds: 20), (_) {
         dev.heartbeat(caps: const ['gateway', 'guardbox', 'clip']);
@@ -316,9 +322,10 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     _cfg?.cancel();
     _engine = null;
     if (_running) {
-      try {
-        _shopbox.invokeMethod('keepScreenOn', {'on': false});
-      } catch (_) {}
+      _shopbox.invokeMethod('keepScreenOn', {'on': false}).catchError((_) {
+        // best-effort: the window flag goes away with the screen anyway
+        return null;
+      });
       closeGuardDetector();
     }
     _running = false;

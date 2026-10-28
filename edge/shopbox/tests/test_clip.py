@@ -213,3 +213,23 @@ def test_engine_names_the_clip_in_the_queued_alert(tmp_path):
     _, rec, _ = eng.outbox.peek()
     assert len(rec["event"]["clip_ref"]) == 32
     assert eng.status()["clips"]["enabled"] is True
+
+
+def test_short_pre_roll_is_made_up_by_a_longer_post_roll():
+    clock = FakeClock(1000.0)
+    ready = []
+    rec = C.ClipRecorder(on_ready=lambda *a: ready.append(a), clock=clock)
+    _, pub = _keypair(b"owner")
+    rec.configure({"enabled": True, "recipients": [_recip(1, pub)], "fps": 5,
+                   "seconds": 4, "pre_s": 2})
+    frame = np.full((360, 640, 3), 100, np.uint8)
+    rec.tap("c1", frame)                   # the ring only just started
+    clock.advance(0.2)
+    rec.tap("c1", frame)
+    assert rec.start("c1", "ab" * 16)
+    for _ in range(30):
+        rec.tap("c1", frame)
+        clock.advance(0.2)
+    built = C.build_clip(ready[0][2], 5, rec.cfg["recipients"], 900 * 1024)
+    assert built is not None and 3.5 <= built[1]["duration_s"] <= 5.0
+

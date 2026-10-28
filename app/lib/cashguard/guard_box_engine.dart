@@ -375,7 +375,11 @@ class GuardBoxEngine {
     _lastEventAt = now;
     stats.events++;
     if (wantClip && body['raised'] == true && body['clip_wanted'] != false) {
-      _jobs.add(_Job(ref, now + postS, ring.since(now - preS)));
+      final pre = ring.since(now - preS);
+      // a short pre-roll is made up by a longer post-roll (~4 s in all)
+      final preDur = pre.isEmpty ? 0.0 : now - pre.first.$1;
+      final post = max(postS, preS + postS - preDur);
+      _jobs.add(_Job(ref, now + post, pre));
     }
     return body['raised'] == true;
   }
@@ -399,7 +403,7 @@ class GuardBoxEngine {
       return;
     }
     final dur = frames.last.$1 - frames.first.$1 + 1 / clipFps;
-    if (dur < 2.5 || dur > 5.5) {
+    if (dur < 3.0 || dur > 5.5) {
       stats.clipsDropped++;
       return;
     }

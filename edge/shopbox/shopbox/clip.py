@@ -218,7 +218,7 @@ class ClipJob:
 
 
 def build_clip(frames, fps: float, recipients, max_bytes: int,
-               min_s: float = 2.5, max_s: float = 5.5):
+               min_s: float = 3.0, max_s: float = 5.5):
     """-> (ciphertext, meta) or None (too short / nobody to seal for / too big
     even at the smallest quality). Shrinks by dropping every other frame."""
     frames = sorted(frames)
@@ -305,7 +305,11 @@ class ClipRecorder:
         now = self.clock() if now is None else now
         ring = self.rings.get(cam_id)
         pre = ring.since(now - self.cfg["pre_s"]) if ring else []
-        post = self.cfg["seconds"] - self.cfg["pre_s"]
+        # a short pre-roll (the ring only just started, a stalled stream) is
+        # made up by a longer post-roll, so the clip is still ~`seconds` long
+        pre_dur = (now - pre[0][0]) if pre else 0.0
+        post = max(self.cfg["seconds"] - self.cfg["pre_s"],
+                   self.cfg["seconds"] - pre_dur)
         with self._lock:
             if len(self.jobs) >= 8:
                 return False             # bounded: never pile up
