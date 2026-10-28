@@ -1,6 +1,6 @@
 {
  "en": {
-  "circle2VideoWhoPays": "Only you, the caller, need Premium — {name} pays nothing. Voice calls stay free on every plan.",
+  "circle2VideoWhoPays": "Only you, the caller, need Premium — {name} pays nothing.",
   "@circle2VideoWhoPays": {
    "description": "circle2 (My Circle chat + calls review 28 Oct)",
    "placeholders": {
@@ -35,7 +35,7 @@
   }
  },
  "bn": {
-  "circle2VideoWhoPays": "প্রিমিয়াম লাগবে শুধু আপনার (যিনি কল করছেন) — {name}-কে কিছুই দিতে হবে না। ভয়েস কল সব প্ল্যানে ফ্রি।",
+  "circle2VideoWhoPays": "প্রিমিয়াম লাগবে শুধু আপনার (যিনি কল করছেন) — {name}-কে কিছুই দিতে হবে না।",
   "circle2VoiceInstead": "ভয়েস কল করুন — ফ্রি",
   "circle2CallsEmptyBenefit": "সার্কেলের মানুষকে ভয়েস কল ফ্রি, কোনো বিজ্ঞাপন নেই — অন্য ফোনে অ্যাপ বন্ধ থাকলেও বাজে।",
   "circle2CallsEmptyCta": "আমার সার্কেলের কাউকে কল করুন",
