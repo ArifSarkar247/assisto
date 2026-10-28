@@ -1,5 +1,6 @@
 ## ⭐ PERMANENT OWNER RULE 28 Oct — FEATURE EXCELLENCE
 Before any feature is called done: a competitor teardown (best global AND Bangladesh apps) + a best-in-market spec (owner_actions/<FEATURE>_TEARDOWN_BN.md); everything feasible within our stack and budget is built; the feature must be so complete that the user never needs another app. Measured claims only; never accuse a person; 40% profit rule on every paid part. First applications: CCTV Smart Cash Guard, Tagada + SMS (order 28 Oct).
+**Addendum 28 Oct (BEST-IN-MARKET):** a board row reaches 100 only with written proof it equals or beats the best alternative (global + Bangladesh) on every point that matters; FEATURE_100_BOARD_BN.md gets columns BEST ALTERNATIVE and GAPS. Order: CCTV, vehicle tracking, Safe Journey, family SOS, khata + tagada, AI sales, My Circle chat + calls, anti-theft, then the rest. No feature hidden to avoid work. Each spec item reported as done / in progress / not possible (reason).
 
 ## ⬛⬛ TOP RULE (replaces tonight's earlier quality + agent orders) — OWNER FINAL ORDER 27 Oct night
 Word for word: **owner_actions/OWNER_FINAL_ORDER_27OCT.md** (MASTER_QUALITY_ORDER.md stays as background). TWO workstreams in parallel, both moving every day:
