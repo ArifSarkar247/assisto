@@ -25,11 +25,12 @@ import time
 from typing import Callable, Optional
 
 from . import compat
+from . import siren as siren_mod
 from .config import AppConfig, CameraConfig, clean_source, split_rtsp_credentials
 
 log = logging.getLogger(__name__)
 
-ACTIONS = ("check", "discover")
+ACTIONS = ("check", "discover", "siren")
 POLL_EVERY_S = 60.0
 RETRY_DELAYS = (2.0, 5.0, 15.0)     # max 3 retries after the first attempt
 MAX_TASKS_PER_POLL = 10
@@ -74,6 +75,7 @@ class GatewayTasks:
                  on_checked: Optional[Callable[[dict, "compat.CheckOutcome"], None]] = None,
                  check: Callable = compat.run_check,
                  discover: Callable = compat.run_discover,
+                 siren: Callable = siren_mod.hikvision_siren,
                  poll_every_s: float = POLL_EVERY_S,
                  clock: Callable[[], float] = time.monotonic,
                  sleep: Callable[[float], None] = time.sleep,
@@ -84,6 +86,7 @@ class GatewayTasks:
         self.on_checked = on_checked
         self.check = check
         self.discover = discover
+        self.siren = siren
         self.poll_every_s = float(poll_every_s)
         self.clock = clock
         self.sleep = sleep
@@ -213,6 +216,16 @@ class GatewayTasks:
                             log.exception("adding the checked camera failed")
             elif action == "discover":
                 result = self.discover(task.get("request") or {})
+            elif action == "siren" and cam is not None:
+                # cctvx: the owner tapped "Siren" — the password never left
+                # this PC's encrypted store
+                req = dict(task.get("request") or {})
+                secret = self.store.get(secret_key(cam))
+                result = self.siren(str(req.get("host") or ""),
+                                    int(req.get("http_port") or 80),
+                                    self.store.get(user_key(cam)), secret,
+                                    int(req.get("seconds") or 15),
+                                    int(req.get("channel") or 1))
             else:
                 result = {"ok": False, "steps": [], "code": "not_supported",
                           "detail": "unknown action"}

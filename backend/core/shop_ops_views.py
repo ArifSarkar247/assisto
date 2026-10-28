@@ -307,8 +307,28 @@ class ShopHeartbeatView(APIView):
                 "platform": str(d.get("platform") or "")[:24],
                 "version": str(d.get("version") or "")[:24], "at": now.isoformat()}
         ShopSite.objects.filter(pk=site.pk).update(last_seen=now)
+        # cctvx: a newer edge says WHICH cameras really deliver frames
+        # (`live_ids`); only those count as seen, so a dead stream shows up
+        # as "camera offline". Older edges keep the old behaviour.
+        live = None
+        if isinstance(d.get("live_ids"), list):
+            live = {int(x) for x in d.get("live_ids") if str(x).isdigit()}
         for c in cams:
-            ShopCamera.objects.filter(pk=c.pk).update(last_seen=now, device_info=info)
+            if live is None or c.pk in live:
+                ShopCamera.objects.filter(pk=c.pk).update(last_seen=now, device_info=info)
+            else:
+                ShopCamera.objects.filter(pk=c.pk).update(device_info=info)
+        # cctvx: the edge's last movement anywhere -> "shop opened"
+        try:
+            mt = float(d.get("motion_at"))
+            if now.timestamp() - 300 <= mt <= now.timestamp() + 5:
+                from datetime import datetime, timezone as dtz
+                from . import cctvx_views as CXV
+                CXV.note_motion(site, datetime.fromtimestamp(mt, tz=dtz.utc), now)
+        except (TypeError, ValueError):
+            pass
+        except Exception:
+            log.exception("motion note failed")
         _sweep_live(now)
         cfg = device_config(site, cam)
         from . import watchman_views as WV

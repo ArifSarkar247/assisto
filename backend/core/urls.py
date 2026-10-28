@@ -652,6 +652,21 @@ urlpatterns += [
     path("shop/cashguard", cg.CashGuardOverviewView.as_view()),
     path("shop/cameras/<int:pk>/ezviz", cg.CameraEzvizView.as_view()),
 ]
+# ---- cctvx ---- CCTV extras (owner 28 Oct)
+from . import cctvx_views as cx  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/guard", cx.GuardSettingsView.as_view()),
+    path("shop/sites/<int:pk>/guard/report", cx.GuardReportView.as_view()),
+    path("shop/sites/<int:pk>/privacy-kit", cx.PrivacyKitView.as_view()),
+    path("shop/cameras/<int:pk>/placement", cx.CameraPlacementView.as_view()),
+    path("shop/guard/inbox", cx.GuardInboxView.as_view()),
+    path("shop/events/<int:pk>", cx.EventDetailView.as_view()),
+    path("shop/events/<int:pk>/opened", cx.EventOpenedView.as_view()),
+    path("shop/events/<int:pk>/siren", cx.EventSirenView.as_view()),
+    path("shop/events/<int:pk>/share-targets", cx.ShareTargetsView.as_view()),
+    path("shop/events/<int:pk>/clip/share", cx.ClipShareView.as_view()),
+    path("shop/events/<int:pk>/evidence", cx.EventEvidenceView.as_view()),
+]
 # ---- /cctv1 ----
 
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus

@@ -73,21 +73,19 @@ CashClip decodeContainer(Uint8List raw) {
   return CashClip(fps <= 0 ? 5 : fps, frames, ts.length == frames.length ? ts : const []);
 }
 
-/// Unwrap the per-event key with one of [keys] (current key first), then
-/// decrypt + parse. [meta] is the server's envelope for ME (`wrap` = my
-/// wrapped key). Throws [ClipOpenError].
-CashClip openClip({
+/// Unwrap the per-event content key (32 bytes) with one of [keys] (current
+/// key first). The edge's wrap uses its ephemeral key as the "sender"; a
+/// wrap the OWNER's phone made when sharing (cctvx) carries `sender_pub` /
+/// `sender_key_id` — the owner's identity key. Throws [ClipOpenError].
+Uint8List unwrapClipKey({
   required Map<String, dynamic> meta,
-  required Uint8List ciphertext,
   required List<IdentityKeyPair> keys,
 }) {
   final wrap = meta['wrap'] is Map ? (meta['wrap'] as Map).cast<String, dynamic>() : null;
   if (wrap == null || keys.isEmpty) throw const ClipOpenError('no_key');
-  final Uint8List ephPub;
-  final Uint8List nonce;
+  final Uint8List senderPub;
   try {
-    ephPub = base64Decode(meta['eph_pub'] as String);
-    nonce = base64Decode(meta['nonce'] as String);
+    senderPub = base64Decode((wrap['sender_pub'] ?? meta['eph_pub']) as String);
   } catch (_) {
     throw const ClipOpenError('bad_wrap');
   }
@@ -95,7 +93,7 @@ CashClip openClip({
     scheme: kClipScheme,
     ciphertextB64: (wrap['ct'] ?? '').toString(),
     nonceB64: (wrap['nonce'] ?? '').toString(),
-    senderKeyId: (meta['eph_key_id'] ?? '').toString(),
+    senderKeyId: (wrap['sender_key_id'] ?? meta['eph_key_id'] ?? '').toString(),
   );
   final want = (wrap['key_id'] ?? '').toString();
   final ordered = [
@@ -105,7 +103,7 @@ CashClip openClip({
   final e2e = SoftwareE2E();
   String? kB64;
   for (final k in ordered) {
-    kB64 = e2e.decrypt(self: k, senderPublicKey: ephPub, ct: ct);
+    kB64 = e2e.decrypt(self: k, senderPublicKey: senderPub, ct: ct);
     if (kB64 != null) break;
   }
   if (kB64 == null) throw const ClipOpenError('no_key');
@@ -116,6 +114,44 @@ CashClip openClip({
     throw const ClipOpenError('bad_wrap');
   }
   if (key.length != 32) throw const ClipOpenError('bad_wrap');
+  return key;
+}
+
+/// cctvx — share a clip with ONE Circle member: wrap the content key again
+/// for the member's PUBLIC key, with this phone's identity key as the
+/// sender (the chat E2E construction). The server only relays the wrap.
+Map<String, String> wrapClipKeyFor({
+  required Uint8List contentKey,
+  required IdentityKeyPair me,
+  required Uint8List memberPublicKey,
+  required String memberKeyId,
+}) {
+  final ct = SoftwareE2E().encrypt(
+      self: me, recipientPublicKey: memberPublicKey, plaintext: base64Encode(contentKey));
+  return {
+    'key_id': memberKeyId,
+    'nonce': ct.nonceB64,
+    'ct': ct.ciphertextB64,
+    'sender_pub': me.publicKeyB64,
+    'sender_key_id': me.keyId,
+  };
+}
+
+/// Unwrap the per-event key with one of [keys] (current key first), then
+/// decrypt + parse. [meta] is the server's envelope for ME (`wrap` = my
+/// wrapped key). Throws [ClipOpenError].
+CashClip openClip({
+  required Map<String, dynamic> meta,
+  required Uint8List ciphertext,
+  required List<IdentityKeyPair> keys,
+}) {
+  final key = unwrapClipKey(meta: meta, keys: keys);
+  final Uint8List nonce;
+  try {
+    nonce = base64Decode(meta['nonce'] as String);
+  } catch (_) {
+    throw const ClipOpenError('bad_wrap');
+  }
   final aad = utf8.encode((meta['aad'] ?? kClipAad).toString());
   final plain = ChaCha20Poly1305.decrypt(key, nonce, ciphertext, aad: aad);
   if (plain == null) throw const ClipOpenError('bad_clip');

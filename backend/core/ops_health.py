@@ -118,6 +118,8 @@ JOBS = (
     Job("vehicle_daily_rollup", DAY, "45 3 * * *", "nice -n15 ionice -c3"),   # veh100
     # cashguard: encrypted event clips are deleted 24 h after upload
     Job("shop_clip_purge", HOUR, "17 * * * *", "nice -n15 ionice -c3"),
+    # cctvx: no-sale checks, escalation steps, offline / late-opening checks
+    Job("shop_guard_tick", MIN, "* * * * *", "nice -n10", lock=True),
     Job("profit_guard_rollover", DAY, "5 0 * * *"),
     Job("backup", DAY, "15 2 * * *", kind="backup"),
     Job("generate_briefings", DAY, "0 3 * * *", "nice -n15 ionice -c3"),

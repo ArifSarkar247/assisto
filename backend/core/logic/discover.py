@@ -59,6 +59,7 @@ ROUTE_KEYS = (
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
+    "watchman_inbox",  # cctvx: alerts passed to me / clips shared with me
     "booking", "my_bookings",  # booking-bot (flag booking_bot)
     "remittance",  # budget-remittance (flag budget_remittance)
     "probashi_plan",  # probashi-plan (flag probashi_plan)

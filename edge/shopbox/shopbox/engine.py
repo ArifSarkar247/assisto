@@ -30,6 +30,9 @@ from .secure_store import SITE_TOKEN, SecretStore, cam_key
 
 log = logging.getLogger(__name__)
 
+# cctvx: a camera counts as live when it delivered a frame this recently
+LIVE_FRAME_S = 120.0
+
 
 def camera_url(cfg: AppConfig, store: SecretStore, cam_id: str) -> str:
     """The credentialed RTSP URL handed to FFmpeg. In memory only: never
@@ -193,6 +196,26 @@ class Engine:
         except Exception:
             log.exception("could not save config")
 
+    def heartbeat_extra(self) -> dict:
+        """cctvx: which server cameras REALLY deliver frames now (a dead
+        stream -> "camera offline" on the server after 10 min) and when
+        movement was last seen anywhere ("shop opened"). No images."""
+        now = time.time()
+        live = []
+        for c in self.cfg.cameras:
+            if c.server_id is None or not c.enabled:
+                continue
+            w = self.workers.get(c.id)
+            t = getattr(w, "last_frame_at", None) if w is not None else None
+            if t is not None and now - t <= LIVE_FRAME_S:
+                live.append(int(c.server_id))
+        motion = [a.last_motion_at for a in self.analyzers.values()
+                  if getattr(a, "last_motion_at", None)]
+        out = {"live_ids": live} if self.running else {}
+        if motion:
+            out["motion_at"] = round(max(motion), 1)
+        return out
+
     def server_camera_ids(self) -> List[int]:
         return [c.server_id for c in self.cfg.cameras
                 if c.server_id is not None and c.enabled]
@@ -273,7 +296,8 @@ class Engine:
             self.sync = DeviceSync(
                 client, self.device_tokens, caps, self.apply_server_config,
                 on_live=(self.live.handle if self.live else None),
-                tasks=self.tasks, camera_ids=self.server_camera_ids)
+                tasks=self.tasks, camera_ids=self.server_camera_ids,
+                extra=self.heartbeat_extra)
             self.sync.start()
         except Exception:
             log.exception("device sync could not start (monitoring continues)")

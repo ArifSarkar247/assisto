@@ -181,6 +181,8 @@ const Map<String, String> kRouteFeature = {
   'used_phone_check': 'anti_theft',
   'shop_box': 'cctv_watchman',
   'watchman': 'home_watchman',
+  // cctvx: alerts passed to me / clips shared with me
+  'watchman_inbox': 'home_watchman',
   'disaster': 'disaster_alerts',
   'contacts': 'contacts',
   'voice_assistant': 'voice_assistant',

@@ -259,6 +259,9 @@ def _alert_text(cam_name, ev):
     from .logic import cash_guard as CG
     inputs = (ev.signals or {}).get("inputs") if isinstance(ev.signals, dict) else {}
     inputs = inputs if isinstance(inputs, dict) else {}
+    if (ev.signals or {}).get("nosale"):
+        from . import cctvx_views as CXV
+        return CXV.nosale_text(ev, cam_name)
     if CG.is_cash_event(ev.type, inputs):
         away = bool(inputs.get("away"))
         has_clip = bool((ev.signals or {}).get("clip_ref"))
@@ -299,7 +302,8 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
                 "viewer": user.pk != site.owner_id, "quiet": bool(quiet),
                 # cashguard
                 "cash": cash, "away": away,
-                "clip": bool((ev.signals or {}).get("clip_ref"))}
+                "clip": bool((ev.signals or {}).get("clip_ref")),
+                "nosale": bool((ev.signals or {}).get("nosale"))}
         FamilyAlert.objects.create(
             user=user, kind="shop_guard",
             title=title_en[:160] if olang == "en" else title_bn[:160],
@@ -328,6 +332,7 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
                   "confidence": ev.confidence, "possible": ev.possible,
                   "label": "suspicious_please_check",
                   "cash": cash, "away": away, "clip": meta["clip"],
+                  "nosale": meta["nosale"],
                   **({"snapshot_url": snap_url} if snap_url else {}),
                   # cctv1: places made in the watchman wizard open the watchman
                   "route": "watchman" if site.gateway else "business/shop-box"},
@@ -482,6 +487,14 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
         signals["armed"] = armed
         quiet = WM.in_window(v2.get("quiet_hours"), local) and not away
     cam_event = dict(cam_event, signals=signals)
+    # cctvx: movement at the site -> "shop opened" (first movement after the
+    # opening time, once a day). Cheap: reads the already-loaded site.
+    if cam_event.get("type") in CXV_MOVEMENT:
+        try:
+            from . import cctvx_views as CXV
+            CXV.note_motion(site, now, now)
+        except Exception:
+            pass
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
         return decision, None
@@ -510,6 +523,13 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
                 sig["clip_ref"] = clip_ref
                 ShopEvent.objects.filter(pk=prev.pk).update(signals=sig)
                 prev.signals = sig
+            if prev.pending:
+                # cctvx: one no-sale episode — the check waits for this touch
+                try:
+                    from . import cctvx_views as CXV
+                    CXV.bump_nosale(prev, now)
+                except Exception:
+                    pass
             return dict(decision, grouped=True), prev
 
     # DAILY CAP per site: beyond it, alerts are only counted (honestly shown
@@ -529,8 +549,17 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
         held.update({"raise": False, "held": "daily_cap"})
         return held, None
 
+    # cctvx NO-SALE DRAWER OPEN: a cash-zone touch at a shop that records its
+    # sales / khata in Assisto waits for the owner's window (default 2 min):
+    # saved as `pending` (no push, hidden), checked by shop_guard_tick.
+    pending = False
+    try:
+        from . import cctvx_views as CXV
+        pending = CXV.nosale_mode(site, decision["type"], now)
+    except Exception:
+        pending = False
     ev = ShopEvent.objects.create(
-        site=site, camera=cam, type=decision["type"],
+        site=site, camera=cam, type=decision["type"], pending=pending,
         signals={"inputs": signals,
                  "reason": decision["reason_signals"],
                  "pos_matched": decision["pos_matched"],
@@ -543,9 +572,21 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     if snapshot is not None and site.snapshot_retention_days > 0:
         ev.snapshot.save(snapshot.name, snapshot, save=True)
 
+    if pending:
+        CXV.schedule_nosale(site, ev, now)
+        return dict(decision, nosale_check=True), ev
     ShopIngestView._notify_owner(site, cam, ev, quiet=quiet)
+    try:
+        from . import cctvx_views as CXV
+        CXV.after_notify(site, ev, quiet, now)
+    except Exception:
+        pass
     return decision, ev
 
+
+# cctvx: event types that prove movement at the site ("shop opened")
+CXV_MOVEMENT = ("motion", "person_detected", "zone_intrusion", "line_crossing",
+                "camera_alarm", "hand_in_cash_zone", "drawer_open", "pose_possible")
 
 # event types that only count while the owner's schedule is ARMED (cctv1)
 WATCHMAN_ARMED_TYPES = ("motion", "person_detected", "zone_intrusion",
@@ -742,6 +783,12 @@ class ShopCameraHookView(APIView):
         # hours: the camera's own, else the site's (a2-cctv)
         zc = effective_zone_config(cam)
         results = []
+        if any(v.get("active") for v in events):
+            try:
+                from . import cctvx_views as CXV
+                CXV.note_motion(cam.site, now, now)
+            except Exception:
+                pass
         for vev in events:
             # cashguard: no target box from the camera -> optionally check the
             # ONE still on the server (off by default; ~60 ms on one core)
@@ -950,7 +997,15 @@ class ShopEventsView(APIView):
         if s is None:
             return _err(lang, "সাইট পাওয়া যায়নি।", "Site not found.", status=404)
         status_f = request.query_params.get("status")
-        qs = s.events.select_related("camera", "clip")
+        qs = s.events.filter(pending=False).select_related("camera", "clip")
+        # cctvx: the alert list was opened -> these alerts are SEEN (the
+        # escalation chain stops; anyone who may see them counts)
+        try:
+            from . import cctvx_views as CXV
+            for e in qs.filter(opened_at__isnull=True, status="open")[:50]:
+                CXV.mark_opened(e, request.user)
+        except Exception:
+            pass
         if status_f in {"open", "checked", "false_alarm"}:
             qs = qs.filter(status=status_f)
         cam_f = request.query_params.get("camera")
@@ -980,6 +1035,12 @@ class ShopEventMarkView(APIView):
         before = e.status
         e.status = status_v
         e.save(update_fields=["status"])
+        if before != status_v:
+            try:
+                from . import cctvx_views as CXV
+                CXV.nosale_feedback(e, "wrong" if status_v == "false_alarm" else "correct")
+            except Exception:
+                pass
         tuning = None
         # adapt this camera's thresholds ONCE per verdict change (bounded)
         if e.camera_id and before != status_v:
@@ -1208,6 +1269,9 @@ def _event_row(e, request):
                         "correct" if e.status == "checked" else None),
             # cashguard: cash event? owner away? the encrypted clip's state
             **_cash_fields(e),
+            # cctvx
+            "nosale": bool((e.signals or {}).get("nosale")),
+            "opened_at": _iso(getattr(e, "opened_at", None)),
             "created": e.created.isoformat()}
 
 
@@ -1275,7 +1339,7 @@ def clean_source(v):
     if host and re.fullmatch(r"[A-Za-z0-9.\-:\[\]]+", host):
         out["host"] = host
     for k, lo, hi in (("port", 1, 65535), ("onvif_port", 1, 65535),
-                      ("channel", 1, 64)):
+                      ("http_port", 1, 65535), ("channel", 1, 64)):
         try:
             n = int(v.get(k))
             if lo <= n <= hi:

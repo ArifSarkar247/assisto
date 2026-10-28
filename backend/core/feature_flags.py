@@ -69,7 +69,7 @@ REGISTRY = (
     ('cctv_watchman', 'family_safety', 'CCTV watchman (Shop Box)', 'সিসিটিভি ওয়াচম্যান (শপ বক্স)', True, ('shop_box',)),
     # launch (owner 27 Oct): CCTV + vehicle tracking are LAUNCH features, not
     # previews — visible by default once their E2E passed (tests_e2e_cctv).
-    ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', True, ('watchman',)),
+    ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', True, ('watchman', 'watchman_inbox')),
     # cashguard (owner 28 Oct): an old phone on the shop Wi-Fi reads a shop IP
     # camera and runs the cash-zone check on the phone. OFF until a real-phone
     # proof (owner order); opened from the Smart Cash Guard screen, no route.

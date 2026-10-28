@@ -184,14 +184,10 @@ class ShopClipUploadView(APIView):
 
 # ---------------------------------------------------------------- owner
 def _event_for(request, pk):
-    """(event, role) for the site owner or a family viewer, else (None, None)."""
-    from .models import ShopEvent
-    try:
-        ev = ShopEvent.objects.select_related("site").get(pk=int(pk))
-    except (ShopEvent.DoesNotExist, TypeError, ValueError):
-        return None, None
-    s, role = SV._viewable_site(request, ev.site_id)
-    return (ev, role) if s is not None else (None, None)
+    """(event, role) for the site owner, a family viewer — and (cctvx) a
+    person the alert was escalated to or the clip was shared with."""
+    from . import cctvx_views as CXV
+    return CXV.event_access(request, pk)
 
 
 GONE = {"viewed": ("মালিক ক্লিপটি দেখেছেন, তাই মুছে ফেলা হয়েছে। ছবিটি আছে।",
@@ -231,7 +227,9 @@ class EventClipView(_OwnerBase):
         return Response({"status": "ready", "event_id": ev.id, "role": role,
                          "url": url, "meta": meta, "size": clip.size,
                          "expires_at": SV._iso(clip.expires_at),
-                         "delete_on_view": role == "owner"})
+                         "delete_on_view": role in ("owner", "shared"),
+                         # cctvx: a shared wrap was made by the owner's phone
+                         "shared": role == "shared"})
 
 
 class EventClipViewedView(_OwnerBase):
@@ -241,11 +239,35 @@ class EventClipViewedView(_OwnerBase):
         if ev is None or not SV.hasattr_clip(ev):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         clip = _fresh(ev.clip)
-        if role != "owner":
+        if role not in ("owner", "shared"):
             return Response({"ok": True, "deleted": False, "status": clip.status})
+        # cctvx: a clip the owner SHARED stays until that person watched it
+        # too (or 24 h); each watcher's own wrapped key goes at once.
+        meta = dict(clip.meta or {})
+        share = dict(meta.get("share") or {})
+        uid = str(request.user.pk)
+        if role == "shared":
+            if uid in share:
+                share[uid] = dict(share[uid], viewed=True)
+        else:
+            meta["owner_viewed"] = True
+        meta["share"] = share
+        waiting = [u for u, r in share.items() if not r.get("viewed")]
+        if clip.status == "ready" and (waiting or (role == "shared" and
+                                                   not meta.get("owner_viewed"))):
+            wraps = dict(meta.get("wraps") or {})
+            wraps.pop(uid, None)
+            meta["wraps"] = wraps
+            clip.meta = meta
+            if role == "owner":
+                clip.viewed_at = timezone.now()
+            clip.save(update_fields=["meta", "viewed_at"])
+            return Response({"ok": True, "deleted": False, "status": clip.status,
+                             "kept_for": len(waiting)})
         if clip.status == "ready":
-            clip.viewed_at = timezone.now()
-            clip.save(update_fields=["viewed_at"])
+            clip.meta = meta
+            clip.viewed_at = clip.viewed_at or timezone.now()
+            clip.save(update_fields=["viewed_at", "meta"])
             _drop_blob(clip, "viewed")
         return Response({"ok": True, "deleted": True, "status": clip.status})
 

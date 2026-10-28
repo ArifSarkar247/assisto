@@ -98,6 +98,7 @@ class CameraAnalyzer:
         self._prev_pts: List[Tuple[float, float]] = []
         self._prev_age = 0
         self.last_people = 0             # for the UI "test" view
+        self.last_motion_at: Optional[float] = None   # cctvx (heartbeat)
         self.reconfigure()
 
     def reconfigure(self, cam: Optional[CameraConfig] = None,
@@ -180,6 +181,10 @@ class CameraAnalyzer:
         now = self.clock() if now is None else now
         frame = downscale(frame_bgr, self.cfg.frame_width)
         m = self.motion.update(frame, self.zone or None)
+        if m.motion and not m.warming_up and not m.scene_change:
+            # cctvx: "shop opened" — the server only needs WHEN movement was
+            # last seen (reported on the heartbeat), never the frame
+            self.last_motion_at = now
         confirm = max(1, int(self.cfg.confirm_frames))
         when = datetime.fromtimestamp(now, tz=timezone.utc)
 
