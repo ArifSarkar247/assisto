@@ -87,6 +87,11 @@ def _run_out(run, lang, detail=False):
          "finished_at": run.finished_at.isoformat() if run.finished_at else None,
          "feedback": run.feedback,
          "approvals": [_ap_out(a, lang) for a in run.approvals.filter(status="pending")]}
+    cr = RN.crisis_of(run)
+    if cr:
+        # AF-3: the helpline card + the (never automatic) "tell my family" offer
+        from . import crisis_guard as CG
+        d["crisis"] = CG.respond(run.user, cr, lang, surface="agent", event_id="run:%d" % run.id)[1]
     if detail:
         d["trail"] = [{"no": s.no, "kind": s.kind, "tool": s.tool, "state": s.state,
                        "risk": s.risk, "summary": vault.unmask(s.summary),

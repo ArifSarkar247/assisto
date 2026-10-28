@@ -83,6 +83,20 @@ class AssistoRunView(APIView):
         except P3.P3Error as e:
             return _err(e.code)
         lang = req_lang(request)
+        # AF-3: crisis handover BEFORE any AI call, 0 credits. The user's own
+        # question gets the full answer + the "tell my family" offer; someone
+        # ELSE's messages (summarize / translate) get the "someone may be in
+        # danger" line and the numbers. Nothing is stored or logged but
+        # {score, category}; the AI task is not run in this turn.
+        from .agentcore import crisis_guard as CG
+        crisis = CG.detect("\n".join([req.get("question") or "", req.get("text") or ""]
+                                     + list(req.get("lines") or [])))
+        if crisis["crisis"]:
+            reply, card = CG.respond(request.user, crisis, lang, surface="circle",
+                                     own_words=req["action"] == "ask")
+            return Response({"ok": True, "action": req["action"], "result": reply,
+                             "crisis": card, "charged": 0,
+                             "balance": _spendable(request.user)})
         task, data, max_tokens = P3.build_prompt(req, lang=lang)
         before = _spendable(request.user)
         try:

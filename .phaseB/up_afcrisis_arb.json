@@ -1,0 +1,16 @@
+{
+  "_comment": "AF-3 crisis card (server sends the message, title, helplines with Bangla-digit 'display' and the yes/no labels; these keys are only the app's own chrome). Card: cards[].type == 'crisis' (home chat /agent, AI chat send/stream, Agent Core run.crisis, Circle @Assisto result.crisis). Each helpline -> a dial button (needs_confirm: the app dials only on the user's tap). family.offer -> two buttons; 'yes' POSTs /api/v1/crisis/family-alert {token} and shows the server's 'detail'. No ads on this card. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_afcrisis_arb.json",
+  "en": {
+    "crisisCallNumber": "Call {number}",
+    "@crisisCallNumber": {"placeholders": {"number": {"type": "String"}}},
+    "crisisFamilySending": "Telling your family…",
+    "crisisFamilyFailed": "Could not reach your family. Please call someone yourself or call 999.",
+    "crisisCardA11y": "Help is available. Emergency numbers and an option to tell your family."
+  },
+  "bn": {
+    "crisisCallNumber": "{number}-এ কল করুন",
+    "crisisFamilySending": "আপনার পরিবারকে জানানো হচ্ছে…",
+    "crisisFamilyFailed": "পরিবারের কাউকে জানানো গেল না। দয়া করে নিজে কাউকে ফোন করুন বা ৯৯৯-এ কল করুন।",
+    "crisisCardA11y": "সাহায্য পাওয়া যাবে। জরুরি নম্বর আর পরিবারকে জানানোর সুযোগ।"
+  }
+}

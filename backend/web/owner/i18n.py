@@ -1638,3 +1638,49 @@ BN.update({
     "agn_opened": "খোলা", "agn_dismissed": "সরানো", "agn_opted": "বন্ধ করেছেন",
 })
 # ---- /agent-proactive ----
+
+# ---- af-crisis: Owner Admin -> Crisis helplines ----
+EN.update({
+    "nav_crisis": "Crisis helplines",
+    "crh_intro": "Numbers shown when Assisto detects a crisis (self-harm, abuse, a child in danger, a medical emergency). 999 is verified and always shown. Every other number is HIDDEN from users until you confirm it here from the official source.",
+    "crh_shown": "Users see now:", "crh_number": "Number", "crh_label": "Name", "crh_status": "Status",
+    "crh_edit": "Edit", "crh_locked": "Verified · always shown", "crh_verified": "Confirmed · shown",
+    "crh_unverified": "Unverified · hidden", "crh_locked_note": "999 cannot be changed or hidden.",
+    "crh_label_bn": "Name (Bangla)", "crh_label_en": "Name (English)", "crh_cats": "Shown for",
+    "crh_source": "Official source (link or document)",
+    "crh_source_note": "Required to confirm. Check the number on the government / organisation's own site.",
+    "crh_confirm": "I checked this number at the official source — show it to users",
+    "crh_log": "Changes", "crh_saved": "saved", "crh_rejected": "rejected",
+})
+BN.update({
+    "nav_crisis": "সংকটের হেল্পলাইন",
+    "crh_intro": "Assisto সংকট ধরলে (নিজের ক্ষতি, নির্যাতন, বিপদে শিশু, জরুরি অসুস্থতা) এই নম্বরগুলো দেখায়। ৯৯৯ যাচাই করা, সবসময় দেখানো হয়। বাকি প্রতিটি নম্বর এখানে আপনি সরকারি/আসল সূত্র থেকে নিশ্চিত না করা পর্যন্ত ইউজারদের কাছে লুকানো থাকে।",
+    "crh_shown": "ইউজাররা এখন দেখছেন:", "crh_number": "নম্বর", "crh_label": "নাম", "crh_status": "অবস্থা",
+    "crh_edit": "বদলান", "crh_locked": "যাচাই করা · সবসময় দেখানো", "crh_verified": "নিশ্চিত · দেখানো হচ্ছে",
+    "crh_unverified": "যাচাই হয়নি · লুকানো", "crh_locked_note": "৯৯৯ বদলানো বা লুকানো যায় না।",
+    "crh_label_bn": "নাম (বাংলা)", "crh_label_en": "নাম (ইংরেজি)", "crh_cats": "যে সংকটে দেখাবে",
+    "crh_source": "আসল সূত্র (লিংক বা কাগজ)",
+    "crh_source_note": "নিশ্চিত করতে এটা লাগবে। সরকার বা সংস্থার নিজের সাইটে নম্বরটা মিলিয়ে নিন।",
+    "crh_confirm": "আমি আসল সূত্রে নম্বরটা মিলিয়ে দেখেছি — ইউজারদের দেখাও",
+    "crh_log": "পরিবর্তনের তালিকা", "crh_saved": "সেভ হয়েছে", "crh_rejected": "বাতিল",
+})
+# ---- /af-crisis ----
+
+# ---- af-8: Agent runs -> observability ----
+EN.update({
+    "ago_title": "Health of the agent (chosen days)",
+    "ago_intro": "Failure rate of finished runs, runs with a rejected plan, planner latency p50 / p95 (ms), real AI cost per successful task, and approvals approved / rejected / expired. ops_watch alerts the owner (two bad checks in a row, then at most once a day) when the last-window numbers cross the thresholds below.",
+    "ago_fail": "Failed runs", "ago_invalid": "Rejected plans", "ago_plan_ms": "Planner p50 / p95 ms",
+    "ago_cost_task": "Cost per successful task", "ago_approvals": "Approved / rejected / expired",
+    "ago_calls": "Calls", "ago_err": "Errors", "ago_thresholds": "Alert thresholds",
+    "ago_thresholds_note": "Percent values are 1–100; latency in milliseconds; cost in US dollars. A blank field keeps its value.",
+})
+BN.update({
+    "ago_title": "এজেন্টের স্বাস্থ্য (বাছাই করা দিন)",
+    "ago_intro": "শেষ হওয়া রানের ব্যর্থতার হার, বাতিল প্ল্যানের রান, প্ল্যানারের সময় p50 / p95 (মিলিসেকেন্ড), প্রতিটি সফল কাজের আসল AI খরচ, আর অনুমোদন: রাজি / বাতিল / মেয়াদ শেষ। শেষ সময়ের সংখ্যা নিচের সীমা ছাড়ালে ops_watch মালিককে জানায় (পরপর দুইবার খারাপ হলে, তারপর দিনে বড়জোর একবার)।",
+    "ago_fail": "ব্যর্থ রান", "ago_invalid": "বাতিল প্ল্যান", "ago_plan_ms": "প্ল্যানার p50 / p95 মিলিসেকেন্ড",
+    "ago_cost_task": "প্রতি সফল কাজের খরচ", "ago_approvals": "রাজি / বাতিল / মেয়াদ শেষ",
+    "ago_calls": "কল", "ago_err": "ত্রুটি", "ago_thresholds": "সতর্কতার সীমা",
+    "ago_thresholds_note": "শতাংশ ১–১০০; সময় মিলিসেকেন্ডে; খরচ মার্কিন ডলারে। ফাঁকা রাখলে আগের মান থাকে।",
+})
+# ---- /af-8 ----
