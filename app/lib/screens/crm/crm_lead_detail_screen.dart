@@ -10,6 +10,9 @@ import 'crm_proposal_screen.dart';
 import 'crm_proposal_advanced_screen.dart';
 import 'crm_whatsapp_sheet.dart';
 import 'crm_log_activity_sheet.dart';
+import 'crm100_api.dart'; // crm100
+import 'crm_send_sheet.dart'; // crm100
+import 'customer_history_screen.dart'; // crm100
 
 /// Lead/Deal detail (CRM_SPEC): smart profile, score WITH reasons, full timeline
 /// (messages / calls / meetings / notes / AI summaries / sentiment), next step,
@@ -194,6 +197,27 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(child: _action(t.email, Icons.mail_outline_rounded, email.isNotEmpty,
                 () => _quick(t, 'email', 'mailto:$email'))),
+          ]),
+          // crm100: send from the CRM (WhatsApp link / phone SMS / Assisto
+          // SMS, never automatic) + the one customer history page.
+          const SizedBox(height: Gap.sm),
+          Row(children: [
+            Expanded(child: _action(t.c100ActMessage, Icons.send_rounded,
+                (wa.isNotEmpty || phone.isNotEmpty), () async {
+              final name = '${l['name'] ?? ''}'.isNotEmpty ? '${l['name']}' : '${l['company'] ?? ''}';
+              final sent = await CrmSendSheet.show(context,
+                  target: CustomerTarget(lead: widget.leadId),
+                  name: name,
+                  lead: widget.leadId,
+                  initialText: t.c100DefaultText(name.isEmpty ? t.c100Customer : name));
+              if (sent == true) _load();
+            })),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: _action(t.c100HistoryShort, Icons.history_rounded, true,
+                () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CustomerHistoryScreen(
+                        target: CustomerTarget(lead: widget.leadId),
+                        name: '${l['name'] ?? ''}'))))),
           ]),
           // ---- required modules (requirement sheet seed) ----
           if (modules.isNotEmpty) ...[

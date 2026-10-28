@@ -14,6 +14,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
+import '../crm/crm100_api.dart'; // crm100: tagada shows on the customer history
 
 /// ledger100 — bulk tagada, done right: ONE SEPARATE reminder per customer
 /// (their own due, the shop name, the optional pay-to number), sent one by
@@ -245,7 +246,23 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           ? (st == _St.sentWa ? t.ldgStatusOpenedWa : t.ldgStatusOpenedSms)
           : t.actionCantOpen;
     });
-    if (ok) _ack(row);
+    if (ok) {
+      _ack(row);
+      _logOpened(row, st == _St.sentWa ? 'whatsapp_link' : 'sms_app');
+    }
+  }
+
+  /// crm100: record "opened WhatsApp / SMS app with the tagada" so the one
+  /// customer history page shows it (best-effort; never blocks the send).
+  Future<void> _logOpened(_Row row, String channel) async {
+    if (_offlineBuilt) return;
+    try {
+      await Crm100Api(context.read<AppState>().api).sendLog(
+          CustomerTarget(party: row.partyId), channel, '${row.r['message'] ?? ''}',
+          business: _bizId, purpose: 'tagada');
+    } catch (e) {
+      reportNonFatal('khata.tagadaLog', e);
+    }
   }
 
   Future<void> _share(_Row row) async {

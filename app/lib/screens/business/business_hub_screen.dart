@@ -28,6 +28,8 @@ import 'demand_map_screen.dart';
 import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
 import 'bizagent/seller_agent_screen.dart'; // p1-bizagent
+import '../crm/customer_list_screen.dart'; // crm100
+import '../crm/shop_quote_screens.dart'; // crm100
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -326,6 +328,23 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               title: t.businessSelling,
               subtitle: t.businessSellingSub,
               onTap: () => _showSelling(bizId),
+            ),
+            const SizedBox(height: Gap.md),
+            // crm100: one page per customer + price quotes with an accept link
+            _HubCard(
+              icon: Icons.person_search_rounded,
+              tint: Brand.blue,
+              title: t.c100CustomersTitle,
+              subtitle: t.c100HubCustomersSub,
+              onTap: () => _go(CustomerListScreen(business: bizId)),
+            ),
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.request_quote_rounded,
+              tint: Brand.purple,
+              title: t.c100QuotesTitle,
+              subtitle: t.c100HubQuotesSub,
+              onTap: () => _go(ShopQuoteListScreen(business: bizId)),
             ),
             const SizedBox(height: Gap.md),
             _HubCard(

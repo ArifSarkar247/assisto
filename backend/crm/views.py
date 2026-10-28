@@ -1102,13 +1102,21 @@ class ProposalViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
         absent). The token is from logic_quote.make_acceptance_token."""
         prop = self.get_object()
         acc = getattr(prop, "acceptance", None)
+        # crm100: the token is a RANDOM 144-bit secret. The old one was a
+        # sha256 of (id, version, org id) — computable by anyone, so a
+        # stranger could accept/decline any proposal. A legacy token is
+        # rotated in place (its state is kept).
+        legacy = lq.make_acceptance_token(quote_id=prop.id, version=prop.version,
+                                          salt=str(prop.lead.org_id))
         if acc is None:
-            token = lq.make_acceptance_token(quote_id=prop.id,
-                                             version=prop.version,
-                                             salt=str(prop.lead.org_id))
-            acc = QuoteAcceptance.objects.create(proposal=prop, token=token)
+            acc = QuoteAcceptance.objects.create(proposal=prop, token=_new_accept_token())
+        elif acc.token == legacy or acc.token.startswith("q%dv" % prop.id):
+            acc.token = _new_accept_token()
+            acc.save(update_fields=["token"])
+        from core.journey_watch import site
         return Response({"ok": True, "token": acc.token,
-                         "url": f"/api/crm/accept/{acc.token}/",
+                         "url": "%s/qp/%s" % (site(), acc.token),
+                         "api": f"/api/crm/accept/{acc.token}/",
                          "link_state": acc.state})
 
     @action(detail=True, methods=["post"])
@@ -1449,6 +1457,95 @@ class CustomFieldDefViewSet(_OrgScopedViewSet):
 # PUBLIC tokenized quote acceptance page (§6) — the ONE session-less endpoint.
 # Validates the token server-side; never trusts client state.
 # =====================================================================
+def _accept_throttle(request, limit=30, window_s=60):
+    """crm100: the public acceptance API is rate-limited per IP (a token
+    guessing run is cut off; a real customer never hits it)."""
+    import hashlib
+    from django.core.cache import cache
+    from rest_framework.exceptions import Throttled
+    ip = (request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+          or "").split(",")[0].strip()
+    key = "crm:acc:%s:%d" % (hashlib.sha256(ip.encode()).hexdigest()[:16],
+                             int(timezone.now().timestamp() // window_s))
+    try:
+        n = cache.get(key, 0) + 1
+        cache.set(key, n, window_s + 30)
+    except Exception:  # noqa: BLE001
+        return
+    if n > limit:
+        raise Throttled()
+
+
+def _new_accept_token():
+    import secrets
+    return secrets.token_urlsafe(18)
+
+
+def proposal_expired(prop, now=None):
+    now = now or timezone.now()
+    return lq.is_expired(prop.created_at.date().toordinal(), prop.valid_days,
+                         now.date().toordinal())
+
+
+def proposal_decide(acc, action_name, now=None):
+    """crm100: ONE place where a customer accepts / declines a B2B proposal
+    (API + the /qp/<token> web page). Returns None, or the refusal code
+    (expired / not_open). Expiry is checked (it was not: an expired proposal
+    could be accepted). Row-locked, so a double tap records one decision."""
+    now = now or timezone.now()
+    with transaction.atomic():
+        locked = QuoteAcceptance.objects.select_for_update().get(pk=acc.pk)
+        if locked.state in (QuoteAcceptance.ISSUED, QuoteAcceptance.VIEWED) and \
+                proposal_expired(locked.proposal, now):
+            locked.state = QuoteAcceptance.EXPIRED
+            locked.save(update_fields=["state"])
+            acc.state = locked.state
+            return "expired"
+        if locked.state == QuoteAcceptance.ISSUED:
+            locked.state = lq.acceptance_transition(locked.state, "view")
+            locked.viewed_at = now
+        try:
+            locked.state = lq.acceptance_transition(locked.state, action_name)
+        except ValueError:
+            acc.state = locked.state
+            return "not_open"
+        locked.decided_at = now
+        locked.save(update_fields=["state", "decided_at", "viewed_at"])
+        prop = locked.proposal
+        if locked.state == QuoteAcceptance.ACCEPTED:
+            prop.status = Proposal.ACCEPTED
+            prop.accepted_at = now
+            prop.save(update_fields=["status", "accepted_at"])
+        elif locked.state == QuoteAcceptance.DECLINED:
+            prop.status = Proposal.DECLINED
+            prop.save(update_fields=["status"])
+    acc.state, acc.decided_at = locked.state, locked.decided_at
+    _notify_proposal_decision(prop, locked.state)
+    return None
+
+
+def _notify_proposal_decision(prop, state):
+    try:
+        from core import push
+        who = prop.lead.name or prop.lead.company or ""
+        users = {prop.lead.org.owner}
+        if prop.created_by_id and prop.created_by:
+            users.add(prop.created_by.user)
+        ok = state == QuoteAcceptance.ACCEPTED
+        for u in users:
+            push.push_to_user_async(
+                u, "shop_alert",
+                "প্রপোজাল গ্রহণ হয়েছে" if ok else "প্রপোজাল ফিরিয়ে দিয়েছেন",
+                "Proposal accepted" if ok else "Proposal declined",
+                ("%s প্রপোজাল গ্রহণ করেছেন — এখন অর্ডারে রূপান্তর করুন।" % who) if ok
+                else ("%s প্রপোজালটি নেননি।" % who),
+                ("%s accepted the proposal — convert it to an order." % who) if ok
+                else ("%s declined the proposal." % who),
+                data={"type": "crm_proposal", "proposal": str(prop.pk)})
+    except Exception:  # noqa: BLE001
+        pass
+
+
 class QuoteAcceptView(CrmErrorMixin, APIView):
     """GET/POST crm/accept/{token}/ — the mock customer acceptance link.
 
@@ -1459,7 +1556,8 @@ class QuoteAcceptView(CrmErrorMixin, APIView):
     authentication_classes = []
 
     def _resolve(self, token):
-        return get_object_or_404(QuoteAcceptance, token=token)
+        _accept_throttle(self.request)
+        return get_object_or_404(QuoteAcceptance, token=str(token or "")[:64])
 
     def _payload(self, acc):
         prop = acc.proposal
@@ -1492,21 +1590,9 @@ class QuoteAcceptView(CrmErrorMixin, APIView):
         action_name = request.data.get("action")   # accept | decline
         if action_name not in ("accept", "decline"):
             raise ValidationError({"action": "accept বা decline / accept or decline"})
-        try:
-            acc.state = lq.acceptance_transition(acc.state, action_name)
-        except ValueError as e:
-            raise ValidationError({"state": str(e)})
-        acc.decided_at = timezone.now()
-        acc.save(update_fields=["state", "decided_at"])
-        # Mirror onto the proposal status so the CRM side stays consistent.
-        prop = acc.proposal
-        if acc.state == QuoteAcceptance.ACCEPTED:
-            prop.status = Proposal.ACCEPTED
-            prop.accepted_at = timezone.now()
-            prop.save(update_fields=["status", "accepted_at"])
-        elif acc.state == QuoteAcceptance.DECLINED:
-            prop.status = Proposal.DECLINED
-            prop.save(update_fields=["status"])
+        err = proposal_decide(acc, action_name)
+        if err:
+            raise ValidationError({"state": err})
         return Response(self._payload(acc))
 
 

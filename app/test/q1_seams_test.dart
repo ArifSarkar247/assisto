@@ -328,8 +328,8 @@ void main() {
     await _drain(tester);
   });
 
-  test('CRM quote acceptance "link" (a relative JSON path) stays hidden', () {
-    expect(kQuoteAcceptPageWired, isFalse);
+  test('CRM quote acceptance link is a real page now (crm100: /qp/<token>)', () {
+    expect(kQuoteAcceptPageWired, isTrue);
   });
 
   testWidgets('products: the media-picker "Excel import" is hidden',

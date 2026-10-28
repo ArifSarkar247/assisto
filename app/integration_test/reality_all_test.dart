@@ -12,6 +12,7 @@ import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/business_flow.dart';
+import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/family_alerts_flow.dart';
@@ -48,6 +49,7 @@ void main() {
   if (on('circle')) registerMyCircleTicksFlows(); // c3-msg
   if (on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
   if (on('business')) registerBusinessFlows();
+  if (on('business')) registerCrm100Flows(); // crm100
   if (on('docs')) registerDocsVoiceSettingsFlows();
   if (on('sweep')) registerSweepFlow();
 }

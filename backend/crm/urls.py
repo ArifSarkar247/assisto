@@ -43,7 +43,20 @@ router.register("targets", views.TargetViewSet, basename="crm-target")
 router.register("automation-rules", views.AutomationRuleViewSet,
                 basename="crm-automation")
 
+from . import views_crm100 as v100
+
 urlpatterns = [
+    # ---- crm100: one customer history page, shop quotes, send from CRM ----
+    path("customers/", v100.CustomerListView.as_view()),
+    path("customers/history/", v100.CustomerHistoryView.as_view()),
+    path("shop-quotes/", v100.ShopQuoteListView.as_view()),
+    path("shop-quotes/catalog/", v100.ShopQuoteCatalogView.as_view()),
+    path("shop-quotes/<int:pk>/", v100.ShopQuoteDetailView.as_view()),
+    path("shop-quotes/<int:pk>/<str:op>/", v100.ShopQuoteDetailView.as_view()),
+    path("send/preview", v100.SendPreviewView.as_view()),
+    path("send/log", v100.SendLogView.as_view()),
+    path("send/sms", v100.SendSmsView.as_view()),
+    path("send/bulk", v100.SendBulkView.as_view()),
     # ---- advanced quotes (§6): public tokenized acceptance page (session-less).
     path("accept/<str:token>/", views.QuoteAcceptView.as_view()),
     # ---- after-sale (§7) aggregation endpoints ----
