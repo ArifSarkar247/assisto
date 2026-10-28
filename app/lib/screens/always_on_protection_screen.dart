@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 import 'dart:io' show Platform;
+import 'dart:typed_data' show Uint8List;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
