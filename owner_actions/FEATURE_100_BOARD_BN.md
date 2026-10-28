@@ -227,7 +227,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 
 ## ৯. CRM — গড় ৬৯.৬ (crm100 ২৮ Oct; আগে ৫২.২)
 
-**crm100 (শাখা agent/crm100 — মার্জ/ডিপ্লয়ের অপেক্ষায়; মাইগ্রেশন `crm 0007`):** BEST_IN_CLASS-এর তিন ফাঁক — "গ্রাহকের এক-পাতার ইতিহাস নেই · কোট-গ্রহণ পাতা নেই · CRM থেকে পাঠানো নেই" — তৈরি। আগে/পরে ছবি: CI গ্যালারি (আগে রান 40630674133 = main, পরে ci/crm100 রান) — `crm_lead_detail`, `crm_home` (নতুন "গ্রাহক" ট্যাব), নতুন `crm100_history`, `crm100_customers`, `crm100_quotes`, `crm100_quote_builder`, `crm100_send`। টেস্ট: `crm/tests_crm100.py` (৪৮) + `test/crm100_test.dart` (২৪) + রিয়ালিটি ফ্লো `18c_crm100_quote_history`; মালিকের পরীক্ষা `owner_actions/CRM_100_BN.md`। কোনো সারি ১০০ নয়: আসল দুই ফোনে প্রমাণ, ২ GB মাপ ও লাইভ SMS গেটওয়ে/Meta চাবি বাকি।
+**crm100 (শাখা agent/crm100 — মার্জ/ডিপ্লয়ের অপেক্ষায়; মাইগ্রেশন `crm 0007`):** BEST_IN_CLASS-এর তিন ফাঁক — "গ্রাহকের এক-পাতার ইতিহাস নেই · কোট-গ্রহণ পাতা নেই · CRM থেকে পাঠানো নেই" — তৈরি। আগে/পরে ছবি: CI গ্যালারি (আগে রান 40630674133 = main, পরে রান 40633348601 — সব CI সবুজ) — `crm_lead_detail`, `crm_home` (নতুন "গ্রাহক" ট্যাব), নতুন `crm100_history`, `crm100_customers`, `crm100_quotes`, `crm100_quote_builder`, `crm100_send`। টেস্ট: `crm/tests_crm100.py` (৪৮) + `test/crm100_test.dart` (২৪) + রিয়ালিটি ফ্লো `18c_crm100_quote_history`; মালিকের পরীক্ষা `owner_actions/CRM_100_BN.md`। কোনো সারি ১০০ নয়: আসল দুই ফোনে প্রমাণ, ২ GB মাপ ও লাইভ SMS গেটওয়ে/Meta চাবি বাকি।
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ |
 |---|---|---|---|---|
