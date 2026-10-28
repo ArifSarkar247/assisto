@@ -17,6 +17,8 @@ import '../../widgets/skeleton.dart';
 import 'business_common.dart';
 import 'tagada_schedule_sheet.dart';
 import 'tagada_send_screen.dart';
+import 'khata_chat_screen.dart'; // tagada2
+import 'khata_invite_sheet.dart'; // tagada2
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart'
@@ -1094,6 +1096,26 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
         business: widget.business, party: _partyNow);
   }
 
+  int get _bizId => (widget.business['id'] as num?)?.toInt() ?? 0;
+
+  /// tagada2: the free in-app thread with this customer (needs them on
+  /// Assisto by a verified phone — the chat screen offers the invite).
+  Future<void> _chat() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => KhataChatScreen(
+            side: ChatSide.shop,
+            businessId: _bizId,
+            partyId: _partyId,
+            title: '${widget.party['name'] ?? ''}')));
+  }
+
+  Future<void> _invite() async {
+    await showKhataInviteSheet(context,
+        businessId: _bizId,
+        partyId: _partyId,
+        name: '${widget.party['name'] ?? ''}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -1107,6 +1129,20 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
               tooltip: t.tagadaSendReminder,
               icon: const Icon(Icons.campaign_rounded),
               onPressed: _tagada,
+            ),
+          if (_isCustomer)
+            IconButton(
+              key: const ValueKey('tg2-party-chat'),
+              tooltip: t.tg2Chat,
+              icon: const Icon(Icons.forum_rounded),
+              onPressed: _chat,
+            ),
+          if (_isCustomer)
+            IconButton(
+              key: const ValueKey('tg2-party-invite'),
+              tooltip: t.tg2InvTitle,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              onPressed: _invite,
             ),
           if (_isCustomer && _isOwner)
             IconButton(

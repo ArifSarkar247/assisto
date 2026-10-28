@@ -100,6 +100,7 @@ import '../screens/business/khata_entry_screen.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart';
 import '../screens/prepaid_meter_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
+import '../screens/my_dues_screen.dart'; // tagada2
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -313,6 +314,8 @@ class ChatNav {
     'sales_agent': (_) => const SellerAgentScreen(),
     'prepaid_meter': (_) => const PrepaidMeterScreen(),
     'contract': (_) => const ContractAnalyzerScreen(),
+    // tagada2: the customer's dues per shop (push target + chat open-phrase)
+    'my_dues': (_) => const MyDuesScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -432,6 +435,7 @@ class ChatNav {
     'sales_agent': ['ai sales agent', 'sales agent', 'sales assistant'],
     'prepaid_meter': ['prepaid meter', 'electricity meter', 'meter recharge'],
     'contract': ['contract analyzer', 'contract scanner', 'check contract'],
+    'my_dues': ['my dues', 'shop dues', 'what i owe', 'my baki'],
     'feedback': ['send feedback', 'give feedback', 'feedback',
         'report a problem', 'report a bug', 'report an issue'],
   };

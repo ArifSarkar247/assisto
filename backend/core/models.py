@@ -2052,10 +2052,23 @@ class KhataParty(models.Model):
     vip = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # tagada2: the canonical E.164 form of `phone` (core.phone.canonical_phone),
+    # kept in step by save(). My Dues finds a customer's shops by it and the
+    # send-order engine matches it to a VERIFIED Assisto account.
+    phone_canon = models.CharField(max_length=24, blank=True, default="",
+                                   db_index=True)
 
     class Meta:
         indexes = [models.Index(fields=["business", "book"]),
                    models.Index(fields=["business", "phone"])]
+
+    def save(self, *args, **kwargs):
+        from .phone import canonical_phone
+        self.phone_canon = canonical_phone(self.phone or "") or ""
+        uf = kwargs.get("update_fields")
+        if uf is not None and "phone" in uf and "phone_canon" not in uf:
+            kwargs["update_fields"] = list(uf) + ["phone_canon"]
+        super().save(*args, **kwargs)
 
 
 class KhataEntry(models.Model):
@@ -6703,3 +6716,111 @@ class AgentMemoryPrefs(models.Model):
     last_learned_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 # ---- /agentmem ----
+
+
+# ---- tagada2 ---- send order (Assisto free -> WhatsApp/own SIM free ->
+# Assisto SMS paid), My Dues, shop <-> customer chat, SMS allowance + packs.
+# Logic: core/tagada_engine.py, core/sms_wallet.py, core/logic/tagada_route.py.
+class KhataInvite(models.Model):
+    """The shop invited THIS khata customer to Assisto (invite-join short
+    code). Joined = the customer's number is now a VERIFIED account."""
+    party = models.OneToOneField(KhataParty, on_delete=models.CASCADE,
+                                 related_name="assisto_invite")
+    code = models.CharField(max_length=16, blank=True, default="")
+    invited_at = models.DateTimeField(default=timezone.now)
+    times = models.PositiveIntegerField(default=1)
+    joined_user = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    joined_at = models.DateTimeField(null=True, blank=True)
+
+
+class ShopPref(models.Model):
+    """A customer's choice about ONE shop: mute (no push for its reminders /
+    messages) or block (no tagada on any channel, no chat; the shop only
+    ever sees "not reachable")."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shop_prefs")
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="customer_prefs")
+    muted = models.BooleanField(default=False)
+    blocked = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "business"],
+                                               name="shop_pref_once")]
+
+
+class TagadaSend(models.Model):
+    """One tagada that went to one customer (any channel). The unique
+    (business, phone_key, day) row IS the server-side "max 1 per customer per
+    day" rule: a second claim the same Dhaka day fails at the database."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="tagada_sends")
+    party = models.ForeignKey(KhataParty, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="tagada_sends")
+    phone_key = models.CharField(max_length=40)     # +8801… or "p:<party id>"
+    day = models.DateField()                        # Asia/Dhaka calendar day
+    channel = models.CharField(max_length=16)       # assisto|whatsapp|own_sms|gateway_sms
+    parts = models.PositiveSmallIntegerField(default=0)
+    pay_hint = models.JSONField(default=dict, blank=True)
+    by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                           related_name="+")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["business", "phone_key", "day"],
+                                               name="tagada_once_a_day")]
+        indexes = [models.Index(fields=["business", "day"])]
+
+
+class KhataChat(models.Model):
+    """One message between a shop and ONE verified Assisto customer, about
+    their khata. Plain server-side text (not E2E — said in the app), max
+    1000 chars; kind 'tagada' = a reminder the shop sent in Assisto."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="khata_chats")
+    party = models.ForeignKey(KhataParty, on_delete=models.CASCADE,
+                              related_name="chats")
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="khata_chats")
+    sender = models.CharField(max_length=8)          # shop|customer
+    kind = models.CharField(max_length=8, default="text")   # text|tagada
+    text = models.TextField(max_length=1000)
+    sent_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["business", "customer", "created_at"]),
+                   models.Index(fields=["party", "created_at"])]
+
+
+class SmsWallet(models.Model):
+    """SMS PARTS a shop owner can spend on Assisto-sent SMS (never AI
+    credits, never cash). `month_used` counts the Business plan's monthly
+    allowance used in `month` (YYYY-MM Dhaka; resets, never rolls over);
+    `pack_parts` are bought SMS-pack parts (never expire)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="sms_wallet")
+    pack_parts = models.IntegerField(default=0)
+    month = models.CharField(max_length=7, blank=True, default="")
+    month_used = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SmsPartLedger(models.Model):
+    """Append-only: every change of an SmsWallet (spend / refund / pack
+    grant / refund-revoke). grant_key makes a retried grant a no-op."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sms_part_ledger")
+    bucket = models.CharField(max_length=10)         # allowance|pack
+    delta = models.IntegerField()
+    reason = models.CharField(max_length=12)         # spend|refund|grant|revoke|adjust
+    ref = models.CharField(max_length=120, blank=True, default="")
+    grant_key = models.CharField(max_length=160, null=True, blank=True, unique=True)
+    pack_after = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["user", "created_at"])]
+# ---- /tagada2 ----

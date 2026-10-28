@@ -107,6 +107,7 @@ import '../screens/crm/crm_home_screen.dart';
 import '../feature_gates.dart'
     show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import '../screens/my_dues_screen.dart'; // tagada2
 import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
 // / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
@@ -254,6 +255,12 @@ class SidebarSections {
           feature: 'money',
           (_) => const MoneyScreen(),
           synonyms: ['account', 'finance', 'ledger', 'money', 'expense', 'income']),
+      // tagada2: what shops' khatas say I owe (verified phone only), pay
+      // steps, chat with the shop, mute / block. Owned by the money flag.
+      SidebarItem(Icons.storefront_rounded, (t) => t.tg2DuesTitle,
+          feature: 'money',
+          (_) => const MyDuesScreen(),
+          synonyms: ['dues', 'baki', 'shop due', 'what i owe', 'khata', 'tagada']),
       // Advanced Budget module (feature #50, SPEC v2.1 §21).
       SidebarItem(Icons.pie_chart_outline_rounded, (t) => t.budgetTitle,
           feature: 'budget',

@@ -385,8 +385,11 @@ class TagadaCronTests(_Shop):
         self.assertEqual((st["push_sent"], st["business_cap_deferred"]), (1, 1))
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
-    def test_sms_mode_charges_credits(self, http, push):
+    def test_sms_mode_charges_sms_parts(self, http, push):
+        # tagada2: paid in SMS parts (sms_wallet), never AI credits
+        from core import sms_wallet
         User.objects.filter(pk=self.owner.pk).update(ai_credits=10)
+        sms_wallet.grant_pack(self.owner, "smspack_100", 10, key="t:cron")
         s = self.sched(channel="sms")
         with mock.patch("core.logic.msg_guard.in_quiet_hours", return_value=False):
             st = tagada_cron.sweep(now=self.noon)
@@ -396,11 +399,12 @@ class TagadaCronTests(_Shop):
         self.assertEqual((s.last_result, s.awaiting_owner), ("sms_sent", False))
         log = SmsLog.objects.get(status="sent")
         self.assertEqual(log.purpose, "tagada")
-        self.assertLess(User.objects.get(pk=self.owner.pk).ai_credits, 10)
+        self.assertEqual(User.objects.get(pk=self.owner.pk).ai_credits, 10)
+        self.assertLess(sms_wallet.state(self.owner)["pack_left"], 10)
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
-    def test_sms_mode_at_zero_credits_falls_back_to_owner_push(self, http, push):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=0)
+    def test_sms_mode_at_zero_parts_falls_back_to_owner_push(self, http, push):
+        User.objects.filter(pk=self.owner.pk).update(ai_credits=50)   # credits never pay SMS
         s = self.sched(channel="sms")
         with mock.patch("core.logic.msg_guard.in_quiet_hours", return_value=False):
             st = tagada_cron.sweep(now=self.noon)
@@ -408,12 +412,13 @@ class TagadaCronTests(_Shop):
         self.assertEqual(http.call_count, 0)              # nothing sent unpaid
         push.assert_called_once()
         s.refresh_from_db()
-        self.assertEqual(s.last_result, "sms_insufficient_credits")
+        self.assertEqual(s.last_result, "sms_no_balance")
         self.assertTrue(s.awaiting_owner)
 
     @mock.patch("core.sms_gateway._http", side_effect=alpha_ok)
     def test_sms_respects_stop_opt_out(self, http, push):
-        User.objects.filter(pk=self.owner.pk).update(ai_credits=10)
+        from core import sms_wallet
+        sms_wallet.grant_pack(self.owner, "smspack_100", 10, key="t:stop")
         from core.logic import msg_guard as MG
         from core.logic.business_selling import normalize_phone
         MG.record_opt_out(self.biz.pk, normalize_phone("+8801712345678"))

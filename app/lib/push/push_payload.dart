@@ -40,6 +40,7 @@ class PushChannels {
     'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
     'doc_expiry': reminders, // vault100: a vault document expires soon
+    'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
   };
 }
 
@@ -196,6 +197,7 @@ class PushRouting {
     'agent/approval': 'agent_approvals', // agent-core WP-APP
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
     'vault': 'documents', // vault100: expiry push / PIN-reset notice
+    'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -213,7 +215,20 @@ class PushRouting {
     'agent_approval': 'agent_approvals', // agent-core WP-APP
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
     'doc_expiry': 'documents', // vault100
+    'dues': 'my_dues', // tagada2
   };
+
+  /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,
+  /// party_id, party_name?} opens that customer's khata chat. Null when any
+  /// id is missing (then the plain khata route applies).
+  static ({int businessId, int partyId, String name})? khataChatOf(
+      PushPayload p) {
+    if (p.route != 'business/khata' || p.data['open'] != 'chat') return null;
+    final b = int.tryParse(p.data['business_id'] ?? '');
+    final party = int.tryParse(p.data['party_id'] ?? '');
+    if (b == null || party == null || b <= 0 || party <= 0) return null;
+    return (businessId: b, partyId: party, name: (p.data['party_name'] ?? '').trim());
+  }
 
   /// [action] is the local-notification action id ('accept' / 'decline' /
   /// null for a plain tap). Decline never opens anything.
