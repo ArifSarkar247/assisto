@@ -96,4 +96,26 @@ jobs:
         working-directory: app
         env:
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
-        run: flutter test --no-pub --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }}
+        run: |
+          set +e
+          flutter test --no-pub --reporter json --concurrency=2 --total-shards 8 --shard-index ${{ matrix.shard }} > "$RUNNER_TEMP/t.json"
+          rc=$?
+          python3 - "$RUNNER_TEMP/t.json" <<'PY'
+          import json, sys
+          names, errs = {}, {}
+          for line in open(sys.argv[1], encoding="utf-8", errors="replace"):
+              try:
+                  e = json.loads(line)
+              except ValueError:
+                  continue
+              if e.get("type") == "testStart":
+                  names[e["test"]["id"]] = e["test"]["name"]
+              elif e.get("type") == "print" and e.get("testID") is not None:
+                  errs.setdefault(e["testID"], []).append(e.get("message", "")[-1200:])
+              elif e.get("type") == "error":
+                  errs.setdefault(e["testID"], []).append(e.get("error", "")[:900])
+              elif e.get("type") == "testDone" and e.get("result") != "success" and not e.get("hidden"):
+                  msg = (" || ".join(errs.get(e["testID"], [])) or "failed").replace("\n", " | ").replace("%", "%25")
+                  print("::error title=%s::%s" % (names.get(e["testID"], "?")[:200].replace(":", " "), msg[-3000:]))
+          PY
+          exit $rc
