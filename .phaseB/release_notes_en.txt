@@ -1,1 +1,1 @@
-Build 265: Safe Journey fixed — you can now choose family members to watch your trip (the list was always empty before), and arrival times are correct on every phone (journeys no longer start as 'late').
+Build 265: Safe Journey fixed — choose family members to watch your trip (the list was always empty before) and correct arrival times on every phone. Phone protection — remote lost mode, alarm, lock and lock-screen message from a trusted contact with clear delivery status; intruder photo only with your consent; clearer explanations before each permission.
