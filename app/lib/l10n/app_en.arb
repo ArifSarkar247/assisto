@@ -24416,5 +24416,189 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cgTitle": "Smart Cash Guard",
+  "cgPossibleCashRemoval": "Possible cash removal",
+  "cgDecideHint": "Watch the clip and decide — it may be nothing.",
+  "cgDecideTitle": "Possible cash removal — watch the clip and decide",
+  "cgAwayPill": "You were away",
+  "cgWatchClip": "Watch the clip",
+  "cgClipComing": "Clip on its way — tap to check",
+  "cgClipWatchedGone": "You watched the clip, so it was deleted. The photo stays.",
+  "cgClipExpiredGone": "The clip was deleted after 24 hours. The photo stays.",
+  "cgClipOpening": "Opening the clip on this phone…",
+  "cgClipPending": "The shop's device is still sending the clip. Try again in a few seconds.",
+  "cgClipGone": "This clip is no longer kept. The photo stays.",
+  "cgClipNotSealed": "This clip was locked for a different key on your account (for example before you reinstalled). Please look at the photo.",
+  "cgClipFailed": "Couldn't open the clip. Check your internet and try again.",
+  "cgClipLabel": "Clip from the cash camera, {seconds} seconds",
+  "@cgClipLabel": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "cgClipProgress": "Clip progress",
+  "cgClipSeconds": "{seconds}-second clip",
+  "@cgClipSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlay": "Play",
+  "cgPause": "Pause",
+  "cgClipDeleteOnView": "When you finish watching, our server deletes its copy. You can replay it until you close this.",
+  "cgClipDeletedNow": "Deleted from our server. It stays on this screen until you close it.",
+  "cgClipViewerNote": "Only the owner's watch deletes the clip. Otherwise it is deleted after 24 hours.",
+  "cgClipE2e": "Cut at your shop and locked with your phone's key — our server cannot open it.",
+  "cgAwayTitle": "I'm away",
+  "cgAwayBody": "While you are away every camera here is on guard, quiet hours are skipped and alerts ring loud.",
+  "cgAwayActive": "Away mode is on",
+  "cgAwayUntil": "Away until {time}",
+  "@cgAwayUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cgImAway": "I'm away",
+  "cgImBack": "I'm back",
+  "cgAwayHowLong": "How long will you be away?",
+  "cgAwayHours": "{hours} hours",
+  "@cgAwayHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cgAwayOnSaved": "Away mode is on. Alerts will ring loud.",
+  "cgAwayOffSaved": "Saved.",
+  "cgAwayEveryDay": "Away every day at a set time",
+  "cgAwayEveryDayBody": "For example lunch or prayer time, when you leave the shop.",
+  "cgSetupTitle": "Set up in 2 minutes",
+  "cgSetupStepZone": "Draw the cash drawer area with your finger",
+  "cgDrawZone": "Draw",
+  "cgSetupStepCamera": "A camera that sees the counter is added",
+  "cgSetupStepKeyOk": "Your phone's key is ready — clips can be locked for you",
+  "cgSetupStepKeyMissing": "Your phone's key is not ready yet — open the app once with internet; until then alerts come with a photo only",
+  "cgPlanTitle": "What your plan includes",
+  "cgPlanFree": "Free plan",
+  "cgPlanPremium": "Premium plan",
+  "cgPlanBusiness": "Business plan",
+  "cgPlanCaps": "{cameras} camera(s) included · {alerts} alerts a day · {clips} clips a day",
+  "@cgPlanCaps": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "alerts": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlanUsed": "Using {cameras} camera(s) · {clips} clip(s) today",
+  "@cgPlanUsed": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "cgPlanUpsell": "Business includes 4 cameras, 30 alerts and 10 clips a day. Past the limit you still get the alert count, never a silent miss.",
+  "cgPrivacyTitle": "Your video stays yours",
+  "cgPrivacyBody": "No full video ever reaches our server. For an alert we keep one photo, and a 3–5 second clip locked with your phone's key that our server cannot open — deleted after 24 hours or as soon as you watch it.",
+  "cgNeverAccuse": "We never blame anyone. An alert says what the camera saw; you decide.",
+  "cgHandPocketOff": "A \"hand to pocket\" label is off: we have not yet measured how accurate it is on real shop clips.",
+  "cgHandPocketOn": "The \"hand to pocket\" label is on (accuracy measured on real clips).",
+  "cgEzvizLink": "Link EZVIZ cloud alarms",
+  "cgEzvizHelp": "Enter the serial number (SN) and the 6-letter Verification Code from the sticker under the camera. The code is used once and never stored.",
+  "cgEzvizSerial": "Serial number (SN)",
+  "cgEzvizCode": "Verification Code",
+  "cgEzvizLinkButton": "Link",
+  "cgEzvizLinked": "Linked. The camera's own alarms now reach you within about a minute.",
+  "gbTitle": "Guard Box (old phone)",
+  "gbIntro": "Turn an old Android phone on the shop's Wi-Fi into a guard: it watches your shop camera, checks the cash area on the phone, and sends only alert photos and locked clips.",
+  "gbOpen": "Set up Guard Box",
+  "gbNotYet": "Guard Box is not available yet.",
+  "gbHonest": "Works with cameras that give a still picture on the local network (most ONVIF, Hikvision and Dahua/Imou cameras). Cameras that only give a live stream (such as TP-Link Tapo) still need the Shop Box PC.",
+  "gbStepPair": "1. Connect to your place",
+  "gbPairHelp": "On the owner's phone open Watchman → Connect device and copy the pairing code here.",
+  "gbPairCode": "Pairing code",
+  "gbPair": "Connect",
+  "gbPairWrong": "This pairing code is not right. Copy it again from the owner's phone.",
+  "gbOffline": "No internet. Check the Wi-Fi and try again.",
+  "gbPairedTo": "Connected to {place}",
+  "@gbPairedTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "gbPickCamera": "Which camera does this phone watch?",
+  "gbStepCamera": "2. The shop camera",
+  "gbCamReady": "Camera ready: {camera}",
+  "@gbCamReady": {
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      }
+    }
+  },
+  "gbFind": "Find cameras on this Wi-Fi",
+  "gbFindHelp": "Nothing found? Turn ONVIF on in the camera's settings, or type its IP address below.",
+  "gbVendor": "Camera type",
+  "gbCamIp": "Camera IP address",
+  "gbCamUser": "Camera user name",
+  "gbCamPass": "Camera password",
+  "gbCamPassNote": "Kept only on this phone, never sent to Assisto.",
+  "gbTest": "Test the camera",
+  "gbCamAuth": "The camera says the user name or password is wrong.",
+  "gbCamUnreachable": "Can't reach the camera. Is this phone on the same Wi-Fi?",
+  "gbCamNoSnapshot": "The camera answered but gave no picture. Choose another camera type, or use the Shop Box PC.",
+  "gbSetupTook": "Set up in {seconds} seconds",
+  "@gbSetupTook": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "gbStepRun": "3. Start guarding",
+  "gbRunHelp": "Keep this phone plugged in and on this screen. The screen stays on while it guards.",
+  "gbRunning": "Guarding the cash area",
+  "gbPlugIn": "Please plug the phone in — guarding uses the battery.",
+  "gbNoZone": "No cash area drawn yet. Draw it in Watchman → camera → Zones, then start again.",
+  "gbStats": "{frames} pictures checked · {ms} ms each · {events} alerts · {clips} clips sent",
+  "@gbStats": {
+    "placeholders": {
+      "frames": {
+        "type": "String"
+      },
+      "ms": {
+        "type": "String"
+      },
+      "events": {
+        "type": "String"
+      },
+      "clips": {
+        "type": "String"
+      }
+    }
+  },
+  "gbDetectorPerson": "Person check on this phone: on",
+  "gbDetectorMotion": "Person check on this phone: not available — using movement in the cash area only",
+  "gbStart": "Start guarding",
+  "gbStop": "Stop"
 }
