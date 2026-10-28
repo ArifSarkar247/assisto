@@ -176,8 +176,11 @@ def ride_line(v, lang="bn"):
     """'সিএনজি · পাঠাও · DHAKA METRO THA 11-2233' — labels in ONE language
     (the plate is what is painted on the vehicle and stays as typed)."""
     v = v or {}
+    plate = str(v.get("plate") or "")
+    if lang == "bn":   # Bangladeshi plates are painted in Bangla digits
+        plate = plate.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
     parts = [_lbl(MODE_LABEL, v.get("mode"), lang), _lbl(APP_LABEL, v.get("app"), lang),
-             str(v.get("plate") or "")]
+             plate]
     return " · ".join(p for p in parts if p)
 
 

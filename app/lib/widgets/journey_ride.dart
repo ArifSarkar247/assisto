@@ -22,6 +22,14 @@ String jDigits(BuildContext c, Object v) {
   return b.toString();
 }
 
+String _bnDigits(String s) {
+  final b = StringBuffer();
+  for (final cu in s.codeUnits) {
+    b.writeCharCode(cu >= 0x30 && cu <= 0x39 ? 0x09E6 + (cu - 0x30) : cu);
+  }
+  return b.toString();
+}
+
 /// "2.4" (km, one decimal) in the UI's digits.
 String jKm(BuildContext c, num metres) => jDigits(c, (metres / 1000).toStringAsFixed(1));
 
@@ -82,7 +90,7 @@ String jRideLine(AppLocalizations t, Map? v) {
   final parts = [
     jModeLabel(t, v['mode']?.toString()),
     if (v['app'] != 'other') jAppLabel(t, v['app']?.toString()),
-    (v['plate'] ?? '').toString(),
+    t.localeName == 'bn' ? _bnDigits('${v['plate'] ?? ''}') : '${v['plate'] ?? ''}',
   ].where((e) => e.isNotEmpty);
   return parts.join(' · ');
 }

@@ -140,6 +140,10 @@ Future<void> _open(WidgetTester tester, _Api api, Widget screen, {String lang = 
 
 late AppLocalizations en, bn;
 
+/// Bangla digit string for a Latin one (codepoints, no Bangla literal).
+String jDigitsBn(String s) => String.fromCharCodes(
+    s.codeUnits.map((c) => c >= 0x30 && c <= 0x39 ? 0x09E6 + c - 0x30 : c));
+
 void main() {
   setUpAll(() async {
     en = await AppLocalizations.delegate.load(const Locale('en'));
@@ -165,7 +169,7 @@ void main() {
     test('ride line and place labels in one language', () {
       final v = {'mode': 'cng', 'app': 'pathao', 'plate': 'DHA-1'};
       expect(jRideLine(en, v), 'CNG · Pathao · DHA-1');
-      expect(jRideLine(bn, v), '${bn.journeyModeCng} · ${bn.j2AppPathao} · DHA-1');
+      expect(jRideLine(bn, v), '${bn.journeyModeCng} · ${bn.j2AppPathao} · DHA-${jDigitsBn('1')}');
       expect(jPlaceLabel(bn, {'label': 'home', 'name': 'Home'}), bn.j2PlaceHome);
       expect(jPlaceLabel(en, {'label': 'Aunt', 'name': ''}), 'Aunt');
     });
@@ -337,7 +341,7 @@ void main() {
     expect(find.text(bn.j100StStale(jDigits(ctx, 10))), findsOneWidget);
     expect(find.text(bn.j100StStale(10)), findsNothing); // never Latin digits
     expect(find.text(bn.j2ToGo(jKm(ctx, 2400))), findsOneWidget);
-    expect(find.text('${bn.j2ModeBike} · ${bn.j2AppPathao} · DHA-9'), findsOneWidget);
+    expect(find.text('${bn.j2ModeBike} · ${bn.j2AppPathao} · DHA-${jDigits(ctx, 9)}'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 }

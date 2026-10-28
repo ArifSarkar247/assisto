@@ -426,7 +426,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneySettingsScreen()))),
       ]),
-      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+      // the whole (short) form is built at once: no lazy rows below the fold
+      body: ListView(
+          cacheExtent: 4000,
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _intro(t, cs),
         const SizedBox(height: Gap.lg),
         _h(t.journeyDestSection),
@@ -434,6 +437,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             for (final p in _places)
               Semantics(
+                label: jPlaceLabel(t, p),
                 hint: t.j2PlaceLongPress,
                 child: GestureDetector(
                   onLongPress: () => _removePlace(p),

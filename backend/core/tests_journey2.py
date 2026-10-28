@@ -83,7 +83,7 @@ class ParseLinkTests(SimpleTestCase):
         self.assertEqual(len(v["note"]), 120)
         self.assertIsNone(JD.clean_vehicle({"mode": "spaceship", "driver_phone": "12"}))
         self.assertIsNone(JD.clean_vehicle("nope"))
-        self.assertEqual(JD.ride_line(v, "bn"), "সিএনজি · পাঠাও · DHAKA METRO THA 11-2233")
+        self.assertEqual(JD.ride_line(v, "bn"), "সিএনজি · পাঠাও · DHAKA METRO THA ১১-২২৩৩")
         self.assertEqual(JD.ride_line(v, "en"), "CNG · Pathao · DHAKA METRO THA 11-2233")
 
 
@@ -185,7 +185,7 @@ class RevokeRideProgressTests(Base):
         self.assertIn("Pathao", ride[-1]["ben"])
         d = self.data(JW.web_token(j)).json()
         self.assertEqual(d["ride"]["driver_name"], "Rahim")
-        self.assertEqual(d["ride"]["line"], "সিএনজি · পাঠাও · DHA-1")
+        self.assertEqual(d["ride"]["line"], "সিএনজি · পাঠাও · DHA-১")
         en = self.client.get("/j/%s/data?lang=en" % JW.web_token(j)).json()
         self.assertEqual(en["ride"]["line"], "CNG · Pathao · DHA-1")
         # not someone else's trip, not after it ended
@@ -214,7 +214,7 @@ class RevokeRideProgressTests(Base):
         j, _ = self.start(vehicle={"plate": "DHA-1", "mode": "bike", "app": "uber"})
         self.fix(j, 23.7550, 90.4000)
         d = self.data(JW.web_token(j)).json()
-        self.assertEqual(d["ride"]["line"], "বাইক · উবার · DHA-1")
+        self.assertEqual(d["ride"]["line"], "বাইক · উবার · DHA-১")
         html = self.client.get("/j/%s" % JW.web_token(j)).content.decode()
         self.assertIn("সময়টা যাত্রী নিজে দিয়েছেন", html)
         self.assertEqual(Journey.objects.get(pk=j.pk).mode, "")   # mode came in the ride only

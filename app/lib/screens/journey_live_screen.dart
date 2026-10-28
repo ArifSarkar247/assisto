@@ -264,7 +264,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
 
   void _snack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar() // the newest answer, never one queued behind
+      ..showSnackBar(SnackBar(content: Text(msg)));
   }
 
   void _closeWith(String? msg) {
