@@ -6,6 +6,7 @@ from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
 from . import views_journey   # journey100
 from . import views_quote   # crm100
+from . import views_vehicle_share   # veh100
 from . import views_at_watch   # antitheft2
 
 urlpatterns = [
@@ -71,4 +72,7 @@ urlpatterns = [
     # link, no login, noindex, rate-limited, bn/en)
     path("q/<str:token>", views_quote.quote_page),
     path("qp/<str:token>", views_quote.proposal_page),
+    # veh100: vehicle live-location share link (random token, expiring, revocable)
+    path("v/<str:token>/data", views_vehicle_share.share_data),
+    path("v/<str:token>", views_vehicle_share.share_page),
 ]

@@ -65,6 +65,8 @@ const Map<String, bool> kFeatureDefaults = {
   'ride_food': true,
   'vehicles': true,
   'vehicle_tracking': true,
+  // veh100: remote engine cut OFF until a real relay test (server-enforced).
+  'vehicle_engine_cut': false,
   'student_corner': true,
   'wedding_events': true,
   'qurbani': true,

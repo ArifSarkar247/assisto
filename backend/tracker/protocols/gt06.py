@@ -17,7 +17,14 @@ Supported inbound protocol numbers:
     0x16 alarm (GPS + LBS + status)             -> ACK required
     0x26 alarm (GT06N variant)                  -> ACK required
     0x15 / 0x21 reply to a server command       -> no ACK
+    0x23 heartbeat (newer Concox: 2-byte volts) -> ACK required
+    0x94 information transmission (long form;   -> no ACK
+         sub-type 0x00 = external power voltage)
     0x8A time request                           -> answered with UTC time
+veh100: the terminal-information byte of 0x13 / 0x23 / 0x16 also carries an
+ALARM field (bits 5..3: 100 SOS, 011 low battery, 010 power cut, 001 shock)
+and the 0x13 voltage level (0..6) — both are decoded into `alarms` / `status`
+so a heartbeat-only alarm (no GPS) is never lost.
 Anything else is reported as kind="unknown" and ignored by the server (we never
 act on device-originated "commands" — devices only report).
 
@@ -44,8 +51,13 @@ P_ALARM_2 = 0x26
 P_CMD_REPLY_2 = 0x21
 P_TIME_REQ = 0x8A
 P_SERVER_CMD = 0x80
+P_HEARTBEAT_2 = 0x23
+P_INFO = 0x94
 
-ACK_REQUIRED = {P_LOGIN, P_STATUS, P_ALARM, P_ALARM_2}
+ACK_REQUIRED = {P_LOGIN, P_STATUS, P_ALARM, P_ALARM_2, P_HEARTBEAT_2}
+
+# Terminal-information byte, bits 5..3 (Concox GT06 protocol v1.8 §5.4).
+TERM_ALARMS = {4: "sos", 3: "low_battery", 2: "power_cut", 1: "vibration"}
 
 MAX_FRAME = 1024          # a GT06 frame is ~40-100 bytes; anything bigger is junk
 
@@ -163,6 +175,8 @@ def _status_byte(b: int):
         "gps_tracking": bool(b & 0x40),
         # bit7: 1 = oil & electricity DISCONNECTED (relay engaged = engine cut)
         "relay_cut": bool(b & 0x80),
+        # bits 5..3: the alarm the terminal is currently reporting (or None)
+        "alarm": TERM_ALARMS.get((b >> 3) & 0x07),
     }
 
 
@@ -189,6 +203,21 @@ def parse_frame(frame: bytes) -> dict:
         out.update(kind="status", status=st,
                    voltage_level=info[1] if len(info) > 1 else None,
                    gsm=info[2] if len(info) > 2 else None)
+    elif proto == P_HEARTBEAT_2:
+        # terminal info(1) + internal battery voltage(2, /100 V) + GSM(1) + lang(2)
+        if len(info) < 3:
+            raise FrameError("short_status")
+        st = _status_byte(info[0])
+        out.update(kind="status", status=st, voltage_level=None,
+                   battery_v=round(struct.unpack(">H", info[1:3])[0] / 100.0, 2),
+                   gsm=info[3] if len(info) > 3 else None)
+    elif proto == P_INFO:
+        if len(info) < 1:
+            raise FrameError("short_info")
+        sub = info[0]
+        out.update(kind="info", sub=sub)
+        if sub == 0x00 and len(info) >= 3:
+            out["ext_voltage_v"] = round(struct.unpack(">H", info[1:3])[0] / 100.0, 2)
     elif proto in (P_ALARM, P_ALARM_2):
         fix, off = _gps(info, 0)
         lbs_len = info[off] if len(info) > off else 0
@@ -314,9 +343,30 @@ def alarm_packet(at: datetime, lat: float, lng: float, speed_kmh: float,
     return _build(P_ALARM, info, serial)
 
 
-def status_packet(serial: int, ignition=False, relay_cut=False) -> bytes:
-    b = 0x40 | (0x02 if ignition else 0) | (0x80 if relay_cut else 0)
-    return _build(P_STATUS, bytes([b, 4, 4, 0, 2]), serial)
+def status_packet(serial: int, ignition=False, relay_cut=False, alarm=None,
+                  voltage_level=4) -> bytes:
+    code = {v: k for k, v in TERM_ALARMS.items()}.get(alarm, 0)
+    b = 0x40 | (0x02 if ignition else 0) | (0x80 if relay_cut else 0) | (code << 3)
+    return _build(P_STATUS, bytes([b, voltage_level & 0xFF, 4, 0, 2]), serial)
+
+
+def heartbeat2_packet(serial: int, battery_v: float, ignition=False, alarm=None) -> bytes:
+    code = {v: k for k, v in TERM_ALARMS.items()}.get(alarm, 0)
+    b = 0x40 | (0x02 if ignition else 0) | (code << 3)
+    info = bytes([b]) + struct.pack(">H", int(round(battery_v * 100))) + bytes([4, 0, 2])
+    return _build(P_HEARTBEAT_2, info, serial)
+
+
+def _build_long(proto: int, info: bytes, serial: int) -> bytes:
+    body = struct.pack(">H", 5 + len(info)) + bytes([proto]) + info \
+        + struct.pack(">H", serial & 0xFFFF)
+    return START_LONG + body + struct.pack(">H", crc_itu(body)) + STOP
+
+
+def ext_voltage_packet(serial: int, volts: float) -> bytes:
+    """0x94 sub-type 0x00 (external power voltage, /100 V), long form."""
+    return _build_long(P_INFO, b"\x00" + struct.pack(">H", int(round(volts * 100))),
+                       serial)
 
 
 def reply_packet(server_flag: int, text: str, serial: int) -> bytes:

@@ -78,6 +78,55 @@ extension VehicleApi on ApiClient {
       patchJson('/vehicle/trackers/$id', {'routes': routes});
 
   Future<Map<String, dynamic>> vehFleet() => getJson('/vehicle/fleet');
+
+  // ---- veh100 ----------------------------------------------------------
+
+  /// The SECOND confirmation of an engine cut (one-time token, 60 s).
+  Future<Map<String, dynamic>> vehConfirmCommand(int commandId, String token) =>
+      postJson('/vehicle/commands/$commandId/confirm', {'confirm_token': token});
+
+  Future<Map<String, dynamic>> vehShares(int id) => getJson('/vehicle/trackers/$id/share');
+
+  Future<Map<String, dynamic>> vehShareCreate(int id, int hours, {String label = ''}) =>
+      postJson('/vehicle/trackers/$id/share', {'hours': hours, 'label': label});
+
+  Future<Map<String, dynamic>> vehShareRevoke(int id, int linkId) =>
+      deleteJson('/vehicle/trackers/$id/share/$linkId');
+
+  /// [period] 'day' (with [date] yyyy-MM-dd) or 'month' (with [month] yyyy-MM).
+  Future<Map<String, dynamic>> vehReport(int id,
+      {String period = 'day', String? date, String? month, int? driverId}) {
+    final q = <String>['period=$period'];
+    if (date != null) q.add('date=$date');
+    if (month != null) q.add('month=$month');
+    if (driverId != null) q.add('driver=$driverId');
+    return getJson('/vehicle/trackers/$id/report?${q.join('&')}');
+  }
+
+  /// The same report as a CSV file (UTF-8 with BOM; headers in [lang]).
+  Future<List<int>> vehReportCsv(int id, String lang,
+      {String period = 'day', String? date, String? month}) {
+    final q = <String>['period=$period', 'export=csv', 'lang=$lang'];
+    if (date != null) q.add('date=$date');
+    if (month != null) q.add('month=$month');
+    return getBytes('/vehicle/trackers/$id/report?${q.join('&')}');
+  }
+
+  Future<Map<String, dynamic>> vehDriver(int id) => getJson('/vehicle/trackers/$id/driver');
+
+  /// [driverId] null = nobody is driving now (ends the open shift).
+  Future<Map<String, dynamic>> vehAssignDriver(int id, int? driverId) =>
+      postJson('/vehicle/trackers/$id/driver', {'driver_id': driverId});
+
+  Future<Map<String, dynamic>> vehDriverReport(int driverId, {String? month}) =>
+      getJson('/vehicle/drivers/$driverId/report${month == null ? '' : '?month=$month'}');
+
+  Future<Map<String, dynamic>> vehMaintenance() => getJson('/vehicle/maintenance');
+
+  Future<Map<String, dynamic>> vehSetupGuide(String brand, String operator,
+          {String password = ''}) =>
+      getJson('/vehicle/setup-guide?brand=$brand&operator=$operator'
+          '${password.isEmpty ? '' : '&password=${Uri.encodeQueryComponent(password)}'}');
 }
 
 /// Safe accessors for loosely-typed JSON.

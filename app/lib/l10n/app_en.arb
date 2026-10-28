@@ -24885,5 +24885,398 @@
   "c100WaySms": "Phone SMS",
   "c100WaySmsSub": "Free — your own SIM sends it",
   "c100WayWa": "WhatsApp",
-  "c100WayWaSub": "Free — opens WhatsApp with the text ready"
+  "c100WayWaSub": "Free — opens WhatsApp with the text ready",
+  "v100BrandLabel": "Tracker brand (written on the box)",
+  "v100BrandUnsure": "Not sure",
+  "v100ByDriver": "By driver",
+  "v100CutFinalBody": "The tracker reports {speed}, last update {ago}. The server checks again that the vehicle is standing still and refuses if it has moved. Only continue if you are sure nobody is in danger.",
+  "@v100CutFinalBody": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "v100CutFinalCta": "Yes, cut the engine",
+  "v100CutFinalLeft": "This choice closes in {n} s",
+  "@v100CutFinalLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100CutFinalTitle": "Last check before engine cut",
+  "v100CutKeepRunning": "Do not cut",
+  "v100CutNotSent": "Engine cut cancelled. Nothing was sent to the vehicle.",
+  "v100CutSafetyNote": "Safety and law: the server sends this only when the last 3 positions show the vehicle standing still — never while it moves. The tracker must have a relay fitted by a mechanic. Use it only on your own vehicle; every request is logged with who, when and the vehicle's speed.",
+  "v100Days": "{n} days",
+  "@v100Days": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DaysDriven": "Days driven",
+  "v100DriverAdd": "Add driver",
+  "v100DriverCleared": "Nobody is set as the driver now.",
+  "v100DriverDeleteBody": "Their past trips stay in the vehicle's reports, but no longer under their name.",
+  "v100DriverDeleteTitle": "Remove this driver?",
+  "v100DriverFormTitle": "Driver details",
+  "v100DriverLicenceExpiry": "Licence expiry date",
+  "v100DriverLicenceExpiryOn": "Licence expires {date}",
+  "@v100DriverLicenceExpiryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DriverLicenceHint": "You get a reminder 30, 7 and 1 day before the licence expires.",
+  "v100DriverLicenceNo": "Driving licence number (optional)",
+  "v100DriverMonth": "This month, all vehicles",
+  "v100DriverName": "Name",
+  "v100DriverNameNeeded": "Please type the driver's name.",
+  "v100DriverNoTrips": "No trips for this driver this month.",
+  "v100DriverNobody": "Nobody / not set",
+  "v100DriverNone": "No driver set. Add drivers to see each driver's trips and score.",
+  "v100DriverNow": "Driving now: {name}",
+  "@v100DriverNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DriverPhone": "Phone (optional)",
+  "v100DriverSet": "Driver set. Trips from now count for this driver.",
+  "v100DriverTitle": "Driver",
+  "v100DriverWhoNow": "Who is driving now?",
+  "v100DriversEmptyBody": "Tap Add driver to add the first one.",
+  "v100DriversEmptyTitle": "No drivers yet",
+  "v100DriversIntro": "Add the people who drive your vehicles. Choose who is driving now, and every trip, distance and driving score is counted for that driver. Drivers do not need the app.",
+  "v100DriversTitle": "Drivers",
+  "v100DueDays": "in {n} days",
+  "@v100DueDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DueFoot": "You also get one reminder push a day for these (never at night).",
+  "v100DueKm": "in {km} km",
+  "@v100DueKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "v100DueNow": "due now",
+  "v100DueTitle": "Due soon",
+  "v100DueToday": "today",
+  "v100ErrBadDriver": "That driver was not found. Add the driver first.",
+  "v100ErrBadFence": "That area is not valid. Draw at least 3 points, no bigger than 50 km.",
+  "v100ErrBadOdometer": "Please type the odometer reading in km (numbers only).",
+  "v100ErrConfirmFailed": "The confirmation did not match. Nothing was sent.",
+  "v100ErrConfirmTimeout": "You did not confirm within 60 seconds. Nothing was sent. Start again if you still need it.",
+  "v100ErrCutOff": "Remote engine cut is switched off until it has been tested on a real vehicle.",
+  "v100ErrFewFixes": "The tracker has not sent enough stopped positions yet. Wait a minute with the vehicle standing still, then try again.",
+  "v100ErrTooManyLinks": "This vehicle already has 5 live links open. Turn one off first.",
+  "v100EveryDays": "every {n} days",
+  "@v100EveryDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100EveryKm": "every {km} km",
+  "@v100EveryKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceA11y": "Map for drawing an area, {n} points placed",
+  "@v100FenceA11y": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceAlertBoth": "alert on entering and leaving",
+  "v100FenceAlertEnter": "alert on entering",
+  "v100FenceAlertExit": "alert on leaving",
+  "v100FenceClear": "Clear",
+  "v100FenceDraw": "Draw an area on the map",
+  "v100FenceDrawHelp": "Tap the map at each corner of the area — at least 3 points, for example your factory gate, road corners and back wall.",
+  "v100FenceNoMap": "Drawing an area needs the street map, which is not set up yet on our server. Use \"Add an area here\" (a circle around the vehicle) for now.",
+  "v100FencePoints": "{n} points",
+  "@v100FencePoints": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceShape": "Drawn area, {n} points",
+  "@v100FenceShape": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100FenceUndo": "Undo",
+  "v100FenceWhen": "When to alert",
+  "v100HarshAccel": "Sudden speed-up",
+  "v100HarshBrake": "Hard braking",
+  "v100Hours": "{n} h",
+  "@v100Hours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100Idling": "Engine on, standing",
+  "v100IgnNote": "Needs the tracker's ignition (ACC) wire connected. A start at night always alerts, even with these off.",
+  "v100IgnOffAlert": "Tell me when the engine stops",
+  "v100IgnOnAlert": "Tell me when the engine starts",
+  "v100LegendA11y": "Route colours: blue is calm, amber is near the {limit} km/h limit, red is over it.",
+  "@v100LegendA11y": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LegendCalm": "Calm",
+  "v100LegendNear": "Near the limit",
+  "v100LegendOver": "Over {limit} km/h",
+  "@v100LegendOver": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LicenceExpired": "Licence expired",
+  "v100LicenceIn": "Licence expires in {n} days",
+  "@v100LicenceIn": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100LimitDefault": "No speed limit is set, so {limit} km/h is used. Set your own in the tracker settings.",
+  "@v100LimitDefault": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100Minutes": "{n} min",
+  "@v100Minutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100More": "More",
+  "v100OdoHelp": "Type it once. From then on we add the distance the tracker measures, and service reminders by km use it.",
+  "v100OdoLabel": "Dashboard reading now (km)",
+  "v100OdoManualHelp": "Only needed without a GPS tracker. With a tracker the distance is counted for you.",
+  "v100OdoSection": "Odometer (for service reminders)",
+  "v100OperatorLabel": "SIM in the tracker",
+  "v100OverLimit": "Above {limit} km/h",
+  "@v100OverLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "v100PapersPushNote": "Tax token, fitness, insurance and route permit: a reminder push 30, 7 and 1 day before each expires.",
+  "v100QuietBody": "Normal alerts stay in the app without a sound. Safety alerts (power cut, SOS, leaving an area, night start, tracker silent) always ring.",
+  "v100QuietTitle": "Quiet hours",
+  "v100ReportDay": "Day",
+  "v100ReportDays": "Days",
+  "v100ReportEmptyBody": "The tracker sent no trips for this day or month. If the vehicle did move, check that the tracker is online.",
+  "v100ReportEmptyTitle": "No driving in this period",
+  "v100ReportExport": "Save as spreadsheet (CSV)",
+  "v100ReportMonth": "Month",
+  "v100ReportNext": "Later",
+  "v100ReportOld": "Detailed positions are kept for 30 days. For older days only the daily totals remain, and none were saved for this day.",
+  "v100ReportPrev": "Earlier",
+  "v100ReportShareText": "Vehicle report from Assisto",
+  "v100ReportSource": "Worked out on our server from the positions your tracker sent. Distance ignores GPS jumps and parked wander.",
+  "v100ReportSub": "Distance, trips, driving time, top speed and the driving score. Save as a spreadsheet.",
+  "v100ReportTitle": "Daily and monthly report",
+  "v100RoutePermit": "Route permit",
+  "v100ScoreA11y": "Driving score {score} out of 100, {band}",
+  "@v100ScoreA11y": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ScoreGood": "Good driving",
+  "v100ScoreHow": "Starts at 100. Hard braking, sudden speed-ups and minutes above the limit lower it, counted per 100 km. It comes from GPS speed only — no phone sensors.",
+  "v100ScoreImprove": "Needs improvement",
+  "v100ScoreLimited": "Limited: the tracker reported too rarely (more than 10 s apart) to see every hard brake. Set a 5–10 s interval for a fuller score.",
+  "v100ScoreNone": "No driving yet",
+  "v100ScoreOk": "Fair — a little care needed",
+  "v100ScoreShort": "score {score}",
+  "@v100ScoreShort": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ScoreTitle": "Driving score",
+  "v100ServiceAdd": "Add a service reminder",
+  "v100ServiceHeader": "Servicing (by km and date)",
+  "v100ServiceRulesN": "{n} service reminders set",
+  "@v100ServiceRulesN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupConnected": "Tracker connected",
+  "v100SetupDisabled": "The tracker could not start",
+  "v100SetupElapsed": "Setup time so far {time}",
+  "@v100SetupElapsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupExpired": "Time is over",
+  "v100SetupExpiredBody": "The tracker did not connect in time. Check the SMS replies (\"OK\"), that the SIM has data, then try again.",
+  "v100SetupFirstFix": "Done — the first location arrived",
+  "v100SetupFirstFixBody": "Your vehicle is on the map now.",
+  "v100SetupIdHint10": "Sinotrack: if the label shows a 10-digit ID, that is the number the tracker sends. Either number works — we match them.",
+  "v100SetupLater": "Close — I'll finish later",
+  "v100SetupQr": "QR code",
+  "v100SetupQrBody": "The phone's camera opens the SMS app with this command and the tracker's number filled in.",
+  "v100SetupQrTitle": "Scan with another phone",
+  "v100SetupReplyOk": "After each SMS the tracker usually replies \"{ok}\". No reply? Check the tracker's password (default in its manual).",
+  "@v100SetupReplyOk": {
+    "placeholders": {
+      "ok": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupRetry": "Try again (new 10 minutes)",
+  "v100SetupSendSms": "Send SMS",
+  "v100SetupSendThese": "Send these SMS to the tracker's SIM ({op})",
+  "@v100SetupSendThese": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupTook": "Set up in {time} (minutes:seconds). Your vehicle is on the map now.",
+  "@v100SetupTook": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupWaiting": "Waiting for the tracker's first signal",
+  "v100SetupWaitingBody": "Send the SMS below to the tracker's SIM. Time left: {time}",
+  "@v100SetupWaitingBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SetupWaitingFix": "Waiting for the first GPS location. Keep the vehicle under the open sky for a minute.",
+  "v100ShareActive": "Open links",
+  "v100ShareCreate": "Make a link",
+  "v100ShareHowLong": "Keep the link open for",
+  "v100ShareLabel": "Who is it for? (optional)",
+  "v100ShareLabelHelp": "Only you see this name, to tell your links apart.",
+  "v100ShareMessage": "See where my vehicle is right now: {url}",
+  "@v100ShareMessage": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "v100ShareNeedsPaired": "The tracker must be connected before you can share it.",
+  "v100ShareNone": "No open links.",
+  "v100ShareOnce": "Copy or send it now — for safety the full link is shown only once.",
+  "v100SharePrivacy": "The person sees only where the vehicle is now, its speed and when it was updated — never where it went before. The link stops by itself at the time you choose.",
+  "v100ShareReady": "Your link is ready",
+  "v100ShareRevoked": "Link turned off. It no longer shows any location.",
+  "v100ShareSend": "Send",
+  "v100ShareSub": "A link anyone can open without the app. It ends by itself; you can turn it off any time.",
+  "v100ShareTitle": "Share live location",
+  "v100ShareTurnOff": "Turn off",
+  "v100ShareUnnamed": "Link",
+  "v100ShareUntil": "Open until {when} · opened {n} times",
+  "@v100ShareUntil": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "v100SilentAlert": "Alert when the tracker goes silent",
+  "v100SilentHelp": "No signal for this long can mean the tracker was unplugged, lost power, ran out of SIM data or has no network.",
+  "v100SimHelp": "With it we open your SMS app with each setup command filled in. It stays on this phone.",
+  "v100SimLabel": "Tracker SIM number (optional)",
+  "v100StepApn": "Set the internet (APN) of the tracker's SIM",
+  "v100StepGprs": "Switch on internet reporting",
+  "v100StepInterval": "Report every few seconds while driving",
+  "v100StepReset": "Start the tracker's setup",
+  "v100StepServer": "Point the tracker to Assisto's server",
+  "v100StopAlert": "Alert when stopped for a long time",
+  "v100SvcBrakes": "Brake check",
+  "v100SvcDoneToday": "Done today",
+  "v100SvcEveryDays": "Every … days (optional)",
+  "v100SvcEveryKm": "Every … km (optional)",
+  "v100SvcGeneral": "General service",
+  "v100SvcLastDate": "Date last done",
+  "v100SvcLastKm": "Odometer when last done (km)",
+  "v100SvcName": "What to do",
+  "v100SvcOil": "Engine oil",
+  "v100SvcTyres": "Tyres",
+  "v100TripsN": "{n} trips",
+  "@v100TripsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  }
 }

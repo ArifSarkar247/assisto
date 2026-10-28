@@ -2,8 +2,8 @@
 
 Runs the REAL tracker daemon (`python -m tracker`) as a separate process on a
 scratch port against a scratch SQLite DB (never Postgres, never port 5023),
-drives it with tracker/sim.py over TCP as a GT06, an H02 (Sinotrack ST-901)
-and a Teltonika device, then reads the result back through the app's HTTP
+drives it with tracker/sim.py over TCP as a GT06, an H02 (Sinotrack ST-901),
+a Coban TK103 (veh100) and a Teltonika device, then reads the result back through the app's HTTP
 API with Django's test client. Prints one JSON line per check; exit 0 only
 if all pass.
 
@@ -59,7 +59,7 @@ def main():
     from rest_framework.test import APIClient
     from core.models import User, ProtectedPhone, VehicleTracker
     from core.tests_v1_vehicle import luhn_imei
-    from tracker.sim import GT06Device, H02Device, TeltonikaDevice, drive_path
+    from tracker.sim import GT06Device, H02Device, TeltonikaDevice, TK103Device, drive_path
     from tracker.protocols import teltonika
 
     owner = User.objects.create_user(name="Smoke", phone="01710009001", password="pw")
@@ -71,6 +71,7 @@ def main():
     ids = {}
     for proto, imei in (("gt06", luhn_imei("35933907700391")),
                         ("h02", "9171234567"),
+                        ("tk103", luhn_imei("35958601582980")),
                         ("teltonika", luhn_imei("35630704244101"))):
         r = api.post("/api/v1/vehicle/trackers", {"imei": imei, "name": proto,
                                                   "protocol": proto}, format="json")
@@ -111,6 +112,13 @@ def main():
             for p in path:
                 await h.fix(p["lat"], p["lng"], p["speed_kmh"], p["speed_kmh"] > 0, p["at"])
             await h.heartbeat()
+            k = TK103Device(ids["tk103"][1])
+            await k.connect("127.0.0.1", a.port)
+            check("tk103_login_load", await k.login())
+            for p in path:
+                await k.fix(p["lat"], p["lng"], p["speed_kmh"], p["at"])
+            await k.fix(path[-1]["lat"], path[-1]["lng"], 0, keyword="ac alarm")
+            await k.heartbeat()
             t = TeltonikaDevice(ids["teltonika"][1])
             await t.connect("127.0.0.1", a.port)
             check("teltonika_imei_accepted", await t.handshake())
@@ -126,7 +134,9 @@ def main():
                   any(c.startswith("TIMER,") for c in g.commands), cmds=g.commands)
             check("h02_interval_cmd_received",
                   any(c.startswith("S71,") for c in h.commands), cmds=h.commands)
-            for d in (g, h, t, bad):
+            check("tk103_interval_cmd_received",
+                  any(c.startswith("C,") for c in k.commands), cmds=k.commands)
+            for d in (g, h, k, t, bad):
                 await d.close()
             return len(path)
 
@@ -143,8 +153,11 @@ def main():
                   km=r["total_km"])
         from core.models import NotifEvent
         kinds = list(NotifEvent.objects.filter(user=owner).values_list("meta__alert", flat=True))
-        check("overspeed_alert_all_protocols", kinds.count("overspeed") == 3, kinds=kinds)
+        check("overspeed_alert_all_protocols", kinds.count("overspeed") == 4, kinds=kinds)
         check("sos_alarm_alert", "device_alarm" in kinds)
+        alarms = list(NotifEvent.objects.filter(user=owner, meta__alert="device_alarm")
+                      .values_list("meta__alarm", flat=True))
+        check("tk103_power_cut_alert", "power_cut" in alarms, alarms=alarms)
         check("tracker_still_running", srv.poll() is None)
     finally:
         srv.terminate()

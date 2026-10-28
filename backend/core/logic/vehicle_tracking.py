@@ -203,11 +203,33 @@ def decide_cutoff(last_fix_at, last_speed_kmh, now, max_speed_kmh=5.0,
 
 # ----------------------------------------------------------------- alerts
 
+def point_in_polygon(points, lat, lng):
+    """Ray casting on [[lat, lng], ...] (>= 3 vertices; closing edge implied).
+    Fine at city scale (no antimeridian fences in Bangladesh)."""
+    pts = [(float(p[0]), float(p[1])) for p in points or []]
+    if len(pts) < 3:
+        return False
+    inside = False
+    j = len(pts) - 1
+    for i in range(len(pts)):
+        yi, xi = pts[i]
+        yj, xj = pts[j]
+        if (yi > lat) != (yj > lat):
+            x_cross = (xj - xi) * (lat - yi) / ((yj - yi) or 1e-12) + xi
+            if lng < x_cross:
+                inside = not inside
+        j = i
+    return inside
+
+
 def inside_fence(fence, lat, lng):
+    """Circle {lat, lng, radius_m} or polygon {points: [[lat, lng], ...]}."""
     try:
+        if fence.get("points"):
+            return point_in_polygon(fence["points"], lat, lng)
         return haversine_m(float(fence["lat"]), float(fence["lng"]), lat, lng) \
             <= float(fence.get("radius_m") or 200)
-    except (KeyError, TypeError, ValueError):
+    except (KeyError, TypeError, ValueError, IndexError):
         return False
 
 
@@ -336,7 +358,9 @@ def evaluate_alerts(state, fix, settings, local_hour):
             fid = str(fence.get("id"))
             now_in = inside_fence(fence, fix["lat"], fix["lng"])
             was = fences_state.get(fid)
-            if was is not None and was != now_in:
+            want = fence.get("alert") or "both"     # both | enter | exit
+            if was is not None and was != now_in and (
+                    want == "both" or want == ("enter" if now_in else "exit")):
                 alerts.append({"kind": "geofence_enter" if now_in else "geofence_exit",
                                "fence_id": fid, "fence_name": fence.get("name") or "",
                                "lat": fix["lat"], "lng": fix["lng"]})
@@ -361,17 +385,397 @@ def evaluate_alerts(state, fix, settings, local_hour):
                 if spd < limit - 10:      # hysteresis: re-arm only well below
                     st["over_alerted"] = False
 
+        alerts.extend(_eval_stop(st, fix, settings))
+
     ign = fix.get("ignition")
     if ign is not None:
         prev = st.get("ign")
+        night = False
         if ign and prev is False and settings.get("night_ignition", True):
             s_h = _parse_hhmm(settings.get("night_start"), 22)
             e_h = _parse_hhmm(settings.get("night_end"), 5)
             if in_window(local_hour, s_h, e_h):
+                night = True
                 alerts.append({"kind": "night_ignition", "hour": local_hour,
                                "lat": fix.get("lat"), "lng": fix.get("lng")})
+        # veh100: plain ignition on / off alerts (opt-in; the night alert
+        # already covers a night start, so it is never doubled).
+        if prev is not None and bool(ign) != prev and not night:
+            k = "ignition_on" if ign else "ignition_off"
+            if settings.get(k):
+                alerts.append({"kind": k, "lat": fix.get("lat"), "lng": fix.get("lng")})
         st["ign"] = bool(ign)
     return st, alerts
+
+
+def _eval_stop(st, fix, settings, moving_kmh=MOVING_KMH):
+    """veh100: a LONG STOP anywhere (no planned route needed): the vehicle
+    moved, then stayed below moving speed for >= stop_alert_min minutes.
+    Once per stop; re-arms when it moves again. 0 = off."""
+    mins_cfg = int(settings.get("stop_alert_min") or 0)
+    at = fix.get("at")
+    if mins_cfg <= 0 or at is None:
+        return []
+    if float(fix.get("speed_kmh") or 0) >= moving_kmh:
+        st["moved"] = True
+        st["still_since"] = None
+        st["stop_alerted"] = False
+        return []
+    if not st.get("moved"):
+        return []                      # parked since pairing: never "long stop"
+    since = st.get("still_since")
+    if not since:
+        st["still_since"] = at.isoformat()
+        return []
+    from datetime import datetime
+    try:
+        s0 = datetime.fromisoformat(since)
+    except ValueError:
+        st["still_since"] = at.isoformat()
+        return []
+    mins = (at - s0).total_seconds() / 60.0
+    if mins >= mins_cfg and not st.get("stop_alerted"):
+        st["stop_alerted"] = True
+        return [{"kind": "long_stop", "route_id": "", "route_name": "",
+                 "minutes": int(mins), "lat": fix.get("lat"), "lng": fix.get("lng")}]
+    return []
+
+
+# ----------------------------------------------------------------- device power / alarms
+
+ALERT_ALARMS = ("sos", "power_cut", "tamper", "low_battery")
+EXT_CUT_V = 5.0          # main power below this = unplugged / cut
+EXT_OK_V = 9.0           # ... re-arms only once back above this (12 V bike/car, 24 V truck)
+BATT_LOW_V = 3.6         # internal Li-ion backup battery
+BATT_OK_V = 3.8
+GT06_LEVEL_LOW = (1, 2)  # 0x13 voltage level: 1 extremely low, 2 low-battery alarm
+GT06_LEVEL_OK = 4
+
+
+def evaluate_device(state, alarms=(), signals=None, slot="dev_alarms"):
+    """Device-reported alarms + power signals -> alerts, on the RISING EDGE.
+
+    alarms   : codes the device reports NOW (explicit packets or status bits;
+               levels repeat in every frame, so only a new one alerts).
+    slot     : state key of this alarm SOURCE ('dev_alarms' = carried by
+               fixes, 'st_alarms' = carried by status / heartbeat packets).
+    signals  : {ext_voltage_v, battery_v, voltage_level} when the model sends
+               them. Derived alerts: main power dropped below EXT_CUT_V after
+               being >= EXT_OK_V (unplugged / cut); backup battery below
+               BATT_LOW_V, or GT06 level 1-2. Each re-arms only after a clear
+               recovery (hysteresis), so a flapping wire alerts once.
+    Returns (state, alerts) with alert kind 'device_alarm' + 'alarm' code
+    (+ 'source': 'device' | 'voltage')."""
+    st = dict(state or {})
+    sig = signals or {}
+    out = []
+    active = set(a for a in alarms or () if a in ALERT_ALARMS)
+    prev = set(st.get(slot) or [])
+    for a in sorted(active - prev):
+        out.append({"kind": "device_alarm", "alarm": a, "source": "device"})
+    st[slot] = sorted(active)
+    pw = dict(st.get("pwr") or {})
+    ext = sig.get("ext_voltage_v")
+    if isinstance(ext, (int, float)):
+        if ext >= EXT_OK_V:
+            pw["ext_armed"] = True
+        elif ext < EXT_CUT_V and pw.get("ext_armed"):
+            pw["ext_armed"] = False
+            if "power_cut" not in active:
+                out.append({"kind": "device_alarm", "alarm": "power_cut",
+                            "source": "voltage", "volts": round(float(ext), 2)})
+    batt = sig.get("battery_v")
+    lvl = sig.get("voltage_level")
+    low = None
+    if isinstance(batt, (int, float)) and batt > 0:
+        low = batt < BATT_LOW_V if (batt < BATT_LOW_V or batt >= BATT_OK_V) else None
+    elif isinstance(lvl, int):
+        low = True if lvl in GT06_LEVEL_LOW else (False if lvl >= GT06_LEVEL_OK else None)
+    if low is False:
+        pw["batt_armed"] = True
+    elif low is True and pw.get("batt_armed", True):
+        pw["batt_armed"] = False
+        if "low_battery" not in active:
+            out.append({"kind": "device_alarm", "alarm": "low_battery",
+                        "source": "voltage",
+                        "volts": round(float(batt), 2) if isinstance(batt, (int, float)) else None})
+    st["pwr"] = pw
+    return st, out
+
+
+def silent_alert(state, last_seen_at, now, silent_min=30, was_moving=False):
+    """veh100: tracker went SILENT (possible unplug with no backup battery,
+    no SIM data, or no signal). Fires once per silence when the tracker was
+    last seen > silent_min minutes ago; re-arms as soon as it is seen again.
+    Returns (state, alert|None)."""
+    st = dict(state or {})
+    if not last_seen_at or silent_min <= 0:
+        return st, None
+    seen_key = last_seen_at.isoformat()
+    if st.get("silent_for") == seen_key:
+        return st, None                          # already alerted this silence
+    mins = (now - last_seen_at).total_seconds() / 60.0
+    if mins < silent_min:
+        return st, None
+    st["silent_for"] = seen_key
+    return st, {"kind": "tracker_silent", "minutes": int(mins), "moving": bool(was_moving)}
+
+
+# ----------------------------------------------------------------- caps / quiet hours
+
+# Kinds that ALWAYS push (safety); everything else respects the owner's
+# quiet hours (in-app only during them). Per-kind cooldown in seconds.
+SAFETY_KINDS = ("device_alarm", "night_ignition", "geofence_exit", "off_route",
+                "tracker_silent")
+COOLDOWN_S = {"overspeed": 600, "geofence_enter": 120, "geofence_exit": 120,
+              "ignition_on": 300, "ignition_off": 300, "long_stop": 300,
+              "off_route": 600, "night_ignition": 900, "device_alarm": 600,
+              "tracker_silent": 1800}
+DAILY_PUSH_CAP = 30      # pushes per tracker per local day (the rest: in-app)
+
+
+def _hhmm_min(s, default):
+    try:
+        h, m = str(s).split(":")
+        h, m = int(h), int(m)
+        if 0 <= h <= 23 and 0 <= m <= 59:
+            return h * 60 + m
+    except (ValueError, AttributeError):
+        pass
+    return default
+
+
+def in_quiet(local_dt, quiet_start, quiet_end):
+    """Minute-precise quiet window, may wrap midnight. Equal = off."""
+    s = _hhmm_min(quiet_start, -1)
+    e = _hhmm_min(quiet_end, -1)
+    if s < 0 or e < 0 or s == e:
+        return False
+    m = local_dt.hour * 60 + local_dt.minute
+    return s <= m < e if s < e else (m >= s or m < e)
+
+
+def gate_alert(cap_state, alert, local_dt, prefs=None):
+    """Decide how ONE alert goes out: 'push' (push + in-app), 'inapp' (quiet
+    hours / daily cap reached: in-app notification only) or 'drop' (same
+    kind inside its cooldown — a duplicate). Pure; returns (decision, state).
+    The key for cooldown includes the alarm / fence so a power cut never
+    hides an SOS."""
+    st = dict(cap_state or {})
+    p = prefs or {}
+    day = local_dt.date().isoformat()
+    if st.get("day") != day:
+        st = {"day": day, "n": 0, "last": {}}
+    last = dict(st.get("last") or {})
+    kind = alert.get("kind")
+    key = "%s:%s" % (kind, alert.get("alarm") or alert.get("fence_id") or
+                     alert.get("route_id") or "")
+    cd = COOLDOWN_S.get(kind, 300)
+    t = local_dt.timestamp()
+    if key in last and t - float(last[key]) < cd:
+        return "drop", st
+    last[key] = t
+    st["last"] = last
+    safety = kind in SAFETY_KINDS
+    if not safety and in_quiet(local_dt, p.get("quiet_start"), p.get("quiet_end")):
+        return "inapp", st
+    cap = int(p.get("daily_push_cap") or DAILY_PUSH_CAP)
+    if st.get("n", 0) >= cap and not (kind == "device_alarm" and alert.get("alarm") == "sos"):
+        return "inapp", st
+    st["n"] = int(st.get("n", 0)) + 1
+    return "push", st
+
+
+# ----------------------------------------------------------------- engine-cut gate
+
+STOPPED_FIXES = 3
+
+
+def stopped_for(recent, now, n=STOPPED_FIXES, max_speed_kmh=5.0, max_age_s=120,
+                window_s=900):
+    """veh100 engine-cut gate, on top of decide_cutoff: the LAST n stored fixes
+    (newest first or any order) must ALL be below max_speed_kmh, the newest
+    must be fresh (<= max_age_s) and all inside window_s. Returns (ok, reason)
+    with reason in {'ok','few_fixes','stale_fix','moving'}."""
+    pts = sorted((f for f in recent or [] if f.get("at") is not None),
+                 key=lambda f: f["at"], reverse=True)[:n]
+    if len(pts) < n:
+        return False, "few_fixes"
+    if (now - pts[0]["at"]).total_seconds() > max_age_s:
+        return False, "stale_fix"
+    if (now - pts[-1]["at"]).total_seconds() > window_s:
+        return False, "few_fixes"
+    if any(float(f.get("speed_kmh") or 0) >= max_speed_kmh for f in pts):
+        return False, "moving"
+    return True, "ok"
+
+
+# ----------------------------------------------------------------- driver behaviour
+
+HARSH_BRAKE_KMH_S = -12.0    # <= -12 km/h per second (~0.34 g)
+HARSH_ACCEL_KMH_S = 10.0     # >= +10 km/h per second (~0.28 g)
+BEHAVIOUR_MAX_DT_S = 10      # only fix pairs this close can show a harsh event
+DEFAULT_LIMIT_KMH = 80       # used when the owner set no limit (BD highways)
+
+
+def behaviour(fixes, speed_limit_kmh=0, moving_kmh=MOVING_KMH):
+    """Driver behaviour from GPS fixes ONLY (no accelerometer).
+
+    HONEST LIMIT: a tracker reporting every 5 s sees a 1-2 s hard brake only as
+    an average over the 5 s gap; events between fixes farther apart than
+    BEHAVIOUR_MAX_DT_S are invisible. `coverage` = share of moving time made
+    of close-enough fix pairs; below 0.5 the score is flagged 'limited'.
+
+    Score (0-100) per 100 km driven (min 20 km base so a short hop is not
+    over-punished): 100 - (4 x harsh brakes + 3 x harsh accelerations +
+    1 x minute above the limit) x 100 / max(km, 20)."""
+    pts = _clean(fixes)
+    limit = float(speed_limit_kmh or 0) or DEFAULT_LIMIT_KMH
+    hb = ha = 0
+    over_s = 0.0
+    moving_s = close_s = 0.0
+    dist_m = 0.0
+    for a, b in zip(pts, pts[1:]):
+        dt = (b["at"] - a["at"]).total_seconds()
+        if dt <= 0 or dt > MAX_GAP_S:
+            continue
+        va, vb = float(a.get("speed_kmh") or 0), float(b.get("speed_kmh") or 0)
+        if va >= moving_kmh or vb >= moving_kmh:
+            moving_s += dt
+            dist_m += _step(a, b)
+            if dt <= BEHAVIOUR_MAX_DT_S:
+                close_s += dt
+                acc = (vb - va) / dt
+                if acc <= HARSH_BRAKE_KMH_S:
+                    hb += 1
+                elif acc >= HARSH_ACCEL_KMH_S:
+                    ha += 1
+            if va > limit and vb > limit:
+                over_s += dt
+            elif va > limit or vb > limit:
+                over_s += dt / 2.0
+    km = dist_m / 1000.0
+    coverage = round(close_s / moving_s, 2) if moving_s > 0 else 0.0
+    penalty = (4 * hb + 3 * ha + over_s / 60.0) * 100.0 / max(km, 20.0)
+    score = None if moving_s <= 0 else int(round(max(0.0, min(100.0, 100.0 - penalty))))
+    return {"score": score, "harsh_brake": hb, "harsh_accel": ha,
+            "overspeed_s": int(over_s), "limit_kmh": int(limit),
+            "limit_default": not bool(speed_limit_kmh), "km": round(km, 2),
+            "moving_s": int(moving_s), "coverage": coverage,
+            "limited": coverage < 0.5}
+
+
+def score_band(score):
+    if score is None:
+        return "none"
+    return "good" if score >= 85 else ("ok" if score >= 70 else "improve")
+
+
+def day_stats(fixes, speed_limit_kmh=0, night=None):
+    """One day's numbers for the daily / monthly report (pure)."""
+    s = compute_trips(fixes, night=night)
+    b = behaviour(fixes, speed_limit_kmh)
+    pts = _clean(fixes)
+    idle_s = 0
+    for a, c in zip(pts, pts[1:]):
+        dt = (c["at"] - a["at"]).total_seconds()
+        if 0 < dt <= MAX_GAP_S and a.get("ignition") is True \
+                and float(a.get("speed_kmh") or 0) < MOVING_KMH:
+            idle_s += dt
+    return {"km": s["total_km"], "trips": len(s["trips"]), "moving_s": s["moving_s"],
+            "idle_s": int(idle_s), "max_kmh": s["max_speed_kmh"],
+            "overspeed_s": b["overspeed_s"], "harsh_brake": b["harsh_brake"],
+            "harsh_accel": b["harsh_accel"], "score": b["score"],
+            "coverage": b["coverage"], "night_trips": sum(1 for t in s["trips"] if t.get("night")),
+            "points": s["points"]}
+
+
+def month_totals(days):
+    """Sum a list of day_stats dicts (score = km-weighted mean of scored days)."""
+    tot = {"km": 0.0, "trips": 0, "moving_s": 0, "idle_s": 0, "max_kmh": 0.0,
+           "overspeed_s": 0, "harsh_brake": 0, "harsh_accel": 0, "night_trips": 0,
+           "days_driven": 0}
+    wsum = wkm = 0.0
+    for d in days:
+        tot["km"] += float(d.get("km") or 0)
+        for k in ("trips", "moving_s", "idle_s", "overspeed_s", "harsh_brake",
+                  "harsh_accel", "night_trips"):
+            tot[k] += int(d.get(k) or 0)
+        tot["max_kmh"] = max(tot["max_kmh"], float(d.get("max_kmh") or 0))
+        if float(d.get("km") or 0) > 0:
+            tot["days_driven"] += 1
+        if d.get("score") is not None and float(d.get("km") or 0) > 0:
+            wsum += d["score"] * float(d["km"])
+            wkm += float(d["km"])
+    tot["km"] = round(tot["km"], 2)
+    tot["score"] = int(round(wsum / wkm)) if wkm > 0 else None
+    return tot
+
+
+# ----------------------------------------------------------------- reminders
+
+# Vehicle papers on a "My Vehicles" record (PaCollectionItem data keys).
+PAPER_KEYS = ("tax_token_expiry", "fitness_expiry", "insurance_expiry",
+              "route_permit_expiry")
+PAPER_STAGES = (30, 7, 1)
+PAPER_LABELS = {
+    "tax_token_expiry": ("ট্যাক্স টোকেন", "Tax token"),
+    "fitness_expiry": ("ফিটনেস সার্টিফিকেট", "Fitness certificate"),
+    "insurance_expiry": ("বিমা", "Insurance"),
+    "route_permit_expiry": ("রুট পারমিট", "Route permit"),
+    "licence_expiry": ("ড্রাইভিং লাইসেন্স", "Driving licence"),
+}
+
+
+def paper_stage(days_left, stages=PAPER_STAGES):
+    """Most urgent stage reached (30/7/1; day 0 counts as 1), None if expired
+    or further away."""
+    if days_left is None or days_left < 0:
+        return None
+    for s_ in sorted(stages):
+        if days_left <= s_:
+            return s_
+    return None
+
+
+def maintenance_due(item, odometer_km, today, warn_km=300, warn_days=7):
+    """One maintenance rule {name, every_km, every_days, last_km, last_date}.
+    Due by distance (odometer - last_km >= every_km - warn_km) or by date
+    (today >= last_date + every_days - warn_days), whichever first. Returns
+    {due: bool, overdue: bool, km_left, days_left, by: 'km'|'date'|None}."""
+    from datetime import date as _date
+    km_left = days_left = None
+    try:
+        every_km = float(item.get("every_km") or 0)
+        last_km = float(item.get("last_km") or 0)
+    except (TypeError, ValueError):
+        every_km = 0
+        last_km = 0
+    if every_km > 0 and odometer_km is not None:
+        km_left = round(last_km + every_km - float(odometer_km), 1)
+    try:
+        every_days = int(item.get("every_days") or 0)
+    except (TypeError, ValueError):
+        every_days = 0
+    if every_days > 0 and item.get("last_date"):
+        try:
+            last = _date.fromisoformat(str(item["last_date"])[:10])
+            days_left = (last.toordinal() + every_days) - today.toordinal()
+        except ValueError:
+            days_left = None
+    due_km = km_left is not None and km_left <= warn_km
+    due_d = days_left is not None and days_left <= warn_days
+    by = None
+    if due_km and due_d:
+        by = "km" if (km_left or 0) / max(every_km, 1) <= (days_left or 0) / max(every_days, 1) else "date"
+    elif due_km:
+        by = "km"
+    elif due_d:
+        by = "date"
+    overdue = (km_left is not None and km_left <= 0) or (days_left is not None and days_left <= 0)
+    return {"due": bool(by), "overdue": bool(overdue and by), "km_left": km_left,
+            "days_left": days_left, "by": by}
+
 
 
 # ----------------------------------------------------------------- summaries
@@ -462,11 +866,29 @@ def alert_text(alert, vehicle_name, lang="bn"):
                     "%s \"%s\" পথ থেকে প্রায় %s মিটার দূরে চলে গেছে। দয়া করে খোঁজ নিন।"
                     % (v, alert.get("route_name") or "নির্ধারিত",
                        _bn(int(alert.get("distance_m") or 0))))
+        if k == "long_stop" and not alert.get("route_id"):
+            return ("%s অনেকক্ষণ থেমে আছে" % v,
+                    "%s %s মিনিট ধরে এক জায়গায় থেমে আছে। দয়া করে খোঁজ নিন।"
+                    % (v, _bn(int(alert.get("minutes") or 0))))
         if k == "long_stop":
             return ("%s অনেকক্ষণ থেমে আছে" % v,
                     "%s \"%s\" পথে %s মিনিট ধরে থেমে আছে। দয়া করে খোঁজ নিন।"
                     % (v, alert.get("route_name") or "নির্ধারিত",
                        _bn(int(alert.get("minutes") or 0))))
+        if k == "ignition_on":
+            return ("%s চালু হয়েছে" % v, "%s-এর ইঞ্জিন চালু হয়েছে।" % v)
+        if k == "ignition_off":
+            return ("%s বন্ধ হয়েছে" % v, "%s-এর ইঞ্জিন বন্ধ হয়েছে।" % v)
+        if k == "tracker_silent":
+            return ("%s-এর ট্র্যাকার সাড়া দিচ্ছে না" % v,
+                    "%s মিনিট ধরে ট্র্যাকার থেকে কোনো সংকেত আসেনি। ট্র্যাকার খুলে ফেলা, "
+                    "বিদ্যুৎ বিচ্ছিন্ন, সিমে ডাটা নেই বা নেটওয়ার্ক না থাকতে পারে। দয়া করে দেখে নিন।"
+                    % _bn(int(alert.get("minutes") or 0)))
+        if k == "device_alarm" and alert.get("source") == "voltage" \
+                and alert.get("alarm") == "power_cut":
+            return ("%s: ট্র্যাকারের বিদ্যুৎ বিচ্ছিন্ন" % v,
+                    "ট্র্যাকারের মূল বিদ্যুৎ চলে গেছে (তার খোলা বা কাটা হতে পারে)। "
+                    "দয়া করে দেখে নিন।")
         if k == "device_alarm":
             what = _ALARM_BN.get(alert.get("alarm"), "সতর্ক সংকেত")
             return ("%s: %s" % (v, what),
@@ -492,6 +914,24 @@ def alert_text(alert, vehicle_name, lang="bn"):
                 "%s is about %d m off the \"%s\" route. Please check in."
                 % (v, int(alert.get("distance_m") or 0),
                    alert.get("route_name") or "planned"))
+    if k == "long_stop" and not alert.get("route_id"):
+        return ("%s has been stopped a while" % v,
+                "%s has been stopped in one place for %d minutes. Please check in."
+                % (v, int(alert.get("minutes") or 0)))
+    if k == "ignition_on":
+        return ("%s started" % v, "The engine of %s was switched on." % v)
+    if k == "ignition_off":
+        return ("%s switched off" % v, "The engine of %s was switched off." % v)
+    if k == "tracker_silent":
+        return ("%s: tracker not responding" % v,
+                "No signal from the tracker for %d minutes. It may have been unplugged, "
+                "lost power, run out of SIM data or lost network. Please check."
+                % int(alert.get("minutes") or 0))
+    if k == "device_alarm" and alert.get("source") == "voltage" \
+            and alert.get("alarm") == "power_cut":
+        return ("%s: tracker power disconnected" % v,
+                "The tracker lost its main power (a wire may be unplugged or cut). "
+                "Please check.")
     if k == "long_stop":
         return ("%s has been stopped a while" % v,
                 "%s has been stopped for %d minutes on the \"%s\" route. Please check in."

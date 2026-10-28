@@ -104,6 +104,9 @@ JOBS = (
     Job("vault_expiry_alerts", HOUR, "20 * * * *", "nice -n15 ionice -c3", lock=True,
         args="--quiet"),   # vault100
     Job("run_watchers", HOUR, "0 * * * *", "nice -n15 ionice -c3"),
+    Job("vehicle_reminders", HOUR, "35 * * * *", "nice -n15 ionice -c3", lock=True,
+        args="--quiet"),   # veh100
+    Job("vehicle_daily_rollup", DAY, "45 3 * * *", "nice -n15 ionice -c3"),   # veh100
     Job("profit_guard_rollover", DAY, "5 0 * * *"),
     Job("backup", DAY, "15 2 * * *", kind="backup"),
     Job("generate_briefings", DAY, "0 3 * * *", "nice -n15 ionice -c3"),

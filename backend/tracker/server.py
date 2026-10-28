@@ -3,9 +3,14 @@ Assisto vehicle tracker server — standalone asyncio TCP service (v1-vehicle).
 
     python -m tracker --host 0.0.0.0 --port 5023
 
-Speaks Concox GT06, H02 text (Sinotrack ST-901 family) and Teltonika Codec 8 /
-8E (+ Codec 12 commands) on ONE port; the protocol is detected from the first
-bytes of each connection.
+Speaks Concox GT06, H02 text (Sinotrack ST-901 family), Coban TK103 / GPS103
+text (veh100) and Teltonika Codec 8 / 8E (+ Codec 12 commands) on ONE port;
+the protocol is detected from the first bytes of each connection.
+
+Device alarms (SOS, power cut / unplug, low battery) travel INSIDE the fix or
+status batch to core.vehicle_service.ingest, which alerts on the rising edge
+with per-kind cooldowns and a daily cap (core.logic.vehicle_tracking) — so a
+level that repeats in every frame (H02 status bits) alerts once.
 
 TRANSPORT HONESTY: these trackers speak plain TCP and cannot do TLS. Position
 data on the device->server leg is therefore not encrypted. Mitigations:
@@ -30,7 +35,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from .protocols import gt06, h02, teltonika
+from .protocols import gt06, h02, teltonika, tk103
 
 log = logging.getLogger("assisto.tracker")
 
@@ -45,6 +50,8 @@ MAX_CONN_TOTAL = 5000
 MAX_CONN_PER_IP = 200           # mobile carriers CGNAT many SIMs behind one IP
 READ_CHUNK = 4096
 MAX_BUFFER = 32 * 1024
+# Device alarms worth a push (vibration / displacement are stored, not pushed).
+ALERT_ALARMS = ("sos", "power_cut", "tamper", "low_battery")
 
 
 class Store:
@@ -105,7 +112,6 @@ class Session:
         self.writer = writer
         self.serial = 1
         self.inflight = None          # (cmd_id, sent_monotonic)
-        self.sos = False              # H02: SOS bit seen on the last frame
 
     def next_serial(self):
         self.serial = (self.serial + 1) & 0xFFFF
@@ -180,6 +186,15 @@ class TrackerServer:
         self._buf(tid)["fixes"].append(fix)
         self.buffered += 1
 
+    def add_status(self, tid, **kw):
+        """Merge a status report (no GPS) into the next flush. `alarms`
+        accumulate (a heartbeat-only alarm is never overwritten)."""
+        st = self._buf(tid)["status"]
+        alarms = kw.pop("alarms", None) or []
+        st.update({k: v for k, v in kw.items() if v is not None})
+        if alarms:
+            st["alarms"] = sorted(set(st.get("alarms") or []) | set(alarms))
+
     async def flush(self):
         async with self._flush_lock:
             if not self.buffer:
@@ -235,6 +250,9 @@ class TrackerServer:
             elif s.proto == "h02":
                 wire = h02.server_command(s.imei, text, datetime.now(timezone.utc))
                 flag = 0
+            elif s.proto == "tk103":
+                wire = tk103.server_command(s.imei, text)
+                flag = 0
             else:
                 wire = teltonika.codec12_command(text)
                 flag = 0
@@ -245,12 +263,16 @@ class TrackerServer:
                 continue
             s.inflight = (cmd["id"], time.monotonic())
             await self.store.call(VS.mark_sent, cmd["id"], text, flag)
+            if s.proto == "tk103" and cmd["kind"] == "set_interval":
+                # TK103 never answers "C,<n>s": do not hold the socket for it
+                # (the row ends 'failed / no_reply' after the timeout — honest).
+                s.inflight = None
             sent += 1
         return sent
 
     @staticmethod
     def _command_text(proto, cmd):
-        mod = {"gt06": gt06, "h02": h02}.get(proto, teltonika)
+        mod = {"gt06": gt06, "h02": h02, "tk103": tk103}.get(proto, teltonika)
         if cmd["kind"] in mod.COMMANDS:
             return mod.COMMANDS[cmd["kind"]]
         if cmd["kind"] == "set_interval":
@@ -258,10 +280,10 @@ class TrackerServer:
             return mod.interval_command(p.get("moving_s", 5), p.get("parked_s", 180))
         return None
 
-    async def _reply(self, s, text, ok, flag=None):
+    async def _reply(self, s, text, ok, flag=None, kind=None):
         from core import vehicle_service as VS
         s.inflight = None
-        await self.store.call(VS.mark_reply, s.tracker_id, text, ok, flag)
+        await self.store.call(VS.mark_reply, s.tracker_id, text, ok, flag, kind=kind)
 
     async def _housekeeper(self):
         last_prune = 0.0
@@ -270,6 +292,7 @@ class TrackerServer:
             try:
                 from core import vehicle_service as VS
                 await self.store.call(VS.expire_commands)
+                await self.store.call(VS.sweep_silent)
                 await self.refresh_cfg()
                 if time.monotonic() - last_prune > PRUNE_EVERY_S:
                     last_prune = time.monotonic()
@@ -297,6 +320,8 @@ class TrackerServer:
                 session = await self._gt06(reader, writer, first, ip)
             elif h02.looks_like_h02(first):
                 session = await self._h02(reader, writer, first, ip)
+            elif tk103.looks_like_tk103(first):
+                session = await self._tk103(reader, writer, first, ip)
             elif teltonika.looks_like_imei_frame(first):
                 session = await self._teltonika(reader, writer, first, ip)
             # anything else: not a tracker we speak -> just close
@@ -384,12 +409,18 @@ class TrackerServer:
             self.add_fix(s.tracker_id, pkt["fix"])
         elif k == "status":
             st = pkt["status"]
-            self._buf(s.tracker_id)["status"].update(
-                ignition=st["ignition"], relay_cut=st["relay_cut"])
+            self.add_status(s.tracker_id, ignition=st["ignition"],
+                            relay_cut=st["relay_cut"],
+                            voltage_level=pkt.get("voltage_level"),
+                            battery_v=pkt.get("battery_v"),
+                            alarms=[st["alarm"]] if st.get("alarm") else [])
+        elif k == "info":
+            if pkt.get("ext_voltage_v") is not None:
+                self.add_status(s.tracker_id, ext_voltage_v=pkt["ext_voltage_v"])
         elif k == "alarm":
-            self.add_fix(s.tracker_id, pkt["fix"])
-            if pkt.get("alarm") in ("sos", "power_cut", "tamper", "low_battery"):
-                await self.store.call(_device_alarm, s.tracker_id, pkt["alarm"])
+            fix = dict(pkt["fix"])
+            fix["alarms"] = [pkt["alarm"]] if pkt.get("alarm") in ALERT_ALARMS else []
+            self.add_fix(s.tracker_id, fix)
         elif k == "cmd_reply":
             await self._reply(s, pkt["text"], gt06.reply_ok(pkt["text"]),
                               pkt.get("server_flag"))
@@ -433,15 +464,65 @@ class TrackerServer:
                     continue
                 k = pkt["kind"]
                 if k == "gps":
+                    # alarms are LEVELS here (repeat in every frame); ingest
+                    # alerts on the rising edge only.
                     self.add_fix(s.tracker_id, pkt["fix"])
-                    sos = pkt.get("alarm") == "sos"
-                    if sos and not s.sos:        # the SOS bit repeats in every
-                        await self.store.call(_device_alarm, s.tracker_id, "sos")
-                    s.sos = sos                  # frame: alert on the edge only
                 elif k == "heartbeat":
                     self._buf(s.tracker_id)
                 elif k == "cmd_reply":
                     await self._reply(s, pkt["text"], h02.reply_ok(pkt["text"]))
+                if self.buffered >= BATCH_MAX:
+                    await self.flush()
+            if len(buf) > MAX_BUFFER:
+                return s
+            buf += await self._read(reader)
+
+    # ---- Coban TK103 / GPS103 (text; login "##,imei:..,A;" -> "LOAD")
+    async def _tk103(self, reader, writer, buf, ip):
+        bucket = Bucket(self._c("max_packets_per_min", 240))
+        s = None
+        while True:
+            try:
+                frames, buf = tk103.split_frames(buf)
+            except tk103.FrameError:
+                self.stats["bad_frames"] += 1
+                return s
+            for fr in frames:
+                if not bucket.take():
+                    if bucket.dropped > 3 * self._c("max_packets_per_min", 240):
+                        await self._abuse(s, ip)
+                        return s
+                    continue
+                try:
+                    pkt = tk103.parse_frame(fr)
+                except tk103.FrameError:
+                    self.stats["bad_frames"] += 1
+                    continue
+                self.stats["frames"] += 1
+                if s is None:
+                    tid, _reason = await self._connect(pkt["imei"], "tk103", ip)
+                    if tid is None:
+                        return None          # refused: close, no LOAD
+                    s = self._register("tk103", tid, pkt["imei"], writer)
+                elif pkt["imei"] != s.imei:
+                    self.stats["bad_frames"] += 1     # never switch IMEI mid-socket
+                    continue
+                k = pkt["kind"]
+                if k == "login":
+                    writer.write(tk103.LOGIN_REPLY)
+                elif k == "heartbeat":
+                    self._buf(s.tracker_id)
+                    writer.write(tk103.HEARTBEAT_REPLY)
+                elif k == "gps":
+                    self.add_fix(s.tracker_id, pkt["fix"])
+                elif k == "event":
+                    self.add_status(s.tracker_id, ignition=pkt.get("ignition"),
+                                    alarms=[a for a in pkt.get("alarms") or []
+                                            if a in ALERT_ALARMS])
+                elif k == "cmd_reply":
+                    await self._reply(s, pkt["text"], tk103.reply_ok(pkt["text"]),
+                                      kind=pkt.get("for_kind"))
+                await writer.drain()
                 if self.buffered >= BATCH_MAX:
                     await self.flush()
             if len(buf) > MAX_BUFFER:
@@ -510,14 +591,6 @@ class TrackerServer:
         log.warning("rate limit exceeded, dropping %s", ip)
         if s is not None:
             await self.store.call(_audit_abuse, s.tracker_id, ip)
-
-
-def _device_alarm(tracker_id, alarm):
-    from core.models import VehicleTracker
-    from core import vehicle_service as VS
-    t = VehicleTracker.objects.filter(pk=tracker_id).select_related("owner").first()
-    if t is not None:
-        VS.deliver_alert(t, {"kind": "device_alarm", "alarm": alarm})
 
 
 def _audit_abuse(tracker_id, ip):
