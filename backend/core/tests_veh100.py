@@ -906,3 +906,21 @@ class GT06PowerAlarmEndToEndTests(_Tcp):
         got = [m["message"]["data"].get("alarm") for m in self.fcm.sent_payloads()
                if m["message"]["data"].get("alert") == "device_alarm"]
         self.assertEqual(sorted(got), ["low_battery", "power_cut"])
+
+
+class VehicleCostTests(TestCase):
+    """The 40 % rule table in owner_actions/VEHICLE_100_BN.md comes from here."""
+
+    def test_cost_items_and_margin(self):
+        from core.logic import vehicle_costs as C
+        c = C.month_cost_bdt()
+        self.assertAlmostEqual(c["total"], sum(v for k, v in c.items()
+                                               if k in ("storage", "server", "map_tiles",
+                                                        "egress", "push", "sms")), delta=0.05)
+        self.assertEqual(c["sms"], 0)                     # alerts never use paid SMS
+        self.assertGreater(c["map_tiles"], c["storage"])  # tiles dominate (estimate)
+        self.assertTrue(C.margin(50 * 3.16, c["total"])["ok"])
+        self.assertFalse(C.margin(50 * 0.83, c["total"])["ok"])
+        mp = C.min_price_bdt(c["total"])
+        self.assertTrue(C.margin(mp + 0.01, c["total"])["ok"])
+        self.assertFalse(C.margin(mp - 1, c["total"])["ok"])
