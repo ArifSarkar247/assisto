@@ -39,8 +39,8 @@
     },
     "tg2BalPacksTitle": "SMS packs",
     "tg2BalParts": "One Bangla SMS holds 70 letters (67 per part when the message is longer). English: 160 (153). Each part counts as one SMS.",
-    "tg2BalSoon": "SMS packs are coming soon. They will appear here once Google Play approves them.",
-    "tg2BalSoonShort": "Coming soon",
+    "tg2BalSoon": "SMS packs aren't on sale yet. Until then, send free in Assisto, on WhatsApp or from your own SIM.",
+    "tg2BalSoonShort": "Not on sale yet",
     "tg2BalTitle": "SMS balance",
     "tg2BalTotal": "You can send {n} SMS",
     "@tg2BalTotal": {
@@ -221,7 +221,7 @@
     "tg2PayStepTell": "Tell the shop in chat that you paid — the shop updates its khata.",
     "tg2PayTitle": "How to pay",
     "tg2Rocket": "Rocket",
-    "tg2RouteAssistoNote": "{name} uses Assisto — the reminder arrives in the app, free.",
+    "tg2RouteAssistoNote": "{name} uses Assisto — the reminder goes into the app, free.",
     "@tg2RouteAssistoNote": {
       "placeholders": {
         "name": {
@@ -250,13 +250,13 @@
     "tg2SmsConfirmBody": "Send {name} an SMS from Assisto? It uses {parts} SMS from your balance. Left after this: {left}.",
     "@tg2SmsConfirmBody": {
       "placeholders": {
-        "left": {
-          "type": "String"
-        },
         "name": {
           "type": "String"
         },
         "parts": {
+          "type": "String"
+        },
+        "left": {
           "type": "String"
         }
       }
@@ -293,8 +293,8 @@
     "tg2BalPackRow": "{parts}টি SMS",
     "tg2BalPacksTitle": "SMS প্যাক",
     "tg2BalParts": "একটি বাংলা SMS-এ ৭০ অক্ষর ধরে (বড় মেসেজে প্রতি অংশে ৬৭)। ইংরেজিতে ১৬০ (১৫৩)। প্রতিটি অংশ একটি SMS হিসেবে গোনা হয়।",
-    "tg2BalSoon": "SMS প্যাক শিগগিরই আসছে। Google Play অনুমোদন দিলেই এখানে দেখা যাবে।",
-    "tg2BalSoonShort": "শিগগিরই আসছে",
+    "tg2BalSoon": "SMS প্যাক এখনো বিক্রি হচ্ছে না। ততদিন Assisto, WhatsApp বা নিজের সিম দিয়ে বিনা খরচে পাঠান।",
+    "tg2BalSoonShort": "এখনো বিক্রি নেই",
     "tg2BalTitle": "SMS ব্যালেন্স",
     "tg2BalTotal": "আপনি {n}টি SMS পাঠাতে পারবেন",
     "tg2Block": "এই দোকান ব্লক করুন",

@@ -310,7 +310,7 @@ class _PayCard extends StatelessWidget {
         ok = await launchUrl(
             Uri.parse('https://play.google.com/store/apps/details?id=$pkg'),
             mode: LaunchMode.externalApplication);
-      } catch (_) {} // ok stays false -> honest snackbar
+      } catch (_) {} // best-effort: ok stays false -> honest snackbar
     }
     if (context.mounted) {
       ScaffoldMessenger.maybeOf(context)
@@ -323,7 +323,7 @@ class _PayCard extends StatelessWidget {
   Future<void> _dial(String code) async {
     try {
       await launchUrl(Uri(scheme: 'tel', path: code));
-    } catch (_) {} // the code is printed on the button to dial by hand
+    } catch (_) {} // best-effort: the code is printed on the button to dial by hand
   }
 
   @override
