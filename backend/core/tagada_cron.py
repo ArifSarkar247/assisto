@@ -11,8 +11,9 @@ For every enabled TagadaSchedule whose next_at has come:
   * at most ONE firing per customer per Dhaka day, and at most
     PER_BUSINESS_DAY firings per shop per day (the rest wait for tomorrow
     09:00) — on top of sms_service's own SMS caps;
-  * channel "sms" (the owner chose Assisto SMS) → core/sms_service.send_sms
-    purpose "tagada": credits per segment (refused at 0 credits), STOP
+  * channel "sms" / "assisto" → core/tagada_engine.send (tagada2): a
+    VERIFIED Assisto customer gets it in the app, free; otherwise ("sms")
+    the gateway SMS paid in SMS parts (refused at 0 parts), STOP
     opt-out, caps. If it cannot go (no credits, no gateway, a cap, STOP…)
     the owner gets the push below instead, with the reason;
   * otherwise → a push to the shop OWNER: "time to remind <name> (৳…)".
@@ -75,15 +76,19 @@ def _push_owner(owner, party, bal, s, reason=""):
 
 
 _REASON_BN = {"insufficient_credits": "ক্রেডিট নেই", "sms_not_configured": "SMS গেটওয়ে নেই",
+              "no_balance": "SMS ব্যালান্স নেই", "not_reachable": "গ্রাহককে পাওয়া যাচ্ছে না",
+              "not_assisto_user": "গ্রাহক Assisto-তে নেই",
               "opted_out": "গ্রাহক STOP করেছেন", "bad_phone": "নম্বর ঠিক নেই",
               "phone_daily_cap": "আজকের সীমা শেষ", "business_daily_cap": "আজকের সীমা শেষ",
               "user_daily_cap": "আজকের সীমা শেষ", "global_daily_cap": "আজকের সীমা শেষ",
-              "purpose_off": "SMS বন্ধ", "send_failed": "পাঠানো যায়নি, ক্রেডিট ফেরত"}
+              "purpose_off": "SMS বন্ধ", "send_failed": "পাঠানো যায়নি, SMS ব্যালান্স ফেরত"}
 _REASON_EN = {"insufficient_credits": "no credits", "sms_not_configured": "no SMS gateway",
+              "no_balance": "no SMS balance", "not_reachable": "customer not reachable",
+              "not_assisto_user": "customer not on Assisto",
               "opted_out": "customer sent STOP", "bad_phone": "no valid number",
               "phone_daily_cap": "today's limit", "business_daily_cap": "today's limit",
               "user_daily_cap": "today's limit", "global_daily_cap": "today's limit",
-              "purpose_off": "SMS is off", "send_failed": "failed, credits refunded"}
+              "purpose_off": "SMS is off", "send_failed": "failed, SMS balance given back"}
 
 
 def fire_one(s, now, stats):
@@ -133,21 +138,30 @@ def fire_one(s, now, stats):
         return
 
     result, awaiting = "", True
-    if s.channel == "sms":
+    # tagada2: an automatic schedule ("sms" = Assisto SMS, "assisto" = in-app)
+    # goes through the SEND ORDER: a VERIFIED Assisto customer gets it free in
+    # the app first; only then (channel "sms") the paid gateway SMS, from the
+    # owner's SMS parts. One per customer per day across every channel.
+    if s.channel in ("sms", "assisto"):
         from . import push as P
-        from . import sms_service
+        from . import tagada_engine as TE
         lang = P.user_lang(owner) or "bn"
-        text = khata.tagada_message({"name": party.name}, bal, shop_name=prof.shop_name,
-                                    preset=s.preset or "reminder",
-                                    pay_hint=(s.pay_hint or None), lang=lang)
-        r = sms_service.send_sms(party.phone, text, "tagada", user=owner,
-                                 business=prof, now=now)
-        if r["ok"]:
-            result, awaiting = "sms_sent", False
-            stats["sms_sent"] += 1
+        kw = dict(owner=True, preset=s.preset or "reminder",
+                  pay_hint=(s.pay_hint or None), lang=lang, by=None, now=now)
+        st, body = TE.send(prof, party, channel="assisto", **kw)
+        if s.channel == "sms" and body.get("reason") == "not_assisto_user":
+            st, body = TE.send(prof, party, channel="gateway_sms", **kw)
+        if body.get("ok"):
+            via = body.get("channel")
+            result, awaiting = ("sms_sent" if via == "gateway_sms" else "assisto_sent"), False
+            stats["sms_sent" if via == "gateway_sms" else "assisto_sent"] += 1
+        elif body.get("reason") == "daily_limit":
+            result, awaiting = "already_today", False
+            stats["already_today"] += 1
         else:
-            n = _push_owner(owner, party, bal, s, reason=r["reason"])
-            result = ("sms_%s" % r["reason"])[:40]
+            reason = body.get("reason") or "error"
+            n = _push_owner(owner, party, bal, s, reason=reason)
+            result = ("sms_%s" % reason)[:40]
             stats["sms_refused"] += 1
             stats["push_sent" if n else "push_no_device"] += 1
     else:

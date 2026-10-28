@@ -556,7 +556,8 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     now = now or timezone.now()
     c = c or cfg()
     sku = catalog.sku_for_play(product_id)
-    if not sku.startswith("pack_"):
+    smspack = catalog.is_smspack(sku)       # tagada2: SMS parts, not credits
+    if not (sku.startswith("pack_") or smspack):
         raise PlayError("unknown_product", 400)
     js = get_product(product_id, token, c)
     owner = _owner_for(token, js.get("obfuscatedExternalAccountId", ""), user)
@@ -587,8 +588,13 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
                             purchased_at=now, token_hash=th, owner_ref=pp.owner_ref,
                             credits_planned=int((catalog.describe(sku) or {}).get("credits") or 0),
                             raw={"purchaseType": ptype})
-        granted = E.grant_pack(owner, channel="play", ref=ref_for(token), sku=sku,
-                               amount_bdt=amount, now=now, order=order)
+        if smspack:
+            from .. import sms_wallet
+            granted = sms_wallet.grant_pack(owner, sku, key="play:%s:smspack" % oid,
+                                            ref="play:%s" % (pp.order_id or th[:20]))
+        else:
+            granted = E.grant_pack(owner, channel="play", ref=ref_for(token), sku=sku,
+                                   amount_bdt=amount, now=now, order=order)
         pp.granted = True
         pp.price_bdt = amount
         pp.save(update_fields=["granted", "price_bdt", "updated_at"])
@@ -610,8 +616,12 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     # credout: `consumed` tells the app whether Play still holds the item; when
     # the server-side consume failed the app consumes it itself (the grant is
     # once per token either way) so the same pack can be bought again.
+    out_sms = {}
+    if smspack:
+        from .. import sms_wallet
+        out_sms = {"sms": sms_wallet.state(owner, now)}
     return {"ok": True, "state": "granted", "sku": sku, "granted": granted,
-            "consumed": bool(pp.consumed),
+            "consumed": bool(pp.consumed), **out_sms,
             "credits": int(owner.ai_credits or 0), "user": owner}
 
 

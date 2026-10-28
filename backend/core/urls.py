@@ -8,6 +8,7 @@ from . import views_build61 as b61
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
+from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
@@ -236,6 +237,15 @@ urlpatterns = [
     path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
     path("business/khata/tagada/schedule/<int:pk>", bz.TagadaScheduleDetailView.as_view()),   # ledger100
     path("business/khata/entries/<int:pk>", bz.KhataEntryEditView.as_view()),   # ledger100
+    # tagada2: send order + shop <-> customer chat + invite + SMS parts + My Dues
+    path("business/khata/tagada/send/<int:pk>", tg2.TagadaSendView.as_view()),
+    path("business/khata/parties/<int:pk>/chat", tg2.KhataChatView.as_view()),
+    path("business/khata/parties/<int:pk>/invite", tg2.KhataInviteView.as_view()),
+    path("business/sms/balance", tg2.SmsBalanceView.as_view()),
+    path("me/dues", tg2.MyDuesView.as_view()),
+    path("me/dues/<int:bid>", tg2.MyDuesShopView.as_view()),
+    path("me/dues/<int:bid>/prefs", tg2.MyDuesPrefsView.as_view()),
+    path("me/dues/<int:bid>/chat", tg2.MyDuesChatView.as_view()),
     path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
     path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
     path("business/cashbox/<str:day>/entries", bz.CashboxEntryView.as_view()),

@@ -60,6 +60,11 @@ def targets(cfg=None):
         sku = "pack_" + p["id"]
         if catalog.is_gated(sku):
             out.append((sku, pc["pack_product_prefix"] + p["id"], "", "pack"))
+    # tagada2: the SMS packs (one-time products, same check as a credit pack)
+    from ..logic import tagada_route as TR
+    for n in TR.PACK_PARTS:
+        sku = "%s%d" % (catalog.SMSPACK_PREFIX, n)
+        out.append((sku, catalog.play_product(sku, c)[0], "", "pack"))
     return out
 
 

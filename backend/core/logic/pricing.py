@@ -446,8 +446,15 @@ _SMS_DEFAULTS = {
     "tagada_per_business_day": 200, "tagada_global_day": 5000,
     # safety (SOS / journey / family alerts) — free, strict, company cost
     "safety_per_phone_day": 6, "safety_per_user_day": 20, "safety_global_day": 1000,
+    # tagada2: Assisto-sent tagada SMS are paid in SMS PARTS (core/sms_wallet),
+    # never AI credits. Business plan monthly allowance (proposal, owner
+    # approves — owner_actions/SMS_PACKS_BN.md), the low-balance prompt line,
+    # and the SMS-pack switch (0 = packs NOT sold even when Play verifies them).
+    "business_monthly_parts": 30, "low_balance_parts": 10, "packs_on_sale": 0,
 }
 _SMS_INT_BOUNDS = {
+    "business_monthly_parts": (0, 2000), "low_balance_parts": (0, 500),
+    "packs_on_sale": (0, 1),
     "max_segments": (1, 10),
     "otp_per_phone_day": (0, 50), "otp_per_user_day": (0, 50), "otp_global_day": (0, 100000),
     "verify_per_phone_day": (0, 50), "verify_per_user_day": (0, 50),

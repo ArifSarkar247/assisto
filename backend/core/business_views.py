@@ -1309,38 +1309,32 @@ def _pay_hint(raw):
     return {"method": method, "number": num}
 
 
-def _sms_quote(text):
-    from . import billing, sms_segments
-    from .logic import pricing as P
-    si = sms_segments.info(text)
-    try:
-        per = P.credits_for("sms", 1, billing.cfg())
-        total = P.credits_for("sms", si["segments"], billing.cfg())
-    except Exception:  # noqa: BLE001
-        per, total = 1, si["segments"]
-    return {"segments": si["segments"], "credits": total, "per_segment": per}
-
-
-def _reminder_row(p, bal, prof, preset, pay_hint, lang):
+def _reminder_row(p, bal, prof, preset, pay_hint, lang, role=None, wallet=None):
     text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
                                 preset=preset, pay_hint=pay_hint, lang=lang)
-    q = _sms_quote(text)
-    return {"party_id": p.id, "name": p.name, "phone": p.phone,
-            "phone_ok": bool(khata.bd_msisdn(p.phone)),
-            "balance_poisha": bal, "balance_display": khata.fmt_amount(bal),
-            "message": text, "wa_url": khata.wa_link(p.phone, text),
-            "sms_uri": khata.sms_uri(p.phone, text),
-            "sms_segments": q["segments"], "sms_credits": q["credits"]}
+    from . import sms_segments
+    from . import tagada_engine as TE
+    seg = sms_segments.segments(text)
+    row = {"party_id": p.id, "name": p.name, "phone": p.phone,
+           "phone_ok": bool(khata.bd_msisdn(p.phone)),
+           "balance_poisha": bal, "balance_display": khata.fmt_amount(bal),
+           "message": text, "wa_url": khata.wa_link(p.phone, text),
+           "sms_uri": khata.sms_uri(p.phone, text),
+           # tagada2: Assisto SMS is paid in SMS PARTS (1 part = 1 segment)
+           "sms_segments": seg, "sms_credits": seg}
+    # tagada2: the server-decided send order for this customer
+    f = TE.facts(prof, p, owner=role is None or is_owner(role), text=text, wallet=wallet)
+    row.update(TE.row_fields(prof, p, f))
+    return row
 
 
-def _sms_offer(request, role):
-    """What the Assisto-SMS option looks like for this requester."""
-    from . import sms_service
-    owner = is_owner(role)
-    ready = sms_service.ready()
-    bal = int(getattr(request.user, "ai_credits", 0) or 0) if owner else 0
-    return {"ready": ready, "owner_only": not owner, "available": ready and owner,
-            "balance": bal, "per_segment": _sms_quote("x")["per_segment"]}
+def _sms_offer(request, role, prof=None):
+    """What the Assisto-SMS option looks like for this requester. tagada2:
+    the balance is SMS PARTS (Business allowance + packs), never AI credits."""
+    from . import tagada_engine as TE
+    if prof is None:
+        prof, _ = resolve_business(request)
+    return TE.sms_offer(prof, is_owner(role))
 
 
 class TagadaSingleView(APIView):
@@ -1360,9 +1354,9 @@ class TagadaSingleView(APIView):
             shop_name=prof.shop_name, preset=preset, pay_hint=hint,
             channel=request.data.get("channel", "whatsapp_share"),
             sms_enabled=_sms_enabled(), lang=lang)
-        out = {"plan": plan, "sms": _sms_offer(request, role)}
+        out = {"plan": plan, "sms": _sms_offer(request, role, prof)}
         if plan:
-            row = _reminder_row(p, bal, prof, preset, hint, lang)
+            row = _reminder_row(p, bal, prof, preset, hint, lang, role)
             out.update({"reminder": row, "message": plan["message"],
                         "share": {"whatsapp": {"available": True, "url": row["wa_url"]},
                                   "sms": {"available": bool(row["sms_uri"]),
@@ -1390,12 +1384,15 @@ class TagadaBulkView(APIView):
         bals = _book_balances(prof, khata.CUSTOMER)
         parties = list(qs.order_by("name", "id"))
         rows, reminders, skipped = [], [], []
+        from . import sms_wallet
+        wallet = sms_wallet.state(prof.user) if is_owner(role) and prof.user_id else None
         for p in parties:
             bal = bals.get(p.id, 0)
             rows.append({"party": {"id": p.id, "name": p.name, "phone": p.phone},
                          "balance": bal})
             if bal > max(0, khata.to_poisha(request.data.get("min_due", 0))):
-                reminders.append(_reminder_row(p, bal, prof, preset, hint, lang))
+                reminders.append(_reminder_row(p, bal, prof, preset, hint, lang, role,
+                                               wallet=wallet))
             else:
                 skipped.append({"party_id": p.id, "name": p.name, "reason": "no_due"})
         res = khata.plan_tagada_bulk(
@@ -1404,46 +1401,23 @@ class TagadaBulkView(APIView):
             sms_enabled=_sms_enabled(), lang=lang,
             min_due=request.data.get("min_due", 0))
         res.update({"reminders": reminders, "skipped": skipped,
-                    "sms": _sms_offer(request, role),
+                    "sms": _sms_offer(request, role, prof),
                     "shop_name": prof.shop_name})
         return Response(res)
 
 
 class TagadaSmsSendView(APIView):
     """smsotp: POST business/khata/tagada/sms/<pk> {preset?, pay_hint?} —
-    the SERVER sends the due reminder by SMS (core/sms_service purpose
-    "tagada"): owner only, charged to the owner as credits ("sms" action per
-    segment, refunded on gateway failure), customer STOP opt-out + quiet hours
-    21:00-09:00 + per-customer / per-business / global daily caps. Without a
-    connected gateway → 503 sms_not_configured (use the WhatsApp share)."""
-    _REASONS = {
-        "sms_not_configured": (503, "SMS গেটওয়ে যুক্ত নেই — WhatsApp দিয়ে পাঠান।",
-                               "No SMS gateway yet — send it on WhatsApp."),
-        "insufficient_credits": (402, "ক্রেডিট নেই — SMS পাঠাতে ক্রেডিট লাগে।",
-                                 "Not enough credits — an SMS needs credits."),
-        "opted_out": (409, "এই গ্রাহক মেসেজ বন্ধ করেছেন (STOP)।",
-                      "This customer opted out (STOP)."),
-        "quiet_hours": (409, "রাত ৯টা থেকে সকাল ৯টা SMS পাঠানো হয় না।",
-                        "No SMS between 9 pm and 9 am."),
-        "phone_daily_cap": (429, "এই গ্রাহককে আজ আর SMS পাঠানো যাবে না।",
-                            "No more SMS to this customer today."),
-        "business_daily_cap": (429, "আজকের ব্যবসার SMS সীমা শেষ।",
-                               "Today's business SMS limit is reached."),
-        "user_daily_cap": (429, "আজকের SMS সীমা শেষ।", "Today's SMS limit is reached."),
-        "global_daily_cap": (429, "আজকের SMS সীমা শেষ। কাল আবার চেষ্টা করুন।",
-                             "Today's SMS limit is reached. Try tomorrow."),
-        "purpose_off": (503, "SMS রিমাইন্ডার এখন বন্ধ।", "SMS reminders are off right now."),
-        "bad_phone": (400, "গ্রাহকের সঠিক মোবাইল নম্বর নেই।",
-                      "This customer has no valid mobile number."),
-        "too_long": (400, "মেসেজ বেশি লম্বা।", "The message is too long."),
-        "send_failed": (502, "SMS পাঠানো যায়নি — ক্রেডিট ফেরত দেওয়া হয়েছে।",
-                        "The SMS failed — credits were refunded."),
-        "guard_over": (503, "এখন SMS পাঠানো সাময়িক বন্ধ। কাল আবার চেষ্টা করুন।",
-                       "SMS is paused for now. Try again tomorrow."),
-    }
+    the SERVER sends the due reminder by SMS. tagada2: now the
+    "gateway_sms" step of the send order (core/tagada_engine): owner only,
+    paid in SMS PARTS (Business allowance first, then SMS packs; never AI
+    credits; never sent without balance; parts back on a gateway failure),
+    max 1 tagada per customer per day across every channel, STOP opt-out,
+    quiet hours 21:00-09:00 and the SMS caps. Kept for older app builds; the
+    new screen uses business/khata/tagada/send/<pk>."""
 
     def post(self, request, pk):
-        from . import sms_service
+        from . import tagada_engine as TE
         prof, role, bad = _require_business(request)
         if bad:
             return bad
@@ -1454,32 +1428,22 @@ class TagadaSmsSendView(APIView):
         p = prof.khata_parties.filter(pk=pk, book=khata.CUSTOMER).first()
         if not p:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
-        bal = _party_balance(p)
-        if bal <= 0:
-            return _err(lang, "এই গ্রাহকের কোনো বাকি নেই।", "This customer owes nothing.",
-                        status=400, code="no_due")
-        text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
-                                    preset=request.data.get("preset", "polite"),
-                                    pay_hint=_pay_hint(request.data.get("pay_hint")),
-                                    lang=lang)
-        r = sms_service.send_sms(p.phone, text, "tagada", user=request.user,
-                                 business=prof)
-        request.user.refresh_from_db(fields=["ai_credits"])
-        left = int(getattr(request.user, "ai_credits", 0) or 0)
-        if r["ok"]:
-            return Response({"ok": True, "segments": r["segments"],
-                             "credits": r["credits"], "provider": r["provider"],
-                             "balance": left})
-        st, bn, en = self._REASONS.get(r["reason"], (400, "SMS পাঠানো যায়নি।",
-                                                     "Couldn't send the SMS."))
-        return Response({"ok": False, "reason": r["reason"], "detail": pick(lang, bn, en),
-                         "segments": r["segments"], "balance": left}, status=st)
+        st, body = TE.send(prof, p, channel="gateway_sms", owner=True,
+                           preset=request.data.get("preset", "polite"),
+                           pay_hint=_pay_hint(request.data.get("pay_hint")),
+                           lang=lang, by=request.user)
+        sms = body.get("sms") or TE.sms_offer(prof, True)
+        body.setdefault("segments", body.get("parts", 0))
+        body["credits"] = body.get("parts", 0)
+        body["balance"] = sms["parts_left"]
+        return Response(body, status=st)
 
 
 def _schedule_row(s, bal, lang):
     return {"id": s.id, "party": s.party_id, "party_id": s.party_id,
             "party_name": s.party.name, "preset": s.preset,
-            "channel": s.channel, "mode": "sms" if s.channel == "sms" else "push",
+            "channel": s.channel,
+            "mode": s.channel if s.channel in ("sms", "assisto") else "push",
             "next_at": s.next_at.isoformat(), "next_display": khata.day_label(
                 timezone.localtime(s.next_at).isoformat()),
             "interval_days": s.interval_days, "until_paid": s.until_paid,
@@ -1515,7 +1479,7 @@ class TagadaScheduleView(APIView):
         rows = [_schedule_row(s, bals.get(s.party_id, 0), lang) for s in qs]
         return Response({"schedules": rows,
                          "awaiting": [r for r in rows if r["awaiting_owner"]],
-                         "sms": _sms_offer(request, role)})
+                         "sms": _sms_offer(request, role, prof)})
 
     def post(self, request):
         prof, role, bad = _require_business(request)
@@ -1541,8 +1505,12 @@ class TagadaScheduleView(APIView):
             else timezone.now()
         if nxt < timezone.now() - timedelta(minutes=5):
             nxt = timezone.now()
-        channel = "sms" if request.data.get("channel") in ("sms", "assisto_sms") \
-            else "push"
+        raw_ch = request.data.get("channel")
+        # tagada2: "assisto" = send it in the app (free) when the customer is a
+        # verified Assisto user, else push the owner; "sms" also falls back to
+        # the paid gateway SMS (SMS parts).
+        channel = "sms" if raw_ch in ("sms", "assisto_sms") else \
+            ("assisto" if raw_ch == "assisto" else "push")
         preset = request.data.get("preset") or "reminder"
         if preset not in khata.TAGADA_PRESETS or preset == "thanks":
             preset = "reminder"

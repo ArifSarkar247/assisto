@@ -149,11 +149,15 @@ def _tagada_guard(business, canon, now):
     return None
 
 
-def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None):
+def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None,
+             prepaid=False):
     """Send one SMS for `purpose` (see module doc). Never raises.
     `user` = the person it is for/from (OTP: the account; safety: the user
     raising the alert; tagada: the business owner who pays). `business` =
-    BusinessProfile for tagada (required)."""
+    BusinessProfile for tagada (required). tagada2: `prepaid=True` = the
+    caller already took the SMS PARTS (core/sms_wallet via
+    core/tagada_engine) — no AI credits are charged here; the caller gives
+    the parts back when this returns not ok."""
     from .otp import normalize_bd_phone
     now = now or timezone.now()
     if purpose not in PURPOSES:
@@ -187,7 +191,7 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
         return _out(False, why, segments=si["segments"], encoding=si["encoding"])
 
     credits = 0
-    if purpose == "tagada":
+    if purpose == "tagada" and not prepaid:
         from . import billing
         ch = billing.charge(user, "sms", qty=si["segments"], note="tagada.sms")
         if not ch.get("ok"):
