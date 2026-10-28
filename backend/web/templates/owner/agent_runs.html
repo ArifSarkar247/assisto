@@ -16,6 +16,22 @@
   <div class="tile"><span>{{ T.agr_avg }}</span><b>{{ avg_steps }} / {{ avg_llm }}</b></div>
   <div class="tile"><span>{{ T.agr_feedback }}</span><b>+{{ up }} / −{{ down }}</b></div>
 </div>
+{% if obs %}<div class="card"><b>{{ T.ago_title }}</b><p class="mut small">{{ T.ago_intro }}</p>
+<div class="tiles">
+  <div class="tile"><span>{{ T.ago_fail }}</span><b>{{ obs.failure_pct|default_if_none:"—" }}%</b></div>
+  <div class="tile"><span>{{ T.ago_invalid }}</span><b>{{ obs.invalid_plan_pct|default_if_none:"—" }}%</b></div>
+  <div class="tile"><span>{{ T.ago_plan_ms }}</span><b>{{ obs.plan_p50_ms|default_if_none:"—" }} / {{ obs.plan_p95_ms|default_if_none:"—" }}</b></div>
+  <div class="tile"><span>{{ T.ago_cost_task }}</span><b>{% if obs.cost_per_success_usd is not None %}${{ obs.cost_per_success_usd|floatformat:4 }}{% else %}—{% endif %}</b></div>
+  <div class="tile"><span>{{ T.ago_approvals }}</span><b>{{ obs.approvals.accept_pct|default_if_none:"—" }}% / {{ obs.approvals.reject_pct|default_if_none:"—" }}% / {{ obs.approvals.expire_pct|default_if_none:"—" }}%</b></div>
+</div>
+{% if obs.tools %}<div class="tbl"><table><thead><tr><th>{{ T.agr_tool }}</th><th>{{ T.ago_calls }}</th><th>{{ T.ago_err }}</th><th>p50 ms</th><th>p95 ms</th></tr></thead><tbody>
+{% for t in obs.tools %}<tr><td><code>{{ t.tool }}</code></td><td>{{ t.calls }}</td><td>{{ t.error_pct|default_if_none:"—" }}%</td><td>{{ t.p50_ms|default_if_none:"—" }}</td><td>{{ t.p95_ms|default_if_none:"—" }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+<details><summary class="small">{{ T.ago_thresholds }}</summary>
+<form method="post" action="/owner/agent-runs/thresholds">{% include "owner/_csrf.html" %}
+{% for k, v in obs_cfg %}<p><label><code>{{ k }}</code> <input type="text" name="{{ k }}" value="{{ v }}"></label></p>{% endfor %}
+<p class="mut small">{{ T.ago_thresholds_note }}</p><button class="btn">{{ T.save }}</button></form></details>
+</div>{% endif %}
 {% if topics %}<div class="card tbl"><table><thead><tr><th>{{ T.agr_topic }}</th><th>{{ T.agr_runs }}</th><th>{{ T.agr_success }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th></tr></thead><tbody>
 {% for t in topics %}<tr><td>{{ t.topic|default:"general" }}</td><td>{{ t.n }}</td><td>{{ t.pct }}%</td><td>{{ t.credits|default:0 }}</td><td>${{ t.cost|default:0|floatformat:4 }}</td></tr>{% endfor %}
 </tbody></table></div>{% endif %}

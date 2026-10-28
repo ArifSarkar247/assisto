@@ -59,7 +59,38 @@ def agent_runs(request):
         "avg_steps": round(float(agg["steps"] or 0), 1), "avg_llm": round(float(agg["llm"] or 0), 1),
         "up": agg["up"] or 0, "down": agg["down"] or 0, "topics": topics, "errors": errors,
         "nudges": _nudge_stats(since),
+        "obs": _obs(since), "obs_cfg": _obs_cfg(),
     }, nav="agent_runs")
+
+
+def _obs(since):
+    """AF-8: latency / error / cost / approval numbers (never breaks the page)."""
+    try:
+        from core.agentcore import observability as AO
+        return AO.stats(since)
+    except Exception:
+        return None
+
+
+def _obs_cfg():
+    from core.agentcore import observability as AO
+    return [(k, v) for k, v in AO.cfg().items()]
+
+
+@require_http_methods(["POST"])
+@owner_view()
+def agent_obs_save(request):
+    """AF-8: the owner's alert thresholds (OwnerAudit action agent_obs)."""
+    from core.agentcore import observability as AO
+    from . import security as S
+    from .base import done
+    clean, problems = AO.validate(request.POST)
+    if problems or not clean:
+        S.audit(request, request.owner, "agent_obs", "thresholds", after={"rejected": problems}, ok=False)
+        return done("/owner/agent-runs", "invalid")
+    before, after = AO.save(clean, actor=request.owner)
+    S.audit(request, request.owner, "agent_obs", "thresholds", before=before, after=after)
+    return done("/owner/agent-runs")
 
 
 def _nudge_stats(since):

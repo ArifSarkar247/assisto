@@ -1250,6 +1250,14 @@ urlpatterns += [
     path("agent-core/brief", acn.BriefView.as_view()),
 ]
 # ---- /agent-proactive ----
+
+# ---- af-crisis ---- (AF-3 crisis handover; never flag-gated, free)
+from .agentcore import crisis_views as acc  # noqa: E402
+urlpatterns += [
+    path("crisis/helplines", acc.CrisisHelplinesView.as_view()),
+    path("crisis/family-alert", acc.CrisisFamilyAlertView.as_view()),
+]
+# ---- /af-crisis ----
 # ---- agentmem ---- life-graph memory (WP-MEMORY; flag agent_core, default OFF)
 from .agentcore import memory_views as acm  # noqa: E402
 urlpatterns += [

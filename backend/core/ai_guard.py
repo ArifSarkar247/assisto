@@ -561,3 +561,93 @@ SAFE_FALLBACK_LINE = {
     "bn": "দুঃখিত, এই উত্তরটি নিরাপদভাবে দেওয়া গেল না। অনুগ্রহ করে অন্যভাবে জিজ্ঞেস করুন।",
     "en": "Sorry, I couldn't give that answer safely. Please ask in another way.",
 }
+
+
+# ------------------------------------------------------------------ AF-5 indirect injection
+# Text that ADDRESSES the assistant with an instruction ("SYSTEM: ...", "ignore
+# previous instructions", "Assisto: send ...", "নতুন নির্দেশ: ...") found inside
+# DATA (a customer chat, a note, a catalog name, a document title, a saved fact).
+# Used by Agent Core to (1) taint the run — every later own-data write then
+# needs the user's one-tap approval — and (2) drop a final-answer sentence
+# that relays it. Phishing asks ("share your OTP", "account is blocked, call
+# ...") are dropped from final answers too. PURE.
+_INJ_PARTS = (
+    r"\bignore\s+(?:all\s+|any\s+|the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding|former|other|those)\s+"
+    r"(?:instructions?|rules?|messages?|prompts?|directions?)",
+    r"\bdisregard\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+|earlier\s+)?(?:instructions?|rules?)",
+    r"\bforget\s+(?:all\s+|your\s+|the\s+)(?:previous\s+|prior\s+)?(?:instructions?|rules?)",
+    r"(?<![a-z])system\s*(?:prompt|message|override|note)?\s*:",
+    r"\[\s*system\s*\]",
+    r"\bdeveloper\s+mode\b|\bjailbreak|\bdan\s+mode\b|\bgod\s+mode\b",
+    r"\byou\s+are\s+now\s+(?:an?|in|the|my)\b",
+    r"\bnew\s+instructions?\s*:",
+    r"\b(?:my|the|your)\s+system\s+prompt\b|\bplanner\s+of\s+assisto\b",
+    r"\b(?:assistant|ai|assisto|agent|bot|model|chatgpt|gpt)\s*[,:]\s*(?:please\s+)?(?:send|delete|pay|transfer|reply|"
+    r"forward|share|remember|create|confirm|call|log|set|remove|cancel|forget|tell|reduce|add|export|print|reveal)\b",
+    r"\b(?:send|forward|share|export)\s+(?:all|every|the\s+(?:whole|full|entire))\s+(?:of\s+)?(?:the\s+|my\s+|your\s+)?"
+    r"(?:customers?|contacts?|numbers?|phones?|list|data|records?|khata|ledger|notes?)",
+    r"\b(?:delete|remove|erase|wipe)\s+(?:all|every|everything)\b",
+    r"\b(?:reveal|print|show)\s+(?:me\s+)?(?:your|the)\s+(?:system\s+)?(?:prompt|instructions|rules)\b",
+    r"আগের\s*(?:সব\s*)?(?:নির্দেশ|নিয়ম|কথা)\s*(?:ভুলে|বাদ|উপেক্ষা)",
+    r"(?:নির্দেশ|নিয়ম)(?:গুলো|গুলা)?\s*(?:ভুলে\s*যাও|বাদ\s*দাও|উপেক্ষা\s*করো|মানবে\s*না)",
+    r"নতুন\s*নির্দেশ\s*:|ডেভেলপার\s*মোড",
+    r"সব\s*(?:নোট|ডেটা|তথ্য|মেমরি|গ্রাহক\S*)\s*(?:মুছে|ডিলিট)",
+    r"সব(?:াইকে|\s*গ্রাহককে|\s*কাস্টমারকে)\s*(?:\S+\s*){0,3}?(?:পাঠাও|পাঠিয়ে\s*দাও|মেসেজ\s*দাও|তাগাদা|এসএমএস)",
+    r"\b(?:agher|ager|ager)\s+sob\s+(?:nirdesh|niyom)|\b(?:nirdesh|niyom)\s+bhule\s+jao|\bnotun\s+nirdesh\s*:|"
+    r"\bsob\s+(?:note|memory|data)\s+(?:muche|delete)|\bsobaike\s+(?:\S+\s+){0,3}?(?:pathao|sms|tagada)",
+)
+_PHISH_PARTS = (
+    r"(?<!never )(?<!not )(?<!don't )(?<!dont )(?<!do not )\b(?:share|send|give|tell|provide|enter|type)\s+"
+    r"(?:us\s+|me\s+|them\s+|him\s+|her\s+)?(?:your\s+|the\s+)?(?:otp|pin|password|cvv|verification\s+code)\b",
+    r"\b(?:account|wallet|bkash|nagad|card)\s+(?:is|has\s+been|will\s+be|was)\s+(?:blocked|suspended|closed|locked|frozen)\b",
+    r"(?:ওটিপি|otp|পিন|pin|পাসওয়ার্ড)\s*(?:নম্বর\s*|কোড\s*|টা\s*|টি\s*)?(?:দিন|দাও|জানান|পাঠান|শেয়ার\s*করুন|বলুন)(?!\s*না)",
+    r"অ্যাকাউন্ট\s*(?:বন্ধ|ব্লক)\s*(?:হয়ে\s*(?:যাবে|গেছে)|করা\s*হয়েছে)",
+    r"\b(?:claim|collect)\s+(?:your\s+)?(?:prize|lottery|reward)\b|লটারি\s*জিতেছেন|পুরস্কার\s*(?:পেতে|নিতে)\s*(?:ফোন|কল)",
+    r"\bbit\.ly/|https?://",
+)
+# NFD on both sides (য় / ড় have two Unicode spellings), like toxicity()
+_INJ_RX = re.compile(_ud.normalize("NFD", "|".join(_INJ_PARTS)), re.I)
+_PHISH_RX = re.compile(_ud.normalize("NFD", "|".join(_PHISH_PARTS)), re.I)
+
+
+def _inj_text(text):
+    return re.sub(r"\s+", " ", _ZW.sub("", _ud.normalize("NFD", str(text or ""))))
+
+
+def injection_hits(text):
+    """Instruction-to-the-assistant markers in `text` (empty = none). PURE."""
+    return [m.group(0) for m in _INJ_RX.finditer(_inj_text(text))]
+
+
+def phishing_hits(text):
+    return [m.group(0) for m in _PHISH_RX.finditer(_inj_text(text))]
+
+
+INJECTION_LINE = {
+    "bn": "আপনার তথ্যের ভেতরে এমন লেখা পেয়েছি যা নির্দেশ বা প্রতারণার মতো দেখায় — আমি সেটা মানিনি, "
+          "কিছু পাঠানো বা বদলানো হয়নি।",
+    "en": "I found text inside your data that looks like an instruction or a scam — I did not follow it, "
+          "and nothing was sent or changed.",
+}
+
+
+def scrub_injection_echo(text, goal="", lang="bn"):
+    """-> (clean_text, removed_count). Drops every sentence of a model's final
+    answer that relays an instruction found in data or a phishing ask, unless
+    the user's own goal carries the same words (they asked about it)."""
+    lang = "en" if lang == "en" else "bn"
+    g = _inj_text(goal).lower()
+    kept, removed = [], 0
+    for s in _SENT_SPLIT.split(text or ""):
+        if not s.strip():
+            continue
+        hits = injection_hits(s) + phishing_hits(s)
+        if hits and not all(h.lower() in g for h in hits):
+            removed += 1
+            continue
+        kept.append(s.strip())
+    if not removed:
+        return text, 0
+    out = " ".join(kept).strip()
+    line = INJECTION_LINE[lang]
+    return ((out + "\n\n" + line).strip() if out else line), removed

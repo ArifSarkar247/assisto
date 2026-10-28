@@ -53,9 +53,13 @@ KINDS = {
     "checkin_overdue": {"push": "family_alert", "route": "family/alerts", "urgent": True, "quiet_ok": False},
     "wellness_alert":  {"push": "family_alert", "route": "family/alerts", "urgent": True, "quiet_ok": False},
     "scam_report":     {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    # AF-3: the user tapped "Yes, tell my family" on a crisis card. Rings in
+    # quiet hours (the user asked for help now); carries no category, no words
+    # and no location — only "{name} would like to talk to you right now".
+    "crisis_support":  {"push": "family_alert", "route": "family/alerts", "urgent": True, "quiet_ok": True},
 }
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
-            "wellness_alert": "high", "scam_report": "high"}
+            "wellness_alert": "high", "scam_report": "high", "crisis_support": "high"}
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 

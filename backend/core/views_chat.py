@@ -151,6 +151,16 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
     otherwise (or on any AIUnavailable) falls back to the free, honest Brain.
     Never raises, never returns an empty reply.
     """
+    # AF-3: crisis handover BEFORE any AI call (works with no key, 0 credits):
+    # the calm fixed line + 999 / owner-confirmed helplines + an OFFER to
+    # tell family. Nothing else is answered in this turn.
+    from .agentcore import crisis_guard as CG
+    crisis = CG.detect(text)
+    if crisis["crisis"]:
+        reply, card = CG.respond(user, crisis, lang, surface="chat")
+        return reply, {"source": "crisis", "credits": 0, "crisis": CG.log_detail(crisis),
+                       "cards": [card]}, [card]
+
     # user-data context (deterministic, never fabricated) — reused as the
     # DATA the model may ground on, and as the Brain fallback itself.
     ctx = brain.answer(user, text, lang)

@@ -1,0 +1,25 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_crisis }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.crh_intro }}</p>
+<div class="card"><b>{{ T.crh_shown }}</b> {% for h in shown %}<span class="pill ok">{{ h.number }} · {{ h.label }}</span> {% endfor %}</div>
+<div class="card tbl"><table><thead><tr><th>{{ T.crh_number }}</th><th>{{ T.crh_label }}</th><th>{{ T.crh_status }}</th><th>{{ T.crh_edit }}</th></tr></thead><tbody>
+{% for h in rows %}<tr>
+  <td><b>{{ h.number|default:"—" }}</b><br><small class="mut"><code>{{ h.key }}</code></small></td>
+  <td>{% if lang == 'en' %}{{ h.en }}{% else %}{{ h.bn }}{% endif %}<br><small class="mut">{{ h.categories|join:", " }}</small></td>
+  <td>{% if h.locked %}<span class="pill ok">{{ T.crh_locked }}</span>{% elif h.verified %}<span class="pill ok">{{ T.crh_verified }}</span>{% else %}<span class="pill spons">{{ T.crh_unverified }}</span>{% endif %}<br><small class="mut">{{ h.source }}</small></td>
+  <td>{% if h.locked %}<small class="mut">{{ T.crh_locked_note }}</small>{% else %}
+    <details><summary class="small">{{ T.crh_edit }}</summary>
+    <form method="post" action="/owner/crisis-helplines/{{ h.key }}">{% include "owner/_csrf.html" %}
+      <p><label>{{ T.crh_number }} <input type="text" name="number" value="{{ h.number }}" placeholder="109"></label></p>
+      <p><label>{{ T.crh_label_bn }}<br><input type="text" name="bn" value="{{ h.bn }}"></label></p>
+      <p><label>{{ T.crh_label_en }}<br><input type="text" name="en" value="{{ h.en }}"></label></p>
+      <fieldset><legend>{{ T.crh_cats }}</legend>{% for c in cats %}<label class="small"><input type="checkbox" name="categories" value="{{ c }}" {% if c in h.categories %}checked{% endif %}> {{ c }}</label> {% endfor %}</fieldset>
+      <p><label>{{ T.crh_source }}<br><input type="text" name="source" value="{% if h.source != unverified_note %}{{ h.source }}{% endif %}" placeholder="https://"></label><br><small class="mut">{{ T.crh_source_note }}</small></p>
+      <p><label><input type="checkbox" name="verified" value="1" {% if h.verified %}checked{% endif %}> {{ T.crh_confirm }}</label></p>
+      <button class="btn">{{ T.save }}</button>
+    </form></details>{% endif %}
+  </td></tr>{% endfor %}
+</tbody></table></div>
+{% if log %}<div class="card tbl"><b>{{ T.crh_log }}</b><table><tbody>{% for a in log %}<tr><td>{{ a.created_at|date:"Y-m-d H:i" }}</td><td>{{ a.target }}</td><td>{% if a.ok %}{{ T.crh_saved }}{% else %}{{ T.crh_rejected }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+{% endblock %}
