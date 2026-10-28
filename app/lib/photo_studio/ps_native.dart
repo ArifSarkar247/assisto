@@ -78,7 +78,15 @@ abstract class PhotoNative {
   Future<void> cancel();
 }
 
-class ChannelPhotoNative implements PhotoNative {
+/// photoperf: frees the native parts (ML Kit detector, ONNX Runtime
+/// sessions) when Photo Studio closes or the phone is low on memory. A
+/// separate interface so test fakes of [PhotoNative] stay valid; they are
+/// recreated lazily on the next use.
+abstract class PhotoNativeRelease {
+  Future<void> release();
+}
+
+class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease {
   ChannelPhotoNative();
   static const _ch = MethodChannel('com.assisto/photo_native');
   bool _probed = false;
@@ -236,6 +244,16 @@ class ChannelPhotoNative implements PhotoNative {
   Future<void> cancel() async {
     try {
       await _ch.invokeMethod('cancel');
+    } catch (_) {}
+  }
+
+  /// Only if the studio actually talked to the platform (never wakes ML Kit
+  /// or ORT up just to close them); an older APK without the method = no-op.
+  @override
+  Future<void> release() async {
+    if (!_probed || !Platform.isAndroid || !(_up || _faces)) return;
+    try {
+      await _ch.invokeMethod('release').timeout(const Duration(seconds: 5));
     } catch (_) {}
   }
 }

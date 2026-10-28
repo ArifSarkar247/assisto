@@ -30,14 +30,21 @@ import 'package:path_provider/path_provider.dart';
 
 import 'ps_classic.dart';
 import 'ps_engines.dart';
+import 'ps_export.dart' show MarkPainter;
 import 'ps_model.dart';
 import 'ps_native.dart';
+import 'ps_recipe.dart';
 import 'ps_report.dart';
+import 'ps_session.dart' show PngMeta;
 import 'ps_tools.dart';
 
 /// RGBA image in memory.
 class RgbaImage {
   const RgbaImage(this.rgba, this.w, this.h);
+  RgbaImage._empty()
+      : rgba = Uint8List(0),
+        w = 0,
+        h = 0;
   final Uint8List rgba;
   final int w, h;
   int get long => math.max(w, h);
@@ -51,11 +58,26 @@ abstract class ImageCodecPort {
   Future<Uint8List> encodePng(RgbaImage img);
 }
 
-class UiImageCodec implements ImageCodecPort {
+/// photoperf: a codec that can write a FAST (uncompressed) image for the
+/// interactive proxy versions. Separate so codec fakes stay valid.
+abstract class FastImageCodec {
+  Future<Uint8List> encodeFast(RgbaImage img);
+}
+
+class UiImageCodec implements ImageCodecPort, FastImageCodec {
   const UiImageCodec();
 
   @override
+  Future<Uint8List> encodeFast(RgbaImage img) async => encodeBmp(img.rgba, img.w, img.h);
+
+  @override
   Future<({int w, int h})> size(Uint8List encoded) async {
+    // photoperf: PNG/BMP headers are read directly (a 12 MP PNG was copied
+    // into an engine buffer just to learn its size — several times per pick)
+    if (encoded.length > 3 && (encoded[0] == 0x89 || encoded[0] == 0x42)) {
+      final hs = psHeaderSize(encoded);
+      if (hs != null && hs.w > 0 && hs.h > 0) return hs;
+    }
     final buf = await ui.ImmutableBuffer.fromUint8List(encoded);
     final d = await ui.ImageDescriptor.encoded(buf);
     final r = (w: d.width, h: d.height);
@@ -241,7 +263,48 @@ class PsNoSubject implements Exception {
   const PsNoSubject();
 }
 
-class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
+/// photoperf: the proxy + recipe side of the engine (see ps_recipe.dart).
+/// A separate interface so fakes of [EnhanceEngine] keep working — the
+/// controller falls back to the old full-size behaviour without it.
+abstract class PsProxyEngine {
+  /// The editing copy of [original] (long edge ≤ [maxLong]; the original
+  /// itself when it is small enough).
+  Future<PsProxy> makeProxy(Uint8List original, {required int maxLong});
+
+  /// The recipe step of the last successful [EnhanceEngine.enhance] /
+  /// [PhotoToolEngine.runTool] — null when that result cannot be re-rendered
+  /// at full size (AI upscale, AI restore: they ARE the result).
+  PsStep? get lastStep;
+
+  /// Tools for a photo whose FULL size is [w]×[h] (the proxy may be smaller).
+  Future<ToolsAvailability> toolsAt(int w, int h);
+
+  /// Export: [steps] on the full-resolution [anchor] in a background
+  /// isolate, corner mark from [mark] (null = clean), PNG with the AI note.
+  /// Progress via [PhotoToolEngine.progress] (stage export); cancel stops it.
+  Future<Uint8List> renderExport(Uint8List anchor, List<PsStep> steps,
+      {MarkPainter? mark, String note = '', bool generated = false});
+
+  /// Free what the studio holds natively (ML Kit, ONNX Runtime) and stop a
+  /// running job.
+  Future<void> release();
+}
+
+// Job builders: top-level so the closure sent to the worker isolate only
+// captures plain data (never the engine / platform channels).
+// The pixels travel as TransferableTypedData: one copy into a native
+// buffer, then the caller drops its own (the 12 MP export would otherwise
+// keep a second 48 MB copy alive in the UI isolate for the whole job).
+RecipeOut Function(void Function(int, int)) _stepsJob(
+        TransferableTypedData rgba, int w, int h, List<PsStep> steps) =>
+    (p) => applySteps(rgba.materialize().asUint8List(), w, h, steps, progress: p);
+
+Uint8List Function(void Function(int, int)) _exportJob(TransferableTypedData rgba, int w,
+        int h, List<PsStep> steps, MarkPatch? mark, Uint8List extra) =>
+    (p) => renderRecipePng(rgba.materialize().asUint8List(), w, h, steps,
+        mark: mark, extraChunks: extra, progress: p);
+
+class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngine {
   StudioEnhanceEngine({
     required this.native,
     required this.guard,
@@ -253,10 +316,105 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
     this.blurRunner = isolateBlurRunner,
     this.faceAi = 0.25,
     PsReporter? reporter,
+    PsWorker? worker,
   })  : _downloader = downloader,
         _modelDir = modelDir ?? _defaultModelDir,
-        report = reporter ?? defaultPsReporter {
+        report = reporter ?? defaultPsReporter,
+        // tests that pass the synchronous classic runner also get inline
+        // recipe work (no isolates under fake async)
+        worker = worker ?? PsWorker(inline: identical(runner, syncClassicRunner)) {
     perf = PerfStore(_modelDir);
+  }
+
+  /// photoperf: the background isolate every heavy pixel job runs in.
+  final PsWorker worker;
+  PsStep? _lastStep;
+  @override
+  PsStep? get lastStep => _lastStep;
+
+  /// Last pixel job timings (ms) for the perf report / diagnostics.
+  final Map<String, int> timings = {};
+
+  Future<Uint8List> _encodeOut(RgbaImage img) {
+    final c = codec;
+    return c is FastImageCodec ? (c as FastImageCodec).encodeFast(img) : codec.encodePng(img);
+  }
+
+  Future<RecipeOut> _run(Uint8List rgba, int w, int h, List<PsStep> steps, PsStage stage) async {
+    try {
+      final job = worker.inline
+          ? (void Function(int, int) p) => applySteps(rgba, w, h, steps, progress: p)
+          : _stepsJob(TransferableTypedData.fromList([rgba]), w, h, steps);
+      return await worker.run(job,
+          onProgress: (d, t) => progress?.call(PsProgress(stage, done: d, total: t)));
+    } on PsWorkCancelled {
+      throw const PsCancelled();
+    }
+  }
+
+  @override
+  Future<PsProxy> makeProxy(Uint8List original, {required int maxLong}) async {
+    final sw = Stopwatch()..start();
+    final s = await codec.size(original);
+    if (math.max(s.w, s.h) <= maxLong) return PsProxy.identity(original, s.w, s.h);
+    final img = await codec.decode(original, maxLong: maxLong);
+    final bytes = await _encodeOut(img);
+    timings['proxy_ms'] = sw.elapsedMilliseconds;
+    return PsProxy(bytes: bytes, w: img.w, h: img.h, srcW: s.w, srcH: s.h);
+  }
+
+  @override
+  Future<ToolsAvailability> toolsAt(int w, int h) => _toolsFor((w: w, h: h));
+
+  @override
+  Future<Uint8List> renderExport(Uint8List anchor, List<PsStep> steps,
+      {MarkPainter? mark, String note = '', bool generated = false}) async {
+    _cancelled = false;
+    final sw = Stopwatch()..start();
+    progress?.call(const PsProgress(PsStage.export, done: 0, total: 1000));
+    var img = await codec.decode(anchor);
+    timings['export_decode_ms'] = sw.elapsedMilliseconds;
+    _checkCancel();
+    final out = psStepsSize(img.w, img.h, steps);
+    MarkPatch? patch;
+    if (mark != null) {
+      try {
+        patch = await mark.paint(out.w, out.h);
+      } catch (e) {
+        report(PhotoStudioFailure('export', 'mark:${psErrorCode(e)}', model: model.version));
+        rethrow; // never a free user's file without the corner mark
+      }
+    }
+    final extra = note.isEmpty ? Uint8List(0) : PngMeta.aiChunks(note: note, generated: generated);
+    final w = img.w, h = img.h;
+    final Uint8List Function(void Function(int, int)) job;
+    if (worker.inline) {
+      final rgba = img.rgba;
+      job = (p) => renderRecipePng(rgba, w, h, steps, mark: patch, extraChunks: extra, progress: p);
+    } else {
+      job = _exportJob(TransferableTypedData.fromList([img.rgba]), w, h, steps, patch, extra);
+    }
+    img = RgbaImage._empty(); // the UI isolate keeps no full-size copy
+    try {
+      final png = await worker.run(job,
+          onProgress: (d, t) => progress?.call(PsProgress(PsStage.export, done: d, total: t)));
+      timings['export_ms'] = sw.elapsedMilliseconds;
+      return png;
+    } on PsWorkCancelled {
+      throw const PsCancelled();
+    }
+  }
+
+  @override
+  Future<void> release() async {
+    _cancelled = true;
+    worker.cancel();
+    final n = native;
+    if (n is PhotoNativeRelease) {
+      try {
+        await (n as PhotoNativeRelease).release();
+      } catch (_) {}
+    }
   }
 
   final PhotoNative native;
@@ -334,11 +492,21 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
     }
   }
 
+  bool aiEligibleSize(({int w, int h}) s) => _ai != AiState.notOffered && math.max(s.w, s.h) >= 16;
+
   /// The plan the AI step would use for this photo now (for the honest
   /// "works on a N px copy, about S s" line).
   Future<AiPlan?> aiPlanFor(Uint8List encoded, {int? maxLongEdge}) async {
     try {
-      final s = await codec.size(encoded);
+      return await aiPlanForSize(await codec.size(encoded), maxLongEdge: maxLongEdge);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// photoperf: the same plan from a known size (no second header read).
+  Future<AiPlan?> aiPlanForSize(({int w, int h}) s, {int? maxLongEdge}) async {
+    try {
       await perf.load();
       return AiPlan.of(s.w, s.h,
           maxLongEdge: maxLongEdge,
@@ -402,6 +570,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
   @override
   Future<void> cancel() async {
     _cancelled = true;
+    worker.cancel(); // photoperf: a running pixel job stops NOW (isolate killed)
     try {
       await native.cancel();
     } catch (_) {}
@@ -448,6 +617,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
   @override
   Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) async {
     _cancelled = false;
+    _lastStep = null;
     final sw = Stopwatch()..start();
     var aiUsed = false, aiRejected = false, aiFailed = false;
     var ep = '';
@@ -486,26 +656,41 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
     _checkCancel();
     progress?.call(const PsProgress(PsStage.classic));
     base ??= await codec.decode(encoded, maxLong: req.maxLongEdge);
-    final faces = [
-      for (final x in found ?? const <NativeFace>[])
-        ClassicFace(x.box.x, x.box.y, x.box.w, x.box.h)
-    ];
-    final out = await runner(base.rgba, base.w, base.h, ClassicParams.of(req.strength), faces);
+    final faces = _classicFaces(found);
+    // photoperf: the classical pass runs as a recipe step (its measured
+    // statistics are kept, so the export re-renders the SAME look at full
+    // size); the AI result itself cannot be re-rendered -> no step then.
+    final r = await _run(base.rgba, base.w, base.h,
+        [ClassicStep(ClassicParams.of(req.strength), faces: faces)], PsStage.classic);
     _checkCancel();
-    final png = await codec.encodePng(RgbaImage(out, base.w, base.h));
+    final out = await _encodeOut(RgbaImage(r.rgba, r.w, r.h));
     sw.stop();
+    _lastStep = aiUsed ? null : r.steps.single;
     _last = EnhanceReport(
         aiUsed: aiUsed, aiRejected: aiRejected, aiFailed: aiFailed,
         ms: sw.elapsedMilliseconds, ep: ep);
-    return png;
+    return out;
   }
+
+  static List<ClassicFace> _classicFaces(List<NativeFace>? found) => [
+        for (final x in found ?? const <NativeFace>[])
+          ClassicFace(x.box.x, x.box.y, x.box.w, x.box.h)
+      ];
 
   // ------------------------------------------------------------------ tools
   @override
   Future<ToolsAvailability> tools(Uint8List encoded) async {
     try {
+      return await _toolsFor(await codec.size(encoded));
+    } catch (e) {
+      report(PhotoStudioFailure('tool', psErrorCode(e), model: model.version));
+      return const ToolsAvailability(classic: true);
+    }
+  }
+
+  Future<ToolsAvailability> _toolsFor(({int w, int h}) s) async {
+    try {
       await native.probe();
-      final s = await codec.size(encoded);
       await perf.load();
       final tile = model.tile - 2 * model.pad;
       final up2 = _offered ? UpscalePlan.of(s.w, s.h, 2, tile: tile) : null;
@@ -552,6 +737,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
   @override
   Future<Uint8List> runTool(PsTool tool, Uint8List encoded, {int? maxLongEdge}) async {
     _cancelled = false;
+    _lastStep = null;
     try {
       switch (tool) {
         case PsTool.upscale2x:
@@ -560,9 +746,10 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
         case PsTool.denoise:
         case PsTool.lowLight:
           return await _runClassic(encoded,
-              tool == PsTool.denoise ? ClassicParams.denoiseTool : ClassicParams.lowLightTool);
+              tool == PsTool.denoise ? ClassicParams.denoiseTool : ClassicParams.lowLightTool,
+              maxLongEdge: maxLongEdge);
         case PsTool.bgBlur:
-          return await _runBlur(encoded);
+          return await _runBlur(encoded, maxLongEdge: maxLongEdge);
       }
     } on PsCancelled {
       rethrow;
@@ -598,26 +785,34 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
     return bytes;
   }
 
-  Future<Uint8List> _runClassic(Uint8List encoded, ClassicParams p) async {
+  /// [maxLongEdge]: free users' preview size (photoperf: tools honour it
+  /// like enhance does; the export re-renders the recipe at full size).
+  Future<Uint8List> _runClassic(Uint8List encoded, ClassicParams p, {int? maxLongEdge}) async {
     progress?.call(const PsProgress(PsStage.classic));
+    final sw = Stopwatch()..start();
     List<NativeFace>? found;
     try {
       found = await native.faces(encoded);
     } catch (_) {}
-    final base = await codec.decode(encoded);
-    final faces = [
-      for (final x in found ?? const <NativeFace>[])
-        ClassicFace(x.box.x, x.box.y, x.box.w, x.box.h)
-    ];
-    final out = await runner(base.rgba, base.w, base.h, p, faces);
+    timings['faces_ms'] = sw.elapsedMilliseconds;
+    final base = await codec.decode(encoded, maxLong: maxLongEdge);
+    timings['decode_ms'] = sw.elapsedMilliseconds - timings['faces_ms']!;
+    final t0 = sw.elapsedMilliseconds;
+    final r = await _run(base.rgba, base.w, base.h,
+        [ClassicStep(p, faces: _classicFaces(found))], PsStage.classic);
+    timings['pixels_ms'] = sw.elapsedMilliseconds - t0;
     _checkCancel();
-    return codec.encodePng(RgbaImage(out, base.w, base.h));
+    final t1 = sw.elapsedMilliseconds;
+    final out = await _encodeOut(RgbaImage(r.rgba, r.w, r.h));
+    timings['encode_ms'] = sw.elapsedMilliseconds - t1;
+    _lastStep = r.steps.single;
+    return out;
   }
 
   /// Longest edge the blur composite works at (memory/time bound).
   static const blurMaxLong = 2048;
 
-  Future<Uint8List> _runBlur(Uint8List encoded) async {
+  Future<Uint8List> _runBlur(Uint8List encoded, {int? maxLongEdge}) async {
     if (_segPath == null) throw const PhotoStudioFailure('tool', 'mask_model_missing');
     progress?.call(const PsProgress(PsStage.mask));
     final m = await native.segment(encoded: encoded, modelPath: _segPath!, side: model.segSide);
@@ -642,10 +837,13 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine {
       if (m.mask![cy * m.side + cx] < 160) throw const PsNoSubject();
     }
     progress?.call(const PsProgress(PsStage.classic));
-    final base = await codec.decode(encoded, maxLong: blurMaxLong);
-    final out = await blurRunner(base.rgba, base.w, base.h, m.mask!, m.side, m.side);
+    final cap = maxLongEdge == null ? blurMaxLong : math.min(blurMaxLong, maxLongEdge);
+    final base = await codec.decode(encoded, maxLong: cap);
+    final r = await _run(base.rgba, base.w, base.h, [BlurStep(m.mask!, m.side)], PsStage.classic);
     _checkCancel();
-    return codec.encodePng(RgbaImage(out, base.w, base.h));
+    final out = await _encodeOut(RgbaImage(r.rgba, r.w, r.h));
+    _lastStep = r.steps.single;
+    return out;
   }
 }
 

@@ -71,8 +71,13 @@ class PhotoStudioScreen extends StatefulWidget {
   State<PhotoStudioScreen> createState() => _PhotoStudioScreenState();
 }
 
-class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
+class _PhotoStudioScreenState extends State<PhotoStudioScreen>
+    with WidgetsBindingObserver {
   late final PhotoStudioController _c;
+
+  /// photoperf: every decoded image this screen put in Flutter's image cache
+  /// (evicted when the studio closes or memory runs low).
+  final Set<ImageProvider> _shown = {};
   late final bool _ownsController;
   final _prompt = TextEditingController();
   late final VoiceDictation _voice = VoiceDictation();
@@ -85,6 +90,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PhotoStudioController(widget.deps ??
             PsDeps(backend: ApiPsBackend(context.read<AppState>().api)));
     _c.addListener(_onChange);
+    WidgetsBinding.instance.addObserver(this);
     if (_ownsController) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _c.init();
@@ -108,8 +114,36 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       ..showSnackBar(SnackBar(content: Text(text)));
   }
 
+  /// photoperf: Android says memory is low -> drop our decoded images and
+  /// let the controller free the native models (all come back lazily).
+  @override
+  void didHaveMemoryPressure() {
+    _evictShown();
+    _c.onMemoryPressure();
+  }
+
+  void _evictShown() {
+    for (final p in _shown) {
+      try {
+        p.evict();
+      } catch (_) {}
+    }
+    _shown.clear();
+  }
+
+  /// One cached decode of [bytes] at [cacheWidth] (same provider Image.memory
+  /// would build), remembered for eviction.
+  ImageProvider _provider(Uint8List bytes, int? cacheWidth) {
+    final p = ResizeImage.resizeIfNeeded(cacheWidth, null, MemoryImage(bytes));
+    if (_shown.length > 64) _evictShown();
+    _shown.add(p);
+    return p;
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _evictShown();
     _c.removeListener(_onChange);
     if (_ownsController) _c.dispose();
     _prompt.dispose();
@@ -199,6 +233,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             ? t.d1psStageQueue(fmtInt(context, p.item))
             : t.d1psStageServer,
         PsStage.batch => t.d1psStageBatch(fmtInt(context, p.item), fmtInt(context, p.items)),
+        // photoperf: the full-resolution render after the gate (bar + %)
+        PsStage.export => p.fraction == null
+            ? t.d1psStageClassic
+            : '${t.d1psStageClassic} ${fmtInt(context, (p.fraction! * 100).round())}%',
       };
 
   void _openPlans() => Navigator.of(context)
@@ -656,8 +694,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 child: SizedBox(
                     width: 48,
                     height: 48,
-                    child: Image.memory(_c.batch[i].output ?? _c.batch[i].input,
-                        fit: BoxFit.cover, cacheWidth: 96, gaplessPlayback: true)),
+                    child: Image(
+                        image: _provider(_c.batch[i].output ?? _c.batch[i].input, 96),
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true)),
               ),
               title: Text(t.d1psBatchPhoto(fmtInt(context, i + 1))),
               subtitle: Text(_c.batch[i].status == BatchStatus.skipped ||
@@ -771,15 +811,16 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   // ------------------------------------------------------------------ preview
   Widget _image(Uint8List bytes) {
     final mq = MediaQuery.maybeOf(context);
-    return Image.memory(
-      bytes,
+    return Image(
+      image: _provider(
+          bytes,
+          psPreviewCacheWidth(
+              free: _c.free,
+              previewMaxPx: _c.config.previewMaxPx,
+              screenWidth: mq?.size.width ?? 0,
+              dpr: mq?.devicePixelRatio ?? 0)),
       fit: BoxFit.cover,
       gaplessPlayback: true,
-      cacheWidth: psPreviewCacheWidth(
-          free: _c.free,
-          previewMaxPx: _c.config.previewMaxPx,
-          screenWidth: mq?.size.width ?? 0,
-          dpr: mq?.devicePixelRatio ?? 0),
     );
   }
 
@@ -803,7 +844,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           )
         : s.edited
         ? PhotoCompare(
-            original: _image(s.original.bytes),
+            original: _image(_c.shownBytes(0)),
             adjusted: _c.free
                 ? Stack(fit: StackFit.expand, children: [
                     _image(cur.bytes),
@@ -815,7 +856,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         : ClipRRect(
             borderRadius: BorderRadius.circular(Radii.md),
             child: SizedBox(
-                height: 300, width: double.infinity, child: _image(cur.bytes)),
+                height: 300, width: double.infinity, child: _image(_c.shownBytes(s.index))),
           );
     final fl = _c.currentFaceLock;
     final canReport = s.current.aiEdited && _c.jobForCurrent() != null;
@@ -1336,8 +1377,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 child: SizedBox(
                     width: 44,
                     height: 44,
-                    child: Image.memory(s.versions[i].bytes,
-                        fit: BoxFit.cover, cacheWidth: 96)),
+                    child: Image(
+                        image: _provider(_c.shownBytes(i), 96), fit: BoxFit.cover)),
               ),
               title: Text(i == 0
                   ? t.psVersionOriginal

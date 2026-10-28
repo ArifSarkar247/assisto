@@ -118,6 +118,33 @@ object PhotoNativeChannel {
                             main.post { result.success(r) }
                         }
                     }
+                    // photoperf: Photo Studio closed / memory pressure -> free
+                    // the ML Kit detector and the ONNX Runtime sessions. On the
+                    // worker thread, so it runs AFTER any job still in flight;
+                    // everything is recreated lazily on the next use.
+                    "release" -> {
+                        cancelled.set(true)
+                        worker.execute {
+                            try {
+                                PhotoFaces.close()
+                            } catch (t: Throwable) {
+                            }
+                            try {
+                                OrtRunner.closeCached()
+                            } catch (t: Throwable) {
+                            }
+                            try {
+                                SegRunner.closeCached()
+                            } catch (t: Throwable) {
+                            }
+                            main.post {
+                                try {
+                                    result.success(true)
+                                } catch (t: Throwable) {
+                                }
+                            }
+                        }
+                    }
                     "faces" -> {
                         val path = call.argument<String>("path") ?: ""
                         val ctx = activity.applicationContext
@@ -385,6 +412,13 @@ class SegRunner private constructor(private val session: ai.onnxruntime.OrtSessi
         @Volatile private var cachedKey = ""
 
         @Synchronized
+        fun closeCached() {
+            cached?.close()
+            cached = null
+            cachedKey = ""
+        }
+
+        @Synchronized
         fun get(model: String): SegRunner {
             val key = model + "#" + File(model).length()
             cached?.let { if (cachedKey == key) return it }
@@ -455,6 +489,13 @@ class OrtRunner private constructor(
                     .edit().putString(verdictKey(model), "cpu").apply()
             } catch (t: Throwable) {
             }
+        }
+
+        @Synchronized
+        fun closeCached() {
+            cached?.close()
+            cached = null
+            cachedKey = ""
         }
 
         @Synchronized

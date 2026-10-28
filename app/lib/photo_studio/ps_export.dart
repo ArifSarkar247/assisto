@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'ps_ads.dart';
 import 'ps_backend.dart';
 import 'ps_models.dart';
+import 'ps_recipe.dart' show MarkPatch;
 import 'ps_session.dart';
 
 // =========================================================================
@@ -191,6 +192,67 @@ abstract class ExportRenderer {
       {required bool cornerMark, required String note, bool generated = false});
 }
 
+/// photoperf: the corner mark as a small RGBA patch (same look and place as
+/// [UiExportRenderer]), composited into the full-resolution rows inside the
+/// export isolate — the 12 MP photo never becomes a Flutter image.
+abstract class MarkPainter {
+  Future<MarkPatch?> paint(int w, int h);
+}
+
+class UiMarkPainter implements MarkPainter {
+  const UiMarkPainter({this.markText = 'Edited with Assisto'});
+  final String markText;
+
+  @override
+  Future<MarkPatch?> paint(int w, int h) async {
+    final g = cornerMarkGeometry(w.toDouble(), h.toDouble(), markText);
+    const m = 6.0; // room for the text shadow
+    final left = (g.box.left - m).floorToDouble().clamp(0.0, w.toDouble());
+    final top = (g.box.top - m).floorToDouble().clamp(0.0, h.toDouble());
+    final right = (g.box.right + m).ceilToDouble().clamp(0.0, w.toDouble());
+    final bottom = (g.box.bottom + m).ceilToDouble().clamp(0.0, h.toDouble());
+    final pw = (right - left).toInt(), ph = (bottom - top).toInt();
+    if (pw <= 0 || ph <= 0) return null;
+    final rec = ui.PictureRecorder();
+    final canvas = Canvas(rec)..translate(-left, -top);
+    g.paint(canvas);
+    final pic = rec.endRecording();
+    final img = await pic.toImage(pw, ph);
+    final bd = await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba);
+    img.dispose();
+    pic.dispose();
+    if (bd == null) return null;
+    return MarkPatch(bd.buffer.asUint8List(), left.toInt(), top.toInt(), pw, ph);
+  }
+}
+
+/// Where and how big the corner mark is for a w×h photo (one place for the
+/// renderer and the patch painter).
+({Rect box, void Function(Canvas) paint}) cornerMarkGeometry(double w, double h, String text) {
+  final fs = (w < h ? w : h) * 0.028 + 6;
+  final tp = TextPainter(
+    text: TextSpan(
+        text: text,
+        style: TextStyle(
+            color: const Color(0xF2FFFFFF),
+            fontSize: fs,
+            fontWeight: FontWeight.w600,
+            shadows: const [Shadow(blurRadius: 3, color: Color(0x99000000))])),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  final pad = fs * 0.7;
+  final box = Rect.fromLTWH(w - tp.width - pad * 2.2, h - tp.height - pad * 1.8,
+      tp.width + pad * 1.4, tp.height + pad * 0.9);
+  return (
+    box: box,
+    paint: (Canvas canvas) {
+      canvas.drawRRect(RRect.fromRectAndRadius(box, Radius.circular(fs * 0.5)),
+          Paint()..color = const Color(0x55000000));
+      tp.paint(canvas, Offset(box.left + pad * 0.7, box.top + pad * 0.45));
+    },
+  );
+}
+
 class UiExportRenderer implements ExportRenderer {
   const UiExportRenderer({this.markText = 'Edited with Assisto'});
   final String markText;
@@ -201,34 +263,25 @@ class UiExportRenderer implements ExportRenderer {
     final codec = await ui.instantiateImageCodec(full);
     final frame = await codec.getNextFrame();
     final img = frame.image;
+    if (!cornerMark) {
+      // photoperf: nothing to draw -> encode the decoded image directly (one
+      // full-size native image less than the canvas round-trip)
+      final data = await img.toByteData(format: ui.ImageByteFormat.png);
+      img.dispose();
+      codec.dispose();
+      return PngMeta.markAiEdited(data!.buffer.asUint8List(), note: note, generated: generated);
+    }
     final rec = ui.PictureRecorder();
     final canvas = Canvas(rec);
     canvas.drawImage(img, Offset.zero, Paint());
-    if (cornerMark) {
-      final w = img.width.toDouble(), h = img.height.toDouble();
-      final fs = (w < h ? w : h) * 0.028 + 6;
-      final tp = TextPainter(
-        text: TextSpan(
-            text: markText,
-            style: TextStyle(
-                color: const Color(0xF2FFFFFF),
-                fontSize: fs,
-                fontWeight: FontWeight.w600,
-                shadows: const [Shadow(blurRadius: 3, color: Color(0x99000000))])),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final pad = fs * 0.7;
-      final box = Rect.fromLTWH(w - tp.width - pad * 2.2, h - tp.height - pad * 1.8,
-          tp.width + pad * 1.4, tp.height + pad * 0.9);
-      canvas.drawRRect(RRect.fromRectAndRadius(box, Radius.circular(fs * 0.5)),
-          Paint()..color = const Color(0x55000000));
-      tp.paint(canvas, Offset(box.left + pad * 0.7, box.top + pad * 0.45));
-    }
+    cornerMarkGeometry(img.width.toDouble(), img.height.toDouble(), markText).paint(canvas);
     final pic = rec.endRecording();
     final outImg = await pic.toImage(img.width, img.height);
-    final data = await outImg.toByteData(format: ui.ImageByteFormat.png);
     img.dispose();
+    codec.dispose();
+    final data = await outImg.toByteData(format: ui.ImageByteFormat.png);
     outImg.dispose();
+    pic.dispose();
     final png = data!.buffer.asUint8List();
     return PngMeta.markAiEdited(png, note: note, generated: generated);
   }

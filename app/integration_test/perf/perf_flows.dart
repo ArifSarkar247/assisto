@@ -19,6 +19,7 @@ import 'package:assisto/crypto/key_wiring.dart';
 import 'package:assisto/perf/low_ram.dart';
 import 'package:assisto/photo_studio/ps_backend.dart';
 import 'package:assisto/photo_studio/ps_controller.dart';
+import 'package:assisto/photo_studio/ps_enhance.dart' show StudioEnhanceEngine;
 import 'package:assisto/photo_studio/ps_tools.dart';
 import 'package:assisto/push/push_service.dart' show appNavigatorKey;
 import 'package:assisto/screens/business/bizagent/seller_inbox_screen.dart';
@@ -221,38 +222,19 @@ void registerPerfFlows({List<String>? only}) {
   });
 
   // ------------------------------------------------- 7. Photo Studio + preview
-  perfFlow('p07_photo_studio', '৭. ফটো স্টুডিও', 'Photo Studio open + 12 MP photo + one edit preview',
-      (p) async {
+  // photoperf: pick + one edit run on the editing proxy; the 12 MP export
+  // render (the recipe on the full original, background isolate, PNG) is
+  // timed on its own; memory before / during / after, and after closing.
+  perfFlow('p07_photo_studio', '৭. ফটো স্টুডিও',
+      'Photo Studio open + 12 MP photo + one edit preview + 12 MP export', (p) async {
     final f = p.f;
     final png = await f.tester.runAsync(() => Isolate.run(() => makeTestPng()));
     p.out['photo_bytes'] = png!.length;
-    final c = PhotoStudioController(
-        PsDeps(backend: ApiPsBackend(f.app.api), picker: _FixedPicker(png)));
-    try {
-      await p.pushTimed('studio_open', PhotoStudioScreen(controller: c));
-      final initSw = Stopwatch()..start();
-      await f.net(() => c.init());
-      p.out['studio_init_ms'] = initSw.elapsedMilliseconds;
-      await p.memory('open');
-      // pick = decode + inspect (faces, size, tool list) of the 12 MP photo
-      await p.openTimed('pick_12mp', () async {
-        await f.net(() => c.pick(camera: false));
-      }, sameRoute: true, capSeconds: 30);
-      await p.memory('picked');
-      final tool = [PsTool.lowLight, PsTool.denoise].where(c.tools.has).firstOrNull;
-      if (tool == null) {
-        p.notes.add('no on-device classic tool for this photo (tools=${c.tools.any})');
-      } else {
-        await p.openTimed('edit_${tool.wire}', () async {
-          await f.net(() => c.runTool(tool).timeout(const Duration(seconds: 90)));
-        }, sameRoute: true, capSeconds: 95);
-        p.out['edit_notice'] = '${c.notice}';
-        await p.memory('edited');
-      }
-      await _pop(f);
-    } finally {
-      c.dispose();
-    }
+    await p.memory('before');
+    await _photoStudioRun(p, png);
+    // closed: the studio and its controller are gone (as when the user leaves)
+    await f.pumpFor(const Duration(seconds: 3));
+    await p.memory('closed');
   }, timeout: const Duration(minutes: 8));
 
   // ---------------------------------------------- 8. Business + ledger (500)
@@ -355,4 +337,57 @@ void registerPerfFlows({List<String>? only}) {
     // ignore: avoid_print
     print('PERF_ALL_DONE ${PerfRecorder.I.flows.length}');
   });
+}
+
+/// p07 body: the controller only lives inside this call (so "closed" below
+/// measures the app without it).
+Future<void> _photoStudioRun(PerfFlowCtx p, Uint8List png) async {
+  final f = p.f;
+  final c =
+      PhotoStudioController(PsDeps(backend: ApiPsBackend(f.app.api), picker: _FixedPicker(png)));
+  try {
+    await p.pushTimed('studio_open', PhotoStudioScreen(controller: c));
+    final initSw = Stopwatch()..start();
+    await f.net(() => c.init());
+    p.out['studio_init_ms'] = initSw.elapsedMilliseconds;
+    p.out['interactive_long_px'] = c.interactiveLong;
+    await p.memory('open');
+    // pick = proxy + inspect (size, tool list); faces finish in the background
+    await p.openTimed('pick_12mp', () async {
+      await f.net(() => c.pick(camera: false));
+    }, sameRoute: true, capSeconds: 30);
+    p.out['proxy_px'] = c.proxy == null ? null : '${c.proxy!.w}x${c.proxy!.h}';
+    final faces = c.facesReady;
+    if (faces != null) await f.net(() => faces.timeout(const Duration(seconds: 30)));
+    p.out['pick_timings'] = Map.of(c.timings);
+    await p.memory('picked');
+    final tool = [PsTool.lowLight, PsTool.denoise].where(c.tools.has).firstOrNull;
+    if (tool == null) {
+      p.notes.add('no on-device classic tool for this photo (tools=${c.tools.any})');
+    } else {
+      await p.openTimed('edit_${tool.wire}', () async {
+        await f.net(() => c.runTool(tool).timeout(const Duration(seconds: 90)));
+      }, sameRoute: true, capSeconds: 95);
+      p.out['edit_notice'] = '${c.notice}';
+      final eng = c.deps.engine;
+      if (eng is StudioEnhanceEngine) p.out['edit_timings'] = Map.of(eng.timings);
+      await p.memory('edited');
+      // the export render exactly as Save runs it after the gate
+      final sw = Stopwatch()..start();
+      late Future<int> job;
+      await f.net(() async {
+        job = c.renderExportForPerf(cornerMark: true); // started, not awaited
+      });
+      await f.pumpFor(const Duration(milliseconds: 1500));
+      await p.memory('exporting');
+      final bytes = await f.net(() => job.timeout(const Duration(seconds: 120)));
+      p.out['export_ms'] = sw.elapsedMilliseconds;
+      p.out['export_png_bytes'] = bytes;
+      if (eng is StudioEnhanceEngine) p.out['export_timings'] = Map.of(eng.timings);
+      await p.memory('exported');
+    }
+    await _pop(f);
+  } finally {
+    c.dispose();
+  }
 }

@@ -125,29 +125,37 @@ class PngMeta {
   static const iptcGenerated =
       'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
 
-  /// Insert Software / Comment tEXt and an XMP iTXt (IPTC DigitalSourceType)
-  /// right after IHDR. Returns [png] unchanged if it isn't a PNG.
-  static Uint8List markAiEdited(Uint8List png,
-      {required String note, bool generated = false}) {
-    if (!isPng(png) || png.length < 33) return png;
-    const ihdrEnd = 8 + 25; // sig + IHDR chunk (4 len + 4 type + 13 data + 4 crc)
+  /// The Software / Comment tEXt and XMP iTXt (IPTC DigitalSourceType)
+  /// chunks, ready to insert after IHDR (photoperf: the streaming export
+  /// encoder writes them directly).
+  static Uint8List aiChunks({required String note, bool generated = false}) {
     final xmp = '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF '
         'xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
         '<rdf:Description xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/" '
         'Iptc4xmpExt:DigitalSourceType="${generated ? iptcGenerated : iptcComposite}" '
         'xmlns:xmp="http://ns.adobe.com/xap/1.0/" xmp:CreatorTool="Assisto Photo Studio"/>'
         '</rdf:RDF></x:xmpmeta>';
-    final extra = <int>[
+    return Uint8List.fromList(<int>[
       ..._chunk('tEXt', [...latin1.encode('Software'), 0, ...latin1.encode('Assisto Photo Studio')]),
       ..._chunk('tEXt', [...latin1.encode('Comment'), 0, ...latin1.encode(note)]),
       // iTXt: keyword \0 compression-flag(0) method(0) lang \0 translated \0 text
       ..._chunk('iTXt', [...latin1.encode('XML:com.adobe.xmp'), 0, 0, 0, 0, 0, ...utf8.encode(xmp)]),
-    ];
-    return Uint8List.fromList([
-      ...png.sublist(0, ihdrEnd),
-      ...extra,
-      ...png.sublist(ihdrEnd),
     ]);
+  }
+
+  /// Insert [aiChunks] right after IHDR. Returns [png] unchanged if it isn't
+  /// a PNG. photoperf: copies with typed buffers (the old list spread built
+  /// a List<int> of every byte — ~8x the file size for a 12 MP photo).
+  static Uint8List markAiEdited(Uint8List png,
+      {required String note, bool generated = false}) {
+    if (!isPng(png) || png.length < 33) return png;
+    const ihdrEnd = 8 + 25; // sig + IHDR chunk (4 len + 4 type + 13 data + 4 crc)
+    final extra = aiChunks(note: note, generated: generated);
+    final out = Uint8List(png.length + extra.length);
+    out.setRange(0, ihdrEnd, png);
+    out.setRange(ihdrEnd, ihdrEnd + extra.length, extra);
+    out.setRange(ihdrEnd + extra.length, out.length, png, ihdrEnd);
+    return out;
   }
 
   /// tEXt key/values (for tests and "file info" display).

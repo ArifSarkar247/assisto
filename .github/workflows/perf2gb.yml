@@ -28,7 +28,8 @@ on:
         required: false
         default: ""
   push:
-    branches: ["ci/perf2gb*"]
+    # ci/photoperf*: Photo Studio proxy/export work — 2 GB profile, flow p07 only
+    branches: ["ci/perf2gb*", "ci/photoperf*"]
 
 concurrency:
   group: perf2gb-${{ github.ref }}
@@ -51,7 +52,8 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
           # a push to ci/perf2gb-before* (the baseline) measures only the 2 GB profile
-          dflt = "2gb" if os.environ.get("GITHUB_REF", "").endswith("-before") else "2gb,mid"
+          ref = os.environ.get("GITHUB_REF", "")
+          dflt = "2gb" if (ref.endswith("-before") or "/ci/photoperf" in ref) else "2gb,mid"
           want = [x.strip() for x in (os.environ.get("P") or dflt).split(",") if x.strip()]
           print("profiles=" + json.dumps([w for w in want if w in ("2gb", "mid")] or ["2gb"]))
           PY
@@ -80,7 +82,7 @@ jobs:
       ASSISTO_CI_PG_NAME: assisto_ci
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       PERF_OUT: ${{ github.workspace }}/perf_out
-      PERF_ONLY: ${{ github.event.inputs.only }}
+      PERF_ONLY: ${{ github.event.inputs.only || (contains(github.ref, 'ci/photoperf') && 'p07') || '' }}
     steps:
       - uses: actions/checkout@v4
 

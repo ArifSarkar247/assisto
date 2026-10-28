@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../ads/ad_placements.dart' show AdMoments;
+import '../perf/low_ram.dart' show LowRamTuning;
 import 'ps_ads.dart';
 import 'ps_backend.dart';
 import 'ps_engines.dart';
@@ -12,6 +13,7 @@ import 'ps_enhance.dart';
 import 'ps_export.dart';
 import 'ps_models.dart';
 import 'ps_native.dart';
+import 'ps_recipe.dart';
 import 'ps_report.dart';
 import 'ps_session.dart';
 import 'ps_tools.dart';
@@ -62,6 +64,10 @@ class BatchItem {
   BatchItem(this.input);
   final Uint8List input;
   Uint8List? output;
+
+  /// photoperf: the recipe step of a reduced (free preview) result — the
+  /// export re-renders it at full size. null = [output] is full quality.
+  PsStep? step;
   BatchStatus status = BatchStatus.waiting;
 
   /// For failed/skipped: a PsNotice the screen localises.
@@ -87,6 +93,7 @@ class PsDeps {
     ExportRenderer renderer = const UiExportRenderer(),
     PhotoPicker? picker,
     PsReporter? reporter,
+    MarkPainter mark = const UiMarkPainter(),
   }) {
     final n = native ?? ChannelPhotoNative();
     final g = guard ?? IdentityGuard(landmarks: NativeLandmarks(n));
@@ -103,6 +110,7 @@ class PsDeps {
       sink: sink,
       renderer: renderer,
       picker: picker ?? ImagePickerPhotoPicker(),
+      mark: mark,
     );
   }
   PsDeps._({
@@ -117,6 +125,7 @@ class PsDeps {
     required this.renderer,
     required this.picker,
     required this.reporter,
+    required this.mark,
   });
   final PsBackend backend;
   final PhotoAdBridge ads;
@@ -128,6 +137,10 @@ class PsDeps {
   final ExportSink sink;
   final ExportRenderer renderer;
   final PhotoPicker picker;
+
+  /// photoperf: draws the free users' corner mark for the full-size export
+  /// (composited inside the export isolate).
+  final MarkPainter mark;
 
   /// d1-photo: every Photo Studio failure -> crash-report pipe (non-PII).
   final PsReporter reporter;
@@ -236,6 +249,128 @@ class PhotoStudioController extends ChangeNotifier {
   final Map<int, EditStrength> _versionStrength = {};
 
   bool get free => config.free;
+
+  // ------------------------------------------------------------------ photoperf
+  /// The editing proxy of the current photo (null = none: website photo,
+  /// batch result, or an engine without proxy support -> full-size edits).
+  PsProxy? proxy;
+
+  /// How each version is re-rendered at full size on export (photoperf).
+  final Map<int, _Recipe> _recipeOf = {};
+
+  /// Face detection of the current photo (runs in the background after the
+  /// photo is shown; edits wait for it through the shared native cache).
+  Future<void>? facesReady;
+
+  /// pick / edit / export timings in ms (perf report + diagnostics).
+  final Map<String, int> timings = {};
+
+  /// The phone's RAM as Android reported it (tests override).
+  static ({int ramMb, bool lowRam}) Function() deviceRam =
+      () => (ramMb: LowRamTuning.ramMb, lowRam: LowRamTuning.lowRam);
+
+  PsProxyEngine? get _proxyEngine {
+    final e = deps.engine;
+    return e is PsProxyEngine ? e as PsProxyEngine : null;
+  }
+
+  /// Long edge of every interactive step (proxy; free users never above the
+  /// server's preview size — enhance AND tools).
+  int get interactiveLong {
+    final r = deviceRam();
+    return psInteractiveLong(
+        proxyLong: psProxyLong(ramMb: r.ramMb, lowRam: r.lowRam),
+        free: free,
+        previewMaxPx: config.previewMaxPx);
+  }
+
+  /// What the screen shows for version [i] (the proxy instead of a 12 MP
+  /// original).
+  Uint8List shownBytes(int i) {
+    final s = session;
+    if (s == null) return Uint8List(0);
+    if (i == 0) return proxy?.bytes ?? s.original.bytes;
+    return s.versions[i].bytes;
+  }
+
+  /// The bytes the next interactive step works on (= [shownBytes]).
+  Uint8List _workOf(int i) => shownBytes(i);
+
+  void _newSession() {
+    _recipeOf.clear();
+    _versionStrength.clear();
+    _versionAi.clear();
+    _jobOfVersion.clear();
+    _creditPrice.clear();
+    faceLockOf.clear();
+    proxy = null;
+    facesReady = null;
+  }
+
+  /// Recipe of version [i] (version 0 = the original, nothing applied).
+  _Recipe? _recipeFor(int i) {
+    final s = session;
+    if (s == null) return null;
+    if (i == 0) {
+      if (webImport) return null;
+      final px = proxy;
+      return _Recipe(s.original.bytes, const [], atFull: px == null || px.identity);
+    }
+    return _recipeOf[i];
+  }
+
+  Future<({int w, int h})?> _fullSizeOf(int i) async {
+    final s = session;
+    if (s == null) return null;
+    final px = proxy;
+    if (i == 0 && px != null) return (w: px.srcW, h: px.srcH);
+    final rec = _recipeOf[i];
+    final sb = rec?.sizeBytes;
+    if (i == 0 || rec == null || sb == null) return _sizeOf(s.versions[i].bytes);
+    final a = await _sizeOf(sb);
+    return a == null ? null : psStepsSize(a.w, a.h, rec.steps);
+  }
+
+  /// Full-quality encoded bytes of version [i] (renders the recipe at full
+  /// size when the version is a reduced proxy result). [png] = must be a
+  /// PNG/JPEG (server uploads), not the fast BMP of a proxy version.
+  Future<Uint8List> _fullOf(int i, {bool png = false}) async {
+    final s = session!;
+    final v = s.versions[i];
+    final rec = _recipeFor(i);
+    final pe = _proxyEngine;
+    Uint8List out;
+    if (pe == null || rec == null || rec.atFull || i == 0) {
+      out = i == 0 ? s.original.bytes : v.bytes;
+      if (png && pe != null && _isBmp(out)) out = await pe.renderExport(out, const []);
+      return out;
+    }
+    progress = const PsProgress(PsStage.export, total: 1000);
+    _notify();
+    return pe.renderExport(await rec.anchor(), rec.steps);
+  }
+
+  static bool _isBmp(Uint8List b) => b.length > 2 && b[0] == 0x42 && b[1] == 0x4D;
+
+  Future<PsProxy?> _makeProxy(Uint8List b) async {
+    final pe = _proxyEngine;
+    if (pe == null) return null;
+    try {
+      return await pe.makeProxy(b, maxLong: interactiveLong);
+    } catch (e) {
+      _report('proxy', e); // edits fall back to the full photo (slower, correct)
+      return null;
+    }
+  }
+
+  /// photoperf: the phone is low on memory (Android onTrimMemory via
+  /// Flutter's didHaveMemoryPressure) — free the native models when idle;
+  /// the screen drops its decoded images. Everything comes back lazily.
+  void onMemoryPressure() {
+    if (busy) return;
+    final pe = _proxyEngine;
+    if (pe != null) unawaited(pe.release().catchError((_) {}));
+  }
 
   // ------------------------------------------------------------------ d1-photo
   /// Live progress of the running job (null = nothing running). Real counts
@@ -360,6 +495,16 @@ class PhotoStudioController extends ChangeNotifier {
   void dispose() {
     disposed = true;
     if (secureActive) unawaited(deps.secure.disable());
+    // photoperf: stop a running job, free ML Kit / ONNX Runtime, and let go
+    // of every photo buffer even if something still holds this controller
+    // (2 GB CI run 40603594625: ~115 MB native heap stayed after closing).
+    final pe = _proxyEngine;
+    if (pe != null) unawaited(pe.release().catchError((_) {}));
+    session = null;
+    proxy = null;
+    batch.clear();
+    _recipeOf.clear();
+    facesReady = null;
     super.dispose();
   }
 
@@ -377,33 +522,65 @@ class PhotoStudioController extends ChangeNotifier {
 
   Future<void> pick({required bool camera}) async {
     final b = await deps.picker.pick(camera: camera);
-    if (b == null) return;
+    if (b == null || disposed) return;
+    final sw = Stopwatch()..start();
+    timings.clear();
     webImport = false;
     webLabel = '';
-    session = PhotoSession(b);
+    _newSession();
     refusal = null;
     notice = PsNotice.none;
     facesFound = null;
     lastReport = EnhanceReport.none;
+    // photoperf: the editing proxy first (the 12 MP photo is decoded once,
+    // shrunk; it is never shown or edited at full size)
+    final pe = _proxyEngine;
+    if (pe != null) {
+      busy = true;
+      progress = const PsProgress(PsStage.analyse);
+      _notify();
+    }
+    final px = await _makeProxy(b);
+    timings['proxy_ms'] = sw.elapsedMilliseconds;
+    if (disposed) return;
+    session = PhotoSession(b);
+    proxy = px;
+    if (pe != null) {
+      busy = false;
+      progress = null;
+    }
     _notify();
     await _inspect(b);
+    timings['pick_ms'] = sw.elapsedMilliseconds;
   }
 
   /// p2-photo: ML Kit faces -> "There are people in this photo" switch is
   /// set from what the phone actually sees (the user can still change it);
   /// and is this photo small enough for the AI step?
+  ///
+  /// photoperf: sizes come from the proxy (no second read of the original),
+  /// faces are found on the proxy (boxes are 0..1, landmarks only feed the
+  /// scale-free identity check) and in the BACKGROUND — the photo is usable
+  /// at once; [facesReady] completes when they are known.
   Future<void> _inspect(Uint8List b) async {
     final eng = deps.engine;
+    final px = proxy;
+    final size = px != null ? (w: px.srcW, h: px.srcH) : await _sizeOf(b);
     try {
-      aiEligible = eng is StudioEnhanceEngine ? await eng.aiEligible(b) : false;
+      aiEligible = eng is StudioEnhanceEngine
+          ? (size != null ? eng.aiEligibleSize(size) : await eng.aiEligible(b))
+          : false;
     } catch (_) {
       aiEligible = false;
     }
     // d1-photo: the honest size/time line + tool list for THIS photo
     aiPlan = null;
     if (eng is StudioEnhanceEngine && aiEligible) {
-      aiPlan = await eng.aiPlanFor(b, maxLongEdge: config.free ? config.previewMaxPx : null);
-      final s = await _sizeOf(b);
+      final mx = config.free ? config.previewMaxPx : null;
+      aiPlan = size != null
+          ? await eng.aiPlanForSize(size, maxLongEdge: mx)
+          : await eng.aiPlanFor(b, maxLongEdge: mx);
+      final s = size;
       // the AI step SHRINKS big photos (it works on a copy): off by default
       // there, on by default for small/old photos once the model is here
       if (s != null && aiPlan != null && aiPlan!.targetLong < math.max(s.w, s.h)) {
@@ -412,17 +589,24 @@ class PhotoStudioController extends ChangeNotifier {
         aiOn = true;
       }
     }
-    await _refreshTools(b);
-    if (deps.faces.available) {
-      try {
-        final f = await deps.faces.detect(b);
-        if (identical(session?.original.bytes, b)) {
-          facesFound = f.length;
-          hasPeople = f.isNotEmpty;
-        }
-      } catch (_) {}
-    }
+    await _refreshToolsFor(0);
     _notify();
+    if (deps.faces.available) {
+      final ses = session;
+      final work = _workOf(0);
+      final sw = Stopwatch()..start();
+      facesReady = () async {
+        try {
+          final f = await deps.faces.detect(work);
+          if (!disposed && identical(session, ses)) {
+            facesFound = f.length;
+            hasPeople = f.isNotEmpty;
+            timings['faces_ms'] = sw.elapsedMilliseconds;
+            _notify();
+          }
+        } catch (_) {}
+      }();
+    }
   }
 
   /// w1-webphoto: open a website photo. The shown bytes are the server's
@@ -430,6 +614,7 @@ class PhotoStudioController extends ChangeNotifier {
   /// job, so [export] runs the SAME gate and downloads the clean result only
   /// after it unlocks. Nothing here can export without the gate.
   void loadWebImport(WebPhotoImport imp) {
+    _newSession();
     final s = PhotoSession(imp.preview);
     s.push(PhotoVersion(
         bytes: imp.preview,
@@ -496,8 +681,8 @@ class PhotoStudioController extends ChangeNotifier {
       _report('download', e);
       enhance = enhance.withAi(AiState.failed);
     }
-    final b = session?.current.bytes;
-    if (b != null) await _refreshTools(b);
+    final s = session;
+    if (s != null) await _refreshToolsFor(s.index);
     if (enhance.ai == AiState.failed) _say(PsNotice.aiDownloadFailed);
     _notify();
   }
@@ -529,11 +714,25 @@ class PhotoStudioController extends ChangeNotifier {
       // it cannot move a facial feature, so it needs no identity check. The
       // optional AI step is checked INSIDE the engine (fallback to classical).
       final ai = _aiForRun;
-      final req = EnhanceRequest(strength: strength, ai: ai)
-          .withMaxLongEdge(config.free ? config.previewMaxPx : null);
-      final out = await deps.engine.enhance(s.original.bytes, req);
+      // photoperf: on the proxy (free users: never above the preview size);
+      // engines without proxies keep the old full-size preview
+      final pe = _proxyEngine;
+      final req = EnhanceRequest(strength: strength, ai: ai).withMaxLongEdge(
+          pe != null ? interactiveLong : (config.free ? config.previewMaxPx : null));
+      final sw = Stopwatch()..start();
+      final out = await deps.engine.enhance(pe != null ? _workOf(0) : s.original.bytes, req);
+      timings['enhance_ms'] = sw.elapsedMilliseconds;
       lastReport = deps.engine.lastReport;
+      final step = pe?.lastStep;
+      final base = _recipeFor(0);
       s.push(PhotoVersion(bytes: out, feature: 'enhance_hd', previewOnly: config.free));
+      if (step != null && base != null) {
+        _recipeOf[s.index] = base.then(step);
+      } else if (pe != null && lastReport.aiUsed) {
+        final st = strength, orig = s.original.bytes;
+        _recipeOf[s.index] = _Recipe.lazy(
+            () => deps.engine.enhance(orig, EnhanceRequest(strength: st, ai: true)), orig);
+      }
       _versionStrength[s.index] = strength;
       _versionAi[s.index] = ai && lastReport.aiUsed;
       notice = PsNotice.none;
@@ -565,14 +764,19 @@ class PhotoStudioController extends ChangeNotifier {
     }
   }
 
-  Future<void> _refreshTools(Uint8List b) async {
+  /// Tools for version [i], judged on its FULL size (photoperf: the proxy
+  /// may be smaller — a big photo must not suddenly offer the upscaler).
+  Future<void> _refreshToolsFor(int i) async {
     final te = _tools;
-    if (te == null) {
+    final s = session;
+    if (te == null || s == null) {
       tools = ToolsAvailability.none;
       return;
     }
     try {
-      tools = await te.tools(b);
+      final pe = _proxyEngine;
+      final sz = pe == null ? null : await _fullSizeOf(i);
+      tools = sz != null ? await pe!.toolsAt(sz.w, sz.h) : await te.tools(s.versions[i].bytes);
     } catch (e) {
       _report('tool', e);
       tools = ToolsAvailability.none;
@@ -593,13 +797,34 @@ class PhotoStudioController extends ChangeNotifier {
     progress = const PsProgress(PsStage.analyse);
     _notify();
     try {
-      final out = await _runToolOn(te, tool, s.current.bytes);
+      final sw = Stopwatch()..start();
+      final from = s.index;
+      final pe = _proxyEngine;
+      final rec = _recipeFor(from);
+      // photoperf: AI upscale needs the real pixels (bounded: ≤ 1280 px
+      // sources); every other tool previews on the proxy and is recorded
+      final input = (pe != null && tool.usesAi) ? await _fullOf(from) : _workOf(from);
+      final out = await _runToolOn(te, tool, input,
+          maxLongEdge: pe != null && config.free ? config.previewMaxPx : null);
+      timings['tool_ms'] = sw.elapsedMilliseconds;
+      final step = pe?.lastStep;
+      _Recipe? next;
+      var full = true; // engines without proxies: the result IS full quality
+      if (pe != null) {
+        if (step == null) {
+          next = _Recipe(out, const [], atFull: true); // AI upscale: the result itself
+        } else if (rec != null) {
+          next = rec.then(step);
+          full = rec.atFull;
+        } // else: a tool on a website/cloud preview -> that preview, as before
+      }
       s.push(PhotoVersion(
-          bytes: out, feature: 'enhance_hd', previewOnly: config.free, fullQuality: true,
+          bytes: out, feature: 'enhance_hd', previewOnly: config.free, fullQuality: full,
           aiEdited: tool.usesAi));
+      if (next != null) _recipeOf[s.index] = next;
       _versionAi[s.index] = tool.usesAi;
       notice = PsNotice.none;
-      await _refreshTools(out);
+      await _refreshToolsFor(s.index);
     } on PsCancelled {
       _say(PsNotice.cancelled);
     } on PsIdentityRejected {
@@ -620,7 +845,8 @@ class PhotoStudioController extends ChangeNotifier {
     }
   }
 
-  Future<Uint8List> _runToolOn(PhotoToolEngine te, PsTool tool, Uint8List bytes) async {
+  Future<Uint8List> _runToolOn(PhotoToolEngine te, PsTool tool, Uint8List bytes,
+      {int? maxLongEdge}) async {
     if ((tool.usesAi && tools.needsUpscaleModel) || (tool == PsTool.bgBlur && tools.needsMaskModel)) {
       progress = const PsProgress(PsStage.download);
       _notify();
@@ -630,7 +856,7 @@ class PhotoStudioController extends ChangeNotifier {
       if (tool.usesAi) enhance = enhance.withAi(AiState.ready, progress: 1);
       tools = await te.tools(bytes);
     }
-    return te.runTool(tool, bytes);
+    return te.runTool(tool, bytes, maxLongEdge: tool.usesAi ? null : maxLongEdge);
   }
 
   // ------------------------------------------------------------------ batch
@@ -644,6 +870,13 @@ class PhotoStudioController extends ChangeNotifier {
       ..clear()
       ..addAll(list.take(batchMax).map(BatchItem.new));
     _notify();
+  }
+
+  /// A free user's preview of [b] is smaller than the photo (photoperf).
+  Future<bool> _reduced(Uint8List b) async {
+    if (!config.free || _proxyEngine == null) return false;
+    final sz = await _sizeOf(b);
+    return sz != null && math.max(sz.w, sz.h) > config.previewMaxPx;
   }
 
   void clearBatch() {
@@ -672,11 +905,13 @@ class PhotoStudioController extends ChangeNotifier {
         progress = PsProgress(PsStage.batch, done: i, total: batch.length, item: i + 1, items: batch.length);
         _notify();
         try {
+          final pe = _proxyEngine;
           if (tool == null) {
             it.output = await deps.engine.enhance(
                 it.input,
                 EnhanceRequest(strength: strength, ai: aiOn && enhance.ai == AiState.ready)
                     .withMaxLongEdge(config.free ? config.previewMaxPx : null));
+            it.step = await _reduced(it.input) ? pe?.lastStep : null;
           } else {
             if (te == null) throw const PhotoStudioFailure('batch', 'no_engine');
             final av = await te.tools(it.input);
@@ -686,7 +921,11 @@ class PhotoStudioController extends ChangeNotifier {
               continue;
             }
             tools = av;
-            it.output = await _runToolOn(te, tool, it.input);
+            // photoperf: free users get the preview size here too (the
+            // export re-renders the recorded step at full size)
+            it.output = await _runToolOn(te, tool, it.input,
+                maxLongEdge: pe != null && config.free ? config.previewMaxPx : null);
+            it.step = await _reduced(it.input) ? pe?.lastStep : null;
           }
           it.status = BatchStatus.done;
         } on PsCancelled {
@@ -722,9 +961,13 @@ class PhotoStudioController extends ChangeNotifier {
     final out = it.output;
     if (out == null) return;
     webImport = false;
+    _newSession();
     final s = PhotoSession(it.input);
+    final step = it.step;
     s.push(PhotoVersion(
-        bytes: out, feature: 'enhance_hd', previewOnly: config.free, fullQuality: batchTool != null));
+        bytes: out, feature: 'enhance_hd', previewOnly: config.free,
+        fullQuality: batchTool != null && step == null));
+    if (step != null) _recipeOf[s.index] = _Recipe(it.input, [step], atFull: false);
     if (batchTool == null) {
       _versionStrength[s.index] = strength;
       _versionAi[s.index] = aiOn && enhance.ai == AiState.ready;
@@ -732,7 +975,7 @@ class PhotoStudioController extends ChangeNotifier {
     session = s;
     notice = PsNotice.none;
     _notify();
-    unawaited(_refreshTools(out));
+    unawaited(_refreshToolsFor(s.index));
   }
 
   // ------------------------------------------------------------------ restore (server)
@@ -845,11 +1088,14 @@ class PhotoStudioController extends ChangeNotifier {
           backend: deps.backend, ads: deps.ads, creditsPrice: q.credits?.credits);
       final f = await gate.ensureFunded(cr.job!, ui);
       if (!f.ok) return _gateNotice(f);
+      // photoperf: faces from the proxy (0..1 boxes, cached); the server
+      // gets full-quality pixels (a proxy result is rendered at full size)
       final faces = (s != null && deps.faces.available)
-          ? await deps.faces.detect(s.current.bytes)
+          ? await deps.faces.detect(_workOf(s.index))
           : const <FaceBox>[];
+      final upload = s == null ? null : await _fullOf(s.index, png: true);
       final rr = await deps.backend.run(cr.job!.id,
-          imageB64: s == null ? '' : ApiPsBackend.b64(s.current.bytes),
+          imageB64: upload == null ? '' : ApiPsBackend.b64(upload),
           faceBoxes: faces.map((e) => e.toList()).toList());
       if (!rr.ok || rr.job == null) {
         if (feature.isRestore) {
@@ -957,22 +1203,14 @@ class PhotoStudioController extends ChangeNotifier {
       if (!g.ok || g.grant == null) return _gateNotice(g);
       final grant = g.grant!;
       // full quality only now, after the gate
-      Uint8List? full;
-      if (grant.resultUrl.isNotEmpty) {
-        full = await deps.backend.download(grant.resultUrl);
-      } else if (v.fullQuality) {
-        // d1-photo tool / batch result: already full quality on the phone
-        full = v.bytes;
-      } else {
-        final st = _versionStrength[s.index] ?? strength;
-        full = await deps.engine.enhance(s.original.bytes,
-            EnhanceRequest(strength: st, ai: _versionAi[s.index] ?? false));
-      }
-      if (full == null) return _say(PsNotice.failed);
-      final png = await deps.renderer.render(full,
+      final sw = Stopwatch()..start();
+      final png = await _renderFull(s,
+          resultUrl: grant.resultUrl,
           cornerMark: grant.cornerMark,
           note: grant.aiNote.isEmpty ? 'Edited with Assisto' : grant.aiNote,
           generated: v.feature == 'generate');
+      timings['export_ms'] = sw.elapsedMilliseconds;
+      if (png == null) return _say(PsNotice.failed);
       final name = 'assisto_${DateTime.now().millisecondsSinceEpoch}.png';
       final d = await deps.sink.deliver(kind, png, name);
       // admob: a saved photo is a natural break (Free only, capped, never
@@ -996,6 +1234,61 @@ class PhotoStudioController extends ChangeNotifier {
     } catch (e) {
       _report('export', e);
       _say(PsNotice.failed);
+    } finally {
+      busy = false;
+      progress = null;
+      cancelling = false;
+      _notify();
+    }
+  }
+
+  /// The exported file of the current version (PNG, corner mark, AI note).
+  /// null = nothing to export (download failed).
+  Future<Uint8List?> _renderFull(PhotoSession s,
+      {String resultUrl = '', required bool cornerMark, required String note,
+      bool generated = false}) async {
+    final v = s.current;
+    Uint8List? full;
+    final rec = _recipeOf[s.index];
+    final pe = _proxyEngine;
+    if (resultUrl.isNotEmpty) {
+      full = await deps.backend.download(resultUrl);
+    } else if (v.fullQuality) {
+      // d1-photo tool / batch result: already full quality on the phone
+      full = v.bytes;
+    } else if (pe != null && rec != null && !(_versionAi[s.index] ?? false)) {
+      // photoperf: the recorded recipe on the full-resolution original, in a
+      // background isolate (progress + Cancel), the corner mark composited
+      // there, the PNG written directly — same look as the preview
+      progress = const PsProgress(PsStage.export, total: 1000);
+      _notify();
+      return pe.renderExport(await rec.anchor(), rec.steps,
+          mark: cornerMark ? deps.mark : null, note: note, generated: generated);
+    } else {
+      final st = _versionStrength[s.index] ?? strength;
+      progress = const PsProgress(PsStage.classic);
+      _notify();
+      full = await deps.engine.enhance(s.original.bytes,
+          EnhanceRequest(strength: st, ai: _versionAi[s.index] ?? false));
+    }
+    if (full == null) return null;
+    return deps.renderer.render(full, cornerMark: cornerMark, note: note, generated: generated);
+  }
+
+  /// perf/diagnostics: the export render of the current version exactly as
+  /// [export] runs it after the gate (no gate, no file written). Returns the
+  /// PNG size in bytes (0 = nothing to export).
+  @visibleForTesting
+  Future<int> renderExportForPerf({bool cornerMark = false}) async {
+    final s = session;
+    if (s == null || !s.edited) return 0;
+    busy = true;
+    _notify();
+    final sw = Stopwatch()..start();
+    try {
+      final png = await _renderFull(s, cornerMark: cornerMark, note: 'Edited with Assisto');
+      timings['export_ms'] = sw.elapsedMilliseconds;
+      return png?.length ?? 0;
     } finally {
       busy = false;
       progress = null;
@@ -1076,4 +1369,34 @@ class PhotoStudioController extends ChangeNotifier {
     session?.redo();
     if (!disposed) notifyListeners();
   }
+}
+
+/// photoperf: how one version is rendered at full size — [steps] applied to
+/// [anchor] (the original, or an AI-upscaled result that IS full quality).
+/// [atFull]: the version's own bytes already are full size (small photo:
+/// proxy == original) — no re-render needed.
+class _Recipe {
+  const _Recipe(Uint8List this.anchorBytes, this.steps, {required this.atFull})
+      : anchorFn = null,
+        sizeBytes = anchorBytes;
+
+  /// The anchor is made on demand: an on-device AI enhance, re-run at full
+  /// size exactly as its own export always did — only needed when a tool was
+  /// chained on it. [sizeBytes] (the original) stands for its size.
+  const _Recipe.lazy(Future<Uint8List> Function() this.anchorFn, this.sizeBytes,
+      {this.steps = const []})
+      : anchorBytes = null,
+        atFull = false;
+
+  final Uint8List? anchorBytes;
+  final Future<Uint8List> Function()? anchorFn;
+  final Uint8List? sizeBytes;
+  final List<PsStep> steps;
+  final bool atFull;
+
+  Future<Uint8List> anchor() async => anchorBytes ?? await anchorFn!();
+
+  _Recipe then(PsStep s) => anchorBytes != null
+      ? _Recipe(anchorBytes!, [...steps, s], atFull: atFull)
+      : _Recipe.lazy(anchorFn!, sizeBytes, steps: [...steps, s]);
 }

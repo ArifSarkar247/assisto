@@ -47,6 +47,16 @@ object PhotoFaces {
         return FaceDetection.getClient(opts).also { detector = it }
     }
 
+    /** photoperf: free the detector's native model buffers (recreated lazily). */
+    @Synchronized
+    fun close() {
+        try {
+            detector?.close()
+        } catch (t: Throwable) {
+        }
+        detector = null
+    }
+
     fun detect(ctx: Context, path: String): Map<String, Any?> {
         val b = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(path, b)

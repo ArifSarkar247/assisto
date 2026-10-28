@@ -308,16 +308,24 @@ void boxBlur(Float32List src, Float32List dst, Float32List tmp, int w, int h, in
       acc += src[row + (xi >= w ? w - 1 : xi)] - src[row + (xo < 0 ? 0 : xo)];
     }
   }
-  // vertical: tmp -> dst
-  for (var x = 0; x < w; x++) {
-    var acc = 0.0;
-    for (var k = -r; k <= r; k++) {
-      acc += tmp[(k < 0 ? 0 : (k >= h ? h - 1 : k)) * w + x];
+  // vertical: tmp -> dst. photoperf: row-major with one running sum per
+  // column (was column-by-column, a cache miss on every read of a 4000 px
+  // wide strip). Each column sees the SAME additions in the same order, so
+  // the result is bit-identical to the old loop.
+  final acc = Float64List(w);
+  for (var k = -r; k <= r; k++) {
+    final row = (k < 0 ? 0 : (k >= h ? h - 1 : k)) * w;
+    for (var x = 0; x < w; x++) {
+      acc[x] += tmp[row + x];
     }
-    for (var y = 0; y < h; y++) {
-      dst[y * w + x] = acc / win;
-      final yo = y - r, yi = y + r + 1;
-      acc += tmp[(yi >= h ? h - 1 : yi) * w + x] - tmp[(yo < 0 ? 0 : yo) * w + x];
+  }
+  for (var y = 0; y < h; y++) {
+    final o = y * w;
+    final yo = y - r, yi = y + r + 1;
+    final ri = (yi >= h ? h - 1 : yi) * w, ro = (yo < 0 ? 0 : yo) * w;
+    for (var x = 0; x < w; x++) {
+      dst[o + x] = acc[x] / win;
+      acc[x] += tmp[ri + x] - tmp[ro + x];
     }
   }
 }
@@ -371,9 +379,28 @@ Uint8List enhanceClassic(Uint8List rgba, int w, int h, ClassicParams p,
   return applyPlan(rgba, w, h, p, plan, faces: faces, stripRows: stripRows);
 }
 
+/// photoperf options (all keep the pixels bit-identical to the plain call):
+///  * [out] (rgba.length bytes) receives the result instead of a new buffer;
+///  * [onRows] STREAMS the result: every finished strip (rows y0..y1, RGBA,
+///    only valid during the call) goes to the caller and no full-size output
+///    buffer is allocated — the export encodes rows as they come;
+///  * [rowFrom]/[rowTo] (multiples of [stripRows]) limit the work to a band
+///    (parallel workers split a photo by strips, same strips as one worker);
+///  * [onStrip] reports (rows done, rows total) after each strip.
 Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan plan,
-    {List<ClassicFace> faces = const [], int stripRows = 256}) {
-  final out = Uint8List(rgba.length);
+    {List<ClassicFace> faces = const [],
+    int stripRows = 256,
+    Uint8List? out,
+    void Function(int y0, int y1, Uint8List rows)? onRows,
+    int rowFrom = 0,
+    int? rowTo,
+    void Function(int done, int total)? onStrip}) {
+  assert(out == null || out.length == rgba.length);
+  assert(rowFrom % stripRows == 0);
+  final rowEnd = math.min(h, rowTo ?? h);
+  final Uint8List dst = onRows != null
+      ? Uint8List(math.min(h, stripRows) * w * 4)
+      : (out ?? Uint8List(rgba.length));
   final long = math.max(w, h);
   // filter radii scale with the photo (tuned at ~1000 px long edge)
   final sc = long / 1000.0;
@@ -397,15 +424,28 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
     tone[v] = _toneY(v / 1023.0, plan.lo, plan.hi, plan.gamma);
   }
 
+  // CLAHE column terms (same expressions as the per-pixel code had)
+  final cTx0 = Int32List(w), cTx1 = Int32List(w);
+  final cWx = Float64List(w);
+  for (var x = 0; x < w; x++) {
+    final fx = (x + 0.5) / w * plan.gx - 0.5;
+    cTx0[x] = fx.floor().clamp(0, plan.gx - 1);
+    cTx1[x] = (fx.floor() + 1).clamp(0, plan.gx - 1);
+    cWx[x] = _clamp01(fx - fx.floor());
+  }
+
   final maxRows = math.min(h, stripRows) + 2 * pad;
   final cap = w * maxRows;
+  // photoperf: the box-blur temp is the scratch's own `t` (it was a separate
+  // plane; every pass overwrites it first) and the skin plane only exists
+  // when there is a face — 2 of 11 strip planes less (12 MP: ~12 MB).
   final yP = Float32List(cap), cbP = Float32List(cap), crP = Float32List(cap);
-  final tmp1 = Float32List(cap), tmp2 = Float32List(cap);
-  final skinW = Float32List(cap);
+  final tmp1 = Float32List(cap);
+  final skinW = doSkin ? Float32List(cap) : Float32List(0);
   final s = _Scratch(cap);
 
-  for (var y0 = 0; y0 < h; y0 += stripRows) {
-    final y1 = math.min(h, y0 + stripRows);
+  for (var y0 = rowFrom; y0 < rowEnd; y0 += stripRows) {
+    final y1 = math.min(rowEnd, y0 + stripRows);
     final a0 = math.max(0, y0 - pad), a1 = math.min(h, y1 + pad);
     final sh = a1 - a0;
     final sn = w * sh;
@@ -413,9 +453,9 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
     final cb = Float32List.sublistView(cbP, 0, sn);
     final cr = Float32List.sublistView(crP, 0, sn);
     final t1 = Float32List.sublistView(tmp1, 0, sn);
-    final t2 = Float32List.sublistView(tmp2, 0, sn);
-    final sk = Float32List.sublistView(skinW, 0, sn);
     final sc2 = _Scratch.view(s, sn);
+    final t2 = sc2.t;
+    final sk = doSkin ? Float32List.sublistView(skinW, 0, sn) : skinW;
 
     // ---- 1+2: WB, levels/gamma -> Y Cb Cr (0..1, chroma centred on 0)
     for (var yy = 0; yy < sh; yy++) {
@@ -461,9 +501,9 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
         final wy = _clamp01(fy - fy.floor());
         for (var x = 0; x < w; x++) {
           final i = yy * w + x;
-          final fx = (x + 0.5) / w * gx - 0.5;
-          final tx0 = fx.floor().clamp(0, gx - 1), tx1 = (fx.floor() + 1).clamp(0, gx - 1);
-          final wx = _clamp01(fx - fx.floor());
+          // photoperf: the per-column tile terms are computed once per photo
+          final tx0 = cTx0[x], tx1 = cTx1[x];
+          final wx = cWx[x];
           final v = (yv[i] * 255).round().clamp(0, 255);
           final l00 = plan.luts[(ty0 * gx + tx0) * 256 + v];
           final l01 = plan.luts[(ty0 * gx + tx1) * 256 + v];
@@ -507,8 +547,6 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
         final a = sk[i] * p.skin;
         if (a > 0) yv[i] += (t1[i] - yv[i]) * a;
       }
-    } else {
-      sk.fillRange(0, sn, 0);
     }
 
     // ---- 6: sharpen (unsharp mask with a noise threshold, less on skin)
@@ -525,36 +563,44 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
         } else {
           d = 0;
         }
-        yv[i] += d * p.sharpen * 1.4 * (1 - 0.8 * sk[i]);
+        // no face: the skin weight is 0 -> factor exactly 1.0 (as before)
+        yv[i] += d * p.sharpen * 1.4 * (doSkin ? (1 - 0.8 * sk[i]) : 1.0);
       }
     }
 
     // ---- 7: back to RGB with vibrance; write only the strip's own rows
+    final ob = onRows != null ? y0 * w * 4 : 0; // streamed: strip-relative rows
     for (var yy = y0; yy < y1; yy++) {
       var si = (yy - a0) * w;
-      var oi = yy * w * 4;
+      var ai = yy * w * 4;
+      var oi = ai - ob;
       for (var x = 0; x < w; x++) {
         final y = yv[si];
         var u = cb[si], v = cr[si];
         if (p.vibrance > 0) {
           final sat = math.sqrt(u * u + v * v) * 2.2; // ~0..1
-          final k = 1 + p.vibrance * (1 - _clamp01(sat)) * (1 - sk[si] * 0.7);
+          final k = 1 + p.vibrance * (1 - _clamp01(sat)) * (doSkin ? (1 - sk[si] * 0.7) : 1.0);
           u *= k;
           v *= k;
         }
         final r = y + 1.402 * v;
         final g = y - 0.344136 * u - 0.714136 * v;
         final b = y + 1.772 * u;
-        out[oi] = (_clamp01(r) * 255).round();
-        out[oi + 1] = (_clamp01(g) * 255).round();
-        out[oi + 2] = (_clamp01(b) * 255).round();
-        out[oi + 3] = rgba[oi + 3];
+        dst[oi] = (_clamp01(r) * 255).round();
+        dst[oi + 1] = (_clamp01(g) * 255).round();
+        dst[oi + 2] = (_clamp01(b) * 255).round();
+        dst[oi + 3] = rgba[ai + 3];
         si++;
         oi += 4;
+        ai += 4;
       }
     }
+    if (onRows != null) {
+      onRows(y0, y1, Uint8List.sublistView(dst, 0, (y1 - y0) * w * 4));
+    }
+    onStrip?.call(y1, h);
   }
-  return out;
+  return onRows != null ? Uint8List(0) : dst;
 }
 
 // ---------------------------------------------------------------- metrics

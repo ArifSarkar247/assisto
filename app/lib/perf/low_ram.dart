@@ -41,6 +41,12 @@ class LowRamTuning {
   /// Applied budget (null = default kept or not on Android) — for tests/diag.
   static ImageCacheBudget? applied;
 
+  /// photoperf: what Android reported (0 / false = unknown: not read yet,
+  /// not Android, or the read failed). Photo Studio sizes its editing proxy
+  /// from this.
+  static int ramMb = 0;
+  static bool lowRam = false;
+
   static Future<void> apply({Future<AndroidDeviceInfo> Function()? read}) async {
     if (_done) return;
     _done = true;
@@ -48,6 +54,8 @@ class LowRamTuning {
       if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
       final a = await (read ?? () => DeviceInfoPlugin().androidInfo)()
           .timeout(const Duration(seconds: 3));
+      ramMb = a.physicalRamSize;
+      lowRam = a.isLowRamDevice;
       final b = budgetFor(ramMb: a.physicalRamSize, lowRam: a.isLowRamDevice);
       if (b == null) return;
       final cache = PaintingBinding.instance.imageCache;
@@ -63,5 +71,7 @@ class LowRamTuning {
   static void resetForTest() {
     _done = false;
     applied = null;
+    ramMb = 0;
+    lowRam = false;
   }
 }

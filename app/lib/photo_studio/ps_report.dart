@@ -52,7 +52,8 @@ String psErrorCode(Object? e) {
 }
 
 /// What the busy overlay shows: honest stage + real counts from the engine.
-enum PsStage { download, analyse, ai, mask, classic, server, batch }
+/// photoperf: [export] = the full-resolution render after the gate.
+enum PsStage { download, analyse, ai, mask, classic, server, batch, export }
 
 class PsProgress {
   const PsProgress(this.stage, {this.done = 0, this.total = 0, this.etaMs, this.item = 0, this.items = 0});
