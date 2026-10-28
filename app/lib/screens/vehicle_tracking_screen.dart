@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
+import '../vehicle/veh_setup.dart'; // veh100
 import '../widgets/skeleton.dart';
 import 'car_mode_screen.dart';
 import 'fleet_dashboard_screen.dart';
@@ -271,6 +272,9 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
   final _imei = TextEditingController();
   final _name = TextEditingController();
   String _protocol = 'auto';
+  String _brand = 'auto'; // veh100: brand -> protocol (kVehBrands)
+  String _operator = 'gp';
+  final _sim = TextEditingController();
   int? _vehicleId;
   List<Map<String, dynamic>> _vehicles = [];
   bool _busy = false;
@@ -306,6 +310,8 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
     try {
       final r = await context.read<AppState>().api.vehPair(imei,
           name: _name.text.trim(), vehicleRecordId: _vehicleId, protocol: _protocol);
+      // veh100: remember the tracker SIM so the setup screen can open the SMS
+      // app with each command filled in (stays on this phone only).
       if (mounted) setState(() => _done = r);
     } catch (e) {
       if (mounted) setState(() => _err = vehReasonText(tr, e));
@@ -321,7 +327,15 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
-        child: _done != null ? _doneView(tr, scheme) : _form(tr, scheme),
+        child: _done != null
+            ? VehSetupView(
+                tracker: vehMap(_done!['tracker']),
+                brand: _brand,
+                operator: _operator,
+                simNumber: _sim.text.trim(),
+                onClose: () => Navigator.pop(context, true),
+              )
+            : _form(tr, scheme),
       ),
     );
   }
@@ -370,24 +384,43 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         ),
       ],
       const SizedBox(height: Gap.md),
-      Text(tr.vehProtocolLabel, style: Theme.of(context).textTheme.labelLarge),
+      // veh100: pick the BRAND printed on the box (the protocol follows);
+      // chips wrap at 400 dp / large font (48 dp targets).
+      Text(tr.v100BrandLabel, style: Theme.of(context).textTheme.labelLarge),
       const SizedBox(height: Gap.xs),
-      // e2e-vehicle: 4 protocols no longer fit one segmented row at 400 dp /
-      // large font — chips wrap instead (48 dp targets).
       Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-        for (final p in const ['auto', 'gt06', 'h02', 'teltonika'])
+        for (final b in kVehBrands)
           ChoiceChip(
+            key: ValueKey('veh-brand-${b.$1}'),
             materialTapTargetSize: MaterialTapTargetSize.padded,
-            label: Text(switch (p) {
-              'auto' => tr.qa1VehProtocolAuto,
-              'gt06' => 'GT06',
-              'h02' => 'H02 / Sinotrack',
-              _ => 'Teltonika',
+            label: Text(vehBrandLabel(tr, b.$1)),
+            selected: _brand == b.$1,
+            onSelected: (_) => setState(() {
+              _brand = b.$1;
+              _protocol = b.$2;
             }),
-            selected: _protocol == p,
-            onSelected: (_) => setState(() => _protocol = p),
           ),
       ]),
+      const SizedBox(height: Gap.sm),
+      Text(tr.v100OperatorLabel, style: Theme.of(context).textTheme.labelLarge),
+      const SizedBox(height: Gap.xs),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+        for (final o in kVehOperators)
+          ChoiceChip(
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            label: Text(vehOperatorLabel(o)),
+            selected: _operator == o,
+            onSelected: (_) => setState(() => _operator = o),
+          ),
+      ]),
+      const SizedBox(height: Gap.sm),
+      TextField(
+        controller: _sim,
+        keyboardType: TextInputType.phone,
+        maxLength: 14,
+        decoration: InputDecoration(
+            labelText: tr.v100SimLabel, helperText: tr.v100SimHelp, helperMaxLines: 3),
+      ),
       const SizedBox(height: Gap.md),
       Text(tr.vehMonthlyCost(vehNumStr(context, widget.monthCredits)),
           style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -407,51 +440,4 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
     ]);
   }
 
-  Widget _doneView(AppLocalizations tr, ColorScheme scheme) {
-    final server = vehMap(_done!['server']);
-    final sms = vehMap(server['setup_sms']);
-    final t = vehMap(_done!['tracker']);
-    final proto = '${t['protocol']}';
-    final lines = <String>[
-      if (proto == 'auto' || proto == 'gt06') '${sms['gt06'] ?? ''}',
-      if ((proto == 'auto' || proto == 'h02') && sms['h02'] != null) '${sms['h02']}',
-      if (proto == 'auto' || proto == 'teltonika') '${sms['teltonika'] ?? ''}',
-    ];
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Icon(Icons.timer_rounded, size: 40, color: Brand.warning),
-      const SizedBox(height: Gap.sm),
-      Text(tr.vehPairWaitingTitle,
-          textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: Gap.xs),
-      Text(tr.vehPendingBody(vehTime(context, vehDate(t['pair_expires_at']))),
-          textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
-      const SizedBox(height: Gap.md),
-      Text(tr.vehSetupSmsTitle, style: Theme.of(context).textTheme.labelLarge),
-      for (final l in lines)
-        Card(
-          margin: const EdgeInsets.only(top: Gap.xs),
-          child: ListTile(
-            title: Text(l.trim(),
-                style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
-            trailing: IconButton(
-              tooltip: tr.vehCopy,
-              icon: const Icon(Icons.copy_rounded),
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: l));
-                ScaffoldMessenger.of(context)
-                  ..clearSnackBars()
-                  ..showSnackBar(SnackBar(content: Text(tr.vehCopied)));
-              },
-            ),
-          ),
-        ),
-      const SizedBox(height: Gap.sm),
-      Text(tr.vehSetupSmsNote,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
-      const SizedBox(height: Gap.md),
-      FilledButton(
-          onPressed: () => Navigator.pop(context, true), child: Text(tr.vehDone)),
-    ]);
-  }
 }

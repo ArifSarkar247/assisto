@@ -9,14 +9,22 @@ class GeoPt {
   final double lat, lng;
   final DateTime? at;
   final double speed;
-  const GeoPt(this.lat, this.lng, {this.at, this.speed = 0});
+
+  /// Heading in degrees (0 = north), when the tracker reported one.
+  final double course;
+  const GeoPt(this.lat, this.lng, {this.at, this.speed = 0, this.course = 0});
 }
 
-/// A circle area (geofence) to draw.
+/// A geofence to draw: a circle, or (veh100) a polygon when [points] is set
+/// (the circle then is its rough centre / radius, used by the canvas).
 class GeoFenceView {
   final double lat, lng, radiusM;
   final String name;
-  const GeoFenceView(this.lat, this.lng, this.radiusM, this.name);
+  final List<GeoPt> points;
+  const GeoFenceView(this.lat, this.lng, this.radiusM, this.name,
+      {this.points = const []});
+
+  bool get isPolygon => points.length >= 3;
 }
 
 /// Tile-free route map: draws the 24 h route, start / end, geofences, the

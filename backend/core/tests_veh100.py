@@ -465,13 +465,13 @@ class ReportDriverTests(_Api):
                                    self.day.strftime("%Y-%m"))).data
         self.assertEqual(len(m["days"]), 1)
         self.assertEqual(m["totals"]["trips"], 1)
-        csv_bn = self.client.get(self.u("/report?period=month&format=csv&month=%s" %
+        csv_bn = self.client.get(self.u("/report?period=month&export=csv&month=%s" %
                                         self.day.strftime("%Y-%m")))
         self.assertEqual(csv_bn["Content-Type"], "text/csv; charset=utf-8")
         body = csv_bn.content.decode("utf-8")
         self.assertTrue(body.startswith("﻿তারিখ"))
         self.assertIn("মোট", body)
-        en = self.client.get(self.u("/report?period=day&format=csv&lang=en")).content.decode()
+        en = self.client.get(self.u("/report?period=day&export=csv&lang=en")).content.decode()
         self.assertIn("Distance (km)", en)
         dr = self.client.get("/api/v1/vehicle/drivers/%d/report" % self.drv.id).data
         self.assertEqual(dr["name"], "Karim")
@@ -744,6 +744,17 @@ class ReminderSweepTests(_Api):
         self.assertEqual(st["pushes"], 1)
         self.assertIn("ফিটনেস", self.sent[-1][2])
         self.assertEqual(VehicleReminderClaim.objects.filter(user=self.owner).count(), 5)
+
+    def test_app_shaped_record_is_read(self):
+        """My Vehicles posts {"data": {...}} -> stored nested; still read."""
+        PaCollectionItem.objects.filter(user=self.owner).delete()
+        r = self.client.post("/api/v1/vehicle/records/", {"data": {
+            "name": "Bike", "tax_token_expiry": (self.noon.date() + timedelta(days=2))
+            .isoformat()}}, format="json")
+        self.assertIn(r.status_code, (200, 201), r.content)
+        items = V1.due_items(self.owner, self.noon.date())
+        self.assertEqual([(i["kind"], i["name"], i["stage"]) for i in items],
+                         [("paper", "Bike", 7)])
 
     def test_quiet_hours_and_privacy(self):
         st = V1.sweep_reminders(now=datetime(2026, 10, 28, 22, 0, tzinfo=DHAKA),

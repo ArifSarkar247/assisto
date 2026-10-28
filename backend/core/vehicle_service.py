@@ -550,7 +550,10 @@ def _vehicle_name(tracker):
         return tracker.name
     try:
         if tracker.vehicle_record and isinstance(tracker.vehicle_record.data, dict):
-            return str(tracker.vehicle_record.data.get("name") or "")
+            d = tracker.vehicle_record.data
+            if isinstance(d.get("data"), dict):      # My Vehicles posts {"data": {...}}
+                d = {**d, **d["data"]}
+            return str(d.get("name") or "")
     except Exception:
         pass
     return ""

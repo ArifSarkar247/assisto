@@ -89,6 +89,24 @@ String vehReasonText(AppLocalizations tr, Object e) {
     case 'forbidden':
     case 'not_found':
       return tr.vehErrNoAccess;
+    // veh100
+    case 'few_fixes':
+      return tr.v100ErrFewFixes;
+    case 'feature_off':
+      return tr.v100ErrCutOff;
+    case 'confirm_timeout':
+      return tr.v100ErrConfirmTimeout;
+    case 'bad_confirm':
+    case 'not_pending':
+      return tr.v100ErrConfirmFailed;
+    case 'too_many_links':
+      return tr.v100ErrTooManyLinks;
+    case 'bad_geofence':
+      return tr.v100ErrBadFence;
+    case 'bad_driver':
+      return tr.v100ErrBadDriver;
+    case 'bad_odometer':
+      return tr.v100ErrBadOdometer;
     default:
       return tr.vehErrGeneric;
   }

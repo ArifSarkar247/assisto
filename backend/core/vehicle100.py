@@ -146,6 +146,17 @@ def share_state(token, now=None, count_view=True):
 DRIVERS = "vehicle/drivers"
 
 
+def record_data(item):
+    """A collection row's fields. The My Vehicles screen posts {"data": {...}}
+    and the generic serializer folds that into data["data"] — so read both
+    the flat and the nested shape (nested wins)."""
+    d = item.data if isinstance(getattr(item, "data", None), dict) else {}
+    inner = d.get("data")
+    if isinstance(inner, dict):
+        d = {**{k: v for k, v in d.items() if k != "data"}, **inner}
+    return d
+
+
 def owner_driver(user, driver_id):
     from .models import PaCollectionItem
     try:
@@ -156,8 +167,7 @@ def owner_driver(user, driver_id):
 
 
 def driver_name(item):
-    d = item.data if isinstance(getattr(item, "data", None), dict) else {}
-    return str(d.get("name") or "")[:60]
+    return str(record_data(item).get("name") or "")[:60]
 
 
 def current_shift(tracker):
@@ -384,7 +394,7 @@ def _odometer_for(record, trackers_by_record):
     t = trackers_by_record.get(record.id)
     if t is not None and (t.odometer_m or t.odometer_base_km):
         return t.odometer_km, "tracker"
-    d = record.data if isinstance(record.data, dict) else {}
+    d = record_data(record)
     try:
         v = float(d.get("odometer_km"))
         return v, "manual"
@@ -408,7 +418,7 @@ def due_items(user, today, trackers_by_record=None):
             owner=user, vehicle_record__isnull=False)}
     out = []
     for rec in PaCollectionItem.objects.filter(user=user, collection=RECORDS)[:100]:
-        d = rec.data if isinstance(rec.data, dict) else {}
+        d = record_data(rec)
         name = str(d.get("name") or "")[:40]
         for k in VT.PAPER_KEYS:
             exp = _parse_date(d.get(k))
@@ -440,7 +450,7 @@ def due_items(user, today, trackers_by_record=None):
                         "km_left": res["km_left"], "by": res["by"],
                         "odometer_source": src, "record_id": rec.id})
     for drv in PaCollectionItem.objects.filter(user=user, collection=DRIVERS)[:100]:
-        d = drv.data if isinstance(drv.data, dict) else {}
+        d = record_data(drv)
         exp = _parse_date(d.get("licence_expiry"))
         if exp is None:
             continue

@@ -17,6 +17,9 @@ import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
 import 'vehicle_obd_screen.dart';
 import 'vehicle_tracker_settings_screen.dart';
+import 'vehicle_report_screen.dart'; // veh100
+import 'vehicle_drivers_screen.dart'; // veh100
+import '../vehicle/veh_share_sheet.dart'; // veh100
 import '../services/action_feedback.dart'; // db1
 
 /// ONE tracker: live position, animated 24 h route playback, trips / stops /
@@ -51,8 +54,19 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
   void initState() {
     super.initState();
     _load();
-    // Foreground-only refresh while this screen is open (no background work).
-    _poll = Timer.periodic(const Duration(seconds: 15), (_) => _refreshLive());
+    _schedulePoll();
+  }
+
+  /// Foreground-only refresh while this screen is open (no background work):
+  /// every 8 s while the vehicle moves (the marker glides between fixes),
+  /// every 20 s while it stands still — fewer requests, same freshness.
+  void _schedulePoll() {
+    _poll?.cancel();
+    final moving = vehMap(_t?['live'])['moving'] == true;
+    _poll = Timer(Duration(seconds: moving ? 8 : 20), () async {
+      await _refreshLive();
+      if (mounted) _schedulePoll();
+    });
   }
 
   @override
@@ -98,6 +112,20 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       }
     } catch (_) {}
   }
+
+  /// The live point with its heading (the marker points where it drives).
+  GeoPt? _livePt(Map<String, dynamic> t) {
+    final live = vehMap(t['live']);
+    final lat = vehNum(live['lat']), lng = vehNum(live['lng']);
+    if (lat == null || lng == null) return null;
+    return GeoPt(lat, lng,
+        speed: vehNum(live['speed_kmh']) ?? 0,
+        course: vehNum(live['course']) ?? 0,
+        at: vehDate(live['at']));
+  }
+
+  int _limit(Map<String, dynamic> t) =>
+      vehInt(vehMap(t['settings'])['speed_limit_kmh']) ?? 0;
 
   List<GeoPt> get _points => vehList(_route['points'])
       .map((p) => GeoPt(vehNum(p['lat']) ?? 0, vehNum(p['lng']) ?? 0,
@@ -222,11 +250,28 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final pin = await guard.askPin(context, tr);
     if (pin == null || pin.isEmpty || !mounted) return;
     setState(() => _sending = true);
+    final api = context.read<AppState>().api;
     try {
-      final r = await context
-          .read<AppState>()
-          .api
-          .vehSendCommand(widget.trackerId, kind, pin);
+      var r = await api.vehSendCommand(widget.trackerId, kind, pin);
+      final token = r['confirm_token'];
+      if (token is String && token.isNotEmpty) {
+        // veh100: the SECOND confirmation (the server re-checks that the
+        // vehicle is still standing still before anything is sent).
+        if (mounted) setState(() => _sending = false);
+        final cid = vehInt(vehMap(r['command'])['id']) ?? 0;
+        final go2 = mounted ? await _finalConfirm(tr) : false;
+        if (!mounted) return;
+        if (go2 != true) {
+          try {
+            await api.vehCancel(cid);
+          } catch (_) {}
+          _snack(tr.v100CutNotSent);
+          _refreshLive();
+          return;
+        }
+        setState(() => _sending = true);
+        r = await api.vehConfirmCommand(cid, token);
+      }
       final state = '${vehMap(r['command'])['state']}';
       _snack(state == 'awaiting_approval' ? tr.vehCmdAwaitingApproval : tr.vehCmdQueued);
     } catch (e) {
@@ -234,6 +279,23 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     }
     if (mounted) setState(() => _sending = false);
     _refreshLive();
+  }
+
+  /// Final check, shown AFTER the PIN: what the tracker reports right now and
+  /// a 60-second window. Default focus is "Do not cut".
+  Future<bool?> _finalConfirm(AppLocalizations tr) {
+    final t = _t ?? const {};
+    final live = vehMap(t['live']);
+    final speed = vehNum(live['speed_kmh']) ?? 0;
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => _CutFinalDialog(
+        tr: tr,
+        speedText: tr.vehKmh(vehNumStr(context, speed)),
+        fixAgo: vehAgo(context, tr, vehDate(live['at'])),
+      ),
+    );
   }
 
   Future<void> _cancelCommand(int id) async {
@@ -325,6 +387,8 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       _mapCard(tr, scheme, t),
                       const SizedBox(height: Gap.md),
                       _summaryCard(tr, scheme),
+                      const SizedBox(height: Gap.md),
+                      _moreCard(tr, scheme, t),
                       const SizedBox(height: Gap.md),
                       if (vehMap(t['access'])['command'] == true) ...[
                         _engineCard(tr, scheme, t),
@@ -455,7 +519,12 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final lat = vehNum(live['lat']), lng = vehNum(live['lng']);
     final fences = vehList(vehMap(t['settings'])['geofences'])
         .map((f) => GeoFenceView(vehNum(f['lat']) ?? 0, vehNum(f['lng']) ?? 0,
-            vehNum(f['radius_m']) ?? 300, '${f['name'] ?? ''}'))
+                vehNum(f['radius_m']) ?? 300, '${f['name'] ?? ''}',
+                points: [
+                  for (final p in (f['points'] is List ? f['points'] as List : const []))
+                    if (p is List && p.length >= 2)
+                      GeoPt(vehNum(p[0]) ?? 0, vehNum(p[1]) ?? 0),
+                ]))
         .toList();
     final playAt = (_playIdx != null && pts.isNotEmpty)
         ? pts[_playIdx!.clamp(0, pts.length - 1)]
@@ -474,9 +543,11 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               config: _mapCfg,
               route: pts,
               plannedRoute: _planned(t),
-              live: (lat != null && lng != null) ? GeoPt(lat, lng) : null,
+              live: (lat != null && lng != null) ? _livePt(t) : null,
               playIndex: _playIdx,
               fences: fences,
+              speedColours: true,
+              speedLimitKmh: _limit(t),
               semanticsLabel: tr.vehMapSemantics(vehNumStr(context, km, decimals: 1)),
               emptyLabel: tr.vehNoRoute,
             ),
@@ -513,14 +584,30 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               ),
             ),
           ]),
+          // veh100: the timeline — start / end of the 24 h route under the
+          // scrubber, the moment + speed of the playback marker above it.
+          if (pts.length >= 2)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
+              child: Row(children: [
+                Text(vehTime(context, pts.first.at),
+                    style: AType.bodySmall.copyWith(
+                        color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                const Spacer(),
+                Text(vehTime(context, pts.last.at),
+                    style: AType.bodySmall.copyWith(
+                        color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+              ]),
+            ),
           if (playAt != null)
             Text(
               tr.vehPlaybackAt(vehTime(context, playAt.at),
                   tr.vehKmh(vehNumStr(context, playAt.speed))),
               style: TextStyle(color: scheme.onSurfaceVariant),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+          if (pts.length >= 2) _speedLegend(tr, scheme, _limit(t)),
           if (t['is_owner'] == true) ...[
             const SizedBox(height: Gap.sm),
             if (_planned(t).length >= 2) ...[
@@ -634,6 +721,76 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     }
   }
 
+  /// veh100: colour key for the speed-coloured route.
+  Widget _speedLegend(AppLocalizations tr, ColorScheme scheme, int limit) {
+    final lim = limit > 0 ? limit : 80;
+    Widget chip(Color c, String label) => Row(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 14, height: 6, decoration: BoxDecoration(
+              color: c, borderRadius: BorderRadius.circular(3))),
+          const SizedBox(width: Gap.xs),
+          Flexible(child: Text(label, style: AType.bodySmall)),
+        ]);
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Semantics(
+        container: true,
+        label: tr.v100LegendA11y(vehNumStr(context, lim)),
+        child: ExcludeSemantics(
+          child: Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
+            chip(Brand.blue, tr.v100LegendCalm),
+            chip(Brand.warning, tr.v100LegendNear),
+            chip(scheme.error, tr.v100LegendOver(vehNumStr(context, lim))),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  /// veh100: share live location (owner), daily / monthly report, driver.
+  Widget _moreCard(AppLocalizations tr, ColorScheme scheme, Map<String, dynamic> t) {
+    final owner = t['is_owner'] == true;
+    final drv = vehMap(t['driver']);
+    final drvName = '${drv['driver_name'] ?? ''}'.trim();
+    Widget tile(Key key, IconData icon, String title, String sub, VoidCallback onTap) =>
+        ListTile(
+          key: key,
+          minVerticalPadding: Gap.sm,
+          leading: Icon(icon, color: scheme.primary),
+          title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+          subtitle: Text(sub, maxLines: 3, overflow: TextOverflow.ellipsis),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: onTap,
+        );
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Column(children: [
+        if (owner)
+          tile(const ValueKey('veh-share'), Icons.share_location_rounded, tr.v100ShareTitle,
+              tr.v100ShareSub, () async {
+            await showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              showDragHandle: true,
+              builder: (_) => VehShareSheet(trackerId: widget.trackerId,
+                  paired: '${t['state']}' == 'paired'),
+            );
+          }),
+        tile(const ValueKey('veh-report'), Icons.insights_rounded, tr.v100ReportTitle,
+            tr.v100ReportSub, () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => VehicleReportScreen(
+                    trackerId: widget.trackerId, name: '${t['name'] ?? ''}')))),
+        tile(const ValueKey('veh-driver'), Icons.badge_rounded, tr.v100DriverTitle,
+            drvName.isEmpty ? tr.v100DriverNone : tr.v100DriverNow(drvName), () async {
+          await Navigator.push(context, MaterialPageRoute(
+              builder: (_) => VehicleDriversScreen(
+                  trackerId: widget.trackerId, canAssign: owner,
+                  currentDriverId: vehInt(drv['driver_id']))));
+          if (mounted) _refreshLive();
+        }),
+      ]),
+    );
+  }
+
   Widget _engineCard(AppLocalizations tr, ColorScheme scheme, Map<String, dynamic> t) {
     final cut = t['relay_cut'] == true;
     final pending = _commands.any((c) =>
@@ -661,15 +818,31 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.xs),
           Text(tr.vehEngineRules,
               style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+          const SizedBox(height: Gap.xs),
+          // veh100: honest safety + legal note, always visible
+          Text(tr.v100CutSafetyNote,
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+          if (t['engine_cut_enabled'] != true) ...[
+            const SizedBox(height: Gap.sm),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.info_outline_rounded, color: scheme.primary),
+              const SizedBox(width: Gap.sm),
+              Expanded(child: Text(tr.v100ErrCutOff, style: const TextStyle(height: 1.35))),
+            ]),
+          ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                  backgroundColor: scheme.error, foregroundColor: scheme.onError),
-              onPressed: (_sending || pending) ? null : () => _command('engine_cut'),
-              icon: const Icon(Icons.block_rounded),
-              label: Text(tr.vehCutCta),
-            ),
+            if (t['engine_cut_enabled'] == true)
+              FilledButton.icon(
+                key: const ValueKey('veh-cut'),
+                style: FilledButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError),
+                onPressed: (_sending || pending) ? null : () => _command('engine_cut'),
+                icon: const Icon(Icons.block_rounded),
+                label: Text(tr.vehCutCta),
+              ),
             OutlinedButton.icon(
               onPressed: (_sending || pending) ? null : () => _command('engine_restore'),
               icon: const Icon(Icons.restart_alt_rounded),
@@ -753,6 +926,79 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ),
         ]),
       ),
+    );
+  }
+}
+
+/// veh100: the final engine-cut confirmation (after the PIN). Shows what the
+/// tracker reports now, a 60-second countdown, and defaults to "Do not cut".
+class _CutFinalDialog extends StatefulWidget {
+  final AppLocalizations tr;
+  final String speedText, fixAgo;
+  const _CutFinalDialog({required this.tr, required this.speedText, required this.fixAgo});
+
+  @override
+  State<_CutFinalDialog> createState() => _CutFinalDialogState();
+}
+
+class _CutFinalDialogState extends State<_CutFinalDialog> {
+  static const _window = 55; // under the server's 60 s, network included
+  int _left = _window;
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (tm) {
+      if (!mounted) return tm.cancel();
+      setState(() => _left--);
+      if (_left <= 0) {
+        tm.cancel();
+        Navigator.pop(context, false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = widget.tr;
+    final scheme = Theme.of(context).colorScheme;
+    return AlertDialog(
+      icon: Icon(Icons.warning_amber_rounded, color: scheme.error),
+      title: Text(tr.v100CutFinalTitle),
+      content: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          Text(tr.v100CutFinalBody(widget.speedText, widget.fixAgo),
+              style: const TextStyle(height: 1.4)),
+          const SizedBox(height: Gap.sm),
+          Text(tr.v100CutFinalLeft(vehNumStr(context, _left < 0 ? 0 : _left)),
+              style: TextStyle(color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+        ]),
+      ),
+      actions: [
+        FilledButton.tonal(
+          autofocus: true,
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(tr.v100CutKeepRunning),
+        ),
+        FilledButton(
+          key: const ValueKey('veh-cut-final'),
+          style: FilledButton.styleFrom(
+              minimumSize: const Size(48, 48),
+              backgroundColor: scheme.error,
+              foregroundColor: scheme.onError),
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(tr.v100CutFinalCta),
+        ),
+      ],
     );
   }
 }

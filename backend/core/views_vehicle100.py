@@ -5,7 +5,7 @@ core.views_vehicle: anyone without view access gets 404).
   GET/POST  trackers/<pk>/share              list / create a live-location link (owner)
   DELETE    trackers/<pk>/share/<lid>        revoke it (owner)
   GET       trackers/<pk>/report?period=day&date=YYYY-MM-DD | period=month&month=YYYY-MM
-            [&driver=<id>] [&format=csv&lang=bn|en]
+            [&driver=<id>] [&export=csv&lang=bn|en]
   GET/POST  trackers/<pk>/driver             current driver + recent shifts / assign (owner)
   GET       drivers/<id>/report?month=YYYY-MM  one driver across the owner's vehicles
   GET       maintenance                      every vehicle record: papers + rules + due state
@@ -132,7 +132,7 @@ class TrackerReportView(APIView):
             fname = "assisto-vehicle-%d-%s.csv" % (t.id, d.isoformat())
         else:
             return R({"reason": "bad_period", "ok": False}, status=400)
-        if q.get("format") == "csv":
+        if q.get("export") == "csv":     # NOT ?format= (DRF content negotiation)
             return _csv_response(rep, lang, fname)
         return R(rep)
 
@@ -204,7 +204,7 @@ class MaintenanceView(APIView):
         recs = []
         for rec in PaCollectionItem.objects.filter(user=request.user,
                                                    collection=V1.RECORDS)[:100]:
-            d = rec.data if isinstance(rec.data, dict) else {}
+            d = V1.record_data(rec)
             odo, src = V1._odometer_for(rec, by_rec)
             rules = []
             for m in (d.get("maintenance") or [])[:20]:

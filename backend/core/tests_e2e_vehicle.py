@@ -263,6 +263,7 @@ class RoutesApiAndIdempotencyTests(_Setup, APITestCase):
 
     def test_ingest_is_idempotent(self):
         from core import vehicle_service as VS
+        VehiclePosition.objects.filter(tracker=self.t).delete()   # _Setup's stopped fixes
         now = timezone.now()
         fixes = [{"at": now - timedelta(seconds=30 - i * 5), "lat": 23.78 + i * 1e-4,
                   "lng": 90.41, "speed_kmh": 20, "valid": True} for i in range(5)]
