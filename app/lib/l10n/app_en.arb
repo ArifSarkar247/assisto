@@ -25738,5 +25738,14 @@
   "tg2VerifyIntro": "We'll send a code to your own number. Once you enter it, your number is verified and dues shops recorded for it show up here.",
   "tg2VerifyNumber": "Your number",
   "tg2VerifyResend": "Send the code again",
-  "tg2VerifyDone": "Your number is verified."
+  "tg2VerifyDone": "Your number is verified.",
+  "ppExportStage": "Saving in full quality… {pct}",
+  "@ppExportStage": {
+    "description": "photoperf: progress while the full-resolution photo is rendered after the export gate",
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }
