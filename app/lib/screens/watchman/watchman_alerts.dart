@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../cashguard/cashguard_source.dart';
+import '../../cctvx/cctvx_source.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import 'cash_guard_clip.dart';
+import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 
@@ -19,8 +21,16 @@ class WatchmanAlertsScreen extends StatefulWidget {
 
   /// cashguard: clip envelope + download (tests / gallery inject a fake).
   final CashGuardSource? cash;
+
+  /// cctvx: alert actions (siren, call the shop, share, evidence, 999).
+  final CctvxSource? extras;
   const WatchmanAlertsScreen(
-      {super.key, required this.source, required this.siteId, required this.owner, this.cash});
+      {super.key,
+      required this.source,
+      required this.siteId,
+      required this.owner,
+      this.cash,
+      this.extras});
 
   @override
   State<WatchmanAlertsScreen> createState() => _WatchmanAlertsScreenState();
@@ -42,11 +52,28 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     }
   }
 
+  CctvxSource? _extras() {
+    if (widget.extras != null) return widget.extras;
+    try {
+      return ApiCctvxSource(context.read<AppState>().api);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _openClip(Map<String, dynamic> e) async {
     final src = _cashSrc();
     if (src == null) return;
-    await CashClipSheet.show(context, src, (e['id'] as num).toInt(), widget.owner);
+    await CashClipSheet.show(context, src, (e['id'] as num).toInt(), widget.owner,
+        extras: widget.owner ? _extras() : null,
+        photoUrl: (e['snapshot_url'] ?? '').toString());
     if (mounted) await _load();
+  }
+
+  Future<void> _actions(Map<String, dynamic> e) async {
+    final x = _extras();
+    if (x == null) return;
+    await AlertActionsSheet.show(context, x, (e['id'] as num).toInt(), cash: _cashSrc());
   }
 
   @override
@@ -181,7 +208,9 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Wrap(spacing: 6, runSpacing: 6, children: [
               WmPill(
-                  label: cash ? t.cgPossibleCashRemoval : t.wmSuspiciousLabel,
+                  label: e['nosale'] == true
+                      ? t.cxNoSalePill
+                      : (cash ? t.cgPossibleCashRemoval : t.wmSuspiciousLabel),
                   icon: cash ? Icons.point_of_sale_rounded : Icons.visibility_rounded,
                   color: wmWarn()),
               if (e['away'] == true)
@@ -234,6 +263,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                 color: verdict == 'wrong' ? wmBad() : wmOk(),
               ),
             if (widget.owner) ...[
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.bolt_rounded),
+                label: Text(t.cxActions),
+                onPressed: () => _actions(e),
+              ),
               const SizedBox(height: 8),
               Row(children: [
                 Expanded(

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../cashguard/cashguard_source.dart';
+import '../../cctvx/cctvx_source.dart';
 import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
+import 'cctvx_guard_screen.dart';
+import 'cctvx_placement.dart';
+import 'cctvx_privacy_kit.dart';
 import 'guard_box_screen.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -17,7 +21,22 @@ class CashGuardScreen extends StatefulWidget {
 
   /// Open the zone editor of a camera (the cash zone is drawn there).
   final VoidCallback? onDrawZone;
-  const CashGuardScreen({super.key, required this.source, required this.siteId, this.onDrawZone});
+
+  /// cctvx (CCTV extras): guard settings, today's report, placement helper,
+  /// privacy kit. Null = the card is not shown (older callers / tests).
+  final CctvxSource? extras;
+  final WatchmanSource? watchman;
+  final List<Map<String, dynamic>> cameras;
+  final Map<String, dynamic> hours;
+  const CashGuardScreen(
+      {super.key,
+      required this.source,
+      required this.siteId,
+      this.onDrawZone,
+      this.extras,
+      this.watchman,
+      this.cameras = const [],
+      this.hours = const {}});
 
   @override
   State<CashGuardScreen> createState() => _CashGuardScreenState();
@@ -159,6 +178,8 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
           _awayCard(t),
+          if (widget.extras != null) _extrasCard(t),
+          if (widget.extras != null) GuardReportCard(source: widget.extras!, siteId: widget.siteId),
           _setupCard(t),
           _planCard(t),
           _privacyCard(t),
@@ -235,6 +256,46 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
             child: Text(t.wmTo(loc.formatTimeOfDay(_to))),
           ),
         ]),
+    ]);
+  }
+
+  Widget _extrasCard(AppLocalizations t) {
+    final x = widget.extras!;
+    final cams = widget.cameras;
+    return _card([
+      Row(children: [
+        const Icon(Icons.shield_rounded),
+        const SizedBox(width: 8),
+        Expanded(child: Text(t.cxExtrasTitle, style: Theme.of(context).textTheme.titleMedium)),
+      ]),
+      const SizedBox(height: 6),
+      Text(t.cxExtrasBody),
+      const SizedBox(height: 10),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        FilledButton.tonalIcon(
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: const Icon(Icons.tune_rounded),
+          label: Text(t.cxSettingsTitle),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => GuardSettingsScreen(
+                  source: x, siteId: widget.siteId, watchman: widget.watchman, hours: widget.hours))),
+        ),
+        if (cams.isNotEmpty)
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.center_focus_strong_rounded),
+            label: Text(t.cxPlacementTitle),
+            onPressed: () => PlacementSheet.show(context, x, (cams.first['id'] as num).toInt(),
+                watchman: widget.watchman),
+          ),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: const Icon(Icons.sticky_note_2_outlined),
+          label: Text(t.cxKitTitle),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => PrivacyKitScreen(source: x, siteId: widget.siteId))),
+        ),
+      ]),
     ]);
   }
 

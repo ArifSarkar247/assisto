@@ -409,7 +409,7 @@ def run_escalate(task, now):
     notice(user, site, "escalation",
            CX.escalate_title("bn", owner_name, tb), CX.escalate_title("en", owner_name, te),
            bb, be, severity="high", high=True,
-           data={"event_id": ev.id, "escalated": True,
+           data={"event_id": ev.id, "escalated": True, "route": "watchman/inbox",
                  **({"snapshot_url": SV._abs_snapshot_url(ev)}
                     if SV._abs_snapshot_url(ev) else {})})
     logrows.append({"at": now.isoformat(), "uid": user.pk, "step": step, "sent": True})
@@ -972,6 +972,39 @@ class EventDetailView(_OwnerBase):
                          "opened_at": SV._iso(ev.opened_at)})
 
 
+INBOX_HOURS = 48
+
+
+class GuardInboxView(_OwnerBase):
+    """GET shop/guard/inbox — alerts other owners PASSED to me (escalated)
+    or clips they SHARED with me, newest first, last 48 h."""
+
+    def get(self, request):
+        from .models import ShopEvent, ShopEventClip
+        uid = request.user.pk
+        since = timezone.now() - timedelta(hours=INBOX_HOURS)
+        rows, seen = [], set()
+        for ev in (ShopEvent.objects.filter(created__gte=since, pending=False,
+                                            signals__has_key="escalated_to")
+                   .select_related("site", "camera").order_by("-created")[:300]):
+            if uid in _escalated(ev):
+                rows.append((ev, "escalated"))
+                seen.add(ev.pk)
+        for c in (ShopEventClip.objects.filter(created__gte=since, meta__has_key="share")
+                  .select_related("event", "event__site", "event__camera")
+                  .order_by("-created")[:300]):
+            if str(uid) in ((c.meta or {}).get("share") or {}) and c.event_id not in seen:
+                rows.append((c.event, "shared"))
+        rows.sort(key=lambda r: r[0].created, reverse=True)
+        out = []
+        for ev, role in rows[:50]:
+            row = SV._event_row(ev, request)
+            row.pop("signals", None)
+            out.append(dict(row, role=role, site_name=ev.site.name,
+                            owner_name=getattr(ev.site.owner, "name", "") or ""))
+        return Response({"events": out, "hours": INBOX_HOURS})
+
+
 class EventOpenedView(_OwnerBase):
     def post(self, request, pk):
         lang = req_lang(request)
@@ -1205,7 +1238,8 @@ class ClipShareView(_OwnerBase):
                 tb, bb = CX.shared_text("bn", owner_name, ev.site.name)
                 te, be = CX.shared_text("en", owner_name, ev.site.name)
                 notice(u, ev.site, "shared_clip", tb, te, bb, be, severity="med",
-                       data={"event_id": ev.id, "shared": True})
+                       data={"event_id": ev.id, "shared": True,
+                             "route": "watchman/inbox"})
         return Response({"ok": True, "uid": uid, "expires_at": SV._iso(clip.expires_at),
                          "status": clip.status}, status=201 if fresh else 200)
 

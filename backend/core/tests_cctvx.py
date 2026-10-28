@@ -381,6 +381,11 @@ class EscalationTests(_X):
         self.assertEqual((d.status_code, d.data["role"]), (200, "escalated"))
         self.assertTrue(d.data["actions"]["siren"]["allowed"])
         self.assertFalse(d.data["actions"]["share_clip"])
+        self.assertEqual(k["data"]["route"], "watchman/inbox")
+        inbox = self.m.get("/api/v1/shop/guard/inbox")
+        self.assertEqual([(e["id"], e["role"]) for e in inbox.data["events"]],
+                         [(ev_id, "escalated")])
+        self.assertNotIn("signals", inbox.data["events"][0])
         o = self.m.post("/api/v1/shop/events/%d/opened" % ev_id, {}, format="json")
         self.assertTrue(o.data["opened_at"])
         self.assertTrue(ShopEvent.objects.get(pk=ev_id).opened_at)
@@ -667,6 +672,8 @@ class ShareTests(_X):
         pushed = [a for a, k in self.pushes if a[0].pk == self.mgr.pk]
         self.assertIn("ক্লিপ", pushed[0][2])
         # the member opens it with THEIR private key (the server never could)
+        inbox = self.m.get("/api/v1/shop/guard/inbox")
+        self.assertEqual([(e["id"], e["role"]) for e in inbox.data["events"]], [(ev.id, "shared")])
         env = self.m.get("/api/v1/shop/events/%d/clip" % ev.id)
         self.assertEqual(env.status_code, 200, env.data)
         self.assertTrue(env.data["shared"])

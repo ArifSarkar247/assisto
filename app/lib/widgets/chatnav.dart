@@ -39,6 +39,7 @@ import '../screens/delete_account_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
+import '../screens/watchman/cctvx_inbox.dart'; // cctvx
 import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
 import '../screens/remittance/remittance_screen.dart'; // budget-remittance
@@ -215,6 +216,8 @@ class ChatNav {
     // cctv1: Home & shop watchman (flag cctv_watchman — register the route
     // under that key in feature_registry when the flags branch lands).
     'watchman': (_) => const WatchmanScreen(),
+    // cctvx: alerts a shop owner passed to me / clips shared with me
+    'watchman_inbox': (_) => const GuardInboxScreen(),
     // booking-bot (flag booking_bot): business side + my bookings.
     'booking': (_) => const BookingBizScreen(),
     'my_bookings': (_) => const MyBookingsScreen(),

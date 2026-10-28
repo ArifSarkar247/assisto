@@ -658,6 +658,7 @@ urlpatterns += [
     path("shop/sites/<int:pk>/guard/report", cx.GuardReportView.as_view()),
     path("shop/sites/<int:pk>/privacy-kit", cx.PrivacyKitView.as_view()),
     path("shop/cameras/<int:pk>/placement", cx.CameraPlacementView.as_view()),
+    path("shop/guard/inbox", cx.GuardInboxView.as_view()),
     path("shop/events/<int:pk>", cx.EventDetailView.as_view()),
     path("shop/events/<int:pk>/opened", cx.EventOpenedView.as_view()),
     path("shop/events/<int:pk>/siren", cx.EventSirenView.as_view()),

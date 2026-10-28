@@ -1,0 +1,316 @@
+{
+ "en": {
+  "cx999": "Call 999",
+  "cx999Sub": "Emergency police / fire / ambulance — asks you first",
+  "cx999ConfirmTitle": "Call 999?",
+  "cx999ConfirmBody": "999 is the national emergency service. Call only in a real emergency — check the clip or photo first.",
+  "cx999Call": "Call",
+  "cxCancel": "Cancel",
+  "cxActions": "Actions",
+  "cxActionsTitle": "What you can do from this alert",
+  "cxCallShop": "Call the shop",
+  "cxCallShopMissing": "No shop number yet — add it in the guard settings",
+  "cxSiren": "Sound the camera siren",
+  "cxSirenSub": "The camera itself sounds its siren for a few seconds",
+  "cxSirenNotSupported": "This camera has no remote siren",
+  "cxSirenSounding": "The siren is sounding",
+  "cxSirenQueued": "The shop's Shop Box is sounding the siren",
+  "cxShareClip": "Show the clip to a Circle member",
+  "cxShareClipSub": "Stays locked — opens only on their phone, deleted after viewing",
+  "cxShareWho": "Who should see it?",
+  "cxShareKeyOk": "Their phone can open it",
+  "cxShareNoKey": "Ask them to open Assisto once, then it can be shared",
+  "cxShareNote": "Each clip can be shown to one more person only. Same 24 hours; deleted after viewing.",
+  "cxShareNoCircle": "No one is connected in your Circle yet",
+  "cxShareUsed": "This clip was already shown to one person",
+  "cxShareDone": "The clip was shared with {name}",
+  "@cxShareDone": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "cxEvidence": "Evidence pack",
+  "cxEvidenceSubPhoto": "Photo, times and SHA-256 fingerprints for a police GD",
+  "cxEvidenceConfirm": "The pack holds the open photo and clip frames. Give it only to the police or someone you trust. Every file gets a SHA-256 fingerprint, so any change shows.",
+  "cxEvidenceMake": "Make the pack",
+  "cxEvidenceNothing": "This alert has no photo or clip any more",
+  "cxEvidenceShareText": "Assisto CCTV evidence — manifest SHA-256 {hash}…",
+  "@cxEvidenceShareText": {
+   "placeholders": {
+    "hash": {
+     "type": "String"
+    }
+   }
+  },
+  "cxNoSalePill": "Drawer opened with no sale",
+  "cxNoSaleTitle": "Drawer opened with no sale",
+  "cxNoSaleBody": "When the cash area is touched and no sale or khata entry is recorded within the window, you get an alert with the clip. When a sale matches, nothing is kept.",
+  "cxNoSaleNoRecords": "This shop does not record sales or khata in Assisto yet — so alerts come at once, as before.",
+  "cxNoSaleSwitch": "No-sale drawer alerts",
+  "cxNoSaleWindow": "Wait for a sale: {minutes} min",
+  "@cxNoSaleWindow": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "cxNoSaleTip": "Several mistaken alerts in a row — try a slightly longer wait.",
+  "cxEscalationTitle": "If you do not open an alert",
+  "cxEscalationBody": "If you do not open an alert in time, it goes to the person you chose, then the next. It stops as soon as anyone opens it.",
+  "cxEscalationNoCircle": "First connect a manager or family member in your Circle.",
+  "cxEscalationAdd": "Add a person",
+  "cxEscalationAfter": "after {minutes} min",
+  "@cxEscalationAfter": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "cxEscalationWait": "Wait per step: {minutes} min",
+  "@cxEscalationWait": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "cxMoveUp": "Move up",
+  "cxRemove": "Remove",
+  "cxOfflineTitle": "If a camera or the internet goes silent",
+  "cxOfflineBody": "When a camera, the Shop Box or the internet goes silent you get one alert — power or net may be cut — and a notice when it is back. In quiet hours it is only saved, unless you are away.",
+  "cxOfflineSwitch": "Offline alerts",
+  "cxOfflineAfter": "After {minutes} min of silence",
+  "@cxOfflineAfter": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "cxHoursTitle": "Shop open and close",
+  "cxHoursBody": "The first movement after opening time says \"the shop has opened\", a late opening is reported, and movement after closing alerts as before.",
+  "cxOpensAt": "Opens {time}",
+  "@cxOpensAt": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "cxClosesAt": "Closes {time}",
+  "@cxClosesAt": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "cxHoursMissing": "These work once the opening hours are set.",
+  "cxOpenedSwitch": "Tell me when the shop opens",
+  "cxLateSwitch": "Tell me if it opens late",
+  "cxLateAfter": "If no movement {minutes} min after opening time",
+  "@cxLateAfter": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "cxClosedDays": "Closed days (no late alert on these days)",
+  "cxPhoneTitle": "The shop's phone number",
+  "cxPhoneBody": "For calling the shop in one tap from an alert.",
+  "cxPhoneLabel": "Phone number",
+  "cxSave": "Save",
+  "cxCapsTitle": "Your plan today",
+  "cxCapsLine": "Passed on {esc}/{escCap} · offline alerts {off}/{offCap} · sirens {sir}/{sirCap}",
+  "@cxCapsLine": {
+   "placeholders": {
+    "esc": {
+     "type": "String"
+    },
+    "escCap": {
+     "type": "String"
+    },
+    "off": {
+     "type": "String"
+    },
+    "offCap": {
+     "type": "String"
+    },
+    "sir": {
+     "type": "String"
+    },
+    "sirCap": {
+     "type": "String"
+    }
+   }
+  },
+  "cxCapsNote": "Limits are enforced on the server; nothing is unlimited. No ads on this screen.",
+  "cxSettingsTitle": "Guard settings",
+  "cxReportTitle": "Today's guard report",
+  "cxReportEmpty": "Nothing yet today",
+  "cxReportNote": "It is also in your evening recap — no credits used.",
+  "cxExtrasTitle": "Guard extras",
+  "cxExtrasBody": "No-sale drawer, passing alerts on when you do not open them, power/net cuts, shop open/close, a camera placement check and the CCTV notice.",
+  "cxPlacementTitle": "Camera placement check",
+  "cxPlacementBody": "Is the cash area clearly visible and is the light enough — from the camera's latest picture.",
+  "cxPlacementScore": "{score}% good",
+  "@cxPlacementScore": {
+   "placeholders": {
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "cxPlacementHonest": "This checks light, clarity and framing — it cannot tell what is in front of the lens.",
+  "cxPlacementNewPhoto": "Take a new photo",
+  "cxPlacementAgain": "Check again",
+  "cxCheckLight": "Enough light",
+  "cxCheckGlare": "No glare",
+  "cxCheckClear": "Clearly visible",
+  "cxCheckSize": "Cash area size is fine",
+  "cxCheckEdge": "Away from the picture's edge",
+  "cxCheckZone": "Cash zone drawn",
+  "cxKitTitle": "CCTV notice",
+  "cxKitBody": "A sticker for the shop (Bangla and English) and a notice for staff. Print it and put it on the wall.",
+  "cxKitPdfA4": "PDF (A4)",
+  "cxKitPdfA5": "PDF (A5)",
+  "cxKitShareText": "CCTV notice — print and put it up",
+  "cxKitStaffTitle": "Notice for staff",
+  "cxKitBangla": "Bangla",
+  "cxKitEnglish": "English",
+  "cxKitShareStaff": "Share",
+  "cxKitCopy": "Copy",
+  "cxKitCopied": "Copied",
+  "cxKitNote": "This is not legal advice — it says only what this system does.",
+  "cxInboxTitle": "Alerts passed to you",
+  "cxInboxBody": "Alerts a shop owner did not open in time, or clips they shared with you (48 hours). Nobody is blamed — the owner decides.",
+  "cxInboxEmpty": "Nothing right now",
+  "cxInboxPassed": "{name} has not seen it — passed to you",
+  "@cxInboxPassed": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "cxInboxShared": "{name} shared this with you",
+  "@cxInboxShared": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "cxPlacementChecked": "Checked again",
+  "cxPhoneSaved": "Saved"
+ },
+ "bn": {
+  "cx999": "৯৯৯-এ ফোন করুন",
+  "cx999Sub": "জরুরি পুলিশ / ফায়ার / অ্যাম্বুলেন্স — আগে নিশ্চিত করতে বলবে",
+  "cx999ConfirmTitle": "৯৯৯-এ ফোন করবেন?",
+  "cx999ConfirmBody": "৯৯৯ জাতীয় জরুরি সেবা। শুধু সত্যিকারের বিপদে ফোন করুন — আগে ক্লিপ বা ছবি দেখে নিশ্চিত হন।",
+  "cx999Call": "ফোন করুন",
+  "cxCancel": "বাতিল",
+  "cxActions": "কী করবেন",
+  "cxActionsTitle": "এই সতর্কতা থেকে যা করা যায়",
+  "cxCallShop": "দোকানে ফোন করুন",
+  "cxCallShopMissing": "দোকানের নম্বর এখনো দেওয়া হয়নি — পাহারার সেটিংসে দিন",
+  "cxSiren": "ক্যামেরার সাইরেন বাজান",
+  "cxSirenSub": "ক্যামেরা নিজেই কয়েক সেকেন্ড সাইরেন বাজাবে",
+  "cxSirenNotSupported": "এই ক্যামেরায় দূর থেকে সাইরেন বাজানোর উপায় নেই",
+  "cxSirenSounding": "সাইরেন বাজছে",
+  "cxSirenQueued": "দোকানের Shop Box সাইরেন বাজাচ্ছে",
+  "cxShareClip": "সার্কেলের একজনকে ক্লিপ দেখান",
+  "cxShareClipSub": "তালাবদ্ধ থাকে — শুধু তাঁর ফোনে খোলে, দেখার পরে মুছে যায়",
+  "cxShareWho": "কাকে দেখাবেন?",
+  "cxShareKeyOk": "এই ফোনে তালা খোলার চাবি আছে",
+  "cxShareNoKey": "তাঁকে একবার Assisto খুলতে বলুন, তারপর দেখানো যাবে",
+  "cxShareNote": "প্রতিটি ক্লিপ শুধু আর একজনকে দেখানো যায়। একই ২৪ ঘণ্টার মধ্যে, দেখার পরে মুছে যায়।",
+  "cxShareNoCircle": "আপনার সার্কেলে এখনো কেউ যুক্ত নেই",
+  "cxShareUsed": "এই ক্লিপটি আগেই একজনকে দেখানো হয়েছে",
+  "cxShareDone": "{name}-কে ক্লিপটি দেখানো হলো",
+  "cxEvidence": "প্রমাণের প্যাকেট",
+  "cxEvidenceSubPhoto": "ছবি, সময় ও SHA-256 আঙুলছাপসহ থানার জিডির জন্য",
+  "cxEvidenceConfirm": "প্যাকেটে খোলা ছবি ও ক্লিপের ফ্রেম থাকবে। শুধু থানা বা বিশ্বস্ত কাউকে দিন। প্রতিটি ফাইলের SHA-256 আঙুলছাপ থাকবে, যাতে কেউ বদলালে ধরা পড়ে।",
+  "cxEvidenceMake": "প্যাকেট তৈরি করুন",
+  "cxEvidenceNothing": "এই সতর্কতার কোনো ছবি বা ক্লিপ আর নেই",
+  "cxEvidenceShareText": "Assisto সিসিটিভি প্রমাণ — manifest SHA-256 {hash}…",
+  "cxNoSalePill": "বিক্রি ছাড়া ড্রয়ার খোলা",
+  "cxNoSaleTitle": "বিক্রি ছাড়া ড্রয়ার খোলা",
+  "cxNoSaleBody": "ক্যাশের জায়গায় হাত পড়ার পরে নির্দিষ্ট সময়ের মধ্যে কোনো বিক্রি বা খাতার লেখা না হলে ক্লিপসহ সতর্কতা যায়। বিক্রি মিললে কিছুই রাখা হয় না।",
+  "cxNoSaleNoRecords": "এই দোকানের বিক্রি বা খাতা এখনো Assisto-তে লেখা হয় না — তাই আগের মতো সাথে সাথে সতর্কতা যায়।",
+  "cxNoSaleSwitch": "বিক্রি ছাড়া ড্রয়ার খোলার সতর্কতা",
+  "cxNoSaleWindow": "বিক্রির জন্য অপেক্ষা: {minutes} মিনিট",
+  "cxNoSaleTip": "পরপর কয়েকটি ভুল সতর্কতা — অপেক্ষার সময় একটু বাড়িয়ে দেখুন।",
+  "cxEscalationTitle": "আপনি না দেখলে কাকে পাঠাবে",
+  "cxEscalationBody": "আপনি নির্দিষ্ট সময়ে সতর্কতা না খুললে এটি আপনার বেছে নেওয়া মানুষের কাছে যায়, তারপর পরের জনের কাছে। কেউ খুললেই থেমে যায়।",
+  "cxEscalationNoCircle": "আগে সার্কেলে ম্যানেজার বা পরিবারের কাউকে যুক্ত করুন।",
+  "cxEscalationAdd": "একজন যোগ করুন",
+  "cxEscalationAfter": "{minutes} মিনিট পরে",
+  "cxEscalationWait": "প্রতি ধাপে অপেক্ষা: {minutes} মিনিট",
+  "cxMoveUp": "ওপরে নিন",
+  "cxRemove": "সরান",
+  "cxOfflineTitle": "ক্যামেরা বা ইন্টারনেট বন্ধ হলে",
+  "cxOfflineBody": "ক্যামেরা, Shop Box বা ইন্টারনেট চুপ থাকলে একবার সতর্কতা যায় — বিদ্যুৎ বা নেট বন্ধ হতে পারে। আবার চালু হলে জানায়। নীরব সময়ে শুধু জমা থাকে, তবে আপনি দূরে থাকলে বাজে।",
+  "cxOfflineSwitch": "বন্ধ হওয়ার সতর্কতা",
+  "cxOfflineAfter": "সাড়া না পেলে: {minutes} মিনিট পরে",
+  "cxHoursTitle": "দোকান খোলা ও বন্ধ",
+  "cxHoursBody": "খোলার সময়ের পরে প্রথম নড়াচড়ায় \"দোকান খুলেছে\" জানায়, দেরিতে খুললে জানায়; বন্ধের পরের নড়াচড়া আগের মতোই সতর্কতা।",
+  "cxOpensAt": "খোলে {time}",
+  "cxClosesAt": "বন্ধ হয় {time}",
+  "cxHoursMissing": "খোলা-বন্ধের সময় দিলে তবেই এগুলো কাজ করবে।",
+  "cxOpenedSwitch": "দোকান খুললে জানান",
+  "cxLateSwitch": "দেরিতে খুললে জানান",
+  "cxLateAfter": "খোলার সময়ের {minutes} মিনিট পরেও নড়াচড়া না হলে",
+  "cxClosedDays": "বন্ধের দিন (এই দিনে দেরির সতর্কতা নেই)",
+  "cxPhoneTitle": "দোকানের ফোন নম্বর",
+  "cxPhoneBody": "সতর্কতা থেকে এক চাপে দোকানে ফোন করার জন্য।",
+  "cxPhoneLabel": "ফোন নম্বর",
+  "cxSave": "রাখুন",
+  "cxCapsTitle": "আপনার প্ল্যানে আজ",
+  "cxCapsLine": "অন্যকে পাঠানো {esc}/{escCap} · বন্ধের সতর্কতা {off}/{offCap} · সাইরেন {sir}/{sirCap}",
+  "cxCapsNote": "সীমা সার্ভারে প্রয়োগ হয়, কিছুই সীমাহীন নয়। এই স্ক্রিনে কোনো বিজ্ঞাপন নেই।",
+  "cxSettingsTitle": "পাহারার সেটিংস",
+  "cxReportTitle": "আজকের পাহারার রিপোর্ট",
+  "cxReportEmpty": "আজ এখনো কিছু নেই",
+  "cxReportNote": "রাতের সন্ধ্যার হিসাবেও এটি থাকে — কোনো ক্রেডিট লাগে না।",
+  "cxExtrasTitle": "পাহারার বাড়তি সুবিধা",
+  "cxExtrasBody": "বিক্রি ছাড়া ড্রয়ার, আপনি না দেখলে অন্যকে পাঠানো, বিদ্যুৎ/নেট বন্ধ, দোকান খোলা-বন্ধ, ক্যামেরা বসানোর পরীক্ষা ও সিসিটিভি নোটিশ।",
+  "cxPlacementTitle": "ক্যামেরা ঠিক জায়গায়?",
+  "cxPlacementBody": "ক্যাশের জায়গা পরিষ্কার দেখা যায় কিনা, আলো যথেষ্ট কিনা — ক্যামেরার সর্বশেষ ছবি দেখে।",
+  "cxPlacementScore": "ঠিক আছে {score}%",
+  "cxPlacementHonest": "এটি আলো, স্পষ্টতা আর ফ্রেমের হিসাব — লেন্সের সামনে কী আছে তা বোঝে না।",
+  "cxPlacementNewPhoto": "নতুন ছবি তুলুন",
+  "cxPlacementAgain": "আবার দেখুন",
+  "cxCheckLight": "আলো যথেষ্ট",
+  "cxCheckGlare": "ঝলক নেই",
+  "cxCheckClear": "পরিষ্কার দেখা যায়",
+  "cxCheckSize": "ক্যাশের জায়গার মাপ ঠিক আছে",
+  "cxCheckEdge": "ছবির কিনার থেকে দূরে",
+  "cxCheckZone": "ক্যাশ জোন আঁকা আছে",
+  "cxKitTitle": "সিসিটিভি নোটিশ",
+  "cxKitBody": "দোকানে লাগানোর স্টিকার (বাংলা ও ইংরেজি) আর কর্মীদের জন্য নোটিশ। প্রিন্ট করে দেয়ালে লাগান।",
+  "cxKitPdfA4": "PDF (A4)",
+  "cxKitPdfA5": "PDF (A5)",
+  "cxKitShareText": "সিসিটিভি নোটিশ — প্রিন্ট করে লাগান",
+  "cxKitStaffTitle": "কর্মীদের জন্য নোটিশ",
+  "cxKitBangla": "বাংলা",
+  "cxKitEnglish": "English",
+  "cxKitShareStaff": "শেয়ার করুন",
+  "cxKitCopy": "কপি করুন",
+  "cxKitCopied": "কপি হয়েছে",
+  "cxKitNote": "এটি আইনি পরামর্শ নয় — এই ব্যবস্থা যা করে শুধু তা-ই লেখা।",
+  "cxInboxTitle": "আপনাকে পাঠানো সতর্কতা",
+  "cxInboxBody": "কোনো দোকান-মালিক সময়মতো সতর্কতা না দেখলে বা ক্লিপ দেখালে এখানে আসে (৪৮ ঘণ্টা)। কাউকে দোষী বলা হয় না — মালিক সিদ্ধান্ত নেন।",
+  "cxInboxEmpty": "এখন কিছু নেই",
+  "cxInboxPassed": "{name} দেখেননি — আপনাকে পাঠানো",
+  "cxInboxShared": "{name} আপনাকে দেখিয়েছেন",
+  "cxPlacementChecked": "আবার দেখা হলো",
+  "cxPhoneSaved": "রাখা হয়েছে"
+ }
+}

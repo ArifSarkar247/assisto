@@ -6,7 +6,9 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
+import '../../cctvx/cctvx_source.dart';
 import 'cash_guard_screen.dart';
+import 'cctvx_inbox.dart';
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -116,6 +118,13 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
       appBar: AppBar(
         title: Text(t.wmTitle),
         actions: [
+          // cctvx: alerts other owners passed to me / clips shared with me
+          IconButton(
+            tooltip: t.cxInboxTitle,
+            icon: const Icon(Icons.forward_to_inbox_rounded),
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const GuardInboxScreen())),
+          ),
           IconButton(
             tooltip: t.wmHowItWorks,
             icon: const Icon(Icons.help_outline_rounded),
@@ -384,6 +393,11 @@ class _SiteCard extends StatelessWidget {
                       builder: (ctx) => CashGuardScreen(
                             source: ApiCashGuardSource(api),
                             siteId: siteId,
+                            // cctvx: guard settings, report, placement, privacy kit
+                            extras: ApiCctvxSource(api),
+                            watchman: source,
+                            cameras: cams,
+                            hours: wmMap(site['hours']),
                             onDrawZone: cams.isEmpty
                                 ? null
                                 : () => Navigator.of(ctx).push(MaterialPageRoute(

@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cashguard/clip_crypto.dart';
+import '../../cctvx/cctvx_source.dart';
 import '../../l10n/app_localizations.dart';
+import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 
@@ -25,14 +27,38 @@ class CashClipSheet extends StatefulWidget {
 
   /// Tests / gallery: start with this decoded clip (no network, no crypto).
   final CashClip? preview;
-  const CashClipSheet({super.key, required this.source, required this.eventId, required this.owner, this.preview});
 
-  static Future<void> show(BuildContext context, CashGuardSource source, int eventId, bool owner) =>
+  /// cctvx: a person the owner SHARED the clip with — their full watch
+  /// deletes their copy too (same 24 h window).
+  final bool reportsView;
+
+  /// cctvx: the owner may share the clip with one Circle member and export
+  /// the evidence pack while the clip is open on this phone.
+  final CctvxSource? extras;
+  final String photoUrl;
+  const CashClipSheet(
+      {super.key,
+      required this.source,
+      required this.eventId,
+      required this.owner,
+      this.preview,
+      this.reportsView = false,
+      this.extras,
+      this.photoUrl = ''});
+
+  static Future<void> show(BuildContext context, CashGuardSource source, int eventId, bool owner,
+          {bool reportsView = false, CctvxSource? extras, String photoUrl = ''}) =>
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,
-        builder: (_) => CashClipSheet(source: source, eventId: eventId, owner: owner),
+        builder: (_) => CashClipSheet(
+            source: source,
+            eventId: eventId,
+            owner: owner,
+            reportsView: reportsView,
+            extras: extras,
+            photoUrl: photoUrl),
       );
 
   @override
@@ -50,6 +76,10 @@ class _CashClipSheetState extends State<CashClipSheet> {
   bool _reportedViewed = false;
   bool _deletedOnServer = false;
   Timer? _timer;
+  // cctvx: the ciphertext + my envelope stay in memory while the sheet is
+  // open, so the owner can share the clip even after the server deleted it
+  Uint8List? _ct;
+  Map<String, dynamic>? _meta;
 
   @override
   void initState() {
@@ -66,6 +96,8 @@ class _CashClipSheetState extends State<CashClipSheet> {
   void dispose() {
     _timer?.cancel();
     _clip = null; // dropped from memory — never written anywhere
+    _ct = null;
+    _meta = null;
     super.dispose();
   }
 
@@ -100,6 +132,8 @@ class _CashClipSheetState extends State<CashClipSheet> {
       if (!mounted) return;
       setState(() {
         _clip = clip;
+        _ct = bytes;
+        _meta = meta;
         _st = _St.ready;
       });
       _play();
@@ -145,7 +179,7 @@ class _CashClipSheetState extends State<CashClipSheet> {
   }
 
   Future<void> _watchedOnce() async {
-    if (_reportedViewed || !widget.owner || widget.preview != null) return;
+    if (_reportedViewed || !(widget.owner || widget.reportsView) || widget.preview != null) return;
     _reportedViewed = true;
     try {
       final r = await widget.source.clipViewed(widget.eventId);
@@ -221,11 +255,30 @@ class _CashClipSheetState extends State<CashClipSheet> {
           ]),
           const SizedBox(height: 6),
           Text(
-            widget.owner
+            widget.owner || widget.reportsView
                 ? (_deletedOnServer ? t.cgClipDeletedNow : t.cgClipDeleteOnView)
                 : t.cgClipViewerNote,
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          if (widget.owner && widget.extras != null) ...[
+            const SizedBox(height: 10),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.ios_share_rounded),
+                label: Text(t.cxShareClip),
+                onPressed: () => shareClipFlow(context, widget.source, widget.extras!, widget.eventId,
+                    meta: _meta, ciphertext: _ct),
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.inventory_2_outlined),
+                label: Text(t.cxEvidence),
+                onPressed: () => exportEvidenceFlow(context, widget.extras!, widget.eventId,
+                    photoUrl: widget.photoUrl, clip: _clip),
+              ),
+            ]),
+          ],
         ]);
     }
     return SafeArea(
