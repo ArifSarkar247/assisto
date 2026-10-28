@@ -314,7 +314,7 @@ def answer(user, job, data, lang="bn"):
                      "job": job_state(job, lang)}
     finally:
         del raw
-    out = CV.postprocess(CV.parse_reply(reply), question=question,
+    out = CV.postprocess(vault.unmask_obj(CV.parse_reply(reply)), question=question,
                          device_text=device_text, lang=lang)
     table = c["action_costs"].get(CV.ACTION) or {}
     cost_usd = max(prov_cost, float(table.get("provider_cost") or 0))

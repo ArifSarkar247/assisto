@@ -430,6 +430,13 @@ class RetentionHygieneTests(SimpleTestCase):
         self.assertNotIn(PHONE, d)
         self.assertNotIn(EMAIL, d)
 
+    def test_unmask_handles_json_escaped_tokens(self):
+        v = T.Vault()
+        m = v.mask("call %s" % PHONE)
+        raw = json.dumps({"answer": m})            # ASCII-escaped brackets
+        self.assertIn("\\u27e6", raw)
+        self.assertEqual(json.loads(v.unmask(raw))["answer"], "call %s" % PHONE)
+
     def test_usage_log_has_no_prompt_field(self):
         from core.models import AIUsage
         names = {f.name for f in AIUsage._meta.get_fields()}

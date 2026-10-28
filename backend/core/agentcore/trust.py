@@ -64,6 +64,11 @@ class Vault:
         return out
 
     def unmask(self, text):
+        if isinstance(text, str) and "\\u27e6" in text.lower():
+            # maskall: a JSON answer with ASCII escapes (\u27e6PHONE_1\u27e7) —
+            # the literal brackets are the same JSON string
+            text = re.sub(r"\\u27e([67])", lambda m: "⟦" if m.group(1) == "6" else "⟧",
+                          text, flags=re.I)
         if not isinstance(text, str) or "⟦" not in text:
             return text
         # AF-2: a provider answer turned to Bangla digits (digits="bn") carries
