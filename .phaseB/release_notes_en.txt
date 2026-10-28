@@ -1,1 +1,1 @@
-Build 266: Document vault — your PIN is now stored safely with a wait after wrong tries, a recovery code that works offline, PIN reset after you prove it's you, reminders before documents expire, and documents you can open without internet. Clear note on how your documents are protected.
+Build 267: Vault wording — the vault is recoverable and kept safe in your account; no text says end-to-end any more (owner decision 28 Oct). Tests guard the old wording.
