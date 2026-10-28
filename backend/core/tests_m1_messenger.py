@@ -509,6 +509,40 @@ class ChangeNumberTests(_Base):
         self.ba.refresh_from_db()
         self.assertEqual(self.ba.phone, "+8801799999999")
 
+    def test_verify_my_own_number_once(self):
+        """tagada2: a password account proves its CURRENT number (My Dues and
+        the free Assisto tagada match verified numbers only); a changed
+        number is recorded as verified too."""
+        from core import views_m1_messenger as m1
+        from core.models import PhoneVerification
+        from core.tagada_engine import verified_phone_of
+        o = self.fake_otp()
+        mine = self.a.phone
+        self.assertEqual(verified_phone_of(self.a), "")
+        with mock.patch.object(m1, "_otp", return_value=o), \
+                mock.patch.object(m1, "sms_configured", return_value=True):
+            r = self.ca.post(self.R, {"new_phone": mine}, format="json")
+            self.assertEqual(r.status_code, 200, r.content)
+            r = self.ca.post(self.C, {"new_phone": mine, "code": "424242"}, format="json")
+            self.assertEqual(r.status_code, 200, r.content)
+            self.assertTrue(r.json()["verified"])
+            self.a.refresh_from_db()
+            self.assertEqual(verified_phone_of(self.a), mine)
+            # already verified -> the same number is refused again
+            self.assertEqual(self.ca.post(self.R, {"new_phone": mine},
+                                          format="json").status_code, 400)
+            PhoneVerification.objects.filter(user=self.a).delete()
+            st = m1.user_settings(self.a)
+            st.pending_sent_at = None
+            st.save()
+            r = self.ca.post(self.R, {"new_phone": "01788888888"}, format="json")
+            self.assertEqual(r.status_code, 200, r.content)
+            r = self.ca.post(self.C, {"new_phone": "01788888888", "code": "424242"},
+                             format="json")
+            self.assertEqual(r.status_code, 200, r.content)
+        self.a.refresh_from_db()
+        self.assertEqual(verified_phone_of(self.a), "+8801788888888")
+
     def test_otp_service_missing_means_not_configured(self):
         from core import views_m1_messenger as m1
         with mock.patch.object(m1, "_otp", return_value=None):

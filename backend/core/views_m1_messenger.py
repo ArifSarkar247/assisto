@@ -1069,7 +1069,12 @@ class ChangeNumberRequestView(APIView):
         if not phone:
             return _bad("invalid_phone")
         if phone == (request.user.phone or ""):
-            return _bad("same_number")
+            # tagada2: the SAME number is allowed once, to VERIFY it (accounts
+            # made with a password never proved their phone, and My Dues /
+            # the free Assisto tagada match verified numbers only).
+            from .tagada_engine import verified_phone_of
+            if verified_phone_of(request.user):
+                return _bad("same_number")
         if _phone_taken(phone, request.user):
             return Response({"ok": False, "detail": "number_in_use"},
                             status=status.HTTP_409_CONFLICT)
@@ -1141,6 +1146,18 @@ class ChangeNumberConfirmView(APIView):
                             status=status.HTTP_409_CONFLICT)
         u = request.user
         old = u.phone or ""
+        # tagada2: the OTP just proved this number — record it (a changed
+        # number used to keep the OLD verification, so it never matched).
+        from .otp import mark_verified
+        from .phone import canonical_phone
+        if phone == old:
+            mark_verified(u, canonical_phone(phone) or phone)
+            row.pending_phone = ""
+            row.pending_code_hash = ""
+            row.pending_expires = None
+            row.pending_attempts = 0
+            row.save()
+            return Response({"ok": True, "phone": phone, "verified": True})
         fields = ["phone"]
         u.phone = phone
         if old and u.username == old and not User.objects.filter(
@@ -1156,6 +1173,7 @@ class ChangeNumberConfirmView(APIView):
         # post_save signal (core.signals_c1_phone); call it explicitly too so
         # a number change is matchable immediately.
         sync_phone_hash(u)
+        mark_verified(u, canonical_phone(phone) or phone)
         row.pending_phone = ""
         row.pending_code_hash = ""
         row.pending_expires = None
