@@ -1102,6 +1102,11 @@ def _journey_dict(j, lang="bn", traveller=True):
         out.update(JW.progress(j))
     if traveller:
         out["pin_required"] = _pin_configured(j.traveller)
+        # owner idea 1: the always-visible "<name> is watching — Stop" banner
+        g = j.guardian_requests.select_related("requester").first()
+        if g is not None:
+            out["guardian"] = {"request_id": g.id, "standing": g.standing,
+                               "name": PUSH.seen_name(j.traveller, g.requester)}
     return out
 
 

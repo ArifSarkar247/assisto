@@ -348,6 +348,23 @@ def watcher_users(j):
     return out
 
 
+def close_family_users(j):
+    """The traveller's close family in My Circle (accepted, not blocked) —
+    the guardian journey's second escalation step."""
+    from .logic.circle import CLOSE_FAMILY
+    from .models import CircleMember
+    from .push import member_peer_user
+    out, seen = [], {j.traveller_id}
+    for m in CircleMember.objects.filter(user_id=j.traveller_id, state="accepted",
+                                         blocked=False, relation__in=CLOSE_FAMILY):
+        u = member_peer_user(m)
+        if u is None or u.pk in seen:
+            continue
+        seen.add(u.pk)
+        out.append(u)
+    return out
+
+
 def is_watcher(j, user):
     return any(u.pk == user.pk for u in watcher_users(j))
 
@@ -402,7 +419,10 @@ def deliver(ev):
             "lng": "" if p.get("lng") is None else p.get("lng")}
     urgent = ev.kind in URGENT
     n = 0
-    for u in watcher_users(j):
+    people = watcher_users(j)
+    if p.get("circle"):
+        people = people + [u for u in close_family_users(j) if u.pk not in {x.pk for x in people}]
+    for u in people:
         if not _rate_ok(u, ev.kind):
             continue
         name = push.seen_name(u, j.traveller)
@@ -526,8 +546,11 @@ def _sweep_journey(j, now, stats):
                 now - j.escalated_at >= timedelta(minutes=OVERDUE_REPEAT_MIN)))
         if due:
             n = j.escalations + 1
+            # guardian journey (owner idea 1): the requester first; from the
+            # second alert on, the traveller's close family in My Circle too
+            circle = n >= 2 and j.guardian_requests.exists()
             if emit(j, "overdue_alert", key="%s:%s" % (j.eta.isoformat() if j.eta else "", n),
-                    payload={"minutes": int(mins)}):
+                    payload={"minutes": int(mins), **({"circle": True} if circle else {})}):
                 stats["escalated"] += 1
             j.escalated_at, j.escalations = now, n
             j.save(update_fields=["escalated_at", "escalations"])
@@ -779,8 +802,11 @@ def sweep(now=None):
 
     def _sweep_family(now, stats):
         FA.sweep(now, stats)
-    for fn in (_sweep_retry, _sweep_wellness, _sweep_checkins, _sweep_routines,
-               _sweep_privacy, _sweep_family):
+    def _sweep_guardian(now, stats):
+        from . import guardian_journey as GJ
+        GJ.sweep(now, stats)
+    for fn in (_sweep_guardian, _sweep_retry, _sweep_wellness, _sweep_checkins,
+               _sweep_routines, _sweep_privacy, _sweep_family):
         try:
             fn(now, stats)
         except Exception as e:

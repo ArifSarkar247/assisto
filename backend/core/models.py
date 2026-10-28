@@ -1507,6 +1507,42 @@ class JourneyWatcher(models.Model):
         unique_together = [("journey", "member")]
 
 
+class JourneyRequest(models.Model):
+    """journey2 / owner idea 1 — a GUARDIAN-REQUESTED journey: the requester
+    (e.g. Baba) asks to follow the traveller's trip for a time window; the
+    traveller must accept (adults: every single time). At the window start
+    sharing begins (by itself when the app is open, else one tap on the
+    notification); it ends by itself at the window end. Location points are
+    deleted when the trip ends — only the summary (times, outcome) stays.
+    Child mode (`standing`): only for the requester's own child under 18 who
+    confirmed the parent relation from their side; a school-days schedule
+    the child accepted once; the child's screen still always shows it.
+    Rules: core/guardian_journey.py."""
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="journey_requests_sent")
+    traveller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="journey_requests_got")
+    destination = models.JSONField(default=dict, blank=True)
+    window_start = models.DateTimeField()
+    window_end = models.DateTimeField()
+    note = models.CharField(max_length=200, blank=True, default="")
+    status = models.CharField(max_length=12, default="pending")
+    standing = models.BooleanField(default=False)          # child school mode only
+    schedule = models.JSONField(default=dict, blank=True)  # {days:[..], start:"HH:MM", end:"HH:MM"}
+    journey = models.ForeignKey(Journey, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="guardian_requests")
+    nudged_at = models.DateTimeField(null=True, blank=True)    # "tap to start" pushed
+    started_at = models.DateTimeField(null=True, blank=True)
+    arrived_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    outcome = models.CharField(max_length=16, blank=True, default="")
+    log = models.JSONField(default=list, blank=True)          # audit, both sides see it
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["status", "window_start"], name="jreq_status_start")]
+
+
 class SavedPlace(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved_places")
     label = models.CharField(max_length=40, blank=True, default="")
