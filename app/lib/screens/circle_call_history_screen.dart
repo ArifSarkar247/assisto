@@ -265,7 +265,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           radius: 22,
           onDark: false),
       title: Text(
-        // circle2: the group count in Bangla digits too ("নাদিয়া (৬)")
+        // circle2: the group count in Bangla digits too (bn locale)
         count > 1 ? '$name (${_digits('$count')})' : name,
         key: Key('call-log-title-${call['id']}'),
         maxLines: 1,
