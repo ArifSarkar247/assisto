@@ -537,6 +537,14 @@ class CommandView(APIView):
                         status=status.HTTP_201_CREATED)
 
 
+def _web_path(phone, user):
+    try:
+        from .views_antitheft import watch_path
+        return watch_path(phone, user)
+    except Exception:
+        return ""
+
+
 class CommandListView(APIView):
     """GET security/engine/commands[?phone_id] — owner or trusted contact."""
     permission_classes = [IsAuthenticated]
@@ -564,6 +572,8 @@ class CommandListView(APIView):
             "in_flight": any(r["state"] in IN_FLIGHT for r in rows),
             "wipe": {"supported": False, "use": FIND_HUB_URL},
             "alarm_s": ALARM_SECONDS,
+            # the viewer's own signed web view of this phone (7 days)
+            "web_path": _web_path(phone, request.user),
         })
 
 

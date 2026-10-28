@@ -1,6 +1,6 @@
 # Play Console — Foreground service declaration (বিল্ড ২১৯ থেকে)
 
-Play Console → **App content → Foreground service permissions**-এ তিনটি টাইপ ঘোষণা করতে হবে: **Microphone, Location, Camera**। প্রতিটির জন্য নিচের **ইংরেজি লেখা হুবহু কপি করে** বসান, আর প্রতিটির জন্য নিচের স্ক্রিপট অনুযায়ী ফোনে ~৩০ সেকেন্ডের একটা স্ক্রিন রেকর্ডিং করে (YouTube unlisted / Google Drive "anyone with link") লিংক দিন।
+Play Console → **App content → Foreground service permissions**-এ দুটি টাইপ ঘোষণা করতে হবে: **Microphone, Location**। (**at100, ২৮ অক্টোবর:** Camera টাইপ আর নেই — নিচের ৩ নম্বর অংশ দেখুন।) প্রতিটির জন্য নিচের **ইংরেজি লেখা হুবহু কপি করে** বসান, আর প্রতিটির জন্য নিচের স্ক্রিপট অনুযায়ী ফোনে ~৩০ সেকেন্ডের একটা স্ক্রিন রেকর্ডিং করে (YouTube unlisted / Google Drive "anyone with link") লিংক দিন।
 
 **অ্যাপে যা বদলেছে (বিল্ড ২১৯):** প্রতিটি সার্ভিস **শুধু ব্যবহারকারী নিজে চালু করলে** শুরু হয়, চলার সময় একটা **স্থায়ী নোটিফিকেশন** থাকে যেটা ফিচারের নাম বলে, আর তাতে **বন্ধ করার বাটন** আছে; কাজ শেষ হলে নিজে বন্ধ হয়। ফোন রিস্টার্টের পর কোনো সার্ভিস নিজে নিজে শুরু হয় না।
 
@@ -9,7 +9,7 @@ Play Console → **App content → Foreground service permissions**-এ তি�
 | Microphone | “Hey Assisto” ডাক | “Hey Assisto” is on — listening for the wake word | **Stop** |
 | Microphone + Location | Voice SOS | Voice SOS is on — listening for your SOS phrase | **Stop** |
 | Microphone | My Circle কল চলাকালীন (অ্যাপ থেকে বেরিয়ে গেলে) | Call with ‹নাম› | **End call** |
-| Location + Camera | Lost/Stolen সুরক্ষা | Lost/Stolen protection is on | **Turn off** (অ্যাপের সুরক্ষা পাতা খোলে; চোর যেন নোটিফিকেশন থেকে এক ট্যাপে বন্ধ করতে না পারে) |
+| Location | Lost/Stolen সুরক্ষা | Lost/Stolen protection is on | **Turn off** (অ্যাপের সুরক্ষা পাতা খোলে; চোর যেন নোটিফিকেশন থেকে এক ট্যাপে বন্ধ করতে না পারে) |
 
 ---
 
@@ -56,23 +56,13 @@ Play Console → **App content → Foreground service permissions**-এ তি�
 
 **journey100 (Safe Journey):** LOCATION ঘোষণায় তৃতীয় ফিচার (3) Safe Journey যোগ করতে হবে — কপি-লেখা আর ভিডিওর ধাপ `owner_actions/SAFE_JOURNEY_100_BN.md`-এর **খ** অংশে।
 
-## ৩. CAMERA (FOREGROUND_SERVICE_CAMERA)
+## ৩. CAMERA — আর ঘোষণা করতে হবে না (at100, ২৮ অক্টোবর)
 
-**Feature name / description (copy):**
-> Lost/Stolen protection's “intruder photo”, an option the user turns on inside Lost/Stolen protection: if someone snatches the phone or enters a wrong unlock code while protection is on, Assisto takes one photo with the front camera so the owner can see who has the phone. The photo is encrypted and sent only to the owner's own account. It runs only while the user keeps protection on, with the persistent “Lost/Stolen protection is on” notification and its Turn off button.
+অ্যাপ থেকে **FOREGROUND_SERVICE_CAMERA অনুমতি আর ক্যামেরা ফোরগ্রাউন্ড-সার্ভিস টাইপ সরানো হয়েছে।** কারণ: Play-র নিয়মে ক্যামেরা টাইপ শুধু চলমান, ব্যবহারকারীর চোখের সামনে থাকা ক্যামেরা ব্যবহারের জন্য (যেমন ভিডিও কল); সারাদিন চালু একটা সার্ভিসে "কখনো একটা ছবি" এর মধ্যে পড়ে না, আর লক-স্ক্রিনে লুকিয়ে ছবি তোলা stalkerware-এর মতো দেখায়।
 
-**Why it must run in the foreground (copy):**
-> The photo has to be taken at the moment of the theft, when Assisto is not on screen (the thief is holding the phone). Android only allows camera access from the background through a camera foreground service.
+এখন "অনুপ্রবেশকারীর ছবি" **শুধু Assisto স্ক্রিনে খোলা থাকলে** তোলা হয়: অ্যাপের ভেতরে কয়েকবার ভুল সিকিউরিটি পিন দিলে, শাটার-শব্দসহ একটি সামনের ক্যামেরার ছবি। এর জন্য সাধারণ CAMERA অনুমতিই যথেষ্ট (Data safety-তে ক্যামেরার লাইন — `ANTITHEFT_PLAY_DECLARATION_BN.md`)।
 
-**Impact if deferred or interrupted (copy):**
-> A deferred photo is useless: the thief's face is only in front of the camera at the moment of the snatch or the wrong unlock attempt. Without it the owner loses the evidence needed to recover the phone.
-
-**৩০ সেকেন্ডের রেকর্ডিং স্ক্রিপট (ক্যামেরা):**
-1. (০–৬ সে) রেকর্ডার চালু → Assisto → মেনু → **Lost/Stolen** → **Always-on protection**।
-2. (৬–১২ সে) **Intruder photo** অপশন চালু করুন → ক্যামেরার অনুমতি "Allow"।
-3. (১২–১৮ সে) সুরক্ষা চালু করুন → হোম চাপুন → নোটিফিকেশন দেখান (**Lost/Stolen protection is on**, **Turn off**)।
-4. (১৮–২৬ সে) পাতায় **Test** বাটন থাকলে চাপুন (ছবি তোলা হয়) অথবা ব্যাখ্যা লেখা দেখান।
-5. (২৬–৩০ সে) **Turn off** → সুরক্ষা বন্ধ → নোটিফিকেশন চলে যায়।
+**আপনার কাজ:** নতুন AAB আপলোডের পর Play Console → App content → Foreground service permissions → Camera ঘোষণাটি মুছে দিন (অ্যাপ আর এটা ব্যবহার করে না)।
 
 ---
 

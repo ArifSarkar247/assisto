@@ -18,6 +18,8 @@ import 'my_lost_phone_screen.dart';
 import 'recovery_screen.dart';
 import '../services/action_feedback.dart'; // db1
 import '../feature_gates.dart' show kLostActionSwitchesWired; // f6
+import '../widgets/remote_switches_card.dart'; // at100
+import '../widgets/at_disclosure.dart'; // at100
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -144,6 +146,9 @@ class _LostStolenScreenState extends State<LostStolenScreen>
 
   Future<void> _enable() async {
     if (Platform.isIOS) return; // no device-admin on iOS
+    // at100: Play prominent disclosure IN THE APP before Android's screen
+    if (!await AtDisclosure.show(context, AtDisclosureKind.admin)) return;
+    if (!mounted) return;
     final tr = AppLocalizations.of(context);
     try {
       await _channel.invokeMethod<bool>(
@@ -461,6 +466,12 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 kLostActionSwitchesWired
                     ? _actionsCard(tr, scheme)
                     : _actionTestsCard(tr, scheme),
+                const SizedBox(height: Gap.md),
+                // at100: the REAL remote switches (lost mode / alarm / lock /
+                // lock-screen message), sent through the server to this
+                // account's protected phone — usable from any phone the
+                // owner signs in on. Honest delivery state per switch.
+                const RemoteSwitchesCard(),
                 const SizedBox(height: Gap.md),
                 _lostMessageCard(tr, scheme),
                 const SizedBox(height: Gap.md),

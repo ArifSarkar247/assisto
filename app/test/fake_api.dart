@@ -11,6 +11,7 @@ import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
+import 'at100_fakes.dart'; // at100
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1008,6 +1009,16 @@ class FakeApi extends ApiClient {
            'late': false, 'data': {'count': 3}, 'has_photo': false},
         ],
       };
+    }
+    // at100: remote switches + the trusted contact's watched phones
+    if (path.startsWith('/security/engine/commands')) {
+      if (mode == FakeMode.fail) _fail();
+      return at100FakeCommands(bn: _bn, empty: mode == FakeMode.empty,
+          trusted: path.contains('phone_id='));
+    }
+    if (path == '/security/engine/watching') {
+      if (mode == FakeMode.fail) _fail();
+      return {'watching': mode == FakeMode.empty ? [] : at100FakeWatching(_bn)};
     }
     final pay1 = _pay1Get(path); // pay1 (plans / credits / checkout)
     if (pay1 != null) {

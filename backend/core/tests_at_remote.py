@@ -339,6 +339,13 @@ class RateLimitAuditTests(_Base):
         self.assertIn("Waiting for the phone to come online", html)
         self.assertIn("switched off or has no internet cannot receive anything", html)
 
+    def test_list_gives_the_viewer_their_web_view(self):
+        self._as(self.trusted)
+        d = self.client.get(LIST, {"phone_id": self.phone.id}).data
+        self.assertTrue(d["web_path"].startswith("/w/phone/"))
+        self.client.force_authenticate(None)
+        self.assertEqual(self.client.get(d["web_path"]).status_code, 200)
+
     def test_watching_list_has_presence(self):
         self._ingest()
         self._as(self.trusted)
@@ -416,3 +423,18 @@ class IntruderConsentTests(_Base):
             r = self.client.post("/api/v1/security/engine/false-alarm", {"pin": "0000"},
                                  format="json")
             self.assertFalse(r.data.get("intruder_snap"))
+
+
+class AccountPurgeTests(_Base):
+    def test_account_deletion_removes_engine_intruder_photos(self):
+        from django.core.files.base import ContentFile
+        from core import account_purge
+        from core.logic import antitheft as at
+        ev = AntiTheftEvent.objects.create(phone=self.phone, client_id="ph1",
+                                           kind="intruder_photo", at=timezone.now())
+        ev.photo.save("ph1.enc", ContentFile(at.encrypt_photo(b"\xff\xd8\xff" + b"0" * 32)))
+        path = ev.photo.path
+        import os
+        self.assertTrue(os.path.exists(path))
+        account_purge._delete_user_files(self.owner)
+        self.assertFalse(os.path.exists(path))

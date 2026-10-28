@@ -2,7 +2,6 @@ import 'dart:async' show unawaited;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +14,9 @@ import '../services/antitheft_resume.dart'; // at-heartbeat
 import '../services/antitheft_service.dart';
 import '../services/own_device_guard.dart'; // grab-guard
 import 'battery_guidance_screen.dart';
+import 'intruder_consent_screen.dart'; // at100
+import '../services/intruder_snap.dart'; // at100
+import '../widgets/at_disclosure.dart'; // at100
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -114,6 +116,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             notif: AntiTheftResume.texts(AppLocalizations.of(context)));
         running = await AntiTheftService.isRunning();
       }
+      // at100: the PIN dialogs show the visible "a wrong PIN takes a photo"
+      // line only while the (consented) intruder photo is really on.
+      unawaited(IntruderSnap.remember(
+          st['enabled'] == true && st['intruder_photo'] == true));
       if (!mounted) return;
       setState(() {
         _state = st;
@@ -169,7 +175,13 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         // foreground service without it; the native side then honestly
         // reports "not running"). Asked here, from the open app, once.
         try {
-          await Permission.locationWhenInUse.request();
+          // at100: prominent disclosure before Android's location prompt
+          // (only when it is not granted yet)
+          final granted = await Permission.locationWhenInUse.isGranted;
+          if (!granted && mounted &&
+              await AtDisclosure.show(context, AtDisclosureKind.location)) {
+            await Permission.locationWhenInUse.request();
+          }
         } catch (e) {
           // best-effort: a refused/absent permission is reported honestly by
           // the native side ("not running") on this same screen.
@@ -225,6 +237,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     setState(() => _busy = true);
     try {
       final resp = await _api.engineDisable(pin: pin);
+      IntruderSnap.after(resp); // at100: wrong PIN -> consented photo
       final st = resp['_status'] as int?;
       if (st == 423 || resp['state'] == 'blocked') {
         _snack(tr.securityBlockedFrozen);
@@ -247,6 +260,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   Future<void> _saveSettings({
     bool? snatchLock,
     bool? intruderPhoto,
+    int? intruderConsent,
     List<int>? alertIds,
     bool? nightGuard,
     String? homeWifi,
@@ -261,16 +275,19 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         pin: pin,
         snatchLock: snatchLock,
         intruderPhoto: intruderPhoto,
+        intruderConsent: intruderConsent,
         alertMemberIds: alertIds,
         nightGuard: nightGuard,
         homeWifi: homeWifi,
         wifiHash: wifiHash,
       );
+      IntruderSnap.after(resp); // at100: wrong PIN -> consented photo
       if (resp['reason'] == 'no_wifi') {
         _snack(tr.at2HomeWifiNone);
+      } else if (resp['reason'] == 'consent_required') {
+        _snack(tr.at100IcNeeded);
       } else if (resp['ok'] == true) {
-        // Hand the running engine its new settings (adds/removes the camera
-        // foreground type for the intruder photo). Best-effort, never throws.
+        // Hand the running engine its new settings. Best-effort, never throws.
         final cfg = resp['config'];
         if (cfg is Map) {
           await AntiTheftService.configure(cfg.cast<String, dynamic>());
@@ -286,28 +303,17 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     }
   }
 
-  /// Intruder photo is OPT-IN: turning it on shows a plain disclosure, asks
-  /// for the camera permission and needs Assisto as device admin (the OS only
-  /// tells a device admin about wrong unlock attempts). Then the Security PIN
-  /// saves it and the engine re-declares its camera foreground type.
+  /// at100: the intruder photo is OPT-IN and OPEN-APP ONLY. Turning it on
+  /// first shows the full consent screen (what / when / not hidden / where /
+  /// who / how long / delete), THEN asks for the camera permission, then the
+  /// Security PIN saves it with the consent version (the server refuses it
+  /// without). No device admin needed any more: the photo is taken only
+  /// after wrong Security PINs typed inside Assisto.
   Future<void> _toggleIntruder(bool on) async {
     if (!on) return _saveSettings(intruderPhoto: false);
     final tr = AppLocalizations.of(context);
-    final agree = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(tr.atIntruderDiscTitle),
-        content: SingleChildScrollView(child: Text(tr.atIntruderDiscBody)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(tr.atIntruderDiscAgree)),
-        ],
-      ),
-    );
-    if (agree != true || !mounted) return;
+    final agree = await IntruderConsentScreen.ask(context);
+    if (!agree || !mounted) return;
     var camOk = false;
     try {
       camOk = (await Permission.camera.request()).isGranted;
@@ -319,26 +325,9 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       _snack(tr.atIntruderNeedCamera);
       return;
     }
-    const admin = MethodChannel('com.assisto/device_admin');
-    var adminOk = false;
-    try {
-      adminOk = await admin.invokeMethod<bool>('isAdminActive') ?? false;
-    } catch (_) {
-      adminOk = false;
-    }
-    if (!mounted) return;
-    if (!adminOk) {
-      try {
-        await admin.invokeMethod<bool>(
-            'requestAdmin', {'explanation': tr.atIntruderAdminExplain});
-      } catch (e) {
-        // best-effort: the snack below tells the owner what to do next.
-        reportNonFatal('antitheft.request_admin', e);
-      }
-      _snack(tr.atIntruderNeedAdmin);
-      return;
-    }
-    await _saveSettings(intruderPhoto: true);
+    await _saveSettings(
+        intruderPhoto: true,
+        intruderConsent: IntruderConsentScreen.consentVersion);
   }
 
   // ---- build -------------------------------------------------------------
@@ -388,6 +377,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   /// Location permission asked from the open app; then the running engine
   /// re-declares its foreground type so it may read location.
   Future<void> _askLocation() async {
+    // at100: prominent disclosure first (Play), then Android's prompt
+    if (!await AtDisclosure.show(context, AtDisclosureKind.location)) return;
     try {
       final st = await Permission.locationWhenInUse.request();
       if (st.isPermanentlyDenied) {
@@ -739,7 +730,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               value: _state['intruder_photo'] == true && canCamera,
               title: Text(tr.atOptIntruder),
               subtitle: Text(canCamera
-                  ? tr.atOptIntruderBody
+                  ? tr.at100OptIntruderBody
                   : tr.atOptIntruderBlocked),
               onChanged: (_busy || !canCamera)
                   ? null

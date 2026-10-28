@@ -177,6 +177,8 @@ class PushRouting {
     'safety/sos': 'family_alerts',
     'family/alerts': 'family_alerts',
     'security/lost-phone': 'my_lost_phone',
+    // at100: a trusted contact's anti-theft alert -> the phones they help protect
+    'security/watch-phone': 'watched_phones',
     // journey100: Safe Journey pushes
     'journey': 'journey', // the traveller: Are you OK? / routine
     'journey/watch': 'journey_watch', // a watcher: started/late/arrived...

@@ -484,10 +484,12 @@ class RestartRules {
   static const app = 'app';
   static const update = 'update';
   static const boot = 'boot';
+  // at100: a silent high-priority "at_command" FCM push (remote switch waiting)
+  static const push = 'push';
 
   static bool canStart(String trigger, int sdk, bool hasBackgroundLocation) {
     if (trigger == app) return true;
-    if (trigger != update && trigger != boot) return false;
+    if (trigger != update && trigger != boot && trigger != push) return false;
     if (sdk >= 34) return hasBackgroundLocation;
     return true;
   }
@@ -496,6 +498,69 @@ class RestartRules {
 
   static bool needsTapToResume(
           String trigger, int sdk, bool hasBackgroundLocation) =>
-      (trigger == update || trigger == boot) &&
+      (trigger == update || trigger == boot || trigger == push) &&
       !canStart(trigger, sdk, hasBackgroundLocation);
+}
+
+/// at100 — what the owner / trusted contact sees for one remote switch.
+enum CmdPhase {
+  waitingOffline, // queued/sent and the phone is NOT checking in
+  waiting, // queued, phone online (picks it up at the next check-in)
+  sent, // the wake-up push was accepted by Google
+  reached, // the engine fetched it
+  done,
+  failed,
+  expired,
+  cancelled,
+}
+
+/// at100 — remote switch rules. MUST match RemoteCommands.kt (shouldRun,
+/// alarmSeconds, the dedupe ring) and core/views_at_remote.py (kinds,
+/// states). Pure, unit-tested in test/at100_remote_test.dart.
+class RemoteCommandRules {
+  static const kinds = ['lost_mode', 'alarm', 'alarm_stop', 'lock', 'message'];
+  static const defaultAlarmS = 60;
+  static const maxAlarmS = 120;
+  static const doneKeep = 30;
+
+  static bool shouldRun(String kind, int id, Set<int> done) =>
+      id > 0 && kinds.contains(kind) && !done.contains(id);
+
+  static int alarmSeconds(int raw) =>
+      raw <= 0 ? defaultAlarmS : (raw > maxAlarmS ? maxAlarmS : raw);
+
+  static String encodeDone(List<int> done) => (done.length > doneKeep
+          ? done.sublist(done.length - doneKeep)
+          : done)
+      .join(',');
+
+  static List<int> decodeDone(String? s) => (s ?? '')
+      .split(',')
+      .map((e) => int.tryParse(e.trim()))
+      .whereType<int>()
+      .toList();
+
+  static bool inFlight(String state) =>
+      state == 'queued' || state == 'sent' || state == 'delivered';
+
+  /// The honest phase: a switch that has not reached the phone while the
+  /// phone is not checking in is "waiting — phone offline", never "sent".
+  static CmdPhase phase(String state, {required bool phoneOnline}) {
+    switch (state) {
+      case 'queued':
+        return phoneOnline ? CmdPhase.waiting : CmdPhase.waitingOffline;
+      case 'sent':
+        return phoneOnline ? CmdPhase.sent : CmdPhase.waitingOffline;
+      case 'delivered':
+        return CmdPhase.reached;
+      case 'done':
+        return CmdPhase.done;
+      case 'failed':
+        return CmdPhase.failed;
+      case 'expired':
+        return CmdPhase.expired;
+      default:
+        return CmdPhase.cancelled;
+    }
+  }
 }

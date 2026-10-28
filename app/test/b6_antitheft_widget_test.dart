@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
+import 'package:assisto/screens/intruder_consent_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -150,13 +151,13 @@ void main() {
     expect(tester.widget<SwitchListTile>(tile).value, isFalse);
     await tester.tap(find.descendant(of: tile, matching: find.byType(Switch)));
     await tester.pumpAndSettle();
-    // plain disclosure BEFORE any permission / PIN prompt
-    expect(find.text(t.atIntruderDiscTitle), findsOneWidget);
-    expect(find.text(t.atIntruderDiscAgree), findsOneWidget);
-    await tester.tap(find.text(t.cancel));
+    // at100: the full consent screen BEFORE any permission / PIN prompt
+    expect(find.byType(IntruderConsentScreen), findsOneWidget);
+    expect(find.text(t.at100IcAgree), findsOneWidget);
+    await tester.tap(find.byKey(const Key('at100-ic-no')));
     await tester.pumpAndSettle();
     // cancelled: nothing changed, no PIN prompt
-    expect(find.text(t.atIntruderDiscTitle), findsNothing);
+    expect(find.byType(IntruderConsentScreen), findsNothing);
     expect(find.byType(TextField), findsNothing);
     expect(tester.widget<SwitchListTile>(tile).value, isFalse);
   });

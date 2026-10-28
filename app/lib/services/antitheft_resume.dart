@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import 'antitheft_service.dart';
 import 'oem_guide.dart';
+import 'intruder_snap.dart'; // at100
 
 /// at-heartbeat (owner 24 Oct) — keep the always-on Lost/Stolen engine alive.
 ///
@@ -72,6 +73,8 @@ class AntiTheftResume {
     if (_last != null && now.difference(_last!) < throttle) return false;
     _busy = true;
     try {
+      // at100: the PIN dialogs' "a wrong PIN takes a photo" notice (cached)
+      await IntruderSnap.load();
       final ok = await resumeNative(notif);
       _last = DateTime.now();
       return ok;
