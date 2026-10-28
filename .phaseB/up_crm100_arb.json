@@ -87,6 +87,7 @@
    }
   },
   "c100Deal": "Deal",
+  "c100OneDay": "1 day",
   "c100DealLost": "Lost",
   "c100DealOpen": "Open",
   "c100DealWon": "Won",
@@ -511,6 +512,7 @@
   "c100CustomersTitle": "সব গ্রাহক",
   "c100DaysN": "{n} দিন",
   "c100Deal": "ডিল",
+  "c100OneDay": "১ দিন",
   "c100DealLost": "হাতছাড়া",
   "c100DealOpen": "চলমান",
   "c100DealWon": "পেয়েছি",

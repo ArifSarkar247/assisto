@@ -78,7 +78,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
           ),
           for (final n in const [1, 3, 7, 15])
             ListTile(
-                title: Text(t.c100DaysN(_d(n))), onTap: () => Navigator.pop(ctx, n)),
+                title: Text(n == 1 ? t.c100OneDay : t.c100DaysN(_d(n))), onTap: () => Navigator.pop(ctx, n)),
         ]),
       ),
     );
@@ -494,9 +494,8 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
           label: Text(t.c100AddProduct),
         ),
         const SizedBox(height: Gap.lg),
-        Row(children: [
-          Expanded(
-            child: TextField(
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          TextField(
                 controller: _discount,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (_) => setState(() {}),
@@ -507,23 +506,20 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
                         : null,
                     helperMaxLines: 2,
                     border: const OutlineInputBorder())),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: TextField(
+          const SizedBox(height: Gap.sm),
+          TextField(
                 controller: _delivery,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                     labelText: t.c100Delivery, border: const OutlineInputBorder())),
-          ),
         ]),
         const SizedBox(height: Gap.lg),
         Text(t.c100Validity, style: AType.titleMedium),
         Wrap(spacing: Gap.xs, children: [
           for (final n in const [1, 3, 7, 15, 30])
             ChoiceChip(
-                label: Text(t.c100DaysN(_d(n))),
+                label: Text(n == 1 ? t.c100OneDay : t.c100DaysN(_d(n))),
                 selected: _days == n,
                 onSelected: (_) => setState(() => _days = n)),
         ]),
