@@ -11,6 +11,8 @@ import 'db.dart';
 import 'models.dart';
 import 'sync_repo.dart';
 import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
+import 'reminders/reminder_actions.dart' show ReminderActions; // remnotes
+import 'notifications.dart' show Notifications; // remnotes
 import 'background.dart';
 import 'push/push_service.dart';
 import 'security/secret_store.dart';
@@ -179,7 +181,14 @@ class AppState extends ChangeNotifier {
 
   /// Re-sync the OS alarms with the reminder list (coalesced; no-op until
   /// local notifications are initialised). Called on start and resume too.
-  void syncReminderAlarms() => ReminderAlarms.request(() => reminders.items);
+  void syncReminderAlarms() {
+    // remnotes: notification buttons in the app's language; Done / Snooze
+    // tapped while the app was closed are applied first (guarded).
+    Notifications.actionLang = locale?.languageCode == 'en' ? 'en' : 'bn';
+    unawaited(ReminderActions.applyTo(reminders.items, reminders.update)
+        .catchError((_) => 0));
+    ReminderAlarms.request(() => reminders.items);
+  }
 
   void _syncAll() {
     for (final r in _repos) {

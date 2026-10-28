@@ -6,6 +6,12 @@ import '../state.dart';
 import '../theme.dart';
 import 'bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:share_plus/share_plus.dart';
+import '../api.dart' show ApiException;
+import '../screens/vault_screen.dart' show VaultScreen;
+import 'reminders_nlp.dart' show RecurrenceRule, nextOccurrence;
+import 'rn_bits.dart'; // remnotes
+import 'voice_input.dart' show VoiceDictation, VoiceMicButton;
 
 /// Advanced NOTES + TO-DO building blocks (#22, SPEC v2.1 §21).
 ///
@@ -42,13 +48,23 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
   DateTime? due = d['due_at'] != null
       ? DateTime.tryParse(d['due_at'])?.toLocal()
       : null;
+  // remnotes: colour + vault attachments (stored on the server now)
+  String color = kNoteColors.contains(d['color']) ? d['color'] as String : '';
+  final attachments = <Map<String, dynamic>>[
+    for (final a in (d['attachments'] is List ? d['attachments'] as List : []))
+      if (a is Map && a['doc_id'] != null)
+        {'doc_id': a['doc_id'], 'title': '${a['title'] ?? ''}'},
+  ];
+  final voice = VoiceDictation();
+  final newItem = TextEditingController();
 
   final saved = await showAppSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (ctx) => StatefulBuilder(builder: (ctx, setS) {
-      final newItem = TextEditingController();
+      // remnotes: the "add item" field lives OUTSIDE the builder (it was
+      // re-created on every tick, dropping half-typed text)
       return Padding(
         padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg,
             Gap.lg + MediaQuery.of(ctx).viewInsets.bottom),
@@ -83,7 +99,18 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                 maxLines: 4,
                 minLines: 2,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(labelText: t.notesBody)),
+                decoration: InputDecoration(
+                    labelText: t.notesBody,
+                    // remnotes: speak the note (phone's own speech-to-text;
+                    // no audio is kept)
+                    suffixIcon: VoiceMicButton(voice: voice, input: body))),
+            const SizedBox(height: Gap.sm),
+            // ---- colour ----
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(t.rnColor, style: Theme.of(ctx).textTheme.labelLarge),
+            ),
+            NoteColorPicker(value: color, onChanged: (v) => setS(() => color = v)),
             const SizedBox(height: Gap.md),
             // ---- checklist ----
             Align(
@@ -149,6 +176,33 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                     labelText: t.notesTags,
                     helperText: t.notesTagsHint)),
             const SizedBox(height: Gap.sm),
+            // ---- vault papers (remnotes) ----
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                for (final a in attachments)
+                  InputChip(
+                    avatar: const Icon(Icons.description_rounded, size: 18),
+                    label: Text(a['title'].toString()),
+                    onPressed: () => Navigator.of(ctx).push(MaterialPageRoute(
+                        builder: (_) => const VaultScreen())),
+                    deleteButtonTooltipMessage: t.rnAttachRemove,
+                    onDeleted: () => setS(() => attachments.remove(a)),
+                  ),
+                if (attachments.length < 10)
+                  ActionChip(
+                    key: const ValueKey('rn-attach'),
+                    avatar: const Icon(Icons.attach_file_rounded, size: 18),
+                    label: Text(t.rnAttach),
+                    onPressed: () async {
+                      final picked = await pickVaultDocs(ctx,
+                          already: {for (final a in attachments) a['doc_id']});
+                      if (picked != null) setS(() => attachments.addAll(picked));
+                    },
+                  ),
+              ]),
+            ),
+            const SizedBox(height: Gap.sm),
             // ---- due date (puts the note on the calendar) ----
             Row(children: [
               Expanded(
@@ -197,11 +251,20 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
     }),
   );
 
+  try {
+    voice.dispose();
+  } catch (_) {}
+  // a typed-but-not-added checklist line is kept, not lost
+  if (newItem.text.trim().isNotEmpty) {
+    checklist.add({'text': newItem.text.trim(), 'done': false});
+  }
   if (saved == true &&
       (title.text.trim().isNotEmpty ||
           body.text.trim().isNotEmpty ||
           checklist.isNotEmpty)) {
     final payload = <String, dynamic>{
+      'color': color,
+      'attachments': attachments,
       'title': title.text.trim(),
       'body': body.text.trim(),
       'checklist': checklist,
@@ -277,11 +340,17 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
   DateTime? due = d['due_at'] != null
       ? DateTime.tryParse(d['due_at'])?.toLocal()
       : null;
+  // remnotes: repeating to-dos (TickTick / To Do have them)
+  String freq = d['recurrence_rule'] is Map
+      ? '${(d['recurrence_rule'] as Map)['freq'] ?? 'none'}'
+      : 'none';
+  if (!const ['daily', 'weekly', 'monthly', 'yearly'].contains(freq)) freq = 'none';
 
   final saved = await showDialog<bool>(
     context: context,
     builder: (ctx) => StatefulBuilder(builder: (ctx, setS) {
       return AlertDialog(
+        scrollable: true, // 200% text / keyboard
         title: Text(item == null ? t.notesNewTask : t.notesEditTask),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(
@@ -328,6 +397,21 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
                   onPressed: () => setS(() => due = null),
                   icon: const Icon(Icons.clear_rounded)),
           ]),
+          const SizedBox(height: Gap.sm),
+          DropdownButtonFormField<String>(
+            key: const ValueKey('rn-todo-repeat'),
+            initialValue: freq,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: t.remRecurrence),
+            items: [
+              DropdownMenuItem(value: 'none', child: Text(t.remRecurNone)),
+              DropdownMenuItem(value: 'daily', child: Text(t.remRecurDaily)),
+              DropdownMenuItem(value: 'weekly', child: Text(t.remRecurWeekly)),
+              DropdownMenuItem(value: 'monthly', child: Text(t.remRecurMonthly)),
+              DropdownMenuItem(value: 'yearly', child: Text(t.remRecurYearly)),
+            ],
+            onChanged: (v) => setS(() => freq = v ?? 'none'),
+          ),
         ]),
         actions: [
           TextButton(
@@ -340,16 +424,241 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
   );
 
   if (saved == true && title.text.trim().isNotEmpty) {
+    if (freq != 'none' && due == null) {
+      final n = DateTime.now();
+      due = DateTime(n.year, n.month, n.day, 9);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.rnTodoRepeatNeedsDate)));
+      }
+    }
     final payload = <String, dynamic>{
       'title': title.text.trim(),
       'priority': high ? 'high' : 'none',
       'due_at': due?.toUtc().toIso8601String(),
       'done': d['done'] ?? false,
+      'recurrence_rule': todoRule(freq, due),
     };
     if (item == null) {
       await app.todos.add(payload);
     } else {
       await app.todos.update(item, payload);
     }
+  }
+}
+
+// ---------------------------------------------------------------- remnotes
+/// The stored repeat rule for a to-do ({} = no repeat), in the reminders'
+/// shape so one engine ([nextOccurrence]) serves both.
+Map<String, dynamic> todoRule(String freq, DateTime? due) {
+  if (freq == 'none' || due == null) return <String, dynamic>{};
+  return RecurrenceRule(
+    freq: freq,
+    weekday: freq == 'weekly' ? due.weekday - 1 : null,
+    dayOfMonth: freq == 'monthly' ? due.day : null,
+    month: freq == 'yearly' ? due.month : null,
+    time: '${due.hour.toString().padLeft(2, '0')}:'
+        '${due.minute.toString().padLeft(2, '0')}',
+  ).toJson();
+}
+
+/// Ticking a to-do: a repeating one moves to its next date and stays open
+/// (returns that date); otherwise null (= plain done).
+DateTime? todoNextDue(Map<String, dynamic> d, {DateTime? now}) {
+  final raw = d['recurrence_rule'];
+  if (raw is! Map || raw['freq'] == null) return null;
+  final due = d['due_at'] != null ? DateTime.tryParse('${d['due_at']}')?.toLocal() : null;
+  if (due == null) return null;
+  int? i(dynamic v) => v is int ? v : int.tryParse('${v ?? ''}');
+  final rule = RecurrenceRule(
+    freq: '${raw['freq']}',
+    interval: i(raw['interval']) ?? 1,
+    weekday: i(raw['weekday']),
+    dayOfMonth: i(raw['day_of_month']),
+    month: i(raw['month']),
+    time: raw['time'] as String?,
+  );
+  final at = now ?? DateTime.now();
+  // the next occurrence after BOTH now and the current due date
+  final after = due.isAfter(at) ? due : at;
+  return nextOccurrence(due, rule, after: after);
+}
+
+/// Pick papers from the Vault to attach to a note (the vault's own list;
+/// the server keeps only the caller's own documents).
+Future<List<Map<String, dynamic>>?> pickVaultDocs(BuildContext context,
+    {Set<Object?> already = const {}}) {
+  return showAppSheet<List<Map<String, dynamic>>>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (_) => _VaultPick(already: already),
+  );
+}
+
+class _VaultPick extends StatefulWidget {
+  const _VaultPick({required this.already});
+  final Set<Object?> already;
+  @override
+  State<_VaultPick> createState() => _VaultPickState();
+}
+
+class _VaultPickState extends State<_VaultPick> {
+  List<Map<String, dynamic>>? _docs;
+  bool _failed = false;
+  final Set<int> _on = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _failed = false);
+    try {
+      final l = await context.read<AppState>().api.listDocuments();
+      if (mounted) setState(() => _docs = l);
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final docs = _docs;
+    Widget body;
+    if (_failed) {
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(t.rnLoadFailed, textAlign: TextAlign.center),
+        const SizedBox(height: Gap.md),
+        FilledButton.icon(
+            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
+      ]);
+    } else if (docs == null) {
+      body = const Padding(
+          padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()));
+    } else if (docs.isEmpty) {
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(t.rnAttachEmpty, key: const ValueKey('rn-vault-empty'), textAlign: TextAlign.center),
+        const SizedBox(height: Gap.md),
+        FilledButton.icon(
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VaultScreen()));
+          },
+          icon: const Icon(Icons.folder_rounded),
+          label: Text(t.rnAttachOpen),
+        ),
+      ]);
+    } else {
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        for (final doc in docs)
+          if (doc['id'] is int && !widget.already.contains(doc['id']))
+            CheckboxListTile(
+              key: ValueKey('rn-vault-${doc['id']}'),
+              value: _on.contains(doc['id']),
+              title: Text('${doc['title'] ?? ''}'),
+              secondary: const Icon(Icons.description_rounded),
+              onChanged: (v) => setState(() =>
+                  v == true ? _on.add(doc['id'] as int) : _on.remove(doc['id'])),
+            ),
+      ]);
+    }
+    return AppSheetBody(
+      primary: SizedBox(
+        height: 52,
+        child: FilledButton(
+          key: const ValueKey('rn-vault-attach'),
+          onPressed: _on.isEmpty
+              ? null
+              : () => Navigator.pop(context, [
+                    for (final doc in docs ?? const <Map<String, dynamic>>[])
+                      if (_on.contains(doc['id']))
+                        {'doc_id': doc['id'], 'title': '${doc['title'] ?? ''}'},
+                  ]),
+          child: Text(t.rnAttach),
+        ),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(t.rnAttach,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: Gap.md),
+        body,
+      ]),
+    );
+  }
+}
+
+/// The note as plain text (title, body, checklist with ticks, labels).
+String noteAsText(Map<String, dynamic> d) {
+  final b = StringBuffer();
+  final title = '${d['title'] ?? ''}'.trim();
+  final body = '${d['body'] ?? ''}'.trim();
+  if (title.isNotEmpty) b.writeln(title);
+  if (body.isNotEmpty) b.writeln(body);
+  final cl = d['checklist'] is List ? d['checklist'] as List : const [];
+  for (final c in cl) {
+    if (c is! Map) continue;
+    b.writeln('${c['done'] == true ? '☑' : '☐'} ${c['text'] ?? ''}');
+  }
+  return b.toString().trim();
+}
+
+/// Share a note: to one My Circle member (a copy in their notes) or out as
+/// text (WhatsApp / SMS / anything).
+Future<void> shareNote(BuildContext context, Map<String, dynamic> note) async {
+  final t = AppLocalizations.of(context);
+  final choice = await showAppSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (ctx) => SafeArea(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(
+          key: const ValueKey('rn-share-circle'),
+          leading: const Icon(Icons.people_alt_rounded),
+          title: Text(t.rnShareCircle),
+          subtitle: Text(t.rnShareCircleSub),
+          onTap: () => Navigator.pop(ctx, 'circle'),
+        ),
+        ListTile(
+          key: const ValueKey('rn-share-text'),
+          leading: const Icon(Icons.share_rounded),
+          title: Text(t.rnShareOther),
+          onTap: () => Navigator.pop(ctx, 'text'),
+        ),
+      ]),
+    ),
+  );
+  if (choice == null || !context.mounted) return;
+  final d = note['data'] as Map<String, dynamic>;
+  if (choice == 'text') {
+    try {
+      await Share.share(noteAsText(d));
+    } catch (_) {}
+    return;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  final sid = note['serverId'];
+  if (sid is! int) {
+    messenger.showSnackBar(SnackBar(content: Text(t.rnShareNeedsSync)));
+    return;
+  }
+  final m = await pickCircleMember(context,
+      title: t.rnShareCircle, subtitle: t.rnShareCircleSub);
+  if (m == null || !context.mounted) return;
+  try {
+    await context
+        .read<AppState>()
+        .api
+        .postJson('/notes/$sid/share/', {'circle_id': m['circle_id']});
+    messenger.showSnackBar(
+        SnackBar(content: Text(t.rnShareSent('${m['name'] ?? ''}'))));
+  } catch (e) {
+    messenger.showSnackBar(SnackBar(
+        content: Text(e is ApiException && e.message.isNotEmpty
+            ? e.message
+            : t.rnLoadFailed)));
   }
 }
