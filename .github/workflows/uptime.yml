@@ -7,7 +7,9 @@ name: uptime
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # every 30 min (owner 28 Oct cost control; the server's own uptime_check
+    # runs every 2 min and ops_watch pushes the owner on failures)
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:
