@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../notifications.dart';
 import 'bn_day_periods.dart' show appDateLocale;
 
 /// Advanced NOTES + TO-DO building blocks (#22, SPEC v2.1 §21).
@@ -257,7 +256,7 @@ Future<void> noteToReminder(
   final lid = created['localId'];
   if (lid != null) {
     await app.notes.update(note, {'reminder_local_id': lid});
-    Notifications.schedule(lid, title, (d['body'] ?? '').toString(), when);
+    // remmeter: the alarm follows the reminders repo (AppState reconcile)
   }
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(

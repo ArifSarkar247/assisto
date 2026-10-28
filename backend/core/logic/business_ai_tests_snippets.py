@@ -280,12 +280,12 @@ def test_courier_key_gated_mock():
     order = {"id": 7, "status": B.STATUS_PACKED, "total": "1200", "payment": "cod"}
     new, ev = B.advance_order(order, B.STATUS_SHIPPED, courier="pathao")
     assert new["status"] == B.STATUS_SHIPPED
-    assert new["courier_live"] is False  # no key → mock, not a real booking
-    assert new["tracking"].startswith("PATHAO-MOCK-")
-    # With a key, live flips True (would call the real API).
+    assert new["courier_live"] is False  # no courier API call here
+    assert new["tracking"] == ""          # truth: never a made-up tracking id
+    # truth: a key does not make this path live (no API call is made here).
     new2, _ = B.advance_order(order, B.STATUS_SHIPPED, courier="steadfast",
                               courier_keys={"steadfast": "K"})
-    assert new2["courier_live"] is True
+    assert new2["courier_live"] is False and new2["tracking"] == ""
 
 
 def test_cod_amount():
@@ -295,11 +295,11 @@ def test_cod_amount():
 
 def test_parcel_status_lookup():
     order = {"id": 7, "status": B.STATUS_SHIPPED, "courier": "redx",
-             "tracking": "REDX-MOCK-7"}
+             "tracking": "RX7781234"}
     s = B.parcel_status(order, lang="en")
-    assert "shipped" in s["message"].lower() and "REDX-MOCK-7" in s["message"]
+    assert "shipped" in s["message"].lower() and "RX7781234" in s["message"]
     sbn = B.parcel_status(order, lang="bn")
-    assert "REDX-MOCK-7" in sbn["message"]
+    assert "RX7781234" in sbn["message"]
 
 
 # ===========================================================================
@@ -481,10 +481,12 @@ def test_payment_link_never_custody():
     assert mock["live"] is False and mock["holds_funds"] is False
     assert mock["custodian"] == "licensed_partner"
     assert mock["needs_key"] is True
-    # With a partner key → live link, STILL not our custody.
-    live = B.payment_link_builder(order, partner_key="PK", lang="en")
-    assert live["live"] is True and live["holds_funds"] is False
-    assert live["custodian"] == "licensed_partner"
+    assert mock["link"] == ""
+    # truth: a key alone never yields a made-up "live" checkout URL.
+    keyed = B.payment_link_builder(order, partner_key="PK", lang="en")
+    assert keyed["live"] is False and keyed["holds_funds"] is False
+    assert keyed["link"] == "" and keyed["not_wired"] is True
+    assert "example" not in keyed["link"]
 
 
 # ===========================================================================

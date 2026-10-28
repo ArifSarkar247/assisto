@@ -349,7 +349,10 @@ def overflow_ice(user_id, ttl, own_down=False):
         hit = cache.get(key)
         if hit is not None:
             return hit
-        ice = cf_generate(st["key_id"], st["api_token"], ttl)
+        # srvperf/H: a failing provider is skipped at once (shared circuit)
+        # instead of costing every call setup a 4 s wait.
+        from . import ext_breaker as XB
+        ice = XB.call("turn", cf_generate, st["key_id"], st["api_token"], ttl)
         # Only TURN relay entries: our own STUN already covers reflexive.
         ice = [e for e in ice if "username" in e]
         cache.set(key, ice, ttl // 2)

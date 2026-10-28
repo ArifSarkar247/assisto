@@ -72,7 +72,6 @@ const Map<String, List<String>> _strings = {
   'mDeleteQ': ['\u098F\u0987 \u09AE\u09BF\u099F\u09BF\u0982 \u09AE\u09C1\u099B\u09AC\u09C7\u09A8?', 'Delete this meeting?'],
   'mDeleted': ['\u09AE\u09BF\u099F\u09BF\u0982 \u09AE\u09C1\u099B\u09C7 \u09AB\u09C7\u09B2\u09BE \u09B9\u09AF\u09BC\u09C7\u099B\u09C7', 'Meeting deleted'],
   'mEtaEstimate': ['\u0986\u09A8\u09C1\u09AE\u09BE\u09A8\u09BF\u0995 {m} \u09AE\u09BF\u09A8\u09BF\u099F', 'About {m} min'],
-  'mEtaMockNote': ['\u0986\u09A8\u09C1\u09AE\u09BE\u09A8\u09BF\u0995\u2014\u09AE\u09CD\u09AF\u09BE\u09AA\u09B8 \u0995\u09BF \u09AF\u09C1\u0995\u09CD\u09A4 \u09B9\u09B2\u09C7 \u09B8\u09A0\u09BF\u0995 \u09B9\u09AC\u09C7', 'Estimate — exact when a Maps key is added'],
   'mEtaGetEstimate': ['\u09AF\u09BE\u09A4\u09CD\u09B0\u09BE\u09B0 \u09B8\u09AE\u09AF\u09BC \u0985\u09A8\u09C1\u09AE\u09BE\u09A8', 'Estimate travel time'],
   'mRecurringBadge': ['\u09AA\u09C1\u09A8\u09B0\u09BE\u09AC\u09C3\u09A4\u09CD\u09A4', 'Repeats'],
   'mAllDay': ['\u09B8\u09BE\u09B0\u09BE\u09A6\u09BF\u09A8', 'All day'],
@@ -347,22 +346,20 @@ String shareText(BuildContext c, Map<String, dynamic> a) {
 }
 
 // ---------------------------------------------------------------------------
-// HONEST key-gated travel ETA — mirrors meetings.travel_eta / MOCK_ETA_MIN.
-// With no Maps key wired we return a fixed mock estimate flagged source='mock'
-// so the UI labels it an estimate. We NEVER fake live traffic.
+// Travel ETA — REAL only.
+// truth (owner FINAL ORDER 27 Oct): this used to return a fixed 25-minute
+// "estimate" for every destination (and still did with a Maps key, since no
+// Distance-Matrix call exists). No live travel-time source is wired, so there
+// is no ETA: "Leave now" uses only the travel time the user sets.
 // ---------------------------------------------------------------------------
-const int kMockEtaMin = 25;
 
-/// Returns (etaMin, source) where source is 'live' | 'mock' | 'none'.
+/// Returns (etaMin, source); source is 'live' | 'none'. Always 'none' until a
+/// real travel-time source is wired (never a made-up number).
 ({int? etaMin, String source}) travelEta({
   String? place,
   double? lat,
   double? lng,
   String? mapsKey,
 }) {
-  final hasDest = (lat != null && lng != null) ||
-      (place != null && place.trim().isNotEmpty);
-  if (!hasDest) return (etaMin: null, source: 'none');
-  // Integrator: with a real key, swap in a Distance-Matrix call -> source:'live'.
-  return (etaMin: kMockEtaMin, source: 'mock');
+  return (etaMin: null, source: 'none');
 }

@@ -174,6 +174,11 @@ def party_statement(party, entries, book, lang="en"):
             "delta": delta,
             "balance": bal,
             "balance_fmt": fmt_amount(bal),
+            # ledger100: pass-through ids so the app can edit / dedupe a row
+            "entry_id": e.get("id"),
+            "version": e.get("version"),
+            "client_id": e.get("client_id") or "",
+            "editable": e.get("editable", True),
         })
     return {
         "book": book,
@@ -629,3 +634,117 @@ def statement_pdf_data(business, party, entries, book=CUSTOMER,
             "এই বিবরণী শুধুমাত্র হিসাব রক্ষার জন্য। Assisto কোনো অর্থ লেনদেন করে না।",
             "This statement is for bookkeeping only. Assisto does not handle money."),
     }
+
+
+# ---------------------------------------------------------------------------
+# ledger100 — per-customer reminder links, app-facing statement lines,
+# scheduled-reminder cadence. Pure (no DB, no clock).
+# ---------------------------------------------------------------------------
+
+def bd_msisdn(phone):
+    """'01712-345678' / '+8801712345678' / '১৭১২…' → '8801712345678' (the
+    form wa.me wants), or '' when it is not a Bangladesh mobile number."""
+    import re
+    d = re.sub(r"\D", "", normalize_digits(str(phone or "")))
+    if d.startswith("880"):
+        d = d[3:]
+    elif d.startswith("88") and len(d) == 13:
+        d = d[2:]
+    if len(d) == 10 and d.startswith("1"):
+        d = "0" + d
+    if len(d) == 11 and d.startswith("01") and d[2] in "3456789":
+        return "88" + d
+    return ""
+
+
+def wa_link(phone, text):
+    """A wa.me deep link for ONE customer (empty when the phone is unusable —
+    the app then offers the plain share sheet instead)."""
+    from urllib.parse import quote
+    m = bd_msisdn(phone)
+    if not m:
+        return ""
+    return "https://wa.me/%s?text=%s" % (m, quote(text or "", safe=""))
+
+
+def sms_uri(phone, text):
+    """An `sms:` composer link (the user's own phone sends it, not Assisto)."""
+    from urllib.parse import quote
+    m = bd_msisdn(phone)
+    if not m:
+        return ""
+    return "sms:+%s?body=%s" % (m, quote(text or "", safe=""))
+
+
+_BN_MONTHS = ("জানু", "ফেব্রু", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট",
+              "সেপ্টে", "অক্টো", "নভে", "ডিসে")
+_EN_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+              "Oct", "Nov", "Dec")
+
+
+def day_label(iso):
+    """'2026-10-27T…' → {'bn': '২৭ অক্টো ২০২৬', 'en': '27 Oct 2026'}."""
+    s = str(iso or "")
+    try:
+        y, mo, d = int(s[0:4]), int(s[5:7]), int(s[8:10])
+        if not 1 <= mo <= 12:
+            raise ValueError
+    except (ValueError, IndexError):
+        return bn_en(s, s)
+    en = "%d %s %d" % (d, _EN_MONTHS[mo - 1], y)
+    bn = ("%d %s %d" % (d, _BN_MONTHS[mo - 1], y)).translate(_EN2BN)
+    return bn_en(bn, en)
+
+
+def statement_lines(stmt, book):
+    """The app's row shape for a party_statement(): newest first, each with
+    debit/credit/balance display pairs + the entry id/version for editing.
+
+    debit = the side that RAISES the balance (customer: owner gave on credit;
+    supplier: owner got goods on credit); credit = a payment."""
+    out = []
+    for r in stmt.get("entries") or []:
+        raises = (r.get("delta") or 0) > 0
+        amt = r.get("amount_fmt") or fmt_amount(0)
+        if book == CUSTOMER:
+            what = (bn_en("বাকি দিলাম", "Gave on credit") if raises
+                    else bn_en("টাকা পেলাম", "Payment received"))
+        else:
+            what = (bn_en("বাকিতে মাল নিলাম", "Goods on credit") if raises
+                    else bn_en("টাকা দিলাম", "Payment made"))
+        note = (r.get("note") or "").strip()
+        part = bn_en("%s — %s" % (what["bn"], note), "%s — %s" % (what["en"], note)) \
+            if note else what
+        out.append({
+            "entry_id": r.get("entry_id"), "version": r.get("version"),
+            "client_id": r.get("client_id") or "",
+            "editable": bool(r.get("editable", True)),
+            "direction": r.get("direction"), "amount": r.get("amount"),
+            "note": note, "at": r.get("at"),
+            "at_display": day_label(r.get("at")),
+            "particulars": part,
+            "debit_display": amt if raises else bn_en("", ""),
+            "credit_display": bn_en("", "") if raises else amt,
+            "balance_display": r.get("balance_fmt"),
+        })
+    out.reverse()
+    return out
+
+
+SCHEDULE_MAX_INTERVAL_DAYS = 90
+
+
+def next_fire_at(next_at, interval_days, now):
+    """The next firing after one at `next_at` (aware datetimes). interval 0 →
+    None (a one-off: it is done). A long-missed schedule (server down) jumps
+    to the first slot AFTER `now` instead of firing once per missed slot."""
+    from datetime import timedelta
+    n = int(interval_days or 0)
+    if n <= 0:
+        return None
+    step = timedelta(days=min(n, SCHEDULE_MAX_INTERVAL_DAYS))
+    nxt = next_at + step
+    if nxt <= now:
+        missed = int((now - nxt) / step) + 1
+        nxt = nxt + step * missed
+    return nxt

@@ -289,6 +289,9 @@ End-to-end encrypted personal/group text messages are also exempt (we cannot rea
 | Financial info — Other financial info (ledger, budgets, loans you type) | Yes | No | No | Optional | App functionality |
 | Health and fitness — Fitness info (workouts, steps, weight goal you log; Health Connect itself stays on the phone) | Yes | No | No | Optional | App functionality — see PLAY_HEALTH_DECLARATION_BN.md §3 |
 | Health and fitness — Health info (water, sleep hours, food notes you log) | Yes | No | No | Optional | App functionality — see PLAY_HEALTH_DECLARATION_BN.md §3 |
+
+Probashi family plan + Budget & Remittance (flags `probashi_plan`, `budget_remittance`; add/confirm BEFORE either is ON in Play):
+Financial info — Other financial info also covers remittance received, family budget plan vs spending and bills (encrypted at rest with Fernet: FINANCE_FERNET_KEY first, else INTEGRATIONS_FERNET_KEY; never used for ads/analytics/AI; not sold; deletable in-app). A family member's figures are shown to the paying relative ONLY when that member turns on "budget" sharing in the app — a user-initiated transfer to another user, which Play does not count as "Shared". Purchase history also covers the `assisto_probashi` subscription. No new data type is collected. Details: owner_actions/PROBASHI_PLAN_BN.md §৬.
 | Messages — Other in-app messages (channels, communities, business inbox; NOT the E2E chats) | Yes | No | No | Optional | App functionality |
 | Photos and videos — Photos / Videos | Yes | No | No | Optional | App functionality (vault, profile, status, Photo Studio, intruder photo, shop snapshots) |
 | Files and docs | Yes | No | No | Optional | App functionality (vault) |
@@ -330,6 +333,7 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 | `BIND_VOICE_INTERACTION` | No form | Optional default-assistant role chosen by the user in Android settings. |
 | `REQUEST_INSTALL_PACKAGES` | Would need a declaration and would very likely be refused | **Removed from the Play build** (proposal A). The website APK keeps it for its own updater. |
 | `SET_ALARM`, `VIBRATE`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, network | No form | Normal permissions. |
+| `SCHEDULE_EXACT_ALARM` (remmeter) | No form (only `USE_EXACT_ALARM` has the Play declaration; we never declare it — CI removes it) | User-granted "Alarms & reminders" special access, asked only when a timed reminder is created; inexact fallback with an honest note. |
 
 Also in App content: **Government apps** No · **Financial features**: personal
 finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**: §4 ·

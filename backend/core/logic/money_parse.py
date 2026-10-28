@@ -136,9 +136,10 @@ _AMOUNT_RX = re.compile(
     r"(?:(?:tk|bdt|taka|৳)\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:tk|bdt|taka|৳))",
     re.I,
 )
-_FEE_RX = re.compile(r"(?:fee|charge|chrg)[:\s]*(?:tk|bdt|৳)?\s*([\d,]+(?:\.\d+)?)", re.I)
+# aieval: Bangla-template SMS ("ফি ৳১৮", "ব্যালেন্স ৳১,৫০০") are read too.
+_FEE_RX = re.compile(r"(?:fee|charge|chrg|ফি(?=\s*[:৳\d]))[:\s]*(?:tk|bdt|৳)?\s*([\d,]+(?:\.\d+)?)", re.I)
 _BAL_RX = re.compile(
-    r"(?:bal(?:ance)?|avl\s*bal|available\s*balance)[:\s]*(?:tk|bdt|৳)?\s*([\d,]+(?:\.\d+)?)",
+    r"(?:bal(?:ance)?|avl\s*bal|available\s*balance|ব্যালেন্স)[:\s]*(?:tk|bdt|৳)?\s*([\d,]+(?:\.\d+)?)",
     re.I,
 )
 # TrxID / TxnID are the authoritative wallet references; prefer them over a
@@ -532,6 +533,9 @@ def _mv_last_cue_type(low):
     cue appears; the latest-appearing wins (Bangla direction verbs trail the
     sentence). Returns a txn_type or None. Loan cues beat plain spend/income
     because 'ধার দিলাম' contains the spend-ish 'দিলাম'."""
+    # "got paid" is income; its inner "paid" must not count as a spend (aieval)
+    low = low.replace("got paid", "received")
+
     def last_hit(cues):
         pos = -1
         for c in cues:

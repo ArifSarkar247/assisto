@@ -15,10 +15,13 @@ import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
+import '../reminders/alarm_plan.dart' show PushDecision;
+import '../reminders/reminder_alarms.dart' show ReminderAlarms;
 import '../services/own_device_guard.dart'; // grab-guard
 import '../messaging/msg_notify.dart';
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
 import '../security/secret_store.dart';
+import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 
 /// Draws Assisto pushes as local notifications. Usable from the UI isolate AND
 /// from the FCM background isolate (no BuildContext — strings come from
@@ -172,6 +175,19 @@ class PushNotifier {
             visibility: NotificationVisibility.public),
       );
     }
+    if (p.isAgentApproval) {
+      // agent-core WP-APP: Reject (API, no UI) / Approve (opens the card);
+      // PRIVATE on the lock screen — the details live only in the app.
+      return NotificationDetails(
+        android: AndroidNotificationDetails(ch.id, ch.name,
+            channelDescription: ch.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            visibility: NotificationVisibility.private,
+            autoCancel: true,
+            actions: AgentCorePush.actions(t)),
+      );
+    }
     return NotificationDetails(
       android: AndroidNotificationDetails(ch.id, ch.name,
           channelDescription: ch.description,
@@ -205,6 +221,13 @@ class PushNotifier {
         return;
       }
       if (!p.isKnownKind) return;
+      // remmeter: the server's backup reminder push stays silent when this
+      // phone's own alarm already rang for the same fire; when that alarm is
+      // still waiting (late), the push rings now and the alarm is cancelled.
+      if (p.kind == 'reminder') {
+        final d = await ReminderAlarms.onReminderPush(p.data, plugin: _plugin);
+        if (d == PushDecision.suppress) return;
+      }
       String? ring;
       if (p.isCall) {
         // c2-calls: tell the caller this phone is REALLY ringing, and ring
@@ -417,6 +440,12 @@ void assistoNotificationBackground(NotificationResponse r) {
   }
   final p = PushPayload.decode(r.payload);
   if (p == null) return;
+  // agent-core WP-APP: Reject an agent step right from the notification
+  // (the app's own token; Approve always opens the app instead).
+  if (r.actionId == AgentCorePush.actionReject && p.isAgentApproval) {
+    unawaited(AgentCorePush.rejectFromNotification(p, onFailed: PushNotifier.show));
+    return;
+  }
   if (r.actionId == PushNotifier.actionDecline && p.isCall) {
     unawaited(PushNotifier.declineCall(p.callId));
     unawaited(PushNotifier.cancelCall(p.callId));

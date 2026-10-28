@@ -1,2 +1,4 @@
 # fake test pairing token in a superseded commit (cctv1 tests), not a secret
 06fb9cf4997060b40ee4341411714718696595f4:app/test/cctv1_shots.dart:generic-api-key:16
+# truth: SharedPreferences key name 'nearby_favourites_v2' (not a secret)
+65b4c7463d31e61c5cf21fb7215dadc1bc223655:app/lib/screens/nearby_screen.dart:generic-api-key:45

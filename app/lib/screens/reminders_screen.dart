@@ -12,6 +12,7 @@ import '../widgets/reminders_nlp.dart';
 import '../widgets/rem_calendar.dart';
 import '../widgets/offline_banner.dart';
 import 'reminders_quick_add.dart';
+import '../reminders/exact_alarm_ui.dart'; // remmeter
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// Reminders & Memory brain — the daily natural-language reminder screen.
@@ -98,6 +99,12 @@ class _RemindersScreenState extends State<RemindersScreen>
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [
+          // remmeter: will my reminders ring on time on THIS phone?
+          IconButton(
+            tooltip: t.rmxCheckTitle,
+            onPressed: () => ReminderDeliverySheet.open(context),
+            icon: const Icon(Icons.health_and_safety_rounded),
+          ),
           IconButton(
             tooltip: _calendar ? t.remCalShowList : t.remCalShowCalendar,
             onPressed: () => setState(() => _calendar = !_calendar),
@@ -132,6 +139,8 @@ class _RemindersScreenState extends State<RemindersScreen>
                     onDismiss: () =>
                         setState(() => _notifBannerDismissed = true),
                   ),
+                // remmeter: exact alarms off -> honest "may be late" note
+                if (_notifEnabled != false) const ExactAlarmBanner(),
                 const OfflineBanner(),
                 QuickAddBar(onCommit: (p, title, link) async {
                   await _create(context, title: title, parsed: p, link: link);
@@ -249,10 +258,11 @@ class _RemindersScreenState extends State<RemindersScreen>
       'source': 'nlp',
       if (link != null) 'link': link,
     };
-    final created = await app.reminders.add(payload);
-    final lid = created['localId'];
-    if (parsed.dateTime != null && lid != null) {
-      Notifications.schedule(lid, title, '', parsed.dateTime!);
+    await app.reminders.add(payload);
+    // remmeter: the alarm follows the repo (AppState reconcile); explain +
+    // ask for exact alarms only when a TIMED reminder is created.
+    if (parsed.dateTime != null && !parsed.dateOnly && context.mounted) {
+      await maybeAskExactAlarms(context);
     }
   }
 }
@@ -439,16 +449,10 @@ class _ReminderCard extends StatelessWidget {
                       'due_at': adv?.toUtc().toIso8601String(),
                       'done': false,
                     });
-                    Notifications.cancel(item['localId']);
-                    if (adv != null) {
-                      Notifications.schedule(
-                          item['localId'], d['title'] ?? '', d['notes'] ?? '', adv);
-                    }
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(t.remRecurringAdvanced)));
                   } else {
                     app.reminders.update(item, {'done': v ?? false});
-                    if (v == true) Notifications.cancel(item['localId']);
                   }
                 },
               ),
@@ -601,8 +605,6 @@ class _ReminderCard extends StatelessWidget {
       'due_at': chosen.toUtc().toIso8601String(),
       'done': false,
     });
-    Notifications.cancel(it['localId']);
-    Notifications.schedule(it['localId'], d['title'] ?? '', d['notes'] ?? '', chosen);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
@@ -646,7 +648,6 @@ class _ReminderCard extends StatelessWidget {
   void _del(BuildContext context, Map<String, dynamic> it) {
     final t = AppLocalizations.of(context);
     final app = context.read<AppState>();
-    Notifications.cancel(it['localId']);
     app.reminders.remove(it);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(t.commonDeleted),

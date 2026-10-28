@@ -18,11 +18,13 @@ from django.utils import timezone
 from core.models import ProtectedPhone
 from core.views_lost import _went_dark_since
 from core.views_security import _notify_owner_and_circle
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Alert owner+circle once when an armed phone goes dark (no heartbeat)."
 
+    @track_job("check_went_dark")
     def handle(self, *args, **opts):
         now = timezone.now()
         alerted = 0

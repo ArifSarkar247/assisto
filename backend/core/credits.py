@@ -58,13 +58,28 @@ def bcfg():
         return billing_cfg.defaults()
 
 
-def plan_credits(plan):
+def plan_credits(plan, months=1):
     """Monthly allowance of a plan from PricingConfig (founder/annual/probashi
-    -> Premium)."""
+    -> Premium). pricing-40: for a paid period of 12+ months (an annual
+    plan) with credit_model enabled, each month grants
+    credits x annual_credit_months / 12 (owner: annual = 10x price, 10x
+    credits). Disabled (default) -> the full monthly allowance, as before."""
     from . import billing
     c = billing.cfg()
+    if plan == "probashi":
+        # probashi-plan: the family's SHARED monthly pool (payer + seats).
+        # Annual (owner 27 Oct): 10 x price AND 10 x credits = annual_pool_credits
+        # a year, granted as 12 monthly slices (1800 -> 150 a month).
+        pp = c["probashi_plan"]
+        if int(months or 1) >= 12:
+            return max(0, int(pp["annual_pool_credits"]) // 12)
+        return max(0, int(pp["pool_credits"]))
     row = c["plans"].get(plan) or c["plans"]["premium"]
-    return max(0, int(row["credits"]))
+    n = max(0, int(row["credits"]))
+    cm = c.get("credit_model") or {}
+    if int(months or 1) >= 12 and cm.get("enabled"):
+        n = (n * int(cm.get("annual_credit_months") or 12)) // 12
+    return n
 
 
 def add_months(dt, n):
@@ -377,11 +392,14 @@ def _reconcile_cache(u, now):
 
 
 # ----------------------------------------------------------------- spend
-def spend(user, need, note="", now=None, source_type="spend", _u=None):
+def spend(user, need, note="", now=None, source_type="spend", _u=None, only_buckets=None):
     """ATOMIC spend of `need` credits in the owner's order. Returns
     {ok, reason, charged, balance, spend_ref}. A negative balance blocks every
     credit feature (rule L). One ledger row per lot touched, all sharing the
-    spend_ref (so a failed call can be returned to the same lots)."""
+    spend_ref (so a failed call can be returned to the same lots).
+    `only_buckets` (probashi-plan) limits the spend to those buckets — a
+    family member spends ONLY the payer's plan pool, never the payer's own
+    packs or free credits."""
     now = now or timezone.now()
     need = int(need or 0)
 
@@ -390,12 +408,19 @@ def spend(user, need, note="", now=None, source_type="spend", _u=None):
         bal = int(u.ai_credits or 0)
         if need <= 0:
             return {"ok": True, "reason": "ok", "charged": 0, "balance": bal, "spend_ref": ""}
+        lots_qs = _active(u).filter(remaining__gt=0)
+        if only_buckets:
+            if bal < 0:
+                return {"ok": False, "reason": "insufficient", "charged": 0, "balance": bal,
+                        "negative": True, "spend_ref": ""}
+            lots_qs = lots_qs.filter(bucket__in=tuple(only_buckets))
+            bal = int(lots_qs.aggregate(s=Sum("remaining"))["s"] or 0)
         if bal < need:
             return {"ok": False, "reason": "insufficient", "charged": 0, "balance": bal,
                     "negative": bal < 0, "spend_ref": ""}
         ref = "sp:" + uuid.uuid4().hex[:20]
         left = need
-        for lot in _spend_order(_active(u).filter(remaining__gt=0).select_for_update()):
+        for lot in _spend_order(lots_qs.select_for_update()):
             take = min(lot.remaining, left)
             lot.remaining -= take
             lot.spent += take
@@ -659,7 +684,58 @@ def state(user, now=None):
         "unlock_pct": int(k["unlock_pct"]), "unlock_hours": int(k["unlock_hours"]),
         "refund_window_hours": int(k["refund_window_hours"]),
         "server_time": now.isoformat(),
+        # billapp (27 Oct): what the app's Credits screen lists per bucket,
+        # the debt as a positive number, what each action costs (credits
+        # only, never our provider cost) and the never-cash rule.
+        "bucket_detail": bucket_detail(user, now),
+        "debt": max(0, -int(buckets(user, now).get(DEBT) or 0)),
+        "action_costs": action_costs(),
+        "withdrawable": False,
     }
+
+
+def bucket_detail(user, now=None):
+    """[{bucket, remaining, locked, expires_at, unlocks_at}] for every bucket
+    that holds something. expires_at = the soonest real expiry of that
+    bucket's active lots (None = never expires, e.g. packs); unlocks_at = the
+    soonest staged unlock still pending in it."""
+    from .models import CreditLot
+    now = now or timezone.now()
+    far = _far().year
+    rows = {}
+    for lot in CreditLot.objects.filter(user=user, status="active").order_by("id"):
+        r = rows.setdefault(lot.bucket, {"bucket": lot.bucket, "remaining": 0, "locked": 0,
+                                         "expires_at": None, "unlocks_at": None})
+        r["remaining"] += int(lot.remaining or 0)
+        r["locked"] += int(lot.locked or 0)
+        exp = lot.expires_at
+        if exp is not None and exp.year < far and (r["expires_at"] is None or exp < r["expires_at"]):
+            r["expires_at"] = exp
+        ua = lot.unlocks_at
+        if lot.locked and ua is not None and (r["unlocks_at"] is None or ua < r["unlocks_at"]):
+            r["unlocks_at"] = ua
+    order = {b: i for i, b in enumerate(BUCKETS + (DEBT,))}
+    out = []
+    for b in sorted(rows, key=lambda x: order.get(x, 99)):
+        r = rows[b]
+        if not (r["remaining"] or r["locked"]):
+            continue
+        r["expires_at"] = r["expires_at"].isoformat() if r["expires_at"] else None
+        r["unlocks_at"] = r["unlocks_at"].isoformat() if r["unlocks_at"] else None
+        out.append(r)
+    return out
+
+
+def action_costs():
+    """{action: credits per use} from the live pricing config (owner-set).
+    Credits only — the provider cost behind it is never sent to users."""
+    try:
+        from . import billing
+        return {k: int(v.get("credits") or 0)
+                for k, v in sorted((billing.cfg().get("action_costs") or {}).items())
+                if isinstance(v, dict)}
+    except Exception:
+        return {}
 
 
 def verify(user):

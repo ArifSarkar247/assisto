@@ -57,9 +57,20 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # mr1: a stranger's first message (one per sender, collapsed per
          # sender). A NOTIFICATION push (the tray draws it on any build).
          "message_request",
+         # remmeter: prepaid meter running low (a NOTIFICATION push, so every
+         # build's tray draws it; capped + quiet hours in meter_low_alerts).
+         "meter_low",
+         # agent-proactive: an Agent Core nudge / morning brief / evening
+         # recap (a NOTIFICATION push; capped + quiet hours server-side).
+         "agent_nudge",
          # p2-money: a brand offer the user opted into (max 2/day, mutable;
          # its own LOW-importance "offers" channel on the phone).
-         "offer")
+         "offer",
+         # agent-core (WP-APP): the agent needs a one-tap approval before it
+         # messages / posts / pays / books / deletes. A NOTIFICATION push with
+         # NO details (lock screen): the app adds Approve / Reject actions —
+         # Reject calls the API from the notification, Approve opens the card.
+         "agent_approval")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -78,14 +89,17 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
          "shop_alert": 3600, "missed_call": 86400, "msg_sync": 86400,
          "key_request": 86400, "key_ready": 86400, "message_request": 86400,
-         "offer": 6 * 3600}
+         "offer": 6 * 3600, "meter_low": 12 * 3600,
+         "agent_nudge": 12 * 3600, "agent_approval": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
             "owner_alert": "alerts", "shop_alert": "alerts",
             "missed_call": "missed_calls", "msg_sync": "messages",
             "key_request": "messages", "key_ready": "messages",
-            "message_request": "messages", "offer": "offers"}
+            "message_request": "messages", "offer": "offers",
+            "meter_low": "alerts",
+            "agent_nudge": "alerts", "agent_approval": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -220,9 +234,17 @@ def get_access_token(sa=None, force=False):
                 "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
                 "assertion": build_jwt(sa, now),
             }).encode("ascii")
-            code, js = _http_post(
-                getattr(settings, "FCM_TOKEN_URI", "") or TOKEN_URI, body,
-                {"Content-Type": "application/x-www-form-urlencoded"})
+            from . import ext_breaker as XB
+            if not XB.allow("fcm"):
+                return None           # srvperf/H: Google is down, skip fast
+            try:
+                code, js = _http_post(
+                    getattr(settings, "FCM_TOKEN_URI", "") or TOKEN_URI, body,
+                    {"Content-Type": "application/x-www-form-urlencoded"})
+            except Exception as e:
+                XB.fail("fcm", "token " + type(e).__name__)
+                raise
+            XB.book("fcm", code < 500 and code != 429, "token http %s" % code)
             if code != 200 or not js.get("access_token"):
                 log.warning("push: token exchange failed (http %s)", code)
                 return None
@@ -322,13 +344,23 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
         # e2e: settings.FCM_SEND_URL points the harness at a local mock FCM
         url = (getattr(settings, "FCM_SEND_URL", "") or SEND_URL).format(
             project_id=sa["project_id"])
+        from . import ext_breaker as XB
         for attempt in (0, 1):
+            # srvperf/H: FCM down -> no 8 s wait per token per push; the
+            # circuit opens after 5 failures in a row and probes every 30 s.
+            if not XB.allow("fcm"):
+                return False
             access = get_access_token(sa, force=bool(attempt))
             if not access:
                 return False
-            code, js = _http_post(url, body, {
-                "Authorization": "Bearer " + access,
-                "Content-Type": "application/json; charset=utf-8"})
+            try:
+                code, js = _http_post(url, body, {
+                    "Authorization": "Bearer " + access,
+                    "Content-Type": "application/json; charset=utf-8"})
+            except Exception as e:
+                XB.fail("fcm", "send " + type(e).__name__)
+                raise
+            XB.book("fcm", code < 500 and code != 429, "send http %s" % code)
             if code == 200:
                 if isinstance(result, dict):
                     try:
@@ -416,6 +448,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             collapse = kind   # one pending per device is enough
         elif kind in ("call", "call_cancel") and payload.get("call_id"):
             collapse = "call-%s" % payload["call_id"]
+        elif kind == "agent_approval" and payload.get("approval_id"):
+            collapse = "agentap-%s" % payload["approval_id"]
         sent = 0
         msg_ids = []
         for tok in dict.fromkeys(tokens):
@@ -478,18 +512,35 @@ def _get_executor():
         return _executor
 
 
+# srvperf/H: when FCM is slow the 2 push threads fall behind; the queue is
+# bounded so memory never grows without limit. Rings / SOS / cancel are
+# never dropped; other kinds are dropped (counted in the log) above the cap —
+# the app's foreground polls still deliver them.
+PUSH_QUEUE_CAP = 300
+_CRITICAL_KINDS = ("call", "call_cancel", "sos", "family_alert", "owner_alert")
+_pending = [0]
+_dropped = [0]
+
+
 def _run_in_worker(args, kwargs):
     from django.db import close_old_connections, connection
+    try:
+        _run_push(args, kwargs, close_old_connections)
+    finally:
+        with _executor_lock:
+            _pending[0] = max(0, _pending[0] - 1)
+        try:
+            connection.close()
+        except Exception:
+            pass
+
+
+def _run_push(args, kwargs, close_old_connections):
     try:
         close_old_connections()
         push_to_user(*args, **kwargs)
     except Exception:
         pass
-    finally:
-        try:
-            connection.close()
-        except Exception:
-            pass
 
 
 def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
@@ -508,7 +559,21 @@ def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
             sync = bool(getattr(settings, "PUSH_SYNC", False))
         if sync:
             return push_to_user(*args, **kwargs) > 0
-        _get_executor().submit(_run_in_worker, args, kwargs)
+        ex = _get_executor()
+        with _executor_lock:
+            if _pending[0] >= PUSH_QUEUE_CAP and kind not in _CRITICAL_KINDS:
+                _dropped[0] += 1
+                if _dropped[0] % 50 == 1:
+                    log.warning("push: queue full (%d), dropped %d non-critical",
+                                _pending[0], _dropped[0])
+                return False
+            _pending[0] += 1
+        try:
+            ex.submit(_run_in_worker, args, kwargs)
+        except Exception:
+            with _executor_lock:
+                _pending[0] = max(0, _pending[0] - 1)
+            return False
         return True
     except Exception:
         return False

@@ -124,7 +124,8 @@ def _notice_pair():
 
 # ---- plan gate: AI endpoints need a PAID Business-tier plan ---------------
 # khata + selling + tagada + reports + QR are FREE; only AI features are paid.
-_PAID_PLANS = {"business", "premium", "family", "probashi", "annual", "founder"}
+_PAID_PLANS = {"business", "premium", "family", "probashi", "annual", "founder",
+               "plus", "premium_pro"}
 
 
 def paid_plan_ok(user):
@@ -204,8 +205,9 @@ def _payment_partner_key():
 
 
 def _sms_enabled():
-    from . import integrations
-    return bool(integrations.get("sms").get("api_key"))
+    """smsotp: a CONNECTED SMS gateway (any entry whose Test passed)."""
+    from . import sms_service
+    return sms_service.ready()
 
 
 def _now_iso():
@@ -984,8 +986,40 @@ def _party_balance(party):
     return khata.running_balance(entries, party.book)
 
 
+def _book_balances(prof, book):
+    """ledger100: every party's balance in ONE aggregate query (a shop with
+    500 customers was 501 queries). Same sign rule as khata._signed."""
+    from django.db.models import Q, Sum
+    from .models import KhataEntry
+    plus = "gave" if book == khata.CUSTOMER else "got"
+    rows = (KhataEntry.objects.filter(party__business=prof, party__book=book)
+            .values("party_id")
+            .annotate(up=Sum("amount_poisha", filter=Q(direction=plus)),
+                      down=Sum("amount_poisha", filter=~Q(direction=plus))))
+    return {r["party_id"]: int(r["up"] or 0) - int(r["down"] or 0) for r in rows}
+
+
+def _balance_fields(bal, book, lang):
+    """Both the legacy keys and the app's *_poisha/_display/_status keys
+    (ledger100: the app read balance_display while the server only sent
+    balance_fmt, so every balance showed blank)."""
+    fmt = khata.fmt_amount(bal)
+    st = khata.balance_status(bal, book, lang)
+    return {"balance": bal, "balance_fmt": fmt, "status": st,
+            "balance_poisha": bal, "balance_display": fmt, "balance_status": st}
+
+
+def _party_row(p, bal, lang):
+    row = {"id": p.id, "name": p.name, "phone": p.phone, "area": p.area,
+           "vip": p.vip, "book": p.book,
+           "phone_ok": bool(khata.bd_msisdn(p.phone))}
+    row.update(_balance_fields(bal, p.book, lang))
+    return row
+
+
 class KhataPartiesView(APIView):
-    """GET list (book=customer|supplier; supplier owner-only) / POST create."""
+    """GET list (book=customer|supplier; supplier owner-only) / POST create.
+    The digital khata core is FREE on every plan (no plan gate, no credits)."""
     def get(self, request):
         prof, role, bad = _require_business(request)
         if bad:
@@ -994,14 +1028,11 @@ class KhataPartiesView(APIView):
         if book == khata.SUPPLIER and not is_owner(role):
             return _owner_only(request, role)   # supplier book owner-only
         lang = req_lang(request)
-        rows = []
-        for p in prof.khata_parties.filter(book=book, archived=False):
-            bal = _party_balance(p)
-            rows.append({"id": p.id, "name": p.name, "phone": p.phone,
-                         "area": p.area, "vip": p.vip, "book": p.book,
-                         "balance": bal, "balance_fmt": khata.fmt_amount(bal),
-                         "status": khata.balance_status(bal, book, lang)})
-        return Response({"parties": rows, "role": role})
+        bals = _book_balances(prof, book)
+        rows = [_party_row(p, bals.get(p.id, 0), lang)
+                for p in prof.khata_parties.filter(book=book, archived=False)
+                .order_by("name", "id")]
+        return Response({"parties": rows, "role": role, "free": True})
 
     def post(self, request):
         prof, role, bad = _require_business(request)
@@ -1009,14 +1040,23 @@ class KhataPartiesView(APIView):
             return bad
         lang = req_lang(request)
         book = request.data.get("book", khata.CUSTOMER)
+        if book not in (khata.CUSTOMER, khata.SUPPLIER):
+            return _err(lang, "খাতার ধরন ভুল।", "Unknown book.", status=422,
+                        code="bad_book")
         if book == khata.SUPPLIER and not is_owner(role):
             return _owner_only(request, role)   # create supplier party owner-only
+        name = str(request.data.get("name") or "").strip()[:120]
+        if not name:
+            return _err(lang, "নাম লিখুন।", "Enter a name.", status=422,
+                        code="name_required")
         from .models import KhataParty
         p = KhataParty.objects.create(
-            business=prof, book=book, name=request.data.get("name", ""),
-            phone=request.data.get("phone", ""), area=request.data.get("area", ""),
-            note=request.data.get("note", ""), vip=bool(request.data.get("vip")))
-        return Response({"id": p.id, "name": p.name, "book": p.book}, status=201)
+            business=prof, book=book, name=name,
+            phone=str(request.data.get("phone") or "")[:40],
+            area=str(request.data.get("area") or "")[:80],
+            note=str(request.data.get("note") or ""), vip=bool(request.data.get("vip")))
+        out = _party_row(p, 0, lang)
+        return Response(out, status=201)
 
 
 def _get_party(request, prof, role, pk):
@@ -1029,6 +1069,23 @@ def _get_party(request, prof, role, pk):
     return (p, None)
 
 
+_LINKED_MARKERS = ("[sale#", "[void")
+
+
+def _entry_editable(e):
+    """A row mirrored from a sale / a void is changed from the sale, never
+    by hand (it would split the sale and the khata)."""
+    return not any(m in (e.note or "") for m in _LINKED_MARKERS)
+
+
+def _entry_dicts(p):
+    return [{"id": e.id, "direction": e.direction, "amount": e.amount_poisha,
+             "note": e.note, "at": e.at.isoformat(), "version": e.version,
+             "client_id": e.client_id, "editable": _entry_editable(e),
+             "bill_photo_ref": e.bill_photo.url if e.bill_photo else None}
+            for e in p.entries.all()]
+
+
 class KhataStatementView(APIView):
     def get(self, request, pk):
         prof, role, bad = _require_business(request)
@@ -1038,16 +1095,84 @@ class KhataStatementView(APIView):
         if err:
             return err
         lang = req_lang(request)
-        entries = [{"direction": e.direction, "amount": e.amount_poisha,
-                    "note": e.note, "at": e.at.isoformat(),
-                    "bill_photo_ref": e.bill_photo.url if e.bill_photo else None}
-                   for e in p.entries.all()]
-        return Response(khata.party_statement(
-            {"id": p.id, "name": p.name, "phone": p.phone}, entries, p.book, lang))
+        stmt = khata.party_statement(
+            {"id": p.id, "name": p.name, "phone": p.phone}, _entry_dicts(p), p.book, lang)
+        stmt["lines"] = khata.statement_lines(stmt, p.book)
+        stmt["party"] = _party_row(p, stmt["balance"], lang)
+        stmt.update(_balance_fields(stmt["balance"], p.book, lang))
+        return Response(stmt)
+
+
+def _parse_at(raw):
+    """ledger100: the owner-picked entry date (was ignored — every entry got
+    'now', so a back-dated or offline entry landed on the wrong day). ISO
+    date or datetime; naive = Dhaka. Junk / >1 day in the future / before
+    2000 → now."""
+    from django.utils.dateparse import parse_date, parse_datetime
+    now = timezone.now()
+    s = str(raw or "").strip()
+    if not s:
+        return now
+    dt = None
+    try:
+        dt = parse_datetime(s)
+        if dt is None:
+            d = parse_date(s[:10])
+            if d is not None:
+                dt = datetime(d.year, d.month, d.day, 12, 0)
+    except (ValueError, TypeError):
+        dt = None
+    if dt is None:
+        return now
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
+    if dt > now + timedelta(days=1) or dt.year < 2000:
+        return now
+    return dt
+
+
+def _client_id(request):
+    import re
+    cid = str(request.data.get("client_id") or "").strip()[:64]
+    return cid if re.fullmatch(r"[A-Za-z0-9_.:-]{6,64}", cid or "") else ""
+
+
+def _persist_entry(request, p, entry):
+    """Create the KhataEntry once per client_id. Returns (obj, duplicate)."""
+    from django.db import IntegrityError, transaction
+    from .models import KhataEntry
+    cid = _client_id(request)
+    if cid:
+        ex = p.entries.filter(client_id=cid).first()
+        if ex is not None:
+            return ex, True
+    try:
+        with transaction.atomic():
+            obj = KhataEntry.objects.create(
+                party=p, direction=entry["direction"], amount_poisha=entry["amount"],
+                note=(entry["note"] or "")[:200], at=_parse_at(request.data.get("at")),
+                client_id=cid)
+    except IntegrityError:
+        ex = p.entries.filter(client_id=cid).first() if cid else None
+        if ex is None:
+            raise
+        return ex, True
+    return obj, False
+
+
+def _entry_out(p, obj, lang, duplicate=False):
+    bal = _party_balance(p)
+    out = {"entry_id": obj.id, "id": obj.id, "client_id": obj.client_id,
+           "version": obj.version, "duplicate": duplicate,
+           "at": obj.at.isoformat()}
+    out.update(_balance_fields(bal, p.book, lang))
+    return out
 
 
 class KhataEntryView(APIView):
-    """POST party/<id>/entries — new_entry() validates, view persists."""
+    """POST party/<id>/entries — new_entry() validates, view persists.
+    ledger100: `client_id` makes a replayed offline entry idempotent (200 +
+    duplicate:true, nothing booked twice); `at` is honoured."""
     def post(self, request, pk):
         prof, role, bad = _require_business(request)
         if bad:
@@ -1063,18 +1188,12 @@ class KhataEntryView(APIView):
         except ValueError as e:
             return _err(lang, "এন্ট্রি ভুল।", "Invalid entry.", status=422,
                         code="invalid_entry", reason=str(e))
-        from .models import KhataEntry
-        obj = KhataEntry.objects.create(
-            party=p, direction=entry["direction"],
-            amount_poisha=entry["amount"], note=entry["note"], at=timezone.now())
-        bal = _party_balance(p)
-        out = {"entry_id": obj.id, "balance": bal,
-               "balance_fmt": khata.fmt_amount(bal),
-               "status": khata.balance_status(bal, p.book, lang)}
-        if request.data.get("notify_customer") and p.book == khata.CUSTOMER:
+        obj, dup = _persist_entry(request, p, entry)
+        out = _entry_out(p, obj, lang, dup)
+        if request.data.get("notify_customer") and p.book == khata.CUSTOMER and not dup:
             out["entry_added_message"] = khata.entry_added_message(
                 {"name": p.name}, entry, shop_name=prof.shop_name)
-        return Response(out, status=201)
+        return Response(out, status=200 if dup else 201)
 
 
 class KhataPaymentView(APIView):
@@ -1093,15 +1212,61 @@ class KhataPaymentView(APIView):
         except ValueError as e:
             return _err(lang, "পেমেন্ট ভুল।", "Invalid payment.", status=422,
                         code="invalid_payment", reason=str(e))
+        obj, dup = _persist_entry(request, p, entry)
+        return Response(_entry_out(p, obj, lang, dup), status=200 if dup else 201)
+
+
+class KhataEntryEditView(APIView):
+    """ledger100: POST/PATCH business/khata/entries/<id> {amount?, note?,
+    at?, base_version?} — OWNER edits one entry (staff can add, not change
+    money already booked). Balances are always recomputed from the rows, so
+    an edit can never double-count. `base_version` (the version the phone
+    saw, e.g. when the edit was made offline) must still be current, else
+    409 conflict with the server's row — never a silent overwrite. Rows
+    mirrored from a sale / void are refused (409 linked_entry)."""
+    def post(self, request, pk):
+        from django.db import transaction
         from .models import KhataEntry
-        obj = KhataEntry.objects.create(
-            party=p, direction=entry["direction"],
-            amount_poisha=entry["amount"], note=entry["note"], at=timezone.now())
-        bal = _party_balance(p)
-        return Response({"entry_id": obj.id, "balance": bal,
-                         "balance_fmt": khata.fmt_amount(bal),
-                         "status": khata.balance_status(bal, p.book, lang)},
-                        status=201)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        with transaction.atomic():
+            e = (KhataEntry.objects.select_for_update()
+                 .filter(pk=pk, party__business=prof).first())
+            if e is None:
+                return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+            if not _entry_editable(e):
+                return _err(lang, "বিক্রি থেকে আসা এন্ট্রি বিক্রি থেকেই বদলান।",
+                            "This entry came from a sale — change it from the sale.",
+                            status=409, code="linked_entry")
+            base = request.data.get("base_version")
+            if base not in (None, "") and str(base) != str(e.version):
+                return _err(lang, "এই এন্ট্রি অন্য কোথাও বদলানো হয়েছে — নতুনটা দেখে আবার করুন।",
+                            "This entry was changed elsewhere — check the new one and try again.",
+                            status=409, code="conflict",
+                            current={"entry_id": e.id, "version": e.version,
+                                     "amount": e.amount_poisha, "note": e.note,
+                                     "at": e.at.isoformat()})
+            if "amount" in request.data:
+                amt = khata.to_poisha(request.data.get("amount"))
+                if amt <= 0:
+                    return _err(lang, "টাকার পরিমাণ ভুল।", "Invalid amount.", status=422,
+                                code="invalid_entry", reason="amount must be positive")
+                e.amount_poisha = amt
+            if "note" in request.data:
+                e.note = str(request.data.get("note") or "")[:200]
+            if request.data.get("at"):
+                e.at = _parse_at(request.data.get("at"))
+            e.version = e.version + 1
+            e.edited_at = timezone.now()
+            e.save(update_fields=["amount_poisha", "note", "at", "version", "edited_at"])
+        return Response(_entry_out(e.party, e, lang))
+
+    patch = post
 
 
 class KhataNetPositionView(APIView):
@@ -1110,17 +1275,72 @@ class KhataNetPositionView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        cust = [_party_balance(p) for p in
-                prof.khata_parties.filter(book=khata.CUSTOMER, archived=False)]
+        live = set(prof.khata_parties.filter(archived=False).values_list("id", flat=True))
+        cust = [b for k, b in _book_balances(prof, khata.CUSTOMER).items() if k in live]
         if is_owner(role):
-            supp = [_party_balance(p) for p in
-                    prof.khata_parties.filter(book=khata.SUPPLIER, archived=False)]
+            supp = [b for k, b in _book_balances(prof, khata.SUPPLIER).items()
+                    if k in live]
         else:
             supp = []       # staff never sees supplier figures
         np = khata.net_position(cust, supp)
+        np.update({"receivable_display": np["receivable_fmt"],
+                   "payable_display": np["payable_fmt"],
+                   "net_display": np["net_fmt"], "net_status": np["label"],
+                   "ahead": np["net"] >= 0,
+                   "due_customers": sum(1 for b in cust if b > 0)})
         if not is_owner(role):
             np["supplier_hidden"] = True
         return Response(np)
+
+
+# ---- tagada (due reminders) ------------------------------------------------
+#
+# FREE on every plan: the message, the WhatsApp link and the phone's own SMS
+# composer (the user sends; nothing leaves without their tap). PAID: only an
+# SMS that ASSISTO sends (credits per segment, shown before sending).
+
+def _pay_hint(raw):
+    if not isinstance(raw, dict):
+        return None
+    num = khata.normalize_digits(str(raw.get("number") or "")).strip()[:20]
+    if not num:
+        return None
+    method = str(raw.get("method") or "bKash").strip()[:12] or "bKash"
+    return {"method": method, "number": num}
+
+
+def _sms_quote(text):
+    from . import billing, sms_segments
+    from .logic import pricing as P
+    si = sms_segments.info(text)
+    try:
+        per = P.credits_for("sms", 1, billing.cfg())
+        total = P.credits_for("sms", si["segments"], billing.cfg())
+    except Exception:  # noqa: BLE001
+        per, total = 1, si["segments"]
+    return {"segments": si["segments"], "credits": total, "per_segment": per}
+
+
+def _reminder_row(p, bal, prof, preset, pay_hint, lang):
+    text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
+                                preset=preset, pay_hint=pay_hint, lang=lang)
+    q = _sms_quote(text)
+    return {"party_id": p.id, "name": p.name, "phone": p.phone,
+            "phone_ok": bool(khata.bd_msisdn(p.phone)),
+            "balance_poisha": bal, "balance_display": khata.fmt_amount(bal),
+            "message": text, "wa_url": khata.wa_link(p.phone, text),
+            "sms_uri": khata.sms_uri(p.phone, text),
+            "sms_segments": q["segments"], "sms_credits": q["credits"]}
+
+
+def _sms_offer(request, role):
+    """What the Assisto-SMS option looks like for this requester."""
+    from . import sms_service
+    owner = is_owner(role)
+    ready = sms_service.ready()
+    bal = int(getattr(request.user, "ai_credits", 0) or 0) if owner else 0
+    return {"ready": ready, "owner_only": not owner, "available": ready and owner,
+            "balance": bal, "per_segment": _sms_quote("x")["per_segment"]}
 
 
 class TagadaSingleView(APIView):
@@ -1133,38 +1353,151 @@ class TagadaSingleView(APIView):
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
         lang = req_lang(request)
         bal = _party_balance(p)
+        preset = request.data.get("preset", "polite")
+        hint = _pay_hint(request.data.get("pay_hint"))
         plan = khata.plan_tagada_single(
             {"id": p.id, "name": p.name, "phone": p.phone}, bal,
-            shop_name=prof.shop_name, preset=request.data.get("preset", "polite"),
-            pay_hint=request.data.get("pay_hint"),
+            shop_name=prof.shop_name, preset=preset, pay_hint=hint,
             channel=request.data.get("channel", "whatsapp_share"),
             sms_enabled=_sms_enabled(), lang=lang)
-        return Response({"plan": plan})
+        out = {"plan": plan, "sms": _sms_offer(request, role)}
+        if plan:
+            row = _reminder_row(p, bal, prof, preset, hint, lang)
+            out.update({"reminder": row, "message": plan["message"],
+                        "share": {"whatsapp": {"available": True, "url": row["wa_url"]},
+                                  "sms": {"available": bool(row["sms_uri"]),
+                                          "uri": row["sms_uri"]}}})
+        else:
+            out["no_due"] = True
+        return Response(out)
 
 
 class TagadaBulkView(APIView):
+    """ledger100: ONE reminder per customer (its own amount, the shop name,
+    the optional pay-to number) — never a merged list. `party_ids` picks the
+    customers (was ignored: everyone with a due was always returned)."""
     def post(self, request):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
         lang = req_lang(request)
-        rows = []
-        for p in prof.khata_parties.filter(book=khata.CUSTOMER, archived=False):
+        preset = request.data.get("preset", "polite")
+        hint = _pay_hint(request.data.get("pay_hint"))
+        qs = prof.khata_parties.filter(book=khata.CUSTOMER, archived=False)
+        ids = request.data.get("party_ids")
+        if isinstance(ids, list) and ids:
+            qs = qs.filter(pk__in=[int(i) for i in ids if str(i).isdigit()][:1000])
+        bals = _book_balances(prof, khata.CUSTOMER)
+        parties = list(qs.order_by("name", "id"))
+        rows, reminders, skipped = [], [], []
+        for p in parties:
+            bal = bals.get(p.id, 0)
             rows.append({"party": {"id": p.id, "name": p.name, "phone": p.phone},
-                         "balance": _party_balance(p)})
+                         "balance": bal})
+            if bal > max(0, khata.to_poisha(request.data.get("min_due", 0))):
+                reminders.append(_reminder_row(p, bal, prof, preset, hint, lang))
+            else:
+                skipped.append({"party_id": p.id, "name": p.name, "reason": "no_due"})
         res = khata.plan_tagada_bulk(
-            rows, shop_name=prof.shop_name,
-            preset=request.data.get("preset", "polite"),
-            pay_hint=request.data.get("pay_hint"),
+            rows, shop_name=prof.shop_name, preset=preset, pay_hint=hint,
             channel=request.data.get("channel", "whatsapp_share"),
             sms_enabled=_sms_enabled(), lang=lang,
             min_due=request.data.get("min_due", 0))
+        res.update({"reminders": reminders, "skipped": skipped,
+                    "sms": _sms_offer(request, role),
+                    "shop_name": prof.shop_name})
         return Response(res)
 
 
+class TagadaSmsSendView(APIView):
+    """smsotp: POST business/khata/tagada/sms/<pk> {preset?, pay_hint?} —
+    the SERVER sends the due reminder by SMS (core/sms_service purpose
+    "tagada"): owner only, charged to the owner as credits ("sms" action per
+    segment, refunded on gateway failure), customer STOP opt-out + quiet hours
+    21:00-09:00 + per-customer / per-business / global daily caps. Without a
+    connected gateway → 503 sms_not_configured (use the WhatsApp share)."""
+    _REASONS = {
+        "sms_not_configured": (503, "SMS গেটওয়ে যুক্ত নেই — WhatsApp দিয়ে পাঠান।",
+                               "No SMS gateway yet — send it on WhatsApp."),
+        "insufficient_credits": (402, "ক্রেডিট নেই — SMS পাঠাতে ক্রেডিট লাগে।",
+                                 "Not enough credits — an SMS needs credits."),
+        "opted_out": (409, "এই গ্রাহক মেসেজ বন্ধ করেছেন (STOP)।",
+                      "This customer opted out (STOP)."),
+        "quiet_hours": (409, "রাত ৯টা থেকে সকাল ৯টা SMS পাঠানো হয় না।",
+                        "No SMS between 9 pm and 9 am."),
+        "phone_daily_cap": (429, "এই গ্রাহককে আজ আর SMS পাঠানো যাবে না।",
+                            "No more SMS to this customer today."),
+        "business_daily_cap": (429, "আজকের ব্যবসার SMS সীমা শেষ।",
+                               "Today's business SMS limit is reached."),
+        "user_daily_cap": (429, "আজকের SMS সীমা শেষ।", "Today's SMS limit is reached."),
+        "global_daily_cap": (429, "আজকের SMS সীমা শেষ। কাল আবার চেষ্টা করুন।",
+                             "Today's SMS limit is reached. Try tomorrow."),
+        "purpose_off": (503, "SMS রিমাইন্ডার এখন বন্ধ।", "SMS reminders are off right now."),
+        "bad_phone": (400, "গ্রাহকের সঠিক মোবাইল নম্বর নেই।",
+                      "This customer has no valid mobile number."),
+        "too_long": (400, "মেসেজ বেশি লম্বা।", "The message is too long."),
+        "send_failed": (502, "SMS পাঠানো যায়নি — ক্রেডিট ফেরত দেওয়া হয়েছে।",
+                        "The SMS failed — credits were refunded."),
+        "guard_over": (503, "এখন SMS পাঠানো সাময়িক বন্ধ। কাল আবার চেষ্টা করুন।",
+                       "SMS is paused for now. Try again tomorrow."),
+    }
+
+    def post(self, request, pk):
+        from . import sms_service
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        p = prof.khata_parties.filter(pk=pk, book=khata.CUSTOMER).first()
+        if not p:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        bal = _party_balance(p)
+        if bal <= 0:
+            return _err(lang, "এই গ্রাহকের কোনো বাকি নেই।", "This customer owes nothing.",
+                        status=400, code="no_due")
+        text = khata.tagada_message({"name": p.name}, bal, shop_name=prof.shop_name,
+                                    preset=request.data.get("preset", "polite"),
+                                    pay_hint=_pay_hint(request.data.get("pay_hint")),
+                                    lang=lang)
+        r = sms_service.send_sms(p.phone, text, "tagada", user=request.user,
+                                 business=prof)
+        request.user.refresh_from_db(fields=["ai_credits"])
+        left = int(getattr(request.user, "ai_credits", 0) or 0)
+        if r["ok"]:
+            return Response({"ok": True, "segments": r["segments"],
+                             "credits": r["credits"], "provider": r["provider"],
+                             "balance": left})
+        st, bn, en = self._REASONS.get(r["reason"], (400, "SMS পাঠানো যায়নি।",
+                                                     "Couldn't send the SMS."))
+        return Response({"ok": False, "reason": r["reason"], "detail": pick(lang, bn, en),
+                         "segments": r["segments"], "balance": left}, status=st)
+
+
+def _schedule_row(s, bal, lang):
+    return {"id": s.id, "party": s.party_id, "party_id": s.party_id,
+            "party_name": s.party.name, "preset": s.preset,
+            "channel": s.channel, "mode": "sms" if s.channel == "sms" else "push",
+            "next_at": s.next_at.isoformat(), "next_display": khata.day_label(
+                timezone.localtime(s.next_at).isoformat()),
+            "interval_days": s.interval_days, "until_paid": s.until_paid,
+            "enabled": s.enabled, "pay_hint": s.pay_hint or {},
+            "last_fired_at": s.last_fired_at.isoformat() if s.last_fired_at else None,
+            "last_result": s.last_result, "fire_count": s.fire_count,
+            "awaiting_owner": s.awaiting_owner,
+            "balance_poisha": bal, "balance_display": khata.fmt_amount(bal)}
+
+
 class TagadaScheduleView(APIView):
-    """GET list / POST create a recurring reminder (owner). Firing is a worker
-    that calls plan_tagada_scheduled + advances next_at by interval_days."""
+    """GET list / POST create-or-update a scheduled reminder (owner).
+
+    ledger100 body: {party, next_at (ISO), interval_days (0 = once, 1..90 =
+    every N days), until_paid (default true), channel 'sms' (Assisto SMS,
+    credits) | anything else (a push to the owner: "time to remind X" — the
+    owner sends it with one tap), preset, pay_hint}. One schedule per
+    customer: posting again updates it. Fired by `manage.py tagada_sweep`."""
     def get(self, request):
         prof, role, bad = _require_business(request)
         if bad:
@@ -1173,12 +1506,16 @@ class TagadaScheduleView(APIView):
         if guard:
             return guard
         from .models import TagadaSchedule
-        rows = [{"id": s.id, "party": s.party_id, "preset": s.preset,
-                 "channel": s.channel, "next_at": s.next_at.isoformat(),
-                 "interval_days": s.interval_days, "enabled": s.enabled}
-                for s in TagadaSchedule.objects.filter(
-                    party__business=prof)]
-        return Response({"schedules": rows})
+        lang = req_lang(request)
+        bals = _book_balances(prof, khata.CUSTOMER)
+        qs = (TagadaSchedule.objects.filter(party__business=prof)
+              .select_related("party").order_by("next_at", "id"))
+        if request.query_params.get("party"):
+            qs = qs.filter(party_id=request.query_params.get("party"))
+        rows = [_schedule_row(s, bals.get(s.party_id, 0), lang) for s in qs]
+        return Response({"schedules": rows,
+                         "awaiting": [r for r in rows if r["awaiting_owner"]],
+                         "sms": _sms_offer(request, role)})
 
     def post(self, request):
         prof, role, bad = _require_business(request)
@@ -1187,17 +1524,82 @@ class TagadaScheduleView(APIView):
         guard = _owner_only(request, role)
         if guard:
             return guard
-        p = prof.khata_parties.filter(pk=request.data.get("party")).first()
+        lang = req_lang(request)
+        p = prof.khata_parties.filter(pk=request.data.get("party") or
+                                      request.data.get("party_id") or 0,
+                                      book=khata.CUSTOMER).first()
         if not p:
-            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        try:
+            interval = int(request.data.get("interval_days", 7))
+        except (TypeError, ValueError):
+            interval = -1
+        if not 0 <= interval <= khata.SCHEDULE_MAX_INTERVAL_DAYS:
+            return _err(lang, "দিনের সংখ্যা ০ থেকে ৯০ এর মধ্যে দিন।",
+                        "Pick 0 to 90 days.", status=422, code="bad_interval")
+        nxt = _parse_at(request.data.get("next_at")) if request.data.get("next_at") \
+            else timezone.now()
+        if nxt < timezone.now() - timedelta(minutes=5):
+            nxt = timezone.now()
+        channel = "sms" if request.data.get("channel") in ("sms", "assisto_sms") \
+            else "push"
+        preset = request.data.get("preset") or "reminder"
+        if preset not in khata.TAGADA_PRESETS or preset == "thanks":
+            preset = "reminder"
         from .models import TagadaSchedule
-        nxt = request.data.get("next_at")
-        s = TagadaSchedule.objects.create(
-            party=p, preset=request.data.get("preset", "reminder"),
-            channel=request.data.get("channel", "whatsapp_share"),
-            next_at=nxt or timezone.now(),
-            interval_days=request.data.get("interval_days", 7))
-        return Response({"id": s.id}, status=201)
+        s = TagadaSchedule.objects.filter(party=p).order_by("-id").first()
+        fields = dict(preset=preset, channel=channel, next_at=nxt,
+                      interval_days=interval,
+                      until_paid=request.data.get("until_paid", True) is not False,
+                      pay_hint=_pay_hint(request.data.get("pay_hint")) or {},
+                      enabled=True, awaiting_owner=False)
+        created = s is None
+        if created:
+            s = TagadaSchedule.objects.create(party=p, **fields)
+        else:
+            for k, v in fields.items():
+                setattr(s, k, v)
+            s.save()
+        return Response(_schedule_row(s, _party_balance(p), lang),
+                        status=201 if created else 200)
+
+
+class TagadaScheduleDetailView(APIView):
+    """ledger100: DELETE schedule/<id> (stop it) · POST {ack:true} (the owner
+    sent the reminder the push asked for) · POST {enabled:bool}."""
+    def _get(self, request, pk):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return None, None, bad
+        guard = _owner_only(request, role)
+        if guard:
+            return None, None, guard
+        from .models import TagadaSchedule
+        s = (TagadaSchedule.objects.filter(pk=pk, party__business=prof)
+             .select_related("party").first())
+        if s is None:
+            return None, None, _err(req_lang(request), "পাওয়া যায়নি।", "Not found.",
+                                    status=404)
+        return s, prof, None
+
+    def delete(self, request, pk):
+        s, prof, bad = self._get(request, pk)
+        if bad:
+            return bad
+        s.delete()
+        return Response({"ok": True, "deleted": pk})
+
+    def post(self, request, pk):
+        s, prof, bad = self._get(request, pk)
+        if bad:
+            return bad
+        if request.data.get("ack"):
+            s.awaiting_owner = False
+            s.last_result = "owner_sent"
+        if "enabled" in request.data:
+            s.enabled = bool(request.data.get("enabled"))
+        s.save()
+        return Response(_schedule_row(s, _party_balance(s.party), req_lang(request)))
 
 
 class KhataStatementPdfView(APIView):
@@ -1366,6 +1768,20 @@ class AiReplyView(APIView):
         return Response(res)
 
 
+def ai_reply_task(prompt):
+    """aieval: the trusted instruction for the shop's AI draft. Before this the
+    model got ONLY the facts list as its instruction (no rules at all)."""
+    lang = "Bangla (Bengali script)" if prompt.get("lang") == "bn" else "English"
+    return ("You are the polite assistant (an AI, not a human) of the shop \"%s\" in "
+            "Bangladesh. Reply to the customer's message in %s, in at most 3 short "
+            "sentences, using ONLY the FACTS below. Never state a price, stock count, "
+            "delivery charge or discount that is not written in the FACTS, never promise "
+            "a refund, and never ask for a PIN or password. If the FACTS do not answer "
+            "the question, say someone from the shop will reply.\n\nFACTS:\n%s"
+            % (prompt.get("shop_name") or "shop", lang,
+               prompt.get("facts") or "(no catalog yet)"))
+
+
 def _llm_provider(user=None, state=None):
     """Adapter: prompt dict → {text, confidence} via core.ai. MUST NOT invent
     price/stock (the pure layer only passes it the context facts). `user` is
@@ -1374,7 +1790,7 @@ def _llm_provider(user=None, state=None):
 
     def provider(prompt):
         try:
-            text, _ = ai.generate(task=prompt.get("facts", ""),
+            text, _ = ai.generate(task=ai_reply_task(prompt),
                                   data=prompt.get("customer_text", ""),
                                   tier="cheap", feature="business.ai_reply",
                                   max_tokens=300, user=user)

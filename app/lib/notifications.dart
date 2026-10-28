@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -5,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'push/push_notifier.dart' show assistoNotificationBackground;
+import 'reminders/alarm_plan.dart' show AlarmMode, AlarmRepeat;
 
 /// Best-effort device reminders. Everything is wrapped so failures never crash
 /// the app — reminders still work in-app/offline without notifications.
@@ -51,6 +54,7 @@ class Notifications {
       // cold-start path stays prompt-free. PushService asks once after
       // sign-in; Reminders/Settings offer it again when it is off.
       _ready = true;
+      unawaited(canScheduleExact());
     } catch (e) {
       if (kDebugMode) print('notif init failed: $e');
       _ready = false;
@@ -62,26 +66,141 @@ class Notifications {
       'assisto_reminders', 'Reminders',
       channelDescription: 'Assisto reminders',
       importance: Importance.max, priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
     ),
   );
 
   static int idFor(String localId) => localId.hashCode & 0x7fffffff;
 
+  /// Whether local scheduling is up (false in tests / when init failed).
+  static bool get ready => _ready;
+
+  // remmeter: exact alarms. Android 12+ needs the user-granted "Alarms &
+  // reminders" special access (SCHEDULE_EXACT_ALARM; on Android 14+ it is
+  // OFF by default for new installs). We never declare USE_EXACT_ALARM
+  // (Play: alarm-clock / calendar apps only). Cached; refreshed on init and
+  // whenever [canScheduleExact] is asked.
+  static bool? _exactAllowed;
+
+  /// Last known exact-alarm permission (null = not asked yet / unknown).
+  static bool? get exactAllowedCached => _exactAllowed;
+
+  /// True below Android 12 (always allowed there). Never throws; unknown ->
+  /// false so we pick the honest inexact path instead of a throwing one.
+  static Future<bool> canScheduleExact() async {
+    if (!_ready) return _exactAllowed ?? false;
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      if (android == null) return _exactAllowed = false;
+      final v = await android.canScheduleExactNotifications();
+      return _exactAllowed = v ?? false;
+    } catch (e) {
+      if (kDebugMode) print('canScheduleExact failed: $e');
+      return _exactAllowed = false;
+    }
+  }
+
+  /// Opens Android's "Alarms & reminders" page for Assisto (Android 12+).
+  /// Returns whether exact alarms are allowed afterwards. Guarded.
+  static Future<bool> requestExact() async {
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await android?.requestExactAlarmsPermission();
+    } catch (e) {
+      if (kDebugMode) print('requestExact failed: $e');
+    }
+    return canScheduleExact();
+  }
+
+  static AndroidScheduleMode _androidMode(AlarmMode m) => switch (m) {
+        AlarmMode.alarm => AndroidScheduleMode.alarmClock,
+        AlarmMode.exact => AndroidScheduleMode.exactAllowWhileIdle,
+        AlarmMode.inexact => AndroidScheduleMode.inexactAllowWhileIdle,
+      };
+
+  /// Schedule one alarm by numeric id in [mode]; if the OS refuses the exact
+  /// path (permission revoked meanwhile) it falls back to inexact. Returns
+  /// the mode actually used, or null when nothing could be scheduled.
+  static Future<AlarmMode?> scheduleAlarm(int id, String title, String body,
+      DateTime whenLocal,
+      {AlarmMode mode = AlarmMode.exact,
+      AlarmRepeat repeat = AlarmRepeat.none,
+      String? payload}) async {
+    if (!_ready) return null;
+    if (!whenLocal.isAfter(DateTime.now())) return null;
+    final match = switch (repeat) {
+      AlarmRepeat.daily => DateTimeComponents.time,
+      AlarmRepeat.weekly => DateTimeComponents.dayOfWeekAndTime,
+      AlarmRepeat.none => null,
+    };
+    for (final m in mode == AlarmMode.inexact
+        ? const [AlarmMode.inexact]
+        : [mode, AlarmMode.inexact]) {
+      try {
+        await _plugin.zonedSchedule(
+          id, title, body.isEmpty ? null : body,
+          tz.TZDateTime.from(whenLocal, tz.local), _details,
+          androidScheduleMode: _androidMode(m),
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: match,
+          payload: payload,
+        );
+        if (m == AlarmMode.inexact && mode != AlarmMode.inexact) {
+          _exactAllowed = false;
+        }
+        return m;
+      } catch (e) {
+        if (kDebugMode) print('scheduleAlarm($m) failed: $e');
+      }
+    }
+    return null;
+  }
+
+  /// Generic one-shot used by bills, birthdays, meetings, subscriptions...
+  /// Exact when the phone allows it, honest inexact otherwise.
   static Future<void> schedule(String localId, String title, String body,
       DateTime whenLocal) async {
     if (!_ready) return;
     try {
       if (whenLocal.isBefore(DateTime.now())) return;
-      await _plugin.zonedSchedule(
-        idFor(localId), title, body,
-        tz.TZDateTime.from(whenLocal, tz.local), _details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
+      final exact = _exactAllowed ?? await canScheduleExact();
+      await scheduleAlarm(idFor(localId), title, body, whenLocal,
+          mode: exact ? AlarmMode.exact : AlarmMode.inexact);
     } catch (e) {
       if (kDebugMode) print('schedule failed: $e');
     }
+  }
+
+  /// Ids the OS still holds for us (null = unknown). Guarded.
+  static Future<Set<int>?> pendingIds() async {
+    if (!_ready) return null;
+    try {
+      final l = await _plugin.pendingNotificationRequests();
+      return {for (final r in l) r.id};
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Pending requests (id + title + payload) — the one-time migration of
+  /// old `localId.hashCode` reminder alarms needs the titles. Guarded.
+  static Future<List<PendingNotificationRequest>> pending() async {
+    if (!_ready) return const [];
+    try {
+      return await _plugin.pendingNotificationRequests();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  static Future<void> cancelId(int id) async {
+    if (!_ready) return;
+    try {
+      await _plugin.cancel(id);
+    } catch (_) {}
   }
 
   static Future<void> cancel(String localId) async {

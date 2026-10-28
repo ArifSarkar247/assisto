@@ -733,7 +733,7 @@ class _PMath {
       frac = '';
     }
     whole = whole.isEmpty ? '0' : whole;
-    frac = (frac + '00').substring(0, 3);
+    frac = (frac + '000').substring(0, 3); // remmeter: was '00' -> RangeError on whole amounts
     final major = int.tryParse(whole);
     final milli = int.tryParse(frac);
     if (major == null || milli == null) return 0;

@@ -8,6 +8,7 @@ import '../widgets/journey_api.dart';
 import '../widgets/permission_reason.dart';
 import 'journey_live_screen.dart';
 import 'journey_watch_screen.dart';
+import 'messenger/messenger_home_screen.dart';
 import '../services/journey_tracker.dart' show kPhonesKey;
 import '../services/action_feedback.dart'; // db1
 
@@ -64,14 +65,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     }
     try {
       _places = await api.savedPlaces();
-    } catch (_) {}
+    } catch (_) {} // best-effort: no saved places offline, form still works
     try {
       final r = await api.getJson('/circle/members');
       _watchers = ((r['members'] ?? r['accepted'] ?? []) as List)
           .cast<Map<String, dynamic>>()
           .where((m) => (m['status'] ?? 'accepted') == 'accepted')
           .toList();
-    } catch (_) {}
+    } catch (_) {} // best-effort: offline -> empty list shows the add-family step
     if (mounted) setState(() => _loading = false);
   }
 
@@ -233,8 +234,26 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         Text(t.journeyWatchersSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: Gap.xs),
-        if (_watchers.isEmpty)
+        // truth: no watcher = nobody can be alerted. Not a dead end: one tap
+        // to add a family member, then the list reloads on return.
+        if (_watchers.isEmpty) ...[
           Text(t.journeyNoWatchers, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.sm),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilledButton.tonalIcon(
+              key: const ValueKey('truth_journey_add_watcher'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: Text(t.truthJourneyAddFamily),
+              onPressed: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const MessengerHomeScreen(startAdd: true)));
+                if (mounted) _load();
+              },
+            ),
+          ),
+        ],
         ..._watchers.map((m) {
           final id = (m['id'] as num?)?.toInt();
           return CheckboxListTile(

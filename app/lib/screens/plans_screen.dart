@@ -19,6 +19,8 @@ import '../payments/store_billing.dart'; // pay-e2e
 import '../payments/play_prices.dart'; // credout: Play's own prices
 import '../plans_v2/plans_v2.dart'; // plans-v2
 import '../feature_flags.dart';
+import '../billing/billing_api.dart'; // billapp
+import '../billing/plan_status_panel.dart'; // billapp
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -71,6 +73,10 @@ class _PlansScreenState extends State<PlansScreen> {
   PlansV2State _v2 = PlansV2State.off;
   bool _trialBusy = false;
   String? _trialMsg;
+  // billapp: /credits/state + /me/usage-summary for the status panel
+  // (optional — a failure only hides the panel).
+  CreditsState? _credits;
+  Map<String, dynamic> _usage = const {};
 
   @override
   void initState() {
@@ -106,6 +112,16 @@ class _PlansScreenState extends State<PlansScreen> {
     }
     _reconcileOnce();
     if (mounted) _v2 = await loadPlansV2(api);
+    try {
+      _credits = await BillingApi(api).state();
+    } catch (_) {
+      _credits = null;
+    }
+    try {
+      _usage = await api.meUsageSummary();
+    } catch (_) {
+      _usage = const {};
+    }
     await _loadPlayPrices();
     // Referral loads separately so a referral outage never blanks the paywall.
     try {
@@ -124,6 +140,14 @@ class _PlansScreenState extends State<PlansScreen> {
   /// ad first (the old direct /credits/rewarded call granted a credit with no
   /// ad shown once AdMob was enabled).
   Future<void> _rewarded() async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
+    if (mounted) await _load();
+  }
+
+  /// billapp: the Credits screen; back here, the plan state is re-read
+  /// from the server (a pack bought there shows at once).
+  Future<void> _openCredits() async {
     await Navigator.push(
         context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
     if (mounted) await _load();
@@ -347,6 +371,14 @@ class _PlansScreenState extends State<PlansScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       if (!online) _offlineBanner(t, scheme),
       _currentCard(t),
+      // billapp: trial left + what ends, period credits, usage meters
+      PlanStatusPanel(
+        plan: _p ?? const {},
+        v2: _v2,
+        credits: _credits,
+        usage: _usage,
+        onOpenCredits: _openCredits,
+      ),
       ..._v2Trial(t, scheme),
       ..._payBanner(t, scheme),
       const SizedBox(height: Gap.lg),
@@ -359,11 +391,11 @@ class _PlansScreenState extends State<PlansScreen> {
       const SizedBox(height: Gap.sm),
       // Entry to the Credits screen (balance / packs / usage / storage).
       OutlinedButton.icon(
-        onPressed: () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const CreditsScreen())),
+        key: const Key('plans-open-credits'),
+        onPressed: _openCredits,
         icon: const Icon(Icons.bolt_rounded, size: 18),
         label: Text(t.plansManageCredits),
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
       ),
       const SizedBox(height: Gap.lg),
       Row(children: [
@@ -443,6 +475,7 @@ class _PlansScreenState extends State<PlansScreen> {
       const Divider(height: 1),
       const SizedBox(height: Gap.lg),
       PlansFaq(
+        refundWindowHours: _credits?.refundWindowHours ?? 0,
         annualPlan: annualRow,
         monthlyPremium: premiumRow.isNotEmpty ? premiumRow.first : null,
       ),
@@ -574,7 +607,7 @@ class _PlansScreenState extends State<PlansScreen> {
         Row(children: [
           const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 6),
-          Text(t.aiCreditsCount(credits),
+          Text(t.aiCreditsCount(fmtInt(context, _int(credits))),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w600)),
         ]),
@@ -895,6 +928,16 @@ class _PlansScreenState extends State<PlansScreen> {
 
   String _priceLabel(Map<String, dynamic> p) {
     final id = (p['id'] ?? '').toString();
+    // pricing-40: an EXISTING subscriber sees what Google actually charges
+    // them (Play keeps them on their old/legacy price after a base-plan price
+    // change) — the server sends it as your_price from their last paid order.
+    final yours = p['your_price'];
+    if (yours is num && yours > 0) {
+      final ycur = (p['your_currency'] ?? 'BDT').toString();
+      return ycur == 'BDT' || ycur == 'USD'
+          ? _curSign(ycur) + _fmt(yours)
+          : '$ycur ${_fmt(yours)}';
+    }
     // credout: Play build -> Play's formatted price of the server-named base
     // plan, never the server's taka number (Free stays free).
     if (_isPlay && id != 'free') {

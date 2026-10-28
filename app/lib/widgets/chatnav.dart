@@ -41,6 +41,7 @@ import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
 import '../screens/remittance/remittance_screen.dart'; // budget-remittance
+import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/used_phone_check_screen.dart';
@@ -62,6 +63,8 @@ import '../screens/notes_todos_screen.dart';
 import '../screens/memory_screen.dart';
 import '../screens/nominee_screen.dart';
 import '../screens/crm_contacts_screen.dart';
+import '../screens/agent_core/agent_approvals_screen.dart'; // agent-core
+import '../screens/agent_core/agent_core_screen.dart'; // agent-core
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
 import '../screens/cv_builder_screen.dart';
@@ -246,6 +249,10 @@ class ChatNav {
     // f6: hidden until automations really run (feature_gates.dart).
     if (kAgentStudioRunsAutomations)
       'agent_studio': (_) => const AgentStudioScreen(),
+    // agent-core WP-APP (flag agent_core, default OFF): the agent screen and
+    // the Approval inbox (also the `agent_approval` push target).
+    'agent_core': (_) => const AgentCoreScreen(),
+    'agent_approvals': (_) => const AgentApprovalsScreen(),
     'jobs': (_) => const JobsScreen(),
     'cv': (_) => const CvBuilderScreen(),
     'resume': (_) => const CvBuilderScreen(),
@@ -278,6 +285,8 @@ class ChatNav {
     'budget': (_) => const MoneyBudgetScreen(),
     // budget-remittance (flag budget_remittance): money from abroad + family budget.
     'remittance': (_) => const RemittanceScreen(),
+    // probashi-plan (flag probashi_plan): expat family plan, seats, pool, reports.
+    'probashi_plan': (_) => const ProbashiPlanScreen(),
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),

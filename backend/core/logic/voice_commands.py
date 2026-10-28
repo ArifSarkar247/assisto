@@ -98,10 +98,31 @@ def _has_any(low, words):
 
 
 def _matched_word(low, words):
-    for w in words:
+    # longest trigger first: "call dao" must win over "call " (aieval)
+    for w in sorted(words, key=len, reverse=True):
         if w in low:
             return w
     return None
+
+
+# dative / connector words around a spoken name: "রহিমকে", "রহিম কে",
+# "Rahim ke", "call to Rahim" -> the name alone (aieval).
+_NAME_TAIL = re.compile(r"(?:\s*-?কে|\s+ke|\s+k)$", re.I)
+_NAME_HEAD = re.compile(r"^(?:to|ke)\s+", re.I)
+
+
+def _clean_name(who):
+    w = (who or "").strip(" ,।.-")
+    w = re.sub(r"\s+(?:please|plz|pls|now|ekhon|এখন)$", "", w, flags=re.I)
+    prev = None
+    while prev != w:
+        prev = w
+        w = _NAME_HEAD.sub("", w)
+        w = _NAME_TAIL.sub("", w).strip(" ,।.-")
+    return w
+
+
+_REMINDER_NOUNS = ("রিমাইন্ডার", "reminder")
 
 
 def _strip_trigger(text, trigger):
@@ -196,10 +217,11 @@ def map_command(text, now=None):
             "confirm": True,
         }
 
-    # 2. call <someone>
-    if _has_any(low, _CALL_WORDS):
+    # 2. call <someone> — unless it is a reminder ABOUT calling ("ammu ke call
+    #    dite mone koriye dio" is a reminder, aieval)
+    if _has_any(low, _CALL_WORDS) and not _has_any(low, _REMINDER_WORDS):
         trig = _matched_word(low, _CALL_WORDS)
-        who = _strip_trigger(text, trig)
+        who = _clean_name(_strip_trigger(text, trig))
         return {
             "intent": INTENT_CALL,
             "route": "circle",
@@ -208,7 +230,18 @@ def map_command(text, now=None):
             "confirm": True,
         }
 
-    # 3. add reminder
+    # 3. add reminder ("... রিমাইন্ডার" with a date/time and no open verb is
+    #    a new reminder, not "open the reminders screen" — aieval)
+    if _has_any(low, _REMINDER_NOUNS) and not _has_any(low, _OPEN_VERBS) \
+            and not _has_any(low, _REMINDER_WORDS) and _reminder_when(text, now=now).get("datetime"):
+        body = _strip_trigger(text, _matched_word(low, _REMINDER_NOUNS))
+        return {
+            "intent": INTENT_REMINDER,
+            "route": "reminders",
+            "title": body or text.strip(),
+            "args": {"text": body, "when": _reminder_when(text, now=now)},
+            "confirm": True,
+        }
     if _has_any(low, _REMINDER_WORDS):
         trig = _matched_word(low, _REMINDER_WORDS)
         body = _strip_trigger(text, trig)

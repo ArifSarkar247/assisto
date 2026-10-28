@@ -228,7 +228,10 @@ urlpatterns = [
     path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
     path("business/khata/tagada/single/<int:pk>", bz.TagadaSingleView.as_view()),
     path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
+    path("business/khata/tagada/sms/<int:pk>", bz.TagadaSmsSendView.as_view()),   # smsotp
     path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
+    path("business/khata/tagada/schedule/<int:pk>", bz.TagadaScheduleDetailView.as_view()),   # ledger100
+    path("business/khata/entries/<int:pk>", bz.KhataEntryEditView.as_view()),   # ledger100
     path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
     path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
     path("business/cashbox/<str:day>/entries", bz.CashboxEntryView.as_view()),
@@ -706,6 +709,10 @@ urlpatterns += [
     path("auth/otp/verify", otpv.OtpVerifyView.as_view()),
     path("auth/otp/login", otpv.OtpLoginView.as_view()),
     path("auth/otp/reset", otpv.OtpResetView.as_view()),
+    # smsotp: email OTP backup
+    path("auth/otp/email/request", otpv.OtpEmailRequestView.as_view()),
+    path("auth/otp/email/confirm", otpv.OtpEmailConfirmView.as_view()),
+    path("auth/otp/email/me", otpv.OtpEmailMeView.as_view()),
 ]
 # ---- /o1-otp ----
 
@@ -1166,3 +1173,55 @@ from . import views_plans_v2 as pv2  # noqa: E402
 urlpatterns += [
     path("plans/v2", pv2.PlansV2View.as_view()),
 ]
+
+# ---- invite-join ---- short invite codes, passwordless join from a link.
+# PREPENDED so the literal paths win over any circle/<...> catch-all.
+from . import views_invite_join as ijv  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/invite/code", ijv.InviteCodeCreateView.as_view()),
+    path("circle/invite/sent", ijv.InviteSentView.as_view()),
+    path("circle/invite/<int:pk>/resend", ijv.InviteResendView.as_view()),
+    path("circle/invite/<int:pk>/revoke", ijv.InviteRevokeView.as_view()),
+    path("invite/preview", ijv.InvitePreviewView.as_view()),
+    path("invite/join", ijv.InviteJoinView.as_view()),
+    path("invite/signup", ijv.InviteSignupView.as_view()),
+    path("auth/set-password", ijv.SetPasswordView.as_view()),
+    path("auth/password-state", ijv.PasswordStateView.as_view()),
+]
+# ---- /invite-join ----
+# ---- agent-core ---- (flag agent_core, default OFF; AGENT_CORE_DESIGN_BN.md)
+from .agentcore import views as acv  # noqa: E402
+urlpatterns += [
+    path("agent-core/tools", acv.ToolsView.as_view()),
+    path("agent-core/goals", acv.GoalsView.as_view()),
+    path("agent-core/runs", acv.RunsView.as_view()),
+    path("agent-core/runs/<int:pk>", acv.RunView.as_view()),
+    path("agent-core/runs/<int:pk>/cancel", acv.RunCancelView.as_view()),
+    path("agent-core/runs/<int:pk>/feedback", acv.RunFeedbackView.as_view()),
+    path("agent-core/approvals", acv.ApprovalsView.as_view()),
+    path("agent-core/approvals/<int:pk>", acv.ApprovalView.as_view()),
+]
+# ---- /agent-core ----
+
+# ---- agent-proactive ---- (WP-PROACTIVE; flag agent_core, default OFF)
+from .agentcore import nudge_views as acn  # noqa: E402
+urlpatterns += [
+    path("agent-core/nudges", acn.NudgesView.as_view()),
+    path("agent-core/nudges/<int:pk>/<str:action>", acn.NudgeActionView.as_view()),
+    path("agent-core/nudge-prefs", acn.NudgePrefsView.as_view()),
+    path("agent-core/brief", acn.BriefView.as_view()),
+]
+# ---- /agent-proactive ----
+# ---- probashi-plan ---- (flag probashi_plan, default OFF)
+from . import views_probashi as pbv  # noqa: E402
+urlpatterns += [
+    path("probashi", pbv.OverviewView.as_view()),
+    path("probashi/candidates", pbv.CandidatesView.as_view()),
+    path("probashi/seats", pbv.SeatsView.as_view()),
+    path("probashi/seats/<int:pk>/<str:action>", pbv.SeatActionView.as_view()),
+    path("probashi/pool", pbv.PoolView.as_view()),
+    path("probashi/family", pbv.FamilyView.as_view()),
+    path("probashi/reports", pbv.ReportsView.as_view()),
+    path("probashi/reports/<int:pk>/read", pbv.ReportReadView.as_view()),
+]
+# ---- /probashi-plan ----

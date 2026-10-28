@@ -46,7 +46,13 @@ def on(user, play=False):
 
 def _paid_active(user):
     from . import plans
-    return plans.lifetime_founder(user) or plans.plan_active(user)
+    if plans.lifetime_founder(user) or plans.plan_active(user):
+        return True
+    try:   # probashi-plan: a live family seat is paid Premium (by the payer)
+        from . import probashi_plan as PB
+        return PB.member_premium(user)
+    except Exception:
+        return False
 
 
 def tier(user, c=None):
@@ -143,6 +149,14 @@ def payload(user, lang="bn", crm_owner=None, shop_owner=None):
            "needed": {cap: E.needed_plan(cap, c) for cap in E.CAPS},
            "unlimited_display_at": c["unlimited_display_at"]}
     out["caps"] = {cap: E.allows(out["tier"], cap, c) for cap in E.CAPS}
+    # billapp: the caller's OWN CRM contact usage (when they own a CRM org),
+    # for the Plan screen's usage meter. Additive; the CRM screens keep ?org=.
+    try:
+        from crm.models import CrmOrg
+        if CrmOrg.objects.filter(owner=user).exists():
+            out["own_crm_contacts"] = crm_contacts(user, c)
+    except Exception:
+        pass
     if crm_owner is not None:
         t = tier(crm_owner, c)
         out["crm"] = {"on": on(crm_owner), "owner_tier": t,

@@ -263,6 +263,17 @@ PERMISSIONS = [
                    "Delete the alarm in your clock app, or uninstall Assisto."),
     },
     {
+        "id": "exact_alarm",
+        "perm": "SCHEDULE_EXACT_ALARM",
+        "name": ("অ্যালার্ম ও রিমাইন্ডার (ঠিক সময়ে)", "Alarms & reminders (exact time)"),
+        "why": ("আপনার বসানো রিমাইন্ডার ঠিক মিনিটে বাজানো। অনুমতি না দিলে রিমাইন্ডার কয়েক মিনিট দেরিতে আসতে পারে।",
+                "Ringing the reminders you set on the exact minute. Without it, reminders may arrive a few minutes late."),
+        "when": ("শুধু সময়সহ রিমাইন্ডার বানানোর সময় কারণসহ জিজ্ঞেস করা হয় (Android 14+-এ শুরুতে বন্ধ থাকে)।",
+                 "Only when you create a timed reminder, with an explanation (off by default on Android 14+)."),
+        "revoke": ("ফোনের সেটিংস → অ্যাপ → Assisto → অ্যালার্ম ও রিমাইন্ডার → বন্ধ।",
+                   "Phone Settings → Apps → Assisto → Alarms & reminders → off."),
+    },
+    {
         "id": "bluetooth",
         "perm": "BLUETOOTH_CONNECT (Android 12+); BLUETOOTH, BLUETOOTH_ADMIN (Android 11 ও আগের / and older)",
         "name": ("ব্লুটুথ (গাড়ির OBD)", "Bluetooth (car OBD)"),

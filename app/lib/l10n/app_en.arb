@@ -21972,5 +21972,1758 @@
   "at2Suppressed": "Ignored: most likely a drop or a toss",
   "@at2Suppressed": {
     "description": "antitheft2: timeline — a grab ignored (charging / face-down still / night at home)."
+  },
+  "smsotpEmailInstead": "Send the code by email instead",
+  "smsotpEmailGet": "Get the code by email",
+  "smsotpEmailSentNeutral": "If your account has a verified email, we sent the code there. Check Spam too.",
+  "smsotpEmailSentTo": "We sent the code to {email}. Check Spam too.",
+  "@smsotpEmailSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "smsotpEmailOff": "Codes by email aren't set up yet.",
+  "smsotpEmailCap": "We can't email more codes today. Use SMS, or try again later.",
+  "smsotpEmailNoVerified": "You have no verified email. Add one in Settings, then Email for sign-in codes.",
+  "smsotpSmsCap": "Today's SMS limit is used up. Get the code by email or sign in with your password.",
+  "smsotpEmailTile": "Email for sign-in codes",
+  "smsotpEmailTileSub": "A backup way to get codes when an SMS doesn't arrive",
+  "smsotpEmailTitle": "Email for codes",
+  "smsotpEmailIntro": "Add an email you can open. If an SMS code doesn't arrive, we can send the code there instead. We never send ads to this address.",
+  "smsotpEmailLabel": "Email address",
+  "smsotpEmailInvalid": "Enter a valid email address.",
+  "smsotpEmailSend": "Send code",
+  "smsotpEmailVerify": "Verify email",
+  "smsotpEmailVerified": "Verified",
+  "smsotpEmailNotVerified": "Not verified yet",
+  "smsotpEmailDone": "Email verified.",
+  "smsotpEmailCodeHint": "Enter the 6-digit code from the email",
+  "rmxExactTitle": "Ring reminders on the exact minute?",
+  "rmxExactBody": "Android needs your permission for exact alarms (\"Alarms & reminders\"). Without it, many phones deliver reminders a few minutes late.",
+  "rmxExactHow": "Tap Allow, then turn on Assisto on the next screen and come back.",
+  "rmxAllow": "Allow",
+  "rmxLater": "Not now",
+  "rmxBannerTitle": "Reminders may ring a few minutes late",
+  "rmxBannerBody": "Exact alarms are off for Assisto. Turn on \"Alarms & reminders\" so reminders ring on time.",
+  "rmxBannerAllow": "Turn on exact alarms",
+  "rmxBatteryGuide": "Battery settings guide",
+  "rmxCheckTitle": "Reminder delivery check",
+  "rmxCheckNotifOn": "Notifications: on",
+  "rmxCheckNotifOff": "Notifications: off — reminders cannot alert you",
+  "rmxCheckExactOn": "Exact alarms: on — reminders ring on the minute",
+  "rmxCheckExactOff": "Exact alarms: off — reminders may be a few minutes late",
+  "rmxCheckBatteryOk": "Battery saver: Assisto is not restricted",
+  "rmxCheckBatteryOpt": "Battery saver may delay reminders — see the battery guide",
+  "rmxCheckBatteryUnknown": "Battery saver: this phone doesn't tell us",
+  "rmxCheckServerBackup": "Backup: when you're online, Assisto's server also sends the reminder. You still get only one alert.",
+  "rmxCheckMeasured": "{count} reminders measured · {onTime} within 1 minute · typical delay {median} sec",
+  "@rmxCheckMeasured": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "onTime": {
+        "type": "String"
+      },
+      "median": {
+        "type": "String"
+      }
+    }
+  },
+  "rmxCheckWorst": "Slowest: {sec} sec late",
+  "@rmxCheckWorst": {
+    "placeholders": {
+      "sec": {
+        "type": "String"
+      }
+    }
+  },
+  "rmxCheckNone": "No reminder has been measured on this phone yet. Try the 1-minute test.",
+  "rmxCheckPrivacy": "Measured on this phone only. Nothing is sent anywhere.",
+  "rmxCheckTest": "Test: ring in 1 minute",
+  "rmxCheckTestSet": "Test set — lock the phone and wait 1 minute",
+  "rmxTestTitle": "Assisto test reminder",
+  "rmxTestBody": "If this rang on time, reminders work on this phone.",
+  "mtrUtilityLabel": "Company",
+  "mtrUtilDesco": "DESCO",
+  "mtrUtilDpdc": "DPDC",
+  "mtrUtilNesco": "NESCO",
+  "mtrUtilWzpdcl": "WZPDCL (Ozopadico)",
+  "mtrUtilBreb": "Palli Bidyut (BREB)",
+  "mtrUtilBpdb": "BPDB",
+  "mtrUtilTitas": "Titas Gas",
+  "mtrUtilKarnaphuli": "Karnaphuli Gas",
+  "mtrUtilOther": "Other",
+  "mtrUtilUnset": "Company not chosen",
+  "mtrMeterNo": "Meter number (optional)",
+  "mtrMeterNoHelp": "Digits only. We don't check it against the company's format — copy it exactly from your meter card.",
+  "mtrMeterNoDigits": "Use digits only",
+  "mtrMeterNoLength": "A meter number is usually 6 to 20 digits",
+  "mtrDailyUse": "Your daily use estimate (optional)",
+  "mtrDailyUseHelp": "Used until we have two recharges to work it out ourselves.",
+  "mtrRateFromEstimate": "Based on your estimate",
+  "mtrAlertSwitch": "Warn me before it runs out",
+  "mtrAlertSwitchHelp": "A notification when the estimate says the balance is running low. Not between 9 pm and 9 am.",
+  "mtrAlertDaysLabel": "Warn when this many days are left",
+  "mtrAlertDaysN": "{days} days",
+  "@mtrAlertDaysN": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrAlertOnChip": "Alert at {days} days left",
+  "@mtrAlertOnChip": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrAlertOffChip": "Low-balance alert off",
+  "mtrPayCta": "How to recharge",
+  "mtrPayTitle": "Recharge this meter",
+  "mtrBkash": "bKash",
+  "mtrNagad": "Nagad",
+  "mtrChannelOther": "Other",
+  "mtrStepOpen": "Open {wallet}",
+  "@mtrStepOpen": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrStepPayBill": "Tap Pay Bill, then Electricity",
+  "mtrStepPick": "Choose {company} prepaid",
+  "@mtrStepPick": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrStepMeterNo": "Paste the meter number (we copied it for you)",
+  "mtrStepAmountPin": "Enter the amount and your PIN",
+  "mtrStepToken": "The 20-digit token comes by SMS — save it here with \"Log recharge\"",
+  "mtrNotVerified": "We haven't confirmed that {wallet} lists {company} prepaid. Check Pay Bill in {wallet} before paying.",
+  "@mtrNotVerified": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrOpenApp": "Open {wallet}",
+  "@mtrOpenApp": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrCopyOpen": "Copy meter number & open {wallet}",
+  "@mtrCopyOpen": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrDialUssd": "No internet: dial {code}",
+  "@mtrDialUssd": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrOpened": "Opened",
+  "mtrOpenedCopied": "Meter number copied — paste it in Pay Bill",
+  "mtrOpenFailed": "Couldn't open the app on this phone",
+  "mtrGasWarning": "Prepaid gas meters use a card. bKash says a prepaid gas card payment through Pay Bill does NOT reach the meter. Recharge the card at your gas company's vending point.",
+  "mtrPickCompanyFirst": "Choose your company in Edit to see the right steps.",
+  "mtrHotline": "{company} hotline: {number}",
+  "@mtrHotline": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrPayHonest": "You pay inside bKash or Nagad. Assisto never takes or holds your money and cannot read your meter — every balance here is an estimate.",
+  "mtrTokenLabel": "Token (20 digits, optional)",
+  "mtrTokenHelp": "Copy the SMS, then tap paste — we pick out the token. Keep it as proof.",
+  "mtrTokenBad": "A token has exactly 20 digits",
+  "mtrTokenPaste": "Paste from SMS",
+  "mtrTokenNoneFound": "No 20-digit token found in the copied text",
+  "mtrTokenExtra": "Also in the SMS: {tokens} — enter these in the meter first if it asks",
+  "@mtrTokenExtra": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrTokenShown": "Token {token}",
+  "@mtrTokenShown": {
+    "placeholders": {
+      "token": {
+        "type": "String"
+      }
+    }
+  },
+  "mtrTokenCopy": "Copy token",
+  "mtrCopied": "Copied",
+  "billNowUsable": "Usable now",
+  "billNowAndLocked": "{now} usable now, {locked} more unlock {when}",
+  "@billNowAndLocked": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "locked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenDays": "in {n} days",
+  "@billWhenDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenHours": "in {n} hours",
+  "@billWhenHours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billWhenSoon": "within the hour",
+  "billLockedExplain": "New plan credits open in steps: {pct}% right away, the rest {hours} hours later. Nothing is lost; they open on their own.",
+  "@billLockedExplain": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "billBucketsTitle": "Where your credits are",
+  "billBucketPlan": "Plan allowance",
+  "billBucketPack": "Credit packs",
+  "billBucketFree": "Free credits",
+  "billBucketRewarded": "Earned from ads",
+  "billBucketReferral": "Referral reward",
+  "billBucketLegacy": "Earlier balance",
+  "billBucketDebt": "Owed after a refund",
+  "billBucketsEmpty": "You have no credits right now.",
+  "billNeverExpires": "Never expires",
+  "billLockedUntil": "{n} locked · opens {date}",
+  "@billLockedUntil": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billDebtTitle": "Balance below zero",
+  "billDebtBody": "A refund removed credits you had already used, so {n} credits are owed. Credit features are paused until the balance is back to zero. A credit pack clears it first.",
+  "@billDebtBody": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billPurchaseBlockedTitle": "Purchases paused",
+  "billPurchaseBlocked": "New purchases are paused on this account after repeated refunds. Write to us from Help & support to reopen them.",
+  "billCostsTitle": "What each task costs",
+  "billCostsNote": "Set on our server and always current. Safety features, calls and chat with people never use credits.",
+  "billCostsEmpty": "Costs couldn't be loaded right now.",
+  "billCostAiCheap": "AI message (quick)",
+  "billCostAiMedium": "AI message (detailed)",
+  "billCostAiStrong": "AI message (expert)",
+  "billCostScan": "Document scan",
+  "billCostPhotoEnhance": "Photo enhance",
+  "billCostPhotoCloud": "Photo enhance (cloud HD)",
+  "billCostPhotoEdit": "Edit a photo by typing",
+  "billCostPhotoGenerate": "Create an image",
+  "billCostPhotoColorize": "Colour an old photo",
+  "billCostPhotoRestore": "Restore an old photo",
+  "billCostPhotoDeblur": "Fix a blurry photo",
+  "billCostChatPhoto": "Ask about a photo in chat",
+  "billCostWebAnswer": "Live web answer with sources",
+  "billCostVideoMin": "Video call, per minute",
+  "billCostSms": "SMS, per message",
+  "billCostAiSales": "AI sales reply",
+  "billCostShopCamera": "Extra shop camera",
+  "billCostShopRelay": "Shop live view via relay, per minute",
+  "billCostVehicle": "Vehicle tracking, per 30 days",
+  "billCostIvr": "Voice-call alert",
+  "billCostRemote": "Remote help, per minute",
+  "billLedTopup": "Credit pack bought",
+  "billLedPlan": "Plan credits added",
+  "billLedTrial": "Trial credits",
+  "billLedFree": "Free credits added",
+  "billLedRewarded": "Ad reward",
+  "billLedReferral": "Referral reward",
+  "billLedUnlock": "Locked credits opened",
+  "billLedExpire": "Expired (plan period ended)",
+  "billLedRevoke": "Removed — Google refunded the purchase",
+  "billLedRefund": "Removed — refund approved",
+  "billLedReturn": "Returned — the task didn't finish",
+  "billLedAdjust": "Adjusted by support",
+  "billHistoryMore": "Show more",
+  "billHistoryEmpty": "No credit activity yet.",
+  "billHistoryFailed": "Couldn't load the history.",
+  "billBalanceAfter": "Balance {n}",
+  "@billBalanceAfter": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billCachedAt": "Offline — showing what was saved {when}",
+  "@billCachedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billUpdatedAt": "Updated {when}",
+  "@billUpdatedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonNeed": "This task needs {need} credits. You can use {now} right now.",
+  "@billReasonNeed": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "now": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonNoCredits": "You're out of usable credits for this task.",
+  "billReasonLocked": "{locked} of your credits are locked and open {when}.",
+  "@billReasonLocked": {
+    "placeholders": {
+      "locked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "billReasonBlocked": "Credit features are paused because the balance is below zero.",
+  "billSeeMyCredits": "See my credits",
+  "billRefundEntry": "Request a refund",
+  "billRefundEntrySub": "Within {h} hours of a purchase · only the unused part",
+  "@billRefundEntrySub": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundTitle": "Refunds",
+  "billRefundPurchases": "Your recent purchases",
+  "billRefundNoPurchases": "No purchases in the last 60 days.",
+  "billRefundAsk": "Ask for a refund",
+  "billRefundWindowLeft": "You can ask until {date}",
+  "@billRefundWindowLeft": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNotEligibleWindow": "The {h}-hour refund window has passed.",
+  "@billRefundNotEligibleWindow": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNotEligibleRefunded": "Already refunded.",
+  "billRefundNotEligibleRequested": "A request was already sent.",
+  "billRefundTest": "Test purchase",
+  "billRefundPack": "Credit pack",
+  "billRefundBoughtOn": "Bought {date}",
+  "@billRefundBoughtOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundReasonLabel": "Why do you want a refund? (optional)",
+  "billRefundSuggested": "If approved, about {amount} (the unused part)",
+  "@billRefundSuggested": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundUsageCredits": "Credits used: {used} of {planned}",
+  "@billRefundUsageCredits": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "planned": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundUsageDays": "Days used: {used} of {total}",
+  "@billRefundUsageDays": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundNoPromise": "This is a request, not a promise. We check it and decide; the final amount can differ. Used credits and used days are not refunded. Credits are never paid out as cash.",
+  "billRefundSend": "Send request",
+  "billRefundSent": "Request sent. The decision will show here and you'll get a notification.",
+  "billRefundStatusPending": "Waiting for review",
+  "billRefundStatusApproved": "Approved — {amount}",
+  "@billRefundStatusApproved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundStatusManual": "Approved — {amount}, being refunded by hand (can take a few days)",
+  "@billRefundStatusManual": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundStatusRejected": "Not approved",
+  "billRefundOwnerNote": "Note: {note}",
+  "@billRefundOwnerNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundRateLimited": "Too many tries. Please try again in an hour.",
+  "billRefundNetwork": "No internet — the request wasn't sent. Try again.",
+  "billRefundFailed": "The request couldn't be sent. Try again.",
+  "billRefundRequestsTitle": "Your refund requests",
+  "billRefundRequestedOn": "Requested {date}",
+  "@billRefundRequestedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billRefundPolicyTitle": "Refund policy",
+  "billPackNeverExpires": "Never expires",
+  "billPlanTrialLeft": "Trial: {n} days left",
+  "@billPlanTrialLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanTrialLastDay": "Trial: last day",
+  "billPlanTrialEnds": "When it ends on {date}, the plan's features stop, unused trial credits expire and you go back to Free. Nothing is charged.",
+  "@billPlanTrialEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanCreditsUntil": "This period's plan credits are valid until {date}",
+  "@billPlanCreditsUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanUsageTitle": "Your usage",
+  "billPlanUsageCredits": "AI credits used this month: {used} · {pool} included",
+  "@billPlanUsageCredits": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "pool": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlanUsageContacts": "CRM contacts",
+  "billPlanLimitReached": "Limit reached — upgrade to add more",
+  "billFaqRefundA": "Within {h} hours of a purchase or renewal you can ask from the app: Plan & credits › Balance › Request a refund. Only the unused part can be refunded and we decide each request. Cancelling stops the next renewal; it is not a refund.",
+  "@billFaqRefundA": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "truthPackNeverExpires": "Never expires",
+  "@truthPackNeverExpires": {
+    "description": "Credits screen: a bought credit pack row. Pack credits never expire (core/credits.py rule B)."
+  },
+  "truthOnbWinLedgerTitle": "Add your first ledger customer",
+  "@truthOnbWinLedgerTitle": {
+    "description": "Onboarding first win (business role): opens the Digital Khata."
+  },
+  "truthOnbWinLedgerSub": "Write who owes you; send a polite reminder later.",
+  "truthOnbWinBillTitle": "Save a bill or receipt photo",
+  "@truthOnbWinBillTitle": {
+    "description": "Onboarding first win: opens the document vault. It stores the photo; it does not read the amount."
+  },
+  "truthOnbWinBillSub": "Keep it safe in your vault and find it in seconds.",
+  "truthOnbWinJourneySub": "Pick who watches your trip; they are alerted if you don't arrive on time.",
+  "@truthOnbWinJourneySub": {
+    "description": "Onboarding first win: Safe Journey. Alerts go only to the watchers the user picks."
+  },
+  "truthJourneyAddFamily": "Add a family member",
+  "@truthJourneyAddFamily": {
+    "description": "Safe Journey start: button shown when the user has nobody in My Circle to watch the trip."
+  },
+  "truthNearbyNeedLocation": "Turn on location to see real places near you",
+  "@truthNearbyNeedLocation": {
+    "description": "Nearby: no location — no list is shown (no sample data)."
+  },
+  "truthNearbyNeedLocationBody": "We only show places that really are around you, from live map data.",
+  "truthNearbyLoadFailed": "Couldn't load nearby places",
+  "truthNearbyNoneNearby": "No places of this type found near you",
+  "truthNearbySource": "Map data: {source}",
+  "@truthNearbySource": {
+    "description": "Nearby: licence line of the live source, e.g. \"© OpenStreetMap contributors (ODbL)\".",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "truthSpendTitle": "Spending insights",
+  "@truthSpendTitle": {
+    "description": "Title of the rule-based spending observations (was \"AI spending insights\"; no AI runs there)."
+  },
+  "truthCourierManualNote": "Assisto doesn't book the courier from here — book it in the courier's own app.",
+  "@truthCourierManualNote": {
+    "description": "Orders: marking an order shipped does not book a courier (no fake tracking number is made)."
+  },
+  "ijAddPhoto": "Add a photo (optional)",
+  "@ijAddPhoto": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijAlready": "You're already in {name}'s circle.",
+  "@ijAlready": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijAppBar": "Join a circle",
+  "@ijAppBar": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijBadTitle": "This invite can't be used",
+  "@ijBadTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijContinueApp": "Continue to Assisto",
+  "@ijContinueApp": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijCopied": "Link copied",
+  "@ijCopied": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijCopyLink": "Copy link",
+  "@ijCopyLink": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijEmailLabel": "Email",
+  "@ijEmailLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijExpiresIn": "The link works for {days} days. You can send it again any time.",
+  "@ijExpiresIn": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "ijForWhom": "Who is it for? (optional)",
+  "@ijForWhom": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijForWhomHint": "e.g. Ammu",
+  "@ijForWhomHint": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijGroupLink": "Family group link",
+  "@ijGroupLink": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijGroupLinkSub": "Up to 10 people can join with one link",
+  "@ijGroupLinkSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijHaveAccount": "Already have an account? Sign in",
+  "@ijHaveAccount": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijInviteTile": "Invite with a link",
+  "@ijInviteTile": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijInviteTileSub": "WhatsApp, imo, Messenger or SMS — they join in 2 taps",
+  "@ijInviteTileSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinButton": "Join",
+  "@ijJoinButton": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinSub": "Chat, calls and family safety — in one app.",
+  "@ijJoinSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijJoinTitle": "Join {name}'s circle",
+  "@ijJoinTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijJoinedSnack": "You joined {name}'s circle — say hi!",
+  "@ijJoinedSnack": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijLoading": "Opening the invite…",
+  "@ijLoading": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNameLabel": "Your name",
+  "@ijNameLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedEmail": "Please enter a valid email.",
+  "@ijNeedEmail": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedName": "Please type your name.",
+  "@ijNeedName": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNeedPhone": "Please enter your mobile number.",
+  "@ijNeedPhone": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNoLabel": "Invite link",
+  "@ijNoLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNoPassword": "No password needed.",
+  "@ijNoPassword": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijNotNow": "Not now",
+  "@ijNotNow": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijOffline": "No internet. Check your connection and try again.",
+  "@ijOffline": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijOpenChat": "Open chat",
+  "@ijOpenChat": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhoneHint": "e.g. 01712345678",
+  "@ijPhoneHint": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhoneLabel": "Mobile number",
+  "@ijPhoneLabel": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijPhotoAdded": "Photo added — tap to change",
+  "@ijPhotoAdded": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijResend": "Send again",
+  "@ijResend": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRetry": "Try again",
+  "@ijRetry": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRevoke": "Cancel link",
+  "@ijRevoke": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijRevoked": "Link cancelled",
+  "@ijRevoked": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentEmpty": "You haven't invited anyone yet.",
+  "@ijSentEmpty": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentTileSub": "See who joined, send again",
+  "@ijSentTileSub": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSentTitle": "Invited, not joined yet",
+  "@ijSentTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareFailed": "Couldn't open that app. Try another way.",
+  "@ijShareFailed": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareLead": "Send this link. They tap it, type their name and they're in — no password.",
+  "@ijShareLead": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShareTitle": "Invite to your circle",
+  "@ijShareTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijShowQr": "QR",
+  "@ijShowQr": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSmsFailed": "The SMS code didn't go through. Try again, or continue with email below.",
+  "@ijSmsFailed": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijStatusExpired": "Link expired — send it again",
+  "@ijStatusExpired": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijStatusJoined": "Joined: {name}",
+  "@ijStatusJoined": {
+    "description": "invite-join (passwordless join from a circle invite link)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ijStatusWaiting": "Not joined yet",
+  "@ijStatusWaiting": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijSwitchLang": "বাংলা",
+  "@ijSwitchLang": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijUseEmail": "SMS not coming? Continue with email",
+  "@ijUseEmail": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijUsePhone": "Use mobile number instead",
+  "@ijUsePhone": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijVerifyTitle": "Confirm your number",
+  "@ijVerifyTitle": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaMore": "imo, Messenger, more",
+  "@ijViaMore": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaSms": "SMS",
+  "@ijViaSms": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "ijViaWhatsApp": "WhatsApp",
+  "@ijViaWhatsApp": {
+    "description": "invite-join (passwordless join from a circle invite link)"
+  },
+  "acTitle": "Assisto Agent",
+  "acIntro": "Type or say a task. The agent plans it step by step using your Assisto data. It always asks you before it sends, pays, books or deletes anything.",
+  "acGoalLabel": "What should the agent do?",
+  "acGoalHint": "e.g. Where did I spend the most this month?",
+  "acCheckCost": "See the cost",
+  "acCheckingCost": "Working out the cost…",
+  "acEstimateTitle": "Cost before it runs",
+  "acEstimateTypical": "Usually {credits} credits (one planning step).",
+  "@acEstimateTypical": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateMax": "At most {credits} credits for this task — never more.",
+  "@acEstimateMax": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateRunsLeft": "You can give {count} more tasks today.",
+  "@acEstimateRunsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEstimateApprovalNote": "Before sending, paying, booking or deleting it will ask you separately.",
+  "acRunConfirm": "Run · about {credits} credits",
+  "@acRunConfirm": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acEdit": "Edit",
+  "acSending": "Sending…",
+  "acHistory": "Past tasks",
+  "acApprovals": "Approvals",
+  "acApprovalsWaiting": "{count} approvals waiting",
+  "@acApprovalsWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "acStateQueued": "Queued",
+  "acStateRunning": "Working",
+  "acStateWaiting": "Waiting for your approval",
+  "acStateDone": "Done",
+  "acStateFailed": "Didn't work",
+  "acStateBudget": "Stopped at its limit",
+  "acStateCancelled": "Cancelled",
+  "acStateExpired": "Expired",
+  "acStepPlan": "Planning",
+  "acStepStPending": "Waiting",
+  "acStepStRunning": "Running",
+  "acStepStDone": "Done",
+  "acStepStFailed": "Failed",
+  "acStepStApproval": "Needs your OK",
+  "acStepStRejected": "You rejected it",
+  "acStepStSkipped": "Skipped",
+  "acStepCredits": "{credits} credits",
+  "@acStepCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acSemStep": "Step {no}: {label}, {state}",
+  "@acSemStep": {
+    "placeholders": {
+      "no": {
+        "type": "Object"
+      },
+      "label": {
+        "type": "Object"
+      },
+      "state": {
+        "type": "Object"
+      }
+    }
+  },
+  "acPlanTitle": "Plan and steps",
+  "acAnswerTitle": "Result",
+  "acSourcesTitle": "Sources",
+  "acSpent": "Spent: {credits} credits",
+  "@acSpent": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acCancel": "Cancel task",
+  "acFeedbackAsk": "Was this helpful?",
+  "acFeedbackUp": "Helpful",
+  "acFeedbackDown": "Not helpful",
+  "acFeedbackNote": "What could be better? (optional)",
+  "acFeedbackSend": "Send feedback",
+  "acFeedbackThanks": "Thanks — your feedback is saved.",
+  "acNewTask": "New task",
+  "acStillWorking": "Still working. Check \"Past tasks\" later.",
+  "acRefresh": "Check again",
+  "acOfflineQueued": "You're offline — the task has not started. Keep this page open and it is sent as soon as you're back online.",
+  "acDailyCap": "Today's agent task limit is reached — please try tomorrow.",
+  "acFeatureOff": "This feature is not available yet.",
+  "acSendNow": "Send now",
+  "acDiscard": "Discard",
+  "acNotSetUpTitle": "AI is not set up yet",
+  "acOutOfCreditsTitle": "Out of credits",
+  "acBuyCredits": "Get credits",
+  "acErrorLoad": "Couldn't load. Check the internet and try again.",
+  "acRetry": "Try again",
+  "acHistoryEmpty": "You haven't given the agent a task yet.",
+  "acApprovalsEmpty": "Nothing is waiting for your approval.",
+  "acApprove": "Approve",
+  "acReject": "Reject",
+  "acRiskExternal": "Sends outside",
+  "acRiskMoney": "Money",
+  "acRiskDelete": "Deletes",
+  "acRiskOther": "Changes",
+  "acApDetails": "Exactly what happens",
+  "acApForGoal": "Task: {goal}",
+  "@acApForGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApStep": "Step: {label}",
+  "@acApStep": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApCost": "This step costs {credits} credits",
+  "@acApCost": {
+    "placeholders": {
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApCostFree": "This step uses no credits",
+  "acApExpires": "Decide by {time}",
+  "@acApExpires": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "acApExpired": "Expired — it can no longer be approved",
+  "acApApproved": "Approved — the agent is carrying on.",
+  "acApRejected": "Rejected — nothing was done.",
+  "acApFromNotif": "You tapped Approve in the notification. Check the details below, then confirm.",
+  "acApMaskedNote": "Numbers are shown partly hidden.",
+  "acApGone": "This approval is no longer waiting.",
+  "acNotifApprove": "Approve",
+  "acNotifReject": "Reject",
+  "acNotifRejectFailed": "Couldn't reject — open the app and try again.",
+  "acTopic": "Topic: {topic}",
+  "@acTopic": {
+    "placeholders": {
+      "topic": {
+        "type": "Object"
+      }
+    }
+  },
+  "acStarted": "Started {time}",
+  "@acStarted": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "pbsTitle": "Probashi family plan",
+  "pbsIntro": "Living abroad? Pay once and your family in Bangladesh gets Premium too.",
+  "pbsIncludesTitle": "What the plan includes",
+  "pbsCreditsNotCash": "Credits are for AI features only. They are not money and cannot be withdrawn.",
+  "pbsNotOnPlay": "This plan is not available on Google Play yet. We will show the price here when it is.",
+  "pbsBuyMonthly": "Monthly — {price}",
+  "@pbsBuyMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsBuyAnnual": "Yearly — {price}",
+  "@pbsBuyAnnual": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsBuyDone": "Done! Your Probashi plan is on.",
+  "pbsBuyPending": "Payment is being confirmed. It will turn on by itself.",
+  "pbsBuyCancelled": "Purchase cancelled.",
+  "pbsInviteFrom": "{name} invited you",
+  "@pbsInviteFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsInviteBody": "Join their Probashi family to get Premium and use the family's shared credits. You choose what they can see.",
+  "pbsAccept": "Accept",
+  "pbsDecline": "Decline",
+  "pbsDeclineTitle": "Decline the invite?",
+  "pbsDeclineBody": "They will see that you did not join. They can invite you again later.",
+  "pbsConsentTitle": "What may they see?",
+  "pbsConsentBody": "Everything is off until you turn it on. You can change this any time.",
+  "pbsConsentJourneys": "Safe Journeys",
+  "pbsConsentJourneysHint": "When your recent journeys started and if you arrived. No map trail.",
+  "pbsConsentSos": "Safety alerts and SOS",
+  "pbsConsentSosHint": "A list of your SOS and safety alerts. An SOS always reaches family anyway.",
+  "pbsConsentBudget": "Money received and budget",
+  "pbsConsentBudgetHint": "This month's totals only: money received, budget and spending. Not each entry.",
+  "pbsConsentReminders": "Reminders done",
+  "pbsConsentRemindersHint": "Only how many reminders you finished this month.",
+  "pbsConsentReport": "Monthly family report",
+  "pbsConsentReportHint": "Put what you share above into their monthly report.",
+  "pbsJoin": "Join",
+  "pbsJoined": "You joined the Probashi family.",
+  "pbsMemberTitle": "In {name}'s Probashi family",
+  "@pbsMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsPaused": "Paused: the payer's plan payment is not active now. It comes back by itself when it is fixed.",
+  "pbsUsedOfCap": "{used} of {cap} credits used this month",
+  "@pbsUsedOfCap": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsPoolLeftShort": "{left} credits left in the family pool",
+  "@pbsPoolLeftShort": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsChangeSharing": "What I share",
+  "pbsLeave": "Leave",
+  "pbsLeaveTitle": "Leave the Probashi family?",
+  "pbsLeaveBody": "Premium and the shared credits stop at once. You cannot join another family for a while.",
+  "pbsPoolTitle": "Shared credit pool",
+  "pbsPoolLeft": "{left} of {total} credits left",
+  "@pbsPoolLeft": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsWhoSpent": "Who used what",
+  "pbsSeatsTitle": "Family seats ({used}/{max})",
+  "@pbsSeatsTitle": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsNoSeats": "No one yet. Invite family from My Circle.",
+  "pbsSlotFreeAt": "A seat frees up on {date}.",
+  "@pbsSlotFreeAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsInvite": "Invite family",
+  "pbsInvited": "Invite sent.",
+  "pbsSeatActions": "Seat options",
+  "pbsSetCap": "Monthly credit limit",
+  "pbsCapHint": "How many pool credits this person may use each month.",
+  "pbsLess": "Less",
+  "pbsMore": "More",
+  "pbsTransfer": "Give seat to someone else",
+  "pbsTransferTitle": "Move this seat?",
+  "pbsTransferBody": "{from} loses the seat now and {to} gets an invite.",
+  "@pbsTransferBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsRemove": "Remove",
+  "pbsRemoveTitle": "Remove from the family?",
+  "pbsRemoveBody": "{name} loses Premium and the shared credits now. This seat can be given again after {days} days.",
+  "@pbsRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsCancelInvite": "Cancel invite",
+  "pbsCancelInviteBody": "The invite is withdrawn. The seat is free at once.",
+  "pbsPickTitle": "Choose from My Circle",
+  "pbsPickBody": "Seats are for family in Bangladesh who are connected with you in My Circle.",
+  "pbsPickEmpty": "No one in My Circle yet. Add family in My Circle first.",
+  "pbsMoreTitle": "Family",
+  "pbsFamilyTitle": "Family dashboard",
+  "pbsFamilyEmpty": "No family member has joined yet.",
+  "pbsLocationOn": "Shares location with you",
+  "pbsLocationOff": "Not sharing location with you",
+  "pbsNotShared": "{what}: not shared by {name}",
+  "@pbsNotShared": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsJourneysMonth": "{n} Safe Journeys this month",
+  "@pbsJourneysMonth": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsJourneyArrived": "arrived",
+  "pbsJourneyActive": "on the way",
+  "pbsJourneyEnded": "ended",
+  "pbsSafetyMonth": "{n} safety alerts / SOS this month",
+  "@pbsSafetyMonth": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsMoneyLine": "This month: received {got}, budget {plan}, spent {spent}",
+  "@pbsMoneyLine": {
+    "placeholders": {
+      "got": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsMoneyUnavailable": "Money totals could not be read right now.",
+  "pbsRemindersDone": "{n} reminders done this month",
+  "@pbsRemindersDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsReportsTitle": "Monthly reports",
+  "pbsReportsEmpty": "No report yet. The first one comes on the 1st of next month.",
+  "pbsReportOf": "Report for {month}",
+  "@pbsReportOf": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsUnread": "New",
+  "pbsReportNoSections": "No family member chose to share a report this month.",
+  "pbsReportNothingShared": "Nothing shared this month.",
+  "pbsPoolUsedBy": "{name}: {n} credits",
+  "@pbsPoolUsedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pbsLedgerTitle": "This month",
+  "pbsLedgerEmpty": "No credits used from the pool this month.",
+  "pbsEntryTitle": "Probashi family plan",
+  "pbsEntryBody": "Abroad? Give Premium to family in Bangladesh.",
+  "pbsLoading": "Loading",
+  "pbsOffTitle": "Not available yet",
+  "pbsOffBody": "The Probashi family plan is being finished. It will appear here when it is ready.",
+  "pbsOfflineTitle": "No internet",
+  "pbsOfflineBody": "Connect to the internet and try again.",
+  "pbsErrorTitle": "Something went wrong",
+  "pbsErrorBody": "Please try again in a little while.",
+  "pbsRetry": "Try again",
+  "pbsCancel": "Cancel",
+  "pbsSave": "Save",
+  "pbsSaved": "Saved.",
+  "ldgAddPartyOnline": "Adding a new customer needs the internet. Entries work offline.",
+  "@ldgAddPartyOnline": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAllDone": "All done",
+  "@ldgAllDone": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAwaitingSend": "Send now",
+  "@ldgAwaitingSend": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgAwaitingTitle": "Reminders due now: {count}",
+  "@ldgAwaitingTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgBtnAssistoSms": "Assisto SMS · {credits} credits",
+  "@ldgBtnAssistoSms": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgBtnPhoneSms": "Phone SMS",
+  "@ldgBtnPhoneSms": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnShare": "Share",
+  "@ldgBtnShare": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnSkip": "Skip",
+  "@ldgBtnSkip": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgBtnWhatsApp": "WhatsApp",
+  "@ldgBtnWhatsApp": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgConflict": "Changed elsewhere",
+  "@ldgConflict": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgCountFailed": "Failed {count}",
+  "@ldgCountFailed": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgCountSent": "Sent {count}",
+  "@ldgCountSent": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgCountSkipped": "Skipped {count}",
+  "@ldgCountSkipped": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgCountWaiting": "Waiting {count}",
+  "@ldgCountWaiting": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgDiscard": "Discard",
+  "@ldgDiscard": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditEntry": "Edit entry",
+  "@ldgEditEntry": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditLinked": "This entry came from a sale — change it from the sale",
+  "@ldgEditLinked": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEditOwnerOnly": "Only the owner can change an entry",
+  "@ldgEditOwnerOnly": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgEdited": "Change saved",
+  "@ldgEdited": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFailedTitle": "Entries that didn't sync",
+  "@ldgFailedTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL1": "Unlimited customers and suppliers",
+  "@ldgFreeL1": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL2": "Credit and payment entries — even offline",
+  "@ldgFreeL2": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL3": "Balances, statements and the statement PDF",
+  "@ldgFreeL3": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL4": "Reminders you send by WhatsApp or your phone's SMS",
+  "@ldgFreeL4": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeL5": "Scheduled reminder notifications",
+  "@ldgFreeL5": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidAi": "AI extras (voice entry, paper-khata scan) are on paid plans",
+  "@ldgFreePaidAi": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidSms": "An SMS that Assisto sends uses credits — we show the cost before sending and never send at 0 credits.",
+  "@ldgFreePaidSms": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreePaidTitle": "What costs money",
+  "@ldgFreePaidTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeSub": "Customers, dues, payments, statements and reminders you send yourself — free on every plan, always.",
+  "@ldgFreeSub": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeTitle": "Digital khata — free forever",
+  "@ldgFreeTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgFreeWeb": "Our written promise: lifeassisto.com/khata-free",
+  "@ldgFreeWeb": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgLocalMsg": "Hello {name}. Your due at {shop} is {amount}. Kindly clear it at your convenience, thank you.",
+  "@ldgLocalMsg": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgLocalPay": " Pay to {method}: {number}.",
+  "@ldgLocalPay": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgNeverAuto": "Nothing is sent without your tap.",
+  "@ldgNeverAuto": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoDueBody": "The customers you picked owe nothing, so no reminder is needed.",
+  "@ldgNoDueBody": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoDueTitle": "Nobody owes you",
+  "@ldgNoDueTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoMatch": "No match",
+  "@ldgNoMatch": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgNoPhone": "No valid mobile number — send it with Share",
+  "@ldgNoPhone": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgOfflineBuilt": "No internet — messages built from your saved khata. WhatsApp and phone SMS work; Assisto SMS doesn't.",
+  "@ldgOfflineBuilt": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayApply": "Add to messages",
+  "@ldgPayApply": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayInfo": "Payment info (optional)",
+  "@ldgPayInfo": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPayNumber": "Your payment number",
+  "@ldgPayNumber": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPendingChip": "Pending sync",
+  "@ldgPendingChip": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPendingEstimate": "About {amount} after sync",
+  "@ldgPendingEstimate": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgPendingSync": "Waiting to sync: {count} — they go up by themselves when you're online",
+  "@ldgPendingSync": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgPickSome": "Pick at least one customer",
+  "@ldgPickSome": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgPlanDailyTotals": "Daily sales totals",
+  "@ldgPlanDailyTotals": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgReview": "Review",
+  "@ldgReview": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSaved": "Saved",
+  "@ldgSaved": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSavedCopy": "Showing your saved copy ({time}) — it updates when you're back online",
+  "@ldgSavedCopy": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSavedOffline": "Saved on this phone — it will sync when you're online",
+  "@ldgSavedOffline": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedAction": "Schedule a reminder",
+  "@ldgSchedAction": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedDelete": "Stop this scheduled reminder",
+  "@ldgSchedDelete": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedDeleted": "Scheduled reminder stopped",
+  "@ldgSchedDeleted": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedEvery": "Every {days} days",
+  "@ldgSchedEvery": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSchedHow": "How",
+  "@ldgSchedHow": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModePush": "Remind me (free)",
+  "@ldgSchedModePush": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModePushSub": "A notification on your phone at that time — you send it with one tap",
+  "@ldgSchedModePushSub": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModeSms": "Assisto sends an SMS",
+  "@ldgSchedModeSms": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedModeSmsSub": "{credits} credits per SMS part. With no credits it won't send — it tells you instead.",
+  "@ldgSchedModeSmsSub": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSchedNeedsOnline": "Scheduling a reminder needs the internet",
+  "@ldgSchedNeedsOnline": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedOnce": "Once",
+  "@ldgSchedOnce": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedQuiet": "This is between 9 pm and 9 am — the reminder will go at 9 am.",
+  "@ldgSchedQuiet": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedQuietAlways": "Nothing goes out between 9 pm and 9 am, and never more than once a day per customer.",
+  "@ldgSchedQuietAlways": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedRepeat": "How often",
+  "@ldgSchedRepeat": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedSave": "Save schedule",
+  "@ldgSchedSave": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedSaved": "Reminder scheduled",
+  "@ldgSchedSaved": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedTitleFor": "Schedule a reminder for {name}",
+  "@ldgSchedTitleFor": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSchedUntilPaid": "Stops by itself once paid",
+  "@ldgSchedUntilPaid": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSchedWhen": "When",
+  "@ldgSchedWhen": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSearchHint": "Search by name or phone",
+  "@ldgSearchHint": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSelectDue": "Everyone with a due",
+  "@ldgSelectDue": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendIntro": "One separate message per customer, with their own due. You send each one with your own tap.",
+  "@ldgSendIntro": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendTitle": "Send reminders",
+  "@ldgSendTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSendToN": "Remind {count}",
+  "@ldgSendToN": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSmsBalance": "Your credits for Assisto SMS: {balance}",
+  "@ldgSmsBalance": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSmsConfirmBody": "An SMS goes to {name}. Cost: {credits} credits. You have {balance} credits.",
+  "@ldgSmsConfirmBody": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "credits": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSmsConfirmTitle": "Send by Assisto SMS?",
+  "@ldgSmsConfirmTitle": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsNoCredits": "No credits",
+  "@ldgSmsNoCredits": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsNotReady": "Assisto SMS isn't on yet — use WhatsApp or your phone's SMS",
+  "@ldgSmsNotReady": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsOwnerOnly": "Only the owner can send Assisto SMS",
+  "@ldgSmsOwnerOnly": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSmsSendNow": "Send",
+  "@ldgSmsSendNow": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusFailed": "Not sent",
+  "@ldgStatusFailed": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusOpenedSms": "Opened in your SMS app — press send there",
+  "@ldgStatusOpenedSms": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusOpenedWa": "Opened in WhatsApp — press send there",
+  "@ldgStatusOpenedWa": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusShared": "Shared",
+  "@ldgStatusShared": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusSkipped": "Skipped",
+  "@ldgStatusSkipped": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgStatusSmsSent": "Sent by Assisto SMS · {credits} credits used",
+  "@ldgStatusSmsSent": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgStillOffline": "Still offline — your entries are safe on this phone",
+  "@ldgStillOffline": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSyncFailed": "Didn't sync: {count}",
+  "@ldgSyncFailed": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgSyncNow": "Sync now",
+  "@ldgSyncNow": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "ldgSynced": "Synced: {count}",
+  "@ldgSynced": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ldgTone": "Tone",
+  "@ldgTone": {
+    "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
   }
 }

@@ -32,7 +32,9 @@ from . import payments_cfg as _PAY   # pay1
 from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
 from . import entitlements as _ENT   # plans-v2
+from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
+from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -85,8 +87,29 @@ _PLAN_META = {
     },
 }
 
+# pricing-40 (owner final, 27 Oct night): two NEW plans. Shipped at price 0
+# = not for sale and not listed; the pricing_27oct preset sets their prices.
+_PLAN_META["plus"] = {
+    "name_bn": "প্লাস", "name_en": "Plus",
+    "desc_bn": "কম দামে স্মার্ট AI চ্যাট।",
+    "desc_en": "Smart AI chat at a small price.",
+    "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "দিনে ১০টি ফ্রি দ্রুত উত্তর", "বিজ্ঞাপন নেই"],
+    "benefits_en": ["Monthly AI credits", "10 free quick replies a day", "No ads"],
+}
+_PLAN_META["premium_pro"] = {
+    "name_bn": "প্রিমিয়াম প্রো", "name_en": "Premium Pro",
+    "desc_bn": "প্রতিটি চ্যাটে সবচেয়ে শক্তিশালী AI, সাথে এজেন্ট কাজ।",
+    "desc_en": "Our strongest AI on every chat, plus agent tasks.",
+    "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "দিনে ১০টি ফ্রি দ্রুত উত্তর", "বিজ্ঞাপন নেই",
+                    "প্রিমিয়ামের সব সুবিধা"],
+    "benefits_en": ["Monthly AI credits", "10 free quick replies a day", "No ads",
+                    "Everything in Premium"],
+}
+
 # order the public catalog is rendered in
 PLAN_ORDER = ("free", "premium", "business")
+# listed only while their price > 0 (pricing-40 preset)
+NEW_PLAN_ORDER = ("plus", "premium_pro")
 
 # ---------------------------------------------------------------- action table
 # Approved credit-cost-per-action map. Each action: provider_cost (USD, our best
@@ -141,6 +164,13 @@ _ACTION_DEFAULTS = {
     # (Brave ~$0.005 / Tavily ~$0.008) + a cheap-tier LLM (~$0.006).
     # NET floor = ceil(0.015*120/0.60) = 3; margin rule = 3; 4 keeps >=40%.
     "web_answer":          {"provider_cost": 0.015, "credits": 4},
+    # agent-core: ONE planner call of the Assisto agent (plan, re-plan or final
+    # answer) through the AI router, main class. Priced for the most expensive
+    # default (Opus 5.5: ~3,500 in + 400 out tokens = $0.022) so no model
+    # choice can make a run loss-making: NET floor = ceil(0.022*120/0.60) = 5;
+    # the 40%-of-pack-credit rule (AGENT_CORE_DESIGN_BN.md §11) = 7. Tool steps
+    # over our own DB cost 0 credits (they count against the run's step cap).
+    "agent_plan":          {"provider_cost": 0.022, "credits": 7},
     # g1-bizagent: the seller's agent looks at a customer PHOTO with a cloud
     # vision model (only when the free perceptual match is not sure) and
     # transcribes a customer VOICE NOTE. The live call books the larger of
@@ -298,7 +328,9 @@ TIER_ACTION = {
 
 # ---------------------------------------------------------------- v2 packs / fees / storage
 # Business Model Build 2. 1 credit == ৳1 face (credit_bdt). Packs grant bonus
-# credits (buy more, get more) and expire 12 months after purchase.
+# credits (buy more, get more) and NEVER expire (core/credits.py rule B:
+# only plan allowance expires). `valid_months` is a legacy admin field that
+# nothing enforces; the app does not show it (truth: never promise it).
 _TOPUP_PACKS = [
     {"id": "p20",  "price": 20,  "credits": 20,  "valid_months": 12},
     {"id": "p50",  "price": 50,  "credits": 55,  "valid_months": 12},
@@ -383,6 +415,7 @@ _OTP_DEFAULTS = {
     "per_phone_per_hour": 5,
     "per_ip_per_hour": 20,
     "per_device_per_hour": 10,
+    "per_email_per_hour": 5,       # smsotp: email OTP codes per address
     "proof_ttl_seconds": 600,      # otp_proof life: 10 minutes, single use
 }
 _OTP_BOUNDS = {
@@ -390,7 +423,77 @@ _OTP_BOUNDS = {
     "max_attempts": (1, 10), "lockout_minutes": (1, 1440),
     "per_phone_per_hour": (1, 50), "per_ip_per_hour": (1, 500),
     "per_device_per_hour": (1, 100), "proof_ttl_seconds": (60, 3600),
+    "per_email_per_hour": (1, 50),
 }
+
+
+# ---- smsotp ---- SMS routing + per-purpose per-day caps + email caps
+# (Owner Admin → Pricing → "sms" / "email"; flat scalars so the generic
+# section editor shows them). 0 = that purpose is OFF. Bounds clamp.
+SMS_GATEWAY_SLUGS = ("sms_ssl_wireless", "sms_bulksmsbd", "sms_alpha",
+                     "sms_infobip", "sms_twilio", "sms")
+_SMS_DEFAULTS = {
+    "primary": "",                 # integration slug; blank = first CONNECTED
+    "secondary": "",               # optional failover gateway slug
+    "default_cost_per_segment_bdt": 0.35,   # when the gateway entry has none
+    "max_segments": 4,             # longer messages are refused
+    # OTP (login / reset / delete / section 8) — company cost, free to user
+    "otp_per_phone_day": 10, "otp_per_user_day": 10, "otp_global_day": 3000,
+    # phone verify (sign-up / change number / booking) — company cost
+    "verify_per_phone_day": 6, "verify_per_user_day": 6, "verify_global_day": 2000,
+    # ledger due reminders — charged to the business owner as credits
+    "tagada_per_phone_day": 1, "tagada_per_user_day": 200,
+    "tagada_per_business_day": 200, "tagada_global_day": 5000,
+    # safety (SOS / journey / family alerts) — free, strict, company cost
+    "safety_per_phone_day": 6, "safety_per_user_day": 20, "safety_global_day": 1000,
+}
+_SMS_INT_BOUNDS = {
+    "max_segments": (1, 10),
+    "otp_per_phone_day": (0, 50), "otp_per_user_day": (0, 50), "otp_global_day": (0, 100000),
+    "verify_per_phone_day": (0, 50), "verify_per_user_day": (0, 50),
+    "verify_global_day": (0, 100000),
+    "tagada_per_phone_day": (0, 5), "tagada_per_user_day": (0, 1000),
+    "tagada_per_business_day": (0, 1000), "tagada_global_day": (0, 200000),
+    "safety_per_phone_day": (0, 30), "safety_per_user_day": (0, 100),
+    "safety_global_day": (0, 50000),
+}
+_EMAIL_DEFAULTS = {
+    "provider": "smtp",            # pluggable sender (smtp now; "ses" later)
+    # Gmail consumer accounts allow ~500 recipients/day (Google Workspace
+    # ~2000): stay under it so Google never suspends the company mailbox.
+    "daily_cap": 400,
+    "near_cap_pct": 90,            # from here the app is told to prefer SMS
+}
+
+
+def _norm_sms(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k in ("primary", "secondary"):
+        v = str(raw.get(k, base[k]) or "").strip()
+        out[k] = v if v in SMS_GATEWAY_SLUGS else ""
+    out["default_cost_per_segment_bdt"] = round(max(0.0, min(50.0, _num(
+        raw.get("default_cost_per_segment_bdt"), base["default_cost_per_segment_bdt"]))), 4)
+    for k, (lo, hi) in _SMS_INT_BOUNDS.items():
+        out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
+    return out
+
+
+def _norm_email(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    prov = str(raw.get("provider", base["provider"]) or "smtp").strip().lower()
+    return {"provider": prov if prov in ("smtp",) else "smtp",
+            "daily_cap": max(0, min(2000, _int(raw.get("daily_cap"), base["daily_cap"]))),
+            "near_cap_pct": max(50, min(100, _int(raw.get("near_cap_pct"),
+                                                  base["near_cap_pct"])))}
+
+
+def sms_cfg(cfg):
+    return normalize(cfg)["sms"]
+
+
+def email_cfg(cfg):
+    return normalize(cfg)["email"]
 
 
 def _norm_otp(raw, base):
@@ -424,6 +527,13 @@ def DEFAULTS():
             "business": {"price": 499, "credits": 240, "unlimited_ai": False,
                          "ads": False, "family": 0,
                          "storage_bytes": 15 * GB},
+            # pricing-40: not for sale (price 0) until the owner-approved preset
+            "plus":     {"price": 0,   "credits": 0,   "unlimited_ai": False,
+                         "ads": False, "family": 0,
+                         "storage_bytes": 2 * GB},
+            "premium_pro": {"price": 0, "credits": 0,  "unlimited_ai": False,
+                            "ads": False, "family": 5,
+                            "storage_bytes": 10 * GB},
         },
         "topup_packs": [dict(p) for p in _TOPUP_PACKS],
         # % off 12 months of Premium. NOTE (a6 annual margin check): at 20%
@@ -573,6 +683,8 @@ def DEFAULTS():
         "shop": dict(_SHOP_DEFAULTS),
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
+        "sms": dict(_SMS_DEFAULTS),        # smsotp
+        "email": dict(_EMAIL_DEFAULTS),    # smsotp
         "vehicle": dict(_VEHICLE_DEFAULTS),
         # ps1-photo: Photo Studio knobs (core/logic/photo_studio.py)
         "photo_studio": _PS.defaults(),
@@ -591,6 +703,12 @@ def DEFAULTS():
         # plans-v2 (owner 27 Oct): Free / Premium / Business limits + the
         # 7-day Business trial, used only while feature flag plans_v2 is ON.
         "plans_v2": _ENT.defaults(),
+        # pricing-40 (owner 27 Oct): quick/smart/pro chat modes, free quick
+        # quota, input/output caps, annual credit months. DISABLED until the
+        # owner approves (manage.py apply_pricing_preset pricing_27oct).
+        "credit_model": _P40.credit_model_defaults(),
+        # probashi-plan (owner 27 Oct): seats, shared pool, caps, cooldown
+        "probashi_plan": _PB.defaults(),
     }
 
 
@@ -709,6 +827,8 @@ def normalize(data):
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "otp": _norm_otp(d.get("otp"), base["otp"]),
+        "sms": _norm_sms(d.get("sms"), base["sms"]),          # smsotp
+        "email": _norm_email(d.get("email"), base["email"]),  # smsotp
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
@@ -720,6 +840,8 @@ def normalize(data):
         "world": _norm_world(d.get("world"), base["world"]),   # p4-world
         "retention": _norm_retention(d.get("retention"), base["retention"]),
         "plans_v2": _ENT.normalize(d.get("plans_v2")),
+        "credit_model": _P40.normalize_credit_model(d.get("credit_model")),
+        "probashi_plan": _PB.normalize(d.get("probashi_plan")),
     }
 
 
@@ -1351,10 +1473,13 @@ def plan_benefits(pid, lang, cfg):
             first = ("AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে" if bn
                      else "AI with credit packs or rewarded ads")
         lines[0] = first
-    elif pid in ("premium", "business"):
+    elif pid in ("premium", "business", "plus", "premium_pro"):
         n = s["credits"]
         lines[0] = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট (স্ক্যান ও সহকারী)" if bn
                     else f"{n} AI credits / month (scans & assistant)")
+        msg = _P40.plan_message_line(pid, n, cfg, bn)
+        if msg:
+            lines[0] = msg
     if pid == "premium":
         fam = s["family"]
         if fam > 0:
@@ -1366,6 +1491,19 @@ def plan_benefits(pid, lang, cfg):
     return lines
 
 
+def _annual_benefits(lang, cfg):
+    """Premium's lines; with the credit model on, the message line counts the
+    YEAR's credits (10x monthly), never the monthly plan's number."""
+    lines = plan_benefits("premium", lang, cfg)
+    cm = cfg["credit_model"]
+    if cm["enabled"]:
+        yearly = cfg["plans"]["premium"]["credits"] * cm["annual_credit_months"]
+        msg = _P40.plan_message_line("premium", yearly, cfg, lang == "bn", year=True)
+        if msg:
+            lines[0] = msg
+    return lines
+
+
 def plan_public(lang, cfg):
     """Build the localized public plans list from config. REPLACES the hard-coded
     Free/Premium/Business entries in core/plans.py. probashi/founder are handled
@@ -1373,7 +1511,8 @@ def plan_public(lang, cfg):
     from ..i18n import pick
     cfg = normalize(cfg)
     out = []
-    for pid in PLAN_ORDER:
+    order = PLAN_ORDER + tuple(p for p in NEW_PLAN_ORDER if cfg["plans"][p]["price"] > 0)
+    for pid in order:
         s = cfg["plans"][pid]
         meta = _PLAN_META[pid]
         entry = {
@@ -1398,9 +1537,11 @@ def plan_public(lang, cfg):
         "price": yearly, "cur": CUR, "period": "yr",
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
-        "benefits": plan_benefits("premium", lang, cfg),
+        "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],
-        "credits": prem["credits"],         # the same monthly pool, every month
+        # the monthly pool every month (pricing-40 enabled: x annual_credit_months/12)
+        "credits": (prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12
+                    if cfg["credit_model"]["enabled"] else prem["credits"]),
         "discount_pct": disc,
         "monthly_equiv": round(yearly / 12.0, 2),
     })

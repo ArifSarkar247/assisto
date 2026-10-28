@@ -170,7 +170,7 @@ def daily_consumption(recharges, as_of=None):
     return {"rate": rate, "span_days": span, "confident": rate > 0}
 
 
-def current_balance(meter, recharges, as_of=None):
+def current_balance(meter, recharges, as_of=None, rate=None):
     """Best-estimate current balance in poisha.
 
     Two honest sources, in priority order:
@@ -181,7 +181,8 @@ def current_balance(meter, recharges, as_of=None):
     Never goes below 0. Returns {'balance': poisha, 'basis': str, 'as_of': iso}.
     """
     as_of = _parse_date(as_of) or date.today()
-    rate = daily_consumption(recharges, as_of=as_of)["rate"]
+    if rate is None:
+        rate = daily_consumption(recharges, as_of=as_of)["rate"]
     rows = _recharge_rows(recharges)
 
     reading = to_poisha(meter.get("balance"))
@@ -224,7 +225,16 @@ def project_runout(meter, recharges, as_of=None, low_days=DEFAULT_LOW_DAYS):
     as_of_d = _parse_date(as_of) or date.today()
     cons = daily_consumption(recharges, as_of=as_of_d)
     rate = cons["rate"]
-    bal_info = current_balance(meter, recharges, as_of=as_of_d)
+    rate_basis = "history" if cons["confident"] else "none"
+    # remmeter: thin history (first days) -> the user's own daily-use
+    # estimate, clearly labelled, instead of "unknown" until the 2nd recharge
+    if not cons["confident"]:
+        est = to_poisha(meter.get("daily_use"))
+        if est > 0:
+            rate, rate_basis = est, "user"
+            cons = {"rate": est, "span_days": 0, "confident": True}
+    bal_info = current_balance(meter, recharges, as_of=as_of_d,
+                               rate=rate)
     bal = bal_info["balance"]
 
     if bal <= 0:
@@ -246,6 +256,7 @@ def project_runout(meter, recharges, as_of=None, low_days=DEFAULT_LOW_DAYS):
         "low": state in ("low", "empty"),
         "state": state,
         "basis": bal_info["basis"],
+        "rate_basis": rate_basis,
         "note": {
             "bn": "সব সংখ্যা রিচার্জ ও ব্যবহারের ইতিহাস থেকে অনুমান করা — এটি "
                   "একটি ম্যানুয়াল ট্র্যাকার, কোনো লাইভ মিটার সংযোগ নেই। অ্যাপ "
@@ -348,3 +359,154 @@ def live_balance_seam():
                   "data you enter.",
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# remmeter: utilities, meter numbers, tokens, pay-bill paths, low alerts
+# ---------------------------------------------------------------------------
+# Companies a Bangladeshi prepaid meter can belong to. `bkash` / `nagad`
+# say whether we have VERIFIED that the wallet's Pay Bill lists the
+# company's PREPAID biller (bKash biller-charges page; Nagad press releases
+# for DESCO and Palli Bidyut). Unverified -> the app shows "check the
+# wallet's Pay Bill list" instead of steps. Gas prepaid meters are smart
+# CARDS: bKash says a prepaid gas card payment through Pay Bill does NOT
+# reach the meter, so gas has no wallet path at all (vending point only).
+UTILITIES = {
+    "desco": {"kind": "electricity", "name_en": "DESCO", "name_bn": "ডেসকো",
+              "bkash": True, "nagad": True, "hotline": "16120"},
+    "dpdc": {"kind": "electricity", "name_en": "DPDC", "name_bn": "ডিপিডিসি",
+             "bkash": True, "nagad": False, "hotline": "16116"},
+    "nesco": {"kind": "electricity", "name_en": "NESCO", "name_bn": "নেসকো",
+              "bkash": True, "nagad": False, "hotline": "16603"},
+    "wzpdcl": {"kind": "electricity", "name_en": "WZPDCL (Ozopadico)",
+               "name_bn": "ওজোপাডিকো", "bkash": True, "nagad": False,
+               "hotline": "16117"},
+    "breb": {"kind": "electricity", "name_en": "Palli Bidyut (BREB)",
+             "name_bn": "পল্লী বিদ্যুৎ", "bkash": True, "nagad": True,
+             "hotline": ""},
+    "bpdb": {"kind": "electricity", "name_en": "BPDB",
+             "name_bn": "বিদ্যুৎ উন্নয়ন বোর্ড", "bkash": True,
+             "nagad": False, "hotline": ""},
+    "titas": {"kind": "gas", "name_en": "Titas Gas", "name_bn": "তিতাস গ্যাস",
+              "bkash": False, "nagad": False, "hotline": ""},
+    "karnaphuli": {"kind": "gas", "name_en": "Karnaphuli Gas",
+                   "name_bn": "কর্ণফুলী গ্যাস", "bkash": False,
+                   "nagad": False, "hotline": ""},
+    "other": {"kind": "", "name_en": "Other", "name_bn": "অন্য",
+              "bkash": False, "nagad": False, "hotline": ""},
+}
+
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
+def normalize_number(v):
+    """Bangla digits -> ASCII; spaces / dashes dropped."""
+    s = str(v or "").translate(_BN_DIGITS)
+    return "".join(ch for ch in s if ch not in " -_.\t")
+
+
+def validate_meter_number(utility, number):
+    """We do NOT know each company's official meter-number format, so we
+    never reject a plausible number on format grounds: digits only, 6-20
+    long. Returns (normalised, problem|None, format_checked=False)."""
+    n = normalize_number(number)
+    if not n:
+        return "", None, False          # optional field
+    if not n.isdigit():
+        return n, "meter_digits_only", False
+    if not (6 <= len(n) <= 20):
+        return n, "meter_length", False
+    return n, None, False
+
+
+def extract_tokens(text):
+    """Every 20-digit STS token in a pasted SMS. Chunks split on spaces /
+    dashes; all-digit chunks join their neighbours (4-4-4-4-4 printing), a
+    chunk with letters ("KCT1", "Tk500") breaks the run; consecutive chunks
+    adding up to EXACTLY 20 digits form a token (Bangla digits allowed). A
+    tariff change can send extra key-change tokens, so all are returned."""
+    import re
+    s = str(text or "").translate(_BN_DIGITS)
+    runs = [[]]
+    for chunk in re.split(r"[\s\-]+", s):
+        c = re.sub(r"^[^0-9A-Za-z]+|[^0-9A-Za-z]+$", "", chunk)
+        if c and c.isdigit():
+            runs[-1].append(c)
+            if chunk.endswith((".", ",")):
+                runs.append([])
+        else:
+            runs.append([])
+    out = []
+    for run in runs:
+        i = 0
+        while i < len(run):
+            acc, j = "", i
+            while j < len(run) and len(acc) < 20:
+                acc += run[j]
+                j += 1
+            if len(acc) >= 20 and len(acc) % 20 == 0 and (j - i == 1 or len(acc) == 20):
+                out.extend(acc[k:k + 20] for k in range(0, len(acc), 20))
+                i = j
+            else:
+                i += 1
+    return out
+
+
+def valid_token(t):
+    n = normalize_number(t)
+    return n.isdigit() and len(n) == 20
+
+
+# Low-balance alert defaults: warn when the projection says fewer than
+# ALERT_DAYS days are left (the user can choose 1..7), at most
+# MAX_ALERTS_PER_DAY pushes per user per day, never in quiet hours.
+ALERT_DAYS = 3
+MAX_ALERTS_PER_DAY = 2
+QUIET_START_H, QUIET_END_H = 21, 9      # Dhaka wall clock
+
+
+def alert_days(meter):
+    try:
+        d = int(meter.get("alert_days") or ALERT_DAYS)
+    except (TypeError, ValueError):
+        d = ALERT_DAYS
+    return max(1, min(7, d))
+
+
+def in_quiet_hours(hour):
+    return hour >= QUIET_START_H or hour < QUIET_END_H
+
+
+def low_alert(meter, recharges, as_of=None):
+    """What (if anything) to push for one meter today. Pure.
+
+    Returns None (nothing) or {"level": "low"|"empty", "days_left",
+    "runout_date", "title": {bn,en}, "body": {bn,en}}. Never alerts on an
+    'unknown' projection (no fake numbers) or when the user switched alerts
+    off for the meter."""
+    if meter.get("alerts") is False:
+        return None
+    p = project_runout(meter, recharges, as_of=as_of,
+                       low_days=alert_days(meter))
+    if p["state"] not in ("low", "empty"):
+        return None
+    if p["basis"] == "none":
+        return None     # nothing entered yet: no balance to warn about
+    name = (meter.get("name") or "").strip() or "Meter"
+    if p["state"] == "empty":
+        title = {"bn": "মিটারের ব্যালান্স শেষ হয়ে থাকতে পারে",
+                 "en": "Your meter balance may have run out"}
+        body = {"bn": "%s: আনুমানিক হিসাবে ব্যালান্স শেষ। মিটারে দেখে রিচার্জ করুন।" % name,
+                "en": "%s: by our estimate the balance is used up. Check the meter and recharge." % name}
+    else:
+        dl = p["days_left"]
+        bn = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+        title = {"bn": "মিটারের ব্যালান্স কম", "en": "Meter balance is low"}
+        body = {"bn": "%s: আনুমানিক %s দিন চলবে (%s)। আগেই রিচার্জ করে নিন।"
+                      % (name, str(dl).translate(bn),
+                         p["balance_display"].translate(bn)),
+                "en": "%s: about %d day(s) left (%s). Recharge before it runs out."
+                      % (name, dl, p["balance_display"])}
+    return {"level": p["state"], "days_left": p["days_left"],
+            "runout_date": p["runout_date"], "title": title, "body": body,
+            "estimate": True}

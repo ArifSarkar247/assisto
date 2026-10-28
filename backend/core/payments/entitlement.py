@@ -153,6 +153,12 @@ def recompute(user, now=None, reason="recompute"):
         acct.save()
     user.plan, user.plan_until = final
     if changed:
+        try:   # probashi-plan: tell the family when the payer's plan turns on/off
+            from .. import probashi_plan as PB
+            PB.on_plan_change(user, cur[0] if cur[1] and cur[1] > now else "free",
+                              final[0] if final[1] and final[1] > now else "free")
+        except Exception:
+            pass
         event(user, "entitlement.change", ref=reason,
               before_plan=cur[0], before_until=cur[1].isoformat() if cur[1] else "",
               plan=final[0], until=final[1].isoformat() if final[1] else "")

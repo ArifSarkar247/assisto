@@ -33,8 +33,10 @@
     <a href="/owner/founders" class="{% if nav == 'founders' %}on{% endif %}">{{ T.nav_founders }}</a>
     <a href="/owner/feedback" class="{% if nav == 'feedback' %}on{% endif %}">{{ T.nav_feedback }}</a>
     <a href="/owner/ai-reports" class="{% if nav == 'ai_reports' %}on{% endif %}">{{ T.nav_ai_reports }}</a>
+    <a href="/owner/agent-runs" class="{% if nav == 'agent_runs' %}on{% endif %}">{{ T.nav_agent_runs }}</a>
     <a href="/owner/reports" class="{% if nav == 'reports' %}on{% endif %}">{{ T.nav_reports }}</a>
     <a href="/owner/vitals" class="{% if nav == 'vitals' %}on{% endif %}">{{ T.nav_vitals }}</a>
+    <a href="/owner/system" class="{% if nav == 'system' %}on{% endif %}">{{ T.nav_system }}</a>
     <a href="/owner/features" class="{% if nav == 'features' %}on{% endif %}">{{ T.nav_features }}</a>
     <a href="/owner/audit" class="{% if nav == 'audit' %}on{% endif %}">{{ T.nav_audit }}</a>
     <a href="/owner/security" class="{% if nav == 'security' %}on{% endif %}">{{ T.nav_security }}</a>
@@ -51,6 +53,7 @@
   </header>
   {% if msg %}<div class="flash {% if msg in 'invalid,confirm_needed,no_fernet,nothing,ff_dod' %}warn{% endif %}">{% if msg == 'saved' %}{{ T.m_saved }}{% elif msg == 'created' %}{{ T.m_created }}{% elif msg == 'deleted' %}{{ T.m_deleted }}{% elif msg == 'tested' %}{{ T.m_tested }}{% elif msg == 'invalid' %}{{ T.m_invalid }}{% elif msg == 'confirm_needed' %}{{ T.m_confirm_needed }}{% elif msg == 'no_fernet' %}{{ T.m_no_fernet }}{% elif msg == 'nothing' %}{{ T.m_nothing }}{% elif msg == 'recovery_used' %}{{ T.m_recovery_used }}{% elif msg == 'granted' %}{{ T.m_granted }}{% elif msg == 'revoked' %}{{ T.m_revoked }}{% elif msg == 'ff_dod' %}{{ T.m_ff_dod }}{% endif %}</div>{% endif %}
   {% if call_alert %}<div class="flash warn" role="alert" id="call-health-alert"><b>{{ T.ch_alert_title }}</b> {% if call_alert.kind == 'throttled' %}{{ T.ch_alert_throttled }} {{ call_alert.count }}{% else %}{{ T.ch_alert_low }} {{ call_alert.success_pct }}%{% endif %} · <a href="/owner/calls#call-health">{{ T.ch_alert_open }}</a></div>{% endif %}
+  {% if cost_alert %}<div class="flash bad" role="alert" id="ai-cost-alert"><b>{{ T.cost_alert_title }}</b> {% for a in cost_alert %}{{ a.key }} ৳{{ a.cpc }} &gt; ৳{{ a.safe }}{% if not forloop.last %} · {% endif %}{% endfor %} · <a href="/owner/ai">{{ T.cost_alert_open }}</a></div>{% endif %}
   {% if ai_alert %}<div class="flash warn" role="alert" id="ai-spend-alert"><b>{{ T.ai_alert_title }}</b> {% for a in ai_alert %}{{ a.slug }} {{ a.pct }}%{% if a.full %} ({{ T.ai_alert_full }}){% endif %}{% if not forloop.last %} · {% endif %}{% endfor %} · <a href="/owner/ai">{{ T.ai_alert_open }}</a></div>{% endif %}
   <main class="content">{% block content %}{% endblock %}</main>
 </div>

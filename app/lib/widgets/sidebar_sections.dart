@@ -97,6 +97,7 @@ import '../screens/exam_result_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
 // work
 import '../screens/agent_studio_screen.dart';
+import '../screens/agent_core/agent_core_screen.dart'; // agent-core
 import '../screens/jobs_screen.dart';
 import '../screens/inbox_screen.dart';
 // business
@@ -106,6 +107,7 @@ import '../screens/crm/crm_home_screen.dart';
 import '../feature_gates.dart'
     show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
 // / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
 // functions now live INSIDE the Messenger hub (people icon, ⋮ hub-settings,
@@ -324,7 +326,7 @@ class SidebarSections {
           (_) => const SavingsChallengeScreen(),
           synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
       // #51 AI spending advice (key-gated mock) + #34 market price radar.
-      SidebarItem(Icons.insights_rounded, (t) => t.spendTitle,
+      SidebarItem(Icons.insights_rounded, (t) => t.truthSpendTitle, // truth: rule-based, not AI
           feature: 'spending_advice',
           (_) => const SpendingAdviceScreen(),
           synonyms: ['spending', 'advice', 'insights', 'ai money', 'analysis']),
@@ -349,6 +351,11 @@ class SidebarSections {
           feature: 'safe_journey',
           (_) => const JourneyStartScreen(),
           synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track']),
+      // probashi-plan (flag probashi_plan, default OFF)
+      SidebarItem(Icons.flight_takeoff_rounded, (t) => t.pbsTitle,
+          feature: 'probashi_plan',
+          (_) => const ProbashiPlanScreen(),
+          synonyms: ['probashi', 'expat', 'abroad', 'family plan']),
       SidebarItem(Icons.emergency_rounded, (t) => t.moduleEmergency,
           feature: 'emergency',
           (_) => const EmergencyScreen(),
@@ -659,6 +666,12 @@ class SidebarSections {
       // f6 (no showpieces): Agent Studio automations never fire yet (and its
       // social composer labels template drafts "AI-generated"), so the entry
       // is hidden until automations really run.
+      // agent-core WP-APP: hidden behind flag agent_core (owner / staff /
+      // allow-listed testers see it with the Preview tag while OFF).
+      SidebarItem(Icons.smart_toy_outlined, (t) => t.acTitle,
+          feature: 'agent_core',
+          (_) => const AgentCoreScreen(),
+          synonyms: ['agent', 'goal', 'approval', 'assisto agent']),
       if (kAgentStudioRunsAutomations)
         SidebarItem(Icons.auto_awesome_rounded, (t) => t.agentStudio,
             feature: 'agent_studio',

@@ -10,6 +10,7 @@ import 'md1_shots.dart' show fakeMd1Get;
 import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
+import 'fake_khata.dart'; // ledger100
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
 
 enum FakeMode { data, empty, fail, slow }
@@ -71,6 +72,26 @@ class FakeApi extends ApiClient {
         : const [];
   }
 
+  /// truth: GET /nearby — REAL-shaped rows (the server's live Places/OSM
+  /// layer) with the licence line; empty mode = nothing nearby; fail = down.
+  @override
+  Future<Map<String, dynamic>> nearby(double lat, double lon, String type) async {
+    await _slow();
+    if (mode == FakeMode.fail) _fail();
+    final rows = mode == FakeMode.empty
+        ? const <Map<String, dynamic>>[]
+        : [
+            {'name': 'Dhaka Medical College Hospital', 'address': 'Secretariat Road',
+             'distance_m': 850, 'open_now': null, 'rating': null, 'phone': null,
+             'lat': lat + 0.006, 'lon': lon + 0.002, 'maps': 'https://maps'},
+            {'name': 'Square Hospital', 'address': 'Panthapath',
+             'distance_m': 2100, 'open_now': null, 'rating': null, 'phone': '10616',
+             'lat': lat + 0.015, 'lon': lon - 0.012, 'maps': 'https://maps'},
+          ];
+    return {'type': type, 'source': 'osm', 'places': rows,
+            'attribution': '\u00a9 OpenStreetMap contributors (ODbL)'};
+  }
+
   Map<String, dynamic>? _pay1Get(String path) {
     if (path.startsWith('/payments/config')) {
       final prods = [
@@ -121,8 +142,71 @@ class FakeApi extends ApiClient {
         'storage': {'used': 1200000000, 'quota_bytes': 5368709120},
       };
     }
-    if (path == '/credits/history') {
-      return {'items': const [], 'expiry_buckets': const []};
+    if (path.startsWith('/credits/history')) {
+      // billapp: the real paged ledger shape (newest first)
+      return {
+        'ledger': [
+          {'id': 3, 'delta': -1, 'reason': 'consume', 'note': 'ai_msg_cheap', 'bucket': 'plan',
+            'at': '2026-10-27T09:10:00+00:00', 'balance_after': 17},
+          {'id': 2, 'delta': 18, 'reason': 'grant', 'note': '', 'bucket': 'plan',
+            'at': '2026-10-27T08:00:00+00:00', 'balance_after': 18},
+          {'id': 1, 'delta': 20, 'reason': 'topup', 'note': '', 'bucket': 'pack',
+            'at': '2026-10-20T08:00:00+00:00', 'balance_after': 20},
+        ],
+        'next_offset': null, 'total': 3, 'expiry_buckets': const [],
+      };
+    }
+    if (path == '/credits/refunds') {
+      // billapp: one eligible purchase (server suggestion), one past the
+      // window, and a decided request with the owner's note
+      final now = DateTime.now().toUtc();
+      return {
+        'window_hours': 48,
+        'policy': {'window_hours': 48, 'url': '/refund-policy',
+          'text': _bn
+              ? 'কেনা বা নবায়নের 48 ঘণ্টার মধ্যে অ্যাপ থেকে রিফান্ড চাওয়া যায়। শুধু অব্যবহৃত অংশ ফেরত হয়।'
+              : 'You can ask for a refund in the app within 48 hours of a purchase or renewal. Only the unused part is refunded.'},
+        'purchases': [
+          {'id': 12, 'channel': 'play', 'order_ref': '00012', 'sku': 'premium_monthly', 'kind': 'sub',
+            'plan': 'premium', 'price': '199.00', 'currency': 'BDT', 'test': true,
+            'purchased_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
+            'window_ends_at': now.add(const Duration(hours: 45)).toIso8601String(),
+            'eligible': true, 'reason': '', 'suggested': '179.10', 'request': null,
+            'usage': {'credits_planned': 90, 'credits_used': 9, 'days_total': 30.0, 'days_used': 0.1}},
+          {'id': 9, 'channel': 'play', 'order_ref': '00009', 'sku': 'pack_p50', 'kind': 'pack',
+            'plan': '', 'price': '50.00', 'currency': 'BDT', 'test': false,
+            'purchased_at': now.subtract(const Duration(days: 5)).toIso8601String(),
+            'eligible': false, 'reason': 'already_requested', 'suggested': null},
+        ],
+        'requests': [
+          {'id': 3, 'status': 'rejected', 'order': 9,
+            'requested_at': now.subtract(const Duration(days: 4)).toIso8601String(),
+            'note': _bn ? 'প্যাকের বেশিরভাগ ক্রেডিট ব্যবহার হয়েছে' : 'Most of the pack was used',
+            'approved_amount': '0.00'},
+        ],
+      };
+    }
+    if (path == '/credits/state') {
+      // billapp: 18 usable now, 72 locked (opens in 2 days), a pack
+      final now = DateTime.now().toUtc();
+      return {
+        'balance': 38, 'now_usable': 38, 'locked': 72,
+        'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String(),
+        'negative': false, 'blocked': false, 'purchase_blocked': false, 'debt': 0,
+        'buckets': {'plan': 18, 'pack': 20},
+        'bucket_detail': [
+          {'bucket': 'plan', 'remaining': 18, 'locked': 72,
+            'expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+            'unlocks_at': now.add(const Duration(hours: 47)).toIso8601String()},
+          {'bucket': 'pack', 'remaining': 20, 'locked': 0, 'expires_at': null, 'unlocks_at': null},
+        ],
+        'plan_expires_at': now.add(const Duration(days: 30)).toIso8601String(),
+        'unlock_pct': 20, 'unlock_hours': 48, 'refund_window_hours': 48,
+        'action_costs': {'ai_msg_cheap': 1, 'ai_msg_medium': 3, 'scan_ocr': 2,
+          'photo_generate': 9, 'retention_in_app': 0},
+        'withdrawable': false,
+        'server_time': now.toIso8601String(),
+      };
     }
     return null;
   }
@@ -166,6 +250,32 @@ class FakeApi extends ApiClient {
         for (var i = 1; i <= 3; i++) {'id': i, 'unit_id': i, 'month': m, 'paid_poisha': 1500000},
         {'id': 4, 'unit_id': 4, 'month': m, 'paid_poisha': 500000},
         {'id': 5, 'unit_id': 5, 'month': m, 'paid_poisha': 1000000},
+      ]);
+    }
+    // remmeter: prepaid meters (company, meter no, estimate, token log)
+    if (path == 'meter/meters' || path == 'meter/recharges') {
+      final today = DateTime.now();
+      String d(int ago) => today
+          .subtract(Duration(days: ago))
+          .toIso8601String()
+          .split('T')
+          .first;
+      if (path == 'meter/meters') {
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'বাসার মিটার' : 'Home meter', 'kind': 'electricity',
+           'utility': 'desco', 'meter_no': '04123456789', 'balance': '180',
+           'balance_date': d(0), 'daily_use': '60', 'alert_days': 3, 'alerts': true},
+          {'id': 2, 'name': _bn ? 'দোকান' : 'Shop', 'kind': 'electricity',
+           'utility': 'breb', 'meter_no': '98765432', 'alert_days': 3, 'alerts': true},
+          {'id': 3, 'name': _bn ? 'রান্নাঘরের গ্যাস' : 'Kitchen gas', 'kind': 'gas',
+           'utility': 'titas', 'alerts': false},
+        ]);
+      }
+      return _maybe([
+        {'id': 11, 'meter': 2, 'amount': '1000', 'date': d(40), 'channel': 'bkash'},
+        {'id': 12, 'meter': 2, 'amount': '1000', 'date': d(10), 'channel': 'nagad',
+         'token': '12345678901234567890'},
+        {'id': 13, 'meter': 3, 'amount': '1500', 'date': d(5)},
       ]);
     }
     switch (path) {
@@ -1553,7 +1663,11 @@ class FakeApi extends ApiClient {
         ],
       };
     }
-    // khata
+    // ledger100: khata in the server's real shape (fake_khata.dart)
+    final khG = fakeKhataGet(bare, p.contains('?') ? p.split('?').last : '',
+        bn: _bn, empty: mode == FakeMode.empty);
+    if (khG != null) return khG;
+    // khata (legacy shapes, unreachable now — kept for reference)
     if (bare == 'business/khata/parties') {
       final book = Uri.parse('http://x/$path').queryParameters['book'] ?? 'customer';
       return {'parties': mode == FakeMode.empty ? const [] : _bizParties(book), 'role': 'owner'};
@@ -1736,6 +1850,23 @@ class FakeApi extends ApiClient {
   }
 
   @override
+  Future<Map<String, dynamic>> postJsonRaw(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    final p = (path.startsWith('/') ? path.substring(1) : path).split('?').first;
+    final kh = fakeKhataPost(p, body, bn: _bn); // ledger100
+    if (kh != null) return kh;
+    return super.postJsonRaw(path, body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteJson(String path) async {
+    if (path.contains('/business/khata/tagada/schedule/')) {
+      return {'ok': true}; // ledger100
+    }
+    return super.deleteJson(path);
+  }
+
+  @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     if (path == '/account/delete/preview') {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
@@ -1743,6 +1874,13 @@ class FakeApi extends ApiClient {
     }
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
     if (p1P != null) return p1P;
+    final khP = fakeKhataPost(
+        (path.startsWith('/') ? path.substring(1) : path).split('?').first, body,
+        bn: _bn); // ledger100
+    if (khP != null) {
+      if (mode == FakeMode.fail) _fail();
+      return khP;
+    }
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
     if (vehP != null) return vehP;
     final c1P = fakeC1Post(path, body); // c1-contacts

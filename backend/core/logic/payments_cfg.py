@@ -30,7 +30,9 @@ Keys
                      re-checked one last time and then marked expired.
 """
 
-SUB_SKUS = ("premium_monthly", "premium_yearly", "business_monthly", "business_yearly")
+SUB_SKUS = ("premium_monthly", "premium_yearly", "business_monthly", "business_yearly",
+            # pricing-40 (owner final 27 Oct): sold only once their price > 0
+            "plus_monthly", "plus_yearly", "premium_pro_monthly", "premium_pro_yearly")
 
 # owner 26 Oct: the yearly base plan id in Play Console is "annual" on BOTH
 # subscriptions. A base plan named "yearly" exists on assisto_premium but is
@@ -40,6 +42,14 @@ _PLAY_PRODUCTS = {
     "premium_yearly": {"product_id": "assisto_premium", "base_plan": "annual"},
     "business_monthly": {"product_id": "assisto_business", "base_plan": "monthly"},
     "business_yearly": {"product_id": "assisto_business", "base_plan": "annual"},
+    "plus_monthly": {"product_id": "assisto_plus", "base_plan": "monthly"},
+    "plus_yearly": {"product_id": "assisto_plus", "base_plan": "annual"},
+    "premium_pro_monthly": {"product_id": "assisto_premium_pro", "base_plan": "monthly"},
+    "premium_pro_yearly": {"product_id": "assisto_premium_pro", "base_plan": "annual"},
+    # probashi-plan (owner 27 Oct): Play ONLY (local-currency prices set per
+    # country in Play Console; never sold through the BDT gateway)
+    "probashi_monthly": {"product_id": "assisto_probashi", "base_plan": "monthly"},
+    "probashi_yearly": {"product_id": "assisto_probashi", "base_plan": "annual"},
 }
 
 

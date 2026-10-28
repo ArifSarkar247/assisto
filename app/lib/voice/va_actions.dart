@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
-import '../notifications.dart';
 import '../screens/journey_sos_screen.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
@@ -555,12 +554,7 @@ class VaExecutor {
       'done': false,
       'source': 'voice',
     });
-    final lid = created['localId'];
-    if (at != null && lid != null) {
-      try {
-        await Notifications.schedule(lid, title, '', at);
-      } catch (_) {}
-    }
+    // remmeter: the alarm follows the reminders repo (AppState reconcile)
     return created;
   }
 
@@ -651,8 +645,6 @@ class VaExecutor {
       final app = context.read<AppState>();
       try {
         if (reminder) {
-          final lid = created['localId'];
-          if (lid != null) await Notifications.cancel(lid);
           await app.reminders.remove(created);
         } else {
           await app.txns.remove(created);

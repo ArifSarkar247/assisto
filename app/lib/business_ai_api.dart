@@ -143,7 +143,7 @@ extension BusinessAiApi on ApiClient {
 
   /// POST /business/orders/{id}/advance {target, courier?} -> {status,
   /// courier_live, tracking?, needs_key}. FREE for status; KEY(courier) to
-  /// actually book `shipped` — no key -> `*-MOCK-*` tracking + courier_live:false.
+  /// actually book `shipped` — truth: this path books nothing -> empty tracking + courier_live:false.
   /// Advancing to `shipped` WITHOUT a courier is refused server-side (4xx).
   Future<Map<String, dynamic>> orderAdvance(
     int id,
@@ -185,7 +185,7 @@ extension BusinessAiApi on ApiClient {
 
   /// POST /business/payments/link {order_id} -> {url, live, needs_key,
   /// holds_funds:false, custodian:"licensed_partner"}. FREE/PAID · KEY(licensed
-  /// payment partner). No key -> `MOCK-PAY-LINK://...`, live:false.
+  /// payment partner). truth: not wired -> empty link, live:false, not_wired:true.
   Future<Map<String, dynamic>> paymentsLink(int orderId) =>
       postJson('/business/payments/link', {'order_id': orderId});
 

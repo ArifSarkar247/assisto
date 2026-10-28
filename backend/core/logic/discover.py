@@ -41,6 +41,7 @@ SEGMENTS = ("free", "premium", "business")
 # In-app route keys the app can open (mirror of ChatNav.routes in
 # app/lib/widgets/chatnav.dart — a test asserts they stay in lock-step).
 ROUTE_KEYS = (
+    "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",
@@ -54,14 +55,15 @@ ROUTE_KEYS = (
     "journey", "journey_watch", "journey_settings", "referral", "circle_privacy", "circle_calls", "action_center",
     "disaster", "offline", "budget", "tax", "wrapped", "money_voice", "ai_chat",
     "voice_assistant", "voice_settings", "photo_studio",
-    "family_alerts",  # family100
     "feedback",  # f1-founders
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
     "booking", "my_bookings",  # booking-bot (flag booking_bot)
     "remittance",  # budget-remittance (flag budget_remittance)
+    "probashi_plan",  # probashi-plan (flag probashi_plan)
     "retention_auto", "retention_inbox",  # retention1: Retention automation
     "khata", "sales_agent", "prepaid_meter", "contract",  # home_v2 shortcut routes
+    "agent_core", "agent_approvals",  # agent-core WP-APP (flag agent_core)
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

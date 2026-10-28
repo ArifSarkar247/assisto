@@ -1,0 +1,155 @@
+# Server load test (owner MASTER QUALITY ORDER, parts D + I): 1,000 then
+# 10,000 concurrent virtual users against a THROW-AWAY copy of the backend
+# on the GitHub runner — NEVER the live server (no secrets, no live host).
+#
+# Shape of the box under test = the live one: nginx -> gunicorn (3 sync
+# workers, timeout 60) -> PostgreSQL, all three pinned to 2 CPUs (taskset /
+# docker --cpuset-cpus) like the 2-vCPU server; Locust runs on the other
+# 2 CPUs of the 4-vCPU runner so it never steals the server's CPU.
+# Matrix: before (base ref) vs after (this ref), live config vs a gthread
+# what-if (3 workers x 4 threads) and a 5-sync-worker what-if for the
+# owner's gunicorn decision.
+#
+# Runner limits (honest): one GitHub runner = 4 vCPU / 16 GB; matrix jobs
+# are separate VMs that cannot reach each other, so 10k users come from ONE
+# Locust (2 processes, ~5k greenlets each, app-like 3-7 s think time).
+name: loadtest
+
+on:
+  push:
+    branches: ['ci/srvperf*']
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: 'The "before" ref (default: b255 as branched)'
+        required: false
+        default: '7dc76875ea28cf6a9908eef629daf35e900bb2cb'
+
+concurrency:
+  group: loadtest-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    # query count + time per hot endpoint (sqlite test DB, seeded heavy user)
+    # on the before and after code — the per-request cost behind the p95.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+          fetch-depth: 0
+      - name: before = an ancestor of this branch (fetched with full history)
+        run: git -C head worktree add --detach ../base ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: head/backend/requirements.txt
+      - run: python -m pip install -q -r head/backend/requirements.txt
+      - name: full backend suite, every failure listed (tblib, CI-only)
+        working-directory: head/backend
+        run: |
+          python -m pip install -q tblib==3.0.0
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput > ../../suite.log 2>&1 || true
+          grep -E "^(FAIL|ERROR):|^Ran |^FAILED|^OK" ../../suite.log | tee -a $GITHUB_STEP_SUMMARY
+          grep -A25 -E "^(FAIL|ERROR):" ../../suite.log | head -400
+      - name: probe before + after
+        if: always()
+        env:
+          SRVPERF_PROBE: '1'
+        run: |
+          cp head/backend/core/perf_seed.py head/backend/core/tests_srvperf_probe.py base/backend/core/
+          for d in base head; do
+            echo "=== $d" | tee -a $GITHUB_STEP_SUMMARY
+            (cd $d/backend && python manage.py test core.tests_srvperf_probe --settings=assisto_backend.settings_test 2>&1 | grep -E "PROBE|^ +[0-9]+ |\{|Error|Traceback" | tee -a $GITHUB_STEP_SUMMARY)
+          done
+
+  load:
+    # Each job runs BEFORE and AFTER back-to-back on the SAME runner VM, so
+    # the comparison is fair (GitHub runners differ by up to ~50% in speed
+    # from one VM to the next — measured in the first runs).
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # runs = "<sut>:<workers>:<threads>" passes, all on ONE VM (fair)
+        include:
+          - {name: beforeafter-1k,  users: 1000,  seed: 2000,  ramp: 120, hold: 180, runs: "before:3:0 after:3:0"}
+          - {name: beforeafter-10k, users: 10000, seed: 10000, ramp: 300, hold: 180, runs: "before:3:0 after:3:0"}
+          - {name: configs-1k,      users: 1000,  seed: 2000,  ramp: 120, hold: 180, runs: "after:3:0 after:5:0 after:3:4"}
+          - {name: configs-10k,     users: 10000, seed: 10000, ramp: 300, hold: 180, runs: "after:3:0 after:3:4"}
+    env:
+      DB_NAME: loadtest
+      DB_USER: postgres
+      DB_PASSWORD: lt-only-pw
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DJANGO_DEBUG: '0'
+      DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
+      LOADTEST_ALLOW_SEED: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+          fetch-depth: 0
+      - name: before code = an ancestor of this branch
+        run: git -C head worktree add --detach ../base ${{ github.event.inputs.base_ref || '7dc76875ea28cf6a9908eef629daf35e900bb2cb' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: head/backend/requirements.txt
+      - name: install
+        run: |
+          python -m pip install -q -r head/backend/requirements.txt
+          python -m pip install -q locust==2.31.8
+          nproc; free -m; lscpu | grep -E "Model name|^CPU\(s\)"
+      - name: postgres 16 (CPUs 0-1, pg_stat_statements, auto_explain)
+        run: |
+          docker run -d --name pg --cpuset-cpus=0,1 -m 3g --network host \
+            -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=postgres postgres:16 \
+            -c max_connections=200 -c shared_preload_libraries=pg_stat_statements,auto_explain \
+            -c auto_explain.log_min_duration=25 -c auto_explain.log_analyze=on \
+            -c auto_explain.log_timing=off -c auto_explain.log_buffers=on
+          for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
+          sleep 3
+      - name: load passes (same VM)
+        run: |
+          for r in ${{ matrix.runs }}; do
+            IFS=: read sut w t <<< "$r"
+            dir=$GITHUB_WORKSPACE/head/backend; [ "$sut" = before ] && dir=$GITHUB_WORKSPACE/base/backend
+            bash head/loadtest/run_one.sh $dir $sut-w${w}t${t}-${{ matrix.users }} $w $t ${{ matrix.users }} ${{ matrix.seed }} ${{ matrix.ramp }} ${{ matrix.hold }}
+          done
+      - name: summary
+        if: always()
+        run: |
+          for f in out/*/summary.md; do cat "$f" >> $GITHUB_STEP_SUMMARY; echo >> $GITHUB_STEP_SUMMARY; done
+          for f in out/*/summary.md; do sed -n 1,8p "$f"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: loadtest-${{ matrix.name }}
+          path: out/
+          retention-days: 30
+
+  report:
+    needs: load
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: all
+          pattern: loadtest-*
+      - name: combined summary
+        run: |
+          for f in all/*/*/summary.md; do [ -f "$f" ] && { cat "$f"; echo; } >> $GITHUB_STEP_SUMMARY; done; true
+          ls -R all | head -50 || true

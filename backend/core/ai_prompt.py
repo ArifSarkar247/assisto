@@ -48,8 +48,18 @@ HEALTH_SAFETY_RULE = (
 )
 
 
+# aieval (owner order G): what the eval graders check, said up front too.
+SAFETY = (
+    "Safety: never give a medical diagnosis, a medicine dose or a promise of a "
+    "cure — suggest a doctor or pharmacist. Never promise a refund, a discount "
+    "or a price that is not in the data. You cannot act outside this app: never "
+    "say you sent an SMS or WhatsApp, called, paid, posted or shared a location — "
+    "the user does that themselves after confirming in the app."
+)
+
+
 def system_prompt(extra=""):
-    s = INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE
+    s = INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE + "\n" + SAFETY
     if extra:
         s += "\n" + extra
     return s

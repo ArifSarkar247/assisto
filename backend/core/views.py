@@ -1101,6 +1101,14 @@ class PlansPublicView(APIView):
         from . import plans
         from .calls_free import calls_free
         rows = plans.plans_public(req_lang(request))
+        # pricing-40: an EXISTING subscriber keeps the price Google charges
+        # them (Play legacy price cohort) — mark their plan with what they
+        # actually last paid, so the app never shows them a different price.
+        try:
+            if request.user and request.user.is_authenticated:
+                rows = plans.mark_your_price(request.user, rows)
+        except Exception:  # noqa: BLE001
+            pass
         # dl1: while "Free calls (testing)" is ON the comparison table shows
         # calls as free on every plan (the server stays the authority).
         if calls_free() and isinstance(rows, list):
@@ -1361,6 +1369,8 @@ def _briefing_payload(u, lang):
                           "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।",
                           "Using the information below, write a short, warm morning briefing for the user (3-4 lines). Write in English."),
                 data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
+            from . import ai_guard
+            ai_text, _flags = ai_guard.clean_assistant_answer(ai_text, lang, actions=False)
         except ai.AIUnavailable:
             ai_text = None
     return {"text": text, "lines": lines, "ai_text": ai_text,
@@ -1582,8 +1592,9 @@ class AgentView(APIView):
             cards.append({"type": "nearby", "place_type": p.get("place_type", "restaurant"),
                           "title": pick(lang, "আশেপাশে খুঁজছি…", "Searching nearby…"),
                           "app_action": "nearby"})
-            reply = pick(lang, "আপনার লোকেশন নিয়ে আশেপাশে খুঁজছি…",
-                         "Using your location to search nearby…")
+            # aieval: nothing uses the location until the user taps the card
+            reply = pick(lang, "আশেপাশে খুঁজতে কার্ডে ট্যাপ করুন — তখনই আপনার লোকেশন নেওয়া হবে।",
+                         "Tap the card to search nearby — your location is used only then.")
         elif intent == "query_money":
             s = MoneySummaryView().get(request).data
             reply = pick(lang,
@@ -1617,7 +1628,8 @@ class AgentView(APIView):
                                   "The DATA below summarises their own data — treat only it as true."),
                         data=f"Question: {text}\n\n{ctx['reply']}",
                         tier="cheap", feature="agent_qa", max_tokens=400, user=u)
-                    reply = ai_reply
+                    from . import ai_guard
+                    reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
                 except ai.AIUnavailable as e:
@@ -1655,6 +1667,10 @@ class AgentView(APIView):
             route = screen_synonyms.resolve_command(text)
         else:
             route = brain_route or screen_synonyms.resolve(text)
+        # aieval: every card that leaves the app (dial / link / nearby) carries
+        # the confirm contract — the app acts only on the user's own tap.
+        from . import ai_guard
+        cards = [ai_guard.mark_external(c) for c in cards]
         session_id, message_id = _persist_home_turn(
             u, request.data.get("session_id"), text, reply, cards, intent, route)
         return Response({"reply": reply, "cards": cards, "intent": intent,
@@ -1862,7 +1878,9 @@ class IntegrationTestView(_OwnerOnly):
         if d:
             return d
         from . import integrations
-        status_, detail = integrations.test(slug)
+        # smsotp: "Send test SMS / email" to the number/address the owner typed
+        test_to = str((request.data or {}).get("test_to") or "").strip()[:254]
+        status_, detail = integrations.test(slug, test_to=test_to)
         log(request.user, "integration.test", slug=slug, result=status_)
         return Response({"status": status_, "detail": detail})
 
@@ -1949,9 +1967,26 @@ def nearby(request):
         return Response({"detail": pick(lang, "লোকেশন (lat/lon) দরকার।",
                                         "Location (lat/lon) is required.")}, status=400)
     ptype = request.query_params.get("type", "restaurant")
-    results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
+    try:
+        results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
+    except Exception:
+        # truth: the live source is down -> an honest error, never sample rows
+        lang = req_lang(request)
+        return Response({"type": ptype, "source": "", "places": [],
+                         "error": "source_down",
+                         "detail": pick(lang, "এখন কাছের জায়গার তথ্য আনা গেল না। একটু পরে আবার চেষ্টা করুন।",
+                                        "Couldn't load nearby places right now. Please try again soon.")},
+                        status=503)
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
-    return Response({"type": ptype, "source": source, "places": results})
+    out = {"type": ptype, "source": source, "places": results,
+           "attribution": nb.attribution(source)}
+    if source == "unavailable":
+        # srvperf/H: maps providers down — honest state, not "nothing here"
+        lang = req_lang(request)
+        out["state"] = "unavailable"
+        out["detail"] = pick(lang, "ম্যাপ সার্ভিস এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
+                             "The maps service is not reachable right now. Please try again shortly.")
+    return Response(out)
 
 
 class FavouriteArtistView(APIView):
@@ -2313,6 +2348,8 @@ class AgentStudioView(APIView):
         try:
             text, _ = ai.generate(task=task, data=prompt, tier="medium",
                                    feature=f"studio.{kind}", max_tokens=900, user=request.user)
+            from . import ai_guard     # aieval: a draft never claims it was sent
+            text, _n = ai_guard.scrub_action_claims(text, lang)
             return Response({"kind": kind, "text": text, "ai_used": True})
         except ai.AIUnavailable as e:
             return Response({"needs_key": e.reason == "no_key", "reason": e.reason,
@@ -3485,7 +3522,9 @@ def home_badges(request):
        my_circle_unread (chat messages) + notif_unseen (notification centre)."""
     settings_enabled = _notif_settings(request.user)
     events = _collect_events(request.user, req_lang(request))
-    chat_unread = _chat_unread(request.user)
+    from .views_m1_messenger import chat_pref_memo
+    with chat_pref_memo(request.user):   # srvperf: one prefs query
+        chat_unread = _chat_unread(request.user)
     out = _nc.badges(chat_unread, events, settings_enabled=settings_enabled)
     # b2-badges: the bell counts only items newer than the last time the
     # centre was opened (POST notif/opened) + every unhandled SOS/family alert.

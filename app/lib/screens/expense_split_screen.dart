@@ -914,7 +914,7 @@ class _SplitMath {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = (frac + '00').substring(0, 3);
+    frac = (frac + '000').substring(0, 3); // remmeter: was '00' -> RangeError on whole amounts
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);
     if (taka == null || milli == null) return 0;

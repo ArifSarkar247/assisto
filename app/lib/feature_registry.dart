@@ -44,7 +44,8 @@ const Map<String, bool> kFeatureDefaults = {
   'fall_detect': false,
   'anti_theft': true,
   'cctv_watchman': true,
-  'home_watchman': false,
+  // launch (owner 27 Oct): CCTV + vehicle tracking are launch features.
+  'home_watchman': true,
   'disaster_alerts': true,
   'blood_donor': true,
   'kid_school': true,
@@ -83,6 +84,7 @@ const Map<String, bool> kFeatureDefaults = {
   'proactive_ai': true,
   'area_community': false,
   'agent_studio': false,
+  'agent_core': false,
   'task_manager': true,
   'cost_estimator': true,
   'mock_interview': true,
@@ -102,6 +104,8 @@ const Map<String, bool> kFeatureDefaults = {
   'retention_auto': false,
   // plans-v2 (owner 27 Oct): Free / Premium / Business limits + trial
   'plans_v2': false,
+  // probashi-plan (owner 27 Oct): expat family plan - hidden until 100.
+  'probashi_plan': false,
   'corporate_meetings': false,
   'remote_support': false,
   'marketing': false,
@@ -111,6 +115,12 @@ const Map<String, bool> kFeatureDefaults = {
   'unseen_world': false,
   'home_v2': true,
 };
+
+/// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
+/// source that is not connected yet (backend feature_flags.SOURCE_REQUIRED).
+/// The server hides them for normal users until the source exists; on a
+/// first run with no server answer the app hides them too.
+const Set<String> kFeatureNeedsSource = {'dictionary', 'ai_inbox'};
 
 /// unseen-rename: GET /features?fv=2 = "this app knows `daily_info`", so the
 /// server sends `unseen_world` with its NEW meaning (the travel feature).
@@ -140,6 +150,7 @@ const Map<String, String> kRouteFeature = {
   'money': 'money',
   'budget': 'budget',
   'remittance': 'budget_remittance',
+  'probashi_plan': 'probashi_plan',
   'tax': 'tax_zakat',
   'wrapped': 'money_wrapped',
   'money_voice': 'money_voice',
@@ -184,6 +195,8 @@ const Map<String, String> kRouteFeature = {
   'vehicle_tracking': 'vehicle_tracking',
   'car_mode': 'vehicle_tracking',
   'agent_studio': 'agent_studio',
+  'agent_core': 'agent_core',
+  'agent_approvals': 'agent_core',
   'jobs': 'jobs',
   'cv': 'cv_builder',
   'resume': 'cv_builder',

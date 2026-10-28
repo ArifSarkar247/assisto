@@ -48,6 +48,37 @@ void main() {
     expect(PhoneCanon.canonical('4155550100'), isNull);
   });
 
+  test('probashi-otp: the 13 expat countries + trunk 0 (mirror of tests_probashi_foreign_login)', () {
+    const cases = {
+      '+966 50 123 4567': '+966501234567',
+      '00966501234567': '+966501234567',
+      '+966 050 123 4567': '+966501234567',
+      '+971 50 123 4567': '+971501234567',
+      '+971 050 123 4567': '+971501234567',
+      '+974 3312 3456': '+97433123456',
+      '+968 9212 3456': '+96892123456',
+      '+965 5012 3456': '+96550123456',
+      '+973 3612 3456': '+97336123456',
+      '+60 12-345 6789': '+60123456789',
+      '+60 012-345 6789': '+60123456789',
+      '+65 8123 4567': '+6581234567',
+      '+39 312 345 6789': '+393123456789',
+      '+39 06 1234 5678': '+390612345678',
+      '+44 7700 900123': '+447700900123',
+      '+44 07700 900123': '+447700900123',
+      '+1 202 555 0143': '+12025550143',
+      '+1 416 555 0143': '+14165550143',
+      '+61 412 345 678': '+61412345678',
+      '+61 0412 345 678': '+61412345678',
+    };
+    cases.forEach((raw, want) {
+      expect(PhoneCanon.canonical(raw), want, reason: raw);
+    });
+    // local foreign formats can't be told apart from a BD number -> rejected
+    expect(PhoneCanon.canonical('0501234567'), isNull);
+    expect(PhoneCanon.canonical('966501234567'), isNull);
+  });
+
   test('hash matches the server HMAC-SHA256 contract', () {
     // python: hmac.new(b'test-salt', b'+8801711000777', sha256).hexdigest()[:32]
     expect(PhoneCanon.hashCanonical(canon, 'test-salt'),

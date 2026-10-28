@@ -11,6 +11,7 @@ from core import ai
 from core.i18n import pick
 from core.models import User, NightBriefing
 from core.views import _build_alerts
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -20,6 +21,7 @@ class Command(BaseCommand):
         parser.add_argument("--days-active", type=int, default=14,
                             help="only users seen within N days")
 
+    @track_job("generate_briefings")
     def handle(self, *args, **opts):
         target = timezone.localdate() + timezone.timedelta(days=1)
         since = timezone.now() - timezone.timedelta(days=opts["days_active"])
@@ -52,6 +54,8 @@ class Command(BaseCommand):
                             "briefing in English (3-4 lines)."),
                         data=data, tier="cheap", feature="briefing.batch",
                         max_tokens=300, user=u)
+                    from core import ai_guard   # aieval: no medical claims
+                    text, _flags = ai_guard.clean_assistant_answer(text, lang, actions=False)
                     ai_used = True
                 except ai.AIUnavailable:
                     text = ""

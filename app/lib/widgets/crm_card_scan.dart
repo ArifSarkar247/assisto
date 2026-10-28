@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -107,7 +108,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
     return ListView(
       padding: const EdgeInsets.all(Gap.md),
       children: [
-        if (_needsKey)
+        if (_needsKey && kShowKeySeams) // truth: no key dead end
           NeedsKeyBanner(t.crmCardOcrNeedsKey, icon: Icons.document_scanner_rounded),
         Text(t.crmCardPasteHint,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),

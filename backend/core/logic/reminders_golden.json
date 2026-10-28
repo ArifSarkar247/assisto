@@ -107,7 +107,7 @@
     "expected": {
       "datetime": "2026-10-16T17:00:00",
       "recurrence_rule": null,
-      "clean_title": "next meeting"
+      "clean_title": "meeting"
     }
   },
   {
@@ -698,5 +698,145 @@
     "expected": {
       "expense_date": "2026-09-20"
     }
+  },
+  {
+    "input": "kal sokal 8tay doctor",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "doctor"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "kal sokal 8ta ma ke phone",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ma ke phone"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "bikel 5tay meeting",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T17:00:00",
+      "recurrence_rule": null,
+      "clean_title": "meeting"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "raat 10tay ghum",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T22:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ghum"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "2ta dim kinte hobe kal",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "2ta dim kinte hobe"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "day after tomorrow pay rent",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-15T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "pay rent"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "next friday call ammu",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "call ammu"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "next friday at 5pm dentist",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T17:00:00",
+      "recurrence_rule": null,
+      "clean_title": "dentist"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "this friday gym",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "gym"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "coming sunday wedding",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-18T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "wedding"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "আগামী শুক্রবার বাজার",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বাজার"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "আগামীকাল সকাল ৮টায় ওষুধ",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ওষুধ"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "রাত ১০টায় ঘুম",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T22:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ঘুম"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
+  },
+  {
+    "input": "call karate class tomorrow",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "call karate class"
+    },
+    "note": "remmeter: parity with agent/aieval parser fixes"
   }
 ]

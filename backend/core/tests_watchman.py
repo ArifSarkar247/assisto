@@ -162,10 +162,16 @@ class _Base(APITestCase):
 
 # ============================================================ setup wizard
 class HiddenByDefaultTests(APITestCase):
-    def test_flag_off_by_default_owner_endpoints_403(self):
+    def test_flag_off_owner_endpoints_403(self):
+        # launch (owner 27 Oct): ON by default now; switched OFF it still hides
         from core import feature_flags as FF
+        from core.models import FeatureFlag
         FF.invalidate()
-        self.assertFalse(FF.default_row(FF_KEY)["enabled_all"])
+        self.assertTrue(FF.default_row(FF_KEY)["enabled_all"])
+        FF.ensure_seeded()
+        FeatureFlag.objects.filter(key=FF_KEY).update(enabled_all=False)
+        FF.invalidate()
+        self.addCleanup(FF.invalidate)
         u = User.objects.create_user(name="X", phone="01710002099", password="pw")
         self.client.force_authenticate(u)
         r = self.client.post("/api/v1/shop/watchman/setup",

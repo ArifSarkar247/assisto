@@ -592,6 +592,9 @@ class AIUsage(models.Model):
     cache_read_tokens = models.IntegerField(default=0)
     cache_write_tokens = models.IntegerField(default=0)
     error_kind = models.CharField(max_length=30, blank=True, default="")
+    # pricing-40: credits this call charged (0 = free quota / refunded / no
+    # user); the daily cost-per-credit alert divides cost by this.
+    credits_charged = models.IntegerField(default=0)
 
     class Meta:
         indexes = [models.Index(fields=["created_at"]),
@@ -1235,8 +1238,30 @@ class CircleInvite(models.Model):
     used = models.BooleanField(default=False)
     expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # invite-join: a SHORT random code (https://lifeassisto.com/i/<code>) —
+    # carries no user id, can't be guessed (32^10), multi-use when asked.
+    code = models.CharField(max_length=16, unique=True, null=True, blank=True)
+    max_uses = models.PositiveSmallIntegerField(default=1)
+    use_count = models.PositiveSmallIntegerField(default=0)
+    revoked = models.BooleanField(default=False)
+    label = models.CharField(max_length=60, blank=True, default="")  # who it was for (inviter-only)
+    last_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleInviteJoin(models.Model):
+    """invite-join: who joined through which invite (attribution + the
+    inviter's "joined / not joined yet" list). One row per (invite, user)."""
+    invite = models.ForeignKey(CircleInvite, on_delete=models.CASCADE, related_name="joins")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_invite_joins")
+    via = models.CharField(max_length=16, default="link")  # link|referrer|paste|qr
+    new_account = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("invite", "user")]
         ordering = ["-created_at"]
 
 
@@ -1990,10 +2015,21 @@ class KhataEntry(models.Model):
     bill_photo = models.ImageField(upload_to="khata_bills/", null=True, blank=True)
     at = models.DateTimeField()                        # owner-supplied event time
     created_at = models.DateTimeField(auto_now_add=True)
+    # ledger100: offline entry. The phone mints `client_id` once per entry and
+    # replays it until the server answers, so a retried sync never books the
+    # same entry twice (unique per party when set). `version` bumps on every
+    # edit; an edit made offline against an older version is refused (409)
+    # instead of silently overwriting a newer change.
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    version = models.PositiveIntegerField(default=1)
+    edited_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["at", "id"]
         indexes = [models.Index(fields=["party", "at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["party", "client_id"], condition=~models.Q(client_id=""),
+            name="khata_entry_client_uniq")]
 
 
 class CashboxDay(models.Model):
@@ -2034,9 +2070,22 @@ class TagadaSchedule(models.Model):
     preset = models.CharField(max_length=16, default="reminder")  # polite/reminder/firm/thanks
     channel = models.CharField(max_length=20, default="whatsapp_share")  # or 'sms'
     next_at = models.DateTimeField()
-    interval_days = models.IntegerField(default=7)
+    interval_days = models.IntegerField(default=7)   # 0 = once
     enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # ledger100: the tagada_sweep cron. until_paid stops it once the due is 0;
+    # pay_hint = the owner's own bKash/Nagad {method, number} for the text;
+    # last_* = what the last firing did (sms_sent / push / paid / ...);
+    # awaiting_owner = a push asked the owner to send it by hand.
+    until_paid = models.BooleanField(default=True)
+    pay_hint = models.JSONField(default=dict, blank=True)
+    last_fired_at = models.DateTimeField(null=True, blank=True)
+    last_result = models.CharField(max_length=40, blank=True, default="")
+    fire_count = models.PositiveIntegerField(default=0)
+    awaiting_owner = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["enabled", "next_at"])]
 
 
 # ===========================================================================
@@ -3590,6 +3639,11 @@ class OtpChallenge(models.Model):
     device_id = models.CharField(max_length=128, blank=True, default="", db_index=True)
     sent = models.BooleanField(default=False)
     detail = models.CharField(max_length=200, blank=True, default="")
+    # smsotp: delivery channel (sms | email). An email-identity challenge has
+    # phone="" and `email` set; a phone-identity challenge delivered by email
+    # keeps `phone` and records the address it went to in `email`.
+    channel = models.CharField(max_length=8, default="sms")
+    email = models.CharField(max_length=254, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -3605,6 +3659,8 @@ class OtpProof(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     expires_at = models.DateTimeField()
     used_at = models.DateTimeField(null=True, blank=True)
+    channel = models.CharField(max_length=8, default="sms")       # smsotp
+    email = models.CharField(max_length=254, blank=True, default="")
 
 
 class PhoneVerification(models.Model):
@@ -3614,6 +3670,55 @@ class PhoneVerification(models.Model):
                                 related_name="phone_verification")
     phone = models.CharField(max_length=24)
     verified_at = models.DateTimeField(default=timezone.now)
+
+
+# ---- smsotp ---- SMS send log (cost + caps), email send log, email verify.
+class SmsLog(models.Model):
+    """One row per SMS the server tried to send (core/sms_service.py). The
+    message TEXT is never stored. Caps count rows with status 'sent'."""
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    purpose = models.CharField(max_length=16, db_index=True)   # otp|phone_verify|tagada|safety
+    phone = models.CharField(max_length=24, db_index=True)     # +8801XXXXXXXXX
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="+")
+    provider = models.CharField(max_length=32, blank=True, default="")
+    message_id = models.CharField(max_length=80, blank=True, default="")
+    segments = models.PositiveSmallIntegerField(default=0)
+    encoding = models.CharField(max_length=8, blank=True, default="")   # gsm7|ucs2
+    cost_bdt = models.FloatField(default=0.0)          # company provider cost
+    credits = models.IntegerField(default=0)            # credits charged (tagada)
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    reason = models.CharField(max_length=40, blank=True, default="")
+    failover = models.BooleanField(default=False)       # went out on the secondary
+    detail = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["purpose", "status", "created_at"])]
+
+
+class EmailLog(models.Model):
+    """One row per email the server tried to send (core/email_sender.py).
+    Only a hash + mask of the address; never the body."""
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    purpose = models.CharField(max_length=16)
+    to_hash = models.CharField(max_length=64, db_index=True)
+    to_masked = models.CharField(max_length=80, blank=True, default="")
+    provider = models.CharField(max_length=16, blank=True, default="smtp")
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    detail = models.CharField(max_length=200, blank=True, default="")
+
+
+class EmailVerification(models.Model):
+    """The user proved this email address with a code (smsotp). Only a
+    verified address may receive login / reset codes."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="email_verification")
+    email = models.CharField(max_length=254, db_index=True)
+    verified_at = models.DateTimeField(default=timezone.now)
+# ---- /smsotp ----
 # ---- /o1-otp ----
 
 # ===========================================================================
@@ -6063,3 +6168,293 @@ class FamilyAlertDelivery(models.Model):
         indexes = [models.Index(fields=["sender", "created_at"]),
                    models.Index(fields=["recipient", "created_at"]),
                    models.Index(fields=["status"])]
+
+
+# ---- ops-watch ---- cron/service health (core.ops_health, manage.py ops_watch)
+class JobHeartbeat(models.Model):
+    """One row per scheduled job (cron management command / shell job): the
+    last start/finish, exit code and duration, written by
+    core.ops_health.track_job (best-effort, never breaks the job). ops_watch
+    compares it with the job's expected interval (core.ops_health.JOBS)."""
+    name = models.CharField(max_length=48, unique=True)
+    last_start = models.DateTimeField(null=True, blank=True)
+    last_finish = models.DateTimeField(null=True, blank=True)
+    last_ok = models.DateTimeField(null=True, blank=True)
+    last_rc = models.IntegerField(null=True, blank=True)
+    last_duration_ms = models.IntegerField(null=True, blank=True)
+    last_error = models.CharField(max_length=200, blank=True, default="")
+    running = models.BooleanField(default=False)
+    runs_ok = models.PositiveIntegerField(default=0)
+    runs_failed = models.PositiveIntegerField(default=0)
+    fails_in_row = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class OpsAlertState(models.Model):
+    """Alert dedupe for ops_watch: one row per check key ("job:billing_daily",
+    "svc:coturn", "crash_rate", ...). The owner is alerted when a key turns
+    bad, reminded at most once a day while it stays bad, and told when it
+    recovers. `first_seen` lets a never-run job count as late only after its
+    grace period has passed since monitoring began."""
+    key = models.CharField(max_length=64, unique=True)
+    bad = models.BooleanField(default=False)
+    bad_count = models.PositiveIntegerField(default=0)
+    detail = models.CharField(max_length=300, blank=True, default="")
+    first_seen = models.DateTimeField(default=timezone.now)
+    since = models.DateTimeField(null=True, blank=True)
+    alerted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["key"]
+# ---- /ops-watch ----
+
+# ---- agent-core ---- (flag agent_core, default OFF; owner_actions/AGENT_CORE_DESIGN_BN.md)
+# The goal -> plan -> act -> observe -> re-plan loop runs SERVER-side
+# (core/agentcore/runner.py). Free text (goal, tool args/results, answer, the
+# masking vault) is Fernet-sealed at rest; `*_masked` / `summary` columns hold
+# only MASKED text (phone / NID / account numbers replaced by tokens) and are
+# what the audit trail and Owner Admin show.
+class AgentGoal(models.Model):
+    CHANNELS = ("chat", "voice", "widget", "notification", "eval")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_goals")
+    topic = models.CharField(max_length=20, blank=True, default="")
+    channel = models.CharField(max_length=14, default="chat")
+    text_sealed = models.TextField(blank=True, default="")
+    text_masked = models.CharField(max_length=600, blank=True, default="")
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["user", "client_id"], condition=~models.Q(client_id=""),
+            name="agentgoal_user_client_uniq")]
+
+
+class AgentRun(models.Model):
+    STATES = ("queued", "running", "waiting_approval", "done", "failed",
+              "budget", "cancelled", "expired")
+    OPEN_STATES = ("queued", "running", "waiting_approval")
+    goal = models.ForeignKey(AgentGoal, on_delete=models.CASCADE, related_name="runs")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_runs")
+    topic = models.CharField(max_length=20, blank=True, default="")
+    state = models.CharField(max_length=18, default="queued", db_index=True)
+    max_steps = models.IntegerField(default=8)
+    max_llm_calls = models.IntegerField(default=3)
+    max_credits = models.IntegerField(default=30)
+    steps_used = models.IntegerField(default=0)
+    llm_calls = models.IntegerField(default=0)
+    credits_spent = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    vault_sealed = models.TextField(blank=True, default="")
+    answer_sealed = models.TextField(blank=True, default="")
+    error_code = models.CharField(max_length=40, blank=True, default="")
+    lease_until = models.DateTimeField(null=True, blank=True)
+    deadline_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.SmallIntegerField(default=0)       # +1 / -1 / 0
+    feedback_note = models.CharField(max_length=300, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "created_at"]),
+                   models.Index(fields=["state", "lease_until"])]
+
+
+class AgentStep(models.Model):
+    KINDS = ("plan", "tool", "answer")
+    STATES = ("pending", "running", "done", "failed", "waiting_approval",
+              "rejected", "skipped")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="steps")
+    no = models.IntegerField()
+    kind = models.CharField(max_length=8, default="tool")
+    tool = models.CharField(max_length=60, blank=True, default="")
+    tool_version = models.IntegerField(default=0)
+    risk = models.CharField(max_length=10, blank=True, default="")
+    state = models.CharField(max_length=18, default="pending")
+    args_sealed = models.TextField(blank=True, default="")
+    result_sealed = models.TextField(blank=True, default="")
+    summary = models.CharField(max_length=400, blank=True, default="")
+    idem_key = models.CharField(max_length=80, unique=True)
+    credits = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    latency_ms = models.IntegerField(default=0)
+    error_code = models.CharField(max_length=40, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["run", "no"]
+        unique_together = [("run", "no")]
+
+
+class AgentApproval(models.Model):
+    STATUSES = ("pending", "approved", "rejected", "expired")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="approvals")
+    step = models.OneToOneField(AgentStep, on_delete=models.CASCADE, related_name="approval")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_approvals")
+    risk = models.CharField(max_length=10)
+    title_bn = models.CharField(max_length=200)
+    title_en = models.CharField(max_length=200)
+    summary = models.CharField(max_length=400, blank=True, default="")
+    status = models.CharField(max_length=10, default="pending", db_index=True)
+    expires_at = models.DateTimeField()
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+
+class AgentAuditEvent(models.Model):
+    """Append-only, MASKED, human-readable trail of everything a run did."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_audit")
+    run = models.ForeignKey(AgentRun, on_delete=models.CASCADE, related_name="audit")
+    step = models.ForeignKey(AgentStep, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    event = models.CharField(max_length=40)
+    detail = models.JSONField(default=dict, blank=True)
+    credits = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["run", "id"])]
+# ---- /agent-core ----
+
+# ---- agent-proactive ---- (WP-PROACTIVE: core/agentcore/proactive.py; flag
+# agent_core). Template-only (no AI, no credits): trigger nudges with dedupe,
+# cooldown, a per-user daily cap and quiet hours, plus the morning brief and
+# evening recap. One row per (user, trigger, dedupe_key) — the scheduler can
+# run any number of times and a nudge is still delivered once.
+class AgentNudge(models.Model):
+    TRIGGERS = ("bill_due", "remit_missing", "child_not_home", "stock_low",
+                "order_unpaid", "meter_low", "camera_alert",
+                "brief_morning", "brief_evening")
+    DELIVERY = ("push", "card", "brief")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent_nudges")
+    trigger = models.CharField(max_length=16)
+    dedupe_key = models.CharField(max_length=120)
+    priority = models.SmallIntegerField(default=2)       # 1 urgent, 2 normal, 3 low
+    delivery = models.CharField(max_length=6, default="card")   # push | card | brief
+    reason = models.CharField(max_length=16, blank=True, default="")  # why not pushed
+    counted = models.BooleanField(default=False)         # counts toward the daily cap
+    title_bn = models.CharField(max_length=200, blank=True, default="")
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    why_bn = models.CharField(max_length=300, blank=True, default="")
+    why_en = models.CharField(max_length=300, blank=True, default="")
+    route = models.CharField(max_length=40, blank=True, default="")
+    data = models.JSONField(default=dict, blank=True)
+    for_date = models.DateField()                         # local (Asia/Dhaka) day
+    in_brief = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="batched")
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    dismissed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["user", "trigger", "dedupe_key"],
+                                               name="agentnudge_once")]
+        indexes = [models.Index(fields=["user", "for_date"]),
+                   models.Index(fields=["trigger", "created_at"])]
+
+
+class AgentNudgePrefs(models.Model):
+    """Per-user proactive settings. `off` = trigger keys the user opted out of
+    (a missing row means every trigger ON with the defaults below)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agent_nudge_prefs")
+    off = models.JSONField(default=list, blank=True)
+    daily_cap = models.SmallIntegerField(default=3)
+    morning_brief = models.BooleanField(default=True)
+    evening_recap = models.BooleanField(default=True)
+    morning_at = models.CharField(max_length=5, default="07:30")
+    evening_at = models.CharField(max_length=5, default="21:00")
+    quiet_start = models.CharField(max_length=5, default="22:00")
+    quiet_end = models.CharField(max_length=5, default="07:00")
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /agent-proactive ----
+
+
+class PlaySkuCheck(models.Model):
+    """pricing-40: the last Play Developer API check of one NEW sku — does the
+    Play product (and base plan) exist and is it ACTIVE? A gated sku is sold
+    only while ok is True (core/payments/play_verify.py)."""
+    sku = models.CharField(max_length=40, unique=True)
+    product_id = models.CharField(max_length=80, blank=True, default="")
+    base_plan = models.CharField(max_length=40, blank=True, default="")
+    state = models.CharField(max_length=24, blank=True, default="")
+    ok = models.BooleanField(default=False)
+    detail = models.CharField(max_length=160, blank=True, default="")
+    checked_at = models.DateTimeField(null=True, blank=True)
+
+
+# ---- probashi-plan ---- (owner decision 27 Oct: the expat pays, up to 3-4
+# family members in Bangladesh get Premium through My Circle, a SHARED credit
+# pool with per-member caps; core/probashi_plan.py is the engine; flag
+# `probashi_plan`, default OFF)
+class ProbashiSeat(models.Model):
+    """One family seat of a Probashi payer. status: invited -> active (member
+    accepted) | declined | expired (invite timed out / plan lapsed long) |
+    removed (payer) | left (member) | transferred (payer swapped it).
+    Benefits are LIVE only while the payer's plan is probashi and the seat is
+    active (derived every time, so renewal / grace / hold / refund need no
+    copying). `consent` = what the MEMBER agreed the payer may see:
+    {journeys, sos, budget, reminders, report} (default: nothing)."""
+    STATUSES = ("invited", "active", "declined", "expired", "removed", "left",
+                "transferred")
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="probashi_seats")
+    member = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="probashi_memberships")
+    status = models.CharField(max_length=12, default="invited", db_index=True)
+    monthly_cap = models.IntegerField(default=40)   # pool credits / calendar month
+    consent = models.JSONField(default=dict, blank=True)
+    invited_at = models.DateTimeField(default=timezone.now)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=24, blank=True, default="")
+    # a removal / leave holds the slot (and the person) for the cooldown;
+    # transfers and plan lapses do not
+    counts_cooldown = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["invited_at", "id"]
+        indexes = [models.Index(fields=["payer", "status"]),
+                   models.Index(fields=["member", "status"])]
+
+
+class ProbashiSeatKey(models.Model):
+    """Anti-abuse: the hashed phone / email / device keys (core.antifarm) of a
+    seat's member, so ONE person holds at most one live seat anywhere, and a
+    person who left / was removed cannot hop to another family before the
+    cooldown ends — even with a new account on the same phone or device."""
+    seat = models.ForeignKey(ProbashiSeat, on_delete=models.CASCADE, related_name="keys")
+    key_hash = models.CharField(max_length=64, db_index=True)
+
+
+class ProbashiReport(models.Model):
+    """The monthly family report (one per recipient per month). `payload`
+    holds only sections the member consented to, already localised bn/en."""
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="probashi_reports")
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    month = models.CharField(max_length=7)          # YYYY-MM (Asia/Dhaka)
+    payload = models.JSONField(default=dict, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-month", "-id"]
+        constraints = [models.UniqueConstraint(fields=["recipient", "month"],
+                                               name="probashi_report_once")]
+# ---- /probashi-plan ----

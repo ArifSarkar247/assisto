@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'crash_scrub.dart';
 import 'device_facts.dart';
+import 'exit_info.dart';
 import 'non_fatal.dart';
 
 /// sc1 — crash + error reporting.
@@ -85,12 +86,20 @@ class CrashReporter {
     this.maxBuffer = 20,
     this.maxSentPerSession = 25,
     Future<DeviceFacts> Function()? device,
+    this.exitInfo = const ExitInfo(),
+    this.exitDelay = const Duration(seconds: 20),
   }) : _device = device ?? DeviceFacts.read;
 
   static CrashReporter instance = CrashReporter();
 
   final int maxBuffer;
   final int maxSentPerSession;
+
+  /// ops-watch: previous-exit reasons (ANR / Java / native crash), reported
+  /// once per session, [exitDelay] after the first consented flush.
+  final ExitInfo exitInfo;
+  final Duration exitDelay;
+  bool _exitsScheduled = false;
   final Future<DeviceFacts> Function() _device;
 
   CrashSinkBridge? _bridge;
@@ -229,8 +238,43 @@ class CrashReporter {
           // reported next session) — never pile up work on a sick phone
         }
       }
+      if (!_exitsScheduled) {
+        _exitsScheduled = true;
+        unawaited(_reportExits(post, dev));
+      }
     } finally {
       _flushing = false;
     }
+  }
+
+  /// Exits since the last ack -> /client/crash-report (kind anr / exit_crash).
+  /// At most 5 per session; ack only what was posted. Never throws.
+  Future<void> _reportExits(CrashPost post, DeviceFacts dev) async {
+    try {
+      if (exitDelay > Duration.zero) await Future<void>.delayed(exitDelay);
+      final items = await exitInfo.pending();
+      var acked = 0;
+      for (final e in items.take(5)) {
+        final b = ExitInfo.body(e);
+        final ts = (e['ts'] is num) ? (e['ts'] as num).toInt() : 0;
+        if (b == null) {
+          if (ts > acked) acked = ts;
+          continue;
+        }
+        try {
+          await post({
+            ...b,
+            'version': version,
+            'build': build,
+            'device': dev.toJson(),
+            'platform': defaultTargetPlatform.name,
+          }).timeout(const Duration(seconds: 15));
+        } catch (_) {
+          break; // offline: try again next session
+        }
+        if (ts > acked) acked = ts;
+      }
+      if (acked > 0) await exitInfo.ack(acked);
+    } catch (_) {}
   }
 }

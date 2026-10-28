@@ -98,3 +98,15 @@ const bool kSourcePermissionsEnforced = false;
 /// see them — not a board. Hidden until a shared, moderated area feed exists
 /// (a public user-content feed needs the owner's moderation decision).
 const bool kAreaBoardShared = false;
+
+/// truth (owner FINAL ORDER 27 Oct: "never promise what is not built").
+/// Cards that tell the USER to "connect an AI / OCR / speech-to-text /
+/// booking / weather / news / trade-data key in Integrations" are dead ends:
+/// only the owner can add keys, and several of those paths are not even wired
+/// (the tool would stay rule-based with a key). Hidden for everyone; the
+/// owner sees each integration's state in Owner Admin -> Integrations.
+bool get kShowKeySeams => debugShowKeySeams ?? false;
+
+/// Test-only override for [kShowKeySeams] (null = hidden, the product rule).
+@visibleForTesting
+bool? debugShowKeySeams;

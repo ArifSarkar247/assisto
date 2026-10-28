@@ -19,11 +19,13 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
     help = "Renew (charge) or disable extra shop cameras whose paid period ended."
 
+    @track_job("shop_camera_billing")
     def handle(self, *args, **options):
         res = run_billing()
         self.stdout.write("shop_camera_billing: renewed %(renewed)d, disabled "

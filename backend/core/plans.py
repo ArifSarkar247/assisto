@@ -47,6 +47,19 @@ PLANS = {
                  "desc_bn": "প্রিমিয়াম — বছরে, ২ মাস সাশ্রয়।", "desc_en": "Premium — yearly, save ~2 months.",
                  "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "বছরে একবার পেমেন্ট", "প্রায় ২ মাস ফ্রি"],
                  "benefits_en": ["Everything in Premium", "Pay once a year", "About 2 months free"]},
+    # pricing-40 (owner final, 27 Oct night): live price/credits come from
+    # PricingConfig (shipped at price 0 = not for sale until the preset).
+    "plus":     {"name_bn": "প্লাস", "name_en": "Plus", "price": 0, "cur": "BDT", "period": "mo",
+                 "credits": 70, "unlimited_ai": False, "ads": False, "family": 0,
+                 "desc_bn": "কম দামে স্মার্ট AI চ্যাট।", "desc_en": "Smart AI chat at a small price.",
+                 "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "বিজ্ঞাপন নেই"],
+                 "benefits_en": ["Monthly AI credits", "No ads"]},
+    "premium_pro": {"name_bn": "প্রিমিয়াম প্রো", "name_en": "Premium Pro", "price": 0, "cur": "BDT",
+                    "period": "mo", "credits": 380, "unlimited_ai": False, "ads": False, "family": 5,
+                    "desc_bn": "প্রতিটি চ্যাটে সবচেয়ে শক্তিশালী AI, সাথে এজেন্ট কাজ।",
+                    "desc_en": "Our strongest AI on every chat, plus agent tasks.",
+                    "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "প্রতি মাসে AI ক্রেডিট"],
+                    "benefits_en": ["Everything in Premium", "Monthly AI credits"]},
     "founder":  {"name_bn": "ফাউন্ডার", "name_en": "Founder", "price": 0, "cur": "BDT", "period": "life",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "আজীবন — শুরুর সমর্থকদের জন্য।", "desc_en": "Lifetime — for early supporters.",
@@ -166,6 +179,13 @@ def effective_plan(user):
             return "premium"
         if user.plan in PLANS:
             return user.plan
+    # probashi-plan: a live family seat (payer's Probashi plan) = Premium
+    try:
+        from . import probashi_plan as PB
+        if PB.member_premium(user):
+            return "premium"
+    except Exception:
+        pass
     if trial_active(user):
         return "premium"          # full trial
     return "free"
@@ -258,6 +278,16 @@ def plans_public(lang="bn"):
     from .logic import pricing
     from . import billing
     out = pricing.plan_public(lang, billing.cfg())
+    # pricing-40: a NEW plan (Plus, Premium Pro) is listed only once one of
+    # its Play products is verified ACTIVE and it is for sale — never a plan
+    # the user cannot buy.
+    try:
+        from .payments import catalog
+        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus()
+                if catalog.price(s, "play") or catalog.price(s, "gateway")}
+    except Exception:  # noqa: BLE001
+        sold = set()
+    out = [r for r in out if r.get("id") not in pricing.NEW_PLAN_ORDER or r.get("id") in sold]
     # owner 26 Oct: never sell what is not built. Probashi (USD billing) has
     # no purchasable SKU yet, so it is NOT listed until it does.
     s = PLANS.get("probashi") if PUBLIC_PROBASHI else None
@@ -271,6 +301,34 @@ def plans_public(lang="bn"):
             "ads": s["ads"], "family": s["family"],
             "credits": (c["plans"]["premium"]["credits"] if c else s["credits"]),
         })
+    return out
+
+
+def mark_your_price(user, rows):
+    """pricing-40: for the plan the user is subscribed to right now, add
+    your_price / your_currency / your_period = the price of their LAST paid
+    order of that subscription (Google's real charge — a legacy-cohort price
+    stays theirs after a base-plan price change). Other rows unchanged."""
+    from .models import PaidOrder
+    from .payments import play
+    skus = play.active_sub_skus(user)
+    if not skus:
+        return rows
+    out = []
+    for r in rows:
+        if not isinstance(r, dict):
+            out.append(r)
+            continue
+        pid = "premium" if r.get("id") == "annual" else r.get("id")
+        period = "yearly" if r.get("period") == "yr" else "monthly"
+        sku = "%s_%s" % (pid, period)
+        if sku in skus:
+            o = (PaidOrder.objects.filter(user=user, sku=sku, kind="sub", status="paid")
+                 .order_by("-purchased_at").first())
+            if o is not None and o.price:
+                r = dict(r, your_price=float(o.price), your_currency=o.currency,
+                         current=True)
+        out.append(r)
     return out
 
 

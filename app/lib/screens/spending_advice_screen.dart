@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -131,13 +132,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.spendTitle)),
+        appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: const SkeletonList(),
       );
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.spendTitle)),
+        appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
           tint: scheme.error,
@@ -155,7 +156,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     final result = _SMath.analyse(_rows);
 
     return Scaffold(
-      appBar: AppBar(title: Text(tr.spendTitle)),
+      appBar: AppBar(title: Text(tr.truthSpendTitle)),
       floatingActionButton: _rows.isEmpty
           ? null
           : FloatingActionButton.extended(
@@ -388,6 +389,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
   }
 
   Widget _aiSeamCard(BuildContext context, AppLocalizations tr) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
       color: scheme.surfaceContainerHighest,
@@ -642,7 +644,7 @@ class _SMath {
       frac = '';
     }
     whole = whole.isEmpty ? '0' : whole;
-    frac = (frac + '00').substring(0, 3);
+    frac = (frac + '000').substring(0, 3); // remmeter: was '00' -> RangeError on whole amounts
     final major = int.tryParse(whole);
     final milli = int.tryParse(frac);
     if (major == null || milli == null) return 0;

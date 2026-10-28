@@ -111,6 +111,16 @@ def touch_presence(user, now=None):
     """Mark the phone as reachable. At most one write per 10 s per user (the
     app polls every 0.5–5 s)."""
     now = now or timezone.now()
+    # srvperf: this worker wrote it < 10 s ago -> no DB round trip at all
+    # (rt/events + calls/incoming polls are ~half of all API traffic). The
+    # key carries date_joined so a reused id is never another account.
+    from django.core.cache import cache
+    key = "rt:touch:%s:%s" % (user.pk, getattr(user, "date_joined", "") or "")
+    try:
+        if cache.get(key):
+            return
+    except Exception:
+        pass
     try:
         with transaction.atomic():
             n = RtPresence.objects.filter(
@@ -118,6 +128,10 @@ def touch_presence(user, now=None):
             ).update(seen_at=now)
             if not n and not RtPresence.objects.filter(user=user).exists():
                 RtPresence.objects.create(user=user, seen_at=now)
+        try:
+            cache.set(key, 1, 10)      # only after a successful write
+        except Exception:
+            pass
     except Exception:
         log.exception("rt: touch_presence failed (user=%s)", getattr(user, "pk", None))
 
@@ -442,6 +456,7 @@ def status_row(rec, side, lang="bn"):
 
 
 # ---------------------------------------------------------------- real-time
+RT_PRUNE_EVERY_S = 60
 RT_RETAIN_S = 600
 RT_MAX_BATCH = 200
 RT_MAX_PAYLOAD = 16 * 1024
@@ -541,11 +556,16 @@ class RtEventsView(APIView):
         out = [{"seq": e.id, "topic": e.topic, "payload": e.payload,
                 "ts": e.created_at.isoformat()}
                for e in rows.order_by("id")[:RT_MAX_BATCH]]
-        # prune this user's old events (cheap, indexed)
+        # prune this user's old events (indexed) — srvperf: at most once a
+        # minute per user per worker, not a DELETE on every 0.5-5 s poll
+        # (rt/events is ~half of all API traffic).
         try:
-            RtEvent.objects.filter(
-                user=me, created_at__lt=now - timedelta(seconds=RT_RETAIN_S)
-            ).delete()
+            from django.core.cache import cache
+            if cache.add("rt:prune:%s:%s" % (me.id, getattr(me, "date_joined", "")),
+                         1, RT_PRUNE_EVERY_S):
+                RtEvent.objects.filter(
+                    user=me, created_at__lt=now - timedelta(seconds=RT_RETAIN_S)
+                ).delete()
         except Exception:
             pass
         return Response({"events": out, "seq": latest,

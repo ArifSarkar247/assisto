@@ -14,7 +14,8 @@ Canonical form
   spaces, dashes, dots or brackets, and Bangla digits (U+09E6..U+09EF).
   The operator digit must be 3-9 (013..019), like the OTP rule.
 * Other countries are accepted ONLY when written explicitly international
-  (``+<cc>…`` or ``00<cc>…``, 8..15 digits) -> ``+<digits>``.
+  (``+<cc>…`` or ``00<cc>…``, 8..15 digits) -> ``+<digits>``. A stray trunk
+  ``0`` after the country code is dropped for SA/AE/MY/GB/AU (TRUNK0_CC).
 * Anything else is rejected honestly: ``canonical_phone`` returns ``None``.
 
 Contact-match hashing contract (v1, served at GET /messenger/contacts/contract)
@@ -43,6 +44,13 @@ _DERIVE_LABEL = b"assisto-contact-match-v1"
 _BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 _SEPARATORS = re.compile(r"[\s\-(). ​/]")
 _BD_SUBSCRIBER = re.compile(r"^1[3-9]\d{8}$")
+# probashi-otp: country codes whose NATIONAL trunk prefix is "0" and where a
+# "0" right after the country code is never part of the number, so
+# "+966 050 123 4567" / "+44 07700 900123" mean the same phone as without the
+# 0 (a very common way expats and their families type it). Italy (+39) is
+# deliberately NOT here: Italian landlines keep their leading 0 in E.164.
+# E.164 country codes are prefix-free, so a plain startswith is unambiguous.
+TRUNK0_CC = ("966", "971", "60", "44", "61")
 
 
 def to_ascii_digits(raw):
@@ -75,6 +83,11 @@ def canonical_phone(raw):
         if s.startswith("880") or not explicit_intl:
             return None                  # a BD-looking number that is invalid
     # --- other countries: only when explicitly international ------------
+    if explicit_intl:
+        for cc in TRUNK0_CC:
+            if s.startswith(cc + "0"):
+                s = cc + s[len(cc) + 1:]
+                break
     if explicit_intl and 8 <= len(s) <= 15 and s[0] != "0":
         return "+" + s
     return None

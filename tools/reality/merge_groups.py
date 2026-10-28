@@ -20,7 +20,7 @@ import summarize  # noqa: E402
 
 FILE_GROUP = {
     "onboarding_flow": "start", "home_flow": "home", "personal_flow": "personal",
-    "family_circle_flow": "family", "my_circle_add_flow": "circle",
+    "family_circle_flow": "family", "my_circle_add_flow": "circle", "invite_join_flow": "circle",
     "my_circle_ticks_flow": "circle", "circle_real_call_flow": "circle",
     "business_flow": "business", "docs_voice_settings_flow": "docs",
     "sweep_flow": "sweep",

@@ -1,0 +1,240 @@
+{"id": "home_intent-0001", "lang": "bn", "input": {"text": "রহিম কে ফোন করো"}, "expect": {"intent": "call", "name": "রহিম"}, "tags": ["call"]}
+{"id": "home_intent-0002", "lang": "bn", "input": {"text": "জামালর কাছ থেকে ৫০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0003", "lang": "bn", "input": {"text": "বাজার ২৫০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0004", "lang": "bn", "input": {"text": "জামালকে ২০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000", "person": "জামাল"}, "tags": ["loan"]}
+{"id": "home_intent-0005", "lang": "bn", "input": {"text": "রহিমর কাছ থেকে ২০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0006", "lang": "bn", "input": {"text": "সালমার কাছ থেকে ২০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0007", "lang": "bn", "input": {"text": "ওষুধ কিনলাম ১২০ টাকায়"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0008", "lang": "bn", "input": {"text": "সিএনজি ভাড়া কিনলাম ৮০০ টাকায়"}, "expect": {"intent": "expense", "amount": "800"}, "tags": ["expense"]}
+{"id": "home_intent-0009", "lang": "bn", "input": {"text": "মনে রাখো আমার লকারের চাবি আলমারির উপরে"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0010", "lang": "bn", "input": {"text": "নাসরিনর কাছ থেকে ১০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0011", "lang": "bn", "input": {"text": "কাল সকাল ৯টায় আম্মুকে ফোন করতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "09:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0012", "lang": "bn", "input": {"text": "করিমর কাছ থেকে ১০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0013", "lang": "bn", "input": {"text": "কাল সন্ধ্যা ৭টায় আম্মুকে ফোন করতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "19:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0014", "lang": "bn", "input": {"text": "মোবাইল রিচার্জ ৫০০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "5000"}, "tags": ["expense"]}
+{"id": "home_intent-0015", "lang": "bn", "input": {"text": "কাছাকাছি এটিএম"}, "expect": {"intent": "nearby", "place_type": "atm"}, "tags": ["nearby"]}
+{"id": "home_intent-0016", "lang": "bn", "input": {"text": "জামালকে ৩০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "300", "person": "জামাল"}, "tags": ["loan"]}
+{"id": "home_intent-0017", "lang": "bn", "input": {"text": "নাসরিনকে ২০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000", "person": "নাসরিন"}, "tags": ["loan"]}
+{"id": "home_intent-0018", "lang": "bn", "input": {"text": "সিএনজি ভাড়া কিনলাম ২০ টাকায়"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0019", "lang": "bn", "input": {"text": "রিকশা ভাড়া ৫০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0020", "lang": "bn", "input": {"text": "রিকশা ভাড়া ১৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0021", "lang": "bn", "input": {"text": "ডিম কিনলাম ৫০০০ টাকায়"}, "expect": {"intent": "expense", "amount": "5000"}, "tags": ["expense"]}
+{"id": "home_intent-0022", "lang": "bn", "input": {"text": "বাজার ২৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0023", "lang": "bn", "input": {"text": "রহিমকে ৫০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "500", "person": "রহিম"}, "tags": ["loan"]}
+{"id": "home_intent-0024", "lang": "bn", "input": {"text": "মোবাইল রিচার্জ ২০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0025", "lang": "bn", "input": {"text": "রহিমকে ২০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000", "person": "রহিম"}, "tags": ["loan"]}
+{"id": "home_intent-0026", "lang": "bn", "input": {"text": "ডিম ১২০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0027", "lang": "bn", "input": {"text": "নাসরিনর কাছ থেকে ২০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0028", "lang": "bn", "input": {"text": "চা ২৫০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0029", "lang": "bn", "input": {"text": "বাজার কিনলাম ৫০০ টাকায়"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0030", "lang": "bn", "input": {"text": "কাল সকাল ৮টায় রহিমের সাথে মিটিং মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "08:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0031", "lang": "bn", "input": {"text": "সালমা কে ফোন করো"}, "expect": {"intent": "call", "name": "সালমা"}, "tags": ["call"]}
+{"id": "home_intent-0032", "lang": "bn", "input": {"text": "করিমকে ২০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000", "person": "করিম"}, "tags": ["loan"]}
+{"id": "home_intent-0033", "lang": "bn", "input": {"text": "আজকে কী কী আছে"}, "expect": {"intent": "query_today"}, "tags": ["query"]}
+{"id": "home_intent-0034", "lang": "bn", "input": {"text": "ডিম কিনলাম ৫০ টাকায়"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0035", "lang": "bn", "input": {"text": "রিকশা ভাড়া ৮০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "800"}, "tags": ["expense"]}
+{"id": "home_intent-0036", "lang": "bn", "input": {"text": "সিএনজি ভাড়া ১২০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0037", "lang": "bn", "input": {"text": "কাল রাত ১০টায় গ্যাস বিল জমা দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "22:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0038", "lang": "bn", "input": {"text": "সালমাকে ৩০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "300", "person": "সালমা"}, "tags": ["loan"]}
+{"id": "home_intent-0039", "lang": "bn", "input": {"text": "বেতন পেলাম ৫০০০ টাকা"}, "expect": {"intent": "income", "amount": "5000"}, "tags": ["income"]}
+{"id": "home_intent-0040", "lang": "bn", "input": {"text": "সিএনজি ভাড়া ৮০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "800"}, "tags": ["expense"]}
+{"id": "home_intent-0041", "lang": "bn", "input": {"text": "সালমার কাছ থেকে ৫০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0042", "lang": "bn", "input": {"text": "ডিম ২৫০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0043", "lang": "bn", "input": {"text": "রিকশা ভাড়া ১২০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0044", "lang": "bn", "input": {"text": "নাসরিনকে কল দাও"}, "expect": {"intent": "call", "name": "নাসরিন"}, "tags": ["call"]}
+{"id": "home_intent-0045", "lang": "bn", "input": {"text": "করিমর কাছ থেকে ৫০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0046", "lang": "bn", "input": {"text": "কাল সন্ধ্যা ৭টায় বাসা ভাড়া দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "19:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0047", "lang": "bn", "input": {"text": "সালমাকে কল দাও"}, "expect": {"intent": "call", "name": "সালমা"}, "tags": ["call"]}
+{"id": "home_intent-0048", "lang": "bn", "input": {"text": "আমার ব্যালেন্স কত"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0049", "lang": "bn", "input": {"text": "সালমার কাছ থেকে ৩০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0050", "lang": "bn", "input": {"text": "ওষুধ কিনলাম ১৫০০ টাকায়"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0051", "lang": "bn", "input": {"text": "কাল সকাল ৯টায় বিদ্যুৎ বিল দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "09:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0052", "lang": "bn", "input": {"text": "রিকশা ভাড়া কিনলাম ১২০০ টাকায়"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0053", "lang": "bn", "input": {"text": "মনে রেখো গাড়ির কাগজ ড্রয়ারে"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0054", "lang": "bn", "input": {"text": "বেতন পেলাম ৩০০০০ টাকা"}, "expect": {"intent": "income", "amount": "30000"}, "tags": ["income"]}
+{"id": "home_intent-0055", "lang": "bn", "input": {"text": "চা ১২০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0056", "lang": "bn", "input": {"text": "সালমাকে ৫০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "500", "person": "সালমা"}, "tags": ["loan"]}
+{"id": "home_intent-0057", "lang": "bn", "input": {"text": "জামালকে ১০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000", "person": "জামাল"}, "tags": ["loan"]}
+{"id": "home_intent-0058", "lang": "bn", "input": {"text": "সন্ধ্যা ৭টায় ওষুধ খাওয়ার কথা মনে করিয়ে দিও"}, "expect": {"intent": "medicine", "due_time": "19:00"}, "tags": ["medicine"]}
+{"id": "home_intent-0059", "lang": "bn", "input": {"text": "নাসরিনর কাছ থেকে ৩০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0060", "lang": "bn", "input": {"text": "নাসরিনকে ৩০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "300", "person": "নাসরিন"}, "tags": ["loan"]}
+{"id": "home_intent-0061", "lang": "bn", "input": {"text": "কাল বিকেল ৫টায় বাসা ভাড়া দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "17:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0062", "lang": "bn", "input": {"text": "কাল সকাল ৮টায় বিদ্যুৎ বিল দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "08:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0063", "lang": "bn", "input": {"text": "বেতন পেলাম ১২০০০ টাকা"}, "expect": {"intent": "income", "amount": "12000"}, "tags": ["income"]}
+{"id": "home_intent-0064", "lang": "bn", "input": {"text": "চা কিনলাম ২৫০০ টাকায়"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0065", "lang": "bn", "input": {"text": "সিএনজি ভাড়া ৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0066", "lang": "bn", "input": {"text": "নাসরিনকে ১০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000", "person": "নাসরিন"}, "tags": ["loan"]}
+{"id": "home_intent-0067", "lang": "bn", "input": {"text": "বাজার ২০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0068", "lang": "bn", "input": {"text": "নাসরিন কে ফোন করো"}, "expect": {"intent": "call", "name": "নাসরিন"}, "tags": ["call"]}
+{"id": "home_intent-0069", "lang": "bn", "input": {"text": "করিমর কাছ থেকে ৩০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0070", "lang": "bn", "input": {"text": "কাছে কোনো ক্লিনিক আছে"}, "expect": {"intent": "nearby", "place_type": "hospital"}, "tags": ["nearby"]}
+{"id": "home_intent-0071", "lang": "bn", "input": {"text": "বাজার ১২০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0072", "lang": "bn", "input": {"text": "এই মাসে কত খরচ হলো"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0073", "lang": "bn", "input": {"text": "মিরপুর ১০ রাস্তা দেখাও"}, "expect": {"intent": "navigate", "place": "মিরপুর ১০"}, "tags": ["nav"]}
+{"id": "home_intent-0074", "lang": "bn", "input": {"text": "রহিমকে কল দাও"}, "expect": {"intent": "call", "name": "রহিম"}, "tags": ["call"]}
+{"id": "home_intent-0075", "lang": "bn", "input": {"text": "ধানমন্ডি ২৭ রাস্তা দেখাও"}, "expect": {"intent": "navigate", "place": "ধানমন্ডি ২৭"}, "tags": ["nav"]}
+{"id": "home_intent-0076", "lang": "bn", "input": {"text": "কাল সন্ধ্যা ৭টায় রহিমের সাথে মিটিং মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "19:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0077", "lang": "bn", "input": {"text": "কাছের ফার্মেসি কোথায়"}, "expect": {"intent": "nearby", "place_type": "pharmacy"}, "tags": ["nearby"]}
+{"id": "home_intent-0078", "lang": "bn", "input": {"text": "রহিমকে ৩০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "300", "person": "রহিম"}, "tags": ["loan"]}
+{"id": "home_intent-0079", "lang": "bn", "input": {"text": "চা ২৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0080", "lang": "bn", "input": {"text": "কাল বিকেল ৫টায় গ্যাস বিল জমা দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "17:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0081", "lang": "bn", "input": {"text": "রহিমর কাছ থেকে ৩০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0082", "lang": "bn", "input": {"text": "জামালর কাছ থেকে ৩০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0083", "lang": "bn", "input": {"text": "সালমাকে ১০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000", "person": "সালমা"}, "tags": ["loan"]}
+{"id": "home_intent-0084", "lang": "bn", "input": {"text": "জামালর কাছ থেকে ২০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0085", "lang": "bn", "input": {"text": "ওষুধ ৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0086", "lang": "bn", "input": {"text": "চা ১৫০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0087", "lang": "bn", "input": {"text": "মনে রাখো ওয়াইফাই রাউটার স্টোর রুমে"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0088", "lang": "bn", "input": {"text": "জামালকে ৫০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "500", "person": "জামাল"}, "tags": ["loan"]}
+{"id": "home_intent-0089", "lang": "bn", "input": {"text": "দুপুরের খাবার ৫০০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "5000"}, "tags": ["expense"]}
+{"id": "home_intent-0090", "lang": "bn", "input": {"text": "সালমাকে ২০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000", "person": "সালমা"}, "tags": ["loan"]}
+{"id": "home_intent-0091", "lang": "bn", "input": {"text": "করিমকে ৩০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "300", "person": "করিম"}, "tags": ["loan"]}
+{"id": "home_intent-0092", "lang": "bn", "input": {"text": "সালমার কাছ থেকে ১০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0093", "lang": "bn", "input": {"text": "রহিমর কাছ থেকে ১০০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0094", "lang": "bn", "input": {"text": "কাল রাত ১০টায় বাসা ভাড়া দিতে মনে করিয়ে দিও"}, "expect": {"intent": "reminder", "due_time": "22:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0095", "lang": "bn", "input": {"text": "ডিম ৫০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0096", "lang": "bn", "input": {"text": "বনানী রাস্তা দেখাও"}, "expect": {"intent": "navigate", "place": "বনানী"}, "tags": ["nav"]}
+{"id": "home_intent-0097", "lang": "banglish", "input": {"text": "rickshaw 50 taka"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0098", "lang": "banglish", "input": {"text": "Salma ke call dao"}, "expect": {"intent": "call", "name__contains": "Salma"}, "tags": ["call"]}
+{"id": "home_intent-0099", "lang": "banglish", "input": {"text": "Nasrin er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0100", "lang": "banglish", "input": {"text": "Nasrin ke 700 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0101", "lang": "banglish", "input": {"text": "Jamal er kach theke 1500 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0102", "lang": "banglish", "input": {"text": "cha 120 taka"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0103", "lang": "banglish", "input": {"text": "rickshaw 2500 taka"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0104", "lang": "banglish", "input": {"text": "nasta e 150 taka khoroch holo"}, "expect": {"intent": "expense", "amount": "150"}, "tags": ["expense"]}
+{"id": "home_intent-0105", "lang": "banglish", "input": {"text": "Salma er kach theke 1500 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0106", "lang": "banglish", "input": {"text": "rickshaw 500 taka"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0107", "lang": "banglish", "input": {"text": "beton pelam 22000"}, "expect": {"intent": "income", "amount": "22000"}, "tags": ["income"]}
+{"id": "home_intent-0108", "lang": "banglish", "input": {"text": "bus e 350 taka khoroch holo"}, "expect": {"intent": "expense", "amount": "350"}, "tags": ["expense"]}
+{"id": "home_intent-0109", "lang": "banglish", "input": {"text": "Jamal ke call dao"}, "expect": {"intent": "call", "name__contains": "Jamal"}, "tags": ["call"]}
+{"id": "home_intent-0110", "lang": "banglish", "input": {"text": "Nasrin er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0111", "lang": "banglish", "input": {"text": "salary pelam 5000"}, "expect": {"intent": "income", "amount": "5000"}, "tags": ["income"]}
+{"id": "home_intent-0112", "lang": "banglish", "input": {"text": "Karim er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0113", "lang": "banglish", "input": {"text": "tuition theke 35000 taka income holo"}, "expect": {"intent": "income", "amount": "35000"}, "tags": ["income"]}
+{"id": "home_intent-0114", "lang": "banglish", "input": {"text": "bus e 900 taka khoroch holo"}, "expect": {"intent": "expense", "amount": "900"}, "tags": ["expense"]}
+{"id": "home_intent-0115", "lang": "banglish", "input": {"text": "Rahim ke call dao"}, "expect": {"intent": "call", "name__contains": "Rahim"}, "tags": ["call"]}
+{"id": "home_intent-0116", "lang": "banglish", "input": {"text": "bazar 800 taka"}, "expect": {"intent": "expense", "amount": "800"}, "tags": ["expense"]}
+{"id": "home_intent-0117", "lang": "banglish", "input": {"text": "Salma ke 1500 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0118", "lang": "banglish", "input": {"text": "Salma ke 700 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0119", "lang": "banglish", "input": {"text": "tuition theke 18000 taka income holo"}, "expect": {"intent": "income", "amount": "18000"}, "tags": ["income"]}
+{"id": "home_intent-0120", "lang": "banglish", "input": {"text": "Nasrin ke 1500 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0121", "lang": "banglish", "input": {"text": "Rahim ke 400 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0122", "lang": "banglish", "input": {"text": "Rahim er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0123", "lang": "banglish", "input": {"text": "Rahim ke 700 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0124", "lang": "banglish", "input": {"text": "cha 1500 taka"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0125", "lang": "banglish", "input": {"text": "Karim ke 400 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0126", "lang": "banglish", "input": {"text": "salary pelam 45000"}, "expect": {"intent": "income", "amount": "45000"}, "tags": ["income"]}
+{"id": "home_intent-0127", "lang": "banglish", "input": {"text": "balance koto"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0128", "lang": "banglish", "input": {"text": "Jamal ke 400 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0129", "lang": "banglish", "input": {"text": "Salma er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0130", "lang": "banglish", "input": {"text": "tuition theke 8000 taka income holo"}, "expect": {"intent": "income", "amount": "8000"}, "tags": ["income"]}
+{"id": "home_intent-0131", "lang": "banglish", "input": {"text": "Salma ke 400 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0132", "lang": "banglish", "input": {"text": "bazar 1200 taka"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0133", "lang": "banglish", "input": {"text": "Nasrin ke call dao"}, "expect": {"intent": "call", "name__contains": "Nasrin"}, "tags": ["call"]}
+{"id": "home_intent-0134", "lang": "banglish", "input": {"text": "Jamal er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0135", "lang": "banglish", "input": {"text": "Karim ke 700 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0136", "lang": "banglish", "input": {"text": "rickshaw 20 taka"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0137", "lang": "banglish", "input": {"text": "cha 250 taka"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0138", "lang": "banglish", "input": {"text": "Rahim er kach theke 1500 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0139", "lang": "banglish", "input": {"text": "salary pelam 12000"}, "expect": {"intent": "income", "amount": "12000"}, "tags": ["income"]}
+{"id": "home_intent-0140", "lang": "banglish", "input": {"text": "Nasrin er kach theke 1500 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0141", "lang": "banglish", "input": {"text": "Jamal ke 700 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0142", "lang": "banglish", "input": {"text": "Karim ke 1500 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0143", "lang": "banglish", "input": {"text": "Jamal ke 1500 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0144", "lang": "banglish", "input": {"text": "Jamal er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0145", "lang": "banglish", "input": {"text": "Nasrin ke 400 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0146", "lang": "banglish", "input": {"text": "rickshaw 5000 taka"}, "expect": {"intent": "expense", "amount": "5000"}, "tags": ["expense"]}
+{"id": "home_intent-0147", "lang": "banglish", "input": {"text": "beton pelam 8000"}, "expect": {"intent": "income", "amount": "8000"}, "tags": ["income"]}
+{"id": "home_intent-0148", "lang": "banglish", "input": {"text": "Rahim ke 1500 taka dhar dilam"}, "expect": {"intent": "loan", "kind": "given", "amount": "1500"}, "tags": ["loan"]}
+{"id": "home_intent-0149", "lang": "banglish", "input": {"text": "beton pelam 35000"}, "expect": {"intent": "income", "amount": "35000"}, "tags": ["income"]}
+{"id": "home_intent-0150", "lang": "banglish", "input": {"text": "Karim er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0151", "lang": "banglish", "input": {"text": "Karim ke call dao"}, "expect": {"intent": "call", "name__contains": "Karim"}, "tags": ["call"]}
+{"id": "home_intent-0152", "lang": "banglish", "input": {"text": "Salma er kach theke 400 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "400"}, "tags": ["loan"]}
+{"id": "home_intent-0153", "lang": "banglish", "input": {"text": "koto taka ache amar"}, "expect": {"intent": "question"}, "tags": ["query"]}
+{"id": "home_intent-0154", "lang": "banglish", "input": {"text": "salary pelam 30000"}, "expect": {"intent": "income", "amount": "30000"}, "tags": ["income"]}
+{"id": "home_intent-0155", "lang": "banglish", "input": {"text": "salary pelam 25000"}, "expect": {"intent": "income", "amount": "25000"}, "tags": ["income"]}
+{"id": "home_intent-0156", "lang": "banglish", "input": {"text": "Rahim er kach theke 700 taka dhar nilam"}, "expect": {"intent": "loan", "kind": "taken", "amount": "700"}, "tags": ["loan"]}
+{"id": "home_intent-0157", "lang": "en", "input": {"text": "lent 1000 to Karim"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0158", "lang": "en", "input": {"text": "borrowed 1000 from Salma"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0159", "lang": "en", "input": {"text": "navigate to Gulshan 1"}, "expect": {"intent": "navigate", "place": "Gulshan 1"}, "tags": ["nav"]}
+{"id": "home_intent-0160", "lang": "en", "input": {"text": "borrowed 2000 from Nasrin"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0161", "lang": "en", "input": {"text": "lent 300 to Jamal"}, "expect": {"intent": "loan", "kind": "given", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0162", "lang": "en", "input": {"text": "borrowed 300 from Salma"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0163", "lang": "en", "input": {"text": "paid 800 taka for medicine"}, "expect": {"intent": "expense", "amount": "800"}, "tags": ["expense"]}
+{"id": "home_intent-0164", "lang": "en", "input": {"text": "lent 1000 to Salma"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0165", "lang": "en", "input": {"text": "navigate to Dhanmondi 27"}, "expect": {"intent": "navigate", "place": "Dhanmondi 27"}, "tags": ["nav"]}
+{"id": "home_intent-0166", "lang": "en", "input": {"text": "borrowed 500 from Karim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0167", "lang": "en", "input": {"text": "received 30000 from tuition"}, "expect": {"intent": "income", "amount": "30000"}, "tags": ["income"]}
+{"id": "home_intent-0168", "lang": "en", "input": {"text": "spent 20 on lunch"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0169", "lang": "en", "input": {"text": "paid 50 taka for lunch"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0170", "lang": "en", "input": {"text": "remind me to call mom at 8:00"}, "expect": {"intent": "reminder", "due_time": "08:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0171", "lang": "en", "input": {"text": "spent 1200 on coffee"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0172", "lang": "en", "input": {"text": "got salary 12000"}, "expect": {"intent": "income", "amount": "12000"}, "tags": ["income"]}
+{"id": "home_intent-0173", "lang": "en", "input": {"text": "navigate to Mirpur 10"}, "expect": {"intent": "navigate", "place": "Mirpur 10"}, "tags": ["nav"]}
+{"id": "home_intent-0174", "lang": "en", "input": {"text": "show my balance"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0175", "lang": "en", "input": {"text": "borrowed 500 from Jamal"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0176", "lang": "en", "input": {"text": "got salary 30000"}, "expect": {"intent": "income", "amount": "30000"}, "tags": ["income"]}
+{"id": "home_intent-0177", "lang": "en", "input": {"text": "borrowed 1000 from Jamal"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0178", "lang": "en", "input": {"text": "call Salma"}, "expect": {"intent": "call", "name": "Salma"}, "tags": ["call"]}
+{"id": "home_intent-0179", "lang": "en", "input": {"text": "received 45000 from tuition"}, "expect": {"intent": "income", "amount": "45000"}, "tags": ["income"]}
+{"id": "home_intent-0180", "lang": "en", "input": {"text": "lent 500 to Karim"}, "expect": {"intent": "loan", "kind": "given", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0181", "lang": "en", "input": {"text": "directions to Banani"}, "expect": {"intent": "navigate"}, "tags": ["nav"]}
+{"id": "home_intent-0182", "lang": "en", "input": {"text": "today's briefing"}, "expect": {"intent": "query_today"}, "tags": ["query"]}
+{"id": "home_intent-0183", "lang": "en", "input": {"text": "navigate to Bashundhara City"}, "expect": {"intent": "navigate", "place": "Bashundhara City"}, "tags": ["nav"]}
+{"id": "home_intent-0184", "lang": "en", "input": {"text": "got salary 45000"}, "expect": {"intent": "income", "amount": "45000"}, "tags": ["income"]}
+{"id": "home_intent-0185", "lang": "en", "input": {"text": "lent 500 to Jamal"}, "expect": {"intent": "loan", "kind": "given", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0186", "lang": "en", "input": {"text": "spent 2500 on medicine"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0187", "lang": "en", "input": {"text": "borrowed 1000 from Karim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0188", "lang": "en", "input": {"text": "spent 120 on mobile recharge"}, "expect": {"intent": "expense", "amount": "120"}, "tags": ["expense"]}
+{"id": "home_intent-0189", "lang": "en", "input": {"text": "remind me to call mom at 17:00"}, "expect": {"intent": "reminder", "due_time": "17:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0190", "lang": "en", "input": {"text": "paid 2500 taka for coffee"}, "expect": {"intent": "expense", "amount": "2500"}, "tags": ["expense"]}
+{"id": "home_intent-0191", "lang": "en", "input": {"text": "spent 250 on rickshaw"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0192", "lang": "en", "input": {"text": "borrowed 500 from Rahim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0193", "lang": "en", "input": {"text": "paid 250 taka for groceries"}, "expect": {"intent": "expense", "amount": "250"}, "tags": ["expense"]}
+{"id": "home_intent-0194", "lang": "en", "input": {"text": "got salary 5000"}, "expect": {"intent": "income", "amount": "5000"}, "tags": ["income"]}
+{"id": "home_intent-0195", "lang": "en", "input": {"text": "lent 500 to Nasrin"}, "expect": {"intent": "loan", "kind": "given", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0196", "lang": "en", "input": {"text": "remember Rahim's shop is near Mirpur 10"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0197", "lang": "en", "input": {"text": "borrowed 1000 from Nasrin"}, "expect": {"intent": "loan", "kind": "taken", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0198", "lang": "en", "input": {"text": "lent 2000 to Rahim"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0199", "lang": "en", "input": {"text": "paid 20 taka for medicine"}, "expect": {"intent": "expense", "amount": "20"}, "tags": ["expense"]}
+{"id": "home_intent-0200", "lang": "en", "input": {"text": "borrowed 300 from Nasrin"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0201", "lang": "en", "input": {"text": "directions to Dhanmondi 27"}, "expect": {"intent": "navigate"}, "tags": ["nav"]}
+{"id": "home_intent-0202", "lang": "en", "input": {"text": "borrowed 300 from Jamal"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0203", "lang": "en", "input": {"text": "how much did I spend"}, "expect": {"intent": "query_money"}, "tags": ["query"]}
+{"id": "home_intent-0204", "lang": "en", "input": {"text": "lent 300 to Rahim"}, "expect": {"intent": "loan", "kind": "given", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0205", "lang": "en", "input": {"text": "nearby hotel"}, "expect": {"intent": "nearby", "place_type": "lodging"}, "tags": ["nearby"]}
+{"id": "home_intent-0206", "lang": "en", "input": {"text": "borrowed 2000 from Rahim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0207", "lang": "en", "input": {"text": "lent 300 to Nasrin"}, "expect": {"intent": "loan", "kind": "given", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0208", "lang": "en", "input": {"text": "lent 2000 to Nasrin"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0209", "lang": "en", "input": {"text": "remind me to pay rent at 19:00"}, "expect": {"intent": "reminder", "due_time": "19:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0210", "lang": "en", "input": {"text": "call Jamal"}, "expect": {"intent": "call", "name": "Jamal"}, "tags": ["call"]}
+{"id": "home_intent-0211", "lang": "en", "input": {"text": "lent 500 to Salma"}, "expect": {"intent": "loan", "kind": "given", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0212", "lang": "en", "input": {"text": "lent 1000 to Jamal"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0213", "lang": "en", "input": {"text": "call Karim"}, "expect": {"intent": "call", "name": "Karim"}, "tags": ["call"]}
+{"id": "home_intent-0214", "lang": "en", "input": {"text": "remember the spare key is with Karim"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0215", "lang": "en", "input": {"text": "atm near me"}, "expect": {"intent": "nearby", "place_type": "atm"}, "tags": ["nearby"]}
+{"id": "home_intent-0216", "lang": "en", "input": {"text": "paid 500 taka for mobile recharge"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0217", "lang": "en", "input": {"text": "lent 2000 to Karim"}, "expect": {"intent": "loan", "kind": "given", "amount": "2000"}, "tags": ["loan"]}
+{"id": "home_intent-0218", "lang": "en", "input": {"text": "borrowed 300 from Rahim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0219", "lang": "en", "input": {"text": "paid 1200 taka for mobile recharge"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0220", "lang": "en", "input": {"text": "spent 1500 on mobile recharge"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0221", "lang": "en", "input": {"text": "spent 500 on groceries"}, "expect": {"intent": "expense", "amount": "500"}, "tags": ["expense"]}
+{"id": "home_intent-0222", "lang": "en", "input": {"text": "spent 50 on mobile recharge"}, "expect": {"intent": "expense", "amount": "50"}, "tags": ["expense"]}
+{"id": "home_intent-0223", "lang": "en", "input": {"text": "remember my passport is in the blue bag"}, "expect": {"intent": "memory"}, "tags": ["memory"]}
+{"id": "home_intent-0224", "lang": "en", "input": {"text": "paid 1500 taka for mobile recharge"}, "expect": {"intent": "expense", "amount": "1500"}, "tags": ["expense"]}
+{"id": "home_intent-0225", "lang": "en", "input": {"text": "call Nasrin"}, "expect": {"intent": "call", "name": "Nasrin"}, "tags": ["call"]}
+{"id": "home_intent-0226", "lang": "en", "input": {"text": "lent 500 to Rahim"}, "expect": {"intent": "loan", "kind": "given", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0227", "lang": "en", "input": {"text": "borrowed 300 from Karim"}, "expect": {"intent": "loan", "kind": "taken", "amount": "300"}, "tags": ["loan"]}
+{"id": "home_intent-0228", "lang": "en", "input": {"text": "directions to Gulshan 1"}, "expect": {"intent": "navigate"}, "tags": ["nav"]}
+{"id": "home_intent-0229", "lang": "bn", "input": {"text": "গুলশান ১ রাস্তা দেখাও"}, "expect": {"intent": "navigate", "place": "গুলশান ১"}, "tags": ["nav"]}
+{"id": "home_intent-0230", "lang": "en", "input": {"text": "lent 1000 to Rahim"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000"}, "tags": ["loan"]}
+{"id": "home_intent-0231", "lang": "en", "input": {"text": "received 12000 from tuition"}, "expect": {"intent": "income", "amount": "12000"}, "tags": ["income"]}
+{"id": "home_intent-0232", "lang": "bn", "input": {"text": "নাসরিনর কাছ থেকে ৫০০ টাকা ধার নিলাম"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0233", "lang": "bn", "input": {"text": "করিমকে ১০০০ টাকা ধার দিলাম"}, "expect": {"intent": "loan", "kind": "given", "amount": "1000", "person": "করিম"}, "tags": ["loan"]}
+{"id": "home_intent-0234", "lang": "en", "input": {"text": "remind me to pick up Karim at 9:00"}, "expect": {"intent": "reminder", "due_time": "09:00"}, "tags": ["reminder"]}
+{"id": "home_intent-0235", "lang": "bn", "input": {"text": "আজ কী আছে"}, "expect": {"intent": "query_today"}, "tags": ["query"]}
+{"id": "home_intent-0236", "lang": "bn", "input": {"text": "বিকেল ৫টায় ওষুধ খাওয়ার কথা মনে করিয়ে দিও"}, "expect": {"intent": "medicine", "due_time": "17:00"}, "tags": ["medicine"]}
+{"id": "home_intent-0237", "lang": "bn", "input": {"text": "ওষুধ ১২০০ টাকা খরচ"}, "expect": {"intent": "expense", "amount": "1200"}, "tags": ["expense"]}
+{"id": "home_intent-0238", "lang": "en", "input": {"text": "borrowed 500 from Nasrin"}, "expect": {"intent": "loan", "kind": "taken", "amount": "500"}, "tags": ["loan"]}
+{"id": "home_intent-0239", "lang": "bn", "input": {"text": "জামাল কে ফোন করো"}, "expect": {"intent": "call", "name": "জামাল"}, "tags": ["call"]}
+{"id": "home_intent-0240", "lang": "bn", "input": {"text": "জামালকে কল দাও"}, "expect": {"intent": "call", "name": "জামাল"}, "tags": ["call"]}

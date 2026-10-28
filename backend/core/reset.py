@@ -64,14 +64,11 @@ def sms_reset_available():
     """SMS reset only turns on when an SMS gateway integration is connected.
     Until then the UI shows 'Available when SMS gateway added'."""
     try:
-        from . import integrations
-        # any configured + working SMS provider enables it
-        for slug in ("sms", "ssl_sms", "bulk_sms"):
-            if slug in getattr(integrations, "REGISTRY", {}) and integrations.is_enabled(slug):
-                return True
+        # smsotp: any CONNECTED gateway entry (core/sms_gateway.GATEWAYS)
+        from . import sms_gateway
+        return sms_gateway.ready()
     except Exception:
-        pass
-    return False
+        return False
 
 
 def build_email(lang, name, reset_link):

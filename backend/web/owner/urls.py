@@ -19,6 +19,8 @@ from . import views_ff1 as FF1       # feature-flags
 from . import views_bill2 as B2      # billing-v2
 from . import views_air as AIR       # ai-report
 from . import views_ai as AIRT       # ai-router
+from . import views_ops as OPS       # ops-watch
+from . import views_agent as AGR     # agent-core
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -107,4 +109,8 @@ urlpatterns = [
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report
+    path("system", OPS.system_health),                           # ops-watch
+    path("vitals/crash-rate", OPS.crash_rate_page),              # ops-watch
+    path("agent-runs", AGR.agent_runs),                          # agent-core
+    path("agent-runs/<int:pk>", AGR.agent_run_detail),           # agent-core
 ]

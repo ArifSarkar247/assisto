@@ -48,7 +48,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
   }
 
   Future<void> _loadLocal() async {
-    await MemPrivacy.seedIfFirstRun();
+    await MemPrivacy.dropDemoSeed(); // truth: no demo suggestion
     final f = await MemPrivacy.loadFlags();
     final p = await MemPrivacy.loadPending();
     if (!mounted) return;
@@ -314,8 +314,6 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
   // ---- AI-learned facts (confirm before learn) -----------------------------
   String _pendingTitle(AppLocalizations t, MemPending p) {
-    // seeded demo suggestion → localized sample; real captures carry their text
-    if (p.id == 'seed-1') return t.memConsentSample;
     final isBn = Localizations.localeOf(context).languageCode == 'bn';
     final chosen = isBn ? p.titleBn : p.title;
     return chosen.isNotEmpty ? chosen : (p.title.isNotEmpty ? p.title : p.titleBn);

@@ -62,27 +62,23 @@ class MemPrivacy {
         _kConsent, jsonEncode([for (final p in items) p.toJson()]));
   }
 
-  /// Seed a couple of demo "AI wants to remember this" suggestions the first
-  /// time the user opens the advanced view, so the consent flow is discoverable
-  /// even before any live AI capture. Honest: tagged as suggestions, nothing is
-  /// saved until the user confirms.
-  static Future<void> seedIfFirstRun() async {
-    final seeded = await Settings.getBool('mem_consent_seeded_v1', false);
-    if (seeded) return;
-    await Settings.setBool('mem_consent_seeded_v1', true);
+  /// truth (owner FINAL ORDER 27 Oct): there used to be a demo "the AI wants
+  /// to remember: you prefer tea in the morning" suggestion seeded on first
+  /// open — made up, and one tap saved it as a real memory. Nothing seeds any
+  /// more; this removes the old demo row from phones that already got it.
+  /// The queue only ever holds suggestions a real capture path adds.
+  static Future<void> dropDemoSeed() async {
     final existing = await loadPending();
-    if (existing.isNotEmpty) return;
-    await savePending([
-      MemPending(
-        id: 'seed-1',
-        title: '',
-        titleBn: '',
-        category: 'preferences',
-        detail: '',
-        confidence: 0.82,
-      ),
-    ]);
+    if (existing.any((p) => p.id == kDemoSeedId)) {
+      await savePending([
+        for (final p in existing)
+          if (p.id != kDemoSeedId) p
+      ]);
+    }
   }
+
+  /// Id of the removed demo suggestion (kept only to clean it up).
+  static const kDemoSeedId = 'seed-1';
 }
 
 /// Per-item privacy flags. All default false = shared with AI, not sensitive.

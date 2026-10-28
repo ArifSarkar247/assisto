@@ -1,0 +1,20 @@
+{
+  "_doc": "CI fails when a feature result is below a minimum (or above a max_*). Raise these as quality improves; never lower them to make CI green. Replay mode: 'pass' = recorded answers that survive the product pipeline AND pass every deterministic grader; 'negatives_caught' = injected faults caught by a product guard or a grader; 'guard_block_rate' = faults a PRODUCT guard must stop (not just the grader); 'blocked_good' = good answers wrongly blocked by a guard. Rule features: 'must_pass' over cases without a listed known gap; 'max_known_gaps' can only go down.",
+  "default_llm": {
+    "min_cases": 200,
+    "pass": 0.98,
+    "negatives_caught": 1.0,
+    "guard_block_rate": 1.0,
+    "max_blocked_good": 0
+  },
+  "default_rule": {
+    "min_cases": 200,
+    "must_pass": 1.0,
+    "max_known_gaps": 0
+  },
+  "features": {
+    "reminders_nlp": {
+      "max_known_gaps": 3
+    }
+  }
+}

@@ -18,7 +18,7 @@ import urllib.request
 
 GRAPH_VERSION = "v23.0"
 GRAPH_HOST = "https://graph.facebook.com"
-TIMEOUT_S = 15
+TIMEOUT_S = 10   # srvperf/H: bounded; plus the shared 'graph' circuit
 
 
 def graph_version():
@@ -67,6 +67,18 @@ def set_transport(fn):
     return prev
 
 
+def _call(method, url, headers, body):
+    """srvperf/H: every Graph call goes through the shared 'graph' circuit
+    (core/ext_breaker.py): when Meta is down, callers get an honest
+    'graph_unavailable' at once instead of a 10 s wait each."""
+    from . import ext_breaker as XB
+    if not XB.allow("graph"):
+        return 0, {"error": {"message": "graph_unavailable"}}
+    status, js = _transport(method, url, headers, body)
+    XB.book("graph", bool(status) and status < 500, "http %s" % status)
+    return status, js
+
+
 def _result(status, js):
     if 200 <= status < 300:
         mid = (js.get("message_id") or js.get("id")
@@ -86,7 +98,7 @@ def _post(path, token, body):
         return {"ok": False, "id": "", "status": 0, "error": "no_token"}
     url = "%s/%s" % (base_url(), path.lstrip("/"))
     headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
-    status, js = _transport("POST", url, headers, body)
+    status, js = _call("POST", url, headers, body)
     return _result(status, js or {})
 
 
@@ -94,7 +106,7 @@ def _get(path, token):
     if not token:
         return {"ok": False, "status": 0, "error": "no_token", "json": {}}
     url = "%s/%s" % (base_url(), path.lstrip("/"))
-    status, js = _transport("GET", url, {"Authorization": "Bearer " + token}, None)
+    status, js = _call("GET", url, {"Authorization": "Bearer " + token}, None)
     r = _result(status, js or {})
     r["json"] = js or {}
     return r

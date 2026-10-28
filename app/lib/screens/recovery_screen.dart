@@ -34,6 +34,9 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
   bool _busyEvidence = false;
   bool _busyStations = false;
   List<Map<String, dynamic>>? _stations; // null = not fetched; empty = none
+  // truth: licence line of the live source (OSM ODbL / Google), shown under
+  // the list exactly as the server sends it.
+  String _stationsAttribution = '';
   bool _stationsUnavailable = false;
 
   ApiClient get _api => context.read<AppState>().api;
@@ -149,7 +152,10 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
               .map((e) => e.cast<String, dynamic>())
               .toList() ??
           const [];
-      setState(() => _stations = list);
+      setState(() {
+        _stations = list;
+        _stationsAttribution = '${resp['attribution'] ?? ''}';
+      });
     } catch (_) {
       if (mounted) setState(() => _stationsUnavailable = true);
     } finally {
@@ -408,6 +414,15 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
                   ),
                 );
               }),
+            if (stations != null &&
+                stations.isNotEmpty &&
+                _stationsAttribution.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(_stationsAttribution,
+                    key: const ValueKey('truth_stations_attribution'),
+                    style: Theme.of(context).textTheme.bodySmall),
+              ),
           ],
         ),
       ),

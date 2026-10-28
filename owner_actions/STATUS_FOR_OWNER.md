@@ -1,5 +1,34 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+**📊 অগ্রগতি (২৮ Oct সকাল ৬:৫০ বাংলাদেশ সময়):** বোর্ডের ২৭০ সারির **০টি ১০০-তে** (সবচেয়ে বেশি ৮৬); **গড় ৬০.৩** (২৭ Oct সকালে ৫৬.৪)। গত রাতে ৩টা টেস্টিং বিল্ড Play-তে (২৬০, ২৬১, ২৬২)। **Agent Core:** ভিত্তি, সক্রিয় সতর্কতা ও সকাল/সন্ধ্যার সারাংশ, অ্যাপ-স্ক্রিন ও অনুমোদন-কার্ড, ১৫টি নতুন টুল (৮টি বিষয়ে ২০০+ লক্ষ্যের পরীক্ষা ১০০% পাস) — সব সুইচ বন্ধ; এখন চলছে ব্যক্তিগত স্মৃতি (দেখা/বদলানো/মোছা) ও স্বাস্থ্য-নিরাপত্তা ফিল্টার। কোনো সারি ১০০ নয় কারণ আসল দুই-ফোন প্রমাণ ও ২ GB ফোনে মাপা এখনো বাকি।
+
+
+## ✅ বিল্ড 257 Play-তে — **Build 262 (versionCode 10262)**, ২৮ Oct সকাল ৬:৪৫ বাংলাদেশ সময়
+- Internal ও Closed testing-এ (production নয়); CI-র সব পরীক্ষা সবুজ। ওয়েবসাইট APK: https://api.lifeassisto.com/dl/wC5DnDVnuunsXSFJKhijH_Xd/assisto-part7-build262.apk
+- **বাংলায় কী নতুন:** (১) **ডিজিটাল খাতা ঠিক** — আগে আসল ফোনে কোনো গ্রাহকের বাকি দেখাত না, হিসাবের খাতাও খালি থাকত (অ্যাপ ও সার্ভারে নাম মিলত না) — এখন ঠিক; (২) ইন্টারনেট ছাড়াও এন্ট্রি, পরে নিজে থেকে সিঙ্ক; (৩) **প্রতি গ্রাহকের আলাদা তাগাদা** (WhatsApp, ফোনের SMS, বা Assisto SMS) ও নির্ধারিত তাগাদা; (৪) খাতা সবসময় ফ্রি — শুধু যা সত্যি সেটাই লেখা; (৫) **CCTV পাহারাদার হোমের ডিফল্ট শর্টকাটে**, গাড়ি ট্র্যাকিং শর্টকাট-তালিকায়, প্রিভিউ লেখা নেই (আপনার আদেশ)।
+- **আপনার কাজ:** নির্ধারিত তাগাদার জন্য একটা cron লাইন (আগের ৬টার সাথে): `*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-tagada-sweep.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py tagada_sweep --quiet >> /home/ubuntu/assisto/logs/tagada_sweep.log 2>&1`
+
+
+## ✅ বিল্ড 256 Play-তে — **Build 261 (versionCode 10261)**, ২৮ Oct ভোর ৫:১০ বাংলাদেশ সময়
+- **Internal ও Closed testing-এ আপলোড** (production নয়); CI-র সব পরীক্ষা সবুজ (ব্যাকএন্ড, অ্যাপের ৮ ভাগ, CCTV/গাড়ির end-to-end, Agent Core-এর টেস্ট), এমুলেটর-স্মোক পাস। ওয়েবসাইট APK: https://api.lifeassisto.com/dl/q2ujPjAnf-GZx4i6qajAEhr4/assisto-part7-build261.apk
+- **বাংলায় কী নতুন:** (১) **আমন্ত্রণ থেকে সার্কেলে যোগ — ৫ ট্যাপে, পাসওয়ার্ড ছাড়া** (আগে ~২৬ ট্যাপ); (২) **ক্রেডিট, রিফান্ড ও প্ল্যান** এক পরিষ্কার স্ক্রিনে ("এখন ১৮, আরও ৭২টি ২ দিনে"); (৩) **রিমাইন্ডার সময়মতো বাজে** (সিঙ্কের পরে পুরনো অ্যালার্ম বাজার বাগ ঠিক; দৈনিক রিমাইন্ডার পরদিনও বাজে); (৪) **প্রিপেইড মিটার** — ব্যালান্স কম হলে পুশ, কোম্পানি বাছাই, bKash/Nagad রিচার্জের ধাপ, টোকেন-খাতা (আগে "৫০০" লিখলেই স্ক্রিন বন্ধ হয়ে যেত — ঠিক); (৫) **গাড়ির Car Mode + আসল ম্যাপ**; (৬) **ইমেইলে লগইন কোড** (SMS না গেলে); (৭) **কোথাও নকল/নমুনা তথ্য নেই** (কাছের জায়গা, থানা, কুরিয়ার ইত্যাদি আসল উৎস থেকে বা সৎ খালি অবস্থা); (৮) সার্ভার কয়েক গুণ দ্রুত (লাইভ p95 এখন ~১৮৬ ms, আগে ৪৫৭)।
+- **চালু হয়নি (সুইচ বন্ধ, ইচ্ছা করে):** Agent Core, প্রবাসী প্ল্যান, প্ল্যান v2; নতুন দাম (প্রিসেট) — Play Console-এ আপনি দাম বদলানোর পরেই।
+- **আপনার কাজ:** উপরের ৬টা cron লাইন যোগ করুন।
+
+
+## ⏰ আপনার কাজ: ৬টা cron লাইন যোগ করুন (বিল্ড 256 সার্ভারে ডিপ্লয় হয়ে গেছে — এই কমান্ডগুলো এখন আছে)
+root হিসেবে `/etc/cron.d/assisto-app` ফাইলের শেষে হুবহু এই ৬ লাইন যোগ করুন (`sudo nano /etc/cron.d/assisto-app`), সেভ করুন — আর কিছু লাগবে না:
+```
+* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-journey-sweep.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py journey_sweep --quiet >> /home/ubuntu/assisto/backend/logs/journey_sweep.log 2>&1
+* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-antitheft-escalate.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py antitheft_escalate >> /home/ubuntu/assisto/backend/logs/antitheft_escalate.log 2>&1
+*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-ops-watch.lock nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py ops_watch >> /home/ubuntu/assisto/backend/logs/ops_watch.log 2>&1
+*/5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-ai-health-check.lock nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py ai_health_check >> /home/ubuntu/assisto/backend/logs/ai_health_check.log 2>&1
+15 * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py meter_low_alerts >> /home/ubuntu/assisto/backend/logs/meter_low_alerts.log 2>&1
+30 2 1 * * ubuntu /home/ubuntu/assisto/migration/restore_test.sh >>/home/ubuntu/assisto/backend/logs/restore_test.log 2>&1
+```
+কী করে: নিরাপদ যাত্রার দেরি/পথ-বিচ্যুতি সতর্কতা · চুরি-টানের পর উত্তর না দিলে এগিয়ে নেওয়া · সার্ভার ও cron নষ্ট হলে আপনাকে সতর্কতা · AI প্রদানকারীর স্বাস্থ্য (বিনামূল্যে) · প্রিপেইড মিটার কম হলে পুশ · মাসে একবার ব্যাকআপ-পুনরুদ্ধার পরীক্ষা। (Agent Core ও প্রবাসীর cron সুইচ চালু হলে দেব।)
+
+
 **📊 অগ্রগতি (২৮ Oct রাত ২:৪০ বাংলাদেশ সময়):** বোর্ডের ২৭০ সারির **০টি ১০০-তে**; **গড় ৫৮.৯** (বিল্ড 255-এর কাজ ধরে; বিলিং-স্ক্রিন, SMS/OTP, AI-মান, সার্ভার-গতির স্কোর 256-এ মার্জ হলে বাড়বে)। **Agent Core:** ভিত্তি + সক্রিয় সতর্কতা ও সকাল/সন্ধ্যার সারাংশ তৈরি (ফ্ল্যাগ বন্ধ); অ্যাপ-স্ক্রিন ও অনুমোদন-কার্ডের কাজ চলছে। সব এজেন্ট আবার কাজে (ব্যবহার-সীমার পরে)।
 
 

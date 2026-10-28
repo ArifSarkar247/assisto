@@ -36,6 +36,9 @@ class PushChannels {
     'missed_call': missedCalls,
     'message_request': messages, // mr1
     'offer': offers, // p2-money
+    'meter_low': alerts, // remmeter: prepaid meter running low
+    'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
+    'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
   };
 }
 
@@ -96,6 +99,7 @@ class PushPayload {
   bool get isCallCancel => kind == 'call_cancel';
   bool get isMissedCall => kind == 'missed_call'; // c2-calls
   bool get isSos => kind == 'sos';
+  bool get isAgentApproval => kind == 'agent_approval'; // agent-core WP-APP
 
   /// Calls and SOS take over the screen (full-screen intent).
   bool get wantsFullScreen => isCall || isSos;
@@ -120,6 +124,9 @@ class PushPayload {
       key = 'msgreq-${_s('sender_id')}';
     } else if (kind == 'message' && chatId.isNotEmpty) {
       key = 'chat-${_s('chat_kind')}-$chatId';
+    } else if (kind == 'agent_approval' && _s('approval_id').isNotEmpty) {
+      // agent-core: one notification per approval (Reject removes it)
+      key = 'agentap-${_s('approval_id')}';
     } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
       key = 'rem-${_s('reminder_id')}';
     } else {
@@ -178,9 +185,13 @@ class PushRouting {
     'watchman': 'watchman', // cctv1
     'retention_inbox': 'retention_inbox', // retention1 (customer)
     'retention_auto': 'retention_auto', // retention1 (owner: a reply)
+    'business/khata': 'khata', // ledger100: scheduled tagada nudge
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
+    'prepaid_meter': 'prepaid_meter', // remmeter
+    'agent/approval': 'agent_approvals', // agent-core WP-APP
+    'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -194,6 +205,9 @@ class PushRouting {
     'owner_alert': 'notifications',
     'shop_alert': 'shop_box',
     'sos': 'family_alerts',
+    'meter_low': 'prepaid_meter', // remmeter
+    'agent_approval': 'agent_approvals', // agent-core WP-APP
+    'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
   };
 
   /// [action] is the local-notification action id ('accept' / 'decline' /

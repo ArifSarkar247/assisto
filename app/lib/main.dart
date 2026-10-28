@@ -18,6 +18,7 @@ import 'play_update.dart'; // ota1
 import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
+import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'calls/call_launch.dart'; // calls-a: Accept -> the call screen first
 import 'calls/call_runtime.dart' show CallRuntime; // calls-a
@@ -53,6 +54,8 @@ import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
+import 'invite/invite_link.dart'; // invite-join
+import 'invite/invite_router.dart'; // invite-join
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -148,6 +151,11 @@ void main() {
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       // Time-boxed: a hang here must not delay key publishing below.
       try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
+      // remmeter: re-arm reminder alarms (exact when allowed) after an app
+      // update / reboot / permission change; guarded, after the first frame.
+      unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
+        try { appState.syncReminderAlarms(); } catch (_) {}
+      }));
       // e2-keys: publish the PUBLIC key on every start / login / accept and
       // run the outbox — pure Dart + HTTP, guarded, a few seconds after the
       // first frame (never on the cold-start path, runs in safe mode too).
@@ -272,8 +280,11 @@ class AssistoApp extends StatelessWidget {
           // path is handled; every other name returns null exactly as before.
           // calls-a: the cold-start call route (MainActivity.getInitialRoute
           // "/assisto_call?…") -> [home, call]: the first frame IS the call.
+          // invite-join: "/i/<CODE>" (warm App Link) only records the code;
+          // the root decides what to show (InviteRouter).
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
+              InviteRouter.route(s) ??
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -304,6 +315,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    PendingInvite.code.addListener(_onInvite); // invite-join
     // First foreground poll shortly after launch.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pollAlerts();
@@ -312,6 +324,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeNotifOpen(); // play-fgs
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
+      InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
       WebPhotoLink.maybeOpenColdStart(
           context,
@@ -391,7 +405,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    PendingInvite.code.removeListener(_onInvite);
     super.dispose();
+  }
+
+  /// invite-join: a code arrived (link / referrer / restored) -> re-decide.
+  void _onInvite() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -415,6 +435,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
             .refreshWith(context.read<AppState>().api));
       } catch (_) {}
       _pollAlerts();
+      // remmeter: exact-alarm access may have changed in Settings; measure
+      // how late the delivered reminders really were (local only).
+      try {
+        context.read<AppState>().syncReminderAlarms();
+        unawaited(ReminderAlarms.measure());
+      } catch (_) {}
       _maybeNotifOpen(); // play-fgs
       // Re-pick up a flag change made while backgrounded (or in Settings).
       _resolveElderly();
@@ -489,6 +515,15 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (app.loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    // invite-join: an invited person goes straight to "Join X's circle"
+    // (that screen has its own language switch).
+    if (!app.loggedIn) {
+      final join = InviteRouter.signedOutRoot();
+      if (join != null) {
+        AdsService.instance.rootScreen = 'invite_join';
+        return join;
+      }
+    }
     if (app.locale == null) {
       AdsService.instance.rootScreen = 'language_picker'; // admob: no ads
       if (PerfMarks.enabled) _perfMark('language_frame');
@@ -510,6 +545,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return const LoginScreen();
     }
     _wasLoggedIn = true;
+    InviteRouter.maybePushSignedIn(app); // invite-join
+    InviteRouter.maybeClaimReferral(app); // invite-join
     // dl1: signed in during a deletion grace period -> decide first.
     if (app.deletionGraceAt != null) {
       AdsService.instance.rootScreen = 'deletion_grace';

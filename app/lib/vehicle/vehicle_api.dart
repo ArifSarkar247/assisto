@@ -62,12 +62,20 @@ extension VehicleApi on ApiClient {
   Future<Map<String, dynamic>> vehRevokeGrant(int id, int grantId) =>
       deleteJson('/vehicle/trackers/$id/grants/$grantId');
 
+  /// [speedLimitKmh] / [route] make the server replay the same alert engine
+  /// over the trip (the app already showed them live).
   Future<Map<String, dynamic>> vehCarModeTrip(List<Map<String, dynamic>> points,
-          {int? vehicleRecordId}) =>
+          {int? vehicleRecordId, int speedLimitKmh = 0, Map<String, dynamic>? route}) =>
       postJson('/vehicle/carmode/trip', {
         'points': points,
         if (vehicleRecordId != null) 'vehicle_record_id': vehicleRecordId,
+        if (speedLimitKmh > 0) 'speed_limit_kmh': speedLimitKmh,
+        if (route != null) 'route': route,
       });
+
+  /// Planned routes (off-route / long-stop alerts) — replaces the list.
+  Future<Map<String, dynamic>> vehSetRoutes(int id, List<Map<String, dynamic>> routes) =>
+      patchJson('/vehicle/trackers/$id', {'routes': routes});
 
   Future<Map<String, dynamic>> vehFleet() => getJson('/vehicle/fleet');
 }

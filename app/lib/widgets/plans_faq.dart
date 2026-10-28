@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/payments_api.dart' show payFlavour; // pay-e2e
+import 'ladder_common.dart' show fmtInt;
 
 /// Lower-paywall trust block for the Plans screen (Section 21): an honest
 /// "manage / cancel + billing" note, an annual-vs-monthly explainer, and a
@@ -15,7 +16,10 @@ import '../payments/payments_api.dart' show payFlavour; // pay-e2e
 class PlansFaq extends StatelessWidget {
   final Map<String, dynamic>? annualPlan;
   final Map<String, dynamic>? monthlyPremium;
-  const PlansFaq({super.key, this.annualPlan, this.monthlyPremium});
+  /// billapp: the server's refund window (credits/state); 0 = unknown.
+  final int refundWindowHours;
+  const PlansFaq(
+      {super.key, this.annualPlan, this.monthlyPremium, this.refundWindowHours = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +58,11 @@ class PlansFaq extends StatelessWidget {
       _faq(t.plansFaqQSwitchQ, t.plansFaqSwitchALive),
       _faq(t.plansFaqQFamilyQ, t.plansFaqQFamilyA),
       _faq(t.plansFaqQPointsQ, t.plansFaqQPointsA),
-      _faq(t.plansFaqQRefundQ,
-          play ? t.plansFaqRefundAPlay : t.plansFaqRefundAApk),
+      _faq(t.plansFaqQRefundQ, [
+        if (refundWindowHours > 0)
+          t.billFaqRefundA(fmtInt(context, refundWindowHours)),
+        play ? t.plansFaqRefundAPlay : t.plansFaqRefundAApk,
+      ].join('\n\n')),
     ]);
   }
 

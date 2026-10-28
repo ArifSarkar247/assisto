@@ -48,13 +48,53 @@ def _uid(user_or_id):
     return getattr(user_or_id, "pk", user_or_id)
 
 
+import contextlib as _ctx
+import threading as _threading
+
+_KEY_MEMO = _threading.local()
+
+
+@_ctx.contextmanager
+def key_memo(user_ids=()):
+    """srvperf: inside a READ-ONLY list view, every user's key is read once
+    (prefilled for `user_ids` in one query) instead of 2-3x per chat row."""
+    prev = getattr(_KEY_MEMO, "v", None)
+    memo = {}
+    try:
+        ids = [i for i in {_uid(u) for u in user_ids} if i]
+        if ids:
+            got = {r.user_id: r for r in _model().objects.filter(
+                user_id__in=ids).exclude(public_key="")}
+            for i in ids:
+                memo[i] = got.get(i)
+    except Exception:  # noqa: BLE001
+        memo = {}
+    _KEY_MEMO.v = memo
+    try:
+        yield
+    finally:
+        _KEY_MEMO.v = prev
+
+
+def _memo_row(uid):
+    memo = getattr(_KEY_MEMO, "v", None)
+    if memo is None:
+        return False, None
+    if uid not in memo:
+        memo[uid] = _model().objects.filter(user_id=uid).exclude(
+            public_key="").first()
+    return True, memo[uid]
+
+
 def key_of(user_or_id):
     """(public_key, key_id, scheme) the user last published; empty strings
     when they never published."""
     uid = _uid(user_or_id)
     if not uid:
         return "", "", ""
-    row = _model().objects.filter(user_id=uid).exclude(public_key="").first()
+    hit, row = _memo_row(uid)
+    if not hit:
+        row = _model().objects.filter(user_id=uid).exclude(public_key="").first()
     if row is None:
         return "", "", ""
     return row.public_key, row.key_id, row.scheme
@@ -64,6 +104,9 @@ def key_row(user_or_id):
     uid = _uid(user_or_id)
     if not uid:
         return None
+    hit, row = _memo_row(uid)
+    if hit:
+        return row
     return _model().objects.filter(user_id=uid).exclude(public_key="").first()
 
 

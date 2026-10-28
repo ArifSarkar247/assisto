@@ -410,11 +410,26 @@ def _synth_key_change_requests(me, now):
     """Contacts whose key changed in the last RESEND_WINDOW_DAYS get a whole-
     chat request on MY phone (covers changes made before this feature)."""
     from . import e2_keys
-    for e in CircleMember.objects.filter(user=me, state="accepted"):
-        peer = e2_keys.edge_peer(e)
-        if peer is None or peer.pk == me.pk:
-            continue
-        row = e2_keys.key_row(peer)
+    # srvperf: ONE query for the linked peers' keys that changed inside the
+    # window (this runs on every e2/resend poll); phone-only edges keep the
+    # per-edge lookup.
+    since = now - timedelta(days=RESEND_WINDOW_DAYS)
+    edges = list(CircleMember.objects.filter(user=me, state="accepted")
+                 .select_related("peer_user"))
+    linked = {e.peer_user_id for e in edges if e.peer_user_id}
+    recent = {r.user_id: r for r in e2_keys._model().objects.filter(
+        user_id__in=linked, changed_at__gte=since).exclude(public_key="")}
+    for e in edges:
+        if e.peer_user_id:
+            peer = e.peer_user
+            row = recent.get(peer.pk)
+            if row is None or peer.pk == me.pk:
+                continue
+        else:
+            peer = e2_keys.edge_peer(e)
+            if peer is None or peer.pk == me.pk:
+                continue
+            row = e2_keys.key_row(peer)
         if (row is None or not row.key_id or row.changed_at is None or
                 now - row.changed_at > timedelta(days=RESEND_WINDOW_DAYS)):
             continue

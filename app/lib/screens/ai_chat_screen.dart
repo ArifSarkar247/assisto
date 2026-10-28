@@ -490,7 +490,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
           _sending = false;
         });
         if (creditsRetry) return;
-        final ok = await CreditsOut.offer(context, screen: 'ai_chat', draftKept: true);
+        final n = (e as ApiException).body?['need'];
+        final ok = await CreditsOut.offer(context,
+            screen: 'ai_chat', draftKept: true, need: n is num ? n.toInt() : 0);
         if (ok && mounted) {
           await _regenerate(assistant, edit: edit, creditsRetry: true);
         }

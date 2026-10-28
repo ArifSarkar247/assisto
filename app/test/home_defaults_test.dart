@@ -20,7 +20,7 @@ void main() {
 
   test('customized -> server default never overrides the user', () async {
     SharedPreferences.setMockInitialValues({});
-    final mine = ['budget', 'tax', 'crm', 'jobs', 'inbox', 'dictionary'];
+    final mine = ['budget', 'tax', 'crm', 'jobs', 'scam', 'nearby'];
     await HomeQuickButtons.save(mine);
     expect(await HomeQuickButtons.refreshOwnerDefault(ok), isNull);
     expect(await HomeQuickButtons.load(), mine);

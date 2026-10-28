@@ -13,20 +13,40 @@ import urllib.request
 from . import integrations
 from .i18n import pick
 
-_UA = "AssistoNearby/1.0 (+https://assisto.asalify.com)"
+# OSM Overpass usage policy: identify the app with a contact URL, cache, and
+# stay polite (one query per ~2 s). Attribution is returned with every answer
+# (ODbL: "© OpenStreetMap contributors") and shown by the app.
+_UA = "AssistoNearby/1.0 (+https://lifeassisto.com)"
+OSM_ATTRIBUTION = "© OpenStreetMap contributors (ODbL)"
+PLACES_ATTRIBUTION = "Google"
+
+
+def attribution(source):
+    """The licence line the app must show under results from `source`."""
+    return {"osm": OSM_ATTRIBUTION, "places": PLACES_ATTRIBUTION}.get(source, "")
 _CACHE = {}        # (type,lat2,lon2) -> (ts, results)  tiny in-process cache
 _CACHE_TTL = 300
 _LAST_OSM = [0.0]  # polite rate-limit for Overpass
 
 _PLACES_TYPE = {"restaurant": "restaurant", "pharmacy": "pharmacy",
                 "atm": "atm", "hospital": "hospital", "lodging": "lodging",
-                "police": "police"}
-_OSM_FILTER = {"restaurant": 'node["amenity"="restaurant"]',
-               "pharmacy": 'node["amenity"="pharmacy"]',
-               "atm": 'node["amenity"="atm"]',
-               "hospital": 'node["amenity"="hospital"]',
-               "lodging": 'node["tourism"~"hotel|motel|guest_house"]',
-               "police": 'node["amenity"="police"]'}
+                "police": "police", "fire": "fire_station",
+                "transport": "transit_station", "fuel": "gas_station",
+                "mosque": "mosque", "govt": "local_government_office"}
+# OSM tag filters per type (nodes, ways and relations; `out center` gives a
+# point for buildings mapped as areas, e.g. most hospitals).
+_OSM_FILTER = {"restaurant": ['nwr["amenity"="restaurant"]'],
+               "pharmacy": ['nwr["amenity"="pharmacy"]'],
+               "atm": ['nwr["amenity"="atm"]', 'nwr["amenity"="bank"]'],
+               "hospital": ['nwr["amenity"="hospital"]', 'nwr["amenity"="clinic"]'],
+               "lodging": ['nwr["tourism"~"hotel|motel|guest_house"]'],
+               "police": ['nwr["amenity"="police"]'],
+               "fire": ['nwr["amenity"="fire_station"]'],
+               "transport": ['nwr["amenity"="bus_station"]', 'nwr["railway"="station"]',
+                             'nwr["amenity"="ferry_terminal"]'],
+               "fuel": ['nwr["amenity"="fuel"]'],
+               "mosque": ['nwr["amenity"="place_of_worship"]["religion"="muslim"]'],
+               "govt": ['nwr["office"="government"]', 'nwr["amenity"="townhall"]']}
 
 
 def _haversine(a, b, c, d):
@@ -38,7 +58,12 @@ def _haversine(a, b, c, d):
     return int(R * 2 * math.asin(math.sqrt(x)))
 
 
-def _get(url, timeout=20):
+# srvperf/H: a maps lookup sits in the request path (Nearby, Safe Journey's
+# police/hospital): short timeout + shared circuit, never 20 s x2 per call.
+HTTP_TIMEOUT_S = 6
+
+
+def _get(url, timeout=HTTP_TIMEOUT_S):
     req = urllib.request.Request(url, headers={"User-Agent": _UA})
     return urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8", "replace")
 
@@ -65,17 +90,20 @@ def _places(lat, lon, ptype, key):
 
 
 def _osm(lat, lon, ptype, radius=2500, lang="bn"):
-    if time.time() - _LAST_OSM[0] < 2:
-        time.sleep(2)
+    gap = time.time() - _LAST_OSM[0]
+    if gap < 1:
+        time.sleep(1 - gap)       # polite to the free Overpass API, but short
     _LAST_OSM[0] = time.time()
-    flt = _OSM_FILTER.get(ptype, _OSM_FILTER["restaurant"])
-    q = f"[out:json][timeout:20];{flt}(around:{radius},{lat},{lon});out 20;"
+    flts = _OSM_FILTER.get(ptype, _OSM_FILTER["restaurant"])
+    union = "".join(f"{f}(around:{radius},{lat},{lon});" for f in flts)
+    q = f"[out:json][timeout:20];({union});out center 30;"
     url = "https://overpass-api.de/api/interpreter?data=" + urllib.parse.quote(q)
     data = json.loads(_get(url))
     out = []
     for el in data.get("elements", []):
         tags = el.get("tags", {})
-        plat, plon = el.get("lat"), el.get("lon")
+        c = el.get("center") or {}
+        plat, plon = el.get("lat", c.get("lat")), el.get("lon", c.get("lon"))
         if not plat:
             continue
         out.append({
@@ -101,13 +129,21 @@ def search(lat, lon, ptype, lang="bn"):
     hit = _CACHE.get(ckey)
     if hit and time.time() - hit[0] < _CACHE_TTL:
         return hit[1]
-    cfg = integrations.get("google_places")
-    try:
-        if cfg.get("api_key") and integrations.is_enabled("google_places"):
-            res = (_places(lat, lon, ptype, cfg["api_key"]), "places")
-        else:
-            res = (_osm(lat, lon, ptype, lang=lang), "osm")
-    except Exception:
-        res = (_osm(lat, lon, ptype), "osm")
+    from . import ext_breaker as XB
+    cfg = integrations.get("google_places") or {}
+    res = None
+    if cfg.get("api_key") and integrations.is_enabled("google_places"):
+        try:
+            res = (XB.call("maps", _places, lat, lon, ptype, cfg["api_key"]),
+                   "places")
+        except Exception:
+            res = None
+    if res is None:
+        try:
+            res = (XB.call("osm", _osm, lat, lon, ptype, lang=lang), "osm")
+        except Exception:
+            # srvperf/H: every maps source is down -> an honest empty answer
+            # (never a 500, never cached so the next try can succeed).
+            return [], "unavailable"
     _CACHE[ckey] = (time.time(), res)
     return res

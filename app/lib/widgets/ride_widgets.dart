@@ -58,33 +58,6 @@ class RideFareNote extends StatelessWidget {
   }
 }
 
-/// In-app booking deferred chip (🤝 — not now; opens provider app instead).
-class RideInAppComingNote extends StatelessWidget {
-  const RideInAppComingNote({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(children: [
-        Icon(Icons.handshake_rounded, size: 18, color: scheme.onSurfaceVariant),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Text(
-            t.rideFoodInAppComing,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-          ),
-        ),
-      ]),
-    );
-  }
-}
-
 /// A section header row.
 class RideSectionHeader extends StatelessWidget {
   final IconData icon;

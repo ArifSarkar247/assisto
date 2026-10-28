@@ -109,11 +109,39 @@ def call_prefs(user):
     return {k: bool(stored.get(k, v)) for k, v in CALL_DEFAULTS.items()}
 
 
+import contextlib as _ctx
+import threading as _threading
+
+_PREF_MEMO = _threading.local()
+
+
+@_ctx.contextmanager
+def chat_pref_memo(user):
+    """srvperf: READ-ONLY list views (chat list, home badges) read every
+    chat's MsgChatPref up to 3x per chat; inside this block they come from
+    ONE query. Any create=True call (a write) switches the memo off."""
+    try:
+        rows = {(p.chat_kind, p.chat_id): p
+                for p in MsgChatPref.objects.filter(user=user)}
+    except Exception:  # noqa: BLE001
+        rows = None
+    prev = getattr(_PREF_MEMO, "v", None)
+    _PREF_MEMO.v = (user.id, rows) if rows is not None else None
+    try:
+        yield
+    finally:
+        _PREF_MEMO.v = prev
+
+
 def chat_pref(user, kind, chat_id, create=False):
     if create:
+        _PREF_MEMO.v = None
         row, _ = MsgChatPref.objects.get_or_create(
             user=user, chat_kind=kind, chat_id=str(chat_id))
         return row
+    memo = getattr(_PREF_MEMO, "v", None)
+    if memo is not None and memo[0] == getattr(user, "id", None):
+        return memo[1].get((kind, str(chat_id)))
     return MsgChatPref.objects.filter(
         user=user, chat_kind=kind, chat_id=str(chat_id)).first()
 
@@ -172,28 +200,82 @@ def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None,
     return out
 
 
-def conversation_rows(edge):
+def conversation_edge_ids(edge, mirrors=None):
+    """srvperf: the CircleMember ids a 1:1 conversation is stored on — the
+    edge itself, every mirror edge (owner = my peer, peer_user = me) and the
+    phone-matched reverse edge. Same rows as the old OR-over-a-JOIN filter,
+    but as `member_id IN (...)` so PostgreSQL uses the member index instead of
+    scanning every message per chat. `mirrors` (optional, from
+    conversation_edge_map) skips the per-edge mirror query."""
+    ids = {edge.id}
+    if getattr(edge, "peer_user_id", None):
+        if mirrors is None:
+            mirrors = list(CircleMember.objects.filter(
+                user_id=edge.peer_user_id, peer_user_id=edge.user_id)
+                .values_list("id", flat=True))
+        ids.update(mirrors)
+        if mirrors:
+            # reverse_edge() would return the first of these (same filter)
+            return ids
+    rev = reverse_edge(edge)
+    if rev is not None:
+        ids.add(rev.id)
+    return ids
+
+
+def conversation_edge_map(user, edges):
+    """{edge.id: conversation_edge_ids(edge)} for many of `user`'s edges with
+    ONE mirror query (chat list, badges, receipts sync)."""
+    edges = list(edges)
+    peers = {e.peer_user_id for e in edges if getattr(e, "peer_user_id", None)}
+    mir = {}
+    if peers:
+        for mid, owner in CircleMember.objects.filter(
+                user_id__in=peers, peer_user_id=user.id).values_list(
+                    "id", "user_id"):
+            mir.setdefault(owner, []).append(mid)
+    out = {}
+    for e in edges:
+        if getattr(e, "peer_user_id", None) and e.user_id == user.id:
+            out[e.id] = conversation_edge_ids(e, mir.get(e.peer_user_id, []))
+        else:
+            out[e.id] = conversation_edge_ids(e)
+    return out
+
+
+def conversation_rows(edge, edge_ids=None):
     """Every 1:1 message of the conversation `edge` belongs to: the ones sent
     on this edge AND the ones the peer sent on their reverse edge."""
     # Same thread rule as m2-reality's views_module5._thread_q (mirror edge =
     # owner is my peer, peer_user is me), plus the phone-matched reverse edge.
-    q = dj_models.Q(member=edge)
-    if getattr(edge, "peer_user_id", None):
-        q |= dj_models.Q(member__user_id=edge.peer_user_id,
-                         member__peer_user_id=edge.user_id)
-    rev = reverse_edge(edge)
-    if rev is not None:
-        q |= dj_models.Q(member=rev)
-    return CircleMessage.objects.filter(q, group=None).order_by(
-        "created_at", "id")
+    ids = edge_ids if edge_ids is not None else conversation_edge_ids(edge)
+    return CircleMessage.objects.filter(member_id__in=sorted(ids),
+                                        group=None).order_by("created_at", "id")
 
 
-def visible_conversation(user, edge):
+def unread_candidates(user, qs):
+    """srvperf: narrow a message queryset to the rows that CAN be unread for
+    `user` (not mine, no 'seen' receipt from me) without loading the
+    ciphertext. mark(seen=True) writes the receipt and read_by together, so
+    this is a superset of the unread rows; b2_badges.count_unread still
+    applies the exact read_by rule on what comes back."""
+    from .models import CircleReceipt
+    return (qs.exclude(sender=user)
+            .exclude(id__in=CircleReceipt.objects.filter(
+                user=user, seen_at__isnull=False).values("message_id"))
+            .defer("ciphertext", "nonce", "per_recipient", "link_preview",
+                   "reactions"))
+
+
+def visible_conversation(user, edge, edge_ids=None, unread_only=False):
     pref = chat_pref(user, "member", edge.id)
     cs = ChatSettings.objects.filter(user=user, peer=edge).first()
     ttl = X.normalize_disappearing(cs.disappearing_sec) if cs else 0
     expired = []
-    out = _visible(user, conversation_rows(edge),
+    rows = conversation_rows(edge, edge_ids)
+    if unread_only:
+        rows = unread_candidates(user, rows)
+    out = _visible(user, rows,
                    cleared_at=pref.cleared_at if pref else None,
                    keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=ttl, since=pref.disappearing_since if pref else None,
@@ -209,12 +291,14 @@ def group_timer(group):
     return MsgGroupTimer.objects.filter(group=group).first()
 
 
-def visible_group_messages(group, user):
+def visible_group_messages(group, user, unread_only=False):
     pref = chat_pref(user, "group", group.id)
     t = group_timer(group)
     expired = []
-    out = _visible(user, CircleMessage.objects.filter(group=group)
-                   .order_by("created_at"),
+    rows = CircleMessage.objects.filter(group=group).order_by("created_at")
+    if unread_only:
+        rows = unread_candidates(user, rows)
+    out = _visible(user, rows,
                    cleared_at=pref.cleared_at if pref else None,
                    keep_starred=bool(pref and pref.cleared_keep_starred),
                    ttl=t.disappearing_sec if t else 0,

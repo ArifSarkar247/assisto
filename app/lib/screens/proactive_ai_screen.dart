@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -500,6 +501,7 @@ class _HonestNote extends StatelessWidget {
   const _HonestNote();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(

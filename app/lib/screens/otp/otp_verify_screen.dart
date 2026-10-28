@@ -15,6 +15,10 @@ import '../../theme.dart';
 /// and pops with the single-use `otp_proof` (or null if the user backs out).
 /// When the SMS gateway isn't connected it shows the honest "not available"
 /// state instead of pretending a code was sent.
+///
+/// smsotp: for login / password reset / delete-account / Section 8 the user
+/// can choose "Send the code by email instead" (or gets it offered when SMS
+/// is off or failed). The code is verified exactly like an SMS code.
 class OtpVerifyScreen extends StatefulWidget {
   final OtpBackend backend;
   final String purpose;
@@ -61,6 +65,9 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   bool _busy = false;
   String _masked = '';
   String? _error;
+  bool _viaEmail = false; // smsotp: the live code went by email
+  bool _emailAvailable = false; // the server can email codes right now
+  String _emailNote = '';
   int _resendLeft = 0;
   Timer? _timer;
 
@@ -117,6 +124,14 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         return t.otpErrAlreadyRegistered;
       case 'network':
         return t.otpErrNetwork;
+      case 'sms_daily_cap':
+        return t.smsotpSmsCap;
+      case 'email_not_configured':
+        return t.smsotpEmailOff;
+      case 'email_daily_cap':
+        return t.smsotpEmailCap;
+      case 'no_verified_email':
+        return t.smsotpEmailNoVerified;
       default:
         return r.message.isNotEmpty ? r.message : t.otpErrGeneric;
     }
@@ -131,7 +146,10 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     });
     final r = await widget.backend.request(widget.purpose, phone: widget.phone);
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() {
+      _busy = false;
+      _emailAvailable = r.emailAvailable;
+    });
     if (r.smsOff) {
       setState(() => _phase = _Phase.smsOff);
       return;
@@ -161,6 +179,44 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       _error = _errorText(t, r);
     });
     if (r.retryAfter != null) _startTimer(r.retryAfter!);
+  }
+
+  bool get _emailPurpose => otpEmailPurposes.contains(widget.purpose);
+
+  /// smsotp — deliver the code by email instead (same verify step).
+  Future<void> _sendEmail() async {
+    final t = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final r =
+        await widget.backend.requestEmail(widget.purpose, phone: widget.phone);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (r.ok) {
+      _code.clear();
+      setState(() {
+        _viaEmail = true;
+        _sent = true;
+        _phase = _Phase.entering;
+        _emailNote = r.emailMasked.isNotEmpty
+            ? t.smsotpEmailSentTo(r.emailMasked)
+            : t.smsotpEmailSentNeutral;
+      });
+      _startTimer(r.resendIn ?? 60);
+      return;
+    }
+    setState(() {
+      if (r.emailOff || r.reason == 'email_daily_cap') _emailAvailable = false;
+      if (_phase == _Phase.smsOff || _phase == _Phase.sending) {
+        _phase = _Phase.entering;
+      }
+      _error = _errorText(t, r);
+    });
+    if (r.retryAfter != null && r.reason != 'email_daily_cap') {
+      _startTimer(r.retryAfter!);
+    }
   }
 
   Future<void> _verify([String? value]) async {
@@ -208,11 +264,16 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                     const SizedBox(height: Gap.lg),
                     Text(t.otpSending, textAlign: TextAlign.center),
                   ]),
-                _Phase.smsOff => _SmsOffCard(onClose: () => Navigator.of(context).pop()),
+                _Phase.smsOff => _SmsOffCard(
+                    onClose: () => Navigator.of(context).pop(),
+                    onEmail: (_emailPurpose && _emailAvailable && !_busy)
+                        ? _sendEmail
+                        : null),
                 _Phase.entering => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(Icons.sms_rounded, size: 48, color: scheme.primary),
+                      Icon(_viaEmail ? Icons.email_rounded : Icons.sms_rounded,
+                          size: 48, color: scheme.primary),
                       const SizedBox(height: Gap.md),
                       Text(t.otpTitle,
                           textAlign: TextAlign.center,
@@ -225,7 +286,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             style: textTheme.bodyMedium),
                         const SizedBox(height: 6),
                       ],
-                      if (_sent && _masked.isNotEmpty)
+                      if (_sent && _viaEmail)
+                        Text(_emailNote,
+                            key: const Key('otp-email-note'),
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium
+                                ?.copyWith(color: scheme.onSurfaceVariant))
+                      else if (_sent && _masked.isNotEmpty)
                         Text(t.otpSentTo(_masked),
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium
@@ -272,12 +339,22 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                       const SizedBox(height: Gap.sm),
                       TextButton(
                         key: const Key('otp-resend'),
-                        onPressed: (_resendLeft > 0 || _busy) ? null : _send,
+                        onPressed: (_resendLeft > 0 || _busy)
+                            ? null
+                            : (_viaEmail ? _sendEmail : _send),
                         child: Text(_resendLeft > 0
                             // qa1: int placeholder printed "60" in the Bangla UI
                             ? t.qa1OtpResendIn(fmtInt(context, _resendLeft))
                             : t.otpResend),
                       ),
+                      if (_emailPurpose && _emailAvailable && !_viaEmail)
+                        TextButton.icon(
+                          key: const Key('otp-email'),
+                          icon: const Icon(Icons.email_outlined),
+                          onPressed: _busy ? null : _sendEmail,
+                          label: Text(t.smsotpEmailInstead,
+                              textAlign: TextAlign.center),
+                        ),
                       const SizedBox(height: Gap.sm),
                       Text(t.otpNeverShare,
                           textAlign: TextAlign.center,
@@ -297,7 +374,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 /// Honest "SMS codes aren't available yet" state (no gateway connected).
 class _SmsOffCard extends StatelessWidget {
   final VoidCallback onClose;
-  const _SmsOffCard({required this.onClose});
+  final VoidCallback? onEmail; // smsotp: null = email codes not offered
+  const _SmsOffCard({required this.onClose, this.onEmail});
 
   @override
   Widget build(BuildContext context) {
@@ -331,6 +409,15 @@ class _SmsOffCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Gap.lg),
+        if (onEmail != null) ...[
+          FilledButton.icon(
+            key: const Key('otp-email-get'),
+            onPressed: onEmail,
+            icon: const Icon(Icons.email_rounded),
+            label: Text(t.smsotpEmailGet),
+          ),
+          const SizedBox(height: Gap.sm),
+        ],
         OutlinedButton(onPressed: onClose, child: Text(t.otpClose)),
       ],
     );

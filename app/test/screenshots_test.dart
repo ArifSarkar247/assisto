@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'app_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:assisto/reminders/exact_alarm_ui.dart' show ReminderDeliverySheet, ExactAlarmHooks; // remmeter
+import 'package:assisto/services/oem_guide.dart' show OemGuideNative, OemInfo, OemOpen; // remmeter
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -27,6 +29,7 @@ import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
+import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
 import 'package:assisto/screens/language_picker_screen.dart';
@@ -37,6 +40,8 @@ import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/widgets/circle_badges.dart';
 import 'package:assisto/screens/ai_chat_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
+import 'package:assisto/widgets/onb_first_win.dart';
+import 'package:assisto/widgets/onb_role.dart';
 import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
@@ -147,6 +152,7 @@ import 'package:assisto/screens/memory_screen.dart';
 import 'package:assisto/screens/subscriptions_screen.dart';
 import 'package:assisto/screens/plans_screen.dart';
 import 'package:assisto/screens/credits_screen.dart'; // pay1 gallery
+import 'package:assisto/billing/refund_screen.dart'; // billapp gallery
 import 'package:assisto/screens/finance_screen.dart';
 import 'package:assisto/screens/watch_feed_screen.dart';
 import 'package:assisto/screens/jobs_screen.dart';
@@ -229,6 +235,11 @@ import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
 import 'package:assisto/screens/business/products_screen.dart';
 import 'package:assisto/screens/business/khata_screen.dart';
+import 'package:assisto/screens/business/tagada_send_screen.dart'; // ledger100
+import 'package:assisto/screens/business/tagada_schedule_sheet.dart'; // ledger100
+import 'package:assisto/widgets/khata_free_promise.dart'; // ledger100
+import 'dart:convert' show jsonEncode; // ledger100
+import 'fake_khata.dart' show fakeKhataParties; // ledger100
 import 'package:assisto/screens/business/cashbox_screen.dart';
 import 'package:assisto/screens/business/customers_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
@@ -254,6 +265,7 @@ import 'package:assisto/vehicle/elm327.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/push/push_settings_screen.dart';
+import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'fake_api.dart';
 
 class _NoNet extends HttpOverrides {
@@ -569,6 +581,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
+    // remmeter: delivery check + recharge paths (sheets shown as pages)
+    'rem_check': (build: (_) {
+      ExactAlarmHooks.canExact = () async => false;
+      ExactAlarmHooks.notifEnabled = () async => true;
+      ExactAlarmHooks.oem = const _ShotOem();
+      return const Scaffold(body: ReminderDeliverySheet());
+    }, mode: FakeMode.data, full: true),
+    'meter_pay': (build: (_) => const Scaffold(body: PayPathSheet(meter: {'name': 'Home', 'kind': 'electricity', 'utility': 'desco', 'meter_no': '04123456789'})), mode: FakeMode.data, full: true),
     'notes_tasks': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),
     'memory': (build: (_) => const MemoryScreen(), mode: FakeMode.data, full: true),
     'subscriptions': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.data, full: true),
@@ -586,6 +606,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'plans_paylive_bottom': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
     'credits_nopay': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
     'credits_paylive': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
+    // billapp: out-of-credits reason banner + the refund request list
+    'credits_reason': (build: (_) => const CreditsScreen(reason: CreditsOpenReason(need: 3)), mode: FakeMode.data, full: true),
+    'billapp_refunds': (build: (_) => const RefundScreen(), mode: FakeMode.data, full: true),
     // a6 push: Settings → Notifications & calls + the ringing screen.
     'push_settings': (build: (_) => const PushSettingsScreen(probe: false), mode: FakeMode.data, full: true),
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
@@ -660,6 +683,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
+    for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in budremShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // budrem
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
@@ -668,7 +692,12 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in p4WorldShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // p4-world
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
-    'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
+    'nearby': (build: (_) => const NearbyScreen(debugLocationDenied: true), mode: FakeMode.data, full: true),
+    // truth (27 Oct): live rows + licence line; business first win = ledger;
+    // Safe Journey with an empty circle offers "add a family member".
+    'truth_nearby_live': (build: (_) => const NearbyScreen(debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
+    'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
+    'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
     'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),
@@ -680,7 +709,7 @@ Map<String, GallerySpec> gallerySpecs() {
     // a2-cctv Premium QA (Business + Money)
     'biz_hub': (build: (_) => const BusinessHubScreen(), mode: FakeMode.data, full: true),
     'biz_products': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.data, full: true),
-    'biz_khata': (build: (l) => KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_khata': (build: (l) { SharedPreferences.setMockInitialValues({}); return KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}); }, mode: FakeMode.data, full: true),
     'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
     'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
@@ -692,7 +721,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'money_trends': (build: (_) => const MoneyTrendsScreen(), mode: FakeMode.data, full: true),
     'money_loan_detail': (build: (l) => MoneyLoanDetailScreen(item: {'localId': 'l1', 'serverId': 1, 'data': {'id': 1, 'kind': 'given', 'person': l == 'bn' ? 'রহিম' : 'Rahim', 'amount': '2000', 'paid': '500'}}), mode: FakeMode.data, full: true),
     'biz_products_empty': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.empty, full: false),
-    'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
+    // ledger100: digital khata to 100
+    'ldg_send': (build: (l) => TagadaSendScreen(business: const {'id': 1, 'name': 'Rahim Store', 'role': 'owner'}, parties: fakeKhataParties('customer', l == 'bn')), mode: FakeMode.data, full: true),
+    'ldg_schedule': (build: (l) => Scaffold(body: SafeArea(child: TagadaScheduleSheet(business: const {'id': 1, 'role': 'owner'}, party: fakeKhataParties('customer', l == 'bn')[0]))), mode: FakeMode.data, full: true),
+    'ldg_free': (build: (_) => const Scaffold(body: SafeArea(child: KhataFreePromiseDetails())), mode: FakeMode.data, full: true),
+    'ldg_statement': (build: (l) => khataStatementPreview(const {'id': 1, 'role': 'owner'}, fakeKhataParties('customer', l == 'bn')[0]), mode: FakeMode.data, full: true),
+    'ldg_khata_pending': (build: (l) { SharedPreferences.setMockInitialValues({'khata_outbox_v1': jsonEncode([{'cid': 'kx-shot0001', 'biz': 1, 'party': 1, 'pname': 'Karim Store', 'book': 'customer', 'kind': 'entry', 'dir': 'gave', 'amt': 50000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:00:00Z', 'state': 'pending'}, {'cid': 'kx-shot0002', 'biz': 1, 'party': 3, 'pname': 'Salma', 'book': 'customer', 'kind': 'payment', 'dir': '', 'amt': 10000, 'note': '', 'at': '2026-10-27T10:00:00', 'created': '2026-10-27T04:01:00Z', 'state': 'failed', 'err': l == 'bn' ? 'এন্ট্রি ভুল।' : 'Invalid entry.'}])}); return KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}); }, mode: FakeMode.data, full: true),
+    'biz_khata_error': (build: (l) { SharedPreferences.setMockInitialValues({}); return KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}); }, mode: FakeMode.fail, full: false), // ledger100: no saved copy -> the error state
     'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
     // a2-cctv Premium QA batch 2
     'crm_home': (build: (_) => const CrmHomeScreen(previewOrg: 1), mode: FakeMode.data, full: true),
@@ -774,6 +809,9 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolishShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // wa-polish2: bubble grouping, composer mic + recording strip, Call info
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // invite-join: Join X's circle (form / signed in / expired / offline),
+    // share sheet, invited-not-joined list
+    for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 }
 
@@ -938,4 +976,16 @@ void main() {
       }
     }
   });
+}
+
+
+/// remmeter: instant OEM facts for the delivery-check shot.
+class _ShotOem implements OemGuideNative {
+  const _ShotOem();
+  @override
+  Future<OemInfo?> info() async => const OemInfo(batteryOptIgnored: false);
+  @override
+  Future<OemOpen> available(String step) async => OemOpen.none;
+  @override
+  Future<OemOpen> open(String step) async => OemOpen.none;
 }

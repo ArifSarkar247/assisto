@@ -57,7 +57,7 @@ REGISTRY = (
     ('prepaid_meter', 'my_account', 'Prepaid meters', 'প্রিপেইড মিটার', True, ('prepaid_meter',)),
     ('domestic_staff', 'my_account', 'Household staff & driver', 'গৃহকর্মী ও ড্রাইভার', True, ()),
     ('savings_challenge', 'my_account', 'Savings challenge', 'সঞ্চয় চ্যালেঞ্জ', True, ()),
-    ('spending_advice', 'my_account', 'AI spending insights', 'এআই খরচ পর্যবেক্ষণ', True, ()),
+    ('spending_advice', 'my_account', 'Spending insights (rule-based)', 'খরচের পর্যবেক্ষণ (নিয়মভিত্তিক)', True, ()),
     ('price_radar', 'my_account', 'Market price radar', 'বাজার দাম রাডার', True, ()),
     ('family', 'family_safety', 'Family', 'ফ্যামিলি', True, ('family',)),
     ('nominee', 'family_safety', 'Nominee access', 'নমিনি অ্যাক্সেস', True, ('nominee',)),
@@ -67,7 +67,9 @@ REGISTRY = (
     ('fall_detect', 'family_safety', 'Accident / fall detection', 'দুর্ঘটনা/পতন শনাক্তকরণ', False, ('fall_detect',)),
     ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
     ('cctv_watchman', 'family_safety', 'CCTV watchman (Shop Box)', 'সিসিটিভি ওয়াচম্যান (শপ বক্স)', True, ('shop_box',)),
-    ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', False, ('watchman',)),
+    # launch (owner 27 Oct): CCTV + vehicle tracking are LAUNCH features, not
+    # previews — visible by default once their E2E passed (tests_e2e_cctv).
+    ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', True, ('watchman',)),
     ('disaster_alerts', 'family_safety', 'Disaster alerts', 'দুর্যোগ সতর্কতা', True, ('disaster',)),
     ('blood_donor', 'family_safety', 'Blood donors', 'রক্তদাতা নেটওয়ার্ক', True, ()),
     ('kid_school', 'family_safety', 'School corner', 'স্কুল কর্নার', True, ()),
@@ -111,6 +113,12 @@ REGISTRY = (
     ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
     ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
     ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
+    # agent-core (owner final order 27 Oct, PART 2): the server-side Assisto
+    # agent (goal -> plan -> act -> observe, typed tools, one-tap approvals,
+    # audit). OFF until the live eval meets the bar (AGENT_CORE_DESIGN_BN.md
+    # §15). WP-APP: the hidden agent screen + approval inbox (preview for
+    # owner / staff / allow-listed testers only while OFF).
+    ('agent_core', 'work', 'Assisto Agent (goals, plans, approvals)', 'Assisto এজেন্ট (লক্ষ্য, পরিকল্পনা, অনুমোদন)', False, ('agent_core', 'agent_approvals')),
     ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ()),
     ('cost_estimator', 'work', 'Cost & time estimator', 'খরচ ও সময় হিসাব', True, ()),
     ('mock_interview', 'work', 'Mock interview', 'মক ইন্টারভিউ', True, ()),
@@ -131,6 +139,10 @@ REGISTRY = (
     # limits and the 7-day Business trial (core.entitlements_service). A
     # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.
     ('plans_v2', 'business', 'Plans v2 (Free / Premium / Business limits, 7-day Business trial)', 'প্ল্যান v2 (ফ্রি / প্রিমিয়াম / বিজনেস সীমা, ৭ দিনের বিজনেস ট্রায়াল)', False, ()),
+    # probashi-plan (owner 27 Oct): the expat family plan — payer Premium +
+    # 3-4 family seats in Bangladesh, shared credit pool, family dashboard,
+    # monthly report (core/probashi_plan.py). Hidden until all 9 DoD checks.
+    ('probashi_plan', 'family_safety', 'Probashi family plan (expat pays, family in Bangladesh gets Premium)', 'প্রবাসী পরিবার প্ল্যান (বিদেশ থেকে পেমেন্ট, দেশের পরিবার প্রিমিয়াম পায়)', False, ('probashi_plan',)),
     ('corporate_meetings', 'upcoming', 'Corporate meetings (group video, screen share)', 'কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার)', False, ()),
     ('remote_support', 'upcoming', 'Remote support', 'রিমোট সাপোর্ট', False, ()),
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
@@ -185,6 +197,53 @@ N_CHECKS = len(DOD_CHECKS)
 STATUSES = ("done", "in_progress", "hidden")
 MAX_ALLOW = 200            # tester ids per feature
 CACHE_TTL = 30             # seconds; the saving worker drops its copy at once
+
+# truth (owner FINAL ORDER 27 Oct: "no demo or fake data anywhere, real
+# licensed data sources, honest empty states, never promise what is not
+# built"). A feature whose ONLY content is a data source we do not have yet is
+# hidden by CODE until that source exists — independent of its DB flag, so no
+# live flag is touched and it reappears by itself once the source is real.
+# The owner / staff / allow-listed testers still get it as a "preview".
+#   source -> zero-arg check (True = a real source is connected and served)
+def _src_dictionary():
+    from .logic import dictionary
+    return not dictionary.is_sample()
+
+
+SOURCES = {
+    # licensed / open dictionary dataset loaded (logic.dictionary.load_dataset);
+    # until then only ~20 hand-written sample words exist.
+    "dictionary_dataset": _src_dictionary,
+    # a real mail fetch path. None is built: connecting Google only flips a
+    # flag, no message is ever fetched, so the inbox would only promise.
+    "mail_fetch": lambda: False,
+}
+SOURCE_REQUIRED = {
+    "dictionary": "dictionary_dataset",
+    "ai_inbox": "mail_fetch",
+}
+
+
+def sources_ready():
+    """{source: bool}. A broken check counts as 'not ready' (never shows a
+    feature on an error)."""
+    out = {}
+    for name, fn in SOURCES.items():
+        try:
+            out[name] = bool(fn())
+        except Exception:
+            out[name] = False
+    return out
+
+
+def source_missing(key, ready=None):
+    """True when `key` needs a data source that is not connected yet."""
+    src = SOURCE_REQUIRED.get(key)
+    if not src:
+        return False
+    ready = sources_ready() if ready is None else ready
+    return not ready.get(src, False)
+
 
 KEYS = tuple(r[0] for r in REGISTRY)
 _BY_KEY = {r[0]: r for r in REGISTRY}
@@ -302,13 +361,24 @@ def resolve(user=None, play=False):
     uid = getattr(user, "pk", None) if authed else None
     priv = is_privileged(user)
     feats, preview = {}, []
+    ready = sources_ready()
     for k, r in rows().items():
         on = (r["enabled_all"] and (r["enabled_play"] or not play)
-              and in_rollout(k, uid, r["rollout_pct"]))
+              and in_rollout(k, uid, r["rollout_pct"])
+              and not source_missing(k, ready))   # truth: no source, no entry
         if not on and (priv or (uid and uid in r["allow_user_ids"])):
             on = True
             preview.append(k)
         feats[k] = on
+    # probashi-plan: a live Probashi family (payer or seat member) gets budget
+    # & remittance turned on (owner 27 Oct). Only when the plan flag is on.
+    if feats.get("probashi_plan") and not feats.get("budget_remittance") and uid:
+        try:
+            from . import probashi_plan as PB
+            if PB.in_live_family(user):
+                feats["budget_remittance"] = True
+        except Exception:
+            pass
     return feats, preview
 
 

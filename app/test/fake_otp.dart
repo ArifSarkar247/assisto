@@ -10,6 +10,8 @@ class FakeOtpBackend implements OtpBackend {
   String goodCode;
   int attemptsLeft;
   bool loginSucceeds;
+  bool emailEnabled; // smsotp
+  String verifiedEmail; // smsotp: '' = none yet
   final List<String> calls = [];
   String? lastPurpose;
   String? lastPhone;
@@ -21,6 +23,8 @@ class FakeOtpBackend implements OtpBackend {
     this.goodCode = '123456',
     this.attemptsLeft = 5,
     this.loginSucceeds = false,
+    this.emailEnabled = false,
+    this.verifiedEmail = '',
   });
 
   @override
@@ -36,19 +40,21 @@ class FakeOtpBackend implements OtpBackend {
     lastPurpose = purpose;
     lastPhone = phone;
     if (!smsEnabled) {
-      return OtpResult.fromRaw(const {
+      return OtpResult.fromRaw({
         '_status': 503,
         'ok': false,
         'reason': 'sms_not_configured',
         'sms_enabled': false,
+        'email_enabled': emailEnabled,
       });
     }
-    return OtpResult.fromRaw(const {
+    return OtpResult.fromRaw({
       '_status': 200,
       'ok': true,
       'phone_masked': '017•••••678',
       'expires_in': 300,
       'resend_in': 60,
+      'email_enabled': emailEnabled,
     });
   }
 
@@ -102,5 +108,55 @@ class FakeOtpBackend implements OtpBackend {
     calls.add('reset:$phone:$proof');
     lastResetPassword = password;
     return OtpResult.fromRaw(const {'_status': 200, 'ok': true});
+  }
+
+  // smsotp — email backup
+  String? lastEmail;
+
+  @override
+  Future<OtpResult> requestEmail(String purpose,
+      {String? phone, String? email}) async {
+    calls.add('email:$purpose');
+    lastEmail = email;
+    if (!emailEnabled) {
+      return OtpResult.fromRaw(const {
+        '_status': 503,
+        'ok': false,
+        'reason': 'email_not_configured',
+        'email_enabled': false,
+      });
+    }
+    return OtpResult.fromRaw({
+      '_status': 200,
+      'ok': true,
+      'channel': 'email',
+      'resend_in': 60,
+      if (purpose == 'email_verify') 'email_masked': 'ra•••@example.com',
+    });
+  }
+
+  @override
+  Future<OtpResult> confirmEmail(String email, String code) async {
+    calls.add('confirm:$email:$code');
+    if (code != goodCode) {
+      return OtpResult.fromRaw(const {
+        '_status': 400,
+        'ok': false,
+        'reason': 'invalid_code',
+        'attempts_left': 4,
+      });
+    }
+    verifiedEmail = email;
+    return OtpResult.fromRaw(
+        {'_status': 200, 'ok': true, 'email': email, 'verified': true});
+  }
+
+  @override
+  Future<EmailState> emailState() async {
+    calls.add('email-state');
+    return EmailState(
+        email: verifiedEmail,
+        verified: verifiedEmail.isNotEmpty,
+        enabled: emailEnabled);
   }
 }

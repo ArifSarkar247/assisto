@@ -1,3 +1,4 @@
+import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -797,7 +798,7 @@ int _toPoisha(dynamic v) {
     frac = '';
   }
   if (whole.isEmpty) whole = '0';
-  frac = (frac + '00').substring(0, 3);
+  frac = (frac + '000').substring(0, 3); // remmeter: was '00' -> RangeError on whole amounts
   final major = int.tryParse(whole);
   final milli = int.tryParse(frac);
   if (major == null || milli == null) return 0;
@@ -961,6 +962,7 @@ class _AiSeamCard extends StatelessWidget {
   const _AiSeamCard();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
       icon: Icons.auto_awesome_rounded,
@@ -974,6 +976,7 @@ class _BookingSeamCard extends StatelessWidget {
   const _BookingSeamCard();
   @override
   Widget build(BuildContext context) {
+    if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
       icon: Icons.confirmation_number_rounded,

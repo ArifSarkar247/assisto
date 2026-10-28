@@ -12,6 +12,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from core import turn_monitor as M
+from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
@@ -20,6 +21,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--print", action="store_true", help="print the sample")
 
+    @track_job("turn_monitor")
     def handle(self, *args, **opts):
         path = Path(settings.BASE_DIR) / "logs" / "turn_monitor_state.json"
         path.parent.mkdir(exist_ok=True)

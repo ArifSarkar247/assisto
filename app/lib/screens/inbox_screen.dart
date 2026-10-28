@@ -27,7 +27,6 @@ class InboxScreen extends StatefulWidget {
 }
 
 class _InboxScreenState extends State<InboxScreen> {
-  Map<String, dynamic>? _s;
   bool _loading = true;
   bool _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
@@ -37,7 +36,11 @@ class _InboxScreenState extends State<InboxScreen> {
   bool _selectMode = false;
   final Set<String> _selected = {};
 
-  bool get _connected => _s?['connected'] == true;
+  // truth (owner FINAL ORDER 27 Oct): no mail is ever fetched, so the inbox
+  // never claims "connected — your real messages appear here" (the server
+  // `connected` flag only means a Google key exists). The whole feature is
+  // hidden for users until a fetch path exists (feature_flags.SOURCE_REQUIRED).
+  bool get _connected => false;
 
   @override
   void initState() {
@@ -51,7 +54,7 @@ class _InboxScreenState extends State<InboxScreen> {
       _error = false;
     });
     try {
-      _s = await context.read<AppState>().api.inboxStatus();
+      await context.read<AppState>().api.inboxStatus(); // reachability only
       // m2-reality: this used to fill the inbox with MOCK emails (e.g. a fake
       // "bKash: payment failed") for every real user. Never show fake mail:
       // with no connected account the list is empty and the screen says

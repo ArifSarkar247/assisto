@@ -1,3 +1,4 @@
+import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -633,7 +634,7 @@ class _PackEditorState extends State<_PackEditor> {
             Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Expanded(
-              child: Text(tr.paAiReviewMarker,
+              child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
                   style: TextStyle(
                       color: scheme.onSurfaceVariant, fontSize: 12.5)),
             ),
@@ -706,7 +707,9 @@ class _PackEditorState extends State<_PackEditor> {
     );
   }
 
-  Widget _aiSeamCard(AppLocalizations tr, ColorScheme scheme) => Container(
+  Widget _aiSeamCard(AppLocalizations tr, ColorScheme scheme) => !kShowKeySeams
+      ? const SizedBox.shrink() // truth: no key dead end
+      : Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Radii.sm),

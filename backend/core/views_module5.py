@@ -54,25 +54,34 @@ class HealthEmergencyView(APIView):
 # Health: medicine DB (SAMPLE / DGDA switch) — no model, static seed
 # ===========================================================================
 
+def _medicine_meta(lang):
+    """truth (owner FINAL ORDER 27 Oct): while the source is the curated sample
+    (hand-typed brands with made-up "indicative" prices) we serve NO records —
+    the app shows its honest "data not added yet" state. Records come back
+    only once a real DGDA list is loaded (medicine_db.set_source)."""
+    m = medicine_db.meta(lang)
+    if medicine_db.is_sample():
+        m = {**m, "count": 0, "sample_notice": "", "withheld": True}
+    return m
+
+
 class MedicineDbSearchView(APIView):
     def get(self, request):
         lang = req_lang(request)
         q = request.query_params.get("q", "")
-        return Response({
-            "results": medicine_db.search(q, lang=lang),
-            "meta": medicine_db.meta(lang),
-        })
+        results = [] if medicine_db.is_sample() else medicine_db.search(q, lang=lang)
+        return Response({"results": results, "meta": _medicine_meta(lang)})
 
 
 class MedicineDbLookupView(APIView):
     def get(self, request):
         lang = req_lang(request)
         brand = request.query_params.get("brand", "")
-        rec = medicine_db.lookup(brand, lang=lang)
+        rec = None if medicine_db.is_sample() else medicine_db.lookup(brand, lang=lang)
         if rec is None:
             return Response({"available": False, **medicine_db.needs_data_state(lang),
-                             "meta": medicine_db.meta(lang)})
-        return Response({"available": True, "record": rec, "meta": medicine_db.meta(lang)})
+                             "meta": _medicine_meta(lang)})
+        return Response({"available": True, "record": rec, "meta": _medicine_meta(lang)})
 
 
 # ===========================================================================
@@ -932,19 +941,12 @@ class CircleReportView(APIView):
 class CircleInviteView(APIView):
     def get(self, request):
         relation = request.query_params.get("relation", "friend")
-        token = circle.make_invite_token(request.user.id, relation, settings.SECRET_KEY)
-        inv = CircleInvite.objects.create(
-            inviter=request.user,
-            relation=circle.normalize_relation(relation),
-            token=token,
-            expires_at=timezone.now() + timezone.timedelta(minutes=1440),
-        )
-        # m3-circle: the link used to point at the OLD domain
-        # (assisto.asalify.com) with no /i/ page behind it. It now uses the
-        # live base and a real landing page (web/urls.py i/<token>).
-        from .views_m3_circle import invite_base
-        link = circle.qr_payload(token, base_url=invite_base())
-        return Response({"token": token, "qr": link, "link": link, "id": inv.id})
+        # invite-join: "My QR" is a multi-use short code (several people can
+        # scan the same QR in a room); expiry/revoke/cap as every code invite.
+        from . import invite_join as IJ
+        inv = IJ.create_invite(request.user, relation=relation, max_uses=10)
+        link = IJ.link_for(inv.code)
+        return Response({"token": inv.code, "qr": link, "link": link, "id": inv.id})
 
 
 class CircleMessagesView(APIView):
