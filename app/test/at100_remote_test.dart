@@ -369,6 +369,9 @@ void main() {
 
       await open(false);
       expect(find.byKey(const Key('at100-pin-notice')), findsNothing);
+      // close that PIN box first (its barrier would swallow the next tap)
+      Navigator.of(tester.element(find.byType(AlertDialog))).pop();
+      await tester.pumpAndSettle();
       await open(true);
       expect(find.byKey(const Key('at100-pin-notice')), findsOneWidget);
       IntruderSnap.debugSetArmed(false);
