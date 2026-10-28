@@ -92,7 +92,7 @@ class AlertTests(TestCase):
     def test_failure_invalid_tool_and_cost_alerts(self):
         for _ in range(6):
             _run(self.u, state="failed", plan_failed=True, tools=[("notes.search", "failed", 0)])
-        for _ in range(6):
+        for _ in range(10):                                   # min_runs successful tasks
             _run(self.u, cost=0.5, tools=[("notes.search", "done", 9000)])
         bad = self._bad()
         for k in ("agent:run_failure", "agent:invalid_plan", "agent:cost_per_task",
