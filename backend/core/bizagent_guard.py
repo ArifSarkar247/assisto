@@ -372,3 +372,48 @@ def features(business, meta_ready, vision_ready):
                    and meta_ready.get("verify_token"))
     return {"own_channels": meta_ok, "inbox": connected, "image_order": connected,
             "vision": bool(vision_ready)}
+
+
+# ============================================================ sales2: handoff
+_SENT = ("sent", "delivered", "read")
+
+
+def open_handoff(t):
+    """The newest UNRESOLVED handoff in this chat as ONE card for the top of
+    the seller's thread view, or None.
+
+    A handoff = an outbound row the agent flagged needs_human (approval queue,
+    complaint, refund, abuse, low confidence ...). It is resolved once the AI
+    draft was approved and sent, the seller replied himself after it, or the
+    seller gave the chat back to the AI after it. A draft still waiting for
+    approval is always open. The AF-10 card stored on the row is reused; an
+    old row without one gets it rebuilt (rule-made, 0 credits)."""
+    from .logic import bizagent_handoff as HC
+    from .models import BizAuditLog
+    m = t.messages.filter(direction="out", needs_human=True) \
+        .order_by("-created_at", "-id").first()
+    if m is None:
+        return None
+    pending = m.status == "pending_approval"
+    if not pending:
+        if m.status in _SENT:
+            return None
+        if t.messages.filter(direction="out", is_ai=False, status__in=_SENT,
+                             created_at__gte=m.created_at).exclude(pk=m.pk).exists():
+            return None
+        if BizAuditLog.objects.filter(thread=t, action__in=("handback", "handback_idle"),
+                                      created_at__gte=m.created_at).exists():
+            return None
+    card = (m.meta or {}).get("card")
+    if not isinstance(card, dict) or not card.get("lines"):
+        from . import bizagent_service as S
+        card = S.handoff_card(t, m.risk_reason or m.handoff_reason)
+    if not card:
+        return None
+    reason = card.get("reason") or m.risk_reason or m.handoff_reason
+    lbl = HC.REASON_LABEL.get(reason)
+    out = dict(card)
+    out.update({"message_id": m.id, "pending": pending, "status": m.status,
+                "created_at": m.created_at.isoformat(),
+                "reason_label": {"bn": lbl[0], "en": lbl[1]} if lbl else None})
+    return out

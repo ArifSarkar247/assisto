@@ -544,7 +544,9 @@ class ChatBotTests(_BizBase):
         start = datetime.fromisoformat(st["start"])
         S.create(page, self.svc, start, name="Walk-in", actor="business")
         reply = self.say("yes", 8)
-        self.assertIn("1.", reply)          # fresh real options listed again
+        # fresh real options listed again ("appointment chai" is Banglish since
+        # sales2, so the list may be numbered in Bangla digits)
+        self.assertTrue("1." in reply or "১." in reply, reply)
         self.assertEqual(Booking.objects.filter(business=self.biz).count(), 1)
 
 
