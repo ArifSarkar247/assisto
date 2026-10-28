@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest import mock
 
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from core import ops_health as H
 from core.management.commands import antitheft_escalate, journey_sweep, minute_jobs
@@ -181,3 +181,16 @@ class OpsWatchCronTests(TestCase):
         self.assertTrue(by["journey_sweep"]["scheduled"])
         self.assertTrue(by["antitheft_escalate"]["scheduled"])
         self.assertNotEqual(by["journey_sweep"]["status"], "not_scheduled")
+
+
+class EveryMinuteCronSkipsChecksTests(SimpleTestCase):
+    """Every per-minute cron command skips Django's system checks (~0.7 s CPU
+    per run on the 2-vCPU box; measured 28 Oct)."""
+
+    def test_every_minute_commands_skip_system_checks(self):
+        import importlib
+        for name in ("journey_sweep", "antitheft_escalate", "minute_jobs",
+                     "push_due_reminders", "calls_sweep", "turn_monitor",
+                     "bizagent_process"):
+            mod = importlib.import_module("core.management.commands." + name)
+            self.assertEqual(mod.Command.requires_system_checks, [], name)

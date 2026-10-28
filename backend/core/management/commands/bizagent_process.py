@@ -6,6 +6,9 @@ from core.ops_health import track_job  # ops-watch heartbeat
 
 
 class Command(BaseCommand):
+    # cron every minute: skip the ~0.7 s system checks (URLconf import) per
+    # run — call_command never ran them either (minutejobs, 28 Oct)
+    requires_system_checks = []
     help = "Business AI Agent: process pending webhook events."
 
     def add_arguments(self, parser):
