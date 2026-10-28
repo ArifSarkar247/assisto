@@ -458,17 +458,27 @@ void main() {
       } catch (_) {}
     });
 
+    AiModelInfo aiModel() => AiModelInfo(
+        available: true,
+        version: '2026.10.1',
+        file: AiModelFile(
+            name: 'm.onnx', sha256: Sha256.ofBytes(blob), size: blob.length, url: 'https://s/m.onnx'));
+
+    /// init (the fake server lists no model) -> our test model -> download.
+    Future<void> aiReady(PhotoStudioController c) async {
+      await c.init();
+      (c.deps.engine as StudioEnhanceEngine).model = aiModel();
+      await c.prepareEnhance();
+      expect(c.enhance.ai, AiState.ready);
+    }
+
     ({PhotoStudioController c, AiNative n, pp.BytesSink sink}) make(Uint8List photo) {
       final n = AiNative();
       final b = FakePsBackend(entryDue: false, free: false);
       final eng = StudioEnhanceEngine(
           native: n,
           guard: IdentityGuard(landmarks: NativeLandmarks(n)),
-          model: AiModelInfo(
-              available: true,
-              version: '2026.10.1',
-              file: AiModelFile(
-                  name: 'm.onnx', sha256: Sha256.ofBytes(blob), size: blob.length, url: 'https://s/m.onnx')),
+          model: aiModel(),
           downloader: ModelDownloader(http: d1.MemHttp(blob), dir: dir),
           modelDir: () async => dir,
           codec: pp.RawCodec(),
@@ -490,10 +500,9 @@ void main() {
       final full = pp.scene(w, h, seed: 12);
       final t = make(pp.enc(full, w, h));
       final c = t.c;
-      await c.init();
+      await aiReady(c);
       await c.pick(camera: false);
       await c.setAi(true);
-      expect(c.enhance.ai, AiState.ready);
       await c.runEnhance();
       expect(c.lastReport.aiUsed, isTrue);
       final eng = c.deps.engine as StudioEnhanceEngine;
@@ -558,7 +567,7 @@ void main() {
       final full = pp.scene(w, h, seed: 14);
       final t = make(pp.enc(full, w, h));
       final c = t.c;
-      await c.init();
+      await aiReady(c);
       await c.setAi(true);
       await c.pickBatch();
       await c.runBatch();
