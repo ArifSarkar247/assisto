@@ -144,6 +144,17 @@ class EzvizClient:
             "pageStart": 0, "pageSize": int(page_size)})
         return data if isinstance(data, list) else []
 
+    def is_online(self, serial):
+        """cctvx: /api/lapp/device/info -> data.status (1 online, 0 offline).
+        No documented call sounds an EZVIZ siren, so there is none here."""
+        data = self.call("/api/lapp/device/info", {"deviceSerial": serial}) or {}
+        v = data.get("status") if isinstance(data, dict) else None
+        if v in (1, "1"):
+            return True
+        if v in (0, "0"):
+            return False
+        return None
+
     def capture(self, serial, channel=1):
         data = self.call("/api/lapp/device/capture",
                          {"deviceSerial": serial, "channelNo": int(channel)}) or {}

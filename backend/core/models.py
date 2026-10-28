@@ -3329,6 +3329,12 @@ class ShopSite(models.Model):
     # away every camera is armed, quiet hours are ignored, alerts are high
     # priority. Server-side only — a device can never claim it.
     away = models.JSONField(default=dict, blank=True)
+    # ---- cctvx (CCTV extras, owner 28 Oct) ---- owner settings + the guard's
+    # own small state: {"nosale_on", "nosale_min", "escalation": [uid..],
+    # "escalate_min", "offline_on", "offline_min", "late_on", "late_min",
+    # "closed_days", "shop_phone", "opened_on", "_state": {...}} — bounded by
+    # core/logic/cctv_extras.py (normalize_settings); "_state" is server-only.
+    guard = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created"]
@@ -3403,7 +3409,10 @@ class ShopGatewayTask(models.Model):
     check). The phone can't reach LAN cameras from the internet, so the gateway
     runs it and posts the result. A camera secret rides in `request` ONLY until
     the gateway picks the task up — it is wiped at hand-out (and on expiry)."""
-    ACTIONS = [("discover", "discover"), ("check", "check")]
+    ACTIONS = [("discover", "discover"), ("check", "check"),
+               # cctvx: sound a LAN camera's own siren / alarm output
+               # (Hikvision ISAPI) on the owner's tap from an alert
+               ("siren", "siren")]
     STATUS = [("pending", "pending"), ("running", "running"), ("done", "done"),
               ("expired", "expired")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
@@ -3464,6 +3473,12 @@ class ShopEvent(models.Model):
     # group window bump `count` / `last_at` instead of a new alert + push.
     count = models.PositiveIntegerField(default=1)
     last_at = models.DateTimeField(null=True, blank=True)
+    # ---- cctvx ---- when the owner (or anyone they escalated to) opened the
+    # alert — escalation stops then. `pending` = a cash-zone touch waiting for
+    # its no-sale check (no push yet, hidden from lists; deleted when a sale
+    # or khata entry is found in the window).
+    opened_at = models.DateTimeField(null=True, blank=True)
+    pending = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created"]
@@ -3494,6 +3509,29 @@ class ShopEventClip(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["status", "expires_at"])]
+
+
+class ShopGuardTask(models.Model):
+    """cctvx: one delayed server-side guard step (NO WorkManager — the
+    server's minute job shop_guard_tick runs them): `nosale` = check, when
+    `due_at` comes, whether a sale or khata entry was recorded in the window
+    around a cash-zone touch; `escalate` = the owner has not opened an alert
+    -> send it to the next person of the owner's chosen chain."""
+    KINDS = [("nosale", "no-sale check"), ("escalate", "escalation"),
+             ("siren_off", "siren off")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="guard_tasks")
+    event = models.ForeignKey(ShopEvent, on_delete=models.CASCADE, null=True,
+                              blank=True, related_name="guard_tasks")
+    kind = models.CharField(max_length=12, choices=KINDS)
+    due_at = models.DateTimeField(db_index=True)
+    done = models.BooleanField(default=False, db_index=True)
+    # nosale: {"window_s", "first_at"}; escalate: {"step", "chain", "log": [...]}
+    state = models.JSONField(default=dict, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["due_at", "id"]
 
 
 class ShopPosEvent(models.Model):

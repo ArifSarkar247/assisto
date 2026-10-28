@@ -571,7 +571,8 @@ def eval_meter_low(user, now, lang):
 
 def camera_open_events(user, since):
     from ..models import ShopEvent
-    return ShopEvent.objects.filter(site__owner=user, status="open", created__gte=since)
+    return ShopEvent.objects.filter(site__owner=user, status="open", pending=False,
+                                    created__gte=since)
 
 
 def eval_camera_alert(user, now, lang):
@@ -845,6 +846,20 @@ def build_brief(user, kind, now):
             lines.append(_line(c.title_bn, c.title_en))
     if lines:
         secs.append(_sec("home", "বাসা ও দোকান", "Home & shop", lines))
+
+    # cctvx: the NIGHTLY GUARD REPORT (owner order 28 Oct) — drawer opens
+    # with / without a sale, away-mode alerts, offline minutes, alerts passed
+    # on. From the server's own counts: no AI, 0 credits.
+    lines = []
+    if evening and "camera_alert" not in off and _flag("home_watchman", user):
+        try:
+            from .. import cctvx_views as CXV
+            for ln in CXV.brief_lines(user, now):
+                lines.append(_line(ln["bn"], ln["en"]))
+        except Exception:
+            lines = []
+    if lines:
+        secs.append(_sec("guard", "পাহারার রিপোর্ট", "Guard report", lines))
 
     # prayer / weather — only the real sources the app already has
     lines = []

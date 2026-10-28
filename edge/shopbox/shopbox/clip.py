@@ -181,16 +181,57 @@ def open_clip(ct: bytes, meta: dict, uid, private_key: bytes) -> bytes:
     me = X25519PrivateKey.from_private_bytes(private_key)
     my_pub = me.public_key().public_bytes(serialization.Encoding.Raw,
                                           serialization.PublicFormat.Raw)
-    eph_pub = base64.b64decode(meta["eph_pub"])
     w = meta["wraps"][str(uid)] if "wraps" in meta else meta["wrap"]
+    # cctvx: a wrap the OWNER's phone made for a Circle member carries the
+    # owner's identity key as the sender (chat E2E construction)
+    eph_pub = base64.b64decode(w.get("sender_pub") or meta["eph_pub"])
+    sender_id = str(w.get("sender_key_id") or meta["eph_key_id"])
     shared = me.exchange(X25519PublicKey.from_public_bytes(eph_pub))
     wk = HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
               info=_info(eph_pub, my_pub)).derive(shared)
     k = base64.b64decode(ChaCha20Poly1305(wk).decrypt(
         base64.b64decode(w["nonce"]), base64.b64decode(w["ct"]),
-        meta["eph_key_id"].encode()))
+        sender_id.encode()))
     return ChaCha20Poly1305(k).decrypt(base64.b64decode(meta["nonce"]), ct,
                                        meta["aad"].encode())
+
+
+def rewrap_for(meta: dict, uid, my_private: bytes, recipient_pub_b64: str,
+               recipient_key_id: Optional[str] = None, *, rand=os.urandom) -> dict:
+    """cctvx (what the OWNER's phone does to share a clip with one Circle
+    member, mirrored here for tests / the harness): unwrap the per-clip key
+    with MY private key, wrap it again for the member's PUBLIC key with my
+    identity key as the sender. -> the shared wrap {key_id, nonce, ct,
+    sender_pub, sender_key_id}. The server only ever relays it."""
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric.x25519 import (
+        X25519PrivateKey, X25519PublicKey)
+    from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+    from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+
+    me = X25519PrivateKey.from_private_bytes(my_private)
+    my_pub = me.public_key().public_bytes(serialization.Encoding.Raw,
+                                          serialization.PublicFormat.Raw)
+    w = meta["wraps"][str(uid)] if "wraps" in meta else meta["wrap"]
+    src_pub = base64.b64decode(w.get("sender_pub") or meta["eph_pub"])
+    src_id = str(w.get("sender_key_id") or meta["eph_key_id"])
+    wk = HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
+              info=_info(src_pub, my_pub)).derive(
+        me.exchange(X25519PublicKey.from_public_bytes(src_pub)))
+    k_b64 = ChaCha20Poly1305(wk).decrypt(base64.b64decode(w["nonce"]),
+                                         base64.b64decode(w["ct"]), src_id.encode())
+    their = base64.b64decode(recipient_pub_b64)
+    my_id = key_id(my_pub)
+    wk2 = HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
+               info=_info(my_pub, their)).derive(
+        me.exchange(X25519PublicKey.from_public_bytes(their)))
+    n = rand(12)
+    return {"key_id": recipient_key_id or key_id(their),
+            "nonce": base64.b64encode(n).decode(),
+            "ct": base64.b64encode(ChaCha20Poly1305(wk2).encrypt(
+                n, k_b64, my_id.encode())).decode(),
+            "sender_pub": base64.b64encode(my_pub).decode(),
+            "sender_key_id": my_id}
 
 
 # ------------------------------------------------------------------ jobs

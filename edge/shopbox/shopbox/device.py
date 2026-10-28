@@ -78,10 +78,17 @@ class DeviceClient:
         return "offline", ""
 
     def heartbeat(self, token: str, caps: List[str],
-                  camera_ids: Optional[List[int]] = None):
+                  camera_ids: Optional[List[int]] = None,
+                  extra: Optional[dict] = None):
         body = {"caps": list(caps), "platform": "windows", "version": __version__}
         if camera_ids:
             body["camera_ids"] = [int(x) for x in camera_ids][:64]
+        if extra:
+            # cctvx: live_ids (cameras delivering frames) + motion_at
+            if isinstance(extra.get("live_ids"), list):
+                body["live_ids"] = [int(x) for x in extra["live_ids"]][:64]
+            if extra.get("motion_at"):
+                body["motion_at"] = float(extra["motion_at"])
         return self._call("POST", HEARTBEAT_PATH, token, body)
 
     def config(self, token: str):
@@ -181,7 +188,8 @@ class DeviceSync(threading.Thread):
                  caps: List[str], on_config: Callable[[dict, Optional[str]], None],
                  on_live: Optional[Callable[[str, dict], None]] = None,
                  every_s: float = 20.0, tasks=None,
-                 camera_ids: Optional[Callable[[], List[int]]] = None):
+                 camera_ids: Optional[Callable[[], List[int]]] = None,
+                 extra: Optional[Callable[[], dict]] = None):
         super().__init__(name="device-sync", daemon=True)
         self.client = client
         self.tokens = tokens        # () -> {local_camera_id or "": token}
@@ -191,6 +199,7 @@ class DeviceSync(threading.Thread):
         self.every_s = float(every_s)
         self.tasks = tasks          # tasks.GatewayTasks (camera checks) or None
         self.camera_ids = camera_ids  # () -> server camera ids captured here
+        self.extra = extra            # () -> cctvx heartbeat extras
         self._halt = threading.Event()
         self._versions: Dict[str, str] = {}
         self.online: Optional[bool] = None
@@ -213,8 +222,15 @@ class DeviceSync(threading.Thread):
             if not tok:
                 continue
             # the site token reports the gateway cameras it captures
-            st, d = self.client.heartbeat(tok, self.caps,
-                                          ids if not cam_id else None)
+            ext = None
+            if self.extra is not None and not cam_id:
+                try:
+                    ext = self.extra() or None
+                except Exception:
+                    ext = None
+            st, d = (self.client.heartbeat(tok, self.caps, ids if not cam_id else None,
+                                           ext) if ext else
+                     self.client.heartbeat(tok, self.caps, ids if not cam_id else None))
             if st == 401:
                 self.unauthorized = True
                 continue

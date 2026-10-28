@@ -138,7 +138,7 @@ def _site_overview(site, role, now):
     row.update({
         "role": role, "cameras_list": cams,
         "gateway_state": _gateway_state(site, now),
-        "open_alerts": site.events.filter(status="open").count(),
+        "open_alerts": site.events.filter(status="open", pending=False).count(),
         "today_alerts": site.events.filter(created__gte=start).count(),
         "held_today": SV.held_today(site, now),
     })
@@ -817,6 +817,15 @@ class GatewayTaskResultView(APIView):
         if t.action == "check":
             res = {"ok": bool(raw.get("ok")), "steps": _clean_steps(raw.get("steps")),
                    "info": _clean_info(raw.get("info")), "at": now.isoformat()}
+        elif t.action == "siren":
+            # cctvx: what the camera answered (no secrets, short codes only)
+            import re as _re
+            res = {"ok": bool(raw.get("ok")),
+                   "code": _re.sub(r"[^a-z0-9_]", "", str(raw.get("code") or "").lower())[:32],
+                   "method": str(raw.get("method") or "")[:24],
+                   "seconds": max(0, min(60, int(raw.get("seconds") or 0)))
+                   if str(raw.get("seconds") or "0").isdigit() else 0,
+                   "at": now.isoformat()}
         else:
             res = {"ok": bool(raw.get("ok", True)),
                    "discovered": _clean_discovered(raw.get("discovered")),

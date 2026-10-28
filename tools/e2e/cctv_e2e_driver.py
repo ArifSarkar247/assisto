@@ -492,6 +492,128 @@ def run():
               r.status_code == 200 and
               ShopEvent.objects.filter(camera_id=cam_dahua["id"]).count() == 1, r.text)
 
+        # ---------------------------------------------- cctvx: CCTV extras
+        # (owner 28 Oct) no-sale drawer open, a sale clearing a touch,
+        # escalation to a Circle member, camera offline + recovery — the
+        # real views over HTTP, the real minute-job code (shop_guard_tick's
+        # tick()) run here with a clock 3 minutes ahead, the real FCM code.
+        from datetime import timedelta
+        from django.utils import timezone as dj_tz
+        from core import cctvx_views as CXV
+        from core.models import CircleMember, ShopPosEvent, User as U
+        ShopEvent.objects.filter(site_id=site_id).update(status="checked")
+        ShopPosEvent.objects.create(site_id=site_id, kind="sale", amount=100,
+                                    at=dj_tz.now() - timedelta(days=2))   # uses Assisto POS
+        hdev = requests.Session()
+        hdev.headers.update({"X-Shop-Token": cam_hik["camera_token"]})
+
+        def settle():
+            """Wait until no push is still in flight (async FCM workers)."""
+            last, same = -1, 0
+            for _ in range(40):
+                n = len(fcm_calls())
+                same = same + 1 if n == last else 0
+                if same >= 3:
+                    return n
+                last = n
+                time.sleep(0.5)
+            return last
+        n_push = settle()
+        r = hdev.post(API + "/shop/ingest", json={"type": "hand_in_cash_zone", "signals": {
+            "detector": "yolox_nano", "motion_in_zone": True}}, timeout=10)
+        nev = ShopEvent.objects.filter(pk=(r.json() or {}).get("event_id")).first()
+        check("cctvx: cash-zone touch at a POS shop waits for the no-sale check (no push)",
+              r.status_code == 201 and nev is not None and nev.pending and
+              len(fcm_calls()) == n_push, r.text)
+        lst = owner.get(API + "/shop/events?site=%d" % site_id, timeout=10).json()["events"]
+        check("cctvx: the pending touch is not listed yet",
+              nev is not None and all(e["id"] != nev.id for e in lst))
+        CXV.run_due(dj_tz.now() + timedelta(minutes=3))
+        ncalls = wait_for(lambda: [c for c in fcm_calls()[n_push:]
+                                   if (c.get("data") or {}).get("event_id") == str(nev.id)], 15)
+        nown = [c for c in (ncalls or []) if c.get("token") == "e2e-fcm-owner"]
+        check("cctvx: no sale in 2 min -> 'Drawer opened with no sale — watch the clip and decide'",
+              bool(nown) and "Drawer opened with no sale" in json.dumps(nown) and
+              "theft" not in json.dumps(ncalls or []).lower() and
+              (nown[0].get("data") or {}).get("nosale") == "true", ncalls)
+        check("cctvx: family viewer gets it in Bangla",
+              "বিক্রি ছাড়া ড্রয়ার খোলা" in json.dumps([c for c in (ncalls or [])
+                                                     if c.get("token") == "e2e-fcm-family"],
+                                                    ensure_ascii=False))
+        # a sale rung up 70 s after the touch clears it: nothing kept, no push
+        ddev = requests.Session()
+        ddev.headers.update({"X-Shop-Token": cam_dahua["camera_token"]})
+        r = ddev.post(API + "/shop/ingest", json={"type": "hand_in_cash_zone", "signals": {
+            "detector": "yolox_nano", "motion_in_zone": True}}, timeout=10)
+        cid = (r.json() or {}).get("event_id")
+        r2 = requests.post(API + "/shop/pos", json={
+            "site_token": enroll, "kind": "sale", "amount": 25000,
+            "at": (dj_tz.now() + timedelta(seconds=70)).isoformat()}, timeout=10)
+        n_push = settle()
+        CXV.run_due(dj_tz.now() + timedelta(minutes=3))
+        settle()
+        check("cctvx: a sale in the window clears the touch (deleted, no push)",
+              r2.status_code == 201 and not ShopEvent.objects.filter(pk=cid).exists() and
+              len(fcm_calls()) == n_push, r2.text)
+        # escalation: the owner picks a Circle member; the alert is not opened
+        fam_uid = U.objects.get(phone=FAMILY_PHONE).pk
+        CircleMember.objects.create(user_id=owner_uid, peer_user_id=fam_uid, state="accepted",
+                                    name="Family")
+        g = owner.put(API + "/shop/sites/%d/guard" % site_id,
+                      json={"escalation": [fam_uid], "shop_phone": "01710009001"}, timeout=10)
+        check("cctvx: escalation chain saved (Circle member only)",
+              g.status_code == 200 and g.json()["settings"]["escalation"] == [fam_uid], g.text)
+        r = hdev.post(API + "/shop/ingest", json={"type": "zone_intrusion", "signals": {
+            "detector": "yolox_nano", "zone_breach": True, "person": True}}, timeout=10)
+        eid = (r.json() or {}).get("event_id")
+        wait_for(lambda: len([c for c in fcm_calls()
+                              if (c.get("data") or {}).get("event_id") == str(eid)]) >= 2, 15)
+        n_push = len(fcm_calls())
+        CXV.run_due(dj_tz.now() + timedelta(minutes=3))
+        esc = wait_for(lambda: [c for c in fcm_calls()[n_push:]
+                                if (c.get("data") or {}).get("escalated") == "true"], 15)
+        check("cctvx: not opened in 2 min -> passed to the chosen person (high priority)",
+              bool(esc) and esc[0].get("token") == "e2e-fcm-family" and
+              "এখনো দেখেননি" in json.dumps(esc, ensure_ascii=False), esc)
+        o = family.post(API + "/shop/events/%d/opened" % eid, json={}, timeout=10)
+        det = family.get(API + "/shop/events/%d" % eid, timeout=10)
+        check("cctvx: they open it -> escalation stops; alert actions offered",
+              o.status_code == 200 and o.json().get("opened_at") and
+              det.json()["actions"]["call_shop"] == "01710009001" and
+              det.json()["actions"]["emergency"] == "999", det.text[:300])
+        # camera offline 11 min -> one alert; back -> one recovery notice
+        ShopCamera.objects.filter(pk=cam_dahua["id"]).update(
+            last_seen=dj_tz.now() - timedelta(minutes=11))
+        n_push = len(fcm_calls())
+        CXV.tick(dj_tz.now())
+        key = "c%d" % cam_dahua["id"]
+        off = wait_for(lambda: [c for c in fcm_calls()[n_push:]
+                                if (c.get("data") or {}).get("notice") == "offline"
+                                and key in str((c.get("data") or {}).get("keys"))], 15)
+        check("cctvx: camera silent 10 min -> 'power or internet may be cut' push",
+              bool(off) and "power or internet may be cut" in json.dumps(off), off)
+        n2 = len(fcm_calls())
+        CXV.tick(dj_tz.now() + timedelta(seconds=30))
+        time.sleep(1.0)
+        check("cctvx: no repeat while still offline",
+              not [c for c in fcm_calls()[n2:]
+                   if (c.get("data") or {}).get("notice") == "offline"
+                   and key in str((c.get("data") or {}).get("keys"))])
+        ShopCamera.objects.filter(pk=cam_dahua["id"]).update(last_seen=dj_tz.now())
+        n2 = len(fcm_calls())
+        CXV.tick(dj_tz.now() + timedelta(seconds=40))
+        back = wait_for(lambda: [c for c in fcm_calls()[n2:]
+                                 if (c.get("data") or {}).get("notice") == "recovered"], 15)
+        check("cctvx: back online -> one recovery notice", bool(back), back)
+        live = ShopCamera.objects.get(pk=cam_rtsp["id"]).last_seen
+        check("cctvx: the real edge reports only cameras that deliver frames (live_ids)",
+              live is not None and (dj_tz.now() - live).total_seconds() < 30, live)
+        rep = owner.get(API + "/shop/sites/%d/guard/report" % site_id, timeout=10).json()
+        check("cctvx: nightly guard report counts (no-sale 1, with sale 1, 0 credits)",
+              rep["counts"]["drawer_nosale"] >= 1 and rep["counts"]["drawer_sale"] >= 1 and
+              rep["credits"] == 0, rep)
+        CASH_METRICS["cctvx_checks"] = True
+
         # ---------------------------------------------- NO VIDEO anywhere
         engine.stop()
         engine_stopped = True

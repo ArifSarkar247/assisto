@@ -132,6 +132,27 @@ class ImouClient:
             "nextAlarmId": "-1"})
         return data.get("alarms") or []
 
+    def siren(self, device_id, channel_id="0", on=True):
+        """cctvx: sound (or stop) the camera's own siren — Imou Open API
+        setDeviceCameraStatus with enableType "siren" (open.imoulife.com
+        book/http/device/config/ability/setDeviceCameraStatus). A model
+        without a siren answers an error code -> ImouError (honest)."""
+        return self.call("setDeviceCameraStatus", {
+            "token": self.token(), "deviceId": device_id,
+            "channelId": str(channel_id), "enableType": "siren",
+            "enable": bool(on)})
+
+    def is_online(self, device_id):
+        """cctvx: True / False from deviceOnline's `onLine` ("1" online,
+        "0" offline, "3" upgrading, "4" sleeping -> treated as online)."""
+        data = self.device_online(device_id) or {}
+        v = str(data.get("onLine", data.get("online", "")))
+        if v in ("1", "3", "4", "True", "true"):
+            return True
+        if v in ("0", "False", "false"):
+            return False
+        return None
+
     def snapshot_url(self, device_id, channel_id="0"):
         data = self.call("setDeviceSnapEnhanced", {
             "token": self.token(), "deviceId": device_id,
