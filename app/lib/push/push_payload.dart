@@ -39,6 +39,7 @@ class PushChannels {
     'meter_low': alerts, // remmeter: prepaid meter running low
     'agent_approval': alerts, // agent-core WP-APP: Approve / Reject actions
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
+    'doc_expiry': reminders, // vault100: a vault document expires soon
   };
 }
 
@@ -192,6 +193,7 @@ class PushRouting {
     'prepaid_meter': 'prepaid_meter', // remmeter
     'agent/approval': 'agent_approvals', // agent-core WP-APP
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
+    'vault': 'documents', // vault100: expiry push / PIN-reset notice
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -208,6 +210,7 @@ class PushRouting {
     'meter_low': 'prepaid_meter', // remmeter
     'agent_approval': 'agent_approvals', // agent-core WP-APP
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
+    'doc_expiry': 'documents', // vault100
   };
 
   /// [action] is the local-notification action id ('accept' / 'decline' /

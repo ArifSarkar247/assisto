@@ -18,6 +18,7 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_ads as ads_views
+from . import vault_recovery as vaultrec  # vault100
 from . import views_voice as voicev
 
 router = DefaultRouter()
@@ -82,6 +83,9 @@ urlpatterns = [
     path("actions/log", views.ActionLogView.as_view()),
     path("sources", views.SourcePermissionView.as_view()),
     path("documents/<int:pk>/file", views.DocumentFileView.as_view()),
+    # vault100: forgotten-PIN recovery (verification only; the PIN stays on the phone)
+    path("vault/recovery/status", vaultrec.VaultRecoveryStatusView.as_view()),
+    path("vault/recovery/verify", vaultrec.VaultRecoveryVerifyView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),
     path("money/summary", views.MoneySummaryView.as_view()),
     path("money/trends", views.MoneyTrendsView.as_view()),

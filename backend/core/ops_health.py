@@ -101,6 +101,8 @@ JOBS = (
     Job("bizagent_couriers", 30 * MIN, "*/30 * * * *"),
     Job("purge_deletions", HOUR, "0 * * * *"),
     Job("payments_sweep", HOUR, "7 * * * *"),
+    Job("vault_expiry_alerts", HOUR, "20 * * * *", "nice -n15 ionice -c3", lock=True,
+        args="--quiet"),   # vault100
     Job("run_watchers", HOUR, "0 * * * *", "nice -n15 ionice -c3"),
     Job("profit_guard_rollover", DAY, "5 0 * * *"),
     Job("backup", DAY, "15 2 * * *", kind="backup"),
