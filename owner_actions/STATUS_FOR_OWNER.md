@@ -1,5 +1,15 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## ⏰ নতুন cron লাইন — আপনার যোগ করার জন্য (৪টা; প্রথমটা সকালেরটাই, এখনো যোগ হয়নি)
+`/etc/cron.d/assisto-app` ফাইলে এই ৪টা লাইন যোগ করুন (ভল্টের মেয়াদ-সতর্কতা, গাড়ির কাগজ/সার্ভিসিং রিমাইন্ডার, গাড়ির দৈনিক হিসাব, CCTV ক্লিপ ২৪ ঘণ্টায় মুছে ফেলা)। যোগ না হলে ops_watch আপনাকে পুশ দিয়ে মনে করিয়ে দেবে।
+```
+20 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-vault-expiry-alerts.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py vault_expiry_alerts --quiet >> /home/ubuntu/assisto/logs/vault_expiry_alerts.log 2>&1
+35 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-vehicle-reminders.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py vehicle_reminders --quiet >> /home/ubuntu/assisto/logs/vehicle_reminders.log 2>&1
+45 3 * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-vehicle-daily-rollup.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py vehicle_daily_rollup >> /home/ubuntu/assisto/logs/vehicle_daily_rollup.log 2>&1
+17 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-shop-clip-purge.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py shop_clip_purge >> /home/ubuntu/assisto/logs/shop_clip_purge.log 2>&1
+```
+
+
 **✅ বিল্ড ২৬৮ Play-তে (internal + closed testing, ২৮ Oct দুপুর ~১২টা বাংলাদেশ সময়) — CRM:** গ্রাহকের এক-পাতার ইতিহাস (বাকি, বিক্রি, অর্ডার, AI চ্যাট, ডিল, তাগাদা — সব এক টাইমলাইনে); দোকানের দামের প্রস্তাব → গ্রাহক লিংকে গ্রহণ করলে অর্ডার নিজে তৈরি; CRM থেকে WhatsApp/ফোনের SMS (ফ্রি) বা Assisto SMS (আগে খরচ দেখায়, কখনো নিজে পাঠায় না)। **নিরাপত্তা-ফিক্স (লাইভ):** B2B প্রস্তাবের গ্রহণ-লিংক আগে আন্দাজ করা যেত — এখন এলোমেলো টোকেন ও মেয়াদ। CRM গড় ৫২.২ → ৭০.১। APK: https://api.lifeassisto.com/dl/NZn_SzURHcRUB11TC7m1K2Qz/assisto-part7-build268.apk
 
 
