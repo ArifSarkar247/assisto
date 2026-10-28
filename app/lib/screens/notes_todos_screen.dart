@@ -525,11 +525,11 @@ class _TodoTile extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(t.rnTodoRepeated(
                   DateFormat('d MMM', appDateLocale(context)).format(next)))));
-          AdMoments.report('task_done');
-          return;
+        } else {
+          app.todos.update(item, {'done': v ?? false});
         }
-        app.todos.update(item, {'done': v ?? false});
-        // admob: finishing a task is a natural break (Free only, capped)
+        // admob: finishing a task (one-off or one round of a repeating one) is
+        // the single natural break here — one call site (Free only, capped)
         if (v == true) AdMoments.report('task_done');
       },
       title: Text((d['title'] ?? '').toString(),
