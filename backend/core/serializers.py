@@ -269,7 +269,7 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ["id", "title", "doc_type", "file", "file_url", "expiry_date",
-                  "note", "details", "created_at", "updated_at"]
+                  "note", "details", "expiry_alerts", "created_at", "updated_at"]
         read_only_fields = ["id", "file_url", "created_at", "updated_at"]
         extra_kwargs = {"file": {"write_only": True, "required": False}}
 

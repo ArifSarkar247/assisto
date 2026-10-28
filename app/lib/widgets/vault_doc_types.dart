@@ -39,6 +39,8 @@ class VaultDocType {
         return '${t.vaultDeviceImeiHelp}\n\n'
             '${t.vaultDeviceEvidenceHelp}\n\n'
             '${t.imeiHonestNote}';
+      case 'vehicle':
+        return t.vaultVehicleHelp; // vault100
       default:
         return null;
     }
@@ -60,6 +62,10 @@ class VaultDocType {
         return t.docTypeWarranty;
       case 'device':
         return t.docTypeDevice;
+      case 'trade_licence':
+        return t.docTypeTradeLicence; // vault100
+      case 'vehicle':
+        return t.docTypeVehicle; // vault100
       default:
         return t.docTypeOther;
     }
@@ -125,6 +131,20 @@ const List<VaultDocType> kVaultDocTypes = [
     VaultField('number'),
     VaultField('issue_date', isDate: true),
   ], defaultValidityYears: 10, guideKey: 'driving'),
+  // vault100: trade licence renews every fiscal year (city corporation /
+  // pourashava / union parishad).
+  VaultDocType('trade_licence', Icons.storefront_rounded, [
+    VaultField('number'),
+    VaultField('issuing_authority'),
+    VaultField('issue_date', isDate: true),
+  ], defaultValidityYears: 1),
+  // vault100: vehicle papers (registration, tax token, fitness, route permit,
+  // insurance) — one entry per paper, each with its own expiry.
+  VaultDocType('vehicle', Icons.directions_car_filled_rounded, [
+    VaultField('number'),
+    VaultField('model'),
+    VaultField('issue_date', isDate: true),
+  ]),
   VaultDocType('certificate', Icons.school_rounded, [
     VaultField('issuing_authority'),
     VaultField('issue_date', isDate: true),

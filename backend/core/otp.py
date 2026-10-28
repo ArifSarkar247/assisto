@@ -54,11 +54,19 @@ PURPOSES = ("signup", "login", "password_reset", "delete_account", "section8",
             # booking-bot: a guest proves the phone they book with (public page)
             "booking",
             # smsotp: prove an email address (signed-in user, email channel only)
-            "email_verify")
+            "email_verify",
+            # vault100: prove it is you before a forgotten vault PIN is reset
+            # (the PIN itself never leaves the phone — see core/vault_recovery)
+            "vault_reset")
 # Purposes that only make sense for a signed-in user.
-AUTHED_PURPOSES = ("delete_account", "section8", "change_number", "email_verify")
+AUTHED_PURPOSES = ("delete_account", "section8", "change_number", "email_verify",
+                   "vault_reset")
+# Own-account purposes: the code goes to the SIGNED-IN user's phone / verified
+# email only (never to a number typed by the caller).
+OWN_ACCOUNT_PURPOSES = ("delete_account", "section8", "vault_reset")
 # smsotp: purposes a code may be delivered for by EMAIL
-EMAIL_PURPOSES = ("login", "password_reset", "delete_account", "section8", "email_verify")
+EMAIL_PURPOSES = ("login", "password_reset", "delete_account", "section8", "email_verify",
+                  "vault_reset")
 # smsotp: core/sms_service purpose bucket per OTP purpose
 PHONE_VERIFY_PURPOSES = ("signup", "change_number", "booking")
 

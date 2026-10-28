@@ -75,7 +75,12 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # (a remote switch is waiting). Data-only, draws nothing; handled
          # natively (AssistoFcmService -> AntiTheftService). Older builds
          # ignore the unknown kind.
-         "at_command")
+         "at_command",
+         # vault100: a vault document expires in 60/30/7/1 days. A
+         # NOTIFICATION push (tray draws it on any build) carrying ONLY the
+         # document TYPE + days left — never the title, numbers or file.
+         # Capped 1/user/day + quiet hours in vault_expiry_alerts.
+         "doc_expiry")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -96,7 +101,7 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "key_request": 86400, "key_ready": 86400, "message_request": 86400,
          "offer": 6 * 3600, "meter_low": 12 * 3600,
          "agent_nudge": 12 * 3600, "agent_approval": 86400,
-         "at_command": 3600}
+         "at_command": 3600, "doc_expiry": 12 * 3600}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -106,7 +111,7 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "message_request": "messages", "offer": "offers",
             "meter_low": "alerts",
             "agent_nudge": "alerts", "agent_approval": "alerts",
-            "at_command": "alerts"}
+            "at_command": "alerts", "doc_expiry": "reminders"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 

@@ -549,11 +549,35 @@ class Document(models.Model):
     # Type-specific structured fields (e.g. passport number, policy no.) kept as a
     # real JSON map so values with ; | = are never corrupted (vault P1 fix).
     details = models.JSONField(default=dict, blank=True)
+    # vault100: per-document opt-out of the server expiry pushes (60/30/7/1
+    # days before expiry_date). Metadata only — the push never carries the
+    # title, numbers or the file.
+    expiry_alerts = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["expiry_date", "-updated_at"]
+
+
+class DocExpiryPush(models.Model):
+    """vault100 — one row per (document, stage, expiry date) expiry push.
+    The UNIQUE constraint is the claim: a row is inserted BEFORE the push is
+    sent, so overlapping cron runs / retries can never send one stage twice
+    (at-most-once). A changed expiry date starts a fresh cycle."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                 related_name="expiry_pushes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="doc_expiry_pushes")
+    stage = models.PositiveSmallIntegerField()        # 60 / 30 / 7 / 1
+    expiry_date = models.DateField()
+    sent_at = models.DateTimeField(default=timezone.now)  # the sweep's clock
+    delivered = models.PositiveSmallIntegerField(default=0)  # devices reached
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["document", "stage", "expiry_date"], name="uniq_doc_expiry_stage")]
+        indexes = [models.Index(fields=["user", "sent_at"])]
 
 
 class EmergencyCard(models.Model):
