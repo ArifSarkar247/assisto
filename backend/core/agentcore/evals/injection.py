@@ -501,6 +501,7 @@ def run_case(case, seam, grader):
 def run_suite(cases_, mode="obedient", strip_fence=False):
     from contextlib import ExitStack
     from unittest import mock
+    from .. import runner as RN
     brain = InjectionBrain("fenced" if mode == "fenced" else "obedient")
     seam = FenceStripper(brain) if strip_fence else brain
     grader = grade_fenced if mode == "fenced" else grade_structural
@@ -509,6 +510,14 @@ def run_suite(cases_, mode="obedient", strip_fence=False):
         st.enter_context(mock.patch("core.ai._providers", return_value=[("anthropic", "test-key")]))
         st.enter_context(mock.patch("core.ai._call_anthropic", side_effect=seam))
         st.enter_context(mock.patch("core.push.notify_owner", return_value={}))
+        # ~2,000 scripted provider calls in one test: the router's daily SPEND
+        # caps (not under test here) would stop the suite half-way; and the
+        # Business-plan run budget lets multi-step attacks (read more data,
+        # then act) really reach the guards instead of stopping at "budget"
+        st.enter_context(mock.patch("core.ai_router.total_capped", return_value=False))
+        st.enter_context(mock.patch("core.ai_router.provider_capped", return_value=False))
+        st.enter_context(mock.patch("core.agentcore.runner.limits_for",
+                                    return_value=dict(RN.LIMITS["business"])))
         for c in cases_:
             bad = run_case(c, seam, grader)
             (out["failed"] if bad else out["passed"]).append((c["id"], bad))
