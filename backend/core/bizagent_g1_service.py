@@ -70,15 +70,77 @@ def post_product(business, catalog, post_id):
     return next((p for p in catalog if p.get("id") == link.product_id), None)
 
 
+def wallets_for(business):
+    """sales2: the seller's OWN bKash / Nagad numbers (OwnerWallet) for the
+    payment steps — never anyone else's number."""
+    from .models import OwnerWallet
+    rows = OwnerWallet.objects.filter(user=business.user).filter(
+        Q(business=business) | Q(business__isnull=True)).order_by("id")
+    out, seen = [], set()
+    for w in rows:
+        if w.provider in seen or not (w.merchant_number or "").strip():
+            continue
+        seen.add(w.provider)
+        out.append({"provider": w.provider, "number": w.merchant_number.strip(),
+                    "name": (w.merchant_name or "").strip()})
+    return out
+
+
+def address_for(business):
+    """sales2: the address the seller published on their booking page (the
+    only shop-address field we hold); '' when none."""
+    page = getattr(business, "booking_page", None) if hasattr(business, "booking_page") else None
+    try:
+        return (page.address or "").strip() if page is not None else ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def hours_text_for(business, agent, pol=None):
+    """The agent's hours, else the seller's policy / profile hours text."""
+    ht = BZ.hours_text(agent.hours)
+    if ht:
+        return ht
+    pol = pol if pol is not None else business.policies.first()
+    return ((pol.hours if pol else "") or business.hours or "").strip()
+
+
 def rules_ctx(business, agent, thread, lang, catalog, post_id=""):
     pol = business.policies.first()
     return {"lang": lang, "catalog": catalog, "delivery": S().delivery_for(business),
-            "hours_text": BZ.hours_text(agent.hours),
+            "hours_text": hours_text_for(business, agent, pol),
             "policies": {"returns": pol.returns if pol else "",
                          "payment": pol.payment_note if pol else ""},
             "faqs": faqs_for(business), "orders": orders_for_thread(thread),
             "shop_name": business.shop_name, "cod": agent.cod_enabled,
-            "post_product": post_product(business, catalog, post_id)}
+            "post_product": post_product(business, catalog, post_id)
+            or focus_product(thread, catalog),
+            "wallets": wallets_for(business), "address": address_for(business)}
+
+
+def focus_product(thread, catalog):
+    """sales2: the product this chat is about (the last one the agent
+    described, or the order draft's) — so "L size ache?" / "last price?" /
+    "bkash e dibo" right after "Panjabi dam koto?" need no product name."""
+    d = (thread.order_draft or {}) if thread is not None else {}
+    pid = (d.get("focus") or {}).get("id") or d.get("product_id")
+    if not pid:
+        return None
+    return next((p for p in catalog or [] if p.get("id") == pid), None)
+
+
+def remember_focus(thread, product_id, catalog):
+    """Store the described product as the chat's focus (not an order)."""
+    from .models import ChatThread
+    p = next((x for x in catalog or [] if x.get("id") == product_id), None)
+    if p is None or thread is None or thread.pk is None:
+        return
+    d = dict(thread.order_draft or {})
+    if (d.get("focus") or {}).get("id") == p["id"]:
+        return
+    d["focus"] = {"id": p["id"], "name": p["name"]}
+    ChatThread.objects.filter(pk=thread.pk).update(order_draft=d)
+    thread.order_draft = d
 
 
 def rule_answer(business, agent, thread, text, lang, catalog, post_id=""):
@@ -93,7 +155,7 @@ def rule_answer(business, agent, thread, text, lang, catalog, post_id=""):
         return None
     check_ctx = {"catalog": catalog, "delivery": ctx["delivery"],
                  "policies": S().policies_for(business, agent)}
-    extra = [o["id"] for o in ctx["orders"]]
+    extra = [o["id"] for o in ctx["orders"]] + list(r.get("numbers") or [])
     probs = BZ.check_numbers(r["text"], check_ctx, text, extra=extra)
     if r["rule"] == R.R_FAQ:
         probs = [p for p in probs if p["type"] in ("money", "stock_claim")]

@@ -35,6 +35,7 @@ All user-facing strings are {bn, en}. The assistant replies in bn / Banglish /
 en matching the customer's input language (detect_lang()).
 =============================================================================
 """
+import re
 from decimal import Decimal, InvalidOperation
 
 # Optional reuse of sibling pure-logic (voice entry / notification matching).
@@ -115,7 +116,19 @@ def detect_lang(text):
     )
     if any(m in low for m in banglish_markers):
         return "banglish"
+    # sales2: everyday Banglish WORDS (whole tokens only — "ase" must not hit
+    # "please", "ami" must not hit "Miami")
+    if set(re.findall(r"[a-z]+", low)) & _BANGLISH_TOKENS:
+        return "banglish"
     return "en"
+
+
+_BANGLISH_TOKENS = {
+    "salam", "assalamu", "assalamualaikum", "walaikum", "dokan", "dokaner", "kothay", "kothai",
+    "kokhon", "khola", "jabe", "kharap", "nai", "hoye", "gelo", "apnader", "apnara", "apni",
+    "amar", "ami", "bolen", "thake", "korte", "kora", "ase", "koi", "vai", "bhaiya", "accha",
+    "thik", "dhonnobad", "lagbe", "pabo", "chai", "den", "din", "dao", "deya", "dewa", "newa",
+    "nite", "parbo", "hobena", "keno", "tumi", "apu", "bhai", "ekhon", "kalke", "ajke"}
 
 
 def reply_lang(text):
