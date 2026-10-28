@@ -44,6 +44,7 @@ class Tool:
     topics: tuple = ()
     pii_out: tuple = ()            # output keys that may carry phone/account numbers
     approval_title: object = None  # fn(args, lang) -> title for an approval card
+    precheck: object = None        # AF-5: fn(ctx, args) raising ToolError BEFORE a card (own recipient)
     tests: tuple = field(default=("schema", "ownership", "empty", "flag_off"))
 
     @property

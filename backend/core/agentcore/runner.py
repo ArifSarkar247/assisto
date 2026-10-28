@@ -26,7 +26,7 @@ from . import planner as PL
 from . import tools as TL
 from . import topics as TP
 from . import trust as T
-from .contract import SchemaError, ToolError, validate
+from .contract import APPROVAL_RISKS, SchemaError, ToolError, validate
 
 log = logging.getLogger(__name__)
 
@@ -318,6 +318,7 @@ def _plan(run, steps, ctx):
     invalid = sum(1 for s in steps if s.kind == "plan" and s.state == "failed")
     obs = _observations(run, steps, vault)
     memory = _memory_for(run, vault)
+    _note_taint(run, obs, memory)      # AF-5: instructions found inside DATA
     T.save_vault(run, vault)           # observation/memory masking may mint tokens
     run.save(update_fields=["vault_sealed", "updated_at"])
     req = PL.PlanRequest(user=run.user, topic=run.topic or "general", topic_rules=tp["rules"],
@@ -426,6 +427,12 @@ def _checked_answer(run, masked_answer, steps, obs, memory, tp, ctx):
     from . import health_guard as HG
     from .. import ai_guard as G
     lang = _answer_lang(run)
+    # AF-5: a sentence that relays an instruction / phishing ask found in the
+    # data ("your account is blocked, call ⟦PHONE_3⟧ and share the OTP") is
+    # dropped before anything else — the user sees an honest line instead.
+    masked_answer, echoed = G.scrub_injection_echo(masked_answer, run.goal.text_masked, lang)
+    if echoed:
+        T.audit(run, "guard.injection_echo", removed=echoed)
     clean, _ = HG.filter_answer(masked_answer, run.topic, lang)
     clean = T.TOKEN_RX.sub(" ", clean)        # ⟦ACCT_12⟧ is a token, not a number
     bad = G.ungrounded_numbers(clean, *grounding_sources(run, ctx, obs, memory, tp))
@@ -494,16 +501,45 @@ def _exec_step(run, step, ctx):
     masked_args = T.unseal(step.args_sealed).get("a") or {}
     if tool is None or tool.version != step.tool_version:
         return _fail_step(run, step, "tool_gone")
-    if tool.risk == "external" and step.state == "pending":
+    first_look = step.state == "pending" and not AgentApproval.objects.filter(step=step).exists()
+    if tool.risk == "external" and first_look:
         # AF-4: a message / post the agent would send for the user is never
         # abusive / hateful / threatening / sexual — blocked before the
         # approval card, score audited (never the words)
         from .. import ai_guard as G
         tx = G.toxicity("\n".join(_strings(masked_args)))
-        if tx["toxic"] and not AgentApproval.objects.filter(step=step).exists():
+        if tx["toxic"]:
             T.audit(run, "guard.toxicity", step=step, tool=tool.ref, **G.tox_log(tx))
             return _fail_step(run, step, "toxic_blocked")
-    if tool.needs_approval:
+    if first_look and tool.risk == "write_low" and _tainted(run):
+        # AF-5: in a run that saw an instruction inside the data, an own-data
+        # write may not carry a number taken from that data either
+        why = _exfil(run, masked_args)
+        if why:
+            T.audit(run, "guard.exfil", step=step, tool=tool.ref, kind=why)
+            return _fail_step(run, step, why)
+    if first_look and tool.risk in APPROVAL_RISKS:
+        # AF-5 STRUCTURAL: nothing that leaves the app may carry a phone /
+        # NID / account / e-mail the USER did not type in this goal — a value
+        # read from data (another customer's number, an attacker's number in
+        # a chat) can never be sent out, whatever the model planned.
+        why = _exfil(run, masked_args)
+        if why:
+            T.audit(run, "guard.exfil", step=step, tool=tool.ref, kind=why)
+            return _fail_step(run, step, why)
+        # recipients only from the user's OWN records, checked BEFORE a card is
+        # shown (no "send to ⟦PHONE_3⟧?" card for a stranger)
+        if tool.precheck is not None:
+            pctx = Ctx(user=run.user, now=ctx.now, lang=ctx.lang, play=ctx.play, idem_key=step.idem_key)
+            try:
+                tool.precheck(pctx, vault.unmask_obj(masked_args))
+            except ToolError as e:
+                return _fail_step(run, step, e.code)
+    # AF-5: after an instruction was seen inside the data, every own-data write
+    # (reminder, note, money log, stock) also waits for the user's one tap.
+    needs = tool.needs_approval or (tool.risk == "write_low" and tool.name not in SUGGEST_ONLY
+                                    and _tainted(run))
+    if needs:
         ap = AgentApproval.objects.filter(step=step).first()
         if ap is None or ap.status == "pending":
             if ap is None:
@@ -515,6 +551,8 @@ def _exec_step(run, step, ctx):
                                 tool.approval_title(tctx, args, "en"))
                 else:
                     tbn, ten = tool.label_bn + "?", tool.label_en + "?"
+                if _tainted(run):
+                    tbn, ten = TAINT_PREFIX["bn"] + tbn, TAINT_PREFIX["en"] + ten
                 new_ap = T.request_approval(run, step, tool, masked_args, vault.mask(tbn),
                                             vault.mask(ten))
                 T.save_vault(run, vault)
@@ -558,6 +596,45 @@ def _exec_step(run, step, ctx):
     T.audit(run, "tool.done", step=step, credits=step.credits, tool=tool.ref, risk=tool.risk,
             summary=step.summary)
     return "done"
+
+
+# ------------------------------------------------------------------ AF-5 helpers
+# suggestion-only tools: the user approves on the "AI knows" page anyway
+SUGGEST_ONLY = ("memory.remember", "memory.update")
+TAINT_PREFIX = {"bn": "সাবধান: এই কাজের কথা এসেছে ডেটার ভেতরের লেখা থেকে — ",
+                "en": "Careful: this came from text inside your data — "}
+
+
+def _note_taint(run, obs, memory):
+    """AF-5: audit guard.injection_seen once when a tool result or a saved
+    fact carries an instruction to the assistant (tool names only, never
+    the text). From then on own-data writes need approval."""
+    from .. import ai_guard as G
+    if run.audit.filter(event="guard.injection_seen").exists():
+        return
+    hit = sorted({o["tool"] for o in obs or [] if o.get("ok")
+                  and any(G.injection_hits(x) for x in _strings(o.get("result")))})
+    if any(G.injection_hits(m.get("fact") or "") for m in memory or []):
+        hit.append("memory")
+    if hit:
+        T.audit(run, "guard.injection_seen", tools=hit)
+
+
+def _tainted(run):
+    return run.audit.filter(event="guard.injection_seen").exists()
+
+
+def _exfil(run, masked_args):
+    """'' or why an outgoing step's arguments carry a value the user never
+    gave: raw PII (the planner typed a number) or a vault token minted from
+    DATA instead of from the user's own goal."""
+    txt = "\n".join(_strings(masked_args))
+    if T.has_raw_pii(txt):
+        return "pii_blocked"
+    goal = run.goal.text_masked or ""
+    if any(m.group(0) not in goal for m in T.TOKEN_RX.finditer(txt)):
+        return "pii_exfil_blocked"
+    return ""
 
 
 def _strings(obj):
