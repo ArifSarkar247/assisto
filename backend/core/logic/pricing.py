@@ -1494,6 +1494,11 @@ def plan_benefits(pid, lang, cfg):
         msg = _P40.plan_message_line(pid, n, cfg, bn)
         if msg:
             lines[0] = msg
+            # the message line already says "+ 10 free quick replies a day":
+            # never list it a second time (seen live on Premium Pro, 28 Oct)
+            dup = "ফ্রি দ্রুত উত্তর" if bn else "free quick replies"
+            if dup in msg:
+                lines = [lines[0]] + [x for x in lines[1:] if dup not in x]
     if pid == "premium":
         fam = s["family"]
         if fam > 0:
@@ -1549,7 +1554,7 @@ def plan_public(lang, cfg):
         "id": "annual",
         "name": pick(lang, "বার্ষিক (প্রিমিয়াম)", "Annual (Premium)"),
         "price": yearly, "cur": CUR, "period": "yr",
-        "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
+        "desc": pick(lang, f"প্রিমিয়াম — বছরে, {_bn_num(disc)}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
         "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],

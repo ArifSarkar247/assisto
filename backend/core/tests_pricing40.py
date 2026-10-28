@@ -328,6 +328,17 @@ class PresetAppliedTests(Base):
         self.assertEqual(catalog.price("pack_c300", "play"), 949)
         self.assertIn("premium_pro", [p["id"] for p in plans.plans_public("bn")])
 
+    def test_plan_texts_no_duplicate_quick_line_and_bangla_digits(self):
+        from core.logic import pricing as P
+        from core import billing
+        cfg = P.normalize(billing.get_config().data)
+        for lang, dup in (("bn", "ফ্রি দ্রুত উত্তর"), ("en", "free quick replies")):
+            for p in P.plan_public(lang, cfg):
+                hits = [b for b in p.get("benefits") or [] if dup in b]
+                self.assertLessEqual(len(hits), 1, (lang, p["id"], p.get("benefits")))
+        for p in P.plan_public("bn", cfg):
+            self.assertNotRegex(p.get("desc") or "", r"[0-9]", p["id"])
+
     def test_new_model_pack_verified_when_legacy_api_errors(self):
         # live 28 Oct: credits_c50 (new one-time products model) answers the
         # legacy inappproducts GET with google_error, not 404 -> must still be
