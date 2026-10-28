@@ -82,7 +82,7 @@ class IdentityVault {
     if (raw != null) {
       final id = _decode(raw);
       if (id != null) {
-        unawaited(_remember(id));
+        unawaited(_track(_remember(id)));
         return _cached = id;
       }
       rekeyed = true; // unreadable -> re-key safely below
@@ -103,7 +103,7 @@ class IdentityVault {
       final again = await _s.read(slot);
       final restored = again == null ? null : _decode(again);
       if (restored != null) {
-        unawaited(_remember(restored));
+        unawaited(_track(_remember(restored)));
         return _cached = restored;
       }
       ring = await _storedRing();
@@ -117,18 +117,18 @@ class IdentityVault {
     final id = _e2e.generateIdentity();
     volatile = !await _s.write(slot, _encode(id));
     if (volatile) {
-      unawaited(_remember(id));
+      unawaited(_track(_remember(id)));
       return _cached = id;
     }
     // Another isolate may have stored one meanwhile: the stored one wins.
     final again = await _s.read(slot);
     final won = (again == null ? null : _decode(again)) ?? id;
     final hook = won.keyId == id.keyId ? onNewKey : null;
-    unawaited(_remember(won).then((_) {
+    unawaited(_track(_remember(won).then((_) {
       try {
         hook?.call(won); // ring written first: the backup includes it
       } catch (_) {}
-    }));
+    })));
     return _cached = won;
   }
 
@@ -157,6 +157,23 @@ class IdentityVault {
       return _ringCache = out;
     } catch (_) {
       return const [];
+    }
+  }
+
+  // Background ring writes still running (get() returns before they finish).
+  static final Set<Future<void>> _background = {};
+  static Future<void> _track(Future<void> f) {
+    _background.add(f);
+    return f.whenComplete(() => _background.remove(f));
+  }
+
+  /// Completes when every background key-ring write has finished — e.g. a
+  /// test's tearDown before it deletes the store directory (a ring write
+  /// still renaming its .tmp file made `delete(recursive)` fail with
+  /// "Directory not empty").
+  static Future<void> backgroundIdle() async {
+    while (_background.isNotEmpty) {
+      await Future.wait(_background.toList());
     }
   }
 

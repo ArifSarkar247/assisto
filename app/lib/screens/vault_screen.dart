@@ -130,7 +130,11 @@ class _VaultScreenState extends State<VaultScreen> {
       _docs = await context.read<AppState>().api.listDocuments();
       _offlineMode = false;
       // keep the phone's copies in step (never blocks the list)
-      unawaited(_offline.syncWith(_docs).then((_) => _refreshLocal(), onError: (_) {}));
+      // best-effort: syncWith never throws (every store call is caught inside);
+      // if it ever failed, the copies just keep their last saved details and
+      // still open offline — the next load retries. The badges refresh anyway.
+      unawaited(_offline.syncWith(_docs).then((_) => _refreshLocal(),
+          onError: (_) => _refreshLocal()));
     } catch (e) {
       _failCause = e;
       final saved = failKindOf(e) == FailKind.network
