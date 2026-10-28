@@ -40,6 +40,10 @@ LIMITS = {
     "business": {"runs_per_day": 50, "credits": 60, "steps": 15},
 }
 MAX_LLM_CALLS = 3
+# AF-18: a goal may follow up the user's own run finished this recently; the
+# planner then sees up to MAX_PREVIOUS earlier turns (masked, inside DATA)
+FOLLOW_UP_WINDOW = timedelta(hours=2)
+MAX_PREVIOUS = 2
 
 
 class AgentError(Exception):
@@ -78,8 +82,18 @@ def flag_on(user, play=False):
 
 # ------------------------------------------------------------------ start
 def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=False,
-          inline=True, now=None):
-    """Create (idempotently) a goal + run; optionally drive it right away."""
+          inline=True, now=None, topic2="", follow_up=None):
+    """Create (idempotently) a goal + run; optionally drive it right away.
+
+    AF-11: with no explicit `topic` the classifier may pick TWO topics
+    (topics.plan_topics); an explicit `topic` stays single unless `topic2`
+    names the second one too. The run's own `topic` is the primary; the pair
+    is in the run.created audit (topics_of()).
+
+    AF-18: `follow_up` = the id of the user's previous run in this
+    conversation (own, finished, within FOLLOW_UP_WINDOW; else ignored). A
+    goal with no topic of its own keeps that run's topics; "undo that" takes
+    back that run's own-data writes (undo.py, no AI call)."""
     from ..models import AgentGoal, AgentRun
     text = (text or "").strip()
     from . import crisis_guard as CG
@@ -101,11 +115,23 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
     # nothing else is done in this turn. Only {score, category} is logged.
     if crisis["crisis"]:
         return _crisis_run(user, text, crisis, channel, client_id, lang, lim, now)
+    prev = _prev_turn(user, follow_up, now) if follow_up else None
+    if prev is not None:
+        from . import undo as UN
+        if UN.is_undo(text):            # deterministic, 0 credits, before any cap
+            return UN.undo_run(user, text, prev, channel, client_id, lang, lim, now)
     if channel != "eval":
         day0 = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
         if AgentRun.objects.filter(user=user, created_at__gte=day0).count() >= lim["runs_per_day"]:
             raise AgentError("daily_cap", 429)
-    topic = topic if topic in TP.TOPICS else TP.classify(text)
+    if topic in TP.TOPICS:
+        pair = [topic] + ([topic2] if topic2 in TP.TOPICS and topic2 != topic else [])
+    else:
+        pair = TP.plan_topics(text)
+        if not pair and prev is not None:          # "and last month?" keeps the topic
+            pair = [k for k in topics_of(prev) if k]
+    pair = pair[:TP.MAX_TOPICS]
+    topic = pair[0] if pair else ""
     vault = T.Vault()
     masked = vault.mask(text)
     with transaction.atomic():
@@ -117,8 +143,12 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
                        deadline_at=now + RUN_TTL)
         T.save_vault(run, vault)
         run.save()
+        extra = {"topics": pair, "secondary": pair[1]} if len(pair) > 1 else {}
+        if prev is not None:
+            extra["follow_up"] = prev.pk
         T.audit(run, "run.created", topic=topic or "general", channel=goal.channel,
-                goal=masked[:300])
+                goal=masked[:300], **extra)
+    run._topics = pair or [""]
     # AF-4: the goal's toxicity SCORE is logged (never the words); the user's
     # own wording to their own assistant is not refused — but nothing toxic
     # is ever SENT for them (_exec_step) or answered back (_finish).
@@ -126,7 +156,7 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
     tx = G.toxicity(text)
     if tx["toxic"]:
         T.audit(run, "guard.toxicity_in", **G.tox_log(tx))
-    if topic == "memory":
+    if "memory" in pair:
         # WP-MEMORY: "remember my password / PIN / OTP / card / NID" is refused
         # BEFORE any AI call — the secret never reaches a model, 0 credits.
         from . import memory as MEM
@@ -164,6 +194,67 @@ def _crisis_run(user, text, crisis, channel, client_id, lang, lim, now):
     return run
 
 
+def _prev_turn(user, follow_up, now):
+    """AF-18: the run `follow_up` names, when it may be followed up."""
+    from ..models import AgentRun
+    try:
+        pk = int(follow_up)
+    except (TypeError, ValueError):
+        return None
+    prev = AgentRun.objects.filter(pk=pk, user=user).select_related("goal").first()
+    if prev is None or prev.state in AgentRun.OPEN_STATES:
+        return None
+    if (prev.finished_at or prev.created_at) < (now or timezone.now()) - FOLLOW_UP_WINDOW:
+        return None
+    if crisis_of(prev):
+        return None                      # a crisis handover is never continued by the planner
+    return prev
+
+
+def follow_up_of(run):
+    ev = run.audit.filter(event="run.created").order_by("id").first()
+    return (ev.detail or {}).get("follow_up") if ev is not None else None
+
+
+def previous_turns(run, vault):
+    """AF-18: up to MAX_PREVIOUS earlier turns, oldest first, MASKED with
+    this run's vault: [{goal, answer, tools, undo}]."""
+    from ..models import AgentRun
+    out, cur, seen = [], follow_up_of(run), {run.pk}
+    while cur and cur not in seen and len(out) < MAX_PREVIOUS:
+        seen.add(cur)
+        p = AgentRun.objects.filter(pk=cur, user_id=run.user_id).select_related("goal").first()
+        if p is None:
+            break
+        goal = (T.unseal(p.goal.text_sealed) or {}).get("t") or p.goal.text_masked or ""
+        ans = answer_of(p) if p.state == "done" else ""
+        ev = p.audit.filter(event="run.created").order_by("id").first()
+        d = (ev.detail or {}) if ev is not None else {}
+        out.insert(0, {"goal": vault.mask(goal)[:600], "answer": vault.mask(ans)[:600],
+                       "tools": sorted({s.tool for s in p.steps.filter(kind="tool", state="done")}),
+                       "undo": bool(d.get("undo"))})
+        cur = d.get("follow_up")
+    return out
+
+
+def topics_of(run):
+    """AF-11: [primary] or [primary, secondary] for this run ([""] = general)."""
+    cached = getattr(run, "_topics", None)
+    if cached is not None:
+        return list(cached)
+    ev = run.audit.filter(event="run.created").order_by("id").first()
+    pair = list((ev.detail or {}).get("topics") or []) if ev is not None else []
+    if len(pair) < 2 or pair[0] != run.topic or any(k not in TP.TOPICS for k in pair):
+        pair = [run.topic or ""]
+    run._topics = pair[:TP.MAX_TOPICS]
+    return list(run._topics)
+
+
+def topic_scopes(run, lang="bn"):
+    """AF-11: the plan card's explicit scope line per topic of this run."""
+    return [TP.scope(k, lang) for k in topics_of(run)]
+
+
 def crisis_of(run):
     """AF-3: {"score", "category"} when this run was a crisis handover."""
     ev = run.audit.filter(event="guard.crisis").first()
@@ -191,7 +282,7 @@ def _finish(run, state, error="", answer=None):
         # final answer (no diagnosis / medicine / dose / therapy; doctor-999
         # line), not only asked of the model in the topic instructions.
         from . import health_guard as HG
-        answer, removed = HG.filter_answer(answer, run.topic, _answer_lang(run))
+        answer, removed = HG.filter_answer(answer, _health_topic(run), _answer_lang(run))
         if removed:
             T.audit(run, "guard.health", removed=removed)
         # AF-4 OUTBOUND: an abusive / hateful / threatening / sexual final
@@ -212,6 +303,14 @@ def _finish(run, state, error="", answer=None):
     T.audit(run, "run." + state, error=error,
             answer=vault.mask(answer)[:400] if answer else "",
             credits_total=run.credits_spent)
+
+
+def _health_topic(run):
+    """The health rule applies when health is the primary OR the second topic."""
+    try:
+        return "health" if "health" in topics_of(run) else run.topic
+    except Exception:  # noqa: BLE001
+        return run.topic
 
 
 def _answer_lang(run):
@@ -269,15 +368,25 @@ def _tick(run, ctx):
         plan = T.unseal(last.result_sealed).get("plan") or {}
         tool_steps = [s for s in steps if s.kind == "tool" and s.no > last.no]
         if plan.get("done") and tool_steps and all(s.state == "done" for s in tool_steps):
-            _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
+            _finish(run, "done", answer=_template_answer(run, _answer_steps(run, steps, tool_steps),
+                                                         ctx.lang))
             return "stop"
         # the user REJECTED a card of a finished plan: answer from templates
         # (0 credits) instead of paying for another planner call
         if plan.get("done") and tool_steps and all(s.state in ("done", "rejected") for s in tool_steps) \
                 and any(s.state == "rejected" and s.error_code == "rejected_by_user" for s in tool_steps):
-            _finish(run, "done", answer=_template_answer(run, tool_steps, ctx.lang))
+            _finish(run, "done", answer=_template_answer(run, _answer_steps(run, steps, tool_steps),
+                                                         ctx.lang))
             return "stop"
     return _plan(run, steps, ctx)
+
+
+def _answer_steps(run, steps, last_plan_steps):
+    """AF-11: a two-topic run answers from EVERY finished tool step (both
+    topics' results), a single-topic run from its last plan's steps."""
+    if len(topics_of(run)) < 2:
+        return last_plan_steps
+    return [s for s in steps if s.kind == "tool" and s.state in ("done", "rejected")]
 
 
 def _observations(run, steps, vault):
@@ -294,7 +403,7 @@ def _observations(run, steps, vault):
 
 
 def _allowed(run, ctx):
-    tp = TP.get(run.topic)
+    tp = TP.combined(topics_of(run))
     return tp, TL.available(ctx, tp["tools"])
 
 
@@ -318,12 +427,19 @@ def _plan(run, steps, ctx):
     invalid = sum(1 for s in steps if s.kind == "plan" and s.state == "failed")
     obs = _observations(run, steps, vault)
     memory = _memory_for(run, vault)
+    previous = previous_turns(run, vault)      # AF-18 (masked; may mint tokens)
+    run._previous = previous
     _note_taint(run, obs, memory)      # AF-5: instructions found inside DATA
     T.save_vault(run, vault)           # observation/memory masking may mint tokens
     run.save(update_fields=["vault_sealed", "updated_at"])
+    pair = topics_of(run)
     req = PL.PlanRequest(user=run.user, topic=run.topic or "general", topic_rules=tp["rules"],
+                         topics=[k or "general" for k in pair],
+                         second_rules=tp.get("second_rules", ""),
+                         tool_topics={t.name: TP.tool_topic(t.name, pair) for t in allowed}
+                         if len(pair) > 1 else {},
                          tools=allowed, goal_masked=run.goal.text_masked,
-                         observations=obs, memory=memory, lang=ctx.lang,
+                         observations=obs, memory=memory, lang=ctx.lang, previous=previous,
                          now_iso=timezone.localtime(ctx.now).isoformat(timespec="minutes"),
                          attempt=invalid,
                          last_error=(steps[-1].error_code if steps and steps[-1].kind == "plan"
@@ -346,7 +462,9 @@ def _plan(run, steps, ctx):
         plan = PL.parse(res.raw)
         names = {t.name for t in allowed}
         for i, s in enumerate(plan["steps"]):
-            if s["tool"] not in names:
+            # AF-11: each tool is checked against ITS OWN topic's allow-list
+            # (one of this run's <= 2 topics); anything else is rejected
+            if s["tool"] not in names or not TP.tool_topic(s["tool"], pair):
                 raise PL.PlanError("tool_not_allowed", s["tool"])
             try:
                 validate(s["args"], TL.get(s["tool"]).input_schema, "$.steps[%d].args" % i)
@@ -374,8 +492,10 @@ def _plan(run, steps, ctx):
     pstep.summary = (", ".join(s["tool"] for s in plan["steps"]) or "answer")[:400]
     pstep.finished_at = timezone.now()
     pstep.save()
+    extra = ({"tool_topics": [TP.tool_topic(s["tool"], pair) for s in plan["steps"]]}
+             if len(pair) > 1 else {})
     T.audit(run, "plan.ok", step=pstep, credits=pstep.credits, tools=[s["tool"] for s in plan["steps"]],
-            done=bool(plan.get("done")))
+            done=bool(plan.get("done")), **extra)
     if not plan["steps"]:
         ans = _checked_answer(run, plan["answer"].strip(), steps, obs, memory, tp, ctx)
         _finish(run, "done", answer=vault.unmask(ans))
@@ -414,6 +534,8 @@ def grounding_sources(run, ctx, obs, memory, tp):
            json.dumps(memory or [], ensure_ascii=False, default=str), (tp or {}).get("rules") or "",
            days, " ".join(TRUSTED_NUMBERS), HG.DOCTOR_999_LINE["bn"], HG.DOCTOR_999_LINE["en"]]
     src += [o["result"] for o in obs or [] if isinstance(o.get("result"), dict)]
+    # AF-18: a follow-up may repeat a number from an earlier turn of this chat
+    src += [json.dumps(getattr(run, "_previous", None) or [], ensure_ascii=False, default=str)]
     return src
 
 
@@ -433,7 +555,7 @@ def _checked_answer(run, masked_answer, steps, obs, memory, tp, ctx):
     masked_answer, echoed = G.scrub_injection_echo(masked_answer, run.goal.text_masked, lang)
     if echoed:
         T.audit(run, "guard.injection_echo", removed=echoed)
-    clean, _ = HG.filter_answer(masked_answer, run.topic, lang)
+    clean, _ = HG.filter_answer(masked_answer, _health_topic(run), lang)
     clean = T.TOKEN_RX.sub(" ", clean)        # ⟦ACCT_12⟧ is a token, not a number
     bad = G.ungrounded_numbers(clean, *grounding_sources(run, ctx, obs, memory, tp))
     if not bad:

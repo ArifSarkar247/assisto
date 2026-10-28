@@ -114,6 +114,8 @@ urlpatterns = [
     path("vitals/crash-rate", OPS.crash_rate_page),              # ops-watch
     path("agent-runs", AGR.agent_runs),                          # agent-core
     path("agent-runs/thresholds", AGR.agent_obs_save),           # af-8
+    path("agent-runs/feedback", AGR.agent_feedback_queue),       # af-12
+    path("agent-runs/feedback/<int:pk>", AGR.agent_feedback_decide),  # af-12
     path("agent-runs/<int:pk>", AGR.agent_run_detail),           # agent-core
     path("crisis-helplines", CRH.crisis_helplines),                # af-crisis
     path("crisis-helplines/<str:key>", CRH.crisis_helpline_save),  # af-crisis

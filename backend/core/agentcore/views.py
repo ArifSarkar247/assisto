@@ -3,7 +3,7 @@ every endpoint answers 403 feature_off). Token auth; a user only ever sees
 their own goals, runs, steps and approvals.
 
   GET  agent-core/tools                  tool contracts per topic (versioned)
-  POST agent-core/goals                  {text, topic?, channel?, client_id?} -> run
+  POST agent-core/goals                  {text, topic?, channel?, client_id?, follow_up?} -> run
   GET  agent-core/runs                   my last 20 runs
   GET  agent-core/runs/<id>              run + steps + readable audit trail
   POST agent-core/runs/<id>/cancel
@@ -74,8 +74,13 @@ def _run_out(run, lang, detail=False):
     if run.state == "budget" and code == "credits":
         code = "credits_cap"
     msg = _ERROR_TEXT.get(code)
+    pair = RN.topics_of(run)
     d = {"id": run.id, "state": run.state, "topic": run.topic or "general",
-         "topic_label": TP.label(run.topic, lang),
+         "topic_label": " + ".join(TP.label(k, lang) for k in pair),
+         # AF-11: one or two topics, each with its explicit may / may-not line
+         "topics": RN.topic_scopes(run, lang),
+         "scope_title": TP.SCOPE_TITLE["bn" if lang == "bn" else "en"],
+         "follow_up": RN.follow_up_of(run),           # AF-18: the turn this one continues
          "goal": vault.unmask(run.goal.text_masked),
          "answer": RN.answer_of(run) if run.state == "done" else "",
          # AF-1: what the answer stands on + whether its numbers were checked
@@ -182,7 +187,7 @@ class GoalsView(_Gated):
         run = RN.start(request.user, str(b.get("text") or ""), topic=str(b.get("topic") or ""),
                        channel=str(b.get("channel") or "chat"),
                        client_id=str(b.get("client_id") or ""), lang=lang,
-                       play=is_play_flavour(request))
+                       play=is_play_flavour(request), follow_up=b.get("follow_up") or None)
         return Response(_run_out(run, lang, detail=True), status=201)
 
 
@@ -228,6 +233,14 @@ class RunFeedbackView(_Gated):
         run.feedback_note = T.vault_of(run).mask(str(b.get("note") or ""))[:300]
         run.save(update_fields=["feedback", "feedback_note", "updated_at"])
         T.audit(run, "run.feedback", value=v)
+        try:
+            # AF-12: a thumbs-down becomes a candidate eval case (masked) for
+            # the owner's review queue; a thumbs-up withdraws a pending one
+            from . import feedback_cases as FB
+            FB.on_feedback(run, v, run.feedback_note)
+        except Exception:  # noqa: BLE001 — feedback is never refused for this
+            import logging
+            logging.getLogger(__name__).exception("agentcore: feedback case for run %s", run.pk)
         return Response({"ok": True, "feedback": v})
 
 

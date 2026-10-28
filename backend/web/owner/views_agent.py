@@ -60,7 +60,17 @@ def agent_runs(request):
         "up": agg["up"] or 0, "down": agg["down"] or 0, "topics": topics, "errors": errors,
         "nudges": _nudge_stats(since),
         "obs": _obs(since), "obs_cfg": _obs_cfg(),
+        "fb": _fb_stats(),
     }, nav="agent_runs")
+
+
+def _fb_stats():
+    """AF-12: review-queue counts (never breaks the runs page)."""
+    try:
+        from core.agentcore import feedback_cases as FB
+        return FB.stats()
+    except Exception:
+        return None
 
 
 def _obs(since):
@@ -114,3 +124,52 @@ def agent_run_detail(request, pk):
         "events": list(run.audit.order_by("id")[:300]),
         "approvals": list(run.approvals.all()),
     }, nav="agent_runs")
+
+
+# ------------------------------------------------------------------ AF-12 feedback -> test cases
+FB_AUDIT = "agent_feedback_case"
+
+
+@require_http_methods(["GET"])
+@owner_view()
+def agent_feedback_queue(request):
+    """AF-12: thumbs-down runs waiting to become eval cases (all MASKED)."""
+    from core.agentcore import feedback_cases as FB
+    from core.agentcore import tools as TL
+    pending, decided = FB.queue()
+    lang = getattr(request, "owner_lang", "bn")
+    rows = [{"id": r.pk, "d": r.data, "tools": FB.allowed_tools(r.data)} for r in pending]
+    return page(request, "owner/agent_feedback.html", {
+        "rows": rows, "decided": [{"id": r.pk, "d": r.data} for r in decided],
+        "all_tools": [t.name for t in TL.TOOLS], "states": FB.STATES, "stats": FB.stats(),
+        "lang": lang,
+    }, nav="agent_runs")
+
+
+@require_http_methods(["POST"])
+@owner_view()
+def agent_feedback_decide(request, pk):
+    from core.agentcore import feedback_cases as FB
+    from core.models import PaCollectionItem
+    from . import security as S
+    from .base import done
+    row = PaCollectionItem.objects.filter(pk=pk, collection=FB.COLLECTION).first()
+    if row is None:
+        raise Http404
+    back = "/owner/agent-runs/feedback"
+    action = request.POST.get("action") or ""
+    if action not in ("approve", "reject"):
+        return done(back, "invalid")
+    before = {"status": row.data.get("status")}
+    clean = None
+    if action == "approve":
+        clean, problems = FB.validate_decision(row.data, request.POST)
+        if problems:
+            S.audit(request, request.owner, FB_AUDIT, "fb-%s" % row.data.get("run_id"),
+                    after={"rejected": problems}, ok=False)
+            return done(back, "invalid")
+    FB.decide(row, action, clean, actor=request.owner)
+    S.audit(request, request.owner, FB_AUDIT, "fb-%s" % row.data.get("run_id"), before=before,
+            after={"status": row.data.get("status"), "tools": (clean or {}).get("expect_tools"),
+                   "forbid": (clean or {}).get("expect_forbid")})
+    return done(back)

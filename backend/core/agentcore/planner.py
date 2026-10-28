@@ -66,6 +66,12 @@ class PlanRequest:
     now_iso: str = ""
     attempt: int = 0             # 1 = "your last plan was invalid, fix it"
     last_error: str = ""
+    # AF-11: a goal that needs two topics' tools
+    topics: list = field(default_factory=list)          # [primary] or [primary, secondary]
+    second_rules: str = ""
+    tool_topics: dict = field(default_factory=dict)     # tool name -> its own topic
+    # AF-18: earlier turns of this conversation (masked), oldest first
+    previous: list = field(default_factory=list)
 
 
 @dataclass
@@ -98,11 +104,22 @@ SYSTEM_RULES = (
 def build_task(req):
     tools = [{"name": t.name, "description": t.desc, "risk": t.risk,
               "input_schema": t.input_schema} for t in req.tools]
-    parts = [SYSTEM_RULES,
-             "Topic rules: " + req.topic_rules,
-             "Now (Asia/Dhaka): " + (req.now_iso or ""),
-             "User language: " + ("Bangla" if req.lang == "bn" else "English"),
-             "Tools: " + json.dumps(tools, ensure_ascii=False, separators=(",", ":"))]
+    if req.tool_topics:
+        for t in tools:
+            t["topic"] = req.tool_topics.get(t["name"], "")
+    parts = [SYSTEM_RULES, "Topic rules: " + req.topic_rules]
+    if len(req.topics or []) > 1:
+        # AF-11: two topics — each keeps its own rules and its own tools
+        parts += ["Second topic rules (%s): %s" % (req.topics[1], req.second_rules),
+                  "This goal needs two topics (%s). Each tool lists its own topic; follow THAT "
+                  "topic's rules for it. There is no third topic." % ", ".join(req.topics)]
+    if req.previous:
+        parts.append("data.previous_turns holds this conversation's earlier turns (oldest "
+                     "first: goal, answer, tools). Use them only to understand a follow-up, a "
+                     "correction or words like 'him', 'that', 'again'; the newest goal decides.")
+    parts += ["Now (Asia/Dhaka): " + (req.now_iso or ""),
+              "User language: " + ("Bangla" if req.lang == "bn" else "English"),
+              "Tools: " + json.dumps(tools, ensure_ascii=False, separators=(",", ":"))]
     if req.attempt:
         parts.append("Your previous output was rejected (%s). Output valid JSON only."
                      % (req.last_error or "invalid"))
@@ -111,6 +128,8 @@ def build_task(req):
 
 def build_data(req):
     d = {"goal": req.goal_masked, "observations": req.observations}
+    if req.previous:
+        d["previous_turns"] = req.previous          # AF-18: untrusted DATA too
     if req.memory:
         # WP-MEMORY: the user's own saved facts relevant to this goal (masked,
         # <= 10). Untrusted DATA like everything else in the fence.

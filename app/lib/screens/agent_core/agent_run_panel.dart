@@ -254,6 +254,32 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
           Text(t.acStarted(acTime(context, r.createdAt)),
               style: TextStyle(color: s.onSurfaceVariant)),
       ]),
+      // ---- AF-11: what the agent may / may not do, per topic (server text)
+      if (r.scopes.isNotEmpty)
+        Container(
+          key: const ValueKey('ac_scope'),
+          margin: const EdgeInsets.only(top: Gap.sm),
+          padding: const EdgeInsets.all(Gap.sm),
+          decoration: BoxDecoration(
+              color: s.surfaceContainerHighest, borderRadius: BorderRadius.circular(Radii.md)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (r.scopeTitle.isNotEmpty)
+              Semantics(
+                  header: true,
+                  child: Text(r.scopeTitle,
+                      style: tt.labelLarge?.copyWith(color: s.onSurface))),
+            for (final sc in r.scopes) ...[
+              const SizedBox(height: Gap.xs),
+              Text(sc.label,
+                  style: tt.bodyMedium
+                      ?.copyWith(color: s.onSurface, fontWeight: FontWeight.w600)),
+              if (sc.mayLine.isNotEmpty)
+                Text(sc.mayLine, style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+              if (sc.notLine.isNotEmpty)
+                Text(sc.notLine, style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+            ],
+          ]),
+        ),
       // ---- honest failure states
       if (r.aiNotSetUp)
         AcMessage(
