@@ -22,6 +22,7 @@ import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/journey_watch_screen.dart';
 import 'package:assisto/services/journey_tracker.dart';
+import 'package:assisto/services/oem_guide.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -85,13 +86,26 @@ Map<String, dynamic> _activeTrip(String lang) => {
       'web_link': 'https://lifeassisto.com/j/5.1.x',
     };
 
+class _Oem implements OemGuideNative {
+  const _Oem();
+  @override
+  Future<OemInfo?> info() async => const OemInfo(
+      manufacturer: 'realme', brand: 'realme', model: 'RMX3491',
+      batteryOptIgnored: false, bgRestricted: false);
+  @override
+  Future<OemOpen> available(String step) async => OemOpen.none;
+  @override
+  Future<OemOpen> open(String step) async => OemOpen.none;
+}
+
 class _Spec {
   final _ShotApi Function(String lang) api;
   final Widget Function() screen;
   final bool pushed; // opened over a dummy home (live screen pops on end)
   final Size size;
+  final Future<void> Function(WidgetTester t)? act; // e.g. tap a saved place
   const _Spec(this.api, this.screen,
-      {this.pushed = false, this.size = const Size(360, 800)});
+      {this.pushed = false, this.size = const Size(360, 800), this.act});
 }
 
 JourneyTracker? _liveTracker;
@@ -118,8 +132,24 @@ final Map<String, _Spec> _specs = {
         useService: false,
         position: () async => (lat: 23.7650, lng: 90.3900),
         battery: () async => 64);
-    return JourneyLiveScreen(journeyId: 5, tracker: _liveTracker);
+    return JourneyLiveScreen(journeyId: 5, tracker: _liveTracker, oem: const _Oem());
   }, pushed: true, size: const Size(360, 1300)),
+  'j2_start_pinned': _Spec(
+      (l) => _ShotApi()
+        ..circle = {
+          'results': [
+            {'id': 7, 'name': _n(l, 'আম্মু', 'Mum'), 'phone': '01711000002', 'state': 'accepted'},
+          ]
+        }
+        ..places = [
+          {'id': 1, 'label': 'home', 'name': _n(l, 'বাসা', 'Home'), 'lat': 23.78, 'lng': 90.40},
+        ],
+      () => const JourneyStartScreen(),
+      size: const Size(360, 1600),
+      act: (t) async {
+        final chip = find.byKey(const ValueKey('j2_place_1'));
+        if (chip.evaluate().isNotEmpty) await t.tap(chip);
+      }),
   'j2_watch_empty': _Spec((l) => _ShotApi(), () => const JourneyWatchScreen()),
   'j2_watch_filled': _Spec(
       (l) => _ShotApi()
@@ -197,6 +227,12 @@ Future<void> _shoot(WidgetTester tester, String name, _Spec spec, String lang,
   }
   for (var i = 0; i < 14; i++) {
     await tester.pump(const Duration(milliseconds: 80));
+  }
+  if (spec.act != null) {
+    await spec.act!(tester);
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 80));
+    }
   }
   final err = tester.takeException(); // checked after the shot is saved
   if (_out != null) {
