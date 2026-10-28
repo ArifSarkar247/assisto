@@ -8,6 +8,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// DOCUMENT SCANNER / organiser — ADVANCED, KEY-GATED OCR (#29, SPEC v2.1 §21).
@@ -110,7 +111,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<String?> _pickImage() async {
-    final src = await showModalBottomSheet<ImageSource>(
+    final src = await showAppSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -146,7 +147,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
         : (existing?['image_ref']).toString();
     bool typeTouched = existing != null;
 
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) {

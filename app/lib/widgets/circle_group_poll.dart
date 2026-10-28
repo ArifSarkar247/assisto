@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// A poll draft produced by the composer. Question + option labels are USER
 /// TEXT; the group chat encrypts them per recipient before sending (the server
@@ -24,7 +25,7 @@ const int _kPollMaxOptions = 12; // circle_groups.POLL_MAX_OPTIONS
 /// Poll composer bottom sheet. Returns a [CircleGroupPollDraft] or null.
 Future<CircleGroupPollDraft?> showCircleGroupPollComposer(
     BuildContext context) {
-  return showModalBottomSheet<CircleGroupPollDraft>(
+  return showAppSheet<CircleGroupPollDraft>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

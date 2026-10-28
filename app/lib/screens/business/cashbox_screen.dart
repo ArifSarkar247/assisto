@@ -9,6 +9,7 @@ import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../widgets/app_sheet.dart';
 
 /// Cashbox (plan §2): one business day's drawer — opening cash, cash in/out
 /// entries, and end-of-day reconciliation (expected vs counted + variance).
@@ -77,7 +78,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
 
   Future<void> _addEntry(String kind) async {
     final t = AppLocalizations.of(context);
-    final res = await showModalBottomSheet<(int, String)>(
+    final res = await showAppSheet<(int, String)>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -469,6 +470,7 @@ Future<int?> _amountDialog(BuildContext context, String label) {
   return showDialog<int>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(label),
       content: TextField(
         controller: ctrl,

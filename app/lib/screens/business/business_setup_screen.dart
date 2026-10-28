@@ -6,6 +6,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../business_khata_api.dart';
 import 'business_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Business setup (plan §1): first-run / add-another. Pick a business type,
 /// name it, configure the per-type extras, then create. Pops `true` when a
@@ -110,7 +111,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.businessSetupTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           BrandBand(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'studio_engine.dart';
 import 'studio_cards.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The WHEN … IF … THEN builder sheet — create or edit one automation.
 /// A guided, no-code form (benchmark: Shortcuts / Zapier, kept simple for
@@ -12,7 +13,7 @@ class StudioBuilderSheet extends StatefulWidget {
   const StudioBuilderSheet({super.key, required this.initial});
 
   static Future<Automation?> show(BuildContext context, Automation initial) {
-    return showModalBottomSheet<Automation>(
+    return showAppSheet<Automation>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

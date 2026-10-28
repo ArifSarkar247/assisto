@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'guard_box_screen.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cashguard — SMART CASH GUARD for one place: owner-away mode ("I'm away"
 /// for N hours, or every day from-to), the 2-minute setup checklist, what the
@@ -96,7 +97,7 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
   Future<void> _pickHours() async {
     final t = AppLocalizations.of(context);
     final lang = wmLang(context);
-    final h = await showModalBottomSheet<int>(
+    final h = await showAppSheet<int>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

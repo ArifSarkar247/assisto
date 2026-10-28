@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// CALL & VOICE-NOTE TRANSCRIPTION — ADVANCED, KEY-GATED (#92, SPEC v2.1 §21).
@@ -115,7 +116,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
   }
 
   Future<void> _openEditor([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _NoteEditorSheet(existing: existing),
@@ -139,6 +140,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.tnDeleteTitle),
         content: Text(tr.tnDeleteBody),
         actions: [

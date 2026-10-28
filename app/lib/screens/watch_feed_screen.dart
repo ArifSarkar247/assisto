@@ -11,6 +11,7 @@ import '../widgets/watch_item.dart';
 import '../widgets/watch_card.dart';
 import '../widgets/watch_sources_sheet.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/watch_hide_store.dart'; // f6
@@ -357,7 +358,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
   }
 
   void _openSources() {
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// QURBANI & EID PLANNER — ADVANCED (#190, SPEC v2.1 §20).
@@ -391,7 +392,7 @@ class _AnimalTab extends StatelessWidget {
             )
           : null,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           // animal + cost card
           Card(
@@ -922,7 +923,7 @@ Future<Map<String, dynamic>?> _planSheet(
           : (_QMath.toPoisha(existing['cost']) / 100).toStringAsFixed(2));
   int totalShares = int.tryParse('${existing?['total_shares'] ?? ''}') ??
       _QMath.maxShares(animal);
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1017,7 +1018,7 @@ Future<Map<String, dynamic>?> _participantSheet(
   int shares = int.tryParse('${existing?['shares'] ?? 1}') ?? 1;
   if (shares > free) shares = free;
   if (shares < 1) shares = 1;
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1097,7 +1098,7 @@ Future<Map<String, dynamic>?> _meatSheet(
   int f = int.tryParse('${plan['dist_family'] ?? 1}') ?? 1;
   int r = int.tryParse('${plan['dist_relatives'] ?? 1}') ?? 1;
   int p = int.tryParse('${plan['dist_poor'] ?? 1}') ?? 1;
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -1172,6 +1173,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
   return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: Text(body),
       actions: [

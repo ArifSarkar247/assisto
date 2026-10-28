@@ -78,6 +78,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.ramadanSalamiAdd),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(

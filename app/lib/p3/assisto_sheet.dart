@@ -26,6 +26,7 @@ import 'assisto_card.dart';
 import 'assisto_card_view.dart' show p3When, p3Taka;
 import 'assisto_intent.dart';
 import 'p3_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// What the chat screen hands the Assisto sheet. Everything here is LOCAL:
 /// the decrypted text never leaves the phone unless the user runs an AI
@@ -63,7 +64,7 @@ Future<void> showAssistoMenu(BuildContext context, AssistoChatPort port,
     {AssistoIntent? intent}) async {
   final a = intent?.action ?? AssistoAction.menu;
   if (a != AssistoAction.menu) return _openAction(context, port, a, intent);
-  final picked = await showModalBottomSheet<_Pick>(
+  final picked = await showAppSheet<_Pick>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -82,28 +83,28 @@ Future<void> _openAction(BuildContext context, AssistoChatPort port,
     case AssistoAction.summarize:
     case AssistoAction.translate:
     case AssistoAction.ask:
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,
         builder: (_) => AssistoAiSheet(port: port, action: a, intent: intent),
       );
     case AssistoAction.remind:
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,
         builder: (_) => ReminderComposer(port: port, intent: intent),
       );
     case AssistoAction.split:
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,
         builder: (_) => SplitComposer(port: port, intent: intent),
       );
     case AssistoAction.list:
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,
@@ -347,6 +348,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
         final t = AppLocalizations.of(ctx);
         return StatefulBuilder(builder: (ctx, setD) {
           return AlertDialog(
+            scrollable: true, // insets: 200% text / keyboard
             key: const ValueKey('p3-consent'),
             icon: const Icon(Icons.lock_open_rounded),
             title: Text(t.p3ConsentTitle),
@@ -1170,6 +1172,7 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           key: const ValueKey('p3-sos-confirm'),
           icon: const Icon(Icons.sos_rounded, color: Brand.dangerFill),
           title: Text(t.p3SosConfirmTitle),
@@ -1206,7 +1209,7 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
           '🆘 ${t.p3FbSos}${link.isEmpty ? '' : ' $link'}'));
       if (context.mounted) _snack(context, ok ? t.p3SosSent : t.p3SendFailed);
     case SafetyAction.med:
-      await showModalBottomSheet<void>(
+      await showAppSheet<void>(
           context: context,
           showDragHandle: true,
           isScrollControlled: true,
@@ -1221,6 +1224,7 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           icon: Icon(Icons.phonelink_erase_rounded, color: Brand.warnInk(ctx)),
           title: Text(t.p3LostConfirmTitle),
           content: Text(t.p3LostAdvice),

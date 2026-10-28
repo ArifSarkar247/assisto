@@ -17,6 +17,7 @@ import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
 import 'vehicle_obd_screen.dart';
 import 'vehicle_tracker_settings_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'vehicle_report_screen.dart'; // veh100
 import 'vehicle_drivers_screen.dart'; // veh100
 import '../vehicle/veh_share_sheet.dart'; // veh100
@@ -224,6 +225,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final go = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: Icon(cut ? Icons.power_settings_new_rounded : Icons.restart_alt_rounded),
         title: Text(cut ? tr.vehCutConfirmTitle : tr.vehRestoreConfirmTitle),
         content: Text(cut ? tr.vehCutConfirmBody : tr.vehRestoreConfirmBody),
@@ -780,7 +782,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         if (owner)
           tile(const ValueKey('veh-share'), Icons.share_location_rounded, tr.v100ShareTitle,
               tr.v100ShareSub, () async {
-            await showModalBottomSheet<void>(
+            await showAppSheet<void>(
               context: context,
               isScrollControlled: true,
               showDragHandle: true,

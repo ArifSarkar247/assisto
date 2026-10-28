@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../vehicle/elm327.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// OBD-II health: (a) whatever a 4G OBD tracker reported through our server,
 /// (b) a Bluetooth ELM327 dongle read directly by this phone.
@@ -99,7 +100,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
         setState(() => _btMsg = tr.vehBtNoPaired);
         return;
       }
-      final pick = await showModalBottomSheet<Map<String, String>>(
+      final pick = await showAppSheet<Map<String, String>>(
         context: context,
         builder: (ctx) => SafeArea(
           child: ListView(shrinkWrap: true, children: [
@@ -197,7 +198,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr.vehObdTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           if (widget.trackerId != null)
             Card(

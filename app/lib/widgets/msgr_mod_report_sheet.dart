@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../messenger_admin_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Reusable REPORT sheet for any PUBLIC surface (channel / post / community /
 /// group / person). Original Assisto identity — brand tokens, own wording and
@@ -43,7 +44,7 @@ class MsgrReportSheet extends StatefulWidget {
     required String targetId,
     String? targetLabel,
   }) {
-    return showModalBottomSheet<bool>(
+    return showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

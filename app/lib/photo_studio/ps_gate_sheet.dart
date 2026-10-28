@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../payments/credits_out_sheet.dart'; // credout
 import 'ps_export.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The ONE funding sheet free users see before a full-quality export or a
 /// paid AI run. Honest copy: N rewarded ads OR credits; a failed ad offers
@@ -132,7 +133,7 @@ class SheetGateUi extends GateUi {
   @override
   Future<FundChoice?> chooseFunding(GateNeed need) {
     if (!context.mounted) return Future.value(null);
-    return showModalBottomSheet<FundChoice>(
+    return showAppSheet<FundChoice>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

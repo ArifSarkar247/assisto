@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CORPORATE · Departmental update — ADVANCED (#117, §14).
@@ -560,7 +561,7 @@ class _DeptEditorState extends State<_DeptEditor> {
       appBar: AppBar(
           title: Text(widget.existing == null ? tr.paDeptNew : tr.paDeptEdit)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32)),
         children: [
           TextField(
             controller: _dept,

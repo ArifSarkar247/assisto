@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// FITNESS PARTNER — ADVANCED (#72, SPEC v2.1 §21).
@@ -307,7 +308,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
   Future<void> _setGoal() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -327,7 +328,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
     final goal = _activeGoal;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

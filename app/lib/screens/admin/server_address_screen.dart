@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/server_config.dart';
 import '../../theme.dart';
 import '../../widgets/admin_notes.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// SERVER-ADDRESS SWAP (owner/admin) — SPEC v2.1 §21 #179, ADVANCED.
 ///
@@ -153,6 +154,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.srvRevertTitle),
         content: Text(t.srvRevertBody(AppConfig.apiBase)),
         actions: [
@@ -190,7 +192,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.srvTitle)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
         children: [
           _currentCard(t),
           const SizedBox(height: Gap.lg),

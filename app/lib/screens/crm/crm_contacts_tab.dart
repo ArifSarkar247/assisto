@@ -7,6 +7,7 @@ import '../../plans_v2/upgrade_sheet.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import 'crm_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// plans-v2 — the CRM "Contacts" tab: the people a shop keeps in its CRM.
 /// On Free this is the part you can ADD to (up to the owner's limit, 20 by
@@ -57,7 +58,7 @@ class _CrmContactsTabState extends State<CrmContactsTab> {
       if (up == true) _load();
       return;
     }
-    final added = await showModalBottomSheet<bool>(
+    final added = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

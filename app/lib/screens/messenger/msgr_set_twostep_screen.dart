@@ -71,6 +71,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: ObscureTextField(
           controller: c,

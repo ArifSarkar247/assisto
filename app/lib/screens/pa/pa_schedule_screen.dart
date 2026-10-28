@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/pa_engine.dart';
 import 'pa_meeting_brief_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// PA Secretary — SCHEDULE control (SPEC v2.1 §14 #103, ADVANCED §21).
@@ -157,7 +158,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
   }
 
   Future<void> _addOrEdit([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -188,6 +189,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.paDeleteTitle),
         content: Text(t.paDeleteBody),
         actions: [

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/circle_media_gate.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The "+" attach sheet for a circle chat.
 ///
@@ -33,7 +34,7 @@ Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context,
     {List<CircleAttachKind>? kinds}) {
   final list = kinds ?? circleAttachKinds();
   if (list.isEmpty) return Future.value(null);
-  return showModalBottomSheet<CircleAttachKind>(
+  return showAppSheet<CircleAttachKind>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -117,7 +118,7 @@ class CircleAttachGrid extends StatelessWidget {
 /// circle_media.LIVE_DURATIONS_MIN. Returns the duration key.
 Future<String?> showLiveLocationDurations(BuildContext context) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

@@ -16,6 +16,7 @@ import 'checkout_sheet.dart';
 import 'payments_api.dart';
 import 'play_prices.dart';
 import 'store_billing.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// credout — THE out-of-AI-credits moment, the same for every AI task.
 ///
@@ -76,7 +77,7 @@ class CreditsOut {
     try {
       PaymentsBackend? b = backend;
       b ??= ApiPaymentsBackend(Provider.of<AppState>(context, listen: false).api);
-      final ok = await showModalBottomSheet<bool>(
+      final ok = await showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

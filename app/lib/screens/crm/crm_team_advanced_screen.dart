@@ -7,6 +7,7 @@ import '../../widgets/crm_target_editor.dart';
 import '../../widgets/crm_commission_config.dart';
 import '../../widgets/crm_leaderboard_list.dart';
 import '../../widgets/crm_routing_editor.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ADVANCED TEAM management (CRM spec #8): monthly TARGETS, activity
 /// LEADERBOARD, OWNER-REVIEW COMMISSION config, and routing (territory /
@@ -82,7 +83,7 @@ class _TargetsTabState extends State<_TargetsTab> {
   }
 
   Future<void> _edit(Map<String, dynamic>? existing) async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => CrmTargetEditor(

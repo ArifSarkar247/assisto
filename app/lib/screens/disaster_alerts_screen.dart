@@ -10,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/disaster_model.dart';
 import '../widgets/disaster_warning_card.dart';
 import '../widgets/disaster_safety_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../feature_gates.dart' show kShowSampleDisasterWarnings; // f6
@@ -177,7 +178,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
 
   void _openSteps(String kind) {
     final t = AppLocalizations.of(context);
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

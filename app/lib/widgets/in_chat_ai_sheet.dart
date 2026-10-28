@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'in_chat_ai_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// in_chat_ai_sheet.dart — the ONE bounded in-chat AI helper (#97, §21).
 ///
@@ -25,7 +26,7 @@ Future<String?> showInChatAiSheet(
   required List<Map<String, dynamic>> decryptedRecent,
   String? seedText,
 }) {
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../shop_box_mode_screen.dart';
 import 'watchman_source.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cctv1 shared pieces: the 30-second guide, the honest gateway status line,
 /// the pairing sheet, the staff/visitor notice sheet and alert wording.
@@ -113,7 +114,7 @@ class WatchmanGuideCard extends StatelessWidget {
 
 /// Pairing: the site code (+ QR) and what to do on the chosen gateway.
 Future<void> showWatchmanPairSheet(BuildContext context, Map<String, dynamic> site) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -196,7 +197,7 @@ Future<void> showWatchmanNoticeSheet(BuildContext context, Map<String, dynamic> 
   final t = AppLocalizations.of(context);
   final lang = wmLang(context);
   final text = (notice[lang] ?? notice['en'] ?? '').toString();
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

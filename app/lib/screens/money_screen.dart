@@ -345,6 +345,7 @@ class _AccountsTab extends StatelessWidget {
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
+                  scrollable: true, // insets: 200% text / keyboard
                   title: Text(t.moneyNewAccount),
                   content: Column(mainAxisSize: MainAxisSize.min, children: [
                     TextField(
@@ -707,6 +708,7 @@ class _BudgetsTab extends StatelessWidget {
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
+                  scrollable: true, // insets: 200% text / keyboard
                   title: Text(t.moneyNewBudget),
                   content: Column(mainAxisSize: MainAxisSize.min, children: [
                     TextField(
@@ -945,6 +947,7 @@ class _LoansSavingsTab extends StatelessWidget {
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
+                  scrollable: true, // insets: 200% text / keyboard
                   title: Text(t.moneyNewLoan),
                   content: Column(mainAxisSize: MainAxisSize.min, children: [
                     SegmentedButton<String>(segments: [
@@ -993,6 +996,7 @@ class _LoansSavingsTab extends StatelessWidget {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(t.moneySavingsGoal),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 TextField(
@@ -1031,6 +1035,7 @@ class _LoansSavingsTab extends StatelessWidget {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(t.moneyAddDeposit),
               content: TextField(
                   controller: add,

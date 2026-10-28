@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import '../../notifications.dart';
 import 'crm_common.dart';
 import '../../plans_v2/upgrade_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Fast "log activity + set next follow-up" sheet for the lead-detail screen.
 ///
@@ -28,16 +29,13 @@ class CrmLogActivitySheet extends StatefulWidget {
 
   static Future<bool?> show(BuildContext context,
       {required int leadId, String? currentFollowUp}) {
-    return showModalBottomSheet<bool>(
+    return showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: CrmLogActivitySheet(
-            leadId: leadId, currentFollowUp: currentFollowUp),
-      ),
+      // showAppSheet keeps it above the keyboard and the navigation bar
+      builder: (_) => CrmLogActivitySheet(
+          leadId: leadId, currentFollowUp: currentFollowUp),
     );
   }
 
@@ -163,7 +161,8 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return SafeArea(
-      child: Padding(
+      // insets: scrolls at 200% text / small screens instead of overflowing
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.crmLogActivity,

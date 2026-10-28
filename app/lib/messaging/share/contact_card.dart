@@ -13,6 +13,7 @@ import '../../theme.dart';
 import '../date_separators.dart' show localDigits;
 import '../msg_request_widgets.dart' show openMessageRequestChat;
 import 'share_payload.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// mc-media2 — what the contact card's buttons do. Every action is a seam so
 /// the widget tests run without a phone, a network or the contacts app.
@@ -108,7 +109,7 @@ class _ContactCardState extends State<ContactCard> {
     var phone = phones.first;
     if (phones.length > 1) {
       final lang = Localizations.localeOf(context).languageCode;
-      final pick = await showModalBottomSheet<String>(
+      final pick = await showAppSheet<String>(
         context: context,
         showDragHandle: true,
         builder: (ctx) => SafeArea(

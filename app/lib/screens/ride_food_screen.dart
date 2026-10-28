@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/ride_deeplink.dart';
 import '../widgets/ride_store.dart';
 import '../widgets/ride_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Ride & food (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
@@ -156,7 +157,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.rideFoodTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           const RideHonestNote(),
           if (_error != null) ...[

@@ -14,6 +14,7 @@ import 'media_descriptor.dart';
 import 'media_prep.dart';
 import 'media_store.dart';
 import 'voice_bubble.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// md1 — record a voice message (AAC-LC .m4a, mono, 32 kbps ≈ 240 KB/min).
 /// The recorder is created only when this sheet opens, after the mic
@@ -81,7 +82,7 @@ Future<MediaDraft?> showVoiceRecorder(BuildContext context,
   final ok = await ensureMediaPermission(context, Permission.microphone,
       title: t.md1PermMicTitle, body: t.md1PermMicBody, denied: t.md1PermDeniedMic);
   if (!ok || !context.mounted) return null;
-  return showModalBottomSheet<MediaDraft>(
+  return showAppSheet<MediaDraft>(
     context: context,
     isDismissible: false,
     enableDrag: false,

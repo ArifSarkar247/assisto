@@ -8,6 +8,7 @@ import '../widgets/inbox_mock.dart';
 import '../widgets/inbox_item_card.dart';
 import '../widgets/inbox_filter_bar.dart';
 import '../widgets/inbox_reply_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// AI Inbox (feature 22, SPEC v2.1 section 21 ADVANCED) - a unified SMART INBOX over
@@ -109,7 +110,7 @@ class _InboxScreenState extends State<InboxScreen> {
 
   Future<void> _snooze(InboxItem it) async {
     final tr = AppLocalizations.of(context);
-    final hours = await showModalBottomSheet<int>(
+    final hours = await showAppSheet<int>(
       context: context,
       showDragHandle: true,
       builder: (_) => SafeArea(

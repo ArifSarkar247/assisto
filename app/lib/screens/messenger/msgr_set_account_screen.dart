@@ -70,6 +70,7 @@ class MsgrSetAccountScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.msgrSetDeleteTitle),
         content: Text(t.msgrSetDeleteBody),
         actions: [

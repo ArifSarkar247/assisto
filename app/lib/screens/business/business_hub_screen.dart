@@ -28,6 +28,7 @@ import 'supplier_market_screen.dart';
 import 'demand_map_screen.dart';
 import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'bizagent/seller_agent_screen.dart'; // p1-bizagent
 import '../crm/customer_list_screen.dart'; // crm100
 import '../crm/shop_quote_screens.dart'; // crm100
@@ -103,7 +104,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
 
   void _showSwitcher() {
     final t = AppLocalizations.of(context);
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -146,7 +147,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
 
   void _showSelling(int bizId) {
     final t = AppLocalizations.of(context);
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

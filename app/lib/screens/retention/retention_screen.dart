@@ -10,6 +10,7 @@ import 'retention_results.dart';
 import 'retention_source.dart';
 import 'retention_widgets.dart';
 import 'retention_wizard.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// retention1 — RETENTION AUTOMATION (big-week H) for a Business-plan shop
 /// owner: simple automations to the shop's OWN customers (thank-you + review
@@ -102,6 +103,7 @@ class _RetentionScreenState extends State<RetentionScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.rtDeleteTitle),
         content: Text(t.rtDeleteBody),
         actions: [
@@ -120,7 +122,7 @@ class _RetentionScreenState extends State<RetentionScreen> {
   }
 
   Future<void> _openLimits() async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

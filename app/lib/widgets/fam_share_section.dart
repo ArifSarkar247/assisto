@@ -390,6 +390,7 @@ class _FamShareSectionState extends State<FamShareSection> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(famLabel(context, 'famShareRevokeMember')),
               content: Text(famLabel(context, 'famShareRevokeQ')),
               actions: [
@@ -417,6 +418,7 @@ class _FamShareSectionState extends State<FamShareSection> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(famLabel(context, 'famShareRevokeAll')),
               content: Text(famLabel(context, 'famShareRevokeAllQ')),
               actions: [

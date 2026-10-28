@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/wedding_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// WEDDING & EVENTS — ADVANCED (#189, SPEC v2.1 §20).
@@ -158,7 +159,7 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
   }
 
   Future<void> _editEvent() async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _EventEditor(existing: _eventRow),
@@ -181,6 +182,7 @@ Future<bool> _confirmDelete(
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(tr.weddingDeleteTitle),
       content: Text(body),
       actions: [
@@ -605,7 +607,7 @@ class _GuestsTab extends StatelessWidget {
   }
 
   Future<void> _edit(BuildContext context, Map<String, dynamic>? existing) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _GuestEditor(existing: existing, guests: guests),
@@ -871,7 +873,7 @@ class _BudgetTab extends StatelessWidget {
   dynamic _idOf(String cat) => _rawOf(cat)?['id'];
 
   Future<void> _edit(BuildContext context, Map<String, dynamic>? existing) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _BudgetEditor(existing: existing),
@@ -1110,7 +1112,7 @@ class _TasksTab extends StatelessWidget {
   }
 
   Future<void> _edit(BuildContext context, Map<String, dynamic>? existing) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _TaskEditor(existing: existing),

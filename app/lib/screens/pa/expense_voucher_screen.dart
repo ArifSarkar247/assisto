@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE — EXPENSE VOUCHER / claim builder (#113, §14, ADVANCED).
@@ -160,7 +161,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openVoucherEditor([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -376,7 +377,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _addOrEditLine([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

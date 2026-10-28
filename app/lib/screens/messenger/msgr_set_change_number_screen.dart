@@ -8,6 +8,7 @@ import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Change number — a two-step flow: enter the NEW number, receive a code on it,
 /// confirm. The server migrates the circle + chats; the old number keeps the
@@ -140,7 +141,7 @@ class _MsgrSetChangeNumberScreenState
               ? t.tg2VerifyTitle
               : t.msgrSetChangeNumberTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           MsgrSetNote(
               widget.verifyOwn

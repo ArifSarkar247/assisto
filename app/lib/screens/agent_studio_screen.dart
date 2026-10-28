@@ -6,6 +6,7 @@ import '../widgets/studio_engine.dart';
 import '../widgets/studio_cards.dart';
 import '../widgets/studio_builder_sheet.dart';
 import 'social_compose_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Agent Studio (SPEC v2.1 §21, ADVANCED) — the user builds their own little
 /// AI automations: readable WHEN … IF … THEN mini-agents with trigger(s) →
@@ -252,7 +253,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
   }
 
   void _openDetail(Automation a) {
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

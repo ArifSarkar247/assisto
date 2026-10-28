@@ -10,6 +10,7 @@ import '../../widgets/admin_filter_bar.dart';
 import '../../widgets/admin_notes.dart';
 import '../../widgets/msgr_mod_action_dialog.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ADMIN users directory (OWNER only) — SPEC v2.1 §21 #174, ADVANCED.
 ///
@@ -146,7 +147,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   Future<void> _openFilters() async {
     final t = AppLocalizations.of(context);
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -481,7 +482,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       child: Scaffold(
         appBar: AppBar(title: Text(t.msgrModUserDetailTitle)),
         body: ListView(
-          padding: const EdgeInsets.all(Gap.lg),
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
             _UserCard(user: _user, dense: false),
             const SizedBox(height: Gap.md),

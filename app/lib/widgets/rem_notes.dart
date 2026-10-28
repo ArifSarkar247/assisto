@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Advanced NOTES + TO-DO building blocks (#22, SPEC v2.1 §21).
 ///
@@ -42,7 +43,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
       ? DateTime.tryParse(d['due_at'])?.toLocal()
       : null;
 
-  final saved = await showModalBottomSheet<bool>(
+  final saved = await showAppSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

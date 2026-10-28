@@ -319,6 +319,7 @@ class SecurityGuard {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(body),
         actions: [

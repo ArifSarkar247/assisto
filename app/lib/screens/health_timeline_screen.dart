@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// HEALTH TIMELINE — ADVANCED (#69, SPEC v2.1 §10).
@@ -198,7 +199,7 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
   Future<void> _addOrEdit([Map<String, dynamic>? existing]) async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -719,6 +720,7 @@ class _EventFormState extends State<_EventForm> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.htlDeleteTitle),
         content: Text(tr.htlDeleteBody),
         actions: [

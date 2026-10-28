@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// "Report wrong info" bottom sheet for a medicine-DB record. Lets the user
 /// flag an incorrect/missing fact so it can be cross-checked against DGDA /
@@ -10,7 +11,7 @@ import '../l10n/app_localizations.dart';
 /// no api.dart edit); degrades gracefully offline (acknowledges, user not
 /// blocked). NEVER edits the drug data itself.
 Future<void> showMedDbReportSheet(BuildContext context, String brand) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

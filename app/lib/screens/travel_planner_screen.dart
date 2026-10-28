@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// TRAVEL PLANNER — ADVANCED, KEY-GATED (#35, SPEC v2.1 §21).
@@ -125,7 +126,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openTripEditor([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _TripEditorSheet(existing: existing),
@@ -516,7 +517,7 @@ class _ItineraryTab extends StatelessWidget {
 
   Future<void> _editDay(BuildContext context,
       [Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _DayEditorSheet(
@@ -548,7 +549,7 @@ class _ItineraryTab extends StatelessWidget {
         label: Text(tr.tvAddDay),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           const _AiSeamCard(),
           const SizedBox(height: Gap.sm),
@@ -687,6 +688,7 @@ class _PackingTab extends StatelessWidget {
     final label = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.tvAddPacking),
         content: TextField(
           controller: ctl,
@@ -724,7 +726,7 @@ class _PackingTab extends StatelessWidget {
         label: Text(tr.tvAddPacking),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           if (total > 0) ...[
             Row(children: [
@@ -843,7 +845,7 @@ class _BudgetTab extends StatelessWidget {
 
   Future<void> _edit(BuildContext context,
       [Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _BudgetEditorSheet(existing: existing),
@@ -873,7 +875,7 @@ class _BudgetTab extends StatelessWidget {
         label: Text(tr.tvAddBudget),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           Card(
             color: (overspent ? scheme.errorContainer : scheme.primaryContainer)

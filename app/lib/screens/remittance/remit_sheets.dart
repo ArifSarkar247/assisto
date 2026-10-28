@@ -4,13 +4,14 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import 'remit_source.dart';
 import 'remit_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// budget-remittance bottom sheets: the family budget plan, one spending,
 /// the savings goal, a bill, the expected monthly money, and the My Circle
 /// member picker for a user-initiated share. Every sheet returns its values;
 /// the screen does the server call (and the offline queue).
 
-Future<T?> _sheet<T>(BuildContext context, Widget child) => showModalBottomSheet<T>(
+Future<T?> _sheet<T>(BuildContext context, Widget child) => showAppSheet<T>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
@@ -481,7 +482,7 @@ class _ExpectedSheetState extends State<_ExpectedSheet> {
 
 /// Pick ONE My Circle member to share the report with.
 Future<Map<String, dynamic>?> showMemberPicker(BuildContext context, List<Map<String, dynamic>> members) {
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -515,6 +516,7 @@ Future<bool> rmConfirm(BuildContext context, String title, String body, String y
   final ok = await showDialog<bool>(
     context: context,
     builder: (c) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: Text(body),
       actions: [

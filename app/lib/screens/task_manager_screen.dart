@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/task_manager_model.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Task Manager (feature #21, SPEC v2.1 §21 ADVANCED).
@@ -216,6 +217,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(body),
         actions: [
@@ -376,7 +378,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
   }
 
   Future<void> _openProjectEditor({Project? existing}) async {
-    final result = await showModalBottomSheet<Project>(
+    final result = await showAppSheet<Project>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -823,7 +825,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
 
   Future<void> _openTaskEditor({TaskItem? existing}) async {
     final names = assigneesOf(widget.tasksOf());
-    final result = await showModalBottomSheet<_TaskEditorResult>(
+    final result = await showAppSheet<_TaskEditorResult>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

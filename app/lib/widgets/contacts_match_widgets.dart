@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'contacts_match_model.dart';
 import 'msgr_avatar.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Reusable presentation pieces for the ADVANCED contact-match + invite flow
 /// (#99/#101, SPEC §21). Pure widgets — no API, no state; the screen wires
@@ -108,7 +109,7 @@ class CmDisclosure extends StatelessWidget {
 
 /// The "how this protects your privacy" explainer (a bottom sheet).
 Future<void> showCmPrivacyExplainer(BuildContext context) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

@@ -69,6 +69,7 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.wmRemoveViewerTitle),
         content: Text(t.wmRemoveViewerBody((v['name'] ?? '').toString())),
         actions: [

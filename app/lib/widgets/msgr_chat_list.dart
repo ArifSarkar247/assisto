@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../screens/circle_chat_screen.dart';
 import 'msgr_avatar.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// The Chats tab — a fast, familiar chat list (avatar, name, last-message
@@ -109,7 +110,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
     final isMuted = _muted.contains(id);
     final isPinned = _pinned.contains(id);
     final hasUnread = ((c['unread'] as int?) ?? 0) > 0;
-    final action = await showModalBottomSheet<String>(
+    final action = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -172,6 +173,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.msgrDeleteConfirmTitle),
         content: Text(t.msgrDeleteConfirmBody),
         actions: [

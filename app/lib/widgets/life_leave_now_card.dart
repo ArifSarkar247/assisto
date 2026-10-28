@@ -105,6 +105,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
     final v = await showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.leaveNowTravelTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.leaveNowTravelHint, style: const TextStyle(fontSize: 12, color: Colors.grey)),

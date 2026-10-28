@@ -7,6 +7,7 @@ import '../../messenger_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_avatar.dart';
+import '../../widgets/app_sheet.dart';
 
 /// Personal connection requests — the Sent/Cancel vs Requests/Accept-Decline
 /// pattern (the circle 2b fix). A SENDER can only CANCEL their own outgoing
@@ -100,7 +101,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
   }
 
   Future<void> _report(Map<String, dynamic> r) async {
-    final result = await showModalBottomSheet<(String, String)>(
+    final result = await showAppSheet<(String, String)>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {

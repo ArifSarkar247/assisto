@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CELEBRITY tier — Brand deals & offers pipeline (#121, §14).
@@ -156,7 +157,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
   }
 
   Future<void> _addOrEdit(AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -198,6 +199,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.starDealsDeleteTitle),
         content: Text(tr.starDealsDeleteBody((r['brand'] ?? '').toString())),
         actions: [

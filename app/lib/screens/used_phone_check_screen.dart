@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../widgets/imei_tools.dart';
 import 'report_stolen_screen.dart';
 import 'registry_imei.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../feature_gates.dart' show kNeirCheckWired, kTacSourceWired; // f6
 
 /// Used-phone check (Daily Life). Enter a phone's IMEI and check Assisto's
@@ -208,7 +209,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.upCheckTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Text(t.upCheckIntro, style: const TextStyle(height: 1.35)),
           const SizedBox(height: Gap.lg),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ledger100 — the written "digital khata free forever" promise. Only what
 /// is TRUE (backend core/tests_ledger100 FreeForeverTests: no plan gate and
@@ -11,7 +12,7 @@ class KhataFreePromise extends StatelessWidget {
   const KhataFreePromise({super.key});
 
   static Future<void> showDetails(BuildContext context) {
-    return showModalBottomSheet(
+    return showAppSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

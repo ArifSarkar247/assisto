@@ -8,6 +8,7 @@ import '../../services/action_feedback.dart';
 import '../../services/error_kind.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ledger100 — schedule a tagada for ONE customer: a date + time, once or
 /// "every N days" (until paid by default), and HOW: a free push to the owner
@@ -17,7 +18,7 @@ import '../../theme.dart';
 Future<bool?> showTagadaScheduleSheet(BuildContext context,
     {required Map<String, dynamic> business,
     required Map<String, dynamic> party}) {
-  return showModalBottomSheet<bool>(
+  return showAppSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

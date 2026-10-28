@@ -11,6 +11,7 @@ import '../widgets/exam_gpa_explainer.dart';
 import '../widgets/exam_result_card.dart';
 import '../widgets/exam_student_watch.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../notifications.dart'; // f6
 
@@ -163,7 +164,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       bottomNavigationBar: const AdBannerSlot(screen: 'exam'),
       appBar: AppBar(title: Text(t.examTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           // ---- result-day watcher -------------------------------------
           _sectionTitle(t.examWatcherSection),

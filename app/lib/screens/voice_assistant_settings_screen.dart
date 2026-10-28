@@ -10,6 +10,7 @@ import '../widgets/voice_help_sheet.dart'; // aivoice
 import '../voice/va_native.dart';
 import 'battery_guidance_screen.dart';
 import '../voice/va_wake.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Assisto Voice settings: make Assisto the phone's default digital
 /// assistant, the optional "Hey Assisto" wake word (OFF by default, honest
@@ -171,7 +172,7 @@ class _VoiceAssistantSettingsScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.vaSettingsTitle)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl)),
         children: [
           _defaultCard(scheme),
           const SizedBox(height: Gap.lg),

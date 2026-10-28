@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../voice/va_native.dart';
+import 'app_sheet.dart';
 
 /// aivoice: the honest "Turn on Bangla voice" steps. Shown from the
 /// "no Bangla" / "needs speech services" messages and from Settings -> Voice.
@@ -18,7 +19,7 @@ class VoiceHelpSheet extends StatelessWidget {
   static const googleAppPlay =
       'https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox';
 
-  static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
+  static Future<void> show(BuildContext context) => showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

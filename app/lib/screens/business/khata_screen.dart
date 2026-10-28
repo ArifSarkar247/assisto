@@ -17,6 +17,7 @@ import '../../widgets/skeleton.dart';
 import 'business_common.dart';
 import 'tagada_schedule_sheet.dart';
 import 'tagada_send_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'khata_chat_screen.dart'; // tagada2
 import 'khata_invite_sheet.dart'; // tagada2
 import '../../services/action_feedback.dart'; // db1
@@ -226,7 +227,7 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
   }
 
   Future<void> _reviewFailed() async {
-    await showModalBottomSheet(
+    await showAppSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -238,7 +239,7 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
 
   Future<void> _addParty() async {
     final t = AppLocalizations.of(context);
-    final created = await showModalBottomSheet<bool>(
+    final created = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -1037,7 +1038,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
 
   Future<void> _openSheet(_EntrySheet sheet) async {
     final t = AppLocalizations.of(context);
-    final res = await showModalBottomSheet<String>(
+    final res = await showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -17,6 +17,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'loading_gate.dart';
 import 'msgr_avatar.dart';
+import 'app_sheet.dart';
 
 /// m3-circle — shared pieces for My Circle home + "Add to My Circle".
 /// No hard-coded copy (AppLocalizations only).
@@ -184,7 +185,7 @@ class _M3RelationPickerState extends State<M3RelationPicker> {
 /// already picked (phone contacts list).
 Future<(M3Relation, String?)?> showM3RelationSheet(BuildContext context,
     {required String peerName}) {
-  return showModalBottomSheet<(M3Relation, String?)>(
+  return showAppSheet<(M3Relation, String?)>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

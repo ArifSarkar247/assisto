@@ -59,6 +59,7 @@ class ChatSessionActions {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(t.aichatDeleteConfirm),
         actions: [
           TextButton(
@@ -98,6 +99,7 @@ class _RenameDialogState extends State<_RenameDialog> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(t.aichatRename),
       content: TextField(
         key: const ValueKey('chat_rename_field'),

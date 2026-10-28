@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'retention_source.dart';
 import 'retention_widgets.dart';
+import '../../widgets/app_sheet.dart';
 
 /// retention1 — the owner's two small lists the automations read:
 /// customer birthdays (only when the customer told the shop) and
@@ -200,7 +201,7 @@ class _RetentionStockAsksScreenState extends State<RetentionStockAsksScreen> {
       rtSnack(context, t.rtNoProducts);
       return;
     }
-    final res = await showModalBottomSheet<(int, int)>(
+    final res = await showAppSheet<(int, int)>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
