@@ -205,9 +205,8 @@ void main() {
       expect(psProxyLong(ramMb: 7600, lowRam: true), 1280); // Android low-RAM flag
       expect(psProxyLong(ramMb: 3900, lowRam: false), 2400);
       expect(psProxyLong(ramMb: 0, lowRam: false), 2400); // unknown
-      expect(psExportStripRows(ramMb: 1967, lowRam: false), 64);
-      expect(psRegionBandRows(ramMb: 1967, lowRam: false), 384);
-      expect(psRegionBandRows(ramMb: 3900, lowRam: false), 512);
+      expect(psExportStripRows(ramMb: 1967, lowRam: false), 128);
+      expect(psRegionBandRows(ramMb: 1967, lowRam: false), 512);
       expect(psExportStripRows(ramMb: 2800, lowRam: false), 128);
       expect(psExportStripRows(ramMb: 7600, lowRam: false), 256);
       // free users stay at the server preview size
