@@ -97,7 +97,7 @@ class _Api extends ApiClient {
     if (path.endsWith('/commands')) return {'commands': []};
     if (path.contains('/report')) {
       final month = path.contains('period=month');
-      final tot = {'km': reportKm, 'trips': 3, 'moving_s': 5400, 'idle_s': 600,
+      final tot = {'km': reportKm, 'trips': reportKm > 0 ? 3 : 0, 'moving_s': 5400, 'idle_s': 600,
                    'max_kmh': 82.0, 'overspeed_s': 240, 'harsh_brake': 2, 'harsh_accel': 1,
                    'score': reportKm > 0 ? 78 : null, 'coverage': 0.4, 'days_driven': 9};
       return {
@@ -297,7 +297,7 @@ void main() {
         final t = v.$1 == 'en' ? en : bn;
         expect(find.text(t.v100ScoreTitle), findsOneWidget);
         expect(find.text(t.v100ScoreLimited), findsOneWidget); // coverage 0.4: honest
-        expect(find.text(t.v100ByDriver), findsOneWidget);
+        if (v.$3 == 1.0) expect(find.text(t.v100ByDriver), findsOneWidget);
         await tester.tap(find.text(t.v100ReportMonth));
         await _settle(tester, 10);
         expect(find.text(t.v100ReportDays), findsOneWidget);

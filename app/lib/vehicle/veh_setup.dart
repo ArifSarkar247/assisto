@@ -299,7 +299,7 @@ class _VehSetupViewState extends State<VehSetupView> {
                 onPressed: () async {
                   try {
                     await launchUrl(vehSmsUri(widget.simNumber.trim(), sms));
-                  } catch (_) {}
+                  } catch (_) {} // best-effort: no SMS app; Copy is right beside it
                 },
                 icon: const Icon(Icons.sms_rounded),
                 label: Text(tr.v100SetupSendSms),

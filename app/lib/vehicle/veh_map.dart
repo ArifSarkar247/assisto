@@ -362,7 +362,7 @@ class _VehMapState extends State<VehMap> with SingleTickerProviderStateMixin {
                   point: _ll(p),
                   width: 44,
                   height: 44,
-                  child: _Arrow(heading: p.course, color: scheme.error, big: true),
+                  child: _LiveCar(heading: p.course, color: scheme.error),
                 ),
               ]);
             },
@@ -412,6 +412,25 @@ class _Dot extends StatelessWidget {
       );
 }
 
+/// The live vehicle: the car icon with a small arrow badge turned to where
+/// it is heading.
+class _LiveCar extends StatelessWidget {
+  final double heading;
+  final Color color;
+  const _LiveCar({required this.heading, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
+        Center(child: Icon(Icons.directions_car_filled_rounded, size: 34, color: color)),
+        PositionedDirectional(
+          top: -2,
+          end: -2,
+          child: SizedBox(
+              width: 18, height: 18, child: _Arrow(heading: heading, color: Brand.blue)),
+        ),
+      ]);
+}
+
 /// A round marker with an arrow pointing along [heading] (deg, 0 = north).
 class _Arrow extends StatelessWidget {
   final double heading;
@@ -429,8 +448,10 @@ class _Arrow extends StatelessWidget {
         ),
         child: Transform.rotate(
           angle: heading * math.pi / 180,
-          child: Icon(Icons.navigation_rounded,
-              color: Colors.white, size: big ? 24 : 18),
+          child: FittedBox(
+            child: Icon(Icons.navigation_rounded,
+                color: Colors.white, size: big ? 24 : 18),
+          ),
         ),
       );
 }

@@ -264,7 +264,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         if (go2 != true) {
           try {
             await api.vehCancel(cid);
-          } catch (_) {}
+          } catch (_) {} // best-effort: an unconfirmed request expires by itself in 60 s
           _snack(tr.v100CutNotSent);
           _refreshLive();
           return;
@@ -590,13 +590,21 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
               child: Row(children: [
-                Text(vehTime(context, pts.first.at),
-                    style: AType.bodySmall.copyWith(
-                        color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
-                const Spacer(),
-                Text(vehTime(context, pts.last.at),
-                    style: AType.bodySmall.copyWith(
-                        color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                Expanded(
+                  child: Text(vehTime(context, pts.first.at),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AType.bodySmall.copyWith(
+                          color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                ),
+                Expanded(
+                  child: Text(vehTime(context, pts.last.at),
+                      maxLines: 1,
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
+                      style: AType.bodySmall.copyWith(
+                          color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                ),
               ]),
             ),
           if (playAt != null)
@@ -724,12 +732,17 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
   /// veh100: colour key for the speed-coloured route.
   Widget _speedLegend(AppLocalizations tr, ColorScheme scheme, int limit) {
     final lim = limit > 0 ? limit : 80;
-    Widget chip(Color c, String label) => Row(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 14, height: 6, decoration: BoxDecoration(
-              color: c, borderRadius: BorderRadius.circular(3))),
-          const SizedBox(width: Gap.xs),
-          Flexible(child: Text(label, style: AType.bodySmall)),
-        ]);
+    Widget chip(Color c, String label) => Text.rich(TextSpan(children: [
+          WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Container(
+                  width: 14,
+                  height: 6,
+                  margin: const EdgeInsetsDirectional.only(end: Gap.xs),
+                  decoration: BoxDecoration(
+                      color: c, borderRadius: BorderRadius.circular(3)))),
+          TextSpan(text: label),
+        ]), style: AType.bodySmall);
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xs),
       child: Semantics(
