@@ -23725,5 +23725,432 @@
   "ldgTone": "Tone",
   "@ldgTone": {
     "description": "ledger100 (digital khata: offline, per-customer tagada, schedule, free promise)"
+  },
+  "bbTitle": "Agent builder",
+  "@bbTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbEntrySub": "Instructions, tone, FAQs, hand-over rules — with a test chat",
+  "@bbEntrySub": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTabCard": "Card",
+  "@bbTabCard": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTabPreview": "Preview",
+  "@bbTabPreview": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTabTest": "Test chat",
+  "@bbTabTest": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTabInbox": "Chats for you",
+  "@bbTabInbox": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbLive": "Version {v} is live.",
+  "@bbLive": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "bbLiveWithDraft": "Version {v} is live — a draft below is waiting to be published.",
+  "@bbLiveWithDraft": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "bbNoLive": "No card is live yet. Write below in plain words, check it, then publish.",
+  "@bbNoLive": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbNeverTitle": "What the agent will never do",
+  "@bbNeverTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInstructionsTitle": "Your instructions",
+  "@bbInstructionsTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInstructionsHelp": "Write it the way you would tell a shop assistant — one point per line.",
+  "@bbInstructionsHelp": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInstructionsLabel": "Instructions",
+  "@bbInstructionsLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInstructionsHint": "e.g. Always greet with Assalamualaikum\nNever more than 10% discount\nHand wholesale chats to me",
+  "@bbInstructionsHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbToneLabel": "Tone",
+  "@bbToneLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbToneFriendly": "Friendly",
+  "@bbToneFriendly": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbToneFormal": "Polite & formal",
+  "@bbToneFormal": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbToneShort": "Short",
+  "@bbToneShort": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbShopTitle": "Delivery & hours",
+  "@bbShopTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbDeliveryLabel": "Delivery charge",
+  "@bbDeliveryLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbDeliveryHint": "e.g. inside Dhaka 60, outside 120",
+  "@bbDeliveryHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbHoursLabel": "Shop hours",
+  "@bbHoursLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbHoursHint": "e.g. 10am to 10pm",
+  "@bbHoursHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbOutsideOnly": "Agent replies only when the shop is closed",
+  "@bbOutsideOnly": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbOutsideOnlySub": "During open hours you reply yourself.",
+  "@bbOutsideOnlySub": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqTitle": "Questions & answers (FAQ)",
+  "@bbFaqTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqAdd": "Add a question",
+  "@bbFaqAdd": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqEmpty": "Add what customers ask again and again — the agent answers them at no cost.",
+  "@bbFaqEmpty": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqQ": "Customer's question",
+  "@bbFaqQ": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqQHint": "Separate ways of asking with |: dokan kothay | where is the shop",
+  "@bbFaqQHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqA": "Your answer",
+  "@bbFaqA": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbFaqRemove": "Remove this question",
+  "@bbFaqRemove": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTakeoverTitle": "When a chat comes to you",
+  "@bbTakeoverTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTakeoverHelp": "Complaints, refunds, bargains below your minimum, unknown products or an unsure agent always come to you, with a push. Add more words below.",
+  "@bbTakeoverHelp": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbWordsLabel": "Hand to me when they say",
+  "@bbWordsLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbWordsHint": "Comma separated: wholesale, custom, পাইকারি",
+  "@bbWordsHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbBigOrderLabel": "Orders above this come to me (৳)",
+  "@bbBigOrderLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbIdleLabel": "Minutes of my silence before the agent resumes",
+  "@bbIdleLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbIdleHelp": "0 = until I hand it back",
+  "@bbIdleHelp": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPauseLabel": "After a hand-over the agent stays quiet in that chat",
+  "@bbPauseLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPauseSub": "It replies again when you hand back or the time runs out.",
+  "@bbPauseSub": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCatalogTitle": "Catalog & minimum prices",
+  "@bbCatalogTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbMinPrivate": "Only you see the minimum price — it is never told to a customer and never undercut.",
+  "@bbMinPrivate": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCatalogEmpty": "Your catalog has no products yet. Add products first — the agent only quotes those prices.",
+  "@bbCatalogEmpty": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPriceStock": "Price ৳{price} · stock {stock}",
+  "@bbPriceStock": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "bbMinLabel": "Minimum ৳",
+  "@bbMinLabel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCheck": "Check",
+  "@bbCheck": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbSave": "Save draft",
+  "@bbSave": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPublish": "Publish",
+  "@bbPublish": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbDiscard": "Discard draft",
+  "@bbDiscard": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbSavedDraft": "Draft saved — not live yet.",
+  "@bbSavedDraft": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPublished": "The card is live.",
+  "@bbPublished": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbDiscarded": "Draft discarded.",
+  "@bbDiscarded": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbUnderstoodTitle": "What the agent understood",
+  "@bbUnderstoodTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbNothingYet": "Nothing written yet.",
+  "@bbNothingYet": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbVersionsTitle": "Version history",
+  "@bbVersionsTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbVersion": "Version {v}",
+  "@bbVersion": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "bbStatusLive": "Live",
+  "@bbStatusLive": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbStatusDraft": "Draft",
+  "@bbStatusDraft": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbStatusOld": "Earlier version",
+  "@bbStatusOld": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbRestore": "Restore",
+  "@bbRestore": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbRestoreTitle": "Make an earlier version live?",
+  "@bbRestoreTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbRestoreBody": "Version {v} goes live again as a new version. The current draft is discarded.",
+  "@bbRestoreBody": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "bbCancel": "Cancel",
+  "@bbCancel": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPreviewNote": "See what the agent would say to sample questions with your draft card. Nothing is sent and nothing is charged.",
+  "@bbPreviewNote": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPreviewRun": "Show how it would reply",
+  "@bbPreviewRun": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbPreviewAgain": "Run again",
+  "@bbPreviewAgain": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCustomerSays": "Customer writes",
+  "@bbCustomerSays": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbAgentReplies": "Agent replies",
+  "@bbAgentReplies": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbNoReply": "(the agent would send nothing)",
+  "@bbNoReply": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbYouWouldSee": "Draft waiting for your approval:",
+  "@bbYouWouldSee": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbHandedToYou": "Comes to you",
+  "@bbHandedToYou": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbOptedOut": "Customer said STOP — no more messages",
+  "@bbOptedOut": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbQuiet": "The agent would stay quiet",
+  "@bbQuiet": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbAiUsed": "AI answer",
+  "@bbAiUsed": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbAiNeeded": "AI needed here — {credits} credits or 1 plan reply in a real chat",
+  "@bbAiNeeded": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "bbRuleFree": "Rule answer — free",
+  "@bbRuleFree": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTestNote": "This is your own test chat — nothing reaches a customer and no order is created.",
+  "@bbTestNote": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbUseDraft": "Draft card",
+  "@bbUseDraft": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbUseLive": "Live card",
+  "@bbUseLive": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbUseAi": "Use AI ({credits} credits/answer)",
+  "@bbUseAi": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "bbNoAiKey": "AI is not connected now — rule answers are shown, and where AI would be needed is marked.",
+  "@bbNoAiKey": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbRestart": "Start over",
+  "@bbRestart": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTestEmptyTitle": "Write as a customer",
+  "@bbTestEmptyTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTestEmptyBody": "e.g. “How much is the Panjabi?” or “What is the delivery charge?”",
+  "@bbTestEmptyBody": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTestHint": "Type a customer message",
+  "@bbTestHint": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbSend": "Send",
+  "@bbSend": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCharged": "This answer used {credits} credits",
+  "@bbCharged": {
+    "description": "WP-BIZBUILDER (business agent builder)",
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "bbInboxNote": "Chats land here when the agent is unsure or your rules say so, with a push to your phone.",
+  "@bbInboxNote": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInboxEmptyTitle": "Nothing is waiting",
+  "@bbInboxEmptyTitle": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbInboxEmptyBody": "Chats that need you will show up here.",
+  "@bbInboxEmptyBody": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbCustomer": "Customer",
+  "@bbCustomer": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbTakeOver": "I'll take it",
+  "@bbTakeOver": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbHandBack": "Hand back to agent",
+  "@bbHandBack": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbOpenChat": "Open chat",
+  "@bbOpenChat": {
+    "description": "WP-BIZBUILDER (business agent builder)"
+  },
+  "bbRiskCardKeyword": "Your hand-over rule",
+  "@bbRiskCardKeyword": {
+    "description": "WP-BIZBUILDER (business agent builder)"
   }
 }
