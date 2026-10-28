@@ -500,7 +500,7 @@ def run():
         from datetime import timedelta
         from django.utils import timezone as dj_tz
         from core import cctvx_views as CXV
-        from core.models import CircleMember, ShopPosEvent, User as U
+        from core.models import CircleMember, ShopPosEvent
         ShopEvent.objects.filter(site_id=site_id).update(status="checked")
         ShopPosEvent.objects.create(site_id=site_id, kind="sale", amount=100,
                                     at=dj_tz.now() - timedelta(days=2))   # uses Assisto POS
@@ -556,7 +556,9 @@ def run():
               r2.status_code == 201 and not ShopEvent.objects.filter(pk=cid).exists() and
               len(fcm_calls()) == n_push, r2.text)
         # escalation: the owner picks a Circle member; the alert is not opened
-        fam_uid = U.objects.get(phone=FAMILY_PHONE).pk
+        from core.models import ShopSiteViewer
+        fam_uid = ShopSiteViewer.objects.filter(site_id=site_id).values_list(
+            "user_id", flat=True).first()
         CircleMember.objects.create(user_id=owner_uid, peer_user_id=fam_uid, state="accepted",
                                     name="Family")
         g = owner.put(API + "/shop/sites/%d/guard" % site_id,

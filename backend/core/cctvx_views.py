@@ -219,7 +219,9 @@ def uses_records(site, now):
     from .models import KhataEntry
     since = now - timedelta(days=CX.LOOKBACK_DAYS)
     try:
-        if site.pos_link and site.pos_events.filter(kind="sale", at__gte=since).exists():
+        # any sale row for this site counts: the Assisto POS mirror (pos_link)
+        # or a Shop Box / POS posting to shop/pos
+        if site.pos_events.filter(kind="sale", at__gte=since).exists():
             return True
         return KhataEntry.objects.filter(party__business__user_id=site.owner_id,
                                          created_at__gte=since).exists()
