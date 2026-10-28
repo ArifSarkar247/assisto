@@ -196,7 +196,8 @@ void main() {
       expect(l(bn, 'emergency'), 'জরুরি SOS');
       expect(l(en, 'money'), 'Account & Finance');
       expect(l(bn, 'money'), 'হিসাব ও অর্থ');
-      expect(l(bn, 'business'), 'ব্যবসা');
+      expect(l(bn, 'business'), 'ব্যবসার হিসাব');   // owner 28 Oct: Business Accounts
+      expect(l(en, 'business'), 'Business Accounts');
     });
 
     test('the 4 removed ones stay in Edit shortcuts', () {
