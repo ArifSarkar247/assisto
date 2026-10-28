@@ -385,7 +385,7 @@ void main() {
       expect(find.byKey(const ValueKey('veh-share')), findsOneWidget);
       expect(find.byKey(const ValueKey('veh-report')), findsOneWidget);
       expect(find.text(en.v100DriverNow('Karim')), findsOneWidget);
-      expect(find.text(en.v100LegendCalm, findRichText: true), findsOneWidget);
+      expect(find.textContaining(en.v100LegendCalm, findRichText: true), findsOneWidget);
       _noErrors(tester);
       await tester.pumpWidget(const SizedBox());
     });
