@@ -386,10 +386,13 @@ void main() {
     await tester.pumpWidget(_app(api));
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
     await _settle(tester);
-    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim');
+    // journey2: the form is taller (intro + destination picker) — rows can
+    // sit below the fold, so look past it and scroll to them
+    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim', skipOffstage: false);
     expect(karim, findsOneWidget);
     expect(find.text('Pending Pal'), findsNothing);
-    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsNothing);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
+        findsNothing);
     await tester.ensureVisible(karim);
     await tester.tap(karim);
     await _settle(tester, 3);
@@ -398,7 +401,8 @@ void main() {
     // time was read by the server as Asia/Dhaka, so any phone on another
     // timezone started its journey already overdue.
     await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
-    await tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_start'), skipOffstage: false));
+    await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
     final eta = '${api.posts('/journey/start').single.body['eta']}';
@@ -415,7 +419,8 @@ void main() {
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
     await _settle(tester);
     expect(find.byType(CheckboxListTile), findsNothing);
-    expect(find.byKey(const ValueKey('truth_journey_add_watcher')), findsOneWidget);
+    expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
+        findsOneWidget);
   });
 
   testWidgets('live screen in Bangla + dark mode: Bangla only, 48dp targets', (tester) async {

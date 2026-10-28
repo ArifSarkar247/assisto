@@ -252,7 +252,8 @@ void main() {
     await _settle(tester, 6);
     await tester.enterText(find.byKey(const ValueKey('j2_plate')), 'DHA-1');
     await tester.enterText(find.byKey(const ValueKey('j2_driver_name')), 'Rahim');
-    await tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_start'), skipOffstage: false));
+    await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
     final b = api.posts('/journey/start').single.body;
