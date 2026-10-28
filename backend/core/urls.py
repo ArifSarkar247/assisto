@@ -724,6 +724,7 @@ urlpatterns += [
 # 24h route + trips, engine cut (PIN + speed gate + approval), grants, OBD,
 # AI trip summary, Car Mode trips, Business fleet dashboard.
 from . import views_vehicle as veh  # noqa: E402
+from . import views_vehicle100 as veh100  # noqa: E402
 urlpatterns += [
     path("vehicle/config", veh.VehicleConfigView.as_view()),
     path("vehicle/trackers", veh.TrackerListView.as_view()),
@@ -741,6 +742,16 @@ urlpatterns += [
     path("vehicle/obd/decode", veh.ObdDecodeView.as_view()),
     path("vehicle/carmode/trip", veh.CarModeTripView.as_view()),
     path("vehicle/fleet", veh.FleetDashboardView.as_view()),
+    # veh100: 2nd engine-cut confirmation, share links, reports, drivers,
+    # maintenance, setup guide
+    path("vehicle/commands/<int:cid>/confirm", veh.CommandConfirmView.as_view()),
+    path("vehicle/trackers/<int:pk>/share", veh100.TrackerShareView.as_view()),
+    path("vehicle/trackers/<int:pk>/share/<int:lid>", veh100.TrackerShareRevokeView.as_view()),
+    path("vehicle/trackers/<int:pk>/report", veh100.TrackerReportView.as_view()),
+    path("vehicle/trackers/<int:pk>/driver", veh100.TrackerDriverView.as_view()),
+    path("vehicle/drivers/<int:did>/report", veh100.DriverReportView.as_view()),
+    path("vehicle/maintenance", veh100.MaintenanceView.as_view()),
+    path("vehicle/setup-guide", veh100.SetupGuideView.as_view()),
 ]
 # ---- /v1-vehicle ----
 

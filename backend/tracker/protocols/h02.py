@@ -15,9 +15,13 @@ There is no login packet: the IMEI travels in every frame. There is no CRC
 and a frame that does not parse is dropped.
 
 Status word (32 bits, hex): bits are mostly ACTIVE-LOW. We read only what
-Traccar's H02 decoder (the de-facto reference) reads: bit 10 = ignition (ACC),
-bit 1 clear = SOS. Anything else stays in the raw status so nothing is
-over-claimed.
+Traccar's H02 decoder (the de-facto reference) reads: bit 10 = ignition (ACC);
+alarms (a CLEAR bit = active): bit 0 vibration, bit 1 or 18 SOS, bit 2
+overspeed (device-side), bit 19 main-power cut (veh100). These are LEVELS
+repeated in every frame — the server alerts on the rising edge only.
+UNPROVEN on a real ST-901 (no real device has connected yet); low battery is
+NOT in the GPRS status (Sinotrack sends it by SMS to the admin phone), so we
+never claim it for H02. Anything else stays in the raw status.
 
 Server commands (Traccar H02 encoder conventions):
     *HQ,<imei>,S20,<hhmmss>,1,1#     cut oil / electricity (relay)
@@ -122,17 +126,32 @@ def parse_frame(frame: bytes) -> dict:
                "speed_kmh": round(knots * KNOT_KMH, 1), "course": course,
                "sats": 0, "valid": f[4].upper() == "A"}
         alarm = None
+        alarms = []
         if status is not None:
             fix["ignition"] = bool(status & (1 << 10))
-            if not status & (1 << 1):
+            alarms = status_alarms(status)
+            if "sos" in alarms:
                 alarm = "sos"
+        fix["alarms"] = alarms
         return {"kind": "gps", "imei": imei, "fix": fix, "status": status,
-                "alarm": alarm}
+                "alarm": alarm, "alarms": alarms}
     if typ in ("HTBT", "LINK", "XT", "NBR"):
         return {"kind": "heartbeat", "imei": imei}
     if typ == "V4":
         return {"kind": "cmd_reply", "imei": imei, "text": ",".join(f[3:])[:200]}
     return {"kind": "unknown", "imei": imei}
+
+
+def status_alarms(status: int):
+    """Active alarms in an H02 status word (active-low bits, Traccar map)."""
+    out = []
+    if not status & (1 << 1) or not status & (1 << 18):
+        out.append("sos")
+    if not status & (1 << 19):
+        out.append("power_cut")
+    if not status & (1 << 0):
+        out.append("vibration")
+    return out
 
 
 # ----------------------------------------------------------------- server side
@@ -176,13 +195,16 @@ def _dm(v: float, deg_digits: int) -> str:
 
 
 def v1_packet(imei: str, at: datetime, lat: float, lng: float, speed_kmh: float,
-              course: int = 0, valid=True, ignition=True, sos=False) -> bytes:
+              course: int = 0, valid=True, ignition=True, sos=False,
+              power_cut=False) -> bytes:
     a = at.astimezone(timezone.utc)
     status = 0xFFFFFFFF
     if not ignition:
         status &= ~(1 << 10)
     if sos:
         status &= ~(1 << 1)
+    if power_cut:
+        status &= ~(1 << 19)
     s = "*HQ,%s,V1,%s,%s,%s,%s,%s,%s,%.2f,%d,%s,%08X,470,01,0001,0001#" % (
         imei, a.strftime("%H%M%S"), "A" if valid else "V",
         _dm(lat, 2), "N" if lat >= 0 else "S", _dm(lng, 3), "E" if lng >= 0 else "W",

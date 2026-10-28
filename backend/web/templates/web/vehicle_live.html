@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>{{ T.title }} · Assisto</title>
+{% comment %}veh100: the vehicle live-location share page (web/views_vehicle_share.py). One
+   language per page, no external script/CSS, no map library: tiles (when the
+   owner configured MAP_TILE_URL) are laid out by the small script below.{% endcomment %}
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --ink:#14171f; --muted:#4b5563; --line:#dde3ea;
+          --ok:#146c2e; --warn:#8a4b00; --bad:#b3261e; --brand:#1d4ed8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#181c24; --ink:#eef1f6; --muted:#b4bccb; --line:#2b313d;
+            --ok:#7ddc96; --warn:#f2b968; --bad:#ff8a80; --brand:#93b4ff; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.5 -apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",Arial,sans-serif; }
+  header { background:linear-gradient(90deg,#0891b2,#1d4ed8,#7c3aed); color:#fff; padding:14px 16px; }
+  header b { font-size:18px; }
+  header a { color:#fff; float:right; font-size:14px; min-height:48px; display:inline-flex; align-items:center; }
+  main { max-width:720px; margin:0 auto; padding:14px 16px 32px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin:0 0 12px; }
+  .state { font-weight:700; font-size:18px; }
+  .live { color:var(--ok); } .stale,.waiting,.late { color:var(--warn); } .lost,.sos,.bad { color:var(--bad); }
+  .row { display:flex; justify-content:space-between; gap:12px; margin:6px 0; flex-wrap:wrap; }
+  .row span:first-child { color:var(--muted); }
+  .row span:last-child { font-weight:600; text-align:right; }
+  #map { position:relative; width:100%; height:320px; overflow:hidden; border-radius:12px;
+         background:#dfe6ee; border:1px solid var(--line); }
+  #map img.t { position:absolute; width:256px; height:256px; user-select:none; }
+  #pin { position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; left:50%; top:50%;
+         transition:transform .6s ease; }
+  #pin svg { width:34px; height:34px; display:block; filter:drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
+  .attr { font-size:12px; color:var(--muted); margin-top:4px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 18px;
+         border-radius:12px; text-decoration:none; font-weight:700; margin:6px 8px 0 0; }
+  .primary { background:var(--brand); color:#fff; }
+  @media (prefers-color-scheme: dark) { .primary { color:#0f1218; } }
+  .danger { background:#b3261e; color:#fff; }
+  .muted { color:var(--muted); font-size:14px; }
+  img.photo { max-width:100%; border-radius:12px; display:block; margin-top:8px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><a href="{{ other_q|default:'?' }}" lang="{% if lang == 'en' %}bn{% else %}en{% endif %}">{{ T.other }}</a><b>{{ T.brand }}</b></header>
+<main>
+{% if limited %}
+  <div class="card"><p class="state bad">{{ T.limited }}</p></div>
+{% elif state == "bad" %}
+  <div class="card"><p class="state bad">{{ T.bad }}</p></div>
+{% else %}
+  <div class="card" role="status" aria-live="polite">
+    <div id="st" class="state"></div>
+    <div class="row" id="r-name" hidden><span id="name"></span></div>
+    <div class="row" id="r-mv" hidden><span>{{ T.speed }}</span><span id="mv"></span></div>
+    <div class="row" id="r-upd" hidden><span>{{ T.updated }}</span><span id="upd"></span></div>
+    <div class="row" id="r-until" hidden><span>{{ T.until }}</span><span id="until"></span></div>
+    <div id="net" class="muted" hidden>{{ T.offline }}</div>
+  </div>
+  <div class="card" id="mapcard" hidden>
+    <div id="map" aria-hidden="true"><div id="pin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1d4ed8" stroke="#fff" stroke-width="2"/><path d="M12 4l5 12-5-3-5 3z" fill="#fff"/></svg></div></div>
+    <div class="attr" id="attr"></div>
+    <div id="nomap" hidden><p class="muted">{{ T.nomap }}</p></div>
+    <a class="btn primary" id="gmaps" href="#" target="_blank" rel="noopener noreferrer">{{ T.open_maps }}</a>
+  </div>
+  <p class="muted">{{ T.refresh }}</p>
+  <p class="muted">{{ T.privacy }}</p>
+  {{ boot|json_script:"boot" }}
+  <script>
+  (function () {
+    var B = JSON.parse(document.getElementById("boot").textContent), T = B.T;
+    var bn = B.lang === "bn", Z = 16;
+    function num(s) { s = String(s); return bn ? s.replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[d]; }) : s; }
+    function hhmm(iso) { if (!iso) return ""; var d = new Date(iso);
+      return num(("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2)); }
+    function ago(s) { if (s == null) return ""; return s < 90 ? T.ago_s.replace("{n}", num(s)) : T.ago_m.replace("{n}", num(Math.round(s / 60))); }
+    function show(id, on) { document.getElementById(id).hidden = !on; }
+    function txt(id, v) { document.getElementById(id).textContent = v; }
+    function tiles(lat, lng) {
+      var map = document.getElementById("map"), w = map.clientWidth, h = map.clientHeight;
+      Array.prototype.slice.call(map.querySelectorAll("img.t")).forEach(function (n) { n.remove(); });
+      var n = Math.pow(2, Z), x = (lng + 180) / 360 * n,
+          r = lat * Math.PI / 180, y = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
+      var cx = Math.floor(x), cy = Math.floor(y), ox = w / 2 - (x - cx) * 256, oy = h / 2 - (y - cy) * 256;
+      for (var dx = -2; dx <= 2; dx++) for (var dy = -2; dy <= 2; dy++) {
+        var tx = cx + dx, ty = cy + dy; if (ty < 0 || ty >= n) continue;
+        var img = document.createElement("img"); img.className = "t"; img.alt = "";
+        img.src = B.tile.replace("{z}", Z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty).replace("{s}", "a");
+        img.style.left = (ox + dx * 256) + "px"; img.style.top = (oy + dy * 256) + "px";
+        map.insertBefore(img, map.firstChild);
+      }
+    }
+    function render(d) {
+      var st = d.state || "bad", el = document.getElementById("st");
+      el.className = "state " + st; txt("st", T[st] || T.bad);
+      show("r-name", !!d.name); txt("name", d.name || "");
+      var hasLoc = d.lat != null && d.lng != null;
+      show("r-mv", hasLoc); txt("mv", hasLoc ? (d.moving ? T.moving : T.parked) + " · " + num(d.speed_kmh || 0) + " " + T.kmh : "");
+      show("r-upd", hasLoc); txt("upd", hasLoc ? hhmm(d.at) + " (" + ago(d.age_s) + ")" : "");
+      show("r-until", !!d.expires_at); txt("until", hhmm(d.expires_at));
+      show("mapcard", hasLoc);
+      if (hasLoc) {
+        document.getElementById("gmaps").href = "https://www.google.com/maps/search/?api=1&query=" + d.lat + "," + d.lng;
+        var haveTiles = !!B.tile;
+        show("map", haveTiles); show("nomap", !haveTiles); txt("attr", haveTiles ? B.attr : "");
+        if (haveTiles) tiles(d.lat, d.lng);
+        document.getElementById("pin").style.transform = "rotate(" + (d.course || 0) + "deg)";
+      }
+      return st;
+    }
+    var state = render(B.data || {});
+    function poll() {
+      if (state === "bad" || state === "expired" || state === "revoked") return;
+      var x = new XMLHttpRequest(); x.open("GET", B.api); x.timeout = 15000;
+      x.onload = function () { show("net", false);
+        if (x.status === 429) return; try { state = render(JSON.parse(x.responseText)); } catch (e) {} };
+      x.onerror = x.ontimeout = function () { show("net", true); };
+      x.send();
+    }
+    setInterval(poll, 15000);
+  })();
+  </script>
+{% endif %}
+</main>
+</body>
+</html>

@@ -94,6 +94,10 @@ REGISTRY = (
     ('ride_food', 'daily_life', 'Ride & food', 'রাইড ও খাবার', True, ('ride_food',)),
     ('vehicles', 'daily_life', 'My Vehicles', 'আমার গাড়ি', True, ('vehicles',)),
     ('vehicle_tracking', 'daily_life', 'Live tracking', 'লাইভ ট্র্যাকিং', True, ('vehicle_tracking', 'car_mode')),
+    # veh100 (owner 28 Oct): remote engine cut stays OFF until a real
+    # relay-wired tracker passed the stopped-only test on a real vehicle.
+    # Server-enforced (views_vehicle refuses 'feature_off'); owns no route.
+    ('vehicle_engine_cut', 'daily_life', 'Remote engine cut (stopped vehicles only)', 'দূর থেকে ইঞ্জিন বন্ধ (শুধু থামা গাড়িতে)', False, ()),
     ('student_corner', 'daily_life', 'Student corner', 'স্টুডেন্ট কর্নার', True, ()),
     ('wedding_events', 'daily_life', 'Wedding & events', 'বিয়ে ও অনুষ্ঠান', True, ()),
     ('qurbani', 'daily_life', 'Qurbani & Eid planner', 'কোরবানি ও ঈদ পরিকল্পনা', True, ()),

@@ -2239,6 +2239,9 @@ GENERIC_COLLECTIONS = [
     "vehicle/records",
     # v1-vehicle: Car Mode trips (head-unit GPS, summary computed server-side)
     "vehicle/trips",
+    # veh100: drivers {name, phone, licence_no, licence_expiry} (per-driver
+    # trips via VehicleDriverShift; licence expiry reminders)
+    "vehicle/drivers",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

@@ -3791,7 +3791,8 @@ class VehicleTracker(models.Model):
               ("paired", "paired"),
               ("expired", "expired"),       # pairing window passed, never connected
               ("disabled", "disabled")]     # unpaid / owner turned off
-    PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika")]
+    PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika"),
+                 ("h02", "h02"), ("tk103", "tk103")]
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="vehicle_trackers")
     vehicle_record = models.ForeignKey("PaCollectionItem", null=True, blank=True,
@@ -3830,11 +3831,24 @@ class VehicleTracker(models.Model):
                                  on_delete=models.SET_NULL,
                                  related_name="approver_for_vehicles")
     alert_state = models.JSONField(default=dict, blank=True)   # evaluate_alerts state
+    # veh100: opt-in alert switches + caps {ignition_on, ignition_off,
+    # stop_alert_min, silent_min, quiet_start, quiet_end, daily_push_cap}
+    alert_prefs = models.JSONField(default=dict, blank=True)
+    # veh100: server-measured distance since pairing (metres, GPS, jumps and
+    # parked wander removed) + the owner's dashboard reading as a base.
+    odometer_m = models.FloatField(default=0)
+    odometer_base_km = models.FloatField(default=0)
+    odometer_base_m = models.FloatField(default=0)    # odometer_m when the base was set
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]
+
+    @property
+    def odometer_km(self):
+        return round(self.odometer_base_km +
+                     max(0.0, self.odometer_m - self.odometer_base_m) / 1000.0, 1)
 
 
 class VehiclePosition(models.Model):
@@ -3864,7 +3878,8 @@ class VehicleCommand(models.Model):
     it is never set from our side alone."""
     KINDS = [("engine_cut", "engine_cut"), ("engine_restore", "engine_restore"),
              ("set_interval", "set_interval")]
-    STATES = [("awaiting_approval", "awaiting_approval"), ("queued", "queued"),
+    STATES = [("awaiting_confirm", "awaiting_confirm"),   # veh100: 2nd confirmation
+              ("awaiting_approval", "awaiting_approval"), ("queued", "queued"),
               ("sent", "sent"), ("acked", "acked"), ("failed", "failed"),
               ("cancelled", "cancelled"), ("rejected", "rejected"),
               ("expired", "expired")]
@@ -3883,6 +3898,7 @@ class VehicleCommand(models.Model):
     server_flag = models.BigIntegerField(default=0)   # GT06 reply matching
     response = models.TextField(blank=True, default="")
     fail_reason = models.CharField(max_length=24, blank=True, default="")
+    confirm_hash = models.CharField(max_length=64, blank=True, default="")  # veh100
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     done_at = models.DateTimeField(null=True, blank=True)
@@ -3923,6 +3939,88 @@ class VehicleAuditLog(models.Model):
 
     class Meta:
         ordering = ["-at"]
+
+
+# ---- veh100 ---- share link, drivers, daily report rows, reminder claims
+class VehicleShareLink(models.Model):
+    """A no-login live-location link lifeassisto.com/v/<token>. Only the
+    SHA-256 of the token is stored; it shows ONLY the current position (no
+    history), stops at expires_at or when revoked, and is rate-limited."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="share_links")
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    token_hash = models.CharField(max_length=64, unique=True)
+    label = models.CharField(max_length=40, blank=True, default="")
+    expires_at = models.DateTimeField()
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    views = models.PositiveIntegerField(default=0)
+    last_view_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class VehicleDriverShift(models.Model):
+    """Who drove which vehicle when. `driver` is the owner's driver record
+    (PaCollectionItem collection='vehicle/drivers'); one open shift per
+    tracker (ended_at null)."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="driver_shifts")
+    driver = models.ForeignKey("PaCollectionItem", on_delete=models.CASCADE,
+                               related_name="vehicle_shifts")
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField(null=True, blank=True)
+    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+
+    class Meta:
+        ordering = ["-started_at"]
+        indexes = [models.Index(fields=["tracker", "started_at"]),
+                   models.Index(fields=["driver", "started_at"])]
+
+
+class VehicleDailyStat(models.Model):
+    """One Dhaka day of one tracker (driver_id 0 = whole vehicle; >0 = that
+    driver's share). Rolled up nightly (vehicle_daily_rollup) so a monthly
+    report never re-reads a month of raw fixes and survives position pruning."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="daily_stats")
+    day = models.DateField()
+    driver_id = models.IntegerField(default=0)
+    km = models.FloatField(default=0)
+    trips = models.IntegerField(default=0)
+    moving_s = models.IntegerField(default=0)
+    idle_s = models.IntegerField(default=0)
+    max_kmh = models.FloatField(default=0)
+    overspeed_s = models.IntegerField(default=0)
+    harsh_brake = models.IntegerField(default=0)
+    harsh_accel = models.IntegerField(default=0)
+    night_trips = models.IntegerField(default=0)
+    score = models.IntegerField(null=True, blank=True)
+    coverage = models.FloatField(default=0)
+    alerts = models.IntegerField(default=0)
+    computed_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["day"]
+        constraints = [models.UniqueConstraint(
+            fields=["tracker", "day", "driver_id"], name="uniq_vehicle_day_driver")]
+
+
+class VehicleReminderClaim(models.Model):
+    """At-most-once claim for a vehicle reminder push (paper expiry stage or a
+    maintenance rule's due cycle). The UNIQUE key is inserted BEFORE the push."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    key = models.CharField(max_length=120)
+    sent_at = models.DateTimeField(default=timezone.now)
+    delivered = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "key"],
+                                               name="uniq_vehicle_reminder_claim")]
+        indexes = [models.Index(fields=["user", "sent_at"])]
+# ---- /veh100 ----
 # ---- /v1-vehicle ----
 
 

@@ -34,6 +34,7 @@ IO_EXT_VOLTAGE = 66        # mV
 IO_BATTERY_VOLTAGE = 67    # mV (internal backup battery)
 IO_DOUT1 = 179             # digital output 1 (immobilizer relay on most kits)
 IO_TOTAL_ODOMETER = 16     # m
+IO_UNPLUG = 252            # FMB "Unplug": 1 = device unplugged from main power
 OBD_IO = {                 # id -> (our key, scale)
     30: ("dtc_count", 1),
     31: ("engine_load_pct", 1),
@@ -200,6 +201,12 @@ def derive_io(io: dict) -> dict:
         out["battery_v"] = round(io[IO_BATTERY_VOLTAGE] / 1000.0, 2)
     if isinstance(io.get(IO_DOUT1), int):
         out["relay_cut"] = bool(io[IO_DOUT1])
+    # veh100: explicit device alarms the server alerts on (rising edge only).
+    alarms = []
+    if io.get(IO_UNPLUG) == 1:
+        alarms.append("power_cut")
+    if alarms:
+        out["alarms"] = alarms
     obd = {}
     for iid, (key, scale) in OBD_IO.items():
         v = io.get(iid)

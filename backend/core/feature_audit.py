@@ -103,6 +103,8 @@ _A = {
                  "সুইপ B?: কাগজের রিমাইন্ডার কাজ করে; লাইভ ট্র্যাকিং আলাদা ফ্ল্যাগ।"),
     "vehicle_tracking": ("?P????F?F", "show", "Owner decision 27 Oct: vehicle tracking is a LAUNCH feature (not a preview), shown in the website APK and Play and offered in Edit shortcuts; launch E2E (e2e-launch.yml) passed. Still open: Play location declaration, real-vehicle run.",
                          "মালিকের সিদ্ধান্ত ২৭ Oct: গাড়ি ট্র্যাকিং লঞ্চ ফিচার (প্রিভিউ নয়), ওয়েবসাইট APK ও Play দুটোতেই এবং শর্টকাট সম্পাদনায় বাছাই করা যায়; লঞ্চ E2E (e2e-launch.yml) পাস। এখনো বাকি: Play লোকেশন ঘোষণা, আসল গাড়িতে চালানো।"),
+    "vehicle_engine_cut": ("?P??PF?FF", "hide", "veh100 (owner 28 Oct): OFF until a real relay-wired tracker passes the stopped-only test (PIN + second confirmation + 3 stopped fixes, full audit). Simulator + real-TCP tests pass; no real device ever connected.",
+                           "veh100 (মালিক ২৮ অক্টোবর): আসল রিলে-যুক্ত ট্র্যাকারে থামা-অবস্থার পরীক্ষা না হওয়া পর্যন্ত বন্ধ (PIN + দ্বিতীয় নিশ্চিতকরণ + ৩টি থামা ফিক্স, পুরো অডিট)। সিমুলেটর ও আসল-TCP টেস্ট পাস; আসল ডিভাইস কখনো যুক্ত হয়নি।"),
     "student_corner": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "wedding_events": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "qurbani": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),

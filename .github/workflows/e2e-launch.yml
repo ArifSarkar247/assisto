@@ -17,6 +17,10 @@ on:
       - "backend/core/vehicle_service.py"
       - "backend/core/views_vehicle.py"
       - "backend/core/logic/vehicle_tracking.py"
+      - "backend/core/vehicle100.py"
+      - "backend/core/views_vehicle100.py"
+      - "backend/core/tests_veh100.py"
+      - "backend/web/views_vehicle_share.py"
       - ".github/workflows/e2e-launch.yml"
   workflow_dispatch:
 
@@ -54,7 +58,7 @@ jobs:
         run: bash tools/e2e/cctv_e2e.sh
 
   vehicle:
-    name: Vehicle e2e (GT06 / H02 / Teltonika sims -> tracker server -> app API)
+    name: Vehicle e2e (GT06 / H02 / TK103 / Teltonika sims -> tracker server -> app API)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
