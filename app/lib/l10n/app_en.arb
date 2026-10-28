@@ -25747,5 +25747,213 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cx999": "Call 999",
+  "cx999Sub": "Emergency police / fire / ambulance — asks you first",
+  "cx999ConfirmTitle": "Call 999?",
+  "cx999ConfirmBody": "999 is the national emergency service. Call only in a real emergency — check the clip or photo first.",
+  "cx999Call": "Call",
+  "cxCancel": "Cancel",
+  "cxActions": "Actions",
+  "cxActionsTitle": "What you can do from this alert",
+  "cxCallShop": "Call the shop",
+  "cxCallShopMissing": "No shop number yet — add it in the guard settings",
+  "cxSiren": "Sound the camera siren",
+  "cxSirenSub": "The camera itself sounds its siren for a few seconds",
+  "cxSirenNotSupported": "This camera has no remote siren",
+  "cxSirenSounding": "The siren is sounding",
+  "cxSirenQueued": "The shop's Shop Box is sounding the siren",
+  "cxShareClip": "Show the clip to a Circle member",
+  "cxShareClipSub": "Stays locked — opens only on their phone, deleted after viewing",
+  "cxShareWho": "Who should see it?",
+  "cxShareKeyOk": "Their phone can open it",
+  "cxShareNoKey": "Ask them to open Assisto once, then it can be shared",
+  "cxShareNote": "Each clip can be shown to one more person only. Same 24 hours; deleted after viewing.",
+  "cxShareNoCircle": "No one is connected in your Circle yet",
+  "cxShareUsed": "This clip was already shown to one person",
+  "cxShareDone": "The clip was shared with {name}",
+  "@cxShareDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cxEvidence": "Evidence pack",
+  "cxEvidenceSubPhoto": "Photo, times and SHA-256 fingerprints for a police GD",
+  "cxEvidenceConfirm": "The pack holds the open photo and clip frames. Give it only to the police or someone you trust. Every file gets a SHA-256 fingerprint, so any change shows.",
+  "cxEvidenceMake": "Make the pack",
+  "cxEvidenceNothing": "This alert has no photo or clip any more",
+  "cxEvidenceShareText": "Assisto CCTV evidence — manifest SHA-256 {hash}…",
+  "@cxEvidenceShareText": {
+    "placeholders": {
+      "hash": {
+        "type": "String"
+      }
+    }
+  },
+  "cxNoSalePill": "Drawer opened with no sale",
+  "cxNoSaleTitle": "Drawer opened with no sale",
+  "cxNoSaleBody": "When the cash area is touched and no sale or khata entry is recorded within the window, you get an alert with the clip. When a sale matches, nothing is kept.",
+  "cxNoSaleNoRecords": "This shop does not record sales or khata in Assisto yet — so alerts come at once, as before.",
+  "cxNoSaleSwitch": "No-sale drawer alerts",
+  "cxNoSaleWindow": "Wait for a sale: {minutes} min",
+  "@cxNoSaleWindow": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cxNoSaleTip": "Several mistaken alerts in a row — try a slightly longer wait.",
+  "cxEscalationTitle": "If you do not open an alert",
+  "cxEscalationBody": "If you do not open an alert in time, it goes to the person you chose, then the next. It stops as soon as anyone opens it.",
+  "cxEscalationNoCircle": "First connect a manager or family member in your Circle.",
+  "cxEscalationAdd": "Add a person",
+  "cxEscalationAfter": "after {minutes} min",
+  "@cxEscalationAfter": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cxEscalationWait": "Wait per step: {minutes} min",
+  "@cxEscalationWait": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cxMoveUp": "Move up",
+  "cxRemove": "Remove",
+  "cxOfflineTitle": "If a camera or the internet goes silent",
+  "cxOfflineBody": "When a camera, the Shop Box or the internet goes silent you get one alert — power or net may be cut — and a notice when it is back. In quiet hours it is only saved, unless you are away.",
+  "cxOfflineSwitch": "Offline alerts",
+  "cxOfflineAfter": "After {minutes} min of silence",
+  "@cxOfflineAfter": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cxHoursTitle": "Shop open and close",
+  "cxHoursBody": "The first movement after opening time says \"the shop has opened\", a late opening is reported, and movement after closing alerts as before.",
+  "cxOpensAt": "Opens {time}",
+  "@cxOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cxClosesAt": "Closes {time}",
+  "@cxClosesAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cxHoursMissing": "These work once the opening hours are set.",
+  "cxOpenedSwitch": "Tell me when the shop opens",
+  "cxLateSwitch": "Tell me if it opens late",
+  "cxLateAfter": "If no movement {minutes} min after opening time",
+  "@cxLateAfter": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cxClosedDays": "Closed days (no late alert on these days)",
+  "cxPhoneTitle": "The shop's phone number",
+  "cxPhoneBody": "For calling the shop in one tap from an alert.",
+  "cxPhoneLabel": "Phone number",
+  "cxSave": "Save",
+  "cxCapsTitle": "Your plan today",
+  "cxCapsLine": "Passed on {esc}/{escCap} · offline alerts {off}/{offCap} · sirens {sir}/{sirCap}",
+  "@cxCapsLine": {
+    "placeholders": {
+      "esc": {
+        "type": "String"
+      },
+      "escCap": {
+        "type": "String"
+      },
+      "off": {
+        "type": "String"
+      },
+      "offCap": {
+        "type": "String"
+      },
+      "sir": {
+        "type": "String"
+      },
+      "sirCap": {
+        "type": "String"
+      }
+    }
+  },
+  "cxCapsNote": "Limits are enforced on the server; nothing is unlimited. No ads on this screen.",
+  "cxSettingsTitle": "Guard settings",
+  "cxReportTitle": "Today's guard report",
+  "cxReportEmpty": "Nothing yet today",
+  "cxReportNote": "It is also in your evening recap — no credits used.",
+  "cxExtrasTitle": "Guard extras",
+  "cxExtrasBody": "No-sale drawer, passing alerts on when you do not open them, power/net cuts, shop open/close, a camera placement check and the CCTV notice.",
+  "cxPlacementTitle": "Camera placement check",
+  "cxPlacementBody": "Is the cash area clearly visible and is the light enough — from the camera's latest picture.",
+  "cxPlacementScore": "{score}% good",
+  "@cxPlacementScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "cxPlacementHonest": "This checks light, clarity and framing — it cannot tell what is in front of the lens.",
+  "cxPlacementNewPhoto": "Take a new photo",
+  "cxPlacementAgain": "Check again",
+  "cxCheckLight": "Enough light",
+  "cxCheckGlare": "No glare",
+  "cxCheckClear": "Clearly visible",
+  "cxCheckSize": "Cash area size is fine",
+  "cxCheckEdge": "Away from the picture's edge",
+  "cxCheckZone": "Cash zone drawn",
+  "cxKitTitle": "CCTV notice",
+  "cxKitBody": "A sticker for the shop (Bangla and English) and a notice for staff. Print it and put it on the wall.",
+  "cxKitPdfA4": "PDF (A4)",
+  "cxKitPdfA5": "PDF (A5)",
+  "cxKitShareText": "CCTV notice — print and put it up",
+  "cxKitStaffTitle": "Notice for staff",
+  "cxKitBangla": "Bangla",
+  "cxKitEnglish": "English",
+  "cxKitShareStaff": "Share",
+  "cxKitCopy": "Copy",
+  "cxKitCopied": "Copied",
+  "cxKitNote": "This is not legal advice — it says only what this system does.",
+  "cxInboxTitle": "Alerts passed to you",
+  "cxInboxBody": "Alerts a shop owner did not open in time, or clips they shared with you (48 hours). Nobody is blamed — the owner decides.",
+  "cxInboxEmpty": "Nothing right now",
+  "cxInboxPassed": "{name} has not seen it — passed to you",
+  "@cxInboxPassed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cxInboxShared": "{name} shared this with you",
+  "@cxInboxShared": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cxPlacementChecked": "Checked again",
+  "cxPhoneSaved": "Saved"
 }
