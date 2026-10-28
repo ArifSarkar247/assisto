@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0116_tagada2"),
+        ("core", "0117_cctvx"),
     ]
 
     operations = [
