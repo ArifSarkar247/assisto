@@ -136,13 +136,15 @@ class ShopDeviceClient {
       _post('/shop/live/$sessionId/end', {'relayed': relayed, 'seconds': seconds});
 
   /// POST shop/ingest — signals + at most ONE small snapshot (multipart).
+  /// cashguard: [clipRef] names the sealed clip that follows (shop/clips).
   Future<DeviceReply> ingest(String type, Map<String, dynamic> signals,
-      {Uint8List? snapshot}) async {
+      {Uint8List? snapshot, String? clipRef}) async {
     if (snapshot == null) {
       return _post('/shop/ingest', {
         'type': type,
         'signals': signals,
         if (cameraId != null) 'camera_id': cameraId,
+        if (clipRef != null) 'clip_ref': clipRef,
         'at': DateTime.now().millisecondsSinceEpoch / 1000.0,
       });
     }
@@ -152,8 +154,20 @@ class ShopDeviceClient {
       ..fields['signals'] = jsonEncode(signals)
       ..fields['at'] = '${DateTime.now().millisecondsSinceEpoch / 1000.0}';
     if (cameraId != null) req.fields['camera_id'] = '$cameraId';
+    if (clipRef != null) req.fields['clip_ref'] = clipRef;
     req.files.add(http.MultipartFile.fromBytes('snapshot', snapshot,
         filename: 'snapshot.jpg'));
+    return _wrap(_c.send(req).then(http.Response.fromStream));
+  }
+
+  /// cashguard: POST shop/clips — ONE edge-sealed clip (ciphertext only).
+  Future<DeviceReply> uploadClip(String clipRef, Map<String, dynamic> meta, Uint8List blob) {
+    final req = http.MultipartRequest('POST', AppConfig.api('/shop/clips'))
+      ..headers.addAll(_h)
+      ..fields['clip_ref'] = clipRef
+      ..fields['meta'] = jsonEncode(meta);
+    if (cameraId != null) req.fields['camera_id'] = '$cameraId';
+    req.files.add(http.MultipartFile.fromBytes('blob', blob, filename: 'clip.bin'));
     return _wrap(_c.send(req).then(http.Response.fromStream));
   }
 }

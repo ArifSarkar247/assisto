@@ -46,6 +46,8 @@ const Map<String, bool> kFeatureDefaults = {
   'cctv_watchman': true,
   // launch (owner 27 Oct): CCTV + vehicle tracking are launch features.
   'home_watchman': true,
+  // cashguard: Guard Box (old phone reads a shop IP camera) — OFF until proof.
+  'guard_box_mode': false,
   'disaster_alerts': true,
   'blood_donor': true,
   'kid_school': true,

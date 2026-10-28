@@ -221,9 +221,13 @@ class SetupTests(_Base):
         self.assertTrue(cam["zones_v2"])
         self.assertNotIn("password", cam["source"])
         self.assertNotIn("LEAK", json.dumps(cam))
-        # personal plan: 0 included -> the camera costs credits per 30 days
-        self.assertGreater(cam["charged_credits"], 0)
-        self.assertIsNotNone(cam["billed_until"])
+        # cashguard (owner 28 Oct): Free includes 1 camera -> the first is
+        # free; the second costs credits per 30 days
+        self.assertEqual(cam["charged_credits"], 0)
+        self.assertIsNone(cam["billed_until"])
+        cam2 = self.add_camera(site["id"], name="Back door")
+        self.assertGreater(cam2["charged_credits"], 0)
+        self.assertIsNotNone(cam2["billed_until"])
 
     def test_feature_flag_off_hides_owner_endpoints(self):
         with mock.patch("core.watchman_views.feature_on", return_value=False):
