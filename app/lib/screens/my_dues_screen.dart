@@ -14,6 +14,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'business/business_common.dart' show pair;
 import 'my_dues_shop_screen.dart';
+import 'messenger/msgr_set_change_number_screen.dart'; // tagada2
 
 /// tagada2 — "My Dues" (customer side of the digital khata). Every shop that
 /// keeps an Assisto khata for MY VERIFIED phone number, with what I owe there.
@@ -99,6 +100,14 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
     if (mounted) _load();
   }
 
+  /// tagada2: verify the account's own number (change-number flow in
+  /// verify mode), then reload — dues appear once it is verified.
+  Future<void> _verify() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const MsgrSetChangeNumberScreen(verifyOwn: true)));
+    if (mounted) _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -127,7 +136,13 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
         icon: Icons.verified_user_outlined,
         title: t.tg2DuesUnverifiedTitle,
         message: t.tg2DuesUnverifiedBody,
-        action: OutlinedButton(onPressed: _load, child: Text(t.retry)),
+        action: FilledButton.icon(
+          key: const ValueKey('tg2-dues-verify'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: const Icon(Icons.verified_user_rounded),
+          label: Text(t.tg2VerifyButton),
+          onPressed: _verify,
+        ),
       );
     }
     final shops = ((d['shops'] ?? const []) as List)

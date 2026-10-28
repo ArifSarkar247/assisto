@@ -238,6 +238,8 @@ void main() {
       api = Tg2Api(lang: 'bn')..dues = {'verified': false, 'shops': const []};
       t = await _pump(tester, const MyDuesScreen(key: ValueKey('u')), api, lang: 'bn');
       expect(find.text(t.tg2DuesUnverifiedTitle), findsOneWidget);
+      expect(find.byKey(const ValueKey('tg2-dues-verify')), findsOneWidget);
+      expect(find.text(t.tg2VerifyButton), findsOneWidget);
 
       api = Tg2Api(lang: 'bn')..failDues = true;
       t = await _pump(tester, const MyDuesScreen(key: ValueKey('f')), api, lang: 'bn');

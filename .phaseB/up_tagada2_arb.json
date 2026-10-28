@@ -270,7 +270,13 @@
       }
     },
     "tg2SchedModeAssisto": "In Assisto (free) when the customer is on Assisto",
-    "tg2SchedModeAssistoSub": "Sent automatically in the app at the set time. If they aren't on Assisto, you get a reminder to send it yourself."
+    "tg2SchedModeAssistoSub": "Sent automatically in the app at the set time. If they aren't on Assisto, you get a reminder to send it yourself.",
+    "tg2VerifyButton": "Verify my number",
+    "tg2VerifyTitle": "Verify your number",
+    "tg2VerifyIntro": "We'll send a code to your own number. Once you enter it, your number is verified and dues shops recorded for it show up here.",
+    "tg2VerifyNumber": "Your number",
+    "tg2VerifyResend": "Send the code again",
+    "tg2VerifyDone": "Your number is verified."
   },
   "bn": {
     "tg2AlreadyToday": "আজ একবার তাগাদা দেওয়া হয়েছে — প্রতি গ্রাহককে দিনে একবারই।",
@@ -369,6 +375,12 @@
     "tg2SmsConfirmBody": "{name}-কে Assisto থেকে SMS পাঠাবেন? এতে আপনার ব্যালেন্স থেকে {parts}টি SMS যাবে। এরপর বাকি থাকবে {left}টি।",
     "tg2SmsSentParts": "SMS পাঠানো হয়েছে — {parts}টি SMS খরচ হয়েছে",
     "tg2SchedModeAssisto": "গ্রাহক Assisto-তে থাকলে অ্যাপেই পাঠান (ফ্রি)",
-    "tg2SchedModeAssistoSub": "ঠিক করা সময়ে অ্যাপেই নিজে থেকে চলে যাবে। গ্রাহক Assisto-তে না থাকলে আপনাকে মনে করিয়ে দেওয়া হবে, আপনি নিজে পাঠাবেন।"
+    "tg2SchedModeAssistoSub": "ঠিক করা সময়ে অ্যাপেই নিজে থেকে চলে যাবে। গ্রাহক Assisto-তে না থাকলে আপনাকে মনে করিয়ে দেওয়া হবে, আপনি নিজে পাঠাবেন।",
+    "tg2VerifyButton": "আমার নম্বর যাচাই করুন",
+    "tg2VerifyTitle": "নম্বর যাচাই",
+    "tg2VerifyIntro": "আপনার নিজের নম্বরে একটি কোড পাঠানো হবে। কোডটি দিলেই নম্বর যাচাই হবে, আর দোকানগুলো এই নম্বরে যে বাকি লিখেছে তা এখানে দেখা যাবে।",
+    "tg2VerifyNumber": "আপনার নম্বর",
+    "tg2VerifyResend": "আবার কোড পাঠান",
+    "tg2VerifyDone": "আপনার নম্বর যাচাই হয়েছে।"
   }
 }
