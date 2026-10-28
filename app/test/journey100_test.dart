@@ -65,6 +65,9 @@ class _JApi extends ApiClient {
     if (path.endsWith('/location')) {
       return onLocation?.call(body) ?? {'status': 'active', 'overdue_state': 'on_time'};
     }
+    // the start form test only checks what is SENT; failing here keeps the
+    // real live screen (tracker, plugins) out of the widget test
+    if (path == '/journey/start') throw ApiException('test: not started', 500);
     if (path.endsWith('/stop') && stopError != null) throw stopError!;
     if (path.endsWith('/stop')) return {'ok': true, 'outcome': 'cancel', 'status': 'stopped'};
     return {'ok': true};
@@ -384,6 +387,19 @@ void main() {
     await tester.tap(karim);
     await _settle(tester, 3);
     expect(tester.widget<CheckboxListTile>(karim).value, isTrue);
+    // sjfix: the ETA goes out as an absolute UTC instant. A naive local
+    // time was read by the server as Asia/Dhaka, so any phone on another
+    // timezone started its journey already overdue.
+    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
+    await tester.tap(find.byKey(const ValueKey('j100_start')));
+    await _settle(tester);
+    final eta = '${api.posts('/journey/start').single.body['eta']}';
+    expect(eta, endsWith('Z'));
+    final at = DateTime.parse(eta);
+    expect(at.isAfter(DateTime.now().toUtc()), isTrue);
+    expect(at.difference(DateTime.now().toUtc()).inHours, lessThan(25));
+    expect(api.posts('/journey/start').single.body['watcher_ids'], [7]);
   });
 
   testWidgets('start form with an empty circle shows the add-family step', (tester) async {

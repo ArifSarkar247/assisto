@@ -152,7 +152,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     try {
       final r = await context.read<AppState>().api.journeyStart(
             destination: dest,
-            etaIso: eta.toIso8601String(),
+            etaIso: eta.toUtc().toIso8601String(), // sjfix: absolute instant, not phone-local wall time
             watcherIds: _selectedWatchers.toList(),
             mode: _mode,
             vehicle: _plate.text.trim().isEmpty

@@ -250,7 +250,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
       // send used to be silent — the user believed family was watching.
       try {
         await context.read<AppState>().api.safetyCheckinStart(
-            place: _checkinPlace, etaIso: eta.toIso8601String());
+            place: _checkinPlace, etaIso: eta.toUtc().toIso8601String());
       } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
