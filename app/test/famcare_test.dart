@@ -299,10 +299,13 @@ void main() {
     await t.pumpWidget(_app(const FamilyScreen(), api));
     await t.pumpAndSettle();
     await _tab(t, l.famShareTabSelective);
+    // the add button is disabled until there is text (never a dead tap)
+    expect(t.widget<IconButton>(find.byKey(const ValueKey('fc-shop-add'))).onPressed, isNull);
     await t.enterText(find.byKey(const ValueKey('fc-shop-input')), 'Rice');
+    await t.pump();
     await t.tap(find.byKey(const ValueKey('fc-shop-add')));
     await t.pumpAndSettle();
-    expect(find.text('Rice'), findsOneWidget);
+    expect(find.byKey(const ValueKey('fc-shop-1')), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('fc-shop-1')));
     await t.pumpAndSettle();
     expect(api.shop.first['done'], isTrue);
