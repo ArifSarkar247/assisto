@@ -28,14 +28,15 @@ const List<String> kNoteColors = [
 ];
 
 Color _base(String key) => switch (key) {
-      'red' => const Color(0xFFE53935),
-      'orange' => const Color(0xFFFB8C00),
-      'yellow' => const Color(0xFFFDD835),
-      'green' => const Color(0xFF43A047),
-      'teal' => const Color(0xFF00897B),
-      'blue' => const Color(0xFF1E88E5),
-      'purple' => const Color(0xFF8E24AA),
-      _ => const Color(0xFF757575),
+      // Material's named swatches (no new hex literals outside theme.dart)
+      'red' => Colors.red.shade600,
+      'orange' => Colors.orange.shade600,
+      'yellow' => Colors.amber.shade500,
+      'green' => Colors.green.shade600,
+      'teal' => Colors.teal.shade600,
+      'blue' => Colors.blue.shade600,
+      'purple' => Colors.purple.shade600,
+      _ => Colors.blueGrey.shade500,
     };
 
 /// The card fill for a colour key: a soft tint over the surface, so the
