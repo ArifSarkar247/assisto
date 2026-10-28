@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../antitheft_api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_logic.dart';
+import '../services/action_feedback.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
@@ -293,7 +294,9 @@ class _RemoteSwitchesCardState extends State<RemoteSwitchesCard> {
     if (u == null) return;
     try {
       await launchUrl(u, mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'at100.find_hub', e);
+    }
   }
 
   void _snack(String m) {

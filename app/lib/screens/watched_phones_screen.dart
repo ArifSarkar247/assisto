@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../antitheft_api.dart';
 import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
@@ -220,7 +221,11 @@ class WatchedPhoneScreen extends StatelessWidget {
                               'https://www.google.com/maps/search/?api=1&query=${loc['lat']},${loc['lng']}');
                           try {
                             await launchUrl(u, mode: LaunchMode.externalApplication);
-                          } catch (_) {}
+                          } catch (e) {
+                            if (context.mounted) {
+                              showActionFailed(context, 'at100.watch_map', e);
+                            }
+                          }
                         },
                       ),
                     ],

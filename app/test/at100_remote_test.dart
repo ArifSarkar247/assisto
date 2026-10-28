@@ -310,6 +310,8 @@ void main() {
         t.at100IcWhat, t.at100IcWhen, t.at100IcNotice, t.at100IcWhere,
         t.at100IcWho, t.at100IcKeep, t.at100IcDelete, t.at100IcLaw,
       ]) {
+        await tester.scrollUntilVisible(find.text(s), 120,
+            scrollable: find.byType(Scrollable).first);
         expect(find.text(s), findsOneWidget, reason: s);
       }
       expect(tester.getSize(find.byKey(const Key('at100-ic-agree'))).height,
@@ -343,7 +345,7 @@ void main() {
     testWidgets('the PIN box says so while the photo is on (never covert)',
         (tester) async {
       Future<void> open(bool armed) async {
-        await IntruderSnap.remember(armed);
+        IntruderSnap.debugSetArmed(armed);
         await tester.pumpWidget(MaterialApp(
           locale: const Locale('en'),
           supportedLocales: AppLocalizations.supportedLocales,
@@ -369,7 +371,7 @@ void main() {
       expect(find.byKey(const Key('at100-pin-notice')), findsNothing);
       await open(true);
       expect(find.byKey(const Key('at100-pin-notice')), findsOneWidget);
-      await IntruderSnap.remember(false);
+      IntruderSnap.debugSetArmed(false);
     });
   });
 }

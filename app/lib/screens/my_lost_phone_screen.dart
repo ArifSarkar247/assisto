@@ -64,7 +64,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       try {
         final w = await api.engineWatching();
         watching = ((w['watching'] as List?) ?? const []).length;
-      } catch (_) {}
+      } catch (_) {} // best-effort: the "phones I protect" card is optional
       if (!mounted) return;
       setState(() {
         _data = d;

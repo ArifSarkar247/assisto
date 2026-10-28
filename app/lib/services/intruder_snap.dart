@@ -19,6 +19,13 @@ class IntruderSnap {
   static const _kOn = 'at_intruder_on';
   static bool _armed = false;
   static bool _loaded = false;
+  static bool _hadOn = false;
+
+  /// Test seam: set the cached state without touching storage.
+  static void debugSetArmed(bool on) {
+    _armed = on;
+    _loaded = true;
+  }
 
   /// Test seam: replaces the native call.
   static Future<bool> Function()? snapOverride;
@@ -32,13 +39,19 @@ class IntruderSnap {
     _loaded = true;
     try {
       _armed = await Settings.getBool(_kOn, false);
+      _hadOn = _armed;
     } catch (_) {}
   }
 
   /// Remember the server's answer (engine state / settings response).
   static Future<void> remember(bool on) async {
+    final changed = on != _armed || !_loaded;
     _armed = on;
     _loaded = true;
+    // persist only a real change (an "off" that was already off writes
+    // nothing — keeps screen loads free of storage work)
+    if (!changed || (!on && !_hadOn)) return;
+    _hadOn = on;
     try {
       await Settings.setBool(_kOn, on);
     } catch (_) {}
