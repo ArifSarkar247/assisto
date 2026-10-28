@@ -91,7 +91,7 @@ def _reads(topic):
             B={"bn": "ট্যুরের আগে কী কী কাজ বাকি?", "en": "Show my reminders before the tour",
                "bl": "tour er age ki ki kaj ache?"},
             B_fix={"bn": "না, আমি জানতে চেয়েছি ট্যুরের আগে কী কী কাজ বাকি",
-                   "en": "No, I meant my reminders before the tour", "bl": "na, tour er age ki ki kaj ache seta bolo"},
+                   "en": "No, I meant my reminders before the tour", "bl": "na, tour er age ki ki kaj ache bolo"},
             B_exp=lambda l: {"tools": ["reminders.list"], "answer_has": ["Pack bags"]},
             R1={"bn": "কাল সকালে ব্যাগ গোছানোর কথা মনে করিয়ে দিও", "en": "Remind me tomorrow to pack for the trip",
                 "bl": "kal shokale bag gochanor kotha mone koriye dio"},
@@ -274,9 +274,14 @@ def run_conv(conv, seam):
 
 
 def run_suite(convs):
-    out = {"passed": [], "failed": []}
+    from unittest import mock
     from .harness import ci_brain
-    with ci_brain() as seam:
+    out = {"passed": [], "failed": []}
+    # ~1,300 planner calls in ONE test: the router's daily USD caps (not
+    # under test here) would stop the suite half-way (same as the AF-5 suite)
+    with ci_brain() as seam, \
+            mock.patch("core.ai_router.total_capped", return_value=False), \
+            mock.patch("core.ai_router.provider_capped", return_value=False):
         for c in convs:
             bad = run_conv(c, seam)
             (out["failed"] if bad else out["passed"]).append((c["id"], bad))
