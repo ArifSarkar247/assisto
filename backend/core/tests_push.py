@@ -494,7 +494,10 @@ class HookTests(_PushBase):
         m = self.fake.sent_payloads()[0]["message"]
         self.assertEqual(m["token"], "adev")
         self.assertEqual(m["data"]["kind"], "shop_alert")
-        self.assertIn("please check", m["notification"]["title"].lower())
+        # cashguard (owner 28 Oct): a cash event says "Possible cash removal
+        # — ... and decide"; the body still asks to "please check"
+        self.assertIn("possible cash removal", m["notification"]["title"].lower())
+        self.assertIn("please check", m["notification"]["body"].lower())
         self.assertIn("Cash counter", m["notification"]["title"])
         self.assertNotIn("theft", json.dumps(m).lower())
 

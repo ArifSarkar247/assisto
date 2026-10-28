@@ -195,7 +195,12 @@ class ShopIngestView(APIView):
             if extra != "snapshot":
                 return _snapshot_refused(lang, "extra_file")
 
-        decision, ev = _ingest_event(site, cam, cam_event, now, snap)
+        # cashguard: the edge names the encrypted clip it will upload for this
+        # event (a random hex ref — never inside `signals`, never evidence)
+        from .logic import cash_guard as CG
+        clip_ref = CG.clean_clip_ref(request.data.get("clip_ref"))
+        decision, ev = _ingest_event(site, cam, cam_event, now, snap,
+                                     clip_ref=clip_ref)
         if ev is None:
             # logged/ignored — honest: no alert, no snapshot stored, no video.
             return Response({"raised": False, "type": etype,
@@ -209,7 +214,10 @@ class ShopIngestView(APIView):
                          "possible": ev.possible,
                          "grouped": bool(decision.get("grouped")),
                          "count": ev.count,
-                         "reason_signals": decision["reason_signals"]},
+                         "reason_signals": decision["reason_signals"],
+                         **({"clip_ref": clip_ref,
+                             "clip_wanted": clip_wanted(site, ev)}
+                            if clip_ref else {})},
                         status=200 if decision.get("grouped") else 201)
 
     @staticmethod
@@ -242,9 +250,27 @@ class ShopIngestView(APIView):
 
 
 def _alert_text(cam_name, ev):
-    """(title_bn, title_en, body_bn, body_en) — 'Suspicious — please check'."""
+    """(title_bn, title_en, body_bn, body_en) — 'Suspicious — please check'.
+    cashguard: a CASH event says "Possible cash removal — watch the clip and
+    decide" (never an accusation; the owner decides), prefixed "You are
+    away — " in owner-away mode."""
     pct = int(round(ev.confidence * 100))
     what_bn, what_en = EVENT_WORDS.get(ev.type, EVENT_WORDS["motion"])
+    from .logic import cash_guard as CG
+    inputs = (ev.signals or {}).get("inputs") if isinstance(ev.signals, dict) else {}
+    inputs = inputs if isinstance(inputs, dict) else {}
+    if CG.is_cash_event(ev.type, inputs):
+        away = bool(inputs.get("away"))
+        has_clip = bool((ev.signals or {}).get("clip_ref"))
+        if ev.type == "after_hours":
+            what_bn, what_en = CG.AFTER_HOURS_ZONE_BN, CG.AFTER_HOURS_ZONE_EN
+        title_bn = "%s: %s" % (CG.cash_title("bn", has_clip, away), cam_name)
+        title_en = "%s: %s" % (CG.cash_title("en", has_clip, away), cam_name)
+        body_bn = ("%s (আত্মবিশ্বাস %s%%)। অনুগ্রহ করে নিজে দেখে নিন — "
+                   "এটা ভুলও হতে পারে।" % (what_bn, _bn_digits(pct)))
+        body_en = ("%s (confidence %d%%). Please check it yourself — it may "
+                   "be nothing." % (what_en, pct))
+        return title_bn, title_en, body_bn, body_en
     title_bn = "সন্দেহজনক — একটু দেখে নিন: %s" % cam_name
     title_en = "Suspicious — please check: %s" % cam_name
     body_bn = ("%s (আত্মবিশ্বাস %s%%)। অনুগ্রহ করে নিজে দেখে নিশ্চিত করুন — "
@@ -262,15 +288,24 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
         olang = olang if olang in ("bn", "en") else "bn"
         cam_name = (cam.name if cam else "") or _subject_label(ev.type, olang)
         title_bn, title_en, body_bn, body_en = _alert_text(cam_name, ev)
+        from .logic import cash_guard as CG
+        inputs = (ev.signals or {}).get("inputs") if isinstance(ev.signals, dict) else {}
+        inputs = inputs if isinstance(inputs, dict) else {}
+        away = bool(inputs.get("away"))
+        cash = CG.is_cash_event(ev.type, inputs)
         meta = {"source": "shop_guard", "event_id": ev.id, "site_id": site.id,
                 "type": ev.type, "confidence": ev.confidence,
                 "possible": ev.possible, "label": "suspicious_please_check",
-                "viewer": user.pk != site.owner_id, "quiet": bool(quiet)}
+                "viewer": user.pk != site.owner_id, "quiet": bool(quiet),
+                # cashguard
+                "cash": cash, "away": away,
+                "clip": bool((ev.signals or {}).get("clip_ref"))}
         FamilyAlert.objects.create(
             user=user, kind="shop_guard",
             title=title_en[:160] if olang == "en" else title_bn[:160],
             body=body_en if olang == "en" else body_bn,
-            severity=("info" if (ev.possible or quiet) else "med"),
+            severity=("high" if away else
+                      "info" if (ev.possible or quiet) else "med"),
             payload=meta)
         NotifEvent.objects.create(
             user=user, type="business",
@@ -292,10 +327,11 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
                   "camera_name": cam_name, "type": ev.type,
                   "confidence": ev.confidence, "possible": ev.possible,
                   "label": "suspicious_please_check",
+                  "cash": cash, "away": away, "clip": meta["clip"],
                   **({"snapshot_url": snap_url} if snap_url else {}),
                   # cctv1: places made in the watchman wizard open the watchman
                   "route": "watchman" if site.gateway else "business/shop-box"},
-            high_priority=not ev.possible)
+            high_priority=(away or not ev.possible))
     except Exception:
         pass
 
@@ -413,7 +449,8 @@ def _snapshot_refused(lang, why):
                 status=415, code="not_an_image")
 
 
-def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
+def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
+                  clip_ref=""):
     """Shared core of every device ingest (Shop Box POST + camera webhooks):
     run the pure combined-signal guard against recent POS rows; when it raises,
     persist ONE ShopEvent + at most one snapshot and notify the owner.
@@ -427,17 +464,23 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
     # schedule-driven; legacy Shop Box configs keep their old behaviour.
     signals = dict(cam_event.get("signals") or {})
     signals.pop("armed", None)
+    signals.pop("away", None)          # cashguard: the server's state only
     quiet = False
+    # cashguard OWNER-AWAY: every camera armed, quiet hours ignored, high
+    # priority push (the alert text says "You are away — ...")
+    away = away_now(site, now)
+    if away:
+        signals["away"] = True
     v2 = WM.zone_v2(cam.zone_config) if cam is not None else None
     if v2 is not None:
         local = timezone.localtime(now)
-        armed = WM.is_armed(v2.get("schedule"), local)
+        armed = WM.is_armed(v2.get("schedule"), local) or away
         if cam_event.get("type") in WATCHMAN_ARMED_TYPES and not armed:
             return ({"raise": False, "type": cam_event.get("type"),
                      "confidence": 0.0, "reason_signals": ["not_armed"],
                      "possible": False, "pos_matched": False}, None)
         signals["armed"] = armed
-        quiet = WM.in_window(v2.get("quiet_hours"), local)
+        quiet = WM.in_window(v2.get("quiet_hours"), local) and not away
     cam_event = dict(cam_event, signals=signals)
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
@@ -461,6 +504,12 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
             if snapshot is not None and not prev.snapshot and \
                     site.snapshot_retention_days > 0:
                 prev.snapshot.save(snapshot.name, snapshot, save=True)
+            if clip_ref and not (prev.signals or {}).get("clip_ref") and \
+                    not hasattr_clip(prev):
+                sig = dict(prev.signals or {})
+                sig["clip_ref"] = clip_ref
+                ShopEvent.objects.filter(pk=prev.pk).update(signals=sig)
+                prev.signals = sig
             return dict(decision, grouped=True), prev
 
     # DAILY CAP per site: beyond it, alerts are only counted (honestly shown
@@ -468,7 +517,13 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
     start = timezone.localtime(now).replace(hour=0, minute=0, second=0,
                                             microsecond=0)
     cap = watchman_cfg("watchman_daily_alert_cap", 30)
-    if ShopEvent.objects.filter(site=site, created__gte=start).count() >= cap:
+    # cashguard: the owner's PLAN caps alerts per day across ALL their sites
+    # too (Free 5, Premium 12, Business 30 by default — admin-editable,
+    # bounded; inside the 40 % rule, core/logic/cash_guard.py)
+    plan_cap = owner_caps(site.owner)["alerts_day"]
+    if ShopEvent.objects.filter(site=site, created__gte=start).count() >= cap or \
+            ShopEvent.objects.filter(site__owner_id=site.owner_id,
+                                     created__gte=start).count() >= plan_cap:
         _count_held(site, timezone.localtime(now).date().isoformat())
         held = dict(decision)
         held.update({"raise": False, "held": "daily_cap"})
@@ -478,7 +533,8 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
         site=site, camera=cam, type=decision["type"],
         signals={"inputs": signals,
                  "reason": decision["reason_signals"],
-                 "pos_matched": decision["pos_matched"]},
+                 "pos_matched": decision["pos_matched"],
+                 **({"clip_ref": clip_ref} if clip_ref else {})},
         confidence=decision["confidence"],
         pos_matched=decision["pos_matched"], possible=decision["possible"],
         last_at=now)
@@ -494,6 +550,103 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
 # event types that only count while the owner's schedule is ARMED (cctv1)
 WATCHMAN_ARMED_TYPES = ("motion", "person_detected", "zone_intrusion",
                         "line_crossing", "camera_alarm", "pose_possible")
+
+
+def away_now(site, now=None):
+    """cashguard: is the site's owner in away mode right now? Never raises."""
+    from .logic import cash_guard as CG
+    from .logic import watchman as WM
+    try:
+        now = now or timezone.now()
+        return CG.away_active(site.away or {}, now, timezone.localtime(now),
+                              WM.is_armed)
+    except Exception:
+        return False
+
+
+def owner_caps(owner):
+    """cashguard plan caps for a site OWNER: {tier, cameras, alerts_day,
+    clips_day, clip_kb}. The resource owner's plan counts, never a viewer's."""
+    from . import billing
+    from .logic import cash_guard as CG
+    try:
+        from . import entitlements_service as ES
+        tier = ES.E.tier_of("free") if owner is None else ES.tier(owner)
+    except Exception:
+        tier = "free"
+    try:
+        c = billing.cfg()
+        shop = c.get("shop") or {}
+        biz = int(c["limits"]["business_included_cameras"])
+    except Exception:
+        shop, biz = {}, 4
+    return CG.caps_for(tier, shop, biz)
+
+
+def vendor_alarm_event(cam, raw_jpeg, signals, now):
+    """cashguard SERVER CHECK for a vendor-cloud alarm (Imou, EZVIZ): the
+    camera's own alarm stays a `camera_alarm` — unless the ONE still shows a
+    person inside the owner's CASH zone (optional model, off by default),
+    which makes it a cash-zone event correlated with POS sales.
+    Returns (type, signals). Never raises."""
+    try:
+        from .logic.cash_guard import cash_zone_of
+        from .logic import camera_hooks as CH
+        from . import cashguard_detect as CD
+        zc = effective_zone_config(cam)
+        cash = cash_zone_of(zc)
+        if raw_jpeg and cash and CD.check_snapshot(raw_jpeg, cash):
+            sig = dict(signals, server_check="snapshot_model",
+                       person_in_cash_zone=True)
+            if CH.is_after_hours(zc.get("hours"), timezone.localtime(now)):
+                return "after_hours", dict(sig, after_hours=True,
+                                           person_in_zone=True)
+            return "hand_in_cash_zone", sig
+    except Exception:
+        pass
+    return "camera_alarm", signals
+
+
+def hasattr_clip(ev):
+    try:
+        return ev.clip is not None
+    except Exception:
+        return False
+
+
+def clips_today(site, now=None):
+    from .models import ShopEventClip
+    start = timezone.localtime(now or timezone.now()).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    return ShopEventClip.objects.filter(event__site__owner_id=site.owner_id,
+                                        created__gte=start).count()
+
+
+def clip_wanted(site, ev):
+    """Will the server accept a clip for this event right now? (plan clip cap
+    left, someone with a public key to seal it for, no clip yet)."""
+    try:
+        if hasattr_clip(ev):
+            return False
+        if clips_today(site) >= owner_caps(site.owner)["clips_day"]:
+            return False
+        return bool(clip_recipients(site))
+    except Exception:
+        return False
+
+
+def clip_recipients(site):
+    """[{uid, key_id, pub}] — the site owner + family viewers that have a
+    published E2E public key. The edge seals each clip's key for these."""
+    from .models import UserPublicKey
+    users = [site.owner_id] + list(site.viewers.values_list("user_id", flat=True))
+    rows = UserPublicKey.objects.filter(user_id__in=users).exclude(public_key="")
+    out = []
+    for r in rows:
+        out.append({"uid": r.user_id, "key_id": r.key_id or "",
+                    "pub": r.public_key})
+    out.sort(key=lambda x: (x["uid"] != site.owner_id, x["uid"]))
+    return out[:8]
 
 
 def models_Q(**kw):
@@ -590,6 +743,17 @@ class ShopCameraHookView(APIView):
         zc = effective_zone_config(cam)
         results = []
         for vev in events:
+            # cashguard: no target box from the camera -> optionally check the
+            # ONE still on the server (off by default; ~60 ms on one core)
+            if vev.get("image") and not vev.get("box") and vev.get("active"):
+                try:
+                    from . import cashguard_detect as CD
+                    from .logic.cash_guard import cash_zone_of
+                    hit = CD.check_snapshot(vev["image"], cash_zone_of(zc))
+                    if hit:
+                        vev["server_person_in_zone"] = True
+                except Exception:
+                    pass
             mapped = CH.map_event(vev, zc, local_now)
             if mapped is None:
                 continue
@@ -786,7 +950,7 @@ class ShopEventsView(APIView):
         if s is None:
             return _err(lang, "সাইট পাওয়া যায়নি।", "Site not found.", status=404)
         status_f = request.query_params.get("status")
-        qs = s.events.select_related("camera")
+        qs = s.events.select_related("camera", "clip")
         if status_f in {"open", "checked", "false_alarm"}:
             qs = qs.filter(status=status_f)
         cam_f = request.query_params.get("camera")
@@ -928,7 +1092,9 @@ def _included_cameras(user):
     from . import plans, billing
     try:
         if plans.effective_plan(user) != "business":
-            return 0
+            # cashguard (owner 28 Oct): Free includes 1 camera, Premium 2
+            # (admin-editable shop knobs); more = credits, as before
+            return owner_caps(user)["cameras"]
         return int(billing.cfg()["limits"]["business_included_cameras"])
     except Exception:
         return 0
@@ -1040,7 +1206,30 @@ def _event_row(e, request):
             "label": "suspicious_please_check",
             "verdict": ("wrong" if e.status == "false_alarm" else
                         "correct" if e.status == "checked" else None),
+            # cashguard: cash event? owner away? the encrypted clip's state
+            **_cash_fields(e),
             "created": e.created.isoformat()}
+
+
+def _cash_fields(e):
+    from .logic import cash_guard as CG
+    sig = e.signals if isinstance(e.signals, dict) else {}
+    inputs = sig.get("inputs") if isinstance(sig.get("inputs"), dict) else {}
+    clip = None
+    try:
+        c = e.clip
+    except Exception:
+        c = None
+    if c is not None:
+        st = c.status
+        if st == "ready" and c.expires_at <= timezone.now():
+            st = "expired"
+        clip = {"status": st, "expires_at": _iso(c.expires_at),
+                "size": c.size}
+    elif sig.get("clip_ref"):
+        clip = {"status": "pending"}
+    return {"cash": CG.is_cash_event(e.type, inputs),
+            "away": bool(inputs.get("away")), "clip": clip}
 
 
 def _coerce_retention(v, default=7):

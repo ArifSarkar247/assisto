@@ -457,6 +457,26 @@ REGISTRY = {
                         _f("app_secret", "appSecret", "appSecret"),
                         _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
              "test": "test_imou"},
+    # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
+    # approves real-time push). Without it EZVIZ cameras still work through
+    # the local gateway (RTSP/ONVIF).
+    "ezviz": {"name": "EZVIZ Open Platform (CCTV cash guard)", "category": "Smart home",
+              "unlocks_bn": "EZVIZ ক্যামেরার নিজের অ্যালার্ম (নড়াচড়া/মানুষ) ও ছবি সরাসরি পাহারাদার সতর্কতায়।",
+              "unlocks_en": "EZVIZ cameras' own alarms (motion/human) + picture straight into watchman alerts.",
+              "guide_bn": ["open.ezvizlife.com-এ EZVIZ অ্যাকাউন্ট দিয়ে লগইন → Developer হোন",
+                           "My Application → AppKey ও Secret কপি করুন",
+                           "নিচে পেস্ট → Save → Test (সবুজ হলে চালু)",
+                           "সার্ভারে cron: ezviz_poll_alarms প্রতি মিনিটে",
+                           "বিস্তারিত: owner_actions/CCTV_VENDOR_ACCOUNTS_BN.md"],
+              "guide_en": ["Log in at open.ezvizlife.com with an EZVIZ account → become a developer",
+                           "My Application → copy the AppKey and Secret",
+                           "Paste below → Save → Test (green = on)",
+                           "Server cron: ezviz_poll_alarms every minute",
+                           "Details: owner_actions/CCTV_VENDOR_ACCOUNTS_BN.md"],
+              "fields": [_f("app_key", "AppKey", "AppKey", secret=False),
+                         _f("app_secret", "Secret", "Secret"),
+                         _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
+              "test": "test_ezviz"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
                  "unlocks_en": "AI CRM deal Won → 1-click Axon ERP onboarding.",
@@ -1275,3 +1295,16 @@ def test_imou(cfg, http=None):
     except ImouError as e:
         return False, "Imou: %s %s" % (e.code, e.msg)
     return True, "Imou access token OK"
+
+
+def test_ezviz(cfg, http=None):
+    """cashguard: an access token proves the AppKey + Secret are right."""
+    from .logic.ezviz import EzvizClient, EzvizError, _token_cache
+    c = EzvizClient(cfg.get("app_key"), cfg.get("app_secret"), cfg.get("api_base"),
+                    http=http)
+    _token_cache.pop(c.app_key, None)
+    try:
+        c.token()
+    except EzvizError as e:
+        return False, "EZVIZ: %s %s" % (e.code, e.msg)
+    return True, "EZVIZ access token OK"

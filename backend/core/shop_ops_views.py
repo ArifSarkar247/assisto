@@ -241,6 +241,18 @@ def device_config(site, cam=None):
     body = {"site": {"id": site.id, "name": site.name, "hours": site.hours or {},
                      "pos_link": site.pos_link},
             "cameras": [_cam_config(c) for c in cams]}
+    # cashguard: who the edge seals event clips for (PUBLIC keys only) + the
+    # plan's clip size. No recipient with a key -> the edge sends no clip.
+    try:
+        from .logic import cash_guard as CG
+        recips = SV.clip_recipients(site)
+        caps = SV.owner_caps(site.owner)
+        body["clip"] = {"enabled": bool(recips) and caps["clips_day"] > 0,
+                        "seconds": 4, "pre_s": 2, "fps": 5,
+                        "max_kb": caps["clip_kb"], "scheme": CG.CLIP_SCHEME,
+                        "recipients": recips}
+    except Exception:
+        body["clip"] = {"enabled": False, "recipients": []}
     version = hashlib.sha1(json.dumps(body, sort_keys=True, default=str)
                            .encode()).hexdigest()[:12]
     body["version"] = version

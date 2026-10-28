@@ -3311,6 +3311,11 @@ class ShopSite(models.Model):
                                blank=True)
     # {"day": "YYYY-MM-DD", "suppressed": n} — alerts held back by the daily cap
     stats = models.JSONField(default=dict, blank=True)
+    # ---- cashguard (Smart Cash Guard, owner 28 Oct) ---- owner-away mode:
+    # {"until": ISO-8601 | null, "schedule": zones-v2 schedule | null}. While
+    # away every camera is armed, quiet hours are ignored, alerts are high
+    # priority. Server-side only — a device can never claim it.
+    away = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created"]
@@ -3452,6 +3457,30 @@ class ShopEvent(models.Model):
         indexes = [models.Index(fields=["site", "-created"]),
                    models.Index(fields=["site", "status"]),
                    models.Index(fields=["site", "type"])]
+
+
+class ShopEventClip(models.Model):
+    """cashguard: the ONE short clip (3-5 s) an event may carry — as
+    CIPHERTEXT ONLY. The edge cuts it from the local stream and seals it with
+    a per-event key wrapped for the owner's / viewers' X25519 public keys
+    (core/logic/cash_guard.py), so this server cannot open it. Kept at most
+    24 h (`expires_at`) or until the site owner has watched it; then the
+    bytes are deleted and only this tombstone row (no media) remains."""
+    STATUS = [("ready", "ready"), ("viewed", "viewed"), ("expired", "expired")]
+    event = models.OneToOneField(ShopEvent, on_delete=models.CASCADE,
+                                 related_name="clip")
+    blob = models.FileField(upload_to="shop/clip/", null=True, blank=True)
+    meta = models.JSONField(default=dict, blank=True)   # public envelope only
+    size = models.PositiveIntegerField(default=0)
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    status = models.CharField(max_length=8, choices=STATUS, default="ready")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["status", "expires_at"])]
 
 
 class ShopPosEvent(models.Model):
