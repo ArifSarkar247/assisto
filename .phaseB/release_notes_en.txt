@@ -1,1 +1,1 @@
-Build 267: Vault wording — the vault is recoverable and kept safe in your account; no text says end-to-end any more (owner decision 28 Oct). Tests guard the old wording.
+Build 268: CRM — one customer history page (dues, sales, orders, AI chats, deals), shop price quote with a customer accept link (creates the order), send from CRM via WhatsApp / phone SMS / Assisto SMS (cost shown first, never automatic); B2B proposal links now secure and expire.
