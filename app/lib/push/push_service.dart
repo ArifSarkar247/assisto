@@ -31,7 +31,9 @@ import 'push_payload.dart';
 import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
 import '../messaging/chat_opener.dart';
+import '../messaging/media/media_outbox.dart'; // circle2
 import '../messaging/msg_native.dart';
+import '../messaging/outbox.dart'; // circle2
 import '../messaging/msg_notify.dart';
 import '../messaging/receipt_ack.dart';
 import '../messaging/receipt_bus.dart';
@@ -168,6 +170,7 @@ class PushService {
   }
 
   bool _realtimeOnly = false;
+  bool _rtBackWired = false; // circle2
 
   /// ty1: [start] again with a DIFFERENT AppState (the reality harness boots
   /// a fresh one per flow, like closing and reopening the app): follow it.
@@ -347,9 +350,27 @@ class PushService {
       // x2-ticks: live ticks (receipt.update) + instant delivered acks
       // (msg.new) on the same loop.
       final rt = CallRuntime.instance.transportFor(app);
+      // circle2: a tick wait polls at 1 s (boost), not the 0.3 s call cadence
       ReceiptBus.instance.attach(rt.events,
           ack: () => ReceiptAck(token: () async => (_app ?? app).api.token),
-          setFast: rt.setFast);
+          setFast: rt.setBoost);
+      // circle2: the loop reached the server again after a failure (network
+      // back / Wi-Fi <-> data): send what waited offline at once, not at the
+      // outbox's next 10-80 s retry.
+      if (!_rtBackWired) {
+        _rtBackWired = true;
+        var wasUp = rt.connected.value;
+        rt.connected.addListener(() {
+          final up = rt.connected.value;
+          if (up && !wasUp) {
+            unawaited(Outbox.instance.kick());
+            if (MediaOutbox.instance.identity != null) {
+              unawaited(MediaOutbox.instance.kick());
+            }
+          }
+          wasUp = up;
+        });
+      }
     } catch (_) {}
     unawaited(_syncReceipts());
     final pc = _pendingChat;
@@ -485,6 +506,9 @@ class PushService {
     final chat = MsgPushHandler.chatOf(p);
     final app = _app;
     final tok = app?.api.token;
+    // circle2: the in-app loop is on its 10 s quiet cadence outside My
+    // Circle — a message push means badges / msg.new are waiting: poll now.
+    if (chat != null) CallRuntime.instance.nudge();
     if (chat != null && tok != null && tok.isNotEmpty) {
       if (MsgActiveChat.isOpen(chat.kind, chat.id)) return;
       final h = MsgPushHandler(

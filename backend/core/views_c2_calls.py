@@ -387,6 +387,22 @@ def sweep_user(user, now=None):
         sweep(r, now)
 
 
+def prune_events(now=None):
+    """circle2 (cron, with calls_sweep): delete EVERY user's real-time events
+    older than RT_RETAIN_S. The per-user prune on rt/events only ever ran for
+    phones that poll — a phone that was uninstalled / signed out kept its
+    rows (badges.update, call.state…) forever, so the table only grew.
+    created_at is indexed. Returns the number of rows deleted."""
+    now = now or timezone.now()
+    try:
+        n, _ = RtEvent.objects.filter(
+            created_at__lt=now - timedelta(seconds=RT_RETAIN_S)).delete()
+        return n
+    except Exception:
+        log.exception("rt: prune_events failed")
+        return 0
+
+
 def sweep_all(now=None):
     """Cron (`manage.py calls_sweep`, every minute): run the lazy timeouts on
     every live row. Returns {reason: count}."""
@@ -491,13 +507,60 @@ def publish_state(rec):
             break
 
 
+# circle2: "this user has no live call" is remembered per worker for a few
+# seconds, so the 0.3-10 s rt/events polls of a phone that is NOT in a call
+# (almost all of them) skip the CallRecord query. Any CallRecord save for the
+# user (placing, ringing, answering, ending — post_save below) forgets it, so
+# a new call is swept on the very next poll in this worker; another worker's
+# copy is at most NOLIVE_TTL_S stale, far inside every call timeout (ring
+# 45 s, ack 20 s, heartbeat 15 s) and the minute cron sweeps all rows anyway.
+NOLIVE_TTL_S = 3
+
+
+def _nolive_key(user_id):
+    return "rt:nolive:%s" % user_id
+
+
 def _sweep_mine(user, now):
+    from django.core.cache import cache
+    key = _nolive_key(user.pk)
+    try:
+        if cache.get(key) == str(getattr(user, "date_joined", "")):
+            return
+    except Exception:
+        pass
+    live = 0
     for r in CallRecord.objects.filter(
             Q(caller=user) | Q(callee=user), state__in=CS.LIVE_STATES,
             started_at__gte=now - timedelta(seconds=CS.BUSY_WINDOW_S)):
         sweep(r, now)
         if CS.is_live(r.state):
+            live += 1
             _mark_seen(session_of(r), side_of(r, user), now)
+    if not live:
+        try:
+            cache.set(key, str(getattr(user, "date_joined", "")), NOLIVE_TTL_S)
+        except Exception:
+            pass
+
+
+def _forget_nolive(sender, instance, **kwargs):
+    from django.core.cache import cache
+    for uid in (getattr(instance, "caller_id", None),
+                getattr(instance, "callee_id", None)):
+        if uid:
+            try:
+                cache.delete(_nolive_key(uid))
+            except Exception:
+                pass
+
+
+try:
+    from django.db.models.signals import post_save as _post_save
+    _post_save.connect(_forget_nolive, sender=CallRecord,
+                       dispatch_uid="circle2_rt_nolive")
+except Exception:  # pragma: no cover
+    pass
 
 
 RT_PRODUCERS = {}
@@ -538,7 +601,6 @@ class RtEventsView(APIView):
         except (TypeError, ValueError):
             after = 0
         q = RtEvent.objects.filter(user=me)
-        latest = q.order_by("-id").values_list("id", flat=True).first() or 0
         rows = q.filter(id__gt=after)
         topics = [t.strip() for t in
                   (request.query_params.get("topics") or "").split(",") if t.strip()]
@@ -556,6 +618,14 @@ class RtEventsView(APIView):
         out = [{"seq": e.id, "topic": e.topic, "payload": e.payload,
                 "ts": e.created_at.isoformat()}
                for e in rows.order_by("id")[:RT_MAX_BATCH]]
+        # circle2: an UNFILTERED poll already knows the newest seq it can
+        # move to — the last row it read, or `after` when nothing is new (the
+        # common case: no second query). A filtered poll / a full batch still
+        # asks for the true newest id (the phone skips past other topics).
+        if not topics and not only_call and len(out) < RT_MAX_BATCH:
+            latest = out[-1]["seq"] if out else after
+        else:
+            latest = q.order_by("-id").values_list("id", flat=True).first() or 0
         # prune this user's old events (indexed) — srvperf: at most once a
         # minute per user per worker, not a DELETE on every 0.5-5 s poll
         # (rt/events is ~half of all API traffic).
@@ -611,8 +681,12 @@ def _produce_call(request, topic, payload):
     if not isinstance(data, dict):
         data = {"value": data}
     try:
-        sent = RtEvent.objects.filter(topic="call.signal",
-                                      payload__call_id=rec.id).count()
+        # circle2: scoped to the call's two parties, so the (user, id) index
+        # is used — this was a scan of EVERY user's call.signal rows on every
+        # ICE candidate / offer relayed.
+        sent = RtEvent.objects.filter(
+            user_id__in=[rec.caller_id, rec.callee_id], topic="call.signal",
+            payload__call_id=rec.id).count()
     except Exception:
         sent = 0
     verdict = CS.validate_signal(kind, len(json.dumps(data, default=str)), sent)

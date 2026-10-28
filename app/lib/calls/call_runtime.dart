@@ -129,7 +129,19 @@ class CallRuntime with WidgetsBindingObserver {
 
   void setPushAvailable(bool v) {
     _pushAvailable = v;
-    _transport?.idleInterval = Duration(milliseconds: v ? 5000 : 2500);
+    _applyCadence(_transport);
+  }
+
+  /// circle2 cadence (see PollRealtimeTransport): 2.5 s while a My Circle
+  /// screen is visible; elsewhere in the app 10 s when FCM is live (rings and
+  /// messages come by push, and a foreground push polls at once via
+  /// [nudge]); without FCM the poll is the only in-app ring path -> 2.5 s.
+  static const quietWithPush = Duration(seconds: 10);
+
+  void _applyCadence(PollRealtimeTransport? t) {
+    if (t == null) return;
+    t.idleInterval = const Duration(milliseconds: 2500);
+    t.quietInterval = _pushAvailable ? quietWithPush : null;
   }
 
   void _onApp() {
@@ -140,7 +152,7 @@ class CallRuntime with WidgetsBindingObserver {
       return;
     }
     final t = transportFor(app);
-    t.idleInterval = Duration(milliseconds: _pushAvailable ? 5000 : 2500);
+    _applyCadence(t);
     _sub ??= t.events.listen(_onEvent, onError: (_) {});
     unawaited(checkIncoming());
   }

@@ -265,6 +265,19 @@ abstract class CallSignaling {
 }
 
 /// Sounds + small platform hooks (native channel in the app).
+/// circle2: OPTIONAL hints a [CallSignaling] may take (the app's
+/// [ApiCallSignaling] does; test fakes need not). The controller checks with
+/// `is` so existing signalings keep compiling.
+abstract class RealtimeHints {
+  /// Media is connected and quiet (true) / setting up or reconnecting
+  /// (false): the shared real-time loop may relax from 0.3 s to 0.8 s.
+  void setSteady(bool on);
+
+  /// The phone's network changed ('wifi' | 'cellular' | 'other' | 'lost'):
+  /// poll the real-time queue now instead of waiting out an error backoff.
+  void networkChanged(String kind);
+}
+
 abstract class CallSounds {
   Future<void> startRingback();
   Future<void> stopRingback();
@@ -451,6 +464,22 @@ class CallController extends ChangeNotifier {
         16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
   }
 
+  bool _steadyHint = false;
+
+  /// circle2: tell the shared loop whether the call is connected and quiet.
+  void _hintSteady(bool on) {
+    if (on == _steadyHint) return;
+    _steadyHint = on;
+    final s = signaling;
+    if (s is RealtimeHints) {
+      try {
+        s.setSteady(on);
+      } catch (e) {
+        callLog('call_controller#30', e);
+      }
+    }
+  }
+
   void _armConnectTimer() {
     if (_connectTimer != null || connectedAt != null || isEnded) return;
     _connectTimer = Timer(connectTimeout, () {
@@ -463,6 +492,7 @@ class CallController extends ChangeNotifier {
 
   void _onPhase(CallPhase prev, CallPhase p) {
     if (p == CallPhase.accepted) _armConnectTimer();
+    _hintSteady(p == CallPhase.connected);
     if (outgoing) {
       if (p == CallPhase.ringing) {
         unawaited(sounds.startRingback());
@@ -733,6 +763,16 @@ class CallController extends ChangeNotifier {
   void onNetworkChanged(String kind) {
     if (isEnded || _disposed) return;
     log.add('net:$kind');
+    // circle2: the shared loop may be deep in its error backoff (it was 8-15
+    // s) — poll now so the other phone's restart offer/answer is not late.
+    final s = signaling;
+    if (kind != 'lost' && s is RealtimeHints) {
+      try {
+        s.networkChanged(kind);
+      } catch (e) {
+        callLog('call_controller#31', e);
+      }
+    }
     if (phase == CallPhase.connected) {
       _reconnectTimer?.cancel();
       _beginReconnect();
@@ -996,6 +1036,7 @@ class CallController extends ChangeNotifier {
     if (phase != CallPhase.connected) return;
     phase = CallPhase.reconnecting;
     log.add('phase:reconnecting');
+    _hintSteady(false); // circle2: back to 0.3 s while media is down
     notifyListeners();
     unawaited(signaling
         .event(callId!, 'reconnect')
@@ -1455,6 +1496,7 @@ class CallController extends ChangeNotifier {
     endedAt = now();
     log.add('ended:${reason.name}');
     _stopTimers();
+    _hintSteady(false);
     signaling.setFast(false);
     try {
       await sounds.stopAll();

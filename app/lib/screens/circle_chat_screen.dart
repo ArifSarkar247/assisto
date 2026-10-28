@@ -358,7 +358,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_messages.any((m) =>
         m.mine && !m.pending && m.status != 'read' && m.status != 'failed' &&
         m.at.isAfter(cutoff))) {
-      ReceiptBus.instance.expect();
+      // circle2: a re-check, not a send — at most one short 1 s window
+      ReceiptBus.instance.expect(fresh: false);
     } else {
       ReceiptBus.instance.relax(); // everything read → idle cadence
     }
