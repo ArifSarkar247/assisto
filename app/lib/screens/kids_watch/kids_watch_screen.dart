@@ -9,7 +9,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../api.dart';
 import '../../kids_watch_api.dart';
 import '../../l10n/app_localizations.dart';
-import '../../messaging/media/voice_player.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
@@ -753,7 +752,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
         path = f.path;
         _files[id] = path;
       }
-      await VoicePlayer.instance.toggle(path);
+      await kwStartPlayback(path);
       if (mounted) setState(() {});
     } catch (_) {
       if (mounted) _snack(t.kwPlayFailed);

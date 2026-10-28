@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../messaging/media/voice_player.dart';
 import '../../messaging/media/media_prep.dart' show ensureMediaPermission;
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
@@ -45,6 +46,15 @@ class KwRecordPlugin implements KwRecorder {
 
 /// Tests swap this.
 KwRecorder Function() kwRecorderFactory = KwRecordPlugin.new;
+
+/// THE single place where kids-watch audio starts (integrator: wire the
+/// app-wide audio route service here). Plain playback / record only — no
+/// speakerphone / AudioManager route calls anywhere in this feature.
+Future<void> kwStartPlayback(String path) => VoicePlayer.instance.toggle(path);
+
+/// Recording counterpart of [kwStartPlayback] (same rule).
+Future<void> kwStartRecording(KwRecorder rec, String path, {required bool amr}) =>
+    rec.start(path, amr: amr);
 
 /// Opens the recorder; returns the recorded bytes, or null.
 Future<List<int>?> showKwRecorder(BuildContext context, {required bool amr}) async {
@@ -90,7 +100,7 @@ class _KwRecorderSheetState extends State<KwRecorderSheet> {
       _rec = rec;
       _path = '${Directory.systemTemp.path}/kw_${DateTime.now().millisecondsSinceEpoch}'
           '.${widget.amr ? 'amr' : 'm4a'}';
-      await rec.start(_path, amr: widget.amr);
+      await kwStartRecording(rec, _path, amr: widget.amr);
       _sw.start();
       _tick = Timer.periodic(const Duration(milliseconds: 250), (_) {
         if (!mounted) return;
