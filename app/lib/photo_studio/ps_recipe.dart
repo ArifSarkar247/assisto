@@ -531,10 +531,10 @@ class PsWorker {
   /// Stop now: the isolate is killed, [run] throws [PsWorkCancelled].
   void cancel() {
     _cancelled = true;
+    // the kill makes the isolate exit -> onExit -> run() throws
+    // PsWorkCancelled (a cancel during spawn is applied right after it)
     final iso = _iso;
     if (iso != null) iso.kill(priority: Isolate.immediate);
-    final p = _pending;
-    if (p != null && !p.isCompleted) p.completeError(const PsWorkCancelled());
   }
 }
 
