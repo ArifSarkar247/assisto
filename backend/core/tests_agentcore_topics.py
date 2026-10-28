@@ -127,10 +127,18 @@ class TopicGraderControls(_Eval):
     def test_brain_that_ignores_the_doctor_rule_fails(self):
         c = self._case("health", "medical")
         lazy = {"v": 1, "steps": [], "done": True, "answer": "Take two tablets."}
-        with mock.patch("core.agentcore.evals.topic_brain.think", return_value=lazy):
+        # the grader alone (server-side health filter switched off) catches it
+        with mock.patch("core.agentcore.evals.topic_brain.think", return_value=lazy), \
+                mock.patch("core.agentcore.health_guard.filter_answer",
+                           lambda t, topic="", lang="bn": (t, 0)):
             rep = harness.run_suite([c])
         self.assertEqual(len(rep["failed"]), 1)
         self.assertIn("answer missing", " ".join(rep["failed"][0][1]))
+        # WP-MEMORY: with the server-side filter on, the dose never reaches
+        # the user and the doctor/999 line is added in code
+        with mock.patch("core.agentcore.evals.topic_brain.think", return_value=lazy):
+            rep = harness.run_suite([c])
+        self.assertEqual(rep["failed"], [])
 
     def test_effect_graders_check_the_database(self):
         c = self._case("business", "reply_ok")
