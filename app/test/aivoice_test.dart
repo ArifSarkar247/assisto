@@ -507,7 +507,8 @@ void main() {
     testWidgets('[$lang] Listen: no TTS engine -> honest message',
         (tester) async {
       await _phone(tester);
-      // no native handler at all (older build) -> VaNative.speak = null
+      // no native half (older build): every call is MissingPluginException
+      _mockVoice((c) async => throw MissingPluginException());
       await tester.pumpWidget(_app(_stub(_ChatApi(lang: lang), lang),
           const AiChatScreen(initialSession: _session), lang: lang));
       await _settle(tester);
@@ -625,6 +626,9 @@ void main() {
         const AiChatScreen(), lang: 'bn', scale: 2, dark: true));
     await _settle(tester);
     expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('aichat_nokey_card')), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(find.text(_tl('bn').aivNoKeyTitle), findsOneWidget);
     await tester.pumpWidget(_app(_stub(_ChatApi(lang: 'bn'), 'bn'),
         const AiChatScreen(key: ValueKey('t'), initialSession: _session,
@@ -717,14 +721,16 @@ void main() {
         const VoiceAssistantSettingsScreen(debugStatic: true)));
     await _settle(tester);
     final sw = find.byKey(const ValueKey('va_continue_switch'));
-    await tester.ensureVisible(sw);
+    await tester.scrollUntilVisible(sw, 200,
+        scrollable: find.byType(Scrollable).first);
     await _settle(tester, 2);
     expect(find.text(_tl('en').vaContinueTitle), findsOneWidget);
     await tester.tap(sw);
     await _settle(tester, 3);
     expect(await Settings.getBool(VaWake.continueKey, false), isTrue);
     final help = find.byKey(const ValueKey('va_bangla_help'));
-    await tester.ensureVisible(help);
+    await tester.scrollUntilVisible(help, 200,
+        scrollable: find.byType(Scrollable).first);
     await tester.tap(help);
     await _settle(tester, 6);
     expect(find.byKey(const ValueKey('voice_help_sheet')), findsOneWidget);

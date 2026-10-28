@@ -150,6 +150,9 @@ class _AiChatScreenState extends State<AiChatScreen>
   // aivoice: the thread on screen is this phone's offline copy.
   bool _offlineCopy = false;
 
+  // gallery/test only: End on a debugLoopPhase bar hides it (no mic involved).
+  bool _debugLoopEnded = false;
+
   /// aivoice: offline copies kept per chat (last N messages).
   static const offlineKeep = 60;
   static String offlineKey(String sessionId) => 'aichat_cache_v1_$sessionId';
@@ -870,7 +873,9 @@ class _AiChatScreenState extends State<AiChatScreen>
         if (_offlineCopy) _offlineStrip(),
         if (_noKey && _msgs.isNotEmpty) _noKeyStrip(),
         Expanded(child: _body()),
-        if (_loop.active || widget.debugLoopPhase != null) _loopBar(),
+        if (_loop.active ||
+            (widget.debugLoopPhase != null && !_debugLoopEnded))
+          _loopBar(),
         _inputBar(),
       ]),
     );
@@ -1014,8 +1019,9 @@ class _AiChatScreenState extends State<AiChatScreen>
                   onPressed: _editLastUser,
                   icon: const Icon(Icons.edit_rounded, size: 15),
                   label: Text(t.aichatEdit),
+                  // aivoice: 48dp touch target (was compact = 40dp)
                   style: TextButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
+                      minimumSize: const Size(48, 48),
                       foregroundColor: scheme.onSurfaceVariant),
                 ),
             ],
@@ -1161,6 +1167,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           Expanded(
             child: Semantics(
               header: true,
+              container: true, // TalkBack reads the title alone as a heading
               child: Text(_paused ? t.aivPausedTitle : t.aivNoKeyTitle,
                   style: TextStyle(
                       fontWeight: FontWeight.w800,
@@ -1294,7 +1301,12 @@ class _AiChatScreenState extends State<AiChatScreen>
         FilledButton.tonal(
           key: const ValueKey('aichat_conv_end'),
           style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: () => _loop.stop(),
+          onPressed: () {
+            if (widget.debugLoopPhase != null) {
+              setState(() => _debugLoopEnded = true);
+            }
+            _loop.stop();
+          },
           child: Text(t.aivConvEnd),
         ),
       ]),

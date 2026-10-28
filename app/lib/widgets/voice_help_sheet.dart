@@ -49,10 +49,11 @@ class VoiceHelpSheet extends StatelessWidget {
       child: ConstrainedBox(
         constraints:
             BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.88),
-        child: ListView(
+        child: SingleChildScrollView(
           key: const ValueKey('voice_help_sheet'),
-          shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
               header: true,
@@ -90,7 +91,10 @@ class VoiceHelpSheet extends StatelessWidget {
                 try {
                   ok = await launchUrl(Uri.parse(googleAppPlay),
                       mode: LaunchMode.externalApplication);
-                } catch (_) {}
+                } catch (_) {
+                  // best-effort: no browser / Play Store on this phone —
+                  // failed() below tells the user plainly.
+                }
                 if (!ok) failed();
               },
               icon: const Icon(Icons.shop_rounded),
@@ -107,6 +111,7 @@ class VoiceHelpSheet extends StatelessWidget {
               label: Text(t.vaTtsInstallBn),
             ),
           ],
+        ),
         ),
       ),
     );
