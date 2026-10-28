@@ -165,12 +165,13 @@ def plan(now=None):
     return dict(out)
 
 
-def _claim(doc, stage):
+def _claim(doc, stage, now=None):
     from .models import DocExpiryPush
     try:
         with transaction.atomic():
             return DocExpiryPush.objects.create(document=doc, user_id=doc.user_id,
-                                                stage=stage, expiry_date=doc.expiry_date)
+                                                stage=stage, expiry_date=doc.expiry_date,
+                                                sent_at=now or timezone.now())
     except IntegrityError:
         return None
 
@@ -198,16 +199,13 @@ def sweep(now=None, push_fn=None):
         rows.sort(key=lambda r: (r[2], r[0].id))
         claimed = []
         for doc, stage, days in rows:
-            c = _claim(doc, stage)
+            c = _claim(doc, stage, now)
             if c is None:
                 stats["already_claimed"] += 1
                 continue
             claimed.append((c, doc, days))
         if not claimed:
             continue
-        # one shared sent_at so the daily cap counts this as ONE push
-        DocExpiryPush.objects.filter(pk__in=[c.pk for c, _, _ in claimed]).update(
-            sent_at=claimed[0][0].sent_at)
         msg = build_message([(doc.doc_type, days) for _, doc, days in claimed])
         user = claimed[0][1].user
         n = 0
