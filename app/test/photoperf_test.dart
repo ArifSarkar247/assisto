@@ -200,10 +200,10 @@ void main() {
 
   // ============================================================== pure rules
   group('proxy rules', () {
-    test('proxy long edge: 1600 px on ≤ 3 GB / low-RAM phones, 2400 otherwise', () {
-      expect(psProxyLong(ramMb: 1967, lowRam: false), 1600);
+    test('proxy long edge: 1600 px on ≤ 3 GB phones, 2400 otherwise (photoperf2: ≤ 2 GB 1280)', () {
+      expect(psProxyLong(ramMb: 1967, lowRam: false), 1280); // photoperf2
       expect(psProxyLong(ramMb: 2800, lowRam: false), 1600);
-      expect(psProxyLong(ramMb: 7600, lowRam: true), 1600);
+      expect(psProxyLong(ramMb: 7600, lowRam: true), 1280); // photoperf2
       expect(psProxyLong(ramMb: 3900, lowRam: false), 2400);
       expect(psProxyLong(ramMb: 0, lowRam: false), 2400); // unknown
     });

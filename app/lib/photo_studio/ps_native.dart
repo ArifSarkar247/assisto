@@ -86,11 +86,104 @@ abstract class PhotoNativeRelease {
   Future<void> release();
 }
 
-class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease {
+/// photoperf2: band decoding of a big photo for the export (Android
+/// BitmapRegionDecoder, EXIF orientation applied) — the full-size RGBA image
+/// never exists at once. A separate interface (like [PhotoNativeRelease]) so
+/// fakes of [PhotoNative] stay valid; null / any failure = the caller falls
+/// back to decoding the whole photo.
+abstract class PhotoNativeRegions {
+  Future<PsRegionSource?> openRegions(Uint8List encoded);
+}
+
+/// One open photo. [band] decodes output rows [top, bottom) as raw RGBA
+/// (8 bit, opaque, w*4 bytes per row) into a temp file and returns its path
+/// (null = failed). The caller deletes the files; [close] frees the decoder.
+abstract class PsRegionSource {
+  int get w;
+  int get h;
+  Future<String?> band(int top, int bottom);
+  Future<void> close();
+}
+
+/// Only JPEG and opaque PNG go through band decoding (PNG with an alpha
+/// channel or tRNS transparency, WebP, HEIC, BMP keep the old path: the band
+/// decoder premultiplies alpha).
+bool psRegionFormatOk(Uint8List b) {
+  if (b.length > 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return true;
+  if (b.length < 33 || b[0] != 0x89 || b[1] != 0x50 || b[2] != 0x4E || b[3] != 0x47) return false;
+  final ct = b[25];
+  if (b[24] != 8 || !(ct == 0 || ct == 2) || b[28] != 0) return false; // 8-bit grey/RGB, not interlaced
+  // no tRNS before the first IDAT
+  var p = 8;
+  while (p + 8 <= b.length) {
+    final len = (b[p] << 24) | (b[p + 1] << 16) | (b[p + 2] << 8) | b[p + 3];
+    final t = String.fromCharCodes(b, p + 4, p + 8);
+    if (t == 'tRNS') return false;
+    if (t == 'IDAT' || t == 'IEND') return true;
+    p += 12 + len;
+  }
+  return false;
+}
+
+/// photoperf2: write [bytes] in 1 MB pieces. `File.writeAsBytes` hands the
+/// whole list to the IO thread as ONE native copy — for a 12 MP photo
+/// (~34 MB PNG / ~5 MB JPEG) that was a second full copy of the file in
+/// memory while the export started (2 GB run 40673196464: +170 MB peak).
+Future<void> psWriteChunked(File f, Uint8List bytes, {int chunk = 1 << 20}) async {
+  final raf = await f.open(mode: FileMode.write);
+  try {
+    for (var i = 0; i < bytes.length; i += chunk) {
+      await raf.writeFrom(bytes, i, math.min(bytes.length, i + chunk));
+    }
+    await raf.flush();
+  } finally {
+    await raf.close();
+  }
+}
+
+class _ChannelRegions implements PsRegionSource {
+  _ChannelRegions(this._ch, this.handle, this.w, this.h, this._input);
+  final MethodChannel _ch;
+  final int handle;
+  @override
+  final int w, h;
+  final String _input;
+  int _n = 0;
+  bool _closed = false;
+
+  @override
+  Future<String?> band(int top, int bottom) async {
+    if (_closed) return null;
+    try {
+      final out = '$_input.b${_n++}';
+      final r = await _ch.invokeMethod<Map>(
+          'regionBand', {'handle': handle, 'top': top, 'bottom': bottom, 'out': out});
+      if (r == null || r['ok'] != true || r['w'] != w || r['rows'] != bottom - top) {
+        unawaited(File(out).delete().then((_) {}, onError: (_) {}));
+        return null;
+      }
+      return out;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    if (_closed) return;
+    _closed = true;
+    try {
+      await _ch.invokeMethod('regionClose', {'handle': handle}).timeout(const Duration(seconds: 5));
+    } catch (_) {}
+    unawaited(File(_input).delete().then((_) {}, onError: (_) {}));
+  }
+}
+
+class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease, PhotoNativeRegions {
   ChannelPhotoNative();
   static const _ch = MethodChannel('com.assisto/photo_native');
   bool _probed = false;
-  bool _up = false, _faces = false;
+  bool _up = false, _faces = false, _regions = false;
   void Function(int, int)? _progress;
   final _faceCache = Expando<Future<List<NativeFace>?>>('ps_faces');
 
@@ -108,6 +201,7 @@ class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease {
       final r = await _ch.invokeMethod<Map>('capabilities');
       _up = r?['upscale'] == true;
       _faces = r?['faces'] == true;
+      _regions = r?['regions'] == true; // older APKs: absent -> old export path
       _ch.setMethodCallHandler((call) async {
         if (call.method == 'upscaleProgress') {
           final a = call.arguments;
@@ -120,13 +214,14 @@ class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease {
     } catch (_) {
       _up = false; // MissingPluginException: an APK without the native part
       _faces = false;
+      _regions = false;
     }
   }
 
   Future<String> _tmp(Uint8List bytes, String tag) async {
     final d = await getTemporaryDirectory();
     final f = File('${d.path}/ps_${tag}_${DateTime.now().microsecondsSinceEpoch}.img');
-    await f.writeAsBytes(bytes, flush: true);
+    await psWriteChunked(f, bytes);
     return f.path;
   }
 
@@ -247,11 +342,32 @@ class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease {
     } catch (_) {}
   }
 
+  @override
+  Future<PsRegionSource?> openRegions(Uint8List encoded) async {
+    await probe();
+    if (!_regions || !psRegionFormatOk(encoded)) return null;
+    String? path;
+    try {
+      path = await _tmp(encoded, 'rgn');
+      final r = await _ch.invokeMethod<Map>('regionOpen', {'input': path});
+      final w = (r?['w'] as num?)?.toInt() ?? 0, h = (r?['h'] as num?)?.toInt() ?? 0;
+      final handle = (r?['handle'] as num?)?.toInt() ?? 0;
+      if (r == null || r['ok'] != true || w <= 0 || h <= 0 || handle <= 0) {
+        unawaited(File(path).delete().then((_) {}, onError: (_) {}));
+        return null;
+      }
+      return _ChannelRegions(_ch, handle, w, h, path);
+    } catch (_) {
+      if (path != null) unawaited(File(path).delete().then((_) {}, onError: (_) {}));
+      return null;
+    }
+  }
+
   /// Only if the studio actually talked to the platform (never wakes ML Kit
   /// or ORT up just to close them); an older APK without the method = no-op.
   @override
   Future<void> release() async {
-    if (!_probed || !Platform.isAndroid || !(_up || _faces)) return;
+    if (!_probed || !Platform.isAndroid || !(_up || _faces || _regions)) return;
     try {
       await _ch.invokeMethod('release').timeout(const Duration(seconds: 5));
     } catch (_) {}

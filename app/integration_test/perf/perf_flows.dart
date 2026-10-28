@@ -6,6 +6,7 @@
 //
 // Each flow: reopen the app (timed) -> open the screen (timed: first frame +
 // ready) -> scroll (FrameTimings) -> memory (dumpsys on the host).
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -31,6 +32,7 @@ import 'package:assisto/screens/crm/crm_leads_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/photo_studio_screen.dart';
 import 'package:assisto/state.dart' show Settings;
+import 'package:assisto/widgets/photo_compare.dart';
 
 import '../../test/c2_calls_fakes.dart' show FakeSurface, previewController;
 import '../support/harness.dart';
@@ -339,6 +341,34 @@ void registerPerfFlows({List<String>? only}) {
   });
 }
 
+/// photoperf2: frame timings of the studio's two interactive gestures —
+/// dragging the before/after slider (a real pointer, ~60 moves) and
+/// scrolling the studio page.
+Future<void> _studioFrames(PerfFlowCtx p) async {
+  final f = p.f;
+  try {
+    final slider = find.descendant(of: find.byType(PhotoCompare), matching: find.byType(Slider));
+    if (slider.evaluate().isEmpty) {
+      p.notes.add('studio_slider: no compare slider on screen');
+    } else {
+      final r = f.tester.getRect(slider.first);
+      final win = FrameWindow()..start();
+      final g = await f.tester.startGesture(Offset(r.left + r.width * 0.5, r.center.dy));
+      for (var i = 0; i < 60; i++) {
+        // right, left, right: ~1 s of continuous dragging
+        final dx = (i < 20 || i >= 40 ? 1 : -1) * r.width * 0.018;
+        await g.moveBy(Offset(dx, 0));
+        await f.tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
+      p.jank['studio_slider'] = await win.stop(f.tester);
+    }
+  } catch (e) {
+    p.notes.add('studio_slider: ${'$e'.split('\n').first}');
+  }
+  await p.scroll('studio_scroll', downs: 2, ups: 2);
+}
+
 /// p07 body: the controller only lives inside this call (so "closed" below
 /// measures the app without it).
 Future<void> _photoStudioRun(PerfFlowCtx p, Uint8List png) async {
@@ -372,18 +402,31 @@ Future<void> _photoStudioRun(PerfFlowCtx p, Uint8List png) async {
       final eng = c.deps.engine;
       if (eng is StudioEnhanceEngine) p.out['edit_timings'] = Map.of(eng.timings);
       await p.memory('edited');
+      // photoperf2 (60 fps): the before/after slider dragged with real
+      // frames, then the studio page scrolled — build + raster per frame
+      await _studioFrames(p);
       // the export render exactly as Save runs it after the gate
       final sw = Stopwatch()..start();
       late Future<int> job;
+      var done = false;
       await f.net(() async {
         job = c.renderExportForPerf(cornerMark: true); // started, not awaited
+        unawaited(job.then((_) => done = true, onError: (_) => done = true));
       });
       await f.pumpFor(const Duration(milliseconds: 1500));
       await p.memory('exporting');
+      // photoperf2: more samples until it ends — the peak, not one moment
+      for (var k = 2; k <= 8 && !done; k++) {
+        await f.pumpFor(const Duration(milliseconds: 600));
+        if (!done) await p.memory('exporting$k');
+      }
       final bytes = await f.net(() => job.timeout(const Duration(seconds: 120)));
       p.out['export_ms'] = sw.elapsedMilliseconds;
       p.out['export_png_bytes'] = bytes;
-      if (eng is StudioEnhanceEngine) p.out['export_timings'] = Map.of(eng.timings);
+      if (eng is StudioEnhanceEngine) {
+        p.out['export_timings'] = Map.of(eng.timings);
+        p.out['export_path'] = eng.lastExportPath; // 'bands' = native band decoding
+      }
       await p.memory('exported');
     }
     await _pop(f);

@@ -65,9 +65,15 @@ class BatchItem {
   final Uint8List input;
   Uint8List? output;
 
-  /// photoperf: the recipe step of a reduced (free preview) result — the
-  /// export re-renders it at full size. null = [output] is full quality.
+  /// photoperf: the recipe step of a reduced result (the free preview, and
+  /// photoperf2: every user's batch runs on the editing size) — the export
+  /// re-renders it at full size. null = [output] is full quality (or an AI
+  /// enhance without a recipe: its export re-runs it).
   PsStep? step;
+
+  /// photoperf2: [step] is the classical pass of an AI enhance — the export
+  /// re-runs only the AI part on the original and applies [step].
+  bool aiAnchored = false;
   BatchStatus status = BatchStatus.waiting;
 
   /// For failed/skipped: a PsNotice the screen localises.
@@ -734,8 +740,13 @@ class PhotoStudioController extends ChangeNotifier {
         _recipeOf[s.index] = base.then(step);
       } else if (pe != null && lastReport.aiUsed) {
         final st = strength, orig = s.original.bytes;
-        _recipeOf[s.index] = _Recipe.lazy(
-            () => deps.engine.enhance(orig, EnhanceRequest(strength: st, ai: true)), orig);
+        final aiStep = pe.lastAiStep;
+        // photoperf2: AI part on the original + the recorded classical pass
+        // (was: the whole enhance re-run, its own classical pass included)
+        _recipeOf[s.index] = aiStep != null
+            ? _Recipe.lazy(() => pe.aiAnchor(orig), orig, steps: [aiStep], ai: true)
+            : _Recipe.lazy(
+                () => deps.engine.enhance(orig, EnhanceRequest(strength: st, ai: true)), orig);
       }
       _versionStrength[s.index] = strength;
       _versionAi[s.index] = ai && lastReport.aiUsed;
@@ -876,12 +887,20 @@ class PhotoStudioController extends ChangeNotifier {
     _notify();
   }
 
-  /// A free user's preview of [b] is smaller than the photo (photoperf).
-  Future<bool> _reduced(Uint8List b) async {
-    if (!config.free || _proxyEngine == null) return false;
+  /// The batch result of [b] at [cap] is smaller than the photo
+  /// (photoperf; photoperf2: for every user, not only the free preview).
+  Future<bool> _reduced(Uint8List b, int? cap) async {
+    if (cap == null || _proxyEngine == null) return false;
     final sz = await _sizeOf(b);
-    return sz != null && math.max(sz.w, sz.h) > config.previewMaxPx;
+    return sz != null && math.max(sz.w, sz.h) > cap;
   }
+
+  /// photoperf2: the size every batch photo is edited at — the same as an
+  /// interactive edit (Premium too: a batch of 12 MP photos used to run at
+  /// full size, ~10x the work and ~48 MB per photo); the export re-renders
+  /// the recorded step at full size, exactly like a single photo.
+  int? get _batchCap =>
+      _proxyEngine != null ? interactiveLong : (config.free ? config.previewMaxPx : null);
 
   void clearBatch() {
     if (batchRunning) return;
@@ -910,12 +929,16 @@ class PhotoStudioController extends ChangeNotifier {
         _notify();
         try {
           final pe = _proxyEngine;
+          final cap = _batchCap;
           if (tool == null) {
             it.output = await deps.engine.enhance(
                 it.input,
                 EnhanceRequest(strength: strength, ai: aiOn && enhance.ai == AiState.ready)
-                    .withMaxLongEdge(config.free ? config.previewMaxPx : null));
-            it.step = await _reduced(it.input) ? pe?.lastStep : null;
+                    .withMaxLongEdge(cap));
+            final reduced = await _reduced(it.input, cap);
+            final ai = deps.engine.lastReport.aiUsed;
+            it.step = !reduced ? null : (ai ? pe?.lastAiStep : pe?.lastStep);
+            it.aiAnchored = it.step != null && ai;
           } else {
             if (te == null) throw const PhotoStudioFailure('batch', 'no_engine');
             final av = await te.tools(it.input);
@@ -927,9 +950,8 @@ class PhotoStudioController extends ChangeNotifier {
             tools = av;
             // photoperf: free users get the preview size here too (the
             // export re-renders the recorded step at full size)
-            it.output = await _runToolOn(te, tool, it.input,
-                maxLongEdge: pe != null && config.free ? config.previewMaxPx : null);
-            it.step = await _reduced(it.input) ? pe?.lastStep : null;
+            it.output = await _runToolOn(te, tool, it.input, maxLongEdge: cap);
+            it.step = await _reduced(it.input, cap) ? pe?.lastStep : null;
           }
           it.status = BatchStatus.done;
         } on PsCancelled {
@@ -971,7 +993,13 @@ class PhotoStudioController extends ChangeNotifier {
     s.push(PhotoVersion(
         bytes: out, feature: 'enhance_hd', previewOnly: config.free,
         fullQuality: batchTool != null && step == null));
-    if (step != null) _recipeOf[s.index] = _Recipe(it.input, [step], atFull: false);
+    final pe = _proxyEngine;
+    if (step != null && it.aiAnchored && pe != null) {
+      final input = it.input;
+      _recipeOf[s.index] = _Recipe.lazy(() => pe.aiAnchor(input), input, steps: [step], ai: true);
+    } else if (step != null) {
+      _recipeOf[s.index] = _Recipe(it.input, [step], atFull: false);
+    }
     if (batchTool == null) {
       _versionStrength[s.index] = strength;
       _versionAi[s.index] = aiOn && enhance.ai == AiState.ready;
@@ -1260,7 +1288,7 @@ class PhotoStudioController extends ChangeNotifier {
     } else if (v.fullQuality) {
       // d1-photo tool / batch result: already full quality on the phone
       full = v.bytes;
-    } else if (pe != null && rec != null && !(_versionAi[s.index] ?? false)) {
+    } else if (pe != null && rec != null && (rec.ai || !(_versionAi[s.index] ?? false))) {
       // photoperf: the recorded recipe on the full-resolution original, in a
       // background isolate (progress + Cancel), the corner mark composited
       // there, the PNG written directly — same look as the preview
@@ -1382,13 +1410,17 @@ class PhotoStudioController extends ChangeNotifier {
 class _Recipe {
   const _Recipe(Uint8List this.anchorBytes, this.steps, {required this.atFull})
       : anchorFn = null,
-        sizeBytes = anchorBytes;
+        sizeBytes = anchorBytes,
+        ai = false;
 
-  /// The anchor is made on demand: an on-device AI enhance, re-run at full
-  /// size exactly as its own export always did — only needed when a tool was
-  /// chained on it. [sizeBytes] (the original) stands for its size.
+  /// The anchor is made on demand. photoperf2: [ai] = the AI step of an
+  /// on-device enhance re-run on the original ([PsProxyEngine.aiAnchor]) and
+  /// [steps] start with that enhance's recorded classical pass — so the AI
+  /// version and any tool chained on it export through the recipe path
+  /// (band decoding, streamed PNG). Otherwise (no recorded pass) the whole
+  /// enhance re-run, as before. [sizeBytes] (the original) stands for its size.
   const _Recipe.lazy(Future<Uint8List> Function() this.anchorFn, this.sizeBytes,
-      {this.steps = const []})
+      {this.steps = const [], this.ai = false})
       : anchorBytes = null,
         atFull = false;
 
@@ -1397,10 +1429,11 @@ class _Recipe {
   final Uint8List? sizeBytes;
   final List<PsStep> steps;
   final bool atFull;
+  final bool ai;
 
   Future<Uint8List> anchor() async => anchorBytes ?? await anchorFn!();
 
   _Recipe then(PsStep s) => anchorBytes != null
       ? _Recipe(anchorBytes!, [...steps, s], atFull: atFull)
-      : _Recipe.lazy(anchorFn!, sizeBytes, steps: [...steps, s]);
+      : _Recipe.lazy(anchorFn!, sizeBytes, steps: [...steps, s], ai: ai);
 }

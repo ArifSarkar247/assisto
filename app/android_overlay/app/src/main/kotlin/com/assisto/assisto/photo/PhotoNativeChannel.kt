@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicBoolean
  *                                            255 = subject), side, ms} | {ok:false, error}
  *        (d1-photo: U2-Net-p background mask for the blur tool, CPU only)
  *   cancel()                              -> null
+ *   photoperf2 (export band decoding, RegionBands.kt):
+ *   regionOpen({input})                   -> {ok, handle, w, h, rot} | {ok:false, error}
+ *   regionBand({handle, top, bottom, out}) -> {ok, w, rows}: output rows [top, bottom)
+ *                                            as raw RGBA written to `out`
+ *   regionClose({handle})                 -> {ok}
  *
  * d1-photo: every error answer is a SHORT CODE ("cancelled", "decode",
  * "model_shape", "ort_session: OrtException", "oom", "ort_run: ...") - never a
@@ -56,6 +61,30 @@ object PhotoNativeChannel {
     private val cancelled = AtomicBoolean(false)
     private var channel: MethodChannel? = null
 
+    // photoperf2: created on the first export that decodes in bands (never at launch)
+    @Volatile private var regionStarted = false
+    private val regionWorker by lazy {
+        regionStarted = true
+        Executors.newSingleThreadExecutor()
+    }
+
+    private fun guarded(f: () -> Map<String, Any?>): Map<String, Any?> = try {
+        f()
+    } catch (t: OutOfMemoryError) {
+        fail("oom")
+    } catch (t: Throwable) {
+        fail("region: " + t.javaClass.simpleName)
+    }
+
+    private fun post(result: MethodChannel.Result, r: Map<String, Any?>) {
+        main.post {
+            try {
+                result.success(r)
+            } catch (t: Throwable) {
+            }
+        }
+    }
+
     private fun deviceKey(activity: Activity): String = try {
         val id = android.provider.Settings.Secure.getString(
             activity.contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: ""
@@ -75,7 +104,33 @@ object PhotoNativeChannel {
                 when (call.method) {
                     "capabilities" -> result.success(
                         mapOf("upscale" to hasClass("ai.onnxruntime.OrtEnvironment"),
-                              "faces" to hasClass("com.google.mlkit.vision.face.FaceDetection")))
+                              "faces" to hasClass("com.google.mlkit.vision.face.FaceDetection"),
+                              // photoperf2: band decoding for the export
+                              "regions" to hasClass("android.graphics.BitmapRegionDecoder")))
+                    // photoperf2: export band decoding (RegionBands.kt), on its
+                    // own lazily created thread so an AI job never delays it
+                    "regionOpen" -> {
+                        val path = call.argument<String>("input") ?: ""
+                        regionWorker.execute { post(result, guarded { RegionBands.open(path) }) }
+                    }
+                    "regionBand" -> {
+                        val h = call.argument<Number>("handle")?.toInt() ?: 0
+                        val top = call.argument<Number>("top")?.toInt() ?: 0
+                        val bottom = call.argument<Number>("bottom")?.toInt() ?: 0
+                        val out = call.argument<String>("out") ?: ""
+                        regionWorker.execute {
+                            post(result, guarded { RegionBands.band(h, top, bottom, out) })
+                        }
+                    }
+                    "regionClose" -> {
+                        val h = call.argument<Number>("handle")?.toInt() ?: 0
+                        regionWorker.execute {
+                            post(result, guarded {
+                                RegionBands.close(h)
+                                mapOf("ok" to true)
+                            })
+                        }
+                    }
                     "cancel" -> {
                         cancelled.set(true)
                         result.success(null)
@@ -135,6 +190,15 @@ object PhotoNativeChannel {
                             }
                             try {
                                 SegRunner.closeCached()
+                            } catch (t: Throwable) {
+                            }
+                            try {
+                                if (regionStarted) regionWorker.execute {
+                                    try {
+                                        RegionBands.closeAll()
+                                    } catch (t: Throwable) {
+                                    }
+                                }
                             } catch (t: Throwable) {
                             }
                             main.post {
