@@ -452,10 +452,10 @@ PRESETS = {
             {"id": "c120", "price": 399, "credits": 120, "valid_months": 12},
             {"id": "c300", "price": 949, "credits": 300, "valid_months": 12},
         ],
-        # VAT is NOT set here: vat 0.15 (the owner's 74 % net) makes the
-        # existing seller-agent "pro" plan (৳3990 / 3000 replies) fail its
-        # 40 % guarantee (36.5 %), so pricing_apply refuses the whole preset.
-        # That is a separate owner decision (PRICING_40PCT_BN.md §11).
+        # Seller-agent "pro" plan: ৳3990 / 3000 replies failed its 40 %
+        # guarantee once 15 % VAT is counted (36.5 %). Owner decision 28 Oct:
+        # keep ৳3990, cut to 2700 replies.
+        "seller_agent": {"plans": {"pro": {"price": 3990, "replies": 2700}}},
         # credits per chat mode / agent task; provider_cost = the HARD-CAP cost
         # (USD) so Owner Admin's NET-floor check holds them too.
         "action_costs": {
