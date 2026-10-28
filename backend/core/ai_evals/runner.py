@@ -210,13 +210,18 @@ def run_llm_replay(fid, cfg=None):
             rows.append({"id": c["id"], "pass": False, "missing": True})
             continue
         klass = REG.model_class_for_case(feat, c, cfg)
-        req = S.build(fid, c)
+        req = S.provider_request(fid, c)
         t0 = time.perf_counter()
         final = S.post(fid, c, r["text"])
         ms_all.append((time.perf_counter() - t0) * 1000)
         g = GR.grade(c, final, S.sources(fid, c))
         prompt_in = P.system_prompt(req.get("extra_system", "")) + req["task"] + req.get("data", "") \
             + "".join(h.get("content", "") for h in req.get("history") or [])
+        if fid in S.PII_MASKED:
+            # AF-2: no raw phone / NID / account / e-mail in what the provider gets
+            from ..agentcore import trust as _T
+            g["privacy"] = not _T.has_raw_pii(prompt_in)
+            g["pass"] = bool(g["pass"] and g["privacy"])
         usd, model, tin, tout = realistic_cost(klass, prompt_in, r["text"], req.get("max_tokens", 600),
                                                cfg, reference=r.get("source") == "reference")
         costs.append(usd)
@@ -225,7 +230,8 @@ def run_llm_replay(fid, cfg=None):
         rows.append({"id": c["id"], "lang": c.get("lang", ""), "class": klass, **g,
                      "blocked": bool(final.get("blocked")), "answer": final.get("answer", "")[:300],
                      "source": r.get("source", "")})
-        for b in r.get("bad") or []:
+        for b in (r.get("bad") or []) + [{"kind": k, "text": t}
+                                         for k, t in S.synthetic_bads(fid, c, r["text"])]:
             fb = S.post(fid, c, b["text"])
             gb = GR.grade(c, fb, S.sources(fid, c))
             guarded = bool(fb.get("blocked") or fb.get("flagged") or fb.get("scrubbed"))
@@ -257,7 +263,7 @@ def _llm_summary(fid, feat, cases, rows, neg, costs, toks_in, toks_out, ms_all, 
         "pass": _rate([r.get("pass") for r in rows]),
         "accuracy": rate("accuracy"), "grounding": rate("grounding"),
         "safety": rate("safety"), "language": rate("language"),
-        "length": rate("length"), "action": rate("action"),
+        "length": rate("length"), "action": rate("action"), "privacy": rate("privacy"),
         "blocked_good": sum(1 for r in rows if r.get("blocked")),
         "negatives": len(neg),
         "negatives_caught": _rate([n["caught"] for n in neg]),
@@ -407,7 +413,13 @@ def check(result, th):
         if got is None:
             continue
         if got + 1e-9 < v:
-            bad.append("%s: %s %.4f < threshold %.4f" % (fid, k, got, v))
+            hint = ""
+            if result.get("kind") == "rule" and result.get("failures"):
+                # name the first failing cases so a red CI run says WHAT broke
+                hint = " — e.g. " + "; ".join(
+                    "%s %s" % (f["id"], json.dumps(f.get("diff"), ensure_ascii=False)[:160])
+                    for f in result["failures"][:4])
+            bad.append("%s: %s %.4f < threshold %.4f%s" % (fid, k, got, v, hint))
     return bad
 
 

@@ -1764,7 +1764,8 @@ def _llm_provider(user=None, state=None):
             text, _ = ai.generate(task=ai_reply_task(prompt),
                                   data=prompt.get("customer_text", ""),
                                   tier="cheap", feature="business.ai_reply",
-                                  max_tokens=300, user=user)
+                                  max_tokens=300, user=user,
+                                  pii=True)     # AF-2: customer text masked
             return {"text": text, "confidence": 0.8}
         except ai.AIUnavailable as e:
             if state is not None and e.reason == "credits":

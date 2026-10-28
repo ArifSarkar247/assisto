@@ -474,6 +474,7 @@ def owner_bargain_notification(product_name, offer, min_price, list_price):
 HANDOFF_ANGRY = "angry"
 HANDOFF_REFUND = "refund"
 HANDOFF_BIG_ORDER = "big_order"
+HANDOFF_ABUSE = "abuse"          # AF-4: abusive / threatening customer -> a person, AI cools down
 
 _ANGRY_WORDS = ("scam", "cheat", "fraud", "worst", "terrible", "angry", "ভুয়া",
                 "প্রতারণা", "বাজে", "খারাপ", "রাগ", "ঠকিয়েছ", "faltu", "baje",
@@ -515,6 +516,9 @@ def handoff_message(lang, reason):
         "low_confidence": pick(lang,
                                "আমি নিশ্চিত নই — দোকানের একজন শীঘ্রই জানাবেন।",
                                "I'm not certain — someone from the shop will reply shortly."),
+        HANDOFF_ABUSE: pick(lang,
+                            "আপনার অসুবিধার জন্য দুঃখিত। কী সমস্যা হয়েছে জানালে আমরা সমাধানের চেষ্টা করব।",
+                            "Sorry for the trouble. Tell us what went wrong and we will try to fix it."),
     }
     return m.get(reason, m["low_confidence"])
 
