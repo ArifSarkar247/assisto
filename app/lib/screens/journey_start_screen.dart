@@ -9,6 +9,7 @@ import '../widgets/journey_api.dart';
 import '../widgets/journey_dest_sheets.dart';
 import '../widgets/journey_ride.dart';
 import '../widgets/permission_reason.dart';
+import 'guardian_journey_screen.dart';
 import 'journey_live_screen.dart';
 import 'journey_map_pick_screen.dart';
 import 'journey_settings_screen.dart';
@@ -419,6 +420,12 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             tooltip: t.j100Watching,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneyWatchScreen(fromStart: true)))),
+        IconButton(
+            key: const ValueKey('gj_entry'),
+            icon: const Icon(Icons.family_restroom_rounded),
+            tooltip: t.gjTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const GuardianJourneyScreen()))),
         IconButton(
             key: const ValueKey('j2_settings'),
             icon: const Icon(Icons.tune_rounded),

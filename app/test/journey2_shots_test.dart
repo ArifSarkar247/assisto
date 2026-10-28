@@ -18,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/screens/guardian_journey_screen.dart';
+import 'package:assisto/screens/guardian_request_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/journey_watch_screen.dart';
@@ -40,6 +42,7 @@ class _ShotApi extends ApiClient {
   List<Map<String, dynamic>> places = [];
   List<Map<String, dynamic>> watching = [];
   Map<String, dynamic> vehConfig = {'map': {'tile_url': ''}};
+  Map<String, dynamic> requests = {'incoming': [], 'outgoing': [], 'history': [], 'people': []};
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
@@ -47,6 +50,7 @@ class _ShotApi extends ApiClient {
     if (path == '/circle/members') return circle;
     if (path == '/journey/places') return {'places': places};
     if (path == '/journey/watching') return {'journeys': watching};
+    if (path == '/journey/requests') return requests;
     if (path.startsWith('/vehicle/config')) return vehConfig;
     if (path.startsWith('/journey/geocode')) {
       return {'available': false, 'results': const []};
@@ -84,6 +88,16 @@ Map<String, dynamic> _activeTrip(String lang) => {
         'driver_name': _n(lang, 'রহিম', 'Rahim'),
       },
       'web_link': 'https://lifeassisto.com/j/5.1.x',
+    };
+
+Map<String, dynamic> _gj(String l, int id, String status, String name) => {
+      'id': id, 'role': 'traveller', 'name': name, 'status': status, 'outcome': '',
+      'destination': {'name': _n(l, 'চট্টগ্রাম', 'Chattogram')},
+      'note': _n(l, 'পৌঁছে ফোন দিও', 'Call when you reach'),
+      'window_start': DateTime(2026, 10, 29, 15).toIso8601String(),
+      'window_end': DateTime(2026, 10, 29, 21).toIso8601String(),
+      'standing': false, 'schedule': const {}, 'in_window': false,
+      'journey_id': null, 'log': const [],
     };
 
 class _Oem implements OemGuideNative {
@@ -150,6 +164,36 @@ final Map<String, _Spec> _specs = {
         final chip = find.byKey(const ValueKey('j2_place_1'));
         if (chip.evaluate().isNotEmpty) await t.tap(chip);
       }),
+  'gj_list': _Spec((l) => _ShotApi()
+    ..requests = {
+      'incoming': [_gj(l, 1, 'pending', _n(l, 'বাবা', 'Baba'))],
+      'outgoing': [
+        {..._gj(l, 2, 'active', _n(l, 'রিনা', 'Rina')), 'role': 'requester',
+         'live': {'lat': 23.0, 'lng': 91.0, 'fix_age_s': 50, 'distance_m': 12400},
+         'log': [
+           {'at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(), 'who': 'requester', 'what': 'asked'},
+           {'at': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(), 'who': 'traveller', 'what': 'accepted'},
+         ]},
+      ],
+      'history': [{..._gj(l, 3, 'arrived', _n(l, 'রিনা', 'Rina')), 'outcome': 'arrived'}],
+      'people': [],
+    }, () => const GuardianJourneyScreen(), size: const Size(360, 1500)),
+  'gj_empty': _Spec((l) => _ShotApi(), () => const GuardianJourneyScreen()),
+  'gj_ask': _Spec((l) => _ShotApi(), () => GuardianRequestScreen(people: [
+        {'member_id': 4, 'name': 'Rina', 'relation': 'child', 'child': true},
+        {'member_id': 5, 'name': 'Karim', 'relation': 'friend', 'child': false},
+      ]), size: const Size(360, 1300), act: (t) async {
+        await t.tap(find.byKey(const ValueKey('gj_person_4')));
+      }),
+  'gj_live_banner': _Spec((l) => _ShotApi()
+    ..active = {..._activeTrip(l), 'guardian': {'request_id': 1, 'name': _n(l, 'বাবা', 'Baba'), 'standing': false}},
+      () {
+    _liveTracker = JourneyTracker(
+        useService: false,
+        position: () async => (lat: 23.7650, lng: 90.3900),
+        battery: () async => 64);
+    return JourneyLiveScreen(journeyId: 5, tracker: _liveTracker);
+  }, pushed: true, size: const Size(360, 1300)),
   'j2_watch_empty': _Spec((l) => _ShotApi(), () => const JourneyWatchScreen()),
   'j2_watch_filled': _Spec(
       (l) => _ShotApi()

@@ -79,6 +79,7 @@ import '../screens/business/bargain_rules_screen.dart';
 import '../screens/business/business_plans_screen.dart';
 import '../screens/journey_start_screen.dart';
 import '../screens/journey_watch_screen.dart'; // journey100
+import '../screens/guardian_journey_screen.dart'; // owner idea 1
 import '../screens/journey_settings_screen.dart'; // journey100
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
@@ -279,6 +280,7 @@ class ChatNav {
     // "Is everything OK?" push opens the safety settings (I'm fine).
     'journey_watch': (_) => const JourneyWatchScreen(),
     'journey_settings': (_) => const JourneySettingsScreen(),
+    'journey_requests': (_) => const GuardianJourneyScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),

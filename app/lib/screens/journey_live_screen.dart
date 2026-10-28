@@ -103,11 +103,14 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
     if (!mounted) return;
     unawaited(_probeBackground());
+    // owner idea 1: a guardian-requested trip says WHO is watching, in the
+    // persistent notification too (never silent)
+    final gName = _guardian == null ? null : '${_guardian!['name'] ?? ''}';
     await _tr.start(
       widget.journeyId,
       (id, points) => api.journeyLocationBatch(id, points),
-      notifTitle: t.j100NotifTitle,
-      notifText: t.j100NotifText,
+      notifTitle: gName == null ? t.j100NotifTitle : t.gjWatchingYou(gName),
+      notifText: gName == null ? t.j100NotifText : t.gjNotifText,
       serviceSession: api.token == null
           ? null
           : {
@@ -169,6 +172,50 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         ),
       ]),
     );
+  }
+
+  Map<String, dynamic>? get _guardian =>
+      (_journey['guardian'] as Map?)?.cast<String, dynamic>();
+
+  /// The always-visible "<name> is watching your trip — Stop" banner of a
+  /// guardian-requested trip: one tap, no PIN, the requester is told.
+  Widget _guardianBanner(AppLocalizations t, Map<String, dynamic> g) {
+    final warn = Brand.warnInk(context);
+    return Container(
+      key: const ValueKey('gj_banner'),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+          color: warn.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(Radii.md),
+          border: Border.all(color: warn.withValues(alpha: 0.5))),
+      child: Row(children: [
+        Icon(Icons.visibility_rounded, color: warn),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: Text(t.gjWatchingYou('${g['name'] ?? ''}'),
+              style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+        ),
+        TextButton(
+          key: const ValueKey('gj_banner_stop'),
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => _guardianStop((g['request_id'] as num).toInt()),
+          child: Text(t.gjStop),
+        ),
+      ]),
+    );
+  }
+
+  Future<void> _guardianStop(int rid) async {
+    final t = AppLocalizations.of(context);
+    try {
+      await _api.journeyRequestAction(rid, 'stop');
+    } catch (e) {
+      // never claim "stopped" when the server did not hear it
+      if (mounted) showActionFailed(context, 'guardian.stop', e);
+      return;
+    }
+    await _tr.finished('stopped');
+    if (mounted) _closeWith(t.gjStopped);
   }
 
   Map<String, dynamic> get _ride =>
@@ -709,6 +756,10 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             onPressed: _linkSheet),
       ]),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+        if (_guardian case final g?) ...[
+          _guardianBanner(t, g),
+          const SizedBox(height: Gap.md),
+        ],
         _statusCard(t, s),
         if (_bgRisk) ...[
           const SizedBox(height: Gap.md),

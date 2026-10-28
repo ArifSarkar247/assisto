@@ -1,5 +1,5 @@
 {
-  "_comment": "journey2 (Safe Journey destination picker, ride details, link off, background honesty). All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_journey2_arb.json",
+  "_comment": "journey2 (Safe Journey destination picker, ride details, link off, background honesty) + gj* owner idea 1 guardian-requested journey. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_journey2_arb.json",
   "en": {
     "j2AppIndrive": "inDrive",
     "j2AppLabel": "Ride app (if any)",
@@ -107,7 +107,142 @@
     "j2Unpin": "Remove pin",
     "j2WatchEmptyBenefit": "See your family get home safe — live, without calling them again and again.",
     "j2WatchEmptyHow": "When someone in your My Circle starts a Safe Journey and picks you, it shows here and you get a notification.",
-    "j2WatchStartOwn": "Start my own journey"
+    "j2WatchStartOwn": "Start my own journey",
+    "gjTitle": "Follow a trip",
+    "gjAccept": "Accept",
+    "gjDecline": "Decline",
+    "gjAccepted": "Accepted. Sharing starts when the time comes.",
+    "gjDeclined": "Declined. Nothing will be shared.",
+    "gjStopped": "Sharing stopped. They have been told.",
+    "gjCancelled": "Request cancelled.",
+    "gjAsk": "{name} wants to follow your trip",
+    "@gjAsk": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjAskSchool": "{name} wants to follow your school trips",
+    "@gjAskSchool": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjWatchingYou": "{name} is watching your trip",
+    "@gjWatchingYou": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjWindow": "{day}, {start} to {end}",
+    "@gjWindow": {
+      "placeholders": {
+        "day": {
+          "type": "Object"
+        },
+        "start": {
+          "type": "Object"
+        },
+        "end": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjSchoolWindow": "School days, {start} to {end}",
+    "@gjSchoolWindow": {
+      "placeholders": {
+        "start": {
+          "type": "Object"
+        },
+        "end": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjConsentNote": "If you agree, they see your location only in this time window. You can stop any time.",
+    "gjBannerNote": "Your screen always shows who is watching. The trip's path is deleted when it ends.",
+    "gjStartNow": "Start sharing now",
+    "gjOpenTrip": "Open the trip",
+    "gjStopSharing": "Stop sharing",
+    "gjWithdraw": "Withdraw my consent",
+    "gjStop": "Stop",
+    "gjNotifText": "Sharing your location until the time window ends. Open Assisto to stop.",
+    "gjAskedOfMe": "Asked of me",
+    "gjAskedByMe": "Asked by me",
+    "gjAutoStartNote": "When the time comes, sharing starts by itself if Assisto is open. Otherwise a notification asks for one tap — Android does not let apps start location in the background.",
+    "gjCancel": "Cancel request",
+    "gjSchoolOff": "Turn school mode off",
+    "gjLog": "History of this request",
+    "gjLogAsked": "Asked",
+    "gjLogAccepted": "Accepted",
+    "gjLogStarted": "Sharing started",
+    "gjLogReminder": "Start reminder sent",
+    "gjLogEscalated": "No answer — alert sent",
+    "gjStPending": "Waiting for an answer",
+    "gjStAccepted": "Accepted — starts at the time",
+    "gjStActive": "Sharing now",
+    "gjStArrived": "Arrived safely",
+    "gjStDeclined": "Declined",
+    "gjStExpired": "No answer in time",
+    "gjStStopped": "Stopped by the traveller",
+    "gjStWindowEnd": "Ended at the end of the time",
+    "gjStNotStarted": "Sharing never started",
+    "gjStCancelled": "Cancelled",
+    "gjStWithdrawn": "Consent withdrawn",
+    "gjStEnded": "Ended",
+    "gjEmptyTitle": "Know they reached — without calling ten times",
+    "gjEmptyBody": "Ask your daughter, son or a family member abroad to share one trip with you: where and between which times. They accept with one tap; you're told when they arrive.",
+    "gjEmptyHow": "If they're late, they are asked first if they're OK; only without an answer you get their last location. Sharing stops by itself at the end of the time.",
+    "gjAskButton": "Ask to follow a trip",
+    "gjFreeNote": "Free on every plan, always.",
+    "gjHistory": "Earlier",
+    "gjAskTitle": "Ask to follow a trip",
+    "gjAskIntro": "They decide: nothing is shared unless they accept, and they can stop any time.",
+    "gjWho": "Whose trip?",
+    "gjWhen": "When?",
+    "gjFrom": "From {time}",
+    "@gjFrom": {
+      "placeholders": {
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjTo": "Until {time}",
+    "@gjTo": {
+      "placeholders": {
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "gjNote": "Note (optional)",
+    "gjRulesNote": "Up to 24 hours, up to 7 days ahead. Sharing ends by itself when the time is over and the path is deleted.",
+    "gjSend": "Send request",
+    "gjSent": "Request sent. You'll be told when they answer.",
+    "gjNeedPerson": "Choose whose trip.",
+    "gjNeedMinor": "School mode is only for your child under 18. Please confirm.",
+    "gjSchoolMode": "School mode (every school day)",
+    "gjSchoolModeDesc": "Your child accepts once. Their screen always shows that you are watching, and they can stop any single trip.",
+    "gjMinor": "My child is under 18",
+    "gjErrLong": "The time window can be at most 24 hours.",
+    "gjErrFar": "You can ask at most 7 days ahead.",
+    "gjErrWindow": "Check the times: the end must be after the start and in the future.",
+    "gjErrSpam": "Too many requests. Wait for an answer first.",
+    "gjErrCircle": "You both need to be in each other's My Circle.",
+    "gjErrChild": "School mode is only for your own child who has you as parent in their My Circle.",
+    "gjDaySat": "Sat",
+    "gjDaySun": "Sun",
+    "gjDayMon": "Mon",
+    "gjDayTue": "Tue",
+    "gjDayWed": "Wed",
+    "gjDayThu": "Thu",
+    "gjDayFri": "Fri"
   },
   "bn": {
     "j2AppIndrive": "ইনড্রাইভ",
@@ -181,6 +316,83 @@
     "j2Unpin": "পিন সরান",
     "j2WatchEmptyBenefit": "পরিবারের মানুষ নিরাপদে বাসায় ফিরছেন কি না — লাইভ দেখুন, বারবার ফোন না করেই।",
     "j2WatchEmptyHow": "My Circle-এর কেউ নিরাপদ যাত্রা শুরু করে আপনাকে বাছলে সেটা এখানে দেখাবে আর আপনি নোটিফিকেশন পাবেন।",
-    "j2WatchStartOwn": "আমার নিজের যাত্রা শুরু করুন"
+    "j2WatchStartOwn": "আমার নিজের যাত্রা শুরু করুন",
+    "gjTitle": "যাত্রা দেখার অনুরোধ",
+    "gjAccept": "রাজি",
+    "gjDecline": "না",
+    "gjAccepted": "রাজি হয়েছেন। সময় হলে শেয়ার শুরু হবে।",
+    "gjDeclined": "না বলেছেন। কিছুই শেয়ার হবে না।",
+    "gjStopped": "শেয়ার বন্ধ হয়েছে। তাঁকে জানানো হয়েছে।",
+    "gjCancelled": "অনুরোধ তুলে নেওয়া হয়েছে।",
+    "gjAsk": "{name} আপনার যাত্রা দেখতে চান",
+    "gjAskSchool": "{name} স্কুলের সময় আপনার যাত্রা দেখতে চান",
+    "gjWatchingYou": "{name} আপনার যাত্রা দেখছেন",
+    "gjWindow": "{day}, {start} থেকে {end}",
+    "gjSchoolWindow": "স্কুলের দিন, {start} থেকে {end}",
+    "gjConsentNote": "রাজি হলে শুধু এই সময়টুকু আপনার লোকেশন দেখবেন। যেকোনো সময় বন্ধ করতে পারবেন।",
+    "gjBannerNote": "কে দেখছেন তা আপনার স্ক্রিনে সবসময় দেখা যায়। যাত্রা শেষে পথের লোকেশন মুছে যায়।",
+    "gjStartNow": "এখনই শেয়ার শুরু করুন",
+    "gjOpenTrip": "যাত্রা খুলুন",
+    "gjStopSharing": "শেয়ার বন্ধ করুন",
+    "gjWithdraw": "আমার সম্মতি ফিরিয়ে নিন",
+    "gjStop": "বন্ধ করুন",
+    "gjNotifText": "সময় শেষ হওয়া পর্যন্ত লোকেশন শেয়ার হচ্ছে। বন্ধ করতে Assisto খুলুন।",
+    "gjAskedOfMe": "আমার কাছে অনুরোধ",
+    "gjAskedByMe": "আমার পাঠানো অনুরোধ",
+    "gjAutoStartNote": "সময় হলে Assisto খোলা থাকলে শেয়ার নিজে থেকেই শুরু হয়। নইলে একটা নোটিফিকেশন আসবে, একবার ট্যাপ করতে হবে — অ্যাপ বন্ধ থাকলে Android লোকেশন শুরু করতে দেয় না।",
+    "gjCancel": "অনুরোধ তুলে নিন",
+    "gjSchoolOff": "স্কুল-মোড বন্ধ করুন",
+    "gjLog": "এই অনুরোধের ইতিহাস",
+    "gjLogAsked": "অনুরোধ পাঠানো হয়েছে",
+    "gjLogAccepted": "রাজি হয়েছেন",
+    "gjLogStarted": "শেয়ার শুরু হয়েছে",
+    "gjLogReminder": "শুরু করার নোটিফিকেশন গেছে",
+    "gjLogEscalated": "সাড়া নেই — সতর্কবার্তা গেছে",
+    "gjStPending": "উত্তরের অপেক্ষা",
+    "gjStAccepted": "রাজি — সময় হলে শুরু",
+    "gjStActive": "এখন শেয়ার হচ্ছে",
+    "gjStArrived": "নিরাপদে পৌঁছেছেন",
+    "gjStDeclined": "রাজি হননি",
+    "gjStExpired": "সময়ের মধ্যে উত্তর আসেনি",
+    "gjStStopped": "যাত্রী নিজে বন্ধ করেছেন",
+    "gjStWindowEnd": "সময় শেষে বন্ধ হয়েছে",
+    "gjStNotStarted": "শেয়ার শুরুই হয়নি",
+    "gjStCancelled": "তুলে নেওয়া হয়েছে",
+    "gjStWithdrawn": "সম্মতি ফিরিয়ে নিয়েছেন",
+    "gjStEnded": "শেষ",
+    "gjEmptyTitle": "দশবার ফোন না করেই জানুন পৌঁছেছে কি না",
+    "gjEmptyBody": "মেয়ে, ছেলে বা প্রবাসী পরিবারের কাউকে একটা যাত্রা শেয়ার করতে বলুন: কোথায়, কোন সময় থেকে কোন সময়। তাঁরা এক ট্যাপে রাজি হবেন; পৌঁছালে আপনি খবর পাবেন।",
+    "gjEmptyHow": "দেরি হলে আগে তাঁকেই জিজ্ঞেস করা হয় তিনি ঠিক আছেন কি না; উত্তর না দিলে তবেই আপনি শেষ লোকেশন পান। সময় শেষে শেয়ার নিজে থেকে বন্ধ হয়।",
+    "gjAskButton": "যাত্রা দেখার অনুরোধ পাঠান",
+    "gjFreeNote": "সব প্ল্যানে সবসময় ফ্রি।",
+    "gjHistory": "আগের",
+    "gjAskTitle": "যাত্রা দেখার অনুরোধ",
+    "gjAskIntro": "সিদ্ধান্ত তাঁর: রাজি না হলে কিছুই শেয়ার হবে না, আর যেকোনো সময় বন্ধ করতে পারবেন।",
+    "gjWho": "কার যাত্রা?",
+    "gjWhen": "কখন?",
+    "gjFrom": "শুরু {time}",
+    "gjTo": "শেষ {time}",
+    "gjNote": "ছোট বার্তা (ঐচ্ছিক)",
+    "gjRulesNote": "সর্বোচ্চ ২৪ ঘণ্টা, ৭ দিন আগে পর্যন্ত। সময় শেষে শেয়ার নিজে বন্ধ হয় আর পথের লোকেশন মুছে যায়।",
+    "gjSend": "অনুরোধ পাঠান",
+    "gjSent": "অনুরোধ গেছে। উত্তর দিলে জানতে পারবেন।",
+    "gjNeedPerson": "কার যাত্রা, বেছে নিন।",
+    "gjNeedMinor": "স্কুল-মোড শুধু ১৮ বছরের কম বয়সী সন্তানের জন্য। নিশ্চিত করুন।",
+    "gjSchoolMode": "স্কুল-মোড (প্রতি স্কুলের দিন)",
+    "gjSchoolModeDesc": "সন্তান একবার রাজি হবে। তার স্ক্রিনে সবসময় দেখা যাবে আপনি দেখছেন, আর যেকোনো দিনের যাত্রা সে বন্ধ করতে পারবে।",
+    "gjMinor": "আমার সন্তানের বয়স ১৮-র কম",
+    "gjErrLong": "সময় সর্বোচ্চ ২৪ ঘণ্টা হতে পারে।",
+    "gjErrFar": "সর্বোচ্চ ৭ দিন আগে অনুরোধ করা যায়।",
+    "gjErrWindow": "সময় দেখুন: শেষের সময় শুরুর পরে আর সামনের হতে হবে।",
+    "gjErrSpam": "অনেক অনুরোধ হয়ে গেছে। আগে উত্তরের অপেক্ষা করুন।",
+    "gjErrCircle": "দুজনকেই একে অপরের My Circle-এ থাকতে হবে।",
+    "gjErrChild": "স্কুল-মোড শুধু নিজের সন্তানের জন্য, যার My Circle-এ আপনি অভিভাবক হিসেবে আছেন।",
+    "gjDaySat": "শনি",
+    "gjDaySun": "রবি",
+    "gjDayMon": "সোম",
+    "gjDayTue": "মঙ্গল",
+    "gjDayWed": "বুধ",
+    "gjDayThu": "বৃহঃ",
+    "gjDayFri": "শুক্র"
   }
 }

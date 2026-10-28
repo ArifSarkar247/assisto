@@ -239,4 +239,21 @@ extension JourneyApi on ApiClient {
   /// POST /journey/<id>/web-link/revoke -> {url}
   Future<Map<String, dynamic>> journeyRevokeLink(int id) =>
       postJson('/journey/$id/web-link/revoke', const {});
+
+  // ---- owner idea 1: guardian-requested journeys -------------------------
+
+  /// {incoming, outgoing, history, people:[{member_id, name, child}]}
+  /// GET /journey/requests
+  Future<Map<String, dynamic>> journeyRequests() => getJson('/journey/requests');
+
+  /// Ask to follow someone's trip {member_id, destination, start, end, note}
+  /// (child school mode: standing, schedule, minor_declared).
+  /// POST /journey/requests
+  Future<Map<String, dynamic>> journeyRequestCreate(Map<String, dynamic> body) =>
+      postJson('/journey/requests', body);
+
+  /// accept | decline | start | stop (traveller) · cancel (requester).
+  /// POST /journey/requests/<id>/<action>
+  Future<Map<String, dynamic>> journeyRequestAction(int id, String action) =>
+      postJson('/journey/requests/$id/$action', const {});
 }

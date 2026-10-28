@@ -185,6 +185,8 @@ class PushRouting {
     'journey': 'journey', // the traveller: Are you OK? / routine
     'journey/watch': 'journey_watch', // a watcher: started/late/arrived...
     'journey/wellness': 'journey_settings', // a parent: Is everything OK?
+    // owner idea 1: guardian-requested journey (ask / accept / start / stop)
+    'journey/requests': 'journey_requests',
     'business/shop-box': 'shop_box',
     'watchman': 'watchman', // cctv1
     'watchman/inbox': 'watchman_inbox', // cctvx: an alert passed to me / a shared clip
