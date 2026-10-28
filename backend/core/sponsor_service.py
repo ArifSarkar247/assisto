@@ -81,6 +81,25 @@ def prefs_of(user, create=False):
     return p
 
 
+def _opted_in(p):
+    """Brand-offer notifications are OPT-IN only (ads check 28 Oct): on only
+    when the user turned the switch on themselves (no prefs row = OFF)."""
+    return bool(p and p.notifs_on and p.notifs_opted_in_at)
+
+
+# shown under the switch (server copy, so no app update is needed to fix it)
+OFFER_NOTIF_NOTE = {
+    "bn": ("বন্ধ থাকলে কোনো ব্র্যান্ডের অফার নোটিফিকেশন আসবে না — এটাই "
+           "শুরুর অবস্থা। চালু করলে শুধু আপনার বাছাই করা বিষয়ের অফার, দিনে "
+           "সর্বোচ্চ সীমার মধ্যে, প্রতিটিতে \"অফার · ব্র্যান্ডের নাম\" লেখা থাকবে। "
+           "যেকোনো সময় এখান থেকে বন্ধ করা যায়; অফার পেজ সবসময় খোলা যায়।"),
+    "en": ("While this is off you get no brand-offer notifications — that is "
+           "the default. Turn it on to get offers only for what you picked, "
+           "within the daily limit, each labelled \"Offer · brand name\". "
+           "Turn it off here any time; the Offers page always stays open."),
+}
+
+
 def user_ctx(user):
     p = prefs_of(user)
     return {
@@ -90,7 +109,7 @@ def user_ctx(user):
         "muted_brands": list(p.muted_brands or []) if p else [],
         "hidden_campaigns": list(p.hidden_campaigns or []) if p else [],
         "division": (p.division or "") if p else "",
-        "notifs_on": bool(p.notifs_on) if p else True,
+        "notifs_on": _opted_in(p),
     }
 
 
@@ -101,7 +120,9 @@ def prefs_payload(user):
         "categories": list(p.categories or []) if p else [],
         "brands": list(p.brands or []) if p else [],
         "muted_brands": list(p.muted_brands or []) if p else [],
-        "notifs_on": bool(p.notifs_on) if p else True,
+        "notifs_on": _opted_in(p),
+        "notifs_opt_in": True,       # the switch starts OFF; only the user turns it on
+        "notifs_note": dict(OFFER_NOTIF_NOTE),
         "division": (p.division or "") if p else "",
         "onboarding_done": bool(p.onboarding_done) if p else False,
         "all_categories": list(SP.CATEGORIES),
@@ -123,7 +144,11 @@ def save_prefs(user, d):
     if "muted_brands" in d:
         p.muted_brands = SP.clean_ids(d.get("muted_brands"), 200)
     if "notifs_on" in d:
-        p.notifs_on = bool(d.get("notifs_on"))
+        # opt-in only: an explicit True from the user's own switch (a JSON
+        # true, never a truthy string) records the opt-in time
+        on = d.get("notifs_on") is True
+        p.notifs_on = on
+        p.notifs_opted_in_at = (p.notifs_opted_in_at or timezone.now()) if on else None
     if "division" in d:
         dv = SP.clean_divisions([d.get("division")])
         p.division = dv[0] if dv else ""
@@ -404,6 +429,9 @@ def record_event(user, token, kind, now=None):
             campaign=c, user=user, date=day)
         if getattr(seen, col) >= limit:
             counted = False
+        elif kind == "click" and seen.impressions <= seen.clicks:
+            # ads check 28 Oct: never more clicks than impressions
+            counted = False
         else:
             SponsorSeen.objects.filter(pk=seen.pk).update(**{col: F(col) + 1})
             counted = True
@@ -512,7 +540,9 @@ def send_offer_notifications(campaign, limit=5000, now=None, push_sync=None):
     cats = set(campaign.categories or [])
     sent_ids = set(OfferNotifLog.objects.filter(campaign=campaign)
                    .values_list("user_id", flat=True))
-    qs = OfferPrefs.objects.select_related("user").filter(notifs_on=True)
+    # opt-in only (ads check 28 Oct): never a user who did not switch it on
+    qs = OfferPrefs.objects.select_related("user").filter(
+        notifs_on=True, notifs_opted_in_at__isnull=False)
     n = 0
     for p in qs.iterator():
         if n >= limit:
@@ -529,7 +559,7 @@ def send_offer_notifications(campaign, limit=5000, now=None, push_sync=None):
                "hidden_campaigns": p.hidden_campaigns, "division": p.division}
         ok, why_ = SP.offer_notif_ok(
             paid=is_paid(u), premium_allowed=bool(caps.get("offers_premium_notifs", False)),
-            offers_enabled=bool(caps.get("offers_enabled", True)), notifs_on=p.notifs_on,
+            offers_enabled=bool(caps.get("offers_enabled", True)), notifs_on=_opted_in(p),
             sent_today=offer_notifs_sent_today(u, now),
             daily_cap=caps.get("offer_notif_daily_cap", 2),
             muted=not SP.audience_ok(cd, ctx), already_sent=u.id in sent_ids)

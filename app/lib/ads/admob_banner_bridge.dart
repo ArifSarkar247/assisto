@@ -29,6 +29,8 @@ class AdmobBannerBridge implements BannerBridge {
     } catch (_) {}
     final done = Completer<BannerAdHandle?>();
     BannerAd? ad;
+    // one tracker per BannerAd object: 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track(placement, 'banner');
     try {
       ad = BannerAd(
         size: size,
@@ -46,10 +48,10 @@ class AdmobBannerBridge implements BannerBridge {
             a.dispose();
             if (!done.isCompleted) done.complete(null);
           },
-          onAdImpression: (_) => AdTelemetry.impression(placement, 'banner'),
-          onAdClicked: (_) => AdTelemetry.click(placement, 'banner'),
+          onAdImpression: (_) => tr.impression(),
+          onAdClicked: (_) => tr.click(),
           onPaidEvent: (Ad _, double micros, PrecisionType p, String currency) =>
-              AdTelemetry.paid(placement, 'banner',
+              tr.paid(
                   valueMicros: micros,
                   currency: currency,
                   precision: AdTelemetry.precisionName(p.name)),

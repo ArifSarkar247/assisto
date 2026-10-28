@@ -990,6 +990,17 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
         return {"ok": False, "reason": "ads_not_configured",
                 "credited_paisa": 0, "credited_credits": 0}
 
+    # ads check 28 Oct — AdMob invalid-traffic rule: "Google ads may not be
+    # placed on apps that promise payment or incentives to users who click
+    # on or view ads" (only a rewarded ad the user chose may reward). An
+    # app-open / interstitial / native impression is LOGGED (caps, fraud
+    # history, exposure) but NEVER credits anything.
+    if kind != "rewarded":
+        AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                               ad_id=ad_id[:80], credited_paisa=0, at=now)
+        return {"ok": True, "reason": "not_rewarded_format",
+                "credited_paisa": 0, "credited_credits": 0}
+
     paisa = _ad_reward_paisa(ad_cfg)
     moved = 0
     whole = 0

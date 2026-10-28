@@ -34,6 +34,8 @@ class AdmobHeroAdBridge implements HeroAdBridge {
     if (unitId.isEmpty || !await AdmobSdk.ensureReady()) return null;
     final done = Completer<HeroAdHandle?>();
     NativeAd? ad;
+    // one tracker per NativeAd object: 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track(placement, 'native');
     try {
       ad = NativeAd(
         adUnitId: unitId,
@@ -68,13 +70,14 @@ class AdmobHeroAdBridge implements HeroAdBridge {
             if (!done.isCompleted) done.complete(null);
           },
           onAdImpression: (_) {
+            if (tr.impressed) return; // a repeat callback is not a new view
             // the device daily cap counts REAL impressions only
             unawaited(HeroDailyCap.recordImpression());
-            AdTelemetry.impression(placement, 'native');
+            tr.impression();
           },
-          onAdClicked: (_) => AdTelemetry.click(placement, 'native'),
+          onAdClicked: (_) => tr.click(),
           onPaidEvent: (Ad _, double micros, PrecisionType p, String currency) =>
-              AdTelemetry.paid(placement, 'native',
+              tr.paid(
                   valueMicros: micros,
                   currency: currency,
                   precision: AdTelemetry.precisionName(p.name)),
