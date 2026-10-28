@@ -77,7 +77,8 @@ class _Fake extends ApiClient {
     if (path == '/family/shopping') {
       return {
         'lists': [
-          {'owner_id': 1, 'owner_name': 'Me', 'mine': true, 'shared_with': 0, 'items': shop}
+          {'owner_id': 1, 'owner_name': 'Me', 'mine': true, 'shared_with': 0,
+           'items': [for (final i in shop) Map.of(i)]}
         ]
       };
     }
@@ -314,6 +315,10 @@ void main() {
     addTearDown(t.view.reset);
     await t.pumpWidget(_app(const FamilyScreen(), _Fake(), dark: true, lang: 'bn', scale: 2));
     await t.pumpAndSettle();
+    expect(t.takeException(), isNull);
+    await t.scrollUntilVisible(find.byKey(const ValueKey('fam-empty-primary')), 200,
+        scrollable: find.descendant(
+            of: find.byKey(const ValueKey('fam-empty')), matching: find.byType(Scrollable)).first);
     expect(t.takeException(), isNull);
     final btn = t.getSize(find.byKey(const ValueKey('fam-empty-primary')));
     expect(btn.height, greaterThanOrEqualTo(48));

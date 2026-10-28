@@ -105,7 +105,14 @@ class _FamShopPaneState extends State<FamShopPane> {
   @override
   void initState() {
     super.initState();
+    _text.addListener(_onText);
     _load();
+  }
+
+  bool _hasText = false;
+  void _onText() {
+    final h = _text.text.trim().isNotEmpty;
+    if (h != _hasText) setState(() => _hasText = h);
   }
 
   @override
@@ -225,7 +232,7 @@ class _FamShopPaneState extends State<FamShopPane> {
         IconButton.filled(
             key: const ValueKey('fc-shop-add'),
             tooltip: t.add,
-            onPressed: _add,
+            onPressed: _hasText ? _add : null, // nothing to add -> disabled, not dead
             icon: const Icon(Icons.add_rounded)),
       ]),
     );
