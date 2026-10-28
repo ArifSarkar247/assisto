@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,8 @@ import '../widgets/voice_input.dart';
 import '../widgets/ai_report.dart'; // ai-report
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../voice/reply_speaker.dart'; // aivoice
+import '../voice/voice_loop.dart'; // aivoice
 
 /// Part 3 — Assisto AI: the ChatGPT-like full-history chat.
 ///
@@ -47,20 +50,37 @@ class _Msg {
   /// h1-home: an attached photo turn (this device only; never saved).
   final ChatPhotoRequest? photo;
 
+  // aivoice: [cards] is always a GROWABLE list — the reply paths fill it with
+  // `cards..clear()..addAll(...)`, which threw on the old `const []` default
+  // (every non-streamed reply failed into "Couldn't get a reply").
   _Msg({
     this.id,
     required this.user,
     required this.text,
-    this.cards = const [],
+    List<Map<String, dynamic>>? cards,
     this.source,
     this.streaming = false,
     this.photo,
-  });
+  }) : cards = [...?cards];
 
   bool get isBrain {
     final s = (source ?? '').toLowerCase();
     return s == 'brain' || s == 'offline' || s == 'assisto_brain';
   }
+
+  /// aivoice: the key the read-aloud control tracks for this message.
+  String get speakKey => id ?? 'm${identityHashCode(this)}';
+
+  /// aivoice: offline copy (this phone only; photos are never saved).
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'role': user ? 'user' : 'assistant',
+        'text': text,
+        'meta': {
+          if (source != null) 'source': source,
+          if (cards.isNotEmpty) 'cards': cards,
+        },
+      };
 }
 
 class _Session {
@@ -88,7 +108,8 @@ class AiChatScreen extends StatefulWidget {
   State<AiChatScreen> createState() => _AiChatScreenState();
 }
 
-class _AiChatScreenState extends State<AiChatScreen> {
+class _AiChatScreenState extends State<AiChatScreen>
+    with WidgetsBindingObserver {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   final _inputFocus = FocusNode();
@@ -106,25 +127,84 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // Voice input (shared with the home chat): hold-to-talk, automatic language.
   late final VoiceDictation _voice = VoiceDictation();
 
+  // aivoice: read-aloud of answers (existing lazy TTS channel).
+  final ReplySpeaker _speaker = ReplySpeaker();
+
+  // aivoice: hands-free voice conversation (listen -> send -> read -> listen).
+  late final VoiceLoop _loop = VoiceLoop(
+      hear: _loopHear, ask: _loopAsk, say: _loopSay, cancel: _loopCancel);
+  bool _loopExplained = false;
+
+  // aivoice: the question in the box came from the mic (its answer is read
+  // aloud when "Spoken replies" is on).
+  bool _dictated = false;
+
+  // aivoice: GET chat/status — null = unknown (then no banner is shown).
+  Map<String, dynamic>? _aiStatus;
+  bool _noKeyOpen = false;
+
+  // aivoice: the thread on screen is this phone's offline copy.
+  bool _offlineCopy = false;
+
+  /// aivoice: offline copies kept per chat (last N messages).
+  static const offlineKeep = 60;
+  static String offlineKey(String sessionId) => 'aichat_cache_v1_$sessionId';
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _voice.addListener(() {
+      if (!mounted) return;
+      if (_voice.listening) _dictated = true;
+      setState(() {});
+    });
+    _speaker.addListener(() {
       if (mounted) setState(() {});
     });
+    _loop.addListener(_onLoop);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _voice.loadMode();
+      _loadAiStatus();
       final init = widget.initialSession;
       if (init != null) _openSession(_Session.fromJson(init));
     });
   }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // aivoice: never keep the mic or the voice going behind another app.
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _loop.stop();
+      _speaker.stop();
+    }
+  }
+
+  Future<void> _loadAiStatus() async {
+    try {
+      final st = await _api.chatStatus();
+      if (mounted && st['ai_available'] is bool) {
+        setState(() => _aiStatus = st);
+      }
+    } catch (_) {
+      // unknown: say nothing rather than guess
+    }
+  }
+
+  bool get _noKey => _aiStatus?['ai_available'] == false;
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _loop.removeListener(_onLoop);
+    _loop.dispose();
+    _speaker.dispose();
     _streamSub?.cancel();
     _voice.dispose();
     _input.dispose();
@@ -161,7 +241,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   void _newChat() {
     _streamSub?.cancel();
+    _speaker.stop();
     setState(() {
+      _offlineCopy = false;
       _active = null;
       _msgs.clear();
       _sending = false;
@@ -174,7 +256,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   Future<void> _openSession(_Session s) async {
     _streamSub?.cancel();
+    _speaker.stop();
     setState(() {
+      _offlineCopy = false;
       _active = s;
       _msgs.clear();
       _loadingThread = true;
@@ -201,13 +285,70 @@ class _AiChatScreenState extends State<AiChatScreen> {
         }
       });
       _toBottom();
+      _saveOffline();
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _loadingThread = false;
+      // aivoice: no network -> show this phone's copy of the chat, honestly
+      // labelled, instead of only an error.
+      final cached = await _readOffline(s.id);
+      if (!mounted) return;
+      setState(() {
+        _loadingThread = false;
+        if (cached.isEmpty) {
           _threadError = true;
-        });
-      }
+        } else {
+          _offlineCopy = true;
+          _msgs.addAll(cached);
+        }
+      });
+      if (cached.isNotEmpty) _toBottom();
+    }
+  }
+
+  // ---------------- offline copy (aivoice) ----------------
+  static _Msg _msgFromJson(Map<String, dynamic> m) {
+    final meta = m['meta'];
+    final rawCards = meta is Map ? meta['cards'] : null;
+    return _Msg(
+      id: m['id'] == null ? null : '${m['id']}',
+      user: (m['role'] ?? '').toString() == 'user',
+      text: (m['text'] ?? '').toString(),
+      cards: rawCards is List
+          ? [
+              for (final c in rawCards)
+                if (c is Map) c.cast<String, dynamic>()
+            ]
+          : null,
+      source: meta is Map ? meta['source']?.toString() : null,
+    );
+  }
+
+  Future<void> _saveOffline() async {
+    final s = _active;
+    if (s == null) return;
+    final rows = [
+      for (final m in _msgs)
+        if (m.photo == null && !m.streaming && m.text.trim().isNotEmpty)
+          m.toJson()
+    ];
+    final keep =
+        rows.length > offlineKeep ? rows.sublist(rows.length - offlineKeep) : rows;
+    try {
+      await Settings.setString(offlineKey(s.id), jsonEncode(keep));
+    } catch (_) {}
+  }
+
+  static Future<List<_Msg>> _readOffline(String sessionId) async {
+    try {
+      final raw = await Settings.getString(offlineKey(sessionId));
+      if (raw == null || raw.isEmpty) return const [];
+      final list = jsonDecode(raw);
+      if (list is! List) return const [];
+      return [
+        for (final m in list)
+          if (m is Map) _msgFromJson(m.cast<String, dynamic>())
+      ];
+    } catch (_) {
+      return const [];
     }
   }
 
@@ -240,6 +381,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
     if (text.isEmpty || _sending) return;
     HapticFeedback.selectionClick();
+    // aivoice: asked by voice (and not inside the conversation loop, which
+    // reads every answer itself) -> read the answer aloud if that is on.
+    final byVoice = _dictated && !_loop.active;
+    _dictated = false;
+    if (_voice.listening) await _voice.stop();
+    _speaker.stop();
     _input.clear();
     final mine = _Msg(user: true, text: text);
     _pendingUser = mine;
@@ -255,6 +402,28 @@ class _AiChatScreenState extends State<AiChatScreen> {
       return;
     }
     await _streamOrSend(session.id, text);
+    if (!mounted) return;
+    _offlineCopy = false;
+    final answer = _lastAnswer();
+    _lastReply = answer;
+    if (answer != null) {
+      _saveOffline();
+      if (byVoice && await ReplySpeaker.spokenRepliesOn() && mounted) {
+        final r = await _speaker.speak(answer.speakKey, answer.text);
+        if (mounted) ReplySpeaker.explain(context, r);
+      }
+    }
+  }
+
+  /// aivoice: the server answer that ended the last send (null when the send
+  /// failed, was stopped empty, or ran out of credits).
+  _Msg? _lastReply;
+  _Msg? _lastAnswer() {
+    if (_msgs.isEmpty) return null;
+    final m = _msgs.last;
+    if (m.user || m.streaming || m.text.trim().isEmpty) return null;
+    if (m.id == null && m.source == null) return null; // a local notice
+    return m;
   }
 
   /// Try the SSE stream first (live tokens + Stop); if the stream can't start
@@ -352,7 +521,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     } catch (e) {
       if (mounted) _msgs.remove(assistant);
       if (isOutOfCredits(e)) return _onCreditsOut(text);
-      _onSendError();
+      _onSendError(e);
     }
   }
 
@@ -406,10 +575,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
   }
 
-  void _onSendError() {
+  void _onSendError([Object? cause]) {
     if (!mounted) return;
     setState(() {
-      _msgs.add(_Msg(user: false, text: t.aichatSendFailed));
+      // qa2/aivoice: our server's 5xx is named as such, not "try again".
+      _msgs.add(_Msg(
+          user: false,
+          text: honestFailText(t, cause, otherwise: t.aichatSendFailed)));
       _sending = false;
     });
     _toBottom();
@@ -434,6 +606,96 @@ class _AiChatScreenState extends State<AiChatScreen> {
         m.streaming = false;
       }
     });
+  }
+
+  // ---------------- voice conversation (aivoice) ----------------
+  Future<void> _toggleLoop() async {
+    if (_loop.active) {
+      await _loop.stop();
+      return;
+    }
+    if (_sending) return;
+    _loopExplained = false;
+    _snack(t.aivConvStarted);
+    unawaited(_loop.start());
+  }
+
+  void _onLoop() {
+    if (!mounted) return;
+    setState(() {});
+    if (_loop.active) return;
+    switch (_loop.endReason) {
+      case 'silence':
+        _snack(t.aivConvEndedSilence);
+      case 'error':
+        _snack(t.aivConvEndedError);
+      case 'mic':
+        // VoiceDictation already said exactly what is missing (permission,
+        // engine, Bangla) with a fix button; add nothing on top of it.
+        if (!_voice.lastStartListened && _loop.turns == 0) break;
+        _snack(t.aivConvEndedMic);
+    }
+  }
+
+  Future<String?> _loopHear() async {
+    if (!mounted) return null;
+    _input.clear();
+    await _voice.start(context, _input,
+        pauseFor: const Duration(seconds: 3), quietNoMatch: true);
+    if (!_voice.lastStartListened) return null;
+    if (_voice.listening) {
+      final done = Completer<void>();
+      void l() {
+        if (!_voice.listening && !done.isCompleted) done.complete();
+      }
+
+      _voice.addListener(l);
+      try {
+        await done.future.timeout(const Duration(seconds: 75));
+      } catch (_) {
+        await _voice.stop();
+      } finally {
+        _voice.removeListener(l);
+      }
+    }
+    // give the engine a moment to deliver its final words
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return null;
+    return _input.text.trim();
+  }
+
+  Future<String?> _loopAsk(String said) async {
+    if (!mounted) return null;
+    _lastReply = null;
+    _dictated = false;
+    await _send(said);
+    final a = _lastReply;
+    return a == null ? null : a.text;
+  }
+
+  Future<void> _loopSay(String answer) async {
+    final a = _lastReply;
+    final r = await _speaker.speak(a?.speakKey ?? 'loop', answer);
+    if (!mounted) return;
+    if (r != 'ok' && r != 'stopped' && !_loopExplained) {
+      _loopExplained = true;
+      ReplySpeaker.explain(context, r);
+    }
+  }
+
+  Future<void> _loopCancel() async {
+    await _voice.stop();
+    await _speaker.stop();
+    if (_sending) await _stop();
+  }
+
+  Future<void> _toggleRead(_Msg m) async {
+    if (_speaker.isSpeaking(m.speakKey)) {
+      await _speaker.stop();
+      return;
+    }
+    final r = await _speaker.speak(m.speakKey, m.text);
+    if (mounted) ReplySpeaker.explain(context, r);
   }
 
   // ---------------- message actions ----------------
@@ -580,6 +842,15 @@ class _AiChatScreenState extends State<AiChatScreen> {
             : (_active!.title.isEmpty ? t.aichatUntitled : _active!.title)),
         actions: [
           IconButton(
+            key: const ValueKey('aichat_conv_start'),
+            tooltip: _loop.active ? t.aivConvEnd : t.aivConvStart,
+            isSelected: _loop.active,
+            icon: Icon(_loop.active
+                ? Icons.stop_circle_rounded
+                : Icons.record_voice_over_rounded),
+            onPressed: (_sending && !_loop.active) ? null : _toggleLoop,
+          ),
+          IconButton(
             tooltip: t.aichatHistory,
             icon: const Icon(Icons.history_rounded),
             onPressed: _openHistory,
@@ -592,7 +863,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         ],
       ),
       body: Column(children: [
+        if (_offlineCopy) _offlineStrip(),
+        if (_noKey && _msgs.isNotEmpty) _noKeyStrip(),
         Expanded(child: _body()),
+        if (_loop.active) _loopBar(),
         _inputBar(),
       ]),
     );
@@ -651,6 +925,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         Text(t.aichatWelcomeBody,
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        if (_noKey) ...[
+          const SizedBox(height: Gap.lg),
+          _noKeyCard(scheme),
+        ],
         const SizedBox(height: Gap.xl),
         // Premium QA: welcome state offers real starting points (tap = send).
         for (final (icon, text) in [
@@ -826,7 +1104,189 @@ class _AiChatScreenState extends State<AiChatScreen> {
           icon: const Icon(Icons.refresh_rounded, size: 15),
           label: Text(t.aichatRegenerate),
           style: style),
+      // aivoice: read this answer aloud (ChatGPT "Read aloud").
+      TextButton.icon(
+          key: const ValueKey('aichat_listen'),
+          onPressed: () => _toggleRead(m),
+          icon: Icon(
+              _speaker.isSpeaking(m.speakKey)
+                  ? Icons.stop_rounded
+                  : Icons.volume_up_rounded,
+              size: 15),
+          label: Text(_speaker.isSpeaking(m.speakKey)
+              ? t.aivStopReading
+              : t.aivListen),
+          style: style),
     ]);
+  }
+
+  // ---------------- aivoice: honest state strips ----------------
+  List<String> _freeLines() {
+    final codes = (_aiStatus?['free'] is List)
+        ? (_aiStatus!['free'] as List).map((e) => '$e').toList()
+        : const ['own_data', 'app_help', 'phone_commands', 'voice_input'];
+    return [
+      for (final c in codes)
+        switch (c) {
+          'own_data' => t.aivFreeOwnData,
+          'app_help' => t.aivFreeAppHelp,
+          'phone_commands' => t.aivFreePhoneCommands,
+          'voice_input' => t.aivFreeVoiceInput,
+          _ => '',
+        }
+    ].where((l) => l.isNotEmpty).toList();
+  }
+
+  bool get _paused => _aiStatus?['reason'] == 'paused';
+
+  Widget _noKeyCard(ColorScheme scheme) {
+    return Container(
+      key: const ValueKey('aichat_nokey_card'),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.key_off_rounded,
+              size: 20, color: scheme.onSecondaryContainer),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(_paused ? t.aivPausedTitle : t.aivNoKeyTitle,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: scheme.onSecondaryContainer)),
+            ),
+          ),
+        ]),
+        const SizedBox(height: Gap.xs),
+        Text(_paused ? t.aivPausedBody : t.aivNoKeyBody,
+            style:
+                TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+        const SizedBox(height: Gap.xs),
+        for (final line in _freeLines())
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.check_circle_rounded,
+                  size: 16, color: scheme.onSecondaryContainer),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                  child: Text(line,
+                      style: TextStyle(
+                          color: scheme.onSecondaryContainer, height: 1.35))),
+            ]),
+          ),
+      ]),
+    );
+  }
+
+  /// In a thread: one line; tap opens the full card (what still works).
+  Widget _noKeyStrip() {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.secondaryContainer,
+      child: InkWell(
+        key: const ValueKey('aichat_nokey_strip'),
+        onTap: () => setState(() => _noKeyOpen = !_noKeyOpen),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.sm),
+            child: _noKeyOpen
+                ? _noKeyCard(scheme)
+                : Row(children: [
+                    Icon(Icons.key_off_rounded,
+                        size: 18, color: scheme.onSecondaryContainer),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(
+                        child: Text(
+                            _paused ? t.aivPausedTitle : t.aivNoKeyTitle,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: scheme.onSecondaryContainer))),
+                    Icon(Icons.expand_more_rounded,
+                        color: scheme.onSecondaryContainer),
+                  ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _offlineStrip() {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      key: const ValueKey('aichat_offline_strip'),
+      color: scheme.tertiaryContainer,
+      child: Padding(
+        padding:
+            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+        child: Row(children: [
+          Icon(Icons.cloud_off_rounded,
+              size: 18, color: scheme.onTertiaryContainer),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(t.aivOfflineCopy,
+                  style: TextStyle(color: scheme.onTertiaryContainer))),
+          TextButton(
+            style: TextButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                foregroundColor: scheme.onTertiaryContainer),
+            onPressed: _active == null ? null : () => _openSession(_active!),
+            child: Text(t.aichatRetry),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  /// The live state of the voice conversation: what Assisto is doing now,
+  /// and the End control (always one tap away).
+  Widget _loopBar() {
+    final scheme = Theme.of(context).colorScheme;
+    final (icon, label) = switch (_loop.phase) {
+      LoopPhase.listening => (Icons.mic_rounded, t.aivConvListening),
+      LoopPhase.thinking => (Icons.more_horiz_rounded, t.aivConvThinking),
+      LoopPhase.speaking => (Icons.volume_up_rounded, t.aivConvSpeaking),
+      LoopPhase.off => (Icons.mic_off_rounded, ''),
+    };
+    final live = _loop.phase == LoopPhase.listening;
+    return Container(
+      key: const ValueKey('aichat_conv_bar'),
+      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, 0),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+      decoration: BoxDecoration(
+        color: live ? scheme.errorContainer : scheme.primaryContainer,
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Row(children: [
+        Icon(icon,
+            color: live ? scheme.onErrorContainer : scheme.onPrimaryContainer),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: Semantics(
+            liveRegion: true,
+            child: Text(label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: live
+                        ? scheme.onErrorContainer
+                        : scheme.onPrimaryContainer)),
+          ),
+        ),
+        FilledButton.tonal(
+          key: const ValueKey('aichat_conv_end'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => _loop.stop(),
+          child: Text(t.aivConvEnd),
+        ),
+      ]),
+    );
   }
 
   // Markdown/code: flutter_markdown is NOT a dependency (confirmed in

@@ -90,6 +90,13 @@ object AssistoVoiceChannel {
                     "openTtsSettings" -> result.success(
                         startSafely(activity, Intent("com.android.settings.TTS_SETTINGS"))
                     )
+                    // aivoice: where the user picks Google as the speech engine
+                    // (ColorOS / MIUI default to their own). Keyboard settings
+                    // as the fallback; never throws.
+                    "openVoiceInputSettings" -> result.success(
+                        startSafely(activity, Intent(Settings.ACTION_VOICE_INPUT_SETTINGS)) ||
+                            startSafely(activity, Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
+                    )
                     "torch" -> result.success(torch(activity, call.argument<Boolean>("on") ?: true))
                     "setAlarm" -> result.success(
                         setAlarm(

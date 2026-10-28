@@ -53,6 +53,12 @@ class VaNative {
   static Future<bool> openTtsSettings() async =>
       (await _call<bool>('openTtsSettings')) == true;
 
+  /// aivoice: opens the phone's "Voice input" settings (where ColorOS / MIUI
+  /// / Samsung users pick Google as the speech engine). Falls back to the
+  /// keyboard settings on the native side. false = nothing opened.
+  static Future<bool> openVoiceInputSettings() async =>
+      (await _call<bool>('openVoiceInputSettings')) == true;
+
   // ---- phone actions -------------------------------------------------------
 
   /// Turn the flashlight on/off. 'ok' | 'no_flash' | 'error' | null.
