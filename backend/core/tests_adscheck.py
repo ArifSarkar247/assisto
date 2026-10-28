@@ -306,7 +306,7 @@ class OfferOptInTests(_Base):
         OfferPrefs.objects.create(user=self.free, notifs_on=True)
         OfferPrefs.objects.create(user=self.prem, notifs_on=True,
                                   notifs_opted_in_at=timezone.now())
-        mig = importlib.import_module("core.migrations.0117_adscheck")
+        mig = importlib.import_module("core.migrations.0119_adscheck")
         mig.offers_opt_in_only(django_apps, None)
         self.assertFalse(OfferPrefs.objects.get(user=self.free).notifs_on)
         self.assertTrue(OfferPrefs.objects.get(user=self.prem).notifs_on)
