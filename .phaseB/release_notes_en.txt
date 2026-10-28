@@ -1,1 +1,1 @@
-Build 270: Photo Studio much faster on 2 GB phones — edits preview in about 1 second (was up to 17 seconds), photos open in under a second, full-quality save with progress and Cancel, memory freed when you close the studio.
+Build 271: Safer AI — the sales assistant hides customers' phone, ID, account and email numbers before asking the AI; every number in an assistant answer is checked against your own data, with sources; abusive messages get a calm reply and go to a person; sellers get a 3-line summary on handover. Lighter server background jobs.
