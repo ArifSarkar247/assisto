@@ -884,6 +884,7 @@ urlpatterns[:0] = [
 # ---- b6-antitheft ---- Batch 6: native always-on Lost/Stolen engine (opt-in,
 # per-phone engine token for ingestion; alerts only to owner + approved family).
 from . import views_antitheft as atv  # noqa: E402
+from . import views_at_remote as atr  # noqa: E402
 urlpatterns += [
     path("security/engine/state", atv.EngineStateView.as_view()),
     path("security/engine/enable", atv.EngineEnableView.as_view()),
@@ -897,6 +898,10 @@ urlpatterns += [
     path("security/engine/watching", atv.EngineWatchingView.as_view()),
     path("security/engine/event/<int:pk>/photo-link", atv.EnginePhotoLinkView.as_view()),
     path("security/engine/event/<int:pk>/photo", atv.EnginePhotoBytesView.as_view()),
+    # at100: remote switches (owner / trusted contact -> the protected phone)
+    path("security/engine/command", atr.CommandView.as_view()),
+    path("security/engine/commands", atr.CommandListView.as_view()),
+    path("security/engine/command/<int:pk>/cancel", atr.CommandCancelView.as_view()),
 ]
 # ---- /b6-antitheft ----
 

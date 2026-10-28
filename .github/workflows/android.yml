@@ -632,18 +632,15 @@ jobs:
           # The service is first started ONLY from Dart after the owner turned
           # protection on (Security PIN) — never at launch. While ON it is
           # brought back on app open / update / boot (at-heartbeat).
-          # Types: location (reports the lost phone's last location) + camera
-          # (ONLY declared at runtime when the owner opted in to the intruder
-          # photo and granted the camera; otherwise startForeground uses
-          # location alone). A permanent notification is always shown.
-          # FOREGROUND_SERVICE_CAMERA is a normal (install-time) permission.
-          if 'FOREGROUND_SERVICE_CAMERA' not in s:
-              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
-                  '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>\n',
-                  s, count=1)
+          # Type: location only (reports the lost phone's last location). A
+          # permanent notification is always shown.
+          # at100: NO camera type and NO FOREGROUND_SERVICE_CAMERA any more —
+          # Play's foreground-service policy allows the camera type only for
+          # ongoing, user-visible camera use. The intruder photo is taken only
+          # while Assisto is open (wrong Security PIN in the app).
           antitheft_components = (
               '\n        <service android:name="com.assisto.assisto.antitheft.AntiTheftService"'
-              ' android:foregroundServiceType="location|camera"'
+              ' android:foregroundServiceType="location"'
               ' android:exported="false"/>'
               # ACTION_SHUTDOWN: best-effort last location (queued). BOOT_COMPLETED
               # queues a 'boot' event. at-heartbeat: BOOT_COMPLETED and

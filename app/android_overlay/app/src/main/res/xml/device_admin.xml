@@ -3,23 +3,22 @@
   #80 Lost / stolen phone protection — device-admin policy set.
 
   Request ONLY what the feature actually uses (Play-policy minimal scope):
-    * force-lock       -> remote LOCK the screen (DevicePolicyManager.lockNow)
-    * limit-password / reset-password -> allow enforcing/setting a lock when the
-      device is reported lost so a thief can't stay on an unlocked screen
-    * watch-login      -> receive onPasswordFailed (seam for an on-device alarm
-      after repeated wrong unlock attempts; the alarm itself is driven from
-      Dart today)
+    * force-lock  -> lock the screen (DevicePolicyManager.lockNow): the owner's
+                     or a trusted contact's remote "Lock" / "Lock-screen message"
+                     switch (at100) and the optional lock on a detected grab
+    * watch-login -> onPasswordFailed: wrong screen-unlock attempts are
+                     recorded and reported to the owner's trusted contacts
 
-  DELIBERATELY ABSENT: <wipe-data>. Remote wipe is NOT requested. Do not add it
-  unless the owner has cleared the Google Play anti-theft/device-admin review
-  (see integration note). Keeping wipe out also keeps the consent screen's
-  warning list minimal and trustworthy.
+  at100: limit-password and reset-password were declared but never used, and
+  both are deprecated for device admins (Android 9 / 10) — removed.
+
+  DELIBERATELY ABSENT: <wipe-data>. Remote wipe is NOT requested (Google Find
+  Hub already offers a reliable erase; see
+  owner_actions/ANTITHEFT_PLAY_DECLARATION_BN.md). Do not add it.
 -->
 <device-admin xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-policies>
         <force-lock />
-        <limit-password />
-        <reset-password />
         <watch-login />
     </uses-policies>
 </device-admin>

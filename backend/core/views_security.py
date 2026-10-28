@@ -234,10 +234,17 @@ class SecurityActionView(APIView):
 
         ok, locked = _verify_pin(phone, request.data.get("pin"))
         if not ok:
+            # at100: a wrong PIN on a protected action, typed in the open
+            # app -> the app may take the owner-consented front photo.
+            try:
+                from .views_at_remote import intruder_snap_due
+                snap = bool(intruder_snap_due(phone))
+            except Exception:
+                snap = False
             if locked:
                 _register_lockout(request.user, phone)
-                return Response({"ok": False, "locked": True})
-            return Response({"ok": False, "reason": "bad_pin"},
+                return Response({"ok": False, "locked": True, "intruder_snap": snap})
+            return Response({"ok": False, "reason": "bad_pin", "intruder_snap": snap},
                             status=status.HTTP_403_FORBIDDEN)
 
         # o1-otp: Section-8 actions also need a single-use SMS otp_proof

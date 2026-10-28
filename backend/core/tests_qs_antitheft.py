@@ -284,7 +284,7 @@ class EngineRecipientTests(_Base):
         self.assertEqual(r.data["viewer"], "family")
 
     def test_photo_link_dies_when_family_access_removed(self):
-        self._enable(intruder_photo=True)
+        self._enable(intruder_photo=True, intruder_consent=1)  # at100: consent-gated
         ev = AntiTheftEvent.objects.create(phone=self.phone, client_id="p1",
                                            kind="intruder_photo",
                                            at=timezone.now())

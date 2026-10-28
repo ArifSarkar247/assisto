@@ -152,15 +152,19 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
             m = dict(meta)
             # antitheft2: the trusted contact's own web view of this phone
             # (signed, bound to them, expires) — the "web dashboard".
+            # at100: a trusted contact's tap opens THEIR view of this phone
+            # (status, timeline, remote switches) — not their own phone.
+            route = "security/lost-phone"
             if u.pk != phone.owner_id:
                 m["web_path"] = watch_path(phone, u)
+                route = "security/watch-phone"
             NotifEvent.objects.create(
                 user=u, type="security", title_bn=tb[:200], title_en=te[:200],
-                body_bn=bb, body_en=be, route="security/lost-phone",
+                body_bn=bb, body_en=be, route=route,
                 meta=m, at=now)
             # antitheft2: HIGH priority (Doze-safe, delivered within seconds)
             push.safe_push(u, "family_alert", tb, te, bb, be,
-                           data={"alert_kind": "antitheft", "route": "security/lost-phone",
+                           data={"alert_kind": "antitheft", "route": route,
                                  "phone_id": phone.id, "antitheft_kind": kind,
                                  # grab-guard: the app drops pushes about
                                  # its own phone (2nd line of defence)
@@ -315,7 +319,8 @@ def _config(phone, eng, interval=None):
         "lost_message": phone.lost_message,
         "lost_contact": phone.lost_contact,
         "snatch_lock": eng.snatch_lock,
-        "intruder_photo": eng.intruder_photo,
+        # at100: ON only with the owner's current consent
+        "intruder_photo": _intruder_on(eng),
         "failed_unlock_threshold": eng.failed_unlock_threshold,
         # antitheft2: grab rules the engine applies on the phone too
         "night_guard": bool(eng.night_guard),
@@ -371,6 +376,21 @@ def _bool(v, default=None):
     return str(v).lower() in ("1", "true", "yes", "on")
 
 
+def _intruder_on(eng):
+    from .views_at_remote import intruder_on
+    return intruder_on(eng)
+
+
+def _snap_flag(phone):
+    """at100: wrong Security PIN typed in the open app -> may the app take
+    the (consented) front photo now? Never raises."""
+    try:
+        from .views_at_remote import intruder_snap_due
+        return bool(intruder_snap_due(phone))
+    except Exception:
+        return False
+
+
 def _pin_gate(request, phone):
     """Security PIN (+ Section-8 SMS proof when a gateway is connected).
     Returns None when OK, else the Response to send."""
@@ -379,13 +399,24 @@ def _pin_gate(request, phone):
                         status=status.HTTP_400_BAD_REQUEST)
     ok, locked = _verify_pin(phone, request.data.get("pin"))
     if not ok:
+        snap = _snap_flag(phone)
         if locked:
             _register_lockout(request.user, phone)
-            return Response({"ok": False, "locked": True},
+            return Response({"ok": False, "locked": True, "intruder_snap": snap},
                             status=status.HTTP_403_FORBIDDEN)
-        return Response({"ok": False, "reason": "bad_pin"},
+        return Response({"ok": False, "reason": "bad_pin", "intruder_snap": snap},
                         status=status.HTTP_403_FORBIDDEN)
     return None
+
+
+def _consent_version():
+    from .views_at_remote import INTRUDER_CONSENT_VERSION
+    return INTRUDER_CONSENT_VERSION
+
+
+def _intruder_choice(request, eng):
+    from .views_at_remote import apply_intruder_choice
+    return apply_intruder_choice(request, eng)
 
 
 def _otp_gate(request):
@@ -466,7 +497,11 @@ class EngineStateView(APIView):
             "enabled_at": eng.enabled_at.isoformat() if eng.enabled_at else None,
             "has_pin": bool(phone.security_pin_hash),
             "snatch_lock": eng.snatch_lock,
-            "intruder_photo": eng.intruder_photo,
+            "intruder_photo": _intruder_on(eng),
+            # at100: the consent screen's version + when the owner agreed
+            "intruder_consent_version": _consent_version(),
+            "intruder_consent_at": (eng.intruder_consent_at.isoformat()
+                                    if eng.intruder_consent_at else None),
             "failed_unlock_threshold": eng.failed_unlock_threshold,
             "approver": _member_brief(approver) if approver else None,
             "alert_member_ids": list(eng.alert_member_ids or []),
@@ -529,7 +564,9 @@ class EngineEnableView(APIView):
         if th is not None:
             eng.failed_unlock_threshold = max(at.THRESHOLD_MIN, min(at.THRESHOLD_MAX, th))
         eng.snatch_lock = _bool(request.data.get("snatch_lock"), eng.snatch_lock)
-        eng.intruder_photo = _bool(request.data.get("intruder_photo"), eng.intruder_photo)
+        bad = _intruder_choice(request, eng)   # at100: consent-gated
+        if bad is not None:
+            return bad
         ids = _clean_member_ids(request.user, request.data.get("alert_member_ids"))
         if ids is not None:
             eng.alert_member_ids = ids
@@ -615,7 +652,9 @@ class EngineSettingsView(APIView):
         if th is not None:
             eng.failed_unlock_threshold = max(at.THRESHOLD_MIN, min(at.THRESHOLD_MAX, th))
         eng.snatch_lock = _bool(request.data.get("snatch_lock"), eng.snatch_lock)
-        eng.intruder_photo = _bool(request.data.get("intruder_photo"), eng.intruder_photo)
+        bad = _intruder_choice(request, eng)   # at100: consent-gated
+        if bad is not None:
+            return bad
         ids = _clean_member_ids(request.user, request.data.get("alert_member_ids"))
         if ids is not None:
             eng.alert_member_ids = ids
@@ -975,6 +1014,15 @@ class EngineIngestView(APIView):
             kind = str(it.get("kind") or "")
             if not cid:
                 continue
+            if kind == "command_result":
+                # at100: the phone's outcome of a remote switch
+                try:
+                    from .views_at_remote import apply_result
+                    apply_result(phone, it.get("data"), now)
+                except Exception:
+                    pass
+                accepted.append(cid)
+                continue
             if kind != "heartbeat" and kind not in at.EVENT_KINDS:
                 rejected.append({"id": cid, "reason": "bad_kind"})
                 continue
@@ -1149,9 +1197,17 @@ class EngineIngestView(APIView):
             cfg["rebaseline_sim"] = True
             AntiTheftEngine.objects.filter(pk=eng.pk).update(last_sim=ls)
 
+        # at100: remote switches waiting for this phone (marked delivered)
+        try:
+            from .views_at_remote import deliver
+            commands = deliver(phone, now)
+        except Exception:
+            commands = []
+
         return Response({
             "ok": True,
             "accepted": accepted, "duplicate": duplicate, "rejected": rejected,
+            "commands": commands,
             "config": cfg,
             "lost_mode": phone.lost_mode,
             "lost_message": phone.lost_message,
@@ -1174,10 +1230,10 @@ class EnginePhotoView(APIView):
             return _revoked()
         phone = eng.phone
         now = timezone.now()
-        # Opt-in: the owner must have switched "Intruder photo" on. A photo
-        # taken before they switched it off is refused (403 = the engine drops
-        # it, never retries).
-        if not eng.intruder_photo:
+        # Opt-in: the owner must have switched "Intruder photo" on (with the
+        # at100 consent). A photo taken before they switched it off is refused
+        # (403 = the engine drops it, never retries).
+        if not _intruder_on(eng):
             return Response({"ok": False, "reason": "intruder_photo_off"},
                             status=status.HTTP_403_FORBIDDEN)
         f = request.FILES.get("file") or request.FILES.get("photo")
@@ -1296,9 +1352,24 @@ class EngineWatchingView(APIView):
     def _brief(self, phone):
         from . import push
         dark = _went_dark_since(phone)
-        return {"phone_id": phone.id, "owner": push.display_name(phone.owner),
-                "model": phone.model_name, "lost_mode": phone.lost_mode,
-                "went_dark_at": dark.isoformat() if dark else None}
+        eng = _engine(phone, create=False)
+        out = {"phone_id": phone.id, "owner": push.display_name(phone.owner),
+               "model": phone.model_name, "lost_mode": phone.lost_mode,
+               "went_dark_at": dark.isoformat() if dark else None}
+        try:   # at100: honest presence for the trusted contact's list
+            from .views_at_remote import presence
+            p = presence(phone, eng)
+            out.update(online=p["online"], last_seen=p["last_seen"],
+                       protection_on=p["protection_on"])
+            if phone.last_lat is not None:
+                out["last_location"] = {
+                    "lat": phone.last_lat, "lng": phone.last_lng,
+                    "fix_at": (eng.last_fix_at.isoformat()
+                               if eng and eng.last_fix_at else None),
+                    "acc": eng.last_fix_acc if eng else None}
+        except Exception:
+            pass
+        return out
 
 
 class EnginePhotoLinkView(APIView):

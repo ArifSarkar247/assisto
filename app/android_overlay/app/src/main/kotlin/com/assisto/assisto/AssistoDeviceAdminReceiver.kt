@@ -18,8 +18,9 @@ import org.json.JSONObject
  *
  * SCOPE (conservative, Play-policy aware):
  *   - force-lock              (remote lock the screen)
- *   - reset-password          (enforce/reset the device lock when locking)
- *   - watch-login             (so onPasswordFailed can drive a future alarm)
+ *   - watch-login             (onPasswordFailed: wrong unlock attempts)
+ *   at100: limit-password / reset-password REMOVED — never used, and both
+ *   are deprecated for device admins (Android 9/10); minimal Play scope.
  *   NO <wipe-data>. Remote wipe is intentionally NOT requested — see the
  *   PLAY-POLICY note in the integration doc. Add it only if the owner accepts
  *   the anti-theft policy review.
@@ -55,12 +56,12 @@ class AssistoDeviceAdminReceiver : DeviceAdminReceiver() {
      * engine's store-and-forward queue, and ask the service to flush. The
      * server only alerts family once the count reaches the owner's threshold.
      *
-     * INTRUDER PHOTO (opt-in): if the engine is running with the CAMERA
-     * foreground type (owner switched "Intruder photo" on + granted the camera
-     * from the open app), AntiTheftService takes ONE front photo on its worker
-     * thread once the count reaches the owner's threshold. Otherwise only the
-     * attempt is recorded (never a fake photo). Fully crash-guarded: an error
-     * here must never affect the lock screen.
+     * at100: NO photo here. The lock screen means Assisto is in the
+     * background, where Android does not allow the camera (and we hold no
+     * camera foreground-service type). Only the attempt + count is recorded;
+     * the intruder photo is taken only while Assisto is open (wrong Security
+     * PIN in the app). Fully crash-guarded: an error here must never affect
+     * the lock screen.
      */
     override fun onPasswordFailed(context: Context, intent: Intent) {
         super.onPasswordFailed(context, intent)

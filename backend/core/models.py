@@ -4487,6 +4487,12 @@ class AntiTheftEngine(models.Model):
     # hash of the Wi-Fi the engine last reported (for "save my home Wi-Fi").
     last_wifi_hash = models.CharField(max_length=64, blank=True, default="")
     last_wifi_at = models.DateTimeField(null=True, blank=True)
+    # at100: the owner's explicit, versioned consent to the intruder photo
+    # (the full consent screen — what, when, where, who, retention, delete).
+    # intruder_photo cannot be switched on without it; switching it off keeps
+    # the record (when consent was given) for the audit trail.
+    intruder_consent_at = models.DateTimeField(null=True, blank=True)
+    intruder_consent_v = models.PositiveSmallIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -4532,6 +4538,52 @@ class AntiTheftEvent(models.Model):
     class Meta:
         ordering = ["-at", "-id"]
         unique_together = [("phone", "client_id")]
+
+
+class AntiTheftCommand(models.Model):
+    """at100 — one remote switch sent to a protected phone (lost mode, loud
+    alarm, lock, lock-screen message, stop alarm) by its owner or an approved
+    trusted contact. The server is the only path: authenticated, rate-limited,
+    audited. `state` is the HONEST delivery state:
+
+      queued    stored; the phone has not checked in since (offline / off —
+                it runs when the phone reconnects, until expires_at)
+      sent      a wake-up push was handed to Google (FCM) for the phone
+      delivered the phone's engine fetched it (it reached the phone)
+      done      the phone reported it did it (detail = what exactly)
+      failed    the phone reported it could not (detail = why)
+      expired   the phone never came online before expires_at
+      cancelled the requester / owner cancelled it, or a newer one replaced it
+
+    A switched-off phone can receive nothing; we never claim otherwise."""
+    KINDS = [("lost_mode", "lost_mode"), ("alarm", "alarm"),
+             ("alarm_stop", "alarm_stop"), ("lock", "lock"),
+             ("message", "message")]
+    STATES = [("queued", "queued"), ("sent", "sent"),
+              ("delivered", "delivered"), ("done", "done"),
+              ("failed", "failed"), ("expired", "expired"),
+              ("cancelled", "cancelled")]
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="remote_commands")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    requested_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                     blank=True, related_name="+")
+    by_owner = models.BooleanField(default=False)
+    message = models.CharField(max_length=300, blank=True, default="")
+    contact = models.CharField(max_length=120, blank=True, default="")
+    state = models.CharField(max_length=12, choices=STATES, default="queued",
+                             db_index=True)
+    detail = models.CharField(max_length=80, blank=True, default="")
+    push_sent = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["phone", "state"])]
 # ---- /b6-antitheft ----
 
 
