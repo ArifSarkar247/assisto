@@ -382,7 +382,9 @@ void main() {
         final t = AppLocalizations.of(tester.element(find.byType(VaultSecurityScreen)));
         expect(find.byKey(const Key('vault_no_recovery_warn')), findsOneWidget);
         expect(find.text(t.vaultHowNotE2e), findsOneWidget);
+        await tester.scrollUntilVisible(find.byKey(const Key('vault_offline_usage')), 200);
         expect(find.textContaining(lang == 'bn' ? '১টি' : '1 documents'), findsOneWidget);
+        await tester.scrollUntilVisible(find.text(t.vaultRecoveryCodeCreate), -200);
         await tester.tap(find.text(t.vaultRecoveryCodeCreate));
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('vault_rc_value')), findsOneWidget);

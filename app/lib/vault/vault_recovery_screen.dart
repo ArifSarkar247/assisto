@@ -151,7 +151,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
       ),
     );
     final pw = ctrl.text;
-    ctrl.dispose();
+    // (no dispose here: the dialog is still animating out and uses it)
     if (ok != true || pw.isEmpty || !mounted) return;
     await _verify({'method': 'password', 'password': pw});
   }
@@ -179,7 +179,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
       ),
     );
     final code = ctrl.text;
-    ctrl.dispose();
+    // (no dispose here: the dialog is still animating out and uses it)
     if (ok != true || code.trim().isEmpty || !mounted) return;
     setState(() => _busy = true);
     final r = await widget.lock.useRecoveryCode(code);
