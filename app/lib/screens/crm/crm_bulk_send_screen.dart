@@ -97,7 +97,8 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
     setState(() => k.busy = true);
     var ok = false;
     try {
-      ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)
+          .timeout(const Duration(seconds: 8), onTimeout: () => false);
     } catch (e) {
       reportNonFatal('crm100.bulkOpen', e);
     }

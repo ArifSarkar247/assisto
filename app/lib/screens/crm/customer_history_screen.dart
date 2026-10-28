@@ -151,8 +151,11 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
     final t = AppLocalizations.of(context);
     var ok = false;
     try {
-      ok = await launchUrl(Uri.parse('tel:$_phone'), mode: LaunchMode.externalApplication);
-    } catch (_) {}
+      ok = await launchUrl(Uri.parse('tel:$_phone'), mode: LaunchMode.externalApplication)
+          .timeout(const Duration(seconds: 8), onTimeout: () => false);
+    } catch (_) {
+      // best-effort: ok stays false and the snackbar below says so
+    }
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.c100CantOpen)));
     }

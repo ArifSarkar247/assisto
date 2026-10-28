@@ -452,10 +452,10 @@
     "credits": {
      "type": "String"
     },
-    "balance": {
+    "segments": {
      "type": "String"
     },
-    "segments": {
+    "balance": {
      "type": "String"
     }
    }

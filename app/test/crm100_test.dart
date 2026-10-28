@@ -144,7 +144,7 @@ void main() {
       final api = _Api();
       final t = await _pump(tester, const CustomerHistoryScreen(target: _target), api);
       final chip = find.widgetWithText(ChoiceChip, t.c100FOrders);
-      await tester.ensureVisible(chip);
+      await tester.scrollUntilVisible(chip, 200, scrollable: find.byType(Scrollable).first);
       await tester.pumpAndSettle();
       await tester.tap(chip);
       await tester.pumpAndSettle();
@@ -275,7 +275,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(t.c100WayWa), findsOneWidget);
       expect(find.text(t.c100WaySms), findsOneWidget);
-      expect(find.text(t.c100WayAssistoCost('1', '40', '1')), findsOneWidget);
+      expect(find.text(t.c100WayAssistoCost('1', '1', '40')), findsOneWidget);
       expect(api.posts['/crm/send/sms'], isNull);
       await tester.tap(find.text(t.c100WayAssisto));
       await tester.pumpAndSettle();

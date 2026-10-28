@@ -25,13 +25,13 @@ class Crm100Api {
       if (s.isEmpty) return;
       parts.add('$k=${Uri.encodeQueryComponent(s)}');
     });
-    return parts.isEmpty ? '' : '?${parts.join('&')}';
+    return parts.join('&');
   }
 
   /// Merged customer list (khata + till + orders + AI chats + CRM leads).
   Future<Map<String, dynamic>> customers(
           {int? business, String q = '', String? only, int offset = 0, int limit = 50}) =>
-      _c.getJson('/crm/customers/${_q({
+      _c.getJson('/crm/customers/?${_q({
             'business': business,
             'q': q,
             'only': only,
@@ -43,7 +43,7 @@ class Crm100Api {
   /// phone / party / lead / customer / order.
   Future<Map<String, dynamic>> history(CustomerTarget target,
           {int? business, String? before, String? kinds, int limit = 40}) =>
-      _c.getJson('/crm/customers/history/${_q({
+      _c.getJson('/crm/customers/history/?${_q({
             ...target.query,
             'business': business,
             'before': before,
@@ -53,15 +53,15 @@ class Crm100Api {
 
   // ---- shop quotes ----
   Future<Map<String, dynamic>> quotes({int? business, String? phone}) =>
-      _c.getJson('/crm/shop-quotes/${_q({'business': business, 'phone': phone})}');
+      _c.getJson('/crm/shop-quotes/?${_q({'business': business, 'phone': phone})}');
   Future<Map<String, dynamic>> catalog({int? business, String q = ''}) =>
-      _c.getJson('/crm/shop-quotes/catalog/${_q({'business': business, 'q': q})}');
+      _c.getJson('/crm/shop-quotes/catalog/?${_q({'business': business, 'q': q})}');
   Future<Map<String, dynamic>> createQuote(Map<String, dynamic> body) =>
       _c.postJson('/crm/shop-quotes/', body);
   Future<Map<String, dynamic>> extendQuote(int id, int days, {int? business}) =>
-      _c.postJson('/crm/shop-quotes/$id/extend/${_q({'business': business})}', {'days': days});
+      _c.postJson('/crm/shop-quotes/$id/extend/?${_q({'business': business})}', {'days': days});
   Future<Map<String, dynamic>> revokeQuote(int id, {int? business}) =>
-      _c.postJson('/crm/shop-quotes/$id/revoke/${_q({'business': business})}');
+      _c.postJson('/crm/shop-quotes/$id/revoke/?${_q({'business': business})}');
 
   // ---- send ----
   Future<Map<String, dynamic>> sendPreview(CustomerTarget target, String text,

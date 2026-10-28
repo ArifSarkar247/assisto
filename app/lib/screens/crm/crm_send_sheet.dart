@@ -103,7 +103,9 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
     final t = AppLocalizations.of(context);
     var ok = false;
     try {
-      ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      // a launcher that never answers must not freeze the sheet
+      ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)
+          .timeout(const Duration(seconds: 8), onTimeout: () => false);
     } catch (e) {
       reportNonFatal('crm100.open', e);
     }
@@ -274,8 +276,8 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
                   title: t.c100WayAssisto,
                   sub: sms['available'] == true
                       ? t.c100WayAssistoCost(_d((sms['credits'] as num?)?.toInt() ?? 1),
-                          _d((sms['balance'] as num?)?.toInt() ?? 0),
-                          _d((sms['segments'] as num?)?.toInt() ?? 1))
+                          _d((sms['segments'] as num?)?.toInt() ?? 1),
+                          _d((sms['balance'] as num?)?.toInt() ?? 0))
                       : _blockedText(t, '${sms['blocked'] ?? ''}', sms),
                   onTap: sms['available'] == true && !_busy ? () => _assisto(sms) : null,
                 ),
