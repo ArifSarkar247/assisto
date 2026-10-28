@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'permission_reason.dart';
+import 'voice_help_sheet.dart'; // aivoice
 import '../services/action_feedback.dart'; // db1
 
 /// Shared live speech-to-text for every chat input (home + Assisto AI).
@@ -62,6 +63,14 @@ class VoiceDictation extends ChangeNotifier {
 
   /// The language actually being listened in right now ('bn' / 'en').
   String activeLang = 'bn';
+
+  /// aivoice: the voice-conversation loop listens with a shorter pause and
+  /// does not show "didn't catch that" (silence just means "listen again").
+  bool _quietNoMatch = false;
+
+  /// aivoice: true once the LAST [start] actually began a listening session
+  /// (false = declined, no engine, no Bangla, or cancelled before it began).
+  bool lastStartListened = false;
 
   // Auto mode: the bn locale was rejected by the engine for this session, so
   // the next listens go straight to English.
@@ -175,8 +184,11 @@ class VoiceDictation extends ChangeNotifier {
     _speech.errorListener = _onError;
   }
 
-  Future<void> start(BuildContext context, TextEditingController input) async {
+  Future<void> start(BuildContext context, TextEditingController input,
+      {Duration? pauseFor, bool quietNoMatch = false}) async {
     if (listening || _starting) return;
+    _quietNoMatch = quietNoMatch;
+    lastStartListened = false;
     _starting = true;
     _cancelPending = false;
     _ctx = context;
@@ -218,7 +230,7 @@ class VoiceDictation extends ChangeNotifier {
       if (plan == null) {
         _showMessage(context,
             missingLang(mode) == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
-            settings: false);
+            settings: false, help: true);
         return;
       }
       _target = input;
@@ -226,6 +238,7 @@ class VoiceDictation extends ChangeNotifier {
       if (_base.isNotEmpty && !_base.endsWith(' ')) _base = '$_base ';
       activeLang = plan.lang;
       listening = true;
+      lastStartListened = true;
       notifyListeners();
       await _speech.listen(
         onResult: (r) {
@@ -241,7 +254,7 @@ class VoiceDictation extends ChangeNotifier {
           cancelOnError: true,
           listenMode: ListenMode.dictation,
           listenFor: const Duration(seconds: 60),
-          pauseFor: const Duration(seconds: 5),
+          pauseFor: pauseFor ?? const Duration(seconds: 5),
         ),
       );
       // released while listen() was still spinning up -> stop now
@@ -251,7 +264,7 @@ class VoiceDictation extends ChangeNotifier {
       listening = false;
       notifyListeners();
       if (context.mounted)
-        _showMessage(context, t.micEnableSpeech, settings: true);
+        _showMessage(context, t.micEnableSpeech, settings: false, help: true);
     } finally {
       _starting = false;
     }
@@ -265,8 +278,10 @@ class VoiceDictation extends ChangeNotifier {
       denied = await _micDenied().timeout(const Duration(seconds: 3));
     } catch (_) {}
     if (!context.mounted) return;
+    // aivoice: no speech service = the "Turn on Bangla voice" steps, not the
+    // app's permission page (which cannot fix a missing engine).
     _showMessage(context, denied ? t.voiceNoPermission : t.micEnableSpeech,
-        settings: true);
+        settings: denied, help: !denied);
   }
 
   static Future<bool> _osMicDenied() async {
@@ -308,12 +323,12 @@ class VoiceDictation extends ChangeNotifier {
     switch (code) {
       case 'error_no_match':
       case 'error_speech_timeout':
-        _showMessage(ctx, t.voiceNoMatch, settings: false);
+        if (!_quietNoMatch) _showMessage(ctx, t.voiceNoMatch, settings: false);
       case 'error_language_not_supported':
       case 'error_language_unavailable':
         _showMessage(
             ctx, activeLang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
-            settings: false);
+            settings: false, help: true);
       case 'error_network':
       case 'error_network_timeout':
       case 'error_server':
@@ -326,12 +341,12 @@ class VoiceDictation extends ChangeNotifier {
       case 'error_recognizer_busy':
         _showMessage(ctx, t.voiceBusy, settings: false);
       default:
-        _showMessage(ctx, t.micEnableSpeech, settings: true);
+        _showMessage(ctx, t.micEnableSpeech, settings: false, help: true);
     }
   }
 
   void _showMessage(BuildContext context, String msg,
-      {required bool settings}) {
+      {required bool settings, bool help = false}) {
     final t = AppLocalizations.of(context);
     final m = ScaffoldMessenger.maybeOf(context);
     if (m == null) return;
@@ -339,7 +354,13 @@ class VoiceDictation extends ChangeNotifier {
     m.showSnackBar(SnackBar(
       content: Text(msg),
       duration: const Duration(seconds: 6),
-      action: settings
+      action: help
+          ? SnackBarAction(
+              label: t.aivVoiceHelp,
+              onPressed: () {
+                if (context.mounted) VoiceHelpSheet.show(context);
+              })
+          : settings
           ? SnackBarAction(
               label: t.open,
               onPressed: () {

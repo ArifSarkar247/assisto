@@ -378,7 +378,7 @@ void main() {
       expect(d, isNot(contains('vehicle_tracking')));
       expect(d, isNot(contains('lost_stolen')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.sublist(8), ['contract', 'reminders', 'money']);
+      expect(d.sublist(8), ['emergency', 'money', 'reminders']);
       // CCTV switched OFF by the owner -> skipped, the next real one fills
       FeatureFlags.instance.debugOverride = {'home_watchman': false};
       expect(HomeV2Shortcuts.defaults(), isNot(contains('watchman')));
@@ -463,18 +463,18 @@ void main() {
       expect(FeatureFlags.instance.homeTileAllowed('vehicle_tracking'), isTrue);
     });
 
-    test('fresh install: default set has CCTV (slot 5) + vehicle tracking',
+    test('fresh install: default set has CCTV (slot 7) + vehicle tracking',
         () async {
       final d = await HomeV2Shortcuts.load();
-      expect(d[4], 'watchman');
-      expect(d[5], 'vehicle_tracking');
+      expect(d[6], 'watchman');
+      expect(d[7], 'vehicle_tracking');
       expect(d.length, HomeV2Shortcuts.max);
       // same once the server answers ON for everyone (no preview)
       FeatureFlags.instance.applyForTest({
         'features': launchOn,
         'preview': <String>[],
       });
-      expect((await HomeV2Shortcuts.load())[4], 'watchman');
+      expect((await HomeV2Shortcuts.load())[6], 'watchman');
     });
 
     test('a saved custom set is untouched (v2 and old-home six)', () async {
@@ -702,7 +702,7 @@ void main() {
         'features': {'home_watchman': true, 'scam_check': true},
         'preview': <String>[],
       });
-      expect(HomeV2Shortcuts.defaults()[4], 'watchman');
+      expect(HomeV2Shortcuts.defaults()[6], 'watchman');
       expect(HomeQuickButtons.sanitize(['scam', 'money']).first, 'scam');
     });
 

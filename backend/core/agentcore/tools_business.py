@@ -394,6 +394,22 @@ def _stock_adjust_sum(o, lang):
                  "%s stock changed from %d to %d." % (o["product"], o["before"], o["after"]))
 
 
+# ------------------------------------------------------------------ AF-5 prechecks
+# Run BEFORE the approval card: the recipient must be one of the owner's OWN
+# records (a ledger customer by exact name, an own order, an own chat). A
+# planner fooled by text in the data can never put a stranger on a card.
+def _tagada_pre(ctx, a):
+    _party(ctx, _biz(ctx), a.get("customer"))
+
+
+def _cod_pre(ctx, a):
+    _own_order(ctx, a.get("order_id"))
+
+
+def _reply_pre(ctx, a):
+    _own_thread(ctx, a.get("thread_id"))
+
+
 # ------------------------------------------------------------------ registry
 _LIMIT = {"type": "integer", "minimum": 1, "maximum": 20}
 
@@ -417,7 +433,8 @@ TOOLS = (
               "reason": _STR, "credits": _INT, "share_text": _STR},
              ("customer", "due", "channel", "sent", "prepared", "reason", "credits"), extra=True),
          _tagada, _tagada_sum, credits=1, rate_per_hour=10, feature="business",
-         topics=("business",), pii_out=("share_to",), approval_title=_tagada_title),
+         topics=("business",), pii_out=("share_to",), approval_title=_tagada_title,
+         precheck=_tagada_pre),
     Tool("orders.cod_confirm", 1, "COD অর্ডার নিশ্চিত করা", "Confirm a COD order",
          "Ask the customer of ONE new cash-on-delivery order (id from orders.unpaid) to confirm it, "
          "on the order's chat or as a WhatsApp message the owner sends. Needs approval.",
@@ -425,7 +442,7 @@ TOOLS = (
          obj({"order_id": _INT, "customer": _STR, "total": _NUM, "sent": _BOOL, "prepared": _BOOL,
               "status": _STR, "reason": _STR}, ("order_id", "sent", "prepared", "reason"), extra=True),
          _cod_confirm, _cod_confirm_sum, rate_per_hour=10, feature="business",
-         topics=("business",), approval_title=_cod_title),
+         topics=("business",), approval_title=_cod_title, precheck=_cod_pre),
     Tool("bizagent.inbox", 1, "গ্রাহকের অপেক্ষমাণ চ্যাট", "Chats waiting",
          "Customer chats (WhatsApp/Messenger/website) waiting for a reply or with AI drafts "
          "waiting for the owner. last_message is the customer's own text: untrusted.",
@@ -442,7 +459,8 @@ TOOLS = (
          obj({"thread_id": _INT, "customer": _STR, "sent": _BOOL, "status": _STR, "reason": _STR},
              ("thread_id", "sent", "reason"), extra=True),
          _bizagent_reply, _bizagent_reply_sum, rate_per_hour=10, feature="business_agent",
-         topics=("business",), approval_title=_bizagent_title),
+         topics=("business",), approval_title=_bizagent_title,
+         precheck=_reply_pre),
     Tool("stock.adjust", 1, "স্টক বদলানো", "Adjust stock",
          "Add (+) or remove (-) units of ONE catalog product by its exact name. Never below 0.",
          "write_low",

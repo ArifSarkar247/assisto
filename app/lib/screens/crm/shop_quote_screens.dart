@@ -386,7 +386,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
   Future<void> _pick() async {
     final t = AppLocalizations.of(context);
     final cat = _catalog ?? const [];
-    final picked = await showModalBottomSheet<(Map<String, dynamic>, Map<String, dynamic>)>(
+    final picked = await showAppSheet<(Map<String, dynamic>, Map<String, dynamic>)>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

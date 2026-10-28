@@ -56,6 +56,8 @@ class VaWake {
 
   static const prefKey = 'va_wake_on'; // bool, default false
   static const ttsKey = 'va_tts_on'; // bool, default true
+  // aivoice: Assisto Voice listens again after reading an answer.
+  static const continueKey = 'va_continue_v1'; // bool, default false
 
   static Future<bool> wanted() => Settings.getBool(prefKey, false);
   static Future<void> setWanted(bool v) => Settings.setBool(prefKey, v);

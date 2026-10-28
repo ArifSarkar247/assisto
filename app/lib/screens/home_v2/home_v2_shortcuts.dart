@@ -16,24 +16,25 @@ import 'home_v2_tokens.dart';
 /// home_v2 shortcuts: My Circle (pinned, always first) + up to 11 of the
 /// user's choice = 12 tiles in a 4-column grid (3 columns at large font).
 ///
-/// Owner default order (26 Oct): Family Care, Safe Journey, Digital Ledger,
-/// AI Sales Assistant, CCTV Cameras, Vehicle Tracking, Job Hunter, Phone
-/// Security, Prepaid Meter, Budget, Contract Scanner. Each maps to a REAL
-/// ChatNav route; a route that is not in [ChatNav.routes] for this user
-/// (feature flag off, e.g. anti-theft in Play when the owner hides it) is
-/// skipped and the next real feature from
+/// Owner default order (28 Oct, real-phone test): Family Care, Safe Journey,
+/// Digital Ledger, CRM, Business (accounts + finance hub), AI Sales
+/// Assistant, CCTV Cameras, Vehicle Tracking, Prepaid Meter, then two picks:
+/// Emergency SOS and Account & Finance. Job Hunter, Phone Security, Budget and
+/// Contract Scanner left the default set but stay in Edit shortcuts. Each
+/// maps to a REAL ChatNav route; a route that is not in [ChatNav.routes] for
+/// this user (feature flag off) is skipped and the next real feature from
 /// [fillPool] takes the slot — never a fake or dead tile. A feature the owner
 /// / staff / testers see only as a server PREVIEW counts as off here too, so
 /// the owner's home shows exactly what normal users see.
 ///
-/// CCTV (`home_watchman`) and Vehicle Tracking (`vehicle_tracking`) are
-/// LAUNCH features (owner 27 Oct, not previews): ON by default in both
-/// builds, so a new / never-edited home gets both in their slots and both are
-/// offered in Edit shortcuts. A saved set is never changed.
+/// Defaults migration ([defaultsVersion], runs once per install, see
+/// [migrateDefaults]): a saved set that is exactly an OLD default (the user
+/// opened Edit and pressed Save without changing anything) is treated as
+/// never edited and replaced by the new default. Every other saved set — v2
+/// or the old home's six — is kept exactly (their set, their order).
 ///
-/// Users who customised the old home keep exactly their own set (their six,
-/// in their order; nothing they did not choose is added). Their choices are
-/// stored again under [prefsKey] the first time they press Save.
+/// The server's `home_quick_defaults` (GET /app/home-defaults) is the OLD
+/// home's six only (flag home_v2 OFF fallback); it never overrides this list.
 class HomeV2Shortcuts {
   HomeV2Shortcuts._();
 
@@ -41,6 +42,23 @@ class HomeV2Shortcuts {
   static const max = 11;
 
   static const ownerOrder = [
+    'family',
+    'journey',
+    'khata',
+    'crm',
+    'business',
+    'sales_agent',
+    'watchman',
+    'vehicle_tracking',
+    'prepaid_meter',
+    // agent picks (28 Oct): launch feature #4 (family SOS) + daily money
+    'emergency',
+    'money',
+  ];
+
+  /// The owner's 26 Oct default (builds up to 271) — used ONLY to recognise
+  /// a saved set that is exactly that old default. Never shown.
+  static const legacyOwnerOrder = [
     'family',
     'journey',
     'khata',
@@ -53,6 +71,25 @@ class HomeV2Shortcuts {
     'budget',
     'contract',
   ];
+
+  /// The fill pool those old builds topped skipped slots up from.
+  static const legacyFillPool = [
+    'reminders',
+    'money',
+    'notes',
+    'documents',
+    'emergency',
+    'scam',
+    'subscriptions',
+    'tax',
+    'contacts',
+    'birthdays',
+  ];
+
+  /// Bumped whenever [ownerOrder] changes; [migrateDefaults] runs once per
+  /// version. 2 = the 28 Oct set.
+  static const defaultsVersion = 2;
+  static const versionKey = 'home_quick_v2_defaults_ver';
 
   /// Next real features, in order, for a skipped default slot.
   static const fillPool = [
@@ -68,22 +105,31 @@ class HomeV2Shortcuts {
     'birthdays',
   ];
 
-  /// The owner's 11 with the names and icons of the reference design.
+  /// The owner's tiles with the names and icons of the reference design:
+  /// the default 11 first, then the four that left the default (still
+  /// pinnable from Edit shortcuts).
   static final List<QuickShortcut> _owner = [
     QuickShortcut('family', Icons.house_outlined, (t) => t.hv2TileFamily),
     QuickShortcut(
         'journey', Icons.location_on_outlined, (t) => t.journeyHubTitle),
     QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
+    QuickShortcut('crm', Icons.handshake_outlined, (t) => t.crmTitle),
+    QuickShortcut(
+        'business', Icons.storefront_outlined, (t) => t.hv2TileBizAccounts),
     QuickShortcut(
         'sales_agent', Icons.show_chart_rounded, (t) => t.hv2TileSales),
     QuickShortcut('watchman', Icons.videocam_outlined, (t) => t.hv2TileCctv),
     QuickShortcut('vehicle_tracking', Icons.directions_car_outlined,
         (t) => t.hv2TileVehicle),
+    QuickShortcut(
+        'prepaid_meter', Icons.electric_meter_outlined, (t) => t.hv2TileMeter),
+    QuickShortcut('emergency', Icons.emergency_outlined,
+        (t) => t.emergencySosBigButton),
+    QuickShortcut('money', Icons.account_balance_wallet_outlined,
+        (t) => t.moduleMoney),
     QuickShortcut('jobs', Icons.work_outline_rounded, (t) => t.hv2TileJobs),
     QuickShortcut('lost_stolen', Icons.phonelink_lock_outlined,
         (t) => t.hv2TilePhoneSecurity),
-    QuickShortcut(
-        'prepaid_meter', Icons.electric_meter_outlined, (t) => t.hv2TileMeter),
     // budget-remittance (owner 26 Oct): "Budget" opening the existing budget
     // while the flag is OFF; "Budget and Remittance" opening the new feature
     // once `budget_remittance` is ON (see [openRoute]).
@@ -92,7 +138,7 @@ class HomeV2Shortcuts {
     QuickShortcut('contract', Icons.policy_outlined, (t) => t.hv2TileContract),
   ];
 
-  /// Everything pinnable in THIS build for THIS user: the owner's 11 first,
+  /// Everything pinnable in THIS build for THIS user: the owner's tiles first,
   /// then every old-home shortcut (same flag / medical rules), no duplicates,
   /// only routes that really open ([ChatNav.routes]).
   static List<QuickShortcut> get catalog {
@@ -181,10 +227,80 @@ class HomeV2Shortcuts {
     }
   }
 
+  /// True when [s] is order-preserving inside [pool] (a subsequence).
+  static bool _inOrder(List<String> s, List<String> pool) {
+    var j = 0;
+    for (final r in s) {
+      while (j < pool.length && pool[j] != r) {
+        j++;
+      }
+      if (j == pool.length) return false;
+      j++;
+    }
+    return true;
+  }
+
+  /// A saved v2 set that is EXACTLY an old (26 Oct) default as those builds
+  /// computed it: [max] unique routes = the old owner order with any
+  /// flag-off ones skipped (order kept), then the old fill pool's
+  /// replacements (order kept). A set the user changed in any way (removed
+  /// or added a tile, reordered, saved fewer than [max]) is not.
+  static bool isLegacyDefault(List<String> s) {
+    if (s.length != max || s.toSet().length != s.length) return false;
+    var k = 0;
+    while (k < s.length && legacyOwnerOrder.contains(s[k])) {
+      k++;
+    }
+    if (k == 0) return false;
+    return _inOrder(s.sublist(0, k), legacyOwnerOrder) &&
+        _inOrder(s.sublist(k), legacyFillPool);
+  }
+
+  /// A saved OLD-home six that is exactly the old home's default: its
+  /// shipped six (or the owner default the server sent, as cached), with
+  /// flag-off ones skipped, order kept. The old picker could only Save a
+  /// full six, so a user who changed anything never matches.
+  static Future<bool> isLegacyOldHomeDefault(List<String> s) async {
+    if (s.isEmpty || s.toSet().length != s.length) return false;
+    if (s.length > HomeQuickButtons.count) return false;
+    if (_inOrder(s, HomeQuickButtons.defaults)) return true;
+    final server = await _read(HomeQuickButtons.serverPrefsKey);
+    return server != null && _inOrder(s, server);
+  }
+
+  /// Defaults migration — runs once per [defaultsVersion]. A user who never
+  /// edited (no saved set, or a saved set that is exactly an old default)
+  /// gets the new [ownerOrder]; every edited set is left untouched. Never
+  /// throws: on any storage trouble home just shows what [load] reads.
+  static Future<void> migrateDefaults() async {
+    try {
+      final ver = int.tryParse(await Settings.getString(versionKey) ?? '') ?? 0;
+      if (ver >= defaultsVersion) return;
+      final own = await _read(prefsKey);
+      if (own != null) {
+        if (isLegacyDefault(own)) {
+          // their home showed the old default (Save / Reset without a
+          // change): new default — an older old-home six is not revived
+          await Settings.setString(prefsKey, '');
+          if (await _read(HomeQuickButtons.prefsKey) != null) {
+            await Settings.setString(HomeQuickButtons.prefsKey, '');
+          }
+        }
+      } else {
+        final old = await _read(HomeQuickButtons.prefsKey);
+        if (old != null && await isLegacyOldHomeDefault(old)) {
+          await Settings.setString(HomeQuickButtons.prefsKey, '');
+        }
+      }
+      await Settings.setString(versionKey, '$defaultsVersion');
+    } catch (_) {}
+  }
+
   /// What home shows: the v2 set the user saved, else the six they picked on
   /// the old home, else the owner default. An emptied set (every saved
   /// feature hidden since) falls back to the owner default.
   static Future<List<String>> load() async {
+    await migrateDefaults();
     final own = await _read(prefsKey);
     if (own != null) {
       final s = sanitize(own);

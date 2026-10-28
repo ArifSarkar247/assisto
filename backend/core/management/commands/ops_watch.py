@@ -31,6 +31,13 @@ class Command(BaseCommand):
             checks += crash_rate.alert_checks()
         except Exception as e:  # noqa: BLE001 — a stats error never stops the watch
             self.stdout.write("crash-rate check skipped (%s)" % type(e).__name__)
+        try:
+            # AF-8: agent run failure / invalid plans / planner + per-tool p95 /
+            # per-tool errors / cost per successful task (thresholds: Owner Admin)
+            from core.agentcore import observability as AO
+            checks += AO.alert_checks()
+        except Exception as e:  # noqa: BLE001
+            self.stdout.write("agent checks skipped (%s)" % type(e).__name__)
         stamp = timezone.now().isoformat(timespec="seconds")
         bad = [c for c in checks if c[1]]
         if opts.get("dry_run"):

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../voice/va_actions.dart';
+import '../widgets/voice_help_sheet.dart'; // aivoice
 import '../voice/va_native.dart';
 import 'battery_guidance_screen.dart';
 import '../voice/va_wake.dart';
@@ -34,6 +35,7 @@ class _VoiceAssistantSettingsScreenState
   _Wake _wake = _Wake.loading;
   VaWakeConfig _cfg = const VaWakeConfig();
   bool _tts = true;
+  bool _continue = false; // aivoice
   bool _busy = false;
   String _music = 'auto';
   List<String> _installed = const [];
@@ -60,11 +62,13 @@ class _VoiceAssistantSettingsScreenState
 
   Future<void> _load() async {
     final tts = await Settings.getBool(VaWake.ttsKey, true);
+    final cont = await Settings.getBool(VaWake.continueKey, false);
     final music = await Settings.getString(VaExecutor.musicPrefKey) ?? 'auto';
     if (widget.debugStatic) {
       if (mounted) {
         setState(() {
           _tts = tts;
+          _continue = cont;
           _music = music;
           _wake = _Wake.keyMissing;
         });
@@ -80,6 +84,7 @@ class _VoiceAssistantSettingsScreenState
     if (!mounted) return;
     setState(() {
       _tts = tts;
+      _continue = cont;
       _music = music;
       _installed = installed;
       _native = native;
@@ -402,6 +407,28 @@ class _VoiceAssistantSettingsScreenState
               },
               icon: const Icon(Icons.download_rounded),
               label: Text(t.vaTtsInstallBn),
+            ),
+          ),
+          // aivoice: hands-free follow-up on the Assisto Voice screen.
+          SwitchListTile(
+            key: const ValueKey('va_continue_switch'),
+            contentPadding: EdgeInsets.zero,
+            value: _continue,
+            title: Text(t.vaContinueTitle,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(t.vaContinueBody),
+            onChanged: (v) async {
+              setState(() => _continue = v);
+              await Settings.setBool(VaWake.continueKey, v);
+            },
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const ValueKey('va_bangla_help'),
+              onPressed: () => VoiceHelpSheet.show(context),
+              icon: const Icon(Icons.help_outline_rounded),
+              label: Text(t.vaBanglaHelp),
             ),
           ),
         ]);

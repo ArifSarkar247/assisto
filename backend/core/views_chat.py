@@ -11,6 +11,7 @@ Endpoints (all /api/v1/, DRF Token auth):
   POST   chat/sessions/<id>/send       {text} -> append user msg + produce reply
   GET/POST chat/sessions/<id>/stream   SSE token stream of the reply
   POST   chat/sessions/<id>/regenerate {edit?} -> re-answer the last user turn
+  GET    chat/status                   {ai_available, reason, free} (aivoice)
 
 Routing (the single source of truth is `_produce_reply`):
   * AI key enabled + under budget/limit + guard not 'over'  -> ai.generate() with
@@ -151,6 +152,16 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
     otherwise (or on any AIUnavailable) falls back to the free, honest Brain.
     Never raises, never returns an empty reply.
     """
+    # AF-3: crisis handover BEFORE any AI call (works with no key, 0 credits):
+    # the calm fixed line + 999 / owner-confirmed helplines + an OFFER to
+    # tell family. Nothing else is answered in this turn.
+    from .agentcore import crisis_guard as CG
+    crisis = CG.detect(text)
+    if crisis["crisis"]:
+        reply, card = CG.respond(user, crisis, lang, surface="chat")
+        return reply, {"source": "crisis", "credits": 0, "crisis": CG.log_detail(crisis),
+                       "cards": [card]}, [card]
+
     # user-data context (deterministic, never fabricated) — reused as the
     # DATA the model may ground on, and as the Brain fallback itself.
     ctx = brain.answer(user, text, lang)
@@ -240,6 +251,35 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
     if not (reply or "").strip():
         reply = brain._l4_needs_ai(lang)  # belt-and-braces: never empty
     return reply, meta, ctx.get("cards", [])
+
+
+# ---------------------------------------------------------------------------
+# GET /chat/status — aivoice: is keyed AI usable right now? (honest no-key state)
+# ---------------------------------------------------------------------------
+# The free parts that work with NO key (the app lists them in the no-key
+# banner). Codes, not text — the app owns the wording (bn / en ARB).
+FREE_WITHOUT_KEY = ("own_data", "app_help", "phone_commands", "voice_input")
+
+
+def chat_status_payload():
+    """{ai_available, reason, free}. reason: None when AI is usable,
+    'no_key' when no provider key is configured, 'paused' when a key exists
+    but the daily budget / kill-switch keeps AI off right now. Never raises:
+    an error reads as 'paused' (we never claim AI we cannot deliver)."""
+    try:
+        if ai.available():
+            return {"ai_available": True, "reason": None,
+                    "free": list(FREE_WITHOUT_KEY)}
+        reason = "paused" if ai.key_present() else "no_key"
+    except Exception:  # noqa: BLE001
+        reason = "paused"
+    return {"ai_available": False, "reason": reason,
+            "free": list(FREE_WITHOUT_KEY)}
+
+
+class ChatStatusView(APIView):
+    def get(self, request):
+        return Response(chat_status_payload())
 
 
 # ---------------------------------------------------------------------------
@@ -396,10 +436,17 @@ class ChatStreamView(APIView):
             step = 120
             for i in range(0, len(reply), step):
                 piece = reply[i:i + step]
-                yield "event: token\ndata: " + _j.dumps({"text": piece}) + "\n\n"
+                # aivoice: "chunk" is the key the app reads (it read only
+                # chunk/value, so a "text"-only token rendered as an EMPTY
+                # reply); "text" stays for older readers.
+                yield "event: token\ndata: " + _j.dumps(
+                    {"chunk": piece, "text": piece}) + "\n\n"
             done = {"message_id": asst.id, "cards": cards,
                     "ai_used": meta.get("source") == "ai",
-                    "source": meta.get("source")}
+                    "source": meta.get("source"),
+                    # aivoice: the full reply too, so a client that missed a
+                    # token still shows the whole answer.
+                    "text": reply}
             yield "event: done\ndata: " + _j.dumps(done) + "\n\n"
 
         resp = StreamingHttpResponse(gen(), content_type="text/event-stream")

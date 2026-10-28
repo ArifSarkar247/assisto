@@ -153,6 +153,7 @@ urlpatterns = [
     path("chat/sessions/<int:sid>/stream", chatv.ChatStreamView.as_view()),
     path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
     path("chat/report", chatv.AiReportView.as_view()),  # ai-report
+    path("chat/status", chatv.ChatStatusView.as_view()),  # aivoice
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),
@@ -1280,6 +1281,14 @@ urlpatterns += [
     path("agent-core/brief", acn.BriefView.as_view()),
 ]
 # ---- /agent-proactive ----
+
+# ---- af-crisis ---- (AF-3 crisis handover; never flag-gated, free)
+from .agentcore import crisis_views as acc  # noqa: E402
+urlpatterns += [
+    path("crisis/helplines", acc.CrisisHelplinesView.as_view()),
+    path("crisis/family-alert", acc.CrisisFamilyAlertView.as_view()),
+]
+# ---- /af-crisis ----
 # ---- agentmem ---- life-graph memory (WP-MEMORY; flag agent_core, default OFF)
 from .agentcore import memory_views as acm  # noqa: E402
 urlpatterns += [

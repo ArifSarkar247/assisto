@@ -1503,6 +1503,20 @@ class AgentView(APIView):
         if not text:
             return Response({"reply": pick(lang, "কিছু লিখুন বা বলুন।",
                                            "Type or say something."), "cards": []})
+        # AF-3: crisis handover BEFORE any parsing / AI: calm fixed line, 999 +
+        # owner-confirmed helplines, an OFFER (never automatic) to tell family.
+        # Nothing else is done this turn; only {score, category} is logged.
+        from .agentcore import crisis_guard as CG
+        crisis = CG.detect(text)
+        if crisis["crisis"]:
+            reply, card = CG.respond(u, crisis, lang, surface="home")
+            log(u, "agent.crisis", **CG.log_detail(crisis))
+            session_id, message_id = _persist_home_turn(
+                u, request.data.get("session_id"), text, reply, [card], "crisis", None)
+            return Response({"reply": reply, "cards": [card], "intent": "crisis", "route": None,
+                             "session_id": session_id, "message_id": message_id,
+                             "ai_used": False, "ai_enabled": ai.key_present(),
+                             "crisis": CG.log_detail(crisis)})
         p = agent_brain.parse(text, req_lang(request))
         from .i18n import is_play_flavour
         if is_play_flavour(request):

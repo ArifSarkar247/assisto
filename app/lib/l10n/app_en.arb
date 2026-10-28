@@ -25747,5 +25747,160 @@
         "type": "String"
       }
     }
+  },
+  "hv2TileBizAccounts": "Business Accounts",
+  "@hv2TileBizAccounts": {
+    "description": "Home shortcut tile for the Business hub (khata, cashbox, reports) — owner 28 Oct 'Business Accounts and Finance'. Optional: wire in home_v2_shortcuts.dart _owner 'business' after merge (today it shows sidebarBusiness)."
+  },
+  "crisisCallNumber": "Call {number}",
+  "@crisisCallNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "crisisFamilySending": "Telling your family…",
+  "crisisFamilyFailed": "Could not reach your family. Please call someone yourself or call 999.",
+  "crisisCardA11y": "Help is available. Emergency numbers and an option to tell your family.",
+  "aivNoKeyTitle": "AI key not added yet",
+  "aivNoKeyBody": "General questions get a full AI answer once the key is added. Free right now, without a key:",
+  "aivPausedTitle": "AI is paused right now",
+  "aivPausedBody": "Today's AI limit is reached or AI is switched off for a while. Free right now:",
+  "aivFreeOwnData": "Answers from your own reminders, spending and dues",
+  "aivFreeAppHelp": "Help with using Assisto",
+  "aivFreePhoneCommands": "Phone commands: call, alarm, torch (Assisto Voice)",
+  "aivFreeVoiceInput": "Speak in Bangla instead of typing",
+  "aivListen": "Listen",
+  "aivStopReading": "Stop reading",
+  "aivTtsNoEngine": "This phone has no text-to-speech engine, so the answer stays as text. Install Speech Services by Google from the Play Store.",
+  "aivConvStart": "Voice conversation",
+  "aivConvListening": "Listening… speak now",
+  "aivConvThinking": "Thinking…",
+  "aivConvSpeaking": "Speaking…",
+  "aivConvEnd": "End",
+  "aivConvStarted": "Hands-free: I listen, send, read the answer aloud, then listen again. Calls and messages still ask first.",
+  "aivConvEndedSilence": "Voice conversation ended — I didn't hear anything.",
+  "aivConvEndedError": "Voice conversation ended — no answer came. Please try again.",
+  "aivConvEndedMic": "Voice conversation couldn't start — the microphone or speech engine isn't ready.",
+  "aivOfflineCopy": "Offline copy saved on this phone. Try again when you're online.",
+  "aivVoiceHelp": "How to fix",
+  "aivHelpTitle": "Turn on Bangla voice",
+  "aivHelpIntro": "Assisto uses your phone's own speech engine (usually Google). Assisto does not record or keep your voice.",
+  "aivHelpStep1": "Install or update the Google app (or Speech Services by Google) from the Play Store.",
+  "aivHelpStep2": "For Bangla without internet: Google app → Settings → Voice → Offline speech recognition → add Bangla (Bangladesh).",
+  "aivHelpColorOs": "Realme / OPPO (ColorOS): Settings → Additional settings → Keyboard and input method → Voice input → choose Google.",
+  "aivHelpMiui": "Xiaomi / Redmi / POCO: Settings → Additional settings → Languages and input → Voice input → choose Google.",
+  "aivHelpSamsung": "Samsung: Settings → General management → Keyboard list and default → Voice input → choose Google.",
+  "aivHelpTts": "For spoken answers: Settings → Text-to-speech output → Speech Services by Google → Install voice data → Bengali (Bangladesh).",
+  "aivHelpOpenVoiceInput": "Open voice input settings",
+  "aivHelpGetGoogle": "Get Google speech from the Play Store",
+  "vaContinueTitle": "Keep the conversation going",
+  "vaContinueBody": "After reading an answer aloud, Assisto Voice listens again. It stops when you go to another app or stay silent.",
+  "vaBanglaHelp": "Bangla voice not working?",
+  "@aivNoKeyTitle": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivNoKeyBody": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivPausedTitle": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivPausedBody": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivFreeOwnData": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivFreeAppHelp": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivFreePhoneCommands": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivFreeVoiceInput": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivListen": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivStopReading": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivTtsNoEngine": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvStart": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvListening": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvThinking": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvSpeaking": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvEnd": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvStarted": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvEndedSilence": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvEndedError": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivConvEndedMic": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivOfflineCopy": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivVoiceHelp": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpTitle": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpIntro": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpStep1": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpStep2": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpColorOs": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpMiui": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpSamsung": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpTts": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpOpenVoiceInput": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@aivHelpGetGoogle": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@vaContinueTitle": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@vaContinueBody": {
+    "description": "aivoice: AI chat / voice"
+  },
+  "@vaBanglaHelp": {
+    "description": "aivoice: AI chat / voice"
   }
 }
