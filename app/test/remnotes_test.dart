@@ -303,6 +303,9 @@ void main() {
   // ------------------------------------------------ 3 empty states
   for (final lang in ['en', 'bn']) {
     testWidgets('Reminders empty: benefit + big button + how-to ($lang)', (t) async {
+      t.view.physicalSize = const Size(1080, 3000);
+      t.view.devicePixelRatio = 2.0;
+      addTearDown(t.view.reset);
       final l = await AppLocalizations.delegate.load(Locale(lang));
       await t.pumpWidget(_app(const RemindersScreen(), _state(_Fake(), lang), lang: lang));
       await t.pumpAndSettle();
@@ -318,6 +321,9 @@ void main() {
     });
 
     testWidgets('Notes + To-do empty: benefit + big button ($lang)', (t) async {
+      t.view.physicalSize = const Size(1080, 3000);
+      t.view.devicePixelRatio = 2.0;
+      addTearDown(t.view.reset);
       final l = await AppLocalizations.delegate.load(Locale(lang));
       await t.pumpWidget(_app(const NotesTodosScreen(), _state(_Fake(), lang), lang: lang));
       await t.pumpAndSettle();
@@ -379,19 +385,28 @@ void main() {
       t.view.physicalSize = const Size(1080, 2400);
       t.view.devicePixelRatio = 2.6;
       addTearDown(t.view.reset);
-      await t.pumpWidget(_app(const RemindersScreen(),
-          _state(_Fake(), 'bn', reminders: [_friday]),
-          lang: 'bn', dark: dark, scale: 2));
-      await t.pumpAndSettle();
-      expect(t.takeException(), isNull);
-      await t.pumpWidget(_app(const NotesTodosScreen(),
-          _state(_Fake(), 'bn', notes: _notes), lang: 'bn', dark: dark, scale: 2));
-      await t.pumpAndSettle();
-      expect(t.takeException(), isNull);
-      await t.pumpWidget(_app(const NotesTodosScreen(),
-          _state(_Fake(), 'en'), lang: 'en', dark: dark, scale: 2));
-      await t.pumpAndSettle();
-      expect(t.takeException(), isNull);
+      // collect the FULL report (which widget overflowed, where)
+      final errs = <String>[];
+      final prev = FlutterError.onError;
+      FlutterError.onError = (d) => errs.add(d.toString());
+      try {
+        await t.pumpWidget(_app(const RemindersScreen(),
+            _state(_Fake(), 'bn', reminders: [_friday]),
+            lang: 'bn', dark: dark, scale: 2));
+        await t.pumpAndSettle();
+        await t.pumpWidget(_app(const NotesTodosScreen(),
+            _state(_Fake(), 'bn', notes: _notes), lang: 'bn', dark: dark, scale: 2));
+        await t.pumpAndSettle();
+        await t.pumpWidget(_app(const NotesTodosScreen(),
+            _state(_Fake(), 'en'), lang: 'en', dark: dark, scale: 2));
+        await t.pumpAndSettle();
+        await t.pumpWidget(_app(const NotesTodosScreen(initialIndex: 1),
+            _state(_Fake(), 'en', todos: [_rentTodo]), lang: 'en', dark: dark, scale: 2));
+        await t.pumpAndSettle();
+      } finally {
+        FlutterError.onError = prev;
+      }
+      expect(errs, isEmpty, reason: errs.join('\n----\n'));
     });
   }
 
@@ -463,6 +478,8 @@ void main() {
     expect(api.bodies.single, {'circle_id': 7});
     expect(find.text(l.rnShareSent('Mom')), findsOneWidget);
     // not on the server yet -> honest message, nothing sent
+    ScaffoldMessenger.of(t.element(find.text('unsynced'))).removeCurrentSnackBar();
+    await t.pumpAndSettle();
     await t.tap(find.text('unsynced'));
     await t.pumpAndSettle();
     await t.tap(find.byKey(const ValueKey('rn-share-circle')));

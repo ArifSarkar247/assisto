@@ -485,7 +485,8 @@ class _ReminderCard extends StatelessWidget {
                       style: done
                           ? Theme.of(context).textTheme.bodyLarge?.copyWith(
                               decoration: TextDecoration.lineThrough,
-                              color: Theme.of(context).disabledColor)
+                              // remnotes: readable (AA), not disabled grey
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)
                           : Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: Gap.xxs),

@@ -465,6 +465,7 @@ Future<void> editReminder(BuildContext context,
             const SizedBox(height: Gap.md),
             DropdownButtonFormField<String>(
               initialValue: freq,
+              isExpanded: true,
               decoration: InputDecoration(labelText: t.remRecurrence),
               items: [
                 DropdownMenuItem(value: 'none', child: Text(t.remRecurNone)),
@@ -484,11 +485,13 @@ Future<void> editReminder(BuildContext context,
               Row(children: [
                 Text(t.remEveryLabel),
                 const SizedBox(width: Gap.sm),
+                // remnotes: 72 dp clipped the number + arrow (5 px overflow)
                 SizedBox(
-                  width: 72,
+                  width: 96,
                   child: DropdownButtonFormField<int>(
                     initialValue: interval.clamp(1, 12),
                     isDense: true,
+                    isExpanded: true,
                     decoration: const InputDecoration(isDense: true),
                     items: [
                       for (var n = 1; n <= 12; n++)
@@ -508,6 +511,7 @@ Future<void> editReminder(BuildContext context,
             if (freq == 'weekly') ...[
               const SizedBox(height: Gap.sm),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: (weekday ?? ((due?.weekday ?? 1) - 1)).clamp(0, 6),
                 decoration: InputDecoration(labelText: t.remOnWeekday),
                 items: [
@@ -524,6 +528,7 @@ Future<void> editReminder(BuildContext context,
             if (freq == 'monthly') ...[
               const SizedBox(height: Gap.sm),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: (dom ?? due?.day ?? 1).clamp(1, 31),
                 decoration: InputDecoration(labelText: t.remOnDayOfMonth),
                 items: [

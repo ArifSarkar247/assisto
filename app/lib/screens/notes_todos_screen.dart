@@ -327,7 +327,11 @@ class _NoteCard extends StatelessWidget {
                           list[i]['done'] = !(list[i]['done'] == true);
                           app.notes.update(item, {'checklist': list});
                         },
-                        child: Row(children: [
+                        // remnotes: a 48dp row — ticking at the shop with
+                        // one thumb (was an 18px target)
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Row(children: [
                           Icon(
                               checklist[i]['done'] == true
                                   ? Icons.check_box_rounded
@@ -343,11 +347,13 @@ class _NoteCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: checklist[i]['done'] == true
-                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: Theme.of(context).disabledColor)
+                                  // remnotes: struck through but still readable (AA)
+                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: scheme.onSurfaceVariant)
                                   : AType.bodyMedium,
                             ),
                           ),
                         ]),
+                        ),
                       ),
                     ),
                   if (checklist.length > 3)
@@ -524,9 +530,10 @@ class _TodoTile extends StatelessWidget {
       },
       title: Text((d['title'] ?? '').toString(),
           style: done
+              // remnotes: struck through but readable (AA; was 3.6:1 dark)
               ? TextStyle(
                   decoration: TextDecoration.lineThrough,
-                  color: Theme.of(context).disabledColor)
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)
               : null),
       subtitle: (due != null || high || rule != null)
           ? Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
