@@ -391,8 +391,12 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
       ? exportStripRows
       : psExportStripRows(ramMb: LowRamTuning.ramMb, lowRam: LowRamTuning.lowRam);
 
-  /// photoperf2: rows per natively decoded export band (tests: small).
-  int regionBandRows = 512;
+  /// photoperf2: rows per natively decoded export band (0 = by the phone's
+  /// RAM, [psRegionBandRows]; tests: small).
+  int regionBandRows = 0;
+  int get _bandRows => regionBandRows > 0
+      ? regionBandRows
+      : psRegionBandRows(ramMb: LowRamTuning.ramMb, lowRam: LowRamTuning.lowRam);
 
   /// photoperf2: how the last export got its pixels: 'bands' (native band
   /// decoding) or 'full' (the whole photo decoded at once). Perf report.
@@ -576,7 +580,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
         }
       }
       final pad = classicPad(w, h, st.faces);
-      final bands = psRegionBands(h, sr, bandRows: regionBandRows);
+      final bands = psRegionBands(h, sr, bandRows: _bandRows);
       var decodeMs = 0;
       final s0 = src;
       Future<PngBand Function(void Function(int, int))> make(int i) async {

@@ -125,6 +125,22 @@ bool psRegionFormatOk(Uint8List b) {
   return false;
 }
 
+/// photoperf2: write [bytes] in 1 MB pieces. `File.writeAsBytes` hands the
+/// whole list to the IO thread as ONE native copy — for a 12 MP photo
+/// (~34 MB PNG / ~5 MB JPEG) that was a second full copy of the file in
+/// memory while the export started (2 GB run 40673196464: +170 MB peak).
+Future<void> psWriteChunked(File f, Uint8List bytes, {int chunk = 1 << 20}) async {
+  final raf = await f.open(mode: FileMode.write);
+  try {
+    for (var i = 0; i < bytes.length; i += chunk) {
+      await raf.writeFrom(bytes, i, math.min(bytes.length, i + chunk));
+    }
+    await raf.flush();
+  } finally {
+    await raf.close();
+  }
+}
+
 class _ChannelRegions implements PsRegionSource {
   _ChannelRegions(this._ch, this.handle, this.w, this.h, this._input);
   final MethodChannel _ch;
@@ -205,7 +221,7 @@ class ChannelPhotoNative implements PhotoNative, PhotoNativeRelease, PhotoNative
   Future<String> _tmp(Uint8List bytes, String tag) async {
     final d = await getTemporaryDirectory();
     final f = File('${d.path}/ps_${tag}_${DateTime.now().microsecondsSinceEpoch}.img');
-    await f.writeAsBytes(bytes, flush: true);
+    await psWriteChunked(f, bytes);
     return f.path;
   }
 

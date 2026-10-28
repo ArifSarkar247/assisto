@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.media.ExifInterface
 import android.os.Build
 import java.io.FileOutputStream
-import java.nio.ByteBuffer
 
 /**
  * photoperf2 — Photo Studio export: decode a big photo in horizontal BANDS
@@ -28,7 +27,8 @@ import java.nio.ByteBuffer
  */
 object RegionBands {
     private class Src(val dec: BitmapRegionDecoder, val rot: Int, val rawW: Int, val rawH: Int) {
-        var buf: ByteBuffer? = null
+        var px: IntArray? = null
+        var bytes: ByteArray? = null
         val w get() = if (rot == 90 || rot == 270) rawH else rawW
         val h get() = if (rot == 90 || rot == 270) rawW else rawH
     }
@@ -103,23 +103,33 @@ object RegionBands {
             }
             val rows = bottom - top
             if (bmp.config != Bitmap.Config.ARGB_8888 || bmp.width != w || bmp.height != rows ||
-                bmp.rowBytes != w * 4 || bmp.hasAlpha()) {
+                bmp.hasAlpha()) {
                 // alpha would come premultiplied here: the old path keeps it exact
                 return fail("format")
             }
-            val need = w * 4 * rows
-            val old = s.buf
-            val buf: ByteBuffer = if (old != null && old.capacity() >= need) old else {
-                s.buf = null // let the old one go first
-                ByteBuffer.allocateDirect(need).also { s.buf = it }
-            }
-            buf.clear()
-            buf.limit(need)
-            bmp.copyPixelsToBuffer(buf) // ARGB_8888 = R, G, B, A bytes in memory
-            buf.flip()
+            // 32 rows at a time (ARGB ints -> R, G, B, A bytes): no second
+            // full-band buffer next to the bitmap
+            val chunk = 32
+            val px = s.px?.takeIf { it.size >= w * chunk } ?: IntArray(w * chunk).also { s.px = it }
+            val bytes = s.bytes?.takeIf { it.size >= w * chunk * 4 }
+                ?: ByteArray(w * chunk * 4).also { s.bytes = it }
             FileOutputStream(out).use { fo ->
-                val ch = fo.channel
-                while (buf.hasRemaining()) ch.write(buf)
+                var y = 0
+                while (y < rows) {
+                    val n = minOf(chunk, rows - y)
+                    bmp.getPixels(px, 0, w, 0, y, w, n)
+                    var o = 0
+                    for (i in 0 until w * n) {
+                        val c = px[i]
+                        bytes[o] = (c shr 16).toByte()
+                        bytes[o + 1] = (c shr 8).toByte()
+                        bytes[o + 2] = c.toByte()
+                        bytes[o + 3] = (c ushr 24).toByte()
+                        o += 4
+                    }
+                    fo.write(bytes, 0, o)
+                    y += n
+                }
             }
             return mapOf("ok" to true, "w" to w, "rows" to rows)
         } finally {
@@ -133,7 +143,8 @@ object RegionBands {
             s.dec.recycle()
         } catch (t: Throwable) {
         }
-        s.buf = null
+        s.px = null
+        s.bytes = null
     }
 
     fun closeAll() {

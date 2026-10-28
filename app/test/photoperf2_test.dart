@@ -205,7 +205,9 @@ void main() {
       expect(psProxyLong(ramMb: 7600, lowRam: true), 1280); // Android low-RAM flag
       expect(psProxyLong(ramMb: 3900, lowRam: false), 2400);
       expect(psProxyLong(ramMb: 0, lowRam: false), 2400); // unknown
-      expect(psExportStripRows(ramMb: 1967, lowRam: false), 128);
+      expect(psExportStripRows(ramMb: 1967, lowRam: false), 64);
+      expect(psRegionBandRows(ramMb: 1967, lowRam: false), 384);
+      expect(psRegionBandRows(ramMb: 3900, lowRam: false), 512);
       expect(psExportStripRows(ramMb: 2800, lowRam: false), 128);
       expect(psExportStripRows(ramMb: 7600, lowRam: false), 256);
       // free users stay at the server preview size
@@ -390,6 +392,17 @@ void main() {
       await expectLater(e.renderExport(pp.enc(img, w, h), [step], mark: FailMark()),
           throwsA(isA<StateError>()));
       expect(reports.single.code, startsWith('mark:'));
+    });
+
+    test('temp files are written in pieces (no second full copy), byte for byte', () async {
+      final d = Directory.systemTemp.createTempSync('ppw');
+      final b = Uint8List.fromList(List.generate(2500001, (i) => (i * 31) & 0xff));
+      final f = File('${d.path}/x');
+      await psWriteChunked(f, b);
+      expect(f.readAsBytesSync(), b);
+      await psWriteChunked(f, Uint8List(0));
+      expect(f.lengthSync(), 0);
+      d.deleteSync(recursive: true);
     });
 
     test('formats: JPEG and opaque 8-bit PNG only', () {

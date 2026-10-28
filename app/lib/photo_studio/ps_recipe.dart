@@ -59,8 +59,20 @@ const int psRam2GbMb = 2304;
 /// pipeline keeps 8 float planes of (strip + context) rows per worker: at
 /// 4000 px wide that is ~41 MB with 256-row strips, ~25 MB with 128 — on
 /// ≤ 3 GB phones the smaller strips (≈ +15 % work for −32 MB at 2 workers).
-int psExportStripRows({required int ramMb, required bool lowRam}) =>
-    (lowRam || (ramMb > 0 && ramMb <= 3328)) ? 128 : 256;
+///
+/// photoperf2 (2 GB run 40673196464: export +169 MB over the baseline):
+/// ≤ 2 GB phones 64-row strips (~16 MB per worker; ≈ +30 % strip work, the
+/// export stays well under 8 s).
+int psExportStripRows({required int ramMb, required bool lowRam}) {
+  if (lowRam || (ramMb > 0 && ramMb <= psRam2GbMb)) return 64;
+  return (ramMb > 0 && ramMb <= 3328) ? 128 : 256;
+}
+
+/// photoperf2: rows per natively decoded band — 384 on ≤ 2 GB phones
+/// (each band in flight is decoded once natively and read once by a
+/// worker: ~6 MB at 4000 px instead of ~8 MB), 512 otherwise.
+int psRegionBandRows({required int ramMb, required bool lowRam}) =>
+    (lowRam || (ramMb > 0 && ramMb <= psRam2GbMb)) ? 384 : 512;
 
 /// photoperf2: rows per decoded band of the band-decoded export (a multiple
 /// of [stripRows]): ~512 rows (a 4000 px band = 8 MB) on every phone; at
