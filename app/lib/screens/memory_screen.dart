@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/mem_privacy.dart';
 import '../widgets/mem_widgets.dart';
 import 'ai_knowledge_screen.dart';
+import 'agent_core/life_graph_screen.dart'; // agentmem (flag agent_core)
 
 /// Memory — "What Assisto knows about me" (SPEC v2.1 §21, ADVANCED).
 ///
@@ -184,6 +185,8 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 ),
               ]),
             ),
+          // agentmem: the agent's life-graph memory (flag agent_core only)
+          if (LifeGraphEntryCard.visible) const LifeGraphEntryCard(),
           // retrieval box
           Padding(
             padding:

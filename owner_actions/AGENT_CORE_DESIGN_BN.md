@@ -194,6 +194,8 @@ running ─▶ budget (steps / credits / time)
 
 ## ৪. Life-graph memory 🗓 (ফেজ ২)
 
+> ✅ WP-MEMORY তৈরি (flag `agent_core` বন্ধ): `core/agentcore/memory.py` (সিল-করা node, প্রস্তাব→অনুমোদন, স্কোপ-করা ≤১০ মাস্কড তথ্য planner-এ), API `agent-core/memory…` (`memory_views.py`), টুল `memory.recall/remember/update/forget` (topic `memory`), সাপ্তাহিক `manage.py agent_memory_learn`, অ্যাপে "AI কী জানে" → "এজেন্টের মেমরি"। স্বাস্থ্য-উত্তর ফিল্টার কোডে: `core/agentcore/health_guard.py` (প্রতিটি run-এর শেষ উত্তরে)।
+
 - **কী:** মানুষ (আম্মু = My Circle-এর অমুক, ছেলের স্কুল), জায়গা (বাসা, দোকান), অভ্যাস ("অফিস ছুটি ৬টায়"), টাকা-রুটিন ("৫ তারিখে বাসাভাড়া", "প্রবাসী ভাই ১০ তারিখে পাঠায়"), ব্যবসা ("ঢাকায় ডেলিভারি ৬০")। node + edge (person–relation–person, person–place, routine–time)।
 - **কোথায়:** বিদ্যমান `MemoryItem`-কে বাড়ানো (নতুন category `graph`, `detail` → Fernet-সিল JSON node) — নতুন টেবিল কম। **প্রতি ইউজার আলাদা**, এনক্রিপ্টেড at rest (MultiFernet, remittance-এর মতো; সৎ কথা: কী একই সার্ভারে, তাই DB ডাম্প রক্ষা পায়, পুরো সার্ভার দখল হলে নয়)।
 - **ইউজারের নিয়ন্ত্রণ:** "AI কী জানে" পাতায় দেখা/এডিট/মোছা, "সব এজেন্ট-মেমরি মুছুন", JSON রপ্তানি; অ্যাকাউন্ট মুছলে সব (`account_purge.py`)।

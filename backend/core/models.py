@@ -139,6 +139,16 @@ class OTPCode(models.Model):
         indexes = [models.Index(fields=["identifier", "purpose", "used"])]
 
 
+class LegacyMemoryManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(kind="")
+
+
+class LifeGraphManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(kind="")
+
+
 class MemoryItem(models.Model):
     """'AI কী জানে' page. Every item is editable and deletable by the user.
     source marks whether the AI captured it or the user wrote it (design #1)."""
@@ -155,9 +165,29 @@ class MemoryItem(models.Model):
     needs_review = models.BooleanField(default=False)        # low-confidence → review queue
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # ---- agentmem ---- life-graph memory (core/agentcore/memory.py, flag
+    # agent_core). A row with kind != "" is a typed life-graph fact: its
+    # content (label/value/relation/when/provenance/history) is a Fernet-
+    # sealed JSON node in `detail`; title is a content-free placeholder.
+    # Legacy "AI knows" rows keep kind="" and are untouched.
+    kind = models.CharField(max_length=12, blank=True, default="", db_index=True)
+    status = models.CharField(max_length=10, blank=True, default="active")  # active|suggested|rejected
+    sensitive = models.BooleanField(default=False)          # health/religion/politics… never sent to AI
+    origin = models.CharField(max_length=10, blank=True, default="")  # user|run|learn
+    fingerprint = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    # Default manager = legacy items only, so every old path (list, search,
+    # export, PDF/XLSX, badges, job matching, admin) never sees sealed graph
+    # rows. Cascades use the unfiltered base manager, so deleting a user still
+    # removes every row. Life-graph code uses MemoryItem.graph.
+    objects = LegacyMemoryManager()
+    graph = LifeGraphManager()
+    all_rows = models.Manager()
 
     class Meta:
         ordering = ["-updated_at"]
+        base_manager_name = "all_rows"
 
 
 class AuditLog(models.Model):
@@ -6458,3 +6488,15 @@ class ProbashiReport(models.Model):
         constraints = [models.UniqueConstraint(fields=["recipient", "month"],
                                                name="probashi_report_once")]
 # ---- /probashi-plan ----
+
+
+# ---- agentmem ---- per-user life-graph memory settings (pause learning,
+# retention). A missing row = learning ON, 18-month retention.
+class AgentMemoryPrefs(models.Model):
+    RETENTION_CHOICES = (6, 12, 18, 24)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agent_memory_prefs")
+    learning_paused = models.BooleanField(default=False)
+    retention_months = models.SmallIntegerField(default=18)
+    last_learned_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /agentmem ----

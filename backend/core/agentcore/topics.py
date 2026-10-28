@@ -68,12 +68,27 @@ TOPICS = {
         "tools": _COMMON + ("notes.delete", "reminders.update", "reminders.complete"),
         "rules": "Help with study and job-hunt planning: reminders and notes.",
     },
+    # WP-MEMORY: the life-graph memory (view / remember / update / forget).
+    "memory": {
+        "bn": "মেমরি", "en": "Memory",
+        "tools": ("memory.recall", "memory.remember", "memory.update", "memory.forget"),
+        "rules": "Help the user see and manage what Assisto remembers about their life. "
+                 "remember/update only SUGGEST (the user approves on the AI knows page) — "
+                 "say so. Forgetting needs approval. NEVER remember or repeat passwords, "
+                 "PINs, OTPs, card, account or NID numbers; refuse politely. Only the user's "
+                 "own memory exists for you — never another person's.",
+    },
 }
 # fallback when no topic is recognised: read + own-data tools only
 GENERAL = {"bn": "সাধারণ", "en": "General", "tools": _COMMON,
            "rules": "Help with reminders and notes. If the goal needs another area, say so."}
 
 _KEYWORDS = {
+    "memory": r"মনে রাখ|মনে রেখ|মনে আছে|মনে রেখেছ|ভুলে যা|ভুলে যান|ভুলে যেও|মেমরি|মেমোরি|"
+              r"আমার সম্পর্কে কী জান|আমার সম্পর্কে কি জান|কী কী জানো|কি কি জানো|"
+              r"\bremember (?:that|this|my|:)|do you remember|\bforget (?:that|this|my|about|the)|"
+              r"what do you know about me|my memory|your memory|"
+              r"mone rakh|mone rekh|mone ache|bhule ja|bhule jan|amar sompork|ki ki jano",
     "safety": r"scam|প্রতারণা|প্রতারক|ভুয়া|fraud|sos|নিরাপদ|নিরাপত্তা|বিপদ|safe ?journey|safety|danger|journey|যাত্রা|পৌঁছ|ফিরেছে|ফেরেনি|late|দেরি",
     "family": r"জন্মদিন|বার্ষিকী|birthday|anniversary|পরিবার|আম্মু|আব্বু|মা\b|বাবা|ছেলে|মেয়ে|ভাই|বোন|স্ত্রী|স্বামী|family|mom|dad|son|daughter|wife|husband",
     "business": r"অর্ডার|\border|\bcod\b|তাগাদা|tagada|দোকান|ব্যবসা|খাতা|বাকি.*গ্রাহক|গ্রাহক|কাস্টমার|স্টক|মাল|লিড|crm|lead|stock|shop|customer|khata|business|ledger|baki",
@@ -83,7 +98,7 @@ _KEYWORDS = {
     "health": r"হাঁটা|ব্যায়াম|পানি|ঘুম|ওজন|ফিটনেস|walk|exercise|water|sleep|weight|fitness|gym",
     "learning": r"পড়া|পরীক্ষা|চাকরি|সিভি|ক্লাস|study|exam|job|cv|class|course|interview",
 }
-_ORDER = ("safety", "business", "money", "family", "documents", "travel", "health", "learning")
+_ORDER = ("memory", "safety", "business", "money", "family", "documents", "travel", "health", "learning")
 _RX = {k: re.compile(v, re.I) for k, v in _KEYWORDS.items()}
 
 

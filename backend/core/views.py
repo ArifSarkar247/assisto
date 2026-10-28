@@ -1823,6 +1823,11 @@ class ExportView(APIView):
         if RemittanceEntry.objects.filter(user=u).exists():
             from . import remittance_service as _rs
             data["remittance"] = _rs.decrypted_entries(u)
+        # agentmem: the life-graph memory (sealed at rest) — decrypted for
+        # the user's own export (rows are hidden from u.memories above).
+        if MemoryItem.graph.filter(user=u).exists():
+            from .agentcore import memory as _mem
+            data["life_graph"] = _mem.export(u, req_lang(request))
         log(u, "account.export")
         _mark_export_downloaded(u)
         resp = Response(data)

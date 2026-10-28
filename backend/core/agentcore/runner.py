@@ -108,6 +108,15 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
         run.save()
         T.audit(run, "run.created", topic=topic or "general", channel=goal.channel,
                 goal=masked[:300])
+    if topic == "memory":
+        # WP-MEMORY: "remember my password / PIN / OTP / card / NID" is refused
+        # BEFORE any AI call — the secret never reaches a model, 0 credits.
+        from . import memory as MEM
+        why = MEM.secret_kind(text)
+        if why:
+            T.audit(run, "guard.secret", kind=why)
+            _finish(run, "done", answer=MEM.tool_remember_sum({"refused": why}, lang))
+            return run
     if inline:
         advance(run, lang=lang, play=play)
         run.refresh_from_db()
@@ -130,6 +139,14 @@ def _release(run):
 
 
 def _finish(run, state, error="", answer=None):
+    if answer is not None:
+        # WP-MEMORY gap fix: the health rule is enforced in CODE on every
+        # final answer (no diagnosis / medicine / dose / therapy; doctor-999
+        # line), not only asked of the model in the topic instructions.
+        from . import health_guard as HG
+        answer, removed = HG.filter_answer(answer, run.topic, _answer_lang(run))
+        if removed:
+            T.audit(run, "guard.health", removed=removed)
     run.state = state
     run.error_code = error[:40]
     run.finished_at = timezone.now()
@@ -143,6 +160,11 @@ def _finish(run, state, error="", answer=None):
             credits_total=run.credits_spent)
 
 
+def _answer_lang(run):
+    lang = getattr(run, "_lang", "") or getattr(run.user, "language", "bn") or "bn"
+    return "en" if lang == "en" else "bn"
+
+
 # ------------------------------------------------------------------ advance
 def advance(run, lang="bn", play=False, time_budget_s=20.0):
     """Drive one run as far as it can go now. Returns the run's state."""
@@ -154,6 +176,7 @@ def advance(run, lang="bn", play=False, time_budget_s=20.0):
         return run.state
     run.refresh_from_db()
     ctx = Ctx(user=run.user, now=now, lang=lang, play=play)
+    run._lang = lang
     t0 = _time.monotonic()
     try:
         while True:
@@ -240,11 +263,12 @@ def _plan(run, steps, ctx):
     tp, allowed = _allowed(run, ctx)
     invalid = sum(1 for s in steps if s.kind == "plan" and s.state == "failed")
     obs = _observations(run, steps, vault)
-    T.save_vault(run, vault)           # observation masking may mint tokens
+    memory = _memory_for(run, vault)
+    T.save_vault(run, vault)           # observation/memory masking may mint tokens
     run.save(update_fields=["vault_sealed", "updated_at"])
     req = PL.PlanRequest(user=run.user, topic=run.topic or "general", topic_rules=tp["rules"],
                          tools=allowed, goal_masked=run.goal.text_masked,
-                         observations=obs, lang=ctx.lang,
+                         observations=obs, memory=memory, lang=ctx.lang,
                          now_iso=timezone.localtime(ctx.now).isoformat(timespec="minutes"),
                          attempt=invalid,
                          last_error=(steps[-1].error_code if steps and steps[-1].kind == "plan"
@@ -308,6 +332,22 @@ def _plan(run, steps, ctx):
                                  args_sealed=T.seal({"a": s["args"]}),
                                  summary=vault.mask(t.label_en)[:400])
     return "continue"
+
+
+def _memory_for(run, vault):
+    """WP-MEMORY: only the goal's relevant, masked, size-capped life-graph
+    facts (memory.for_goal) — never the whole graph; never a suggestion or a
+    sensitive fact. A memory problem never breaks a run."""
+    from . import memory as MEM
+    try:
+        goal = (T.unseal(run.goal.text_sealed) or {}).get("t") or run.goal.text_masked
+        facts = MEM.for_goal(run.user, run.topic, goal, vault)
+    except Exception:  # noqa: BLE001
+        log.exception("agentcore: memory scope failed for run %s", run.pk)
+        return []
+    if facts:
+        T.audit(run, "memory.used", count=len(facts), ids=[f["id"] for f in facts])
+    return facts
 
 
 def _rate_limited(run, tool, now):

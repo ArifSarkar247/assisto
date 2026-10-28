@@ -74,7 +74,7 @@ class ContractTests(TestCase):
 
     def test_topic_allow_lists_name_real_tools_and_no_risky_fallback(self):
         self.assertEqual(set(TP.TOPICS), {"family", "safety", "money", "business", "documents",
-                                          "travel", "health", "learning"})
+                                          "travel", "health", "learning", "memory"})
         for k, tp in TP.TOPICS.items():
             for n in tp["tools"]:
                 self.assertIn(n, TL.REGISTRY, (k, n))

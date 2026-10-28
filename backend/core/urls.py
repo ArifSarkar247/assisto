@@ -1212,6 +1212,17 @@ urlpatterns += [
     path("agent-core/brief", acn.BriefView.as_view()),
 ]
 # ---- /agent-proactive ----
+# ---- agentmem ---- life-graph memory (WP-MEMORY; flag agent_core, default OFF)
+from .agentcore import memory_views as acm  # noqa: E402
+urlpatterns += [
+    path("agent-core/memory", acm.MemoryListView.as_view()),
+    path("agent-core/memory/export", acm.MemoryExportView.as_view()),
+    path("agent-core/memory/prefs", acm.MemoryPrefsView.as_view()),
+    path("agent-core/memory/delete-all", acm.MemoryDeleteAllView.as_view()),
+    path("agent-core/memory/<int:pk>", acm.MemoryItemView.as_view()),
+    path("agent-core/memory/<int:pk>/<str:action>", acm.MemoryActionView.as_view()),
+]
+# ---- /agentmem ----
 # ---- probashi-plan ---- (flag probashi_plan, default OFF)
 from . import views_probashi as pbv  # noqa: E402
 urlpatterns += [
