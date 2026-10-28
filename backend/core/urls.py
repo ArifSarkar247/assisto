@@ -1328,3 +1328,26 @@ urlpatterns += [
     path("probashi/reports/<int:pk>/read", pbv.ReportReadView.as_view()),
 ]
 # ---- /probashi-plan ----
+# ---- kidswatch ---- (owner idea 2: kids GPS watch + School Mode; flag kids_watch, OFF)
+from . import kidswatch_views as kwv  # noqa: E402
+urlpatterns += [
+    path("kids-watch/config", kwv.ConfigView.as_view()),
+    path("kids-watch/watches", kwv.WatchListView.as_view()),
+    path("kids-watch/watches/<int:pk>", kwv.WatchDetailView.as_view()),
+    path("kids-watch/watches/<int:pk>/repair", kwv.WatchRepairView.as_view()),
+    path("kids-watch/watches/<int:pk>/command", kwv.WatchCommandView.as_view()),
+    path("kids-watch/watches/<int:pk>/history", kwv.WatchHistoryView.as_view()),
+    path("kids-watch/watches/<int:pk>/voice", kwv.WatchVoiceView.as_view()),
+    path("kids-watch/voice/<int:pk>/audio", kwv.VoiceAudioView.as_view()),
+    path("kids-watch/voice/<int:pk>/transcript", kwv.VoiceTranscriptView.as_view()),
+    path("kids-watch/voice/<int:pk>", kwv.VoiceDeleteView.as_view()),
+    path("school-mode/places", kwv.PlacesView.as_view()),
+    path("school-mode/plans", kwv.PlanListView.as_view()),
+    path("school-mode/mine", kwv.MyPlansView.as_view()),
+    path("school-mode/plans/<int:pk>", kwv.PlanDetailView.as_view()),
+    path("school-mode/plans/<int:pk>/checkin", kwv.PlanCheckinView.as_view()),
+    path("school-mode/plans/<int:pk>/events", kwv.PlanEventsView.as_view()),
+    path("school-mode/plans/<int:pk>/events/clear", kwv.PlanEventsView.as_view()),
+    path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
+]
+# ---- /kidswatch ----

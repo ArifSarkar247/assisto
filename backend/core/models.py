@@ -6930,3 +6930,160 @@ class FamilyListItem(models.Model):
         indexes = [models.Index(fields=["owner", "done"],
                                 name="core_family_owner_famc02_idx")]
 # ---- /famcare ----
+
+
+# ---- kidswatch (owner idea 2, 28 Oct) ----
+class KidsWatch(models.Model):
+    """kidswatch: one kids 4G/2G GPS watch speaking the open "3G" (SeTracker
+    / Wonlex) protocol to OUR tracker service (backend/tracker). Paired by
+    its 10-digit registration code inside a short window (like vehicle
+    trackers). The parent who paired it owns it; guardian_ids = Circle peers
+    the owner chose (validated as accepted, unblocked peers on every read).
+    billed_until in the future = full mode (live map, history, voice); past /
+    empty = SAFETY-ONLY mode: SOS, school-mode alerts and the last location
+    always work, on every plan (server-enforced)."""
+    STATES = [("pending", "pending"), ("paired", "paired"),
+              ("expired", "expired"), ("disabled", "disabled")]
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="kids_watches")
+    child_name = models.CharField(max_length=60, default="")
+    child_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="kids_watches_worn")
+    imei = models.CharField(max_length=20, unique=True)        # registration code, digits
+    maker = models.CharField(max_length=4, blank=True, default="")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    pair_expires_at = models.DateTimeField(null=True, blank=True)
+    paired_at = models.DateTimeField(null=True, blank=True)
+    billed_until = models.DateTimeField(null=True, blank=True)
+    guardian_ids = models.JSONField(default=list, blank=True)
+    sos_numbers = models.JSONField(default=list, blank=True)
+    tz_min = models.IntegerField(default=360)
+    last_seen_at = models.DateTimeField(null=True, blank=True)
+    last_fix_at = models.DateTimeField(null=True, blank=True)
+    last_lat = models.FloatField(null=True, blank=True)
+    last_lng = models.FloatField(null=True, blank=True)
+    last_acc_m = models.FloatField(null=True, blank=True)
+    last_source = models.CharField(max_length=8, blank=True, default="")
+    battery = models.IntegerField(null=True, blank=True)
+    steps = models.IntegerField(null=True, blank=True)
+    phase = models.CharField(max_length=12, blank=True, default="")   # battery plan slot
+    interval_s = models.IntegerField(null=True, blank=True)           # last ACKED upload
+    alert_state = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class KidsWatchPosition(models.Model):
+    """One watch fix (full mode only). Pruned after kids_watch retention_days."""
+    watch = models.ForeignKey(KidsWatch, on_delete=models.CASCADE, related_name="positions")
+    at = models.DateTimeField()
+    lat = models.FloatField()
+    lng = models.FloatField()
+    source = models.CharField(max_length=8, default="gps")         # gps|wifi|lbs
+    acc_m = models.FloatField(null=True, blank=True)
+    battery = models.IntegerField(null=True, blank=True)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["at"]
+        indexes = [models.Index(fields=["watch", "at"], name="core_kwpos_watch_at_idx")]
+
+
+class KidsWatchCommand(models.Model):
+    """A server->watch command with an honest lifecycle queued -> sent ->
+    acked | failed (no_reply) | cancelled. Only tracker.protocols.watch
+    .command_content() builds the wire text — it refuses remote listening."""
+    watch = models.ForeignKey(KidsWatch, on_delete=models.CASCADE, related_name="commands")
+    kind = models.CharField(max_length=20)
+    payload = models.JSONField(default=dict, blank=True)
+    state = models.CharField(max_length=10, default="queued")
+    ack_type = models.CharField(max_length=16, blank=True, default="")
+    requested_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                     related_name="+")
+    error = models.CharField(max_length=40, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["watch", "state"], name="core_kwcmd_watch_st_idx")]
+
+
+class KidsVoiceNote(models.Model):
+    """A voice note: 'up' = the child pressed the watch voice button (or the
+    phone check-in voice), 'down' = a parent's reply pushed to the watch.
+    The audio is Fernet-encrypted on disk (file_name under MEDIA_ROOT/kidsvoice)
+    and deleted after kids_watch voice_days. 0 credits. transcript only on
+    paid plans (kids_voice_transcript, capped per day)."""
+    watch = models.ForeignKey(KidsWatch, null=True, blank=True, on_delete=models.CASCADE,
+                              related_name="voice_notes")
+    plan = models.ForeignKey("SchoolPlan", null=True, blank=True, on_delete=models.CASCADE,
+                             related_name="voice_notes")
+    direction = models.CharField(max_length=4, default="up")
+    sender = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    file_name = models.CharField(max_length=120, blank=True, default="")
+    mime = models.CharField(max_length=24, default="audio/amr")
+    size = models.IntegerField(default=0)
+    duration_s = models.FloatField(null=True, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    at = models.DateTimeField()
+    state = models.CharField(max_length=10, default="stored")   # stored|queued|sent|acked|failed
+    transcript = models.TextField(blank=True, default="")
+    transcript_state = models.CharField(max_length=12, blank=True, default="")
+    heard_by = models.JSONField(default=list, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["watch", "at"], name="core_kwvoice_watch_idx"),
+                   models.Index(fields=["expires_at"], name="core_kwvoice_exp_idx")]
+
+
+class SchoolPlan(models.Model):
+    """Child School Mode for ONE child: fed by a kids watch (automatic) or by
+    the child's phone check-in button (honest: no background location).
+    `config` = core.logic.school_mode.validate() output; `day` = today's
+    state-machine record. A phone plan does nothing until the child accepted
+    it (accepted_at) — the child's screen always shows it is on and who sees."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="school_plans")
+    watch = models.OneToOneField(KidsWatch, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="school_plan")
+    child_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
+                                   related_name="school_plans_as_child")
+    child_name = models.CharField(max_length=60, default="")
+    watcher_ids = models.JSONField(default=list, blank=True)
+    config = models.JSONField(default=dict, blank=True)
+    enabled = models.BooleanField(default=True)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    day = models.JSONField(default=dict, blank=True)
+    last_known = models.JSONField(default=dict, blank=True)    # {lat,lng,at,source}
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class SchoolEvent(models.Model):
+    """History of a school plan (arrived, left, late, SOS ...). The child or
+    the owner can delete it all."""
+    plan = models.ForeignKey(SchoolPlan, on_delete=models.CASCADE, related_name="events")
+    kind = models.CharField(max_length=24)
+    at = models.DateTimeField()
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    source = models.CharField(max_length=8, blank=True, default="")
+    voice = models.ForeignKey(KidsVoiceNote, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    detail = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["plan", "at"], name="core_schoolev_plan_at_idx")]
+# ---- /kidswatch ----

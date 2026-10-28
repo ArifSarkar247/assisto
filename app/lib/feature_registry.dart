@@ -51,6 +51,8 @@ const Map<String, bool> kFeatureDefaults = {
   'disaster_alerts': true,
   'blood_donor': true,
   'kid_school': true,
+  // kidswatch: kids GPS watch + School Mode — OFF until the real-watch test.
+  'kids_watch': false,
   'contacts': true,
   'voice_assistant': true,
   'documents': true,
@@ -201,6 +203,7 @@ const Map<String, String> kRouteFeature = {
   'vehicles': 'vehicles',
   'vehicle_tracking': 'vehicle_tracking',
   'car_mode': 'vehicle_tracking',
+  'kids_watch': 'kids_watch',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',

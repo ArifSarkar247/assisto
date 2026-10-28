@@ -78,6 +78,8 @@ _A = {
     "blood_donor": ("?P????F?F", "hide", "Public donor contacts = user content: needs moderation + Play UGC answers.",
                     "রক্তদাতার যোগাযোগ = ব্যবহারকারীর কনটেন্ট: মডারেশন ও Play UGC উত্তর লাগবে।"),
     "kid_school": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
+    "kids_watch": ("?F???P?FF", "hide", "kidswatch 28 Oct: kids GPS watch (open 3G / SeTracker protocol) + Child School Mode. Parser, simulator, real-TCP tests, school-mode state machine, voice (encrypted, auto-delete) and the no-remote-listening guard are built and CI-tested; no real watch has connected yet (owner buys one for the test); phone School Mode is the honest check-in button (no background location).",
+                   "বাচ্চাদের ঘড়ি ২৮ Oct: বাচ্চাদের GPS ঘড়ি (খোলা 3G / SeTracker প্রটোকল) + শিশুর স্কুল-মোড। পার্সার, সিমুলেটর, আসল-TCP টেস্ট, স্কুল-মোডের নিয়ম, ভয়েস (এনক্রিপ্ট, নিজে মুছে যায়) ও গোপনে-শোনা-নিষেধ পাহারা তৈরি ও CI-তে পরীক্ষিত; আসল ঘড়ি এখনো যুক্ত হয়নি (মালিক পরীক্ষার জন্য কিনবেন); ফোনে স্কুল-মোড মানে সৎভাবে চেক-ইন বোতাম (background location নেই)।"),
     # ---- Contacts
     "contacts": ("?P???P??F", "show", "Sweep A?; phonebook match is C until the two-phone test (READ_CONTACTS disclosure built).",
                  "সুইপ A?; ফোনবুক মেলানো দুই-ফোন পরীক্ষা পর্যন্ত C (READ_CONTACTS ব্যাখ্যা তৈরি)।"),

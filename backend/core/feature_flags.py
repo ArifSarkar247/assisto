@@ -77,6 +77,10 @@ REGISTRY = (
     ('disaster_alerts', 'family_safety', 'Disaster alerts', 'দুর্যোগ সতর্কতা', True, ('disaster',)),
     ('blood_donor', 'family_safety', 'Blood donors', 'রক্তদাতা নেটওয়ার্ক', True, ()),
     ('kid_school', 'family_safety', 'School corner', 'স্কুল কর্নার', True, ()),
+    # kidswatch (owner idea 2, 28 Oct): kids 4G GPS watch on the open "3G"
+    # (SeTracker / Wonlex) protocol + Child School Mode (watch = automatic,
+    # phone = one big check-in button). OFF until the owner's real-watch test.
+    ('kids_watch', 'family_safety', 'Kids watch & School Mode', 'বাচ্চাদের ঘড়ি ও স্কুল-মোড', False, ('kids_watch',)),
     ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
     ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),

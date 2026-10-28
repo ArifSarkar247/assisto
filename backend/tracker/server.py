@@ -4,8 +4,11 @@ Assisto vehicle tracker server — standalone asyncio TCP service (v1-vehicle).
     python -m tracker --host 0.0.0.0 --port 5023
 
 Speaks Concox GT06, H02 text (Sinotrack ST-901 family), Coban TK103 / GPS103
-text (veh100) and Teltonika Codec 8 / 8E (+ Codec 12 commands) on ONE port;
-the protocol is detected from the first bytes of each connection.
+text (veh100), Teltonika Codec 8 / 8E (+ Codec 12 commands) and the kids-watch
+"3G" text protocol (SeTracker / Wonlex "[SG*", kidswatch) on ONE port; the
+protocol is detected from the first bytes of each connection. Kids watches
+have their own ORM side (core.kidswatch_service) and their own sessions,
+buffer and command queue here; SOS / alarm frames are flushed at once.
 
 Device alarms (SOS, power cut / unplug, low battery) travel INSIDE the fix or
 status batch to core.vehicle_service.ingest, which alerts on the rising edge
@@ -35,7 +38,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from .protocols import gt06, h02, teltonika, tk103
+from .protocols import gt06, h02, teltonika, tk103, watch
 
 log = logging.getLogger("assisto.tracker")
 
@@ -50,6 +53,7 @@ MAX_CONN_TOTAL = 5000
 MAX_CONN_PER_IP = 200           # mobile carriers CGNAT many SIMs behind one IP
 READ_CHUNK = 4096
 MAX_BUFFER = 32 * 1024
+WATCH_MAX_BUFFER = 256 * 1024   # a TK voice frame is up to ~30 KB escaped
 # Device alarms worth a push (vibration / displacement are stored, not pushed).
 ALERT_ALARMS = ("sos", "power_cut", "tamper", "low_battery")
 
@@ -127,6 +131,9 @@ class TrackerServer:
         self.flush_s = flush_s
         self.cmd_poll_s = cmd_poll_s
         self.sessions = {}            # tracker_id -> Session
+        self.wsessions = {}           # kids watch id -> WatchSession
+        self.wbuffer = {}             # kids watch id -> {"fixes", "link", "alarms"}
+        self.wlock = asyncio.Lock()
         self.buffer = {}              # tracker_id -> {"fixes": [], "status": {}}
         self.buffered = 0
         self.conns_by_ip = {}
@@ -168,12 +175,13 @@ class TrackerServer:
         if self._server:
             self._server.close()
             await self._server.wait_closed()
-        for s in list(self.sessions.values()):
+        for s in list(self.sessions.values()) + list(self.wsessions.values()):
             try:
                 s.writer.close()
             except Exception:
                 pass
         await self.flush()
+        await self.wflush()
 
     # ---------------------------------------------------------------- buffer
     def _buf(self, tid):
@@ -213,6 +221,7 @@ class TrackerServer:
         while True:
             await asyncio.sleep(self.flush_s)
             await self.flush()
+            await self.wflush()
 
     # ---------------------------------------------------------------- commands
     async def _commander(self):
@@ -222,6 +231,10 @@ class TrackerServer:
                 await self.dispatch_commands()
             except Exception:
                 log.exception("command dispatch failed")
+            try:
+                await self.dispatch_watch_commands()
+            except Exception:
+                log.exception("watch command dispatch failed")
 
     async def dispatch_commands(self):
         if not self.sessions:
@@ -293,6 +306,8 @@ class TrackerServer:
                 from core import vehicle_service as VS
                 await self.store.call(VS.expire_commands)
                 await self.store.call(VS.sweep_silent)
+                from core import kidswatch_service as KW
+                await self.store.call(KW.expire_commands)
                 await self.refresh_cfg()
                 if time.monotonic() - last_prune > PRUNE_EVERY_S:
                     last_prune = time.monotonic()
@@ -322,6 +337,8 @@ class TrackerServer:
                 session = await self._h02(reader, writer, first, ip)
             elif tk103.looks_like_tk103(first):
                 session = await self._tk103(reader, writer, first, ip)
+            elif watch.looks_like_watch(first):
+                session = await self._watch(reader, writer, first, ip)
             elif teltonika.looks_like_imei_frame(first):
                 session = await self._teltonika(reader, writer, first, ip)
             # anything else: not a tracker we speak -> just close
@@ -334,7 +351,10 @@ class TrackerServer:
             self.conns_by_ip[ip] = max(0, self.conns_by_ip.get(ip, 1) - 1)
             if not self.conns_by_ip.get(ip):
                 self.conns_by_ip.pop(ip, None)
-            if session and self.sessions.get(session.tracker_id) is session:
+            if isinstance(session, WatchSession):
+                if self.wsessions.get(session.watch_id) is session:
+                    self.wsessions.pop(session.watch_id, None)
+            elif session and self.sessions.get(session.tracker_id) is session:
                 self.sessions.pop(session.tracker_id, None)
             try:
                 writer.close()
@@ -589,8 +609,158 @@ class TrackerServer:
 
     async def _abuse(self, s, ip):
         log.warning("rate limit exceeded, dropping %s", ip)
-        if s is not None:
+        if s is not None and not isinstance(s, WatchSession):
             await self.store.call(_audit_abuse, s.tracker_id, ip)
+
+    # ---- kids watch ("3G" / SeTracker text protocol; core.kidswatch_service)
+    def _wbuf(self, wid):
+        b = self.wbuffer.get(wid)
+        if b is None:
+            b = self.wbuffer[wid] = {"fixes": [], "link": {}, "alarms": []}
+        return b
+
+    async def wflush(self):
+        async with self.wlock:
+            if not self.wbuffer:
+                return 0
+            batch, self.wbuffer = self.wbuffer, {}
+            try:
+                from core import kidswatch_service as KW
+                return await self.store.call(KW.ingest, batch)
+            except Exception:
+                log.exception("watch flush failed (%d watches)", len(batch))
+                return 0
+
+    async def _wsend(self, s, content):
+        s.writer.write(watch.frame(s.maker, s.dev, content, s.index))
+        await s.writer.drain()
+
+    async def _watch(self, reader, writer, buf, ip):
+        from core import kidswatch_service as KW
+        bucket = Bucket(self._c("max_packets_per_min", 240))
+        s = None
+        while True:
+            try:
+                frames, buf = watch.split_frames(buf)
+            except watch.FrameError:
+                self.stats["bad_frames"] += 1
+                return s
+            for fr in frames:
+                if not bucket.take():
+                    if bucket.dropped > 3 * self._c("max_packets_per_min", 240):
+                        await self._abuse(s, ip)
+                        return s
+                    continue
+                try:
+                    pkt = watch.parse_frame(fr, s.tz_min if s else watch.DEFAULT_TZ_MIN)
+                except watch.FrameError:
+                    self.stats["bad_frames"] += 1
+                    continue
+                self.stats["frames"] += 1
+                if s is None:
+                    wid, _reason, tz = await self.store.call(
+                        KW.on_watch_connect, pkt["id"], pkt["maker"], ip)
+                    if wid is None:
+                        self.stats["rejected"] += 1
+                        return None             # refused: no reply, close
+                    s = self._wregister(wid, pkt, tz, writer)
+                elif pkt["id"] != s.dev:
+                    self.stats["bad_frames"] += 1   # never switch id mid-socket
+                    continue
+                s.index = pkt["index"]
+                await self._watch_packet(s, pkt)
+            if len(buf) > WATCH_MAX_BUFFER:
+                return s
+            buf += await self._read(reader)
+
+    def _wregister(self, wid, pkt, tz, writer):
+        old = self.wsessions.get(wid)
+        if old is not None:
+            try:
+                old.writer.close()
+            except Exception:
+                pass
+        s = WatchSession(wid, pkt["maker"], pkt["id"], tz, writer)
+        self.wsessions[wid] = s
+        self._wbuf(wid)
+        return s
+
+    async def _watch_packet(self, s, pkt):
+        from core import kidswatch_service as KW
+        k = pkt["kind"]
+        b = self._wbuf(s.watch_id)
+        if k == "link":
+            if pkt.get("battery") is not None:
+                b["link"]["battery"] = pkt["battery"]
+            if pkt.get("steps") is not None:
+                b["link"]["steps"] = pkt["steps"]
+        elif k in ("position", "alarm"):
+            fix = dict(pkt["fix"], blind=pkt.get("blind", False))
+            b["fixes"].append(fix)
+            if k == "alarm":
+                lat = fix["lat"] if fix["valid"] else None
+                lng = fix["lng"] if fix["valid"] else None
+                for a in fix["alarms"]:
+                    b["alarms"].append([a, lat, lng])
+        elif k == "voice":
+            # store first, then ACK, so a crash never loses a note the watch
+            # believes was delivered
+            await self.wflush()
+            await self.store.call(KW.voice_up, s.watch_id, pkt["audio"])
+        elif s.inflight and pkt["type"] == s.inflight[2]:
+            if pkt.get("ok") is False:
+                await self.store.call(KW.mark_failed, s.inflight[0], "watch_refused")
+            else:
+                await self.store.call(KW.mark_ack, s.watch_id, pkt["type"])
+            s.inflight = None
+        reply = watch.reply_for(pkt)
+        if reply:
+            await self._wsend(s, reply)
+        if k == "alarm":
+            await self.wflush()                 # SOS never waits for the timer
+
+    async def dispatch_watch_commands(self):
+        if not self.wsessions:
+            return 0
+        from core import kidswatch_service as KW
+        now = time.monotonic()
+        for s in self.wsessions.values():
+            if s.inflight and now - s.inflight[1] > KW.CMD_TIMEOUT_S:
+                s.inflight = None
+        free = [wid for wid, s in self.wsessions.items() if s.inflight is None]
+        if not free:
+            return 0
+        sent = 0
+        for cmd in await self.store.call(KW.pending_for, free):
+            s = self.wsessions.get(cmd["watch_id"])
+            if s is None or s.inflight is not None:
+                continue
+            try:
+                wire, typ = watch.server_command(s.maker, s.dev, cmd["kind"],
+                                                 cmd["payload"], s.index)
+            except (watch.ForbiddenCommand, ValueError) as e:
+                await self.store.call(KW.mark_failed, cmd["id"], type(e).__name__)
+                continue
+            try:
+                s.writer.write(wire)
+                await s.writer.drain()
+            except Exception:
+                continue
+            s.inflight = (cmd["id"], time.monotonic(), typ)
+            await self.store.call(KW.mark_sent, cmd["id"], typ)
+            sent += 1
+        return sent
+
+
+class WatchSession:
+    def __init__(self, watch_id, maker, dev, tz_min, writer):
+        self.watch_id = watch_id
+        self.maker = maker
+        self.dev = dev
+        self.tz_min = tz_min
+        self.writer = writer
+        self.index = None
+        self.inflight = None          # (cmd_id, sent_monotonic, ack_type)
 
 
 def _audit_abuse(tracker_id, ip):

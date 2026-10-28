@@ -141,6 +141,16 @@ _ACTION_DEFAULTS = {
     # provider_cost = our server + bandwidth + DB share per vehicle-month
     # (~US$0.15); the SIM in the tracker is the owner's own. Admin-editable.
     "vehicle_tracking_month": {"provider_cost": 0.15, "credits": 50},
+    # kidswatch (owner idea 2): one kids GPS watch in FULL mode for 30 days
+    # (live map, 30-day history, voice messages at 0 credits each). Our cost:
+    # server + bandwidth + DB + encrypted voice storage share, ~US$0.12 per
+    # watch-month (owner_actions/KIDS_WATCH_BN.md). NET floor =
+    # ceil(0.12*120/0.60) = 24; 30 keeps >= 40%. SOS + school-mode alerts are
+    # SAFETY and never charged (safety-only mode when unpaid).
+    "kids_watch_month":    {"provider_cost": 0.12, "credits": 30},
+    # one optional Bangla transcript of a <= 15 s watch voice note (speech API
+    # ~US$0.006/min -> 0.0015; booked at 0.003). Paid plans only, 20 a day.
+    "kids_voice_transcript": {"provider_cost": 0.003, "credits": 1},
     # ps1-photo: Photo Studio CLOUD jobs, per image. provider_cost is the
     # owner's best estimate (USD/image); the live job uses the larger of this
     # and the connected provider's own "cost per image" field, so a stale table
