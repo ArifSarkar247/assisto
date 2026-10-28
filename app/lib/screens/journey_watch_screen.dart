@@ -10,6 +10,9 @@ import '../services/journey_tracker.dart' show journeyMapsLink;
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/journey_api.dart';
+import '../widgets/journey_ride.dart';
+import 'journey_start_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
 
 /// journey100 — "Journeys I'm watching": the in-app side for a WATCHER (a
 /// push about someone's journey opens here). Real server state only
@@ -17,7 +20,9 @@ import '../widgets/journey_api.dart';
 /// SOS / arrived states; the map opens in the phone's maps app and the live
 /// page in the browser. Location is never shown after a trip ends.
 class JourneyWatchScreen extends StatefulWidget {
-  const JourneyWatchScreen({super.key});
+  /// Opened from the start form (the empty state's button just goes back).
+  final bool fromStart;
+  const JourneyWatchScreen({super.key, this.fromStart = false});
   @override
   State<JourneyWatchScreen> createState() => _JourneyWatchScreenState();
 }
@@ -82,10 +87,10 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
       return (label: t.j100StLive, color: Brand.successFill, icon: Icons.navigation_rounded);
     }
     if (age < 15 * 60) {
-      return (label: t.j100StStale((age / 60).round()), color: Brand.warnInk(context),
+      return (label: t.j100StStale(jDigits(context, (age / 60).round())), color: Brand.warnInk(context),
           icon: Icons.schedule_rounded);
     }
-    return (label: t.j100StLost((age / 60).round()), color: cs.error, icon: Icons.location_off_rounded);
+    return (label: t.j100StLost(jDigits(context, (age / 60).round())), color: cs.error, icon: Icons.location_off_rounded);
   }
 
   Widget _card(AppLocalizations t, Map<String, dynamic> j) {
@@ -116,8 +121,16 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
           if (eta != null && j['status'] == 'active')
             Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
                 style: AType.bodyMedium),
+          if (j['distance_m'] is num && j['status'] == 'active')
+            Text(t.j2ToGo(jKm(context, j['distance_m'] as num)),
+                style: AType.bodyMedium),
+          if (j['ride'] is Map && jRideLine(t, j['ride'] as Map).isNotEmpty)
+            Text(jRideLine(t, j['ride'] as Map), style: AType.bodyMedium),
+          if (j['ride'] is Map && '${(j['ride'] as Map)['driver_name'] ?? ''}'.isNotEmpty)
+            Text(t.j2Driver('${(j['ride'] as Map)['driver_name']}'), style: AType.bodyMedium),
           if (j['battery'] != null)
-            Text(t.j100Battery((j['battery'] as num).toInt()), style: AType.bodySmall),
+            Text(t.j100Battery(jDigits(context, (j['battery'] as num).toInt())),
+                style: AType.bodySmall),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             if (lat != null && lng != null)
@@ -159,14 +172,41 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
             child: FilledButton(onPressed: _load, child: Text(t.retry))),
       ]);
     } else if (_rows.isEmpty) {
-      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Icon(Icons.visibility_off_rounded,
-            size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      // journey2: an empty state with the benefit, how it works and one
+      // big action — not a dead end
+      final cs = Theme.of(context).colorScheme;
+      body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+        Icon(Icons.family_restroom_rounded, size: 56, color: cs.primary),
         const SizedBox(height: Gap.md),
-        Text(t.j100WatchEmpty, textAlign: TextAlign.center, style: AType.bodyLarge),
+        Text(t.j100WatchEmpty,
+            key: const ValueKey('j2_watch_empty'),
+            textAlign: TextAlign.center,
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: Gap.sm),
+        Text(t.j2WatchEmptyBenefit, textAlign: TextAlign.center, style: AType.bodyLarge),
+        const SizedBox(height: Gap.sm),
+        Text(t.j2WatchEmptyHow,
+            textAlign: TextAlign.center,
+            style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+        const SizedBox(height: Gap.lg),
+        FilledButton.icon(
+          key: const ValueKey('j2_watch_start_own'),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          icon: const Icon(Icons.navigation_rounded),
+          label: Text(t.j2WatchStartOwn),
+          onPressed: () {
+            final nav = Navigator.of(context);
+            if (widget.fromStart && nav.canPop()) {
+              nav.pop(); // back to the start form it was opened from
+            } else {
+              nav.pushReplacement(
+                  MaterialPageRoute(builder: (_) => const JourneyStartScreen()));
+            }
+          },
+        ),
       ]);
     } else {
-      body = ListView(padding: const EdgeInsets.all(Gap.md), children: [
+      body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
         for (final j in _rows) _card(t, j),
       ]);
     }

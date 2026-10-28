@@ -206,7 +206,37 @@ extension JourneyApi on ApiClient {
     return ((r['places'] ?? []) as List).cast<Map<String, dynamic>>();
   }
 
-  /// Save a place {label, name, lat, lng}. POST /journey/places
-  Future<void> saveSavedPlace(Map<String, dynamic> place) =>
+  /// Save a place {kind: home|school|office|other, label?, name, lat, lng}.
+  /// Home/School/Office are one each (saving again replaces it).
+  /// POST /journey/places -> the saved row
+  Future<Map<String, dynamic>> saveSavedPlace(Map<String, dynamic> place) =>
       postJson('/journey/places', place);
+
+  /// journey2: DELETE /journey/places/<id>
+  Future<void> deleteSavedPlace(int id) => deleteJson('/journey/places/$id');
+
+  // ---- journey2: destination picker, ride details, link off -------------
+
+  /// Coordinates from a pasted Google Maps link (long or maps.app.goo.gl),
+  /// a geo: URI or "23.78, 90.41". 400 when nothing usable is in it.
+  /// POST /journey/parse-link -> {lat, lng, name}
+  Future<Map<String, dynamic>> journeyParseLink(String text) =>
+      postJson('/journey/parse-link', {'text': text});
+
+  /// Place-name search through the owner's Places key. {available:false}
+  /// without one (the app then hides the search). GET /journey/geocode
+  Future<Map<String, dynamic>> journeyGeocode(String q, {double? lat, double? lng}) =>
+      getJson('/journey/geocode?q=${Uri.encodeQueryComponent(q)}'
+          '${lat != null && lng != null ? '&lat=$lat&lng=$lng' : ''}');
+
+  /// Ride details during the trip {plate, mode, app, driver_name,
+  /// driver_phone, note}; watchers get one push per change.
+  /// POST /journey/<id>/ride -> {vehicle, changed}
+  Future<Map<String, dynamic>> journeyRide(int id, Map<String, dynamic> ride) =>
+      postJson('/journey/$id/ride', ride);
+
+  /// Turn every shared watcher link off; a fresh link comes back.
+  /// POST /journey/<id>/web-link/revoke -> {url}
+  Future<Map<String, dynamic>> journeyRevokeLink(int id) =>
+      postJson('/journey/$id/web-link/revoke', const {});
 }

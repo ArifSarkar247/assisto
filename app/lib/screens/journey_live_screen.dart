@@ -16,6 +16,10 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/adaptive_button_pair.dart';
 import '../widgets/journey_api.dart';
+import '../widgets/journey_dest_sheets.dart';
+import '../widgets/journey_ride.dart';
+import '../services/oem_guide.dart';
+import 'battery_guidance_screen.dart';
 import '../widgets/password_field.dart';
 import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
@@ -37,7 +41,10 @@ class JourneyLiveScreen extends StatefulWidget {
 
   /// Tests inject a tracker without the foreground service.
   final JourneyTracker? tracker;
-  const JourneyLiveScreen({super.key, required this.journeyId, this.tracker});
+
+  /// Tests / gallery inject the OEM probe (battery optimisation etc.).
+  final OemGuideNative? oem;
+  const JourneyLiveScreen({super.key, required this.journeyId, this.tracker, this.oem});
   @override
   State<JourneyLiveScreen> createState() => _JourneyLiveScreenState();
 }
@@ -50,6 +57,10 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
   bool _closing = false;
   bool _photoAdded = false;
   bool _pinRequired = false;
+  // journey2: this phone's background rules may stop sharing with the
+  // screen off (Realme/Xiaomi/Oppo/Vivo/Samsung battery savers). Shown
+  // honestly with the 2-step fix; never claimed fixed unless Android says so.
+  OemInfo? _oemInfo;
 
   ApiClient get _api => context.read<AppState>().api;
 
@@ -91,6 +102,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       // best-effort: offline — the tracker's own state + queue still work
     }
     if (!mounted) return;
+    unawaited(_probeBackground());
     await _tr.start(
       widget.journeyId,
       (id, points) => api.journeyLocationBatch(id, points),
@@ -105,6 +117,135 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               'lang': api.lang ?? 'bn',
             },
     );
+  }
+
+  Future<void> _probeBackground() async {
+    try {
+      final info = await (widget.oem ?? const ChannelOemGuideNative()).info();
+      if (mounted) setState(() => _oemInfo = info);
+    } catch (_) {
+      // best-effort: unknown phone rules -> no card (the service line stays)
+    }
+  }
+
+  /// True when Android reports a rule that can stop the trip's sharing with
+  /// the screen off, or the phone family is known to need manual steps that
+  /// Android cannot confirm (autostart / OEM battery saver).
+  bool get _bgRisk {
+    final i = _oemInfo;
+    if (i == null) return false;
+    if (i.bgRestricted == true) return true;
+    if (i.family == OemFamily.nearStock) return false;
+    return i.batteryOptIgnored != true;
+  }
+
+  Widget _bgCard(AppLocalizations t) {
+    final warn = Brand.warnInk(context);
+    return Container(
+      key: const ValueKey('j2_bg_risk'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+          color: warn.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(Radii.md)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.battery_alert_rounded, color: warn),
+          const SizedBox(width: 10),
+          Expanded(
+              child: Text(t.j2BgRiskTitle,
+                  style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700))),
+        ]),
+        const SizedBox(height: Gap.xs),
+        Text(t.j2BgRiskBody, style: AType.bodyMedium),
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          key: const ValueKey('j2_bg_fix'),
+          icon: const Icon(Icons.build_circle_rounded),
+          label: Text(t.j2BgRiskFix),
+          onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => BatteryGuidanceScreen(native: widget.oem)));
+            if (mounted) unawaited(_probeBackground());
+          },
+        ),
+      ]),
+    );
+  }
+
+  Map<String, dynamic> get _ride =>
+      ((_journey['vehicle'] as Map?) ?? const {}).cast<String, dynamic>();
+
+  Widget _rideCard(AppLocalizations t) {
+    final cs = Theme.of(context).colorScheme;
+    final v = _ride;
+    final line = jRideLine(t, v);
+    final driver = '${v['driver_name'] ?? ''}';
+    final empty = line.isEmpty && driver.isEmpty;
+    return Card(
+      key: const ValueKey('j2_ride_card'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.local_taxi_rounded, color: cs.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+                child: Text(t.j2RideCardTitle,
+                    style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700))),
+          ]),
+          const SizedBox(height: Gap.xs),
+          if (empty)
+            Text(t.j2RideEmpty, style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant))
+          else ...[
+            if (line.isNotEmpty) Text(line, style: AType.bodyMedium),
+            if (driver.isNotEmpty) Text(t.j2Driver(driver), style: AType.bodyMedium),
+          ],
+          const SizedBox(height: Gap.xs),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            OutlinedButton.icon(
+                key: const ValueKey('j2_ride_edit'),
+                icon: Icon(empty ? Icons.add_rounded : Icons.edit_rounded),
+                label: Text(empty ? t.j2RideAdd : t.j2RideChange),
+                onPressed: _editRide),
+            OutlinedButton.icon(
+                key: const ValueKey('j100_photo'),
+                icon: Icon(_photoAdded
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.add_a_photo_rounded),
+                label: Text(_photoAdded ? t.j100VehiclePhotoAdded : t.j100VehiclePhoto),
+                onPressed: _vehiclePhoto),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _editRide() async {
+    final t = AppLocalizations.of(context);
+    final got = await showJourneyRideSheet(context, _ride);
+    if (got == null || !mounted) return;
+    try {
+      final r = await _api.journeyRide(widget.journeyId, got);
+      if (!mounted) return;
+      final v = (r['vehicle'] as Map?)?.cast<String, dynamic>();
+      setState(() => _journey = {
+            ..._journey,
+            'vehicle': {...?v, if (_ride['photo_url'] != null) 'photo_url': _ride['photo_url']},
+          });
+      _snack(t.j2RideSaved);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'journey.ride', e);
+    }
+  }
+
+  /// Straight-line distance left to a pinned destination, from this phone's
+  /// latest fix (null when either is unknown — nothing is guessed).
+  double? _toGo(JourneyTrackState s) {
+    final d = (_journey['destination'] as Map?) ?? const {};
+    final lat = (d['lat'] as num?)?.toDouble(), lng = (d['lng'] as num?)?.toDouble();
+    final f = s.lastFix;
+    if (lat == null || lng == null || f == null) return null;
+    return jDistanceM(f.lat, f.lng, lat, lng);
   }
 
   void _onTrack() {
@@ -260,6 +401,61 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
     await _tr.finished('stopped');
     if (mounted) _closeWith(null);
+  }
+
+  Future<void> _linkSheet() async {
+    final t = AppLocalizations.of(context);
+    final pick = await showAppSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+              title: Text(t.j2LinkSheetTitle,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+              subtitle: Text(t.j2LinkNote)),
+          ListTile(
+              key: const ValueKey('j2_link_share'),
+              leading: const Icon(Icons.share_rounded),
+              title: Text(t.j2LinkShare),
+              onTap: () => Navigator.pop(ctx, 'share')),
+          ListTile(
+              key: const ValueKey('j2_link_off'),
+              leading: const Icon(Icons.link_off_rounded),
+              title: Text(t.j2LinkOff),
+              onTap: () => Navigator.pop(ctx, 'off')),
+        ]),
+      ),
+    );
+    if (!mounted) return;
+    if (pick == 'share') await _shareWebLink();
+    if (pick == 'off') await _revokeLink();
+  }
+
+  Future<void> _revokeLink() async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(t.j2LinkOffTitle),
+        content: Text(t.j2LinkOffBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              key: const ValueKey('j2_link_off_ok'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.j2LinkOffConfirm)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await _api.journeyRevokeLink(widget.journeyId);
+      if (mounted) _snack(t.j2LinkOffDone);
+    } catch (e) {
+      // q1-seams: never say "turned off" when the server did not hear it
+      if (mounted) showActionFailed(context, 'journey.revokeLink', e);
+    }
   }
 
   Future<void> _shareWebLink() async {
@@ -427,7 +623,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       icon = Icons.cloud_off_rounded;
       color = Brand.warnInk(context);
       title = t.j100OfflineTitle;
-      body = t.j100OfflineBody(s.queued);
+      body = t.j100OfflineBody(jDigits(context, s.queued));
       action = FilledButton.icon(
         key: const ValueKey('j100_sms'),
         icon: const Icon(Icons.sms_rounded),
@@ -475,6 +671,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           if (eta != null)
             Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
                 style: AType.bodyMedium),
+          if (_toGo(s) case final m?)
+            Text(t.j2ToGo(jKm(context, m)),
+                key: const ValueKey('j2_to_go'), style: AType.bodyMedium),
           if (late)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
@@ -505,10 +704,14 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             key: const ValueKey('j100_share'),
             icon: const Icon(Icons.link_rounded),
             tooltip: t.journeyShareLink,
-            onPressed: _shareWebLink),
+            onPressed: _linkSheet),
       ]),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _statusCard(t, s),
+        if (_bgRisk) ...[
+          const SizedBox(height: Gap.md),
+          _bgCard(t),
+        ],
         const SizedBox(height: Gap.lg),
         SosButton(label: t.emergencySosButton, onPressed: _openSos),
         const SizedBox(height: Gap.lg),
@@ -543,24 +746,18 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         const SizedBox(height: Gap.sm),
         AdaptiveButtonPair(
           first: OutlinedButton.icon(
-              key: const ValueKey('j100_photo'),
-              icon: Icon(_photoAdded
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.add_a_photo_rounded),
-              label: Text(_photoAdded ? t.j100VehiclePhotoAdded : t.j100VehiclePhoto),
-              onPressed: _vehiclePhoto),
+              key: const ValueKey('j100_sms_any'),
+              icon: const Icon(Icons.sms_rounded),
+              label: Text(t.j100SendSms),
+              onPressed: _sms),
           second: OutlinedButton.icon(
               key: const ValueKey('j100_stop'),
               icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.journeyStop),
               onPressed: _stop),
         ),
-        const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-            key: const ValueKey('j100_sms_any'),
-            icon: const Icon(Icons.sms_rounded),
-            label: Text(t.j100SendSms),
-            onPressed: _sms),
+        const SizedBox(height: Gap.md),
+        _rideCard(t),
         const SizedBox(height: 20),
         Text(t.j100Footer,
             style: AType.bodySmall
