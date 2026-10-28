@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from rest_framework import viewsets, status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -271,12 +271,42 @@ class MemoryViewSet(viewsets.ModelViewSet):
 
 # ---------- synced collections (reminders / notes / todos) ----------
 
+_RN_MSG = {
+    # remnotes: abuse caps only (notes / reminders are free on every plan).
+    "daily_cap": ("আজ অনেক বেশি যোগ করা হয়েছে — কাল আবার চেষ্টা করুন।",
+                  "You've added a lot today — try again tomorrow."),
+    "total_cap": ("সংখ্যার সীমা পূর্ণ — পুরনো কিছু মুছে আবার চেষ্টা করুন।",
+                  "You've reached the limit — delete some old ones and try again."),
+    "not_in_circle": ("এই মানুষটি আপনার My Circle-এ নেই।",
+                      "This person is not in your My Circle."),
+    "not_linked": ("এই মানুষটি এখনো Assisto-তে যুক্ত নন।",
+                   "This person isn't on Assisto yet."),
+    "rate_limited": ("আজ অনেক নোট পাঠানো হয়েছে। কাল আবার চেষ্টা করুন।",
+                     "You've sent a lot of notes today. Try again tomorrow."),
+    "their_full": ("তাঁর নোটের জায়গা পূর্ণ।", "Their notes are full."),
+}
+
+
+def _rn_refuse(request, reason, code=status.HTTP_429_TOO_MANY_REQUESTS):
+    bn, en = _RN_MSG.get(reason, _RN_MSG["not_in_circle"])
+    return Response({"detail": pick(req_lang(request), bn, en), "reason": reason},
+                    status=code)
+
+
 class SyncedViewSet(viewsets.ModelViewSet):
     """Per-user CRUD with audit logging and recoverable (undoable) deletes."""
     kind = ""   # 'reminder' | 'note' | 'todo'
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # remnotes: server-side abuse caps (per day + total), bilingual.
+        from . import remnotes as RN
+        why = RN.over_cap(request.user, self.kind)
+        if why:
+            return _rn_refuse(request, why)
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         obj = serializer.save(user=self.request.user, source=MemoryItem.SOURCE_MANUAL)
@@ -312,6 +342,23 @@ class NoteViewSet(SyncedViewSet):
     model = Note
     kind = "note"
     serializer_class = NoteSerializer
+
+    @action(detail=True, methods=["post"], url_path="share")
+    def share(self, request, pk=None):
+        """remnotes: POST /notes/<id>/share {circle_id} — a copy to one
+        accepted My Circle member (vault attachments are never copied)."""
+        from . import remnotes as RN
+        note = self.get_object()
+        copy, err = RN.share_note(request.user, note, request.data.get("circle_id"))
+        if err:
+            code = (status.HTTP_429_TOO_MANY_REQUESTS if err == "rate_limited"
+                    else status.HTTP_409_CONFLICT if err == "their_full"
+                    else status.HTTP_404_NOT_FOUND)
+            return _rn_refuse(request, err, code)
+        log(request.user, "note.share", id=note.id, to=copy.user_id)
+        return Response({"ok": True, "shared_id": copy.id,
+                         "attachments_dropped": len(note.attachments or [])},
+                        status=status.HTTP_201_CREATED)
 
 
 class TodoViewSet(SyncedViewSet):
