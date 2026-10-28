@@ -871,7 +871,6 @@ class _AiChatScreenState extends State<AiChatScreen>
       ),
       body: Column(children: [
         if (_offlineCopy) _offlineStrip(),
-        if (_noKey && _msgs.isNotEmpty) _noKeyStrip(),
         Expanded(child: _body()),
         if (_loop.active ||
             (widget.debugLoopPhase != null && !_debugLoopEnded))
@@ -898,11 +897,20 @@ class _AiChatScreenState extends State<AiChatScreen>
       );
     }
     if (_msgs.isEmpty) return _welcome();
+    // aivoice: the no-key strip is the thread's first row (it scrolls away,
+    // so at 200% font it can never push the input off the screen).
+    final lead = _noKey ? 1 : 0;
     return ListView.builder(
       controller: _scroll,
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
-      itemCount: _msgs.length,
-      itemBuilder: (_, i) => _bubble(_msgs[i], i),
+      itemCount: _msgs.length + lead,
+      itemBuilder: (_, i) => i < lead
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(Radii.md),
+                  child: _noKeyStrip()))
+          : _bubble(_msgs[i - lead], i - lead),
     );
   }
 
@@ -1084,9 +1092,13 @@ class _AiChatScreenState extends State<AiChatScreen>
               Icon(Icons.cloud_off_rounded,
                   size: 13, color: scheme.onSecondaryContainer),
               const SizedBox(width: Gap.xs),
-              Text(t.aichatOfflineAnswer,
-                  style: AType.labelSmall.copyWith(fontWeight: FontWeight.w600,
-                      color: scheme.onSecondaryContainer)),
+              // aivoice: 200% font — wraps instead of overflowing
+              Flexible(
+                child: Text(t.aichatOfflineAnswer,
+                    style: AType.labelSmall.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSecondaryContainer)),
+              ),
             ]),
           ),
         ),
@@ -1211,12 +1223,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: _noKeyOpen
-                // 200% font: the open card scrolls inside a third of the
-                // screen instead of pushing the input off it.
-                ? ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.34),
-                    child: SingleChildScrollView(child: _noKeyCard(scheme)))
+                ? _noKeyCard(scheme)
                 : Row(children: [
                     Icon(Icons.key_off_rounded,
                         size: 18, color: scheme.onSecondaryContainer),
