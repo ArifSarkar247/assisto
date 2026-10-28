@@ -9,6 +9,8 @@ name: agent-eval
 on:
   push:
     branches: ['ci/**']
+    # cost control (owner 28 Oct): the agent evals only test backend code
+    paths: ['backend/**', '.github/workflows/agent-eval.yml']
   workflow_dispatch:
     inputs:
       ref:
