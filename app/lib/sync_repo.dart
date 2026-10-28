@@ -71,28 +71,54 @@ class SyncedRepo extends ChangeNotifier {
     await sync();
   }
 
+  /// remnotes: the server's own words when it REFUSED one queued write
+  /// (an abuse cap, a bad request). Null when the last sync had none. The
+  /// screens show it honestly instead of the item silently never syncing.
+  String? refusal;
+
+  /// A refusal that will not fix itself by retrying right away (4xx other
+  /// than auth / timeout). Network errors and 5xx keep aborting the sync.
+  static bool _refused(Object e) {
+    if (e is! ApiException) return false;
+    final s = e.status ?? 0;
+    return s >= 400 && s < 500 && s != 401 && s != 408;
+  }
+
   Future<void> sync() async {
     if (api.token == null || syncing) return;
     syncing = true;
     notifyListeners();
     try {
+      String? refused;
       for (final row in await db.recPending(entity)) {
         final m = _fromRow(row);
         final op = m['pendingOp'];
-        if (op == 'create') {
-          final j = await api.createItem(path, Map<String, dynamic>.from(m['data']));
-          m['serverId'] = j['id'];
-          m['pendingOp'] = 'none';
-          await db.recUpsert(entity, _toRow(m));
-        } else if (op == 'update' && m['serverId'] != null) {
-          await api.updateItem(path, m['serverId'] as int, Map<String, dynamic>.from(m['data']));
-          m['pendingOp'] = 'none';
-          await db.recUpsert(entity, _toRow(m));
-        } else if (op == 'delete' && m['serverId'] != null) {
-          await api.deleteItem(path, m['serverId'] as int);
-          await db.recHardDelete(entity, m['localId'] as String);
+        try {
+          if (op == 'create') {
+            final j = await api.createItem(path, Map<String, dynamic>.from(m['data']));
+            m['serverId'] = j['id'];
+            m['pendingOp'] = 'none';
+            await db.recUpsert(entity, _toRow(m));
+          } else if (op == 'update' && m['serverId'] != null) {
+            await api.updateItem(path, m['serverId'] as int, Map<String, dynamic>.from(m['data']));
+            m['pendingOp'] = 'none';
+            await db.recUpsert(entity, _toRow(m));
+          } else if (op == 'delete' && m['serverId'] != null) {
+            await api.deleteItem(path, m['serverId'] as int);
+            await db.recHardDelete(entity, m['localId'] as String);
+          }
+        } catch (e) {
+          // remnotes: one refused write (e.g. today's cap) used to abort the
+          // whole sync, so every LATER edit and the server refresh never ran.
+          if (!_refused(e)) rethrow;
+          if (op == 'delete' && (e as ApiException).status == 404) {
+            await db.recHardDelete(entity, m['localId'] as String); // already gone
+          } else {
+            refused = (e as ApiException).message;
+          }
         }
       }
+      refusal = refused;
       final server = await api.listItems(path);
       final rows = server
           .map((j) => {

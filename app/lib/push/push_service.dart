@@ -1,3 +1,4 @@
+import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
 import 'dart:async';
@@ -503,6 +504,13 @@ class PushService {
 
   void _onLocalResponse(NotificationResponse r) {
     AppEntry.mark('notification'); // p2-money: no app-open ad for this entry
+    // remnotes: our own reminder alarm (payload 'remalarm:<key>'): Done /
+    // Snooze apply at once; a plain tap opens the Reminders screen (it used
+    // to open nothing — the payload is not a push JSON).
+    if (ReminderActions.isOurs(r)) {
+      unawaited(_onReminderAlarm(r));
+      return;
+    }
     if (r.actionId == kActionReply || r.actionId == kActionRead) {
       unawaited(handleMsgNotificationAction(r));
       return;
@@ -528,6 +536,19 @@ class PushService {
       return;
     }
     _open(p, r.actionId);
+  }
+
+  Future<void> _onReminderAlarm(NotificationResponse r) async {
+    try {
+      final a = await ReminderActions.record(r);
+      final app = _app;
+      if (app != null) {
+        await ReminderActions.applyTo(app.reminders.items, app.reminders.update);
+      }
+      if (a == null) {
+        _open(PushPayload(const {'kind': 'reminder', 'route': 'reminders'}), null);
+      }
+    } catch (_) {}
   }
 
   void _open(PushPayload p, String? action) {

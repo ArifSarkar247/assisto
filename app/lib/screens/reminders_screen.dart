@@ -7,7 +7,6 @@ import '../state.dart';
 import '../theme.dart';
 import '../notifications.dart';
 import '../services/home_widget_service.dart';
-import '../widgets/skeleton.dart';
 import '../widgets/reminders_nlp.dart';
 import '../widgets/rem_calendar.dart';
 import '../widgets/offline_banner.dart';
@@ -15,6 +14,10 @@ import 'reminders_quick_add.dart';
 import '../reminders/exact_alarm_ui.dart'; // remmeter
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/fam_empty.dart' show FamEmptyState; // remnotes
+import '../widgets/fam_members_section.dart' show showFamTaskForm, famInCircle;
+import '../widgets/rn_bits.dart';
+import 'family_screen.dart' show FamilyScreen;
 
 /// Reminders & Memory brain — the daily natural-language reminder screen.
 ///
@@ -113,6 +116,13 @@ class _RemindersScreenState extends State<RemindersScreen>
                 ? Icons.view_agenda_rounded
                 : Icons.calendar_month_rounded),
           ),
+          // remnotes: famcare's family tasks, reachable from Reminders too
+          IconButton(
+            key: const ValueKey('rn-give-family'),
+            tooltip: t.rnGiveFamily,
+            onPressed: () => giveFamilyTask(context),
+            icon: const Icon(Icons.family_restroom_rounded),
+          ),
           IconButton(
             tooltip: t.remSyncTooltip,
             onPressed: () => app.reminders.sync(),
@@ -125,11 +135,15 @@ class _RemindersScreenState extends State<RemindersScreen>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => editReminder(context),
-        icon: const Icon(Icons.add_alarm_rounded),
-        label: Text(t.add),
-      ),
+      // remnotes: empty list -> the empty state's big button is the one
+      // primary action (the FAB covered its how-to card)
+      floatingActionButton: items.isEmpty && !_calendar
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => editReminder(context),
+              icon: const Icon(Icons.add_alarm_rounded),
+              label: Text(t.add),
+            ),
       body: _calendar
           ? const RemCalendarView()
           : Column(
@@ -143,15 +157,24 @@ class _RemindersScreenState extends State<RemindersScreen>
                 // remmeter: exact alarms off -> honest "may be late" note
                 if (_notifEnabled != false) const ExactAlarmBanner(),
                 const OfflineBanner(),
+                SyncRefusalStrip(message: app.reminders.refusal),
                 QuickAddBar(onCommit: (p, title, link) async {
                   await _create(context, title: title, parsed: p, link: link);
                 }),
                 Expanded(
                   child: items.isEmpty
-                      ? StateMessage(
+                      // remnotes: benefit + big button + 3-step how-to
+                      ? FamEmptyState(
+                          key: const ValueKey('rn-rem-empty'),
                           icon: Icons.alarm_on_rounded,
                           title: t.remEmpty,
-                          message: t.remEmptyHint,
+                          benefit: t.rnRemBenefit,
+                          primaryLabel: t.rnRemAddFirst,
+                          primaryIcon: Icons.add_alarm_rounded,
+                          onPrimary: () => editReminder(context),
+                          secondaryLabel: t.rnGiveFamily,
+                          onSecondary: () => giveFamilyTask(context),
+                          steps: [t.rnRemStep1, t.rnRemStep2, t.rnRemStep3],
                         )
                       // perf2gb: lazy list — only the rows on screen are
                       // built (500 reminders built every card at once).
@@ -466,7 +489,8 @@ class _ReminderCard extends StatelessWidget {
                       style: done
                           ? Theme.of(context).textTheme.bodyLarge?.copyWith(
                               decoration: TextDecoration.lineThrough,
-                              color: Theme.of(context).disabledColor)
+                              // remnotes: readable (AA), not disabled grey
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)
                           : Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: Gap.xxs),
@@ -676,6 +700,24 @@ IconData _linkIcon(String? type) {
 }
 
 String recurrenceLabel(AppLocalizations t, RecurrenceRule rule) {
+  // remnotes: "every 2 weeks" used to read as plain "weekly"
+  if (rule.interval > 1) {
+    final unit = switch (rule.freq) {
+      'daily' => t.remUnitDays,
+      'weekly' => t.remUnitWeeks,
+      'monthly' => t.remUnitMonths,
+      'yearly' => t.remUnitYears,
+      _ => '',
+    };
+    final base = t.rnEveryN(rnDigits(t, rule.interval), unit).trim();
+    if (rule.freq == 'weekly' && rule.weekday != null) {
+      return '$base · ${_weekdayName(t, rule.weekday!)}';
+    }
+    if (rule.freq == 'monthly' && rule.dayOfMonth != null) {
+      return '$base · ${t.remRecurMonthlyOn(rnDigits(t, rule.dayOfMonth))}';
+    }
+    return base;
+  }
   switch (rule.freq) {
     case 'daily':
       return t.remRecurDaily;
@@ -686,7 +728,7 @@ String recurrenceLabel(AppLocalizations t, RecurrenceRule rule) {
       return t.remRecurWeekly;
     case 'monthly':
       if (rule.dayOfMonth != null) {
-        return t.remRecurMonthlyOn(rule.dayOfMonth!);
+        return t.remRecurMonthlyOn(rnDigits(t, rule.dayOfMonth));
       }
       return t.remRecurMonthly;
     case 'yearly':
@@ -698,8 +740,33 @@ String recurrenceLabel(AppLocalizations t, RecurrenceRule rule) {
 
 String _weekdayName(AppLocalizations t, int wd) {
   // 0=Mon..6=Sun -> intl EEEE via a reference Monday (2024-01-01 was Monday)
+  // remnotes: in the APP's language (it printed "Friday" in Bangla mode)
   final ref = DateTime(2024, 1, 1).add(Duration(days: wd));
-  return DateFormat('EEEE').format(ref);
+  return DateFormat('EEEE', t.localeName).format(ref);
+}
+
+/// remnotes: give a family member a task from the Reminders screen (the
+/// famcare form; it lands in THEIR reminders). Nobody linked yet -> the
+/// Family screen, where people are picked from My Circle in one tap.
+Future<void> giveFamilyTask(BuildContext context) async {
+  final t = AppLocalizations.of(context);
+  final app = context.read<AppState>();
+  final messenger = ScaffoldMessenger.of(context);
+  List<Map<String, dynamic>> members;
+  try {
+    members = await app.api.listItems('family');
+  } catch (_) {
+    messenger.showSnackBar(SnackBar(content: Text(t.rnLoadFailed)));
+    return;
+  }
+  if (!context.mounted) return;
+  if (!members.any(famInCircle)) {
+    messenger.showSnackBar(SnackBar(content: Text(t.fcTaskNeedsCircle)));
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const FamilyScreen()));
+    return;
+  }
+  await showFamTaskForm(context, members: members);
 }
 
 // ---------------------------------------------------------------- notif banner
@@ -809,6 +876,9 @@ class _SnoozeSheet extends StatelessWidget {
       _SnoozeOpt(t.remSnooze10m, now.add(const Duration(minutes: 10))),
       _SnoozeOpt(t.remSnooze1h, now.add(const Duration(hours: 1))),
       _SnoozeOpt(t.remSnooze3h, now.add(const Duration(hours: 3))),
+      // remnotes: "after work / maghrib" — only while it is still ahead
+      if (now.hour < 18)
+        _SnoozeOpt(t.rnSnoozeEvening, DateTime(now.year, now.month, now.day, 19)),
       _SnoozeOpt(t.remSnoozeTomorrow,
           DateTime(now.year, now.month, now.day + 1, 8, 0)),
       _SnoozeOpt(t.remSnoozeNextWeek,

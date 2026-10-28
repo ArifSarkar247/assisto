@@ -10,6 +10,8 @@ import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/rem_notes.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import '../widgets/fam_empty.dart' show FamEmptyState; // remnotes
+import '../widgets/rn_bits.dart';
 
 /// Advanced Notes + To-Do (#22, SPEC v2.1 §21).
 ///
@@ -19,12 +21,16 @@ import '../widgets/bn_day_periods.dart' show appDateLocale;
 /// §21 pillars: empty / loading / offline / no-search-results / bilingual /
 /// WCAG. Zero Bangla glyph literals in source.
 class NotesTodosScreen extends StatelessWidget {
-  const NotesTodosScreen({super.key});
+  const NotesTodosScreen({super.key, this.initialIndex = 0});
+
+  /// 0 = Notes, 1 = To-do (remnotes: gallery / deep links).
+  final int initialIndex;
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
+      initialIndex: initialIndex.clamp(0, 1),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
         bottomNavigationBar: const AdBannerSlot(screen: 'notes_todos'),
@@ -62,6 +68,7 @@ class _NotesTab extends StatefulWidget {
 class _NotesTabState extends State<_NotesTab> {
   final _search = TextEditingController();
   String _query = '';
+  String? _label; // remnotes: filter by one label
 
   @override
   void dispose() {
@@ -104,20 +111,78 @@ class _NotesTabState extends State<_NotesTab> {
       final pb = (b['data']['pinned'] == true) ? 0 : 1;
       return pa.compareTo(pb);
     });
-    final items = all.where((it) => _matches(it['data'], _query)).toList();
+    // remnotes: every label in use, for the one-tap filter row
+    final labels = <String>{
+      for (final it in all)
+        if (it['data']['tags'] is List)
+          for (final tg in it['data']['tags'] as List) '$tg',
+    }.toList()
+      ..sort();
+    if (_label != null && !labels.contains(_label)) _label = null;
+    final items = all
+        .where((it) => _matches(it['data'], _query))
+        .where((it) =>
+            _label == null ||
+            (it['data']['tags'] is List &&
+                (it['data']['tags'] as List).map((e) => '$e').contains(_label)))
+        .toList();
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          tooltip: AppLocalizations.of(context).add,
-          onPressed: () => editNote(context), child: const Icon(Icons.add_rounded)),
+      floatingActionButton: all.isEmpty
+          ? null // the empty state's big button does it
+          : FloatingActionButton(
+              tooltip: AppLocalizations.of(context).add,
+              onPressed: () => editNote(context),
+              child: const Icon(Icons.add_rounded)),
       body: Column(children: [
+        SyncRefusalStrip(message: app.notes.refusal),
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
+        if (labels.isNotEmpty)
+          // grows with the text size (200% never clips a chip)
+          Align(
+           alignment: AlignmentDirectional.centerStart,
+           child: SingleChildScrollView(
+            key: const ValueKey('rn-label-row'),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: Gap.xs),
+                  child: ChoiceChip(
+                    label: Text(t.rnAllLabels),
+                    selected: _label == null,
+                    onSelected: (_) => setState(() => _label = null),
+                  ),
+                ),
+                for (final l in labels)
+                  Padding(
+                    padding: const EdgeInsets.only(right: Gap.xs),
+                    child: Tooltip(
+                      message: t.rnFilterByLabel,
+                      child: ChoiceChip(
+                        key: ValueKey('rn-label-$l'),
+                        avatar: const Icon(Icons.label_outline_rounded, size: 16),
+                        label: Text(l),
+                        selected: _label == l,
+                        onSelected: (on) => setState(() => _label = on ? l : null),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+           ),
+          ),
         Expanded(
           child: all.isEmpty
-              ? StateMessage(
+              ? FamEmptyState(
+                  key: const ValueKey('rn-notes-empty'),
                   icon: Icons.sticky_note_2_rounded,
                   title: t.notesEmptyNotes,
-                  message: t.notesEmptyNotesHint,
+                  benefit: t.rnNotesBenefit,
+                  primaryLabel: t.rnNotesAddFirst,
+                  onPrimary: () => editNote(context),
+                  steps: [t.rnNotesStep1, t.rnNotesStep2, t.rnNotesStep3],
                 )
               : items.isEmpty
                   ? StateMessage(
@@ -125,12 +190,12 @@ class _NotesTabState extends State<_NotesTab> {
                       title: t.notesNoMatch,
                       message: t.notesNoMatchHint,
                     )
-                  : ListView(
+                  // perf2gb-style: only the cards on screen are built
+                  : ListView.builder(
                       padding:
                           const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
-                      children: [
-                        for (final it in items) _NoteCard(item: it),
-                      ],
+                      itemCount: items.length,
+                      itemBuilder: (_, i) => _NoteCard(item: items[i]),
                     ),
         ),
       ]),
@@ -157,7 +222,10 @@ class _NoteCard extends StatelessWidget {
     final due = d['due_at'] != null
         ? DateTime.tryParse(d['due_at'])?.toLocal()
         : null;
-    final linked = d['reminder_local_id'] != null;
+    final linked = '${d['reminder_local_id'] ?? ''}'.isNotEmpty;
+    final attachments =
+        d['attachments'] is List ? (d['attachments'] as List).length : 0;
+    final from = d['shared_from'] is Map ? '${(d['shared_from'] as Map)['name'] ?? ''}' : '';
     final titleText = (d['title'] ?? '').toString().isEmpty
         ? (d['body'] ?? '').toString()
         : (d['title']).toString();
@@ -165,6 +233,7 @@ class _NoteCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Card(
+        color: noteFill(context, d['color'] as String?), // remnotes
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.md),
           onTap: () => editNote(context, item: item),
@@ -201,6 +270,8 @@ class _NoteCard extends StatelessWidget {
                         app.notes.update(item, {'pinned': !pinned});
                       } else if (v == 'remind') {
                         noteToReminder(context, item);
+                      } else if (v == 'share') {
+                        shareNote(context, item);
                       } else if (v == 'del') {
                         app.notes.remove(item);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -222,6 +293,13 @@ class _NoteCard extends StatelessWidget {
                               const SizedBox(width: Gap.sm),
                               Text(t.notesMakeReminder),
                             ])),
+                      PopupMenuItem(
+                          value: 'share',
+                          child: Row(children: [
+                            const Icon(Icons.share_rounded, size: 18),
+                            const SizedBox(width: Gap.sm),
+                            Text(t.rnShare),
+                          ])),
                       PopupMenuItem(value: 'del', child: Text(t.delete)),
                     ],
                   ),
@@ -252,7 +330,11 @@ class _NoteCard extends StatelessWidget {
                           list[i]['done'] = !(list[i]['done'] == true);
                           app.notes.update(item, {'checklist': list});
                         },
-                        child: Row(children: [
+                        // remnotes: a 48dp row — ticking at the shop with
+                        // one thumb (was an 18px target)
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Row(children: [
                           Icon(
                               checklist[i]['done'] == true
                                   ? Icons.check_box_rounded
@@ -268,17 +350,19 @@ class _NoteCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: checklist[i]['done'] == true
-                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: Theme.of(context).disabledColor)
+                                  // remnotes: struck through but still readable (AA)
+                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: scheme.onSurfaceVariant)
                                   : AType.bodyMedium,
                             ),
                           ),
                         ]),
+                        ),
                       ),
                     ),
                   if (checklist.length > 3)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.xl, top: Gap.xxs),
-                      child: Text(t.notesMoreItems(checklist.length - 3),
+                      child: Text(t.notesMoreItems(rnDigits(t, checklist.length - 3)),
                           style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ),
                 ],
@@ -286,6 +370,8 @@ class _NoteCard extends StatelessWidget {
                 if (checklist.isNotEmpty ||
                     due != null ||
                     linked ||
+                    attachments > 0 ||
+                    from.isNotEmpty ||
                     tags.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
                   Padding(
@@ -296,8 +382,15 @@ class _NoteCard extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (checklist.isNotEmpty)
-                          _chip(Icons.checklist_rounded, '$done/${checklist.length}',
-                              Brand.success),
+                          _chip(Icons.checklist_rounded,
+                              rnDigits(t, '$done/${checklist.length}'),
+                              Brand.onTint(context, Brand.success)),
+                        if (from.isNotEmpty)
+                          _chip(Icons.person_rounded, t.rnSharedFrom(from),
+                              Brand.onTint(context, Brand.blue)),
+                        if (attachments > 0)
+                          _chip(Icons.attach_file_rounded, rnDigits(t, attachments),
+                              scheme.onSurfaceVariant),
                         if (due != null)
                           _chip(Icons.event_rounded,
                               DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
@@ -324,7 +417,8 @@ class _NoteCard extends StatelessWidget {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: tint),
         const SizedBox(width: 3),
-        Text(label, style: AType.bodySmall.copyWith(color: tint)),
+        // remnotes: wraps at 200% instead of overflowing the card
+        Flexible(child: Text(label, style: AType.bodySmall.copyWith(color: tint))),
       ]);
 }
 
@@ -348,23 +442,36 @@ class _TodosTab extends StatelessWidget {
     final open = items.where((i) => i['data']['done'] != true).length;
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          tooltip: AppLocalizations.of(context).add,
-          onPressed: () => editTodo(context), child: const Icon(Icons.add_rounded)),
+      floatingActionButton: items.isEmpty
+          ? null
+          : FloatingActionButton(
+              tooltip: AppLocalizations.of(context).add,
+              onPressed: () => editTodo(context),
+              child: const Icon(Icons.add_rounded)),
       body: items.isEmpty
-          ? StateMessage(
-              icon: Icons.checklist_rounded,
-              title: t.notesEmptyTasks,
-              message: t.notesEmptyTasksHint,
-            )
+          ? Column(children: [
+              SyncRefusalStrip(message: app.todos.refusal),
+              Expanded(
+                child: FamEmptyState(
+                  key: const ValueKey('rn-todos-empty'),
+                  icon: Icons.checklist_rounded,
+                  title: t.notesEmptyTasks,
+                  benefit: t.rnTodosBenefit,
+                  primaryLabel: t.rnTodosAddFirst,
+                  onPrimary: () => editTodo(context),
+                  steps: [t.rnTodosStep1, t.rnTodosStep2, t.rnTodosStep3],
+                ),
+              ),
+            ])
           : Column(
               children: [
+                SyncRefusalStrip(message: app.todos.refusal),
                 Padding(
                   padding:
                       const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(t.notesOpenCount(open),
+                    child: Text(t.notesOpenCount(rnDigits(t, open)),
                         style: Theme.of(context)
                             .textTheme
                             .labelLarge
@@ -375,12 +482,11 @@ class _TodosTab extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: ListView(
+                  child: ListView.builder(
                     padding:
                         const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
-                    children: [
-                      for (final it in items) _TodoTile(item: it),
-                    ],
+                    itemCount: items.length,
+                    itemBuilder: (_, i) => _TodoTile(item: items[i]),
                   ),
                 ),
               ],
@@ -404,24 +510,42 @@ class _TodoTile extends StatelessWidget {
         ? DateTime.tryParse(d['due_at'])?.toLocal()
         : null;
     final overdue = !done && due != null && due.isBefore(DateTime.now());
+    final rule = d['recurrence_rule'] is Map &&
+            (d['recurrence_rule'] as Map)['freq'] != null
+        ? d['recurrence_rule'] as Map
+        : null;
 
     return CheckboxListTile(
       value: done,
       onChanged: (v) {
+        // remnotes: a repeating task moves to its next date and stays open
+        final next = v == true ? todoNextDue(d) : null;
+        if (next != null) {
+          app.todos.update(item, {'due_at': next.toUtc().toIso8601String(), 'done': false});
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(t.rnTodoRepeated(
+                  DateFormat('d MMM', appDateLocale(context)).format(next)))));
+          AdMoments.report('task_done');
+          return;
+        }
         app.todos.update(item, {'done': v ?? false});
         // admob: finishing a task is a natural break (Free only, capped)
         if (v == true) AdMoments.report('task_done');
       },
       title: Text((d['title'] ?? '').toString(),
           style: done
+              // remnotes: struck through but readable (AA; was 3.6:1 dark)
               ? TextStyle(
                   decoration: TextDecoration.lineThrough,
-                  color: Theme.of(context).disabledColor)
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)
               : null),
-      subtitle: (due != null || high)
+      subtitle: (due != null || high || rule != null)
           ? Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
               if (high)
                 _chip(Icons.flag_rounded, t.remPriorityHigh, Brand.warning),
+              if (rule != null)
+                _chip(Icons.repeat_rounded, _todoRepeatLabel(t, '${rule['freq']}'),
+                    Brand.onTint(context, Brand.purple)),
               if (due != null)
                 _chip(
                     Icons.event_rounded,
@@ -451,6 +575,14 @@ class _TodoTile extends StatelessWidget {
       ]),
     );
   }
+
+  String _todoRepeatLabel(AppLocalizations t, String f) => switch (f) {
+        'daily' => t.remRecurDaily,
+        'weekly' => t.remRecurWeekly,
+        'monthly' => t.remRecurMonthly,
+        'yearly' => t.remRecurYearly,
+        _ => '',
+      };
 
   Widget _chip(IconData icon, String label, Color tint) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
