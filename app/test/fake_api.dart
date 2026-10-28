@@ -2243,6 +2243,18 @@ class FakeApi extends ApiClient {
     _chats.removeWhere((r) => '${r['id']}' == id);
   }
 
+  // aivoice: mirrors LIVE today (no AI key): the AI chat shows its honest
+  // "no AI key yet — this still works free" banner.
+  @override
+  Future<Map<String, dynamic>> chatStatus() async {
+    if (mode == FakeMode.fail) _fail();
+    return {
+      'ai_available': false,
+      'reason': 'no_key',
+      'free': ['own_data', 'app_help', 'phone_commands', 'voice_input'],
+    };
+  }
+
   @override
   Future<List<Map<String, dynamic>>> chatMessages(String sessionId) async {
     await _slow();

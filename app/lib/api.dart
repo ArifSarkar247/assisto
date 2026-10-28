@@ -1538,15 +1538,61 @@ class ApiClient {
 
   /// POST chat/sessions/<id>/send {text} -> the assistant message
   /// {id, role:'assistant', text, meta, cards?}.
-  Future<Map<String, dynamic>> chatSend(String sessionId, String text) =>
-      postJson('/chat/sessions/$sessionId/send', {'text': text});
+  Future<Map<String, dynamic>> chatSend(String sessionId, String text) async =>
+      flattenChatReply(
+          await postJson('/chat/sessions/$sessionId/send', {'text': text}));
 
   /// POST chat/sessions/<id>/regenerate {edit?} -> a new assistant message.
   /// Pass [edit] to resend an edited version of the last user message.
   Future<Map<String, dynamic>> chatRegenerate(String sessionId,
-          {String? edit}) =>
-      postJson('/chat/sessions/$sessionId/regenerate',
-          {if (edit != null && edit.isNotEmpty) 'edit': edit});
+          {String? edit}) async =>
+      flattenChatReply(await postJson('/chat/sessions/$sessionId/regenerate',
+          {if (edit != null && edit.isNotEmpty) 'edit': edit}));
+
+  /// aivoice: the server answers send / regenerate as
+  /// `{message: {id, text, meta}, cards, ai_used}`, but the chat screen reads a
+  /// FLAT `{id, text, meta, source, cards}` — so a non-streamed reply showed
+  /// up EMPTY. Accepts both shapes; never drops a field that is present.
+  static Map<String, dynamic> flattenChatReply(Map<String, dynamic> r) {
+    final m = r['message'];
+    if (m is! Map) return r;
+    final meta = m['meta'];
+    return {
+      ...r,
+      ...m.cast<String, dynamic>(),
+      'cards': r['cards'] ?? (meta is Map ? meta['cards'] : null) ?? const [],
+      'source': r['source'] ?? (meta is Map ? meta['source'] : null),
+    };
+  }
+
+  /// aivoice: GET chat/status -> {ai_available, reason, free}. The AI chat
+  /// shows its "no AI key yet" banner only when this says false.
+  Future<Map<String, dynamic>> chatStatus() => getJson('/chat/status');
+
+  /// aivoice: one SSE record -> the app's event map. The server's token
+  /// events carry `chunk` (older servers only `text`): both are read.
+  static Map<String, dynamic> chatSseRecord(String? event, String data) {
+    Map<String, dynamic> payload;
+    try {
+      final decoded = jsonDecode(data);
+      payload = decoded is Map<String, dynamic> ? decoded : {'value': decoded};
+    } catch (_) {
+      payload = {'chunk': data};
+    }
+    final ev = event ?? (payload.containsKey('message_id') ? 'done' : 'token');
+    if (ev == 'done') {
+      return {
+        'kind': 'done',
+        'message_id': payload['message_id'],
+        'cards': payload['cards'] ?? const [],
+        'source': payload['source'],
+        'meta': payload['meta'],
+        'text': payload['text'],
+      };
+    }
+    final c = payload['chunk'] ?? payload['text'] ?? payload['value'] ?? '';
+    return {'kind': 'token', 'chunk': c is String ? c : '$c'};
+  }
 
   /// ai-report: POST chat/report — report / flag an AI answer (Google Play
   /// AI-generated content policy). Pass [messageId] for a stored chat answer
@@ -1614,26 +1660,7 @@ class ApiClient {
           event = null;
           continue;
         }
-        Map<String, dynamic> payload;
-        try {
-          final decoded = jsonDecode(data);
-          payload = decoded is Map<String, dynamic> ? decoded : {'value': decoded};
-        } catch (_) {
-          payload = {'chunk': data};
-        }
-        final ev = event ?? (payload.containsKey('message_id') ? 'done' : 'token');
-        if (ev == 'done') {
-          yield {
-            'kind': 'done',
-            'message_id': payload['message_id'],
-            'cards': payload['cards'] ?? const [],
-            'source': payload['source'],
-            'meta': payload['meta'],
-            'text': payload['text'],
-          };
-        } else {
-          yield {'kind': 'token', 'chunk': payload['chunk'] ?? payload['value'] ?? ''};
-        }
+        yield chatSseRecord(event, data);
         event = null;
         continue;
       }

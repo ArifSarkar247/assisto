@@ -50,6 +50,15 @@ class VoiceAssistantScreen extends StatefulWidget {
   /// restarts listening instead of stacking another screen).
   static bool isOpen = false;
 
+  /// aivoice: the keep-listening rule (pure, unit-tested).
+  static bool shouldContinue(
+          {required bool on,
+          required bool mounted,
+          required bool idle,
+          required bool needsTap,
+          required bool foreground}) =>
+      on && mounted && idle && !needsTap && foreground;
+
   @override
   State<VoiceAssistantScreen> createState() => _VoiceAssistantScreenState();
 }
@@ -71,6 +80,9 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
   bool _yesNoMode = false;
   bool _typing = false;
   bool _ttsOn = true;
+
+  /// aivoice: "Keep the conversation going" (Settings > Voice, default off).
+  bool _continue = false;
 
   /// Opened over the lock screen (power long-press / wake word while locked).
   bool _locked = false;
@@ -113,6 +125,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
       // Recognition language: VoiceDictation's own setting (Auto by default,
       // override in Settings > Voice — owned by voice_input.dart).
       _ttsOn = await Settings.getBool(VaWake.ttsKey, true);
+      _continue = await Settings.getBool(VaWake.continueKey, false);
       if (widget.debugTurns == null && !widget.debugListening) {
         _locked = await VaNative.isLocked();
       }
@@ -262,7 +275,19 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
       _phase = _Phase.idle;
     });
     _toBottom();
-    _speak(out.reply);
+    await _speak(out.reply);
+    // aivoice: hands-free follow-up. Only when the answer needs no tap (no
+    // buttons / danger), Assisto is still on screen and in the foreground —
+    // never after it handed over to the dialer or another app.
+    if (VoiceAssistantScreen.shouldContinue(
+        on: _continue,
+        mounted: mounted,
+        idle: _phase == _Phase.idle,
+        needsTap: out.buttons.isNotEmpty || out.danger,
+        foreground:
+            WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed)) {
+      _listen();
+    }
   }
 
   void _onUnlocked() {
@@ -357,6 +382,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
                   MaterialPageRoute(
                       builder: (_) => const VoiceAssistantSettingsScreen()));
               _ttsOn = await Settings.getBool(VaWake.ttsKey, true);
+              _continue = await Settings.getBool(VaWake.continueKey, false);
             },
           ),
         ],
