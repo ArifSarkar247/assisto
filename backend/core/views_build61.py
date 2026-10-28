@@ -409,13 +409,17 @@ class AdEventView(APIView):
         kind = str(d.get("kind", ""))[:14]
         # admob (owner 25 Oct): the tuning log — {placement, format, kind:
         # impression|click|paid}. An impression of an app-open / native /
-        # interstitial ALSO goes through the old wallet path below (caps,
-        # fraud guard; credits only once REAL ids are on).
+        # interstitial ALSO goes through the old wallet path below for its
+        # caps / fraud log / exposure only — it NEVER credits anything
+        # (AdMob: no compensation for viewing non-rewarded ads; ads check
+        # 28 Oct). Only a Google-SSV-verified rewarded ad credits.
         if kind in ("impression", "click", "paid"):
             from . import admob_service as AS
             code, body = AS.record_event(request.user, d)
             fmt = str(d.get("format", ""))[:14]
-            if code == 200 and body.get("ok") and kind == "impression" and \
+            # only a COUNTED impression (never a duplicate of the same ad)
+            if code == 200 and body.get("ok") and body.get("counted") and \
+                    kind == "impression" and \
                     fmt in ("app_open", "native", "interstitial"):
                 try:
                     res = billing.ad_event(request.user, fmt,

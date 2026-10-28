@@ -55,14 +55,17 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
               await ad.setServerSideOptions(ServerSideVerificationOptions(
                   userId: userId, customData: customData));
             } catch (_) {}
+            // one tracker per ad object: 1 impression, <=1 click, 1 paid
+            final tr = AdTelemetry.track(placement, 'rewarded');
             ad.onPaidEvent = (Ad _, double micros, PrecisionType p, String cur) =>
-                AdTelemetry.paid(placement, 'rewarded',
+                tr.paid(
                     valueMicros: micros,
                     currency: cur,
                     precision: AdTelemetry.precisionName(p.name));
             ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdImpression: (_) => AdTelemetry.impression(placement, 'rewarded'),
-              onAdClicked: (_) => AdTelemetry.click(placement, 'rewarded'),
+              onAdShowedFullScreenContent: (_) => tr.impression(),
+              onAdImpression: (_) => tr.impression(),
+              onAdClicked: (_) => tr.click(),
               onAdDismissedFullScreenContent: (a) {
                 a.dispose();
                 if (!done.isCompleted) {

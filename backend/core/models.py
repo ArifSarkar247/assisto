@@ -2835,8 +2835,9 @@ class CreditPurchase(models.Model):
 class AdWallet(models.Model):
     """Ad-funded wallet for FREE users. Balance is in *paisa* (1 credit == ৳1 ==
     100 paisa) so sub-credit ad rewards accumulate honestly before a whole credit
-    is spendable. `spendable_credits()` = balance_paisa // 100. Rewarded/app-open/
-    interstitial impressions credit this at <=70% of a configurable eCPM floor."""
+    is spendable. `spendable_credits()` = balance_paisa // 100. ONLY a Google-SSV-
+    verified rewarded ad credits this, at <=70% of a configurable eCPM floor
+    (ads check 28 Oct: app-open / interstitial / native never credit)."""
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 related_name="ad_wallet")
     balance_paisa = models.BigIntegerField(default=0)   # 100 paisa == 1 credit
@@ -2885,6 +2886,16 @@ class AdPlacementStat(models.Model):
     class Meta:
         unique_together = [("date", "placement", "fmt", "currency")]
         indexes = [models.Index(fields=["date", "placement"])]
+
+
+class AdEventSeen(models.Model):
+    """ads check 28 Oct: server-side dedupe of the AdMob tuning log. One row
+    per COUNTED (user, placement, kind, ad instance id) — or, for old builds
+    without an id, per (user, placement, click, minute). `key` is a sha256,
+    so no readable user / device id is kept; rows older than 2 days are
+    purged by core.admob_service."""
+    key = models.CharField(max_length=64, unique=True)
+    at = models.DateTimeField(default=timezone.now, db_index=True)
 
 
 class DailyLedger(models.Model):
@@ -5451,7 +5462,12 @@ class OfferPrefs(models.Model):
     brands = models.JSONField(default=list, blank=True)        # sponsor ids
     muted_brands = models.JSONField(default=list, blank=True)  # sponsor ids
     hidden_campaigns = models.JSONField(default=list, blank=True)
-    notifs_on = models.BooleanField(default=True)
+    # ads check 28 Oct (Play: ads only inside the app; promotional pushes
+    # must be a feature the user chose): brand-offer notifications are
+    # OPT-IN only — OFF until the user turns the switch on themselves
+    # (notifs_opted_in_at is then set; the sender requires it).
+    notifs_on = models.BooleanField(default=False)
+    notifs_opted_in_at = models.DateTimeField(null=True, blank=True)
     division = models.CharField(max_length=16, blank=True, default="")
     onboarding_done = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
