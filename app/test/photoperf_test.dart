@@ -382,7 +382,7 @@ void main() {
         return 7;
       }, onProgress: (d, t) => seen.add(d));
       expect(r, 7);
-      expect(seen, [1, 2, 3, 4]);
+      expect(seen, [250, 500, 750, 1000]); // progress is reported in 1/1000
 
       final iso = PsWorker();
       final img = scene(400, 300);
