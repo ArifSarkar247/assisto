@@ -281,7 +281,7 @@ def cv(request):
                 "Give 5 specific, actionable improvement tips for the CV below "
                 "(one per line, in English).")
             out, cost = ai.generate(task=task, data=text[:6000], tier="cheap",
-                                     feature="w1_cv", max_tokens=500)
+                                     feature="w1_cv", max_tokens=500, pii=True)
             ai_tips = [l.strip("-•* ").strip() for l in out.splitlines() if l.strip()][:5]
             used_ai = True
         except ai.AIUnavailable:
@@ -332,7 +332,7 @@ def scam(request):
                     if lang == "bn" else
                     "In one or two sentences, explain in English whether the message below is a scam.")
             out, cost = ai.generate(task=task, data=msg[:2000], tier="cheap",
-                                     feature="w2_scam", max_tokens=200)
+                                     feature="w2_scam", max_tokens=200, pii=True)
             ai_note = out.strip()
             used_ai = True
         except ai.AIUnavailable:

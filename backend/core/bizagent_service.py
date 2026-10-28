@@ -633,10 +633,18 @@ def send_template(thread, name, lang_code="bn", params=None):
 def _llm_draft(ctx, lang, tone, text, history):
     """Real LLM via core.ai when a key exists. user=None: the reply is billed
     ONCE by consume_reply (ai_sales), not again by ai.generate; the provider
-    spend is still booked into AIUsage + the daily P&L ledger."""
+    spend is still booked into AIUsage + the daily P&L ledger.
+
+    AF-2 (Agentforce trust parity): the customer's message, the chat history
+    and the shop facts go through Agent Core's trust Vault (pii=True) — the
+    provider sees ⟦PHONE_1⟧ / ⟦EMAIL_1⟧ / ⟦NID_1⟧ / ⟦ACCT_1⟧, never the raw
+    value; the router puts the originals back in the reply BEFORE the
+    floor-price / number post-check runs on it. `pii_tokens` = how many values
+    were masked (logged on the reply, never the values)."""
     from . import ai
     if not ai.key_present():
         return None
+    meta = {}
     try:
         task = BZ.llm_task(ctx, lang, tone)
         if ctx.get("style"):
@@ -644,10 +652,12 @@ def _llm_draft(ctx, lang, tone, text, history):
                      "facts or numbers from it):\n" + str(ctx["style"])[:400])
         out, _cost = ai.generate(task=task, data=text, tier="cheap",
                                  max_tokens=300, feature="bizagent.reply", user=None,
-                                 history=history)
+                                 history=history, pii=True, out_meta=meta)
     except ai.AIUnavailable:
         return None
-    return BZ.parse_llm(out)
+    d = BZ.parse_llm(out)
+    d["pii_tokens"] = int(meta.get("pii_masked") or 0)
+    return d
 
 
 def _history(thread, limit=6):
@@ -713,6 +723,23 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     matched = BZ.match_products(text, catalog)
     intent = bai.classify_intent(text)
     hours = BZ.hours_text(agent.hours)
+
+    # AF-4 INBOUND guard (before anything, 0 credits): abuse / threat / hate /
+    # sexual text -> one calm fixed line, the seller is called in, the AI
+    # cools down in this chat (_send_reply). A rude insult goes the
+    # complaint way. Never mirrored; only the score is stored.
+    from . import ai_guard
+    tox = ai_guard.toxicity(text)
+    if tox["severity"] >= 2:
+        return {"text": BZ.holding_message(lang, BZ.RISK_ABUSE), "kind": "holding",
+                "risk": BZ.RISK_ABUSE, "proposal": bai.handoff_message(lang, bai.HANDOFF_ABUSE),
+                "confidence": 0.0, "source": "rule", "rule": "abuse",
+                "meta": {"tox": ai_guard.tox_log(tox)}}
+    if tox["severity"] == 1:
+        return {"text": BZ.holding_message(lang, BZ.RISK_COMPLAINT, hours), "kind": "holding",
+                "risk": BZ.RISK_COMPLAINT, "proposal": bai.handoff_message(lang, bai.HANDOFF_ANGRY),
+                "confidence": 0.0, "source": "rule", "rule": "insult",
+                "meta": {"tox": ai_guard.tox_log(tox)}}
 
     if BZ.asks_if_human(text):
         return {"text": bai.assistant_disclosure(lang)["full"], "kind": "text", "risk": None,
@@ -859,9 +886,22 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     reply = (d.get("text") or "").strip()
     conf = float(d.get("confidence") or 0)
     src = "ai" if used_ai else "fallback"
+    # AF-2 / AF-4: a vault token the router could not put back (the model
+    # damaged or invented one) or toxic wording -> never sent; the seller
+    # writes the reply (the toxic draft is NOT offered for one-tap approve).
+    from .agentcore import trust as _T
+    tox_out = ai_guard.toxicity(reply)
+    left = _T.leftover_tokens(reply)
+    if tox_out["toxic"] or left:
+        return {"text": BZ.holding_message(lang, BZ.RISK_UNSAFE, hours), "kind": "holding",
+                "risk": BZ.RISK_UNSAFE, "proposal": "" if tox_out["toxic"] else
+                _T.TOKEN_RX.sub("…", reply), "confidence": conf,
+                "problems": ([{"type": "toxic", "value": tox_out["category"]}] if tox_out["toxic"]
+                             else []) + [{"type": "pii_token", "value": "token"} for _ in left],
+                "used_ai": used_ai, "source": src,
+                "meta": {"tox": ai_guard.tox_log(tox_out)} if tox_out["toxic"] else {}}
     # aieval: price + delivery / qty x price totals of the asked-about product
     # are arithmetic, not inventions (they were wrongly held before).
-    from . import ai_guard
     problems = BZ.check_numbers(reply, ctx, text,
                                 extra=ai_guard.price_totals(matched, ctx.get("delivery")))
     # aieval guard: refund promises and "I am human" claims are the owner's
@@ -887,26 +927,68 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     if agent.approve_all:
         return {"text": "", "kind": "text", "risk": BZ.RISK_APPROVE_ALL, "proposal": reply,
                 "confidence": conf, "used_ai": used_ai, "source": src}
-    return {"text": reply, "kind": "text", "risk": None, "confidence": conf, "used_ai": used_ai,
-            "source": src}
+    out = {"text": reply, "kind": "text", "risk": None, "confidence": conf, "used_ai": used_ai,
+           "source": src}
+    if d.get("pii_tokens"):
+        out["meta"] = {"pii_masked": int(d["pii_tokens"])}     # a count, never the values
+    return out
 
 
 # ===================================================================== handlers
+def handoff_card(thread, risk, problems=None):
+    """AF-10: the 3-line rule-made handoff summary (bn + en, contacts partly
+    hidden, 0 credits) — None if it cannot be built (never blocks a handoff)."""
+    from .logic import bizagent_handoff as HC
+    try:
+        rows = list(thread.messages.exclude(status="pending_approval")
+                    .order_by("-created_at", "-id")[:12])
+        msgs = [{"direction": m.direction, "text": m.text} for m in reversed(rows)]
+        return HC.build(msgs, catalog_for(thread.business), thread.order_draft or {}, risk,
+                        problems)
+    except Exception:  # noqa: BLE001
+        log.exception("bizagent: handoff card failed for thread %s", thread.pk)
+        return None
+
+
 def _queue_approval(thread, proposal, risk, *, comment_id="", problems=None, confidence=0.0,
-                    source="ai"):
+                    source="ai", meta=None):
     from .models import Message
+    extra = {k: v for k, v in (meta or {}).items() if k in ("tox", "rule")}
     meta = {"comment_id": comment_id} if comment_id else {"problems": problems or []}
     meta["source"] = source
+    meta.update(extra)
+    card = handoff_card(thread, risk, problems)
+    if card:
+        meta["card"] = card
     m = Message.objects.create(
         thread=thread, direction="out", text=proposal or "", is_ai=True,
         status="pending_approval", risk_reason=risk, needs_human=True,
         handoff_reason=risk, confidence=confidence, kind="text", meta=meta)
+    body_bn, body_en = ("একটি AI উত্তর আপনার অনুমোদনের অপেক্ষায়।",
+                        "An AI reply is waiting for your approval.")
+    if card:
+        body_bn, body_en = "\n".join(card["lines"]["bn"]), "\n".join(card["lines"]["en"])
     notify_seller(thread.business, "approvals",
-                  "অনুমোদন দরকার", "Approval needed",
-                  "একটি AI উত্তর আপনার অনুমোদনের অপেক্ষায়।",
-                  "An AI reply is waiting for your approval.",
+                  "অনুমোদন দরকার", "Approval needed", body_bn, body_en,
                   data={"thread_id": str(thread.pk), "message_id": str(m.pk)})
     return m
+
+
+ABUSE_COOLDOWN_MIN = 30
+
+
+def _abuse_cooldown(thread, agent):
+    """AF-4: after abuse the AI stays quiet in THIS chat (at least 30 min or
+    the seller's resume time, whichever is longer); the seller was called in.
+    Further messages meanwhile reach the seller as 'New message' pushes."""
+    from .models import ChatThread
+    from .logic import bizagent_g1 as G1
+    mins = max(ABUSE_COOLDOWN_MIN, G1.clamp_int(agent.resume_minutes, 1, G1.MAX_RESUME_MIN,
+                                                G1.DEFAULT_RESUME_MIN))
+    until = timezone.now() + timedelta(minutes=mins)
+    ChatThread.objects.filter(pk=thread.pk).update(ai_paused_until=until, paused_by="abuse")
+    thread.ai_paused_until, thread.paused_by = until, "abuse"
+    return until
 
 
 def _out_of_replies(thread, agent, lang, reason, comment_id=""):
@@ -1001,6 +1083,12 @@ def handle_message(ch, e):
     audio = next((a for a in atts if a.get("type") == "audio"), None)
     kind = "image" if image else ("voice" if audio else "text")
     meta = {"attachments": [{"type": a.get("type")} for a in atts]} if atts else {}
+    if text:
+        # AF-4: the score only (never the words) on the inbound row
+        from . import ai_guard
+        tx = ai_guard.toxicity(text)
+        if tx["toxic"]:
+            meta = dict(meta, tox=ai_guard.tox_log(tx))
     inbound = Message.objects.create(thread=t, direction="in", text=text or ("[%s]" % kind if atts else ""),
                                      external_id=e.get("event_id", ""), status="received",
                                      kind=kind, meta=meta)
@@ -1187,13 +1275,25 @@ def _send_reply(t, agent, d, lang, comment_id, started):
     if d.get("rule"):
         meta["rule"] = d["rule"]
     src = d.get("source") or "rule"
+    if not d.get("risk") and src == "ai" and d.get("text"):
+        # AF-4 last gate: no AI-made text reaches a customer with abusive /
+        # hateful / threatening / sexual wording, whatever path made it
+        from . import ai_guard
+        tx = ai_guard.toxicity(d["text"])
+        if tx["toxic"]:
+            meta["tox"] = ai_guard.tox_log(tx)
+            d = dict(d, risk=BZ.RISK_UNSAFE, proposal="", kind="holding",
+                     problems=[{"type": "toxic", "value": tx["category"]}],
+                     text=BZ.holding_message(lang, BZ.RISK_UNSAFE))
     if d.get("risk"):
         if d.get("text"):
             send_text(t, d["text"], kind="holding", is_ai=True, comment_id=comment_id,
                       meta=meta, source="system")
         _queue_approval(t, d.get("proposal", ""), d["risk"], comment_id=comment_id,
                         problems=d.get("problems"), confidence=d.get("confidence", 0.0),
-                        source=src)
+                        source=src, meta=meta)
+        if d["risk"] == BZ.RISK_ABUSE:
+            _abuse_cooldown(t, agent)
         return "approval"
     res = _deliver_ai(t, agent, d["text"], lang, kind=d.get("kind") or "text",
                       comment_id=comment_id, public_too=bool(comment_id), source=src,

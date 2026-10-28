@@ -559,8 +559,10 @@ RISK_LOW_CONF = "low_confidence"
 RISK_NUMBERS = "unverified_number"
 RISK_BIG_ORDER = "big_order"
 RISK_APPROVE_ALL = "seller_approves_all"
+RISK_ABUSE = "abuse"              # AF-4: the customer wrote abuse / threat / hate / sexual text
+RISK_UNSAFE = "unsafe_reply"      # AF-4 / AF-2: the AI draft was toxic or carried a broken PII token
 RISKS = (RISK_COMPLAINT, RISK_REFUND, RISK_BELOW_MIN, RISK_UNKNOWN_PRODUCT,
-         RISK_LOW_CONF, RISK_NUMBERS, RISK_BIG_ORDER, RISK_APPROVE_ALL)
+         RISK_LOW_CONF, RISK_NUMBERS, RISK_BIG_ORDER, RISK_APPROVE_ALL, RISK_ABUSE, RISK_UNSAFE)
 
 _HUMAN_Q = ("are you human", "are you a bot", "are you real", "bot naki", "robot",
             "মানুষ", "রোবট", "বট", "manush", "ai naki", "are you ai")
@@ -598,6 +600,9 @@ def holding_message(lang, reason, hours_text=""):
                                    "I couldn't find this product. Someone from the shop will check and reply."),
         RISK_BIG_ORDER: pick(lang, "বড় অর্ডারের জন্য দোকানের মালিক নিজে আপনাকে জানাবেন।",
                              "For a large order the shop owner will reply to you personally."),
+        # AF-4: calm, fixed, never mirrors the customer's words
+        RISK_ABUSE: pick(lang, "আপনার অসুবিধার জন্য দুঃখিত। দোকানের একজনকে জানানো হয়েছে — তিনি শীঘ্রই আপনার সাথে কথা বলবেন।",
+                         "Sorry for the trouble. Someone from the shop has been told and will talk to you shortly."),
     }
     base = m.get(reason) or pick(lang, "দোকানের একজন শীঘ্রই আপনাকে উত্তর দেবেন।",
                                  "Someone from the shop will reply to you soon.")

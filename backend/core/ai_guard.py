@@ -382,3 +382,181 @@ def clean_assistant_answer(text, lang="bn", actions=True, medical=True):
     if medical:
         text, flags["medical"] = scrub_medical_claims(text, lang)
     return text, flags
+
+
+# --------------------------------------------------------------- toxicity (AF-4)
+# Bangla + Banglish + English abuse / hate / threat / sexual lexicon with a
+# severity. Deterministic (no model, no network, 0 credits). Used on BOTH
+# sides of the live sales agent and Agent Core:
+#   * INBOUND (a customer writes abuse) -> calm templated line + human
+#     handoff + per-chat cool-down; the AI never mirrors the language;
+#   * OUTBOUND (an AI reply / agent answer / message an agent would send) ->
+#     never sent; honest fallback or the seller's approval queue.
+# Only a SCORE / severity / category is ever logged, never the words.
+#
+#   severity 1 insult (targeted "you idiot", "তুই একটা গাধা", "batpar")
+#            2 abuse / vulgar (gali)
+#            3 threat, hate (religious / ethnic slur), sexual harassment
+#
+# Benign look-alikes are part of the design and the eval set
+# (core/ai_evals/toxicity.jsonl): বালতি / বালিশ / বালু / বালক, মাগুর মাছ,
+# চোদ্দ (fourteen), শালা (a relative), class / pass / assistant / Scunthorpe,
+# shiitake, "I'll check the product" (দেখে নেব), sexy dress, হারাম (religious).
+import unicodedata as _ud
+
+_ZW = re.compile(r"[​-‍⁠﻿­]")
+_LEET = str.maketrans({"@": "a", "$": "s", "0": "o", "1": "i", "3": "e", "4": "a",
+                       "5": "s", "7": "t", "!": "i"})
+_LAT_SEP = re.compile(r"(?<=[a-z])[._\-]+(?=[a-z])")
+_BNL = "ঀ-৿"
+_BN_SUF = ("ের", "এর", "র", "টা", "টি", "ডা", "দের", "রা", "গুলা", "গুলো", "কে", "ে", "ই", "রে",
+           "েরা")
+_LAT_SUF = ("s", "es", "ed", "er", "ers", "ing", "in", "y", "ty", "r", "ra", "der", "ta", "ti",
+            "gula", "gulo", "ke", "e", "i", "re", "head", "heads", "hole", "holes")
+
+CAT_SEVERITY = {"insult": 1, "abuse": 2, "threat": 3, "hate": 3, "sexual": 3}
+
+# (category, words). A trailing "*" = stem (any ending); otherwise the word
+# plus a common Bangla / Banglish / English ending, whole word only.
+_TOX_BN = (
+    ("abuse", ("হারামি*", "হারামজাদ*", "হারামখোর*", "কুত্তার বাচ্চা", "কুত্তার বাচ্চা",
+               "শুয়োরের বাচ্চা", "শুওরের বাচ্চা", "শুয়রের বাচ্চা", "শুয়োরের বাচ্চা", "বেজন্মা*",
+               "জারজ", "খানকি*", "মাগি", "মাগী", "চুদ*", "চোদা", "চোদন", "চোদনা", "চোদাচুদি",
+               "চোদার", "বোকাচোদা*", "মাদারচোদ*", "বেশ্যা", "শালার পুত",
+               "কুত্তার পুত", "খানকির পোলা", "হাউয়া*")),
+    ("insult", ("বাটপার*", "বাটপার", "ফকিন্নি*", "লুচ্চা", "ইতর", "বেয়াদব", "বেয়াদপ")),
+    ("threat", ("মেরে ফেলব*", "মেরে ফেলমু", "মাইরা ফালামু", "খুন করব*", "খুন করে ফেলব*",
+                "জানে মেরে*", "পিটাবো", "পিটামু", "পিটাব", "আগুন লাগিয়ে দেব*",
+                "আগুন লাগিয়ে দিব*", "আগুন ধরিয়ে দেব*", "গলা কেটে ফেলব*", "গলা কাটব*", "এসিড মার*",
+                "অ্যাসিড মার*", "লাশ ফেলে দেব*", "হাত পা ভেঙে দেব*")),
+    ("hate", ("মালাউন*", "মালু", "কাফেরের বাচ্চা", "নাস্তিকের বাচ্চা", "মাউরা")),
+    ("sexual", ("ধোন", "ভোদা", "ভুদা", "নুড ছবি", "ন্যুড ছবি", "পর্ন*", "ধর্ষণ কর*", "রেপ কর*",
+                "দুধ দেখা*", "ন্যাংটা ছবি", "নেংটা ছবি", "সেক্স করব*", "সেক্স করবি", "সেক্স করবা")),
+)
+_TOX_LAT = (
+    ("abuse", ("fuck*", "motherfuck*", "mofo", "shit", "bullshit*", "bitch*", "bastard*",
+               "asshole*", "dickhead*", "cunt*", "slut*", "whore*", "wanker*", "jackass",
+               "harami*", "haramjad*", "haramzad*", "haramkhor*", "bejonma*", "khanki*",
+               "magi", "chudir*", "chudmaran*", "chudanir*", "chudbo", "chodna", "chodon",
+               "madarchod*", "madarchot*", "bokachod*", "baler", "bessha", "beshya",
+               "shalar put", "kuttar put", "magir pola")),
+    ("insult", ("batpar*", "batpaar*", "fokinni*", "luccha", "beyadob", "stfu", "screw you",
+                "damn you", "go to hell")),
+    ("threat", ("kill you", "i will kill", "i'll kill", "ill kill you", "gonna kill",
+                "beat you up", "burn your", "i will hurt you", "watch your back", "you will die",
+                "you're dead", "youre dead", "mere felbo", "mere felmu", "maira falamu",
+                "khun korbo", "khun kore felbo", "jane mere", "pitabo", "pitamu",
+                "agun lagiye dibo", "agun lagiye debo", "agun dhoriye dibo",
+                "gola kete felbo", "gola katbo", "acid marbo", "acid mere", "lash fele dibo")),
+    ("hate", ("malaun*", "kaferer bacc*", "nastiker bacc*", "nigger*", "nigga*", "faggot*",
+              "retard")),
+    ("sexual", ("send nude*", "nude pic*", "nude chobi", "dick pic*", "boobs", "porn*",
+                "voda", "bhoda", "dhon dekh*", "dudh dekha*", "rape kor*", "rape you",
+                "sex korbi", "sex korba", "sex korbo", "nangta chobi", "nangta pic*",
+                "sleep with me")),
+)
+_TOX_RX = (
+    # targeted insults: "you idiot", "তুই একটা গাধা", "tumi ekta boldo"
+    ("insult", r"(?<![a-z])(?:you(?:'re| are|r)?|u r|ur)\s+(?:an?\s+|such an?\s+)?"
+               r"(?:idiot|stupid|moron|dumb|fool|loser|useless|pig|dog|donkey)(?![a-z])"),
+    ("insult", r"(?<![%s])(?:তুই|তুমি|আপনি|তোরা|তোর|তোমরা|আপনারা)\s+(?:একটা\s+|একটি\s+|সব\s+)?"
+               r"(?:গাধা|বলদ|ছাগল|পাগল|ফালতু|বেয়াদব|কুত্তা|শুয়োর|চোর|বাটপার)" % _BNL),
+    ("insult", r"(?<![a-z])(?:tui|tumi|apni|tor|tora|tomra|apnara)\s+(?:ekta\s+|ekti\s+|sob\s+)?"
+               r"(?:gadha|gada|boldo|bolod|chagol|pagol|faltu|beyadob|kutta|shuor|chor|batpar)"
+               r"(?![a-z])"),
+    ("abuse", r"(?<![a-z])(?:kuttar|kutar|shuorer|shuyorer|suorer|shuor er|kuttar er)\s*"
+              r"(?:bac+h?c?h?a|bacca|bachcha|bacha)(?![a-z])"),
+    ("threat", r"(?<![%s])(?:তোকে|তোরে|তোদের|তোমাকে|আপনাকে)\s+(?:আমি\s+)?(?:দেখে\s+নে|দেইখা\s+নিমু|"
+               r"মেরে|খুন|পিটি|জবাই|তুলে\s+নিয়ে)" % _BNL),
+    ("threat", r"(?<![a-z])(?:toke|tore|toder|tomake|apnake)\s+(?:ami\s+)?(?:dekhe\s+n|"
+               r"deikha\s+nimu|mere|khun|piti|jobai|tule\s+niye)"),
+    # "বাল" (gali) but never "বাল-বাচ্চা" (the family's kids), বালতি, বালিশ, বালু, বালক
+    ("abuse", r"(?<![%s])বাল(?:ের|এর|র|ডা|টা)?(?![%s])(?![\s-]*বাচ্চা)" % (_BNL, _BNL)),
+)
+
+
+def _nfd(s):
+    return _ud.normalize("NFD", s)
+
+
+def _lat_rx(w):
+    stem = w.endswith("*")
+    w = w.rstrip("*")
+    parts, prev = [], ""
+    for ch in w:
+        if ch == prev and ch != " ":
+            continue                     # "kuttar" also matches "kutar"
+        prev = ch
+        if ch == " ":
+            parts.append(r"[\s_]*")
+        elif ch in "aeiou":
+            parts.append("[%s*]+" % ch)
+        elif ch.isalpha():
+            parts.append(re.escape(ch) + "+")
+        else:
+            parts.append(re.escape(ch))
+    body = "".join(parts)
+    end = "" if stem else "(?:%s)?(?![a-z])" % "|".join(_LAT_SUF)
+    return r"(?<![a-z])" + body + end
+
+
+def _bn_rx(w):
+    stem = w.endswith("*")
+    w = _nfd(w.rstrip("*"))
+    body = r"\s*".join(re.escape(p) for p in w.split(" "))
+    end = "" if stem else "(?:%s)?(?![%s])" % ("|".join(_nfd(s) for s in _BN_SUF), _BNL)
+    return r"(?<![%s])" % _BNL + body + end
+
+
+def _compile_tox():
+    out = []
+    for cat, words in _TOX_BN:
+        out += [(cat, "bn", re.compile(_bn_rx(w))) for w in words]
+    for cat, words in _TOX_LAT:
+        out += [(cat, "lat", re.compile(_lat_rx(w))) for w in words]
+    for cat, rx in _TOX_RX:
+        out.append((cat, "lat" if "a-z" in rx[:12] else "bn", re.compile(_nfd(rx))))
+    return out
+
+
+_TOX = _compile_tox()
+
+
+def _tox_texts(text):
+    t = _ZW.sub("", _nfd(str(text or ""))).lower()
+    t = re.sub(r"\s+", " ", t)
+    lat = _LAT_SEP.sub("", t.translate(_BN).translate(_LEET))
+    return t, lat
+
+
+def toxicity(text):
+    """-> {"toxic", "severity" 0-3, "score" 0-1, "category", "categories", "hits"}.
+    PURE; the matched words are NEVER returned (callers log only this dict)."""
+    t, lat = _tox_texts(text)
+    cats, hits = {}, 0
+    if t.strip():
+        for cat, kind, rx in _TOX:
+            if rx.search(lat if kind == "lat" else t):
+                hits += 1
+                cats[cat] = cats.get(cat, 0) + 1
+    sev = max((CAT_SEVERITY[c] for c in cats), default=0)
+    top = ""
+    if cats:
+        top = sorted(cats, key=lambda c: (-CAT_SEVERITY[c], -cats[c], c))[0]
+    return {"toxic": sev > 0, "severity": sev, "score": round(min(1.0, sev / 3.0 + 0.05 * max(0, hits - 1)), 2) if sev else 0.0,
+            "category": top, "categories": sorted(cats), "hits": hits}
+
+
+def tox_log(t):
+    """The loggable part of a toxicity() result (no text, no words)."""
+    return {"score": t.get("score", 0.0), "sev": t.get("severity", 0), "cat": t.get("category", "")}
+
+
+ABUSE_CALM_LINE = {
+    "bn": "আপনার অসুবিধার জন্য দুঃখিত। দোকানের একজনকে জানানো হয়েছে — তিনি শীঘ্রই আপনার সাথে কথা বলবেন।",
+    "en": "Sorry for the trouble. Someone from the shop has been told and will talk to you shortly.",
+}
+SAFE_FALLBACK_LINE = {
+    "bn": "দুঃখিত, এই উত্তরটি নিরাপদভাবে দেওয়া গেল না। অনুগ্রহ করে অন্যভাবে জিজ্ঞেস করুন।",
+    "en": "Sorry, I couldn't give that answer safely. Please ask in another way.",
+}

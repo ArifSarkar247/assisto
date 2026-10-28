@@ -474,7 +474,7 @@ def health_probe(name, key, timeout=10):
 # ------------------------------------------------------------------ generate
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
-             task_class=None, mode=None, out_meta=None, upgrade=False):
+             task_class=None, mode=None, out_meta=None, upgrade=False, pii=None):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -490,8 +490,22 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     (a dict) receives {"charged", "mode", "upgraded"}. `upgrade=True` (the
     caller's free hard-question check said so) runs a smart message on the
     pro model/caps — still charged as smart — while the user's plan has
-    Opus auto-upgrades left this calendar month."""
+    Opus auto-upgrades left this calendar month.
+
+    AF-2 `pii`: True (or an agentcore.trust.Vault to share tokens with the
+    caller) masks phones (Latin + Bangla digits), NID, account/card numbers
+    and e-mails in task, data, history and extra_system with reversible
+    tokens BEFORE any provider sees them, and puts the originals back into
+    the returned text. The vault never leaves this server. `out_meta` gets
+    {"pii_masked": n}."""
     from . import ai_router as R
+    vault = None
+    if pii:
+        from .agentcore import trust as _T
+        vault = pii if isinstance(pii, _T.Vault) else _T.Vault()
+        task, data, history, extra_system = vault.mask_request(task, data, history, extra_system)
+        if isinstance(out_meta, dict):
+            out_meta["pii_masked"] = len(vault.t2v)
     providers = _providers()
     if not providers:
         raise AIUnavailable("no_key")
@@ -646,6 +660,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         except Exception:
             pass
         R.check_alerts(conf)
+        if vault is not None:
+            text = vault.unmask(text)
         return text, cost
 
     # every provider failed / was skipped -> honest state, never a fake answer

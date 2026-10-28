@@ -89,7 +89,7 @@ class AssistoRunView(APIView):
             text, _cost = ai.generate(task, data=data, tier=req["tier"],
                                       max_tokens=max_tokens,
                                       feature="circle_assisto_" + req["action"],
-                                      user=request.user)
+                                      user=request.user, pii=True)   # AF-2
         except ai.AIUnavailable as e:
             code = {"credits": ("credits", status.HTTP_402_PAYMENT_REQUIRED),
                     "budget": ("paused", status.HTTP_429_TOO_MANY_REQUESTS),
