@@ -69,7 +69,9 @@ class FamCardSection extends StatefulWidget {
 class _FamCardSectionState extends State<FamCardSection> {
   final GlobalKey _boundaryKey = GlobalKey();
   bool _dark = false;
-  bool _loaded = false;
+  // Online (members known) the card renders at once; the saved emergency
+  // info fills in when the phone store answers. Offline waits for the store.
+  late bool _loaded = widget.members != null;
   Map<String, dynamic> _data = {};
 
   @override
@@ -86,10 +88,10 @@ class _FamCardSectionState extends State<FamCardSection> {
   }
 
   Future<void> _init() async {
-    final m = widget.members;
-    if (m != null) await FamCardStore.cacheMembers(m);
     final d = await FamCardStore.load();
     if (mounted) setState(() { _data = d; _loaded = true; });
+    final m = widget.members;
+    if (m != null) await FamCardStore.cacheMembers(m);
   }
 
   List<Map<String, dynamic>> get _members => widget.members ??
