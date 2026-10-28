@@ -1,1 +1,1 @@
-Build 263: Faster start and lighter memory on 2 GB phones (smaller image cache, lighter long lists, Photo Studio previews at screen size); stronger privacy for AI answers (no medical diagnosis or doses in assistant replies).
+Build 264: Phone protection — remote lost mode, loud alarm, lock and lock-screen message from your trusted contact, with clear delivery status; 'Phones I help protect' screen; intruder photo only with your consent; clearer explanations before each permission; honest wording about how documents are stored.
