@@ -369,6 +369,31 @@ class PresetAppliedTests(Base):
         out = play_verify.check_all(api=api_down)
         self.assertFalse({r["sku"]: r for r in out["rows"]}["pack_c50"]["ok"])
 
+    def test_old_packs_never_offered_but_old_purchases_still_refund(self):
+        # owner 28 Oct: credits_p20..p200 are INACTIVE in Play. The app's list
+        # and every sell path must skip them, yet a Google refund of a past
+        # p20 purchase must still take back its credits (stored records only).
+        from core import billing, credits as CR
+        from core.models import CreditPurchase
+        from core.payments import catalog, entitlement as E
+        ids = [p["id"] for p in billing.cfg()["topup_packs"]]
+        self.assertEqual(ids, ["c50", "c120", "c300"])
+        for old in ("p20", "p50", "p100", "p200"):
+            self.assertIsNone(catalog.price("pack_" + old, "play"))
+            self.assertIsNone(catalog.price("pack_" + old, "gateway"))
+            self.assertEqual(catalog.sku_for_play("credits_" + old), "")
+        CR.grant(self.u, "pack", 20, reason="grant", note="legacy p20")
+        CreditPurchase.objects.create(user=self.u, pack_id="p20", price_bdt=20, credits=20,
+                                      provider="play_billing", txn_ref="play:legacyp20",
+                                      status="confirmed", granted=True)
+        taken = E.revoke_pack(self.u, channel="play", ref="play:legacyp20",
+                              reason="play_voided", debt=True)
+        self.assertEqual(taken, 20)
+        self.assertFalse(CreditPurchase.objects.get(txn_ref="play:legacyp20").granted)
+        # idempotent: a second voided notice takes nothing more
+        self.assertEqual(E.revoke_pack(self.u, channel="play", ref="play:legacyp20",
+                                       reason="play_voided", debt=True), 0)
+
     def test_not_configured_play_verifies_nothing(self):
         from core.payments import play_verify
         out = play_verify.check_all()
