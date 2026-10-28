@@ -139,7 +139,9 @@ class _NotesTabState extends State<_NotesTab> {
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
         if (labels.isNotEmpty)
           // grows with the text size (200% never clips a chip)
-          SingleChildScrollView(
+          Align(
+           alignment: AlignmentDirectional.centerStart,
+           child: SingleChildScrollView(
             key: const ValueKey('rn-label-row'),
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
@@ -169,6 +171,7 @@ class _NotesTabState extends State<_NotesTab> {
                   ),
               ],
             ),
+           ),
           ),
         Expanded(
           child: all.isEmpty

@@ -135,11 +135,15 @@ class _RemindersScreenState extends State<RemindersScreen>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => editReminder(context),
-        icon: const Icon(Icons.add_alarm_rounded),
-        label: Text(t.add),
-      ),
+      // remnotes: empty list -> the empty state's big button is the one
+      // primary action (the FAB covered its how-to card)
+      floatingActionButton: items.isEmpty && !_calendar
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => editReminder(context),
+              icon: const Icon(Icons.add_alarm_rounded),
+              label: Text(t.add),
+            ),
       body: _calendar
           ? const RemCalendarView()
           : Column(
