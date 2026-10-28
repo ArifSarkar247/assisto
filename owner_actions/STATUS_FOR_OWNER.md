@@ -6,7 +6,10 @@
 ```
 * * * * * ubuntu cd /home/ubuntu/assisto/backend && nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py minute_jobs --log-dir /home/ubuntu/assisto/backend/logs >> /home/ubuntu/assisto/backend/logs/minute_jobs.log 2>&1
 ```
-(সামনে flock নেই ইচ্ছা করে — ভেতরে দুটো কাজের নিজস্ব তালা আছে; কিছুক্ষণ পুরনো ও নতুন লাইন একসাথে থাকলেও সমস্যা নেই। ops_watch দুটো ধরনই "চালু" ধরে।) সাথে আগের ৪টা নতুন লাইনও (ভল্ট-মেয়াদ, গাড়ির রিমাইন্ডার, গাড়ির দৈনিক হিসাব, ক্লিপ মোছা) এখনো যোগ বাকি — উপরের অংশে আছে।
+(সামনে flock নেই ইচ্ছা করে — ভেতরে দুটো কাজের নিজস্ব তালা আছে; কিছুক্ষণ পুরনো ও নতুন লাইন একসাথে থাকলেও সমস্যা নেই। ops_watch দুটো ধরনই "চালু" ধরে।) আগের ৪টা লাইন (ভল্ট-মেয়াদ, গাড়ির রিমাইন্ডার, গাড়ির দৈনিক হিসাব, ক্লিপ মোছা) আপনি যোগ করেছেন — যাচাই করা ✅। **আর একটা নতুন লাইন** (Agent Core-এর পুরনো ডেটা ৩০ দিন / অডিট ১২ মাসে মোছা, প্রতিদিন রাত ৩:৫০ UTC):
+```
+50 3 * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-agent-core-retention.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py agent_core_retention >> /home/ubuntu/assisto/logs/agent_core_retention.log 2>&1
+```
 
 
 **✅ বিল্ড ২৭০ Play-তে (internal + closed testing, ২৮ Oct দুপুর ~২টা বাংলাদেশ সময়) — ফটো স্টুডিও ২ GB ফোনে অনেক দ্রুত:** এডিটের প্রিভিউ ~১.১ সেকেন্ডে (আগে ৮–১৭.৬ সেকেন্ড), ছবি খোলে ০.৭ সেকেন্ডে, পূর্ণ মানে সেভ ৬ সেকেন্ডে (অগ্রগতি ও বাতিল বোতামসহ), স্টুডিও বন্ধ করলে মেমরি ফেরত। এখনো লক্ষ্য পূরণ হয়নি: প্রিভিউ ০.৮ সেকেন্ডের লক্ষ্যে, আর সর্বোচ্চ মেমরি ২৫০ MB-এর লক্ষ্যে — পরের ধাপ চলবে; আসল ২ GB ফোনে আপনার পরীক্ষা বাকি। APK: https://api.lifeassisto.com/dl/Eu5Lryr9Fl4bAMjwaUJvi4zs/assisto-part7-build270.apk
