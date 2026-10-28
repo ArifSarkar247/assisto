@@ -82,3 +82,4 @@ reality_out/
 # Wake word: real voice recordings are personal data — never commit (owner_actions/WAKEWORD_RECORDING_BN.md)
 tools/wakeword/real_clips/
 *.wakeword-clips.zip
+backend/agent_eval_reports/

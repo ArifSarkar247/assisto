@@ -209,9 +209,9 @@ class ApiTests(_On):
         PL.set_planner(_Scripted({"v": 1, "steps": [], "answer": "ok"}))
         c = APIClient()
         c.force_authenticate(self.u)
-        r = c.post("/api/v1/agent-core/goals?lang=en",
+        r = c.post("/api/v1/agent-core/goals",
                    {"text": "Which orders are still unpaid, and whose birthday is coming up?"},
-                   format="json")
+                   format="json", HTTP_ACCEPT_LANGUAGE="en")
         self.assertEqual(r.status_code, 201, r.content)
         d = r.json()
         self.assertEqual(d["topic"], "business")
@@ -221,10 +221,10 @@ class ApiTests(_On):
             self.assertTrue(t["may"] and t["may_not"] and t["label"])
             self.assertTrue(t["may_line"].startswith("Can: ") and t["not_line"].startswith("Won't: "))
         self.assertEqual(d["scope_title"], "What I may do here")
-        r = c.get("/api/v1/agent-core/runs/%d?lang=bn" % d["id"]).json()
+        r = c.get("/api/v1/agent-core/runs/%d" % d["id"], HTTP_ACCEPT_LANGUAGE="bn").json()
         self.assertEqual(r["topics"][1]["label"], "পরিবার")
         self.assertEqual(r["topics"][1]["may_not"], TP.SCOPE["family"]["not_bn"])
-        one = c.get("/api/v1/agent-core/runs?lang=en").json()["runs"][0]
+        one = c.get("/api/v1/agent-core/runs", HTTP_ACCEPT_LANGUAGE="en").json()["runs"][0]
         self.assertEqual(len(one["topics"]), 2)
 
 

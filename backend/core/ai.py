@@ -105,6 +105,27 @@ def _opts():
     return _CALL_OPTS.get() or {}
 
 
+# AF-6: the live agent eval pins ONE provider at a time (model comparison);
+# empty = the normal failover order. Only manage.py agent_eval sets it.
+_ONLY_PROVIDER = contextvars.ContextVar("ai_only_provider", default="")
+
+
+class only_provider:
+    """with ai.only_provider("openai"): ... — every call in the block uses
+    only that provider (no failover to another)."""
+    def __init__(self, name):
+        self.name = name or ""
+        self._tok = None
+
+    def __enter__(self):
+        self._tok = _ONLY_PROVIDER.set(self.name)
+        return self
+
+    def __exit__(self, *exc):
+        _ONLY_PROVIDER.reset(self._tok)
+        return False
+
+
 # ------------------------------------------------------------------ keys
 def active_api_key():
     """Prefer the owner-configured key in the Integrations store; fall back to
@@ -516,6 +537,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     if vault is not None and isinstance(out_meta, dict):
         out_meta["pii_masked"] = len(vault.t2v)
     providers = _providers()
+    if _ONLY_PROVIDER.get():
+        providers = [p for p in providers if p[0] == _ONLY_PROVIDER.get()]
     if not providers:
         raise AIUnavailable("no_key")
     conf = R.cfg()
