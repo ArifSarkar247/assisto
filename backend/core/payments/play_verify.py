@@ -86,7 +86,10 @@ def _check_pack(product_id, api):
         st = str(js.get("status") or "")
         return st.lower() == "active", st.upper(), ""
     except PlayError as e:
-        if e.args and e.args[0] != "not_found":
+        # A product made with Play's new one-time products model answers the
+        # legacy inappproducts API with an error ("google_error"), not 404
+        # (seen live 28 Oct on credits_c50) — ask oneTimeProducts then too.
+        if e.args and e.args[0] not in ("not_found", "google_error"):
             raise
     js = api("GET", "oneTimeProducts/%s" % product_id)
     states = [str(o.get("state") or "") for o in js.get("purchaseOptions") or []]

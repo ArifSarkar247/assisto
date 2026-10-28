@@ -328,6 +328,36 @@ class PresetAppliedTests(Base):
         self.assertEqual(catalog.price("pack_c300", "play"), 949)
         self.assertIn("premium_pro", [p["id"] for p in plans.plans_public("bn")])
 
+    def test_new_model_pack_verified_when_legacy_api_errors(self):
+        # live 28 Oct: credits_c50 (new one-time products model) answers the
+        # legacy inappproducts GET with google_error, not 404 -> must still be
+        # verified from oneTimeProducts, or the new packs can never be sold
+        from core.payments import catalog
+        from core.payments.play import PlayError
+        from core.payments import play_verify
+
+        def api(method, path):
+            if path.startswith("subscriptions/"):
+                return {"basePlans": [{"basePlanId": "monthly", "state": "ACTIVE"},
+                                      {"basePlanId": "annual", "state": "ACTIVE"}]}
+            if path.startswith("inappproducts/"):
+                raise PlayError("google_error", 400)
+            if path.startswith("oneTimeProducts/"):
+                return {"purchaseOptions": [{"purchaseOptionId": "buy", "state": "ACTIVE"}]}
+            raise AssertionError(path)
+        out = play_verify.check_all(api=api)
+        rows = {r["sku"]: r for r in out["rows"]}
+        self.assertTrue(rows["pack_c50"]["ok"], rows["pack_c50"])
+        self.assertEqual(rows["pack_c50"]["state"], "ACTIVE")
+        self.assertEqual(catalog.price("pack_c50", "play"), 179)
+
+        def api_down(method, path):         # a real outage is still NOT verified
+            if path.startswith("subscriptions/"):
+                return api(method, path)
+            raise PlayError("network", 502)
+        out = play_verify.check_all(api=api_down)
+        self.assertFalse({r["sku"]: r for r in out["rows"]}["pack_c50"]["ok"])
+
     def test_not_configured_play_verifies_nothing(self):
         from core.payments import play_verify
         out = play_verify.check_all()
