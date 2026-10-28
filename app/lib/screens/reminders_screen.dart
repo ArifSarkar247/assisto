@@ -668,6 +668,8 @@ IconData _linkIcon(String? type) {
       return Icons.folder_rounded;
     case 'event':
       return Icons.event_rounded;
+    case 'family_task': // famcare: a task a family member gave you
+      return Icons.family_restroom_rounded;
     default:
       return Icons.link_rounded;
   }

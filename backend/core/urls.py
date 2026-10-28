@@ -18,6 +18,7 @@ from . import views_chat as chatv
 from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
+from . import views_famcare as famc  # famcare
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import views_voice as voicev
@@ -286,6 +287,35 @@ urlpatterns = [
     # per-item consent. MUST precede router.urls so the literal `family/sharing*`
     # routes win over the FamilyMember router's `family/<pk>`. Trailing slashes
     # match the client's createItem/listItems path convention (api.dart _withSlash).
+    # famcare (owner 28 Oct): pick from My Circle, limits (safety free = 5),
+    # shared reminders, family shopping list, shared vault documents.
+    # MUST precede router.urls (family/<pk>).
+    path("family/limits", famc.FamilyLimitsView.as_view()),
+    path("family/limits/", famc.FamilyLimitsView.as_view()),
+    path("family/circle-pick", famc.FamilyCirclePickView.as_view()),
+    path("family/circle-pick/", famc.FamilyCirclePickView.as_view()),
+    path("family/from-circle", famc.FamilyFromCircleView.as_view()),
+    path("family/from-circle/", famc.FamilyFromCircleView.as_view()),
+    path("family/reminders", famc.FamilyTasksView.as_view()),
+    path("family/reminders/", famc.FamilyTasksView.as_view()),
+    path("family/reminders/<int:pk>/cancel", famc.FamilyTaskCancelView.as_view()),
+    path("family/reminders/<int:pk>/cancel/", famc.FamilyTaskCancelView.as_view()),
+    path("family/shopping", famc.FamilyShoppingView.as_view()),
+    path("family/shopping/", famc.FamilyShoppingView.as_view()),
+    path("family/shopping/clear-done", famc.FamilyShoppingClearView.as_view()),
+    path("family/shopping/clear-done/", famc.FamilyShoppingClearView.as_view()),
+    path("family/shopping/<int:pk>/toggle", famc.FamilyShoppingToggleView.as_view()),
+    path("family/shopping/<int:pk>/toggle/", famc.FamilyShoppingToggleView.as_view()),
+    path("family/shopping/<int:pk>/delete", famc.FamilyShoppingDeleteView.as_view()),
+    path("family/shopping/<int:pk>/delete/", famc.FamilyShoppingDeleteView.as_view()),
+    path("family/docs", famc.FamilyDocsView.as_view()),
+    path("family/docs/", famc.FamilyDocsView.as_view()),
+    path("family/docs/<int:pk>/revoke", famc.FamilyDocRevokeView.as_view()),
+    path("family/docs/<int:pk>/revoke/", famc.FamilyDocRevokeView.as_view()),
+    path("family/docs/<int:pk>/open", famc.FamilyDocOpenView.as_view()),
+    path("family/docs/<int:pk>/open/", famc.FamilyDocOpenView.as_view()),
+    path("family/docs/<int:pk>/file", famc.FamilyDocFileView.as_view()),
+    path("family/docs/<int:pk>/file/", famc.FamilyDocFileView.as_view()),
     # family100: family alerts over server push (MUST precede router.urls).
     path("family/sos", fam100.FamilySosView.as_view()),
     path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),

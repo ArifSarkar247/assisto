@@ -545,10 +545,18 @@ from .models import (FamilyMember, Medicine, MedicineLog, SchoolItem,  # noqa: E
 
 
 class FamilyMemberSerializer(serializers.ModelSerializer):
+    # famcare: picked-from-Circle link (read-only; set by /family/from-circle)
+    in_circle = serializers.SerializerMethodField()
+
     class Meta:
         model = FamilyMember
-        fields = ["id", "name", "relation", "phone", "notes"]
-        read_only_fields = ["id"]
+        fields = ["id", "name", "relation", "phone", "notes", "circle_member",
+                  "in_circle"]
+        read_only_fields = ["id", "circle_member", "in_circle"]
+
+    def get_in_circle(self, obj):
+        e = obj.circle_member
+        return bool(e is not None and e.state == "accepted" and not e.blocked)
 
 
 class DoctorSerializer(serializers.ModelSerializer):

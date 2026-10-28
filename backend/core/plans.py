@@ -229,6 +229,10 @@ def entitlements(user, lang="bn"):
     cp = _config_plan(p)
     ads = (cp["ads"] if cp else spec["ads"])
     max_family = cp["family"] if cp else spec["family"]
+    # famcare (owner 28 Oct): safety is never paywalled — every plan keeps at
+    # least 5 family members (SOS + family alerts are free on every plan).
+    from .famcare import SAFETY_FAMILY_FREE
+    max_family = max(SAFETY_FAMILY_FREE, int(max_family or 0))
     name = pick(lang, spec["name_bn"], spec["name_en"])
     if (trial_active(user) and not plan_active(user) and not lifetime_founder(user)
             and _v2(user)):
@@ -244,6 +248,7 @@ def entitlements(user, lang="bn"):
         "unlimited_ai": False,        # nothing is unlimited (owner decision)
         "ads": ads and not trial_active(user),
         "max_family": max_family,
+        "family_safety_free": True,   # famcare: 5 members + SOS + alerts, any plan
         "credits": user.ai_credits,
         "trial_active": trial_active(user),
         "trial_until": user.trial_until.isoformat() if user.trial_until else None,

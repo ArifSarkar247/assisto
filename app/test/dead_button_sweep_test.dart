@@ -98,6 +98,7 @@ const Map<String, String> _allowDead = {
   'c2_call_video_*|icon:0xf613': 'B: camera flip on the fake media stack; real flip is WebRTC (call-proof workflow)',
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',
+  'famcare_card*|Share as image': 'B: same RepaintBoundary.toImage share as Money Wrapped (the text share beside it is swept)',
 };
 
 /// Errors a widget test cannot avoid (no plugins, no network, no sqflite).

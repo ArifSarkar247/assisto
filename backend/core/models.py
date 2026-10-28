@@ -304,6 +304,12 @@ class FamilyMember(models.Model):
     relation = models.CharField(max_length=40, blank=True)
     phone = models.CharField(max_length=24, blank=True)
     notes = models.CharField(max_length=200, blank=True)
+    # famcare: the My Circle edge this member was picked from (one tap, never
+    # typed twice). NULL = typed by hand. SET_NULL so leaving the Circle keeps
+    # the family entry (medicine/accounting history) but unlinks safety.
+    circle_member = models.ForeignKey("CircleMember", null=True, blank=True,
+                                      on_delete=models.SET_NULL,
+                                      related_name="family_entries")
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -6862,3 +6868,49 @@ class SmsPartLedger(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["user", "created_at"])]
 # ---- /tagada2 ----
+
+
+# ---- famcare (owner 28 Oct) ----
+class FamilyDocShare(models.Model):
+    """famcare: one vault document shared with one family member's account.
+    Revocable (revoked_at), audited (created/revoked/opens/last_opened_at).
+    The owner's phone gates the share behind the vault PIN (the PIN never
+    leaves the phone); the server only lets an ACTIVE share's recipient read
+    the file while they are still in the owner's Circle."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="family_doc_shares")
+    document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                 related_name="family_shares")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="family_docs_shared_with_me")
+    created_at = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    opens = models.PositiveIntegerField(default=0)
+    last_opened_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["recipient", "revoked_at"],
+                                name="core_family_recipie_famc01_idx")]
+
+
+class FamilyListItem(models.Model):
+    """famcare: the family shopping list. `owner` is the household whose list
+    it is; the owner's Circle-linked family members read it and tick items."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="family_list_items")
+    text = models.CharField(max_length=200)
+    qty = models.CharField(max_length=40, blank=True, default="")
+    done = models.BooleanField(default=False)
+    added_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    done_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["done", "-id"]
+        indexes = [models.Index(fields=["owner", "done"],
+                                name="core_family_owner_famc02_idx")]
+# ---- /famcare ----

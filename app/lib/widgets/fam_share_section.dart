@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import 'fam_sharing_strings.dart';
+import 'fam_empty.dart' show famDigits;
 
 /// #67 SELECTIVE SHARING (SPEC v2.1 §21) — ADVANCED upgrade of the FAMILY
 /// good-bit. A fully self-contained, clearly-bounded section embedded as ONE
@@ -111,6 +112,34 @@ class _FamShareSectionState extends State<FamShareSection> {
     } catch (_) {
       if (mounted) setState(() => _serverLoadFailed = true);
     }
+    // famcare: the audit used to be this session only (gone on reopen); the
+    // server keeps the authoritative log — show it.
+    try {
+      final a = await context.read<AppState>().api.getJson('/family/sharing/audit');
+      final rows = (a['entries'] as List? ?? const []).whereType<Map>();
+      String nameOf(Object? id) {
+        for (final m in widget.members) {
+          if (m['id'] == id) return '${m['name'] ?? ''}';
+        }
+        return '';
+      }
+      final list = <Map<String, dynamic>>[
+        for (final e in rows)
+          {
+            'action': '${e['action'] ?? 'grant'}',
+            'name': '${e['member_name'] ?? ''}'.isNotEmpty
+                ? '${e['member_name']}'
+                : nameOf(e['member_id']),
+            'item': kFamShareItems.contains(e['item']) ? e['item'] as String : null,
+            'at': (DateTime.tryParse('${e['at'] ?? ''}') ?? DateTime.now()).toLocal(),
+          }
+      ];
+      if (mounted && list.isNotEmpty) {
+        setState(() => _audit
+          ..clear()
+          ..addAll(list));
+      }
+    } catch (_) {} // best-effort: the grid above already loaded or said so
   }
 
   bool _granted(int mid, String item) => _grants[mid]?.contains(item) ?? false;
@@ -360,8 +389,8 @@ class _FamShareSectionState extends State<FamShareSection> {
     final isRevoke =
         action == 'revoke' || action == 'revoke_member' || action == 'revoke_all';
     final at = e['at'] as DateTime;
-    final time =
-        '${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+    final time = famDigits(context,
+        '${MaterialLocalizations.of(context).formatShortMonthDay(at)} ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}');
     final item = e['item'] as String?;
     final label = isGrant
         ? famLabel(context, 'famShareAuditGrant')

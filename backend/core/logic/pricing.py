@@ -1487,6 +1487,11 @@ def plan_benefits(pid, lang, cfg):
             first = ("AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে" if bn
                      else "AI with credit packs or rewarded ads")
         lines[0] = first
+        # famcare (owner 28 Oct): family safety is free on every plan.
+        if len(lines) > 2:
+            lines[2] = ("পরিবারের নিরাপত্তা সবসময় ফ্রি: ৫ জন পরিবার, SOS, পরিবার ও স্ক্যাম সতর্কতা"
+                        if bn else
+                        "Family safety always free: 5 family members, SOS, family & scam alerts")
     elif pid in ("premium", "business", "plus", "premium_pro"):
         n = s["credits"]
         lines[0] = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট (স্ক্যান ও সহকারী)" if bn

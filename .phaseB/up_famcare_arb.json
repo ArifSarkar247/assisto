@@ -1,0 +1,672 @@
+{
+ "en": {
+  "fcAcctMembersBenefit": "Add family from My Circle once — then split costs and see who owes whom.",
+  "@fcAcctMembersBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAddByHand": "Add someone not in My Circle",
+  "@fcAddByHand": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAddByHandShort": "Add by phone",
+  "@fcAddByHandShort": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAddByHandSub": "Saving also sends them a My Circle request, so they can get your SOS.",
+  "@fcAddByHandSub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAddFamilyFirst": "Add family from My Circle",
+  "@fcAddFamilyFirst": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAlreadyAdded": "Already in your family",
+  "@fcAlreadyAdded": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAlsoInvite": "Also invite to My Circle",
+  "@fcAlsoInvite": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAlsoInviteSub": "Only My Circle members get your SOS and family alerts.",
+  "@fcAlsoInviteSub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcAmountTaka": "Amount (taka)",
+  "@fcAmountTaka": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardEmptyTitle": "Your family emergency card",
+  "@fcCardEmptyTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardEmptyBenefit": "Blood group, emergency numbers and home address in one card — opens without internet and you can send it to anyone.",
+  "@fcCardEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardFill": "Fill in the emergency card",
+  "@fcCardFill": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardStep1": "Write the blood group and up to 3 emergency numbers.",
+  "@fcCardStep1": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardStep2": "Add your family from My Circle — they appear on the card.",
+  "@fcCardStep2": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardStep3": "Share it as a picture or as text (SMS, WhatsApp).",
+  "@fcCardStep3": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardNotes": "Allergies / notes",
+  "@fcCardNotes": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardNotesHint": "e.g. allergic to penicillin",
+  "@fcCardNotesHint": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardOfflineNow": "No internet — showing the card saved on this phone.",
+  "@fcCardOfflineNow": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardSavedOnPhone": "Saved on this phone — opens without internet.",
+  "@fcCardSavedOnPhone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardPrivacyNote": "Kept only on this phone (encrypted). It leaves the phone only when you share it.",
+  "@fcCardPrivacyNote": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardSaveFailed": "Could not save on this phone. Try again.",
+  "@fcCardSaveFailed": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardSaved": "Emergency card saved on this phone.",
+  "@fcCardSaved": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCardShareText": "Share as text",
+  "@fcCardShareText": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCircleEmpty": "No one in your My Circle yet",
+  "@fcCircleEmpty": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcCircleEmptySub": "Add someone by phone below — they get a My Circle request and, once they accept, your SOS.",
+  "@fcCircleEmptySub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsActive": "Shared",
+  "@fcDocsActive": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsByMe": "Documents I shared",
+  "@fcDocsByMe": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsEmptyTitle": "Share documents with family",
+  "@fcDocsEmptyTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsEmptyBenefit": "Give your family the passport, NID or insurance they may need in an emergency — and take it back any time.",
+  "@fcDocsEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsStep1": "Your vault PIN is asked first.",
+  "@fcDocsStep1": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsStep2": "Pick a document and the family members.",
+  "@fcDocsStep2": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsStep3": "See who opened it and when; stop sharing with one tap.",
+  "@fcDocsStep3": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsExpires": "Expires {value}",
+  "@fcDocsExpires": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "fcDocsFrom": "From {name}",
+  "@fcDocsFrom": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcDocsGone": "This document is no longer shared with you.",
+  "@fcDocsGone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsNeedPin": "Set a vault PIN first",
+  "@fcDocsNeedPin": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsNeedPinBody": "Sharing a document needs your vault PIN, so nobody else can share from your phone.",
+  "@fcDocsNeedPinBody": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsNoVaultDocs": "Your vault is empty. Add a document in Vault first.",
+  "@fcDocsNoVaultDocs": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsOpens": "Opened {count} times",
+  "@fcDocsOpens": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "fcDocsPickDoc": "Which document?",
+  "@fcDocsPickDoc": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsPickMembers": "Share with",
+  "@fcDocsPickMembers": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsPinLabel": "Vault PIN",
+  "@fcDocsPinLabel": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsPinTitle": "Enter your vault PIN",
+  "@fcDocsPinTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsPinWrong": "PIN not confirmed — nothing was shared.",
+  "@fcDocsPinWrong": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsRevoke": "Stop sharing",
+  "@fcDocsRevoke": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsRevokeAnytime": "You can stop sharing any time. Only members in your My Circle can open it.",
+  "@fcDocsRevokeAnytime": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsRevokeBody": "{title} will no longer open for {name}.",
+  "@fcDocsRevokeBody": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "title": {
+     "type": "String"
+    },
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcDocsRevokeQ": "Stop sharing this document?",
+  "@fcDocsRevokeQ": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsRevoked": "Stopped",
+  "@fcDocsRevoked": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsShare": "Share a document",
+  "@fcDocsShare": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsShared": "Shared. They can open it in Family care → Sharing.",
+  "@fcDocsShared": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsTab": "Documents",
+  "@fcDocsTab": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsWithMe": "Shared with me",
+  "@fcDocsWithMe": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDone": "Done",
+  "@fcDone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcFamilyEmptyTitle": "Add your family",
+  "@fcFamilyEmptyTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcFamilyEmptyBenefit": "Add family once from My Circle — your SOS then rings on their phones, and medicine, money and reminders all use the same list. Family safety is always free.",
+  "@fcFamilyEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcFamilyStep1": "Tap \"Pick from My Circle\" and tap each family member once.",
+  "@fcFamilyStep1": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcFamilyStep2": "Not in My Circle yet? Add them by phone — they get a request.",
+  "@fcFamilyStep2": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcFamilyStep3": "A green \"Gets your SOS\" mark means they are ready.",
+  "@fcFamilyStep3": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcGetsSos": "Gets your SOS",
+  "@fcGetsSos": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcGiveTask": "Give a task",
+  "@fcGiveTask": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcInviteSent": "My Circle request sent.",
+  "@fcInviteSent": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcInviteToCircle": "Invite to My Circle",
+  "@fcInviteToCircle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcMarkDone": "Mark done",
+  "@fcMarkDone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcMarkNotDone": "Mark not done",
+  "@fcMarkNotDone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcMembersOf": "{used} of {limit} family members",
+  "@fcMembersOf": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "used": {
+     "type": "String"
+    },
+    "limit": {
+     "type": "String"
+    }
+   }
+  },
+  "fcMore": "More",
+  "@fcMore": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcNoSos": "Not in My Circle — doesn't get your SOS",
+  "@fcNoSos": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcOfflineCardHint": "Your family emergency card still works — it is saved on this phone.",
+  "@fcOfflineCardHint": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcOpenSavedCard": "Open emergency card",
+  "@fcOpenSavedCard": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcOpenVault": "Open Vault",
+  "@fcOpenVault": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcOverdue": "Overdue",
+  "@fcOverdue": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPickFromCircle": "Pick from My Circle",
+  "@fcPickFromCircle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPickSub": "Tap a person once to add them. Already added people show a tick.",
+  "@fcPickSub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPrivacyEmptyTitle": "Choose what your family sees",
+  "@fcPrivacyEmptyTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPrivacyEmptyBenefit": "Decide, person by person, who may see your location, money summary or documents — and change it any time.",
+  "@fcPrivacyEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPrivacyStep1": "Add family from My Circle.",
+  "@fcPrivacyStep1": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPrivacyStep2": "Open a person and switch on only what they may see.",
+  "@fcPrivacyStep2": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcPrivacyTab": "Privacy",
+  "@fcPrivacyTab": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcRemove": "Remove",
+  "@fcRemove": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcRemoveBody": "{name} will be removed from your family list. Their My Circle contact stays.",
+  "@fcRemoveBody": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcRemoveTitle": "Remove from family?",
+  "@fcRemoveTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSafetyFree": "Family safety is always free",
+  "@fcSafetyFree": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSaved": "Saved.",
+  "@fcSaved": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSavedInviteFailed": "Saved, but the My Circle request could not be sent. Try \"Invite to My Circle\" again.",
+  "@fcSavedInviteFailed": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSavedInvited": "Saved and My Circle request sent.",
+  "@fcSavedInvited": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolAdd": "Add fee, exam or meeting",
+  "@fcSchoolAdd": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolDeleteQ": "Delete this school item?",
+  "@fcSchoolDeleteQ": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolDoneHeading": "Done",
+  "@fcSchoolDoneHeading": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolEmptyTitle": "Your child's school, in one place",
+  "@fcSchoolEmptyTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolEmptyBenefit": "Never miss a fee date, exam or parents' meeting — Assisto reminds you the evening before.",
+  "@fcSchoolEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolStep1": "Tap the button and choose fee, exam or meeting.",
+  "@fcSchoolStep1": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolStep2": "Pick the date (and the amount for a fee).",
+  "@fcSchoolStep2": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolStep3": "Tick it when it's done.",
+  "@fcSchoolStep3": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolRemind": "Remind me the evening before",
+  "@fcSchoolRemind": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolReminderFailed": "Saved, but the reminder could not be set.",
+  "@fcSchoolReminderFailed": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcSchoolSavedReminder": "Saved — reminder set for the evening before.",
+  "@fcSchoolSavedReminder": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopAddHint": "Add an item (e.g. rice 5 kg)",
+  "@fcShopAddHint": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopAddedBy": "Added by {name}",
+  "@fcShopAddedBy": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcShopBoughtBy": "Bought by {name}",
+  "@fcShopBoughtBy": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcShopClearDone": "Remove bought items",
+  "@fcShopClearDone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopEmptyBenefit": "One shopping list for the whole family — anyone adds, whoever is at the bazar ticks it off.",
+  "@fcShopEmptyBenefit": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopMine": "My list",
+  "@fcShopMine": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopOf": "{name}'s list",
+  "@fcShopOf": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcShopOnlyYou": "Only you see this list now. Add family from My Circle to share it.",
+  "@fcShopOnlyYou": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopOnlyYouLinked": "Only you see this list now — family members appear once they accept your My Circle request.",
+  "@fcShopOnlyYouLinked": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopSharedWith": "Shared with {count} family members",
+  "@fcShopSharedWith": {
+   "description": "famcare (owner Family Care review 28 Oct)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "fcShopTab": "Shopping",
+  "@fcShopTab": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcShopTheirs": "Their family list — you can add and tick items.",
+  "@fcShopTheirs": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskCancel": "Cancel task",
+  "@fcTaskCancel": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskDone": "Done",
+  "@fcTaskDone": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskNeedsCircle": "Tasks go to family members in My Circle. Add or invite someone first.",
+  "@fcTaskNeedsCircle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskPickTime": "Pick a date and time (optional)",
+  "@fcTaskPickTime": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskSent": "Task sent — it is in their reminders now.",
+  "@fcTaskSent": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskWaiting": "Not done yet",
+  "@fcTaskWaiting": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTaskWhat": "What should they do?",
+  "@fcTaskWhat": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTasksEmpty": "No tasks yet. Give one — e.g. \"Buy Ammu's medicine\".",
+  "@fcTasksEmpty": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTasksSub": "The task lands in their own reminder list; you see when it's done.",
+  "@fcTasksSub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcTasksTitle": "Family tasks",
+  "@fcTasksTitle": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "onbSimpleHome": "Simple home (for elders)",
+  "@onbSimpleHome": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "onbSimpleHomeSub": "Big text, big buttons and SOS on the first screen. You can switch back in Settings.",
+  "@onbSimpleHomeSub": {
+   "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsOpenFile": "Open the scan",
+  "@fcDocsOpenFile": {
+   "description": "famcare: recipient opens the shared document's attached file"
+  }
+ },
+ "bn": {
+  "fcAcctMembersBenefit": "My Circle থেকে একবার পরিবার যোগ করুন — তারপর খরচ ভাগ আর কে কাকে কত দেবে দেখুন।",
+  "fcAddByHand": "My Circle-এ নেই এমন কাউকে যোগ করুন",
+  "fcAddByHandShort": "নম্বর দিয়ে",
+  "fcAddByHandSub": "সেভ করলে তাঁকে My Circle অনুরোধও যায়, যাতে তিনি আপনার SOS পান।",
+  "fcAddFamilyFirst": "My Circle থেকে পরিবার যোগ করুন",
+  "fcAlreadyAdded": "আগেই পরিবারে আছেন",
+  "fcAlsoInvite": "My Circle-এও আমন্ত্রণ পাঠান",
+  "fcAlsoInviteSub": "শুধু My Circle-এর সদস্যরাই আপনার SOS ও সতর্কতা পান।",
+  "fcAmountTaka": "টাকার পরিমাণ",
+  "fcCardEmptyTitle": "পরিবারের জরুরি কার্ড",
+  "fcCardEmptyBenefit": "রক্তের গ্রুপ, জরুরি নম্বর আর বাসার ঠিকানা এক কার্ডে — নেট ছাড়াও খোলে, যে কাউকে পাঠানো যায়।",
+  "fcCardFill": "জরুরি কার্ড পূরণ করুন",
+  "fcCardStep1": "রক্তের গ্রুপ আর সর্বোচ্চ ৩টি জরুরি নম্বর লিখুন।",
+  "fcCardStep2": "My Circle থেকে পরিবার যোগ করুন — তাঁরা কার্ডে দেখাবেন।",
+  "fcCardStep3": "ছবি বা লেখা হিসেবে শেয়ার করুন (SMS, WhatsApp)।",
+  "fcCardNotes": "অ্যালার্জি / নোট",
+  "fcCardNotesHint": "যেমন: পেনিসিলিনে অ্যালার্জি",
+  "fcCardOfflineNow": "নেট নেই — এই ফোনে সেভ করা কার্ড দেখাচ্ছে।",
+  "fcCardSavedOnPhone": "এই ফোনে সেভ করা — নেট ছাড়াও খোলে।",
+  "fcCardPrivacyNote": "শুধু এই ফোনে থাকে (এনক্রিপ্টেড)। আপনি শেয়ার করলেই কেবল ফোনের বাইরে যায়।",
+  "fcCardSaveFailed": "এই ফোনে সেভ করা গেল না। আবার চেষ্টা করুন।",
+  "fcCardSaved": "জরুরি কার্ড এই ফোনে সেভ হয়েছে।",
+  "fcCardShareText": "লেখা হিসেবে শেয়ার",
+  "fcCircleEmpty": "My Circle-এ এখনো কেউ নেই",
+  "fcCircleEmptySub": "নিচে নম্বর দিয়ে যোগ করুন — তাঁর কাছে My Circle অনুরোধ যাবে, গ্রহণ করলে তিনি আপনার SOS পাবেন।",
+  "fcDocsActive": "শেয়ার করা",
+  "fcDocsByMe": "আমার শেয়ার করা কাগজ",
+  "fcDocsEmptyTitle": "পরিবারের সাথে কাগজ শেয়ার",
+  "fcDocsEmptyBenefit": "জরুরি দরকারে পাসপোর্ট, NID বা বিমার কাগজ পরিবারকে দিন — যেকোনো সময় ফেরত নিন।",
+  "fcDocsStep1": "প্রথমে আপনার ভল্ট PIN চাওয়া হবে।",
+  "fcDocsStep2": "একটি কাগজ আর পরিবারের সদস্য বাছুন।",
+  "fcDocsStep3": "কে কখন খুলেছেন দেখুন; এক ট্যাপে শেয়ার বন্ধ করুন।",
+  "fcDocsExpires": "মেয়াদ শেষ {value}",
+  "fcDocsFrom": "{name} পাঠিয়েছেন",
+  "fcDocsGone": "এই কাগজটি আর আপনার সাথে শেয়ার করা নেই।",
+  "fcDocsNeedPin": "আগে ভল্ট PIN সেট করুন",
+  "fcDocsNeedPinBody": "কাগজ শেয়ার করতে ভল্ট PIN লাগে, যাতে আপনার ফোন থেকে অন্য কেউ শেয়ার করতে না পারে।",
+  "fcDocsNoVaultDocs": "আপনার ভল্ট খালি। আগে ভল্টে একটি কাগজ যোগ করুন।",
+  "fcDocsOpens": "{count} বার খোলা হয়েছে",
+  "fcDocsPickDoc": "কোন কাগজ?",
+  "fcDocsPickMembers": "কার সাথে শেয়ার",
+  "fcDocsPinLabel": "ভল্ট PIN",
+  "fcDocsPinTitle": "ভল্ট PIN দিন",
+  "fcDocsPinWrong": "PIN নিশ্চিত হয়নি — কিছুই শেয়ার হয়নি।",
+  "fcDocsRevoke": "শেয়ার বন্ধ",
+  "fcDocsRevokeAnytime": "যেকোনো সময় শেয়ার বন্ধ করতে পারবেন। শুধু My Circle-এর সদস্যরাই খুলতে পারবেন।",
+  "fcDocsRevokeBody": "{name} আর {title} খুলতে পারবেন না।",
+  "fcDocsRevokeQ": "এই কাগজের শেয়ার বন্ধ করবেন?",
+  "fcDocsRevoked": "বন্ধ",
+  "fcDocsShare": "একটি কাগজ শেয়ার করুন",
+  "fcDocsShared": "শেয়ার হয়েছে। তাঁরা পরিবারের যত্ন → শেয়ারিং-এ খুলতে পারবেন।",
+  "fcDocsTab": "কাগজ",
+  "fcDocsWithMe": "আমার সাথে শেয়ার করা",
+  "fcDone": "হয়ে গেছে",
+  "fcFamilyEmptyTitle": "আপনার পরিবার যোগ করুন",
+  "fcFamilyEmptyBenefit": "My Circle থেকে একবার পরিবার যোগ করুন — তারপর আপনার SOS তাঁদের ফোনে বাজে, আর ওষুধ, হিসাব ও রিমাইন্ডার সব একই তালিকা ব্যবহার করে। পরিবারের নিরাপত্তা সবসময় ফ্রি।",
+  "fcFamilyStep1": "\"My Circle থেকে বাছুন\" চাপুন, পরিবারের প্রত্যেককে একবার ট্যাপ করুন।",
+  "fcFamilyStep2": "My Circle-এ নেই? নম্বর দিয়ে যোগ করুন — তাঁর কাছে অনুরোধ যাবে।",
+  "fcFamilyStep3": "সবুজ \"আপনার SOS পান\" চিহ্ন মানে তিনি প্রস্তুত।",
+  "fcGetsSos": "আপনার SOS পান",
+  "fcGiveTask": "কাজ দিন",
+  "fcInviteSent": "My Circle অনুরোধ পাঠানো হয়েছে।",
+  "fcInviteToCircle": "My Circle-এ আমন্ত্রণ",
+  "fcMarkDone": "হয়ে গেছে চিহ্ন দিন",
+  "fcMarkNotDone": "হয়নি চিহ্ন দিন",
+  "fcMembersOf": "{limit} জনের মধ্যে {used} জন",
+  "fcMore": "আরও",
+  "fcNoSos": "My Circle-এ নেই — আপনার SOS পান না",
+  "fcOfflineCardHint": "পরিবারের জরুরি কার্ড তবুও খোলে — এটি এই ফোনে সেভ করা।",
+  "fcOpenSavedCard": "জরুরি কার্ড খুলুন",
+  "fcOpenVault": "ভল্ট খুলুন",
+  "fcOverdue": "সময় পেরিয়ে গেছে",
+  "fcPickFromCircle": "My Circle থেকে বাছুন",
+  "fcPickSub": "যোগ করতে একজনকে একবার ট্যাপ করুন। আগে যোগ হওয়াদের পাশে টিক চিহ্ন।",
+  "fcPrivacyEmptyTitle": "পরিবার কী দেখবে বেছে নিন",
+  "fcPrivacyEmptyBenefit": "প্রত্যেকের জন্য আলাদা করে ঠিক করুন কে আপনার লোকেশন, টাকার সারাংশ বা কাগজ দেখবেন — যেকোনো সময় বদলান।",
+  "fcPrivacyStep1": "My Circle থেকে পরিবার যোগ করুন।",
+  "fcPrivacyStep2": "একজনকে খুলে শুধু যা দেখবেন তা চালু করুন।",
+  "fcPrivacyTab": "গোপনীয়তা",
+  "fcRemove": "সরান",
+  "fcRemoveBody": "{name} পরিবারের তালিকা থেকে সরে যাবেন। My Circle-এর যোগাযোগ থাকবে।",
+  "fcRemoveTitle": "পরিবার থেকে সরাবেন?",
+  "fcSafetyFree": "পরিবারের নিরাপত্তা সবসময় ফ্রি",
+  "fcSaved": "সেভ হয়েছে।",
+  "fcSavedInviteFailed": "সেভ হয়েছে, কিন্তু My Circle অনুরোধ যায়নি। আবার \"My Circle-এ আমন্ত্রণ\" চাপুন।",
+  "fcSavedInvited": "সেভ হয়েছে, My Circle অনুরোধও গেছে।",
+  "fcSchoolAdd": "ফি, পরীক্ষা বা মিটিং যোগ করুন",
+  "fcSchoolDeleteQ": "এই স্কুলের এন্ট্রি মুছবেন?",
+  "fcSchoolDoneHeading": "শেষ হয়েছে",
+  "fcSchoolEmptyTitle": "সন্তানের স্কুল, এক জায়গায়",
+  "fcSchoolEmptyBenefit": "ফি-র তারিখ, পরীক্ষা বা অভিভাবক সভা আর ভুলবেন না — আগের দিন সন্ধ্যায় Assisto মনে করিয়ে দেবে।",
+  "fcSchoolStep1": "বোতাম চাপুন, ফি, পরীক্ষা বা মিটিং বাছুন।",
+  "fcSchoolStep2": "তারিখ বাছুন (ফি হলে টাকার পরিমাণ)।",
+  "fcSchoolStep3": "শেষ হলে টিক দিন।",
+  "fcSchoolRemind": "আগের দিন সন্ধ্যায় মনে করিয়ে দিন",
+  "fcSchoolReminderFailed": "সেভ হয়েছে, কিন্তু রিমাইন্ডার সেট হয়নি।",
+  "fcSchoolSavedReminder": "সেভ হয়েছে — আগের দিন সন্ধ্যার রিমাইন্ডার সেট।",
+  "fcShopAddHint": "জিনিস লিখুন (যেমন: চাল ৫ কেজি)",
+  "fcShopAddedBy": "যোগ করেছেন {name}",
+  "fcShopBoughtBy": "কিনেছেন {name}",
+  "fcShopClearDone": "কেনা জিনিস মুছুন",
+  "fcShopEmptyBenefit": "পুরো পরিবারের একটাই বাজারের লিস্ট — যে কেউ যোগ করেন, যিনি বাজারে তিনি টিক দেন।",
+  "fcShopMine": "আমার লিস্ট",
+  "fcShopOf": "{name}-এর লিস্ট",
+  "fcShopOnlyYou": "এখন শুধু আপনি দেখছেন। শেয়ার করতে My Circle থেকে পরিবার যোগ করুন।",
+  "fcShopOnlyYouLinked": "এখন শুধু আপনি দেখছেন — My Circle অনুরোধ গ্রহণ করলে পরিবারের সদস্যরাও দেখবেন।",
+  "fcShopSharedWith": "পরিবারের {count} জনের সাথে শেয়ার করা",
+  "fcShopTab": "বাজার",
+  "fcShopTheirs": "তাঁদের পরিবারের লিস্ট — আপনিও যোগ ও টিক দিতে পারেন।",
+  "fcTaskCancel": "কাজ বাতিল",
+  "fcTaskDone": "শেষ",
+  "fcTaskNeedsCircle": "কাজ যায় My Circle-এর পরিবারের সদস্যদের কাছে। আগে কাউকে যোগ বা আমন্ত্রণ করুন।",
+  "fcTaskPickTime": "তারিখ ও সময় বাছুন (ইচ্ছা হলে)",
+  "fcTaskSent": "কাজ পাঠানো হয়েছে — এখন তাঁর রিমাইন্ডারে আছে।",
+  "fcTaskWaiting": "এখনো হয়নি",
+  "fcTaskWhat": "কী করতে হবে?",
+  "fcTasksEmpty": "এখনো কোনো কাজ নেই। একটা দিন — যেমন \"আম্মুর ওষুধ কেনা\"।",
+  "fcTasksSub": "কাজটি তাঁর নিজের রিমাইন্ডারে যায়; শেষ হলে আপনি দেখবেন।",
+  "fcTasksTitle": "পরিবারের কাজ",
+  "onbSimpleHome": "সহজ হোম (বয়স্কদের জন্য)",
+  "onbSimpleHomeSub": "বড় লেখা, বড় বোতাম, প্রথম পাতাতেই SOS। সেটিংসে গিয়ে আবার বদলানো যায়।",
+  "fcDocsOpenFile": "স্ক্যান খুলুন"
+ }
+}

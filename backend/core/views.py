@@ -297,6 +297,16 @@ class ReminderViewSet(SyncedViewSet):
     kind = "reminder"
     serializer_class = ReminderSerializer
 
+    def perform_update(self, serializer):
+        # famcare: a family task ticked done tells the assigner (once).
+        was_done = bool(serializer.instance.done)
+        super().perform_update(serializer)
+        try:
+            from . import famcare as FC
+            FC.on_reminder_saved(serializer.instance, was_done)
+        except Exception:
+            pass
+
 
 class NoteViewSet(SyncedViewSet):
     model = Note
@@ -559,7 +569,16 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
     serializer_class = FamilyMemberSerializer
 
     def get_queryset(self):
-        return FamilyMember.objects.filter(user=self.request.user)
+        return FamilyMember.objects.filter(user=self.request.user) \
+            .select_related("circle_member")
+
+    def create(self, request, *args, **kwargs):
+        # famcare: every plan (Free included) keeps up to 5 — server-enforced.
+        from . import famcare as FC
+        if FC.over_cap(request.user):
+            from .views_famcare import refuse
+            return refuse(request, "family_limit", limit=FC.family_cap(request.user))
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
