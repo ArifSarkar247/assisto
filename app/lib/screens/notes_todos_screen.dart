@@ -414,7 +414,8 @@ class _NoteCard extends StatelessWidget {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: tint),
         const SizedBox(width: 3),
-        Text(label, style: AType.bodySmall.copyWith(color: tint)),
+        // remnotes: wraps at 200% instead of overflowing the card
+        Flexible(child: Text(label, style: AType.bodySmall.copyWith(color: tint))),
       ]);
 }
 
