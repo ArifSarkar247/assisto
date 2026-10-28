@@ -470,7 +470,7 @@ class CallController extends ChangeNotifier {
   void _hintSteady(bool on) {
     if (on == _steadyHint) return;
     _steadyHint = on;
-    final s = signaling;
+    final Object s = signaling;
     if (s is RealtimeHints) {
       try {
         s.setSteady(on);
@@ -765,7 +765,7 @@ class CallController extends ChangeNotifier {
     log.add('net:$kind');
     // circle2: the shared loop may be deep in its error backoff (it was 8-15
     // s) — poll now so the other phone's restart offer/answer is not late.
-    final s = signaling;
+    final Object s = signaling;
     if (kind != 'lost' && s is RealtimeHints) {
       try {
         s.networkChanged(kind);
