@@ -64,6 +64,7 @@ owner_actions/photo_bench/.media_tmp/
 !tools/ringproof/
 !tools/perf2gb/
 !tools/e2e/
+!tools/cashguard/
 screenshots/
 new-logo.png
 logs/

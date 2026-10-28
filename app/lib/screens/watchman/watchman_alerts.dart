@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../cashguard/cashguard_source.dart';
 import '../../l10n/app_localizations.dart';
+import '../../state.dart';
+import 'cash_guard_clip.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 
@@ -12,7 +16,11 @@ class WatchmanAlertsScreen extends StatefulWidget {
   final WatchmanSource source;
   final int siteId;
   final bool owner;
-  const WatchmanAlertsScreen({super.key, required this.source, required this.siteId, required this.owner});
+
+  /// cashguard: clip envelope + download (tests / gallery inject a fake).
+  final CashGuardSource? cash;
+  const WatchmanAlertsScreen(
+      {super.key, required this.source, required this.siteId, required this.owner, this.cash});
 
   @override
   State<WatchmanAlertsScreen> createState() => _WatchmanAlertsScreenState();
@@ -24,6 +32,22 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
   List<Map<String, dynamic>> _events = const [];
   int _held = 0;
   final Set<int> _busy = {};
+
+  CashGuardSource? _cashSrc() {
+    if (widget.cash != null) return widget.cash;
+    try {
+      return ApiCashGuardSource(context.read<AppState>().api);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _openClip(Map<String, dynamic> e) async {
+    final src = _cashSrc();
+    if (src == null) return;
+    await CashClipSheet.show(context, src, (e['id'] as num).toInt(), widget.owner);
+    if (mounted) await _load();
+  }
 
   @override
   void initState() {
@@ -130,6 +154,9 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     final verdict = e['verdict'];
     final id = (e['id'] as num).toInt();
     final snap = (e['snapshot_url'] ?? '').toString();
+    final cash = e['cash'] == true;
+    final clip = wmMap(e['clip']);
+    final clipSt = (clip['status'] ?? '').toString();
     return Card(
       margin: const EdgeInsets.only(top: 12),
       clipBehavior: Clip.antiAlias,
@@ -152,10 +179,22 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            WmPill(label: t.wmSuspiciousLabel, icon: Icons.visibility_rounded, color: wmWarn()),
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              WmPill(
+                  label: cash ? t.cgPossibleCashRemoval : t.wmSuspiciousLabel,
+                  icon: cash ? Icons.point_of_sale_rounded : Icons.visibility_rounded,
+                  color: wmWarn()),
+              if (e['away'] == true)
+                WmPill(label: t.cgAwayPill, icon: Icons.directions_walk_rounded, color: wmBad()),
+            ]),
             const SizedBox(height: 8),
             Text(wmEventWhat(t, (e['type'] ?? '').toString()),
                 style: Theme.of(context).textTheme.titleMedium),
+            if (cash)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(t.cgDecideHint, style: Theme.of(context).textTheme.bodySmall),
+              ),
             const SizedBox(height: 2),
             Text([
               if ((e['camera_name'] ?? '').toString().isNotEmpty) e['camera_name'].toString(),
@@ -174,6 +213,19 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(t.wmNoSnapshot, style: Theme.of(context).textTheme.bodySmall),
               ),
+            if (clip.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              if (clipSt == 'ready' || clipSt == 'pending')
+                FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.play_circle_outline_rounded),
+                  label: Text(clipSt == 'pending' ? t.cgClipComing : t.cgWatchClip),
+                  onPressed: () => _openClip(e),
+                )
+              else
+                Text(clipSt == 'viewed' ? t.cgClipWatchedGone : t.cgClipExpiredGone,
+                    style: Theme.of(context).textTheme.bodySmall),
+            ],
             const SizedBox(height: 8),
             if (verdict != null)
               WmPill(

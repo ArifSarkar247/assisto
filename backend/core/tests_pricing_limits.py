@@ -127,7 +127,8 @@ class LimitsTakeEffectTests(APITestCase):
         self._edit({"limits": {"business_included_cameras": 8}})
         self.assertEqual(_included_cameras(self.u), 8)
         free = User.objects.create_user(name="F", phone="01710000703", password="pw")
-        self.assertEqual(_included_cameras(free), 0)
+        # cashguard (owner 28 Oct): Free includes 1 camera
+        self.assertEqual(_included_cameras(free), 1)
 
     def test_probashi_price(self):
         # owner 26 Oct: Probashi is not listed until USD billing exists...

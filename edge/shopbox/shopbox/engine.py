@@ -14,10 +14,14 @@ import threading
 import time
 from typing import Dict, List, Optional
 
+import uuid
+
+from . import clip as clipmod
 from . import paths, payload
 from .analyzer import CameraAnalyzer
 from .camera import CameraWorker
-from .client import DROP, SENT, UNAUTHORIZED, IngestClient, Sender
+from .client import (CLIP_GIVE_UP_S, DROP, SENT, UNAUTHORIZED, ClipClient,
+                     ClipSender, IngestClient, Sender)
 from .config import AppConfig, join_rtsp_credentials
 from .cooldown import Cooldown, RateBudget
 from .outbox import Outbox
@@ -97,6 +101,13 @@ class Engine:
                              max_bytes=s.queue_max_mb * 1024 * 1024,
                              max_age_s=s.queue_max_age_h * 3600)
         self.cooldown = Cooldown(s.cooldown_s)
+        # cashguard: encrypted 3-5 s clips for cash-zone alerts (only once
+        # the server config names someone to seal them for)
+        self.clips = clipmod.ClipRecorder(on_ready=self._on_clip_ready)
+        self.clip_outbox = Outbox(paths.path("clips"), max_items=40,
+                                  max_bytes=40 * 1024 * 1024,
+                                  max_age_s=CLIP_GIVE_UP_S, ext=".bin")
+        self.clip_sender: Optional[ClipSender] = None
         self.workers: Dict[str, CameraWorker] = {}
         self.analyzers: Dict[str, CameraAnalyzer] = {}
         self.sender: Optional[Sender] = None
@@ -141,6 +152,10 @@ class Engine:
     def apply_server_config(self, data: dict, cam_id: Optional[str]) -> None:
         """Owner's server-side settings -> local config (enabled + hours)."""
         from .device import apply_server_camera, apply_server_site
+        try:
+            self.clips.configure(data.get("clip"))
+        except Exception:
+            log.exception("clip config ignored")
         changed = apply_server_site(self.cfg, data.get("site") or {})
         site_hours = (data.get("site") or {}).get("hours") or None
         srv_cams = [c for c in (data.get("cameras") or []) if isinstance(c, dict)]
@@ -210,6 +225,15 @@ class Engine:
                              snapshot_mode=self.cfg.sending.snapshot_mode,
                              on_result=self._on_send_result)
         self.sender.start()
+        try:
+            self.clip_sender = ClipSender(
+                self.clip_outbox, ClipClient(self.cfg.base_url,
+                                             timeout=max(30.0, self.cfg.sending.timeout_s)),
+                self.tokens_for)
+            self.clip_sender.start()
+        except Exception:
+            log.exception("clip sender could not start (alerts continue)")
+            self.clip_sender = None
         self._start_device_sync()
         with self._cam_lock:
             for cam in self.cfg.cameras:
@@ -226,7 +250,10 @@ class Engine:
         w = CameraWorker(cam.id, cam.name,
                          url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),
                          sample_fps=self.cfg.detection.sample_fps,
-                         on_frame=lambda f, cid=cam.id: self._on_frame(cid, f))
+                         on_frame=lambda f, cid=cam.id: self._on_frame(cid, f),
+                         on_tap=lambda f, cid=cam.id: self._on_tap(cid, f),
+                         tap_fps=float(self.clips.cfg.get("fps") or 5),
+                         tap_active=lambda: self.clips.enabled)
         self.workers[cam.id] = w
         w.start()
 
@@ -253,6 +280,8 @@ class Engine:
             self.sync = None
 
     def stop(self) -> None:
+        if self.clip_sender:
+            self.clip_sender.stop()
         if self.sync:
             self.sync.stop()
         if self.tasks:
@@ -268,6 +297,48 @@ class Engine:
         self.running = False
 
     # --------------------------------------------------------------- pipeline
+    def _on_tap(self, cam_id: str, frame) -> None:
+        self.clips.tap(cam_id, frame)
+        if self.clips.jobs:
+            self.clips.sweep()
+
+    @staticmethod
+    def wants_clip(trig) -> bool:
+        """Cash-guard alerts get a clip: a hand/person at the cash zone, the
+        motion-only cash-zone fallback, someone in a restricted zone, or a
+        person in the cash zone after closing."""
+        sig = trig.signals or {}
+        if trig.type == "hand_in_cash_zone" or trig.type == "zone_intrusion":
+            return True
+        if trig.type == "motion":
+            return bool(sig.get("motion_in_zone"))
+        if trig.type == "after_hours":
+            return bool(sig.get("person_in_zone"))
+        return False
+
+    def _on_clip_ready(self, cam_id: str, clip_ref: str, frames) -> None:
+        cfg = self.clips.cfg
+        try:
+            built = clipmod.build_clip(frames, float(cfg.get("fps") or 5),
+                                       cfg.get("recipients") or [],
+                                       int(cfg.get("max_kb") or 900) * 1024)
+        except Exception:
+            log.exception("clip could not be sealed")
+            built = None
+        if built is None:
+            log.info("clip %s skipped (too short / nobody to seal for)", clip_ref[:8])
+            return
+        ct, meta = built
+        cam = self.cfg.camera(cam_id)
+        item = {"clip_ref": clip_ref, "camera_id": cam_id, "meta": meta}
+        if cam is not None and cam.server_id is not None:
+            item["server_camera_id"] = int(cam.server_id)
+        self.clip_outbox.put(item, ct)
+        log.info("clip queued: %d frames, %.1f s, %d bytes (sealed)",
+                 meta["frames"], meta["duration_s"], len(ct))
+        if self.clip_sender:
+            self.clip_sender.wake()
+
     def _on_frame(self, cam_id: str, frame) -> None:
         self.latest[cam_id] = frame          # live view reads the newest frame
         an = self.analyzers.get(cam_id)
@@ -298,6 +369,10 @@ class Engine:
                                     at=trig.at)
         if cam is not None and cam.server_id is not None:
             event["server_camera_id"] = int(cam.server_id)
+        if self.clips.enabled and self.wants_clip(trig):
+            ref = uuid.uuid4().hex
+            if self.clips.start(cam_id, ref, trig.at):
+                event["clip_ref"] = ref
         self.outbox.put(event, snap)
         self.events.add(camera=cam.name if cam else cam_id, type=trig.type,
                         status="queued", signals=trig.signals)
@@ -334,4 +409,8 @@ class Engine:
             "heartbeat_online": self.sync.online if self.sync else None,
             "gateway_state": self.tasks.state if self.tasks else "idle",
             "gateway_last": self.tasks.last if self.tasks else None,
+            "clips": {"enabled": self.clips.enabled,
+                      "queued": len(self.clip_outbox),
+                      "sent": self.clip_sender.sent if self.clip_sender else 0,
+                      "dropped": self.clip_sender.dropped if self.clip_sender else 0},
         }

@@ -159,6 +159,9 @@ def build_request(event: Dict[str, object], *, site_token: Optional[str],
         body["camera_id"] = int(event["server_camera_id"])
     body["type"] = event["type"]
     body["at"] = float(event["at"])
+    # cashguard: names the encrypted clip that follows (never in `signals`)
+    if event.get("clip_ref"):
+        body["clip_ref"] = str(event["clip_ref"])
     transport = transport_for(str(event["type"]), bool(snapshot), snapshot_mode)
     if transport == "json":
         body["signals"] = dict(event["signals"])

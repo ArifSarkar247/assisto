@@ -1,0 +1,28 @@
+{
+ "recipient_private": "GHuQxHU3XAl4TBu7k9OH7URVgj8mgsbarOgaMAi74G8=",
+ "recipient_public": "toEbzGvf42VGyux41oFtIP3woTGgIYA54SP4qJpCrGk=",
+ "uid": 7,
+ "meta": {
+  "v": 1,
+  "alg": "chacha20poly1305",
+  "scheme": "x25519-xchacha-fallback-v1",
+  "format": "acg1",
+  "aad": "assisto-cashguard-clip-v1",
+  "nonce": "23f9Aa+VciGkmJtk",
+  "eph_pub": "MSX2zv6efhOPZMpmOUqceSjjMqiO9/yx6OR9/2jGIRs=",
+  "eph_key_id": "fd41452b95e0",
+  "wraps": {
+   "7": {
+    "key_id": "9d698d94f8ac",
+    "nonce": "5J1jsqinjwSLr8S0",
+    "ct": "B+ryeRS3T0CXOgTQMFunmtwPrIYEGCWq42K1IK6xsyMlAbS3SZzdDbhWzerCYayiehqztWgI9g0lfkxe"
+   }
+  },
+  "sha256": "5eb74506230089549d08629117b48b5fd987c0f5ed31ddbd78da0da6e458cbe6",
+  "frames": 16,
+  "duration_s": 4.0,
+  "fps": 4.0
+ },
+ "ciphertext": "cj+2+JHDYF4T3+723w+m1ou2iKQk26orzYBshfbj6qUnjBzuJl27lqsRlqOwYu8gJHfanLigP7LxlOsJPvC6obtIjawvODwZAWcWrjFkzvbrVXSRNa4PZ71n7cL+QPWO+JZ1g54tyc0vjjCzgaKKNj1n386n/9KeeG5Hzs0StaQugRpdKeKvLDLEI2jhwcs4s4p2ApM3H12ikQRWv9DfIWjH7SEOs+2VDuwm2eU3f5aJ5XSAvyIHte4bWFcfUELSKm7jAT12ppYhjr+zJ09RSyIt7VhQDTlox+rN+8mkp4cXQEBf9X7fwQZWwRto9C1mT0/HeYEPpbmXz9ZZuJ58hP4C6Csfjlt/fuy/duI7mMAgR5Z4/giUZyLZeU5HeMkVOjU9tXHrX1LiE+z4ur10MFwIufG8WNzsdLc1+QLGMhEQhjQjTOIZB62JAqZhIUDGh+7Z1d7G3KImn37LOoueIH9dxN8NI1LBL+gIZcTEN3T0NgD22u6Z8wahtnJ53tZ64K/wSzRp6wABsj2W2OqEPODCSGy12BGHNNeK2M9+Xzk0",
+ "plain_sha256": "9d56ccb0c47baceb4a519efb1a7fcf6ef3c8a6612202b82ca46b4b9a64305bd7"
+}

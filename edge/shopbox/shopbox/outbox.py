@@ -26,8 +26,9 @@ log = logging.getLogger(__name__)
 class Outbox:
     def __init__(self, directory: str, max_items: int = 200,
                  max_bytes: int = 40 * 1024 * 1024, max_age_s: float = 12 * 3600,
-                 clock: Callable[[], float] = time.time):
+                 clock: Callable[[], float] = time.time, ext: str = ".jpg"):
         self.dir = directory
+        self.ext = ext            # attachment file: snapshot (.jpg) / clip (.bin)
         self.max_items = int(max_items)
         self.max_bytes = int(max_bytes)
         self.max_age_s = float(max_age_s)
@@ -48,7 +49,7 @@ class Outbox:
 
     def _paths(self, item_id: str) -> Tuple[str, str]:
         return (os.path.join(self.dir, item_id + ".json"),
-                os.path.join(self.dir, item_id + ".jpg"))
+                os.path.join(self.dir, item_id + self.ext))
 
     def _size(self, item_id: str) -> int:
         total = 0

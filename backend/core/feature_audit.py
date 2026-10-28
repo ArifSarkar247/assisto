@@ -71,6 +71,8 @@ _A = {
                       "মালিকের সিদ্ধান্ত ২৭ Oct: সিসিটিভি লঞ্চ ফিচার (প্রিভিউ নয়), ওয়েবসাইট APK ও Play দুটোতেই দেখানো; লঞ্চ E2E (tests_e2e_cctv) পাস। এখনো বাকি: ফোনে আসল ক্যামেরা / শপ বক্স চালানো।"),
     "home_watchman": ("?PPFP??PP", "show", "Owner decision 27 Oct: CCTV watchman is a LAUNCH feature (not a preview), shown in the website APK and Play and in the default home shortcuts; launch E2E (tests_e2e_cctv) passed. Still open: real phone + camera journey, 2 GB speed, Data safety Photos line.",
                       "মালিকের সিদ্ধান্ত ২৭ Oct: সিসিটিভি পাহারাদার লঞ্চ ফিচার (প্রিভিউ নয়), ওয়েবসাইট APK ও Play দুটোতেই এবং হোমের ডিফল্ট শর্টকাটে; লঞ্চ E2E (tests_e2e_cctv) পাস। এখনো বাকি: আসল ফোন+ক্যামেরা যাত্রা, ২ GB গতি, Data safety-তে Photos লাইন।"),
+    "guard_box_mode": ("?FF?F?FFF", "hide", "cashguard 28 Oct: Guard Box (old phone reads a shop IP camera's HTTP snapshot, cash-zone motion + optional on-device YOLOX). Built and unit-tested; no real phone + camera run yet, native person model needs the MainActivity proposal; RTSP-only cameras still need the Shop Box PC.",
+                       "ক্যাশ গার্ড ২৮ Oct: গার্ড বক্স (পুরনো ফোন দোকানের IP ক্যামেরার ছবি পড়ে, ক্যাশ জোনে নড়াচড়া + ফোনে মানুষ চেনা ঐচ্ছিক)। বানানো ও ইউনিট-টেস্ট হয়েছে; আসল ফোন + ক্যামেরায় এখনো চালানো হয়নি, ফোনে মানুষ চেনার জন্য MainActivity প্রস্তাব লাগবে; শুধু-RTSP ক্যামেরায় এখনো Shop Box পিসি লাগে।"),
     "disaster_alerts": ("?P???P?FF", "hide", "No official BMD/FFWC feed yet: honest empty state only.",
                         "সরকারি BMD/FFWC ফিড এখনো নেই: শুধু খালি অবস্থা।"),
     "blood_donor": ("?P????F?F", "hide", "Public donor contacts = user content: needs moderation + Play UGC answers.",

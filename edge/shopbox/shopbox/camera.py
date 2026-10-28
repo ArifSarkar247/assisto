@@ -71,13 +71,20 @@ class CameraWorker(threading.Thread):
     """
 
     def __init__(self, cam_id: str, name: str, url_provider: Callable[[], str],
-                 sample_fps: float, on_frame: Callable, max_backoff_s: float = 60.0):
+                 sample_fps: float, on_frame: Callable, max_backoff_s: float = 60.0,
+                 on_tap: Optional[Callable] = None, tap_fps: float = 5.0,
+                 tap_active: Optional[Callable[[], bool]] = None):
         super().__init__(name="cam-%s" % cam_id, daemon=True)
         self.cam_id = cam_id
         self.cam_name = name
         self.url_provider = url_provider     # builds the credentialed URL lazily
         self.interval = 1.0 / max(0.2, min(float(sample_fps), 10.0))
         self.on_frame = on_frame
+        # cashguard: a cheaper, faster tap for the clip ring (JPEG only, no
+        # analysis) — None keeps the old single-rate behaviour exactly
+        self.on_tap = on_tap
+        self.tap_interval = 1.0 / max(1.0, min(float(tap_fps), 10.0))
+        self.tap_active = tap_active or (lambda: True)
         self.max_backoff_s = max_backoff_s
         self.status = "starting"
         self.last_frame_at: Optional[float] = None
@@ -104,6 +111,7 @@ class CameraWorker(threading.Thread):
             session_start = time.monotonic()
             failures = 0
             next_at = 0.0
+            next_tap = 0.0
             try:
                 while not self._halt.is_set():
                     # grab() keeps the decoder current without the cost of a
@@ -115,13 +123,23 @@ class CameraWorker(threading.Thread):
                         continue
                     failures = 0
                     now = time.monotonic()
-                    if now < next_at:
+                    tap_due = (self.on_tap is not None and now >= next_tap
+                               and self.tap_active())
+                    if now < next_at and not tap_due:
                         continue
-                    next_at = now + self.interval
                     ok, frame = cap.retrieve()
                     if not ok or frame is None:
                         continue
                     self.last_frame_at = time.time()
+                    if tap_due:
+                        next_tap = now + self.tap_interval
+                        try:
+                            self.on_tap(frame)
+                        except Exception:
+                            log.exception("camera %s: clip tap error", self.cam_name)
+                    if now < next_at:
+                        continue
+                    next_at = now + self.interval
                     try:
                         self.on_frame(frame)
                     except Exception:

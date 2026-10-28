@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
+import '../../cashguard/cashguard_source.dart';
+import 'cash_guard_screen.dart';
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -275,6 +277,8 @@ class _SiteCard extends StatelessWidget {
           ),
         );
         return;
+      case 'ezviz':
+        await showEzvizLinkSheet(context, cam);
       case 'remove':
         final ok = await showDialog<bool>(
           context: context,
@@ -372,6 +376,24 @@ class _SiteCard extends StatelessWidget {
             if (_owner) ...[
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.point_of_sale_rounded),
+                label: Text(t.cgTitle),
+                onPressed: () async {
+                  final api = context.read<AppState>().api;
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (ctx) => CashGuardScreen(
+                            source: ApiCashGuardSource(api),
+                            siteId: siteId,
+                            onDrawZone: cams.isEmpty
+                                ? null
+                                : () => Navigator.of(ctx).push(MaterialPageRoute(
+                                    builder: (_) => WatchmanZonesScreen(source: source, camera: cams.first))),
+                          )));
+                  await onChanged();
+                },
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.add_a_photo_outlined),
                 label: Text(t.wmAddCamera),
                 onPressed: onAddCamera,
@@ -467,8 +489,98 @@ class _CameraRow extends StatelessWidget {
               if (vendor != 'phone') PopupMenuItem(value: 'check', child: Text(t.wmCheckAgain)),
               if (vendor == 'hikvision' || vendor == 'dahua')
                 PopupMenuItem(value: 'push', child: Text(t.shopHookTitle)),
+              if (vendor == 'ezviz') PopupMenuItem(value: 'ezviz', child: Text(t.cgEzvizLink)),
               PopupMenuItem(value: 'remove', child: Text(t.wmRemove)),
             ],
+          ),
+      ]),
+    );
+  }
+}
+
+
+/// cashguard: link an EZVIZ camera's OWN alarms (serial + the label's
+/// Verification Code — used once, never stored).
+Future<void> showEzvizLinkSheet(BuildContext context, Map<String, dynamic> cam) async {
+  final api = context.read<AppState>().api;
+  final src = ApiCashGuardSource(api);
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (ctx) => _EzvizSheet(source: src, cameraId: (cam['id'] as num).toInt()),
+  );
+}
+
+class _EzvizSheet extends StatefulWidget {
+  final CashGuardSource source;
+  final int cameraId;
+  const _EzvizSheet({required this.source, required this.cameraId});
+
+  @override
+  State<_EzvizSheet> createState() => _EzvizSheetState();
+}
+
+class _EzvizSheetState extends State<_EzvizSheet> {
+  final _serial = TextEditingController();
+  final _code = TextEditingController();
+  bool _busy = false;
+  String _msg = '';
+  bool _ok = false;
+
+  @override
+  void dispose() {
+    _serial.dispose();
+    _code.dispose();
+    super.dispose();
+  }
+
+  Future<void> _link() async {
+    final t = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _msg = '';
+    });
+    try {
+      await widget.source.linkEzviz(widget.cameraId, _serial.text.trim(), _code.text.trim());
+      _ok = true;
+      _msg = t.cgEzvizLinked;
+    } catch (e) {
+      _msg = wmError(e) ?? t.wmGenericError;
+    }
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.of(context).viewInsets.bottom),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(t.cgEzvizLink, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 6),
+        Text(t.cgEzvizHelp),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _serial,
+          decoration: InputDecoration(labelText: t.cgEzvizSerial, border: const OutlineInputBorder()),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _code,
+          decoration: InputDecoration(labelText: t.cgEzvizCode, border: const OutlineInputBorder()),
+        ),
+        const SizedBox(height: 10),
+        FilledButton(
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: _busy || _ok ? null : _link,
+          child: Text(t.cgEzvizLinkButton),
+        ),
+        if (_msg.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(_msg,
+                style: TextStyle(color: _ok ? null : Theme.of(context).colorScheme.error)),
           ),
       ]),
     );

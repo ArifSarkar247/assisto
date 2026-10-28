@@ -70,6 +70,10 @@ REGISTRY = (
     # launch (owner 27 Oct): CCTV + vehicle tracking are LAUNCH features, not
     # previews — visible by default once their E2E passed (tests_e2e_cctv).
     ('home_watchman', 'family_safety', 'Home & shop watchman (CCTV AI)', 'বাড়ি ও দোকানের পাহারাদার (CCTV AI)', True, ('watchman',)),
+    # cashguard (owner 28 Oct): an old phone on the shop Wi-Fi reads a shop IP
+    # camera and runs the cash-zone check on the phone. OFF until a real-phone
+    # proof (owner order); opened from the Smart Cash Guard screen, no route.
+    ('guard_box_mode', 'family_safety', 'Guard Box (old phone watches the shop camera)', 'গার্ড বক্স (পুরনো ফোন দোকানের ক্যামেরা দেখে)', False, ()),
     ('disaster_alerts', 'family_safety', 'Disaster alerts', 'দুর্যোগ সতর্কতা', True, ('disaster',)),
     ('blood_donor', 'family_safety', 'Blood donors', 'রক্তদাতা নেটওয়ার্ক', True, ()),
     ('kid_school', 'family_safety', 'School corner', 'স্কুল কর্নার', True, ()),

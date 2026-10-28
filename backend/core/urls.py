@@ -618,6 +618,7 @@ urlpatterns += [
 
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
+from . import cashguard_views as cg  # noqa: E402
 urlpatterns += [
     path("shop/watchman", wm.WatchmanOverviewView.as_view()),
     path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
@@ -632,6 +633,13 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    # cashguard (Smart Cash Guard, owner 28 Oct)
+    path("shop/clips", cg.ShopClipUploadView.as_view()),
+    path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),
+    path("shop/events/<int:pk>/clip/viewed", cg.EventClipViewedView.as_view()),
+    path("shop/sites/<int:pk>/away", cg.SiteAwayView.as_view()),
+    path("shop/cashguard", cg.CashGuardOverviewView.as_view()),
+    path("shop/cameras/<int:pk>/ezviz", cg.CameraEzvizView.as_view()),
 ]
 # ---- /cctv1 ----
 
