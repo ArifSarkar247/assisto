@@ -265,7 +265,8 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           radius: 22,
           onDark: false),
       title: Text(
-        count > 1 ? '$name ($count)' : name,
+        // circle2: the group count in Bangla digits too ("নাদিয়া (৬)")
+        count > 1 ? '$name (${_digits('$count')})' : name,
         key: Key('call-log-title-${call['id']}'),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -301,10 +302,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             // qa1: the server sends "01:05"; the row's time already uses
             // Bangla digits, so the duration must too.
             Text(
-                Localizations.localeOf(context).languageCode == 'bn'
-                    ? duration.replaceAllMapped(RegExp('[0-9]'),
-                        (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)))
-                    : duration,
+                _digits(duration),
                 style:
                     TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
           ],
@@ -327,6 +325,13 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
       ),
     );
   }
+
+  /// Bangla digits in bn (the server sends "01:05", counts are ints).
+  String _digits(String v) => Localizations.localeOf(context).languageCode ==
+          'bn'
+      ? v.replaceAllMapped(RegExp('[0-9]'),
+          (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)))
+      : v;
 
   String _relativeTime(DateTime at) {
     final now = DateTime.now();
