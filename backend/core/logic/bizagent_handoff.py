@@ -137,7 +137,14 @@ def _want(customer_texts, draft, reason):
             reason == BZ.RISK_BIG_ORDER:
         return "order"
     intent = bai.classify_intent(last)
+    if intent == "greeting" and not _GREETING.search((last or "").lower()):
+        # classify_intent matches "hi" inside "Hilsa" on short texts: a real
+        # greeting needs a whole greeting word; otherwise judge the rest
+        intent = bai.classify_intent((last or "") + " . . .")
     return intent if intent in WANT_LABEL else "unknown"
+
+
+_GREETING = re.compile(r"(?<![a-z])(?:hi|hello|salam|assalamu\w*)(?![a-z])|আসসালাম|হ্যালো|নমস্কার")
 
 
 def _items(customer_texts, catalog, draft):
