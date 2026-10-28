@@ -167,6 +167,11 @@ import 'package:assisto/screens/crm/crm_team_screen.dart';
 import 'package:assisto/screens/crm/crm_companies_screen.dart';
 import 'package:assisto/screens/crm/crm_reports_screen.dart';
 import 'package:assisto/screens/crm/crm_lead_detail_screen.dart';
+import 'package:assisto/screens/crm/crm100_api.dart' show CustomerTarget; // crm100
+import 'package:assisto/screens/crm/customer_history_screen.dart'; // crm100
+import 'package:assisto/screens/crm/customer_list_screen.dart'; // crm100
+import 'package:assisto/screens/crm/shop_quote_screens.dart'; // crm100
+import 'package:assisto/screens/crm/crm_send_sheet.dart'; // crm100
 import 'package:assisto/screens/crm/crm_home_screen.dart';
 import 'package:assisto/screens/money_import_screen.dart';
 import 'package:assisto/screens/crm/crm_proposal_screen.dart';
@@ -735,6 +740,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'crm_companies': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmCompaniesScreen(org: 1)), mode: FakeMode.data, full: true),
     'crm_reports': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmReportsScreen(org: 1)), mode: FakeMode.data, full: true),
     'crm_lead_detail': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    // crm100: one customer history page, merged customer list, quotes, send
+    'crm100_history': (build: (_) => const CustomerHistoryScreen(target: CustomerTarget(phone: '01712345678')), mode: FakeMode.data, full: true),
+    'crm100_history_empty': (build: (_) => const CustomerHistoryScreen(target: CustomerTarget(phone: '01811111111')), mode: FakeMode.empty, full: false),
+    'crm100_customers': (build: (_) => const CustomerListScreen(), mode: FakeMode.data, full: true),
+    'crm100_customers_empty': (build: (_) => const CustomerListScreen(), mode: FakeMode.empty, full: false),
+    'crm100_quotes': (build: (_) => const ShopQuoteListScreen(), mode: FakeMode.data, full: true),
+    'crm100_quote_builder': (build: (_) => const ShopQuoteBuilderScreen(customerName: 'Karim Mia', customerPhone: '01712345678'), mode: FakeMode.data, full: true),
+    'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
     'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
     'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),

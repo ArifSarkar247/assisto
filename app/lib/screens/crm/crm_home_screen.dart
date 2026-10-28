@@ -16,6 +16,7 @@ import 'crm_team_advanced_screen.dart';
 import 'crm_aftersale_screen.dart';
 import 'crm_automation_screen.dart';
 import 'crm_capture_screen.dart';
+import 'customer_list_screen.dart'; // crm100
 
 /// Root of the in-app Sales CRM. Picks (or creates) a sales org, then shows the
 /// CRM workspace: Today / Leads / Pipeline / Dashboard / Team as inner tabs.
@@ -90,6 +91,8 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     final org = _org!;
     final tabs = [
       (icon: Icons.today_rounded, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
+      // crm100: every customer once (khata + shop + orders + AI chats + leads)
+      (icon: Icons.person_search_rounded, label: t.c100CustomersTab, child: const CustomerListScreen(embedded: true)),
       (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
       // plans-v2: CRM contacts (Free can add these up to the owner's limit)
       if (FeatureFlags.instance.isOn('plans_v2'))
