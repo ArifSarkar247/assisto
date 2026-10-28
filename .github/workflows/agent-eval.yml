@@ -44,7 +44,7 @@ jobs:
           AGENT_EVAL_REPORT: ${{ runner.temp }}/agent_eval_money.json
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test core.tests_agentcore core.tests_agentcore_eval core.tests_agentcore_tools core.tests_agentcore_topics core.tests_aftrust core.tests_afcrisis core.tests_afinject core.tests_afobs core.tests_afmulti core.tests_affeedback core.tests_afeval_live core.tests_afmultiturn web.tests_agentcore_owner --parallel 2 --settings=assisto_backend.settings_test --noinput -v 2
+          python manage.py test core.tests_agentcore core.tests_agentcore_eval core.tests_agentcore_tools core.tests_agentcore_topics core.tests_aftrust core.tests_afcrisis core.tests_afinject core.tests_afobs core.tests_afmulti core.tests_affeedback core.tests_afeval_live core.tests_afmultiturn core.tests_sales_personas web.tests_agentcore_owner --parallel 2 --settings=assisto_backend.settings_test --noinput -v 2
       - name: agent core integration points (flags, routes, pricing, owner admin)
         working-directory: backend
         run: |
@@ -55,7 +55,7 @@ jobs:
         env:
           REPORT_DIR: ${{ runner.temp }}
           # topic=min pass rate; the tests assert the same bars (goalsets.THRESHOLDS)
-          AGENT_EVAL_THRESHOLDS: money=1.0,family=1.0,safety=1.0,documents=1.0,travel=1.0,health=1.0,learning=1.0,business=1.0,crisis=1.0,inject=1.0,inject_fence=1.0,multi=1.0,multiturn=1.0
+          AGENT_EVAL_THRESHOLDS: money=1.0,family=1.0,safety=1.0,documents=1.0,travel=1.0,health=1.0,learning=1.0,business=1.0,crisis=1.0,inject=1.0,inject_fence=1.0,multi=1.0,multiturn=1.0,sales_personas=1.0
         run: |
           python - <<'PY'
           import glob, json, os, sys
