@@ -89,6 +89,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.crmRecordCollection),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(
@@ -413,6 +414,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.crmNewComplaint),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(

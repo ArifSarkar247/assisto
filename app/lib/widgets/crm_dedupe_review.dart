@@ -125,6 +125,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, set) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.crmPickSurvivor),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(t.crmPickSurvivorHint,

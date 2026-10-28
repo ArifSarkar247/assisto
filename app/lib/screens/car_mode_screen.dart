@@ -257,6 +257,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
     final dest = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.vehCarNavTitle),
         content: TextField(
           controller: c,

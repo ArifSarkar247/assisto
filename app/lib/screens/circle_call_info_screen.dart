@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../messaging/date_separators.dart' show dateChipLabel, fmtTime, localDigits;
 import '../theme.dart';
 import '../widgets/circle_relation.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// wa-polish2 — WhatsApp's "Call info": tap a call-log row to see each call
 /// of that row (date, time, incoming / outgoing / missed, voice / video,
@@ -44,7 +45,7 @@ class CircleCallInfoScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.wa2CallInfoTitle)),
       body: ListView(
         key: const Key('wa2-call-info'),
-        padding: const EdgeInsets.symmetric(vertical: Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.symmetric(vertical: Gap.lg)),
         children: [
           Padding(
             padding: Gap.screen,

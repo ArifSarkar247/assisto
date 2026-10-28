@@ -360,6 +360,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.shopQaMarkWon),
         content: Text(t.crmMarkWonConfirm),
         actions: [
@@ -381,6 +382,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     final handoff = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.shopQaMarkWon),
         content: Text(t.crmWonErpHandoffPrompt),
         actions: [
@@ -397,6 +399,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           content: Text(msg.toString()),
           actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.close))],
         ),
@@ -421,6 +424,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, set) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.crmLossReasonRequired),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             for (final e in reasons.entries)

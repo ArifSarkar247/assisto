@@ -8,6 +8,7 @@ import 'probashi_pool_screen.dart';
 import 'probashi_reports_screen.dart';
 import 'probashi_source.dart';
 import 'probashi_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// PROBASHI FAMILY PLAN (flag `probashi_plan`, default OFF; route
 /// 'probashi_plan'). One screen, role-aware:
@@ -226,7 +227,7 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
 
   Future<Map<String, bool>?> _consentSheet(AppLocalizations t, Map<String, bool> start, String action) {
     var cur = Map<String, bool>.from(start);
-    return showModalBottomSheet<Map<String, bool>>(
+    return showAppSheet<Map<String, bool>>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => StatefulBuilder(
@@ -463,7 +464,7 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
       return null;
     }
     if (!mounted) return null;
-    return showModalBottomSheet<Map<String, dynamic>>(
+    return showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => SafeArea(

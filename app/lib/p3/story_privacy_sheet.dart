@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'story_crypto.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 String privacyLabel(AppLocalizations t, StoryPrivacy p, BuildContext context) =>
     switch (p.mode) {
@@ -22,7 +23,7 @@ Future<StoryPrivacy?> showStoryPrivacySheet(BuildContext context,
     required StoryPrivacy initial,
     required String title,
     String? note}) {
-  return showModalBottomSheet<StoryPrivacy>(
+  return showAppSheet<StoryPrivacy>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -58,7 +59,7 @@ class _StoryPrivacySheetState extends State<StoryPrivacySheet> {
     final t = AppLocalizations.of(context);
     final target = chosen ? _allow : _except;
     final picked = {...target};
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,

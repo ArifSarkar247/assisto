@@ -13,6 +13,7 @@ import '../widgets/ai_report.dart'; // ai-report
 import 'cv_backend.dart';
 import 'cv_controller.dart';
 import 'on_device_vision.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// A photo the user attached in a chat, plus the question typed with it.
 class ChatPhotoRequest {
@@ -55,7 +56,7 @@ class ChatPhotoAttachButton extends StatelessWidget {
 
   Future<void> _open(BuildContext context) async {
     final t = AppLocalizations.of(context);
-    final camera = await showModalBottomSheet<bool>(
+    final camera = await showAppSheet<bool>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

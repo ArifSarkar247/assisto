@@ -41,6 +41,7 @@ import '../messaging/chat_actions.dart'; // chat-actions
 import '../screens/circle_group_info_screen.dart';
 import '../screens/messenger/contact_info_screen.dart';
 import 'chat_menu_pickers.dart' show showChatReportPicker;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -500,7 +501,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (mounted) _toast(_t.msgrChatMuted);
   }
 
-  Future<String?> _pickMute() => showModalBottomSheet<String>(
+  Future<String?> _pickMute() => showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {
@@ -615,7 +616,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       f();
     }
 
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,

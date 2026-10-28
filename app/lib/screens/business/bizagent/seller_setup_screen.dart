@@ -9,6 +9,7 @@ import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart'
     show asciiDigits, baChannelIcon, baChannelLabel, baErrorText, bd;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// P1 — seller onboarding for the AI agent.
 ///
@@ -317,6 +318,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.baDisconnectQ),
         content: Text(t.baDisconnectBody),
         actions: [
@@ -336,7 +338,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
 
   Future<void> _connect(String kind) async {
     final t = AppLocalizations.of(context);
-    final res = await showModalBottomSheet<Map<String, dynamic>>(
+    final res = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -10,6 +10,7 @@ import 'journey_live_screen.dart';
 import 'journey_watch_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 import '../services/journey_tracker.dart' show kPhonesKey;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Start a Safe Journey (item 1 + 3): pick a destination (saved place or map
@@ -199,7 +200,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneyWatchScreen()))),
       ]),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.journeyDestSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: Gap.sm),

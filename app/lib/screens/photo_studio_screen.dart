@@ -22,6 +22,7 @@ import '../widgets/photo_compare.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_input.dart';
 import 'plans_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// PHOTO STUDIO (ps1-photo) — "your face stays yours, just at its best".
 ///
@@ -622,7 +623,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
       'child': t.d1psReportChild,
       'other': t.d1psReportOther,
     };
-    final pick = await showModalBottomSheet<String>(
+    final pick = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -1359,7 +1360,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final t = AppLocalizations.of(context);
     final s = _c.session;
     if (s == null) return;
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

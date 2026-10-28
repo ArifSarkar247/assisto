@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Shared formatting + small UI helpers for the My Account (money) module.
 /// Kept in one place so every money_*.dart screen renders Taka identically.
@@ -136,7 +137,7 @@ Widget statCard(BuildContext context, String label, String value, Color color,
 Future<void> confirmDelete(BuildContext context, VoidCallback onConfirm) async {
   final t = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
-  final ok = await showModalBottomSheet<bool>(
+  final ok = await showAppSheet<bool>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [

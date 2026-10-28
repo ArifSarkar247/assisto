@@ -8,6 +8,7 @@ import '../../widgets/skeleton.dart';
 import '../../widgets/subs_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// q1-seams: true only once a real xlsx/csv file picker is bundled.
 const bool kProductImportPickerWired = false;
@@ -67,7 +68,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _openSheet([Map<String, dynamic>? product]) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -78,7 +79,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _openImport() async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

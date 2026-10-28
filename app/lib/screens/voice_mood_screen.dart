@@ -8,6 +8,7 @@ import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart' show openForUser;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// VOICE MOOD SENSING — ADVANCED (#15, SPEC v2.1 §21).
 ///
@@ -111,6 +112,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.moodTurnOffTitle),
         content: Text(tr.moodTurnOffBody),
         actions: [
@@ -141,6 +143,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.moodDeleteTitle),
         content: Text(tr.moodDeleteBody),
         actions: [
@@ -161,7 +164,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
 
   Future<void> _checkIn() async {
     final tr = AppLocalizations.of(context);
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -289,7 +292,7 @@ class _OptInGate extends StatelessWidget {
         bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
       appBar: AppBar(title: Text(tr.moodJournalTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const SizedBox(height: Gap.sm),
           Icon(Icons.self_improvement_rounded, size: 56, color: Brand.purple),

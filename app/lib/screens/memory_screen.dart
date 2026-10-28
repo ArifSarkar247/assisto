@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/mem_privacy.dart';
 import '../widgets/mem_widgets.dart';
 import 'ai_knowledge_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'agent_core/life_graph_screen.dart'; // agentmem (flag agent_core)
 
 /// Memory — "What Assisto knows about me" (SPEC v2.1 §21, ADVANCED).
@@ -356,7 +357,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         item != null ? MemCategories.bucket(item.category) : MemCat.other;
     var flags = item != null ? _flagsFor(item) : const MemFlags();
 
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -510,7 +511,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
   Future<void> _privacy(BuildContext context, MemoryItem m) async {
     final t = AppLocalizations.of(context);
     var flags = _flagsFor(m);
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => StatefulBuilder(
@@ -654,6 +655,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.delete_sweep_rounded, color: Brand.danger),
         title: Text(t.memClearAll),
         content: Text(t.memClearAllBody),

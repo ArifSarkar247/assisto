@@ -81,6 +81,7 @@ import '../messaging/share/share_payload.dart'
     show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/paywall_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../messaging/chat_actions.dart'; // chat-actions
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
@@ -995,6 +996,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final open = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(_t.c3BubbleAllowTitle),
           content: Text(_t.c3BubbleAllowBody),
           actions: [
@@ -1587,6 +1589,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(everyone
             ? _t.circleActionDeleteEveryone
             : _t.circleActionDeleteMe),
@@ -1737,6 +1740,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleActionForward),
         content: Text(_t.circleForwardConfirm),
         actions: [
@@ -2300,7 +2304,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
     if (!mounted) return;
     final controller = TextEditingController();
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -2475,6 +2479,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleBlock),
         content: Text(_t.msgrChatBlockConfirm),
         actions: [
@@ -2570,6 +2575,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final scope = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.delete),
         content: Text(_t.msgrChatDeleteConfirm),
         actions: [
@@ -3220,6 +3226,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.e2SecurityCodeTitle),
         content: Text(_t.e2SecurityCodeBody(_memberName)),
         actions: [

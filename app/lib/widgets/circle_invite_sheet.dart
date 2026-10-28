@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'circle_relation.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The result of the invite composer: the chosen relationship (mandatory) + an
 /// optional family sub-type (never required) + how the invite is delivered.
@@ -37,7 +38,7 @@ const Set<String> _closeFamily = {
 /// relation is picked); family sub-type is optional and only offered for family
 /// relations. Delivery: send request by phone, show a QR, or copy a share link.
 Future<CircleInviteChoice?> showCircleInviteSheet(BuildContext context) {
-  return showModalBottomSheet<CircleInviteChoice>(
+  return showAppSheet<CircleInviteChoice>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

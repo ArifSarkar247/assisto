@@ -6,6 +6,7 @@ import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/saved_logic.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SAVED / BOOKMARKS — ADVANCED (#18, §21).
@@ -242,7 +243,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
   Future<void> _addItem() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final row = await showModalBottomSheet<Map<String, dynamic>>(
+    final row = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -262,7 +263,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
   Future<void> _editItem(Map<String, dynamic> item) async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final row = await showModalBottomSheet<Map<String, dynamic>>(
+    final row = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -287,6 +288,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.savedDeleteTitle),
         content: Text(tr.savedDeleteBody((item['title'] ?? '').toString())),
         actions: [

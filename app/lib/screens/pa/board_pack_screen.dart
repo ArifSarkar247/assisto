@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CORPORATE · Board-meeting pack — ADVANCED (#116, §14).
@@ -539,7 +540,7 @@ class _PackEditorState extends State<_PackEditor> {
           title:
               Text(widget.existing == null ? tr.paBoardNew : tr.paBoardEdit)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32)),
         children: [
           TextField(
             controller: _title,

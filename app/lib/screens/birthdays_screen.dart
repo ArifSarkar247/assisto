@@ -11,6 +11,7 @@ import '../widgets/bday_model.dart';
 import '../widgets/bday_upcoming_card.dart';
 import '../widgets/bday_add_sheet.dart';
 import '../widgets/bday_wish_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Birthdays & memorable days — ADVANCED (SPEC v2.1 §21).
@@ -125,7 +126,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
       return;
     }
     final api = context.read<AppState>().api;
-    final body = await showModalBottomSheet<Map<String, dynamic>>(
+    final body = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => BdayAddSheet(
@@ -273,7 +274,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         ((data['drafts'] ?? []) as List).cast<Map<String, dynamic>>();
     final card = (data['card'] as Map?)?.cast<String, dynamic>();
 
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (_) => BdayWishSheet(
@@ -295,7 +296,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
     // plugin / the app's existing hashed importer; here we open a lightweight
     // picker the integrator fills with device birthdays. We show an honest
     // empty state until that source is wired, so there is no dead end.
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (_) => Padding(

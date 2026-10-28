@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CELEBRITY tier — Shooting / concert logistics call-sheet
@@ -141,7 +142,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Future<void> _newSheet(AppLocalizations tr) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -152,7 +153,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Future<void> _editSheet(Map<String, dynamic> sheet, AppLocalizations tr) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -163,7 +164,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Future<void> _addBlock(int sheetId, AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -178,7 +179,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Future<void> _addContact(int sheetId, AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -193,7 +194,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   }
 
   Future<void> _addCheck(int sheetId, AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

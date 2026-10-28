@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vehicle_tracking_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import 'vehicle_drivers_screen.dart'; // veh100
 import '../vehicle/vehicle_api.dart'; // veh100
 import '../vehicle/veh_format.dart' show vehNumStr; // veh100
@@ -96,7 +97,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
     final data = existing == null ? <String, dynamic>{} : _dataOf(existing);
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -142,6 +143,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (dctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(tr.vehiclesRemindTitle),
           content: Text(tr.vehiclesRemindBody(label)),
           actions: [
@@ -177,6 +179,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.vehiclesDeleteTitle),
         content: Text(tr.vehiclesDeleteBody(name)),
         actions: [

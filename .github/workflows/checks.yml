@@ -137,3 +137,12 @@ jobs:
         env:
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
         run: flutter test --no-pub --concurrency=2 --total-shards ${{ strategy.job-total }} --shard-index ${{ matrix.shard }}
+      - name: upload inset-guard screenshots (insets_*.png)
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: inset-shots-${{ matrix.shard }}
+          path: ${{ runner.temp }}/shots/insets_*.png
+          if-no-files-found: ignore
+          retention-days: 7

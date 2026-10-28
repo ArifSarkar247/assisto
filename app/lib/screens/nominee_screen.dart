@@ -8,6 +8,7 @@ import '../widgets/nominee_scope_picker.dart';
 import '../widgets/nominee_release_sheet.dart';
 import '../widgets/nominee_card.dart';
 import '../widgets/nominee_consent_banner.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -75,7 +76,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
     String trigger = existing?['trigger'] ?? 'owner_grant';
     int inactivityDays = (existing?['inactivity_days'] ?? 30) as int;
 
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -255,7 +256,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
   /// access can actually be opened/closed, and it is wrapped in confirmation +
   /// grace-window safeguards.
   Future<void> _manageRelease(Map<String, dynamic> n) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -269,6 +270,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.nomineeRemoveTitle),
         content: Text(tr.nomineeRemoveBody(n['name'] ?? '')),
         actions: [

@@ -9,6 +9,7 @@ import '../../theme.dart';
 import 'booking_detail_screen.dart' show showBkMoveSheet;
 import 'booking_source.dart';
 import 'booking_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// booking-bot — the CUSTOMER side: my bookings (upcoming / past), cancel or
 /// move inside the business' own policy, and booking with a business from
@@ -79,7 +80,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   Future<void> _open(Map<String, dynamic> b) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -292,7 +293,7 @@ class _BookWithBusinessScreenState extends State<BookWithBusinessScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.bkgBookNew)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: _done != null ? _success(t) : _form(t)),
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: _done != null ? _success(t) : _form(t)),
     );
   }
 

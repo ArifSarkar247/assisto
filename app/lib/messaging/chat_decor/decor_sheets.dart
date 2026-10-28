@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import 'chat_themes.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// What the user picked in the theme sheet.
 class ThemePick {
@@ -23,7 +24,7 @@ Future<ThemePick?> showChatThemeSheet(
   bool aiAvailable = false,
   String aiCredits = '',
 }) {
-  return showModalBottomSheet<ThemePick>(
+  return showAppSheet<ThemePick>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -285,7 +286,7 @@ class NickRow {
 typedef NickEdit = (NickRow, String);
 
 Future<NickEdit?> showNicknamesSheet(BuildContext context, List<NickRow> rows) async {
-  final row = await showModalBottomSheet<NickRow>(
+  final row = await showAppSheet<NickRow>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -363,6 +364,7 @@ Future<String?> showNicknameEditor(BuildContext context, NickRow row) {
   return showDialog<String>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(row.isMe ? t.cdeNickEditTitleSelf : t.cdeNickEditTitle(row.realName)),
       content: TextField(
         key: const Key('cde-nick-field'),

@@ -3,6 +3,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Routing configuration (CRM spec #8): ordered territory / industry / source
 /// rules, first-match wins (mirrors logic_team.route_by_rules + pipeline.
@@ -31,7 +32,7 @@ class CrmRoutingEditor extends StatelessWidget {
   }
 
   Future<void> _add(BuildContext context) async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _RuleSheet(org: org, members: members, territories: territories),
@@ -49,7 +50,7 @@ class CrmRoutingEditor extends StatelessWidget {
         label: Text(t.crmAddRule),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           NeedsKeyBanner(t.crmRoutingNote, icon: Icons.alt_route_rounded),
           const SizedBox(height: Gap.sm),

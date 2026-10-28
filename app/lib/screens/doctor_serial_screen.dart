@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// DOCTOR APPOINTMENT / SERIAL TRACKER — ADVANCED (#187, SPEC v2.1 §20).
@@ -585,7 +586,7 @@ Future<Map<String, dynamic>?> _apptSheet(
   String t(TimeOfDay x) =>
       '${x.hour.toString().padLeft(2, '0')}:${x.minute.toString().padLeft(2, '0')}';
 
-  return showModalBottomSheet<Map<String, dynamic>>(
+  return showAppSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -756,6 +757,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
   return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: Text(body),
       actions: [

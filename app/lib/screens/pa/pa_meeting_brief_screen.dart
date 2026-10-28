@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/pa_engine.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// PA Secretary — MEETING REMINDER + 1-PAGE BRIEF (SPEC v2.1 §14 #104,
 /// ADVANCED §21).
@@ -135,7 +136,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
             )
           : null,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           // honest AI marker: this brief is a deterministic assembly, not AI.
           _DeterministicMarker(text: t.paBriefDeterministic),

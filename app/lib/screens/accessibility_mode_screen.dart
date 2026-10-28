@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/a11y_prefs.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// TRUE ACCESSIBILITY MODE (#200, SPEC v2.1 §20, ADVANCED).
 ///
@@ -49,7 +50,7 @@ class AccessibilityModeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(0, Gap.sm, 0, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(0, Gap.sm, 0, Gap.xxl)),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
@@ -165,6 +166,7 @@ class AccessibilityModeScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.a11yResetTitle),
         content: Text(t.a11yResetBody),
         actions: [

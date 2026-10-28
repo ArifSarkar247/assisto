@@ -12,6 +12,7 @@ import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'alarm_plan.dart';
 import 'reminder_alarms.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// remmeter — the honest UI around exact reminder alarms.
 ///
@@ -44,7 +45,7 @@ Future<void> maybeAskExactAlarms(BuildContext context) async {
   if (!ask || !context.mounted) return;
   await ReminderAlarms.markExplained();
   if (!context.mounted) return;
-  final allow = await showModalBottomSheet<bool>(
+  final allow = await showAppSheet<bool>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => const _ExactExplainSheet(),
@@ -245,7 +246,7 @@ class _ExactAlarmBannerState extends State<ExactAlarmBanner>
 class ReminderDeliverySheet extends StatefulWidget {
   const ReminderDeliverySheet({super.key});
 
-  static Future<void> open(BuildContext context) => showModalBottomSheet<void>(
+  static Future<void> open(BuildContext context) => showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

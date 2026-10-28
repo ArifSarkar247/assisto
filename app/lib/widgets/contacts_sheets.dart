@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'contacts_model.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Detail + editor bottom sheets for the personal-CRM contact.
@@ -103,7 +104,7 @@ enum ContactDetailResult { none, edit, delete, logged, linkCircle }
 Future<ContactDetailResult> showContactDetail(
     BuildContext context, Contact c,
     {required Future<void> Function() onLogContact}) async {
-  final res = await showModalBottomSheet<ContactDetailResult>(
+  final res = await showAppSheet<ContactDetailResult>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -288,7 +289,7 @@ class _ContactDetailSheet extends StatelessWidget {
 // birthday, cadence, favourite, labels, notes.
 // ---------------------------------------------------------------------------
 Future<Contact?> showContactEditor(BuildContext context, {Contact? existing}) {
-  return showModalBottomSheet<Contact>(
+  return showAppSheet<Contact>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

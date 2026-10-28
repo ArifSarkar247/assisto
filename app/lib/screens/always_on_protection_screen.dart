@@ -221,6 +221,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final sure = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.atDisableTitle),
         content: Text(tr.atDisableConfirm),
         actions: [

@@ -20,6 +20,7 @@ import '../widgets/password_field.dart';
 import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
 import 'journey_sos_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// journey100 — the LIVE journey screen.
 ///
@@ -139,6 +140,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.journeyAreYouOkTitle),
         content: Text(t.journeyAreYouOkBody),
         actions: [
@@ -187,6 +189,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.sosPinTitle),
         content: ObscureTextField(
           key: const ValueKey('j100_pin_field'),
@@ -219,6 +222,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.journeyStopTitle),
           content: Text(t.journeyStopBody),
           actions: [
@@ -272,7 +276,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
 
   Future<void> _extend() async {
     final t = AppLocalizations.of(context);
-    final mins = await showModalBottomSheet<int>(
+    final mins = await showAppSheet<int>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -304,7 +308,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
 
   Future<void> _vehiclePhoto() async {
     final t = AppLocalizations.of(context);
-    final src = await showModalBottomSheet<ImageSource>(
+    final src = await showAppSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -370,6 +374,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     final go = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.fakeCallSetup),
         content: TextField(
             controller: ctrl,
@@ -502,7 +507,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             tooltip: t.journeyShareLink,
             onPressed: _shareWebLink),
       ]),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _statusCard(t, s),
         const SizedBox(height: Gap.lg),
         SosButton(label: t.emergencySosButton, onPressed: _openSos),

@@ -10,6 +10,7 @@ import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/skeleton.dart';
 import 'billing_api.dart';
 import 'billing_format.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// billapp — "Request a refund" (owner order 27 Oct, rules J/K).
 ///
@@ -61,7 +62,7 @@ class _RefundScreenState extends State<RefundScreen> {
   }
 
   Future<void> _ask(Purchase p) async {
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -413,6 +413,7 @@ class E2eNoticeChip extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.lock_outline_rounded),
         title: Text(t.trustE2eTitle, textAlign: TextAlign.center),
         content: Text(t.t1E2eInfoBody),

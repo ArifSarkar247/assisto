@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../notifications.dart';
 import '../widgets/life_leave_now_card.dart';
 import '../widgets/meet_model.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Meetings / appointments (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
@@ -90,7 +91,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
   }
 
   Future<void> _add() async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const _AppointmentEditor(),
@@ -103,7 +104,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
   }
 
   Future<void> _edit(Map<String, dynamic> a) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _AppointmentEditor(existing: a),
@@ -123,6 +124,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         content: Text(mStr(ctx, 'mDeleteQ')),
         actions: [
           TextButton(

@@ -11,6 +11,7 @@ import 'booking_detail_screen.dart';
 import 'booking_setup_screen.dart';
 import 'booking_source.dart';
 import 'booking_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// booking-bot — the BUSINESS side: today / upcoming / a calendar day view,
 /// the public link to share, the setup wizard, and a phone / walk-in booking.
@@ -93,7 +94,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
   }
 
   Future<void> _addManual() async {
-    final done = await showModalBottomSheet<bool>(
+    final done = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

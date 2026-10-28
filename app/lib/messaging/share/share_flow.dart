@@ -20,6 +20,7 @@ import 'live_location.dart';
 import 'location_card.dart';
 import 'share_payload.dart';
 import 'share_send.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// mc-media2 — the chat side of sharing a location / live location / contact
 /// card (1:1 and group). Pick → preview → seal on this phone → send.
@@ -77,6 +78,7 @@ Future<bool> ensureLocationPermission(BuildContext context) async {
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           content: Text(t.mc2GpsOff),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.md1PermNotNow)),
@@ -94,6 +96,7 @@ Future<bool> ensureLocationPermission(BuildContext context) async {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           key: const Key('mc2-loc-perm'),
           icon: const Icon(Icons.location_on_rounded),
           title: Text(t.mc2PermLocTitle),
@@ -115,6 +118,7 @@ Future<bool> ensureLocationPermission(BuildContext context) async {
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           content: Text(t.mc2PermLocDenied),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.md1PermNotNow)),
@@ -181,7 +185,7 @@ Future<LocationShare?> _findMe(BuildContext context) async {
 /// The live duration chooser with the honest foreground-only note.
 Future<String?> pickLiveDuration(BuildContext context) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -284,7 +288,7 @@ Future<String?> shareLocationFlow(BuildContext context,
   var label = '';
   var wantLive = live;
   if (!live) {
-    final c = await showModalBottomSheet<_LocChoice>(
+    final c = await showAppSheet<_LocChoice>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -436,7 +440,7 @@ Future<String?> shareContactFlow(BuildContext context,
     {required String chatKind, required int chatId}) async {
   final t = AppLocalizations.of(context);
   final api = context.read<AppState>().api;
-  final from = await showModalBottomSheet<String>(
+  final from = await showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

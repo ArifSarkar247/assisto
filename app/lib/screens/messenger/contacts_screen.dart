@@ -553,6 +553,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.msgrInviteSms),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(

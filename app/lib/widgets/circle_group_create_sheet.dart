@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Result of the group-create sheet.
 class CircleGroupDraft {
@@ -26,7 +27,7 @@ Future<CircleGroupDraft?> showCircleGroupCreateSheet(
   BuildContext context, {
   List<Map<String, dynamic>> circleMembers = const [],
 }) {
-  return showModalBottomSheet<CircleGroupDraft>(
+  return showAppSheet<CircleGroupDraft>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/finance_common.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// MESS & BACHELOR ACCOUNTING — ADVANCED (#182, SPEC v2.1 §20).
@@ -282,6 +283,7 @@ class _MembersTab extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.messDeleteMemberTitle),
         content: Text(tr.messDeleteMemberBody((m['name'] ?? '').toString())),
         actions: [
@@ -513,7 +515,7 @@ class _EntriesTabState extends State<_EntriesTab> {
   ) async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -767,7 +769,7 @@ String _fmtTk(dynamic amount) =>
 Future<String?> _promptName(BuildContext context, String title) async {
   final tr = AppLocalizations.of(context);
   final c = TextEditingController();
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -805,7 +807,7 @@ Future<String?> _promptNumber(BuildContext context, String title,
   final tr = AppLocalizations.of(context);
   final c =
       TextEditingController(text: initial == null ? '' : _fmtMeals(initial));
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

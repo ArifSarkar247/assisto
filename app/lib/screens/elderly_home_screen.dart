@@ -10,6 +10,7 @@ import '../widgets/elderly_mode.dart';
 import '../widgets/elderly_tile.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_command_sheet.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SPEC v2.1 feature 29 — ELDERLY SIMPLE-MODE home.
@@ -121,6 +122,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.call_rounded, color: Brand.success, size: 32),
         title: Text(t.elderlyCallConfirmTitle(who),
             style: AType.headlineSmall),
@@ -176,6 +178,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.elderly_rounded, color: Brand.blue),
         title: Text(t.elderlyExitConfirmTitle),
         content: Text(t.elderlyExitConfirmBody),
@@ -231,7 +234,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
       return;
     }
     // Several -> a big-row picker.
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

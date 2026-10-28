@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SAVINGS CHALLENGE — ADVANCED (#171, SPEC v2.1).
@@ -189,7 +190,7 @@ class _SavingsChallengeScreenState extends State<SavingsChallengeScreen> {
   Future<void> _addPlan() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -361,7 +362,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
         label: Text(tr.savechalLogDeposit),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           // headline status + progress ring-ish bar
           Card(
@@ -482,7 +483,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
   Future<void> _addDeposit() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -508,6 +509,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.savechalDeleteTitle),
         content: Text(tr.savechalDeleteBody((widget.plan['name'] ?? '').toString())),
         actions: [

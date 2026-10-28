@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_member_tile.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Group info / settings (M2 item 7). Shows group name/photo/description, the
@@ -114,6 +115,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleGroupEditInfo),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -175,6 +177,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleGroupSizeLimit),
         content: TextField(
           controller: c,
@@ -217,7 +220,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       }
       return;
     }
-    final picked = await showModalBottomSheet<List<int>>(
+    final picked = await showAppSheet<List<int>>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => _AddMembersSheet(candidates: candidates),
@@ -276,6 +279,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(body),
         actions: [
@@ -309,6 +313,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.circleGroupLeave),
         content: Text(_t.circleGroupLeaveConfirm),
         actions: [
@@ -333,7 +338,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
   }
 
   Future<void> _report() async {
-    final reason = await showModalBottomSheet<String>(
+    final reason = await showAppSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(

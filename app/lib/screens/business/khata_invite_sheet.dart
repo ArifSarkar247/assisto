@@ -9,6 +9,7 @@ import '../../services/error_kind.dart' show honestFailText;
 import '../../services/error_report.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// tagada2 — "Invite to Assisto" from a khata customer. Reuses the invite-join
 /// short codes (server). The message explains that once the customer joins
@@ -20,7 +21,7 @@ Future<String?> showKhataInviteSheet(BuildContext context,
         {required int businessId,
         required int partyId,
         required String name}) =>
-    showModalBottomSheet<String>(
+    showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

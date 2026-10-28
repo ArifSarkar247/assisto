@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'business_ui.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// AI extras (PAID) — a morning-summary card + mocked "review step" sheets for
 /// voice entry, paper-khata digitising, and payment matching. Each AI output is
@@ -86,7 +87,7 @@ Future<void> showPaymentMatchSheet(BuildContext context) =>
 enum _ExtraKind { voice, paperKhata, paymentMatch }
 
 Future<void> _showReviewSheet(BuildContext context, _ExtraKind kind) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (_) => _ReviewSheet(kind: kind),

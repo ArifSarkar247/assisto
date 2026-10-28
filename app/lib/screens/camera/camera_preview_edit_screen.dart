@@ -122,6 +122,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
     final text = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.camAddText),
         content: TextField(
           controller: controller,

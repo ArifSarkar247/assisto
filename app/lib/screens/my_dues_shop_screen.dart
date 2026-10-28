@@ -98,6 +98,7 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
       final go = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.tg2BlockConfirmTitle(_name)),
           content: Text(t.tg2BlockConfirmBody(_name)),
           actions: [

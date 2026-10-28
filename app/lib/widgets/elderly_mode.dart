@@ -63,6 +63,7 @@ class EldersModeController {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.family_restroom_rounded, color: Brand.blue),
         title: Text(t.elderlyPermissionTitle),
         content: Text(t.elderlyPermissionBody),
@@ -145,6 +146,7 @@ class _ElderlyModeTileState extends State<ElderlyModeTile> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.elderly_rounded, color: Brand.blue),
         title: Text(title),
         content: Text(body),

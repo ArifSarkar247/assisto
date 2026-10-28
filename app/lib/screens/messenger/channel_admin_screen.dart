@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
 import 'channel_list_screen.dart' show msgrChannelCategories;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Assisto Messenger — CHANNEL admin console (Step 3).
 ///
@@ -133,7 +134,7 @@ class _PostsTabState extends State<_PostsTab> {
   ApiClient get _api => context.read<AppState>().api;
 
   Future<void> _compose() async {
-    final created = await showModalBottomSheet<bool>(
+    final created = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _PostComposerSheet(channelId: widget.channelId),
@@ -148,6 +149,7 @@ class _PostsTabState extends State<_PostsTab> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.channelUnpinTitle),
           content: Text(t.channelUnpinConfirm),
           actions: [
@@ -806,6 +808,7 @@ class _AdminsTabState extends State<_AdminsTab> {
     final userId = await showDialog<int>(
       context: context,
       builder: (_) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.channelAddAdmin),
         content: TextField(
           controller: controller,
@@ -843,6 +846,7 @@ class _AdminsTabState extends State<_AdminsTab> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.channelRemoveAdminTitle),
         content: Text(t.channelRemoveAdminConfirm(name)),
         actions: [

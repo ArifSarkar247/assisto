@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Advanced discovery filters (category, location, salary, type, experience)
 /// for the Job Hunter — SPEC v2.1 §21. A bottom sheet returning a [JobFilter].
@@ -11,7 +12,7 @@ class JobsFilterSheet extends StatefulWidget {
   const JobsFilterSheet({super.key, required this.initial});
 
   static Future<JobFilter?> show(BuildContext context, JobFilter initial) =>
-      showModalBottomSheet<JobFilter>(
+      showAppSheet<JobFilter>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

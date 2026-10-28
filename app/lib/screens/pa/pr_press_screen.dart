@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CELEBRITY tier — PR & press tracker (#122, §14).
@@ -127,7 +128,7 @@ class _PrPressScreenState extends State<PrPressScreen>
 
   Future<void> _addOrEdit(AppLocalizations tr, String kind,
       {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

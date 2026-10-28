@@ -11,6 +11,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'plans_v2.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// plans-v2 — the ONE honest upgrade sheet for a locked action.
 ///
@@ -46,7 +47,7 @@ class UpgradeSheet extends StatefulWidget {
   /// Returns true when the user upgraded or started the trial (reload).
   static Future<bool?> show(BuildContext context, UpgradeReason reason,
           {PaymentsBackend? backend, String? flavour}) =>
-      showModalBottomSheet<bool>(
+      showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

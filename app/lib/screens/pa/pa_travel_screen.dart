@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE — BOSS TRAVEL & ITINERARY builder (#112, §14, ADVANCED).
@@ -128,7 +129,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
     ..showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _openTripEditor([Map<String, dynamic>? existing]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -487,7 +488,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                   OutlinedButton.icon(
                     icon: const Icon(Icons.summarize_rounded),
                     label: Text(t.paTravelSummaryButton),
-                    onPressed: () => showModalBottomSheet(
+                    onPressed: () => showAppSheet(
                       context: context,
                       isScrollControlled: true,
                       showDragHandle: true,
@@ -524,7 +525,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
   // ---- editors ----
   Future<void> _editLeg([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -539,7 +540,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
   }
 
   Future<void> _editStay([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -554,7 +555,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
   }
 
   Future<void> _editMeeting([Map<String, dynamic>? e]) async {
-    final r = await showModalBottomSheet<Map<String, dynamic>>(
+    final r = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -1199,6 +1200,7 @@ Future<String?> _promptText(BuildContext context, String label) {
   return showDialog<String>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(label),
       content: TextField(
           controller: c,

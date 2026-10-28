@@ -13,6 +13,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Anti-theft Batch 5 — Recovery help.
@@ -201,7 +202,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.recTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           Text(t.recSubtitle, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: Gap.md),

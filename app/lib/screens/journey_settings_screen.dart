@@ -7,6 +7,7 @@ import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/subs_common.dart' show fmtInt;
 import '../services/action_feedback.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Safe Journey settings (items 7, 8, 14, 16, 18). Hosts:
 ///   - SOS countdown + siren default
@@ -108,6 +109,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.duressTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.duressExplain, style: AType.bodyMedium),
@@ -168,7 +170,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(t.journeySettingsTitle)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         // SOS
         Text(t.sosSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),

@@ -21,6 +21,7 @@ import 'circle_chat_screen.dart';
 import 'circle_group_list_screen.dart';
 import 'circle_search_screen.dart';
 import 'circle_status_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Connected Circle — a relationship-scoped family/friends circle with
 /// end-to-end-encrypted messaging. This screen is the hub: it lists accepted
@@ -140,7 +141,7 @@ class _CircleScreenState extends State<CircleScreen> {
   }
 
   Future<void> _report(Map<String, dynamic> member) async {
-    final reason = await showModalBottomSheet<String>(
+    final reason = await showAppSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -190,7 +191,7 @@ class _CircleScreenState extends State<CircleScreen> {
     var policy = Map<String, bool>.from(
         (member['sharing'] as Map?)?.map((k, v) => MapEntry('$k', v == true)) ??
             {});
-    await showModalBottomSheet(
+    await showAppSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

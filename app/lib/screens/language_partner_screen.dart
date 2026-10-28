@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LANGUAGE-LEARNING PARTNER — ADVANCED, KEY-GATED (#132, SPEC v2.1 §21).
@@ -634,7 +635,7 @@ class _QuizScreenState extends State<_QuizScreen> {
       appBar: AppBar(
           title: Text('${tr.lpQuiz}  ${_index + 1}/${qs.length}')),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Card(
             child: Padding(

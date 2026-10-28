@@ -24,6 +24,7 @@ import '../vault/vault_recovery_screen.dart';
 import '../vault/vault_security_screen.dart';
 import '../vault/vault_viewer.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../theme.dart' show AType, Brand, Gap, Radii; // qa1
 
 class VaultScreen extends StatefulWidget {
@@ -165,7 +166,7 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   Future<String?> _pickImage() async {
-    final src = await showModalBottomSheet<ImageSource>(
+    final src = await showAppSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -284,6 +285,7 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.vaultDeleteTitle),
         content: Text(t.vaultDeleteBody),
         actions: [
@@ -471,7 +473,7 @@ class _VaultScreenState extends State<VaultScreen> {
     final dt = vaultTypeOf(doc['doc_type']);
     final decoded = readDocDetails(doc);
     final id = doc['id'] as int;
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -607,7 +609,7 @@ class _VaultScreenState extends State<VaultScreen> {
     for (final s in services) {
       if (s['key'] == dt.guideKey) { svc = s; break; }
     }
-    showModalBottomSheet(
+    showAppSheet(
       context: context, showDragHandle: true,
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, Gap.xl),
@@ -646,6 +648,7 @@ class _VaultScreenState extends State<VaultScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.vaultShareToNominee),
         content: Text(t.vaultShareConfirm),
         actions: [

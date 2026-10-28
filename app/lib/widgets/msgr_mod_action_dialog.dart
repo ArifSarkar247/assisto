@@ -71,6 +71,7 @@ class _MsgrModActionDialogState extends State<MsgrModActionDialog> {
     final tint = widget.destructive ? Brand.danger : scheme.primary;
 
     return AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(widget.actionLabel),
       content: Column(
         mainAxisSize: MainAxisSize.min,

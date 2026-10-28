@@ -235,6 +235,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.delete_sweep_rounded, color: Brand.danger),
         title: Text(t.memClearAll),
         content: Text(t.memClearAllBody),

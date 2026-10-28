@@ -50,6 +50,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final go = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.crmRequirements),
         content: TextField(controller: req, maxLines: 4, decoration: const InputDecoration(border: OutlineInputBorder())),
         actions: [

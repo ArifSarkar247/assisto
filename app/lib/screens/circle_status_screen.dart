@@ -13,6 +13,7 @@ import '../widgets/circle_status_ring.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_status_composer_screen.dart';
 import 'circle_status_viewer_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// My Circle STORIES (24 h) + profile NOTES — the Updates tab (owner P3).
 ///
@@ -164,7 +165,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
   }
 
   Future<void> _editNote() async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -180,7 +181,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
 
   Future<void> _muteMenu(int authorId, String name, bool muted) async {
     final t = AppLocalizations.of(context);
-    final go = await showModalBottomSheet<bool>(
+    final go = await showAppSheet<bool>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -286,6 +287,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                                 onTap: () => showDialog<void>(
                                   context: context,
                                   builder: (ctx) => AlertDialog(
+                                    scrollable: true, // insets: 200% text / keyboard
                                     title: Text(n.name),
                                     content: Text(n.text),
                                     actions: [

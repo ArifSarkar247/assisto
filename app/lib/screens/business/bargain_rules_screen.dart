@@ -7,6 +7,7 @@ import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
 import '../plans_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Per-product bargaining rules (PAID).
 ///
@@ -163,7 +164,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     final freeOver = TextEditingController(text: (r['free_delivery_over'] ?? '').toString());
     final bundle = TextEditingController(text: (r['bundle_min_qty'] ?? '').toString());
     final tone = TextEditingController(text: (r['tone'] ?? '').toString());
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => Padding(

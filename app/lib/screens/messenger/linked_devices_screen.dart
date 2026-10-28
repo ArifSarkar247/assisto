@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_hub_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// MY CIRCLE HUB ⋮ → Linked devices (SPEC §2).
@@ -80,7 +81,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   Future<void> _showQrSheet(Map<String, dynamic> payload) async {
     final t = _t;
     final token = '${payload['token'] ?? payload['qr'] ?? ''}';
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {
@@ -127,6 +128,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.msgrLinkedLogoutTitle),
         content: Text(t.msgrLinkedLogoutBody),
         actions: [

@@ -8,6 +8,7 @@ import '../../services/error_kind.dart';
 import '../../services/error_report.dart';
 import '../../theme.dart';
 import 'crm100_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// crm100 — "send from CRM" to ONE customer. The seller writes (or keeps)
 /// the text, then picks HOW, each with an honest state:
@@ -41,7 +42,7 @@ class CrmSendSheet extends StatefulWidget {
           int? lead,
           String initialText = '',
           String purpose = 'message'}) =>
-      showModalBottomSheet<bool>(
+      showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

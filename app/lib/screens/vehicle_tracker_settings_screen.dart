@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 import 'vehicle_fence_editor_screen.dart'; // veh100
@@ -178,6 +179,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(tr.vehFenceAddTitle),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(tr.vehFenceAddBody, style: Theme.of(ctx).textTheme.bodySmall),
@@ -230,6 +232,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(tr.vehShareTitle),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             DropdownButtonFormField<int>(
@@ -285,6 +288,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.vehRemoveTitle),
         content: Text(tr.vehRemoveBody),
         actions: [
@@ -353,7 +357,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.symmetric(horizontal: Gap.md)),
         children: [
           const SizedBox(height: Gap.sm),
           TextField(

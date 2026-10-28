@@ -86,6 +86,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
       final again = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.vaultRecoveryCodeNew),
           content: Text(t.vaultRecoveryCodeReplaceWarn),
           actions: [
@@ -136,6 +137,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.vaultOfflineRemoveAll),
         content: Text(t.vaultOfflineRemoveAllConfirm),
         actions: [
@@ -276,6 +278,7 @@ Future<void> showVaultRecoveryCode(BuildContext context, String code) {
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(t.vaultRecoveryCodeTitle),
       content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.vaultRecoveryCodeShowOnce, style: AType.bodyMedium),

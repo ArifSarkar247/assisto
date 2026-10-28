@@ -10,6 +10,7 @@ import '../../widgets/msgr_channel_common.dart';
 import 'channel_admin_screen.dart';
 import 'channel_detail_screen.dart';
 import 'discover_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // f6
 
 /// Assisto Messenger — CHANNELS list (Step 3).
@@ -85,6 +86,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(_t.channelUnfollowTitle),
           content: Text(_t.channelUnfollowConfirm('${ch['name'] ?? ''}')),
           actions: [
@@ -135,7 +137,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   }
 
   Future<void> _create() async {
-    final created = await showModalBottomSheet<Map<String, dynamic>>(
+    final created = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const _CreateChannelSheet(),
