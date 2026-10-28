@@ -431,7 +431,7 @@ AI ছাড়া, শুধু টেমপ্লেট — **ক্রেড�
 | **প্রোঅ্যাকটিভ / ambient trigger** | ইভেন্ট-ট্রিগারড এজেন্ট (Flow/Platform Event) | ✅ ৭ ধরনের ট্রিগার, দৈনিক সীমা, নীরব সময়, উপেক্ষায় হার কমানো, সকাল/সন্ধ্যা ব্রিফ ০ ক্রেডিট (`proactive.py`, `tests_agentpro.py` ২২টি টেস্ট) | — | — | — |
 | **বহু-ভাষা (বাংলা/বাংলিশ)** | কয়েকটি বড় ভাষা; বাংলা প্রকাশিত তালিকায় পাইনি | ✅ এগিয়ে: বাংলা/বাংলিশ classifier, বাংলা অঙ্ক মাস্কিং, প্রতিটি eval সেটে bn/en/banglish/বানান-ভুল, বাংলা টেমপ্লেট উত্তর | 🟡 টুল-সারাংশের বাংলিশ উত্তর (রোমান হরফে) নেই — ইউজার বাংলিশে লিখলে বাংলা হরফে উত্তর (ইচ্ছাকৃত, STYLE নিয়ম) | না দরকার | — |
 | **দাম / খরচ-নিয়ন্ত্রণ** | $২/কথোপকথন (২০২৪) → Flex Credits | ✅ প্রতি LLM কলে `agent_plan` ক্রেডিট, atomic pre-charge + রিফান্ড (`test_charges_agent_plan_through_the_router_and_refunds_on_failure`), প্ল্যান-ভিত্তিক দৈনিক/run সীমা (`runner.LIMITS`) | — | — | — |
-| **Agent Builder (নো-কোড)** | Agentforce Builder: topic/action/নির্দেশনা UI, preview, trace | 🟡 সেলস এজেন্টের সেটিং (টোন, FAQ, সর্বনিম্ন দাম, নীতি, ব্যবসার সময়) আছে; ভার্সন-করা "agent card" + টেস্ট চ্যাট নেই | না (লঞ্চের পরে) — AF-15 | L |
+| **Agent Builder (নো-কোড)** | Agentforce Builder: topic/action/নির্দেশনা UI, preview, trace | 🟡 সেলস এজেন্টের সেটিং (টোন, FAQ, সর্বনিম্ন দাম, নীতি, ব্যবসার সময়) আছে | ভার্সন-করা "agent card" + টেস্ট চ্যাট নেই | না (লঞ্চের পরে) — AF-15 | L |
 
 ### ১৯.২ AI সেলস এজেন্ট বনাম Agentforce Sales Agent (SDR) / Service Agent / HubSpot Breeze Customer Agent
 
@@ -444,8 +444,8 @@ AI ছাড়া, শুধু টেমপ্লেট — **ক্রেড�
 | **ফলো-আপ / nurture (SDR)** | লিড nurture ইমেইল/মেসেজ, মিটিং বুক | 🟡 অসম্পূর্ণ অর্ডারে ফলো-আপ (`bizagent_g1.followup_due`, opt-out, নীরব সময়); CRM লিড আছে | 🟡 নতুন লিড-nurture ক্রম (WhatsApp টেমপ্লেট, opt-in) নেই | না — Marketing Engine-এর অংশ (লঞ্চের পরে), AF-19 | M |
 | **মানুষের হাতে দেওয়া** | পুরো context-সহ রেপ-এর কাছে | ✅ handoff ট্রিগার + অনুমোদন কিউ + মানুষ উত্তর দিলে AI থামে + idle-timeout-এ ফেরা + চ্যাট-ভিত্তিক "আমি উত্তর দেব / AI দিক" | 🟡 handoff সারাংশ নেই | **হ্যাঁ** — AF-10 | S |
 | **AI পরিচয় প্রকাশ** | — | ✅ প্রথম AI উত্তরে ও জিজ্ঞাসায় "আমি AI" (`BZ.with_disclosure`, `asks_if_human`); "আমি মানুষ" দাবি ব্লক | — | — | — |
-| **PII মাস্কিং** | Trust Layer | ❌ LLM ড্রাফটে নেই | **হ্যাঁ** — AF-2 | S |
-| **Toxicity** | Trust Layer স্কোর | ❌ নেই (শুধু রাগ-শব্দ handoff) | **হ্যাঁ** — AF-4 | M |
+| **PII মাস্কিং** | Trust Layer | ❌ `_llm_draft` গ্রাহকের লেখা + ইতিহাস কাঁচা পাঠায় | গ্রাহকের ফোন/অ্যাকাউন্ট নম্বর মডেলে যায় | **হ্যাঁ** — AF-2 | S |
+| **Toxicity** | Trust Layer স্কোর | 🟡 শুধু রাগ-শব্দে handoff (`business_ai._ANGRY_WORDS`) | আউটবাউন্ড গালি/বিদ্বেষ চেক নেই, স্কোর লগ নেই | **হ্যাঁ** — AF-4 | M |
 | **খরচ-নিয়ন্ত্রণ / anti-loop** | — | ✅ ব্যবসা-প্রতি দৈনিক AI সীমা, চ্যাট-প্রতি সীমা, burst limiter (`bizagent_guard`), রিপ্লাই কোটা (Pro ২৭০০) | — | — | — |
 | **Deflection / resolution rate** | HubSpot: resolution = মানুষের handoff ছাড়া শেষ (৭২ ঘ.); Salesforce Help portal-এ ~৪২% deflection (দ্বিতীয় সূত্র) | 🟡 দৈনিক রিপোর্টে মেসেজ, AI উত্তর, অর্ডার, আয়, অপেক্ষমাণ অনুমোদন (`bizagent_service.daily_stats`) | ❌ resolution/deflection %, handoff-কারণ ভাগ, AI-সহায়িত অর্ডার রূপান্তর মাপা হয় না | **হ্যাঁ** — AF-9 | S |
 | **Agent Core-এর সাথে এক মস্তিষ্ক** | Service + Sales agent একই Atlas-এ | 🟡 Agent Core-এর `bizagent.inbox/reply` টুল দোকানদারকে সাহায্য করে (অনুমোদনসহ), কিন্তু গ্রাহক-উত্তর পাইপলাইন আলাদা (`bizagent_service.compose`) | 🟡 trust layer দুই জায়গায় আলাদা | আংশিক — trust সমতা লঞ্চের আগে (AF-2/4/10); ইঞ্জিন একীকরণ লঞ্চের পরে (AF-16) | L |
