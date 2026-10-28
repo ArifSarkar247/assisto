@@ -1450,6 +1450,8 @@ class Journey(models.Model):
     lost_alerted_at = models.DateTimeField(null=True, blank=True)  # no location for a while
     night = models.BooleanField(default=False)                   # night routine (tighter grace)
     vehicle_photo = models.FileField(upload_to="journey/", blank=True, default="")
+    # journey2: watcher-link generation; bumping it turns every shared link off
+    web_gen = models.IntegerField(default=0)
 
     class Meta:
         ordering = ["-created_at"]

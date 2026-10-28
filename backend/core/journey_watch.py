@@ -97,10 +97,27 @@ def link_expiry(j):
     return (j.created_at or timezone.now()) + timedelta(hours=LINK_HOURS)
 
 
+def link_id(j):
+    """The id part signed into the watcher link: "<id>" for the first
+    generation (links shared before journey2 keep working), "<id>-<gen>"
+    after the traveller turned the link off and shared a new one."""
+    gen = int(getattr(j, "web_gen", 0) or 0)
+    return str(j.id) if gen <= 0 else "%s-%s" % (j.id, gen)
+
+
+def split_link_id(raw):
+    """("123-2") -> (123, 2); ("123") -> (123, 0); junk -> (None, None)."""
+    s = str(raw or "")
+    head, _, gen = s.partition("-")
+    if not head.isdigit() or (gen and not gen.isdigit()):
+        return None, None
+    return int(head), int(gen or 0)
+
+
 def web_token(j):
     if not j.pk:
         return ""
-    return SJ.make_web_token(j.id, link_expiry(j), settings.SECRET_KEY)
+    return SJ.make_web_token(link_id(j), link_expiry(j), settings.SECRET_KEY)
 
 
 def web_url(j):
@@ -205,6 +222,22 @@ def offroute(j, lat, lng):
     return d > thr, int(d), thr
 
 
+def progress(j, fx=None):
+    """journey2: straight-line distance left to a PINNED destination and a
+    rough remaining time (road factor x typical city speed for the mode).
+    {} when the destination has no pin or there is no fix — never a guess."""
+    from .logic import journey_dest as JD
+    dest = _pt(j.destination or {})
+    fx = fx if fx is not None else fix_of(j)
+    if dest is None or fx is None:
+        return {}
+    d = JD.distance_m(fx[0], fx[1], dest[0], dest[1])
+    if d is None:
+        return {}
+    mode = ((j.vehicle or {}).get("mode") or j.mode or "")
+    return {"distance_m": d, "rough_min": JD.rough_minutes(d, mode)}
+
+
 def near_destination(j, lat, lng, factor=2.0):
     dest = _pt(j.destination or {})
     if dest is None:
@@ -229,6 +262,12 @@ def event_text(kind, j, name, lang, p):
         eta = _hhmm(j.eta, lang)
         if eta:
             pl["body"] += pick(lang, " পৌঁছানোর সময়: %s।" % eta, " Expected by %s." % eta)
+        from .logic import journey_dest as JD
+        ride = JD.ride_line(p, lang) if (p.get("plate") or p.get("app")) else ""
+        if ride:
+            pl["body"] += pick(lang, " যানবাহন: %s।" % ride, " Ride: %s." % ride)
+        if p.get("driver_name"):
+            pl["body"] += pick(lang, " চালক: %s।" % p["driver_name"], " Driver: %s." % p["driver_name"])
         return pl["title"], pl["body"]
     if kind == "arrived":
         pl = SJ.arrived_payload(name, dest, lang=lang)
@@ -276,10 +315,18 @@ def event_text(kind, j, name, lang, p):
                      "%s entered their secret duress PIN. Check on them now, but don't give them away with a loud call.%s%s" % (
                     name, SJ._loc_line(loc, lang), link)))
     if kind == "vehicle":
-        pl = SJ.vehicle_payload(name, {"plate": p.get("plate"), "mode": p.get("mode") or ""}, lang=lang)
+        # journey2: the ride in ONE language (the raw mode code used to land
+        # in the Bangla push) + the driver's name when the traveller gave it
+        from .logic import journey_dest as JD
+        ride = JD.ride_line({"plate": p.get("plate"), "mode": p.get("mode"),
+                             "app": p.get("app")}, lang) or pick(lang, "অজানা", "unknown")
+        drv = str(p.get("driver_name") or "")
+        drv = pick(lang, " চালক: %s।" % drv, " Driver: %s." % drv) if drv else ""
         extra = pick(lang, " গাড়ির ছবি লাইভ পাতায় আছে।", " The ride photo is on the live page.") \
             if p.get("photo") else ""
-        return pl["title"], pl["body"] + extra + link
+        return (pick(lang, "যানবাহনের তথ্য", "Ride details shared"),
+                pick(lang, "%s-এর যানবাহন: %s।" % (name, ride),
+                     "%s's ride: %s." % (name, ride)) + drv + extra + link)
     return (pick(lang, "নিরাপদ যাত্রা", "Safe Journey"), name)
 
 

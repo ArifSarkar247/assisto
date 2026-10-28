@@ -27,6 +27,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 
 from core import journey_watch as JW
+from core.logic import journey_dest as JD
 from core.logic import safety_journey as SJ
 
 from .views import _ip_hash
@@ -52,6 +53,11 @@ TXT = {
         "privacy": "শুধু যাত্রী যাঁদের লিংক দিয়েছেন তাঁরা এটা দেখতে পান। যাত্রা শেষে লোকেশন দেখানো বন্ধ হয় ও নির্দিষ্ট সময় পরে মুছে যায়।",
         "photo": "যানবাহনের ছবি", "limited": "অনেকবার চেষ্টা হয়েছে। এক মিনিট পরে আবার খুলুন।",
         "other": "English",
+        "revoked": "যাত্রী এই লিংকটি বন্ধ করে দিয়েছেন। কোনো লোকেশন দেখানো হয় না।",
+        "left": "গন্তব্য থেকে দূরত্ব", "left_v": "সোজা দূরত্বে প্রায় {d} কিমি",
+        "rough": "আনুমানিক বাকি সময়", "rough_v": "প্রায় {m} মিনিট (সাধারণ গতিতে, ট্রাফিক নয়)",
+        "eta_note": "সময়টা যাত্রী নিজে দিয়েছেন।",
+        "driver": "চালক", "call_driver": "চালককে কল করুন",
     },
     "en": {
         "title": "Live journey", "brand": "Assisto Safe Journey",
@@ -71,6 +77,11 @@ TXT = {
         "privacy": "Only people the traveller gave this link to can see it. Location stops showing when the trip ends and is deleted after a set time.",
         "photo": "Ride photo", "limited": "Too many tries. Please open it again in a minute.",
         "other": "বাংলা",
+        "revoked": "The traveller turned this link off. No location is shown.",
+        "left": "Distance to destination", "left_v": "about {d} km in a straight line",
+        "rough": "Rough time left", "rough_v": "about {m} min (typical speed, not live traffic)",
+        "eta_note": "The traveller set this time.",
+        "driver": "Driver", "call_driver": "Call the driver",
     },
 }
 
@@ -104,12 +115,16 @@ def public_state(token, now=None):
     from core.models import Journey
     from core import push
     now = now or timezone.now()
-    jid, ok, reason = SJ.parse_web_token(token, settings.SECRET_KEY, now=now)
-    if reason == "bad" or not str(jid or "").isdigit():
+    raw, ok, reason = SJ.parse_web_token(token, settings.SECRET_KEY, now=now)
+    jid, gen = JW.split_link_id(raw)
+    if reason == "bad" or jid is None:
         return {"state": "bad"}, 404
-    j = Journey.objects.filter(pk=int(jid)).select_related("traveller").first()
+    j = Journey.objects.filter(pk=jid).select_related("traveller").first()
     if j is None:
         return {"state": "bad"}, 404
+    if gen != int(j.web_gen or 0):
+        # journey2: the traveller turned this link off — nothing else shows
+        return {"state": "revoked"}, 200
     if (j.expires_at is not None and j.expires_at <= now) or \
             (not ok and j.status != "active" and not j.sos_active):
         return {"state": "expired"}, 200
@@ -136,17 +151,28 @@ def public_state(token, now=None):
                      "stale" if age is not None and age < JW.LOST_FIX_MIN * 60 else "lost")
         out.update(state=state, lat=round(lat, 6), lng=round(lng, 6),
                    at=at.isoformat() if at else None, age_s=age, battery=batt)
+        out.update(JW.progress(j, fx))
     st, _m = JW.overdue(j, now)
     out["late"] = st in ("ask", "alert")
-    v = j.vehicle or {}
-    if v.get("plate") or j.vehicle_photo:
+    v = JD.clean_vehicle(j.vehicle) or {}
+    if v or j.vehicle_photo:
         try:
             photo = j.vehicle_photo.url if j.vehicle_photo else None
         except Exception:
             photo = None
-        out["ride"] = {"plate": str(v.get("plate") or "")[:40],
-                       "mode": str(v.get("mode") or j.mode or "")[:16], "photo": photo}
+        out["ride"] = {"plate": v.get("plate", ""),
+                       "mode": v.get("mode") or (j.mode if j.mode in JD.MODES else ""),
+                       "app": v.get("app", ""),
+                       "driver_name": v.get("driver_name", ""),
+                       "driver_phone": v.get("driver_phone", ""),
+                       "photo": photo}
     return out, 200
+
+
+def ride_line(ride, lang):
+    """The ride in the page's language only (journey2: the raw mode code
+    used to show on the Bangla page)."""
+    return JD.ride_line(ride, lang) if ride else ""
 
 
 @require_GET
@@ -154,6 +180,8 @@ def watch_data(request, token):
     if not _rate_ok(request):
         return _headers(JsonResponse({"state": "limited"}, status=429))
     data, st = public_state(token)
+    if data.get("ride"):
+        data["ride"]["line"] = ride_line(data["ride"], _lang(request))
     return _headers(JsonResponse(data, status=st))
 
 
@@ -166,6 +194,8 @@ def watch_page(request, token):
                       {"lang": lang, "T": T, "limited": True}, status=429)
         return _headers(resp)
     data, st = public_state(token)
+    if data.get("ride"):
+        data["ride"]["line"] = ride_line(data["ride"], lang)
     tiles = JW.tile_config()
     ctx = {"lang": lang, "T": T, "token": token, "state": data.get("state"),
            "boot": {"data": data, "T": T, "lang": lang,

@@ -1047,6 +1047,7 @@ class CircleMemberControlsView(APIView):
 # overdue / stop / route / signal / wellness every minute; core/journey_watch)
 # ===========================================================================
 from . import journey_watch as JW  # noqa: E402
+from .logic import journey_dest as JD  # noqa: E402
 
 
 def _journey_pure(j):
@@ -1093,9 +1094,12 @@ def _journey_dict(j, lang="bn", traveller=True):
         "location_retention_hours": j.location_retention_hours,
         "expires_at": j.expires_at.isoformat() if j.expires_at else None,
         "stopped_at": j.stopped_at.isoformat() if j.stopped_at else None,
-        "vehicle": {**(j.vehicle or {}), "photo_url": _photo_url(j)} if (j.vehicle or j.vehicle_photo) else None,
+        "vehicle": {**(JD.clean_vehicle(j.vehicle) or {}), "photo_url": _photo_url(j)} if (j.vehicle or j.vehicle_photo) else None,
         "web_link": JW.web_url(j) or None,
+        "has_pin": JW._pt(j.destination or {}) is not None,
     }
+    if j.status == "active":
+        out.update(JW.progress(j))
     if traveller:
         out["pin_required"] = _pin_configured(j.traveller)
     return out
@@ -1155,8 +1159,9 @@ class JourneyStartView(APIView):
         origin = d.get("origin") if isinstance(d.get("origin"), dict) else None
         j = Journey.objects.create(
             traveller=request.user, origin=origin, destination=dest, eta=eta,
-            status="active", mode=str(d.get("mode", "") or "")[:16],
-            vehicle=d.get("vehicle") if isinstance(d.get("vehicle"), dict) else None,
+            status="active",
+            mode=(str(d.get("mode") or "").lower() if str(d.get("mode") or "").lower() in JD.MODES else ""),
+            vehicle=JD.clean_vehicle(d.get("vehicle")),
             overdue_grace_min=grace,
             route_deviation=bool(d.get("route_deviation_on")),
             planned_route=d.get("planned_route") if isinstance(d.get("planned_route"), list) else None,
@@ -1169,7 +1174,7 @@ class JourneyStartView(APIView):
             if m:
                 JourneyWatcher.objects.get_or_create(journey=j, member=m)
         v = j.vehicle or {}
-        JW.emit(j, "started", payload={"plate": v.get("plate"), "mode": v.get("mode") or j.mode})
+        JW.emit(j, "started", payload={**v, "mode": v.get("mode") or j.mode})
         out = _journey_dict(j, req_lang(request))
         out["watchers"] = j.watchers.count()
         return Response(out, status=status.HTTP_201_CREATED)
@@ -1435,10 +1440,11 @@ class JourneyVehiclePhotoView(APIView):
                              ContentFile(buf.getvalue()), save=False)
         v = dict(j.vehicle or {})
         if d.get("plate"):
-            v["plate"] = str(d["plate"])[:40]
+            v["plate"] = d["plate"]
         if d.get("mode"):
-            v["mode"] = str(d["mode"])[:16]
-        j.vehicle = v
+            v["mode"] = d["mode"]
+        v = JD.clean_vehicle(v) or {}
+        j.vehicle = v or None
         j.save(update_fields=["vehicle_photo", "vehicle"])
         JW.emit(j, "vehicle", key="photo:%s" % j.vehicle_photo.name[-20:],
                 payload={"plate": v.get("plate"), "mode": v.get("mode") or j.mode, "photo": True})
@@ -1535,7 +1541,81 @@ class JourneyWebLinkView(APIView):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None or not j.expires_at:
             return _nf()
-        return Response({"url": JW.web_url(j), "token": JW.web_token(j)})
+        return Response({"url": JW.web_url(j), "token": JW.web_token(j),
+                         "expires_at": JW.link_expiry(j).isoformat()})
+
+
+class JourneyWebLinkRevokeView(APIView):
+    """journey2: POST /journey/<pk>/web-link/revoke — every watcher link
+    shared so far stops working at once (the page says 'turned off', no
+    location). A fresh link comes back so the traveller can share again.
+    Assisto watchers in the app are not affected (they always get the
+    current link)."""
+    def post(self, request, pk):
+        j = Journey.objects.filter(traveller=request.user, pk=pk).first()
+        if j is None:
+            return _nf()
+        j.web_gen = int(j.web_gen or 0) + 1
+        j.save(update_fields=["web_gen"])
+        return Response({"ok": True, "url": JW.web_url(j) if j.status == "active" else "",
+                         "revoked": True})
+
+
+class JourneyRideView(APIView):
+    """journey2: POST /journey/<pk>/ride {plate, mode, app, driver_name,
+    driver_phone, note} — ride details added or corrected DURING the trip
+    (the Pathao/Uber driver is often known only after the ride starts).
+    Watchers get one 'ride details' push per change."""
+    def post(self, request, pk):
+        j = Journey.objects.filter(traveller=request.user, pk=pk, status="active").first()
+        if j is None:
+            return _nf()
+        v = JD.clean_vehicle({**(j.vehicle or {}), **(request.data or {})})
+        if v == (j.vehicle or None):
+            return Response({"ok": True, "vehicle": v, "changed": False})
+        j.vehicle = v
+        if v and v.get("mode"):
+            j.mode = v["mode"]
+        j.save(update_fields=["vehicle", "mode"])
+        if v:
+            import hashlib
+            key = "ride:" + hashlib.sha1(json.dumps(v, sort_keys=True).encode()).hexdigest()[:16]
+            JW.emit(j, "vehicle", key=key, payload=v)
+        return Response({"ok": True, "vehicle": v, "changed": True})
+
+
+class JourneyParseLinkView(APIView):
+    """journey2: POST /journey/parse-link {text} -> {lat, lng, name} from a
+    pasted Google Maps link (long or maps.app.goo.gl), a geo: URI or plain
+    '23.78, 90.41'. 400 {detail: no_coords} when nothing usable is in it."""
+    def post(self, request):
+        from . import journey_geo as JG
+        text = str((request.data or {}).get("text") or "").strip()[:2000]
+        got = JD.parse_maps_link(text)
+        if got is None:
+            import re
+            m = re.search(r"https://\S+", text)
+            url = m.group(0) if m else ""
+            if url and JD.is_short_maps_link(url):
+                got = JG.resolve_short_link(url)
+        if got is None:
+            return Response({"detail": "no_coords"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"ok": True, **got})
+
+
+class JourneyGeocodeView(APIView):
+    """journey2: GET /journey/geocode?q=&lat=&lng= — search by place name via
+    the owner's Google Places key. {available: false} without a key (the app
+    then hides the search box — never a fake result)."""
+    def get(self, request):
+        from . import journey_geo as JG
+        near = None
+        try:
+            near = (float(request.query_params.get("lat")), float(request.query_params.get("lng")))
+        except (TypeError, ValueError):
+            near = None
+        return Response(JG.geocode(request.query_params.get("q"), lang=req_lang(request),
+                                   near=near))
 
 
 class JourneyWatchingView(APIView):
@@ -1565,6 +1645,8 @@ class JourneyWatchingView(APIView):
                 "fix_at": fx[2].isoformat() if fx and fx[2] else None,
                 "fix_age_s": int((now - fx[2]).total_seconds()) if fx and fx[2] else None,
                 "battery": fx[3] if fx else None,
+                "ride": JD.clean_vehicle(j.vehicle),
+                **(JW.progress(j, fx) if fx and j.status == "active" else {}),
                 "url": JW.web_url(j)})
         return Response({"journeys": out})
 
@@ -1604,22 +1686,48 @@ class JourneyNearestHelpView(APIView):
         return Response(out)
 
 
+def _place_dict(p):
+    return {"id": p.id, "label": p.label, "kind": JD.place_kind(p.label),
+            "name": p.name, "lat": p.lat, "lng": p.lng}
+
+
 class SavedPlacesView(APIView):
+    """Saved destinations (Home / School / Office / others). journey2:
+    coordinates are validated (a bad value used to 500), Home/School/Office
+    are one each (saving again replaces it), and places can be deleted."""
     def get(self, request):
         rows = SavedPlace.objects.filter(user=request.user)
-        return Response({"places": [
-            {"id": p.id, "label": p.label, "name": p.name,
-             "lat": p.lat, "lng": p.lng} for p in rows]})
+        order = {k: i for i, k in enumerate(JD.PLACE_KINDS)}
+        out = sorted((_place_dict(p) for p in rows), key=lambda x: order.get(x["kind"], 9))
+        return Response({"places": out})
 
     def post(self, request):
-        d = request.data or {}
-        if SavedPlace.objects.filter(user=request.user).count() >= 30:
+        place, err = JD.clean_place(request.data or {})
+        if err:
+            return Response({"detail": err}, status=status.HTTP_400_BAD_REQUEST)
+        mine = SavedPlace.objects.filter(user=request.user)
+        if place["kind"] in ("home", "school", "office"):
+            old = [p for p in mine if JD.place_kind(p.label) == place["kind"]]
+            if old:
+                p = old[0]
+                p.label, p.name, p.lat, p.lng = place["kind"], place["name"], place["lat"], place["lng"]
+                p.save(update_fields=["label", "name", "lat", "lng"])
+                for extra in old[1:]:
+                    extra.delete()
+                return Response({"ok": True, "replaced": True, **_place_dict(p)})
+        if mine.count() >= JD.MAX_PLACES:
             return Response({"detail": "limit"}, status=status.HTTP_400_BAD_REQUEST)
-        p = SavedPlace.objects.create(
-            user=request.user, label=str(d.get("label", ""))[:40],
-            name=str(d.get("name", ""))[:160], lat=d.get("lat"), lng=d.get("lng"))
-        return Response({"id": p.id, "ok": True},
-                        status=status.HTTP_201_CREATED)
+        p = SavedPlace.objects.create(user=request.user, label=place["label"][:40],
+                                      name=place["name"][:160], lat=place["lat"], lng=place["lng"])
+        return Response({"ok": True, **_place_dict(p)}, status=status.HTTP_201_CREATED)
+
+
+class SavedPlaceDetailView(APIView):
+    def delete(self, request, pk):
+        n, _ = SavedPlace.objects.filter(user=request.user, pk=pk).delete()
+        if not n:
+            return _nf()
+        return Response({"ok": True})
 
 
 def _routine_dict(r):
