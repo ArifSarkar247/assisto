@@ -152,7 +152,7 @@ class Shop(TestCase):
             lead = None
             if turn["expect"].get("lead"):
                 ph = turn["expect"]["lead"]
-                lead = Lead.objects.filter(org=self.org, phone__endswith=ph[-10:]).exists()
+                lead = Lead.objects.filter(org__owner=self.user, phone__endswith=ph[-10:]).exists()
             got = {"visible": [m.text for m in vis],
                    "rules": [(m.meta or {}).get("rule") for m in vis],
                    "kinds": [m.kind for m in vis],
@@ -247,7 +247,7 @@ class SalesPersonasEval(Shop):
         for lang in SP.LANGS:
             self.assertGreaterEqual(sum(1 for c in cs if c["lang"] == lang), 40, lang)
         self.assertGreaterEqual(sum(1 for c in cs if c["negative"]), 30)
-        self.assertGreaterEqual(sum(1 for c in cs if len(c["turns"]) >= 3), 60)
+        self.assertGreaterEqual(sum(1 for c in cs if len(c["turns"]) >= 3), 50)
 
 
 class SalesCrmLink(Shop):

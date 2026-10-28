@@ -775,7 +775,12 @@ def extract_order(text, draft, catalog):
         if v:
             d["variant"] = v.get("vkey") or "%s/%s" % (v.get("size", ""), v.get("colour", ""))
             d["variant_label"] = " ".join(x for x in (v.get("size"), v.get("colour")) if x)
-    q = find_qty(t)
+    # sales2: the product's own name is not a quantity ("Three Piece nibo")
+    tq = t
+    for p in prods:
+        if p.get("name"):
+            tq = re.sub(re.escape(p["name"]), " ", tq, flags=re.IGNORECASE)
+    q = find_qty(tq)
     if q:
         d["qty"] = q
     ph = find_phone(t)

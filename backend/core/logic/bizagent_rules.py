@@ -96,7 +96,7 @@ _ASK_SIZE = ("সাইজ", "size", "কালার", "রং", "রঙ", "col
              "মাপ", "available size", "koto size", "ki ki color")
 _ASK_PRICE = ("দাম", "কত", "price", "dam", "daam", "koto", "rate", "cost", "মূল্য", "how much",
               "pp", "প্রাইস", "price koto", "prize")
-_ASK_STOCK = ("স্টক", "stock", "আছে কি", "আছে?", "পাওয়া যাবে", "available", "ache", "ase", "pawa",
+_ASK_STOCK = ("স্টক", "stock", "আছে কি", "আছে", "পাওয়া যাবে", "available", "ache", "ase", "pawa",
               "in stock")
 # e2e-sales: "what do you sell?" — a catalog list from the seller's own rows
 _ASK_CATALOG = ("ki ki ache", "ki ki ase", "ki ki product", "ki ki pawa jay", "কী কী আছে",
