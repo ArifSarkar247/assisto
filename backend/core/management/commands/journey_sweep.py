@@ -20,6 +20,10 @@ from core.ops_health import track_job  # ops-watch heartbeat
 
 class Command(BaseCommand):
     help = "Safe Journey sweeper: overdue/wellness/stop/route/signal alerts + privacy purge."
+    # minutejobs: a per-minute cron job needs no system checks — they import
+    # the whole URLconf / every view (~0.7 s CPU per run). call_command (and
+    # so minute_jobs) never ran them anyway.
+    requires_system_checks = []
 
     def add_arguments(self, parser):
         parser.add_argument("--quiet", action="store_true",

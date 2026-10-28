@@ -54,6 +54,7 @@ class Job:
     args: str = ""
     kind: str = "manage"     # manage | backup | restore_test
     grace: int = 0           # 0 = default_grace(interval)
+    via: str = ""            # a wrapper command that also runs it (minute_jobs)
 
     @property
     def grace_s(self):
@@ -66,12 +67,16 @@ class Job:
         if self.kind == "restore_test":
             return ("%s ubuntu %s/migration/restore_test.sh >>%s/restore_test.log 2>&1"
                     % (self.schedule, APP, CRON_LOGS))
-        lock = ("flock -n /tmp/assisto-%s.lock " % self.name.replace("_", "-")
-                if self.lock else "")
+        lock = ("flock -n %s " % lock_path(self.name)) if self.lock else ""
         args = (" " + self.args) if self.args else ""
         return ("%s ubuntu cd %s/backend && %s%s %s manage.py %s%s >> %s/%s.log 2>&1"
                 % (self.schedule, APP, lock, self.nice, PY, self.name, args, CRON_LOGS,
                    self.name))
+
+
+def lock_path(name):
+    """The flock file a job's cron line uses (minute_jobs takes the same one)."""
+    return "/tmp/assisto-%s.lock" % name.replace("_", "-")
 
 
 def default_grace(interval):
@@ -86,8 +91,12 @@ JOBS = (
     Job("calls_sweep", MIN, "* * * * *", "nice -n10"),
     Job("turn_monitor", MIN, "* * * * *"),
     Job("bizagent_process", MIN, "* * * * *"),
-    Job("journey_sweep", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet"),
-    Job("antitheft_escalate", MIN, "* * * * *", "nice -n10", lock=True),
+    # minutejobs: both may run from their own two cron lines OR from the one
+    # `manage.py minute_jobs` line (one Django start-up instead of two).
+    Job("journey_sweep", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet",
+        via="minute_jobs"),
+    Job("antitheft_escalate", MIN, "* * * * *", "nice -n10", lock=True,
+        via="minute_jobs"),
     Job("tagada_sweep", 5 * MIN, "*/5 * * * *", "nice -n10", lock=True, args="--quiet"),   # ledger100
     Job("uptime_check", 2 * MIN, "*/2 * * * *"),
     Job("ops_watch", 5 * MIN, "*/5 * * * *", lock=True),
@@ -125,6 +134,16 @@ JOBS = (
     Job("restore_test", 31 * DAY, "30 2 1 * *", kind="restore_test", grace=3 * DAY),
 )
 JOB_BY_NAME = {j.name: j for j in JOBS}
+# What `manage.py minute_jobs` runs, in order: (job name, call_command kwargs).
+MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}))
+
+
+def minute_jobs_cron_line():
+    """The one line that replaces the journey_sweep + antitheft_escalate lines.
+    No outer flock on purpose: each job takes its own lock inside, so a slow
+    journey sweep never holds back the anti-theft backstop."""
+    return ("* * * * * ubuntu cd %s/backend && nice -n10 %s manage.py minute_jobs "
+            "--log-dir %s >> %s/minute_jobs.log 2>&1" % (APP, PY, CRON_LOGS, CRON_LOGS))
 
 SERVICES = ("assisto", "assisto-tracker", "coturn", "postgresql", "nginx", "caddy")
 
@@ -219,7 +238,8 @@ def is_scheduled(job, cron_text):
     elif job.kind == "restore_test":
         pat = r"restore_test\.sh"
     else:
-        pat = r"manage\.py\s+%s(?:\s|$)" % re.escape(job.name)
+        names = [job.name] + ([job.via] if job.via else [])
+        pat = r"manage\.py\s+(?:%s)(?:\s|$)" % "|".join(re.escape(n) for n in names)
     return re.search(pat, cron_text or "", re.M) is not None
 
 

@@ -21,8 +21,10 @@ Covers:
      superusers; a normal account never gets them (push refused, feed
      filtered).
 """
+import os
 import time
 from datetime import timedelta
+from io import StringIO
 from unittest import mock
 
 from django.core.management import call_command
@@ -397,6 +399,21 @@ class AreYouOkTests(_Base):
         self.assertEqual(ev.data["confirm"], "timeout")
         self.phone.refresh_from_db()
         self.assertIsNotNone(self.phone.frozen_until)    # now a theft signal
+
+    def test_cron_escalates_a_due_grab(self):
+        # minutejobs: the command's cheap "anything due?" pre-check must still
+        # hand a due grab to escalate_due (direct and via minute_jobs)
+        self._pending("ok-cron")
+        AntiTheftEvent.objects.filter(pk=self._ev("ok-cron").pk).update(
+            escalate_at=timezone.now() - timedelta(seconds=1))
+        with mock.patch("core.journey_watch.sweep", return_value={}), \
+                mock.patch("core.ops_health.lock_path",
+                           lambda n: "/tmp/assisto-test-%s-%s.lock" % (os.getpid(), n)):
+            call_command("minute_jobs", stdout=StringIO(), stderr=StringIO())
+        self.assertTrue(self._ev("ok-cron").alerted)
+        self.assertEqual(self._notifs(self.family, "snatch").count(), 1)
+        call_command("antitheft_escalate")               # nothing left: no-op
+        self.assertEqual(self._notifs(self.family, "snatch").count(), 1)
 
     def test_im_ok_with_pin_drops_it(self):
         self._pending("ok-3")
