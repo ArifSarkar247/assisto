@@ -355,7 +355,7 @@ _HUMAN = re.compile(r"আমি\s+(?:একজন\s+)?মানুষ(?!\s*ন�
                     re.IGNORECASE)
 _SECRET = re.compile(r"(?<![a-z])(pin|otp|password)(?![a-z])|পিন|ওটিপি|পাসওয়ার্ড", re.IGNORECASE)
 _NEG = re.compile(r"না(?![ঀ-৿])|নয়|নয়|কখনো|never|don't|do not|not\b", re.IGNORECASE)
-_DATE_WORD = re.compile(r"(?<![ঀ-৿])(আজই?|আজকে|কালকে?|আগামীকাল|পরশু)(?![ঀ-৿])|\b(tomorrow|today|kal|ajke|aj)\b",
+_DATE_WORD = re.compile(r"(?<![ঀ-৿])(আজই?|আজকে|কাল(?:কে)?|আগামীকাল|পরশু)(?![ঀ-৿])|\b(tomorrow|today|kal|ajke|aj)\b",
                         re.IGNORECASE)
 _DATE_VERB = re.compile(r"পাবেন|পেয়ে যাবেন|পৌঁছে|পৌঁছাবে|ডেলিভারি হবে|deliver|arrive|get it|pouche|paben|pabe",
                         re.IGNORECASE)

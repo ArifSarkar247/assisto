@@ -92,6 +92,10 @@ def _note(thread, d, order):
                                  if order is not None else "")
     if not phone:
         return "no_phone"
+    # a WhatsApp chat IS a number: the lead is that person even when the
+    # order's contact number differs (one lead per chat, never two)
+    wa = BZ.normalize_bd_phone(thread.external_user_id) \
+        if thread.channel == BZ.CH_WHATSAPP else ""
     # the chat is now one customer page (crm100 matches on customer_phone)
     if not thread.customer_phone:
         thread.customer_phone = phone
@@ -101,8 +105,12 @@ def _note(thread, d, order):
     org = CrmOrg.objects.filter(owner=owner).order_by("id").first()
     if org is None:
         return "no_crm"
-    lead = Lead.objects.filter(org=org, phone__endswith=phone[-10:]).order_by("id").first() or \
-        Lead.objects.filter(org=org, whatsapp__endswith=phone[-10:]).order_by("id").first()
+    lead = None
+    for ph in [x for x in (phone, wa) if x]:
+        lead = Lead.objects.filter(org=org, phone__endswith=ph[-10:]).order_by("id").first() or \
+            Lead.objects.filter(org=org, whatsapp__endswith=ph[-10:]).order_by("id").first()
+        if lead is not None:
+            break
     ch = CHANNEL_LABEL.get(thread.channel, thread.channel)
     line = "%s %s chat #%s — %s" % (MARK, ch, thread.pk, _want_line(thread, order))
     now = timezone.now()
@@ -112,7 +120,7 @@ def _note(thread, d, order):
         draft = thread.order_draft or {}
         lead = Lead.objects.create(
             org=org, name=(draft.get("name") or thread.customer_name or "")[:120],
-            phone=phone, whatsapp=phone if thread.channel == BZ.CH_WHATSAPP else "",
+            phone=phone, whatsapp=wa,
             source=SOURCE.get(thread.channel, "manual"), notes=line,
             first_response_at=now, status="won" if order is not None else "new")
         return "created"
@@ -121,6 +129,12 @@ def _note(thread, d, order):
     notes.append(line)
     lead.notes = "\n".join(notes)[-4000:]
     fields = ["notes", "updated_at"]
+    if wa and lead.phone and lead.phone[-10:] == wa[-10:] and phone[-10:] != wa[-10:]:
+        # the customer gave a delivery number: it becomes the lead's phone,
+        # the WhatsApp number stays on the lead
+        lead.phone = phone
+        lead.whatsapp = lead.whatsapp or wa
+        fields += ["phone", "whatsapp"]
     if lead.first_response_at is None:
         lead.first_response_at = now
         fields.append("first_response_at")
