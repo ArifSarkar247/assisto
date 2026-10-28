@@ -525,6 +525,27 @@ class PlacesView(APIView):
                                                                 lat__isnull=False)[:50]]})
 
 
+class PeopleView(APIView):
+    """My accepted, unblocked Circle peers with an account — the only people
+    who can be a watch guardian, a plan watcher or the child of a phone plan."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from .models import CircleMember
+        if not flag_on(request.user):
+            return _off()
+        out, seen = [], set()
+        for m in CircleMember.objects.filter(user=request.user, state="accepted",
+                                             blocked=False, peer_user__isnull=False) \
+                .select_related("peer_user")[:200]:
+            if m.peer_user_id in seen or m.peer_user_id == request.user.id:
+                continue
+            seen.add(m.peer_user_id)
+            out.append({"id": m.peer_user_id, "name": m.name or m.peer_user.name or "",
+                        "relation": m.relation})
+        return R({"people": out})
+
+
 class PlanListView(APIView):
     permission_classes = [IsAuthenticated]
 

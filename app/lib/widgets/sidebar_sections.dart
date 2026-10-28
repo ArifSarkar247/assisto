@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -460,6 +461,12 @@ class SidebarSections {
           feature: 'kid_school',
           (_) => const KidSchoolScreen(),
           synonyms: ['kid', 'child', 'school', 'fees', 'exam', 'ptm', 'notice']),
+      // kidswatch (owner idea 2): kids GPS watch + School Mode (flag OFF).
+      SidebarItem(Icons.watch_rounded, (t) => t.kwTitle,
+          feature: 'kids_watch',
+          (_) => const KidsWatchScreen(),
+          synonyms: ['kids watch', 'gps watch', 'smart watch', 'school mode',
+              'child tracker', 'setracker']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),

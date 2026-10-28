@@ -28,6 +28,8 @@ import '../screens/ride_food_screen.dart';
 import '../screens/my_vehicles_screen.dart';
 import '../screens/vehicle_tracking_screen.dart';
 import '../screens/car_mode_screen.dart';
+import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import '../screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/my_lost_phone_screen.dart';
@@ -179,6 +181,8 @@ class ChatNav {
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle
     'car_mode': (_) => const CarModeScreen(), // v1-vehicle
+    'kids_watch': (_) => const KidsWatchScreen(), // kidswatch (flag kids_watch)
+    'school_mode': (_) => const SchoolModeChildScreen(), // kidswatch: child side, never flag-hidden
     'emergency': (_) => const EmergencyScreen(),
     'plans': (_) => const PlansScreen(),
     'offers': (_) => const OffersFeedScreen(), // p2-money

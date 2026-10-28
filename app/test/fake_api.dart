@@ -1,4 +1,5 @@
 import 'fake_famcare.dart'; // famcare
+import 'fake_kidswatch.dart'; // kidswatch
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -1536,6 +1537,12 @@ class FakeApi extends ApiClient {
     if (fc != null) {
       if (mode == FakeMode.fail) _fail();
       return fc;
+    }
+    // kidswatch: Kids watch + School Mode
+    final kw = fakeKidsWatchGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (kw != null) {
+      if (mode == FakeMode.fail) _fail();
+      return kw;
     }
     return super.getJson(path);
   }

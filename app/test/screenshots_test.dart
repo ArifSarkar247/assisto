@@ -47,6 +47,8 @@ import 'package:assisto/widgets/onb_role.dart';
 import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
+import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -598,6 +600,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'famcare_card': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.data, full: true),
     'famcare_card_empty': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.empty, full: false),
     'famcare_error': (build: (_) => const FamilyScreen(), mode: FakeMode.fail, full: false),
+    // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
+    'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
+    'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
+    'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
+    'school_mode_child': (build: (_) => const SchoolModeChildScreen(), mode: FakeMode.data, full: true),
+    'school_mode_child_empty': (build: (_) => const SchoolModeChildScreen(), mode: FakeMode.empty, full: false),
     'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),

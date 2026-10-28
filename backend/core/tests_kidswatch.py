@@ -650,6 +650,7 @@ class VoiceTests(_Base):
         self.assertEqual((r.status_code, r.data["reason"]), (402, "paid_only"))
         User.objects.filter(pk=self.owner.pk).update(
             plan="premium", plan_until=timezone.now() + timedelta(days=30))
+        self.c = cl(User.objects.get(pk=self.owner.pk))     # the fresh (premium) row
         with mock.patch.object(BM, "stt_config", return_value={}):
             r = self.c.post(V + "/kids-watch/voice/%d/transcript" % note.id)
         self.assertEqual((r.status_code, r.data["reason"]), (503, "no_key"))

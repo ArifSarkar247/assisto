@@ -1342,6 +1342,7 @@ urlpatterns += [
     path("kids-watch/voice/<int:pk>/transcript", kwv.VoiceTranscriptView.as_view()),
     path("kids-watch/voice/<int:pk>", kwv.VoiceDeleteView.as_view()),
     path("school-mode/places", kwv.PlacesView.as_view()),
+    path("school-mode/people", kwv.PeopleView.as_view()),
     path("school-mode/plans", kwv.PlanListView.as_view()),
     path("school-mode/mine", kwv.MyPlansView.as_view()),
     path("school-mode/plans/<int:pk>", kwv.PlanDetailView.as_view()),
