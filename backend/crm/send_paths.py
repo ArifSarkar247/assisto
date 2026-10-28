@@ -62,7 +62,7 @@ def sms_offer(request, scope, person, text, lang, now=None):
     owner = scope.business is not None and scope.role == "owner"
     final = sms_text(scope, text, lang)
     q = sms_quote(final)
-    bal = int(getattr(request.user, "ai_credits", 0) or 0) if owner else 0
+    bal = _balance(request.user) if owner else 0
     blocked = None
     if not sms_service.ready():
         blocked = "sms_not_configured"
@@ -89,6 +89,17 @@ def sms_offer(request, scope, person, text, lang, now=None):
             "available": blocked is None, "blocked": blocked or "",
             "balance": bal, "text": final, "retry_at": retry.isoformat() if retry else None,
             **q}
+
+
+def _balance(user):
+    """The owner's live credit balance (read fresh — never a stale copy)."""
+    try:
+        from django.contrib.auth import get_user_model
+        v = (get_user_model().objects.filter(pk=user.pk)
+             .values_list("ai_credits", flat=True).first())
+        return int(v or 0)
+    except Exception:  # noqa: BLE001
+        return int(getattr(user, "ai_credits", 0) or 0)
 
 
 def links(person, text):
