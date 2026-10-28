@@ -22,16 +22,12 @@ import 'wrapped_share.dart';
 /// the tab), the "Print" button only shared a picture, and with no members the
 /// tab was a dead end. Now every field persists, the members part has an
 /// "add family" action, and the card works with emergency info alone.
-const _kStoreTimeout = Duration(seconds: 3);
-
 class FamCardStore {
   static const _key = 'famcare_card_v1';
 
   static Future<Map<String, dynamic>> load() async {
     try {
-      // never a dead end: a phone whose secure storage hangs (seen on some
-      // OEM keystores) gets the empty card with its button after 3 s
-      final s = await SecretStore.instance.read(_key).timeout(_kStoreTimeout);
+      final s = await SecretStore.instance.read(_key);
       if (s == null || s.isEmpty) return {};
       final d = jsonDecode(s);
       return d is Map ? d.cast<String, dynamic>() : {};
@@ -42,7 +38,7 @@ class FamCardStore {
 
   static Future<bool> save(Map<String, dynamic> data) async {
     try {
-      return await SecretStore.instance.write(_key, jsonEncode(data)).timeout(_kStoreTimeout);
+      return await SecretStore.instance.write(_key, jsonEncode(data));
     } catch (_) {
       return false;
     }
@@ -75,7 +71,6 @@ class _FamCardSectionState extends State<FamCardSection> {
   bool _dark = false;
   // Online (members known) the card renders at once; the saved emergency
   // info fills in when the phone store answers. Offline waits for the store.
-  late bool _loaded = widget.members != null;
   Map<String, dynamic> _data = {};
 
   @override
@@ -93,7 +88,7 @@ class _FamCardSectionState extends State<FamCardSection> {
 
   Future<void> _init() async {
     final d = await FamCardStore.load();
-    if (mounted) setState(() { _data = d; _loaded = true; });
+    if (mounted) setState(() => _data = d);
     final m = widget.members;
     if (m != null) await FamCardStore.cacheMembers(m);
   }
@@ -119,7 +114,9 @@ class _FamCardSectionState extends State<FamCardSection> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (!_loaded) return const Center(child: CircularProgressIndicator());
+    // never a spinner: until this phone's secure storage answers (it can hang
+    // on some OEM keystores) the card shows its empty state with the button,
+    // then fills in — no dead end, no timer.
     final members = _members;
     if (members.isEmpty && !_hasEmergency) {
       return FamEmptyState(
