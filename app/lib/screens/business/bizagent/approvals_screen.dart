@@ -36,6 +36,8 @@ String baRiskLabel(AppLocalizations t, String r) {
       return t.baRiskBigOrder;
     case 'seller_approves_all':
       return t.baRiskApproveAll;
+    case 'card_keyword':
+      return t.bbRiskCardKeyword; // WP-BIZBUILDER: the owner's hand-over words
     default:
       return t.baRiskLowConf;
   }

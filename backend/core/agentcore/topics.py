@@ -37,7 +37,8 @@ TOPICS = {
     "business": {
         "bn": "ব্যবসা", "en": "Business",
         "tools": ("khata.dues", "crm.leads", "stock.low", "orders.unpaid", "bizagent.inbox",
-                  "khata.tagada", "orders.cod_confirm", "bizagent.reply", "stock.adjust")
+                  "khata.tagada", "orders.cod_confirm", "bizagent.reply", "stock.adjust",
+                  "bizagent.card", "bizagent.takeover")
                  + _COMMON,
         "rules": "Help a small shop owner: dues, stock, leads, orders, customer chats. "
                  "Messaging a customer (tagada, COD confirm, chat reply) always waits for the "

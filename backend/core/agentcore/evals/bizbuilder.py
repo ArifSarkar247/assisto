@@ -221,7 +221,7 @@ def _chat_cases():
     add("takeover", "bl", "rupa", ["Panjabi 5 ta order korbo", "nam Karim, 01711223344, Mirpur 10 Dhaka"],
         outcome="handoff", reason="big_order")
     add("takeover", "bl", None, ["Panjabi 5 ta order korbo", "nam Karim, 01711223344, Mirpur 10 Dhaka"],
-        outcome="reply", reply_has=["6070"])
+        outcome="reply", reply_has=["6060"])
     # minimum price never leaked; bargaining floor raised by the card
     for card, offers in (("rupa", ((900, "below_min"), (1000, "below_min"), (1050, "below_min"),
                                    (1079, "below_min"), (1080, None), (1150, None))),

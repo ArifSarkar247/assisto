@@ -14,6 +14,7 @@ import '../../../state.dart';
 import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
+import 'agent_builder_screen.dart'; // WP-BIZBUILDER
 import 'agent_g1_screens.dart';
 import 'approvals_screen.dart';
 import 'seller_inbox_screen.dart';
@@ -267,6 +268,16 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
                 onTap: () => _open(const SellerInboxScreen()),
               ),
             ],
+            // WP-BIZBUILDER: instructions, tone, FAQs, hand-over rules,
+            // preview + test chat + takeover inbox (flag business_agent)
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.auto_fix_high_rounded),
+              title: Text(t.bbTitle),
+              subtitle: Text(t.bbEntrySub),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => _open(const AgentBuilderScreen()),
+            ),
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.schedule_rounded),

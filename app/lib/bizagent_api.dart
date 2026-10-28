@@ -151,4 +151,41 @@ extension BizAgentApi on ApiClient {
 
   Future<Map<String, dynamic>> bizAgentCancelDraft(int orderId) =>
       postJson('/bizagent/orders/$orderId/cancel');
+
+  // ---------------------------------------------------------------- bizbuilder
+  // Server: backend/core/views_bizbuilder.py (WP-BIZBUILDER, flag business_agent).
+
+  /// Live + draft agent card, versions, catalog (with minimum prices — owner
+  /// only), AI cost per reply and the hard rules the card can never change.
+  Future<Map<String, dynamic>> bizBuilderState() => getJson('/bizagent/builder');
+
+  /// Parse only (nothing saved): what the agent understood / refused.
+  Future<Map<String, dynamic>> bizBuilderParse(Map<String, dynamic> form) =>
+      postJson('/bizagent/builder/parse', {'form': form});
+
+  Future<Map<String, dynamic>> bizBuilderSaveDraft(Map<String, dynamic> form) =>
+      postJson('/bizagent/builder/draft', {'form': form});
+
+  Future<Map<String, dynamic>> bizBuilderDiscard() => postJson('/bizagent/builder/draft/discard');
+
+  Future<Map<String, dynamic>> bizBuilderPublish() => postJson('/bizagent/builder/publish');
+
+  Future<Map<String, dynamic>> bizBuilderRollback(int version) =>
+      postJson('/bizagent/builder/rollback', {'version': version});
+
+  /// How the agent would reply to sample messages (rules only; nothing sent).
+  Future<Map<String, dynamic>> bizBuilderPreview(Map<String, dynamic>? form,
+          {List<String>? samples}) =>
+      postJson('/bizagent/builder/preview',
+          {if (form != null) 'form': form, if (samples != null) 'samples': samples});
+
+  /// One test-chat message (nothing is ever sent to a customer). allowAi =
+  /// the owner agreed to pay ONE AI reply from his credits for this message.
+  Future<Map<String, dynamic>> bizBuilderTest(String session, String text,
+          {bool allowAi = false, String use = 'draft', bool reset = false}) =>
+      postJson('/bizagent/builder/test',
+          {'session': session, 'text': text, 'allow_ai': allowAi, 'use': use, 'reset': reset});
+
+  /// Chats that need the owner (agent unsure / hand-over) + chats he holds.
+  Future<Map<String, dynamic>> bizBuilderInbox() => getJson('/bizagent/builder/inbox');
 }
