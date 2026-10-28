@@ -435,8 +435,10 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
         'note': _note.text.trim(),
       });
       if (!mounted) return;
+      setState(() => _busy = false); // made: no spinner behind the share sheet
       await shareQuote(context, q, business: widget.business);
       if (mounted) Navigator.pop(context, true);
+      return;
     } catch (e) {
       if (!mounted) return;
       if (await UpgradeSheet.handle(context, e)) {

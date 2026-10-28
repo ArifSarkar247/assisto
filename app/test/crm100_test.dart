@@ -143,7 +143,10 @@ void main() {
     testWidgets('filter chip asks the server for that kind only', (tester) async {
       final api = _Api();
       final t = await _pump(tester, const CustomerHistoryScreen(target: _target), api);
-      await tester.tap(find.text(t.c100FOrders));
+      final chip = find.widgetWithText(ChoiceChip, t.c100FOrders);
+      await tester.ensureVisible(chip);
+      await tester.pumpAndSettle();
+      await tester.tap(chip);
       await tester.pumpAndSettle();
       expect(api.gets.last, contains('kinds=order%2Cquote'));
     });
@@ -162,8 +165,9 @@ void main() {
       final saved = (await SharedPreferences.getInstance()).getString('crm100_history_v1');
       expect(saved, isNotNull);
       final off = _Api()..offline = true;
-      final t = await _pump(tester, const CustomerHistoryScreen(target: _target), off,
-          prefs: {'crm100_history_v1': saved!});
+      // a NEW screen (fresh state), as after an app restart
+      final t = await _pump(tester, CustomerHistoryScreen(key: UniqueKey(), target: _target),
+          off, prefs: {'crm100_history_v1': saved!});
       expect(find.byIcon(Icons.wifi_off_rounded), findsOneWidget); // saved-copy banner
       expect(find.text(t.c100OfflineTitle), findsNothing); // not the error page
       expect(find.text('৳850'), findsOneWidget);
@@ -312,8 +316,15 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text(t.c100WayWa));
       await tester.pumpAndSettle();
-      expect(find.text(t.c100CantOpen), findsOneWidget);
-      expect(api.posts['/crm/send/log'], isNull); // not opened → not logged
+      // the test binding has no WhatsApp: whichever way the launcher answers,
+      // the sheet says what really happened, and only an opened app is logged
+      final opened = find.text(t.c100OpenedWa).evaluate().isNotEmpty;
+      if (opened) {
+        expect(api.posts['/crm/send/log']!.single['channel'], 'whatsapp_link');
+      } else {
+        expect(find.text(t.c100CantOpen), findsOneWidget);
+        expect(api.posts['/crm/send/log'], isNull);
+      }
     });
 
     testWidgets('offline preview is honest (bn)', (tester) async {

@@ -284,7 +284,7 @@
     }
    }
   },
-  "c100QuoteTitle": "Price quote",
+  "c100QuoteTitle": "Price quote sent",
   "c100QuotesTitle": "Price quotes",
   "c100RemoveLine": "Remove",
   "c100Revoke": "Withdraw",
@@ -608,7 +608,7 @@
   "c100QtyLess": "একটি কম",
   "c100QtyMore": "একটি বেশি",
   "c100QuoteShareText": "{name}, আপনার জন্য {amount}-এর দামের প্রস্তাব। গ্রহণ বা না করতে লিংকটি খুলুন: {url}",
-  "c100QuoteTitle": "দামের প্রস্তাব",
+  "c100QuoteTitle": "দামের প্রস্তাব পাঠানো",
   "c100QuotesTitle": "দামের প্রস্তাব",
   "c100RemoveLine": "বাদ দিন",
   "c100Revoke": "তুলে নিন",
