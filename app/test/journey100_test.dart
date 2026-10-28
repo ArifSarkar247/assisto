@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -368,6 +369,12 @@ void main() {
   });
 
   testWidgets('start form lists accepted circle members as watchers', (tester) async {
+    // plugin channels never answer in the test VM: location already allowed
+    final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    m.setMockMethodCallHandler(const MethodChannel('flutter.baseflow.com/geolocator'),
+        (call) async => call.method == 'checkPermission' ? 2 : null);
+    addTearDown(() => m.setMockMethodCallHandler(
+        const MethodChannel('flutter.baseflow.com/geolocator'), null));
     final api = _JApi()
       ..active = {}
       ..circle = {
