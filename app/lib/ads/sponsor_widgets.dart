@@ -12,6 +12,7 @@ import '../widgets/paywall_sheet.dart';
 import 'app_open_gate.dart';
 import 'sponsor_api.dart';
 import 'sponsor_models.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// p2-money: DIRECT sponsor UI — our own server-served creatives (works
 /// without AdMob). Every surface carries a clear "Sponsored" label, a
@@ -71,7 +72,7 @@ class SponsorWhySheet extends StatelessWidget {
 
   static Future<void> show(BuildContext context, SponsorCreative c,
           {VoidCallback? onHide, VoidCallback? onMute}) =>
-      showModalBottomSheet<void>(
+      showAppSheet<void>(
         context: context,
         showDragHandle: true,
         isScrollControlled: true,

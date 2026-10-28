@@ -10,13 +10,14 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'guide_data.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 Future<void> showGuideNeedSheet(
   BuildContext context,
   GuideService service, {
   required void Function(String url) onOpenLink,
 }) {
-  return showModalBottomSheet(
+  return showAppSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

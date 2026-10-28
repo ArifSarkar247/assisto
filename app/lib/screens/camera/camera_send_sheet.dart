@@ -13,6 +13,7 @@ import '../../theme.dart';
 import '../../services/circle_media_gate.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../circle_status_composer_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The destination chooser shown when the user taps SEND on a captured/edited
 /// photo or video.
@@ -45,7 +46,7 @@ Future<void> showCameraSendSheet(
   required IdentityKeyPair? identity,
   required List<Map<String, dynamic>> members,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'invite_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// invite-join — the INVITER side: one sheet that makes a short link and
 /// sends it the way people in Bangladesh actually send things.
@@ -21,7 +22,7 @@ import 'invite_api.dart';
 /// Nothing is ever sent automatically.
 Future<void> showInviteShareSheet(BuildContext context,
     {InviteBackend? backend, String relation = 'friend'}) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

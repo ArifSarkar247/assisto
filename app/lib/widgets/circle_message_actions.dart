@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// The set of actions a user can take on a single message (long-press menu):
 /// reply, react, copy, forward, star, pin, edit (own + in window), delete.
@@ -30,7 +31,7 @@ Future<CircleMsgAction?> showCircleMessageActions(
   bool protectedContent = false,
 }) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<CircleMsgAction>(
+  return showAppSheet<CircleMsgAction>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

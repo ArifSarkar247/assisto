@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Lets the confirm sheet ask its question out loud and hear "yes" / "no".
 /// Implemented by the Assisto Voice screen (TTS + the shared VoiceDictation).
@@ -58,7 +59,7 @@ class VaConfirmSheet extends StatefulWidget {
     VaConfirmVoice? voice,
     String? spokenQuestion,
   }) async {
-    final r = await showModalBottomSheet<Map<String, String>>(
+    final r = await showAppSheet<Map<String, String>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -85,6 +86,7 @@ class VaConfirmSheet extends StatefulWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: Icon(icon),
         content: Text(body),
         actions: [

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'msgr_avatar.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// ADVANCED profile photo control (SPEC v2.1 §21, #98).
 ///
@@ -39,7 +40,7 @@ class ProfileAvatarEditor extends StatelessWidget {
   Future<void> _openSheet(BuildContext context) async {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

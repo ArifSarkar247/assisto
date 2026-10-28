@@ -8,6 +8,7 @@ import 'password_reset_confirm_screen.dart';
 import '../otp_api.dart';
 import 'otp/otp_login_screen.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Password reset — request step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
@@ -108,7 +109,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.resetTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Text(t.resetIntro, style: AType.bodyMedium),
           const SizedBox(height: Gap.lg),

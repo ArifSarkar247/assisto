@@ -276,6 +276,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.securityCancelConfirmTitle),
         content: Text(tr.securityCancelConfirmBody),
         actions: [
@@ -529,6 +530,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final pin = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.e2rEnterPinTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           ObscureTextField(

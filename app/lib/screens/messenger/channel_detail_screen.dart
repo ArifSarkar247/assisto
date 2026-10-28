@@ -13,6 +13,7 @@ import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
 import 'channel_admin_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
 import '../../services/error_kind.dart' show honestFailText; // f6
 
@@ -154,6 +155,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.channelUnfollowTitle),
         content: Text(_t.channelUnfollowConfirm('${_channel['name'] ?? ''}')),
         actions: [
@@ -190,7 +192,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
 
   Future<void> _editMyVisibility() async {
     final current = '${_channel['my_visibility'] ?? 'count_only'}';
-    final chosen = await showModalBottomSheet<String>(
+    final chosen = await showAppSheet<String>(
       context: context,
       builder: (_) => _MyVisibilitySheet(current: current),
     );
@@ -211,6 +213,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text('${_channel['name'] ?? _t.channelsTitle}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../widgets/wrapped_share.dart';
 import 'growth_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// p5-growth: share an AI answer (or another card's text) as an Assisto-
 /// branded image + text, optionally with the user's own invite link.
@@ -115,7 +116,7 @@ class BrandedShareCard extends StatelessWidget {
 /// (e.g. "Answer from Assisto AI"); [body] is exactly what gets shared.
 Future<void> showBrandedShare(BuildContext context,
     {required String body, String? label, String? subject}) {
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

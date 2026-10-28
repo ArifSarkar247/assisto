@@ -11,6 +11,7 @@ import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
 ///
@@ -244,6 +245,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.sosPinTitle),
         content: ObscureTextField(
           controller: ctrl,
@@ -337,7 +339,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
           backgroundColor: Brand.dangerFill,
           foregroundColor: Colors.white,
           title: Text(t.sosSentTitle)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Container(
           key: const ValueKey('j100_sos_state'),
           padding: const EdgeInsets.all(14),

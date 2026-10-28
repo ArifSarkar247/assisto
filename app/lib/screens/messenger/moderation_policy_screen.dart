@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// OWNER-REVIEW policy placeholders: Content policy / Community guidelines /
 /// 18+ (adult content). The legal text is NOT written here — per
@@ -53,7 +54,7 @@ class ModerationPolicyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(c.title)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Container(
             width: double.infinity,

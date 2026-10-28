@@ -14,6 +14,7 @@ import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
 import 'shop_camera_settings.dart';
 import 'shop_eod_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SHOP BOX — CCTV loss-prevention (Part 4, Business tier). APP UI ONLY; the
@@ -328,7 +329,7 @@ class _SitesTab extends StatelessWidget {
 
   Future<void> _createSite(BuildContext context) async {
     final t = AppLocalizations.of(context);
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -357,7 +358,7 @@ class _SitesTab extends StatelessWidget {
   Future<void> _editSite(
       BuildContext context, Map<String, dynamic> site) async {
     final t = AppLocalizations.of(context);
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -389,7 +390,7 @@ class _SitesTab extends StatelessWidget {
       BuildContext context, Map<String, dynamic> site) async {
     final token = (site['enrollment_token'] ?? '').toString();
     if (token.isEmpty) return;
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -480,7 +481,7 @@ class _SitesTab extends StatelessWidget {
   }
 
   Future<void> _editHours(BuildContext context, Map<String, dynamic> s) async {
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -818,7 +819,7 @@ class _CamerasTabState extends State<_CamerasTab> {
   }
 
   Future<void> _openSettings(Map<String, dynamic> c) async {
-    await showModalBottomSheet<bool>(
+    await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -835,6 +836,7 @@ class _CamerasTabState extends State<_CamerasTab> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.shopBoxCapTitle),
         content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -997,6 +999,7 @@ class _NameDialogState extends State<_NameDialog> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(widget.title),
       content: TextField(
         controller: _c,

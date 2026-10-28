@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/contacts_model.dart';
 import '../widgets/contacts_sheets.dart';
 import 'messenger/m3_add_to_circle_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// Contacts (feature 24): the PERSONAL phonebook / relationship manager — the
@@ -189,6 +190,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(cStr(context, 'cDeleteContactQ')),
         content: Text(c.displayName(context)),
         actions: [
@@ -225,7 +227,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
 
   Future<void> _showReachOut() async {
     final due = touchDueContacts(_all);
-    await showModalBottomSheet(
+    await showAppSheet(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -256,7 +258,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
 
   Future<void> _showDedupe() async {
     final groups = findDuplicateGroups(_all);
-    await showModalBottomSheet(
+    await showAppSheet(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -284,6 +286,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.contacts_rounded),
         title: Text(cStr(context, 'cImportFromPhone')),
         content: Text(cStr(context, 'cImportPrivacy')),
@@ -587,7 +590,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
   }
 
   Future<void> _pickSort() async {
-    final chosen = await showModalBottomSheet<String>(
+    final chosen = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

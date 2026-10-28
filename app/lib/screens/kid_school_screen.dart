@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// KID'S SCHOOL CORNER — ADVANCED (#27, SPEC v2.1 §21).
@@ -200,7 +201,7 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
   Future<void> _addChild() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -469,7 +470,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
   Future<void> _addNotice() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -517,6 +518,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.kidDeleteChildTitle),
         content: Text(
             tr.kidDeleteChildBody((widget.child['name'] ?? '').toString())),

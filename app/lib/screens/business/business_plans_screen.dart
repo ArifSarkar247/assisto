@@ -3,6 +3,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../plans_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Business plans: FREE vs PAID Business.
 ///
@@ -22,7 +23,7 @@ class BusinessPlansScreen extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(tr.bizPlansTitle)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _planCard(
           context,
           highlighted: false,

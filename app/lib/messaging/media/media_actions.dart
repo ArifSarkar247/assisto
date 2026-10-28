@@ -9,6 +9,7 @@ import '../../services/action_feedback.dart';
 import '../../widgets/circle_media_viewer.dart';
 import '../msg_native.dart';
 import 'media_descriptor.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// md1 — what the user can do with a decrypted file: view (pinch zoom),
 /// save to the phone (gallery / Downloads), share, open a document in another
@@ -63,7 +64,7 @@ Future<void> openPhotoViewer(BuildContext context, File f, MediaDescriptor d) as
 /// A document: Open (another app) / Save to phone / Share.
 Future<void> openDocumentSheet(BuildContext context, File f, MediaDescriptor d) async {
   final t = AppLocalizations.of(context);
-  final pick = await showModalBottomSheet<String>(
+  final pick = await showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

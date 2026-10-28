@@ -20,6 +20,7 @@ Future<bool> showPermissionReason(BuildContext context, PermKind kind) async {
     builder: (ctx) {
       final scheme = Theme.of(ctx).colorScheme;
       return AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: Icon(icon, size: 36, color: scheme.primary),
         content: Text(reason,
             textAlign: TextAlign.center, style: const TextStyle(height: 1.4)),

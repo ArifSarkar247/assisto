@@ -15,6 +15,7 @@ import 'crm100_api.dart';
 import 'crm_common.dart';
 import 'crm_send_sheet.dart';
 import 'customer_history_screen.dart' show quoteStateLabel, payLabel;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// crm100 — price quotes from the shop's own catalog.
 /// The customer gets a link (no app, no login) to accept or decline; accept
@@ -67,7 +68,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
 
   Future<void> _extend(Map<String, dynamic> q) async {
     final t = AppLocalizations.of(context);
-    final days = await showModalBottomSheet<int>(
+    final days = await showAppSheet<int>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -92,6 +93,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.c100RevokeTitle),
         content: Text(t.c100RevokeBody),
         actions: [
@@ -242,7 +244,7 @@ Future<void> shareQuote(BuildContext context, Map<String, dynamic> q, {int? busi
   final text = t.c100QuoteShareText(
       name.isEmpty ? t.c100Customer : name, bdt(context, ((q['total_poisha'] as num?) ?? 0) / 100), url);
   final phone = '${q['customer_phone'] ?? ''}';
-  await showModalBottomSheet<void>(
+  await showAppSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -457,7 +459,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
     final maxDisc = _subtotal - _floor;
     return Scaffold(
       appBar: AppBar(title: Text(t.c100NewQuote)),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.c100BuilderIntro,
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/reset_strength_meter.dart';
 import '../widgets/reset_options.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Password reset — confirm step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
@@ -108,7 +109,7 @@ class _PasswordResetConfirmScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.resetSetNewTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           if (_done) ...[
             // ---- success ----

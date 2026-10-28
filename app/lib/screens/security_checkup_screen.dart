@@ -107,6 +107,7 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.secResetTitle),
         content: Text(t.secResetBody),
         actions: [

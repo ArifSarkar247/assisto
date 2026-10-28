@@ -13,6 +13,7 @@ import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import 'chatnav.dart';
 import 'circle_badges.dart';
 import '../messaging/badges_bus.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// One shortcut the user can pin to home. Backed by a stable [ChatNav] route
 /// key (never a screen class), with the module's existing sidebar label/icon.
@@ -495,7 +496,7 @@ Future<List<String>?> showQuickButtonsPicker(
     String Function(AppLocalizations t)? title,
     String Function(AppLocalizations t, int count)? hint,
     bool requireFull = true}) {
-  return showModalBottomSheet<List<String>>(
+  return showAppSheet<List<String>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

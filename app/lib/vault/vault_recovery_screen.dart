@@ -135,6 +135,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.vaultRecoverPasswordTitle),
         content: TextField(
           key: const Key('vault_recover_password'),
@@ -162,6 +163,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.vaultRecoveryCodeEnterTitle),
         content: TextField(
           key: const Key('vault_recover_code'),

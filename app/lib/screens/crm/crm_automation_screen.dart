@@ -8,6 +8,7 @@ import '../../state.dart';
 import 'package:provider/provider.dart';
 import 'crm_advanced_api.dart';
 import '../../widgets/crm_rule_builder.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// OWNER AUTOMATION RULES (CRM spec #11). The owner builds rules like
 /// "proposal sent + no reply in 3 days → create a follow-up task". Rules are
@@ -59,7 +60,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
         return;
       }
     }
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) => CrmRuleBuilder(org: widget.org, existing: existing),
@@ -85,6 +86,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.crmDeleteRule),
         content: Text(t.crmDeleteRuleConfirm),
         actions: [

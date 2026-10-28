@@ -12,6 +12,7 @@ import '../widgets/skeleton.dart';
 import 'car_mode_screen.dart';
 import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LIVE TRACKING — the list of paired hardware trackers (v1-vehicle).
@@ -55,7 +56,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
   }
 
   Future<void> _pair() async {
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -323,19 +324,31 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: SingleChildScrollView(
+    // insets (owner 28 Oct): the "Start pairing" button sat under the phone's
+    // navigation bar. showAppSheet keeps the sheet above the bar / keyboard and
+    // AppSheetBody pins the button while the form scrolls.
+    if (_done != null) {
+      return SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
-        child: _done != null
-            ? VehSetupView(
-                tracker: vehMap(_done!['tracker']),
-                brand: _brand,
-                operator: _operator,
-                simNumber: _sim.text.trim(),
-                onClose: () => Navigator.pop(context, true),
-              )
-            : _form(tr, scheme),
+        child: VehSetupView(
+          tracker: vehMap(_done!['tracker']),
+          brand: _brand,
+          operator: _operator,
+          simNumber: _sim.text.trim(),
+          onClose: () => Navigator.pop(context, true),
+        ),
+      );
+    }
+    return AppSheetBody(
+      child: _form(tr, scheme),
+      primary: FilledButton.icon(
+        key: const ValueKey('veh-pair-submit'),
+        onPressed: _busy ? null : _submit,
+        icon: _busy
+            ? const SizedBox(
+                width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Icon(Icons.link_rounded),
+        label: Text(tr.vehPairSubmit),
       ),
     );
   }
@@ -428,15 +441,6 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         const SizedBox(height: Gap.sm),
         Text(_err!, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
       ],
-      const SizedBox(height: Gap.md),
-      FilledButton.icon(
-        onPressed: _busy ? null : _submit,
-        icon: _busy
-            ? const SizedBox(
-                width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.link_rounded),
-        label: Text(tr.vehPairSubmit),
-      ),
     ]);
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/chatnav.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// TRUST / PROOF PAGE — ADVANCED (#201, SPEC v2.1 §20).
 ///
@@ -62,7 +63,7 @@ class TrustPageScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 28),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 28)),
         children: [
           // ---- header / integrity statement ----
           Container(

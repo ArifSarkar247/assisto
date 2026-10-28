@@ -8,6 +8,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Orders (FREE for status; courier booking is key-gated mock).
 ///
@@ -227,7 +228,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   /// Advancing to `shipped` needs a courier choice (key-gated mock booking).
   Future<void> _ship() async {
     final tr = AppLocalizations.of(context);
-    final courier = await showModalBottomSheet<String>(
+    final courier = await showAppSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [

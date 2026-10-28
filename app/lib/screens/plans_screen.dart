@@ -19,6 +19,7 @@ import '../payments/store_billing.dart'; // pay-e2e
 import '../payments/play_prices.dart'; // credout: Play's own prices
 import '../plans_v2/plans_v2.dart'; // plans-v2
 import '../feature_flags.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../billing/billing_api.dart'; // billapp
 import '../billing/plan_status_panel.dart'; // billapp
 
@@ -291,7 +292,7 @@ class _PlansScreenState extends State<PlansScreen> {
     final maxDays = perDay > 0 ? points ~/ perDay : 0;
     if (maxDays < 1) return;
 
-    final days = await showModalBottomSheet<int>(
+    final days = await showAppSheet<int>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _RedeemSheet(maxDays: maxDays, pointsPerDay: perDay),

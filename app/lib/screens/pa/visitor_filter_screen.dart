@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · Visitor / Appointment Filter — ADVANCED (#105, §14).
@@ -207,7 +208,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
   }
 
   Future<void> _addOrEdit(AppLocalizations tr, {Map<String, dynamic>? existing}) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -243,6 +244,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(title),
         content: Text(body),
         actions: [

@@ -9,6 +9,7 @@ import 'ladder_common.dart' show fmtInt;
 import '../ads/ads_bridge.dart';
 import '../ads/ads_service.dart';
 import '../ads/sponsor_api.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// REWARDED-AD UNLOCK FLOW (Business Model Build 3, item 4).
 ///
@@ -35,7 +36,7 @@ class RewardedAdSheet extends StatefulWidget {
 
   /// Convenience launcher. Returns true if the ad wallet was credited (so the
   /// caller can refresh balances), false/null otherwise.
-  static Future<bool?> show(BuildContext context) => showModalBottomSheet<bool>(
+  static Future<bool?> show(BuildContext context) => showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

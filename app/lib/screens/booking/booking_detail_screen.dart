@@ -6,6 +6,7 @@ import '../../theme.dart';
 import '../business/bizagent/seller_inbox_screen.dart' show SellerChatScreen;
 import 'booking_source.dart';
 import 'booking_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// booking-bot — one booking, business side: who / what / when, call or chat
 /// the customer (their phone is visible only to this business), confirm,
@@ -71,6 +72,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.bkgCancelQ),
         content: Text(t.bkgCancelQBody),
         actions: [
@@ -198,7 +200,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
 /// Bottom sheet: pick a new free time (server slots only). Returns ISO start.
 Future<String?> showBkMoveSheet(BuildContext context, Future<Map<String, dynamic>> Function(String day) load) {
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

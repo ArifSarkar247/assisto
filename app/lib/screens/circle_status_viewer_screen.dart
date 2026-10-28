@@ -15,6 +15,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_status_composer_screen.dart' show kStoryBgs;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Full-screen story viewer (owner P3) — WhatsApp-style.
 ///
@@ -153,7 +154,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
     _pause(true);
     final t = AppLocalizations.of(context);
     final controller = TextEditingController();
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -208,6 +209,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(s.statusMute),
         content: Text(s.statusMuteConfirm(widget.authorName)),
         actions: [
@@ -238,6 +240,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.p3DeleteStory),
         content: Text(t.p3DeleteStoryBody),
         actions: [
@@ -280,7 +283,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
     final named = ((st['named_viewers'] ?? []) as List).cast<Map<String, dynamic>>();
     final count = (st['viewer_count'] as num?)?.toInt() ?? named.length;
     final anon = (st['anonymous_count'] as num?)?.toInt() ?? 0;
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {

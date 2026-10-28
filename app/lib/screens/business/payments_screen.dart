@@ -7,6 +7,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Payments (FREE).
 ///
@@ -176,7 +177,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     String provider = (_qr?['provider'] ?? 'bkash').toString();
     final number = TextEditingController(text: (_qr?['merchant_number'] ?? '').toString());
     final name = TextEditingController(text: (_qr?['merchant_name'] ?? '').toString());
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => StatefulBuilder(

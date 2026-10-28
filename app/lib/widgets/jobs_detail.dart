@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
 import 'jobs_card.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Full job detail — the advanced hub for one application: pipeline tracker
 /// (stage advance with dates + notes), CV/cover tailoring (MOCK + key-gated via
@@ -29,7 +30,7 @@ class JobsDetailSheet extends StatefulWidget {
 
   static Future<void> show(BuildContext context, Map<String, dynamic> job,
           {required bool isServerJob, required Future<void> Function() onChanged}) =>
-      showModalBottomSheet<void>(
+      showAppSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,
@@ -102,6 +103,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.jobsAddNoteOptional),
         content: TextField(
           controller: c,
@@ -163,6 +165,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
 
   void _showKeyGate(AppLocalizations tr) {
     showDialog(context: context, builder: (_) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       icon: const Icon(Icons.vpn_key_rounded),
       title: Text(tr.jobsAiNeededTitle),
       content: Text(tr.availableWhenAnAiKey2),
@@ -175,6 +178,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
     if (id <= 0) return;
     final c = TextEditingController(text: _note);
     final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(tr.jobsYourNotes),
       content: TextField(controller: c, maxLines: 5, autofocus: true,
           decoration: InputDecoration(hintText: tr.jobsNoteHint, border: const OutlineInputBorder())),
@@ -193,6 +197,7 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
     if (company.isEmpty) return;
     final c = TextEditingController(text: _companyNote);
     final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(tr.jobsCompanyNotesFor(company)),
       content: TextField(controller: c, maxLines: 5, autofocus: true,
           decoration: InputDecoration(hintText: tr.jobsCompanyNoteHint, border: const OutlineInputBorder())),

@@ -11,6 +11,7 @@ import '../../widgets/msgr_avatar.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import '../../widgets/default_timer_row.dart'; // chat-actions
 import '../circle_privacy_screen.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Privacy hub for the full-spec Settings. The field visibility toggles
 /// (last seen / online / profile photo / about / status) plus read receipts and
@@ -198,6 +199,7 @@ class _MsgrSetMessagePrivacyScreenState
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(_t.msgrMsgPrivacyConfirmTitle),
           content: Text(body),
           actions: [
@@ -336,6 +338,7 @@ class _MsgrSetBlockedListScreenState extends State<MsgrSetBlockedListScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.msgrSetUnblockConfirmTitle),
         content: Text(_t.msgrSetUnblockConfirm(name)),
         actions: [
@@ -467,6 +470,7 @@ class _MsgrSetMessageRequestsScreenState
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(_t.msgrSetRequestBlockConfirmTitle),
         content: Text(_t.msgrSetRequestBlockConfirm(name)),
         actions: [
@@ -495,7 +499,7 @@ class _MsgrSetMessageRequestsScreenState
   }
 
   Future<void> _more(Map<String, dynamic> m) async {
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

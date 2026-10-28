@@ -12,6 +12,7 @@ import '../../theme.dart';
 import '../../widgets/msgr_channel_common.dart';
 import 'channel_detail_screen.dart';
 import 'channel_list_screen.dart' show msgrChannelCategories;
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Assisto Messenger — DISCOVER (Step 3).
 ///
@@ -117,7 +118,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final url = '${j['url'] ?? ''}';
       if (url.isEmpty) return;
       if (!mounted) return;
-      await showModalBottomSheet(
+      await showAppSheet(
         context: context,
         builder: (_) => _InviteSheet(url: url, name: '${ch['name'] ?? ''}'),
       );

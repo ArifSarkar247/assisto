@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'scam_guard.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 String scamReasonTitle(AppLocalizations t, ScamReason r) => switch (r) {
       ScamReason.otpRequest => t.p3ScamOtpTitle,
@@ -29,7 +30,7 @@ class ScamWarningBanner extends StatelessWidget {
 
   void _why(BuildContext context) {
     final t = AppLocalizations.of(context);
-    showModalBottomSheet<void>(
+    showAppSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,

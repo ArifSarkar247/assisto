@@ -262,6 +262,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               content: Text(AppLocalizations.of(context).faDeleteExpenseQ),
               actions: [
                 TextButton(

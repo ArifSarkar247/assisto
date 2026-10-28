@@ -469,6 +469,7 @@ Future<int?> _amountDialog(BuildContext context, String label) {
   return showDialog<int>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(label),
       content: TextField(
         controller: ctrl,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'probashi_source.dart';
 import 'probashi_widgets.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// probashi-plan: monthly family reports (built by the server on the 1st;
 /// each member's section appears only with that member's consent).
@@ -102,7 +103,7 @@ class _ProbashiReportViewState extends State<ProbashiReportView> {
     final pool = (r['pool'] as Map?)?.cast<String, dynamic>();
     return Scaffold(
       appBar: AppBar(title: Text(t.pbsReportOf(pbsNum(context, '${r['month']}')))),
-      body: ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.only(bottom: 24)), children: [
         if (sections.isEmpty)
           Padding(
             padding: const EdgeInsets.all(24),

@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SAMITY / COMMITTEE tracker (Samity, feature #184, SPEC v2.1 section 20, built
@@ -69,7 +70,7 @@ class _SamityScreenState extends State<SamityScreen> {
   }
 
   Future<void> _addOrEditGroup([Map<String, dynamic>? g]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -90,6 +91,7 @@ class _SamityScreenState extends State<SamityScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.samityDeleteTitle),
         content: Text(t.samityDeleteBody('${g['name'] ?? ''}')),
         actions: [
@@ -323,6 +325,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.samityAddMember),
         content: TextField(
           controller: nameCtl,
@@ -354,6 +357,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.samityRemoveMemberTitle),
         content: Text(t.samityRemoveMemberBody('${m['name'] ?? ''}')),
         actions: [
@@ -399,6 +403,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: const Icon(Icons.volunteer_activism_rounded),
         title: Text(t.samityRecordPayoutTitle),
         // (cycle, name): generated signature order

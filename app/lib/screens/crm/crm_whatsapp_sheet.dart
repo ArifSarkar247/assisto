@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// WhatsApp-from-CRM sheet (official WhatsApp Business Cloud API ONLY — NEVER
 /// personal WhatsApp). Opened from the lead-detail screen. It:
@@ -21,13 +22,13 @@ class CrmWhatsAppSheet extends StatefulWidget {
   /// (so the lead detail can refresh its timeline to show the auto-logged item).
   static Future<bool?> show(BuildContext context,
       {required int leadId, required String leadName}) {
-    return showModalBottomSheet<bool>(
+    return showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => Padding(
+      builder: (sheetCtx) => Padding(
         padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom),
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom),
         child: CrmWhatsAppSheet(leadId: leadId, leadName: leadName),
       ),
     );

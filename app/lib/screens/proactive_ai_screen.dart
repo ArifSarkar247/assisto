@@ -8,6 +8,7 @@ import '../api.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// PROACTIVE AI — ADVANCED (#6, SPEC v2.1 §21).
@@ -248,7 +249,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
 
   Future<void> _whyAmISeeingThis(_Sug s) async {
     final tr = AppLocalizations.of(context);
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => Padding(

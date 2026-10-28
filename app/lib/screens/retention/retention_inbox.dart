@@ -69,6 +69,7 @@ class _RetentionInboxScreenState extends State<RetentionInboxScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.rtStopTitle(shop)),
         content: Text(t.rtStopBody(shop)),
         actions: [
@@ -193,6 +194,7 @@ class _ReplyDialogState extends State<_ReplyDialog> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(t.rtReply),
       content: TextField(
         controller: _c,

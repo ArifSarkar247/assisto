@@ -7,6 +7,7 @@ import '../screens/circle_chat_screen.dart';
 import '../theme.dart';
 import '../widgets/msgr_avatar.dart';
 import 'chat_decor/system_line.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// connect-flow — My Circle CONNECT FLOW (owner order 25 Oct, QUEUE 0b).
 ///
@@ -148,7 +149,7 @@ Future<void> showConnectSheet(
   final t = AppLocalizations.of(context);
   final name = '${member['display_name'] ?? member['name'] ?? ''}'.trim();
   final accepted = ConnectFlow.isAccepted(member);
-  return showModalBottomSheet<void>(
+  return showAppSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

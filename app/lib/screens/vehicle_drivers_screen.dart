@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// veh100: the owner's drivers (name, phone, licence number + expiry — the
 /// licence expiry gets its own reminder push) and WHO drives this vehicle
@@ -75,7 +76,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
 
   Future<void> _edit([Map<String, dynamic>? d]) async {
     final tr = AppLocalizations.of(context);
-    final res = await showModalBottomSheet<Map<String, dynamic>>(
+    final res = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -101,6 +102,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.v100DriverDeleteTitle),
         content: Text(tr.v100DriverDeleteBody),
         actions: [
@@ -119,7 +121,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
   }
 
   Future<void> _report(Map<String, dynamic> d) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

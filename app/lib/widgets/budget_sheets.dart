@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../screens/money_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Input sheets for the BUDGET module (#50): the add/edit budget dialog and the
 /// 50-30-20 template sheet. These are PRESENTATIONAL — they collect values and
@@ -95,7 +96,7 @@ Future<String?> showTemplateSheet(
     }
   }
 
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => StatefulBuilder(

@@ -10,6 +10,7 @@ import '../theme.dart';
 import 'payments_api.dart';
 import 'play_prices.dart'; // credout: Play's own prices on the Play build
 import 'store_billing.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_report.dart'; // db1
 import '../widgets/subs_common.dart' show fmtInt; // qa1: locale digits
 
@@ -49,7 +50,7 @@ class CheckoutSheet extends StatefulWidget {
       {PaymentsBackend? backend, String? flavour}) {
     final b = backend ??
         ApiPaymentsBackend(Provider.of<AppState>(context, listen: false).api);
-    return showModalBottomSheet<bool>(
+    return showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

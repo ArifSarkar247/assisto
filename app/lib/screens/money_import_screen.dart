@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'money_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Import transactions from a pasted/forwarded wallet or bank SMS. The raw text
 /// is sent to POST /money/parse (money_parse.parse_batch) which returns parsed,
@@ -105,7 +106,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                     label: Text(t.moneyImportSelected(_selected.length))),
               ),
             ),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.moneyImportHint,
             style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -206,6 +207,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
+              scrollable: true, // insets: 200% text / keyboard
               title: Text(t.moneyFieldCategory),
               content: TextField(controller: c, autofocus: true),
               actions: [

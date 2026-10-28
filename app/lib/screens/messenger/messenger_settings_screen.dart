@@ -15,6 +15,7 @@ import 'msgr_set_notifications_screen.dart';
 import 'msgr_set_privacy_screen.dart';
 import 'msgr_set_storage_screen.dart';
 import '../../widgets/founder_badge.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Full-spec hub Settings for "My Circle" (MESSENGER_UI_FULL §2). A tappable
 /// profile card sits at the TOP (photo · name · bio · phone · edit →
@@ -40,7 +41,7 @@ class MessengerSettingsScreen extends StatelessWidget {
     final app = context.read<AppState>();
     final t = AppLocalizations.of(context);
     final current = app.locale?.languageCode ?? 'bn';
-    final chosen = await showModalBottomSheet<String>(
+    final chosen = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -73,6 +74,7 @@ class MessengerSettingsScreen extends StatelessWidget {
       showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
           title: Text(t.msgrSetInviteTitle),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             SelectableText('${inv['code'] ?? ''}',

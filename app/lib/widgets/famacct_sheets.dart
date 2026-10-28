@@ -170,6 +170,7 @@ Future<int?> showAmountSheet(BuildContext context, String title) {
   return showDialog<int>(
     context: context,
     builder: (ctx) => AlertDialog(
+      scrollable: true, // insets: 200% text / keyboard
       title: Text(title),
       content: TextField(
         controller: ctrl,

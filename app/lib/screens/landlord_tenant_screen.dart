@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LANDLORD-TENANT rent tracker (Bariwala-Bharatiya, feature #185, SPEC v2.1
@@ -84,7 +85,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
   }
 
   Future<void> _addOrEditUnit([Map<String, dynamic>? u]) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -105,6 +106,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(t.rentDeleteUnitTitle),
         content: Text(t.rentDeleteUnitBody('${u['label'] ?? ''}')),
         actions: [
@@ -123,7 +125,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
   Future<void> _recordPayment(Map<String, dynamic> unitMonth) async {
     final t = AppLocalizations.of(context);
     final outstanding = unitMonth['outstanding_poisha'] as int;
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,

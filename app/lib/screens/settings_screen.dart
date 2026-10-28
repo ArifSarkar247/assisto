@@ -128,6 +128,7 @@ class SettingsScreen extends StatelessWidget {
       final inv = await app.api.invite();
       if (!context.mounted) return;
       showDialog(context: context, builder: (_) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(AppLocalizations.of(context).inviteCodeTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           SelectableText(inv['code'] ?? '',

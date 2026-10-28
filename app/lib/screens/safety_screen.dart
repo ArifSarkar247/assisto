@@ -20,6 +20,7 @@ import '../widgets/journey_api.dart';
 import 'fall_detect_screen.dart';
 import '../widgets/subs_common.dart' show fmtInt;
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../family_alerts_api.dart'; // family100
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // family100
 
@@ -187,6 +188,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
+            scrollable: true, // insets: 200% text / keyboard
             title: Text(t.safetySosCountdownTitle),
             content: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(t.safetySosCountdownValue(fmtInt(context, v))), // qa1
@@ -216,6 +218,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
+            scrollable: true, // insets: 200% text / keyboard
             title: Text(t.safetyCheckinSetTitle),
             content: Column(mainAxisSize: MainAxisSize.min, children: [
               TextField(controller: place,
@@ -296,7 +299,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneySettingsScreen()))),
       ]),
-      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         // ---- Safe Journey (top-priority feature) ----
         Text(t.journeySection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),

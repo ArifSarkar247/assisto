@@ -12,6 +12,7 @@ import '../widgets/ladder_common.dart' show taka, takaToPoisha, fmtInt;
 import 'registry_imei.dart';
 import 'report_stolen_screen.dart';
 import 'used_phone_check_screen.dart' show copyToClipboard;
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 
 /// Sell-my-phone safely (Family & Safety). Two parts:
@@ -304,7 +305,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.upSellTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Text(t.upSellIntro, style: const TextStyle(height: 1.35)),
           const SizedBox(height: Gap.lg),

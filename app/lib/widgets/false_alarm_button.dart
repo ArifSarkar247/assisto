@@ -62,6 +62,7 @@ class _FalseAlarmButtonState extends State<FalseAlarmButton> {
     final sure = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         title: Text(tr.atfaConfirmTitle),
         content: Text(tr.atfaConfirmBody),
         actions: [

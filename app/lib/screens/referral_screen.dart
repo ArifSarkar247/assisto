@@ -12,6 +12,7 @@ import '../widgets/ref_share_sheet.dart';
 import '../widgets/ref_leaderboard.dart';
 import '../widgets/ref_achievement_card.dart';
 import '../widgets/ref_audit.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// Referral points — ADVANCED (feature #102, SPEC v2.1 §21).
@@ -88,7 +89,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     final t = AppLocalizations.of(context);
     final link = (_bal?['invite_link'] ?? '').toString();
     final code = (_bal?['referral_code'] ?? '').toString();
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -109,7 +110,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     final maxDays = perDay > 0 ? points ~/ perDay : 0;
     if (maxDays < 1) return;
 
-    final days = await showModalBottomSheet<int>(
+    final days = await showAppSheet<int>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -147,6 +148,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
         icon: Icon(Icons.check_circle_rounded, color: Brand.success, size: 44),
         title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
         content: Text(t.referralRedeemedDays(fmtInt(context, days)),

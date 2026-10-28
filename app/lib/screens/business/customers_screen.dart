@@ -5,6 +5,7 @@ import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Customers (§3): list, add/edit (name/phone/address/area/notes/VIP), purchase
 /// history and open dues. Dedupe is by normalised phone — saving a known phone
@@ -43,7 +44,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Future<void> _openSheet([Map<String, dynamic>? c]) async {
-    final changed = await showModalBottomSheet<bool>(
+    final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -54,7 +55,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Future<void> _openHistory(Map<String, dynamic> c) async {
-    await showModalBottomSheet(
+    await showAppSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

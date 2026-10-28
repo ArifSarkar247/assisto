@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// Small picker sheets/dialogs used by the 1:1 chat ⋮ menu behaviours:
 /// mute durations, disappearing timer, chat theme colour, and the report
@@ -13,7 +14,7 @@ import '../theme.dart';
 // --------------------------------------------------------------------------
 Future<Duration?> showMutePicker(BuildContext context) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<Duration>(
+  return showAppSheet<Duration>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -50,7 +51,7 @@ Future<int?> showDisappearingPicker(BuildContext context, int currentSec) {
     604800: t.msgrChatDisap7d,
     7776000: t.msgrChatDisap90d,
   };
-  return showModalBottomSheet<int>(
+  return showAppSheet<int>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -96,7 +97,7 @@ const _kThemeChoices = <ChatThemeChoice>[
 
 Future<String?> showChatThemePicker(BuildContext context, String current) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<String>(
+  return showAppSheet<String>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
@@ -190,7 +191,7 @@ String _reasonLabel(AppLocalizations t, String code) {
 
 Future<ChatReportResult?> showChatReportPicker(BuildContext context) {
   final t = AppLocalizations.of(context);
-  return showModalBottomSheet<ChatReportResult>(
+  return showAppSheet<ChatReportResult>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
