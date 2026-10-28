@@ -713,6 +713,7 @@ class TrackerServer:
             else:
                 await self.store.call(KW.mark_ack, s.watch_id, pkt["type"])
             s.inflight = None
+            await self.dispatch_watch_commands()    # next queued one at once
         reply = watch.reply_for(pkt)
         if reply:
             await self._wsend(s, reply)

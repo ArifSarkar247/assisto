@@ -484,12 +484,12 @@ def queue(w, kind, payload=None, actor=None, replace=True):
 def setup_commands(w):
     """First commands after pairing: Bangladesh time zone, step counter,
     low-battery alarm, the SOS numbers (if set) and the battery plan interval."""
+    apply_phase(w, force=True)
     queue(w, "timezone", {"tz_hours": w.tz_min / 60.0, "lang": 1})
-    queue(w, "steps_on")
-    queue(w, "low_battery_alarm")
     if w.sos_numbers:
         queue(w, "sos_numbers", {"numbers": w.sos_numbers})
-    apply_phase(w, force=True)
+    queue(w, "steps_on")
+    queue(w, "low_battery_alarm")
 
 
 def apply_phase(w, now=None, force=False):
@@ -673,7 +673,7 @@ def amr_duration(data):
         frames += 1
         if frames > 100000:
             break
-    return round(frames * 0.02, 1)
+    return round(frames * 0.02, 2)
 
 
 def _voice_today(qs, now):

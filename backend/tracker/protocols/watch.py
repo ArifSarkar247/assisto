@@ -39,7 +39,7 @@ SERVER -> WATCH (command_content(); the ONLY way we build commands)
     LZ,<lang>,<tz>  language + time zone PEDO,1   step counter on
     LOWBAT,1      low-battery alarm on   SOSSMS,0 no SOS SMS (we push instead)
 
-NEVER: remote listening. The protocol's "MONITOR,<phone>" (the watch silently
+NEVER: remote listening. The protocol's MONITOR command + a phone number (the watch silently
 calls a number with the screen off and the microphone on) and its relatives
 are refused by command_content() with ForbiddenCommand — there is no "custom"
 / raw command path at all. core.tests_kidswatch fails if any builder ever
@@ -507,8 +507,10 @@ def command_content(kind, payload=None):
         out = "PEDO,1"
     elif kind == "low_battery_alarm":
         out = "LOWBAT,1"
-    else:  # sos_sms_off
+    elif kind == "sos_sms_off":
         out = "SOSSMS,0"
+    else:                         # a kind with no branch is never sent
+        raise ForbiddenCommand(kind)
     content = out if isinstance(out, bytes) else out.encode("utf-8")
     typ = content.split(b",", 1)[0].decode("ascii").upper()
     if typ in FORBIDDEN:          # defence in depth: never, whatever the table says

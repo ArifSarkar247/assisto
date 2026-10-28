@@ -24,7 +24,7 @@ cleanup() { if [ -z "${E2E_KEEP:-}" ]; then rm -rf "$E2E_DIR"; else echo "[vehic
 trap cleanup EXIT
 
 echo "[vehicle-e2e] 1/2 django tests"
-(cd "$ROOT/backend" && "$PY" manage.py test core.tests_e2e_vehicle core.tests_v1_vehicle core.tests_veh100 \
+(cd "$ROOT/backend" && "$PY" manage.py test core.tests_e2e_vehicle core.tests_v1_vehicle core.tests_veh100 core.tests_kidswatch \
    --settings=assisto_backend.settings_test --parallel 1 --noinput)
 
 echo "[vehicle-e2e] 2/2 real tracker process on 127.0.0.1:$PORT"
