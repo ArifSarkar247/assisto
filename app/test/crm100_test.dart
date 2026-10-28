@@ -315,6 +315,7 @@ void main() {
       await tester.tap(find.text(t.c100ChooseHow));
       await tester.pumpAndSettle();
       await tester.tap(find.text(t.c100WayWa));
+      await tester.pump(const Duration(seconds: 9)); // past the launcher timeout
       await tester.pumpAndSettle();
       // the test binding has no WhatsApp: whichever way the launcher answers,
       // the sheet says what really happened, and only an opened app is logged
