@@ -150,10 +150,6 @@
   "@fcDocsGone": {
    "description": "famcare (owner Family Care review 28 Oct)"
   },
-  "fcDocsHasFile": "A scan is attached — ask the sender to send the file if you need it printed.",
-  "@fcDocsHasFile": {
-   "description": "famcare (owner Family Care review 28 Oct)"
-  },
   "fcDocsNeedPin": "Set a vault PIN first",
   "@fcDocsNeedPin": {
    "description": "famcare (owner Family Care review 28 Oct)"
@@ -543,6 +539,10 @@
   "onbSimpleHomeSub": "Big text, big buttons and SOS on the first screen. You can switch back in Settings.",
   "@onbSimpleHomeSub": {
    "description": "famcare (owner Family Care review 28 Oct)"
+  },
+  "fcDocsOpenFile": "Open the scan",
+  "@fcDocsOpenFile": {
+   "description": "famcare: recipient opens the shared document's attached file"
   }
  },
  "bn": {
@@ -581,7 +581,6 @@
   "fcDocsExpires": "মেয়াদ শেষ {value}",
   "fcDocsFrom": "{name} পাঠিয়েছেন",
   "fcDocsGone": "এই কাগজটি আর আপনার সাথে শেয়ার করা নেই।",
-  "fcDocsHasFile": "স্ক্যান যুক্ত আছে — প্রিন্ট লাগলে পাঠানো-জনের কাছে ফাইলটি চান।",
   "fcDocsNeedPin": "আগে ভল্ট PIN সেট করুন",
   "fcDocsNeedPinBody": "কাগজ শেয়ার করতে ভল্ট PIN লাগে, যাতে আপনার ফোন থেকে অন্য কেউ শেয়ার করতে না পারে।",
   "fcDocsNoVaultDocs": "আপনার ভল্ট খালি। আগে ভল্টে একটি কাগজ যোগ করুন।",
@@ -667,6 +666,7 @@
   "fcTasksSub": "কাজটি তাঁর নিজের রিমাইন্ডারে যায়; শেষ হলে আপনি দেখবেন।",
   "fcTasksTitle": "পরিবারের কাজ",
   "onbSimpleHome": "সহজ হোম (বয়স্কদের জন্য)",
-  "onbSimpleHomeSub": "বড় লেখা, বড় বোতাম, প্রথম পাতাতেই SOS। সেটিংসে গিয়ে আবার বদলানো যায়।"
+  "onbSimpleHomeSub": "বড় লেখা, বড় বোতাম, প্রথম পাতাতেই SOS। সেটিংসে গিয়ে আবার বদলানো যায়।",
+  "fcDocsOpenFile": "স্ক্যান খুলুন"
  }
 }

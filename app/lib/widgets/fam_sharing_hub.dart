@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -490,14 +494,34 @@ class _FamDocsPaneState extends State<FamDocsPane> {
           if ('${d['note'] ?? ''}'.isNotEmpty) Text('${d['note']}'),
           for (final e in details.entries)
             if ('${e.value}'.trim().isNotEmpty) Text('${e.key}: ${famDigits(context, '${e.value}')}'),
-          if (d['has_file'] == true) ...[
-            const SizedBox(height: Gap.sm),
-            Text(t.fcDocsHasFile, style: AType.bodySmall),
-          ],
         ]),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.close))],
+        actions: [
+          if (d['has_file'] == true)
+            TextButton.icon(
+                key: const ValueKey('fc-docs-open-file'),
+                onPressed: () => _openFile(s),
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: Text(t.fcDocsOpenFile)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.close)),
+        ],
       ),
     );
+  }
+
+  /// The recipient opens the attached scan (server re-checks the share and
+  /// the Circle on every read; counted in the owner's "opened" audit).
+  Future<void> _openFile(Map<String, dynamic> s) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final t = AppLocalizations.of(context);
+    try {
+      final bytes = await _api.getBytes('/family/docs/${s['id']}/file');
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/assisto-family-doc-${s['id']}');
+      await f.writeAsBytes(bytes);
+      await OpenFilex.open(f.path);
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.fcDocsGone)));
+    }
   }
 
   @override
