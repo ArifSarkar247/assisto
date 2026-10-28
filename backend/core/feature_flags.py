@@ -65,7 +65,7 @@ REGISTRY = (
     ('emergency', 'family_safety', 'Emergency', 'ইমার্জেন্সি', True, ('emergency', 'voice_sos')),
     ('scam_check', 'family_safety', 'Scam protection', 'প্রতারণা সুরক্ষা', True, ('scam',)),
     ('fall_detect', 'family_safety', 'Accident / fall detection', 'দুর্ঘটনা/পতন শনাক্তকরণ', False, ('fall_detect',)),
-    ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
+    ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'watched_phones', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),
     ('cctv_watchman', 'family_safety', 'CCTV watchman (Shop Box)', 'সিসিটিভি ওয়াচম্যান (শপ বক্স)', True, ('shop_box',)),
     # launch (owner 27 Oct): CCTV + vehicle tracking are LAUNCH features, not
     # previews — visible by default once their E2E passed (tests_e2e_cctv).

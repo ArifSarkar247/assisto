@@ -51,6 +51,17 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
     // background) thread. Dart still gets the push as a fallback; it sees the
     // ring already showing (same notification id) and draws nothing.
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // at100: silent anti-theft wake-up (a remote switch is waiting on the
+        // server). Handled natively — draws nothing, never starts Dart.
+        try {
+            if (remoteMessage.data["kind"] == "at_command") {
+                com.assisto.assisto.antitheft.AntiTheftService.onCommandPush(applicationContext)
+                return
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "at_command skipped: ${t.javaClass.simpleName}")
+            return
+        }
         var data: Map<String, String>? = null
         var isCall = false
         var shown = false

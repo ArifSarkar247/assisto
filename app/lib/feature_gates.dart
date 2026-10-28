@@ -84,10 +84,12 @@ const bool kTacSourceWired = false;
 /// real passphrase-encrypted backup is Settings -> Encrypted backup.)
 const bool kMsgrChatBackupWired = false;
 
-/// Lost/Stolen: the lock / alarm / locate / message switches (and the
-/// "remote triggers" card). Saved on the phone but read by nothing, because no
-/// remote trigger (SMS command / trusted contact) ships yet. Hidden; the real
-/// "test lock / test alarm / report location now" buttons stay.
+/// Lost/Stolen: the OLD on-phone lock / alarm / locate / message switches
+/// (and the SMS "remote triggers" card). Saved on the phone but read by
+/// nothing. Stays hidden: at100 replaced them with the real server-routed
+/// RemoteSwitchesCard (owner / trusted contact -> the protected phone), which
+/// is not behind this gate. The "test lock / test alarm / report location
+/// now" buttons stay.
 const bool kLostActionSwitchesWired = false;
 
 /// Settings -> input source permissions. The switches were saved on the server

@@ -70,7 +70,12 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # messages / posts / pays / books / deletes. A NOTIFICATION push with
          # NO details (lock screen): the app adds Approve / Reject actions —
          # Reject calls the API from the notification, Approve opens the card.
-         "agent_approval")
+         "agent_approval",
+         # at100: a SILENT wake-up for the protected phone's anti-theft engine
+         # (a remote switch is waiting). Data-only, draws nothing; handled
+         # natively (AssistoFcmService -> AntiTheftService). Older builds
+         # ignore the unknown kind.
+         "at_command")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -78,7 +83,7 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
 # handler shows title/body when there is no notification block).
 # c2-calls: "missed_call" is data-only (the app draws it on its own channel).
 DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call",
-                   "msg_sync", "key_request", "key_ready")
+                   "msg_sync", "key_request", "key_ready", "at_command")
 # x2-ticks: "msg_sync" = a SILENT delivery ping (muted chat / message
 # notifications off). The device only acks DELIVERED (✓✓ for the sender) and
 # draws nothing. Older builds ignore unknown kinds (PushPayload.isKnownKind),
@@ -90,7 +95,8 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "shop_alert": 3600, "missed_call": 86400, "msg_sync": 86400,
          "key_request": 86400, "key_ready": 86400, "message_request": 86400,
          "offer": 6 * 3600, "meter_low": 12 * 3600,
-         "agent_nudge": 12 * 3600, "agent_approval": 86400}
+         "agent_nudge": 12 * 3600, "agent_approval": 86400,
+         "at_command": 3600}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -99,7 +105,8 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "key_request": "messages", "key_ready": "messages",
             "message_request": "messages", "offer": "offers",
             "meter_low": "alerts",
-            "agent_nudge": "alerts", "agent_approval": "alerts"}
+            "agent_nudge": "alerts", "agent_approval": "alerts",
+            "at_command": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -517,7 +524,8 @@ def _get_executor():
 # never dropped; other kinds are dropped (counted in the log) above the cap —
 # the app's foreground polls still deliver them.
 PUSH_QUEUE_CAP = 300
-_CRITICAL_KINDS = ("call", "call_cancel", "sos", "family_alert", "owner_alert")
+_CRITICAL_KINDS = ("call", "call_cancel", "sos", "family_alert", "owner_alert",
+                   "at_command")
 _pending = [0]
 _dropped = [0]
 

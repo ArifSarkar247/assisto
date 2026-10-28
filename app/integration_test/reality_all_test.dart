@@ -8,6 +8,7 @@
 // Evidence: <external files>/reality/{results.json,shots/*.png} on the device
 // (pulled by tools/reality/run_flows.sh) + the driver's response JSON.
 // A single flow's failure is recorded (class C) and the next flow still runs.
+import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/business_flow.dart';
@@ -39,6 +40,7 @@ void main() {
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100
+  if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.
   if (on('circle')) registerMyCircleAddFlows(); // m3-circle

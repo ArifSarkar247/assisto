@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../services/intruder_snap.dart'; // at100
 
 /// at-falsealarm — the owner's "It was me / false alarm" action.
 ///
@@ -83,6 +84,7 @@ class _FalseAlarmButtonState extends State<FalseAlarmButton> {
       final send = widget.send ??
           (String p) => context.read<AppState>().api.engineFalseAlarm(pin: p);
       final r = await send(pin);
+      IntruderSnap.after(r); // at100: wrong PIN -> the consented photo
       final st = r['_status'] as int?;
       if (r['ok'] == true && (st == null || st < 400)) {
         final n = r['cleared'];

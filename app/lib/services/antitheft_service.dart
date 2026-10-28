@@ -148,9 +148,8 @@ class AntiTheftService {
   }
 
   /// Hand the running engine the owner's new settings (from the server's
-  /// settings response). Called only from the open app, so the engine may
-  /// re-declare its foreground types (e.g. add CAMERA for the opt-in intruder
-  /// photo). Returns false when the engine is not running or on any error.
+  /// settings response). Called only from the open app. Returns false when
+  /// the engine is not running or on any error.
   static Future<bool> configure(Map<String, dynamic> config) async {
     if (!supported) return false;
     try {
@@ -181,6 +180,39 @@ class AntiTheftService {
       return (v == null || v.length != 64) ? null : v;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// at100: a wrong Security PIN was typed in the OPEN app and the server
+  /// said `intruder_snap` -> the engine takes ONE front photo now (shutter
+  /// sound; only works while Assisto is on screen). False = not possible
+  /// (engine off, option off, no camera / permission). Never throws.
+  static Future<bool> intruderSnap() async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('intruderSnap') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// at100: is a remote alarm ringing on THIS phone right now?
+  static Future<bool> alarmPlaying() async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('alarmPlaying') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// at100: stop the remote alarm on THIS phone (the owner found it).
+  static Future<bool> alarmStop() async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('alarmStop') ?? false;
+    } catch (_) {
+      return false;
     }
   }
 

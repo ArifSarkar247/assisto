@@ -66,6 +66,7 @@ extension AntiTheftApi on ApiClient {
     required String pin,
     bool? snatchLock,
     bool? intruderPhoto,
+    int? intruderConsent, // at100: the consent screen's version ("I agree")
     int? failedUnlockThreshold,
     List<int>? alertMemberIds,
     bool? nightGuard,
@@ -76,6 +77,7 @@ extension AntiTheftApi on ApiClient {
         'pin': pin,
         if (snatchLock != null) 'snatch_lock': snatchLock,
         if (intruderPhoto != null) 'intruder_photo': intruderPhoto,
+        if (intruderConsent != null) 'intruder_consent': intruderConsent,
         if (failedUnlockThreshold != null)
           'failed_unlock_threshold': failedUnlockThreshold,
         if (alertMemberIds != null) 'alert_member_ids': alertMemberIds,
@@ -91,6 +93,29 @@ extension AntiTheftApi on ApiClient {
   /// GET security/engine/watching — phones whose alerts I (family) receive.
   Future<Map<String, dynamic>> engineWatching() =>
       getJson('/security/engine/watching');
+
+  /// at100: POST security/engine/command {kind, phone_id?, message?, contact?}
+  /// kind: lost_mode | alarm | alarm_stop | lock | message. -> 201 {ok,
+  /// command:{id, state, ...}, phone:{online, last_seen, ...}} or the 4xx
+  /// body (_status): 403 not_active, 404, 409 protection_off, 429
+  /// rate_limited, 400 message_required / wipe_not_supported.
+  Future<Map<String, dynamic>> engineCommand(String kind,
+          {int? phoneId, String? message, String? contact}) =>
+      postJsonRaw('/security/engine/command', {
+        'kind': kind,
+        if (phoneId != null) 'phone_id': phoneId,
+        if (message != null && message.isNotEmpty) 'message': message,
+        if (contact != null && contact.isNotEmpty) 'contact': contact,
+      });
+
+  /// at100: GET security/engine/commands[?phone_id] -> {role, owner, phone,
+  /// can:{kind:bool}, commands:[...], in_flight, wipe:{supported, use}}.
+  Future<Map<String, dynamic>> engineCommands({int? phoneId}) => getJson(
+      '/security/engine/commands${phoneId != null ? '?phone_id=$phoneId' : ''}');
+
+  /// at100: POST security/engine/command/<id>/cancel (before it reached the phone).
+  Future<Map<String, dynamic>> engineCommandCancel(int id) =>
+      postJsonRaw('/security/engine/command/$id/cancel', const {});
 
   /// GET security/engine/event/<id>/photo-link -> {url} (short-lived, scoped).
   Future<Map<String, dynamic>> enginePhotoLink(int eventId) =>

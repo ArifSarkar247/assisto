@@ -169,6 +169,7 @@ const Map<String, String> kRouteFeature = {
   'fall_detect': 'fall_detect',
   'lost_stolen': 'anti_theft',
   'my_lost_phone': 'anti_theft',
+  'watched_phones': 'anti_theft',
   'recovery': 'anti_theft',
   'phone_safety': 'anti_theft',
   'security': 'anti_theft',

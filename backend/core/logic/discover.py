@@ -51,7 +51,7 @@ ROUTE_KEYS = (
     "circle", "circle_add", "messages", "notifications", "groups", "status", "legal",
     "subscriptions", "finance", "payment_ladder", "notes", "memory", "nominee",
     "contacts", "agent_studio", "jobs", "cv", "resume", "inbox", "guide",
-    "nearby", "watch_feed", "business", "bargain_rules", "business_plans",
+    "nearby", "watch_feed", "watched_phones", "business", "bargain_rules", "business_plans",
     "journey", "journey_watch", "journey_settings", "referral", "circle_privacy", "circle_calls", "action_center",
     "disaster", "offline", "budget", "tax", "wrapped", "money_voice", "ai_chat",
     "voice_assistant", "voice_settings", "photo_studio",

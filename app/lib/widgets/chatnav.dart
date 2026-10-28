@@ -31,6 +31,7 @@ import '../screens/car_mode_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/my_lost_phone_screen.dart';
+import '../screens/watched_phones_screen.dart'; // at100
 import '../screens/recovery_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
@@ -196,6 +197,10 @@ class ChatNav {
     // Recovery help toolkit (GD draft / SP letter / evidence / stations).
     // Recovery is also reachable from inside My lost phone and Lost/Stolen.
     'my_lost_phone': (_) => const MyLostPhoneScreen(),
+    // at100: the trusted contact's side — phones whose owner chose me
+    // (status, last location, alert history, remote switches). A trusted
+    // contact's anti-theft push opens here (route security/watch-phone).
+    'watched_phones': (_) => const WatchedPhonesScreen(),
     'recovery': (_) => const RecoveryScreen(),
     'phone_safety': (_) => const PhoneSafetyScreen(),
     // Section 8: Stolen-while-unlocked protection hub.
@@ -357,6 +362,8 @@ class ChatNav {
     // Anti-theft Batch 5.
     'my_lost_phone': ['my lost phone', 'lost phone', 'find my phone',
         'track my phone', 'where is my phone', 'lost mode', 'locate my phone'],
+    'watched_phones': ['phones i protect', 'phones i watch', 'trusted contact',
+        'family phone lost', 'ring their phone', 'lock their phone'],
     'recovery': ['recovery help', 'recover phone', 'gd draft',
         'general diary', 'police station', 'sp letter', 'get my phone back'],
     'circle_add': ['add to my circle', 'add to circle', 'add someone',

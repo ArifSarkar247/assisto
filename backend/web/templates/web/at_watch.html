@@ -41,6 +41,13 @@
       </li>{% endfor %}
     </ul>{% else %}<p class="muted">{% if en %}No alerts yet.{% else %}এখনো কোনো সতর্কবার্তা নেই।{% endif %}</p>{% endif %}
   </section>
+  <section class="card" aria-label="{% if en %}Remote actions{% else %}দূর থেকে চালানো{% endif %}">
+    <h2 style="font-size:18px;margin:0 0 6px">{% if en %}Remote actions{% else %}দূর থেকে চালানো{% endif %}</h2>
+    <p class="muted">{% if online %}{% if en %}The phone is checking in now.{% else %}ফোনটি এখন খবর দিচ্ছে।{% endif %}{% else %}{% if en %}The phone is not checking in right now. A phone that is switched off or has no internet cannot receive anything — from Assisto or any other app. Actions wait and run the moment it comes back online.{% else %}ফোনটি এখন খবর দিচ্ছে না। বন্ধ বা ইন্টারনেট-ছাড়া ফোনে কিছুই পৌঁছায় না — Assisto বা অন্য কোনো অ্যাপ থেকেও না। কাজগুলো অপেক্ষায় থাকে, ফোন অনলাইনে ফিরলেই চলে।{% endif %}{% endif %}</p>
+    {% if cmds %}<ul>
+      {% for c in cmds %}<li><strong>{{ c.label }}</strong> — <span{% if c.bad %} class="late"{% endif %}>{{ c.state }}</span><br><span class="muted">{{ c.when }}</span></li>{% endfor %}
+    </ul>{% else %}<p class="muted">{% if en %}Nothing sent yet. Use the Assisto app to ring, lock or show a message.{% else %}এখনো কিছু পাঠানো হয়নি। বাজাতে, লক করতে বা বার্তা দেখাতে Assisto অ্যাপ ব্যবহার করুন।{% endif %}</p>{% endif %}
+  </section>
   <p class="muted">{% if en %}Please call the owner first. If you think the phone was stolen, open Assisto → My lost phone for the police steps.{% else %}আগে মালিককে ফোন করুন। চুরি হয়েছে মনে হলে Assisto → আমার হারানো ফোন খুলে পুলিশের ধাপগুলো দেখুন।{% endif %}</p>
 </main>
 </body>

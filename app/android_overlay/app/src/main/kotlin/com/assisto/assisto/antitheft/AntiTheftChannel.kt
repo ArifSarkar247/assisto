@@ -31,9 +31,9 @@ import org.json.JSONObject
  *                        server first) -> drop it; true = was still pending
  *   grabSendNow()  -> void  "No, it wasn't me" -> send it now
  *   wifiHash()     -> String? antitheft2: sha256 of the current Wi-Fi name
- *   configure({config}) -> Bool  new settings from the open app (re-declares
- *                        the foreground types, e.g. adds CAMERA for the
- *                        opt-in intruder photo)
+ *   configure({config}) -> Bool  new settings from the open app
+ *   intruderSnap() -> Bool  at100: open-app intruder photo after wrong PINs
+ *   alarmPlaying() -> Bool / alarmStop() -> Bool  at100: the remote alarm
  *
  * Every branch is try/catch so a vendor quirk returns a safe value, never a
  * crash.
@@ -115,6 +115,13 @@ object AntiTheftChannel {
                     // antitheft2: hash of the current Wi-Fi (never the name)
                     // for "save my home Wi-Fi"; null = not on Wi-Fi / hidden
                     "wifiHash" -> result.success(WifiHash.current(app))
+                    // at100: a wrong Security PIN typed in the OPEN app and
+                    // the server said intruder_snap -> one consented front
+                    // photo (shutter sound). false = not possible right now.
+                    "intruderSnap" -> result.success(AntiTheftService.inAppIntruder(app))
+                    // at100: is a remote alarm ringing on this phone? / stop it
+                    "alarmPlaying" -> result.success(RemoteAlarm.playing)
+                    "alarmStop" -> { RemoteAlarm.stop(app); result.success(true) }
                     "configure" -> {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))
@@ -133,9 +140,8 @@ object AntiTheftChannel {
             m["sdk"] = Build.VERSION.SDK_INT
             m["brand"] = Build.MANUFACTURER ?: ""
             m["model"] = Build.MODEL ?: ""
-            // Intruder photo is possible on this phone if it has a front
-            // camera; it then still needs the camera permission (asked from
-            // the open app when the owner switches it on) + device admin.
+            // Intruder photo (at100: only while Assisto is open) is possible
+            // on this phone if it has a front camera + the camera permission.
             m["canCamera"] = IntruderCamera.hasFrontCamera(ctx)
             m["hasFrontCamera"] = IntruderCamera.hasFrontCamera(ctx)
             m["cameraPermission"] = IntruderCamera.hasPermission(ctx)

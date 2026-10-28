@@ -283,7 +283,7 @@ class PrivacyTests(_Base):
 class IntruderPhotoTests(_Base):
     def setUp(self):
         super().setUp()
-        self._enable(intruder_photo=True)
+        self._enable(intruder_photo=True, intruder_consent=1)  # at100: consent-gated
 
     def test_intruder_photo_is_opt_in(self):
         # a fresh engine has the intruder photo OFF; photos are refused

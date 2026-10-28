@@ -11,6 +11,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../otp_api.dart';
 import '../screens/otp/otp_verify_screen.dart';
+import 'intruder_snap.dart'; // at100
 
 /// The outcome of gating a sensitive security action through [SecurityGuard].
 ///
@@ -182,6 +183,7 @@ class SecurityGuard {
 
   SecActionResult _interpret(
       BuildContext context, AppLocalizations tr, Map<String, dynamic> resp) {
+    IntruderSnap.after(resp); // at100: wrong PIN -> the consented photo
     final status = resp['_status'] as int?;
     final state = '${resp['state'] ?? ''}';
     final locked = resp['locked'] == true;
@@ -265,6 +267,22 @@ class SecurityGuard {
           children: [
             Text(tr.securityPinPromptBody,
                 style: Theme.of(ctx).textTheme.bodySmall),
+            // at100: never covert — whoever types here is told, in plain
+            // words, while the owner's intruder photo is on.
+            if (IntruderSnap.armed) ...[
+              const SizedBox(height: Gap.xs),
+              Row(
+                key: const Key('at100-pin-notice'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.photo_camera_front_outlined, size: 18),
+                  const SizedBox(width: Gap.xs),
+                  Expanded(
+                      child: Text(tr.at100PinNotice,
+                          style: Theme.of(ctx).textTheme.bodySmall)),
+                ],
+              ),
+            ],
             const SizedBox(height: Gap.sm),
             ObscureTextField(
               controller: c,
