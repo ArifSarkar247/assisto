@@ -37,6 +37,7 @@ SEED_FILE = os.path.join(E2E_DIR, "seed.json")
 OWNER_PHONE, FAMILY_PHONE = "01710009001", "01710009002"
 
 RESULTS = []
+CASH_METRICS = {}
 
 
 def check(name, cond, detail=""):
@@ -358,6 +359,88 @@ def run():
                                      - 0.5) < 1e-6 or None, 20)
         check("edge pulls the adapted threshold (person_conf 0.5)", tuned, local.tuning)
 
+        # ---------------------------------------------- cashguard: cash zone + clip
+        # Smart Cash Guard (owner 28 Oct): the owner's phone key (a fixed TEST
+        # key from tools/cashguard/clip_vector.json) is published, a CASH zone
+        # is drawn over the counter, the person walks into it -> a cash alert
+        # with the never-accusing wording -> the edge cuts a 3-5 s clip from
+        # the REAL RTSP stream, seals it for the owner's key and uploads
+        # ciphertext only -> the owner fetches the envelope + signed link and
+        # opens it with the PRIVATE key the server never had -> watched =
+        # deleted on the server.
+        import base64
+        from core.models import ShopEventClip, UserPublicKey
+        from core.logic import cash_guard as CG
+        from shopbox import clip as EC
+        with open(os.path.join(ROOT, "tools", "cashguard", "clip_vector.json")) as fh:
+            vec = json.load(fh)
+        owner_uid = ShopEvent.objects.get(pk=ev.id).site.owner_id
+        UserPublicKey.objects.update_or_create(
+            user_id=owner_uid, defaults={"public_key": vec["recipient_public"],
+                                         "key_id": vec["meta"]["wraps"]["7"]["key_id"],
+                                         "scheme": CG.CLIP_SCHEME})
+        r = owner.put(API + "/shop/cameras/%d/zones" % cam_rtsp["id"],
+                      json={"zone_config": {"zones": [{"type": "cash", "points": [
+                          [0.02, 0.02], [0.98, 0.02], [0.98, 0.98], [0.02, 0.98]]}],
+                          "schedule": None, "sensitivity": "high", "quiet_hours": None}},
+                      timeout=10)
+        need("cashguard: cash zone saved", r.status_code == 200, r.text)
+        on = wait_for(lambda: engine.clips.enabled and bool(local.cash_zone()) or None, 30)
+        check("cashguard: edge pulled the cash zone + the owner's PUBLIC key", on,
+              engine.clips.cfg)
+        n_push = len(fcm_calls())
+        cev = wait_for(lambda: ShopEvent.objects.filter(
+            site_id=site_id, type="hand_in_cash_zone").order_by("id").first(), 120, every=1.0)
+        need("cashguard: person at the cash zone -> cash alert", cev is not None,
+             "edge %s / events %s" % (engine.status(), engine.events.recent(8)))
+        check("cashguard: the alert names its clip (clip_ref, not evidence)",
+              len((cev.signals or {}).get("clip_ref") or "") == 32 and
+              "clip_ref" not in (cev.signals.get("inputs") or {}), cev.signals)
+        ccalls = wait_for(lambda: [c for c in fcm_calls()[n_push:]
+                                   if (c.get("data") or {}).get("event_id") == str(cev.id)], 15)
+        cown = [c for c in (ccalls or []) if c.get("token") == "e2e-fcm-owner"]
+        check("cashguard: push says 'Possible cash removal — watch the clip and decide'",
+              bool(cown) and "Possible cash removal" in json.dumps(cown) and
+              "theft" not in json.dumps(ccalls or []).lower(), ccalls)
+        clip = wait_for(lambda: ShopEventClip.objects.filter(event_id=cev.id).first(), 60)
+        need("cashguard: the edge uploaded ONE sealed clip", clip is not None,
+             engine.status().get("clips"))
+        with open(clip.blob.path, "rb") as fh:
+            stored = fh.read()
+        check("cashguard: server holds CIPHERTEXT only (no JPEG / container / video)",
+              not CG.looks_like_plain_media(stored) and b"ACG1" not in stored[:64] and
+              not stored.startswith(b"\xff\xd8"), stored[:16])
+        check("cashguard: clip envelope valid, sealed for the owner only",
+              CG.clip_meta_problems(clip.meta) == [] and
+              set(clip.meta["wraps"]) == {str(owner_uid)}, clip.meta)
+        env = owner.get(API + "/shop/events/%d/clip" % cev.id, timeout=10)
+        check("cashguard: owner gets the envelope (only their wrap) + signed link",
+              env.status_code == 200 and "wraps" not in env.json()["meta"] and
+              "/api/v1/m/" in env.json()["url"], env.text[:300])
+        if env.status_code == 200:
+            import requests
+            blob = requests.get(env.json()["url"], timeout=10).content
+            plain = EC.open_clip(blob, env.json()["meta"], owner_uid,
+                                 base64.b64decode(vec["recipient_private"]))
+            head, frames = EC.decode_container(plain)
+            dur = float(env.json()["meta"]["duration_s"])
+            check("cashguard: owner's PRIVATE key opens it: %d JPEG frames, %.1f s"
+                  % (len(frames), dur),
+                  len(frames) >= 8 and 3.0 <= dur <= 5.5 and frames[0][:2] == b"\xff\xd8",
+                  head)
+            CASH_METRICS.update({"clip_frames": len(frames), "clip_seconds": dur,
+                                 "clip_bytes": len(blob),
+                                 "alert_to_clip_s": round((clip.created - cev.created)
+                                                          .total_seconds(), 1)})
+        fam_env = family.get(API + "/shop/events/%d/clip" % cev.id, timeout=10)
+        check("cashguard: viewer without a key is told honestly (409)",
+              fam_env.status_code == 409, fam_env.text[:200])
+        v = owner.post(API + "/shop/events/%d/clip/viewed" % cev.id, json={}, timeout=10)
+        gone = owner.get(API + "/shop/events/%d/clip" % cev.id, timeout=10)
+        check("cashguard: watched -> deleted on the server (410, file gone)",
+              v.json().get("deleted") is True and gone.status_code == 410 and
+              not os.path.exists(clip.blob.path), gone.text[:200])
+
         # ---------------------------------------------- video is refused
         import requests
         mp4 = b"\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom" + b"\x00" * 4096
@@ -447,6 +530,8 @@ def run():
                                                           len(failed)))
     for n, _ok, d in failed:
         print("FAILED: %s -- %s" % (n, d))
+    if CASH_METRICS:
+        print("CASHGUARD_E2E " + json.dumps(CASH_METRICS))
     with open(os.path.join(E2E_DIR, "cctv_results.json"), "w") as f:
         json.dump([{"check": n, "ok": ok, "detail": d} for n, ok, d in RESULTS], f,
                   indent=1, ensure_ascii=False)

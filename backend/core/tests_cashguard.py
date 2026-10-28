@@ -657,3 +657,19 @@ class HookCashTests(_Base):
         self.assertEqual(r.data["events"][0]["type"], "hand_in_cash_zone")
         self.assertTrue(r.data["events"][0]["raised"])
         self.assertIn("Possible cash removal", self.pushes[-1][0][3])
+
+
+class PrecisionHarnessTests(SimpleTestCase):
+    """item 6: the hand-to-pocket metric harness (no real clips -> OFF)."""
+
+    def test_metrics_and_the_bar(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "precision_report", os.path.join(ROOT, "tools", "cashguard", "precision_report.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        mod.self_test()
+        r = mod.metrics([True] * 10, [0.9] * 10)
+        self.assertEqual(r["precision"], 1.0)
+        self.assertFalse(r["label_allowed"])          # too few clips to trust
+        self.assertEqual(mod.MIN_PRECISION, CG.HAND_TO_POCKET_MIN_PRECISION)
