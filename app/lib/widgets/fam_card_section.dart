@@ -22,12 +22,16 @@ import 'wrapped_share.dart';
 /// the tab), the "Print" button only shared a picture, and with no members the
 /// tab was a dead end. Now every field persists, the members part has an
 /// "add family" action, and the card works with emergency info alone.
+const _kStoreTimeout = Duration(seconds: 3);
+
 class FamCardStore {
   static const _key = 'famcare_card_v1';
 
   static Future<Map<String, dynamic>> load() async {
     try {
-      final s = await SecretStore.instance.read(_key);
+      // never a dead end: a phone whose secure storage hangs (seen on some
+      // OEM keystores) gets the empty card with its button after 3 s
+      final s = await SecretStore.instance.read(_key).timeout(_kStoreTimeout);
       if (s == null || s.isEmpty) return {};
       final d = jsonDecode(s);
       return d is Map ? d.cast<String, dynamic>() : {};
@@ -38,7 +42,7 @@ class FamCardStore {
 
   static Future<bool> save(Map<String, dynamic> data) async {
     try {
-      return await SecretStore.instance.write(_key, jsonEncode(data));
+      return await SecretStore.instance.write(_key, jsonEncode(data)).timeout(_kStoreTimeout);
     } catch (_) {
       return false;
     }
