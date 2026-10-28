@@ -706,3 +706,8 @@ def feature_stats(rows):
     return {"days": days, "features": feats,
             "totals": {"revenue": p(tot_rev), "cost": p(tot_cost),
                        "margin": p(tot_rev - tot_cost)}}
+
+
+# photoperf: on-device steps whose free preview is capped at preview_max_px
+# (the app applies the same cap to every one; full size only after the gate).
+PREVIEW_SCOPE = ("enhance", "tools", "batch")

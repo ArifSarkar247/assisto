@@ -873,6 +873,10 @@ def client_config(user, lang="bn", request=None):
         "bd_sizes": PS.BD_PHOTO_SIZES,
         "export_kinds": list(PS.EXPORT_KINDS),
         "preview_max_px": ps["preview_max_px"],
+        # photoperf: free users' on-device previews never exceed preview_max_px
+        # for ANY step — one-tap enhance, the tools (denoise / low-light /
+        # blur) and batch; the full-size result only after the export gate.
+        "preview_scope": list(PS.PREVIEW_SCOPE),
         "balance": int(getattr(user, "ai_credits", 0) or 0),
         # ---- p2-photo ---- on-device AI restore model (download once, offline)
         # and whether this viewer is the owner (only the owner sees the

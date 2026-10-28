@@ -276,10 +276,14 @@ class PhotoStudioController extends ChangeNotifier {
 
   /// Long edge of every interactive step (proxy; free users never above the
   /// server's preview size — enhance AND tools).
+  /// Tests: a small proxy for small fixtures (null = by the phone's RAM).
+  @visibleForTesting
+  static int? proxyLongOverride;
+
   int get interactiveLong {
     final r = deviceRam();
     return psInteractiveLong(
-        proxyLong: psProxyLong(ramMb: r.ramMb, lowRam: r.lowRam),
+        proxyLong: proxyLongOverride ?? psProxyLong(ramMb: r.ramMb, lowRam: r.lowRam),
         free: free,
         previewMaxPx: config.previewMaxPx);
   }

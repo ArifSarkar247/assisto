@@ -1,0 +1,10 @@
+{
+  "_comment": "photoperf (Photo Studio proxy + full-size export). OPTIONAL wording upgrade, all keys NEW and not yet referenced: the export overlay currently reuses d1psStageClassic ('Finishing… 42%'). After bin/arb_apply.py .phaseB/up_photoperf_arb.json, switch PsStage.export in photo_studio_screen.dart _stageText to t.ppExportStage(pct).",
+  "en": {
+    "ppExportStage": "Saving in full quality… {pct}",
+    "@ppExportStage": {"description": "photoperf: progress while the full-resolution photo is rendered after the export gate", "placeholders": {"pct": {"type": "String"}}}
+  },
+  "bn": {
+    "ppExportStage": "পুরো মানে সেভ হচ্ছে… {pct}"
+  }
+}
