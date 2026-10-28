@@ -66,6 +66,10 @@ class PlanRequest:
     now_iso: str = ""
     attempt: int = 0             # 1 = "your last plan was invalid, fix it"
     last_error: str = ""
+    # AF-11: a goal that needs two topics' tools
+    topics: list = field(default_factory=list)          # [primary] or [primary, secondary]
+    second_rules: str = ""
+    tool_topics: dict = field(default_factory=dict)     # tool name -> its own topic
 
 
 @dataclass
@@ -98,11 +102,18 @@ SYSTEM_RULES = (
 def build_task(req):
     tools = [{"name": t.name, "description": t.desc, "risk": t.risk,
               "input_schema": t.input_schema} for t in req.tools]
-    parts = [SYSTEM_RULES,
-             "Topic rules: " + req.topic_rules,
-             "Now (Asia/Dhaka): " + (req.now_iso or ""),
-             "User language: " + ("Bangla" if req.lang == "bn" else "English"),
-             "Tools: " + json.dumps(tools, ensure_ascii=False, separators=(",", ":"))]
+    if req.tool_topics:
+        for t in tools:
+            t["topic"] = req.tool_topics.get(t["name"], "")
+    parts = [SYSTEM_RULES, "Topic rules: " + req.topic_rules]
+    if len(req.topics or []) > 1:
+        # AF-11: two topics — each keeps its own rules and its own tools
+        parts += ["Second topic rules (%s): %s" % (req.topics[1], req.second_rules),
+                  "This goal needs two topics (%s). Each tool lists its own topic; follow THAT "
+                  "topic's rules for it. There is no third topic." % ", ".join(req.topics)]
+    parts += ["Now (Asia/Dhaka): " + (req.now_iso or ""),
+              "User language: " + ("Bangla" if req.lang == "bn" else "English"),
+              "Tools: " + json.dumps(tools, ensure_ascii=False, separators=(",", ":"))]
     if req.attempt:
         parts.append("Your previous output was rejected (%s). Output valid JSON only."
                      % (req.last_error or "invalid"))

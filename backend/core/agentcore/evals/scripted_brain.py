@@ -138,6 +138,9 @@ def _memory_think(goal, obs, lang, retry, mem):
 
 
 def think(task, prompt):
+    if "\nSecond topic rules (" in task:            # AF-11: a two-topic plan
+        from . import multi_brain
+        return multi_brain.think(task, prompt, think)
     data = _data(prompt)
     goal = data.get("goal") or ""
     obs = data.get("observations") or []

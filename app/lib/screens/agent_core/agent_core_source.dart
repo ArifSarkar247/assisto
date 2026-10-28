@@ -148,10 +148,23 @@ class AcApproval {
   bool get hasMasked => details.any((d) => d.value.contains('•'));
 }
 
+/// AF-11: one topic of a run with its explicit scope (server text, bn/en).
+class AcScope {
+  final String key, label, mayLine, notLine;
+  const AcScope({required this.key, required this.label, this.mayLine = '', this.notLine = ''});
+  factory AcScope.fromJson(Map j) => AcScope(
+      key: _s(j['key']),
+      label: _s(j['label']),
+      mayLine: _s(j['may_line']),
+      notLine: _s(j['not_line']));
+}
+
 class AcRun {
   final int id, credits, steps;
   final int? feedback;
   final String state, topic, topicLabel, goal, answer, error, errorText;
+  final String scopeTitle;
+  final List<AcScope> scopes;
   final DateTime? createdAt, finishedAt;
   final List<AcStep> trail;
   final List<AcApproval> approvals;
@@ -170,7 +183,9 @@ class AcRun {
       this.finishedAt,
       this.feedback,
       this.trail = const [],
-      this.approvals = const []});
+      this.approvals = const [],
+      this.scopeTitle = '',
+      this.scopes = const []});
 
   factory AcRun.fromJson(Map<String, dynamic> j) => AcRun(
         id: _i(j['id']),
@@ -193,6 +208,11 @@ class AcRun {
         approvals: [
           for (final a in (j['approvals'] as List? ?? const []))
             if (a is Map) AcApproval.fromJson(a),
+        ],
+        scopeTitle: _s(j['scope_title']),
+        scopes: [
+          for (final t in (j['topics'] as List? ?? const []))
+            if (t is Map) AcScope.fromJson(t),
         ],
       );
 

@@ -58,6 +58,9 @@ R = {
     "money_move": _rx(r"বিকাশ করে দাও|টাকা পাঠাও|পাঠিয়ে দাও|\bsend\b.*(taka|tk|money|৳)|transfer|\bpay\b|bkash kore dao|pathao"),
     "jobs_auto": _rx(r"apply (for me|on my behalf)|আমার হয়ে আবেদন|চাকরি পাইয়ে দাও|guarantee|amar hoye apply"),
 }
+R["top"] = _rx(r"বড়|সবচেয়ে বেশি|\btop\b|biggest|largest|\bboro\b")
+_COUNTS = ((r"দুই|দু'জন|দুজন|\btwo\b|\b2\b|২|\bdui\b", 2), (r"তিন|\bthree\b|\b3\b|৩|\btin\b", 3),
+           (r"চার|\bfour\b|\b4\b|৪|\bchar\b", 4))
 NUM = re.compile(r"(\d+|[০-৯]+)")
 _BN2EN = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
@@ -197,10 +200,17 @@ def _after(topic, goal, lang, obs):
         return _plan([{"tool": "bizagent.reply", "args": {"thread_id": t["thread_id"], "text": text[:1000]}}])
     kd = _obs(obs, "khata.dues")
     if kd is not None:
-        name = _name_in(goal, [i["name"] for i in kd.get("items") or []])
+        items = kd.get("items") or []
+        name = _name_in(goal, [i["name"] for i in items])
+        ch = "sms" if re.search(r"sms|এসএমএস", goal, re.I) else "whatsapp"
+        if name is None and R["top"].search(goal) and items:
+            # AF-11: "the three biggest" -> the top debtors from the tool result
+            n = next((v for k, v in _COUNTS if re.search(k, goal, re.I)), 3)
+            top = sorted(items, key=lambda i: -float(i.get("due") or 0))[:min(n, 4)]
+            return _plan([{"tool": "khata.tagada", "args": {"customer": i["name"], "channel": ch}}
+                          for i in top])
         if name is None:
             return _ans(_pick(lang, "খাতায় এই নামে বাকি কাউকে পাইনি।", "Nobody by that name owes you."))
-        ch = "sms" if re.search(r"sms|এসএমএস", goal, re.I) else "whatsapp"
         return _plan([{"tool": "khata.tagada", "args": {"customer": name, "channel": ch}}])
     return _ans(_pick(lang, "হয়ে গেছে।", "Done."))
 
@@ -213,6 +223,10 @@ def _first(topic, goal, lang, allowed, now):
         if tool in allowed and all(s["tool"] != tool for s in st):
             st.append({"tool": tool, "args": args or {}})
 
+    # AF-11: "send the tagadas AND remind me tomorrow" — both, in one plan
+    if topic == "business" and R["tagada"].search(goal) and R["remind"].search(goal) \
+            and "reminders.create" in allowed:
+        return _plan([{"tool": "khata.dues", "args": {}}, _reminder(goal, now)], done=False)
     # writes first: a goal that asks to remember something is a write
     if R["remind"].search(goal) and not R["done"].search(goal) and not R["move"].search(goal) \
             and "reminders.create" in allowed:

@@ -50,10 +50,13 @@ SEEDERS.update(fixtures_topics.SEEDERS)
 def run_case(case, seam):
     from ...models import User
     user = make_user()
-    SEEDERS[case["topic"]](user)
+    for t in case.get("seed") or [case["topic"]]:      # AF-11: two-topic cases seed both
+        SEEDERS[t](user)
     bal0 = User.objects.get(pk=user.pk).ai_credits
     n0 = len(seam.prompts)
-    run = RN.start(user, case["goal"], topic=case["topic"], channel="eval", lang=case["lang"])
+    # AF-11: "classify" cases go through the real classifier (no topic given)
+    run = RN.start(user, case["goal"], topic="" if case.get("classify") else case["topic"],
+                   channel="eval", lang=case["lang"])
     dec = (case["expect"] or {}).get("decide")
     if dec:
         from ...models import AgentApproval
@@ -74,6 +77,10 @@ def grade(case, run, prompts, bal0):
     want_state = e.get("state") or "done"
     if run.state != want_state:
         bad.append("state=%s/%s want %s" % (run.state, run.error_code, want_state))
+    if e.get("topics") is not None:
+        stored = RN.topics_of(type(run).objects.get(pk=run.pk))     # what the audit recorded
+        if stored != list(e["topics"]):
+            bad.append("topics=%s want %s" % (stored, e["topics"]))
     ran = {s.tool for s in run.steps.filter(kind="tool", state="done")}
     if set(e.get("tools") or []) != ran:
         bad.append("tools=%s want %s" % (sorted(ran), sorted(e.get("tools") or [])))

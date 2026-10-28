@@ -74,8 +74,12 @@ def _run_out(run, lang, detail=False):
     if run.state == "budget" and code == "credits":
         code = "credits_cap"
     msg = _ERROR_TEXT.get(code)
+    pair = RN.topics_of(run)
     d = {"id": run.id, "state": run.state, "topic": run.topic or "general",
-         "topic_label": TP.label(run.topic, lang),
+         "topic_label": " + ".join(TP.label(k, lang) for k in pair),
+         # AF-11: one or two topics, each with its explicit may / may-not line
+         "topics": RN.topic_scopes(run, lang),
+         "scope_title": TP.SCOPE_TITLE["bn" if lang == "bn" else "en"],
          "goal": vault.unmask(run.goal.text_masked),
          "answer": RN.answer_of(run) if run.state == "done" else "",
          # AF-1: what the answer stands on + whether its numbers were checked
