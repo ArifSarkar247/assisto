@@ -444,6 +444,11 @@ _SMS_DEFAULTS = {
     # ledger due reminders — charged to the business owner as credits
     "tagada_per_phone_day": 1, "tagada_per_user_day": 200,
     "tagada_per_business_day": 200, "tagada_global_day": 5000,
+    # crm100: a seller's own 1:1 message to one customer from the CRM (the
+    # seller taps Send on each one) — charged like tagada, same STOP + quiet
+    # hours guard; never marketing blasts (bulk = one card per customer)
+    "crm_per_phone_day": 1, "crm_per_user_day": 100,
+    "crm_per_business_day": 100, "crm_global_day": 3000,
     # safety (SOS / journey / family alerts) — free, strict, company cost
     "safety_per_phone_day": 6, "safety_per_user_day": 20, "safety_global_day": 1000,
 }
@@ -454,6 +459,8 @@ _SMS_INT_BOUNDS = {
     "verify_global_day": (0, 100000),
     "tagada_per_phone_day": (0, 5), "tagada_per_user_day": (0, 1000),
     "tagada_per_business_day": (0, 1000), "tagada_global_day": (0, 200000),
+    "crm_per_phone_day": (0, 3), "crm_per_user_day": (0, 500),
+    "crm_per_business_day": (0, 500), "crm_global_day": (0, 100000),
     "safety_per_phone_day": (0, 30), "safety_per_user_day": (0, 100),
     "safety_global_day": (0, 50000),
 }

@@ -1,0 +1,89 @@
+{% extends "web/base.html" %}
+{% block title %}{{ B.title }}{% if shop %} — {{ shop }}{% endif %}{% endblock %}
+{% block og %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.ok{background:#e7f7ee;color:#0b5e3c;padding:12px;border-radius:12px;font-size:15px}
+.st{background:#eef2fb;color:#16203a;padding:12px;border-radius:12px;font-size:15px}
+table.qt{width:100%;border-collapse:collapse;font-size:15px}
+table.qt th{text-align:left;font-size:13px;color:#4a556e;font-weight:600;padding:6px 4px;border-bottom:1px solid #dde3ef}
+table.qt td{padding:8px 4px;border-bottom:1px solid #eef1f7;vertical-align:top}
+table.qt td.n{text-align:right;white-space:nowrap}
+.sum{display:flex;justify-content:space-between;padding:4px 0;font-size:15px}
+.sum.t{font-size:19px;font-weight:800;border-top:2px solid #16203a;margin-top:6px;padding-top:8px}
+.btn{min-height:48px}
+input[type=text]{min-height:48px}
+textarea{min-height:90px}
+.small{font-size:13px;color:#4a556e}
+</style>{% endblock %}
+{% block content %}
+{% if state == "bad" %}
+<div class="card" role="alert"><h1>{{ B.title }}</h1><p>{{ B.bad }}</p></div>
+{% elif state == "limited" %}
+<div class="card" role="alert"><p>{{ B.limited }}</p></div>
+{% else %}
+{% if done == "accepted" or state == "accepted" %}
+<div class="ok" role="status"><b>{{ B.ok_h }}</b></div>
+{% endif %}
+<div class="card">
+  <div class="small">{{ shop }}</div>
+  <h1>{{ B.title }}</h1>
+  {% if q.customer_name %}<p class="small">{{ B.for }}: <b>{{ q.customer_name }}</b></p>{% endif %}
+  <div style="overflow-x:auto">
+  <table class="qt">
+    <thead><tr><th scope="col">{{ B.item }}</th><th scope="col" class="n">{{ B.qty }}</th><th scope="col" class="n">{{ B.price }}</th></tr></thead>
+    <tbody>
+    {% for it in items %}<tr><td>{{ it.name }}<div class="small">{{ it.unit }} × {{ it.qty }}</div></td><td class="n">{{ it.qty }}</td><td class="n">{{ it.line }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div style="margin-top:10px">
+    <div class="sum"><span>{{ B.subtotal }}</span><span>{{ subtotal }}</span></div>
+    {% if discount %}<div class="sum"><span>{{ B.discount }}</span><span>− {{ discount }}</span></div>{% endif %}
+    {% if delivery %}<div class="sum"><span>{{ B.delivery }}</span><span>{{ delivery }}</span></div>{% endif %}
+    <div class="sum t"><span>{{ B.total }}</span><span>{{ total }}</span></div>
+  </div>
+  <p><b>{{ B.pay }}:</b> {{ pay_text }}</p>
+  {% if q.note %}<p><b>{{ B.note }}:</b> {{ q.note }}</p>{% endif %}
+  {% if state == "issued" or state == "viewed" %}
+  <p class="small">{{ B.valid }}: <b>{{ valid_until }}</b>{% if left %} · {{ left }}{% endif %}</p>
+  {% endif %}
+</div>
+
+{% if state == "accepted" %}
+  {% if order_no %}<div class="card"><p>{% if lang == "en" %}Order number #{{ order_no }}. The shop will contact you soon.{% else %}অর্ডার নম্বর #{{ order_no }}। দোকান শিগগিরই যোগাযোগ করবে।{% endif %}</p></div>{% endif %}
+{% elif state == "declined" %}
+<div class="st" role="status">{{ B.declined }}</div>
+{% elif state == "expired" %}
+<div class="st" role="status">{{ B.expired }}</div>
+{% elif state == "revoked" %}
+<div class="st" role="status">{{ B.revoked }}</div>
+{% else %}
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+<div class="card">
+  <form method="post" action="/q/{{ q_token }}{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="accept">
+    <label for="qn">{{ B.name }}</label>
+    <input type="text" id="qn" name="name" maxlength="120" autocomplete="name" value="{% if form %}{{ form.name }}{% else %}{{ q.customer_name }}{% endif %}">
+    {% if need_address %}
+    <label for="qa">{{ B.address }}</label>
+    <textarea id="qa" name="address" maxlength="600" autocomplete="street-address" required>{{ form.address }}</textarea>
+    {% endif %}
+    <p class="small">{{ B.accept_hint }}</p>
+    <button class="btn" type="submit">{{ B.accept }}</button>
+  </form>
+</div>
+<div class="card">
+  <form method="post" action="/q/{{ q_token }}{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="decline">
+    <label for="qr">{{ B.reason }}</label>
+    <input type="text" id="qr" name="reason" maxlength="200">
+    <p></p>
+    <button class="btn ghost" type="submit">{{ B.decline }}</button>
+  </form>
+</div>
+{% endif %}
+<p class="small">{{ B.privacy }}</p>
+<p class="small">{{ B.by }}</p>
+{% endif %}
+{% endblock %}
