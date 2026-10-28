@@ -806,3 +806,69 @@ def agent_by_widget_key(key):
 def widget_snippet(key):
     return ('<script src="%s/api/v1/bizagent/chat.js" data-key="%s" async></script>'
             % (getattr(settings, "PUBLIC_API_BASE", PUBLIC_BASE), key))
+
+
+# ============================================================ sales2: quick replies
+QUICK_MAX_PRODUCTS = 6
+
+
+def quick_replies(thread, lang=None, catalog=None):
+    """Seller quick replies for one chat, built ONLY from the catalog and the
+    shop's own delivery / payment settings with the rule-layer builders
+    (bizagent_rules.product_card / delivery_line / payment_line) — every
+    number comes from the catalog, nothing is invented and nothing is sent:
+    the app fills the composer and the seller taps Send.
+
+    Products the customer named in this chat (and the order being collected)
+    come first, then in-stock items. lang = the CUSTOMER's language (the
+    text goes to them), default the thread's.
+    -> {"lang", "replies": [{"kind": product|delivery|payment, "text",
+        "product_id"?, "name"?, "price"?, "in_stock"?, "mentioned"?}]}"""
+    biz = thread.business
+    lang = lang if lang in ("bn", "en") else (thread.lang if thread.lang in ("bn", "en")
+                                               else "bn")
+    catalog = catalog if catalog is not None else S().catalog_for(biz)
+    by_id = {p.get("id"): p for p in catalog}
+    picked, seen = [], set()
+
+    def add(p, mentioned):
+        if p is None or p.get("id") in seen:
+            return
+        seen.add(p.get("id"))
+        picked.append((p, mentioned))
+
+    draft = thread.order_draft or {}
+    if draft.get("product_id") in by_id:
+        add(by_id[draft["product_id"]], True)
+    texts = list(thread.messages.filter(direction="in").exclude(text="")
+                 .order_by("-created_at", "-id").values_list("text", flat=True)[:10])
+    for txt in texts:
+        for p in BZ.match_products(txt, catalog):
+            add(p, True)
+    rest = sorted((p for p in catalog if int(p.get("stock") or 0) > 0),
+                  key=lambda p: (-int(p.get("stock") or 0), p.get("id") or 0))
+    for p in rest:
+        if len(picked) >= QUICK_MAX_PRODUCTS:
+            break
+        add(p, False)
+    out = []
+    for p, mentioned in picked[:QUICK_MAX_PRODUCTS]:
+        text = R.product_card(lang, p)
+        if not text:
+            continue           # no price in the catalog → never a guessed one
+        lo, hi = R._price_range(p)
+        price = BZ._fmt_money(lo) if lo == hi else "%s–%s" % (BZ._fmt_money(lo),
+                                                               BZ._fmt_money(hi))
+        out.append({"kind": "product", "product_id": p.get("id"), "name": p.get("name") or "",
+                    "price": price, "in_stock": int(p.get("stock") or 0) > 0,
+                    "mentioned": mentioned, "text": text})
+    dl = R.delivery_line(lang, S().delivery_for(biz))
+    if dl:
+        out.append({"kind": "delivery", "text": dl})
+    agent = S().agent_for(biz)
+    pol = biz.policies.first()
+    pay = R.payment_line(lang, cod=agent.cod_enabled,
+                         note=(pol.payment_note if pol else "") or "")
+    if pay:
+        out.append({"kind": "payment", "text": pay})
+    return {"lang": lang, "replies": out}

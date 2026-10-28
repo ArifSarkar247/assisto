@@ -553,6 +553,10 @@ class ThreadDetailView(APIView):
         idle = GD.clamp(a.takeover_idle_minutes, 0, GD.IDLE_MAX_MIN, 60)
         row["handback_at"] = ((t.takeover_at + timedelta(minutes=idle)).isoformat()
                               if t.owner_takeover and t.takeover_at and idle > 0 else None)
+        # sales2: ONE handoff card for the top of the thread = the newest
+        # UNRESOLVED handoff (still pending, or no seller reply / hand-back
+        # since) — not only a pending approval.
+        row["handoff_card"] = GD.open_handoff(t)
         return Response({"thread": row, "messages": msgs, "orders": orders})
 
 
