@@ -387,6 +387,21 @@ Uint8List enhanceClassic(Uint8List rgba, int w, int h, ClassicParams p,
 ///  * [rowFrom]/[rowTo] (multiples of [stripRows]) limit the work to a band
 ///    (parallel workers split a photo by strips, same strips as one worker);
 ///  * [onStrip] reports (rows done, rows total) after each strip.
+/// Context rows a strip needs above/below (the filters' supports added up) —
+/// a band worker must get rows [from - pad, to + pad) of the photo.
+int classicPad(int w, int h, List<ClassicFace> faces) {
+  final sc = math.max(w, h) / 1000.0;
+  final rDen = math.max(1, (2 * sc).round());
+  final rChroma = math.max(1, (2 * sc).round());
+  final rSharp = math.max(1, (1.2 * sc).round());
+  var faceW = 0.0;
+  for (final f in faces) {
+    faceW = math.max(faceW, f.w * w);
+  }
+  final rSkin = math.max(2, (faceW / 40).round());
+  return 2 * (rDen + rChroma + rSharp + rSkin) + 8;
+}
+
 Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan plan,
     {List<ClassicFace> faces = const [],
     int stripRows = 256,
@@ -394,7 +409,11 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
     void Function(int y0, int y1, Uint8List rows)? onRows,
     int rowFrom = 0,
     int? rowTo,
+    int srcRow0 = 0,
     void Function(int done, int total)? onStrip}) {
+  // [srcRow0]: [rgba] holds only rows srcRow0.. of the h-row photo (a band
+  // with its context rows, see [classicPad]) — streamed output only.
+  assert(srcRow0 == 0 || onRows != null);
   assert(out == null || out.length == rgba.length);
   assert(rowFrom % stripRows == 0);
   final rowEnd = math.min(h, rowTo ?? h);
@@ -415,7 +434,8 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
   final rSkin = math.max(2, (faceW / 40).round());
   // context rows around each strip: the filters run one after another, so
   // their supports add up (denoise 2r, skin 2r+2, sharpen 2r ...)
-  final pad = 2 * (rDen + rChroma + rSharp + rSkin) + 8;
+  final pad = classicPad(w, h, faces);
+  assert(pad == 2 * (rDen + rChroma + rSharp + rSkin) + 8);
   final doSkin = p.skin > 0 && faces.isNotEmpty;
 
   // tone LUT (WB is applied before it, per channel)
@@ -459,7 +479,7 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
 
     // ---- 1+2: WB, levels/gamma -> Y Cb Cr (0..1, chroma centred on 0)
     for (var yy = 0; yy < sh; yy++) {
-      var si = ((a0 + yy) * w) * 4;
+      var si = ((a0 + yy - srcRow0) * w) * 4;
       var di = yy * w;
       for (var x = 0; x < w; x++) {
         final r = _clamp01(rgba[si] / 255.0 * plan.gainR);
@@ -569,10 +589,11 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
     }
 
     // ---- 7: back to RGB with vibrance; write only the strip's own rows
-    final ob = onRows != null ? y0 * w * 4 : 0; // streamed: strip-relative rows
+    // streamed: strip-relative rows (ai is band-relative, so offset by the band)
+    final ob = onRows != null ? (y0 - srcRow0) * w * 4 : 0;
     for (var yy = y0; yy < y1; yy++) {
       var si = (yy - a0) * w;
-      var ai = yy * w * 4;
+      var ai = (yy - srcRow0) * w * 4;
       var oi = ai - ob;
       for (var x = 0; x < w; x++) {
         final y = yv[si];

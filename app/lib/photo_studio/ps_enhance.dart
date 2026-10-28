@@ -28,6 +28,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart' show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:path_provider/path_provider.dart';
 
+import '../perf/low_ram.dart' show LowRamTuning;
 import 'ps_classic.dart';
 import 'ps_engines.dart';
 import 'ps_export.dart' show MarkPainter;
@@ -299,6 +300,28 @@ RecipeOut Function(void Function(int, int)) _stepsJob(
         TransferableTypedData rgba, int w, int h, List<PsStep> steps) =>
     (p) => applySteps(rgba.materialize().asUint8List(), w, h, steps, progress: p);
 
+BandRgba Function(void Function(int, int)) _bandJob(TransferableTypedData rgba, int w, int h,
+        ClassicStep st, int from, int to) =>
+    (p) => classicBand(rgba.materialize().asUint8List(), w, h, st, from, to, progress: p);
+
+PngBand Function(void Function(int, int)) _pngBandJob(TransferableTypedData src, int srcRow0,
+        int w, int h, ClassicStep st, int from, int to, MarkPatch? mark, bool alpha, bool first,
+        bool last) =>
+    (p) => exportBand(src.materialize().asUint8List(), srcRow0, w, h, st, from, to,
+        mark: mark, alpha: alpha, first: first, last: last, progress: p);
+
+/// photoperf: isolates one pixel job is split over — the cores, at most 2 on
+/// ≤ 3 GB phones (each band has its own working memory).
+int psBandWorkers() {
+  try {
+    final cores = Platform.numberOfProcessors;
+    final small = LowRamTuning.lowRam || (LowRamTuning.ramMb > 0 && LowRamTuning.ramMb <= 3328);
+    return cores.clamp(1, small ? 2 : 4);
+  } catch (_) {
+    return 1;
+  }
+}
+
 Uint8List Function(void Function(int, int)) _exportJob(TransferableTypedData rgba, int w,
         int h, List<PsStep> steps, MarkPatch? mark, Uint8List extra) =>
     (p) => renderRecipePng(rgba.materialize().asUint8List(), w, h, steps,
@@ -328,6 +351,10 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
 
   /// photoperf: the background isolate every heavy pixel job runs in.
   final PsWorker worker;
+
+  /// Bands a single classic step is split into (tests: 2, inline).
+  int bands = 0;
+  int get _bands => bands > 0 ? bands : (worker.inline ? 2 : psBandWorkers());
   PsStep? _lastStep;
   @override
   PsStep? get lastStep => _lastStep;
@@ -341,6 +368,24 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
   }
 
   Future<RecipeOut> _run(Uint8List rgba, int w, int h, List<PsStep> steps, PsStage stage) async {
+    void prog(int d, int t) => progress?.call(PsProgress(stage, done: d, total: t));
+    final n = _bands;
+    if (n > 1 && steps.length == 1 && steps.single is ClassicStep) {
+      // photoperf: one classic step split by strips over the cores
+      final st = steps.single as ClassicStep;
+      final bands = psBands(h, 256, n);
+      try {
+        final parts = await worker.runAll<BandRgba>([
+          for (final (a, b) in bands)
+            worker.inline
+                ? (void Function(int, int) p) => classicBand(rgba, w, h, st, a, b, progress: p)
+                : _bandJob(TransferableTypedData.fromList([rgba]), w, h, st, a, b),
+        ], onProgress: prog);
+        return joinBands(parts, w, h, st);
+      } on PsWorkCancelled {
+        throw const PsCancelled();
+      }
+    }
     try {
       final job = worker.inline
           ? (void Function(int, int) p) => applySteps(rgba, w, h, steps, progress: p)
@@ -387,6 +432,37 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
     }
     final extra = note.isEmpty ? Uint8List(0) : PngMeta.aiChunks(note: note, generated: generated);
     final w = img.w, h = img.h;
+    final n = _bands;
+    final single = steps.length == 1 ? steps.single : null;
+    if (n > 1 && single is ClassicStep && single.plan != null) {
+      // photoperf: bands over the cores, each with only its rows (+ context);
+      // each band deflates its own part of the PNG stream
+      final bands = psBands(h, 256, n);
+      final pad = classicPad(w, h, single.faces);
+      final alpha = psMayHaveAlpha(anchor);
+      final jobs = <PngBand Function(void Function(int, int))>[];
+      for (var i = 0; i < bands.length; i++) {
+        final (a, b) = bands[i];
+        final r0 = math.max(0, a - pad), r1 = math.min(h, b + pad);
+        final rows = Uint8List.sublistView(img.rgba, r0 * w * 4, r1 * w * 4);
+        final first = i == 0, last = i == bands.length - 1;
+        jobs.add(worker.inline
+            ? (p) => exportBand(rows, r0, w, h, single, a, b,
+                mark: patch, alpha: alpha, first: first, last: last, progress: p)
+            : _pngBandJob(TransferableTypedData.fromList([rows]), r0, w, h, single, a, b, patch,
+                alpha, first, last));
+      }
+      img = RgbaImage._empty(); // the UI isolate keeps no full-size copy
+      try {
+        final parts = await worker.runAll<PngBand>(jobs,
+            onProgress: (d, t) => progress?.call(PsProgress(PsStage.export, done: d, total: t)));
+        final png = joinPngBands(parts, w, h, alpha: alpha, extraChunks: extra);
+        timings['export_ms'] = sw.elapsedMilliseconds;
+        return png;
+      } on PsWorkCancelled {
+        throw const PsCancelled();
+      }
+    }
     final Uint8List Function(void Function(int, int)) job;
     if (worker.inline) {
       final rgba = img.rgba;

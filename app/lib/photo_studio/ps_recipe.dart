@@ -24,7 +24,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert' show ByteConversionSink;
-import 'dart:io' show ZLibEncoder;
+import 'dart:io' show RawZLibFilter, ZLibEncoder;
 import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -238,6 +238,187 @@ Uint8List renderRecipePng(Uint8List rgba, int w, int h, List<PsStep> steps,
   progress?.call(1000, 1000);
   return out;
 }
+
+// =========================================================================
+// photoperf: bands — one classic step split by strips over several cores.
+// Every band runs exactly the strips a single pass would, so the pixels are
+// bit-identical to [applySteps]; only the work is spread.
+// =========================================================================
+/// Row ranges (multiples of [stripRows]) for [n] workers.
+List<(int, int)> psBands(int h, int stripRows, int n) {
+  final strips = (h + stripRows - 1) ~/ stripRows;
+  final k = math.max(1, math.min(n, strips));
+  return [
+    for (var i = 0; i < k; i++)
+      (math.min(h, i * strips ~/ k * stripRows), math.min(h, (i + 1) * strips ~/ k * stripRows)),
+  ];
+}
+
+class BandRgba {
+  const BandRgba(this.from, this.to, this.rows, this.plan);
+  final int from, to;
+  final Uint8List rows;
+  final ClassicPlan plan;
+}
+
+/// Interactive band: [rgba] is the whole (proxy) photo; the plan is measured
+/// here when the step has none (each band measures the same numbers).
+BandRgba classicBand(Uint8List rgba, int w, int h, ClassicStep st, int from, int to,
+    {void Function(int done, int total)? progress, int stripRows = 256}) {
+  final plan = st.plan ?? _measure(rgba, w, h, st.params);
+  final out = Uint8List((to - from) * w * 4);
+  applyPlan(rgba, w, h, st.params, plan,
+      faces: st.faces,
+      stripRows: stripRows,
+      rowFrom: from,
+      rowTo: to,
+      onRows: (y0, y1, rows) => out.setRange((y0 - from) * w * 4, (y1 - from) * w * 4, rows),
+      onStrip: (d, t) => progress?.call(d - from, to - from));
+  return BandRgba(from, to, out, plan);
+}
+
+/// Assemble band results into one photo + the step with its plan.
+RecipeOut joinBands(List<BandRgba> bands, int w, int h, ClassicStep st) {
+  final out = Uint8List(w * h * 4);
+  for (final b in bands) {
+    out.setRange(b.from * w * 4, b.to * w * 4, b.rows);
+  }
+  return RecipeOut(out, w, h, [st.plan == null ? st.withPlan(bands.first.plan) : st]);
+}
+
+/// One export band, PNG-ready: an IDAT chunk holding this band's part of
+/// the zlib stream (header in the first band, sync-flushed so the parts
+/// concatenate, final block in the last) + its Adler-32 for the trailer.
+class PngBand {
+  const PngBand(this.chunk, this.adler, this.rawLen);
+  final Uint8List chunk;
+  final int adler, rawLen;
+}
+
+/// [src] holds rows [srcRow0].. of the w×h photo (the band + context rows).
+PngBand exportBand(Uint8List src, int srcRow0, int w, int h, ClassicStep st, int from, int to,
+    {MarkPatch? mark,
+    bool alpha = false,
+    required bool first,
+    required bool last,
+    int level = 2,
+    int stripRows = 256,
+    void Function(int done, int total)? progress}) {
+  final z = RawZLibFilter.deflateFilter(level: level, raw: true);
+  final data = BytesBuilder(copy: false);
+  if (first) data.add(const [0x78, 0x01]);
+  void drain({bool flush = false, bool end = false}) {
+    for (;;) {
+      final o = z.processed(flush: flush, end: end);
+      if (o == null) break;
+      data.add(o);
+    }
+  }
+
+  final bpp = alpha ? 4 : 3;
+  final stride = w * bpp;
+  final line = Uint8List(stride + 1);
+  final cur = Uint8List(stride), prev = Uint8List(stride);
+  var a = 1, b = 0, raw = 0, row = from;
+  void adler(Uint8List d) {
+    for (var i = 0; i < d.length; i++) {
+      a += d[i];
+      if (a >= 65521) a -= 65521;
+      b += a;
+      if (b >= 65521) b -= 65521;
+    }
+  }
+
+  applyPlan(src, w, h, st.params, st.plan!, // exports always carry the proxy's plan
+      faces: st.faces,
+      stripRows: stripRows,
+      rowFrom: from,
+      rowTo: to,
+      srcRow0: srcRow0,
+      onRows: (y0, y1, rows) {
+    if (mark != null) mark.compositeRows(rows, w, y0, y1);
+    for (var r = 0; r < y1 - y0; r++) {
+      var s = r * w * 4;
+      if (bpp == 4) {
+        cur.setRange(0, stride, rows, s);
+      } else {
+        for (var j = 0; j < stride; j += 3, s += 4) {
+          cur[j] = rows[s];
+          cur[j + 1] = rows[s + 1];
+          cur[j + 2] = rows[s + 2];
+        }
+      }
+      // the band's first row has no previous row here: filter None (PNG
+      // allows a filter per row), then Up
+      if (row == from) {
+        line[0] = 0;
+        line.setRange(1, stride + 1, cur);
+      } else {
+        line[0] = 2;
+        for (var j = 0; j < stride; j++) {
+          line[j + 1] = (cur[j] - prev[j]) & 0xFF;
+        }
+      }
+      prev.setAll(0, cur);
+      adler(line);
+      raw += line.length;
+      z.process(line, 0, line.length);
+      drain();
+      row++;
+    }
+    progress?.call(y1 - from, to - from);
+  });
+  drain(flush: true, end: last);
+  return PngBand(pngChunk('IDAT', data.takeBytes()), (b << 16) | a, raw);
+}
+
+/// zlib's adler32_combine: Adler-32 of A+B from adler(A), adler(B), len(B).
+int adler32Combine(int a1, int a2, int len2) {
+  const base = 65521;
+  final rem = len2 % base;
+  var sum1 = a1 & 0xFFFF;
+  var sum2 = (rem * sum1) % base;
+  sum1 += (a2 & 0xFFFF) + base - 1;
+  sum2 += ((a1 >> 16) & 0xFFFF) + ((a2 >> 16) & 0xFFFF) + base - rem;
+  if (sum1 >= base) sum1 -= base;
+  if (sum1 >= base) sum1 -= base;
+  if (sum2 >= (base << 1)) sum2 -= (base << 1);
+  if (sum2 >= base) sum2 -= base;
+  return sum1 | (sum2 << 16);
+}
+
+/// The PNG file from export bands (in order).
+Uint8List joinPngBands(List<PngBand> bands, int w, int h,
+    {bool alpha = false, List<int> extraChunks = const []}) {
+  var ad = bands.first.adler;
+  for (var i = 1; i < bands.length; i++) {
+    ad = adler32Combine(ad, bands[i].adler, bands[i].rawLen);
+  }
+  final ihdr = Uint8List(13);
+  ByteData.sublistView(ihdr)
+    ..setUint32(0, w)
+    ..setUint32(4, h);
+  ihdr[8] = 8;
+  ihdr[9] = alpha ? 6 : 2;
+  final trailer = Uint8List(4);
+  ByteData.sublistView(trailer).setUint32(0, ad);
+  final out = BytesBuilder(copy: false)
+    ..add(const [137, 80, 78, 71, 13, 10, 26, 10])
+    ..add(pngChunk('IHDR', ihdr));
+  if (extraChunks.isNotEmpty) out.add(extraChunks);
+  for (final b in bands) {
+    out.add(b.chunk);
+  }
+  out
+    ..add(pngChunk('IDAT', trailer))
+    ..add(pngChunk('IEND', const []));
+  return out.toBytes();
+}
+
+/// Is an encoded image possibly transparent? (PNG colour type with alpha;
+/// JPEG/BMP proxies are opaque).
+bool psMayHaveAlpha(Uint8List b) =>
+    b.length > 25 && b[0] == 0x89 && b[1] == 0x50 && (b[25] == 4 || b[25] == 6);
 
 // =========================================================================
 // Corner mark (rendered by Flutter on the main isolate as a small RGBA
@@ -474,36 +655,74 @@ class PsWorkCancelled implements Exception {
   const PsWorkCancelled();
 }
 
-/// Runs one heavy job in a background isolate (or inline for tests): real
-/// progress messages, and [cancel] KILLS the isolate (nothing kept).
+/// Runs heavy jobs in background isolates (or inline for tests): real
+/// progress messages, and [cancel] KILLS every isolate (nothing kept).
 class PsWorker {
   PsWorker({this.inline = false});
 
   /// Run on the calling isolate (unit/widget tests with fake async).
   final bool inline;
-  Isolate? _iso;
-  Completer<Object?>? _pending;
+  final Set<Isolate> _isos = {};
+  int _running = 0;
   bool _cancelled = false;
 
-  bool get running => _pending != null;
+  bool get running => _running > 0;
 
   Future<T> run<T>(T Function(void Function(int done, int total) progress) job,
       {void Function(int done, int total)? onProgress}) async {
+    final r = await runAll<T>([job], onProgress: onProgress);
+    return r.single;
+  }
+
+  /// photoperf: several jobs at once (one isolate each, e.g. bands of one
+  /// photo on a multi-core phone); progress is the sum over the jobs, in
+  /// 1/1000. Any failure or a cancel stops all of them.
+  Future<List<T>> runAll<T>(List<T Function(void Function(int done, int total) progress)> jobs,
+      {void Function(int done, int total)? onProgress}) async {
     _cancelled = false;
-    if (inline) {
-      final r = job((d, t) {
-        if (_cancelled) throw const PsWorkCancelled();
-        onProgress?.call(d, t);
-      });
-      if (_cancelled) throw const PsWorkCancelled();
-      return r;
+    final n = jobs.length;
+    final part = List<double>.filled(n, 0);
+    void report(int i, int d, int t) {
+      part[i] = t <= 0 ? 0 : d / t;
+      if (onProgress != null) {
+        var sum = 0.0;
+        for (final v in part) {
+          sum += v;
+        }
+        onProgress((sum / n * 1000).round(), 1000);
+      }
     }
+
+    if (inline) {
+      final out = <T>[];
+      for (var i = 0; i < n; i++) {
+        out.add(jobs[i]((d, t) {
+          if (_cancelled) throw const PsWorkCancelled();
+          report(i, d, t);
+        }));
+        if (_cancelled) throw const PsWorkCancelled();
+      }
+      return out;
+    }
+    _running++;
+    try {
+      return await Future.wait([for (var i = 0; i < n; i++) _one<T>(jobs[i], (d, t) => report(i, d, t))],
+          eagerError: true);
+    } catch (e) {
+      if (_isos.isNotEmpty) _killAll(); // one failed -> stop the others
+      if (_cancelled) throw const PsWorkCancelled();
+      rethrow;
+    } finally {
+      _running--;
+    }
+  }
+
+  Future<T> _one<T>(T Function(void Function(int, int)) job, void Function(int, int) prog) async {
     final port = ReceivePort();
     final done = Completer<Object?>();
-    _pending = done;
     port.listen((m) {
       if (m is List && m.length == 3 && m[0] == 'p') {
-        onProgress?.call(m[1] as int, m[2] as int);
+        prog(m[1] as int, m[2] as int);
       } else if (m is List && m.length == 2 && m[0] == 'e') {
         if (!done.isCompleted) done.completeError(StateError('${m[1]}'));
       } else if (m is List && m.length == 2 && m[0] == 'r') {
@@ -515,26 +734,31 @@ class PsWorker {
         }
       }
     });
+    Isolate? iso;
     try {
-      _iso = await Isolate.spawn<_Job>(_entry, _Job(port.sendPort, job),
+      iso = await Isolate.spawn<_Job>(_entry, _Job(port.sendPort, job),
           onExit: port.sendPort, errorsAreFatal: true);
-      if (_cancelled) _iso?.kill(priority: Isolate.immediate);
+      _isos.add(iso);
+      if (_cancelled) iso.kill(priority: Isolate.immediate);
       final r = await done.future;
       return r as T;
     } finally {
       port.close();
-      _iso = null;
-      _pending = null;
+      if (iso != null) _isos.remove(iso);
     }
   }
 
-  /// Stop now: the isolate is killed, [run] throws [PsWorkCancelled].
+  void _killAll() {
+    for (final i in _isos.toList()) {
+      i.kill(priority: Isolate.immediate);
+    }
+  }
+
+  /// Stop now: the isolates are killed (their exit makes [run] / [runAll]
+  /// throw [PsWorkCancelled]; a cancel during spawn is applied right after).
   void cancel() {
     _cancelled = true;
-    // the kill makes the isolate exit -> onExit -> run() throws
-    // PsWorkCancelled (a cancel during spawn is applied right after it)
-    final iso = _iso;
-    if (iso != null) iso.kill(priority: Isolate.immediate);
+    _killAll();
   }
 }
 

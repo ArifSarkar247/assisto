@@ -118,9 +118,10 @@ Uint8List scene(int w, int h, {int seed = 1}) {
   final prev = Uint8List(stride);
   for (var y = 0; y < h; y++) {
     final o = y * (stride + 1);
-    expect(raw[o], 2, reason: 'filter Up');
+    final ft = raw[o];
+    expect(ft == 2 || ft == 0, isTrue, reason: 'filter Up (or None on a band start)');
     for (var j = 0; j < stride; j++) {
-      prev[j] = (raw[o + 1 + j] + prev[j]) & 0xFF;
+      prev[j] = ft == 2 ? (raw[o + 1 + j] + prev[j]) & 0xFF : raw[o + 1 + j];
     }
     for (var x = 0; x < w; x++) {
       final i = (y * w + x) * 4;
@@ -315,6 +316,48 @@ void main() {
       }
       // stripRows only moves where running sums restart: ±1 on a few pixels
       expect(diffs, lessThan(w * h ~/ 200));
+    });
+
+    test('bands over several cores: bit-identical pixels, one valid PNG', () {
+      const w = 300, h = 700; // 3 strips of 256 rows
+      final img = scene(w, h, seed: 6);
+      const st0 = ClassicStep(ClassicParams.lowLightTool, faces: [ClassicFace(0.3, 0.2, 0.3, 0.2)]);
+      final one = applySteps(img, w, h, const [st0]);
+      final bands = psBands(h, 256, 2);
+      expect(bands, [(0, 256), (256, 700)]);
+      final parts = [for (final (a, b) in bands) classicBand(img, w, h, st0, a, b)];
+      final joined = joinBands(parts, w, h, st0);
+      expect(joined.rgba, one.rgba);
+      final st = one.steps.single as ClassicStep;
+      // export bands get only their rows + context
+      final pad = classicPad(w, h, st.faces);
+      final eb = psBands(h, 256, 3);
+      final pngParts = <PngBand>[];
+      for (var i = 0; i < eb.length; i++) {
+        final (a, b) = eb[i];
+        final r0 = math.max(0, a - pad), r1 = math.min(h, b + pad);
+        pngParts.add(exportBand(Uint8List.sublistView(img, r0 * w * 4, r1 * w * 4), r0, w, h, st, a, b,
+            first: i == 0, last: i == eb.length - 1));
+      }
+      final png = joinPngBands(pngParts, w, h, extraChunks: PngMeta.aiChunks(note: 'n'));
+      final r = readPng(png); // zlib checks the combined Adler-32
+      expect((r.w, r.h), (w, h));
+      expect(r.rgba, applySteps(img, w, h, one.steps).rgba);
+      expect(r.chunks.where((c) => c == 'IDAT').length, 4);
+    });
+
+    test('adler32 combine matches one pass', () {
+      int ad(List<int> d) {
+        var a = 1, b = 0;
+        for (final x in d) {
+          a = (a + x) % 65521;
+          b = (b + a) % 65521;
+        }
+        return (b << 16) | a;
+      }
+
+      final x = List.generate(70000, (i) => (i * 31) & 0xFF), y = List.generate(1234, (i) => i & 0xFF);
+      expect(adler32Combine(ad(x), ad(y), y.length), ad([...x, ...y]));
     });
 
     test('blur step: the mask is resolution-free, output capped like before', () {
