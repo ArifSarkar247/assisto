@@ -1,0 +1,10 @@
+{
+  "en": {
+    "nomineeScopeDocumentsDesc2": "The list and pointers of what is in the vault — never the document files themselves.",
+    "nomineeNoSecretsNote2": "No passwords, PINs or document files are shown here — only pointers and instructions. Your documents stay private to your account."
+  },
+  "bn": {
+    "nomineeScopeDocumentsDesc2": "ভল্টে কোন কোন দলিল আছে তার তালিকা ও নির্দেশনা — দলিলের মূল ফাইল নয়।",
+    "nomineeNoSecretsNote2": "এখানে কোনো পাসওয়ার্ড, পিন বা দলিলের ফাইল দেখানো হয় না — শুধু নির্দেশনা ও পয়েন্টার। আপনার দলিল শুধু আপনার অ্যাকাউন্টেই থাকে।"
+  }
+}
