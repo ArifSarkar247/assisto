@@ -1665,3 +1665,22 @@ BN.update({
     "crh_log": "পরিবর্তনের তালিকা", "crh_saved": "সেভ হয়েছে", "crh_rejected": "বাতিল",
 })
 # ---- /af-crisis ----
+
+# ---- af-8: Agent runs -> observability ----
+EN.update({
+    "ago_title": "Health of the agent (chosen days)",
+    "ago_intro": "Failure rate of finished runs, runs with a rejected plan, planner latency p50 / p95 (ms), real AI cost per successful task, and approvals approved / rejected / expired. ops_watch alerts the owner (two bad checks in a row, then at most once a day) when the last-window numbers cross the thresholds below.",
+    "ago_fail": "Failed runs", "ago_invalid": "Rejected plans", "ago_plan_ms": "Planner p50 / p95 ms",
+    "ago_cost_task": "Cost per successful task", "ago_approvals": "Approved / rejected / expired",
+    "ago_calls": "Calls", "ago_err": "Errors", "ago_thresholds": "Alert thresholds",
+    "ago_thresholds_note": "Percent values are 1–100; latency in milliseconds; cost in US dollars. A blank field keeps its value.",
+})
+BN.update({
+    "ago_title": "এজেন্টের স্বাস্থ্য (বাছাই করা দিন)",
+    "ago_intro": "শেষ হওয়া রানের ব্যর্থতার হার, বাতিল প্ল্যানের রান, প্ল্যানারের সময় p50 / p95 (মিলিসেকেন্ড), প্রতিটি সফল কাজের আসল AI খরচ, আর অনুমোদন: রাজি / বাতিল / মেয়াদ শেষ। শেষ সময়ের সংখ্যা নিচের সীমা ছাড়ালে ops_watch মালিককে জানায় (পরপর দুইবার খারাপ হলে, তারপর দিনে বড়জোর একবার)।",
+    "ago_fail": "ব্যর্থ রান", "ago_invalid": "বাতিল প্ল্যান", "ago_plan_ms": "প্ল্যানার p50 / p95 মিলিসেকেন্ড",
+    "ago_cost_task": "প্রতি সফল কাজের খরচ", "ago_approvals": "রাজি / বাতিল / মেয়াদ শেষ",
+    "ago_calls": "কল", "ago_err": "ত্রুটি", "ago_thresholds": "সতর্কতার সীমা",
+    "ago_thresholds_note": "শতাংশ ১–১০০; সময় মিলিসেকেন্ডে; খরচ মার্কিন ডলারে। ফাঁকা রাখলে আগের মান থাকে।",
+})
+# ---- /af-8 ----
