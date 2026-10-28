@@ -1130,17 +1130,18 @@ class _AiChatScreenState extends State<AiChatScreen>
     final codes = (_aiStatus?['free'] is List)
         ? (_aiStatus!['free'] as List).map((e) => '$e').toList()
         : const ['own_data', 'app_help', 'phone_commands', 'voice_input'];
-    return [
-      for (final c in codes)
-        switch (c) {
-          'own_data' => t.aivFreeOwnData,
-          'app_help' => t.aivFreeAppHelp,
-          'phone_commands' => t.aivFreePhoneCommands,
-          'voice_input' => t.aivFreeVoiceInput,
-          _ => '',
-        }
-    ].where((l) => l.isNotEmpty).toList();
+    return [for (final c in codes) _freeLine(c)]
+        .where((l) => l.isNotEmpty)
+        .toList();
   }
+
+  String _freeLine(String code) => switch (code) {
+        'own_data' => t.aivFreeOwnData,
+        'app_help' => t.aivFreeAppHelp,
+        'phone_commands' => t.aivFreePhoneCommands,
+        'voice_input' => t.aivFreeVoiceInput,
+        _ => '',
+      };
 
   bool get _paused => _aiStatus?['reason'] == 'paused';
 
