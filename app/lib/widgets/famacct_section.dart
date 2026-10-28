@@ -151,6 +151,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
           ]),
         ),
         IconButton(
+            tooltip: AppLocalizations.of(context).refresh,
             onPressed: _load,
             icon: const Icon(Icons.sync_rounded, color: Colors.white)),
       ]),
