@@ -82,6 +82,10 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
     """Create (idempotently) a goal + run; optionally drive it right away."""
     from ..models import AgentGoal, AgentRun
     text = (text or "").strip()
+    from . import crisis_guard as CG
+    crisis = CG.detect(text[:4000])
+    if crisis["crisis"]:
+        text = text[:1000]              # AF-3: a long crisis message still gets help
     if not text or len(text) > 1000:
         raise AgentError("bad_goal")
     client_id = (client_id or "")[:64]
@@ -91,6 +95,12 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
             return g.runs.order_by("-id").first()
     now = now or timezone.now()
     lim = limits_for(user)
+    # AF-3: a crisis (self-harm, abuse, a child in danger, a medical
+    # emergency) is answered BEFORE any cap or AI call: calm fixed line,
+    # 999 + owner-confirmed helplines, an OFFER to tell family; 0 credits,
+    # nothing else is done in this turn. Only {score, category} is logged.
+    if crisis["crisis"]:
+        return _crisis_run(user, text, crisis, channel, client_id, lang, lim, now)
     if channel != "eval":
         day0 = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
         if AgentRun.objects.filter(user=user, created_at__gte=day0).count() >= lim["runs_per_day"]:
@@ -129,6 +139,35 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
         advance(run, lang=lang, play=play)
         run.refresh_from_db()
     return run
+
+
+def _crisis_run(user, text, crisis, channel, client_id, lang, lim, now):
+    """AF-3: a finished run whose answer is the fixed crisis line. The goal
+    text is kept only SEALED (the user's own history); the masked copy that
+    Owner Admin and the audit can see is empty."""
+    from ..models import AgentGoal, AgentRun
+    from . import crisis_guard as CG
+    with transaction.atomic():
+        goal = AgentGoal.objects.create(
+            user=user, topic="safety", channel=channel if channel in AgentGoal.CHANNELS else "chat",
+            text_sealed=T.seal({"t": text}), text_masked="", client_id=client_id)
+        run = AgentRun(goal=goal, user=user, topic="safety", max_steps=lim["steps"],
+                       max_llm_calls=MAX_LLM_CALLS, max_credits=lim["credits"],
+                       deadline_at=now + RUN_TTL)
+        T.save_vault(run, T.Vault())
+        run.save()
+        T.audit(run, "run.created", topic="safety", channel=goal.channel, goal="")
+        T.audit(run, "guard.crisis", **CG.log_detail(crisis))
+    run._lang = lang
+    reply, _card = CG.respond(user, crisis, lang, surface="agent", event_id="run:%d" % run.pk)
+    _finish(run, "done", answer=reply)
+    return run
+
+
+def crisis_of(run):
+    """AF-3: {"score", "category"} when this run was a crisis handover."""
+    ev = run.audit.filter(event="guard.crisis").first()
+    return dict(ev.detail or {}) if ev is not None else None
 
 
 # ------------------------------------------------------------------ lease

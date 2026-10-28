@@ -21,6 +21,7 @@ from . import views_air as AIR       # ai-report
 from . import views_ai as AIRT       # ai-router
 from . import views_ops as OPS       # ops-watch
 from . import views_agent as AGR     # agent-core
+from . import views_crisis as CRH    # af-crisis
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -113,4 +114,6 @@ urlpatterns = [
     path("vitals/crash-rate", OPS.crash_rate_page),              # ops-watch
     path("agent-runs", AGR.agent_runs),                          # agent-core
     path("agent-runs/<int:pk>", AGR.agent_run_detail),           # agent-core
+    path("crisis-helplines", CRH.crisis_helplines),                # af-crisis
+    path("crisis-helplines/<str:key>", CRH.crisis_helpline_save),  # af-crisis
 ]
