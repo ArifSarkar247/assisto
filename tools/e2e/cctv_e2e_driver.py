@@ -501,7 +501,9 @@ def run():
         from django.utils import timezone as dj_tz
         from core import cctvx_views as CXV
         from core.models import CircleMember, ShopPosEvent
-        ShopEvent.objects.filter(site_id=site_id).update(status="checked")
+        # the FREE plan allows 5 alerts a day: clear this run's earlier test
+        # alerts (all checked above) so the extras below are not held back
+        ShopEvent.objects.filter(site_id=site_id).delete()
         ShopPosEvent.objects.create(site_id=site_id, kind="sale", amount=100,
                                     at=dj_tz.now() - timedelta(days=2))   # uses Assisto POS
         hdev = requests.Session()
@@ -546,6 +548,8 @@ def run():
         r = ddev.post(API + "/shop/ingest", json={"type": "hand_in_cash_zone", "signals": {
             "detector": "yolox_nano", "motion_in_zone": True}}, timeout=10)
         cid = (r.json() or {}).get("event_id")
+        need("cctvx: the second touch is pending too", cid is not None and
+             ShopEvent.objects.get(pk=cid).pending, r.text)
         r2 = requests.post(API + "/shop/pos", json={
             "site_token": enroll, "kind": "sale", "amount": 25000,
             "at": (dj_tz.now() + timedelta(seconds=70)).isoformat()}, timeout=10)
@@ -565,9 +569,6 @@ def run():
                       json={"escalation": [fam_uid], "shop_phone": "01710009001"}, timeout=10)
         check("cctvx: escalation chain saved (Circle member only)",
               g.status_code == 200 and g.json()["settings"]["escalation"] == [fam_uid], g.text)
-        # the FREE plan allows 5 alerts a day: clear this run's earlier test
-        # alerts (keep the no-sale one for the report check below)
-        ShopEvent.objects.filter(site_id=site_id).exclude(pk=nev.id).delete()
         r = hdev.post(API + "/shop/ingest", json={"type": "zone_intrusion", "signals": {
             "detector": "yolox_nano", "zone_breach": True, "person": True}}, timeout=10)
         eid = (r.json() or {}).get("event_id")
