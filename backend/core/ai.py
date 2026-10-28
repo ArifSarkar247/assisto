@@ -472,6 +472,18 @@ def health_probe(name, key, timeout=10):
 
 
 # ------------------------------------------------------------------ generate
+def mask_for_provider(task, data="", history=None, extra_system="", pii=None):
+    """AF-2: -> (vault|None, task, data, history, extra_system). pii falsy =
+    unchanged; True = a new trust Vault; a Vault = shared with the caller.
+    The ONE masking step every pii=True call (and its CI eval) goes through."""
+    if not pii:
+        return None, task, data, history, extra_system
+    from .agentcore import trust as _T
+    vault = pii if isinstance(pii, _T.Vault) else _T.Vault()
+    task, data, history, extra_system = vault.mask_request(task, data, history, extra_system)
+    return vault, task, data, history, extra_system
+
+
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
              task_class=None, mode=None, out_meta=None, upgrade=False, pii=None):
@@ -499,13 +511,10 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     the returned text. The vault never leaves this server. `out_meta` gets
     {"pii_masked": n}."""
     from . import ai_router as R
-    vault = None
-    if pii:
-        from .agentcore import trust as _T
-        vault = pii if isinstance(pii, _T.Vault) else _T.Vault()
-        task, data, history, extra_system = vault.mask_request(task, data, history, extra_system)
-        if isinstance(out_meta, dict):
-            out_meta["pii_masked"] = len(vault.t2v)
+    vault, task, data, history, extra_system = mask_for_provider(task, data, history,
+                                                                 extra_system, pii)
+    if vault is not None and isinstance(out_meta, dict):
+        out_meta["pii_masked"] = len(vault.t2v)
     providers = _providers()
     if not providers:
         raise AIUnavailable("no_key")

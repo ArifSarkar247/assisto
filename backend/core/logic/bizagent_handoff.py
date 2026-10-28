@@ -69,8 +69,12 @@ def _pick(lang, pair):
     return pair[0] if lang == "bn" else pair[1]
 
 
+_EN_DIG = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
 def _digits(lang, s):
-    return str(s).translate(_BN_DIG) if lang == "bn" else str(s)
+    """Strict digits per language: Bangla digits in bn, ASCII in en."""
+    return str(s).translate(_BN_DIG) if lang == "bn" else str(s).translate(_EN_DIG)
 
 
 def _money(v):

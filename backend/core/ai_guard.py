@@ -466,10 +466,11 @@ _TOX_RX = (
                r"(?![a-z])"),
     ("abuse", r"(?<![a-z])(?:kuttar|kutar|shuorer|shuyorer|suorer|shuor er|kuttar er)\s*"
               r"(?:bac+h?c?h?a|bacca|bachcha|bacha)(?![a-z])"),
-    ("threat", r"(?<![%s])(?:তোকে|তোরে|তোদের|তোমাকে|আপনাকে)\s+(?:আমি\s+)?(?:দেখে\s+নে|দেইখা\s+নিমু|"
-               r"মেরে|খুন|পিটি|জবাই|তুলে\s+নিয়ে)" % _BNL),
-    ("threat", r"(?<![a-z])(?:toke|tore|toder|tomake|apnake)\s+(?:ami\s+)?(?:dekhe\s+n|"
-               r"deikha\s+nimu|mere|khun|piti|jobai|tule\s+niye)"),
+    # rude "তুই"-forms only: "আমি তোমাকে তুলে নিয়ে যাব" (I'll pick you up) is family talk
+    ("threat", r"(?<![%s])(?:তোকে|তোরে|তোদের)\s+(?:আমি\s+)?(?:দেখে\s+নে|দেইখা\s+নিমু|"
+               r"মেরে|খুন|পিটি|জবাই)" % _BNL),
+    ("threat", r"(?<![a-z])(?:toke|tore|toder)\s+(?:ami\s+)?(?:dekhe\s+n|"
+               r"deikha\s+nimu|mere|khun|piti|jobai)"),
     # "বাল" (gali) but never "বাল-বাচ্চা" (the family's kids), বালতি, বালিশ, বালু, বালক
     ("abuse", r"(?<![%s])বাল(?:ের|এর|র|ডা|টা)?(?![%s])(?![\s-]*বাচ্চা)" % (_BNL, _BNL)),
 )
