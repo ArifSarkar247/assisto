@@ -372,7 +372,9 @@ void main() {
         ),
       ));
       await tester.pump();
-      final pos = tester.state<ScrollableState>(find.byType(Scrollable)).position;
+      final pos = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
       pos.jumpTo(pos.maxScrollExtent);
       await tester.pump();
       final r = tester.getRect(find.byType(FilledButton));
