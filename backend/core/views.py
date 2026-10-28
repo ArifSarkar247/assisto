@@ -572,18 +572,15 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
         return FamilyMember.objects.filter(user=self.request.user) \
             .select_related("circle_member")
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         # famcare: every plan (Free included) keeps up to 5 — server-enforced.
         from . import famcare as FC
-        from rest_framework.exceptions import PermissionDenied
-        if FC.over_cap(self.request.user):
-            cap = FC.family_cap(self.request.user)
-            from .family_alerts import bn_num
-            raise PermissionDenied(detail={
-                "reason": "family_limit", "limit": cap,
-                "detail": pick(req_lang(self.request),
-                               "পরিবারে সর্বোচ্চ %s জন রাখা যায়।" % bn_num(cap),
-                               "You can keep up to %d family members." % cap)})
+        if FC.over_cap(request.user):
+            from .views_famcare import refuse
+            return refuse(request, "family_limit", limit=FC.family_cap(request.user))
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 
