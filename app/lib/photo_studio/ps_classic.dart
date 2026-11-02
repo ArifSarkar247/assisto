@@ -289,29 +289,64 @@ double _toneY(double y, double lo, double hi, double gamma) {
 
 /// Separable box filter (radius r, clamped edges) of a w×h plane, in place
 /// via [tmp] (same length).
+///
+/// photoperf2: one multiply instead of a divide per pixel, and the
+/// horizontal pass split into left edge / middle / right edge so the inner
+/// loop has no index clamping (the same sums as before; only the last-bit
+/// rounding of `acc / win` vs `acc * (1 / win)` can differ).
 void boxBlur(Float32List src, Float32List dst, Float32List tmp, int w, int h, int r) {
   if (r <= 0) {
-    dst.setAll(0, src);
+    dst.setRange(0, w * h, src);
     return;
   }
-  final win = 2 * r + 1;
-  // horizontal: src -> tmp
+  final inv = 1.0 / (2 * r + 1);
+  _hBox(src, tmp, w, h, r, inv);
+  _vBox(tmp, dst, w, h, r, inv);
+}
+
+/// Horizontal running box sum of one plane: src -> out (× [inv]).
+void _hBox(Float32List src, Float32List out, int w, int h, int r, double inv) {
+  final simple = w <= 2 * r + 2;
   for (var y = 0; y < h; y++) {
-    final row = y * w;
+    final row = y * w, last = row + w - 1;
     var acc = 0.0;
     for (var k = -r; k <= r; k++) {
       acc += src[row + (k < 0 ? 0 : (k >= w ? w - 1 : k))];
     }
-    for (var x = 0; x < w; x++) {
-      tmp[row + x] = acc / win;
-      final xo = x - r, xi = x + r + 1;
-      acc += src[row + (xi >= w ? w - 1 : xi)] - src[row + (xo < 0 ? 0 : xo)];
+    if (simple) {
+      for (var x = 0; x < w; x++) {
+        out[row + x] = acc * inv;
+        final xo = x - r, xi = x + r + 1;
+        acc += src[row + (xi >= w ? w - 1 : xi)] - src[row + (xo < 0 ? 0 : xo)];
+      }
+      continue;
+    }
+    final first = src[row];
+    // x in [0, r): the window's left end is clamped to column 0
+    var o = row;
+    var i = row + r + 1;
+    for (var x = 0; x < r; x++) {
+      out[o++] = acc * inv;
+      acc += src[i++] - first;
+    }
+    // x in [r, w - r - 1): no clamping
+    var j = row;
+    final mEnd = row + w - r - 1;
+    while (o < mEnd) {
+      out[o++] = acc * inv;
+      acc += src[i++] - src[j++];
+    }
+    // x in [w - r - 1, w): the right end is clamped to the last column
+    final lv = src[last];
+    while (o <= last) {
+      out[o++] = acc * inv;
+      acc += lv - src[j++];
     }
   }
-  // vertical: tmp -> dst. photoperf: row-major with one running sum per
-  // column (was column-by-column, a cache miss on every read of a 4000 px
-  // wide strip). Each column sees the SAME additions in the same order, so
-  // the result is bit-identical to the old loop.
+}
+
+/// Vertical running box sum (row-major, one running sum per column).
+void _vBox(Float32List tmp, Float32List dst, int w, int h, int r, double inv) {
   final acc = Float64List(w);
   for (var k = -r; k <= r; k++) {
     final row = (k < 0 ? 0 : (k >= h ? h - 1 : k)) * w;
@@ -324,21 +359,122 @@ void boxBlur(Float32List src, Float32List dst, Float32List tmp, int w, int h, in
     final yo = y - r, yi = y + r + 1;
     final ri = (yi >= h ? h - 1 : yi) * w, ro = (yo < 0 ? 0 : yo) * w;
     for (var x = 0; x < w; x++) {
-      dst[o + x] = acc[x] / win;
-      acc[x] += tmp[ri + x] - tmp[ro + x];
+      final a = acc[x];
+      dst[o + x] = a * inv;
+      acc[x] = a + (tmp[ri + x] - tmp[ro + x]);
+    }
+  }
+}
+
+/// photoperf2: two planes with the same radius in one sweep (half the loop
+/// overhead; each plane gets exactly the sums [boxBlur] would give it).
+/// [sq]: the second input is [a] squared (the guided filter's mean of p²),
+/// so p² never needs its own plane.
+void boxBlur2(Float32List a, Float32List? b, Float32List outA, Float32List outB,
+    Float32List tmpA, Float32List tmpB, int w, int h, int r,
+    {bool sq = false}) {
+  if (r <= 0 || w <= 2 * r + 2) {
+    if (sq) {
+      for (var i = 0; i < w * h; i++) {
+        tmpB[i] = a[i] * a[i];
+      }
+      boxBlur(a, outA, tmpA, w, h, r);
+      boxBlur(tmpB, outB, tmpA, w, h, r);
+    } else {
+      boxBlur(a, outA, tmpA, w, h, r);
+      boxBlur(b!, outB, tmpA, w, h, r);
+    }
+    return;
+  }
+  final inv = 1.0 / (2 * r + 1);
+  final bb = sq ? a : b!;
+  for (var y = 0; y < h; y++) {
+    final row = y * w, last = row + w - 1;
+    var s1 = 0.0, s2 = 0.0;
+    for (var k = -r; k <= r; k++) {
+      final c = row + (k < 0 ? 0 : (k >= w ? w - 1 : k));
+      s1 += a[c];
+      final v = bb[c];
+      s2 += sq ? v * v : v;
+    }
+    final fa = a[row], fb0 = bb[row];
+    final fb = sq ? fb0 * fb0 : fb0;
+    var o = row, i = row + r + 1;
+    for (var x = 0; x < r; x++) {
+      tmpA[o] = s1 * inv;
+      tmpB[o] = s2 * inv;
+      o++;
+      s1 += a[i] - fa;
+      final v = bb[i];
+      s2 += (sq ? v * v : v) - fb;
+      i++;
+    }
+    var j = row;
+    final mEnd = row + w - r - 1;
+    if (sq) {
+      while (o < mEnd) {
+        tmpA[o] = s1 * inv;
+        tmpB[o] = s2 * inv;
+        o++;
+        final vi = a[i], vj = a[j];
+        s1 += vi - vj;
+        s2 += vi * vi - vj * vj;
+        i++;
+        j++;
+      }
+    } else {
+      while (o < mEnd) {
+        tmpA[o] = s1 * inv;
+        tmpB[o] = s2 * inv;
+        o++;
+        s1 += a[i] - a[j];
+        s2 += bb[i] - bb[j];
+        i++;
+        j++;
+      }
+    }
+    final la = a[last], lb0 = bb[last];
+    final lb = sq ? lb0 * lb0 : lb0;
+    while (o <= last) {
+      tmpA[o] = s1 * inv;
+      tmpB[o] = s2 * inv;
+      o++;
+      s1 += la - a[j];
+      final v = bb[j];
+      s2 += lb - (sq ? v * v : v);
+      j++;
+    }
+  }
+  // vertical, both planes
+  final accA = Float64List(w), accB = Float64List(w);
+  for (var k = -r; k <= r; k++) {
+    final row = (k < 0 ? 0 : (k >= h ? h - 1 : k)) * w;
+    for (var x = 0; x < w; x++) {
+      accA[x] += tmpA[row + x];
+      accB[x] += tmpB[row + x];
+    }
+  }
+  for (var y = 0; y < h; y++) {
+    final o = y * w;
+    final yo = y - r, yi = y + r + 1;
+    final ri = (yi >= h ? h - 1 : yi) * w, ro = (yo < 0 ? 0 : yo) * w;
+    for (var x = 0; x < w; x++) {
+      final p = accA[x], q = accB[x];
+      outA[o + x] = p * inv;
+      outB[o + x] = q * inv;
+      accA[x] = p + (tmpA[ri + x] - tmpA[ro + x]);
+      accB[x] = q + (tmpB[ri + x] - tmpB[ro + x]);
     }
   }
 }
 
 /// Self-guided filter (He et al. 2010): edge-preserving smoothing of [p].
+/// photoperf2: the four box filters run as two paired sweeps.
 void guidedFilter(Float32List p, Float32List out, int w, int h, int r, double eps,
     _Scratch s) {
   final n = w * h;
-  boxBlur(p, s.a, s.t, w, h, r); // mean
-  for (var i = 0; i < n; i++) {
-    s.b[i] = p[i] * p[i];
-  }
-  boxBlur(s.b, s.c, s.t, w, h, r); // mean of squares
+  // mean of p -> a, mean of p² -> c
+  boxBlur2(p, null, s.a, s.c, s.t, s.b, w, h, r, sq: true);
   for (var i = 0; i < n; i++) {
     final m = s.a[i];
     final v = s.c[i] - m * m;
@@ -346,27 +482,27 @@ void guidedFilter(Float32List p, Float32List out, int w, int h, int r, double ep
     s.b[i] = a;
     s.c[i] = m - a * m;
   }
-  boxBlur(s.b, s.d, s.t, w, h, r);
-  boxBlur(s.c, s.b, s.t, w, h, r);
+  // mean of A -> out, mean of B -> b (temps t and a); out must not be p
+  boxBlur2(s.b, s.c, out, s.b, s.t, s.a, w, h, r);
   for (var i = 0; i < n; i++) {
-    out[i] = s.d[i] * p[i] + s.b[i];
+    out[i] = out[i] * p[i] + s.b[i];
   }
 }
 
+/// Strip working planes. photoperf2: four (was five) — the guided filter
+/// uses its output plane as the last temp.
 class _Scratch {
   _Scratch(int n)
       : a = Float32List(n),
         b = Float32List(n),
         c = Float32List(n),
-        d = Float32List(n),
         t = Float32List(n);
   _Scratch.view(_Scratch s, int n)
       : a = Float32List.sublistView(s.a, 0, n),
         b = Float32List.sublistView(s.b, 0, n),
         c = Float32List.sublistView(s.c, 0, n),
-        d = Float32List.sublistView(s.d, 0, n),
         t = Float32List.sublistView(s.t, 0, n);
-  final Float32List a, b, c, d, t;
+  final Float32List a, b, c, t;
 }
 
 /// Run the whole pipeline on a full-size RGBA buffer. Pure function: [rgba]
@@ -399,8 +535,17 @@ int classicPad(int w, int h, List<ClassicFace> faces) {
     faceW = math.max(faceW, f.w * w);
   }
   final rSkin = math.max(2, (faceW / 40).round());
-  return 2 * (rDen + rChroma + rSharp + rSkin) + 8;
+  return _support(rDen, rChroma, rSharp, rSkin);
 }
+
+/// photoperf2: the EXACT context a strip needs (was a generous sum of every
+/// radius + 8, ~1.7x too many rows at 12 MP): luminance goes through the
+/// denoise guided filter (2·rDen), the skin guided filter (2·rSkin) and the
+/// unsharp mask (2·rSharp); the skin mask comes from the chroma blur
+/// (rChroma) softened by a radius-2 box, then feeds the sharpen weight.
+/// +2 rows of margin. Fewer context rows = less work and smaller strips.
+int _support(int rDen, int rChroma, int rSharp, int rSkin) =>
+    math.max(2 * rDen + 2 * rSkin, rChroma + 2) + 2 * rSharp + 2;
 
 Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan plan,
     {List<ClassicFace> faces = const [],
@@ -435,8 +580,16 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
   // context rows around each strip: the filters run one after another, so
   // their supports add up (denoise 2r, skin 2r+2, sharpen 2r ...)
   final pad = classicPad(w, h, faces);
-  assert(pad == 2 * (rDen + rChroma + rSharp + rSkin) + 8);
+  assert(pad == _support(rDen, rChroma, rSharp, rSkin));
   final doSkin = p.skin > 0 && faces.isNotEmpty;
+
+  // photoperf2: WB gain + clamp per 8-bit value (was per pixel)
+  final lutR = Float64List(256), lutG = Float64List(256), lutB = Float64List(256);
+  for (var v = 0; v < 256; v++) {
+    lutR[v] = _clamp01(v / 255.0 * plan.gainR);
+    lutG[v] = _clamp01(v / 255.0 * plan.gainG);
+    lutB[v] = _clamp01(v / 255.0 * plan.gainB);
+  }
 
   // tone LUT (WB is applied before it, per channel)
   final tone = Float32List(1024);
@@ -482,13 +635,16 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
       var si = ((a0 + yy - srcRow0) * w) * 4;
       var di = yy * w;
       for (var x = 0; x < w; x++) {
-        final r = _clamp01(rgba[si] / 255.0 * plan.gainR);
-        final g = _clamp01(rgba[si + 1] / 255.0 * plan.gainG);
-        final b = _clamp01(rgba[si + 2] / 255.0 * plan.gainB);
+        // photoperf2: per-channel tables (same expression per 0..255 value)
+        final r = lutR[rgba[si]];
+        final g = lutG[rgba[si + 1]];
+        final b = lutB[rgba[si + 2]];
         final y = _kr * r + _kg * g + _kb * b;
-        final ty = tone[(y * 1023).round()];
+        // y >= 0: +0.5 then truncate == round()
+        final ty = tone[(y * 1023 + 0.5).toInt()];
         // levels scale chroma with luminance so colours keep their look
-        final k = y > 1e-3 ? math.min(2.5, ty / y) : 1.0;
+        final q = ty / y;
+        final k = y > 1e-3 ? (q < 2.5 ? q : 2.5) : 1.0;
         yv[di] = ty;
         cb[di] = (b - y) * 0.564 * k;
         cr[di] = (r - y) * 0.713 * k;
@@ -524,7 +680,8 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
           // photoperf: the per-column tile terms are computed once per photo
           final tx0 = cTx0[x], tx1 = cTx1[x];
           final wx = cWx[x];
-          final v = (yv[i] * 255).round().clamp(0, 255);
+          final f = yv[i] * 255;
+          final v = f <= 0 ? 0 : (f >= 255 ? 255 : (f + 0.5).toInt());
           final l00 = plan.luts[(ty0 * gx + tx0) * 256 + v];
           final l01 = plan.luts[(ty0 * gx + tx1) * 256 + v];
           final l10 = plan.luts[(ty1 * gx + tx0) * 256 + v];
@@ -607,9 +764,10 @@ Uint8List applyPlan(Uint8List rgba, int w, int h, ClassicParams p, ClassicPlan p
         final r = y + 1.402 * v;
         final g = y - 0.344136 * u - 0.714136 * v;
         final b = y + 1.772 * u;
-        dst[oi] = (_clamp01(r) * 255).round();
-        dst[oi + 1] = (_clamp01(g) * 255).round();
-        dst[oi + 2] = (_clamp01(b) * 255).round();
+        // clamp to 0..1, then round (+0.5 / truncate == round() for >= 0)
+        dst[oi] = r <= 0 ? 0 : (r >= 1 ? 255 : (r * 255 + 0.5).toInt());
+        dst[oi + 1] = g <= 0 ? 0 : (g >= 1 ? 255 : (g * 255 + 0.5).toInt());
+        dst[oi + 2] = b <= 0 ? 0 : (b >= 1 ? 255 : (b * 255 + 0.5).toInt());
         dst[oi + 3] = rgba[ai + 3];
         si++;
         oi += 4;

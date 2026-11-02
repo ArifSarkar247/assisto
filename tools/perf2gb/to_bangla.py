@@ -108,7 +108,10 @@ def main():
         L.append(f"| {name}{part} | {pair(pv.get('worst_open_ms'), v['worst_open_ms'], ' ms')}{' (সময় শেষ)' if v['open_timed_out'] else ''} {ok(v['ok_open'])} | "
                  f"{pair(pv.get('frame_p90_ms'), v['frame_p90_ms'], ' ms')} | {pair(pv.get('janky_pct'), v['janky_pct'])} {ok(v['ok_jank'])} | "
                  f"{b(v['ui_p90_ms'], ' ms')} / {b(v['janky_ui_pct'])} {ok(v['ok_jank_ui'])} | "
-                 f"{pair(pv.get('peak_pss_mb'), v['peak_pss_mb'], ' MB')} {ok(v['ok_mem'])} | {ok(v['pass'])} |")
+                 f"{pair(pv.get('peak_pss_mb'), v['peak_pss_mb'], ' MB')}"
+                 # photoperf2: flows with a "before" sample are judged on their own share
+                 f"{(' (নিজের অংশ +' + b(v['delta_pss_mb'], ' MB') + ', শুরু ' + b(v.get('baseline_pss_mb'), ' MB') + ')') if v.get('delta_pss_mb') is not None else ''}"
+                 f" {ok(v['ok_mem'])} | {ok(v['pass'])} |")
     missing = [k for k in FLOW_BN if k not in flows_by_id(A)]
     if missing:
         L += ["", "**মাপা যায়নি (ফল নেই):** " + ", ".join(FLOW_BN[k] for k in missing)]

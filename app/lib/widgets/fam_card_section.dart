@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import '../security/secret_store.dart';
 import 'app_sheet.dart';
@@ -101,7 +100,10 @@ class _FamCardSectionState extends State<FamCardSection> {
 
   String _s(String k) => '${_data[k] ?? ''}'.trim();
 
-  String get _blood => kMedicalFeaturesAllowed ? _s('blood') : '';
+  // owner 28 Oct: blood group shows on every build (Play too) — optional,
+  // stored ONLY on this phone (SecretStore), never sent to our server; it
+  // leaves the phone only when the user shares the card. Medicine stays gated.
+  String get _blood => _s('blood');
 
   List<Map<String, String>> get _contacts => (_data['contacts'] as List? ?? const [])
       .whereType<Map>()
@@ -405,7 +407,7 @@ class _EmergencyFormState extends State<_EmergencyForm> {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Text(t.fcCardPrivacyNote, style: AType.bodySmall),
-        if (kMedicalFeaturesAllowed) ...[
+        ...[
           const SizedBox(height: Gap.md),
           Text(famLabel(context, 'famCardBlood'), style: AType.titleSmall),
           const SizedBox(height: Gap.xs),
