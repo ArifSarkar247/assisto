@@ -159,4 +159,8 @@ extension BizAgentApi on ApiClient {
 
   Future<Map<String, dynamic>> bizAgentCancelDraft(int orderId) =>
       postJson('/bizagent/orders/$orderId/cancel');
+
+  /// salesbar: the shop's activity log (who did what — never message text
+  /// or tokens). Owner only. → {audit: [{id, action, thread_id, actor, detail, created_at}]}
+  Future<Map<String, dynamic>> bizAgentAudit() => getJson('/bizagent/audit');
 }

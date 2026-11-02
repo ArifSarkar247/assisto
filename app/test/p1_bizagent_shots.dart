@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:assisto/screens/business/bizagent/agent_g1_screens.dart';
 import 'package:assisto/screens/business/bizagent/approvals_screen.dart';
+import 'package:assisto/screens/business/bizagent/seller_activity_screen.dart';
 import 'package:assisto/screens/business/bizagent/seller_agent_screen.dart';
 import 'package:assisto/screens/business/bizagent/seller_inbox_screen.dart';
 import 'package:assisto/screens/business/bizagent/seller_setup_screen.dart';
@@ -59,6 +60,7 @@ final Map<String, Widget Function(String)> p1Shots = {
   // salesbar: Meta app not set up (reason + website chat) / App Review pending
   'sb_setup_meta_not_ready': (_) => const _Meta(SellerSetupScreen(), ownChannels: false),
   'sb_setup_review_pending': (_) => const _Meta(SellerSetupScreen(), review: 'submitted'),
+  'sb_activity_log': (_) => const _Connected(SellerActivityScreen()),
 };
 
 // g1-bizagent: advanced agent screens + the image → match → order → courier

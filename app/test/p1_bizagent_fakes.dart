@@ -22,6 +22,7 @@ bool sbOwnChannels = true;
 String sbReview = 'approved';
 bool sbCommentsGranted = false;
 String? sbSendError;
+bool sbAuditEmpty = false;
 
 /// sales2: quick replies the server builds from the catalog (bn digits in bn,
 /// like the real rule-layer text after the app's digit pass).
@@ -249,6 +250,24 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
   if (!path.startsWith('/bizagent/')) return null;
   final p = path.split('?').first;
   if (p == '/bizagent/setup') return _setup(bn, mode);
+  // salesbar: the shop's activity log (no message text, ever)
+  if (p == '/bizagent/audit') {
+    if (mode == FakeMode.empty || sbAuditEmpty) return {'audit': <Map<String, dynamic>>[]};
+    return {
+      'audit': [
+        {'id': 5, 'action': 'settings', 'thread_id': null, 'actor': true,
+         'detail': {'keys': ['tone']}, 'created_at': '2026-11-02T21:40:00+06:00'},
+        {'id': 4, 'action': 'opt_out', 'thread_id': 7, 'actor': false, 'detail': {},
+         'created_at': '2026-11-02T20:15:00+06:00'},
+        {'id': 3, 'action': 'takeover', 'thread_id': 7, 'actor': true, 'detail': {},
+         'created_at': '2026-11-02T19:05:00+06:00'},
+        {'id': 2, 'action': 'comment_held', 'thread_id': 9, 'actor': false,
+         'detail': {'reason': 'meta_permission'}, 'created_at': '2026-11-02T18:00:00+06:00'},
+        {'id': 1, 'action': 'some_future_action', 'thread_id': null, 'actor': false,
+         'detail': {}, 'created_at': '2026-11-02T17:00:00+06:00'},
+      ]
+    };
+  }
   if (p == '/bizagent/reports') {
     return {
       'today': {'orders': 7, 'revenue': '9840', 'messages': 64, 'ai_replies': 51,
