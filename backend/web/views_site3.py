@@ -43,17 +43,29 @@ def is_live():
 
 # ------------------------------------------------------------- response
 def _etag_response(request, html, preview):
-    tag = '"%s"' % hashlib.sha256(html.encode("utf-8")).hexdigest()[:32]
+    body = html.encode("utf-8")
+    tag = '"%s"' % hashlib.sha256(body).hexdigest()[:32]
     inm = request.META.get("HTTP_IF_NONE_MATCH", "")
     if tag in [t.strip() for t in inm.split(",")]:
         resp = HttpResponseNotModified()
     else:
-        resp = HttpResponse(html, content_type="text/html; charset=utf-8")
+        resp = HttpResponse(body, content_type="text/html; charset=utf-8")
+        # these public pages carry no secrets/CSRF tokens -> safe to gzip here
+        # (works whatever the front proxy does; it never re-compresses)
+        if "gzip" in request.META.get("HTTP_ACCEPT_ENCODING", ""):
+            from django.utils.text import compress_string
+            z = compress_string(body)
+            if len(z) < len(body):
+                resp.content = z
+                resp["Content-Encoding"] = "gzip"
+                resp["Content-Length"] = str(len(z))
     resp["ETag"] = tag
     resp["Cache-Control"] = "no-cache"
     if preview:
         resp["X-Robots-Tag"] = "noindex, nofollow"
-    return OLD.remember_lang(request, resp)
+    resp = OLD.remember_lang(request, resp)
+    resp["Vary"] = "Cookie, Accept-Encoding"
+    return resp
 
 
 def html_cache(request, resp):
