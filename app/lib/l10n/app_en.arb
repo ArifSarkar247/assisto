@@ -34878,5 +34878,91 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "cgPathLan": "Direct · same Wi-Fi",
+  "cgPathDirect": "Direct (free)",
+  "cgPathRelay": "Relay",
+  "cgPathVendorCloud": "Camera maker's cloud",
+  "cgRelayPaused": "This month's relay allowance is used up. Live still works on the same Wi-Fi or a direct connection.",
+  "cgRelayPausedShort": "Relay paused this month",
+  "cgRelayNoticeShort": "{pct}% of relay used",
+  "@cgRelayNoticeShort": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageTitle": "This month's use",
+  "cgUsagePool": "Relay: {used} of {cap} MB",
+  "@cgUsagePool": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageCounting": "Relay: {used} MB (no limit switched on yet)",
+  "@cgUsageCounting": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageShow": "Show each camera",
+  "cgUsageHide": "Hide cameras",
+  "cgUsageCamLine": "{min} min live · relay {relay} MB · direct {direct} MB",
+  "@cgUsageCamLine": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "relay": {
+        "type": "String"
+      },
+      "direct": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageVendorLine": "Cloud live {min} min · about {mb} MB (estimate)",
+  "@cgUsageVendorLine": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageFreeNote": "Watching on the same Wi-Fi or a direct connection is free and never limited.",
+  "cgVendorLiveTitle": "Live (camera cloud)",
+  "cgVendorStarting": "Getting live video from the camera maker's cloud…",
+  "cgVendorFailed": "Live view could not start. Check that the camera is online and try again.",
+  "cgVendorPlayFailed": "This phone could not play the camera's live video. Try again, or use the camera's own app.",
+  "cgVendorIdleStopped": "Live stopped because the screen was not touched for a while — this saves data. Watch again any time.",
+  "cgSdOn": "SD (saves data)",
+  "cgHdOn": "HD (more data)",
+  "cgDataEstimate": "≈ {mb} MB (estimate)",
+  "@cgDataEstimate": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cgVendorIdleNote": "Stops after {min} minutes without a touch. Starts in SD; tap HD for detail.",
+  "@cgVendorIdleNote": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cgVendorNoRecording": "Video comes from the camera maker's cloud; Assisto does not keep it."
 }
