@@ -128,7 +128,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
               Expanded(
                 child: Text(
-                  _isToday ? '${t.cactToday} · ${loc.formatMediumDate(_date)}' : loc.formatFullDate(_date),
+                  wmDigits(lang, _isToday ? '${t.cactToday} · ${loc.formatMediumDate(_date)}' : loc.formatFullDate(_date)),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
@@ -1013,7 +1013,7 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
           const SizedBox(height: 12),
           if (_gif != null)
             Semantics(
-              label: t.cactTlLabel(loc.formatMediumDate(widget.date)),
+              label: t.cactTlLabel(wmDigits(lang, loc.formatMediumDate(widget.date))),
               image: true,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
