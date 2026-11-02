@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -37,6 +38,7 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 3,

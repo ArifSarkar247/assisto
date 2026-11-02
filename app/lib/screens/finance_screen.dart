@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -53,6 +54,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(

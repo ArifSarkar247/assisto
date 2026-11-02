@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -119,6 +120,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -1000,7 +1002,7 @@ class _StaffMath {
     p = p.abs();
     final taka = p ~/ 100;
     final paisa = p % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   // ---- month helpers ----

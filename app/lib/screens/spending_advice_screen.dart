@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -129,6 +130,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -674,7 +676,7 @@ class _SMath {
     poisha = poisha.abs();
     final taka = poisha ~/ 100;
     final paisa = poisha % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   static int _pct(int part, int whole) {

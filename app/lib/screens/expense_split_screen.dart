@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -84,6 +85,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -943,7 +945,7 @@ class _SplitMath {
   static String fmtPoisha(int p) {
     final neg = p < 0;
     p = p.abs();
-    return '${neg ? '-' : ''}৳${_group(p ~/ 100)}.${(p % 100).toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(p ~/ 100)}.${(p % 100).toString().padLeft(2, '0')}');
   }
 
   static List<MapEntry<dynamic, int>> _splitEqual(

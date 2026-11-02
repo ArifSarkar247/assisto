@@ -1,0 +1,91 @@
+{
+  "_comment": "moneybar (money tools to the bar): all keys NEW. Integrator: bin/arb_apply.py .phaseB/up_moneybar_arb.json",
+  "en": {
+    "mbTcbTitle": "Official market prices (TCB, Dhaka)",
+    "mbTcbFresh": "Government price list of {date}: {count} items, lowest–highest retail price in Dhaka markets. Compare before you buy.",
+    "@mbTcbFresh": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbStale": "TCB has not published a new list since {date} — these prices may be old.",
+    "@mbTcbStale": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbNotConnected": "Today's government price list has not been fetched yet, so we show no official prices — we never make one up. Open TCB's own page to check.",
+    "mbTcbSeeAll": "See all prices",
+    "mbTcbOpenSite": "Open TCB's page",
+    "mbTcbWeekUp": "up {pct}% this week",
+    "@mbTcbWeekUp": {
+      "placeholders": {
+        "pct": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbWeekDown": "down {pct}% this week",
+    "@mbTcbWeekDown": {
+      "placeholders": {
+        "pct": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbSourceLine": "Source: Trading Corporation of Bangladesh (TCB), daily retail price list of {date}. Prices in taka, lowest–highest.",
+    "@mbTcbSourceLine": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbMarkets": "Markets surveyed: {markets}",
+    "@mbTcbMarkets": {
+      "placeholders": {
+        "markets": {
+          "type": "String"
+        }
+      }
+    },
+    "mbTcbSearch": "Search an item (rice, onion, oil…)",
+    "mbTcbNoMatch": "No item with that name in today's TCB list.",
+    "mbTcbMatchLine": "Govt. price (TCB, Dhaka): {range} {unit} — {name}",
+    "@mbTcbMatchLine": {
+      "placeholders": {
+        "range": {
+          "type": "String"
+        },
+        "unit": {
+          "type": "String"
+        },
+        "name": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "mbTcbTitle": "সরকারি বাজারদর (টিসিবি, ঢাকা)",
+    "mbTcbFresh": "{date} তারিখের সরকারি দামের তালিকা: {count}টি পণ্য, ঢাকার বাজারে সর্বনিম্ন–সর্বোচ্চ খুচরা দাম। কেনার আগে মিলিয়ে নিন।",
+    "mbTcbStale": "{date}-এর পর টিসিবি নতুন তালিকা দেয়নি — দামগুলো পুরোনো হতে পারে।",
+    "mbTcbNotConnected": "আজকের সরকারি দামের তালিকা এখনো আনা হয়নি, তাই কোনো সরকারি দাম দেখাচ্ছি না — আমরা কখনো দাম বানাই না। টিসিবির নিজের পাতা খুলে দেখে নিন।",
+    "mbTcbSeeAll": "সব দাম দেখুন",
+    "mbTcbOpenSite": "টিসিবির পাতা খুলুন",
+    "mbTcbWeekUp": "এ সপ্তাহে {pct}% বেড়েছে",
+    "mbTcbWeekDown": "এ সপ্তাহে {pct}% কমেছে",
+    "mbTcbSourceLine": "উৎস: ট্রেডিং কর্পোরেশন অব বাংলাদেশ (টিসিবি), {date} তারিখের দৈনিক খুচরা বাজারদর। দাম টাকায়, সর্বনিম্ন–সর্বোচ্চ।",
+    "mbTcbMarkets": "যে বাজার থেকে নেওয়া: {markets}",
+    "mbTcbSearch": "পণ্য খুঁজুন (চাল, পেঁয়াজ, তেল…)",
+    "mbTcbNoMatch": "আজকের টিসিবি তালিকায় এই নামে কিছু নেই।",
+    "mbTcbMatchLine": "সরকারি দাম (টিসিবি, ঢাকা): {range} {unit} — {name}"
+  }
+}

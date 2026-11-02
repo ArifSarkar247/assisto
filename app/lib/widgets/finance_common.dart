@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme.dart';
+import 'money_digits.dart';
 
 /// Shared helpers for the advanced Finance tools.
 ///
@@ -47,10 +48,10 @@ double? parseNum(String input) {
 }
 
 /// Taka display with thousands grouping. Whole numbers show no decimals.
-String fmtTaka(double v) => '$takaSign${_group(v)}';
+String fmtTaka(double v) => moneyDigits('$takaSign${_group(v)}');
 
 /// Plain grouped number (no currency sign) — for units, percentages etc.
-String fmtNum(double v) => _group(v);
+String fmtNum(double v) => moneyDigits(_group(v));
 
 String _group(double v) {
   final neg = v < 0;

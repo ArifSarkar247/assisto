@@ -20,6 +20,7 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
+from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import views_voice as voicev
@@ -192,6 +193,7 @@ urlpatterns = [
     path("nearby", views.nearby),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
+    path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
     path("guides", views.govt_guide),
     path("me/elderly", views.ElderlyModeView.as_view()),
     path("autopay/stop-all", views.autopay_stop_all),
