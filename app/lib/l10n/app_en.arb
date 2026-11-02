@@ -28490,5 +28490,28 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "taNomineeTitle": "Also alert my nominee",
+  "taNomineeBody": "Wrong unlock attempts, the intruder photo, a SIM change and someone turning protection off also go to your nominee. They can see this phone's status and photo, but cannot lock or ring it.",
+  "taNomineeReach": "{reachable} of {saved} nominees use Assisto and will get these alerts",
+  "@taNomineeReach": {
+    "description": "theftalerts: how many saved nominees have an Assisto account.",
+    "placeholders": {
+      "reachable": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "saved": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taNomineeNone": "You have no nominee yet. Add a trusted person as your nominee so they are told too.",
+  "taNomineeAdd": "Add a nominee",
+  "taOwnerCopy": "You also get these alerts on your other signed-in phone or tablet (never on this phone).",
+  "taLimitCamera": "The intruder photo is taken only while Assisto is open, after wrong Security PINs typed in Assisto. Android and Google Play do not allow a hidden camera on the lock screen, so wrong screen-unlock attempts are sent as a count with the location.",
+  "taLimitUninstall": "No app may block its own uninstall. While protection is on, Android asks to turn off Assisto's device protection first; your trusted contacts are told at that moment.",
+  "taLimitReset": "If the phone is flashed or factory reset, Assisto is erased and can send nothing more. Your trusted contacts then get the 'stopped checking in' alert with the last location. Keep Google Find Hub on and a Google account on the phone (Factory Reset Protection).",
+  "taKindAdminOff": "Protection turn-off"
 }
