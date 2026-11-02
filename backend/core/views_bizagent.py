@@ -197,6 +197,9 @@ class SetupView(APIView):
             # launch (AI-key-off honesty): no AI provider live -> the app says
             # replies come from the shop's own data, never "the AI answers".
             "ai_available": _ai_live(),
+            # salesbar: Meta App Review state + what Meta really granted —
+            # the app shows honest states (no dead comment switch)
+            "meta_access": BZ.meta_access_normalize(cfg.get("meta_access")),
         })
 
 
@@ -290,6 +293,9 @@ class SettingsView(APIView):
             return _err(lang, "আগে একটি চ্যানেল যুক্ত করুন।", "Connect a channel first.",
                         status=409, code="no_channel")
         a.save()
+        # salesbar: audit WHICH settings changed (names only — never the text)
+        GD.audit(prof, "settings", actor=request.user,
+                 keys=sorted(str(k)[:32] for k in d.keys())[:40])
         # delivery charges + policies live on OwnerPolicy (shared with the shop)
         pol_keys = ("delivery_inside", "delivery_outside", "free_over", "returns", "payment_note")
         if any(k in d for k in pol_keys):
@@ -511,6 +517,9 @@ class ApprovalApproveView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         text = request.data.get("text")
         res = S.approve(m, text=text if text is not None else None, actor=request.user)
+        if res.get("ok") or res.get("status"):
+            GD.audit(prof, "approve", actor=request.user, thread=m.thread, message_id=m.id,
+                     edited=bool((m.meta or {}).get("edited")), status=res.get("status", ""))
         if not res["ok"] and res.get("reason") == "not_pending":
             return _err(lang, "এটি আর অপেক্ষায় নেই।", "This is no longer pending.",
                         status=409, code="not_pending")
@@ -527,7 +536,10 @@ class ApprovalRejectView(APIView):
         m = _pending(prof, pk)
         if not m:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
-        return Response({"ok": S.reject(m)})
+        ok = S.reject(m)
+        if ok:
+            GD.audit(prof, "reject", actor=request.user, thread=m.thread, message_id=m.id)
+        return Response({"ok": ok})
 
 
 class ThreadsView(APIView):
@@ -617,6 +629,12 @@ class ThreadTemplateView(APIView):
             return _err(lang, "টেমপ্লেটের নাম সঠিক নয়।", "Template name is not valid.",
                         status=422, code="bad_template")
         params = [str(p)[:200] for p in (request.data.get("params") or [])][:10]
+        if t.opted_out:
+            # salesbar: WhatsApp policy — no template to a customer who wrote STOP
+            return _err(lang, "এই গ্রাহক STOP লিখেছেন — নিজে থেকে মেসেজ পাঠানো যাবে না। "
+                        "গ্রাহক আবার লিখলে উত্তর দিতে পারবেন।",
+                        "This customer wrote STOP — you cannot message them first. "
+                        "You can reply when they write again.", status=409, code="opted_out")
         # business-initiated WhatsApp conversations cost money: need credits
         # when the owner has set a rate (charged on Meta's 'sent' status).
         if BZ.wa_charge_credits("marketing", S.full_cfg()) > int(prof.user.ai_credits or 0):
@@ -624,6 +642,7 @@ class ThreadTemplateView(APIView):
                         "Credits are needed to send a template.", status=402,
                         code="credits")
         m = S.send_template(t, name, str(request.data.get("lang") or "bn")[:8], params)
+        GD.audit(prof, "template", actor=request.user, thread=t, name=name, status=m.status)
         return Response({"ok": m.status == "sent", "message": _msg_row(m)})
 
 

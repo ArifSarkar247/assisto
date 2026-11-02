@@ -52,6 +52,17 @@
   </form>
 </section>
 
+<section class="card" id="meta"><h2>{{ T.sl_meta }}</h2>
+  <p class="small">{{ T.sl_meta_note }}</p>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="meta">
+    <label>{{ T.sl_meta_review }}<select name="review">{% for r, lbl in meta_review_rows %}<option value="{{ r }}" {% if meta_access.review == r %}selected{% endif %}>{{ lbl }}</option>{% endfor %}</select></label>
+    <label class="check"><input type="checkbox" name="comments_fb" {% if meta_access.comments_fb %}checked{% endif %}> {{ T.sl_meta_comments_fb }}</label>
+    <label class="check"><input type="checkbox" name="comments_ig" {% if meta_access.comments_ig %}checked{% endif %}> {{ T.sl_meta_comments_ig }}</label>
+    <label class="check"><input type="checkbox" name="human_agent" {% if meta_access.human_agent %}checked{% endif %}> {{ T.sl_meta_human_agent }}</label>
+    {% include "owner/_reason.html" %}
+  </form>
+</section>
+
 <section class="card" id="plans"><h2>{{ T.sl_plans }}</h2>
   <p class="small">{{ T.sl_plans_note }} ({{ T.sl_per_reply }} ৳{{ per_reply }})</p>
   <div class="tbl"><table><thead><tr><th>{{ T.sl_plan }}</th><th>{{ T.price }}</th><th>{{ T.sl_replies }}</th><th>{{ T.sl_cost }}</th><th>{{ T.sl_net_gw }}</th><th>{{ T.sl_margin }}</th><th>{{ T.sl_margin_play }}</th></tr></thead><tbody>

@@ -640,6 +640,12 @@ class BillingTests(Base):
 
 # ------------------------------------------------------------------ comments + IG
 class CommentTests(Base):
+    def setUp(self):
+        super().setUp()
+        # salesbar: comment replies run only once Meta granted the permission
+        from core.tests_salesbar import set_meta_access
+        set_meta_access(comments_fb=True, comments_ig=True)
+
     def test_page_comment_private_and_public_reply(self):
         p = {"object": "page", "entry": [{"id": PAGE, "time": 1, "changes": [{"field": "feed",
              "value": {"item": "comment", "verb": "add", "comment_id": "POST_C1",

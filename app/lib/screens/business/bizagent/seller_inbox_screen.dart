@@ -471,6 +471,21 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
         return t.baWindowClosedWa;
       case 'no_token':
         return t.baNoToken;
+      // salesbar: honest Meta-policy states
+      case 'outside_7d_window':
+        return t.sbWindowClosed7d;
+      case 'rate_limited':
+        return t.sbRateLimited;
+      case 'comment_perm_pending':
+        return t.sbCommentPermPending;
+      case 'comment_too_old':
+        return t.sbCommentTooOld;
+      case 'comment_already_replied':
+        return t.sbCommentAlreadyReplied;
+      case 'comment_not_found':
+        return t.sbCommentNotFound;
+      case 'opted_out':
+        return t.sbOptedOut;
       default:
         return t.baSendFailed(code);
     }

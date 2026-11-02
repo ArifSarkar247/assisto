@@ -370,8 +370,13 @@ def features(business, meta_ready, vision_ready):
     connected = business.seller_channels.filter(status="connected").exists()
     meta_ok = bool(meta_ready.get("app") and meta_ready.get("secret")
                    and meta_ready.get("verify_token"))
+    from . import bizagent_service as S
+    from .logic import bizagent as BZ
+    ma = BZ.meta_access_normalize(S.sa_cfg().get("meta_access"))
     return {"own_channels": meta_ok, "inbox": connected, "image_order": connected,
-            "vision": bool(vision_ready)}
+            "vision": bool(vision_ready),
+            # salesbar: comment replies only once Meta granted the permission
+            "comments_fb": ma["comments_fb"], "comments_ig": ma["comments_ig"]}
 
 
 # ============================================================ sales2: handoff

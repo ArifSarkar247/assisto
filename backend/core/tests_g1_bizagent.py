@@ -657,6 +657,12 @@ class WidgetTests(G1Base):
 
 # ======================================================================= comments
 class CommentDmTests(G1Base):
+    def setUp(self):
+        super().setUp()
+        # salesbar: comment replies run only once Meta granted the permission
+        from core.tests_salesbar import set_meta_access
+        set_meta_access(comments_fb=True, comments_ig=True)
+
     def comment(self, cid, text, post="p_1"):
         return {"object": "page", "entry": [{"id": PAGE, "time": 1, "changes": [
             {"field": "feed", "value": {"item": "comment", "verb": "add", "comment_id": cid,

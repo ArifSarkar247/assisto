@@ -18,6 +18,7 @@ import 'agent_g1_screens.dart';
 import 'approvals_screen.dart';
 import 'seller_inbox_screen.dart';
 import 'seller_setup_screen.dart';
+import 'seller_activity_screen.dart';
 
 /// launch (AI-key-off honesty): the AI switch's subtitle. With the switch
 /// on but no AI provider live (server `ai_available: false`), replies come
@@ -299,6 +300,14 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               subtitle: Text(t.g1ReportSub),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => _open(const AgentReportScreen()),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: Text(t.sbActivityTitle),
+              subtitle: Text(t.sbActivitySub),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => _open(const SellerActivityScreen()),
             ),
             const Divider(height: 1),
             ListTile(
