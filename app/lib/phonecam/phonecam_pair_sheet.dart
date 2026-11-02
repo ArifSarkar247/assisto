@@ -98,13 +98,9 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
 
   /// mm:ss in the user's digits (Bangla digits in Bangla).
   String _mmss(int s) {
-    final v = '${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}';
-    if (Localizations.localeOf(context).languageCode != 'bn') return v;
-    const bn = '০১২৩৪৫৬৭৮৯';
-    return v.split('').map((c) {
-      final d = c.codeUnitAt(0) - 48;
-      return d >= 0 && d <= 9 ? bn[d] : c;
-    }).join();
+    String two(int v) =>
+        v < 10 ? '${fmtInt(context, 0)}${fmtInt(context, v)}' : fmtInt(context, v);
+    return '${two(s ~/ 60)}:${two(s % 60)}';
   }
 
   @override

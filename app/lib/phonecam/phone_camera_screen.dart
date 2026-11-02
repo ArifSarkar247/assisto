@@ -19,7 +19,9 @@ import '../notifications.dart';
 import '../services/error_report.dart';
 import '../shop_api.dart';
 import '../shop_motion.dart';
+import '../theme.dart' show Brand;
 import '../widgets/app_sheet.dart' show withNavBarInset;
+import '../widgets/permission_reason.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../screens/shop_live_rtc.dart' deferred as rtc;
 import 'phonecam_api.dart';
@@ -212,7 +214,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     try {
       final a = await DeviceInfoPlugin().androidInfo;
       model = '${a.manufacturer} ${a.model}'.trim();
-    } catch (_) {}
+    } catch (_) {} // best-effort: the phone model is only a label for the owner
     final r = await PhoneCamClaim.claim(code, name: _name.text.trim(), model: model);
     if (!mounted) return;
     setState(() => _claiming = false);
@@ -290,6 +292,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   // ------------------------------------------------------------------ settings
   Future<void> _setAudio(bool on) async {
     if (on) {
+      // Play prominent disclosure first, then Android's prompt
+      if (!await showPermissionReason(context, PermKind.mic)) return;
       try {
         final st = await Permission.microphone.request();
         if (!st.isGranted) {
@@ -303,14 +307,14 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     setState(() => _audio = on);
     try {
       (await SharedPreferences.getInstance()).setBool(_kAudio, on);
-    } catch (_) {}
+    } catch (_) {} // best-effort: applies now; only the saved copy can fail
   }
 
   Future<void> _setCap(int mb) async {
     setState(() => _capMb = mb);
     try {
       (await SharedPreferences.getInstance()).setInt(_kCap, mb);
-    } catch (_) {}
+    } catch (_) {} // best-effort: applies now; only the saved copy can fail
     await _enforceCap();
   }
 
@@ -366,7 +370,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     for (final c in await _listClips()) {
       try {
         await File(c.path).delete();
-      } catch (_) {}
+      } catch (_) {} // best-effort: the count below shows what is left
     }
     await _refreshClips();
   }
@@ -411,7 +415,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     try {
       await _channel.invokeMethod<bool>('keepScreenOn', {'on': true});
       await _channel.invokeMethod<bool>('dim', {'on': true});
-    } catch (_) {} // older build: the guide tells the owner to keep it on
+    } catch (_) {} // best-effort: older build — the guide says keep it plugged in and on
     unawaited(_notif(true));
     await _heartbeat();
     _hb = Timer.periodic(_heartbeatEvery, (_) => _heartbeat());
@@ -432,7 +436,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       try {
         await _channel.invokeMethod('dim', {'on': false});
         await _channel.invokeMethod('keepScreenOn', {'on': false});
-      } catch (_) {}
+      } catch (_) {} // best-effort: screen flags reset when the screen closes anyway
       unawaited(_notif(false));
     }
     _running = false;
@@ -849,7 +853,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
 
   Widget _runningView(AppLocalizations t) {
     const fg = Colors.white;
-    const dim = Color(0xFFB0B0B0);
+    const dim = Colors.white70;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -872,9 +876,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                   key: const Key('pcRecordingBanner'),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                      color: const Color(0xFF7F1D1D), borderRadius: BorderRadius.circular(10)),
+                      color: Brand.dangerFill, borderRadius: BorderRadius.circular(10)),
                   child: Row(children: [
-                    const Icon(Icons.fiber_manual_record_rounded, color: Color(0xFFFCA5A5), size: 18),
+                    const Icon(Icons.fiber_manual_record_rounded, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(_audio ? t.pcRecordingBannerAudio : t.pcRecordingBanner,
@@ -909,14 +913,14 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(_warnText(t, w),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: Color(0xFFFCD34D), fontWeight: FontWeight.w600)),
+                          style: TextStyle(color: Brand.warning, fontWeight: FontWeight.w600)),
                     ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     key: const Key('pcStop'),
                     style: FilledButton.styleFrom(
                         minimumSize: const Size(48, 52),
-                        backgroundColor: const Color(0xFFDC2626),
+                        backgroundColor: Brand.dangerFill,
                         foregroundColor: fg),
                     onPressed: () => _stop(),
                     icon: const Icon(Icons.stop_circle_rounded),
@@ -924,7 +928,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                   ),
                 ] else
                   Text(t.pcTapToShow,
-                      textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF8A8A8A))),
+                      textAlign: TextAlign.center, style: const TextStyle(color: Colors.white60)),
                           ]),
                     ),
                   ),

@@ -264,7 +264,9 @@ class LiveTests(_Base):
         s = ShopLiveSession.objects.get(pk=sid)
         span = (s.expires_at - s.created).total_seconds()
         self.assertLessEqual(span, PC.LIVE_IDLE_S + 2)
+        # an ANSWERED session 200 s old (a pending one is swept after 45 s)
         ShopLiveSession.objects.filter(pk=sid).update(
+            status="active", answered_at=timezone.now() - timedelta(seconds=190),
             created=timezone.now() - timedelta(seconds=200),
             expires_at=timezone.now() + timedelta(seconds=100))
         r = self.client.post("/api/v1/shop/live/%d/touch" % sid, {}, format="json")

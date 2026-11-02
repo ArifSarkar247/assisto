@@ -86,7 +86,7 @@ void main() {
 
     test('deletes oldest first until the new clip fits', () {
       final clips = [c('b', 200, 2), c('a', 200, 1), c('c', 200, 3)];
-      final del = clipsToDelete(clips, 500 * 1024 * 1024, incomingBytes: 50 * 1024 * 1024);
+      final del = clipsToDelete(clips, 500 * 1024 * 1024, incomingBytes: 150 * 1024 * 1024);
       expect(del.map((e) => e.path), ['a', 'b']);
     });
 
