@@ -113,18 +113,27 @@ def _get(path, token):
 
 
 # ------------------------------------------------------------- Messenger / IG
-def send_messenger(page_token, psid, text, page_id="me"):
+def _tagged(body, tag):
+    """salesbar: tag="HUMAN_AGENT" = a PERSON's reply 24 h - 7 days after the
+    customer's last message (Meta Human Agent feature; never an AI reply)."""
+    if tag:
+        body["messaging_type"] = "MESSAGE_TAG"
+        body["tag"] = tag
+    return body
+
+
+def send_messenger(page_token, psid, text, page_id="me", tag=""):
     """Messenger Send API: POST /{page-id}/messages (RESPONSE type — inside the
-    24 h window only)."""
-    return _post("%s/messages" % (page_id or "me"), page_token, {
+    24 h window only; MESSAGE_TAG + HUMAN_AGENT for a person's late reply)."""
+    return _post("%s/messages" % (page_id or "me"), page_token, _tagged({
         "recipient": {"id": psid}, "messaging_type": "RESPONSE",
-        "message": {"text": (text or "")[:2000]}})
+        "message": {"text": (text or "")[:2000]}}, tag))
 
 
-def send_instagram(page_token, igsid, text, ig_account_id="me"):
+def send_instagram(page_token, igsid, text, ig_account_id="me", tag=""):
     """Instagram Messaging (via the linked Page token): POST /{ig-id|me}/messages."""
-    return _post("%s/messages" % (ig_account_id or "me"), page_token, {
-        "recipient": {"id": igsid}, "message": {"text": (text or "")[:1000]}})
+    body = {"recipient": {"id": igsid}, "message": {"text": (text or "")[:1000]}}
+    return _post("%s/messages" % (ig_account_id or "me"), page_token, _tagged(body, tag))
 
 
 def send_messenger_image(page_token, psid, url, page_id="me"):

@@ -107,13 +107,46 @@ def in_business_hours(hours, minute_of_day):
 
 
 # ===================================================================== follow-ups
-_OPT_OUT = ("stop", "unsubscribe", "আর মেসেজ দিবেন না", "মেসেজ দিবেন না", "বিরক্ত করবেন না",
-            "message diben na", "msg diben na", "disturb korben na", "বন্ধ করুন", "no more message")
+# salesbar: a bare "বন্ধ করুন" is NOT an opt-out any more ("অর্ডারটা বন্ধ করুন"
+# = cancel my order) — only a whole-message STOP or wording about MESSAGES.
+_OPT_OUT_EXACT = ("stop", "স্টপ", "unsubscribe", "বন্ধ করুন", "stop please", "please stop")
+_OPT_OUT = ("unsubscribe", "আর মেসেজ দিবেন না", "মেসেজ দিবেন না", "বিরক্ত করবেন না",
+            "message diben na", "msg diben na", "disturb korben na", "no more message",
+            "stop messaging", "stop sending", "don't message", "dont message")
+_MSG_WORDS = ("মেসেজ", "message", "msg", "sms", "এসএমএস")
+_STOP_WORDS = ("বন্ধ", "bondho", "bondo", "stop")
+_ORDER_WORDS = ("অর্ডার", "order", "অডার")
+
+
+def _clean(text):
+    return re.sub(r"[\s.!।?,]+$", "", (text or "").strip().lower())
 
 
 def is_opt_out(text):
-    low = (text or "").strip().lower()
-    return low in ("stop", "স্টপ") or any(w in low for w in _OPT_OUT if len(w) > 4)
+    low = _clean(text)
+    if low in _OPT_OUT_EXACT:
+        return True
+    if any(w in low for w in _OPT_OUT):
+        return True
+    # "মেসেজ বন্ধ করুন" / "msg bondho koren" — but never about an ORDER
+    return (len(low) <= 60 and any(w in low for w in _MSG_WORDS)
+            and any(w in low for w in _STOP_WORDS) and not any(w in low for w in _ORDER_WORDS))
+
+
+_OPT_IN_EXACT = ("start", "স্টার্ট", "unstop", "subscribe", "resume")
+_OPT_IN = ("আবার মেসেজ দিন", "আবার মেসেজ দিবেন", "abar message diben", "abar msg diben",
+           "message dite paren", "start messages")
+
+
+def is_opt_in(text):
+    """salesbar: the way BACK after STOP (WhatsApp opt-out must be reversible)."""
+    low = _clean(text)
+    return low in _OPT_IN_EXACT or any(w in low for w in _OPT_IN)
+
+
+def opt_in_ack(lang):
+    return pick(lang, "ঠিক আছে, আবার দরকারি খবর পাঠাব। বন্ধ করতে যেকোনো সময় STOP লিখুন।",
+                "Okay, we'll send you updates again. Write STOP any time to stop.")
 
 
 def followup_due(*, enabled, opted_out, human_mode, paused, quiet, last_dir, last_out_kind,

@@ -137,14 +137,38 @@ def policies_for(business, agent):
     return out
 
 
+# salesbar: the AI prompt has a HARD size budget, so the cost of one reply
+# stays inside what the plan prices assume (40% rule) for any catalog size:
+# at most 30 products (in stock first), each policy ≤ 300 characters, the
+# facts ≤ 4 000 characters, history 4 × 400, the customer's text ≤ 1 500.
+FACTS_MAX_PRODUCTS = 30
+FACTS_MAX_CHARS = 4000
+POLICY_MAX_CHARS = 300
+HISTORY_TURNS = 4
+HISTORY_MAX_CHARS = 400
+LLM_INPUT_MAX_CHARS = 1500
+PROMPT_BUDGET_CHARS = 9000      # task + facts + tone sample + history + message
+
+
+def facts_slice(products):
+    """The products the AI may see: in-stock first, catalog order kept."""
+    rows = list(products or [])
+    rows.sort(key=lambda p: int(p.get("stock") or 0) <= 0)
+    return rows[:FACTS_MAX_PRODUCTS]
+
+
 def context_for(business, agent, lang, only=None):
     """build_context() from the real catalog. `only` = product dicts to keep
     the facts focused on what the customer asked about."""
     catalog = catalog_for(business)
-    facts_catalog = only if only else catalog
+    facts_catalog = facts_slice(only if only else catalog)
+    pols = {k: str(v)[:POLICY_MAX_CHARS] for k, v in policies_for(business, agent).items()}
     ctx = bai.build_context(catalog=facts_catalog, delivery=delivery_for(business) or None,
-                            policies=policies_for(business, agent),
+                            policies=pols,
                             shop_name=business.shop_name, style=business.style_sample, lang=lang)
+    if len(ctx.get("facts") or "") > FACTS_MAX_CHARS:
+        cut = ctx["facts"][:FACTS_MAX_CHARS]
+        ctx["facts"] = cut[:cut.rfind("\n")] if "\n" in cut else cut
     ctx["catalog"] = catalog          # the post-check sees the whole catalog
     ctx["delivery"] = delivery_for(business)
     return ctx
@@ -486,8 +510,13 @@ def process_event(e):
 
 # ===================================================================== threads
 def _ts(e):
-    ts = int(e.get("ts") or 0)
-    if ts > 0:
+    try:
+        ts = int(e.get("ts") or 0)
+    except (TypeError, ValueError):
+        ts = 0
+    if ts > 10 ** 11:
+        ts //= 1000                 # salesbar: a millisecond time (some webhook fields)
+    if 10 ** 9 <= ts < 4102444800:   # 2001..2100 -> a real time; else "now"
         from datetime import datetime, timezone as dtz
         return datetime.fromtimestamp(ts, tz=dtz.utc)
     return timezone.now()
@@ -546,28 +575,108 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
         m.save()
         return m
     last_in = thread.last_inbound_at.timestamp() if thread.last_inbound_at else None
+    tag = ""
     if not comment_id and not bai.within_service_window(last_in, now.timestamp()):
-        m.status = "blocked"
-        m.send_error = ("outside_24h_window_template_required" if ch.kind == BZ.CH_WHATSAPP
-                        else "outside_24h_window")
-        m.save()
-        return m
-    if comment_id and public:
-        r = G.public_comment_reply(token, comment_id, text, instagram=(ch.kind == BZ.CH_INSTAGRAM))
-    elif comment_id:
-        r = G.private_reply(token, comment_id, text, page_id=ch.external_id)
-    elif ch.kind == BZ.CH_WHATSAPP:
-        r = G.send_whatsapp_text(token, ch.external_id, thread.external_user_id, text)
-    elif ch.kind == BZ.CH_INSTAGRAM:
-        r = G.send_instagram(token, thread.external_user_id, text)
-    else:
-        r = G.send_messenger(token, thread.external_user_id, text, page_id=ch.external_id)
+        # salesbar: Meta lets a PERSON answer on Messenger/IG for up to 7 days
+        # with the HUMAN_AGENT tag (Human Agent feature, granted in App
+        # Review — the owner ticks it). Never an AI or automated message.
+        person = (source == "human" and not is_ai
+                  and ch.kind in (BZ.CH_MESSENGER, BZ.CH_INSTAGRAM)
+                  and BZ.meta_access_normalize(sa_cfg().get("meta_access"))["human_agent"])
+        if person and BZ.human_agent_window(last_in, now.timestamp()):
+            tag = "HUMAN_AGENT"
+            m.meta["tag"] = tag
+        else:
+            m.status = "blocked"
+            m.send_error = ("outside_24h_window_template_required" if ch.kind == BZ.CH_WHATSAPP
+                            else "outside_7d_window" if person else "outside_24h_window")
+            m.save()
+            return m
+    r = _graph_send(ch, thread, token, text, comment_id=comment_id, public=public, tag=tag)
     if r["ok"]:
         m.status, m.external_id = status_on_ok, r.get("id", "")[:128]
+    elif BZ.is_rate_limited(r.get("error", "")):
+        # salesbar: Meta's TEMPORARY rate limit — keep it in the queue; the
+        # sweep (retry_rate_limited) sends it again while the window is open
+        m.status, m.send_error = "queued", "rate_limited"
+        m.meta["rl_tries"] = 1
+        m.meta["rl_error"] = r.get("error", "")[:120]
+        if tag:
+            m.meta["tag"] = tag
     else:
         m.status, m.send_error = "failed", r.get("error", "")[:200]
     m.save()
     return m
+
+
+def _graph_send(ch, thread, token, text, *, comment_id="", public=False, tag=""):
+    if comment_id and public:
+        return G.public_comment_reply(token, comment_id, text,
+                                      instagram=(ch.kind == BZ.CH_INSTAGRAM))
+    if comment_id:
+        return G.private_reply(token, comment_id, text, page_id=ch.external_id)
+    if ch.kind == BZ.CH_WHATSAPP:
+        return G.send_whatsapp_text(token, ch.external_id, thread.external_user_id, text)
+    if ch.kind == BZ.CH_INSTAGRAM:
+        return G.send_instagram(token, thread.external_user_id, text, tag=tag)
+    return G.send_messenger(token, thread.external_user_id, text, page_id=ch.external_id,
+                            tag=tag)
+
+
+RL_MAX_TRIES = 3
+RL_RETRY_AFTER_S = 60
+
+
+def retry_rate_limited(now=None, limit=100):
+    """salesbar sweep: messages Meta refused with a TEMPORARY rate limit are
+    sent again after a minute (at most 3 tries in all), only while the
+    customer's 24 h window is still open (or the human-agent span for a
+    tagged human reply). After the last try: 'failed' + one seller push."""
+    from .models import Message
+    now = now or timezone.now()
+    n = 0
+    qs = Message.objects.filter(direction="out", status="queued", send_error="rate_limited",
+                                created_at__gte=now - timedelta(days=7)) \
+        .select_related("thread", "thread__seller_channel", "thread__business") \
+        .order_by("created_at")[:limit]
+    for m in qs:
+        meta = dict(m.meta or {})
+        last_try = meta.get("rl_at") or m.created_at.timestamp()
+        if now.timestamp() - float(last_try) < RL_RETRY_AFTER_S:
+            continue
+        t = m.thread
+        ch = t.seller_channel
+        token = channel_token(ch) if ch is not None else None
+        last_in = t.last_inbound_at.timestamp() if t.last_inbound_at else None
+        cid = meta.get("comment_id", "")
+        tag = meta.get("tag", "")
+        open_ = bool(cid) or bai.within_service_window(last_in, now.timestamp()) or \
+            (tag and BZ.human_agent_window(last_in, now.timestamp()))
+        if ch is None or not token or not open_:
+            m.status = "failed"
+            m.send_error = "no_token" if (ch is None or not token) else \
+                "rate_limited_window_closed"
+            m.save(update_fields=["status", "send_error"])
+            continue
+        r = _graph_send(ch, t, token, m.text, comment_id=cid,
+                        public=(m.kind == "comment" and bool(cid)), tag=tag)
+        meta["rl_tries"] = int(meta.get("rl_tries") or 1) + 1
+        meta["rl_at"] = now.timestamp()
+        if r["ok"]:
+            m.status, m.external_id, m.send_error = "sent", r.get("id", "")[:128], ""
+            n += 1
+        elif BZ.is_rate_limited(r.get("error", "")) and meta["rl_tries"] < RL_MAX_TRIES:
+            pass                        # stays queued for the next sweep
+        else:
+            m.status, m.send_error = "failed", r.get("error", "")[:200] or "rate_limited"
+            notify_seller(t.business, "errors", "মেসেজ পাঠানো যায়নি",
+                          "A message could not be sent",
+                          "Meta এখন ব্যস্ত — চ্যাট খুলে আবার পাঠান।",
+                          "Meta is busy — open the chat and send it again.",
+                          data={"thread_id": str(t.pk)})
+        m.meta = meta
+        m.save(update_fields=["status", "external_id", "send_error", "meta"])
+    return n
 
 
 def send_image(thread, url, caption=""):
@@ -607,13 +716,16 @@ def send_image(thread, url, caption=""):
 
 
 def send_template(thread, name, lang_code="bn", params=None):
-    """Outside the 24 h window WhatsApp allows ONLY an approved template."""
+    """Outside the 24 h window WhatsApp allows ONLY an approved template.
+    salesbar: never to a customer who wrote STOP (WhatsApp Business policy)."""
     from .models import Message
     ch = thread.seller_channel
     m = Message(thread=thread, direction="out", text="[template:%s]" % name, is_ai=False,
                 kind="template", meta={"template": name, "params": params or []})
     if ch is None or ch.kind != BZ.CH_WHATSAPP:
         m.status, m.send_error = "blocked", "templates_whatsapp_only"
+    elif thread.opted_out:
+        m.status, m.send_error = "blocked", "opted_out"
     elif ch.test_mode:
         m.status, m.external_id = "sent", "test-" + uuid.uuid4().hex[:16]
     else:
@@ -654,7 +766,7 @@ def _llm_draft(ctx, lang, tone, text, history):
         if ctx.get("style"):
             task += ("\n\nTONE ONLY (the owner's own past wording — copy the style, never "
                      "facts or numbers from it):\n" + str(ctx["style"])[:400])
-        out, _cost = ai.generate(task=task, data=text, tier="cheap",
+        out, _cost = ai.generate(task=task, data=(text or "")[:LLM_INPUT_MAX_CHARS], tier="cheap",
                                  max_tokens=300, feature="bizagent.reply", user=None,
                                  history=history, pii=vault, out_meta=meta)
     except ai.AIUnavailable:
@@ -667,12 +779,13 @@ def _llm_draft(ctx, lang, tone, text, history):
     return d
 
 
-def _history(thread, limit=6):
+def _history(thread, limit=HISTORY_TURNS):
     rows = list(thread.messages.filter(status__in=("received", "sent", "delivered", "read", ""))
                 .order_by("-created_at", "-id")[:limit])
     out = []
     for m in reversed(rows):
-        out.append({"role": "user" if m.direction == "in" else "assistant", "content": m.text})
+        out.append({"role": "user" if m.direction == "in" else "assistant",
+                    "content": (m.text or "")[:HISTORY_MAX_CHARS]})
     if out and out[-1]["role"] == "user":
         out = out[:-1]     # the current message goes in `data`
     while out and out[0]["role"] != "user":
@@ -1267,13 +1380,22 @@ def handle_message(ch, e):
         pass
     # g1: opt-out of follow-ups ("stop") is honoured at once
     from .logic import bizagent_g1 as G1
+    from . import bizagent_guard as GD
     if text and G1.is_opt_out(text):
         t.opted_out = True
         t.save(update_fields=["opted_out"])
         from . import booking_service as BKS
         BKS.note_chat_stop(t)          # booking-bot: no more booking reminders
+        GD.audit(ch.business, "opt_out", thread=t)
         send_text(t, G1.opt_out_ack(lang), kind="text", is_ai=True, source="system")
         return "opted_out"
+    # salesbar: START after a STOP = opted back in (reversible, WhatsApp policy)
+    if text and t.opted_out and G1.is_opt_in(text):
+        t.opted_out = False
+        t.save(update_fields=["opted_out"])
+        GD.audit(ch.business, "opt_in", thread=t)
+        send_text(t, G1.opt_in_ack(lang), kind="text", is_ai=True, source="system")
+        return "opted_in"
     if e.get("cart"):
         return _handle_cart(ch, t, e["cart"], text, lang, inbound)
     media = None
@@ -1495,9 +1617,21 @@ def handle_comment(ch, e):
                            meta={"comment_id": e.get("comment_id"), "post_id": e.get("post_id")})
     if not agent.comment_dm:
         return "comment_dm_off"
+    # salesbar: until Meta grants the comment permissions (owner ticks them in
+    # Owner Admin) the comment is only SAVED for the seller's inbox — no Graph
+    # call that would fail, no "could not send" push
+    if not ch.test_mode and not BZ.comments_granted(sa_cfg().get("meta_access"), ch.kind):
+        from . import bizagent_guard as GD
+        GD.audit(ch.business, "comment_held", thread=t, reason="meta_permission")
+        return "comment_perm_pending"
+    # Meta rule: a private reply only within 7 days of the comment
+    if not BZ.private_reply_allowed(int(_ts(e).timestamp()) if e.get("ts") else None,
+                                    timezone.now().timestamp()):
+        return "comment_too_old"
     # Meta rule: ONE private reply per comment (Messenger/IG inbox)
     if Message.objects.filter(thread__seller_channel=ch, direction="out",
-                              meta__comment_id=e.get("comment_id", "")).exists():
+                              meta__comment_id=e.get("comment_id", "")) \
+            .exclude(status="blocked").exists():
         return "skipped"
     return respond(ch, t, text, lang, comment_id=e.get("comment_id", ""),
                    post_id=e.get("post_id", ""))
@@ -1585,12 +1719,45 @@ def seller_send(thread, text):
     the AI pauses in THIS chat for the resume timeout."""
     from . import bizagent_g1_service as G1S
     from . import bizagent_guard as GD
-    m = send_text(thread, text, kind="text", is_ai=False, source="human")
+    if str(thread.external_user_id or "").startswith("comment:"):
+        m = _seller_comment_reply(thread, text)
+    else:
+        m = send_text(thread, text, kind="text", is_ai=False, source="human")
     if m.status in ("sent", "queued"):
         G1S.pause_for_human(thread, "app")
         GD.touch_takeover(thread)
     GD.audit(thread.business, "owner_reply", thread=thread, status=m.status)
     return m
+
+
+def _seller_comment_reply(thread, text):
+    """salesbar: a chat made from post COMMENTS has no Messenger inbox of its
+    own — the seller's reply goes as the ONE private reply to the newest
+    comment (Meta: within 7 days, once per comment), and only when Meta has
+    granted the comment permission. Otherwise an honest 'blocked' row."""
+    from .models import Message
+    ch = thread.seller_channel
+    last = thread.messages.filter(direction="in", kind="comment").order_by("-created_at", "-id") \
+        .first()
+    cid = str(((last.meta or {}).get("comment_id") if last else "") or "")
+    why = ""
+    if ch is None or not cid:
+        why = "comment_not_found"
+    elif not ch.test_mode and not BZ.comments_granted(sa_cfg().get("meta_access"), ch.kind):
+        why = "comment_perm_pending"
+    elif not BZ.private_reply_allowed(last.created_at.timestamp(), timezone.now().timestamp()):
+        why = "comment_too_old"
+    elif Message.objects.filter(thread__seller_channel=ch, direction="out",
+                                meta__comment_id=cid).exclude(status__in=("blocked", "failed",
+                                                                         "pending_approval",
+                                                                         "rejected")).exists():
+        why = "comment_already_replied"
+    if why:
+        m = Message.objects.create(thread=thread, direction="out", text=text, is_ai=False,
+                                   kind="text", status="blocked", send_error=why,
+                                   reply_source="human", meta={"comment_id": cid} if cid else {})
+        return m
+    return send_text(thread, text, kind="text", is_ai=False, comment_id=cid, source="human")
 
 
 # ===================================================================== orders

@@ -589,6 +589,11 @@ EN.update({
     "sl_webhooks": "Webhook URLs (Meta app)", "sl_webhooks_note": "Paste these in the Meta developer app (Webhooks + WhatsApp → Configuration) with the verify token saved under Integrations → Meta app.",
     "sl_w_wa_cost": "WhatsApp cost per message is not set (0). Business-initiated WhatsApp messages are not charged to sellers until you set Meta's real rate below.",
     "sl_w_play": "Plan %(plan)s keeps only %(pct)s%% margin if sold through Google Play — sell it through the payment gateway, or set a higher Play price.",
+    "sl_meta": "Meta App Review and permissions", "sl_meta_note": "Tick ONLY what Meta has really granted to our app. The seller app follows this: comment replies stay off and say why until the comment permission is ticked; a seller's own late reply (24 h - 7 days) uses the Human Agent tag only when it is ticked.",
+    "sl_meta_review": "App Review", "sl_meta_rev_not_submitted": "Not submitted", "sl_meta_rev_submitted": "Submitted, waiting", "sl_meta_rev_approved": "Approved",
+    "sl_meta_comments_fb": "Facebook comments granted (pages_manage_engagement + pages_read_user_content)",
+    "sl_meta_comments_ig": "Instagram comments granted (instagram_manage_comments)",
+    "sl_meta_human_agent": "Human Agent feature granted (a person may reply up to 7 days)",
     "p_seller_plan_breaks_margin": "A seller plan would earn less than the margin target if all its AI replies are used. Raise the price or lower the replies.",
     "p_seller_negative": "Seller plan numbers cannot be negative.",
 })
@@ -610,6 +615,11 @@ BN.update({
     "sl_webhooks": "Webhook URL (Meta app)", "sl_webhooks_note": "এগুলো Meta developer app-এ (Webhooks + WhatsApp → Configuration) পেস্ট করুন, সাথে Integrations → Meta app-এ রাখা verify token।",
     "sl_w_wa_cost": "প্রতি WhatsApp মেসেজের খরচ বসানো হয়নি (০)। নিচে Meta-র আসল রেট না বসানো পর্যন্ত ব্যবসা-শুরু করা WhatsApp মেসেজের টাকা বিক্রেতার কাছ থেকে কাটা হবে না।",
     "sl_w_play": "প্ল্যান %(plan)s Google Play দিয়ে বিক্রি হলে মার্জিন মাত্র %(pct)s%% — পেমেন্ট গেটওয়ে দিয়ে বিক্রি করুন, অথবা Play-এর দাম বাড়ান।",
+    "sl_meta": "Meta App Review ও অনুমতি", "sl_meta_note": "শুধু Meta আসলে যা আমাদের অ্যাপকে দিয়েছে তাতেই টিক দিন। বিক্রেতার অ্যাপ এটাই মানে: কমেন্টের অনুমতিতে টিক না পড়া পর্যন্ত কমেন্টের উত্তর বন্ধ থাকে ও কারণ লেখা থাকে; Human Agent-এ টিক থাকলেই কেবল বিক্রেতার নিজের দেরির উত্তর (২৪ ঘণ্টা – ৭ দিন) যায়।",
+    "sl_meta_review": "App Review", "sl_meta_rev_not_submitted": "জমা হয়নি", "sl_meta_rev_submitted": "জমা হয়েছে, অপেক্ষায়", "sl_meta_rev_approved": "অনুমোদিত",
+    "sl_meta_comments_fb": "Facebook কমেন্টের অনুমতি পাওয়া গেছে (pages_manage_engagement + pages_read_user_content)",
+    "sl_meta_comments_ig": "Instagram কমেন্টের অনুমতি পাওয়া গেছে (instagram_manage_comments)",
+    "sl_meta_human_agent": "Human Agent অনুমতি পাওয়া গেছে (মানুষ ৭ দিন পর্যন্ত উত্তর দিতে পারেন)",
     "p_seller_plan_breaks_margin": "সব AI উত্তর ব্যবহার হলে একটি বিক্রেতা-প্ল্যানে লক্ষ্য মার্জিনের চেয়ে কম লাভ হবে। দাম বাড়ান বা উত্তর কমান।",
     "p_seller_negative": "বিক্রেতা-প্ল্যানের সংখ্যা ঋণাত্মক হতে পারে না।",
 })
