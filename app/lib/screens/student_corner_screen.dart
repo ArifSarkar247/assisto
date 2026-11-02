@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -43,6 +44,13 @@ const String _coursePath = 'student/courses';
 const String _goalPath = 'student/goals';
 
 class _StudentCornerScreenState extends State<StudentCornerScreen> {
+
+  @override
+  void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.studentAfterPractice);
+    super.dispose();
+  }
   List<Map<String, dynamic>> _routine = [];
   List<Map<String, dynamic>> _assignments = [];
   List<Map<String, dynamic>> _courses = [];
@@ -1065,6 +1073,7 @@ class _CourseEditorState extends State<_CourseEditor> {
       } else {
         await api.createItem(_coursePath, body);
       }
+      AdExit.taskDone(AdExitPlacement.studentAfterPractice);
       if (mounted) Navigator.pop(context, true);
     } catch (_) {
       if (mounted) {

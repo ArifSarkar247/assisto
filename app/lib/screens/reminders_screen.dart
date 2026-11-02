@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -99,7 +98,6 @@ class _RemindersScreenState extends State<RemindersScreen>
 
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'reminders'),
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [

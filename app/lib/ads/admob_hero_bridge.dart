@@ -31,7 +31,9 @@ class AdmobHeroAdBridge implements HeroAdBridge {
       {required bool startMuted,
       HeroAdLook? look,
       HeroAdSize size = HeroAdSize.compact}) async {
-    if (unitId.isEmpty || !await AdmobSdk.ensureReady()) return null;
+    if (!AdmobSdk.unitAllowed(unitId) || !await AdmobSdk.ensureReady()) {
+      return null;
+    }
     final done = Completer<HeroAdHandle?>();
     NativeAd? ad;
     // one tracker per NativeAd object: 1 impression, <=1 click, 1 paid

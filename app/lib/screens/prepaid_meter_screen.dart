@@ -6,7 +6,6 @@ import '../meter/meter_logic.dart';
 import '../voice/va_native.dart' show VaNative;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/offline_banner.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -129,7 +128,6 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
     final overview = _Meter.overview(_meters, (id) => _rechargesFor(id));
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'prepaid_meter'),
       appBar: AppBar(title: Text(tr.meterTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addMeter,

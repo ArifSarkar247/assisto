@@ -153,15 +153,22 @@ class AppAdsTxtTests(TestCase):
     def setUp(self):
         self.c = Client()
 
-    def test_default_is_assisto_admob_publisher(self):
-        # admob (owner 25 Oct): lifeassisto.com/app-ads.txt, text/plain
+    def test_not_configured_is_404_never_a_git_id(self):
+        # admobump (owner 2 Nov): no publisher id in git; nothing stored -> 404
         r = self.c.get("/app-ads.txt")
+        self.assertEqual(r.status_code, 404)
+        self.assertTrue(r["Content-Type"].startswith("text/plain"))
+        self.assertNotIn("google.com", r.content.decode())
+
+    def test_owner_panel_publisher_id(self):
+        with mock.patch("core.integrations.get",
+                        return_value={"publisher_id": "pub-1212121212121212"}):
+            r = self.c.get("/app-ads.txt")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r["Content-Type"].startswith("text/plain"))
-        body = r.content.decode()
-        self.assertIn("google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0\n", body)
-        lines = [l for l in body.splitlines() if l.strip() and not l.startswith("#")]
-        self.assertEqual(lines, ["google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0"])
+        lines = [l for l in r.content.decode().splitlines()
+                 if l.strip() and not l.startswith("#")]
+        self.assertEqual(lines, ["google.com, pub-1212121212121212, DIRECT, f08c47fec0942fa0"])
 
     @override_settings(ADMOB_PUBLISHER_ID="pub-1234567890123456")
     def test_set_by_setting(self):
@@ -186,8 +193,8 @@ class AppAdsTxtTests(TestCase):
                     {"publisher_id": "pub-123"}, {"publisher_id": "hello"}):
             with mock.patch("core.integrations.get", return_value=cfg):
                 body = self.c.get("/app-ads.txt").content.decode()
-            self.assertIn("pub-2506398550427515", body, cfg)       # owner default
             self.assertNotIn("3940256099942544", body, cfg)
+            self.assertNotIn("google.com,", body, cfg)            # 404, nothing served
 
     def test_admob_registry_has_publisher_field(self):
         from core.integrations import REGISTRY

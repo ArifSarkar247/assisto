@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../photo_studio/ps_backend.dart';
@@ -145,6 +146,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.photoAfterSave);
     WidgetsBinding.instance.removeObserver(this);
     _evictShown();
     _c.removeListener(_onChange);

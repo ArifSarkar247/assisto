@@ -35,6 +35,13 @@ import 'consent_binding.dart';
 /// Mirror of UMP's PrivacyOptionsRequirementStatus (no plugin import here).
 enum PrivacyOptionsStatus { notRequired, required, unknown }
 
+/// Mirror of UMP's ConsentStatus. `obtained` only means the user ANSWERED
+/// the form — the plugin does not say whether it was "Consent" or "Do not
+/// consent", so the app treats every status except [notRequired] as "no
+/// personalised ads" (admobump, owner 2 Nov: never personalise without
+/// consent).
+enum UmpConsentStatus { unknown, required, notRequired, obtained }
+
 /// The plugin seam. Tests use a fake; the app uses [NoopConsentBridge] until
 /// google_mobile_ads is linked. Implementations must never throw.
 abstract class ConsentBridge {
@@ -57,6 +64,9 @@ abstract class ConsentBridge {
   /// ConsentForm.showPrivacyOptionsForm. true when the form was shown and
   /// dismissed without an error.
   Future<bool> showPrivacyOptionsForm();
+
+  /// ConsentInformation.getConsentStatus.
+  Future<UmpConsentStatus> consentStatus();
 }
 
 class NoopConsentBridge implements ConsentBridge {
@@ -76,6 +86,8 @@ class NoopConsentBridge implements ConsentBridge {
       PrivacyOptionsStatus.unknown;
   @override
   Future<bool> showPrivacyOptionsForm() async => false;
+  @override
+  Future<UmpConsentStatus> consentStatus() async => UmpConsentStatus.unknown;
 }
 
 class AdConsent {
@@ -111,6 +123,30 @@ class AdConsent {
   /// Settings shows "Ad privacy choices" only then.
   final ValueNotifier<bool> privacyOptionsRequired = ValueNotifier<bool>(false);
 
+  /// The last privacy-options status UMP reported (unknown until asked).
+  /// Settings shows the tappable row on `required` and an honest info line
+  /// on `notRequired`.
+  final ValueNotifier<PrivacyOptionsStatus> privacyStatus =
+      ValueNotifier<PrivacyOptionsStatus>(PrivacyOptionsStatus.unknown);
+
+  /// The last UMP consent status of this session.
+  UmpConsentStatus consentStatus = UmpConsentStatus.unknown;
+
+  bool _canServe = false;
+
+  /// THE gate state every ad request checks ([AdmobSdk.request] refuses to
+  /// build one while this is false): true only after [allowsAds] said yes in
+  /// this session (UMP update + form + canRequestAds), or when this APK has
+  /// no real AdMob app id (Google test ads only, no UMP).
+  bool get canServe => _canServe;
+
+  /// Personalised ads are allowed ONLY where UMP says no consent is needed
+  /// at all (e.g. Bangladesh). EEA/UK/CH and US-state users always get
+  /// non-personalised requests (we cannot read "Consent" vs "Do not
+  /// consent" from the plugin, so we take the safe side).
+  bool get mayPersonalise =>
+      _canServe && active && consentStatus == UmpConsentStatus.notRequired;
+
   bool _updatedThisSession = false;
   Future<bool>? _inFlight;
 
@@ -134,10 +170,12 @@ class AdConsent {
   ///  * else: requestConsentInfoUpdate (once per session), show Google's form
   ///    if required, then canRequestAds().
   Future<bool> allowsAds() async {
-    if (!active) return true;
-    if (!bridge.linked) return false;
-    return _inFlight ??= _gather(showForm: true)
-        .whenComplete(() => _inFlight = null);
+    if (!active) return _canServe = true;
+    if (!bridge.linked) return _canServe = false;
+    final ok = await (_inFlight ??= _gather(showForm: true)
+        .whenComplete(() => _inFlight = null));
+    _canServe = ok;
+    return ok;
   }
 
   /// Settings (Free users only): learn whether "Ad privacy choices" is
@@ -159,6 +197,14 @@ class AdConsent {
     try {
       final ok = await bridge.showPrivacyOptionsForm();
       await _readPrivacyStatus();
+      // the user may have changed or withdrawn consent: re-read both, the
+      // next ad request follows the new answer
+      await _readConsentStatus();
+      if (_canServe) {
+        _canServe = await bridge
+            .canRequestAds()
+            .timeout(const Duration(seconds: 5), onTimeout: () => false);
+      }
       return ok;
     } catch (e) {
       if (kDebugMode) debugPrint('privacy options failed: $e');
@@ -178,6 +224,7 @@ class AdConsent {
       // UMP says consent is required (EEA/UK/CH); elsewhere it returns at once.
       if (showForm && _updatedThisSession) await bridge.loadAndShowIfRequired();
       await _readPrivacyStatus();
+      await _readConsentStatus();
       // Google: even when the update failed, a consent given in an earlier
       // session may still allow requests — canRequestAds() decides.
       return await bridge
@@ -196,9 +243,22 @@ class AdConsent {
           .timeout(const Duration(seconds: 5),
               onTimeout: () => PrivacyOptionsStatus.unknown);
       privacyOptionsRequired.value = s == PrivacyOptionsStatus.required;
+      privacyStatus.value = s;
     } catch (_) {
       // best-effort: status unknown -> the Settings entry stays hidden
       privacyOptionsRequired.value = false;
+      privacyStatus.value = PrivacyOptionsStatus.unknown;
+    }
+  }
+
+  Future<void> _readConsentStatus() async {
+    try {
+      consentStatus = await bridge
+          .consentStatus()
+          .timeout(const Duration(seconds: 5),
+              onTimeout: () => UmpConsentStatus.unknown);
+    } catch (_) {
+      consentStatus = UmpConsentStatus.unknown; // -> non-personalised
     }
   }
 
@@ -209,6 +269,9 @@ class AdConsent {
     debugEea = false;
     testDeviceIds = const [];
     privacyOptionsRequired.value = false;
+    privacyStatus.value = PrivacyOptionsStatus.unknown;
+    consentStatus = UmpConsentStatus.unknown;
+    _canServe = false;
     _updatedThisSession = false;
     _inFlight = null;
   }

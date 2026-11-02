@@ -74,7 +74,7 @@ void main() {
     test('unknown / empty screens are blocked (default deny)', () {
       expect(appOpen(free(), screen: 'unknown').allowed, isFalse);
       expect(appOpen(free(), screen: '').allowed, isFalse);
-      expect(appOpen(free(), screen: 'money').reason, 'screen_not_allowed');
+      expect(appOpen(free(), screen: 'dictionary').reason, 'screen_not_allowed');
     });
 
     test('server-extended blocked screens apply', () {

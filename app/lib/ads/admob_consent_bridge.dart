@@ -83,6 +83,25 @@ class AdmobConsentBridge implements ConsentBridge {
   }
 
   @override
+  Future<UmpConsentStatus> consentStatus() async {
+    try {
+      final s = await ConsentInformation.instance.getConsentStatus();
+      switch (s) {
+        case ConsentStatus.required:
+          return UmpConsentStatus.required;
+        case ConsentStatus.notRequired:
+          return UmpConsentStatus.notRequired;
+        case ConsentStatus.obtained:
+          return UmpConsentStatus.obtained;
+        case ConsentStatus.unknown:
+          return UmpConsentStatus.unknown;
+      }
+    } catch (_) {
+      return UmpConsentStatus.unknown;
+    }
+  }
+
+  @override
   Future<bool> showPrivacyOptionsForm() async {
     final done = Completer<bool>();
     try {

@@ -62,7 +62,7 @@ void main() {
   });
 
   final specs = gallerySpecs();
-  for (final name in ['reminders', 'money', 'messenger', 'settings', 'journey_settings']) {
+  for (final name in ['dictionary', 'jobs', 'messenger', 'settings', 'journey_settings']) {
     for (final lang in ['bn', 'en']) {
       for (final b in Brightness.values) {
         testWidgets('banner shot $name $lang ${b.name}', (tester) async {

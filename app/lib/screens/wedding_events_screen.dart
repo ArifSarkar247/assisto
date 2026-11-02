@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -42,6 +43,13 @@ const String _budgetPath = 'wedding/budget';
 const String _taskPath = 'wedding/tasks';
 
 class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
+
+  @override
+  void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.planAfterSave);
+    super.dispose();
+  }
   List<Map<String, dynamic>> _event = [];
   List<Map<String, dynamic>> _guests = [];
   List<Map<String, dynamic>> _budget = [];
@@ -299,6 +307,7 @@ class _EventEditorState extends State<_EventEditor> {
       } else {
         await api.createItem(_eventPath, body);
       }
+      AdExit.taskDone(AdExitPlacement.planAfterSave);
       if (mounted) Navigator.pop(context, true);
     } catch (_) {
       if (mounted) {

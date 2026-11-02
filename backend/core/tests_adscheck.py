@@ -189,8 +189,11 @@ class PlacementMapTests(SimpleTestCase):
         for s in A.INTERSTITIAL_MOMENTS:
             self.assertIsNone(self.FORBIDDEN.search(s), s)
 
-    def test_money_banner_is_not_a_payment_screen(self):
-        self.assertIn("money", A.BANNER_SCREENS)
+    def test_money_screens_carry_no_banner(self):
+        # OWNER ADS FINAL (2 Nov): money / budget are on the never list
+        for s in ("money", "budget", "money_report", "prepaid_meter", "crm"):
+            self.assertNotIn(s, A.BANNER_SCREENS)
+            self.assertTrue(A.is_blocked_screen(s), s)
         for s in ("payment", "checkout", "topup", "credits_topup", "plans",
                   "payment_ladder", "business_plans", "remittance"):
             self.assertTrue(A.is_blocked_screen(s), s)
@@ -203,10 +206,10 @@ class PlacementMapTests(SimpleTestCase):
             self.assertTrue(A.is_blocked_screen(s), s)
 
     def test_server_cannot_be_talked_into_a_forbidden_banner(self):
-        caps = {"banner_screens": "money,payment,checkout,circle_chat,sos,login,permission"}
+        caps = {"banner_screens": "dictionary,money,payment,checkout,circle_chat,sos,login,permission"}
         c = A.client_config(plan="free", paid=False, admob_cfg={}, admob_working=False,
                             flag_rewarded=True, flag_app_open=True, ad_caps=caps)
-        self.assertEqual(c["banner_screens"], ["money"])
+        self.assertEqual(c["banner_screens"], ["dictionary"])
 
 
 # ------------------------------------------------------- 3. profit table

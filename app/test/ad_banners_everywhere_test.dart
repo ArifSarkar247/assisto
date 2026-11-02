@@ -108,10 +108,10 @@ void main() {
   group('allowlist vs never-list', () {
     test('the owner-listed normal screens are on the allowlist', () {
       for (final s in [
-        'money', 'budget', 'reminders', 'notes_todos', 'jobs',
-        'prepaid_meter', 'contract', 'business', 'crm', 'all_services',
-        'dictionary', 'health_tips', 'saved_items', 'photo_gallery',
-        'circle_list', 'settings',
+        // OWNER ADS FINAL (2 Nov): money / budget / reminders / notes /
+        // prepaid / business / CRM / health moved to the never list
+        'jobs', 'contract', 'all_services', 'dictionary', 'saved_items',
+        'photo_gallery', 'circle_list', 'settings',
       ]) {
         expect(AdPlacements.bannerScreens, contains(s), reason: s);
         expect(AdPlacements.screenAllowed(AdSurface.banner, s), isTrue, reason: s);
@@ -147,6 +147,12 @@ void main() {
         'plans', 'checkout', 'topup', 'login', 'otp', 'signup', 'sign_up',
         'onboarding', 'language_picker', 'permission', 'ring_check',
         'account_security', 'password', 'delete_account',
+        // OWNER ADS FINAL (2 Nov)
+        'cctv', 'vehicle', 'missing_person', 'blood_donor', 'train_tracker',
+        'destination_alarm', 'ai_chat', 'budget', 'money', 'prepaid_meter',
+        'khata', 'sales', 'invoice', 'crm', 'quran', 'ramadan',
+        'food_calories', 'health', 'reminders', 'notes_todos',
+        'task_manager', 'school_mode', 'kids_watch',
       ]) {
         expect(AdPlacements.neverScreens, contains(s), reason: s);
       }
@@ -162,13 +168,13 @@ void main() {
     });
 
     test('even the server listing a never-screen cannot switch it on', () {
-      final c = _cfg(banner: ['money', 'sos', 'plans', 'circle_chat', 'journey_live']);
-      expect(AdPlacements.banner('money', c, loggedIn: true).allowed, isTrue);
+      final c = _cfg(banner: ['dictionary', 'sos', 'plans', 'circle_chat', 'journey_live']);
+      expect(AdPlacements.banner('dictionary', c, loggedIn: true).allowed, isTrue);
       for (final s in ['sos', 'plans', 'circle_chat', 'journey_live']) {
         expect(AdPlacements.banner(s, c, loggedIn: true).allowed, isFalse, reason: s);
       }
       // ... and it can narrow: a listed page switched off server-side
-      expect(AdPlacements.banner('budget', c, loggedIn: true).reason, 'server_off');
+      expect(AdPlacements.banner('saved_items', c, loggedIn: true).reason, 'server_off');
     });
 
     test('Premium / Business: no banner on any screen', () {
@@ -190,10 +196,10 @@ void main() {
       expect(_cfg(refresh: 0).bannerRefresh, const Duration(seconds: 60));
       expect(_cfg(refresh: 120).bannerRefresh, const Duration(seconds: 120));
       final t0 = DateTime(2026, 10, 26, 10);
-      BannerPacer.markLoaded('money', t0);
-      expect(BannerPacer.wait('money', t0.add(const Duration(seconds: 30)),
+      BannerPacer.markLoaded('dictionary', t0);
+      expect(BannerPacer.wait('dictionary', t0.add(const Duration(seconds: 30)),
           const Duration(seconds: 5)), const Duration(seconds: 30));
-      expect(BannerPacer.wait('money', t0.add(const Duration(seconds: 61)),
+      expect(BannerPacer.wait('dictionary', t0.add(const Duration(seconds: 61)),
           const Duration(seconds: 60)), Duration.zero);
     });
 
@@ -211,8 +217,8 @@ void main() {
       await tester.pumpWidget(_wrap(Scaffold(
         body: const SizedBox.expand(),
         bottomNavigationBar: Column(mainAxisSize: MainAxisSize.min, children: [
-          AdBannerSlot(screen: 'money', bridge: br, loadConfig: () async => _cfg()),
-          AdBannerSlot(screen: 'budget', bridge: br, loadConfig: () async => _cfg()),
+          AdBannerSlot(screen: 'dictionary', bridge: br, loadConfig: () async => _cfg()),
+          AdBannerSlot(screen: 'saved_items', bridge: br, loadConfig: () async => _cfg()),
         ]),
       )));
       await _settle(tester);
@@ -225,7 +231,7 @@ void main() {
       await tester.pumpWidget(_wrap(Scaffold(
         body: const SizedBox.expand(),
         bottomNavigationBar:
-            AdBannerSlot(screen: 'reminders', bridge: br, loadConfig: () async => _cfg(refresh: 5)),
+            AdBannerSlot(screen: 'birthdays', bridge: br, loadConfig: () async => _cfg(refresh: 5)),
       )));
       await _settle(tester);
       expect(br.loads, 1);
@@ -242,7 +248,7 @@ void main() {
       await tester.pumpWidget(_wrap(Scaffold(
         body: const SizedBox.expand(),
         bottomNavigationBar: AdBannerSlot(
-            screen: 'money', bridge: br, loadConfig: () async => _cfg(plan: 'premium')),
+            screen: 'dictionary', bridge: br, loadConfig: () async => _cfg(plan: 'premium')),
       )));
       await _settle(tester);
       expect(br.loads, 0);
@@ -316,7 +322,7 @@ void main() {
                 for (var i = 0; i < 30; i++) ListTile(title: Text('Item $i')),
               ]),
               bottomNavigationBar: AdBannerSlot(
-                  screen: 'reminders', bridge: _Bridge(), loadConfig: () async => _cfg()),
+                  screen: 'birthdays', bridge: _Bridge(), loadConfig: () async => _cfg()),
             ),
             lang: lang,
             scale: 2.0));

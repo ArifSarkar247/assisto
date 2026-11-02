@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -567,6 +568,13 @@ class _QuizScreenState extends State<_QuizScreen> {
   final List<int> _answers = [];
 
   @override
+  void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.lessonAfterFinish);
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     // deterministic quiz (seed 0); mirror of language_partner.quiz
@@ -676,6 +684,10 @@ class _QuizScreenState extends State<_QuizScreen> {
                   _index++;
                   _picked = null;
                 });
+                // the quiz is finished (result shows now — never an ad here)
+                if (_index >= qs.length) {
+                  AdExit.taskDone(AdExitPlacement.lessonAfterFinish);
+                }
               },
               icon: Icon(_index + 1 >= qs.length
                   ? Icons.flag_rounded

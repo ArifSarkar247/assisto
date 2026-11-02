@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../ads/ad_placements.dart' show AdMoments;
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../perf/low_ram.dart' show LowRamTuning;
 import 'ps_ads.dart';
 import 'ps_backend.dart';
@@ -1286,10 +1286,12 @@ class PhotoStudioController extends ChangeNotifier {
       }
       lastExportBytes = kDebugMode ? file : null;
       final d = await deps.sink.deliver(kind, file, name);
-      // admob: a saved photo is a natural break (Free only, capped, never
-      // within 5 min of another full-screen ad)
-      if ((d == DeliverResult.done || d == DeliverResult.gallery) && kind == ExportKind.save) {
-        AdMoments.report('photo_saved');
+      // OWNER ADS FINAL (2 Nov): a saved / shared photo FINISHES the task —
+      // no ad now; the exit placement may show one when the user LEAVES the
+      // result (PhotoStudioScreen.dispose -> AdExit.maybeShow)
+      if ((d == DeliverResult.done || d == DeliverResult.gallery) &&
+          (kind == ExportKind.save || kind == ExportKind.share)) {
+        AdExit.taskDone(AdExitPlacement.photoAfterSave);
       }
       _say(switch (d) {
         DeliverResult.done => kind == ExportKind.share

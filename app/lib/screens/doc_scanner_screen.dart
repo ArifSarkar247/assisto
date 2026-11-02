@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -88,6 +89,8 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.scanAfterSave);
     _search.dispose();
     super.dispose();
   }
@@ -279,6 +282,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
       } else {
         await context.read<AppState>().api.createItem(_itemsPath, body);
       }
+      AdExit.taskDone(AdExitPlacement.scanAfterSave);
       await _load();
       if (mounted) _toast(t.dsSaved);
     } catch (_) {

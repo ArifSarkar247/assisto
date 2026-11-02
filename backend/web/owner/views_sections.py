@@ -646,8 +646,12 @@ def ads(request):
         stats = admob_service.placement_stats(stat_days)
     except Exception:
         stats = []
+    # OWNER ADS FINAL: Ad impact — every exit placement on its own row
+    from core.logic.ads import ad_impact
+    impact = ad_impact(stats)
     ctx.update({
-        "stats": stats, "stat_days": stat_days,
+        "stats": [s for s in stats if s.get("format") != "exit"],
+        "impact": impact, "stat_days": stat_days,
         "ar": [(k, cfg["ad_rewards"].get(k),
                 "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
                 else ("str" if isinstance(cfg["ad_rewards"].get(k), str) else "num"),
@@ -678,6 +682,14 @@ def integrations(request):
                     if request.POST.get(k, "").strip()}
             if not data:
                 return done("/owner/integrations#i-%s" % slug, "nothing")
+            if slug == "admob" and "publisher_id" in data:
+                # admobump: lifeassisto.com/app-ads.txt is built from this —
+                # only a real pub-XXXXXXXXXXXXXXXX (16 digits) is stored
+                from core.logic.ads import normalize_publisher_id
+                pub = normalize_publisher_id(data["publisher_id"])
+                if not pub:
+                    return done("/owner/integrations#i-%s" % slug, "invalid")
+                data["publisher_id"] = pub
             try:
                 I.save(slug, data)
             except RuntimeError:

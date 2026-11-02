@@ -251,6 +251,18 @@ Test and release → Production → Create release → AAB (internal-এ যে�
 4. **সার্ভার:** ডিপ্লয়ের আগে সবসময় ব্যাকআপ নেওয়া হয়।
 5. **কোনো ঘোষণা প্রত্যাখ্যাত হলে** (যেমন চুরি-রোধের FGS): সেই ফিচারের সুইচ Play-তে বন্ধ করুন। আমি Play AAB থেকে তার সার্ভিস সরিয়ে নতুন বিল্ড দেব। বাকি অ্যাপ আটকে থাকবে না।
 
+## ধাপ ৮ক — লঞ্চের দিন: AdMob (আসল বিজ্ঞাপন) — admobump, ২ নভেম্বর
+
+আসল বিজ্ঞাপন চালু হবে **এই ক্রমে**, তাড়াহুড়ো নয় (বিস্তারিত: `ADS_LAUNCH_CHECKLIST_BN.md` → "লঞ্চের দিন"):
+1. প্রোডাকশন লাইভ হলে **সেদিনই** AdMob → Apps → Assisto → App settings → **Link to app store** → Google Play → Assisto।
+2. AdMob-এর অ্যাপ রিভিউ **"Ready"** হওয়া পর্যন্ত অপেক্ষা (কয়েক দিন–২ সপ্তাহ)। এই সময়ে অ্যাপ Google-এর **টেস্ট** বিজ্ঞাপন দেখায় — স্বাভাবিক।
+3. https://lifeassisto.com/app-ads.txt খুলে দেখুন এক লাইন আছে (`google.com, pub-…, DIRECT, f08c47fec0942fa0`)। ৪০৪ দেখালে Owner Admin → Integrations → Google AdMob → **Publisher ID** (`pub-` + ১৬ অঙ্ক) দিয়ে Save।
+4. "Ready" + app-ads.txt **Verified** হলে **তবেই** Owner Admin → Ads → **"আসল AdMob ইউনিট আইডি চালু"**। অ্যাপ আপডেট লাগে না।
+5. ডিবাগ বিল্ডে কখনো আসল আইডি যায় না (কোডে পাহারা) — শুধু Play/ওয়েবসাইটের রিলিজ বিল্ড।
+6. **US state regulations** মেসেজ AdMob → Privacy & messaging-এ প্রকাশ করুন (GDPR আগেই প্রকাশিত) — অ্যাপে কিছু বদলাতে হবে না।
+
+## ধাপ ৯ — সমস্যা হলে ফেরার পথ (rollback)
+
 ## ধাপ ১০ — Pre-launch report ও Vitals
 
 - **Test and release → Testing → Pre-launch report → (বিল্ড) → Overview।** দেখার জিনিস:
