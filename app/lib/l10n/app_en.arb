@@ -29690,5 +29690,70 @@
   "aibarNotSent": "Not sent — your message is kept.",
   "aibarNotSentOffline": "No internet — your message is kept. Send it again when you're online.",
   "aibarNotSentServer": "Assisto's server had a problem — your message is kept. Try again in a moment.",
-  "aibarSendAgain": "Send again"
+  "aibarSendAgain": "Send again",
+  "buyCctvTitle": "Where to buy a CCTV camera",
+  "buyVehicleTitle": "Where to buy a vehicle tracker",
+  "buyKidsWatchTitle": "Where to buy a kids GPS watch",
+  "buyChipTitle": "Where to buy a tracker chip",
+  "buySub": "asalifymart.com · opens in your browser",
+  "buyOpenFailed": "Could not open the browser. Visit asalifymart.com yourself.",
+  "chipAddTitle": "Add a tracker chip",
+  "chipAddSub": "A small 4G GPS chip for a school bag or shoe",
+  "chipKind": "Tracker chip (bag / shoe)",
+  "chipPairIntro": "Put a 4G data SIM in the chip and charge it. Type its IMEI, then send the setup SMS from your phone. Only you and the people you pick can see where it is.",
+  "chipImeiLabel": "IMEI (on the box or label)",
+  "chipImeiHelp": "15 digits. Some chips show a 10–12 digit ID instead — type what is printed.",
+  "chipErrImei": "Check the number — type the 15-digit IMEI (or the 10–12 digit ID) printed on the chip.",
+  "chipErrTaken": "This chip is already added by someone else.",
+  "chipErrIsVehicle": "This number is already your vehicle tracker. Use another chip.",
+  "chipErrLimit": "You can add up to 5 tracker chips.",
+  "chipSimOperator": "SIM in the chip",
+  "chipSimNumber": "Chip's SIM number (optional)",
+  "chipSimHelp": "With the number we can open your SMS app with the setup text ready.",
+  "chipChildOnApp": "Does the child use Assisto? (optional)",
+  "chipChildOnAppHelp": "If yes, their phone will show that the chip is on and who can see it.",
+  "chipChildNoApp": "No / no phone",
+  "chipFreeNote": "Free: location, battery and school alerts never cost credits. Location history is kept 48 hours.",
+  "chipWaiting": "Waiting for the chip to connect",
+  "chipPairHint": "Send the setup SMS to the chip's SIM to connect it.",
+  "chipNoLocationYet": "No location yet. The chip sends one when it sees GPS (outdoors works best).",
+  "chipBatteryUnknown": "Battery: not reported",
+  "chipBatteryLow": "Charge the chip tonight",
+  "chipWhoSees": "Who can see: {names}",
+  "@chipWhoSees": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "chipChildSeesNote": "The child's phone shows that this chip is on and who can see it.",
+  "chipHistory": "Last 48 hours",
+  "chipHistoryTitle": "Where {name}'s chip was",
+  "@chipHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chipHistoryNote": "Only you and the guardians you picked can see this. Points older than 48 hours are deleted.",
+  "chipHistoryEmpty": "No locations in the last 48 hours yet.",
+  "chipRemoveQ": "Remove this tracker chip?",
+  "chipRemoveBody": "Its location history is deleted and the chip stops reporting to Assisto.",
+  "chipFirstFix": "The chip is on the map now.",
+  "chipWornTitle": "A tracker chip is on for you",
+  "chipWornBody": "{owner} set it up. Who can see where the chip is: {names}. It shows the chip's place, not your phone's.",
+  "@chipWornBody": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "chipPlanIntro": "The chip tells you automatically: left home, reached school, left the school area early, and if your child is late.",
+  "chipPlanHonest": "A chip has no screen or button for the child. If its battery runs out you get a 'not responding' alert, and the last known place stays in the app."
 }
