@@ -13,6 +13,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/retention/retention_crm.dart';
 import 'package:assisto/screens/retention/retention_inbox.dart';
+import 'package:assisto/screens/retention/retention_optouts.dart';
 import 'package:assisto/screens/retention/retention_screen.dart';
 import 'package:assisto/screens/retention/retention_wizard.dart';
 import 'package:assisto/state.dart';
@@ -326,6 +327,55 @@ void main() {
     await _settle(tester);
     await _tapText(tester, en.crmAutoAuditTitle);
     expect(src.calls, contains('audit'));
+  });
+
+  // bizauto: the shared safety rules + who stopped (read-only) + add by phone
+  testWidgets('bizauto: limits sheet shows the safety rules and opens who stopped', (tester) async {
+    _phone(tester, height: 2000);
+    final src = FakeRetention();
+    await tester.pumpWidget(_app(RetentionScreen(source: src, guide: false)));
+    await _settle(tester);
+    await tester.tap(find.byTooltip(en.rtLimitsEdit));
+    await _settle(tester);
+    expect(find.text(en.bzSafeTitle), findsOneWidget);
+    expect(find.text(en.bzSafeQuiet('21:00', '09:00')), findsOneWidget);
+    expect(find.text(en.bzSafeAll('2')), findsOneWidget);
+    expect(find.text(en.bzSafeStop), findsOneWidget);
+    expect(find.text(en.bzSafeSms('2')), findsOneWidget);
+    await _tapText(tester, en.bzStoppedOpen('3'));
+    expect(src.calls, contains('optouts'));
+    expect(find.text(en.bzStoppedTitle), findsOneWidget);
+    expect(find.text('017•••••678'), findsOneWidget);
+    expect(find.textContaining(en.bzSrcSmsLink), findsOneWidget);
+    expect(find.textContaining(en.bzSrcInApp), findsOneWidget);
+    expect(find.textContaining(en.bzSrcChat), findsOneWidget);
+    expect(find.text(en.bzStoppedOnlyThey), findsOneWidget);
+  });
+
+  testWidgets('bizauto: who stopped — empty state teaches + add by phone', (tester) async {
+    _phone(tester, height: 1600);
+    final src = FakeRetention('empty');
+    await tester.pumpWidget(_app(RetentionOptOutsScreen(source: src)));
+    await _settle(tester);
+    expect(find.text(en.bzStoppedEmpty), findsOneWidget);
+    expect(find.text(en.bzStoppedBenefit), findsOneWidget);
+    expect(find.text(en.bzStoppedHowTo), findsOneWidget);
+    Finder addBtn() => find.ancestor(of: find.text(en.rtOptOutAdd), matching: find.byType(FilledButton));
+    expect(tester.widget<FilledButton>(addBtn()).onPressed, isNull);     // no number yet
+    await tester.enterText(find.byType(TextField), '01710000009');
+    await _settle(tester, 3);
+    expect(tester.widget<FilledButton>(addBtn()).onPressed, isNotNull);
+    await _tapText(tester, en.rtOptOutAdd);
+    expect(src.calls, contains('optout:01710000009'));
+    expect(src.calls.where((c) => c == 'optouts').length, 2);            // list reloaded
+  });
+
+  testWidgets('bizauto: who stopped — load error offers retry', (tester) async {
+    _phone(tester);
+    final src = FakeRetention('fail');
+    await tester.pumpWidget(_app(RetentionOptOutsScreen(source: src)));
+    await _settle(tester);
+    expect(find.text(en.rtRetry), findsOneWidget);
   });
 
   for (final variant in [

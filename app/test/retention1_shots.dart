@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:assisto/screens/retention/retention_crm.dart';
 import 'package:assisto/screens/retention/retention_inbox.dart';
+import 'package:assisto/screens/retention/retention_optouts.dart';
 import 'package:assisto/screens/retention/retention_people.dart';
 import 'package:assisto/screens/retention/retention_results.dart';
 import 'package:assisto/screens/retention/retention_screen.dart';
@@ -17,6 +18,9 @@ Map<String, dynamic> _ov(String mode) => {
       'channels_ready': ['in_app', 'whatsapp'],
       'kinds': FakeRetention.kinds,
       'max_automations': 10,
+      'quiet': {'start': '21:00', 'end': '09:00', 'now': false},
+      'opted_out_count': 3,
+      'safety': {'all_per_customer_day': 2, 'sms_credits_per_part': 2, 'stop_link': true},
       'caps': {'per_customer_day': 1, 'per_customer_week': 2, 'business_daily': 100},
       'server_max': {'per_customer_day': 1, 'per_customer_week': 2, 'business_daily': 100},
     };
@@ -44,6 +48,9 @@ final Map<String, Widget Function(String)> retention1Shots = {
   'rt_stock_asks': (_) => RetentionStockAsksScreen(source: FakeRetention()),
   'rt_limits_sheet': (_) =>
       Scaffold(body: RetentionLimitsSheet(source: FakeRetention(), overview: _ov('data'))),
+  // bizauto: who stopped (masked, read-only) + add a stop by phone
+  'rt_optouts': (_) => RetentionOptOutsScreen(source: FakeRetention()),
+  'rt_optouts_empty': (_) => RetentionOptOutsScreen(source: FakeRetention('empty')),
   'rt_inbox': (_) => RetentionInboxScreen(source: FakeRetention()),
   'rt_inbox_empty': (_) => RetentionInboxScreen(source: FakeRetention('inbox_empty')),
   // crmauto
