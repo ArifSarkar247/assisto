@@ -299,4 +299,57 @@ void main() {
       }
     });
   }
+
+  // flipready (owner 2 Nov): on a 360 dp Bangla phone at 200% text the old
+  // floating "জরুরি রক্তের অনুরোধ" button covered the empty state's big button
+  // until the user scrolled. The request bar now sits below the list: every
+  // empty-state button is tappable and never under the bar.
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('360 dp Bangla ${scale}x: request bar never covers an empty-state button', (t) async {
+      t.view.physicalSize = const Size(360 * 3, 760 * 3);
+      t.view.devicePixelRatio = 3;
+      t.view.padding = const FakeViewPadding(bottom: 48 * 3); // gesture/nav bar
+      addTearDown(t.view.reset);
+      final api = _Fake(empty: true, bn: true);
+      await t.pumpWidget(_app(const BloodHubScreen(), api, lang: 'bn', scale: scale));
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull);
+      final bar = find.byKey(const ValueKey('bp-request-fab'));
+      expect(bar, findsOneWidget);
+      final barRect = t.getRect(bar);
+      expect(barRect.bottom, lessThanOrEqualTo(760 - 48 + 0.5)); // clear of the nav bar
+      Future<void> check(String key) async {
+        final f = find.byKey(ValueKey(key));
+        expect(f, findsOneWidget);
+        await t.ensureVisible(f);
+        await t.pumpAndSettle();
+        final r = t.getRect(f);
+        expect(r.overlaps(barRect), isFalse, reason: '$key under the request bar: $r vs $barRect');
+        expect(r.bottom, lessThanOrEqualTo(barRect.top + 0.5));
+        // the centre of the empty-state button really receives the tap
+        final hit = t.hitTestOnBinding(r.center);
+        final target = t.renderObject(f);
+        expect(hit.path.any((e) => identical(e.target, target) ||
+            (e.target is RenderObject && _isDescendant(e.target as RenderObject, target))), isTrue,
+            reason: '$key is covered');
+      }
+      await check('bp-find-cta');
+      await _tap(t, 'bp-tab-requests');
+      await t.pumpAndSettle();
+      await check('bp-req-empty-cta');
+      await _tap(t, 'bp-tab-me');
+      await t.pumpAndSettle();
+      await check('bp-become');
+      expect(t.takeException(), isNull);
+    });
+  }
+}
+
+bool _isDescendant(RenderObject child, RenderObject ancestor) {
+  RenderObject? n = child;
+  while (n != null) {
+    if (identical(n, ancestor)) return true;
+    n = n.parent;
+  }
+  return false;
 }

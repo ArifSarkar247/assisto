@@ -276,13 +276,35 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
           ],
         ),
       ),
-      floatingActionButton: _loading || _failed
+      // flipready (owner 2 Nov): a floating button covered the empty state's
+      // big button on a 360 dp phone / 200% text until the user scrolled. The
+      // emergency action now sits in a fixed bar BELOW the list (the body is
+      // laid out above it, so it can never cover anything) and the bar keeps
+      // clear of the system navigation bar.
+      bottomNavigationBar: _loading || _failed
           ? null
-          : FloatingActionButton.extended(
-              key: const ValueKey('bp-request-fab'),
-              onPressed: _newRequest,
-              icon: const Icon(Icons.bloodtype_rounded),
-              label: Text(t.bpRequestCta),
+          : Material(
+              elevation: 6,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 52),
+                    child: FilledButton.icon(
+                      key: const ValueKey('bp-request-fab'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        foregroundColor: Theme.of(context).colorScheme.onError,
+                      ),
+                      onPressed: _newRequest,
+                      icon: const Icon(Icons.bloodtype_rounded),
+                      label: Text(t.bpRequestCta, textAlign: TextAlign.center),
+                    ),
+                  ),
+                ),
+              ),
             ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -297,7 +319,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
   }
 
   EdgeInsets _pad(BuildContext context) =>
-      withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 96));
+      withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl));
 
   // ------------------------------------------------------------------ find
   Widget _findTab(BuildContext context) {
