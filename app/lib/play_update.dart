@@ -36,6 +36,13 @@ class PlayUpdate {
 
   /// Test seams over the deferred plugin calls.
   static Future<bool> Function() availableFn = _implAvailable;
+
+  /// callpip (owner bug 2 Nov): installing the update RESTARTS Assisto —
+  /// pressing Home during a call must never do that (the call died and the
+  /// video "disappeared"). main.dart points this at CallRuntime.callActive;
+  /// the install waits for the next time Assisto goes to the background
+  /// without a call.
+  static bool Function() holdInstall = () => false;
   static Future<bool> Function() startFn = _implStart;
 
   static Future<bool> _implAvailable() async {
@@ -96,6 +103,11 @@ class PlayUpdate {
   static Future<void> onBackground() async {
     if (!isPlayBuild() || !_started) return;
     try {
+      if (holdInstall()) return;
+    } catch (_) {
+      return; // can't tell -> never risk a restart
+    }
+    try {
       if (!_downloaded) {
         await impl.loadLibrary();
         _downloaded = await impl.isDownloaded();
@@ -113,6 +125,7 @@ class PlayUpdate {
     _available = false;
     _prompted = false;
     isPlayBuild = () => AppConfig.playStore;
+    holdInstall = () => false;
     availableFn = _implAvailable;
     startFn = _implStart;
   }

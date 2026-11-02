@@ -641,6 +641,29 @@ jobs:
               i = s.find('android:name=".MainActivity"')
               if i != -1:
                   s = s[:i] + 'android:supportsPictureInPicture="true"\n            ' + s[i:]
+          # ---- callpip ---- PiP resizes the activity: MainActivity must
+          # handle size changes itself (a re-created activity would restart
+          # the Flutter engine and drop the call). Flutter's template has
+          # them; fail the build loudly if a template change ever drops one.
+          import re as _re
+          _i = s.find('android:name=".MainActivity"')
+          _a = s.rfind('<activity', 0, _i)
+          _e = s.find('>', _i)
+          _tag = s[_a:_e]
+          _m = _re.search(r'android:configChanges="([^"]*)"', _tag)
+          _need = ['orientation', 'screenSize', 'smallestScreenSize', 'screenLayout']
+          if _m:
+              _have = _m.group(1).split('|')
+              _add = [x for x in _need if x not in _have]
+              if _add:
+                  _new = _tag.replace(_m.group(0), 'android:configChanges="' + '|'.join(_have + _add) + '"')
+                  s = s[:_a] + _new + s[_e:]
+                  print("callpip: MainActivity configChanges += " + '|'.join(_add))
+          else:
+              s = s[:_i] + 'android:configChanges="' + '|'.join(_need) + '"\n            ' + s[_i:]
+              print("callpip: MainActivity configChanges added")
+          if 'android:supportsPictureInPicture="true"' not in _tag:
+              raise SystemExit("::error::MainActivity lost android:supportsPictureInPicture (callpip)")
           # ---- b6-antitheft ---- opt-in always-on Lost/Stolen engine.
           # The service is first started ONLY from Dart after the owner turned
           # protection on (Security PIN) — never at launch. While ON it is

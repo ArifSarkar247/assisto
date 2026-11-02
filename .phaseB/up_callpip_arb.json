@@ -1,0 +1,29 @@
+{
+  "_comment": "callpip (owner phone bug 2 Nov: video call minimize/PiP): PiP window buttons, ongoing-call notification Return button, camera-paused notice, PiP self-view label. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_callpip_arb.json",
+  "en": {
+    "callpipMute": "Mute",
+    "callpipUnmute": "Unmute",
+    "callpipCameraOff": "Turn camera off",
+    "callpipCameraOn": "Turn camera on",
+    "callpipEnd": "End call",
+    "callpipReturn": "Return to call",
+    "callpipCamPausedSelf": "You left Assisto, so your camera is paused. It turns back on when you come back.",
+    "callpipCamPausedPeer": "{name} left the app for a moment. Video is paused, the call goes on.",
+    "@callpipCamPausedPeer": {"placeholders": {"name": {"type": "String"}}},
+    "callpipSelfView": "Your camera",
+    "callpipPipLabel": "Video call with {name}. Tap to open the full call",
+    "@callpipPipLabel": {"placeholders": {"name": {"type": "String"}}}
+  },
+  "bn": {
+    "callpipMute": "মিউট",
+    "callpipUnmute": "মিউট বন্ধ",
+    "callpipCameraOff": "ক্যামেরা বন্ধ",
+    "callpipCameraOn": "ক্যামেরা চালু",
+    "callpipEnd": "কল কাটুন",
+    "callpipReturn": "কলে ফিরুন",
+    "callpipCamPausedSelf": "আপনি Assisto থেকে বের হয়েছেন, তাই আপনার ক্যামেরা থেমে আছে। ফিরলে নিজে থেকেই চালু হবে।",
+    "callpipCamPausedPeer": "{name} একটু অন্য অ্যাপে গেছেন। ভিডিও থেমে আছে, কথা চলছে।",
+    "callpipSelfView": "আপনার ক্যামেরা",
+    "callpipPipLabel": "{name}-এর সাথে ভিডিও কল। পুরো কল খুলতে ট্যাপ করুন"
+  }
+}

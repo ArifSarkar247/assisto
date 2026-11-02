@@ -24,7 +24,11 @@ import 'call_log.dart';
 /// SDP, sender caps (audio / video bitrate, fps, scale, video on/off on the
 /// wire for the audio-only fallback) and TURN-relay-only ICE on demand.
 class WebRtcCallMedia
-    implements CallMedia, CallVideoSurface, AdaptiveCallMedia {
+    implements
+        CallMedia,
+        CallVideoSurface,
+        AdaptiveCallMedia,
+        VideoSizeSource {
   RTCPeerConnection? _pc;
   RTCRtpSender? _audioSender;
   MediaPlan? _plan;
@@ -33,6 +37,37 @@ class WebRtcCallMedia
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
   bool _renderersReady = false;
+
+  // callpip: the remote video's size -> the PiP window's shape
+  @override
+  int? get remoteVideoWidth {
+    if (!_renderersReady) return null;
+    try {
+      final v = remoteRenderer.value;
+      final w = (_turned(v.rotation) ? v.height : v.width).toInt();
+      return w > 0 ? w : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  int? get remoteVideoHeight {
+    if (!_renderersReady) return null;
+    try {
+      final v = remoteRenderer.value;
+      final h = (_turned(v.rotation) ? v.width : v.height).toInt();
+      return h > 0 ? h : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // a phone held upright sends landscape frames + rotation 90/270
+  static bool _turned(int r) => r == 90 || r == 270;
+
+  @override
+  Listenable get remoteSizeChanges => remoteRenderer;
   final _cands = StreamController<Map<String, dynamic>>.broadcast();
   final _link = StreamController<MediaLinkState>.broadcast();
   @override

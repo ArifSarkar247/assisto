@@ -15,6 +15,7 @@ import '../calls/call_data_prefs.dart'; // callsbar
 import '../calls/call_rating.dart'; // callsbar
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
+import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
@@ -121,7 +122,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Timer? _ticker;
   Timer? _autoClose;
   bool _pip = false;
-  bool _pipSupported = false;
   bool _closed = false;
   late bool _full = widget.previewFullscreen; // cde-chat: double-tap
   bool _beginning = false;
@@ -172,9 +172,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       CallRuntime.instance.acquireScreen(this, _screenLive);
       _noticeSeq = widget.controller!.noticeSeq; // no stale notice
       _attach(widget.controller!, widget.surface, initial: true);
-      unawaited(CallNative.pipSupported().then((v) {
-        if (mounted) setState(() => _pipSupported = v);
-      }));
       WidgetsBinding.instance.addPostFrameCallback((_) => _onChange());
     } else if (widget.controller != null) {
       _attach(widget.controller!, widget.surface, initial: true);
@@ -291,9 +288,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
     if (_startsVideo) unawaited(CallNative.keepScreenOn(true));
-    unawaited(CallNative.pipSupported().then((v) {
-      if (mounted) setState(() => _pipSupported = v);
-    }));
     await c.start();
   }
 
@@ -342,6 +336,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _handedOff = true;
     _owns = false;
     c.removeListener(_onChange);
+    CallRuntime.instance.unbindScreenCall(c); // callpip: minimize() takes it
     CallRuntime.instance.releaseScreen(this);
     // calls-a: a locked phone goes back to its lock screen (the call keeps
     // running) — the app underneath never shows over the keyguard.
@@ -366,8 +361,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         _screenOnSent = screenOn;
         unawaited(CallNative.keepScreenOn(screenOn));
       }
-      unawaited(
-          CallNative.setAutoPip(_pipSupported && c.videoOn && c.isLive));
+      // callpip: the runtime keeps Android's PiP state (auto-enter on Home /
+      // Recents / another app, the window's shape + buttons), the background
+      // camera pause and Back on the last screen right for this call. Never
+      // gated on an async "PiP supported?" answer — that left auto-PiP OFF
+      // after returning from the mini bar (owner bug 2 Nov).
+      CallRuntime.instance.bindScreenCall(c, _surface);
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
         if (c.merged && !_claimed) {
@@ -384,8 +383,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             title: t.c2CallOngoingTitle(_name),
             text: t.c2CallOngoingText,
             hangupLabel: t.c2CallHangup,
+            returnLabel: t.callpipReturn, // callpip
+            since: c.connectedAt,
             onHangup: () async {
-              final cc = _c;
+              // callpip: the CURRENT live call (it may be minimized by now)
+              final cc = CallRuntime.instance.currentCall ?? _c;
               if (cc != null) await cc.hangup();
             }));
       }
@@ -447,7 +449,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       super.dispose();
       return;
     }
-    if (_owns) unawaited(CallNative.setAutoPip(false));
+    if (_owns && c != null) CallRuntime.instance.unbindScreenCall(c);
     if (c != null) {
       c.removeListener(_onChange);
       if (_owns) {
@@ -474,6 +476,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _autoClose?.cancel();
     _autoClose = null;
     setState(() => _c = null);
+    if (old != null) CallRuntime.instance.unbindScreenCall(old); // callpip
     if (_owns) old?.dispose();
     _owns = true;
     _outgoing = true; // "Call again" always places a NEW call
@@ -555,20 +558,18 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         !c.remoteVideoPausedNet &&
         surface != null &&
         surface.hasRemoteVideo.value;
-    if (_pip) {
+    if (_pip && c != null) {
+      // callpip: the same PiP layout as a minimized call — their video
+      // large, my camera small in the corner, avatar when paused
       return Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
-            if (c != null && c.isLive && !c.remoteMicOn)
-              const Positioned(
-                left: Gap.sm,
-                bottom: Gap.sm,
-                child: Icon(Icons.mic_off_rounded, color: CallInk.text, size: 20),
-              ),
-          ],
+        backgroundColor: Brand.ink,
+        body: CallPipLayout(
+          key: const Key('call-screen-pip'),
+          controller: c,
+          surface: surface,
+          name: _name,
+          photoUrl: _photo,
+          photoVersion: _photoV,
         ),
       );
     }
@@ -661,7 +662,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         body: VideoStage(
           key: const Key('call-video-stage'),
           remote: remoteVideo ? surface.remoteView() : gradient,
-          local: c.cameraOn
+          local: c.cameraOn && !c.cameraPausedBg
               ? surface.localView(mirror: c.frontCamera)
               : Center(
                   key: const Key('call-self-camera-off'),
@@ -883,8 +884,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live && _isVideo && !c.remoteCameraOn)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: _badge(Icons.videocam_off_rounded,
-                  t.c2CallRemoteCameraOff, const Key('call-remote-camera-off')),
+              child: _badge(
+                  Icons.videocam_off_rounded,
+                  // callpip: they left their app for a moment (honest, not
+                  // "camera off")
+                  c.remoteAway
+                      ? t.callpipCamPausedPeer(_name)
+                      : t.c2CallRemoteCameraOff,
+                  const Key('call-remote-camera-off')),
             ),
           if (live && !c.remoteMicOn)
             Padding(

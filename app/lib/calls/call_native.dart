@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'call_controller.dart';
+import 'call_pip.dart';
 import 'tone_generator.dart';
 import 'call_log.dart';
 
@@ -22,6 +23,12 @@ class CallNative {
   /// ({action, call_id, payload}); main.dart points it at CallLaunchRouter.
   static void Function(Map<dynamic, dynamic>? args)? onCallLaunch;
 
+  /// callpip: a button inside the PiP window ('mute' | 'camera' | 'end').
+  static void Function(String id)? onPipAction;
+
+  /// callpip: "Return to call" on the ongoing-call notification.
+  static void Function()? onCallReturn;
+
   /// calls-a: install the Dart-side handler (no native call — safe before
   /// the first frame) so a warm call launch is never dropped.
   static void listen() => _ensureHandler();
@@ -38,6 +45,20 @@ class CallNative {
             onCallLaunch?.call(a is Map ? a : null);
           } catch (e) {
             callLog('call_native#2', e);
+          }
+        }
+        if (call.method == 'pipAction') {
+          try {
+            onPipAction?.call('${call.arguments ?? ''}');
+          } catch (e) {
+            callLog('call_native#3', e);
+          }
+        }
+        if (call.method == 'callReturn') {
+          try {
+            onCallReturn?.call();
+          } catch (e) {
+            callLog('call_native#4', e);
           }
         }
         if (call.method == 'networkChanged') {
@@ -159,8 +180,6 @@ class CallNative {
     return await _invoke<bool>('enterPip', {'w': w, 'h': h}) == true;
   }
 
-  static bool _autoPip = false;
-
   static StreamController<String>? _net;
 
   /// calls-presence: the phone's DEFAULT network changed during a call
@@ -184,11 +203,72 @@ class CallNative {
   /// b1-calls: Home / the recents gesture shrinks a LIVE video call into
   /// picture-in-picture (API 31+ auto-enter; 26-30 user-leave hint). Only
   /// changes the native side when the wanted state changes.
-  static Future<bool> setAutoPip(bool on, {int w = 9, int h = 16}) async {
-    if (on == _autoPip) return on;
-    _autoPip = on;
+  static Future<bool> setAutoPip(bool on, {int w = 9, int h = 16}) =>
+      setPip(on
+          ? PipState(auto: true, aspect: PipAspect(w, h), actions: const [])
+          : PipState.off);
+
+  static String? _pipSig;
+
+  /// callpip: the whole PiP state (auto-enter, shape, the window's buttons
+  /// with their labels) — sent only when it changed.
+  static Future<bool> setPip(PipState st, {Map<String, String>? labels}) async {
+    final sig = st.signature;
+    if (sig == _pipSig) return st.auto;
+    _pipSig = sig;
     _ensureHandler();
-    return await _invoke<bool>('setAutoPip', {'on': on, 'w': w, 'h': h}) ==
+    return await _invoke<bool>('setAutoPip', {
+          'on': st.auto,
+          'w': st.aspect.w,
+          'h': st.aspect.h,
+          'actions': [
+            for (final a in st.actions)
+              {
+                'id': a.id.name,
+                'on': a.on,
+                'label': labels?['${a.id.name}:${a.on ? 1 : 0}'] ?? a.id.name,
+              }
+          ],
+        }) ==
+        true;
+  }
+
+  @visibleForTesting
+  static void resetPipForTest() => _pipSig = null;
+
+  /// callpip: Back on Assisto's LAST screen during a call. [pip] = shrink
+  /// the live video call into PiP; otherwise (or when PiP is not possible)
+  /// Assisto goes to the background — never closes, the call keeps running.
+  static Future<bool> leaveApp({required bool pip}) async {
+    _ensureHandler();
+    return await _invoke<bool>('leaveApp', {'pip': pip}) == true;
+  }
+
+  /// callpip: the ongoing-call notification gets "Return to call" (opens
+  /// Assisto directly — a notification action, no background launch) and
+  /// "End call". [since] = when the call connected (the notification's
+  /// timer). Only for OUR keep-alive notification ([CallKeepAlive.serviceId]).
+  static Future<bool> decorateOngoing({
+    required int id,
+    required String channelId,
+    required String title,
+    required String text,
+    required String returnLabel,
+    required String endLabel,
+    required String endButtonId,
+    DateTime? since,
+  }) async {
+    _ensureHandler();
+    return await _invoke<bool>('decorateOngoing', {
+          'id': id,
+          'channel': channelId,
+          'title': title,
+          'text': text,
+          'return': returnLabel,
+          'end': endLabel,
+          'endId': endButtonId,
+          if (since != null) 'since': since.millisecondsSinceEpoch,
+        }) ==
         true;
   }
 }

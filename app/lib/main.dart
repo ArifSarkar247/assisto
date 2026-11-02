@@ -107,6 +107,8 @@ void main() {
     CallRuntime.instance.attachNavigator(appNavigatorKey);
     CallNative.onCallLaunch = CallLaunchRouter.instance.onNative;
     CallNative.listen();
+    // callpip: a downloaded Play update never restarts Assisto mid-call
+    PlayUpdate.holdInstall = () => CallRuntime.instance.callActive;
 
     // Held here (not only inside the provider) so the deferred push init below
     // can reach it without a BuildContext.

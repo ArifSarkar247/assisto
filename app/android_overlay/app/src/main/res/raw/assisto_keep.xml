@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Referenced only by name from Dart (notification small icon): keep it
+<!-- Referenced only by name from Dart (notification small icon) and
+     CallPip.kt (callpip: PiP window buttons): keep them
      when release resource shrinking runs. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_stat_assisto" />
+    tools:keep="@drawable/ic_stat_assisto,@drawable/ic_pip_mic,@drawable/ic_pip_mic_off,@drawable/ic_pip_videocam,@drawable/ic_pip_videocam_off,@drawable/ic_pip_call_end" />
