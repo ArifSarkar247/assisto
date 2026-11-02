@@ -71,9 +71,16 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
       case 'tb':
         return _api.acctTrialBalanceAsOf(biz, to);
       case 'cf':
-        return _api.acctCashFlow(biz, from: from, to: to);
+        return _api.booksCashFlow(biz, from: from, to: to);
       default:
-        return _api.acctVat(biz, from: from, to: to);
+        // acctui detail (VAT paid kept apart) + the core's sales register
+        final v = await _api.acctVat(biz, from: from, to: to);
+        try {
+          final core = await _api.booksVat(biz, from: from, to: to);
+          return {...v, 'register': core['register'] ?? const [], 'vat_ready': core['vat_ready']};
+        } catch (_) {
+          return v; // the register is extra; the summary stands alone
+        }
     }
   }
 
@@ -226,7 +233,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
         Expanded(
           child: Text(_period.label(lang),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         ),
         IconButton(
           tooltip: t.acuNextPeriod,
@@ -261,7 +268,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     final empty = !r.rows.any((x) => (x.amount ?? 0) != 0 || (x.debit ?? 0) != 0 || (x.credit ?? 0) != 0);
     return [
       Text(r.period, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-      if (r.balanced != null) _balanced(t, r.balanced!),
+      if (r.balanced != null) _balanced(t, r.balanced!, cashFlow: r.id == 'cf'),
       if (empty) _empty(t) else ...r.rows.map((x) => _row(r, x)),
       if (r.footnote != null && !empty) ...[
         const SizedBox(height: Gap.md),
@@ -271,7 +278,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     ];
   }
 
-  Widget _balanced(AppLocalizations t, bool ok) {
+  Widget _balanced(AppLocalizations t, bool ok, {bool cashFlow = false}) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xs),
@@ -282,7 +289,10 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
               size: 20, color: ok ? scheme.primary : scheme.error),
           const SizedBox(width: Gap.xs),
           Expanded(
-            child: Text(ok ? t.acuBalanced : t.acuNotBalanced,
+            child: Text(
+                cashFlow
+                    ? (ok ? t.acuCfReconciles : t.acuCfNotReconciles)
+                    : (ok ? t.acuBalanced : t.acuNotBalanced),
                 style: TextStyle(fontWeight: FontWeight.w600, color: ok ? scheme.primary : scheme.error)),
           ),
         ]),
@@ -328,10 +338,11 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
   Widget _row(AcctReport r, AcctReportRow x) {
     final heading = x.style == AcctRowStyle.heading;
     final strong = x.style == AcctRowStyle.strong;
-    final style = TextStyle(
-        fontWeight: heading || strong ? FontWeight.w800 : FontWeight.w400,
-        fontSize: strong ? 16 : null,
-        height: 1.35);
+    final base = strong
+        ? Theme.of(context).textTheme.titleMedium
+        : Theme.of(context).textTheme.bodyMedium;
+    final style = (base ?? const TextStyle()).copyWith(
+        fontWeight: heading || strong ? FontWeight.w800 : FontWeight.w400, height: 1.35);
     final amounts = r.twoColumns
         ? [
             if ((x.debit ?? 0) != 0 || strong) '${r.colA}: ${acctMoney(context, x.debit)}',
@@ -437,7 +448,9 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
               colAccount: t.acuColAccount,
               colCode: t.acuColCode,
               colAmount: t.acuColAmount,
-              balancedText: d['balanced'] == false ? t.acuNotBalanced : t.acuBalanced));
+              balancedText: id == 'cf'
+                  ? (d['reconciles'] == false ? t.acuCfNotReconciles : t.acuCfReconciles)
+                  : (d['balanced'] == false ? t.acuNotBalanced : t.acuBalanced)));
         }
         final journal = await _journal();
         if (!mounted) return;
@@ -461,7 +474,11 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
               AcctPdfText(
                 shop: shop,
                 made: t.acuPdfMade(acctDay(context, acctIso(now))),
-                balanced: r.balanced == null ? '' : (r.balanced! ? t.acuBalanced : t.acuNotBalanced),
+                balanced: r.balanced == null
+                    ? ''
+                    : r.id == 'cf'
+                        ? (r.balanced! ? t.acuCfReconciles : t.acuCfNotReconciles)
+                        : (r.balanced! ? t.acuBalanced : t.acuNotBalanced),
                 money: (p) => acctMoneyFor(p, lang),
                 pageLabel: (p, n) => t.acuPdfPage(acctDigits(context, p), acctDigits(context, n)),
               ));

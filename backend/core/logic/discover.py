@@ -47,6 +47,7 @@ ROUTE_KEYS = (
     "missing_alert",   # missing: Missing person alert (flag missing_alert)
     "blood_panel",     # blood: Blood donor panel (flag blood_donors)
     "books",           # ledger: Business Accounting books (flag accounting_v2)
+    "acct",            # acctui: accounting home (flag accounting_v2)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",

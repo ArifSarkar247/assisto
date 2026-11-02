@@ -263,7 +263,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
             key: const ValueKey('acct-amount'),
             controller: _amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
             decoration: InputDecoration(
               prefixText: '৳ ',
               hintText: localDigits('0', lang),

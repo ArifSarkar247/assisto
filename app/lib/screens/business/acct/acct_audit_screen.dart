@@ -102,7 +102,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
       case 'acct.void':
         final r = '${d['reason'] ?? ''}';
         return r.isEmpty ? t.acuEvVoid : '${t.acuEvVoid} — ${t.acuEvReason(r)}';
-      case 'acct.opening':
+      case 'ledger.opening':
         return t.acuEvOpening;
       case 'acct.export':
         return t.acuEvExport('${d['what'] ?? ''}'.toUpperCase());
@@ -194,7 +194,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
   IconData _eventIcon(String a) => switch (a) {
         'acct.lock' => Icons.lock_clock_rounded,
         'acct.void' => Icons.undo_rounded,
-        'acct.opening' => Icons.flag_rounded,
+        'ledger.opening' => Icons.flag_rounded,
         'acct.export' => Icons.ios_share_rounded,
         _ => Icons.edit_note_rounded,
       };

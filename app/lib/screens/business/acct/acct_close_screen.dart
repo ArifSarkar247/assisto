@@ -43,7 +43,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
   Future<void> _load() async {
     setState(() => _error = null);
     try {
-      final d = await _api.acctOpening(widget.businessId);
+      final d = await _api.acctHints(widget.businessId);
       if (mounted) setState(() => _book = d);
     } catch (e) {
       if (mounted) setState(() => _error = e);

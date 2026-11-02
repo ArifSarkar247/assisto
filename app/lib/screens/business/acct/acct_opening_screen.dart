@@ -26,9 +26,12 @@ class AcctOpeningScreen extends StatefulWidget {
 }
 
 class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
-  static const _fields = ['cash', 'bank', 'bkash', 'nagad', 'receivable', 'payable', 'stock'];
+  static const _fields = [
+    'cash', 'bank', 'bkash', 'nagad', 'receivable', 'payable', 'loans', 'stock'
+  ];
   final _c = {for (final f in _fields) f: TextEditingController()};
-  Map<String, dynamic>? _data;
+  Map<String, dynamic>? _data; // hints (business/acct/hints)
+  Map<String, dynamic>? _opening; // the core's saved opening, or null
   Object? _error;
   String? _saveError;
   bool _saving = false;
@@ -49,16 +52,38 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
     super.dispose();
   }
 
+  /// Rows the owner typed with a party name elsewhere are kept as they are;
+  /// the wizard's single field is the party-less row.
+  static int _unnamed(Object? rows) => (rows as List? ?? const [])
+      .cast<Map>()
+      .where((r) => '${r['party'] ?? ''}'.isEmpty)
+      .fold(0, (a, r) => a + ((r['amount'] as num?)?.toInt() ?? 0));
+
+  static List<Map> _named(Object? rows) => (rows as List? ?? const [])
+      .cast<Map>()
+      .where((r) => '${r['party'] ?? ''}'.isNotEmpty)
+      .toList();
+
   Future<void> _load() async {
     setState(() => _error = null);
     try {
-      final d = await context.read<AppState>().api.acctOpening(widget.businessId);
+      final api = context.read<AppState>().api;
+      final h = await api.acctHints(widget.businessId);
+      final o = await api.booksOpening(widget.businessId);
       if (!mounted) return;
-      final v = (d['values'] as Map?) ?? const {};
-      for (final f in _fields) {
-        if (f != 'stock') _c[f]!.text = poishaToField((v[f] as num?)?.toInt());
+      final ob = (o['opening'] as Map?)?.cast<String, dynamic>();
+      if (ob != null) {
+        for (final f in ['cash', 'bank', 'bkash', 'nagad', 'loans']) {
+          _c[f]!.text = poishaToField((ob[f] as num?)?.toInt());
+        }
+        _c['receivable']!.text = poishaToField(_unnamed(ob['receivables']));
+        _c['payable']!.text = poishaToField(_unnamed(ob['payables']));
+        _c['stock']!.text = poishaToField((ob['inventory'] as num?)?.toInt());
       }
-      setState(() => _data = d);
+      setState(() {
+        _data = h;
+        _opening = ob;
+      });
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -66,18 +91,42 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
 
   int? _val(String f) => _c[f]!.text.trim().isEmpty ? 0 : parseTakaToPoisha(_c[f]!.text);
 
+  /// The opening day: the saved one, else the books' start day.
+  String? get _day => '${_opening?['date'] ?? _data?['start_date'] ?? ''}'.isEmpty
+      ? null
+      : '${_opening?['date'] ?? _data?['start_date']}';
+
+  bool get _locked {
+    final lock = DateTime.tryParse('${_data?['lock_date'] ?? ''}');
+    final day = DateTime.tryParse(_day ?? '');
+    return lock != null && day != null && !day.isAfter(lock);
+  }
+
   Future<void> _save() async {
     final t = AppLocalizations.of(context);
-    final body = <String, dynamic>{};
+    final v = <String, int>{};
     for (final f in _fields) {
       if (f == 'stock' && _c[f]!.text.trim().isEmpty) continue; // keep the estimate
-      final v = _val(f);
-      if (v == null) {
+      final x = _val(f);
+      if (x == null) {
         setState(() => _saveError = t.acuErrAmount);
         return;
       }
-      body[f] = v;
+      v[f] = x;
     }
+    final body = <String, dynamic>{
+      'date': _day ?? acctIso(DateTime.now()),
+      for (final f in ['cash', 'bank', 'bkash', 'nagad', 'loans']) f: v[f],
+      'inventory': v['stock'], // null = keep the reconstructed opening stock
+      'receivables': [
+        ..._named(_opening?['receivables']),
+        if ((v['receivable'] ?? 0) > 0) {'party': '', 'amount': v['receivable']},
+      ],
+      'payables': [
+        ..._named(_opening?['payables']),
+        if ((v['payable'] ?? 0) > 0) {'party': '', 'amount': v['payable']},
+      ],
+    };
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
     setState(() {
@@ -85,7 +134,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
       _saveError = null;
     });
     try {
-      final r = await context.read<AppState>().api.acctSetOpening(widget.businessId, body);
+      final r = await context.read<AppState>().api.booksSetOpening(widget.businessId, body);
       if ((r['_status'] as int? ?? 0) == 200) {
         messenger.showSnackBar(SnackBar(content: Text(t.acuOpeningSaved)));
         nav.pop(true);
@@ -105,7 +154,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.acuOpening)),
       body: _body(t),
-      bottomNavigationBar: _data == null || _data!['locked'] == true ? null : _nav(t),
+      bottomNavigationBar: _data == null || _locked ? null : _nav(t),
     );
   }
 
@@ -155,7 +204,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
           key: ValueKey('acct-opening-$f'),
           controller: _c[f],
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             prefixText: '৳ ',
             labelText: label,
@@ -195,8 +244,8 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
     }
     final d = _data;
     if (d == null) return const SkeletonList();
-    final start = acctDay(context, d['start_date']);
-    if (d['locked'] == true) {
+    final start = acctDay(context, _day);
+    if (_locked) {
       return StateMessage(
           icon: Icons.lock_rounded, title: t.acuOpening, message: t.acuOpeningLocked(start));
     }
@@ -237,6 +286,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
               acctMoney(context, khata['payable']))),
           _field('receivable', t.acuOpeningReceivable, t.acuOpeningReceivableHelp),
           _field('payable', t.acuOpeningPayable, t.acuOpeningPayableHelp),
+          _field('loans', t.acuOpeningLoans, t.acuOpeningLoansHelp),
         ]);
       case 3:
         final est = d['stock_estimate'];
@@ -257,6 +307,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
                   'nagad' => t.acuAccNagad,
                   'receivable' => t.acuOpeningReceivable,
                   'payable' => t.acuOpeningPayable,
+                  'loans' => t.acuOpeningLoans,
                   _ => t.acuOpeningStock,
                 },
                 f == 'stock' && _c[f]!.text.trim().isEmpty

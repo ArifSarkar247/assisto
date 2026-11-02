@@ -35,17 +35,32 @@ extension AcctApi on ApiClient {
       postJsonRaw('/business/acct/entries/$clientId/void',
           _b(businessId, {'reason': reason}));
 
-  Future<Map<String, dynamic>> acctOpening(int? businessId) =>
-      getJson(_p('/business/acct/opening', businessId));
+  /// The opening wizard's hints: khata dues (already in the books), the
+  /// books' start / lock day, the reconstructed opening stock, shop name.
+  Future<Map<String, dynamic>> acctHints(int? businessId) =>
+      getJson(_p('/business/acct/hints', businessId));
 
-  Future<Map<String, dynamic>> acctSetOpening(
-          int? businessId, Map<String, dynamic> values) =>
-      postJsonRaw('/business/acct/opening', _b(businessId, values));
+  /// The CORE's opening balances (backend/core/ledger/README.md):
+  /// {opening: {date, cash, bkash, nagad, bank, inventory|null,
+  /// receivables: [{party, amount}], payables: [...], loans} | null, book}.
+  Future<Map<String, dynamic>> booksOpening(int? businessId) =>
+      getJson(_p('/business/books/opening', businessId));
 
-  Future<Map<String, dynamic>> acctCashFlow(int? businessId,
+  Future<Map<String, dynamic>> booksSetOpening(
+          int? businessId, Map<String, dynamic> opening) =>
+      postJsonRaw('/business/books/opening', _b(businessId, opening));
+
+  /// The CORE's cash flow (indirect, IAS 7; `reconciles`).
+  Future<Map<String, dynamic>> booksCashFlow(int? businessId,
           {required String from, required String to}) =>
-      getJson(_p('/business/acct/cash-flow', businessId, {'from': from, 'to': to}));
+      getJson(_p('/business/books/cash-flow', businessId, {'from': from, 'to': to}));
 
+  /// The CORE's VAT summary + Mushak-6.2-style sales register.
+  Future<Map<String, dynamic>> booksVat(int? businessId,
+          {required String from, required String to}) =>
+      getJson(_p('/business/books/vat', businessId, {'from': from, 'to': to}));
+
+  /// acctui VAT detail: VAT paid to NBR kept apart, invoice / bill counts.
   Future<Map<String, dynamic>> acctVat(int? businessId,
           {required String from, required String to}) =>
       getJson(_p('/business/acct/vat', businessId, {'from': from, 'to': to}));

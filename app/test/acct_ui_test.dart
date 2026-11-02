@@ -154,7 +154,7 @@ void main() {
   });
 
   test('xlsx: a real zip with the sheets, numbers in taka, Bangla kept', () {
-    final r = cfReport(_en, fakeAcctGet('/business/acct/cash-flow')!, '1 Nov to 2 Nov');
+    final r = cfReport(_en, fakeAcctGet('/business/books/cash-flow')!, '1 Nov to 2 Nov');
     final sheet = reportSheet(r,
         shop: 'Rahman Store',
         colAccount: 'Account',
@@ -337,9 +337,12 @@ void main() {
     expect(find.text('Keep our estimate'), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('acct-opening-next')));
     await t.pumpAndSettle();
-    final body = api.posts.single.$2;
+    final (path, body) = api.posts.single;
+    expect(path, '/business/books/opening'); // the core's opening balances
     expect(body['cash'], 500000);
-    expect(body.containsKey('stock'), isFalse);
+    expect(body['date'], '2026-10-15'); // the books' start day
+    expect(body['inventory'], isNull); // empty = keep the reconstructed stock
+    expect(body['receivables'], isEmpty);
   });
 
   // ------------------------------------------------------------ reports
@@ -353,12 +356,13 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Money at the end'), findsOneWidget);
     expect(find.text('৳27,420'), findsOneWidget);
-    expect(find.text('Debits equal credits — the books balance'), findsOneWidget);
+    expect(find.text('Start + change = end: the money adds up'), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('acct-rep-vat')));
     await t.pumpAndSettle();
     expect(find.text('Still to pay'), findsOneWidget);
     expect(find.text('৳40'), findsOneWidget);
     expect(find.textContaining('does not file it'), findsOneWidget);
+    expect(find.textContaining('BIN 000123456-0101'), findsOneWidget); // core register
     await t.tap(find.byKey(const ValueKey('acct-rep-tb')));
     await t.pumpAndSettle();
     expect(find.textContaining('Debit: ৳10,770'), findsOneWidget);

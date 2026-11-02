@@ -106,44 +106,33 @@ AcctReport tbReport(AppLocalizations t, Map<String, dynamic> b, String period) =
       ],
     );
 
-AcctReport cfReport(AppLocalizations t, Map<String, dynamic> c, String period) {
-  final op = (c['operating'] as Map?) ?? const {};
-  final fin = (c['financing'] as Map?) ?? const {};
-  final inv = (c['investing'] as Map?) ?? const {};
-  return AcctReport(
-    id: 'cf',
-    title: t.acuRepCf,
-    period: period,
-    balanced: c['balanced'] == true,
-    footnote: t.acuRepCfNote,
-    rows: [
-      AcctReportRow(t.acuRepCfOpening, amount: _i(c['opening_cash']), style: AcctRowStyle.strong),
-      if (_i(c['opening_balances']) != 0)
-        AcctReportRow(t.acuRepCfOpeningEntered, amount: _i(c['opening_balances']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepCfOperating, style: AcctRowStyle.heading),
-      AcctReportRow(t.acuRepCfCustomers, amount: _i(op['customers']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepCfSuppliers, amount: _i(op['suppliers']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepCfExpenses, amount: _i(op['expenses']), style: AcctRowStyle.indent),
-      if (_i(op['vat']) != 0) AcctReportRow(t.acuRepCfVat, amount: _i(op['vat']), style: AcctRowStyle.indent),
-      if (_i(op['other_income']) != 0)
-        AcctReportRow(t.acuRepCfOtherIncome, amount: _i(op['other_income']), style: AcctRowStyle.indent),
-      if (_i(op['other']) != 0)
-        AcctReportRow(t.acuRepCfOther, amount: _i(op['other']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepTotal, amount: _i(op['total']), style: AcctRowStyle.strong),
-      if (_i(inv['total']) != 0) ...[
-        AcctReportRow(t.acuRepCfInvesting, style: AcctRowStyle.heading),
-        AcctReportRow(t.acuRepTotal, amount: _i(inv['total']), style: AcctRowStyle.strong),
+/// The CORE's cash flow (indirect method, IAS 7): profit, then what changed
+/// in dues / stock / VAT, then furniture, then owner and loans.
+AcctReport cfReport(AppLocalizations t, Map<String, dynamic> c, String period) => AcctReport(
+      id: 'cf',
+      title: t.acuRepCf,
+      period: period,
+      balanced: c['reconciles'] == true,
+      footnote: t.acuRepCfNote,
+      rows: [
+        AcctReportRow(t.acuRepCfOpening, amount: _i(c['opening_cash']), style: AcctRowStyle.strong),
+        AcctReportRow(t.acuRepCfOperating, style: AcctRowStyle.heading),
+        AcctReportRow(t.acuRepCfProfit, amount: _i(c['net_profit']), style: AcctRowStyle.indent),
+        for (final a in _l(c['adjustments']))
+          AcctReportRow('${a['name']}', amount: _i(a['amount']), style: AcctRowStyle.indent),
+        AcctReportRow(t.acuRepTotal, amount: _i(c['operating']), style: AcctRowStyle.strong),
+        if (_l(c['investing']).isNotEmpty) ...[
+          AcctReportRow(t.acuRepCfInvesting, style: AcctRowStyle.heading),
+          ..._l(c['investing']).map(_acct),
+          AcctReportRow(t.acuRepTotal, amount: _i(c['investing_total']), style: AcctRowStyle.strong),
+        ],
+        AcctReportRow(t.acuRepCfFinancing, style: AcctRowStyle.heading),
+        ..._l(c['financing']).map(_acct),
+        AcctReportRow(t.acuRepTotal, amount: _i(c['financing_total']), style: AcctRowStyle.strong),
+        AcctReportRow(t.acuRepCfNet, amount: _i(c['net_change']), style: AcctRowStyle.strong),
+        AcctReportRow(t.acuRepCfClosing, amount: _i(c['closing_cash']), style: AcctRowStyle.strong),
       ],
-      AcctReportRow(t.acuRepCfFinancing, style: AcctRowStyle.heading),
-      AcctReportRow(t.acuRepCfCapital, amount: _i(fin['capital']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepCfDrawings, amount: _i(fin['drawings']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepCfLoans, amount: _i(fin['loans']), style: AcctRowStyle.indent),
-      AcctReportRow(t.acuRepTotal, amount: _i(fin['total']), style: AcctRowStyle.strong),
-      AcctReportRow(t.acuRepCfNet, amount: _i(c['net_change']), style: AcctRowStyle.strong),
-      AcctReportRow(t.acuRepCfClosing, amount: _i(c['closing_cash']), style: AcctRowStyle.strong),
-    ],
-  );
-}
+    );
 
 AcctReport vatReport(AppLocalizations t, Map<String, dynamic> v, String period,
         String Function(Object?) digits) =>
@@ -156,6 +145,8 @@ AcctReport vatReport(AppLocalizations t, Map<String, dynamic> v, String period,
         AcctReportRow(t.acuRepVatSales(digits(v['sale_invoices'])), style: AcctRowStyle.heading),
         AcctReportRow(t.acuRepVatTaxableSales, amount: _i(v['taxable_sales']), style: AcctRowStyle.indent),
         AcctReportRow(t.acuRepVatOutput, amount: _i(v['output_vat']), style: AcctRowStyle.indent),
+        if (_i(v['output_sd']) != 0)
+          AcctReportRow(t.acuRepVatSd, amount: _i(v['output_sd']), style: AcctRowStyle.indent),
         AcctReportRow(t.acuRepVatPurchases(digits(v['purchase_bills'])), style: AcctRowStyle.heading),
         AcctReportRow(t.acuRepVatTaxablePurchases,
             amount: _i(v['taxable_purchases']), style: AcctRowStyle.indent),
@@ -163,6 +154,19 @@ AcctReport vatReport(AppLocalizations t, Map<String, dynamic> v, String period,
         AcctReportRow(t.acuRepVatNet, amount: _i(v['net_payable']), style: AcctRowStyle.strong),
         AcctReportRow(t.acuRepVatPaid, amount: _i(v['paid']), style: AcctRowStyle.indent),
         AcctReportRow(t.acuRepVatStillDue, amount: _i(v['still_due']), style: AcctRowStyle.strong),
+        if (_l(v['register']).isNotEmpty) ...[
+          AcctReportRow(t.acuRepVatRegister, style: AcctRowStyle.heading),
+          for (final r in _l(v['register']))
+            AcctReportRow(
+                [
+                  '#${r['number'] ?? ''}',
+                  '${r['date'] ?? ''}',
+                  if ('${r['buyer'] ?? ''}'.isNotEmpty) '${r['buyer']}',
+                  if ('${r['buyer_bin'] ?? ''}'.isNotEmpty) 'BIN ${r['buyer_bin']}',
+                ].join(' · '),
+                amount: _i(r['vat']),
+                style: AcctRowStyle.indent),
+        ],
       ],
     );
 

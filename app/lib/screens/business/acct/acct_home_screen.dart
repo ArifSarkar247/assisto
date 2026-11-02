@@ -80,14 +80,14 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
     });
     try {
       final r = await _api.acctEntries(_biz);
-      final op = await _api.acctOpening(_biz);
+      final op = await _api.booksOpening(_biz);
       if (!mounted) return;
       setState(() {
         _entries = ((r['entries'] as List?) ?? const [])
             .cast<Map>()
             .map((m) => m.cast<String, dynamic>())
             .toList();
-        _openingSet = op['set'] == true;
+        _openingSet = op['opening'] != null;
         _loading = false;
       });
     } catch (e) {
@@ -221,7 +221,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
                       const SizedBox(width: Gap.sm),
                       Expanded(
                         child: Text(acctKindLabel(t, k),
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                       ),
                     ]),
                   ),
@@ -329,7 +329,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.acuOpeningCardTitle,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(t.acuOpeningCardBody, style: const TextStyle(height: 1.4)),
             const SizedBox(height: Gap.sm),
