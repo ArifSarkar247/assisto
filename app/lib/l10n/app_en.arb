@@ -32366,5 +32366,115 @@
   "j100bBgReady": "Done? Tap Start journey again.",
   "@j100bBgReady": {
     "description": "Snackbar after returning from the battery guide."
-  }
+  },
+  "jmHowGoing": "How are you going?",
+  "jmHowGoingHelp": "One tap. We remember your last choice.",
+  "jmModeLocalBus": "Local bus",
+  "jmPickTrain": "Choose your train",
+  "jmPickTrainHelp": "Your family will see where the train is and when it may reach your station.",
+  "jmTrainTitle": "Train {no} · {name}",
+  "@jmTrainTitle": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jmGetOffAt": "Getting off at {station}",
+  "@jmGetOffAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmGetOffAtTime": "Getting off at {station} · around {time} (estimate)",
+  "@jmGetOffAtTime": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jmPickStationTitle": "Where do you get off?",
+  "jmPickStationHelp": "Times are timetable estimates.",
+  "jmAlarmSwitch": "Wake me before my stop",
+  "jmAlarmBus": "Rings {dist} before your stop",
+  "@jmAlarmBus": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmTrainPrev": "Rings when the train leaves {station}, the station before yours",
+  "@jmAlarmTrainPrev": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmTrainGps": "Rings {dist} before your station (by GPS)",
+  "@jmAlarmTrainGps": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmMetro": "Rings one station before yours. It counts stations, so it works underground too.",
+  "jmMetroFrom": "Getting on at",
+  "jmMetroTo": "Getting off at",
+  "jmMetroPick": "Choose both stations so the alarm can count.",
+  "jmAlarmNeedsPin": "To ring before your stop, choose the destination from a saved place or the map.",
+  "jmAlarmPhoneOnly": "The alarm runs on your phone, even without internet.",
+  "jmAlarmOnLive": "Destination alarm is on",
+  "jmAlarmRinging": "Your stop is next!",
+  "jmAlarmOff": "Turn the alarm off",
+  "jmBasisOwn": "Estimate from the traveller's own location on the train line",
+  "jmBasisLive": "Estimate from passengers sharing on this train",
+  "jmBasisTimetable": "Timetable estimate only",
+  "jmNextStation": "Next station: {station}",
+  "@jmNextStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmReachesAt": "May reach {station} around {time} (estimate)",
+  "@jmReachesAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jmTrainLate": "About {min} min late",
+  "@jmTrainLate": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "jmTrainPassed": "The train has reached {station}",
+  "@jmTrainPassed": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmOpenTrain": "See the train"
 }
