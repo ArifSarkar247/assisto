@@ -121,7 +121,7 @@ void main() {
     await tr.start(7, (id, pts) {
       if (hang) return Completer<Map<String, dynamic>>().future; // never answers
       sent.add(pts.length);
-      return Future.value({'status': 'active'});
+      return Future.value(<String, dynamic>{'status': 'active'});
     });
     expect(tr.value.net, JourneyNet.offline);
     now = now.add(const Duration(seconds: 30));
