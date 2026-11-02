@@ -76,6 +76,7 @@ import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_thread_screen.dart'; // missing
 import 'package:assisto/widgets/success_share.dart'; // missing
 import 'package:assisto/screens/blood/blood_hub_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_saved_screen.dart'; // ownerfix
 import 'package:assisto/screens/blood/blood_request_detail_screen.dart'; // blood
 import 'package:assisto/screens/blood/blood_request_form_screen.dart'; // blood
 import 'package:assisto/screens/blood/blood_donor_setup_screen.dart'; // blood
@@ -143,7 +144,6 @@ import 'package:assisto/screens/savings_challenge_screen.dart';
 import 'package:assisto/screens/security_checkup_screen.dart';
 import 'package:assisto/screens/farmer_mode_screen.dart';
 import 'package:assisto/screens/trust_page_screen.dart';
-import 'package:assisto/screens/blood_donor_screen.dart';
 import 'package:assisto/screens/prepaid_meter_screen.dart';
 import 'package:assisto/screens/qurbani_screen.dart';
 import 'package:assisto/screens/probashi_screen.dart';
@@ -573,7 +573,6 @@ Map<String, GallerySpec> gallerySpecs() {
     'security': (build: (_) => const SecurityCheckupScreen(), mode: FakeMode.data, full: true),
     'farmer': (build: (_) => const FarmerModeScreen(), mode: FakeMode.data, full: true),
     'trust': (build: (_) => const TrustPageScreen(), mode: FakeMode.data, full: true),
-    'blood': (build: (_) => const BloodDonorScreen(), mode: FakeMode.data, full: true),
     'meter': (build: (_) => const PrepaidMeterScreen(), mode: FakeMode.data, full: true),
     'qurbani': (build: (_) => const QurbaniScreen(), mode: FakeMode.data, full: true),
     'probashi': (build: (_) => const ProbashiScreen(), mode: FakeMode.data, full: true),
@@ -785,6 +784,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'sheet_acct_cost_gaps': (build: (_) => const Scaffold(body: SafeArea(child: AcctCostGapsSheet(businessId: 1, gaps: {'sales': 3, 'lines': 4, 'revenue': 64000, 'products': [{'product_id': 2, 'name': 'Soybean oil 1L', 'lines': 3, 'qty': 3, 'revenue': 54000, 'current_cost': 15000}, {'product_id': 3, 'name': 'Biscuits', 'lines': 1, 'qty': 1, 'revenue': 10000, 'current_cost': 0}]}))), mode: FakeMode.data, full: true),
     'acct_audit': (build: (_) => const AcctAuditScreen(businessId: 1), mode: FakeMode.data, full: true),
     'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
+    // ownerfix: My saved donors (the old registry's donors, inside the panel)
+    'blood_saved': (build: (_) => const BloodSavedScreen(), mode: FakeMode.data, full: true),
+    'blood_saved_empty': (build: (_) => const BloodSavedScreen(), mode: FakeMode.empty, full: true),
     'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),
     'blood_requests': (build: (_) => const BloodHubScreen(initialTab: 1), mode: FakeMode.data, full: true),
     'blood_me': (build: (_) => const BloodHubScreen(initialTab: 2), mode: FakeMode.data, full: true),

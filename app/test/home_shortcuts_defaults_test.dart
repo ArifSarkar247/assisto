@@ -79,7 +79,7 @@ const _screens = {
   'watchman': 'WatchmanScreen',
   'vehicle_tracking': 'VehicleTrackingScreen',
   'prepaid_meter': 'PrepaidMeterScreen',
-  'emergency': 'EmergencyScreen',
+  'emergency': 'EmergencyHubScreen', // ownerfix: SOS tile -> Emergency hub
   'money': 'MoneyScreen',
 };
 
@@ -188,11 +188,12 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       final ctx = tester.element(find.byType(SizedBox));
       for (final r in HomeV2Shortcuts.defaults()) {
-        final b = ChatNav.routes[r];
+        final b = ChatNav.routes[HomeV2Shortcuts.openRoute(r)];
         expect(b, isNotNull, reason: r);
         expect(b!(ctx).runtimeType.toString(), _screens[r], reason: r);
         expect(HomeV2Shortcuts.byRoute(r), isNotNull, reason: r);
-        expect(HomeV2Shortcuts.openRoute(r), r);
+        expect(HomeV2Shortcuts.openRoute(r),
+            r == 'emergency' ? 'emergency_hub' : r);
       }
     });
 

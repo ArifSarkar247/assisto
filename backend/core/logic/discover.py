@@ -50,7 +50,8 @@ AUDIENCES = ("all", "free", "premium", "business")
 SOS_ROUTE = "emergency_hub"   # owner 2 Nov: SOS opens the Emergency hub
 BLOOD_ROUTE = "blood_panel"
 # Cards an ad may never sit next to (SOS — old screen and new hub — and Blood donor).
-PROTECTED_ROUTES = frozenset({"emergency", "emergency_hub", "voice_sos", BLOOD_ROUTE})
+PROTECTED_ROUTES = frozenset({"emergency", "emergency_hub", "voice_sos", BLOOD_ROUTE,
+                              "blood_donor"})   # ownerfix: old-link alias
 AD_TYPES = (SPONSORED, ADMOB)
 SEGMENTS = ("free", "premium", "business")
 
@@ -63,6 +64,7 @@ ROUTE_KEYS = (
     "kids_watch", "school_mode",   # kidswatch: parent hub + the child's side
     "missing_alert",   # missing: Missing person alert (flag missing_alert)
     "blood_panel",     # blood: Blood donor panel (flag blood_donors)
+    "blood_donor",     # ownerfix: old links -> the same one panel
     "train_tracker", "dest_alarm",  # train: tracker + destination alarm
     "kid_audio",       # kidaudio: Child emergency audio (flag child_emergency_audio)
     "books",           # ledger: Business Accounting books (flag accounting_v2)
@@ -101,6 +103,7 @@ ICONS = (
     "account_tree", "campaign", "star", "local_offer", "shopping_bag",
     "favorite", "school", "health", "family", "money", "lightbulb",
     "emergency", "train", "bloodtype",   # homeorder: SOS / Train / Blood donor
+    "alarm",                             # ownerfix: Destination Alarm
 )
 
 

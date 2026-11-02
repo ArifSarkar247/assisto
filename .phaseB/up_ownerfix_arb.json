@@ -1,0 +1,73 @@
+{
+  "_comment": "ownerfix (owner fixes 3 Nov 02:55): My saved donors inside the one Blood donor panel. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_ownerfix_arb.json",
+  "en": {
+    "bsvTitle": "My saved donors",
+    "bsvTileSub": "Your private list — only you see it. Donors from your old list are here.",
+    "bsvCount": "{n} saved · only you see this list",
+    "@bsvCount": {
+      "placeholders": {
+        "n": {
+          "type": "int"
+        }
+      }
+    },
+    "bsvPrivate": "Private: nobody else sees this list, and nobody on it gets a notification.",
+    "bsvEmptyTitle": "Keep the blood donors you know in one place — call them in one tap when blood is needed.",
+    "bsvStep1": "Tap Add donor, or pick a person from My Circle.",
+    "bsvStep2": "Choose their blood group and when they last gave blood.",
+    "bsvStep3": "The list shows who can give now, who can give soon (exact days) and who is paused.",
+    "bsvAdd": "Add donor",
+    "bsvEditTitle": "Edit donor",
+    "bsvName": "Name",
+    "bsvGroup": "Blood group",
+    "bsvPhone": "Phone (optional)",
+    "bsvArea": "Area (optional)",
+    "bsvLast": "Last gave blood (optional)",
+    "bsvLastNone": "Not known",
+    "bsvPaused": "Paused (sick or travelling)",
+    "bsvFromOld": "From your old list",
+    "bsvDeleteAsk": "Remove {name} from your list?",
+    "@bsvDeleteAsk": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "bsvErrName": "Write a name.",
+    "bsvErrGroup": "Pick a blood group.",
+    "discoverLiveTitle": "Live Location",
+    "discoverLiveBenefit": "Family sees where you are and gets notified when you arrive.",
+    "discoverDestTitle": "Destination Alarm",
+    "discoverDestBenefit": "Wakes you before your stop, even without internet.",
+    "discoverBloodBenefit": "Find blood donors near you and send an urgent request — all in the app."
+  },
+  "bn": {
+    "bsvTitle": "আমার সেভ করা দাতা",
+    "bsvTileSub": "আপনার নিজের তালিকা — শুধু আপনি দেখেন। আগের তালিকার দাতারাও এখানে।",
+    "bsvCount": "{n} জন সেভ করা · শুধু আপনি দেখেন",
+    "bsvPrivate": "গোপন: এই তালিকা আর কেউ দেখে না, তালিকার কাউকে কোনো নোটিফিকেশনও যায় না।",
+    "bsvEmptyTitle": "চেনা রক্তদাতাদের এক জায়গায় রাখুন — রক্ত দরকার হলে এক চাপে ফোন করুন।",
+    "bsvStep1": "‘দাতা যোগ করুন’ চাপুন, অথবা আমার সার্কেল থেকে কাউকে বেছে নিন।",
+    "bsvStep2": "রক্তের গ্রুপ আর শেষ কবে রক্ত দিয়েছেন তা দিন।",
+    "bsvStep3": "তালিকা দেখায় কে এখন দিতে পারবেন, কে শিগগির পারবেন (ঠিক কত দিন বাকি) আর কে বিরতিতে।",
+    "bsvAdd": "দাতা যোগ করুন",
+    "bsvEditTitle": "দাতার তথ্য বদলান",
+    "bsvName": "নাম",
+    "bsvGroup": "রক্তের গ্রুপ",
+    "bsvPhone": "ফোন (ঐচ্ছিক)",
+    "bsvArea": "এলাকা (ঐচ্ছিক)",
+    "bsvLast": "শেষ রক্ত দিয়েছেন (ঐচ্ছিক)",
+    "bsvLastNone": "জানা নেই",
+    "bsvPaused": "বিরতিতে (অসুস্থ বা ভ্রমণে)",
+    "bsvFromOld": "আগের তালিকা থেকে",
+    "bsvDeleteAsk": "{name}-কে তালিকা থেকে সরাবেন?",
+    "bsvErrName": "নাম লিখুন।",
+    "bsvErrGroup": "রক্তের গ্রুপ বেছে নিন।",
+    "discoverLiveTitle": "লাইভ লোকেশন",
+    "discoverLiveBenefit": "পরিবার দেখে আপনি কোথায়, পৌঁছালে খবর পায়।",
+    "discoverDestTitle": "গন্তব্য অ্যালার্ম",
+    "discoverDestBenefit": "নামার জায়গার আগে জাগিয়ে দেয়, নেট ছাড়াও।",
+    "discoverBloodBenefit": "কাছের রক্তদাতা খুঁজুন, জরুরি অনুরোধ পাঠান — সব অ্যাপের ভেতরে।"
+  }
+}

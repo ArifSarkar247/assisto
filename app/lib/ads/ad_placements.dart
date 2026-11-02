@@ -115,6 +115,11 @@ class AdPlacements {
     'school_mode', 'kids_watch', 'child',
     // owner fix 3 Nov: train SEARCH / DETAIL carry a banner; its chat never
     'train_chat',
+    // ownerfix (owner 3 Nov): NO ads anywhere in blood donor — every screen
+    // of the one panel, spelled out (the 'blood' token already blocks them).
+    'blood_panel', 'blood_hub', 'blood_saved', 'blood_request',
+    'blood_request_form', 'blood_thread', 'blood_threads', 'blood_setup',
+    'blood_verify', 'blood_banks',
   ];
 
   static Set<String> _allow(AdSurface slot) => switch (slot) {

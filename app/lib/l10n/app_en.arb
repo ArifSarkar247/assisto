@@ -35608,5 +35608,692 @@
         "type": "String"
       }
     }
-  }
+  },
+  "sjlNameLive": "Live Location",
+  "sjlNameAlarm": "Destination Alarm",
+  "sjlNameTrain": "Train Tracker",
+  "sjlSubLive": "Family sees where you are and gets notified when you arrive.",
+  "sjlSubAlarm": "Wakes you before your stop, even without internet.",
+  "sjlSubTrain": "Where your train is now and when it arrives",
+  "sjlOpen": "Open {name}",
+  "@sjlOpen": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlBtnTrip": "My Trip",
+  "sjlBtnSchool": "Child School",
+  "sjlBtnRequest": "Request Location",
+  "sjlBtnShare": "Share for a While",
+  "sjlHintTrip": "Destination, arrival notice, late alert",
+  "sjlHintSchool": "Left home, reached school, back home",
+  "sjlHintRequest": "Ask where someone is — they must agree",
+  "sjlHintShare": "1 hour, 3 hours or your own time",
+  "sjlActiveTrip": "Your trip is being shared now",
+  "sjlActiveShare": "Your Live Location is being shared now",
+  "sjlActiveOpen": "Tap to see it or stop it",
+  "sjlWhereTitle": "Who is where now",
+  "sjlWhereEmptyTitle": "Nobody is sharing with you right now",
+  "sjlWhereEmptyBody": "When family share a trip, a while, or accept your request, they appear here with their place on the map.",
+  "sjlWhereEmptyHow": "How: tap Request Location, pick a person from My Circle and a time. They see it and choose.",
+  "sjlWhereError": "Could not load right now. Check the internet and try again.",
+  "sjlRetry": "Try again",
+  "sjlNoMapNote": "The map is not set up yet — tap the map button on a person to open their place in your maps app.",
+  "sjlOpenMaps": "Open in maps",
+  "sjlNoFixYet": "no location yet",
+  "sjlAgeNow": "updated just now",
+  "sjlAgeMin": "updated {n} min ago",
+  "@sjlAgeMin": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlAgeHour": "updated {n} h ago",
+  "@sjlAgeHour": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlM": "{n} m",
+  "@sjlM": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlKm": "{n} km",
+  "@sjlKm": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlAcc": "accurate to ± {v}",
+  "@sjlAcc": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlAccRough": "rough place, ± {v}",
+  "@sjlAccRough": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlBattery": "battery {n}%",
+  "@sjlBattery": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlRealTitle": "Works in real life",
+  "sjlRealBgTitle": "App closed or screen off",
+  "sjlRealBgBody": "While you share, a small notification keeps your location going even with the screen off. It stops when the share ends.",
+  "sjlRealBgOn": "On now — it keeps working with the screen off.",
+  "sjlRealOemTitle": "Phone battery saver",
+  "sjlRealOemNeeds": "This phone may stop Assisto in the background. Two quick steps fix it.",
+  "sjlRealOemOk": "This phone lets Assisto keep working.",
+  "sjlRealOemUnknown": "Some phones (Realme, Xiaomi, Oppo, Vivo, Samsung) stop apps to save battery. See the guide for your phone.",
+  "sjlRealOemOpen": "Open the battery guide",
+  "sjlRealOfflineTitle": "No internet",
+  "sjlRealOfflineBody": "Your places are saved on the phone and sent as soon as the internet is back.",
+  "sjlRealOfflineQueued": "{n} places waiting — they go when the internet is back.",
+  "@sjlRealOfflineQueued": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlRealAccTitle": "Honest accuracy",
+  "sjlRealAccLast": "Last place {a}.",
+  "@sjlRealAccLast": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "a": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlRealAccBody": "Outdoors GPS is usually 5–20 m; indoors it can be much rougher. We always show the real number.",
+  "sjlShareIntro": "The people you choose see where you are, live. It stops by itself at the end — or tap Stop sooner.",
+  "sjlShareHowLong": "How long?",
+  "sjlShareWho": "Who sees it?",
+  "sjlShareCustom": "Until a time…",
+  "sjlShareUntil": "Until {time}",
+  "@sjlShareUntil": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlShareBadTime": "Pick a time between 15 minutes and 24 hours from now.",
+  "sjlShareStart": "Share for {d}",
+  "@sjlShareStart": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "d": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlShareRules": "Never secret: your phone shows a notification the whole time. No late alerts — it just ends. SOS still works.",
+  "sjlHours": "{n} h",
+  "@sjlHours": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlReqIntro": "Ask someone in My Circle to share where they are for a while — in Bangladesh or abroad. They must accept, always see it on their phone and can stop any time. Nothing is ever secret.",
+  "sjlReqAsk": "Ask for location",
+  "sjlReqNowFor": "Now, for {d}",
+  "@sjlReqNowFor": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "d": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlReqPickTime": "Pick a time",
+  "sjlReqRules": "They are asked first. Sharing ends exactly at the end time, and they can stop it any time.",
+  "sjlSchoolAdd": "Add a child",
+  "sjlSchoolEmptyTitle": "Know your child reached school",
+  "sjlSchoolEmptyBody": "Both parents get a notice when your child leaves home, reaches school, leaves school and reaches home — and an alert if not at school by the time you set.",
+  "sjlSchoolHow": "How: add your child from My Circle, set home, school, school days and the alert time. Your child accepts once on their phone. It runs by itself while their phone shares Live Location (or with a kids watch); otherwise your child taps 'Leaving now' and 'Reached'.",
+  "sjlSchoolOnMe": "School Mode is on for you",
+  "sjlSchoolOnMeBody": "See who sees it, check in, or stop it",
+  "sjlWaitingChild": "Waiting for {name} to accept on their phone",
+  "@sjlWaitingChild": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlTodayHoliday": "Holiday today — no school alerts.",
+  "sjlNoSchoolToday": "No school today.",
+  "sjlStepLeftHome": "Left home",
+  "sjlStepAtSchool": "Reached school",
+  "sjlStepLeftSchool": "Left school",
+  "sjlStepHome": "Reached home",
+  "sjlAlertBy": "Alert if not at school by {time}",
+  "@sjlAlertBy": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlParents": "Also sees it: {names}",
+  "@sjlParents": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlHistory": "History",
+  "sjlEdit": "Edit",
+  "sjlHolidays": "Holidays",
+  "sjlHolidaysBody": "No alerts on these days. Past days are removed by themselves.",
+  "sjlHolidaysNone": "No holidays added.",
+  "sjlHolidayAdd": "Add a holiday",
+  "sjlRemove": "Remove",
+  "sjlGatePhoto": "School gate camera",
+  "sjlGateLink": "Link the school gate camera",
+  "sjlGateLinkBody": "Pick a CCTV camera you have in Assisto. Only its picture near your child's arrival or leaving time is shown.",
+  "sjlGateUnlink": "Remove the camera",
+  "sjlGateNone": "The camera kept no picture around that time.",
+  "sjlGateNotYet": "Not at school yet today.",
+  "sjlGateAt": "Picture taken at {time}",
+  "@sjlGateAt": {
+    "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sjlClose": "Close",
+  "sjlReqWho": "Whose location?",
+  "sjaPresetDefault": "{dist} (default)",
+  "@sjaPresetDefault": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaCustom": "Custom",
+  "@sjaCustom": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaGpsNote": "Phone GPS is usually 5–20 m off (more under flyovers and tall buildings). So the alarm also rings when you are about 45 seconds from the stop at your current speed — whichever comes first.",
+  "@sjaGpsNote": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSnooze": "Snooze 1 minute",
+  "@sjaSnooze": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSnoozed": "Snoozed — rings again at {time}",
+  "@sjaSnoozed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaRangBySpeed": "Rang early: at your speed you reach the stop in about 45 seconds.",
+  "@sjaRangBySpeed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSpeedNow": "Speed now: {kmh} km/h",
+  "@sjaSpeedNow": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaNotifyFamily": "Tell family when I arrive",
+  "@sjaNotifyFamily": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaNotifyFamilySub": "When you tap “I'm awake”, the people you pick get an “arrived” notice. This needs internet — the alarm itself does not.",
+  "@sjaNotifyFamilySub": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAddPerson": "Add from My Circle",
+  "@sjaAddPerson": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaPickPerson": "Who should know you arrived?",
+  "@sjaPickPerson": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaArrivedSent": "Your family was told you arrived.",
+  "@sjaArrivedSent": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaArrivedFailed": "Could not tell your family (no internet). Please call or message them.",
+  "@sjaArrivedFailed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecorderTitle": "Trip recorder (owner only)",
+  "@sjaRecorderTitle": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecBenefit": "Records this trip's real GPS (time, position, accuracy, speed) on this phone, so the destination alarm is tested against real trips. Nothing leaves the phone unless you share or upload it privately.",
+  "@sjaRecBenefit": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaModeWalking": "Walking",
+  "@sjaModeWalking": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStart": "Start recording",
+  "@sjaRecStart": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStop": "Stop and save",
+  "@sjaRecStop": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecGotOff": "I got off here (my stop)",
+  "@sjaRecGotOff": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStopMarked": "Stop marked",
+  "@sjaRecStopMarked": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecPoints": "{n} points · accuracy {acc} m",
+  "@sjaRecPoints": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "acc": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaRecSaved": "Saved trips",
+  "@sjaRecSaved": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecEmpty": "No trips yet. Start recording on your next bus, train or walk, and tap “I got off here” at your stop.",
+  "@sjaRecEmpty": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecShare": "Share",
+  "@sjaRecShare": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUpload": "Upload privately",
+  "@sjaRecUpload": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUploaded": "Uploaded privately",
+  "@sjaRecUploaded": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUploadFailed": "Upload failed. The trip is still on this phone — try again with internet.",
+  "@sjaRecUploadFailed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecNotif": "Recording this trip's GPS",
+  "@sjaRecNotif": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAlarmHere": "Alarm here",
+  "@sjaAlarmHere": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAlarmHereA11y": "Set alarm at {station}",
+  "@sjaAlarmHereA11y": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "bbl2Title": "Turn on floating chat bubbles?",
+  "bbl2Body": "New messages appear as a round photo on your screen, so you can reply while using any other app.",
+  "bbl2TurnOn": "Turn on",
+  "bbl2Later": "Later",
+  "bbl2On": "Floating chat bubbles are on.",
+  "bbl2How": "On the next page, choose “All conversations can bubble”, then come back here.",
+  "bbl2NotYet": "Not on yet. On the settings page, choose “All conversations can bubble”.",
+  "bbl2SelectedOnly": "Only the chats you picked can float. Choose “All conversations can bubble” so every chat can.",
+  "bbl2PhoneSwitch": "Bubbles are switched off for the whole phone. Turn them on in Settings → Notifications → Bubbles, then choose “All conversations can bubble”.",
+  "bbl2Blocked": "This phone doesn't allow floating bubbles. Messages still arrive as normal notifications.",
+  "bbl2NotifsOff": "Assisto's notifications are off. Turn them on first — bubbles come from notifications.",
+  "bbl2Continue": "Continue",
+  "bbl2SettingsTitle": "Floating chat bubbles",
+  "bbl2SetSub": "New My Circle messages float over other apps as a round photo. Tap to read and reply; drag it to ✕ to close. On for every chat — turn one chat off from its ⋮ menu.",
+  "bbl2SettingsOff": "Off on this phone. Turn on so new messages float as a round photo.",
+  "bbl2RowTitle": "Floating chats",
+  "bbl2FaceA11y": "{name}, {count} new. Open chat",
+  "@bbl2FaceA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bbl2NewMessage": "New message",
+  "bbl2DragToClose": "Drag to ✕ at the bottom to close",
+  "bbl2CloseBubbles": "Close bubbles",
+  "bbl2SettingsCircleSection": "My Circle",
+  "bbl2FlagPublic": "Public chats and channels",
+  "bbl2ChatOpenFailed": "Couldn't open the chat. Open My Circle once, then try again.",
+  "bbl2InviteCardBody": "A private, Bangla-first chat app and assistant.",
+  "cgPathLan": "Direct · same Wi-Fi",
+  "cgPathDirect": "Direct (free)",
+  "cgPathRelay": "Relay",
+  "cgPathVendorCloud": "Camera maker's cloud",
+  "cgRelayPaused": "This month's relay allowance is used up. Live still works on the same Wi-Fi or a direct connection.",
+  "cgRelayPausedShort": "Relay paused this month",
+  "cgRelayNoticeShort": "{pct}% of relay used",
+  "@cgRelayNoticeShort": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageTitle": "This month's use",
+  "cgUsagePool": "Relay: {used} of {cap} MB",
+  "@cgUsagePool": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageCounting": "Relay: {used} MB (no limit switched on yet)",
+  "@cgUsageCounting": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageShow": "Show each camera",
+  "cgUsageHide": "Hide cameras",
+  "cgUsageCamLine": "{min} min live · relay {relay} MB · direct {direct} MB",
+  "@cgUsageCamLine": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "relay": {
+        "type": "String"
+      },
+      "direct": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageVendorLine": "Cloud live {min} min · about {mb} MB (estimate)",
+  "@cgUsageVendorLine": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cgUsageFreeNote": "Watching on the same Wi-Fi or a direct connection is free and never limited.",
+  "cgVendorLiveTitle": "Live (camera cloud)",
+  "cgVendorStarting": "Getting live video from the camera maker's cloud…",
+  "cgVendorFailed": "Live view could not start. Check that the camera is online and try again.",
+  "cgVendorPlayFailed": "This phone could not play the camera's live video. Try again, or use the camera's own app.",
+  "cgVendorIdleStopped": "Live stopped because the screen was not touched for a while — this saves data. Watch again any time.",
+  "cgSdOn": "SD (saves data)",
+  "cgHdOn": "HD (more data)",
+  "cgDataEstimate": "≈ {mb} MB (estimate)",
+  "@cgDataEstimate": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cgVendorIdleNote": "Stops after {min} minutes without a touch. Starts in SD; tap HD for detail.",
+  "@cgVendorIdleNote": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cgVendorNoRecording": "Video comes from the camera maker's cloud; Assisto does not keep it.",
+  "carmTitle": "Auto guard",
+  "carmStatusOn": "Guard is on by itself",
+  "carmStatusOff": "Auto guard is not arming now — your own schedule decides",
+  "carmReasonFamily": "Everyone who agreed is away from Home",
+  "carmReasonClosed": "The shop is closed",
+  "carmSumHome": "Someone is at home",
+  "carmSumAway": "Everyone is out",
+  "carmSumUnknown": "Not known — nothing is guessed; your schedule decides",
+  "carmSumOff": "Nobody has said yes yet",
+  "carmPrivacyActive": "Indoor cameras are private now (someone is home)",
+  "carmPrivacyPause": "Turn indoor cameras back on",
+  "carmSosActive": "SOS: family can watch live now",
+  "carmFamilyTitle": "Guard on when everyone leaves Home",
+  "carmFamilyBenefit": "No more forgetting to arm. When everyone who agreed is out, the cameras guard; when someone is back, the guard turns off.",
+  "carmFamilyRules": "Each person says yes on their own phone (off at first). The phone sends only how far it is from Home — never where it is. No news for over {min} minutes = \"Not known\": nothing is turned on or off on a guess.",
+  "@carmFamilyRules": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmHomeLabel": "Home: {name}",
+  "@carmHomeLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carmHomeMissing": "Save your Home place first (Safe Journey → Places), then turn this on.",
+  "carmRadius": "At home = within {m} m. \"Out\" only beyond {exit} m, so GPS jitter does not flip it.",
+  "@carmRadius": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      },
+      "exit": {
+        "type": "String"
+      }
+    }
+  },
+  "carmMeters": "{m} m",
+  "@carmMeters": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "carmMembers": "People",
+  "carmMyConsent": "Use whether I am at home",
+  "carmAddPeople": "Add from My Circle",
+  "carmNoCandidatesTitle": "No one in My Circle yet",
+  "carmNoCandidatesBody": "Add your family in My Circle first, then add them here with one tap.",
+  "carmStHome": "At home",
+  "carmStAway": "Out",
+  "carmStUnknown": "Not known",
+  "carmStNoConsent": "Waiting for their yes",
+  "carmRemove": "Remove",
+  "carmInvited": "Asked — they decide on their own phone",
+  "carmPrivacyTitle": "Privacy when someone is home",
+  "carmPrivacyBody": "While someone is at home, indoor cameras send no alerts and cannot be watched live.",
+  "carmIndoorPick": "Which cameras are indoors?",
+  "carmNoCameras": "Add a camera first.",
+  "carmClosedTitle": "Guard on when the shop is closed",
+  "carmClosedBody": "When you finish the day-end in Shop Box, or after closing time, every camera guards until opening time. You get a notice each time.",
+  "carmHoursMissing": "Shop hours are not set — only the day-end turns the guard on. Set the hours in Guard settings.",
+  "carmNomoveTitle": "Tell family if no movement by a set time",
+  "carmNomoveBody": "For an elder living alone: if a camera sees no movement by the time you set, you and the people you choose are told. It only looks at camera movement — it is not a medical device.",
+  "carmNomoveBy": "By {time}",
+  "@carmNomoveBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNomoveFrom": "Counting from {time}",
+  "@carmNomoveFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNomoveWho": "Also tell",
+  "carmSosTitle": "SOS at home: family can open the home camera",
+  "carmSosBody": "If someone presses SOS at Home, the people who see this place's alerts can open the home camera live for {min} minutes. Picture only — sound never starts by itself.",
+  "@carmSosBody": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmLogTitle": "What changed by itself",
+  "carmLogEmpty": "Nothing yet — every automatic change is listed here and sent to you.",
+  "carmAskTitle": "{owner} asks to use whether you are at home",
+  "@carmAskTitle": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "carmAskBody": "If you say yes: when you open Assisto, your phone tells only whether you are near Home (not where you are). The home cameras then guard when everyone is out and stay private when someone is in. You can stop any time.",
+  "carmYes": "Yes, use it",
+  "carmNo": "No",
+  "carmWithdraw": "Stop using my location",
+  "carmYouAgreed": "You said yes. You can stop any time.",
+  "carmStaleRule": "If your phone is not heard for {min} minutes you show as \"Not known\" — nothing is guessed.",
+  "@carmStaleRule": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNotAskedTitle": "Nobody has asked you yet",
+  "carmNotAskedBody": "When the owner adds you to Auto guard, you can say yes or no here.",
+  "carmLimitNote": "Your phone checks only while Assisto is open (or Always-on protection is on). Otherwise you show as \"Not known\".",
+  "carmSaved": "Saved",
+  "carmSosLiveTitle": "Home camera (SOS)",
+  "carmSosNoneTitle": "No SOS right now",
+  "carmSosNoneBody": "If a family member presses SOS at home and the owner allowed it, the home camera opens here for you.",
+  "carmSosStep1": "The camera owner turns on \"SOS at home\" in Auto guard",
+  "carmSosStep2": "You must be able to see that place's alerts",
+  "carmSosFrom": "{name} pressed SOS at home",
+  "@carmSosFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carmWatchLive": "Watch live",
+  "carmCamOffline": "Camera offline",
+  "carmCamNoLive": "This camera has no live view",
+  "carmCall999": "In an emergency call 999.",
+  "bsvTitle": "My saved donors",
+  "bsvTileSub": "Your private list — only you see it. Donors from your old list are here.",
+  "bsvCount": "{n} saved · only you see this list",
+  "@bsvCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "bsvPrivate": "Private: nobody else sees this list, and nobody on it gets a notification.",
+  "bsvEmptyTitle": "Keep the blood donors you know in one place — call them in one tap when blood is needed.",
+  "bsvStep1": "Tap Add donor, or pick a person from My Circle.",
+  "bsvStep2": "Choose their blood group and when they last gave blood.",
+  "bsvStep3": "The list shows who can give now, who can give soon (exact days) and who is paused.",
+  "bsvAdd": "Add donor",
+  "bsvEditTitle": "Edit donor",
+  "bsvName": "Name",
+  "bsvGroup": "Blood group",
+  "bsvPhone": "Phone (optional)",
+  "bsvArea": "Area (optional)",
+  "bsvLast": "Last gave blood (optional)",
+  "bsvLastNone": "Not known",
+  "bsvPaused": "Paused (sick or travelling)",
+  "bsvFromOld": "From your old list",
+  "bsvDeleteAsk": "Remove {name} from your list?",
+  "@bsvDeleteAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bsvErrName": "Write a name.",
+  "bsvErrGroup": "Pick a blood group.",
+  "discoverLiveTitle": "Live Location",
+  "discoverLiveBenefit": "Family sees where you are and gets notified when you arrive.",
+  "discoverDestTitle": "Destination Alarm",
+  "discoverDestBenefit": "Wakes you before your stop, even without internet.",
+  "discoverBloodBenefit": "Find blood donors near you and send an urgent request — all in the app."
 }

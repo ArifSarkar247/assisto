@@ -35,10 +35,33 @@ import 'home_v2_tokens.dart';
 ///
 /// The server's `home_quick_defaults` (GET /app/home-defaults) is the OLD
 /// home's six only (flag home_v2 OFF fallback); it never overrides this list.
+/// ownerfix: the screen the home "Emergency SOS" tile opens (same as the
+/// Discover SOS card, `kDiscoverSosRoute`).
+const String kHomeSosRoute = 'emergency_hub';
+
 class HomeV2Shortcuts {
   HomeV2Shortcuts._();
 
   static const prefsKey = 'home_quick_v2';
+
+  /// ownerfix (owner HOME LAYOUT 2 Nov): tiles no ad may sit next to.
+  static const adProtectedTiles = {
+    'emergency', 'emergency_hub', 'voice_sos', 'blood_panel', 'blood_donor',
+  };
+
+  /// True when an SOS / Blood donor tile is in the LAST grid row of [tiles]
+  /// (in grid order, the pinned My Circle tile first) at [columns] columns —
+  /// the free-user native ad would then sit right under it.
+  static bool protectedInLastRow(List<String> tiles, int columns) {
+    if (tiles.isEmpty || columns < 1) return false;
+    final start = ((tiles.length - 1) ~/ columns) * columns;
+    return tiles.skip(start).any(adProtectedTiles.contains);
+  }
+
+  /// Reported by the shortcut grid after each layout; the home places its
+  /// native ad below the Ask card while this is true. Starts true (safe:
+  /// never next to SOS before the grid has reported).
+  static final ValueNotifier<bool> adBelowAsk = ValueNotifier(true);
   static const max = 11;
 
   static const ownerOrder = [
@@ -188,9 +211,17 @@ class HomeV2Shortcuts {
       FeatureFlags.instance.homeTileAllowed('remittance') &&
       ChatNav.routes.containsKey('remittance');
 
-  /// Where a tile opens (the Budget tile -> the remittance feature when on).
-  static String openRoute(String route) =>
-      route == 'budget' && remittanceOn ? 'remittance' : route;
+  /// Where a tile opens (the Budget tile -> the remittance feature when on;
+  /// ownerfix (owner 3 Nov, decision of 2 Nov): the "Emergency SOS" tile ->
+  /// the Emergency hub (SOS hold-to-send first, then 999, family card, blood
+  /// donor ...). The saved tile id stays 'emergency' so nobody's home moves.
+  static String openRoute(String route) {
+    if (route == 'budget' && remittanceOn) return 'remittance';
+    if (route == 'emergency' && ChatNav.routes.containsKey(kHomeSosRoute)) {
+      return kHomeSosRoute;
+    }
+    return route;
+  }
 
   static QuickShortcut? byRoute(String r, [List<QuickShortcut>? cat]) {
     for (final s in cat ?? catalog) {
@@ -422,6 +453,17 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
     final cols = scale > HV2.threeColumnScale ? 3 : 4;
     final circleVisible =
         ChatNav.routes.containsKey(HomeQuickButtons.pinnedRoute);
+    // ownerfix: tell the home where the native ad may go (never right under
+    // an SOS / Blood donor row). After the frame: never notify mid-build.
+    final below = HomeV2Shortcuts.protectedInLastRow([
+      if (circleVisible) HomeQuickButtons.pinnedRoute,
+      for (final s in items) s.route,
+    ], cols);
+    if (HomeV2Shortcuts.adBelowAsk.value != below) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        HomeV2Shortcuts.adBelowAsk.value = below;
+      });
+    }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(children: [
         Expanded(

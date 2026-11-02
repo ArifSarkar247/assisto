@@ -1026,3 +1026,103 @@ def banks(lang="bn", district="", q="", lat=None, lng=None):
             names.append({"code": c, "name": d[2] if lang == "bn" else d[1]})
     return {"banks": out[:BR.MAX_LIST * 3], "source": src, "source_pending": False,
             "districts": names, "total": len(out)}
+
+
+# ------------------------------------------------- ownerfix: My saved donors
+# Owner 3 Nov: the old personal registry is gone from the app; its rows live
+# here as the user's PRIVATE "My saved donors" list inside the one panel.
+
+def sync_legacy(user, on_day=None):
+    """Copy every old registry row of `user` not copied yet (idempotent: one
+    BloodSavedDonor per legacy_item_id). The old rows are KEPT (a later
+    cleanup removes them). -> number of rows copied now."""
+    from .models import BloodSavedDonor, PaCollectionItem
+    on_day = on_day or today()
+    done = set(BloodSavedDonor.objects.filter(owner=user, legacy_item_id__isnull=False)
+               .values_list("legacy_item_id", flat=True))
+    n = 0
+    for it in PaCollectionItem.objects.filter(user=user, collection=BR.LEGACY_COLLECTION):
+        if it.id in done:
+            continue
+        BloodSavedDonor.objects.get_or_create(
+            owner=user, legacy_item_id=it.id,
+            defaults=BR.legacy_to_saved(it.data, on_day))
+        n += 1
+    return n
+
+
+def saved_json(s, on_day=None):
+    on_day = on_day or today()
+    out = {"id": s.id, "name": s.name, "blood_group": s.blood_group,
+           "area_text": s.area_text, "phone": s.phone or None,
+           "available": s.available,
+           "last_donation": s.last_donation.isoformat() if s.last_donation else None,
+           "note": s.note, "from_old_list": s.legacy_item_id is not None}
+    out.update(BR.saved_status(s.available, s.last_donation, on_day))
+    return out
+
+
+def saved_list(user, on_day=None):
+    """-> (rows, counts). Never hides anyone: available first, waiting by days
+    left, paused last — the same header numbers as the panel list."""
+    from .models import BloodSavedDonor
+    on_day = on_day or today()
+    try:
+        sync_legacy(user, on_day)
+    except Exception as e:                       # never block the list
+        log.warning("blood saved sync failed: %s", e)
+    rows = [saved_json(s, on_day) for s in BloodSavedDonor.objects.filter(owner=user)]
+    rows.sort(key=BR.saved_sort_key)
+    return rows, list_counts(rows)
+
+
+def save_saved(user, body, pk=None):
+    """Create / update one saved donor. -> (row|None, error, fields)."""
+    from .models import BloodSavedDonor
+    s = None
+    if pk is not None:
+        s = BloodSavedDonor.objects.filter(owner=user, pk=pk).first()
+        if s is None:
+            return None, "not_found", []
+    elif BloodSavedDonor.objects.filter(owner=user).count() >= BR.SAVED_MAX:
+        return None, "too_many", []
+    name = BR.clean_text(body.get("name", s.name if s else ""), 80)
+    group = BR.normalise_group(body.get("blood_group", s.blood_group if s else ""))
+    bad = []
+    if not name:
+        bad.append("name")
+    if not group:
+        bad.append("blood_group")
+    last = s.last_donation if s else None
+    if "last_donation" in body:
+        last, ok = BR.clean_last_donation(body.get("last_donation"), today())
+        if not ok:
+            bad.append("last_donation")
+    if bad:
+        return None, "invalid", bad
+    s = s or BloodSavedDonor(owner=user)
+    s.name, s.blood_group, s.last_donation = name, group, last
+    if "area_text" in body:
+        s.area_text = BR.clean_text(body.get("area_text"), 60)
+    if "phone" in body:
+        s.phone = BR._digits_only(body.get("phone"))
+    if "available" in body:
+        s.available = body.get("available") not in (False, "false", "0", 0)
+    if "note" in body:
+        s.note = BR.clean_text(body.get("note"), 200)
+    s.save()
+    return s, "", []
+
+
+def delete_saved(user, pk):
+    """Delete one saved donor. A row copied from the old list also removes
+    its old source row, so the lazy re-sync never brings it back."""
+    from .models import BloodSavedDonor, PaCollectionItem
+    s = BloodSavedDonor.objects.filter(owner=user, pk=pk).first()
+    if s is None:
+        return False
+    if s.legacy_item_id is not None:
+        PaCollectionItem.objects.filter(user=user, collection=BR.LEGACY_COLLECTION,
+                                        pk=s.legacy_item_id).delete()
+    s.delete()
+    return True

@@ -1533,6 +1533,8 @@ urlpatterns += [
     path("blood-panel/threads/<int:pk>/block", bdv.ThreadBlockView.as_view()),
     path("blood-panel/threads/<int:pk>/circle", bdv.ThreadCircleView.as_view()),
     path("blood-panel/banks", bdv.BanksView.as_view()),
+    path("blood-panel/saved", bdv.SavedView.as_view()),  # ownerfix
+    path("blood-panel/saved/<int:pk>", bdv.SavedItemView.as_view()),
 ]
 # ---- /blood ----
 

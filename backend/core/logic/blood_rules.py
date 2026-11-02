@@ -187,3 +187,56 @@ def first_name(full):
     """What strangers see: the first word of the name only."""
     s = str(full or "").strip().split()
     return s[0][:24] if s else ""
+
+
+# ---------------------------------------------------------------- ownerfix
+# Owner 3 Nov: ONE blood donor feature. The old personal registry (generic
+# collection "blood/donors", rows {name, blood_group, area, phone,
+# availability, last_donation, share_contact}) becomes "My saved donors" in
+# the panel. Pure mapping, shared by migration 0140_ownerfix and the lazy
+# re-sync (rows an OLD app build writes after the migration).
+LEGACY_COLLECTION = "blood/donors"
+SAVED_MAX = 300                      # saved donors per user
+
+
+def _digits_only(raw, cap=20):
+    t = str(raw or "").translate(MR._BN_DIGITS)
+    return re.sub(r"[^\d+]", "", t)[:cap]
+
+
+def legacy_to_saved(data, today):
+    """Old registry row (dict) -> BloodSavedDonor field dict. Never drops a
+    row: an unknown group / a bad date becomes blank (the person stays
+    listed); "paused" AND "unavailable" both become paused (never hidden)."""
+    data = data if isinstance(data, dict) else {}
+    last = parse_date(data.get("last_donation"))
+    if last is not None and (last > today or last.year < 1950):
+        last = None
+    avail = str(data.get("availability") or "available").strip().lower()
+    return {"name": clean_text(data.get("name"), 80),
+            "blood_group": normalise_group(data.get("blood_group")),
+            "area_text": clean_text(data.get("area"), 60),
+            "phone": _digits_only(data.get("phone")),
+            "available": avail not in ("paused", "unavailable"),
+            "last_donation": last}
+
+
+def saved_status(available, last_donation, on_day):
+    """Same three states as the panel (never hidden): available | waiting
+    (inside the minimum interval, with exact days left) | paused."""
+    nxt = next_eligible(last_donation, "")
+    days_left = max(0, (nxt - on_day).days) if nxt else 0
+    last = parse_date(last_donation)
+    st = "paused" if not available else ("waiting" if days_left > 0 else "available")
+    return {"status": st, "days_left": days_left,
+            "next_date": nxt.isoformat() if nxt else None,
+            "donated_days_ago": (on_day - last).days if last else None}
+
+
+def saved_sort_key(card):
+    """Available first, then waiting by days left (fewest first), then paused;
+    name inside each group (no distance: a private list has no points)."""
+    order = {"available": 0, "waiting": 1, "paused": 2}
+    st = card.get("status", "available")
+    return (order.get(st, 3), card.get("days_left", 0) if st == "waiting" else 0,
+            str(card.get("name") or "").lower(), card.get("id", 0))

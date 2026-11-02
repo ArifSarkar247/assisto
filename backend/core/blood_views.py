@@ -1,7 +1,8 @@
 """
 Blood donor panel HTTP API (owner 2 Nov, "রক্তদাতা প্যানেল"). Flag
 `blood_donors` (OFF; owner / staff / allow-listed testers preview). Prefix
-`blood-panel/` (the older personal registry owns `blood/donors/`).
+`blood-panel/`. ownerfix (3 Nov): the older personal registry (`blood/donors/`)
+is no longer in the app; its rows are "My saved donors" here.
 NEVER flag-gated (privacy): reading my own profile, leaving the panel
 (DELETE /me), switching listing OFF, my threads (read / block).
 
@@ -22,6 +23,8 @@ NEVER flag-gated (privacy): reading my own profile, leaving the panel
   POST /blood-panel/threads/<id>/block               {on}
   POST /blood-panel/threads/<id>/circle              {action: ask|accept|decline}
   GET  /blood-panel/banks
+  GET|POST /blood-panel/saved                        ownerfix: My saved donors (private)
+  POST|DELETE /blood-panel/saved/<id>
 """
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -57,7 +60,7 @@ def _iso(dt):
     return dt.isoformat() if dt else None
 
 
-_STATUS = {"rate_limited": 429, "too_many_requests": 429, "too_many_active": 429,
+_STATUS = {"rate_limited": 429, "too_many": 429, "too_many_requests": 429, "too_many_active": 429,
            "banned": 403, "not_allowed": 403, "not_donor": 403, "blocked": 403,
            "not_found": 404, "already": 409, "already_pending": 409,
            "already_verified": 409, "declined": 409}
@@ -398,3 +401,42 @@ class BanksView(APIView):
         g = request.query_params
         return R(BP.banks(_lang(request), district=g.get("district", ""),
                           q=g.get("q", ""), lat=g.get("lat"), lng=g.get("lng")))
+
+
+# ownerfix (owner 3 Nov): "My saved donors" — the old personal registry's
+# rows, now inside the one panel. PRIVATE to the list's owner. Reading and
+# deleting are never gated (the user's own data); adding / editing follows
+# the panel flag.
+#   GET|POST /blood-panel/saved           list {donors, counts} / create
+#   POST|DELETE /blood-panel/saved/<id>   edit / delete
+class SavedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        rows, counts = BP.saved_list(request.user)
+        return R({"ok": True, "donors": rows, "counts": counts})
+
+    def post(self, request):
+        if not BP.flag_on(request.user):
+            return _off()
+        s, err, fields = BP.save_saved(request.user, _body(request))
+        if err:
+            return _err(err, fields=fields)
+        return R({"ok": True, "donor": BP.saved_json(s)}, status=201)
+
+
+class SavedItemView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if not BP.flag_on(request.user):
+            return _off()
+        s, err, fields = BP.save_saved(request.user, _body(request), pk=pk)
+        if err:
+            return _err(err, fields=fields)
+        return R({"ok": True, "donor": BP.saved_json(s)})
+
+    def delete(self, request, pk):
+        if not BP.delete_saved(request.user, pk):
+            return _err("not_found")
+        return R({"ok": True})

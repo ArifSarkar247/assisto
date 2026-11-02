@@ -7609,6 +7609,31 @@ class BloodEvent(models.Model):
     class Meta:
         ordering = ["-id"]
         indexes = [models.Index(fields=["actor", "kind", "at"], name="core_bloodev_actor_idx")]
+
+
+class BloodSavedDonor(models.Model):
+    """ownerfix (owner 3 Nov): "My saved donors" — the people a user keeps on
+    their OWN private list (relatives, neighbours who give blood). It replaces
+    the old personal registry (PaCollectionItem collection "blood/donors");
+    every old row is copied here once (legacy_item_id, idempotent). PRIVATE:
+    only the owner of the list ever sees these rows; nothing here is public
+    and nothing is pushed to the people listed."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_saved")
+    name = models.CharField(max_length=80)
+    blood_group = models.CharField(max_length=4, blank=True, default="")
+    area_text = models.CharField(max_length=60, blank=True, default="")
+    phone = models.CharField(max_length=20, blank=True, default="")
+    available = models.BooleanField(default=True)                   # False = paused
+    last_donation = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=200, blank=True, default="")
+    legacy_item_id = models.BigIntegerField(null=True, blank=True)  # old PaCollectionItem id
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["id"]
+        constraints = [models.UniqueConstraint(fields=["owner", "legacy_item_id"],
+                                               name="core_bloodsaved_legacy_once")]
 # ---- /blood ----
 # ---- train (owner priority C, 2 Nov): crowdsourced train tracker + chat ----
 class TrainShare(models.Model):

@@ -210,6 +210,8 @@ class PushRouting {
     'school_mode': 'school_mode', // kidswatch: the child (invite / are you OK?)
     'missing_alert': 'missing_alert', // missing: new / tip / found / I am safe / co-sign
     'blood_panel': 'blood_panel', // blood: urgent request / responder / message / eligible again
+    'blood_donor': 'blood_panel', // ownerfix: an old blood-donor link -> the one panel
+    'blood': 'blood_panel', // ownerfix: same
     'kid_audio': 'kid_audio', // kidaudio: consent asked / listen / ended / refused
     'business': 'business',
     'owner': 'analytics',

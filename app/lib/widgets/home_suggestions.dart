@@ -74,11 +74,24 @@ const Set<String> kDiscoverProtectedRoutes = {
   'emergency_hub',
   'voice_sos',
   'blood_panel',
+  'blood_donor', // ownerfix: old-link alias of the same panel
 };
+
+/// ownerfix (owner 3 Nov): the owner's lead cards after SOS — Train tracker,
+/// Live Location, Destination Alarm — keep the owner's order on every phone
+/// (the "opened cards move back" personalisation never moves them).
+const Set<String> kDiscoverLeadRoutes = {'train_tracker', 'journey', 'dest_alarm'};
 
 bool _isAd(DiscoverItem c) => c.isSponsored || c.isAdmob;
 bool discoverProtected(DiscoverItem c) =>
     !_isAd(c) && kDiscoverProtectedRoutes.contains(c.route);
+
+/// May the "opened cards move back" personalisation move this card? Never
+/// SOS / Blood donor (homeorder) nor the owner's lead cards (ownerfix).
+bool discoverMovable(DiscoverItem c) =>
+    c.type == DiscoverItem.feature &&
+    !discoverProtected(c) &&
+    !kDiscoverLeadRoutes.contains(c.route);
 
 /// Owner rule (2 Nov): no Sponsored / ad card directly next to SOS or Blood
 /// donor — the same algorithm as the server's `separate_ads`, re-applied
@@ -119,7 +132,8 @@ List<DiscoverItem> separateDiscoverAds(List<DiscoverItem> cards) {
 }
 
 /// FIRST-RUN fallback only (no cache and no network yet). Mirrors the server
-/// seed (migrations 0049 + 0056 + homeorder: SOS first, Train tracker second)
+/// seed (migrations 0049 + 0056 + homeorder: SOS first, Train tracker second;
+/// 0140_ownerfix: then Live Location, Destination Alarm, Blood donor)
 /// so the first launch looks the same either way.
 const List<DiscoverItem> kDiscoverFallback = [
   DiscoverItem(
@@ -136,6 +150,30 @@ const List<DiscoverItem> kDiscoverFallback = [
       route: 'train_tracker',
       tTitle: _tTrainTitle,
       tDesc: _tTrainBenefit),
+  // ownerfix (owner 2 + 3 Nov, Safe Journey final): Live Location (the Safe
+  // Journey hub) and Destination Alarm right after Train, then Blood donor
+  // (flag-gated cards drop out by themselves while their flag is off).
+  DiscoverItem(
+      key: 'journey',
+      type: DiscoverItem.feature,
+      icon: 'near_me',
+      route: 'journey',
+      tTitle: _tLiveTitle,
+      tDesc: _tLiveBenefit),
+  DiscoverItem(
+      key: 'dest_alarm',
+      type: DiscoverItem.feature,
+      icon: 'alarm',
+      route: 'dest_alarm',
+      tTitle: _tDestTitle,
+      tDesc: _tDestBenefit),
+  DiscoverItem(
+      key: 'blood_donor',
+      type: DiscoverItem.feature,
+      icon: 'bloodtype',
+      route: 'blood_panel',
+      tTitle: _tBloodTitle,
+      tDesc: _tBloodBenefit),
   DiscoverItem(
       key: 'photo_enhance',
       type: DiscoverItem.feature,
@@ -150,13 +188,6 @@ const List<DiscoverItem> kDiscoverFallback = [
       route: 'phone_safety',
       tTitle: _tAntiTheftTitle,
       tDesc: _tAntiTheftBenefit),
-  DiscoverItem(
-      key: 'journey',
-      type: DiscoverItem.feature,
-      icon: 'near_me',
-      route: 'journey',
-      tTitle: _tJourneyTitle,
-      tDesc: _tJourneyBenefit),
   DiscoverItem(
       key: 'messages',
       type: DiscoverItem.feature,
@@ -219,8 +250,12 @@ String _tEnhanceTitle(AppLocalizations t) => t.b2PhotoStudioTitle;
 String _tEnhanceBenefit(AppLocalizations t) => t.discoverEnhanceBenefit;
 String _tAntiTheftTitle(AppLocalizations t) => t.discoverAntiTheftTitle;
 String _tAntiTheftBenefit(AppLocalizations t) => t.discoverAntiTheftBenefit;
-String _tJourneyTitle(AppLocalizations t) => t.discoverJourneyTitle;
-String _tJourneyBenefit(AppLocalizations t) => t.discoverJourneyBenefit;
+String _tLiveTitle(AppLocalizations t) => t.discoverLiveTitle;
+String _tLiveBenefit(AppLocalizations t) => t.discoverLiveBenefit;
+String _tDestTitle(AppLocalizations t) => t.discoverDestTitle;
+String _tDestBenefit(AppLocalizations t) => t.discoverDestBenefit;
+String _tBloodTitle(AppLocalizations t) => t.hv2TileBloodDonor;
+String _tBloodBenefit(AppLocalizations t) => t.discoverBloodBenefit;
 String _tCircleTitle(AppLocalizations t) => t.discoverCircleTitle;
 String _tCircleBenefit(AppLocalizations t) => t.discoverCircleBenefit;
 String _tUsedPhoneTitle(AppLocalizations t) => t.discoverUsedPhoneTitle;
@@ -385,8 +420,7 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     final list = renderableDiscover(_source ?? const []);
     // Feature slots get unopened-first ordering; other slots stay put.
     // homeorder: SOS / Blood donor keep the owner's position (SOS first).
-    bool movable(DiscoverItem c) =>
-        c.type == DiscoverItem.feature && !discoverProtected(c);
+    bool movable(DiscoverItem c) => discoverMovable(c);
     final features = list.where(movable).toList();
     final reordered = [
       ...features.where((c) => !_opened.contains(c.key)),

@@ -224,6 +224,8 @@ const Map<String, String> kRouteFeature = {
   'kids_watch': 'kids_watch',
   'missing_alert': 'missing_alert',
   'blood_panel': 'blood_donors',
+  // ownerfix: old links -> the one panel
+  'blood_donor': 'blood_donors',
   'train_tracker': 'train_tracker',
   'dest_alarm': 'dest_alarm',
   'kid_audio': 'child_emergency_audio',

@@ -12,6 +12,7 @@ import '../../widgets/app_sheet.dart';
 import 'blood_donor_setup_screen.dart';
 import 'blood_request_detail_screen.dart';
 import 'blood_request_form_screen.dart';
+import 'blood_saved_screen.dart'; // ownerfix
 import 'blood_thread_screen.dart';
 import 'blood_threads_screen.dart';
 import 'blood_verify_screen.dart';
@@ -28,6 +29,8 @@ import '../../widgets/local_counter.dart';
 ///     that I can answer ("I can donate");
 ///   * Me — become a donor (separate consent), eligibility + "available
 ///     again on", I donated today, pause, verify, leave.
+/// ownerfix (owner 3 Nov): the ONLY blood donor screen — the Find tab opens
+/// "My saved donors" (the old personal registry's donors, private).
 /// FAB: urgent blood request. App bar: messages, blood banks.
 class BloodHubScreen extends StatefulWidget {
   const BloodHubScreen({super.key, this.initialTab = 0, this.locate});
@@ -60,6 +63,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
   bool _searched = false;
   String? _searchErr;
   List<Map<String, dynamic>> _donors = const [];
+  int? _savedN; // ownerfix: My saved donors (null = not loaded)
 
   Map<String, dynamic> get _me => bpMap(_cfg['me']);
   bool get _isDonor => _me['enabled'] == true;
@@ -95,6 +99,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         if (_group.isEmpty) _group = '${me['blood_group'] ?? ''}';
       });
       if (_district.isNotEmpty || _here != null) unawaited(_search());
+      unawaited(_loadSaved());
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -102,6 +107,20 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         _failed = true;
       });
     }
+  }
+
+  /// ownerfix: the count on the "My saved donors" row (never blocks the hub).
+  Future<void> _loadSaved() async {
+    try {
+      final r = await _api.bpSaved();
+      if (mounted) setState(() => _savedN = bpRows(r, 'donors').length);
+    } catch (_) {/* the row still opens the list (it has its own retry) */}
+  }
+
+  Future<void> _openSaved() async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const BloodSavedScreen()));
+    if (mounted) unawaited(_loadSaved());
   }
 
   Future<void> _reloadRequests() async {
@@ -331,6 +350,22 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       padding: _pad(context),
       children: [
         Text(t.bpFindLead, style: text.bodyMedium),
+        const SizedBox(height: Gap.sm),
+        // ownerfix (owner 3 Nov): the old personal list lives here now.
+        Card(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('bp-saved'),
+            minVerticalPadding: Gap.sm,
+            leading: const Icon(Icons.contacts_rounded),
+            title: Text(t.bsvTitle),
+            subtitle: Text(_savedN == null || _savedN == 0
+                ? t.bsvTileSub
+                : bpD(context, t.bsvCount(_savedN!))),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: _openSaved,
+          ),
+        ),
         const SizedBox(height: Gap.md),
         Text(t.bpGroupPick, style: text.titleSmall),
         const SizedBox(height: Gap.xs),

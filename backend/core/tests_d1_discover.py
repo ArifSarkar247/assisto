@@ -156,17 +156,21 @@ class SeedAndFeedTests(_Base):
         # homeorder (owner 2 Nov): SOS first; Train tracker only while its
         # flag is ON (OFF by default) — see tests_homeorder.py. Later default
         # cards (channels: circle_channels) are not part of the old list.
+        # ownerfix (3 Nov): Live Location (the old Safe Journey card, renamed)
+        # comes right after SOS / Train; Destination Alarm + Blood donor are
+        # flag-gated (OFF by default) — see tests_ownerfix.py.
         later = {"circle_channels"}
         self.assertEqual([c["key"] for c in cards if c["key"] not in later],
-                         ["sos"] + SEED_KEYS)
+                         ["sos", "journey"] + [k for k in SEED_KEYS if k != "journey"])
         asal = next(c for c in cards if c["key"] == "asalify")
         self.assertEqual(asal["url"], "https://asalify.com")
         self.assertEqual(asal["label"], "our_products")
         axon = next(c for c in cards if c["key"] == "axon")
         self.assertEqual(axon["url"], "https://axonerpsoftware.com")
-        self.assertEqual(cards[1]["route"], "photo_enhance")
-        self.assertEqual(cards[1]["title"]["en"], "Photo Studio")  # b2-badges rename (0056)
-        self.assertTrue(cards[1]["title"]["bn"])
+        ph = next(c for c in cards if c["key"] == "photo_enhance")
+        self.assertEqual(ph["route"], "photo_enhance")
+        self.assertEqual(ph["title"]["en"], "Photo Studio")  # b2-badges rename (0056)
+        self.assertTrue(ph["title"]["bn"])
 
     def test_seed_copy_passes_safety(self):
         for c in DiscoverCard.objects.all():
