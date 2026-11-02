@@ -7153,3 +7153,100 @@ class SchoolEvent(models.Model):
         ordering = ["-at"]
         indexes = [models.Index(fields=["plan", "at"], name="core_schoolev_plan_at_idx")]
 # ---- /kidswatch ----
+
+
+# ---- train (owner priority C, 2 Nov): crowdsourced train tracker + chat ----
+class TrainShare(models.Model):
+    """One passenger sharing their location for ONE train on ONE service date
+    ("I am on this train"). Only while sharing; stops on arrival / end / one
+    tap. Purged (with its fixes) after the trip (ends_at)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_shares")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    status = models.CharField(max_length=10, default="active")   # active|ended|arrived
+    started_at = models.DateTimeField(auto_now_add=True)
+    stopped_at = models.DateTimeField(null=True, blank=True)
+    ends_at = models.DateTimeField()            # purge time (after the trip)
+    last_chainage = models.FloatField(null=True, blank=True)
+    last_lat = models.FloatField(null=True, blank=True)
+    last_lng = models.FloatField(null=True, blank=True)
+    last_fix_at = models.DateTimeField(null=True, blank=True)
+    last_speed = models.FloatField(null=True, blank=True)
+    accepted = models.IntegerField(default=0)
+    rejected = models.IntegerField(default=0)
+    reasons = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "status"],
+                                name="core_trainsh_room_idx"),
+                   models.Index(fields=["ends_at"], name="core_trainsh_ends_idx")]
+
+
+class TrainChatMember(models.Model):
+    """A user's nickname in one train+date room. The API shows ONLY the
+    nickname — never the user, phone or profile."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_chat_members")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    nickname = models.CharField(max_length=24)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    ends_at = models.DateTimeField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "train_no", "service_date"],
+                                               name="core_trainchat_member_uniq")]
+        indexes = [models.Index(fields=["ends_at"], name="core_trainmem_ends_idx")]
+
+
+class TrainChatMessage(models.Model):
+    member = models.ForeignKey(TrainChatMember, on_delete=models.CASCADE, related_name="messages")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    text = models.CharField(max_length=520)
+    emergency = models.BooleanField(default=False)
+    hidden = models.BooleanField(default=False)
+    reporters = models.JSONField(default=list, blank=True)
+    at = models.DateTimeField(auto_now_add=True)
+    ends_at = models.DateTimeField()
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "id"],
+                                name="core_trainmsg_room_idx"),
+                   models.Index(fields=["ends_at"], name="core_trainmsg_ends_idx")]
+
+
+class TrainCircleRequest(models.Model):
+    """'Add to My Circle' from the train chat: a REQUEST; the other person
+    decides. Nothing about either person is revealed until they accept."""
+    from_member = models.ForeignKey(TrainChatMember, on_delete=models.CASCADE,
+                                    related_name="circle_sent")
+    to_member = models.ForeignKey(TrainChatMember, on_delete=models.CASCADE,
+                                  related_name="circle_received")
+    state = models.CharField(max_length=10, default="pending")   # pending|accepted|declined
+    created_at = models.DateTimeField(auto_now_add=True)
+    acted_at = models.DateTimeField(null=True, blank=True)
+
+
+class TrainChatBlock(models.Model):
+    """Block from the train chat: the blocker never sees the blocked user's
+    messages or requests again (any train). Kept beyond the trip."""
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_blocks")
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_blocked_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["blocker", "blocked"],
+                                               name="core_trainblock_uniq")]
+
+
+class TrainChatReport(models.Model):
+    """A report keeps a copy of the reported text for moderation only (the
+    room itself is deleted after the trip); purged after 30 days."""
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_reports")
+    reported = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_reported")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    text = models.CharField(max_length=520)
+    reason = models.CharField(max_length=30, default="other")
+    created_at = models.DateTimeField(auto_now_add=True)
+# ---- /train ----
