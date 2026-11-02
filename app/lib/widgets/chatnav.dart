@@ -113,6 +113,7 @@ import '../screens/business/bizagent/seller_agent_screen.dart';
 import '../screens/prepaid_meter_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
 import '../screens/my_dues_screen.dart'; // tagada2
+import '../screens/market/market_screen.dart'; // amarket
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -322,6 +323,8 @@ class ChatNav {
     'remittance': (_) => const RemittanceScreen(),
     // probashi-plan (flag probashi_plan): expat family plan, seats, pool, reports.
     'probashi_plan': (_) => const ProbashiPlanScreen(),
+    // amarket (flag assisto_market): post a need, sealed offers, group-buy, COD deals.
+    'market': (_) => const MarketScreen(),
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),

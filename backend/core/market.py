@@ -899,6 +899,7 @@ def deal_payload(d, viewer, lang):
     shop = (s.business.shop_name if s and s.business_id and s.business else "") if s else ""
     return {
         "id": d.pk, "need_id": d.need_id, "title": d.need.title,
+        "seller_id": d.seller_id,
         "role": "buyer" if me_buyer else "seller",
         "other_name": ((shop or other.name) if me_buyer else other.name or "")[:80],
         "quantity": d.quantity, "unit_label": unit_label(d.need.unit, lang),
