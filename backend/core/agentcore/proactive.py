@@ -97,6 +97,58 @@ BRIEF_DERIVED = ("bill_due", "remit_missing", "stock_low", "order_unpaid",
                  "meter_low", "camera_alert")
 
 
+# flagprep (2 Nov): the automatic morning brief / evening recap reach only
+# BRIEF_ROLLOUT_PCT % of the users the flag is on for, so flipping agent_core
+# never sends a brief to every user on the same morning. Deterministic: the
+# SAME hash as the flag's own rollout (feature_flags.in_rollout on
+# "agent_core:<user id>"), so the brief cohort is always a subset of the
+# flag cohort (flag 10 % + brief 10 % = the same users). Owner / staff and
+# allow-listed testers always get it. Owner Admin -> Agent runs edits it
+# (AdminFlagState key BRIEF_ROLLOUT_KEY). Users outside it still open the
+# brief on demand (GET /api/v1/agent-core/brief); only the automatic one waits.
+BRIEF_ROLLOUT_KEY = "agent_brief_rollout"
+DEFAULT_BRIEF_PCT = 10
+
+
+def brief_rollout_pct():
+    try:
+        from ..models import AdminFlagState
+        row = AdminFlagState.objects.filter(key=BRIEF_ROLLOUT_KEY).first()
+        if row is not None and "pct" in (row.state or {}):
+            return max(0, min(100, int(row.state["pct"])))
+    except Exception:  # noqa: BLE001 — a config problem never stops the tick
+        pass
+    return DEFAULT_BRIEF_PCT
+
+
+def save_brief_rollout(pct, actor=None):
+    """Owner Admin: set the percentage (0..100). Returns (before, after)."""
+    from ..models import AdminFlagState
+    pct = int(pct)
+    if not 0 <= pct <= 100:
+        raise ValueError("pct")
+    before = brief_rollout_pct()
+    row, _ = AdminFlagState.objects.get_or_create(key=BRIEF_ROLLOUT_KEY)
+    row.state = dict(row.state or {}, pct=pct)
+    row.audit = ([{"by": getattr(actor, "pk", None), "at": timezone.now().isoformat(),
+                   "pct": pct, "before": before}] + list(row.audit or []))[:50]
+    row.save(update_fields=["state", "audit", "updated_at"])
+    return before, pct
+
+
+def in_brief_rollout(user, pct=None):
+    pct = brief_rollout_pct() if pct is None else pct
+    try:
+        from .. import feature_flags as FF
+        if FF.is_privileged(user):
+            return True
+        if user.pk in ((FF.rows().get(FLAG) or {}).get("allow_user_ids") or ()):
+            return True
+        return FF.in_rollout(FLAG, user.pk, pct)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 # ------------------------------------------------------------------ helpers
 def _pick(lang, bn, en):
     return bn if lang == "bn" else en
@@ -1059,7 +1111,7 @@ def candidate_users(now):
 def _stats():
     from collections import Counter
     return Counter(users=0, pushed=0, batched=0, card=0, dedupe=0, deferred=0, briefs=0,
-                   briefs_pushed=0, skipped_flag=0)
+                   briefs_pushed=0, skipped_flag=0, brief_rollout_wait=0)
 
 
 def tick(now=None, users=None):
@@ -1069,6 +1121,7 @@ def tick(now=None, users=None):
     stats = _stats()
     users = list(candidate_users(now) if users is None else users)
     routines = None
+    brief_pct = brief_rollout_pct()
     for u in users:
         if not flag_on(u):
             stats["skipped_flag"] += 1
@@ -1083,6 +1136,9 @@ def tick(now=None, users=None):
         cands.sort(key=lambda c: (c.priority, c.trigger))   # urgent first under the cap
         for c in cands:
             deliver(u, prefs, c, now, stats, quiet)
+        if not in_brief_rollout(u, brief_pct):
+            stats["brief_rollout_wait"] += 1
+            continue
         for kind in BRIEFS:
             deliver_brief(u, prefs, kind, now, stats, quiet)
     return dict(stats)

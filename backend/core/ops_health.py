@@ -196,6 +196,8 @@ JOBS = (
     Job("ai_usage_monthly", 31 * DAY, "10 4 1 * *", grace=3 * DAY),
     # cashguard: EZVIZ alarm poll (does nothing until EZVIZ keys + a camera)
     Job("ezviz_poll_alarms", MIN, "* * * * *", via="minute_jobs"),   # owner 2 Nov: no own process
+    # flagprep: Agent Core worker (queued runs / deadlines; flag agent_core)
+    Job("agent_core_run", MIN, "* * * * *", "nice -n10", lock=True, via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -205,7 +207,9 @@ JOB_BY_NAME = {j.name: j for j in JOBS}
 MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("school_mode_tick", {"quiet": True}),
                # owner 2 Nov: returns at once when EZVIZ is off / has no key
-               ("ezviz_poll_alarms", {}))
+               ("ezviz_poll_alarms", {}),
+               # flagprep: LAST, 20 s budget — never delays the safety jobs above
+               ("agent_core_run", {"seconds": 20.0}))
 
 
 MINUTE_JOB_NAMES = tuple(n for n, _ in MINUTE_JOBS)

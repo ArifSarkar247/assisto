@@ -1,0 +1,12 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_train_schedule }}{% endblock %}
+{% block content %}
+<div class="card"><p>{{ T.trs_intro }}</p><p class="mut small">{{ T.trs_how }}</p>
+<p><b>{{ T.trs_done }}: {{ n_checked }} / {{ n }}</b></p></div>
+<form method="post" action="/owner/train-schedule">{% include "owner/_csrf.html" %}
+<div class="card tbl"><table><thead><tr><th>{{ T.trs_checked }}</th><th>{{ T.trs_no }}</th><th>{{ T.trs_name }}</th><th>{{ T.trs_route }}</th><th>{{ T.trs_dep }}</th><th>{{ T.trs_arr }}</th><th>{{ T.trs_off }}</th><th>{{ T.trs_source }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><label><input type="checkbox" name="checked" value="{{ r.no }}" {% if r.checked %}checked{% endif %} {% if r.in_file %}disabled{% endif %}> {{ T.trs_ok }}</label></td>
+<td>{{ r.no }}</td><td>{{ r.name }}</td><td>{{ r.from }} → {{ r.to }}</td><td>{{ r.dep }}</td><td>{{ r.arr }}</td><td>{{ r.off }}</td><td class="mut small">{{ r.note|truncatechars:90 }}</td></tr>{% endfor %}
+</tbody></table></div>
+<p><button class="btn">{{ T.save }}</button></p></form>
+{% endblock %}
