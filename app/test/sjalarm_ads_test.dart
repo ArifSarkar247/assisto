@@ -162,6 +162,12 @@ void main() {
       final banner = find.byKey(const ValueKey('fake-banner'));
       expect(banner, findsOneWidget);
       final bannerTop = t.getRect(find.byType(AdBannerSlot)).top;
+      // the map (and its zoom / attribution controls) lives INSIDE the
+      // scrolling body, whose viewport ends above the banner — clipped there
+      // (checked before scrolling: a lazy list drops rows scrolled away)
+      expect(find.ancestor(of: find.byType(VehMap), matching: find.byType(Scrollable)), findsWidgets);
+      final viewport = t.getRect(find.byType(Scrollable).first);
+      expect(viewport.bottom, lessThanOrEqualTo(bannerTop));
       // scroll so the hotlines sit at the very bottom of the body
       await t.scrollUntilVisible(find.byIcon(Icons.train_rounded), 100,
           scrollable: find.byType(Scrollable).first);
@@ -173,9 +179,6 @@ void main() {
         expect(t.getRect(b.first).bottom, lessThanOrEqualTo(bannerTop),
             reason: 'hotline button overlaps the banner');
       }
-      // the map (and its zoom / attribution controls) lives INSIDE the
-      // scrolling body, whose viewport ends above the banner — clipped there
-      expect(find.ancestor(of: find.byType(VehMap), matching: find.byType(Scrollable)), findsWidgets);
       expect(l.trCall999, isNotEmpty);
       // the body viewport ends where the banner starts (Scaffold layout)
       final body = t.getRect(find.byType(Scrollable).first);
