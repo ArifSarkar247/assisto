@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import '../screens/missing/missing_hub_screen.dart'; // missing
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -467,6 +468,12 @@ class SidebarSections {
           (_) => const KidsWatchScreen(),
           synonyms: ['kids watch', 'gps watch', 'smart watch', 'school mode',
               'child tracker', 'setracker']),
+      // missing (owner 2 Nov): Missing person alert (flag missing_alert OFF).
+      SidebarItem(Icons.person_search_rounded, (t) => t.maTitle,
+          feature: 'missing_alert',
+          (_) => const MissingHubScreen(),
+          synonyms: ['missing', 'missing person', 'missing child', 'lost child',
+              'nikhonj', 'amber alert', 'find person']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),

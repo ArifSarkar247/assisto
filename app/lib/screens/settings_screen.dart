@@ -26,6 +26,7 @@ import 'about_screen.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
 import 'ring_checklist_screen.dart'; // ring-everywhere
+import 'missing/missing_optin_screen.dart'; // missing
 import 'in_progress_screen.dart';
 import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
@@ -377,6 +378,16 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.p2OffersSettingsSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
+          ),
+          // missing: nearby safety alerts opt-in (Missing person alert)
+          if (FeatureFlags.instance.isOn('missing_alert')) // feature-flags
+          ListTile(
+            key: const Key('settings-nearby-alerts'),
+            leading: const Icon(Icons.person_search_rounded),
+            title: Text(t.maOptinTitle),
+            subtitle: Text(t.maOptinSettingsSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const MissingOptinScreen())),
           ),
           if (FeatureFlags.instance.isOn('subscriptions')) // feature-flags
           ListTile(

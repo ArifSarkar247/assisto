@@ -59,6 +59,7 @@ import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/invite_router.dart'; // invite-join
+import 'services/missing_nearby_sync.dart'; // missing
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -476,6 +477,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // the server says protection is armed. Lazy, crash-guarded, throttled,
       // never blocks resume (same fire-and-forget pattern as the alert poll).
       unawaited(SecurityHeartbeat.maybeSend(app.api));
+      // missing: an opted-in user's coarse area while the app is OPEN only
+      // (flag + opt-in + permission already granted; throttled 2 h; never throws).
+      unawaited(MissingNearbySync.maybeSend(app.api));
     }
     _resumeProtection();
   }

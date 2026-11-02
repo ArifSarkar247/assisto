@@ -195,6 +195,7 @@ class PushRouting {
     'business/khata': 'khata', // ledger100: scheduled tagada nudge
     'kids_watch': 'kids_watch', // kidswatch: a parent (arrived / late / voice / alarm)
     'school_mode': 'school_mode', // kidswatch: the child (invite / are you OK?)
+    'missing_alert': 'missing_alert', // missing: new / tip / found / I am safe / co-sign
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
