@@ -541,7 +541,10 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
 
   Widget _followRow(AppLocalizations t) {
     if (_following) {
-      return Row(
+      // channels: Wrap — the two buttons stack at 200% / long Bangla labels
+      return Wrap(
+        spacing: Gap.sm,
+        runSpacing: Gap.sm,
         children: [
           OutlinedButton.icon(
             onPressed: _toggleMute,
@@ -551,7 +554,6 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             label: Text(
                 _channel['my_muted'] == true ? t.channelUnmute : t.channelMute),
           ),
-          const SizedBox(width: Gap.sm),
           OutlinedButton.icon(
             onPressed: _editMyVisibility,
             icon: const Icon(Icons.visibility_rounded),

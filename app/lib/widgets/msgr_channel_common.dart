@@ -160,13 +160,7 @@ class MsgrChannelTile extends StatelessWidget {
         ],
       ),
       subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
-      // channels: a wide trailing (200% text) never squeezes the title
-      trailing: trailing == null
-          ? null
-          : ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.4),
-              child: trailing),
+      trailing: trailing,
     );
   }
 }
@@ -193,16 +187,32 @@ class MsgrFollowButton extends StatelessWidget {
         child: CircularProgressIndicator(strokeWidth: 2),
       );
     }
+    // channels: the BUTTON caps its own width and its one-line label
+    // ellipsizes at 200% text (Bangla labels are long) — no Row to overflow.
+    const cap = BoxConstraints(maxWidth: 132);
     if (following) {
-      return OutlinedButton(
-        onPressed: onPressed,
-        child: Text(t.channelFollowing),
+      return ConstrainedBox(
+        constraints: cap,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+              minimumSize: const Size(48, 48),
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md)),
+          child: Text(t.channelFollowing,
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
       );
     }
-    return FilledButton(
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-      child: Text(t.channelFollow),
+    return ConstrainedBox(
+      constraints: cap,
+      child: FilledButton(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md)),
+        child: Text(t.channelFollow,
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
     );
   }
 }
