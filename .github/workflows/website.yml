@@ -4,7 +4,7 @@
 #  2. Lighthouse CI on the main pages; fails under 95 in performance,
 #     accessibility, best practices or SEO -> artifact website-lighthouse
 #  3. the website Django tests (web.tests_website + legal + tools pages)
-#  4. sitev3: the AFTER server runs with the website v3 go-live switch ON
+#  4. sitev3: the AFTER server runs with the website v3 go-live switch flipped (website_classic OFF)
 #     (only in this throwaway CI database), so Lighthouse (mobile AND desktop,
 #     bn + en, home + a feature page) and the screenshots judge the new site;
 #     owner review shots of the noindex /preview/ (desktop + mobile x bn/en)
@@ -62,8 +62,8 @@ jobs:
             export WEBCI_DB=$RUNNER_TEMP/$side.sqlite3 WEBCI_SITE=http://127.0.0.1:$PORT
             (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
             if [ $side = after ]; then
-              # sitev3: go-live switch ON in this CI-only database
-              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_v3=True); r.save(); print('website_v3 ON')")
+              # sitev3: v3 live in this CI-only database
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False); r.save(); print('website v3 live (classic OFF)')")
             fi
             (cd "$DIR" && nohup python manage.py runserver 127.0.0.1:$PORT --noreload --insecure \
                --settings=assisto_backend.settings_webci > "$RUNNER_TEMP/$side.log" 2>&1 &)

@@ -23,7 +23,7 @@ def website(request):
             ok, payload = V.flip(request.owner.id, value)
             if ok:
                 S.audit(request, request.owner, "flag.flip", "flag:%s" % V.FLAG,
-                        before={V.FLAG: live}, after={V.FLAG: value})
+                        before={V.FLAG: not live}, after={V.FLAG: not value})
                 return done("/owner/website", "saved")
             problems = payload.get("problems") or []
             status = 400

@@ -1,8 +1,8 @@
 """website v3 (owner final website order 3 Nov) — the new lifeassisto.com,
 behind a GO-LIVE switch.
 
-  * Switch: AdminFlagState flag "website_v3" (core.logic.admin_flags),
-    default OFF. Owner Admin → Website (/owner/website): "Go live" / "Roll
+  * Switch: AdminFlagState flag "website_classic" (core.logic.admin_flags),
+    default ON = classic site; v3 is "live" when it is OFF. Owner Admin → Website (/owner/website): "Go live" / "Roll
     back" — one tap each, audited. OFF = the current site (views_site) is
     served unchanged at /, /pricing, /security, /help; ON = v3 there, plus
     /features and /features/<group>.
@@ -26,16 +26,17 @@ from . import site_v3_icons as ICONS
 from . import views_site as OLD
 from .views import _lang, _site
 
-FLAG = "website_v3"
+FLAG = "website_classic"
 PREVIEW = "/preview"
 
 
 def is_live():
-    """The owner's go-live switch (AdminFlagState). Missing row → OFF."""
+    """v3 is live when the owner turned the classic site OFF (AdminFlagState).
+    Missing row / key → classic site."""
     try:
         from core.models import AdminFlagState
         row = AdminFlagState.objects.filter(key="global").first()
-        return bool(row and (row.state or {}).get(FLAG) is True)
+        return bool(row and (row.state or {}).get(FLAG) is False)
     except Exception:  # noqa: BLE001 — DB trouble keeps the current site
         return False
 
@@ -91,6 +92,38 @@ def _shot(name, lang, alt, eager=False):
 V3_WIDTHS = (360, 720)
 
 
+PLACEMENTS = ("hero", "chip_download", "sticky_bar", "footer", "header", "menu")
+HERO_SLIDES = ("chat", "emergency_hub", "wm_alerts", "acct_home")
+
+
+def play_links(lang):
+    """Every Play button opens the Assisto details page directly (never a
+    search), tagged per placement. Android rewrites these to an intent://
+    (market scheme, Play Store package) with this https URL as the browser
+    fallback (base.html script)."""
+    from urllib.parse import quote
+    base = SC.play_url(lang)
+    return {p: base + "&referrer=" + quote("utm_source=website&utm_medium=%s" % p, safe="")
+            for p in PLACEMENTS}
+
+
+def _chips(C, page, group, base, U, groups, play):
+    home = page == "home"
+    gm = {g["id"]: g for g in groups}
+    rows = [("chip_home", "hero", U["home"])]
+    for gid in ("ai", "circle", "safety", "cctv", "business"):
+        rows.append(("chip_" + gid, "g-" + gid, gm[gid]["url"]))
+    rows += [("chip_pricing", "pricing", U["pricing"]), ("chip_download", "download", play["chip_download"])]
+    out = []
+    for key, anchor, url in rows:
+        is_play = key == "chip_download"
+        href = ("#" + anchor) if (home and not is_play) else url
+        on = (not home) and ((page == "group" and key == "chip_" + str(group)) or (page == "pricing" and key == "chip_pricing"))
+        out.append({"label": C[key], "href": href, "spy": anchor if (home and not is_play) else "",
+                    "on": on, "play": is_play})
+    return out
+
+
 def _render(request, page, preview, group=None, status=200):
     redir = OLD._remembered(request)
     if redir:
@@ -124,7 +157,7 @@ def _render(request, page, preview, group=None, status=200):
                      "features": ("সব ফিচার — Assisto" if lang == "bn" else "All features — Assisto")}[page]
             desc = SC.PAGES[page]["desc"][lang] if page != "features" else C["groups_lead"]
     monthly, yearly = OLD._plans(lang) if page in ("home", "pricing") else ([], [])
-    icons = {"arrow", "play", "lock", "check", "shield"} | {g["icon"] for g in groups} | {i for i, *_ in C["what"]}
+    icons = {"arrow", "play", "pause", "lock", "check", "shield", "home", "tag", "message", "globe", "camera"} | {g["icon"] for g in groups} | {i for i, *_ in C["what"]}
     for g in groups:
         icons |= {f["icon"] for f in g["features"]}
     ctx = {
@@ -135,15 +168,17 @@ def _render(request, page, preview, group=None, status=200):
         "og_image": site + OLD.asset_url("og-%s.jpg" % lang), "og_url": en_url if lang == "en" else bn_url,
         "auto_strip": V3.auto_strip(groups), "faq": faq, "trust": SC.trust(lang), "tools": SC.tools(lang),
         "plans": monthly, "plans_yearly": yearly, "cctv_plan": V3.cctv_plan(lang),
-        "play_url": SC.play_url(lang), "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
+        "play_url": SC.play_url(lang), "play": play_links(lang),
+        "slides": [_shot(n, lang, C["shot_alt"] + C["slide_" + n], eager=(i == 0)) for i, n in enumerate(HERO_SLIDES)], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
-        "font_in": {w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
+        "font_in": {"w%d" % w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
         "jsonld": V3.jsonld(lang, site, en_url if lang == "en" else bn_url, page,
                             faq if page in ("home", "help") else None, crumbs),
         "year": 2026,
     }
+    ctx["chips"] = _chips(C, page, group, base, U, groups, ctx["play"])
     if page == "group":
         i = V3.GROUP_IDS.index(group)
         ctx["prev_g"] = groups[i - 1] if i > 0 else None
@@ -210,4 +245,4 @@ def flip(actor_id, value):
     from core.views_build61 import flags_flip
     reason = "website v3 go-live (owner, Owner Admin → Website)" if value else \
         "website v3 rollback to the previous site (owner, Owner Admin → Website)"
-    return flags_flip(actor_id, FLAG, bool(value), reason)
+    return flags_flip(actor_id, FLAG, not bool(value), reason)

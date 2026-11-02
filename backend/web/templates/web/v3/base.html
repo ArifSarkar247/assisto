@@ -12,7 +12,8 @@
 <link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0B1020">
-{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% else %}<link rel="preload" href="{{ font_in.700 }}" as="font" type="font/woff2" crossorigin>{% endif %}
+{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% else %}<link rel="preload" href="{{ font_in.w400 }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ font_in.w700 }}" as="font" type="font/woff2" crossorigin>{% endif %}
 <link rel="icon" href="{% site_asset 'favicon.ico' %}" sizes="48x48">
 <link rel="icon" href="{% site_asset 'favicon.svg' %}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{% site_asset 'apple-touch-icon.png' %}" sizes="180x180">
@@ -38,7 +39,7 @@
 <a class="skip" href="#main">{{ C.skip }}</a>
 {{ sprite }}
 {% if preview %}<div class="pv" role="note">{{ C.preview_banner }}</div>{% endif %}
-<header class="hd">
+<header class="hd" id="top">
   <div class="wrap hd-in">
     <a class="logo" href="{{ U.home }}" aria-label="Assisto"><img src="{% site_asset 'logo-96.webp' %}" width="32" height="32" alt=""><span>Assisto</span></a>
     <nav class="nav" aria-label="{{ C.menu }}">
@@ -47,24 +48,36 @@
         <div class="dd-p">
           {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg><span>{{ g.name }}</span></a>{% endfor %}
           <a class="dd-all" href="{{ U.features }}">{{ C.see_all }} →</a>
-          <span class="dd-m"><a href="{{ U.pricing }}">{{ C.nav_pricing }}</a><a href="{{ U.security }}">{{ C.nav_security }}</a><a href="{{ U.help }}">{{ C.nav_help }}</a></span>
         </div>
       </details>
-      <a class="nl" href="{{ U.pricing }}">{{ C.nav_pricing }}</a>
       <a class="nl" href="{{ U.security }}">{{ C.nav_security }}</a>
       <a class="nl" href="{{ U.help }}">{{ C.nav_help }}</a>
-      <a class="lang" href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}" aria-label="{{ C.lang_label }}">{{ C.lang_name }}</a>
-      <a class="btn sm play-top" href="{{ play_url }}" rel="noopener">{{ C.cta_play }}</a>
+      <a class="btn sm play-top" href="{{ play.header }}" rel="noopener" data-play>{{ C.cta_play }}</a>
     </nav>
+    <a class="lang" href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}" aria-label="{{ C.lang_label }}">{{ C.lang_name }}</a>
+    <details class="mm">
+      <summary class="burger" aria-label="{{ C.menu }}"><span></span><span></span><span></span></summary>
+      <nav class="mm-p" aria-label="{{ C.menu }}">
+        <a href="{{ U.home }}"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg>{{ C.chip_home }}</a>
+        {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg>{{ g.name }}</a>{% endfor %}
+        <a href="{{ U.pricing }}"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg>{{ C.nav_pricing }}</a>
+        <a href="{{ U.security }}"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>{{ C.nav_security }}</a>
+        <a href="{{ U.help }}"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>{{ C.nav_help }}</a>
+        <a href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>{{ C.lang_name }}</a>
+        <a class="btn" href="{{ play.menu }}" rel="noopener" data-play>{{ C.cta_play }}</a>
+      </nav>
+    </details>
   </div>
+  <nav class="chips" aria-label="{{ C.chips_label }}"><div class="chips-in">{% for c in chips %}<a href="{{ c.href }}"{% if c.spy %} data-spy="{{ c.spy }}"{% endif %}{% if c.on %} class="on" aria-current="page"{% endif %}{% if c.play %} rel="noopener" data-play{% endif %}>{{ c.label }}</a>{% endfor %}</div></nav>
 </header>
+
 <main id="main">
 {% block main %}{% endblock %}
-<section class="cta-end">
+<section class="cta-end" id="download">
   <div class="wrap">
     <h2>{{ C.cta_h }}</h2>
     <p>{{ C.cta_p }}</p>
-    <a class="badge" href="{{ play_url }}" rel="noopener"><img src="{{ badge }}" width="200" height="59" alt="{{ C.cta_play }}" loading="lazy" decoding="async"></a>
+    <a class="badge" href="{{ play.footer }}" data-play rel="noopener"><img src="{{ badge }}" width="200" height="77" alt="{{ C.cta_play }}" loading="lazy" decoding="async"></a>
   </div>
 </section>
 </main>
@@ -96,12 +109,32 @@
   </div>
   <div class="wrap ft-bot mut">© {% if lang == 'bn' %}২০২৬{% else %}2026{% endif %} {{ C.footer_company }} · {{ C.footer_made }} · <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></div>
 </footer>
+<div class="pbar"><a class="btn" href="{{ play.sticky_bar }}" rel="noopener" data-play><svg class="i sm" aria-hidden="true"><use href="#i-play"/></svg>{{ C.cta_play }}</a></div>
+<a class="totop" href="#top" aria-label="{{ C.to_top }}"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
 <script>
 (function(){var d=document.documentElement;d.classList.add("js");
-if(!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("rm");return}
+var rm=matchMedia("(prefers-reduced-motion: reduce)").matches,IO="IntersectionObserver" in window;
+if(/Android/i.test(navigator.userAgent))document.querySelectorAll("a[data-play]").forEach(function(a){var u=new URL(a.href);var id=u.searchParams.get("id"),ref=u.searchParams.get("referrer");if(id)a.href="intent://details?id="+id+(ref?"&referrer="+encodeURIComponent(ref):"")+"#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url="+encodeURIComponent(u.href)+";end"});
+document.addEventListener("click",function(e){document.querySelectorAll("details.dd[open]").forEach(function(x){if(!x.contains(e.target))x.removeAttribute("open")});
+ var a=e.target.closest&&e.target.closest(".mm-p a");if(a){var m=document.querySelector("details.mm");if(m)m.removeAttribute("open")}});
+var mm=document.querySelector("details.mm");if(mm)mm.addEventListener("toggle",function(){d.classList.toggle("mm-open",mm.open)});
+var tt=document.querySelector(".totop"),tk=0;addEventListener("scroll",function(){if(tk)return;tk=1;requestAnimationFrame(function(){tk=0;tt.classList.toggle("show",scrollY>700)})},{passive:true});
+var chips=[].slice.call(document.querySelectorAll(".chips a[data-spy]"));
+if(IO&&chips.length){var cur=null,seen={};var so=new IntersectionObserver(function(es){es.forEach(function(e){seen[e.target.id]=e.isIntersecting});
+ var best=null;chips.forEach(function(c){if(seen[c.dataset.spy]&&!best)best=c});
+ if(best&&best!==cur){chips.forEach(function(c){c.classList.toggle("on",c===best)});cur=best;var r=best.parentNode;r.scrollTo({left:best.offsetLeft-r.clientWidth/2+best.clientWidth/2,behavior:rm?"auto":"smooth"})}},{rootMargin:"-40% 0px -55% 0px"});
+ chips.forEach(function(c){var t=document.getElementById(c.dataset.spy);if(t)so.observe(t)})}
+var ph=document.querySelector("[data-rot]");
+if(ph){var im=[].slice.call(ph.querySelectorAll("img")),k=0,tm=null,vis=true,paused=rm,btn=ph.querySelector(".rot-btn");
+ function load(){im.forEach(function(x){if(x.dataset.srcset){x.srcset=x.dataset.srcset;x.src=x.dataset.src;x.removeAttribute("data-srcset")}})}
+ function step(){im[k].classList.remove("on");k=(k+1)%im.length;im[k].classList.add("on")}
+ function run(){clearInterval(tm);tm=null;if(!paused&&vis)tm=setInterval(step,3500)}
+ addEventListener("load",function(){setTimeout(function(){load();run()},600)});
+ if(IO)new IntersectionObserver(function(es){vis=es[0].isIntersecting;run()}).observe(ph);
+ if(btn){btn.setAttribute("aria-pressed",paused?"true":"false");btn.addEventListener("click",function(){paused=!paused;btn.setAttribute("aria-pressed",paused?"true":"false");load();run()})}}
+if(!IO||rm){d.classList.add("rm");return}
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{rootMargin:"0px 0px -8% 0px"});
 document.querySelectorAll(".rv").forEach(function(el){io.observe(el)});
-document.addEventListener("click",function(e){document.querySelectorAll("details.dd[open]").forEach(function(x){if(!x.contains(e.target))x.removeAttribute("open")})});
 })();
 </script>
 </body>

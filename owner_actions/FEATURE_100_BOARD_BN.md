@@ -74,7 +74,7 @@
 | ১৯. বিজনেসের বাড়তি অংশ | ৪ | ৬০.৩ (moneybar; আগে ৫৭.৮) | ~৮ |
 | ২০. আসছে (তৈরি হয়নি) | ৪ | ১৫.২ | ~৪৫ |
 | ২১. Owner Admin (প্রতিটি পাতা) | ২২ | ৬৫.৫ | ~৮.১ |
-| ২২. ওয়েবসাইট (lifeassisto.com) | ৮ | ৬৮.৫ | ~২.৫ |
+| ২২. ওয়েবসাইট (lifeassisto.com) | ৯ | ৬৮.৯ (sitev3 +১ সারি) | ~২.৫ |
 | ২৩. সার্ভারের কাজ (cron, সার্ভিস) | ৬ | ৭১.৭ (moneybar; আগে ৫১.৫) | ~২.৯ |
 
 🚀 = লঞ্চ-জরুরি (মালিকের ক্রম D)। দিনের হিসাব একজন ডেভেলপারের, আনুমানিক; মালিকের চাবি/চুক্তি/হার্ডওয়্যারের অপেক্ষার সময় ধরা হয়নি।
@@ -518,12 +518,13 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | Vitals (Play crash/ANR) | **৬৬** | — | Owner Admin — প্রযোজ্য নয় | backend/web/owner/urls.py /owner/vitals*; web.tests_o2_owner_admin, tests_p2_owner | Play Console Vitals / Crashlytics · — | যাচাই বাকি (not yet benchmarked) |
 | ফিচার সুইচ (৯ শর্ত, Play আলাদা, রোলআউট) | **৭৩** | এই বোর্ডের ১২-শর্ত স্কোর ফিচার পাতায় দেখানো (এখন ৯ শর্ত) | Owner Admin — প্রযোজ্য নয় | backend/web/owner/urls.py /owner/features*; web.tests_o2_owner_admin, tests_p2_owner | Firebase Remote Config + Play Console (ভেতরের টুল) · — | এই বোর্ডের ১২-শর্ত স্কোর (আর সেরা-বিকল্প/ফাঁক) ফিচার-পাতায় নেই — এখন ৯ শর্ত (BEST_IN_CLASS_BN.md Owner Admin ফাঁক ৩) |
 
-## ২২. ওয়েবসাইট (lifeassisto.com) — গড় ৬৮.৫
+## ২২. ওয়েবসাইট (lifeassisto.com) — গড় ৬৮.৯ (sitev3 ৩ Nov: নতুন সারি 'ওয়েবসাইট v3' ৭০; আগে ৬৮.৫ / ৮ সারি)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
 | হোম পাতা ও APK ডাউনলোড (/ , /get) | **৮৮** (website; আগে ৬৮) | লাইভে ডিপ্লয় বাকি; Play লিংক কাজ করবে অ্যাপ প্রকাশের পরে; APK-র sha256 পাতায় নেই | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/views_site.py, site_content.py, tests_website.py; CI website.yml run 41439525492: Lighthouse মোবাইল / ৯৬-১০০-১০০-১০০, en ৯৮-১০০-১০০-১০০; before/after স্ক্রিনশট আর্টিফ্যাক্ট | Life360 ওয়েবসাইট · TallyKhata / bKash ওয়েবসাইট | এক লাইনের বাংলা পরিচয়, Play ব্যাজ, আসল স্ক্রিনশট, নিরাপত্তা পাতা, লাইভ দাম, FAQ, ডার্ক মোড, লোগো-ফেভিকন ও শেয়ার-কার্ড — হয়েছে; বাকি: ডিপ্লয় ও আসল ফোনে মালিকের পরীক্ষা |
 | নিরাপত্তা, দাম, সাহায্য পাতা (/security, /pricing, /help) + ফেভিকন/OG সব পাতায় | **৮৮** (নতুন সারি, website) | ডিপ্লয় বাকি | ওয়েবসাইট — প্রযোজ্য নয় | tests_website.py (প্রতিটি পাতায় শিরোনাম, ফেভিকন, og:image, "watching" নেই); Lighthouse ১০০/১০০/১০০/১০০ | Life360 Trust Center | E2E শুধু চ্যাটে বলা, ভল্ট "ফেরতযোগ্য" — সত্য-তালিকা মেনে; বাকি: ডিপ্লয় |
+| নতুন: ওয়েবসাইট v3 (মালিকের চূড়ান্ত আদেশ ৩ Nov) — হিরো, 'নিজে থেকে' ব্যাজ, ৭ দলের নিজস্ব পাতা, CCTV দাম 'শীঘ্রই', bn/en, লাইভ-সুইচ + প্রিভিউ | **৭০** (sitev3; নতুন) | মালিকের OK বাকি (এখন শুধু /preview/, noindex); ডিপ্লয় বাকি; আসল ফোনে মালিকের দেখা বাকি; কয়েকটি ফিচারের (বাবল, চ্যানেল, দৈনিক ব্রিফ) আলাদা স্ক্রিনশট গ্যালারিতে নেই | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/site_v3.py, views_site3.py, templates/web/v3/; web.tests_site_v3; website.yml (Lighthouse মোবাইল+ডেস্কটপ, website-v3-preview) | Stripe / Linear (এক-অ্যাকসেন্ট, প্রতিটি ফিচারের পাতা) | লাইভ নয়; Lighthouse সংখ্যা STATUS-এ |
 | গোপনীয়তা নীতি (/privacy) | **৬৯** | লুকানো/দেখানো ফিচারের সাথে নীতির অংশ মেলানো (বাজেট-রেমিট্যান্স যোগ হয়েছে); Data safety ফর্মের সাথে এক | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | Life360 ওয়েবসাইট · TallyKhata / bKash ওয়েবসাইট | নীতির অংশ লুকানো/দেখানো ফিচার ও Data safety ফর্মের সাথে মেলানো বাকি (BEST_IN_CLASS_BN.md ওয়েবসাইট ফাঁক ৪) |
 | শর্তাবলি (/terms) | **৬৯** | — | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | রিফান্ড নীতি (/refund-policy) | **৭২** | অ্যাপের ভেতর থেকে লিংক | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |

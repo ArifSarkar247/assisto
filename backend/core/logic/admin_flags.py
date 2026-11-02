@@ -92,10 +92,10 @@ CATALOG = (
     # earn nothing), so flips both ways need a typed reason. OFF = the normal
     # plan gate (video needs Premium or a referral unlock).
     ("calls_free_testing", KIND_COST, "calls", True),
-    # sitev3: website v3 go-live switch. OFF (default) = the current
-    # lifeassisto.com; ON = the new site (web.views_site3). The owner flips it
-    # in Owner Admin → Website; flipping back is the one-tap rollback.
-    ("website_v3", KIND_FEATURE, "ops", False),
+    # sitev3: website go-live switch. ON (default) = the CLASSIC (current)
+    # lifeassisto.com; OFF = the new site v3 (web.views_site3) is live. The
+    # owner flips it in Owner Admin → Website; flipping back = one-tap rollback.
+    ("website_classic", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

@@ -1,18 +1,21 @@
 {% extends "web/v3/base.html" %}
 {% block main %}
-<section class="hero" aria-labelledby="hero-h">
+<section class="hero" id="hero" aria-labelledby="hero-h">
   <div class="wrap hero-in">
     <div>
       <span class="kick"><span class="dot" aria-hidden="true"></span>{{ C.hero_kicker }}</span>
       <h1 id="hero-h">{{ C.hero_h1 }} <span class="g">{{ C.hero_h1_g }}</span></h1>
       <p class="sub">{{ C.hero_sub }}</p>
       <div class="hero-cta">
-        <a class="badge" href="{{ play_url }}" rel="noopener"><img src="{{ badge }}" width="200" height="59" alt="{{ C.cta_play }}" fetchpriority="high"></a>
+        <a class="badge" href="{{ play.hero }}" data-play rel="noopener"><img src="{{ badge }}" width="200" height="77" alt="{{ C.cta_play }}" fetchpriority="high"></a>
         <a class="btn ghost" href="#features">{{ C.cta_features }}<svg class="i sm" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
       <p class="note">{{ C.hero_note }}</p>
     </div>
-    <div class="hero-shot">{% include "web/v3/_shot.html" with s=hero %}</div>
+    <div class="hero-shot"><div class="ph hero-ph" data-rot>
+      {% for sl in slides %}{% if forloop.first %}<img class="on" src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" sizes="(max-width: 760px) 72vw, 300px" width="360" height="800" alt="{{ sl.alt }}" fetchpriority="high">{% else %}<img data-src="{{ sl.w360 }}" data-srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" sizes="(max-width: 760px) 72vw, 300px" width="360" height="800" alt="{{ sl.alt }}" decoding="async">{% endif %}{% endfor %}
+      <button class="rot-btn" type="button" aria-label="{{ C.pause }}" aria-pressed="false"><svg class="i sm" aria-hidden="true"><use href="#i-pause"/></svg></button>
+    </div></div>
   </div>
 </section>
 {% if auto_strip %}
