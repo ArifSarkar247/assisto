@@ -15,14 +15,17 @@ class OnbPermissions extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
 
-    // (icon, title, why). Reuses the SAME reason strings the live prompt uses
-    // (permMic/permLocation/permCamera) so the promise matches the ask.
+    // (icon, title, why).
+    // playall: mic + location rows have their own honest summary (voice
+    // notes and calls ARE sent; Safe Journey / Voice SOS / anti-theft keep
+    // location with the app closed); each feature still shows its own
+    // disclosure right before the Android prompt.
     final rows = <(IconData, String, String)>[
       (Icons.notifications_active_rounded, t.onbPermNotifTitle,
           t.onbPermNotifWhy),
-      (Icons.mic_none_rounded, t.onbPermMicTitle, t.permMic),
+      (Icons.mic_none_rounded, t.onbPermMicTitle, t.onbPermMicWhy2),
       (Icons.photo_camera_rounded, t.onbPermCameraTitle, t.permCamera),
-      (Icons.location_on_rounded, t.onbPermLocationTitle, t.permLocation),
+      (Icons.location_on_rounded, t.onbPermLocationTitle, t.onbPermLocWhy2),
       (Icons.contacts_rounded, t.onbPermContactsTitle, t.onbPermContactsWhy),
     ];
 

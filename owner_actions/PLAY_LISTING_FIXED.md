@@ -1,5 +1,7 @@
 # Play store listing — corrected text (ready to paste)
 
+> **playall (2 Nov):** for the 8 Nov all-features launch use `PLAY_LISTING_8NOV_ALL_BN.md` (every claim verified against the code). Three statements below were wrong and are corrected in place.
+
 Owner order 27 Oct: "store listing must match the app". Audit and reasons: `owner_actions/PLAY_LISTING_AUDIT_BN.md`.
 **Nothing was changed in Play Console or in any flag.** The owner pastes this text himself.
 
@@ -178,15 +180,15 @@ health and fitness are no longer optional: see the "FITNESS AND SELF-CARE" secti
 
 | Line | Flag that must be ON for Play | Extra condition |
 |---|---|---|
-| Phone protection | `anti_theft` | Device-admin declaration accepted by Play. Do **not** write "remote lock" — no remote trigger exists. |
+| Phone protection | `anti_theft` | Device-admin declaration accepted by Play. *(playall ঠিক করা)* Remote lock **exists** (owner or a chosen trusted contact presses Lock from another phone — `RemoteCommands.kt` "lock"), but only after the user turns on device admin; write it with that condition. Never write "wipe". |
 | Business AI Agent | `business_agent` | Business plan product active in Play; page connection works (Meta review). |
 | Shop Box | `cctv_watchman` | — |
 | AI tools | `mock_interview`, `contract_analyzer`, `blog_writer`, `travel_planner`, `language_partner` | Server AI key live (otherwise results are canned). Drop any tool whose flag is off. |
-| Vehicles | `vehicles`, `vehicle_tracking` | The tracker shows a drawn route, not a street map — so never write "map". |
+| Vehicles | `vehicles`, `vehicle_tracking` | *(playall ঠিক করা)* A real street map exists now (`flutter_map`, `lib/vehicle/veh_map.dart`); "map" may be written for vehicle tracking only when a tracker/phone is actually reporting. |
 
 **Add-on lines en-US** (593 chars)
 ```
-• Phone protection: SIM change alert, intruder photo on a wrong unlock, security check-up and used-phone check.
+• Phone protection: SIM change alert, a photo when someone types a wrong Security PIN inside Assisto (only if you turn it on), security check-up and used-phone check. *(playall: no photo on a wrong phone-unlock — wrong unlocks are only counted)*
 • Business AI Agent (Business plan): replies to your customers on your connected page using your own products and prices; you see every conversation and can take over.
 • Shop Box: use an old phone as a shop camera with alerts.
 • AI tools: mock interview, contract checker, blog and post writer, travel planner and language partner (use AI credits).

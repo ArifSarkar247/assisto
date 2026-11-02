@@ -20,6 +20,7 @@ import '../vehicle/vehicle_api.dart';
 import 'camera/camera_screen.dart';
 import 'vehicle_obd_screen.dart';
 import 'voice_assistant_screen.dart';
+import '../widgets/permission_reason.dart';
 
 /// CAR MODE — big-button UI for Android head units (and phones on a mount).
 ///
@@ -189,10 +190,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
           _snack(tr.vehCarGpsOff);
           return;
         }
-        var perm = await Geolocator.checkPermission();
-        if (perm == LocationPermission.denied) {
-          perm = await Geolocator.requestPermission();
-        }
+        final perm = await askLocationWithReason(context);
         if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
           _snack(tr.vehCarGpsDenied);
           return;

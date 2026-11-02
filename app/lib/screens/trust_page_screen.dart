@@ -104,7 +104,7 @@ class TrustPageScreen extends StatelessWidget {
             icon: Icons.lock_rounded,
             tint: good,
             title: t.trustE2eTitle,
-            body: t.trustE2eBody,
+            body: t.trustE2eBody2, // playall: media is E2E now
           ),
           _ClaimTile(
             icon: Icons.smart_toy_rounded,

@@ -345,10 +345,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   Future<Position?> _bestEffortPosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      // playall: never PROMPT for location here (a security check or an
+      // account deletion is not a location feature): use it only when the
+      // user already granted it for another feature.
+      final perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return null;

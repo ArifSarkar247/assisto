@@ -13,6 +13,7 @@ import '../widgets/ramadan_fasting_tracker.dart';
 import '../widgets/ramadan_salami_tracker.dart';
 import '../widgets/ramadan_duas.dart';
 import '../widgets/ramadan_alarms.dart'; // f6
+import '../widgets/permission_reason.dart';
 
 /// Ramadan mode (module-5 "Life"). Benchmarked vs a SAFE subset of Muslim Pro.
 ///
@@ -89,10 +90,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
   Future<Position?> _position() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return null;

@@ -8,8 +8,13 @@ import '../theme.dart';
 ///   [AtDisclosureKind.admin]    device admin (lock the screen, notice wrong
 ///                               unlocks; no erase) — before the system
 ///                               "Activate device admin app?" screen
-///   [AtDisclosureKind.location] location for the always-on protection
-///                               (while-in-use only, never background)
+///   [AtDisclosureKind.location] location for the always-on protection.
+///                               playall: Android grants only while-in-use
+///                               (no ACCESS_BACKGROUND_LOCATION), but the
+///                               engine keeps running with the app closed, so
+///                               Play counts it as background-equivalent: the
+///                               text names "location" + "even when the app
+///                               is closed or not in use" + every feature.
 /// Returns true only on "Continue". "Not now" changes nothing.
 enum AtDisclosureKind { admin, location }
 
@@ -27,7 +32,7 @@ class AtDisclosure {
             : Icons.location_on_outlined),
         title: Text(admin ? tr.at100DiscAdminTitle : tr.at100DiscLocTitle),
         content: SingleChildScrollView(
-          child: Text(admin ? tr.at100DiscAdminBody : tr.at100DiscLocBody,
+          child: Text(admin ? tr.at100DiscAdminBody : tr.at100DiscLocBody2,
               style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(height: 1.4)),
         ),
         actionsPadding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),

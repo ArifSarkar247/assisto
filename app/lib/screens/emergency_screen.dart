@@ -18,6 +18,7 @@ import '../widgets/circle_relation.dart';
 import 'safety_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/permission_reason.dart';
 
 /// ADVANCED Emergency + SOS screen.
 ///
@@ -249,10 +250,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         messenger.showSnackBar(SnackBar(content: Text(t.locationOff)));
         return;
       }
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         messenger.showSnackBar(SnackBar(content: Text(t.locationNeeded)));

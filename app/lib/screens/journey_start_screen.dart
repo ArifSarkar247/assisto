@@ -305,8 +305,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     // foreground service keeps it going with the screen off)
     try {
       var perm = await Geolocator.checkPermission();
+      // playall: the journey's location keeps going with the app closed /
+      // screen off (location foreground service) — so the disclosure says so.
       if (perm == LocationPermission.denied && mounted &&
-          await showPermissionReason(context, PermKind.location)) {
+          await showPermissionReason(context, PermKind.journey)) {
         perm = await Geolocator.requestPermission();
       }
     } catch (_) {

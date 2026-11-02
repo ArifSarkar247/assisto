@@ -14,6 +14,7 @@ import '../widgets/scam_safety_api.dart';
 import '../widgets/journey_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/permission_reason.dart';
 
 /// Safe-arrival / "I've arrived" check-in — ADVANCED (SPEC v2.1 §21).
 ///
@@ -199,10 +200,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
   Future<void> _shareLastLocation() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) return;
       final pos = await Geolocator.getCurrentPosition();
