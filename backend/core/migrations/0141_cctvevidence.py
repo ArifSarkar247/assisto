@@ -14,7 +14,7 @@ import core.logic.cctv_store
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0137_homeorder"),
+        ("core", "0140_cctvalerts"),
     ]
 
     operations = [

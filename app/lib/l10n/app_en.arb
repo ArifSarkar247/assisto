@@ -35145,5 +35145,468 @@
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
   "cxatEvHealth": "Camera problem",
-  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)",
+  "cevTitle": "Recording & evidence",
+  "cevSdTitle": "SD card (24/7 recording)",
+  "cevSdDays": "Holds about {days} days of recording. When full, the oldest is overwritten.",
+  "@cevSdDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cevSdDaysUnknown": "This camera does not report how many days the card holds.",
+  "cevSdChecked": "Checked {time}",
+  "@cevSdChecked": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cevRefresh": "Check again",
+  "cevAddonTitle": "Video add-on",
+  "cevAddonWhat": "Keeps a 10-second clip from the camera's SD card for each person alert — up to 30 per camera per day. This is not 24/7 cloud recording.",
+  "cevAddonActive": "On — clips kept {days} days, paid until {until}",
+  "@cevAddonActive": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "cevAddonOff": "Off — only alert photos are kept ({days} days)",
+  "@cevAddonOff": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cevTierLine": "Keep {days} days — {price} tk a month",
+  "@cevTierLine": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cevTierCredits": "{credits} credits for 30 days",
+  "@cevTierCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "cevBuy": "Get",
+  "cevExtend": "Add a month",
+  "cevBuyConfirmTitle": "Get the video add-on?",
+  "cevBuyConfirmBody": "{credits} credits will be used for this camera for 30 days. Clips are kept {days} days, then deleted automatically.",
+  "@cevBuyConfirmBody": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cevBought": "The video add-on is on.",
+  "cevClipsToday": "Clips today: {n} of {max}",
+  "@cevClipsToday": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "cevClipSupportOk": "This camera can hand over SD-card clips through its maker's official API.",
+  "cevStorageNote": "Photos and clips are stored encrypted. Only you and the people you allow can see them — not Assisto staff.",
+  "cevAddressTitle": "Address for the evidence pack",
+  "cevAddressHint": "Full shop or home address (printed in the police GD)",
+  "cevAddressSave": "Save address",
+  "cevAddressSaved": "Address saved.",
+  "cevEvidenceSub": "Photo, clip, times, address, SHA-256 and a Bangla PDF — in one tap",
+  "cevPrivacyWarn": "This pack holds pictures and video of people. Give it only to the police or your lawyer — do not post it on social media or in groups, and do not accuse anyone.",
+  "cevSdClipPlay": "Watch the 10-second SD clip",
+  "cevSdClipPending": "Fetching the clip from the camera's SD card — within about 2 minutes",
+  "cevSdClipNone": "No clip for this alert — only the photo is kept",
+  "cevPdfTitle": "Evidence pack — alert no. {id}",
+  "@cevPdfTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "cevPdfShop": "Shop / home",
+  "cevPdfAddress": "Address",
+  "cevPdfCamera": "Camera",
+  "cevPdfWhen": "Time",
+  "cevPdfWhat": "What happened",
+  "cevPdfPhoto": "Alert photo",
+  "cevPdfFiles": "Files and their SHA-256 fingerprints",
+  "cevPdfHowCheck": "To check on any computer: sha256sum -c SHA256SUMS.txt (every line must say OK).",
+  "cevPdfLetter": "Draft General Diary (GD)",
+  "cevPdfFooter": "Made on this phone with the Assisto app — {time}",
+  "@cevPdfFooter": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cevSdClipReady": "Kept encrypted until {date}",
+  "@cevSdClipReady": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cevRetentionCap": "Up to {days} days: the base plan keeps photos 7 days; the 30-day video add-on keeps them 30 days.",
+  "@cevRetentionCap": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cevRetentionAddonLink": "See the video add-on",
+  "cescNoAutoPolice": "Assisto does not call the police for you. This opens your phone's dialer with 999 — you press call. Then a ready card with the address, time and camera photo opens to read out or send.",
+  "cescOpenDialer": "Open dialer",
+  "cescCardTitle": "Card for the police",
+  "cescCardSub": "Address, time and photo — read it out on the 999 call or send it",
+  "cescAddressMissing": "No address saved — add the place's address in Guard settings so it is on the card next time.",
+  "cescShareWarn": "This card has a camera photo — send it only to the police or people you trust.",
+  "cescCardShare": "Send card and photo",
+  "cescCopied": "Copied",
+  "cescCardCopy": "Copy the text",
+  "cescFeatSiren": "Siren",
+  "cescFeatLight": "White light",
+  "cescFeatVoice": "Recorded warning",
+  "cescFeatTalk": "Two-way talk",
+  "cescConfirmTitle": "Do it now?",
+  "cescConfirmLight": "The camera's light will switch on — people nearby will see it.",
+  "cescConfirmVoice": "Your warning will play loudly on the camera's speaker — people nearby will hear it.",
+  "cescDoIt": "Yes, do it",
+  "cescLightOn": "The light is on",
+  "cescVoicePlaying": "The warning was sent to the camera",
+  "cescLight": "Switch on the camera's white light",
+  "cescLightSub": "Stays on for {n} seconds, then switches off by itself",
+  "@cescLightSub": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cescVoice": "Bangla warning on the camera speaker",
+  "cescVoiceSub": "Your recorded warning plays on the camera",
+  "cescVoiceNeedClip": "First record a warning in your own voice — tap here",
+  "cescWhatCamCan": "What this camera can do",
+  "cescWhatCamCanSub": "Siren, light, warning, two-way talk — which ones it has",
+  "cescFeatYes": "Available",
+  "cescNotOnCam": "Not on this camera",
+  "cescWarnMicNo": "Recording needs the microphone",
+  "cescWarnSaved": "Warning saved",
+  "cescWarnTitle": "Warning in your own voice",
+  "cescWarnHave": "A recorded warning is saved ({s} seconds)",
+  "@cescWarnHave": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "cescWarnNone": "No warning recorded yet",
+  "cescWarnHow": "Read one of the lines below clearly (at most 20 seconds). You only need to record it once.",
+  "cescWarnStop": "Stop ({s})",
+  "@cescWarnStop": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "cescWarnRecord": "Start recording",
+  "cescWarnRedo": "Record again",
+  "cescWarnListen": "Listen",
+  "cescWarnSave": "Keep it",
+  "cescWarnDelete": "Delete",
+  "cescWarnPrivacy": "The recording is only for playing on this place's cameras — it is not used anywhere else.",
+  "cescDone": "Done",
+  "cesc999Tile": "999 + card for the police",
+  "cesc999TileSub": "Opens the dialer — you press call; makes a card with address, time and photo",
+  "cescCallSwitch": "Then an Assisto call",
+  "cescCallSwitchSub": "If nobody on the list opens it in time, their phones ring like a call (at most 2 rounds)",
+  "cescAddressTitle": "Address for the police card",
+  "cescAddressBody": "Goes on the 999 card with the alert time and photo, so you do not have to remember it in a hurry.",
+  "cescAddressLabel": "Address of this place",
+  "cescAddressHint": "e.g. House 12, Road 3, Mirpur 10, Dhaka",
+  "cescAddressSaved": "Address saved",
+  "cescWarnTile": "Warning in your own voice",
+  "cescWarnTileSub": "Record it once to play on a camera speaker",
+  "cescCallKicker": "CCTV alert — Assisto call",
+  "cescCallWhy": "Nobody has opened this alert yet. Look at the photo and decide.",
+  "cescCallNoPhoto": "No photo — open the alert to see more",
+  "cescCallPhotoLabel": "Camera photo of the alert",
+  "cescCallStopsNote": "When you open it, the calls to the others stop.",
+  "cescCallOpen": "Open the alert",
+  "cescCallLater": "Not now",
+  "cplTitle": "CCTV plan",
+  "cplEntryTitle": "CCTV plan and prices",
+  "cplEntrySub": "Price by camera count · 7-day free trial · video add-on",
+  "cplHowManyCameras": "How many cameras?",
+  "cplHowPriced": "{base} tk a month covers 2 cameras. Each extra camera is {extra} tk a month. Phone cameras count too.",
+  "@cplHowPriced": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "cplCamerasA11y": "{n} cameras",
+  "@cplCamerasA11y": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplMoreThan10": "More than 10",
+  "cplContactBody": "For more than 10 cameras we make a plan together with you. Write to us and we will reply.",
+  "cplContactButton": "Contact us",
+  "cplPerMonth": "{price} tk / month",
+  "@cplPerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPerYear": "{price} tk / year",
+  "@cplPerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplYearlyMath": "12 months × {monthly} tk — no free months, no discount",
+  "@cplYearlyMath": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      }
+    }
+  },
+  "cplOneCameraNote": "1 camera uses the 2-camera base plan — add a second camera any time at no extra cost.",
+  "cplYearly": "Pay once a year",
+  "cplYearlySub": "Exactly 12 × the monthly price",
+  "cplTrialBadge": "7 days free — first time only",
+  "cplTrialOnlyBase": "The free trial is on the base plan (2 cameras, monthly). Start with it, then add cameras any time.",
+  "cplStartTrial": "Start 7 days free",
+  "cplTrialThen": "Then {price}. Cancel in Google Play before day 7 and you pay nothing.",
+  "@cplTrialThen": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplBuy": "Buy — {price}",
+  "@cplBuy": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplChange": "Change to {n} cameras — {price}",
+  "@cplChange": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplChangeNote": "The change starts at once. Google Play credits the unused days of your current plan.",
+  "cplPlayPrice": "Google Play price: {price}",
+  "@cplPlayPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplCurrent": "Your plan now",
+  "cplCurrentLine": "{n} cameras · {period}",
+  "@cplCurrentLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "cplMonthly": "monthly",
+  "cplYearlyWord": "yearly",
+  "cplRenews": "Renews on {date}",
+  "@cplRenews": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplEnds": "Ends on {date}",
+  "@cplEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplInTrial": "Free trial until {date}",
+  "@cplInTrial": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplUsed": "{used} of {n} cameras in use",
+  "@cplUsed": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplOverBy": "{k} more cameras are on than your plan pays for. Raise the count or switch some off.",
+  "@cplOverBy": {
+    "placeholders": {
+      "k": {
+        "type": "String"
+      }
+    }
+  },
+  "cplNoPlan": "No CCTV plan yet",
+  "cplNoPlanBody": "Watch your home or shop from anywhere, get a photo alert when a person comes, and let your family see it too.",
+  "cplCurrentBadge": "This is your plan",
+  "cplManage": "Manage in Google Play",
+  "cplFixPayment": "Fix payment in Google Play",
+  "cplAddonTitle": "Video add-on (per camera)",
+  "cplAddonBody": "Keeps a 10-second SD-card clip of every person alert (up to 30 a day per camera). No 24/7 cloud recording — that stays on the SD card.",
+  "cplAddon7": "Keep 7 days — {price} tk per camera a month",
+  "@cplAddon7": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddon30": "Keep 30 days — {price} tk per camera a month",
+  "@cplAddon30": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonCameras": "Cameras with the add-on",
+  "cplLess": "One less",
+  "cplMore": "One more",
+  "cplAddonTotal": "Add-on total: {price} tk a month",
+  "@cplAddonTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonNeedsPlan": "Buy the CCTV plan first — the add-on works on top of it.",
+  "cplAddonBuy": "Add video — {price}",
+  "@cplAddonBuy": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonActive": "Video add-on on: {days} days on {n} cameras",
+  "@cplAddonActive": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonPick": "Which cameras keep clips",
+  "cplCameraN": "Camera {n}",
+  "@cplCameraN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplUnpaidTitle": "If payment stops",
+  "cplSaleSoon": "Buying opens soon in the Google Play app. The prices above are final.",
+  "cplPlayOnly": "This plan is bought in the Assisto app from Google Play. Install Assisto from Google Play to buy it.",
+  "cplRestore": "Restore my plan",
+  "cplRestored": "{n} purchases restored",
+  "@cplRestored": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplNothingToRestore": "No CCTV purchase found on this Google account.",
+  "cplDone": "Done — your CCTV plan is on.",
+  "cplPending": "Payment is being processed. The plan turns on as soon as Google confirms.",
+  "cplCancelled": "Cancelled — nothing was charged.",
+  "cplUnavailable": "Google Play could not open this plan right now. Please try again later.",
+  "cplFailed": "Something went wrong. Nothing extra was charged. Please try again.",
+  "cplLoadError": "Could not load the plan. Check the internet and try again.",
+  "cplRetry": "Try again",
+  "cplLimitsLine": "Live through our relay: {gb} GB per camera a month (same Wi-Fi and direct P2P are unlimited). AI photo checks: {ai} per camera a month.",
+  "@cplLimitsLine": {
+    "placeholders": {
+      "gb": {
+        "type": "String"
+      },
+      "ai": {
+        "type": "String"
+      }
+    }
+  }
 }
