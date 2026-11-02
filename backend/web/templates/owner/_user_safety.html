@@ -3,7 +3,7 @@
 <div class="tbl"><table><tbody>
 <tr><th>{{ T.as_last_active }}</th><td>{{ u.last_active|date:"Y-m-d H:i"|default:"—" }}{% if as_push_dead %} <span class="pill bad" title="{{ T.as_def_uninstalled }}">{{ T.as_uninstalled }}</span>{% endif %}</td></tr>
 <tr><th>{{ T.as_device }}</th><td>{% if as_device %}{{ as_device.brand|default:"" }} {{ as_device.model|default:"" }}{% if as_device.sdk_int %} · Android SDK {{ as_device.sdk_int }}{% endif %} · {{ as_devices_n }} {{ T.as_devices }}{% else %}—{% endif %}</td></tr>
-<tr><th>{{ T.as_app_version }}</th><td>{{ u.app_version|default:as_device.app_version|default:"—" }}</td></tr>
+<tr><th>{{ T.as_app_version }}</th><td>{% if u.app_version %}{{ u.app_version }}{% elif as_device and as_device.app_version %}{{ as_device.app_version }}{% else %}—{% endif %}</td></tr>
 <tr><th>{{ T.as_language }}</th><td>{{ u.language }}</td></tr>
 <tr><th>{{ T.as_reports_against }}</th><td>{{ as_reports_n }}{% if as_items_open %} · <a href="/owner/channel-reports">{{ T.as_open_items }} {{ as_items_open }}</a>{% endif %}</td></tr>
 </tbody></table></div>
