@@ -320,6 +320,9 @@ urlpatterns = [
     # family100: family alerts over server push (MUST precede router.urls).
     path("family/sos", fam100.FamilySosView.as_view()),
     path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
+    path("family/sos/ladder", fam100.FamilySosLadderView.as_view()),  # sosat
+    path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
+    path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
     path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
     path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),

@@ -73,3 +73,32 @@ class FamilyAlertReceivedView(APIView):
         if not isinstance(ids, list):
             return Response({"detail": "bad_ids"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"ok": True, "updated": FA.mark_received(request.user, ids)})
+
+
+class FamilySosLadderView(APIView):
+    """GET /family/sos/ladder — sosat: my newest SOS / fall alert (30 min):
+    each person's receipt and the honest next step (waiting -> rerung ->
+    call_999 / seen / no_one / resolved). Free on every plan."""
+    def get(self, request):
+        return Response(FA.ladder(request.user))
+
+
+class FallPendingView(APIView):
+    """GET /family/fall/pending — sosat: a fall the server is holding for my
+    "I'm OK" (opened from the "Are you OK?" notification)."""
+    def get(self, request):
+        from . import sos_triggers as ST
+        return Response({"pending": ST.pending_fall(request.user)})
+
+
+class FallOkView(APIView):
+    """POST /family/fall/ok {client_id?} — sosat: "I'm OK" from the app; the
+    held fall is cancelled and nobody is alerted."""
+    def post(self, request):
+        from . import sos_triggers as ST
+        from .models import ProtectedPhone
+        cid = str((request.data or {}).get("client_id") or "")[:64] or None
+        n = 0
+        for phone in ProtectedPhone.objects.filter(owner=request.user):
+            n += ST.cancel_fall(phone, client_id=cid)
+        return Response({"ok": True, "cancelled": n})
