@@ -113,4 +113,77 @@ void registerSafeJourneyFlows() {
       }
     });
   });
+
+  // journey100b: owner idea 1 on the emulator with two real accounts — B asks
+  // to follow A's trip, A accepts in the app (inside the window it starts at
+  // once), B sees it live, A stops with ONE tap from the live screen, B is
+  // told and sees no more location. Push delivery itself needs real phones.
+  realityFlow('16b_guardian_journey', 'Family & safety',
+      'Guardian-requested trip: B asks -> A accepts -> live for B -> A one-tap stop -> B told',
+      (f) async {
+    await f.home();
+    final api = await f.h.backend();
+    final apiB = await f.h.backend(userB: true);
+    final place = 'Reality School ${DateTime.now().millisecondsSinceEpoch % 10000}';
+    await f.net(() async {
+      final a = await api.getJson('/journey/active');
+      if (a['id'] != null) await api.postJson('/journey/${a['id']}/arrived');
+      final out = await apiB.getJson('/journey/requests');
+      for (final r in (out['outgoing'] as List? ?? const [])) {
+        await apiB.postJson('/journey/requests/${r['id']}/cancel');
+      }
+    });
+    late int rid;
+    await f.step('B asks to follow A for the next hour (server)', () async {
+      final r = await f.net(() async {
+        final people = ((await apiB.getJson('/journey/requests'))['people'] as List)
+            .cast<Map>();
+        final a = people.firstWhere((m) => '${m['name']}'.contains('Rahim'),
+            orElse: () => people.isEmpty ? <String, dynamic>{} : people.first);
+        final now = DateTime.now().toUtc();
+        return apiB.postJson('/journey/requests', {
+          'member_id': a['member_id'],
+          'destination': {'name': place, 'lat': 23.7465, 'lng': 90.3760},
+          'start': now.subtract(const Duration(minutes: 2)).toIso8601String(),
+          'end': now.add(const Duration(minutes: 60)).toIso8601String(),
+        });
+      });
+      rid = (r['id'] as num).toInt();
+    });
+    await f.step('A opens the request and accepts -> live screen', () async {
+      await f.openRoute('journey_requests');
+      final accept = find.byKey(ValueKey('gj_accept_$rid'));
+      await f.waitFor(accept, seconds: 15, what: 'incoming request card');
+      await f.shot('request');
+      await f.tester.ensureVisible(accept);
+      await f.tap(accept, settleSeconds: 3);
+      final notNow = find.text(f.t.notNow);
+      if (await f.appears(notNow, seconds: 3)) await f.tap(notNow, settleSeconds: 3);
+      await f.waitFor(find.byType(JourneyLiveScreen), seconds: 20, what: 'live journey screen');
+      await f.shot('live');
+      f.expectHttp('POST', '/journey/requests/$rid/accept');
+    });
+    await f.step('server: request active; B sees it in "outgoing"', () async {
+      await f.eventually('B sees the trip running', () async {
+        final out = (await apiB.getJson('/journey/requests'))['outgoing'] as List;
+        return out.any((r) => r['id'] == rid && r['status'] == 'active');
+      });
+      await f.eventually('A has the active journey', () async =>
+          (await api.getJson('/journey/active'))['id'] != null);
+    });
+    await f.step('A: one-tap stop from the live screen -> B told, nothing live', () async {
+      final stop = find.byKey(const ValueKey('gj_banner_stop'));
+      await f.waitFor(stop, what: 'guardian banner stop');
+      await f.tester.ensureVisible(stop);
+      await f.tap(stop, settleSeconds: 3);
+      await f.shot('stopped');
+      f.expectHttp('POST', '/journey/requests/$rid/stop');
+      await f.eventually('B: request ended by the traveller', () async {
+        final h = (await apiB.getJson('/journey/requests'))['history'] as List;
+        return h.any((r) => r['id'] == rid && r['outcome'] == 'stopped_by_traveller');
+      });
+      await f.eventually('A: no active journey', () async =>
+          (await api.getJson('/journey/active'))['id'] == null);
+    });
+  });
 }
