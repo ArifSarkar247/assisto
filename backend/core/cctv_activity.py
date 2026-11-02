@@ -274,10 +274,11 @@ def _wm_cams_offline(site, cfg, now):
     prev = ((site.guard or {}).get("_state") or {}).get("offline") or {}
     if "g" in prev:
         return True
-    cams = cfg.get("wm_cams") or [c.id for c in _cams(site)]
-    if not cams:
+    rows = [c for c in _cams(site) if not cfg.get("wm_cams") or c.id in cfg["wm_cams"]]
+    if not rows:
         return True
-    return all(("c%d" % c) in prev for c in cams)
+    # a camera that never reported is not "online" either
+    return all(("c%d" % c.id) in prev or c.last_seen is None for c in rows)
 
 
 def run_watchman(site, now):
@@ -314,7 +315,7 @@ def run_watchman(site, now):
         CXV.notice_site(site, "watchman_missing",
                         lambda lang: CB.watchman_text(lang, site.name, hour),
                         quiet=False, severity="med",
-                        data={"hour": hour, "date": date, "route": "watchman/activity"})
+                        data={"hour": hour, "date": date})
     return v
 
 
@@ -340,7 +341,7 @@ def run_brief(site, now):
     def texts(lang):
         return (CB.summary_title(lang, site.name, d_bn), "\n".join(views[lang]["lines"]))
     CXV.notice_site(site, "daily_brief", texts, quiet=False, severity="info",
-                    data={"date": yday, "route": "watchman/activity"})
+                    data={"date": yday})
     return True
 
 
@@ -444,12 +445,18 @@ def describe_one(ev, slug, conf, now):
     from . import vision_providers as VP
     site = ev.site
     month = _local(now).strftime("%Y-%m")
-    if _owner_ai_used(site.owner, month) >= owner_cap(site.owner):
-        return "cap"
-    if not CB.normalize_cfg(act_of(site).get("cfg")).get("ai_desc"):
-        return "off"
-    raw = snapshot_bytes(ev)
     sig = dict(ev.signals or {})
+    stop = None
+    if _owner_ai_used(site.owner, month) >= owner_cap(site.owner):
+        stop = "cap"
+    elif not CB.normalize_cfg(act_of(site).get("cfg")).get("ai_desc"):
+        stop = "off"
+    if stop:
+        # keeps its labelled template text; never retried (no queue starvation)
+        sig["desc_try"] = 3
+        ShopEvent.objects.filter(pk=ev.pk).update(signals=sig)
+        return stop
+    raw = snapshot_bytes(ev)
     if not raw:
         sig["desc_try"] = int(sig.get("desc_try", 0)) + 3
         ShopEvent.objects.filter(pk=ev.pk).update(signals=sig)
@@ -575,8 +582,11 @@ class ActivitySettingsView(_Base):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404, code="not_found")
         allowed = {c.id for c in _cams(site)}
         body = request.data if isinstance(request.data, dict) else {}
-        merged = dict(cfg_of(site), **{k: v for k, v in body.items()
-                                       if k in CB.defaults()})
+        cur = cfg_of(site)
+        # a camera removed since the last save must not block this save
+        for k in ("shop_cams", "wm_cams"):
+            cur[k] = [c for c in cur.get(k) or [] if c in allowed]
+        merged = dict(cur, **{k: v for k, v in body.items() if k in CB.defaults()})
         try:
             clean = CB.normalize_cfg(merged, allowed, strict=True)
         except CB.CfgError as e:

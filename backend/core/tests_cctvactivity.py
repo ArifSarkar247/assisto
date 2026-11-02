@@ -177,6 +177,8 @@ class ActivityApiTests(E2E._Base):
         self.c1 = ShopCamera.objects.get(pk=self.cam["id"])
         self.c2 = ShopCamera.objects.get(pk=self.cam2["id"])
         self.base = "/api/v1/shop/sites/%d" % self.s.id
+        # both cameras have reported (a never-seen camera is "offline")
+        ShopCamera.objects.filter(pk__in=[self.c1.pk, self.c2.pk]).update(last_seen=timezone.now())
 
     def obs(self, cam, etype, when, **sig):
         from core import cctv_activity as A
