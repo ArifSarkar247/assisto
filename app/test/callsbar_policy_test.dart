@@ -61,8 +61,9 @@ void main() {
       expect(p.plan.audioMaxBps, 12000);
     });
 
-    test('a voice minute stays ~120-240 KB (the low-data claim)', () {
-      // 16 kbit/s * 60 s = 120 KB of Opus payload (+ headers); 32 kbit/s = 240
+    test('Opus payload caps per minute: 120 KB low-data vs 240 KB normal', () {
+      // payload only, one direction, while talking (headers + the other
+      // direction come on top; the real number is the owner's phone test)
       expect(CallNetPolicy.audioLowData * 60 / 8 / 1000, 120);
       expect(CallNetPolicy.audioNormal * 60 / 8 / 1000, 240);
     });
@@ -196,6 +197,28 @@ void main() {
           out,
           contains('a=rtpmap:111 opus/48000/2\na=fmtp:111 useinbandfec=1;'
               'usedtx=1;stereo=0;maxaveragebitrate=24000\na=sendrecv'));
+    });
+
+    test('low-data: one a=ptime:60 right after the Opus fmtp, old one gone',
+        () {
+      const withPtime = 'v=0\r\n'
+          'm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n'
+          'a=rtpmap:111 opus/48000/2\r\n'
+          'a=fmtp:111 minptime=10;useinbandfec=1\r\n'
+          'a=ptime:20\r\n'
+          'a=maxptime:120\r\n';
+      final out =
+          tuneOpusSdp(withPtime, maxAverageBitrate: 16000, ptimeMs: 60);
+      expect('a=ptime:'.allMatches(out).length, 1);
+      expect(out, contains('maxaveragebitrate=16000\r\na=ptime:60\r\n'));
+      expect(out, contains('a=maxptime:120'));
+      final plain = tuneOpusSdp(withPtime, maxAverageBitrate: 32000);
+      expect(plain, contains('a=ptime:20'), reason: 'normal mode: untouched');
+    });
+
+    test('plan carries ptime 60 only in low-data', () {
+      expect(CallNetPolicy().plan.opusPtimeMs, isNull);
+      expect(CallNetPolicy(lowData: true).plan.opusPtimeMs, 60);
     });
 
     test('no Opus / garbage -> unchanged (tuning never breaks a call)', () {

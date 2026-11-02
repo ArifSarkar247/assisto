@@ -305,7 +305,9 @@ class WebRtcCallMedia
     if (sdp == null) return d;
     final cap = _plan?.opusMaxAverage ?? CallNetPolicy.audioNormal;
     return RTCSessionDescription(
-        tuneOpusSdp(sdp, maxAverageBitrate: cap), d.type);
+        tuneOpusSdp(sdp,
+            maxAverageBitrate: cap, ptimeMs: _plan?.opusPtimeMs),
+        d.type);
   }
 
   @override

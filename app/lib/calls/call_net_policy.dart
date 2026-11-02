@@ -33,9 +33,16 @@ class MediaPlan {
     required this.videoMaxFps,
     required this.videoScaleDown,
     required this.videoActive,
+    this.opusPtimeMs,
   });
 
   final int audioMaxBps;
+
+  /// Low-data: ask the other phone for 60 ms Opus packets (`a=ptime:60`)
+  /// instead of 20 ms — a third of the packets, so the per-packet header
+  /// cost (IP/UDP/RTP/SRTP ≈ 60 bytes, ~25 kbit/s at 20 ms) drops to ~8
+  /// kbit/s. null = the default 20 ms (lowest delay).
+  final int? opusPtimeMs;
   final int videoMaxBps;
   final int videoMaxFps;
   final double videoScaleDown;
@@ -54,11 +61,12 @@ class MediaPlan {
       o.videoMaxBps == videoMaxBps &&
       o.videoMaxFps == videoMaxFps &&
       o.videoScaleDown == videoScaleDown &&
-      o.videoActive == videoActive;
+      o.videoActive == videoActive &&
+      o.opusPtimeMs == opusPtimeMs;
 
   @override
-  int get hashCode => Object.hash(
-      audioMaxBps, videoMaxBps, videoMaxFps, videoScaleDown, videoActive);
+  int get hashCode => Object.hash(audioMaxBps, videoMaxBps, videoMaxFps,
+      videoScaleDown, videoActive, opusPtimeMs);
 
   @override
   String toString() =>
@@ -157,6 +165,7 @@ class CallNetPolicy {
       videoMaxFps: lowData ? 15 : (fair ? 20 : 24),
       videoScaleDown: lowData ? 2.0 : 1.0,
       videoActive: !videoPaused,
+      opusPtimeMs: lowData ? 60 : null,
     );
   }
 
@@ -263,7 +272,11 @@ class CallNetPolicy {
 /// `maxaveragebitrate=<cap>` (what we ask the OTHER phone to send at). An SDP
 /// without Opus, or without an fmtp line for it, gets one added. Any parse
 /// trouble returns the SDP unchanged — tuning can never break a call.
-String tuneOpusSdp(String sdp, {required int maxAverageBitrate}) {
+///
+/// [ptimeMs] (low-data): every `a=ptime:` line is replaced by ONE
+/// `a=ptime:<ms>` right after the Opus fmtp line (the other phone then sends
+/// fewer, bigger packets).
+String tuneOpusSdp(String sdp, {required int maxAverageBitrate, int? ptimeMs}) {
   try {
     final nl = sdp.contains('\r\n') ? '\r\n' : '\n';
     final lines = sdp.split(nl);
@@ -303,8 +316,10 @@ String tuneOpusSdp(String sdp, {required int maxAverageBitrate}) {
           params[e.key] = e.value;
         }
         out.add('a=fmtp:$pt ${order.map((k) => params[k]!.isEmpty ? k : '$k=${params[k]}').join(';')}');
+        if (ptimeMs != null && seen.length == 1) out.add('a=ptime:$ptimeMs');
         continue;
       }
+      if (ptimeMs != null && l.startsWith('a=ptime:')) continue;
       out.add(l);
     }
     // an Opus payload with no fmtp line: add one right after its rtpmap
@@ -316,6 +331,10 @@ String tuneOpusSdp(String sdp, {required int maxAverageBitrate}) {
         if (m != null && !seen.contains(m.group(1))) {
           fixed.add('a=fmtp:${m.group(1)} '
               '${want.entries.map((e) => '${e.key}=${e.value}').join(';')}');
+          if (ptimeMs != null && seen.isEmpty) {
+            fixed.add('a=ptime:$ptimeMs');
+            seen.add(m.group(1)!);
+          }
         }
       }
       return fixed.join(nl);

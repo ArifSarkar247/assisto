@@ -2,7 +2,7 @@
   "_comment": "callsbar (owner 2 Nov: calls to the launch bar): low-data calls, network & data sheet, audio-only fallback notices, per-call data used, one-tap call rating, honest group-call sheet, missed-call Call back / Message. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_callsbar_arb.json",
   "en": {
     "cbarLowDataTitle": "Low-data calls",
-    "cbarLowDataSub": "Uses less mobile data: clear voice at about 120 KB a minute. Video is smaller. Works for both people on the call.",
+    "cbarLowDataSub": "Uses less mobile data: the voice is sent at a lower rate in fewer, bigger packets, and video is smaller. Works for both people on the call.",
     "cbarLowDataChip": "Low-data call",
     "cbarLowDataByOther": "{name} turned on low data, so this call already uses less data.",
     "@cbarLowDataByOther": {
@@ -86,7 +86,7 @@
   },
   "bn": {
     "cbarLowDataTitle": "কম-ডেটা কল",
-    "cbarLowDataSub": "মোবাইল ডেটা কম খরচ হয়: মিনিটে প্রায় ১২০ KB-তে পরিষ্কার কথা। ভিডিও ছোট হয়। কলের দুজনের জন্যই কাজ করে।",
+    "cbarLowDataSub": "মোবাইল ডেটা কম খরচ হয়: কথা কম হারে, কম কিন্তু বড় প্যাকেটে যায়, আর ভিডিও ছোট হয়। কলের দুজনের জন্যই কাজ করে।",
     "cbarLowDataChip": "কম-ডেটা কল",
     "cbarLowDataByOther": "{name} কম-ডেটা চালু করেছেন, তাই এই কলে এমনিতেই কম ডেটা খরচ হচ্ছে।",
     "cbarNetSheetTitle": "কলের নেট ও ডেটা",
