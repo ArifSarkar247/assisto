@@ -206,7 +206,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     final r = await Navigator.of(context).push<RemitSaved>(
       MaterialPageRoute(
         builder: (_) =>
-            RemitEntryScreen(source: _src, queue: _queue, entry: entry, draft: draft, said: said, members: _members),
+            RemitEntryScreen(source: _src, queue: _queue, entry: entry, draft: draft, said: said, members: _members, now: _now),
       ),
     );
     if (r == null) return;

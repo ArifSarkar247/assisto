@@ -21,6 +21,10 @@ class RemitEntryScreen extends StatefulWidget {
   final RemitDraft? draft;
   final String? said;
   final List<Map<String, dynamic>>? members;
+
+  /// "Today" for the default date: the parent screen's clock (tests and a
+  /// fixed month view pass theirs) — never the device clock behind its back.
+  final DateTime? now;
   const RemitEntryScreen({
     super.key,
     required this.source,
@@ -29,6 +33,7 @@ class RemitEntryScreen extends StatefulWidget {
     this.draft,
     this.said,
     this.members,
+    this.now,
   });
 
   @override
@@ -48,7 +53,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
   String _currency = 'BDT';
   String _channel = 'bkash';
   int? _memberId;
-  DateTime _date = DateTime.now();
+  late DateTime _date = widget.now ?? DateTime.now();
   bool _takaEdited = false;
   bool _busy = false;
   String? _err;
@@ -71,7 +76,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
       _name.text = '${e['sender_name'] ?? ''}';
       _memberId = int.tryParse('${e['sender_member_id'] ?? ''}');
       _note.text = '${e['note'] ?? ''}';
-      _date = DateTime.tryParse('${e['received_on'] ?? ''}') ?? DateTime.now();
+      _date = DateTime.tryParse('${e['received_on'] ?? ''}') ?? (widget.now ?? DateTime.now());
     }
     _members = widget.members ?? const [];
     _rate.addListener(_recalc);
