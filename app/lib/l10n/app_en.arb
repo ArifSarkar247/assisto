@@ -34507,5 +34507,6 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "flagWebsiteV3": "New website (v3) live"
 }

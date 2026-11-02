@@ -20610,5 +20610,6 @@
   "boNoSupplier": "খাতায় এখনো কোনো সাপ্লায়ার নেই। খাতা → সাপ্লায়ার-এ যোগ করে আবার চেষ্টা করুন।",
   "boOpenKhata": "খাতা খুলুন",
   "boOpenWhatsApp": "WhatsApp খুলে পাঠান",
-  "boShareOther": "অন্যভাবে পাঠান"
+  "boShareOther": "অন্যভাবে পাঠান",
+  "flagWebsiteV3": "নতুন ওয়েবসাইট (v3) লাইভ"
 }
