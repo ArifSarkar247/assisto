@@ -196,6 +196,9 @@ class ChatNav {
     'school_mode': (_) => const SchoolModeChildScreen(), // kidswatch: child side, never flag-hidden
     'missing_alert': (_) => const MissingHubScreen(), // missing (flag missing_alert)
     'blood_panel': (_) => const BloodHubScreen(), // blood (flag blood_donors)
+    // ownerfix (owner 3 Nov): ONE blood donor feature — an old link to the
+    // removed personal registry opens the same panel.
+    'blood_donor': (_) => const BloodHubScreen(),
     'kid_audio': (_) => const KidAudioScreen(), // kidaudio (flag child_emergency_audio)
     'emergency': (_) => const EmergencyScreen(),
     // emhub (owner 2 Nov): the one Emergency hub — SOS, 999, nearby help,
@@ -433,6 +436,9 @@ class ChatNav {
     'business_plans': ['business plans', 'business plan', 'free vs premium',
         'upgrade business', 'premium business', 'plan comparison'],
     'journey': ['safe journey', 'journey', 'track me', 'live location'],
+    // ownerfix: chat "blood donor" opens the one Blood donor panel
+    'blood_panel': ['blood donor', 'blood donors', 'need blood', 'urgent blood',
+        'donate blood', 'blood bank', 'rokto dan', 'rokto dorkar'],
     'referral': ['referral', 'refer', 'points', 'invite friend'],
     'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
     'circle_calls': ['call history', 'call log', 'circle calls'],

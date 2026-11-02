@@ -135,7 +135,6 @@ import 'package:assisto/screens/savings_challenge_screen.dart';
 import 'package:assisto/screens/security_checkup_screen.dart';
 import 'package:assisto/screens/farmer_mode_screen.dart';
 import 'package:assisto/screens/trust_page_screen.dart';
-import 'package:assisto/screens/blood_donor_screen.dart';
 import 'package:assisto/screens/prepaid_meter_screen.dart';
 import 'package:assisto/screens/qurbani_screen.dart';
 import 'package:assisto/screens/probashi_screen.dart';
@@ -555,7 +554,6 @@ Map<String, GallerySpec> gallerySpecs() {
     'security': (build: (_) => const SecurityCheckupScreen(), mode: FakeMode.data, full: true),
     'farmer': (build: (_) => const FarmerModeScreen(), mode: FakeMode.data, full: true),
     'trust': (build: (_) => const TrustPageScreen(), mode: FakeMode.data, full: true),
-    'blood': (build: (_) => const BloodDonorScreen(), mode: FakeMode.data, full: true),
     'meter': (build: (_) => const PrepaidMeterScreen(), mode: FakeMode.data, full: true),
     'qurbani': (build: (_) => const QurbaniScreen(), mode: FakeMode.data, full: true),
     'probashi': (build: (_) => const ProbashiScreen(), mode: FakeMode.data, full: true),

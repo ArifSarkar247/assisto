@@ -96,6 +96,13 @@ Map<String, dynamic>? fakeBloodGet(String path, {required bool bn, required bool
     };
   }
   if (p == '/blood-panel/me') return fakeBloodMe(bn: bn, donor: !empty);
+  if (p == '/blood-panel/saved') {
+    final d = empty ? const <Map<String, dynamic>>[] : fakeBloodSaved(bn);
+    return {'ok': true, 'donors': d,
+      'counts': {'total': d.length, 'available': d.where((x) => x['status'] == 'available').length,
+        'soon': d.where((x) => x['status'] == 'waiting').length,
+        'paused': d.where((x) => x['status'] == 'paused').length}};
+  }
   if (p == '/blood-panel/donors') {
     final d = empty ? const <Map<String, dynamic>>[] : fakeBloodDonors(bn);
     return {'ok': true, 'donors': d, 'count': d.length,
@@ -161,3 +168,21 @@ Map<String, dynamic> fakeBloodBanksExample(bool bn) => {
           'km': 214.0, 'km_from_district': true},
       ],
     };
+
+
+/// ownerfix: "My saved donors" (server order: available, waiting by days
+/// left, paused) — one row came from the old personal list.
+List<Map<String, dynamic>> fakeBloodSaved(bool bn) => [
+      {'id': 501, 'name': bn ? 'রহিম চাচা' : 'Rahim uncle', 'blood_group': 'O+',
+        'area_text': bn ? 'মিরপুর ১০' : 'Mirpur 10', 'phone': '01711000501', 'available': true,
+        'last_donation': '2026-05-01', 'note': '', 'from_old_list': true,
+        'status': 'available', 'days_left': 0, 'next_date': '2026-08-29', 'donated_days_ago': 185},
+      {'id': 502, 'name': bn ? 'সুমি আপা' : 'Sumi apa', 'blood_group': 'B+',
+        'area_text': bn ? 'ধানমন্ডি' : 'Dhanmondi', 'phone': '01711000502', 'available': true,
+        'last_donation': '2026-09-20', 'note': '', 'from_old_list': false,
+        'status': 'waiting', 'days_left': 77, 'next_date': '2027-01-18', 'donated_days_ago': 43},
+      {'id': 503, 'name': bn ? 'কামাল' : 'Kamal', 'blood_group': 'A-',
+        'area_text': '', 'phone': null, 'available': false,
+        'last_donation': null, 'note': '', 'from_old_list': true,
+        'status': 'paused', 'days_left': 0, 'next_date': null, 'donated_days_ago': null},
+    ];

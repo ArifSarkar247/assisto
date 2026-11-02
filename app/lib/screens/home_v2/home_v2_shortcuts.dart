@@ -35,6 +35,10 @@ import 'home_v2_tokens.dart';
 ///
 /// The server's `home_quick_defaults` (GET /app/home-defaults) is the OLD
 /// home's six only (flag home_v2 OFF fallback); it never overrides this list.
+/// ownerfix: the screen the home "Emergency SOS" tile opens (same as the
+/// Discover SOS card, `kDiscoverSosRoute`).
+const String kHomeSosRoute = 'emergency_hub';
+
 class HomeV2Shortcuts {
   HomeV2Shortcuts._();
 
@@ -188,9 +192,17 @@ class HomeV2Shortcuts {
       FeatureFlags.instance.homeTileAllowed('remittance') &&
       ChatNav.routes.containsKey('remittance');
 
-  /// Where a tile opens (the Budget tile -> the remittance feature when on).
-  static String openRoute(String route) =>
-      route == 'budget' && remittanceOn ? 'remittance' : route;
+  /// Where a tile opens (the Budget tile -> the remittance feature when on;
+  /// ownerfix (owner 3 Nov, decision of 2 Nov): the "Emergency SOS" tile ->
+  /// the Emergency hub (SOS hold-to-send first, then 999, family card, blood
+  /// donor ...). The saved tile id stays 'emergency' so nobody's home moves.
+  static String openRoute(String route) {
+    if (route == 'budget' && remittanceOn) return 'remittance';
+    if (route == 'emergency' && ChatNav.routes.containsKey(kHomeSosRoute)) {
+      return kHomeSosRoute;
+    }
+    return route;
+  }
 
   static QuickShortcut? byRoute(String r, [List<QuickShortcut>? cat]) {
     for (final s in cat ?? catalog) {

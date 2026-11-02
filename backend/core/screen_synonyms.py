@@ -86,6 +86,10 @@ SCREEN_SYNONYMS = {
                         "business plans", "business plan", "free vs premium",
                         "upgrade business", "premium business", "plan comparison"],
     "journey": ["নিরাপদ যাত্রা", "যাত্রা", "লাইভ লোকেশন", "safe journey", "journey", "track me", "live location"],
+    # ownerfix (owner 3 Nov): ONE blood donor feature — chat opens the panel
+    "blood_panel": ["রক্তদাতা", "রক্ত দাতা", "রক্ত দরকার", "রক্ত লাগবে", "রক্তদান", "রক্ত দান",
+                    "blood donor", "blood donors", "need blood", "urgent blood", "donate blood",
+                    "blood bank", "rokto dan", "rokto dorkar"],
     "referral": ["রেফারেল", "রেফার", "পয়েন্ট", "বন্ধু আমন্ত্রণ", "referral", "refer", "points", "invite friend"],
     "circle_privacy": ["প্রাইভেসি", "কল প্রাইভেসি", "ব্লক", "circle privacy", "privacy controls", "block"],
     "circle_calls": ["কল হিস্ট্রি", "কল লগ", "call history", "call log", "circle calls"],

@@ -236,7 +236,7 @@ void main() {
     });
 
     test('first-run fallback: SOS first, Train second only when ON, +2', () {
-      expect(kDiscoverFallback.length, 12);
+      expect(kDiscoverFallback.length, 14); // ownerfix: + Destination Alarm, Blood donor
       expect(kDiscoverFallback.first.route, kDiscoverSosRoute);
       expect(kDiscoverFallback[1].route, 'train_tracker');
       FeatureFlags.instance.debugOverride = {'train_tracker': false};

@@ -88,7 +88,8 @@ REGISTRY = (
     # blood (owner 2 Nov): Blood donor panel — opt-in donors (separate consent,
     # coarse area), urgent requests pushed to eligible donors nearby, private
     # in-app contact, verified badge. Free forever. OFF until the two-phone test.
-    ('blood_donors', 'family_safety', 'Blood donor panel', 'রক্তদাতা প্যানেল', False, ('blood_panel',)),
+    # ownerfix (3 Nov): the ONE blood donor feature; 'blood_donor' = old-link alias route
+    ('blood_donors', 'family_safety', 'Blood donor panel', 'রক্তদাতা প্যানেল', False, ('blood_panel', 'blood_donor')),
     # train (owner priority C, 2 Nov): crowdsourced live trains + estimate +
     # 16318 SMS + per-train chat; destination alarm (offline geofence). OFF
     # until the owner's real-train two-phone test. Free, no ads.

@@ -101,6 +101,7 @@ const Map<String, IconData> kDiscoverIcons = {
   'emergency': Icons.emergency_rounded,
   'train': Icons.train_rounded,
   'bloodtype': Icons.bloodtype_rounded,
+  'alarm': Icons.alarm_on_rounded, // ownerfix: Destination Alarm
 };
 
 /// One Discover card, from the server or the first-run fallback list.

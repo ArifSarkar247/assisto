@@ -3,7 +3,7 @@ import 'api.dart';
 /// blood (owner 2 Nov) — Blood donor panel. Built only on the generic
 /// getJson / postJsonRaw / deleteJson helpers (no api.dart edit). Server:
 /// backend/core/blood_views.py (prefix `blood-panel/`; the older personal
-/// registry keeps `blood/donors/`). Flag `blood_donors` (OFF). Never gated on
+/// registry's donors are "My saved donors": `blood-panel/saved`). Flag `blood_donors` (OFF). Never gated on
 /// the server: reading my profile, switching listing off, leaving, threads.
 extension BloodPanelApi on ApiClient {
   Future<Map<String, dynamic>> bpConfig() => getJson('/blood-panel/config');
@@ -72,6 +72,22 @@ extension BloodPanelApi on ApiClient {
   Future<Map<String, dynamic>> bpBanks([Map<String, String> q = const {}]) => getJson(q.isEmpty
       ? '/blood-panel/banks'
       : Uri(path: '/blood-panel/banks', queryParameters: q).toString());
+}
+
+/// ownerfix (owner 3 Nov): "My saved donors" — the old personal registry's
+/// donors, now inside the one panel. Private to the user.
+extension BloodSavedApi on ApiClient {
+  Future<Map<String, dynamic>> bpSaved() => getJson('/blood-panel/saved');
+
+  /// Never throws on a 4xx: the body carries {reason, fields?} + `_status`.
+  Future<Map<String, dynamic>> bpSavedCreate(Map<String, dynamic> body) =>
+      postJsonRaw('/blood-panel/saved', body);
+
+  Future<Map<String, dynamic>> bpSavedUpdate(int id, Map<String, dynamic> body) =>
+      postJsonRaw('/blood-panel/saved/$id', body);
+
+  Future<Map<String, dynamic>> bpSavedDelete(int id) =>
+      deleteJson('/blood-panel/saved/$id');
 }
 
 /// Rows of a list field (defensive: anything not a map is skipped).
