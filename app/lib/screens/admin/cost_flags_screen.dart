@@ -118,6 +118,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.c1FlagContactsMatchUnverified;
       case 'calls_free_testing':
         return t.dlFlagCallsFree;
+      case 'website_classic':
+        return t.flagWebsiteClassic;
       default:
         return id;
     }

@@ -1,0 +1,10 @@
+<section class="sec alt" id="security" aria-labelledby="security-h">
+  <div class="wrap">
+    {% if page == 'security' %}<h1 id="security-h" class="h1s">{{ C.security_h }}</h1>{% else %}<span class="eyebrow">{{ C.nav_security }}</span><h2 id="security-h">{{ C.security_h }}</h2>{% endif %}
+    <p class="lead">{{ C.security_lead }}</p>
+    <div class="trust">{% for t in trust.items %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{% cycle 'lock' 'shield' 'lock' 'check' 'shield' 'check' %}"/></svg></div><{% if page == 'security' %}h2{% else %}h3{% endif %}>{{ t.h }}</{% if page == 'security' %}h2{% else %}h3{% endif %}><p>{{ t.b }}</p></article>{% endfor %}</div>
+    {% if full %}<div class="trust">{% for t in trust.more %}<article class="card rv"><{% if page == 'security' %}h2{% else %}h3{% endif %}>{{ t.h }}</{% if page == 'security' %}h2{% else %}h3{% endif %}><p>{{ t.b }}</p></article>{% endfor %}</div>{% endif %}
+    <{% if page == 'security' %}h2{% else %}h3{% endif %} class="sub-h">{{ C.never_h }}</{% if page == 'security' %}h2{% else %}h3{% endif %}>
+    <ul class="never">{% for n in trust.never %}<li>✕ {{ n }}</li>{% endfor %}</ul>
+  </div>
+</section>

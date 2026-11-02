@@ -1,0 +1,6 @@
+<div class="get get-{{ g.place }}">
+  {% if dist.public %}<a class="badge" href="{{ g.play }}" rel="noopener" data-play><img src="{{ badge }}" width="160" height="62" alt="{{ C.cta_play }}"{% if g.place == 'hero' %} fetchpriority="high"{% else %} loading="lazy" decoding="async"{% endif %}></a>{% endif %}
+  <a class="btn install" href="{{ g.install }}"{% if dist.public %} rel="noopener" data-play{% endif %}><svg class="i sm" aria-hidden="true"><use href="#i-play"/></svg>{{ C.install_now }}</a>
+</div>
+{% if g.place != 'sticky_bar' %}{% if not dist.public %}<p class="soon-line">{{ C.play_soon }}</p>{% endif %}
+{% if dist.apk %}<p class="apk"><a href="{{ dist.apk_url }}">{{ C.apk_link }}</a> · {{ C.apk_version }} {{ dist.apk.version }} · {{ dist.apk.size }} · {{ dist.apk.date }}{% if full %}<br><span class="sha">SHA-256: <code>{{ dist.apk.sha256 }}</code></span>{% else %} · SHA-256 <code title="{{ dist.apk.sha256 }}">{{ dist.apk.sha_short }}…</code>{% endif %}</p>{% endif %}{% endif %}

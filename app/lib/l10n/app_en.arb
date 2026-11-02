@@ -35144,5 +35144,6 @@
   "cxatSaveFailed": "Could not save. Check the internet and try again.",
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
-  "cxatEvHealth": "Camera problem"
+  "cxatEvHealth": "Camera problem",
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
 }

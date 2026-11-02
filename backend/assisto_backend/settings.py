@@ -39,6 +39,14 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ASSISTO_BASE_URL)
 # Feature flags
 # Latest-APK metadata file (written by publish-apk.sh); powers /api/v1/app/latest
 APP_LATEST_FILE = os.getenv("APP_LATEST_FILE", str(BASE_DIR.parent / "app_latest.json"))
+# sitev3: the ONE APK the website offers ("Download APK directly"). Empty =
+# the file behind app_latest.json's apk_url (APK_PUBLIC_DIR/<token>/<name>,
+# publish-apk.sh layout). Set WEBSITE_APK_FILE (+ optional public
+# WEBSITE_APK_URL; else Django serves it at /download/apk) to swap in e.g. the
+# Play-signed universal APK. Version/size/date/SHA-256 come from this file.
+APK_PUBLIC_DIR = os.getenv("APK_PUBLIC_DIR", str(BASE_DIR.parent / "apk_public"))
+WEBSITE_APK_FILE = os.getenv("WEBSITE_APK_FILE", "")
+WEBSITE_APK_URL = os.getenv("WEBSITE_APK_URL", "")
 
 SMS_ENABLED = env_bool("SMS_ENABLED", False)            # OTP designed, off until a provider exists
 # AI is ON automatically when a key is present (ANTHROPIC_API_KEY preferred).
