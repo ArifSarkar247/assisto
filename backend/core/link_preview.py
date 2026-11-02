@@ -175,11 +175,12 @@ def safe_fetch(url, max_bytes=MAX_HTML, resolver=None, opener=None, method="GET"
         if 300 <= status < 400 and headers.get("location"):
             cur = urljoin(cur, headers["location"].strip())
             continue
-        if want_body and len(body or b"") > max_bytes:
+        truncated = bool(want_body and len(body or b"") > max_bytes)
+        if truncated:
             body = body[:max_bytes]
         return {"final_url": cur, "status": status,
                 "ctype": (headers.get("content-type") or "").split(";")[0].strip().lower(),
-                "body": body or b"", "hops": hops}
+                "body": body or b"", "hops": hops, "truncated": truncated}
     raise Blocked("too_many_redirects")
 
 
@@ -253,7 +254,7 @@ def build_preview(url, resolver=None, opener=None):
             ir = safe_fetch(meta["image_url"], MAX_IMAGE, resolver, opener)
             if (ir["status"] < 400 and ir["ctype"] in ("image/jpeg", "image/png",
                                                       "image/webp", "image/gif")
-                    and 0 < len(ir["body"]) <= MAX_IMAGE):
+                    and not ir.get("truncated") and 0 < len(ir["body"]) <= MAX_IMAGE):
                 image = "data:%s;base64,%s" % (ir["ctype"],
                                                base64.b64encode(ir["body"]).decode())
         except Exception:  # noqa: BLE001 — a preview without a picture is fine
