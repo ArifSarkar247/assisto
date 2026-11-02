@@ -473,7 +473,9 @@ class CallRuntime with WidgetsBindingObserver {
   }
 
   void _watchSize(CallVideoSurface? s) {
-    final Listenable? src = s is VideoSizeSource ? s.remoteSizeChanges : null;
+    final Object? any = s;
+    final Listenable? src =
+        any is VideoSizeSource ? any.remoteSizeChanges : null;
     if (identical(src, _sizeSrc)) return;
     _sizeSrc?.removeListener(syncPip);
     _sizeSrc = src;
@@ -503,7 +505,8 @@ class CallRuntime with WidgetsBindingObserver {
     try {
       final c = currentCall;
       final s = _currentSurface;
-      final VideoSizeSource? size = s is VideoSizeSource ? s : null;
+      final Object? any = s;
+      final VideoSizeSource? size = any is VideoSizeSource ? any : null;
       final st = c == null
           ? PipState.off
           : pipStateFor(
