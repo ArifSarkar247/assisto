@@ -333,7 +333,11 @@ void main() {
             (e.target is RenderObject && _isDescendant(e.target as RenderObject, target))), isTrue,
             reason: '$key is covered');
       }
-      await check('bp-find-cta');
+      // find tab: before a search "use my location"; after an empty search
+      // (the owner's case) the big "জরুরি রক্তের অনুরোধ" button
+      await check(find.byKey(const ValueKey('bp-nodonor-cta')).evaluate().isNotEmpty
+          ? 'bp-nodonor-cta'
+          : 'bp-find-cta');
       await _tap(t, 'bp-tab-requests');
       await t.pumpAndSettle();
       await check('bp-req-empty-cta');
