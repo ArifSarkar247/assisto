@@ -482,9 +482,12 @@ def cart_add_line(cart, product, variant_key=None, qty=1, price_override=None,
         return (cart, None, R_LINE)
     if variant["stock"] <= 0:
         return (cart, None, R_NO_STOCK)
-    # existing qty for this variant already in the cart (prevent oversell)
-    already = sum(l["qty"] for l in cart["lines"]
-                  if l["variant_key"] == variant["key"])
+    # existing qty for this variant already in the cart (prevent oversell).
+    # bizbar: per (product, variant) — every simple product's key is
+    # "__base__", so keying by the variant alone mixed different products.
+    pid = product.get("id")
+    lk = line_stock_key({"product_id": pid, "variant_key": variant["key"]})
+    already = sum(l["qty"] for l in cart["lines"] if line_stock_key(l) == lk)
     if qty + already > variant["stock"]:
         return (cart, None, R_LOW_STOCK)
     unit_p, ok, reason = _price_for(variant, price_override)
@@ -492,6 +495,7 @@ def cart_add_line(cart, product, variant_key=None, qty=1, price_override=None,
         return (cart, None, reason)
     line = {
         "id": cart["_next_id"],
+        "product_id": pid,
         "product_name": product.get("name", ""),
         "variant_key": variant["key"],
         "size": variant.get("size", ""),
@@ -505,6 +509,14 @@ def cart_add_line(cart, product, variant_key=None, qty=1, price_override=None,
     cart["_next_id"] += 1
     cart["lines"].append(line)
     return (cart, line, R_OK)
+
+
+def line_stock_key(line):
+    """The stock slot a cart line draws from: '<product_id>:<variant_key>'
+    (or the bare variant key for a line without a product id)."""
+    pid = line.get("product_id")
+    vk = line.get("variant_key") or "__base__"
+    return "%s:%s" % (pid, vk) if pid not in (None, "") else vk
 
 
 def cart_remove_line(cart, line_id):
@@ -606,7 +618,7 @@ def checkout(cart, payment_method=PAY_CASH, paid=None, discount=0,
     # stock decrements aggregated per variant key
     dec = defaultdict(int)
     for l in cart["lines"]:
-        dec[l["variant_key"]] += l["qty"]
+        dec[line_stock_key(l)] += l["qty"]
     stock_decrements = [{"variant_key": k, "qty": q} for k, q in dec.items()]
 
     when = now or datetime.utcnow()
@@ -650,6 +662,7 @@ def apply_stock_decrements(variants_by_key, stock_decrements,
         threshold = int(v.get("low_stock_at", low_stock_at))
         out.append({
             "variant_key": k,
+            "qty": int(d["qty"]),
             "new_stock": new_stock,
             "low_stock": new_stock <= threshold,
             "out_of_stock": new_stock <= 0,

@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../widgets/subs_common.dart' show fmtInt; // bizbar
+import '../../messaging/date_separators.dart' show fmtDate; // bizbar
 import '../../theme.dart';
 import '../../api.dart';
 import '../../business_selling_api.dart';
@@ -22,6 +25,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   bool _loading = true;
   Object? _error;
   String _q = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -29,7 +33,14 @@ class _CustomersScreenState extends State<CustomersScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -84,7 +95,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
             ),
             onChanged: (v) {
               _q = v.trim();
-              _load();
+              // bizbar: one request after typing pauses, not one per key
+              _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 350), _load);
             },
           ),
         ),
@@ -126,7 +139,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
         separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
         itemBuilder: (_, i) {
           final c = _items[i];
-          final dues = poishaOf(c['dues'] ?? c['due']);
+          final dues = poishaOf(c['dues_poisha'] ?? c['dues'] ?? c['due']);
           final vip = c['vip'] == true;
           return InkWell(
             onTap: () => _openHistory(c),
@@ -369,7 +382,11 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
   Future<void> _load() async {
     try {
       final phone = (widget.customer['phone'] ?? '').toString();
-      _data = await sellApi(context).customerHistory(phone);
+      // bizbar: no phone = no history key (it called .../customers//history
+      // and showed "load failed"); an empty history is the honest answer
+      _data = phone.trim().isEmpty
+          ? const {'history': [], 'dues_poisha': 0}
+          : await sellApi(context).customerHistory(phone);
     } catch (e) {
       _error = e;
     }
@@ -381,7 +398,8 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final sales = ((_data?['sales'] ?? _data?['history'] ?? []) as List);
-    final dues = poishaOf(_data?['dues'] ?? _data?['due']);
+    final dues = poishaOf(
+        _data?['dues_poisha'] ?? _data?['dues'] ?? _data?['due']);
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.8,
@@ -418,9 +436,9 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.receipt_rounded),
-                title: Text((s['date'] ?? s['created_at'] ?? '').toString()),
+                title: Text(_when(context, s)),
                 subtitle: Text(
-                    '${(s['lines'] as List?)?.length ?? s['items'] ?? 0} · ${(s['payment_method'] ?? '').toString()}'),
+                    '${t.bbItems(fmtInt(context, ((s['lines'] as List?)?.length ?? (s['items'] as num?) ?? 0).toInt()))} · ${_payLabel(t, '${s['payment_method'] ?? ''}')}'),
                 trailing: Text(poishaOf(s['total']).takaIn(context),
                     style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
@@ -429,4 +447,20 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
       ),
     );
   }
+}
+
+/// bizbar: a localized date (was the raw ISO string) + Bangla digits.
+String _when(BuildContext context, Map s) {
+  final raw = '${s['date'] ?? s['created_at'] ?? ''}';
+  final d = DateTime.tryParse(raw)?.toLocal();
+  if (d == null) return raw;
+  return fmtDate('d MMM y, h:mm a', d, Localizations.localeOf(context).languageCode);
+}
+
+/// The payment method's label (was the raw code "cash"/"bkash").
+String _payLabel(AppLocalizations t, String code) {
+  for (final m in paymentMethods(t)) {
+    if (m.code == code) return m.label;
+  }
+  return code;
 }

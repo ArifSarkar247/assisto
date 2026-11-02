@@ -20,7 +20,9 @@ const bool kProductImportPickerWired = false;
 /// redacted from the server and the UI hides those fields (see [SellRole]).
 class ProductsScreen extends StatefulWidget {
   final int? businessId;
-  const ProductsScreen({super.key, this.businessId});
+  /// bizbar: open with only the products at/under their low-stock mark
+  final bool lowOnly;
+  const ProductsScreen({super.key, this.businessId, this.lowOnly = false});
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
 }
@@ -32,6 +34,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String _q = '';
   String? _category;
   SellRole _role = const SellRole('');
+  late bool _lowOnly = widget.lowOnly;
+
+  static bool isLow(Map<String, dynamic> p) =>
+      ((p['stock'] ?? 0) as num) <= ((p['low_stock_at'] ?? 3) as num);
+
+  List<Map<String, dynamic>> get _shown =>
+      _lowOnly ? _items.where(isLow).toList() : _items;
 
   @override
   void initState() {
@@ -132,15 +141,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
             },
           ),
         ),
-        if (_categories.isNotEmpty)
+        if (_categories.isNotEmpty || _items.any(isLow) || _lowOnly)
           SizedBox(
-            height: 42,
+            height: 48,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
               children: [
-                _catChip(t.biz_product_category, null),
-                for (final c in _categories) _catChip(c, c),
+                // bizbar: one tap to what needs re-ordering
+                Padding(
+                  padding: const EdgeInsets.only(right: Gap.sm),
+                  child: FilterChip(
+                    key: const ValueKey('bb-low-chip'),
+                    avatar: Icon(Icons.warning_amber_rounded,
+                        size: 18, color: AssistoTokens.of(context).warning),
+                    label: Text(t.bbLowStockChip(
+                        fmtInt(context, _items.where(isLow).length))),
+                    selected: _lowOnly,
+                    onSelected: (v) => setState(() => _lowOnly = v),
+                  ),
+                ),
+                if (_categories.isNotEmpty) ...[
+                  _catChip(t.biz_product_category, null),
+                  for (final c in _categories) _catChip(c, c),
+                ],
               ],
             ),
           ),
@@ -179,6 +203,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
             label: Text(t.retry)),
       );
     }
+    if (_items.isNotEmpty && _shown.isEmpty) {
+      return StateMessage(
+        icon: Icons.check_circle_outline_rounded,
+        title: t.bbLowStockNone,
+        message: t.bbLowStockHow,
+        action: FilledButton.tonal(
+            onPressed: () => setState(() => _lowOnly = false),
+            child: Text(t.bbShowAllProducts)),
+      );
+    }
     if (_items.isEmpty) {
       return StateMessage(
         icon: Icons.inventory_2_rounded,
@@ -196,12 +230,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.all(Gap.lg),
-        itemCount: _items.length,
+        itemCount: _shown.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) => _ProductTile(
-          product: _items[i],
+          product: _shown[i],
           role: _role,
-          onTap: _role.isStaff ? null : () => _openSheet(_items[i]),
+          onTap: _role.isStaff ? null : () => _openSheet(_shown[i]),
         ),
       ),
     );
@@ -259,7 +293,7 @@ class _ProductTile extends StatelessWidget {
               if (showCost) ...[
                 const SizedBox(height: 6),
                 Text(
-                  '${t.biz_profit}: ${profit.takaIn(context)}  ·  ${t.biz_margin}: ${margin.toStringAsFixed(0)}%',
+                  '${t.biz_profit}: ${profit.takaIn(context)}  ·  ${t.biz_margin}: ${fmtInt(context, margin.round())}%',
                   style: AType.labelMedium.copyWith(color: profit >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600),
                 ),
@@ -305,10 +339,10 @@ class _ProductTile extends StatelessWidget {
           Theme.of(ctx).colorScheme.error.withValues(alpha: 0.15), Theme.of(ctx).colorScheme.error);
     }
     if (stock <= lowAt) {
-      return _tag('${t.biz_low_stock} ($stock)',
+      return _tag('${t.biz_low_stock} (${fmtInt(ctx, stock.toInt())})',
           AssistoTokens.of(ctx).warning.withValues(alpha: 0.18), AssistoTokens.of(ctx).warning);
     }
-    return _tag('${t.biz_stock}: $stock', scheme.surfaceContainerHighest,
+    return _tag('${t.biz_stock}: ${fmtInt(ctx, stock.toInt())}', scheme.surfaceContainerHighest,
         scheme.onSurfaceVariant);
   }
 }

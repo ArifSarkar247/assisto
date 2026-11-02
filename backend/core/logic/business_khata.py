@@ -539,6 +539,137 @@ def reconcile_cashbox(opening_cash, entries, counted_cash, now=None, lang="en"):
 
 
 # ---------------------------------------------------------------------------
+# bizbar — DAILY CASH CLOSE: the one app contract for the cashbox screen.
+# The old screen read `*_display` / `entries` keys the server never sent, so
+# it always showed ৳0 and no rows. This builds exactly what the app reads,
+# and folds in the day's money the shop already recorded elsewhere (POS cash
+# sales, khata dues collected, supplier payments, expenses) so the owner does
+# not type it twice.
+# ---------------------------------------------------------------------------
+
+_AUTO_LINES = (
+    # key,             kind,  bn,                 en
+    ("cash_sales",     "in",  "নগদ বিক্রি (দোকান)", "Cash sales (shop)"),
+    ("dues_collected", "in",  "বাকি আদায় (খাতা)", "Dues collected (khata)"),
+    ("supplier_paid",  "out", "সাপ্লায়ারকে দেওয়া (খাতা)", "Paid to suppliers (khata)"),
+    ("expenses",       "out", "খরচ", "Expenses"),
+)
+
+
+def cashbox_close_view(opening, entries, auto=None, counted=None,
+                       reconciled_at=None, opening_carried=False):
+    """The cashbox screen's whole payload (pure; amounts int poisha).
+
+    opening:  the day's opening cash.
+    entries:  manual drawer rows [{id, kind 'in'|'out', amount, note, ref, at}].
+    auto:     {'cash_sales', 'cash_sales_count', 'dues_collected',
+               'dues_collected_count', 'supplier_paid', 'supplier_paid_count',
+               'expenses', 'expenses_count'} — what the shop already booked
+              today elsewhere. Each becomes a read-only line.
+    counted:  cash counted at close (None = not closed yet). The variance is
+              ALWAYS counted − the CURRENT expected, so a row added after the
+              close shows up honestly instead of a stale "balanced".
+    """
+    auto = auto or {}
+    opening = to_poisha(opening)
+    manual_in = sum(to_poisha(e.get("amount")) for e in entries or []
+                    if e.get("kind") == "in")
+    manual_out = sum(to_poisha(e.get("amount")) for e in entries or []
+                     if e.get("kind") == "out")
+    lines = []
+    auto_in = auto_out = 0
+    for key, kind, bn, en in _AUTO_LINES:
+        amt = max(0, int(auto.get(key) or 0))
+        n = max(0, int(auto.get(key + "_count") or 0))
+        if kind == "in":
+            auto_in += amt
+        else:
+            auto_out += amt
+        # money-in lines always show (a ৳0 "cash sales" is information);
+        # out lines only when something happened.
+        if kind == "in" or amt:
+            lines.append({"key": key, "kind": kind, "label": bn_en(bn, en),
+                          "amount": amt, "amount_display": fmt_amount(amt),
+                          "count": n})
+    total_in = manual_in + auto_in
+    total_out = manual_out + auto_out
+    expected = opening + total_in - total_out
+    rows = []
+    for e in sorted(entries or [], key=lambda r: (str(r.get("at") or ""),
+                                                  r.get("id") or 0), reverse=True):
+        amt = to_poisha(e.get("amount"))
+        rows.append({"id": e.get("id"), "kind": e.get("kind"),
+                     "note": e.get("note") or "", "ref": e.get("ref") or "",
+                     "at": e.get("at"), "amount": amt,
+                     "amount_display": fmt_amount(amt)})
+    out = {
+        "opening_poisha": opening, "opening_display": fmt_amount(opening),
+        "opening_carried": bool(opening_carried),
+        "auto_lines": lines,
+        "manual_in_display": fmt_amount(manual_in),
+        "manual_out_display": fmt_amount(manual_out),
+        "total_in_poisha": total_in, "total_in_display": fmt_amount(total_in),
+        "total_out_poisha": total_out, "total_out_display": fmt_amount(total_out),
+        "expected_poisha": expected, "expected_display": fmt_amount(expected),
+        "entries": rows,
+        "entry_count": len(rows),
+        "reconciled": counted is not None and reconciled_at is not None,
+        "reconciled_at": reconciled_at,
+    }
+    if out["reconciled"]:
+        c = to_poisha(counted)
+        variance = c - expected
+        if variance == 0:
+            status, state = bn_en("মিলে গেছে", "Balanced"), "balanced"
+        elif variance > 0:
+            status = bn_en("বেশি আছে %s" % fmt_amount(variance)["bn"],
+                           "Surplus %s" % fmt_amount(variance)["en"])
+            state = "surplus"
+        else:
+            status = bn_en("কম আছে %s" % fmt_amount(-variance)["bn"],
+                           "Short %s" % fmt_amount(-variance)["en"])
+            state = "shortage"
+        out.update({"counted_poisha": c, "counted_display": fmt_amount(c),
+                    "variance_poisha": variance,
+                    "variance_display": fmt_amount(variance),
+                    "variance_state": state, "variance_status": status})
+    return out
+
+
+def cashbox_share_text(view, day_iso, shop_name="", lang="bn"):
+    """A plain-text day-close summary for the owner's own share tap."""
+    def a(key):
+        return (view.get(key) or fmt_amount(0))[lang if lang in ("bn", "en") else "bn"]
+    day = day_label(day_iso)[lang if lang in ("bn", "en") else "bn"]
+    L = []
+    if lang == "en":
+        L.append("%sCash close — %s" % ((shop_name + " · ") if shop_name else "", day))
+        L.append("Opening: %s" % a("opening_display"))
+    else:
+        L.append("%sদিনের ক্যাশ — %s" % ((shop_name + " · ") if shop_name else "", day))
+        L.append("শুরুর ক্যাশ: %s" % a("opening_display"))
+    k = "en" if lang == "en" else "bn"
+    for ln in view.get("auto_lines") or []:
+        sign = "+" if ln["kind"] == "in" else "−"
+        L.append("%s %s: %s" % (sign, ln["label"][k], ln["amount_display"][k]))
+    if lang == "en":
+        L.append("+ Other cash in: %s" % a("manual_in_display"))
+        L.append("− Other cash out: %s" % a("manual_out_display"))
+        L.append("Should be in the drawer: %s" % a("expected_display"))
+        if view.get("reconciled"):
+            L.append("Counted: %s · %s" % (a("counted_display"),
+                                            view["variance_status"]["en"]))
+    else:
+        L.append("+ অন্য ক্যাশ ঢুকল: %s" % a("manual_in_display"))
+        L.append("− অন্য ক্যাশ বের হলো: %s" % a("manual_out_display"))
+        L.append("ড্রয়ারে থাকার কথা: %s" % a("expected_display"))
+        if view.get("reconciled"):
+            L.append("গোনা হয়েছে: %s · %s" % (a("counted_display"),
+                                              view["variance_status"]["bn"]))
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
 # Per-customer statement PDF DATA model (structured dict — NO PDF here)
 # ---------------------------------------------------------------------------
 

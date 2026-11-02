@@ -341,5 +341,7 @@ class KhataOffline {
   }
 
   static String partiesKey(int bizId, String book) => 'parties:$bizId:$book';
+  /// bizbar: the business list, so the khata shortcut opens offline.
+  static const businessesKey = 'businesses';
   static String statementKey(int partyId) => 'stmt:$partyId';
 }

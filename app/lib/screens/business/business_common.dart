@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme.dart';
 
 /// Shared helpers for the Business v2 screens.
@@ -97,4 +98,43 @@ class BrandBand extends StatelessWidget {
       ),
     );
   }
+}
+
+
+// ---------------------------------------------------------------------------
+// bizbar: the chosen business sticks (the server keeps no "selected" field, so
+// the hub snapped back to the user's own shop after every sub-screen).
+// ---------------------------------------------------------------------------
+const _kBizSelected = 'biz_selected_id_v1';
+
+Future<int?> rememberedBusinessId() async {
+  try {
+    final p = await SharedPreferences.getInstance();
+    return p.getInt(_kBizSelected);
+  } catch (_) {
+    return null; // best-effort: no saved choice -> the server's default
+  }
+}
+
+Future<void> rememberBusinessId(int id) async {
+  try {
+    final p = await SharedPreferences.getInstance();
+    await p.setInt(_kBizSelected, id);
+  } catch (_) {
+    // best-effort: the choice just isn't remembered on this phone
+  }
+}
+
+/// The business to open: the one remembered on this phone if it is still in
+/// [list], else the server's `selected_id`, else the first.
+Map<String, dynamic>? pickBusiness(
+    List<Map<String, dynamic>> list, Object? serverSelected, int? remembered) {
+  if (list.isEmpty) return null;
+  for (final want in [remembered, serverSelected]) {
+    if (want == null) continue;
+    for (final b in list) {
+      if ('${b['id']}' == '$want') return b;
+    }
+  }
+  return list.first;
 }

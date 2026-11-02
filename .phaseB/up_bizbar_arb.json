@@ -1,0 +1,134 @@
+{
+ "en": {
+  "bbCbHowTo": "Morning: set opening cash. Sales and dues collected come in by themselves. Night: count the drawer and tap close.",
+  "@bbCbHowTo": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCarried": "From yesterday's counted cash",
+  "@bbCbCarried": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCount": "{n} entries",
+  "@bbCbCount": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbCbOtherIn": "Other cash in (written by hand)",
+  "@bbCbOtherIn": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbOtherOut": "Other cash out (written by hand)",
+  "@bbCbOtherOut": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbDuesHint": "Dues written in the khata are counted as cash. If someone paid by bKash or Nagad, add it as 'Cash out' so the drawer matches.",
+  "@bbCbDuesHint": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbRecount": "Count again",
+  "@bbCbRecount": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockChip": "Low stock ({n})",
+  "@bbLowStockChip": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowStockNone": "No product is running low",
+  "@bbLowStockNone": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockHow": "A product shows here when its stock reaches its low-stock mark (set it when you edit the product).",
+  "@bbLowStockHow": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbShowAllProducts": "Show all products",
+  "@bbShowAllProducts": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockTitle": "{n} products are running low",
+  "@bbLowStockTitle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowStockSub": "Tap to see them and re-order in time",
+  "@bbLowStockSub": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowAfterSale": "Low stock: {items}",
+  "@bbLowAfterSale": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "items": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowAfterSaleItem": "{name} ({n} left)",
+  "@bbLowAfterSaleItem": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbDueNeedsCustomer": "For a sale on due, write the customer's name or phone — it goes to their khata page.",
+  "@bbDueNeedsCustomer": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPaidEmptyIsExact": "Leave empty if the customer paid the exact amount.",
+  "@bbPaidEmptyIsExact": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbDueWho": "Whose due is this?",
+  "@bbDueWho": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbItems": "{n} items",
+  "@bbItems": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "bbCbHowTo": "সকালে শুরুর ক্যাশ লিখুন। দিনের বিক্রি আর বাকি আদায় নিজে থেকে যোগ হয়। রাতে ড্রয়ার গুনে 'দিন শেষ' চাপুন।",
+  "bbCbCarried": "গতকালের গোনা টাকা থেকে",
+  "bbCbCount": "{n}টি এন্ট্রি",
+  "bbCbOtherIn": "অন্য ক্যাশ ঢুকল (হাতে লেখা)",
+  "bbCbOtherOut": "অন্য ক্যাশ বের হলো (হাতে লেখা)",
+  "bbCbDuesHint": "খাতায় লেখা বাকি আদায় নগদ ধরা হয়েছে। কেউ bKash বা Nagad-এ দিলে সেটা 'ক্যাশ বের' দিয়ে লিখুন, তাহলে ড্রয়ার মিলবে।",
+  "bbCbRecount": "আবার গুনুন",
+  "bbLowStockChip": "স্টক কম ({n})",
+  "bbLowStockNone": "কোনো পণ্যের স্টক কম নেই",
+  "bbLowStockHow": "পণ্যের স্টক তার 'কম-স্টক' সীমায় নামলে এখানে দেখাবে (পণ্য এডিট করে সীমা ঠিক করুন)।",
+  "bbShowAllProducts": "সব পণ্য দেখুন",
+  "bbLowStockTitle": "{n}টি পণ্যের স্টক কম",
+  "bbLowStockSub": "দেখে সময়মতো মাল আনুন",
+  "bbLowAfterSale": "স্টক কম: {items}",
+  "bbLowAfterSaleItem": "{name} ({n}টি বাকি)",
+  "bbDueNeedsCustomer": "বাকিতে বিক্রিতে গ্রাহকের নাম বা ফোন লিখুন — বাকিটা তাঁর খাতার পাতায় যাবে।",
+  "bbPaidEmptyIsExact": "ঠিক যত দাম তত টাকা পেলে ঘরটা খালি রাখুন।",
+  "bbDueWho": "কার বাকি?",
+  "bbItems": "{n}টি পণ্য"
+ }
+}

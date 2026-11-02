@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/subs_common.dart' show fmtInt; // bizbar
 import '../../plans_v2/plans_v2.dart';
 import '../../plans_v2/upgrade_sheet.dart';
 import 'package:share_plus/share_plus.dart';
@@ -224,7 +225,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
         const SizedBox(height: Gap.sm),
         for (final m in methods)
           if (map.containsKey(m.code))
-            MoneyRow(m.label, poishaOf(map[m.code])),
+            // bizbar: the server sends {total, count, paid, due} per method
+            MoneyRow(
+                m.label,
+                poishaOf(map[m.code] is Map
+                    ? (map[m.code] as Map)['total']
+                    : map[m.code])),
       ]),
     );
   }
@@ -244,7 +250,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _topRow(ColorScheme scheme, IconData icon, Map m, int rank) {
     final name = (m['name'] ?? m['product_name'] ?? m['customer'] ?? '').toString();
-    final amount = poishaOf(m['total'] ?? m['sales'] ?? m['amount']);
+    final amount = poishaOf(
+        m['revenue'] ?? m['spent'] ?? m['total'] ?? m['sales'] ?? m['amount']);
     final count = m['qty'] ?? m['count'];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -252,7 +259,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         CircleAvatar(
           radius: 13,
           backgroundColor: scheme.surfaceContainerHighest,
-          child: Text('$rank',
+          child: Text(fmtInt(context, rank),
               style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
         const SizedBox(width: Gap.md),
@@ -263,7 +270,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         if (count != null)
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),
-            child: Text('x$count',
+            child: Text('×${fmtInt(context, (count as num).toInt())}',
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         Text(amount.takaIn(context),

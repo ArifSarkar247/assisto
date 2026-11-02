@@ -10,11 +10,21 @@ import '../../widgets/skeleton.dart';
 import 'business_common.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 import '../../widgets/app_sheet.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../messaging/date_separators.dart' show localDigits;
+import '../../services/action_feedback.dart' show showActionFailed, showNeedInput;
 
 /// Cashbox (plan §2): one business day's drawer — opening cash, cash in/out
 /// entries, and end-of-day reconciliation (expected vs counted + variance).
 /// Allowed for staff (no cost/profit exposure). Defaults to today; the owner
 /// can step to earlier days.
+///
+/// bizbar: rebuilt on the server's real contract (khata.cashbox_close_view) —
+/// the old screen read keys the server never sent and always showed ৳0. The
+/// day's POS cash sales, khata dues collected, supplier payments and expenses
+/// now arrive as read-only lines; the opening carries yesterday's counted
+/// cash; a failed tap says so (it used to vanish silently); the close can be
+/// re-counted and shared.
 class CashboxScreen extends StatefulWidget {
   final Map<String, dynamic> business;
   const CashboxScreen({super.key, required this.business});
@@ -71,8 +81,8 @@ class _CashboxScreenState extends State<CashboxScreen> {
           .api
           .cashboxSetOpening(businessId: _bizId, day: _dayKey, openingPoisha: poisha);
       if (mounted) setState(() {});
-    } catch (_) {
-      if (mounted) _load();
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'cashbox.opening', e);
     }
   }
 
@@ -95,8 +105,8 @@ class _CashboxScreenState extends State<CashboxScreen> {
             note: res.$2,
           );
       if (mounted) setState(() {});
-    } catch (_) {
-      if (mounted) _load();
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'cashbox.entry', e);
     }
   }
 
@@ -110,8 +120,18 @@ class _CashboxScreenState extends State<CashboxScreen> {
           .api
           .cashboxReconcile(businessId: _bizId, day: _dayKey, countedPoisha: poisha);
       if (mounted) setState(() {});
-    } catch (_) {
-      if (mounted) _load();
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'cashbox.reconcile', e);
+    }
+  }
+
+  Future<void> _share() async {
+    final text = '${(_summary ?? const {})['share_text'] ?? ''}';
+    if (text.isEmpty) return;
+    try {
+      await Share.share(text);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'cashbox.share', e, open: true);
     }
   }
 
@@ -121,10 +141,27 @@ class _CashboxScreenState extends State<CashboxScreen> {
     final scheme = Theme.of(context).colorScheme;
     final s = _summary ?? const {};
     final reconciled = s['reconciled'] == true;
+    final lang = Localizations.localeOf(context).languageCode;
+    final zero = lang == 'bn' ? '৳০' : '৳0';
+    final autoLines = ((s['auto_lines'] ?? const []) as List)
+        .whereType<Map>()
+        .map((m) => m.cast<String, dynamic>())
+        .toList();
+    final duesCollected = autoLines.any((l) =>
+        l['key'] == 'dues_collected' && ((l['amount'] as num?) ?? 0) > 0);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.cashboxTitle),
+        actions: [
+          if (!_loading && !_error)
+            IconButton(
+              key: const ValueKey('bb-cb-share'),
+              tooltip: t.share,
+              icon: const Icon(Icons.share_rounded),
+              onPressed: _share,
+            ),
+        ],
       ),
       body: _loading
           ? const SkeletonList()
@@ -139,7 +176,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.all(Gap.lg),
+                    padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
                     children: [
                       // Day stepper.
                       Row(children: [
@@ -171,73 +208,111 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               const SizedBox(height: Gap.xxs),
                               Text(
                                   pair(context, s['expected_display'],
-                                      fallback: '৳0'),
+                                      fallback: zero),
+                                  key: const ValueKey('bb-cb-expected'),
                                   style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w700)),
+                              const SizedBox(height: Gap.xs),
+                              Text(t.bbCbHowTo, style: AType.bodySmall),
                             ]),
                       ),
                       const SizedBox(height: Gap.lg),
 
-                      // Breakdown.
+                      // Breakdown: opening + what the shop already booked
+                      // today (read-only) + hand-written rows.
                       Card(
                         child: Column(children: [
                           _Line(
                               label: t.cashboxOpening,
+                              sub: s['opening_carried'] == true
+                                  ? t.bbCbCarried
+                                  : null,
                               value: pair(context, s['opening_display'],
-                                  fallback: '৳0'),
+                                  fallback: zero),
                               trailing: TextButton(
-                                  onPressed: reconciled ? null : _setOpening,
+                                  onPressed: _setOpening,
                                   child: Text(t.edit))),
+                          for (final ln in autoLines) ...[
+                            const Divider(height: 1),
+                            _Line(
+                                label: pair(context, ln['label']),
+                                sub: ((ln['count'] as num?) ?? 0) > 0
+                                    ? t.bbCbCount(localDigits(
+                                        '${ln['count']}', lang))
+                                    : null,
+                                sign: ln['kind'] == 'in' ? '+' : '−',
+                                value: pair(context, ln['amount_display'],
+                                    fallback: zero),
+                                valueColor: ln['kind'] == 'in'
+                                    ? AssistoTokens.of(context).success
+                                    : Theme.of(context).colorScheme.error),
+                          ],
                           const Divider(height: 1),
                           _Line(
-                              label: t.cashboxTotalIn,
-                              value: pair(context, s['total_in_display'],
-                                  fallback: '৳0'),
+                              label: t.bbCbOtherIn,
+                              sign: '+',
+                              value: pair(context, s['manual_in_display'],
+                                  fallback: zero),
                               valueColor: AssistoTokens.of(context).success),
                           const Divider(height: 1),
                           _Line(
-                              label: t.cashboxTotalOut,
-                              value: pair(context, s['total_out_display'],
-                                  fallback: '৳0'),
+                              label: t.bbCbOtherOut,
+                              sign: '−',
+                              value: pair(context, s['manual_out_display'],
+                                  fallback: zero),
                               valueColor: Theme.of(context).colorScheme.error),
                         ]),
                       ),
+                      if (duesCollected)
+                        Padding(
+                          padding: const EdgeInsets.only(top: Gap.sm),
+                          child: Text(t.bbCbDuesHint,
+                              style: AType.bodySmall
+                                  .copyWith(color: scheme.onSurfaceVariant)),
+                        ),
                       const SizedBox(height: Gap.md),
 
-                      // Cash in / out actions.
-                      if (!reconciled)
-                        Row(children: [
-                          Expanded(
-                            child: FilledButton.icon(
-                              style: Brand.successButton(),
-                              icon: const Icon(Icons.add_rounded),
-                              label: Text(t.cashboxCashIn),
-                              onPressed: () => _addEntry('in'),
-                            ),
-                          ),
-                          const SizedBox(width: Gap.md),
-                          Expanded(
-                            child: FilledButton.icon(
-                              style: Brand.dangerButton(),
-                              icon: const Icon(Icons.remove_rounded),
-                              label: Text(t.cashboxCashOut),
-                              onPressed: () => _addEntry('out'),
-                            ),
-                          ),
-                        ]),
-                      const SizedBox(height: Gap.lg),
-
-                      // Reconciliation.
-                      if (reconciled)
-                        _ReconciledCard(summary: s)
-                      else
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            icon: const Icon(Icons.fact_check_rounded),
-                            label: Text(t.cashboxReconcile),
-                            onPressed: _reconcile,
+                      // Cash in / out actions (always open: a row added after
+                      // the close re-computes the difference honestly).
+                      Row(children: [
+                        Expanded(
+                          child: FilledButton.icon(
+                            style: Brand.successButton(),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(t.cashboxCashIn,
+                                maxLines: 2, textAlign: TextAlign.center),
+                            onPressed: () => _addEntry('in'),
                           ),
                         ),
+                        const SizedBox(width: Gap.md),
+                        Expanded(
+                          child: FilledButton.icon(
+                            style: Brand.dangerButton(),
+                            icon: const Icon(Icons.remove_rounded),
+                            label: Text(t.cashboxCashOut,
+                                maxLines: 2, textAlign: TextAlign.center),
+                            onPressed: () => _addEntry('out'),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: Gap.lg),
+
+                      // Day close.
+                      if (reconciled) ...[
+                        _ReconciledCard(summary: s),
+                        const SizedBox(height: Gap.sm),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          key: const ValueKey('bb-cb-close'),
+                          icon: const Icon(Icons.fact_check_rounded),
+                          label: Text(
+                              reconciled ? t.bbCbRecount : t.cashboxReconcile,
+                              maxLines: 2,
+                              textAlign: TextAlign.center),
+                          onPressed: _reconcile,
+                        ),
+                      ),
                       const SizedBox(height: Gap.lg),
 
                       // Entries list.
@@ -279,12 +354,16 @@ class _CashboxScreenState extends State<CashboxScreen> {
 
 class _Line extends StatelessWidget {
   final String label;
+  final String? sub;
+  final String sign;
   final String value;
   final Color? valueColor;
   final Widget? trailing;
   const _Line(
       {required this.label,
       required this.value,
+      this.sub,
+      this.sign = '',
       this.valueColor,
       this.trailing});
   @override
@@ -293,8 +372,17 @@ class _Line extends StatelessWidget {
       padding: const EdgeInsets.symmetric(
           horizontal: Gap.lg, vertical: Gap.md),
       child: Row(children: [
-        Expanded(child: Text(label)),
-        Text(value,
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label),
+            if (sub != null)
+              Text(sub!,
+                  style: AType.bodySmall.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ]),
+        ),
+        const SizedBox(width: Gap.sm),
+        Text(sign.isEmpty ? value : '$sign $value',
             style: TextStyle(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700, color: valueColor)),
         if (trailing != null) trailing!,
@@ -453,7 +541,10 @@ class _CashEntrySheetState extends State<_CashEntrySheet> {
           child: FilledButton(
             onPressed: () {
               final poisha = takaToPoisha(_amount.text);
-              if (poisha == null || poisha <= 0) return;
+              if (poisha == null || poisha <= 0) {
+                showNeedInput(context);
+                return;
+              }
               Navigator.pop(context, (poisha, _note.text.trim()));
             },
             child: Text(t.save),

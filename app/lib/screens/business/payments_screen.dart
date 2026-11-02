@@ -1,5 +1,7 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../services/error_kind.dart' show honestFailText; // bizbar
+import '../../api.dart' show ApiException; // bizbar
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
 import '../../l10n/app_localizations.dart';
@@ -44,7 +46,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     try {
       _qr = await api.paymentsQr();
     } catch (e) {
-      _error = e.toString();
+      _error = honestFailText(AppLocalizations.of(context), e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -223,7 +225,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       await _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e is ApiException && e.status != null && e.status! < 500 ? e.message : honestFailText(AppLocalizations.of(context), e))));
       }
     }
   }

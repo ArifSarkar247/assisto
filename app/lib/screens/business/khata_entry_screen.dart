@@ -5,9 +5,12 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
-import '../../services/error_kind.dart' show honestFailText;
+import '../../services/error_kind.dart' show FailKind, failKindOf, honestFailText;
 import '../business_screen.dart';
 import 'khata_screen.dart';
+import 'dart:async' show unawaited;
+import 'business_common.dart' show pickBusiness, rememberedBusinessId;
+import '../../services/khata_offline.dart';
 
 /// home_v2: the "Digital Ledger" shortcut (ChatNav route `khata`). Opens the
 /// selected business's Digital Khata directly; with no business yet it opens
@@ -33,13 +36,26 @@ class _KhataEntryScreenState extends State<KhataEntryScreen> {
     if (!mounted) return;
     setState(() => _error = false);
     try {
-      final r = await context.read<AppState>().api.businessList();
+      Map<String, dynamic> r;
+      try {
+        r = await context
+            .read<AppState>()
+            .api
+            .businessList()
+            .timeout(KhataOffline.requestTimeout);
+        unawaited(KhataOffline.cachePut(KhataOffline.businessesKey, r));
+      } catch (e) {
+        // bizbar: no internet -> open the khata from the saved list (the
+        // khata itself works offline; this shortcut used to stop at an error)
+        final saved = failKindOf(e) == FailKind.refused
+            ? null
+            : await KhataOffline.cacheGet(KhataOffline.businessesKey);
+        if (saved == null) rethrow;
+        r = saved.value;
+      }
       final list = ((r['businesses'] ?? []) as List).cast<Map<String, dynamic>>();
+      final sel = pickBusiness(list, r['selected_id'], await rememberedBusinessId());
       if (!mounted) return;
-      final sel = list.isEmpty
-          ? null
-          : list.firstWhere((b) => b['id'] == r['selected_id'],
-              orElse: () => list.first);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (_) => sel == null
               ? const BusinessScreen()
