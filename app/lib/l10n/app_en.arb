@@ -29690,5 +29690,106 @@
   "aibarNotSent": "Not sent — your message is kept.",
   "aibarNotSentOffline": "No internet — your message is kept. Send it again when you're online.",
   "aibarNotSentServer": "Assisto's server had a problem — your message is kept. Try again in a moment.",
-  "aibarSendAgain": "Send again"
+  "aibarSendAgain": "Send again",
+  "kauTitle": "Child emergency audio",
+  "kauIntro": "If your child is in danger — they pressed SOS, or did not answer “Are you OK?” after a late trip — you can hear a few minutes around them, so you can send the right help. Never at other times, never in secret.",
+  "kauRulesTitle": "The rules",
+  "kauRules": "• Only during an active emergency: SOS, or no answer to “Are you OK?”.\n• Only a verified parent: in My Circle you chose “Child” and your child chose “Father” or “Mother”.\n• Only for children under 18, and both of you agree in advance.\n• At most 3 minutes each time, at most 3 times in one emergency.\n• The child's phone shows the call and the notice “Emergency: your parent is listening” with Stop, the whole time.\n• Both of you see every request in the log. Nothing is recorded.",
+  "kauParentSection": "Your children",
+  "kauChildSection": "Requests for you",
+  "kauEmptyBenefit": "Set this up together with your child before any emergency. First add your child in My Circle.",
+  "kauEmptyHow": "How: open My Circle, add your child and choose the relation “Child”. On their phone your child chooses “Father” or “Mother”. Then come back here.",
+  "kauOpenCircle": "Open My Circle",
+  "kauSetupTitle": "Set up for a child",
+  "kauBirthYear": "Child's birth year",
+  "kauPickChildYear": "Choose your child and their birth year.",
+  "kauWatch": "Kids watch (optional)",
+  "kauWatchNone": "No watch",
+  "kauWatchPhone": "Watch SIM number",
+  "kauWatchPhoneHelp": "The watch rings and shows your call on its screen. Add your number to the watch's SOS / family numbers so it accepts your call.",
+  "kauSave": "Save and ask my child",
+  "kauSaved": "Saved. Your child must now agree on their own phone.",
+  "kauStateWaiting": "Waiting for your child to agree",
+  "kauStateActive": "Ready. It works only during an emergency.",
+  "kauStateRevoked": "Turned off",
+  "kauStateAdult": "Stopped: only for children under 18",
+  "kauListen": "Listen now (emergency)",
+  "kauCallWatch": "Call the watch",
+  "kauListenHelp": "Works only during an active emergency. Your child's phone calls you and shows it on the screen.",
+  "kauListenSent": "{name}'s phone will call you now. Answer the call.",
+  "@kauListenSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauTurnOff": "Turn off",
+  "kauAskTitle": "{name} asks for emergency audio",
+  "@kauAskTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauAskBody": "Read the rules above. If you agree, confirm your birth year. You can turn it off any time.",
+  "kauConfirmYear": "Your birth year",
+  "kauAgree": "I agree",
+  "kauDecline": "No, I don't agree",
+  "kauLogTitle": "Log: who, when, how long",
+  "kauLogEmpty": "Nothing yet. Every request will show here, for the parent and for the child.",
+  "kauLogBy": "{name} asked to listen",
+  "@kauLogBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauSeconds": "{n} seconds",
+  "@kauSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "kauStRefused": "Refused",
+  "kauStRequested": "Asked",
+  "kauStLive": "Listening now",
+  "kauStEnded": "Ended",
+  "kauStMissed": "Did not start",
+  "kauStDialled": "Watch called",
+  "kauRNoEmergency": "There is no active emergency, so it was refused.",
+  "kauRAdult": "Only for children under 18.",
+  "kauRNotGuardian": "Only a parent confirmed on both sides in My Circle.",
+  "kauRNoConsent": "Both of you must agree in advance.",
+  "kauRCap": "The limit for this emergency is reached (3 times).",
+  "kauRBusy": "It is already in progress.",
+  "kauRNoWatch": "Add the child's watch and its SIM number first.",
+  "kauRFlag": "This is not switched on yet.",
+  "kauRYear": "The birth year does not match what your parent set.",
+  "kauRGeneric": "Could not do that. Please try again.",
+  "kauEndLimit": "3-minute limit",
+  "kauEndStopped": "Stopped",
+  "kauEndOver": "Emergency over",
+  "kauEndNotice": "The notification could not be shown, so audio did not start",
+  "kauEndCall": "Call ended",
+  "kauEndNotStarted": "The phone did not start in time",
+  "kauNoticeChannel": "Emergency audio",
+  "kauNoticeTitle": "Emergency: your parent is listening",
+  "kauNoticeText": "{name} is listening. At most 3 minutes. Tap Stop to end.",
+  "@kauNoticeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauStop": "Stop",
+  "kauNoticeRestoreTitle": "Assisto safety is on",
+  "kauNoticeRestoreText": "Emergency audio has ended.",
+  "kauLoadFailed": "Could not load. Check the internet and try again.",
+  "kauRetry": "Try again"
 }
