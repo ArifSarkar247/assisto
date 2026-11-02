@@ -25,8 +25,9 @@ List<(String, TripTrace)> _traces() {
   final out = <(String, TripTrace)>[];
   for (final f in dir.listSync().whereType<File>().where((f) => f.path.endsWith('.json'))) {
     final t = TripTrace.decode(f.readAsStringSync());
-    expect(t, isNotNull, reason: '${f.path} is not an assisto-trip-trace/1 file');
-    out.add((f.uri.pathSegments.last, t!));
+    // runs while tests are declared: a bad file fails loudly, not silently
+    if (t == null) throw StateError('${f.path} is not an assisto-trip-trace/1 file');
+    out.add((f.uri.pathSegments.last, t));
   }
   out.sort((a, b) => a.$1.compareTo(b.$1));
   return out;
