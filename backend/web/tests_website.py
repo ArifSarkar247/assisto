@@ -147,6 +147,15 @@ class RoutesTests(TestCase):
             self.assertNotIn(banned, home_bn)
         self.assertIn("৯৯৯", home_bn)                            # not an emergency service
 
+    def test_bangla_pages_have_no_english_phrases(self, _p):
+        # launchsweep: Bangla copy says এন্ড-টু-এন্ড, never English words
+        # mixed into a Bangla sentence (brand/tech names like SOS, AI are ok).
+        for url in MARKETING:
+            html = self.c.get(url).content.decode()
+            body = re.sub(r"<(script|style)\b.*?</\1>|<[^>]+>", " ", html, flags=re.S)
+            for banned in ("end-to-end", "End-to-end", "encrypted", "free forever"):
+                self.assertNotIn(banned, body, url)
+
 
 class PricingTests(TestCase):
     def test_prices_come_from_the_live_catalogue(self):
