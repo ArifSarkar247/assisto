@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 import 'market_source.dart';
 import 'market_widgets.dart';
 
@@ -116,14 +117,14 @@ class _MarketNeedFormState extends State<MarketNeedForm> {
           TextField(
             key: const Key('amk-f-title'),
             controller: _title,
-            maxLength: 120,
+            maxLength: 120, buildCounter: localCounter,
             decoration: _dec(t.amkWhat, hint: t.amkWhatHint),
           ),
           TextField(
             key: const Key('amk-f-desc'),
             controller: _desc,
             maxLines: 3,
-            maxLength: 1000,
+            maxLength: 1000, buildCounter: localCounter,
             decoration: _dec(t.amkDetails, hint: t.amkDetailsHint),
           ),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

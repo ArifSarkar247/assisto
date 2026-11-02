@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messaging/connect_flow.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 import 'market_source.dart';
 import 'market_widgets.dart';
 
@@ -337,7 +338,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             key: const Key('amk-b-notes'),
             controller: _notes,
             enabled: canBid,
-            maxLength: 300,
+            maxLength: 300, buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.amkNotes, hintText: t.amkNotesHint, border: const OutlineInputBorder()),
           ),
           if (_price.text.isNotEmpty && int.tryParse(_price.text) != null)
