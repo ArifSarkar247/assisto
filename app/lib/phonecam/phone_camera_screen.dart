@@ -472,6 +472,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
 
   Future<void> _openCamera() async {
     final t = AppLocalizations.of(context);
+    // Play: explain the camera ask before the plugin's own system prompt.
+    if (!await showPermissionReason(context, PermKind.camera)) return;
+    if (!mounted) return;
     try {
       final cams = await availableCameras();
       if (cams.isEmpty) {
