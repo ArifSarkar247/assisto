@@ -106,6 +106,8 @@ import '../screens/offers_screens.dart' show OffersFeedScreen; // p2-money
 import '../feature_gates.dart' show kAgentStudioRunsAutomations; // f6
 // home_v2: owner's default shortcuts that had no route of their own
 import '../screens/business/khata_entry_screen.dart';
+import '../screens/business/books_screen.dart'; // ledger
+import '../screens/business/acct/acct_home_screen.dart'; // acctui
 import '../screens/business/bizagent/seller_agent_screen.dart';
 import '../screens/prepaid_meter_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
@@ -330,6 +332,10 @@ class ChatNav {
     // home_v2 (owner 26 Oct): the new home's default shortcuts. Each opens the
     // feature's existing screen (also in the sidebar / Business hub).
     'khata': (_) => const KhataEntryScreen(),
+    // ledger (flag accounting_v2): double-entry books
+    'books': (_) => const BooksScreen(),
+    // acctui: accounting home (simple entry, reports, close, audit, export)
+    'acct': (_) => const AcctHomeScreen(),
     'sales_agent': (_) => const SellerAgentScreen(),
     'prepaid_meter': (_) => const PrepaidMeterScreen(),
     'contract': (_) => const ContractAnalyzerScreen(),
@@ -451,6 +457,8 @@ class ChatNav {
     // f1-founders
     // home_v2 shortcut routes
     'khata': ['digital khata', 'digital ledger', 'khata'],
+    'books': ['balance sheet', 'trial balance', 'profit and loss', 'books of accounts'],
+    'acct': ['accounting', 'accounts', 'cash flow', 'vat summary', 'mushak', 'opening balance', 'close month', 'audit trail', 'send to accountant'],
     'sales_agent': ['ai sales agent', 'sales agent', 'sales assistant'],
     'prepaid_meter': ['prepaid meter', 'electricity meter', 'meter recharge'],
     'contract': ['contract analyzer', 'contract scanner', 'check contract'],

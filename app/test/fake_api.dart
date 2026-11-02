@@ -21,6 +21,8 @@ import 'p1_bizagent_fakes.dart'; // p1-bizagent
 import 'fake_crm100.dart'; // crm100
 import 'at100_fakes.dart'; // at100
 import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
+import 'fake_books.dart'; // ledger
+import 'fake_acct.dart'; // acctui
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1913,6 +1915,12 @@ class FakeApi extends ApiClient {
     if (bare == 'business/policies') {
       return {'policies': const []};
     }
+    // ledger: Books (accounting_v2) — server-shaped reports
+    // acctui: accounting UI endpoints (business/acct/*)
+    final acct = fakeAcctGet('/$p', empty: mode == FakeMode.empty);
+    if (acct != null) return acct;
+    final books = fakeBooksGet('/$bare', empty: mode == FakeMode.empty);
+    if (books != null) return books;
     return const {}; // unmatched business GET -> empty, never throw in gallery
   }
 
@@ -1980,6 +1988,8 @@ class FakeApi extends ApiClient {
       [Map<String, dynamic> body = const {}]) async {
     final p = (path.startsWith('/') ? path.substring(1) : path).split('?').first;
     final kh = fakeKhataPost(p, body, bn: _bn); // ledger100
+    final ac = fakeAcctPost(p, body); // acctui
+    if (ac != null) return ac;
     if (kh != null) return kh;
     final kau = fakeKidAudioPost(path); // kidaudio
     if (kau != null) return kau;

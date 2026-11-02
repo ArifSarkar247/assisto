@@ -7661,3 +7661,88 @@ class KidAudioSession(models.Model):
         indexes = [models.Index(fields=["child", "status"], name="kidaudio_child_st"),
                    models.Index(fields=["guardian", "created_at"], name="kidaudio_guard_at")]
 # ---- /kidaudio ----
+
+
+# ---- ledger ---- (owner Part 1 f, 2 Nov: double-entry business accounting;
+# flag accounting_v2, OFF). Pure rules: core.logic.ledger; DB layer:
+# core.ledger_service; API: core.ledger_views. Journal rows are NEVER edited
+# or deleted: a change is a reversal entry + a new entry (audit trail).
+class LedgerBook(models.Model):
+    """One set of books per business: start day, lock date, frozen opening."""
+    business = models.OneToOneField(BusinessProfile, on_delete=models.CASCADE,
+                                    related_name="ledger_book")
+    start_date = models.DateField(null=True, blank=True)
+    lock_date = models.DateField(null=True, blank=True)   # nothing posts on/before
+    opening_inventory = models.BigIntegerField(null=True, blank=True)  # poisha, frozen
+    opening_warning = models.JSONField(default=dict, blank=True)
+    # the owner's opening balances (POST business/books/opening), poisha
+    opening = models.JSONField(default=dict, blank=True)
+    # VAT history from the invoice settings: [{from, to|None, vat_bp, sd_bp}]
+    vat_periods = models.JSONField(default=list, blank=True)
+    next_number = models.PositiveIntegerField(default=1)
+    last_sync_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LedgerAccount(models.Model):
+    TYPES = [(t, t) for t in ("asset", "liability", "equity", "income", "expense")]
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="ledger_accounts")
+    code = models.CharField(max_length=8)
+    type = models.CharField(max_length=10, choices=TYPES)
+    group = models.CharField(max_length=16, default="")
+    name_bn = models.CharField(max_length=80)
+    name_en = models.CharField(max_length=80)
+    contra = models.BooleanField(default=False)
+    system = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [("business", "code")]
+        ordering = ["code"]
+
+
+class JournalEntry(models.Model):
+    """status: posted (live) | reversed (a reversal cancels it) | reversal."""
+    STATUS = [("posted", "posted"), ("reversed", "reversed"), ("reversal", "reversal")]
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="journal_entries")
+    number = models.PositiveIntegerField()               # per business, gap-free
+    date = models.DateField(db_index=True)
+    source_key = models.CharField(max_length=40)         # sale:12, khata:7 ...
+    fingerprint = models.CharField(max_length=32, blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUS, default="posted")
+    memo_bn = models.CharField(max_length=200, blank=True, default="")
+    memo_en = models.CharField(max_length=200, blank=True, default="")
+    total = models.BigIntegerField(default=0)            # poisha (= Σdebit = Σcredit)
+    late = models.BooleanField(default=False)            # moved past the lock date
+    reversal_of = models.OneToOneField("self", null=True, blank=True,
+                                       on_delete=models.RESTRICT,
+                                       related_name="reversed_by")
+    created_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date", "number"]
+        indexes = [models.Index(fields=["business", "date"], name="ledger_je_biz_date"),
+                   models.Index(fields=["business", "source_key"], name="ledger_je_biz_src")]
+        constraints = [
+            models.UniqueConstraint(fields=["business", "number"], name="ledger_je_number_uniq"),
+            models.UniqueConstraint(fields=["business", "source_key"],
+                                    condition=models.Q(status="posted"),
+                                    name="ledger_je_one_live_per_source"),
+        ]
+
+
+class JournalLine(models.Model):
+    entry = models.ForeignKey(JournalEntry, on_delete=models.CASCADE, related_name="lines")
+    account = models.ForeignKey(LedgerAccount, on_delete=models.RESTRICT, related_name="lines")
+    debit = models.BigIntegerField(default=0)            # poisha
+    credit = models.BigIntegerField(default=0)
+    party = models.CharField(max_length=120, blank=True, default="")
+
+    class Meta:
+        constraints = [models.CheckConstraint(
+            check=(models.Q(debit__gte=0, credit=0) | models.Q(debit=0, credit__gte=0)),
+            name="ledger_line_one_side")]
+# ---- /ledger ----

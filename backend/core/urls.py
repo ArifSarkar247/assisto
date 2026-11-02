@@ -9,6 +9,8 @@ from . import views_guardian as vg
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
+from . import ledger_views as lgv
+from . import ledger_entry_views as lev  # acctui
 from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
@@ -236,6 +238,27 @@ urlpatterns = [
     path("business/khata/parties/<int:pk>/entries", bz.KhataEntryView.as_view()),
     path("business/khata/parties/<int:pk>/payment", bz.KhataPaymentView.as_view()),
     path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
+    # ledger (flag accounting_v2): double-entry books
+    path("business/books/sync", lgv.BooksSyncView.as_view()),
+    path("business/books/accounts", lgv.BooksAccountsView.as_view()),
+    path("business/books/journal", lgv.BooksJournalView.as_view()),
+    path("business/books/trial-balance", lgv.BooksTrialBalanceView.as_view()),
+    path("business/books/profit-loss", lgv.BooksProfitLossView.as_view()),
+    path("business/books/balance-sheet", lgv.BooksBalanceSheetView.as_view()),
+    path("business/books/lock", lgv.BooksLockView.as_view()),
+    path("business/books/journal/<int:pk>/reverse", lgv.BooksReverseView.as_view()),
+    path("business/books/opening", lgv.BooksOpeningView.as_view()),
+    path("business/books/expense", lgv.BooksExpenseView.as_view()),
+    path("business/books/cash-flow", lgv.BooksCashFlowView.as_view()),
+    path("business/books/vat", lgv.BooksVatView.as_view()),
+    # acctui: simple entry / opening hints / VAT detail / audit / close (ledger_entry_views)
+    path("business/acct/entries", lev.AcctEntriesView.as_view()),
+    path("business/acct/entries/<str:client_id>/void", lev.AcctVoidView.as_view()),
+    path("business/acct/hints", lev.AcctHintsView.as_view()),
+    path("business/acct/vat", lev.AcctVatView.as_view()),
+    path("business/acct/audit", lev.AcctAuditView.as_view()),
+    path("business/acct/export-log", lev.AcctExportLogView.as_view()),
+    path("business/acct/lock", lev.AcctLockView.as_view()),
     path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
     path("business/staff", bz.StaffView.as_view()),   # bizbar
     path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar

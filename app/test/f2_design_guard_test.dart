@@ -99,6 +99,7 @@ const _f2Screens = <String>[
 /// statement PDF is drawn on a fixed A4 canvas (pixel sizes, not UI text).
 const _fontSizeAllow = <String>{
   'lib/screens/business/statement_pdf.dart',
+  'lib/screens/business/acct/acct_report_pdf.dart', // acctui: PDF page painting
   'lib/photo_studio/ps_export.dart',
   'lib/calls/call_avatar.dart',
 };
