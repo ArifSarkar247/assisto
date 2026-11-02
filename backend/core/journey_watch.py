@@ -467,6 +467,8 @@ def clear_urgent(j, user=None):
     try:
         q = FamilyAlert.objects.filter(kind="journey", dismissed=False,
                                        payload__journey_id=j.id)
+        if user is not None:
+            q = q.filter(user=user)     # journey100b: only that watcher's cards
         q.update(dismissed=True)
     except Exception:
         pass

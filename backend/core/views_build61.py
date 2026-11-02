@@ -1169,7 +1169,10 @@ class JourneyStartView(APIView):
         retention = _int(d.get("location_retention_hours"), 24, 0, 24 * 7)
         stop_min = _int(d.get("stop_alert_min"), 20, 0, 180)
         # one live journey at a time: an older active one is closed quietly
-        for old in Journey.objects.filter(traveller=request.user, status="active"):
+        # (journey100b: a parent following it moves to the new trip — never
+        # dropped silently; see GJ.carry_over below)
+        olds = list(Journey.objects.filter(traveller=request.user, status="active"))
+        for old in olds:
             old.status, old.stopped_at = "stopped", now
             old.expires_at = JW.ended_expiry(old, now)
             old.save(update_fields=["status", "stopped_at", "expires_at"])
@@ -1191,6 +1194,10 @@ class JourneyStartView(APIView):
                                             state="accepted", blocked=False).first()
             if m:
                 JourneyWatcher.objects.get_or_create(journey=j, member=m)
+        if olds:
+            from . import guardian_journey as GJ
+            for old in olds:
+                GJ.carry_over(old, j, now)
         v = j.vehicle or {}
         JW.emit(j, "started", payload={**v, "mode": v.get("mode") or j.mode})
         out = _journey_dict(j, req_lang(request))
