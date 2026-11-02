@@ -423,7 +423,9 @@ class CircleBubble extends StatelessWidget {
       BuildContext context, AppLocalizations t, bool mine, ColorScheme scheme) {
     final color = mine
         ? MsgPalette.outMeta(context)
-        : scheme.onSurfaceVariant.withValues(alpha: 0.8);
+        // circlea a11y: full-strength token (alpha 0.8 gave 4.08:1 on the
+        // incoming bubble; WCAG AA needs 4.5:1 for 11 px time text)
+        : scheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(

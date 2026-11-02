@@ -8,6 +8,10 @@
   "@cfaFamily": {
    "description": "People filter chip / section: family"
   },
+  "cfaChipFamily": "My family",
+  "@cfaChipFamily": {
+   "description": "Chat-list filter chip: chats with people marked Family"
+  },
   "cfaOthers": "Others",
   "@cfaOthers": {
    "description": "People filter chip / section: everyone who is not family"
@@ -83,7 +87,6 @@
   "claLinkPreviewsSetting": "Link previews",
   "claLinkPreviewsSettingSub": "Your phone fetches the title and picture before sending; they go inside the encrypted message.",
   "cgaTitle": "Guardians",
-  "cgaTileSub": "Who can see you, and the children you look after",
   "cgaWhoSeesMe": "Who can see me",
   "cgaMyChildren": "Children I look after",
   "cgaNobodySeesMe": "Nobody can see your location or school mode now.",
@@ -171,6 +174,7 @@
  "bn": {
   "cfaAll": "সব",
   "cfaFamily": "পরিবার",
+  "cfaChipFamily": "আমার পরিবার",
   "cfaOthers": "অন্যরা",
   "cfaSearchPeople": "নাম বা নম্বর দিয়ে খুঁজুন",
   "cfaNoMatch": "এই নামে বা নম্বরে কাউকে পাওয়া যায়নি।",
@@ -212,7 +216,6 @@
   "claLinkPreviewsSetting": "লিংকের প্রিভিউ",
   "claLinkPreviewsSettingSub": "পাঠানোর আগে আপনার ফোন শিরোনাম আর ছবি আনে; সেগুলো এনক্রিপ্ট করা মেসেজের ভেতরেই যায়।",
   "cgaTitle": "অভিভাবক",
-  "cgaTileSub": "কে আপনাকে দেখতে পান, আর আপনি যাদের দেখাশোনা করেন",
   "cgaWhoSeesMe": "কে আমাকে দেখতে পান",
   "cgaMyChildren": "যাদের আমি দেখাশোনা করি",
   "cgaNobodySeesMe": "এখন কেউ আপনার লোকেশন বা স্কুল-মোড দেখতে পান না।",

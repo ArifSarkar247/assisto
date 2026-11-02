@@ -225,25 +225,6 @@ class _FamilyScreenState extends State<FamilyScreen> {
             padding: const EdgeInsets.only(top: Gap.sm),
             child: _alertsTile(),
           ),
-          // circlea: many guardians — who sees me + children I look after
-          Padding(
-            padding: const EdgeInsets.only(top: Gap.sm),
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: ListTile(
-                key: const ValueKey('cga-tile'),
-                minTileHeight: 56,
-                leading: Icon(Icons.supervisor_account_rounded,
-                    color: Theme.of(context).colorScheme.primary),
-                title: Text(_t.cgaTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text(_t.cgaTileSub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const CircleGuardiansScreen())),
-              ),
-            ),
-          ),
         ],
       );
 
@@ -287,6 +268,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
           initialIndex: start < 0 ? 0 : start,
           child: Scaffold(
             appBar: AppBar(title: Text(t.familyCareTitle), actions: [
+              // circlea: many guardians — who sees me + children I look after
+              IconButton(
+                  key: const ValueKey('cga-tile'),
+                  tooltip: t.cgaTitle,
+                  icon: const Icon(Icons.supervisor_account_rounded),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const CircleGuardiansScreen()))),
               IconButton(
                   onPressed: _scamCheck,
                   icon: const Icon(Icons.shield_rounded),

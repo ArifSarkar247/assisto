@@ -387,6 +387,8 @@ void main() {
         return {'ok': true, ...mine(false), 'removed': [{'kind': 'school_mode'}],
           'kept': [{'kind': 'kids_watch', 'set_up_by': 'Dad'}]};
       };
+      await tester.binding.setSurfaceSize(const Size(420, 2400));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(_app(const CircleGuardiansScreen(), scroll: false));
       await tester.pumpAndSettle();
       expect(find.text('Dad'), findsWidgets);

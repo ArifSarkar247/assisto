@@ -1191,11 +1191,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final t = _t;
     final chips = <({String id, String label})>[
       (id: 'all', label: t.msgrChipAll),
-      (id: 'family', label: t.cfaFamily), // circlea
-      (id: 'others', label: t.cfaOthers), // circlea
       (id: 'unread', label: t.msgrChipUnread),
       (id: 'favourites', label: t.msgrChipFavourites),
       (id: 'groups', label: t.msgrChipGroups),
+      (id: 'family', label: t.cfaChipFamily), // circlea
+      (id: 'others', label: t.cfaOthers), // circlea
       for (final l in _lists)
         (id: 'list:${l['id']}', label: '${l['name'] ?? ''}'),
     ];
