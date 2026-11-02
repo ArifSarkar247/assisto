@@ -447,11 +447,15 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
       if (_expanded) ...[
         // tap outside closes the row
         Positioned.fill(
-          child: GestureDetector(
-            key: const Key('bbl2-call-scrim'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() => _expanded = false),
-            child: const ColoredBox(color: Color(0x66000000)),
+          child: Semantics(
+            button: true,
+            label: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+            child: GestureDetector(
+              key: const Key('bbl2-call-scrim'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _expanded = false),
+              child: const ColoredBox(color: Color(0x66000000)),
+            ),
           ),
         ),
         Positioned(

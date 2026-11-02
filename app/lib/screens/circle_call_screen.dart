@@ -448,7 +448,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     ApiClient? api;
     try {
       api = context.read<AppState>().api;
-    } catch (_) {}
+    } catch (_) {} // best-effort: no AppState (preview) -> no chat window, the call stays
     final c = _c;
     if (c != null && c.isLive && _owns && !_handedOff) _handOff(c);
     final ctx = appNavigatorKey.currentContext ?? (mounted ? context : null);

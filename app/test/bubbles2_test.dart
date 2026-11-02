@@ -183,6 +183,8 @@ void main() {
         }
         expect(tester.getSize(find.byKey(const Key('bbl2-turn-on'))).height,
             greaterThanOrEqualTo(48));
+        await tester.ensureVisible(find.byKey(const Key('bbl2-turn-on')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('bbl2-turn-on')));
         await tester.pumpAndSettle();
         expect(opened, 1);
@@ -192,6 +194,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('bbl2-success')), findsOneWidget);
         expect(find.text(t.bbl2On), findsOneWidget);
+        await tester.ensureVisible(find.byKey(const Key('bbl2-continue')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('bbl2-continue')));
         expect(done, isTrue);
         expect(tester.takeException(), isNull);
@@ -358,7 +362,7 @@ void main() {
   });
 
   group('My Circle bubble row (point 5)', () {
-    test('bubbles on screen first (newest), then unread; known chats only', () {
+    test('only chats floating now (newest first), known chats only', () {
       final keys = bubbleRowKeys(
         active: [
           {'key': 'member:3', 'bubble': true},
@@ -368,7 +372,10 @@ void main() {
         unread: {'member:5': 1, 'member:6': 4, 'member:3': 2, 'member:8': 0},
         known: {'member:3', 'group:9', 'member:5', 'member:6', 'member:8'},
       );
-      expect(keys, ['member:3', 'group:9', 'member:6', 'member:5']);
+      // unread-only chats stay in the list below (no duplicate rows)
+      expect(keys, ['member:3', 'group:9']);
+      expect(bubbleRowKeys(active: const [], unread: {'member:5': 3}, known: {'member:5'}),
+          isEmpty);
     });
 
     for (final lang in ['en', 'bn']) {
