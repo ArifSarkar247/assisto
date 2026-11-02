@@ -115,15 +115,21 @@ void main() {
       expect(pill.repeat, AlarmRepeat.daily);
     });
 
-    test('monthly recurring is scheduled one occurrence at a time', () {
+    test('monthly recurring: next ring + 2 look-ahead rings (remhbar)', () {
       final plans = planReminderAlarms([
         _rem('bill', DateTime(2026, 9, 5, 9, 0),
             serverId: 4,
             recurrence: 'monthly',
             rule: {'freq': 'monthly', 'day_of_month': 5, 'time': '09:00'}),
       ], now: now);
-      expect(plans.single.at, DateTime(2026, 11, 5, 9, 0));
-      expect(plans.single.repeat, AlarmRepeat.none);
+      expect(plans.map((p) => p.at), [
+        DateTime(2026, 11, 5, 9, 0),
+        DateTime(2026, 12, 5, 9, 0),
+        DateTime(2027, 1, 5, 9, 0),
+      ]);
+      expect(plans.map((p) => p.key), ['rem-4', 'rem-4~1', 'rem-4~2']);
+      expect(plans.every((p) => p.baseKey == 'rem-4'), isTrue);
+      expect(plans.every((p) => p.repeat == AlarmRepeat.none), isTrue);
     });
 
     test('reconcile diff: new, unchanged, moved, gone, dropped by the OS', () {

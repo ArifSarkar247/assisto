@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat; // remhbar
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ import '../services/oem_guide.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/bn_day_periods.dart' show appDateLocale; // remhbar
 import 'alarm_plan.dart';
 import 'reminder_alarms.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -262,6 +264,7 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
   bool? _exact;
   bool? _battery; // true = not optimised (good)
   DeliveryStats? _stats;
+  (int, DateTime)? _lost; // remhbar: alarms found gone + put back
   bool _testSet = false;
 
   @override
@@ -282,10 +285,12 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
       b = (await ExactAlarmHooks.oem.info())?.batteryOptIgnored;
     } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     DeliveryStats s = DeliveryStats.of(const []);
+    (int, DateTime)? lost;
     try {
       await ReminderAlarms.measure();
-      s = DeliveryStats.of(
-          ReminderAlarms.loadLog(await SharedPreferences.getInstance()));
+      final prefs = await SharedPreferences.getInstance();
+      s = DeliveryStats.of(ReminderAlarms.loadLog(prefs));
+      lost = ReminderAlarms.lastLost(prefs);
     } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     if (!mounted) return;
     setState(() {
@@ -293,6 +298,7 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
       _exact = e;
       _battery = b;
       _stats = s;
+      _lost = lost;
     });
   }
 
@@ -364,6 +370,14 @@ class _ReminderDeliverySheetState extends State<ReminderDeliverySheet> {
               },
               row(Icons.cloud_done_rounded, scheme.onSurfaceVariant,
                   t.rmxCheckServerBackup),
+              // remhbar: restart / Force stop honesty
+              if (_lost case (final n, final at))
+                row(Icons.restart_alt_rounded, scheme.error,
+                    t.rhbLostAlarms(_d('$n'),
+                        DateFormat('d MMM', appDateLocale(context)).format(at)))
+              else
+                row(Icons.restart_alt_rounded, scheme.onSurfaceVariant,
+                    t.rhbRestartOk),
               const Divider(height: Gap.xl),
               if (s.count == 0)
                 Text(t.rmxCheckNone, style: AType.bodyMedium)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../services/bangla_calendar.dart' show BanglaDate; // remhbar
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -608,9 +609,12 @@ class _ReminderCard extends StatelessWidget {
     if (isTomorrow) {
       return dateOnly ? t.remTomorrow : '${t.remTomorrow}, $timeStr';
     }
-    return dateOnly
+    final base = dateOnly
         ? DateFormat('d MMM', appDateLocale(context)).format(dt)
         : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt);
+    // remhbar: in Bangla, the Bangla calendar day too ("· ২০ কার্তিক")
+    if (!t.localeName.startsWith('bn')) return base;
+    return '$base · ${BanglaDate.of(dt).format(bn: true, withYear: false)}';
   }
 
   Future<void> _snooze(BuildContext context, Map<String, dynamic> it) async {

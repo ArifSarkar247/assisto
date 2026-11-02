@@ -61,11 +61,18 @@ class ReminderAlarms {
       final ledger = decodeLedger(prefs.getString(ledgerKey));
       final plans = planReminderAlarms(items, now: now ?? DateTime.now());
       await _migrateLegacy(prefs, items);
+      final pendingIds = await Notifications.pendingIds();
+      final lost = countLostAlarms(
+          plans: plans,
+          ledger: ledger,
+          pendingIds: pendingIds,
+          now: now ?? DateTime.now());
+      if (lost > 0) await _noteLost(prefs, lost, now ?? DateTime.now());
       final ops = diffAlarms(
         plans: plans,
         ledger: ledger,
         exactAllowed: exact,
-        pendingIds: await Notifications.pendingIds(),
+        pendingIds: pendingIds,
       );
       if (ops.isEmpty) return;
       for (final id in ops.cancel) {
@@ -76,7 +83,7 @@ class ReminderAlarms {
         final want = modeFor(p, exactAllowed: exact);
         final used = await Notifications.scheduleAlarm(
             p.id, p.title, p.body, p.at,
-            mode: want, repeat: p.repeat, payload: '$payloadPrefix${p.key}');
+            mode: want, repeat: p.repeat, payload: '$payloadPrefix${p.baseKey}');
         if (used == null) {
           ledger.remove(p.id);
           continue;
@@ -92,6 +99,33 @@ class ReminderAlarms {
       await prefs.setString(ledgerKey, encodeLedger(ledger));
     } finally {
       _running = false;
+    }
+  }
+
+  // ------------------------------------------------------------ lost
+  /// remhbar: last time alarms were found GONE before their time (Force
+  /// stop / OEM cleaner / blocked autostart after a restart) and put back.
+  static const lostKey = 'remhbar_lost_alarms_v1';
+
+  static Future<void> _noteLost(
+      SharedPreferences prefs, int n, DateTime at) async {
+    try {
+      await prefs.setString(
+          lostKey, jsonEncode({'n': n, 't': at.millisecondsSinceEpoch}));
+    } catch (_) {}
+  }
+
+  /// (how many, when) — null when it never happened or is over 30 days old.
+  static (int, DateTime)? lastLost(SharedPreferences prefs, {DateTime? now}) {
+    try {
+      final j = jsonDecode(prefs.getString(lostKey) ?? '');
+      if (j is! Map || j['n'] is! int || j['t'] is! int) return null;
+      final at = DateTime.fromMillisecondsSinceEpoch(j['t'] as int);
+      final n0 = now ?? DateTime.now();
+      if (n0.difference(at) > const Duration(days: 30)) return null;
+      return (j['n'] as int, at);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -131,14 +165,15 @@ class ReminderAlarms {
       final rid = data['reminder_id'] ?? '';
       if (rid.isEmpty) return PushDecision.show;
       final key = 'rem-$rid';
-      final id = alarmIdFor(key);
       final fireIso = data['fire_at'] ?? data['due_at'] ?? '';
       final fireMs = DateTime.tryParse(fireIso)?.millisecondsSinceEpoch;
       final prefs = await SharedPreferences.getInstance();
       try {
         await prefs.reload(); // the UI isolate may have written since
       } catch (_) {}
-      final entry = decodeLedger(prefs.getString(ledgerKey))[id];
+      // remhbar: the push may be for a look-ahead ring (`~1`, `~2`)
+      final (id, entry) = ledgerEntryForPush(
+          decodeLedger(prefs.getString(ledgerKey)), key, fireMs);
       bool? pending;
       try {
         final l = await (plugin ?? FlutterLocalNotificationsPlugin())

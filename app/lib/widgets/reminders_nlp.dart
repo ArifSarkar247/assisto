@@ -346,6 +346,16 @@ DateTime _addMonths(DateTime d, int n) {
   return DateTime(y, m, d.day > _daysInMonth(y, m) ? _daysInMonth(y, m) : d.day);
 }
 
+/// Whole calendar days from [b]'s date to [a]'s date (DST-proof).
+int _dayDiff(DateTime a, DateTime b) =>
+    DateTime.utc(a.year, a.month, a.day)
+        .difference(DateTime.utc(b.year, b.month, b.day))
+        .inDays;
+
+/// [d] moved by [n] calendar days keeping its wall-clock time (DST-proof).
+DateTime _addDays(DateTime d, int n) =>
+    DateTime(d.year, d.month, d.day + n, d.hour, d.minute);
+
 DateTime _nextWeekday(DateTime from, int weekday, {bool allowToday = false}) {
   var delta = (weekday - (from.weekday - 1)) % 7;
   if (delta < 0) delta += 7;
@@ -906,20 +916,35 @@ DateTime? nextOccurrence(DateTime? anchor, RecurrenceRule? rule, {DateTime? afte
   final interval = rule.interval < 1 ? 1 : rule.interval;
   final h = rule.time != null ? int.parse(rule.time!.split(':')[0]) : anchor.hour;
   final mi = rule.time != null ? int.parse(rule.time!.split(':')[1]) : anchor.minute;
+  // remhbar: a repeat never starts BEFORE its anchor ("from 1 Dec, every
+  // Monday" used to ring this Monday), and "every N days/weeks" stays in
+  // step with the anchor (it used to count from today, so "every 2 days"
+  // could ring on the wrong day). Mirror of reminders_engine.next_occurrence.
+  final floorAnchor = anchor.subtract(const Duration(seconds: 1));
+  after = floorAnchor.isAfter(after) ? floorAnchor : after;
   switch (rule.freq) {
     case 'daily':
-      var d = anchor.isAfter(after) ? anchor : after;
+      var d = DateTime(after.year, after.month, after.day);
+      if (interval > 1) {
+        final off = _dayDiff(d, anchor) % interval;
+        if (off != 0) d = _addDays(d, interval - off);
+      }
       var cand = DateTime(d.year, d.month, d.day, h, mi);
       while (!cand.isAfter(after)) {
-        cand = cand.add(Duration(days: interval));
+        cand = _addDays(cand, interval);
       }
       return cand;
     case 'weekly':
       final wd = rule.weekday ?? (anchor.weekday - 1);
       var d = _nextWeekday(after, wd, allowToday: true);
+      if (interval > 1) {
+        final first = _nextWeekday(anchor, wd, allowToday: true);
+        final off = (_dayDiff(d, first) ~/ 7) % interval;
+        if (off != 0) d = _addDays(d, 7 * (interval - off));
+      }
       var cand = DateTime(d.year, d.month, d.day, h, mi);
       while (!cand.isAfter(after)) {
-        cand = cand.add(Duration(days: 7 * interval));
+        cand = _addDays(cand, 7 * interval);
       }
       return cand;
     case 'monthly':
