@@ -99,7 +99,7 @@ class FeedTests(APITestCase):
     def test_defaults_are_ordinary_owner_editable_rows(self):
         sos = DiscoverCard.objects.get(key="sos")
         tr = DiscoverCard.objects.get(key="train_tracker")
-        self.assertEqual((sos.route, sos.type, sos.enabled), ("emergency", "FEATURE", True))
+        self.assertEqual((sos.route, sos.type, sos.enabled), ("emergency_hub", "FEATURE", True))
         self.assertEqual(tr.route, "train_tracker")
         first = DiscoverCard.objects.order_by("order", "id")
         self.assertEqual([c.key for c in first[:2]], ["sos", "train_tracker"])
