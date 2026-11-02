@@ -59,7 +59,8 @@ def main():
     from rest_framework.test import APIClient
     from core.models import User, ProtectedPhone, VehicleTracker
     from core.tests_v1_vehicle import luhn_imei
-    from tracker.sim import GT06Device, H02Device, TeltonikaDevice, TK103Device, drive_path
+    from tracker.sim import (GT06Device, H02Device, TeltonikaDevice, TK103Device,
+                             WatchDevice, drive_path)
     from tracker.protocols import teltonika
 
     owner = User.objects.create_user(name="Smoke", phone="01710009001", password="pw")
@@ -80,6 +81,17 @@ def main():
         api.patch("/api/v1/vehicle/trackers/%d" % tid, {"speed_limit_kmh": 60},
                   format="json")
         ids[proto] = (tid, imei)
+
+    # kidswatch: one kids GPS watch ("3G" / SeTracker protocol) on the same port
+    from core import feature_flags as FF
+    from core.models import FeatureFlag
+    FF.ensure_seeded()
+    FeatureFlag.objects.filter(key="kids_watch").update(enabled_all=True, enabled_play=True)
+    FF.invalidate()
+    r = api.post("/api/v1/kids-watch/watches", {"code": "8800000015", "child_name": "Rina"},
+                 format="json")
+    check("watch_pair_requested", r.status_code == 201, status=r.status_code)
+    watch_id = r.data["watch"]["id"] if r.status_code == 201 else 0
 
     srv = subprocess.Popen([sys.executable, "-m", "tracker", "--host", "127.0.0.1",
                             "--port", str(a.port), "--settings", "e2e_vehicle_settings"],
@@ -125,6 +137,12 @@ def main():
             recs = [dict(p, io={teltonika.IO_IGNITION: 1 if p["speed_kmh"] else 0})
                     for p in path]
             check("teltonika_records_acked", await t.send(recs) == len(recs))
+            wd = WatchDevice("8800000015", maker="3G")
+            await wd.connect("127.0.0.1", a.port)
+            check("watch_link_answered", await wd.link(battery=70))
+            for p in path[-5:]:
+                await wd.position(p["lat"], p["lng"], at=p["at"])
+            check("watch_sos_answered", await wd.alarm(path[-1]["lat"], path[-1]["lng"]))
             bad = GT06Device(luhn_imei("86123404000001"))
             await bad.connect("127.0.0.1", a.port)
             check("unknown_imei_refused", not await bad.login(timeout=1.5))
@@ -136,7 +154,11 @@ def main():
                   any(c.startswith("S71,") for c in h.commands), cmds=h.commands)
             check("tk103_interval_cmd_received",
                   any(c.startswith("C,") for c in k.commands), cmds=k.commands)
-            for d in (g, h, k, t, bad):
+            check("watch_setup_cmds_received",
+                  any(c.startswith("UPLOAD,") for c in wd.commands) and
+                  "LZ,1,6" in wd.commands, cmds=wd.commands)
+            check("watch_never_got_a_listen_command", wd.forbidden_seen == [])
+            for d in (g, h, k, t, bad, wd):
                 await d.close()
             return len(path)
 
@@ -158,6 +180,15 @@ def main():
         alarms = list(NotifEvent.objects.filter(user=owner, meta__alert="device_alarm")
                       .values_list("meta__alarm", flat=True))
         check("tk103_power_cut_alert", "power_cut" in alarms, alarms=alarms)
+        from core.models import KidsWatch, KidsWatchPosition, FamilyAlert
+        kw = KidsWatch.objects.filter(pk=watch_id).first()
+        check("watch_paired_live", kw is not None and kw.state == "paired"
+              and kw.last_lat is not None and kw.battery is not None,
+              state=getattr(kw, "state", None))
+        check("watch_positions_stored",
+              KidsWatchPosition.objects.filter(watch_id=watch_id).count() >= 5)
+        check("watch_sos_family_alert",
+              FamilyAlert.objects.filter(user=owner, kind="sos").exists())
         check("tracker_still_running", srv.poll() is None)
     finally:
         srv.terminate()

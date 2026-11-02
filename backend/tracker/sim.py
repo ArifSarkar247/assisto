@@ -8,6 +8,7 @@ Used by the end-to-end test (core/tests_v1_vehicle.py) and by hand:
     python -m tracker.sim teltonika --imei 356307042441013 --port 15023
     python -m tracker.sim h02 --imei 9171234567 --port 15023
     python -m tracker.sim tk103 --imei 359586015829802 --port 15023
+    python -m tracker.sim watch --imei 8800000015 --port 15023   (kids watch)
 
 Each simulated device auto-answers server commands like real firmware does:
 GT06 replies to a 0x80 online command with a 0x15 string reply carrying the
@@ -19,7 +20,7 @@ import asyncio
 import struct
 from datetime import datetime, timedelta, timezone
 
-from .protocols import gt06, h02, teltonika, tk103
+from .protocols import gt06, h02, teltonika, tk103, watch
 
 
 class GT06Device:
@@ -310,6 +311,116 @@ class TeltonikaDevice:
             self.writer.close()
 
 
+class WatchDevice:
+    """Kids GPS watch speaking the "3G" (SeTracker / Wonlex) text protocol:
+    LK link (server echoes LK), UD positions, AL alarms (server answers AL),
+    TK voice notes (server answers TK,1). Server commands are ACKed by echoing
+    their type like real firmware; a TK voice push is answered "TK,1" and its
+    audio kept in `voice_received`. `forbidden_seen` records any command type
+    in watch.FORBIDDEN (there must never be one)."""
+
+    def __init__(self, dev_id, maker="SG", index=None, ack_commands=True):
+        self.dev = dev_id
+        self.maker = maker
+        self.index = index
+        self.ack_commands = ack_commands
+        self.replies = []             # types of the server's replies (LK, AL, TK...)
+        self.commands = []            # server command contents (text)
+        self.voice_received = []
+        self.forbidden_seen = []
+        self.reader = self.writer = None
+        self._task = None
+        self._eof = asyncio.Event()
+        self._got = asyncio.Condition()
+
+    async def connect(self, host, port):
+        self.reader, self.writer = await asyncio.open_connection(host, port)
+        self._task = asyncio.create_task(self._listen())
+
+    async def send(self, content):
+        self.writer.write(watch.device_frame(self.maker, self.dev, content, self.index))
+        await self.writer.drain()
+
+    async def _wait_reply(self, typ, n_before, timeout):
+        loop = asyncio.get_running_loop()
+        end = loop.time() + timeout
+        while loop.time() < end:
+            if self.replies[n_before:].count(typ):
+                return True
+            if self._eof.is_set():
+                return False
+            await asyncio.sleep(0.02)
+        return False
+
+    async def link(self, battery=80, steps=100, timeout=5.0):
+        n = len(self.replies)
+        await self.send("LK,%d,0,%d" % (steps, battery))
+        return await self._wait_reply("LK", n, timeout)
+
+    async def position(self, lat, lng, at=None, valid=True, battery=80, wifi=None,
+                       cells=None, typ="UD", status=0):
+        at = at or datetime.now(timezone.utc)
+        await self.send(watch.position_content(at, lat, lng, valid=valid, battery=battery,
+                                               wifi=wifi, cells=cells, typ=typ,
+                                               status=status))
+
+    async def alarm(self, lat, lng, status=1 << watch.BIT_SOS, at=None, timeout=5.0):
+        at = at or datetime.now(timezone.utc)
+        n = len(self.replies)
+        await self.send(watch.position_content(at, lat, lng, status=status, typ="AL"))
+        return await self._wait_reply("AL", n, timeout)
+
+    async def voice(self, audio, timeout=5.0):
+        n = len(self.replies)
+        await self.send(b"TK," + audio)
+        return await self._wait_reply("TK", n, timeout)
+
+    async def closed(self, timeout=2.0):
+        try:
+            await asyncio.wait_for(self._eof.wait(), timeout)
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+    async def _listen(self):
+        buf = b""
+        try:
+            while True:
+                data = await self.reader.read(4096)
+                if not data:
+                    self._eof.set()
+                    return
+                buf += data
+                frames, buf = watch.split_frames(buf)
+                for fr in frames:
+                    typ, content = watch.parse_server_frame(fr)
+                    if typ in watch.FORBIDDEN:
+                        self.forbidden_seen.append(typ)
+                        continue
+                    if typ in ("LK", "AL", "TKQ", "TKQ2", "INIT") or \
+                            (typ == "TK" and content in (b"TK,1", b"TK,0")):
+                        self.replies.append(typ)
+                        continue
+                    if typ == "TK":
+                        self.voice_received.append(content[3:])
+                        self.commands.append("TK")
+                        if self.ack_commands:
+                            await self.send("TK,1")
+                        continue
+                    self.commands.append(content.decode("utf-8", "replace"))
+                    if self.ack_commands:
+                        await self.send(typ)
+        except (ConnectionError, asyncio.CancelledError, watch.FrameError):
+            self._eof.set()
+            return
+
+    async def close(self):
+        if self._task:
+            self._task.cancel()
+        if self.writer:
+            self.writer.close()
+
+
 def drive_path(start_lat, start_lng, n, speed_kmh=40.0, step_s=5, t0=None,
                bearing_deg=90.0):
     """A straight drive: n fixes `step_s` apart at `speed_kmh`. Pure helper."""
@@ -367,6 +478,19 @@ async def _cli(a):
         await asyncio.sleep(a.listen)
         print("commands received:", d.commands)
         await d.close()
+    elif a.proto == "watch":
+        d = WatchDevice(a.imei)
+        await d.connect(a.host, a.port)
+        ok = await d.link()
+        print("LK answered:", ok)
+        if not ok:
+            return
+        for p in path:
+            await d.position(p["lat"], p["lng"], p["at"])
+            await asyncio.sleep(a.delay)
+        await asyncio.sleep(a.listen)
+        print("commands received:", d.commands)
+        await d.close()
     else:
         d = TeltonikaDevice(a.imei)
         await d.connect(a.host, a.port)
@@ -385,7 +509,7 @@ async def _cli(a):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Assisto tracker device simulator")
-    ap.add_argument("proto", choices=["gt06", "h02", "tk103", "teltonika"])
+    ap.add_argument("proto", choices=["gt06", "h02", "tk103", "teltonika", "watch"])
     ap.add_argument("--imei", required=True)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=15023)
