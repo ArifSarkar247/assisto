@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -231,8 +232,11 @@ void main() {
     final t =
         AppLocalizations.of(tester.element(find.byType(SupportCenterScreen)));
     await tester.enterText(find.byType(TextField).first, 'The app is slow');
+    PackageInfo.setMockInitialValues(
+        appName: 'Assisto', packageName: 'x', version: '1.0', buildNumber: '1',
+        buildSignature: '');
     await tester.tap(find.text(t.supportSend));
-    await tester.pumpAndSettle();
+    await _spin(tester); // no pumpAndSettle: the send spinner animates
     expect(find.text(t.supportSendFailed(t.otpErrNetwork)), findsOneWidget);
     expect(find.textContaining('SocketException'), findsNothing);
   });
