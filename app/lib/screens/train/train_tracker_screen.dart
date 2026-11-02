@@ -178,7 +178,7 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
   }
 
   Widget _card(AppLocalizations t, bool bn, Map<String, dynamic> tr) {
-    final d = (String s) => notifLocalizeDigits(context, s);
+    String d(String s) => notifLocalizeDigits(context, s);
     final route = '${trainStation(tr['from'] as Map?, bn)} → ${trainStation(tr['to'] as Map?, bn)}';
     return Card(
       child: InkWell(
