@@ -34878,5 +34878,145 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "carmTitle": "Auto guard",
+  "carmStatusOn": "Guard is on by itself",
+  "carmStatusOff": "Auto guard is not arming now — your own schedule decides",
+  "carmReasonFamily": "Everyone who agreed is away from Home",
+  "carmReasonClosed": "The shop is closed",
+  "carmSumHome": "Someone is at home",
+  "carmSumAway": "Everyone is out",
+  "carmSumUnknown": "Not known — nothing is guessed; your schedule decides",
+  "carmSumOff": "Nobody has said yes yet",
+  "carmPrivacyActive": "Indoor cameras are private now (someone is home)",
+  "carmPrivacyPause": "Turn indoor cameras back on",
+  "carmSosActive": "SOS: family can watch live now",
+  "carmFamilyTitle": "Guard on when everyone leaves Home",
+  "carmFamilyBenefit": "No more forgetting to arm. When everyone who agreed is out, the cameras guard; when someone is back, the guard turns off.",
+  "carmFamilyRules": "Each person says yes on their own phone (off at first). The phone sends only how far it is from Home — never where it is. No news for over {min} minutes = \"Not known\": nothing is turned on or off on a guess.",
+  "@carmFamilyRules": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmHomeLabel": "Home: {name}",
+  "@carmHomeLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carmHomeMissing": "Save your Home place first (Safe Journey → Places), then turn this on.",
+  "carmRadius": "At home = within {m} m. \"Out\" only beyond {exit} m, so GPS jitter does not flip it.",
+  "@carmRadius": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      },
+      "exit": {
+        "type": "String"
+      }
+    }
+  },
+  "carmMeters": "{m} m",
+  "@carmMeters": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "carmMembers": "People",
+  "carmMyConsent": "Use whether I am at home",
+  "carmAddPeople": "Add from My Circle",
+  "carmNoCandidatesTitle": "No one in My Circle yet",
+  "carmNoCandidatesBody": "Add your family in My Circle first, then add them here with one tap.",
+  "carmStHome": "At home",
+  "carmStAway": "Out",
+  "carmStUnknown": "Not known",
+  "carmStNoConsent": "Waiting for their yes",
+  "carmRemove": "Remove",
+  "carmInvited": "Asked — they decide on their own phone",
+  "carmPrivacyTitle": "Privacy when someone is home",
+  "carmPrivacyBody": "While someone is at home, indoor cameras send no alerts and cannot be watched live.",
+  "carmIndoorPick": "Which cameras are indoors?",
+  "carmNoCameras": "Add a camera first.",
+  "carmClosedTitle": "Guard on when the shop is closed",
+  "carmClosedBody": "When you finish the day-end in Shop Box, or after closing time, every camera guards until opening time. You get a notice each time.",
+  "carmHoursMissing": "Shop hours are not set — only the day-end turns the guard on. Set the hours in Guard settings.",
+  "carmNomoveTitle": "Tell family if no movement by a set time",
+  "carmNomoveBody": "For an elder living alone: if a camera sees no movement by the time you set, you and the people you choose are told. It only looks at camera movement — it is not a medical device.",
+  "carmNomoveBy": "By {time}",
+  "@carmNomoveBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNomoveFrom": "Counting from {time}",
+  "@carmNomoveFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNomoveWho": "Also tell",
+  "carmSosTitle": "SOS at home: family can open the home camera",
+  "carmSosBody": "If someone presses SOS at Home, the people who see this place's alerts can open the home camera live for {min} minutes. Picture only — sound never starts by itself.",
+  "@carmSosBody": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmLogTitle": "What changed by itself",
+  "carmLogEmpty": "Nothing yet — every automatic change is listed here and sent to you.",
+  "carmAskTitle": "{owner} asks to use whether you are at home",
+  "@carmAskTitle": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "carmAskBody": "If you say yes: when you open Assisto, your phone tells only whether you are near Home (not where you are). The home cameras then guard when everyone is out and stay private when someone is in. You can stop any time.",
+  "carmYes": "Yes, use it",
+  "carmNo": "No",
+  "carmWithdraw": "Stop using my location",
+  "carmYouAgreed": "You said yes. You can stop any time.",
+  "carmStaleRule": "If your phone is not heard for {min} minutes you show as \"Not known\" — nothing is guessed.",
+  "@carmStaleRule": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "carmNotAskedTitle": "Nobody has asked you yet",
+  "carmNotAskedBody": "When the owner adds you to Auto guard, you can say yes or no here.",
+  "carmLimitNote": "Your phone checks only while Assisto is open (or Always-on protection is on). Otherwise you show as \"Not known\".",
+  "carmSaved": "Saved",
+  "carmSosLiveTitle": "Home camera (SOS)",
+  "carmSosNoneTitle": "No SOS right now",
+  "carmSosNoneBody": "If a family member presses SOS at home and the owner allowed it, the home camera opens here for you.",
+  "carmSosStep1": "The camera owner turns on \"SOS at home\" in Auto guard",
+  "carmSosStep2": "You must be able to see that place's alerts",
+  "carmSosFrom": "{name} pressed SOS at home",
+  "@carmSosFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "carmWatchLive": "Watch live",
+  "carmCamOffline": "Camera offline",
+  "carmCamNoLive": "This camera has no live view",
+  "carmCall999": "In an emergency call 999."
 }
