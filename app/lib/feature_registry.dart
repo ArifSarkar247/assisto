@@ -57,6 +57,9 @@ const Map<String, bool> kFeatureDefaults = {
   'missing_alert': false,
   // blood: Blood donor panel — OFF until the owner's two-phone test.
   'blood_donors': false,
+  // train: Train tracker + destination alarm — OFF until the real-train test.
+  'train_tracker': false,
+  'dest_alarm': false,
   'contacts': true,
   'voice_assistant': true,
   'documents': true,
@@ -210,6 +213,8 @@ const Map<String, String> kRouteFeature = {
   'kids_watch': 'kids_watch',
   'missing_alert': 'missing_alert',
   'blood_panel': 'blood_donors',
+  'train_tracker': 'train_tracker',
+  'dest_alarm': 'dest_alarm',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',

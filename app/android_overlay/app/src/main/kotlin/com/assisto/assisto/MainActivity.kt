@@ -357,6 +357,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // train: destination-alarm sound ("com.assisto/train_alarm"). Handler
+        // only — MediaPlayer / TextToSpeech are made when an alarm fires.
+        try {
+            com.assisto.assisto.train.TrainAlarmChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // cashguard: Guard Box on-device person model ("com.assisto/guardbox").
         // Handler only — the ORT session is created on the first detect()
         // from an open Guard Box screen (flag guard_box_mode), never at launch.

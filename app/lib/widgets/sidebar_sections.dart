@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
+import '../screens/train/dest_alarm_screen.dart'; // train
+import '../screens/train/train_tracker_screen.dart'; // train
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -482,6 +484,18 @@ class SidebarSections {
           (_) => const MissingHubScreen(),
           synonyms: ['missing', 'missing person', 'missing child', 'lost child',
               'nikhonj', 'amber alert', 'find person']),
+      // train (owner priority C): crowd live trains + estimate + 16318 SMS + chat
+      SidebarItem(Icons.train_rounded, (t) => t.trTitle,
+          feature: 'train_tracker',
+          (_) => const TrainTrackerScreen(),
+          synonyms: ['train', 'rail', 'trainkothai', 'where is my train', 'tren',
+              'rel', '16318']),
+      // train: destination alarm (offline geofence, loud on silent)
+      SidebarItem(Icons.alarm_on_rounded, (t) => t.trAlarmTitle,
+          feature: 'dest_alarm',
+          (_) => const DestAlarmScreen(),
+          synonyms: ['destination alarm', 'wake me', 'station alarm', 'stop alarm',
+              'bus stop alarm', 'metro', 'launch', 'gonthobbo']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),

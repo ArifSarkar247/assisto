@@ -808,10 +808,14 @@ def sweep(now=None):
 
     def _sweep_family(now, stats):
         FA.sweep(now, stats)
+    def _sweep_train(now, stats):
+        # train: the per-train chat + crowd shares are deleted after the trip
+        from . import train_service as TS
+        TS.purge(now, stats)
     def _sweep_guardian(now, stats):
         from . import guardian_journey as GJ
         GJ.sweep(now, stats)
-    for fn in (_sweep_guardian, _sweep_retry, _sweep_wellness, _sweep_checkins,
+    for fn in (_sweep_train, _sweep_guardian, _sweep_retry, _sweep_wellness, _sweep_checkins,
                _sweep_routines, _sweep_privacy, _sweep_family):
         try:
             fn(now, stats)
