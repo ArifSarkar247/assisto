@@ -19,6 +19,9 @@ import 'package:assisto/messaging/msg_fallback.dart';
 import 'package:assisto/messaging/msg_notify.dart';
 import 'package:assisto/messaging/msg_push_done.dart';
 import 'package:assisto/push/push_payload.dart';
+import 'package:assisto/theme.dart';
+import 'package:assisto/widgets/family_push_banner.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -210,4 +213,35 @@ void main() {
       expect(keep, contains('@drawable/$n'), reason: '$n must be in assisto_keep.xml');
     }
   });
+
+  for (final lang in ['en', 'bn']) {
+    testWidgets('message notifications off -> chat-list banner ($lang)', (t) async {
+      var on = false;
+      await t.pumpWidget(MaterialApp(
+        locale: Locale(lang),
+        theme: AssistoTheme.light,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+            body: FamilyPushBanner.messages(
+                enabled: () async => on,
+                request: () async {
+                  on = true;
+                  return true;
+                })),
+      ));
+      await t.pumpAndSettle();
+      final tt = lookupAppLocalizations(Locale(lang));
+      expect(find.text(tt.notifsMsgOffTitle), findsOneWidget);
+      expect(find.text(tt.notifsMsgGuide), findsOneWidget);
+      await t.tap(find.text(tt.fa100PushOffAllow));
+      await t.pumpAndSettle();
+      expect(find.text(tt.notifsMsgOffTitle), findsNothing);
+    });
+  }
 }
