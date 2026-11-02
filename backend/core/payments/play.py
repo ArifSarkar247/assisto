@@ -536,8 +536,8 @@ def sub_status(user, now=None):
     gone = _replaced_hashes(user)
     for pp in PlayPurchase.objects.filter(user=user, kind="sub", revoked=False,
                                           state__in=tuple(_STATUS)).order_by("-updated_at"):
-        if pp.token_hash in gone:
-            continue
+        if pp.token_hash in gone or pp.sku.startswith("cctv"):
+            continue        # cctvprice: the CCTV plan has its own status
         st = _STATUS[pp.state]
         if st in ("active", "canceled", "grace") and not (pp.expires_at and pp.expires_at > now):
             continue

@@ -125,6 +125,7 @@ class CctvPlayTests(PlayBase):
         # the app plan is untouched (CCTV is not Premium)
         self.u.refresh_from_db()
         self.assertEqual(self.u.plan, "free")
+        self.assertIsNone(play.sub_status(self.u))     # not shown as the app plan
 
     def test_free_trial_is_not_revenue_and_trial_used_is_remembered(self):
         self.assertFalse(CPS.trial_used(self.u))
