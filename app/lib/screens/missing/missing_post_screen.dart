@@ -14,6 +14,7 @@ import '../../missing_alert_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
+import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
 
 /// missing (owner 2 Nov) — post a missing person alert. One screen, top to
@@ -142,8 +143,8 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
     if (widget.locate != null) return widget.locate!();
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      // Play: in-app disclosure before Android's prompt (play_disclosure_guard)
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) return null;
       final p = await Geolocator.getCurrentPosition().timeout(const Duration(seconds: 10));
       return (lat: p.latitude, lng: p.longitude);
