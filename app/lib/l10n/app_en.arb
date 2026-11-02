@@ -28490,5 +28490,25 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "shopLiveNoAnswer": "The shop device didn't answer in {seconds} seconds. Check that it is on and connected to the internet, then try again.",
+  "@shopLiveNoAnswer": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLiveTook": "Started in {seconds} s",
+  "@shopLiveTook": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "wmPasteLabel": "Paste from the label's QR code",
+  "wmPasteLabelNone": "No serial number found in the copied text. Scan the QR on the camera's label with your phone camera, copy the text, then try again — or type it from the label.",
+  "wmPasteLabelBoth": "Serial number and safety code filled from the label.",
+  "wmPasteLabelSerial": "Serial number filled. Type the safety code from the label."
 }
