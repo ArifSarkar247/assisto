@@ -109,6 +109,7 @@ const Map<String, bool> kFeatureDefaults = {
   'cv_builder': true,
   'ai_inbox': true,
   'pa_secretary': true,
+  'ps_secretary': false,
   'business': true,
   'crm': true,
   'business_agent': true,

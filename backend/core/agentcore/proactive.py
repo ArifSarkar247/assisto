@@ -749,6 +749,17 @@ def build_brief(user, kind, now):
     if lines:
         secs.append(_sec("reminders", "রিমাইন্ডার", "Reminders", lines))
 
+    # pssec: Personal Secretary — today's meetings + overdue follow-ups
+    # (morning only; flag ps_secretary; the user's own PA rows, no AI).
+    if not evening:
+        try:
+            from .. import ps_service as PSS
+            lines = [_line(l["bn"], l["en"]) for l in PSS.proactive_lines(user, now)]
+        except Exception:
+            lines = []
+        if lines:
+            secs.append(_sec("ps", "পিএস — আজকের কাজ", "PS — today", lines))
+
     # bills
     lines = []
     if "bill_due" not in off:
