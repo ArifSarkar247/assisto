@@ -34878,5 +34878,153 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "sjaPresetDefault": "{dist} (default)",
+  "@sjaPresetDefault": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaCustom": "Custom",
+  "@sjaCustom": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaGpsNote": "Phone GPS is usually 5–20 m off (more under flyovers and tall buildings). So the alarm also rings when you are about 45 seconds from the stop at your current speed — whichever comes first.",
+  "@sjaGpsNote": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSnooze": "Snooze 1 minute",
+  "@sjaSnooze": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSnoozed": "Snoozed — rings again at {time}",
+  "@sjaSnoozed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaRangBySpeed": "Rang early: at your speed you reach the stop in about 45 seconds.",
+  "@sjaRangBySpeed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaSpeedNow": "Speed now: {kmh} km/h",
+  "@sjaSpeedNow": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaNotifyFamily": "Tell family when I arrive",
+  "@sjaNotifyFamily": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaNotifyFamilySub": "When you tap “I'm awake”, the people you pick get an “arrived” notice. This needs internet — the alarm itself does not.",
+  "@sjaNotifyFamilySub": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAddPerson": "Add from My Circle",
+  "@sjaAddPerson": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaPickPerson": "Who should know you arrived?",
+  "@sjaPickPerson": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaArrivedSent": "Your family was told you arrived.",
+  "@sjaArrivedSent": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaArrivedFailed": "Could not tell your family (no internet). Please call or message them.",
+  "@sjaArrivedFailed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecorderTitle": "Trip recorder (owner only)",
+  "@sjaRecorderTitle": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecBenefit": "Records this trip's real GPS (time, position, accuracy, speed) on this phone, so the destination alarm is tested against real trips. Nothing leaves the phone unless you share or upload it privately.",
+  "@sjaRecBenefit": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaModeWalking": "Walking",
+  "@sjaModeWalking": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStart": "Start recording",
+  "@sjaRecStart": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStop": "Stop and save",
+  "@sjaRecStop": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecGotOff": "I got off here (my stop)",
+  "@sjaRecGotOff": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecStopMarked": "Stop marked",
+  "@sjaRecStopMarked": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecPoints": "{n} points · accuracy {acc} m",
+  "@sjaRecPoints": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "acc": {
+        "type": "String"
+      }
+    }
+  },
+  "sjaRecSaved": "Saved trips",
+  "@sjaRecSaved": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecEmpty": "No trips yet. Start recording on your next bus, train or walk, and tap “I got off here” at your stop.",
+  "@sjaRecEmpty": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecShare": "Share",
+  "@sjaRecShare": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUpload": "Upload privately",
+  "@sjaRecUpload": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUploaded": "Uploaded privately",
+  "@sjaRecUploaded": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecUploadFailed": "Upload failed. The trip is still on this phone — try again with internet.",
+  "@sjaRecUploadFailed": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaRecNotif": "Recording this trip's GPS",
+  "@sjaRecNotif": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAlarmHere": "Alarm here",
+  "@sjaAlarmHere": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)"
+  },
+  "sjaAlarmHereA11y": "Set alarm at {station}",
+  "@sjaAlarmHereA11y": {
+    "description": "sjalarm (Safe Journey Card 2/3, owner order 3 Nov)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  }
 }
