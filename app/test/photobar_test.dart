@@ -334,13 +334,15 @@ void main() {
       await c.applyEdit([const GeoStep(turns: 1)]);
       await tester.pumpWidget(_app(PhotoStudioScreen(controller: c)));
       await tester.pump();
-      final list = find.byType(Scrollable).first;
-      await tester.scrollUntilVisible(find.byKey(const Key('psbOpenCrop')), 200, scrollable: list);
-      await tester.scrollUntilVisible(find.byKey(const Key('psbId_passport_bd')), 200, scrollable: list);
-      expect(find.text('পাসপোর্ট ও আইডি ছবি'), findsOneWidget);
+      final list = find.byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down).first;
+      // export card first (the editor + ID cards follow it)
       await tester.scrollUntilVisible(find.byKey(const Key('psExport_save')), 200, scrollable: list);
       expect(find.byKey(const Key('psExport_wallpaper')), findsNothing);
       expect(find.byKey(const Key('psExport_copy')), findsNothing);
+      await tester.scrollUntilVisible(find.byKey(const Key('psbOpenCrop')), 200, scrollable: list);
+      await tester.scrollUntilVisible(find.byKey(const Key('psbId_passport_bd')), 200, scrollable: list);
+      expect(find.text('পাসপোর্ট ও আইডি ছবি'), findsOneWidget);
     });
 
     testWidgets('crop screen: rotate + apply returns the step', (tester) async {
