@@ -159,6 +159,35 @@ class ImouClient:
             "channelId": str(channel_id)})
         return data.get("url") or ""
 
+    def live_hls(self, device_id, channel_id="0", hd=False):
+        """cctvguard (order G): an HLS live address — SD = sub stream
+        (streamId 1) by default, HD = main stream (0) only on tap. Imou Open
+        API bindDeviceLive; when a live address already exists for the
+        channel (LV1001) getLiveStreamInfo returns it. -> (url, liveToken)."""
+        want = 0 if hd else 1
+        try:
+            data = self.call("bindDeviceLive", {
+                "token": self.token(), "deviceId": device_id,
+                "channelId": str(channel_id), "streamId": want})
+        except ImouError as e:
+            if e.code != "LV1001":
+                raise
+            data = self.call("getLiveStreamInfo", {
+                "token": self.token(), "deviceId": device_id,
+                "channelId": str(channel_id)})
+        streams = data.get("streams") or []
+        pick = [x for x in streams if str(x.get("streamId")) == str(want)] or streams
+        for x in pick:
+            url = str(x.get("hls") or "")
+            if url and snapshot_url_allowed(url):
+                return url, str(x.get("liveToken") or data.get("liveToken") or "")
+        raise ImouError("no_stream")
+
+    def unbind_live(self, live_token):
+        """Stop the cloud live address (frees Imou stream quota)."""
+        return self.call("unbindLive", {"token": self.token(),
+                                        "liveToken": str(live_token)})
+
 
 # ---------------------------------------------------------------- parsing
 _HUMAN_WORDS = ("human", "humanoid", "people", "person", "body",

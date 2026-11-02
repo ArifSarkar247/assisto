@@ -1,0 +1,12 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+<form method="get" class="inline"><label>{{ L.month }} <input name="month" value="{{ month }}" pattern="\d{4}-\d{2}" maxlength="7" size="8"></label> <button class="btn ghost">›</button></form>
+<p class="small">{% if cfg.confirmed %}<b>{{ L.enforced }}</b>{% else %}{{ L.not_enforced }}{% endif %} · {{ L.per_cam }}: {{ cfg.relay_mb }} MB</p>
+{% if rows %}
+<div class="card tbl"><table id="cctv-traffic"><thead><tr><th>{{ L.account }}</th><th>{{ L.cams }}</th><th>{{ L.paid }}</th><th>{{ L.turn }}</th><th>{{ L.vendor }}</th><th>{{ L.direct }}</th><th>{{ L.minutes }}</th><th>{{ L.cap }}</th><th>{{ L.state }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a> {{ r.name }}</td><td>{{ r.cameras }}</td><td><b>{{ r.paid_mb }}</b></td><td>{{ r.client_relay_mb }} / {{ r.turn_mb }}</td><td>{{ r.vendor_est_mb }}, {{ r.vendor_min }}</td><td>{{ r.direct_mb }}</td><td>{{ r.live_min }} ({{ r.relay_min }})</td><td>{{ r.cap_mb }}</td><td>{{ r.level_label }} · {{ r.pct }}%</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+{% endblock %}
