@@ -334,15 +334,6 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                     child: Text(t.wmTo(loc.formatTimeOfDay(_qEnd))),
                   ),
                 ]),
-              // cctvalerts (W3): which alert types this camera sends
-              const Divider(height: 28),
-              CameraAlertTypesTile(
-                cameraId: _camId,
-                cameraName: (widget.camera['name'] ?? '').toString(),
-                source: widget.source is ApiWatchmanSource
-                    ? ApiAlertTypesSource((widget.source as ApiWatchmanSource).api)
-                    : null,
-              ),
               if (((_tuning['correct'] as num?) ?? 0) + ((_tuning['wrong'] as num?) ?? 0) > 0) ...[
                 const Divider(height: 28),
                 Text(t.wmLearned(wmDigits(lang, (_tuning['correct'] as num?)?.toInt() ?? 0),
@@ -359,6 +350,16 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                 child: _saving
                     ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
                     : Text(t.wmSave),
+              ),
+              // cctvalerts (W3): which alert types this camera sends (own
+              // switches, saved at once — below the zones Save button)
+              const Divider(height: 28),
+              CameraAlertTypesTile(
+                cameraId: _camId,
+                cameraName: (widget.camera['name'] ?? '').toString(),
+                source: widget.source is ApiWatchmanSource
+                    ? ApiAlertTypesSource((widget.source as ApiWatchmanSource).api)
+                    : null,
               ),
             ]),
     );
