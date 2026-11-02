@@ -79,6 +79,15 @@ class Command(BaseCommand):
                     self.stdout.write(f"missing alerts expired: {n}")
             except Exception as e:  # never blocks the account purge
                 self.stdout.write(f"missing sweep failed: {type(e).__name__}")
+            # blood (owner 2 Nov): expire urgent blood requests + send the
+            # "you can donate again" reminders — same hourly job.
+            try:
+                from core import blood_panel
+                n = blood_panel.sweep()
+                if n:
+                    self.stdout.write(f"blood requests expired: {n}")
+            except Exception as e:  # never blocks the account purge
+                self.stdout.write(f"blood sweep failed: {type(e).__name__}")
             self.stdout.write(self.style.SUCCESS(f"purged {purged} account(s)"))
         else:
             self.stdout.write(f"[dry-run] {due.count()} account(s) due")

@@ -29690,5 +29690,2232 @@
   "aibarNotSent": "Not sent — your message is kept.",
   "aibarNotSentOffline": "No internet — your message is kept. Send it again when you're online.",
   "aibarNotSentServer": "Assisto's server had a problem — your message is kept. Try again in a moment.",
-  "aibarSendAgain": "Send again"
+  "aibarSendAgain": "Send again",
+  "sbWindowClosed7d": "More than 7 days since the customer's last message. Meta allows no reply here until the customer writes again.",
+  "sbRateLimited": "Meta is busy right now. We will send it again by ourselves in about a minute.",
+  "sbCommentPermPending": "Replies to post comments are waiting for Meta's approval. For now, reply under the comment on Facebook or Instagram.",
+  "sbCommentTooOld": "This comment is older than 7 days. Meta allows no private reply to it.",
+  "sbCommentAlreadyReplied": "This comment already got its one private reply. Meta allows only one.",
+  "sbCommentNotFound": "No comment found to reply to in this chat.",
+  "sbOptedOut": "This customer wrote STOP. You cannot message them first. You can reply when they write again.",
+  "sbMetaNotReady": "Connecting your Facebook Page, Instagram or WhatsApp opens here as soon as Meta approves Assisto. Until then, your AI assistant can already answer customers on your website.",
+  "sbUseWebsiteChat": "Use website chat now",
+  "sbMetaReviewPending": "Meta is still reviewing Assisto. Until it approves, only a Page or number whose admin is added as a tester in Assisto's Meta app can be connected.",
+  "sbCommentsWaitMeta": "Comment replies switch on once Meta approves Assisto for comments. Until then, comments still show in your inbox.",
+  "sbActivityTitle": "Activity log",
+  "sbActivitySub": "Who paused the AI, approvals, setting changes, STOP",
+  "sbActivityNote": "Newest first. Message text is never stored here.",
+  "sbActivityEmptyTitle": "Nothing here yet",
+  "sbActivityEmptyBenefit": "Here you will see who took a chat over or gave it back to the AI, which replies were approved, and which settings changed — so nothing happens behind your back.",
+  "sbActivityEmptyHow": "It fills in by itself once a channel is connected and customers start writing.",
+  "sbActByYou": "You",
+  "sbActByAssistant": "AI assistant",
+  "sbActTakeover": "Took a chat over from the AI",
+  "sbActHandback": "Gave a chat back to the AI",
+  "sbActHandbackIdle": "AI took a chat back after you went quiet",
+  "sbActOwnerReply": "Replied to a customer",
+  "sbActApprove": "Approved a reply",
+  "sbActReject": "Rejected a reply",
+  "sbActSettings": "Changed AI settings",
+  "sbActTemplate": "Sent a WhatsApp template",
+  "sbActChannelConnect": "Connected a channel",
+  "sbActChannelDisconnect": "Disconnected a channel",
+  "sbActChannelOn": "Turned a channel on",
+  "sbActChannelOff": "Turned a channel off",
+  "sbActOptOut": "A customer wrote STOP",
+  "sbActOptIn": "A customer wrote START again",
+  "sbActCommentHeld": "A comment is waiting (Meta approval pending)",
+  "sbActCapDaily": "Today's AI limit was reached",
+  "sbActCapThread": "A chat reached its daily limit",
+  "sbActBurst": "Too many messages at once — AI paused in a chat",
+  "sbActDraftOrder": "AI made a draft order from a photo",
+  "sbActDraftConfirm": "Confirmed a draft order",
+  "sbActDraftCancel": "Cancelled a draft order",
+  "psbAddText": "Add text",
+  "psbApply": "Apply",
+  "psbAspectFree": "Free",
+  "psbAspectOriginal": "Original",
+  "psbColor": "Colour",
+  "psbCrop": "Crop & rotate",
+  "psbCropTitle": "Crop & rotate",
+  "psbDefaultText": "Your text",
+  "psbDelete": "Delete",
+  "psbDragHint": "Drag on the photo to move it. Tap another one to select it.",
+  "psbEditBody": "Crop, rotate, filters, Bangla text and stickers — on your phone, no internet needed. The original stays safe.",
+  "psbEditFailed": "That edit didn't work on this phone. Your photo is unchanged — please try again.",
+  "psbEditTitle": "Edit",
+  "psbFilterBw": "Black & white",
+  "psbFilterCool": "Cool",
+  "psbFilterDrama": "Drama",
+  "psbFilterEid": "Eid glow",
+  "psbFilterFade": "Fade",
+  "psbFilterGolden": "Golden hour",
+  "psbFilterOriginal": "Original",
+  "psbFilterSepia": "Sepia",
+  "psbFilterVivid": "Vivid",
+  "psbFilterWarm": "Warm",
+  "psbFilters": "Filters",
+  "psbFiltersTitle": "Filters",
+  "psbFlip": "Mirror",
+  "psbFontAtma": "Atma",
+  "psbFontGalada": "Galada",
+  "psbFontHind": "Hind Siliguri",
+  "psbFontNoto": "Noto Sans",
+  "psbFontSample": "Aa",
+  "psbHeroCan": "Also here: passport, visa and job-application photos in the right size, white background, crop, filters, Bangla text and stickers.",
+  "psbIdBgBlue": "Light blue",
+  "psbIdBgKeep": "Keep",
+  "psbIdBgLabel": "Background",
+  "psbIdBgWhite": "White",
+  "psbIdBody": "Pick the size, place your head in the oval, done. You get the exact pixels — print at a shop or upload.",
+  "psbIdCheck": "Sizes are from official sources where we found them. Rules change — check with the office before you submit.",
+  "psbIdEpassport": "E-passport: no photo needed — the passport office takes it.",
+  "psbIdFileJpg": "File: {w}×{h} px JPG, at most {kb} KB.",
+  "@psbIdFileJpg": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      },
+      "kb": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdFilePng": "File: {w}×{h} px PNG at {dpi} DPI — prints at the exact size.",
+  "@psbIdFilePng": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      },
+      "dpi": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdFileSheet": "File: 4×6 inch print sheet at {dpi} DPI — ask the shop for a 4R print at 100%.",
+  "@psbIdFileSheet": {
+    "placeholders": {
+      "dpi": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdHint": "Plain light wall, face straight, both ears visible, no smile with teeth. Keep your head inside the oval.",
+  "psbIdJob": "Govt job application (Teletalk)",
+  "psbIdKb": "JPG ≤ {kb} KB",
+  "@psbIdKb": {
+    "placeholders": {
+      "kb": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdMm": "{w}×{h} mm",
+  "@psbIdMm": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdNoMark": "ID photos are saved without the corner mark.",
+  "psbIdNoMask": "Take the photo in front of a plain white wall — background change isn't available on this phone.",
+  "psbIdPassport": "Passport (MRP / passport size)",
+  "psbIdPx": "{w}×{h} px",
+  "@psbIdPx": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdSheet": "Make a print sheet ({n} copies, 4×6 inch)",
+  "@psbIdSheet": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "psbIdSrcCommon": "common practice",
+  "psbIdSrcMission": "BD mission source",
+  "psbIdSrcPortal": "official portal",
+  "psbIdStamp": "Stamp size",
+  "psbIdTitle": "Passport & ID photo",
+  "psbIdTooBig": "This photo can't be made small enough for the portal's KB limit. Try a simpler background.",
+  "psbIdVisaBd": "Visa 35×45 (Bangladesh visa, many countries)",
+  "psbIdVisaIndia": "Indian visa (2×2 inch)",
+  "psbReset": "Reset",
+  "psbRotateLeft": "Rotate left",
+  "psbRotateRight": "Rotate right",
+  "psbSaveWhere": "Save puts the photo in your Gallery (Pictures › Assisto).",
+  "psbSavedGallery": "Saved to your Gallery (Pictures › Assisto).",
+  "psbSize": "Size",
+  "psbStickers": "Stickers",
+  "psbStickersTitle": "Stickers",
+  "psbStkBirthday": "Happy Birthday",
+  "psbStkCongrats": "Congratulations",
+  "psbStkEid": "Eid Mubarak",
+  "psbStkLove": "With love",
+  "psbStkNewYear": "Happy New Year",
+  "psbStkPuja": "Puja greetings",
+  "psbStkVictory": "Joy Bangla",
+  "psbStkWedding": "Happy Wedding",
+  "psbStrength": "Strength",
+  "psbTabStickers": "Stickers",
+  "psbTabText": "Text",
+  "psbText": "Text",
+  "psbTextBox": "Box",
+  "psbTextLabel": "Text",
+  "psbTextTitle": "Text",
+  "psbToolBgBlue": "Light blue background",
+  "psbToolBgRemove": "Remove background",
+  "psbToolBgWhite": "White background",
+  "adsPrivacyTitle": "Ads privacy",
+  "adsPrivacySub": "See or change your ad consent choice (Google form)",
+  "adsPrivacyNotRequired": "No ad-consent form is needed in your region. Tap the ⓘ AdChoices icon on any ad to learn why you see it.",
+  "mbTcbTitle": "Official market prices (TCB, Dhaka)",
+  "mbTcbFresh": "Government price list of {date}: {count} items, lowest–highest retail price in Dhaka markets. Compare before you buy.",
+  "@mbTcbFresh": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbStale": "TCB has not published a new list since {date} — these prices may be old.",
+  "@mbTcbStale": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbNotConnected": "Today's government price list has not been fetched yet, so we show no official prices — we never make one up. Open TCB's own page to check.",
+  "mbTcbSeeAll": "See all prices",
+  "mbTcbOpenSite": "Open TCB's page",
+  "mbTcbWeekUp": "up {pct}% this week",
+  "@mbTcbWeekUp": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbWeekDown": "down {pct}% this week",
+  "@mbTcbWeekDown": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbSourceLine": "Source: Trading Corporation of Bangladesh (TCB), daily retail price list of {date}. Prices in taka, lowest–highest.",
+  "@mbTcbSourceLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbMarkets": "Markets surveyed: {markets}",
+  "@mbTcbMarkets": {
+    "placeholders": {
+      "markets": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbSearch": "Search an item (rice, onion, oil…)",
+  "mbTcbNoMatch": "No item with that name in today's TCB list.",
+  "mbTcbMatchLine": "Govt. price (TCB, Dhaka): {range} {unit} — {name}",
+  "@mbTcbMatchLine": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mbSpendFromLedger": "My ledger (this month)",
+  "mbSpendTyped": "Typed by me",
+  "mbSpendLedgerNote": "Worked out from the expenses you already wrote in Money this month — nothing to type again. Change a number in Money and it changes here.",
+  "mbOffersFailedBody": "Offers could not load — check the internet and try again. Your choices are safe.",
+  "mbOffersEmptyBody": "Pick the kinds of things you buy (mobile, grocery, fashion…) — you'll see only those offers, at most a few a day. You can mute any brand.",
+  "mbOffersPickInterests": "Choose what I like",
+  "mbTaxNewYearTitle": "2026-27 tax rates are not in this calculator yet",
+  "mbTaxNewYearBody": "Returns filed now (deadline usually 30 November) use the 2026-27 rates, which changed. This estimate uses the 2024-25 / 2025-26 rates, so it can be wrong for this year. Check NBR's official circular before you file.",
+  "mbTaxOpenCircular": "Open NBR circular 2026-27",
+  "mbZakatPerVori": "Prices per vori (bhori)",
+  "mbZakatPerVoriSub": "Jewellers and BAJUS quote per vori. 1 vori = 11.664 g — we convert.",
+  "mbZakatGoldPerVori": "Gold price per vori",
+  "mbZakatSilverPerVori": "Silver price per vori",
+  "mbZakatBajusLink": "Today's gold and silver price (BAJUS)",
+  "mbZakatNisabMissing": "Nisab is empty, so this shows 2.5% of everything — zakat may not be due at all. Find today's nisab in Tax & Zakat (from the silver or gold price) and type it here.",
+  "mbZakatBelowNisab": "Your net wealth is below nisab — no zakat is due on it.",
+  "mbFinBbRate": "Today's official rate (Bangladesh Bank)",
+  "mbWrappedAddTxn": "Write an expense or income",
+  "mbRentDueTitle": "Rent due today: {unit}",
+  "@mbRentDueTitle": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "mbRentDueBody": "Collect this month's rent from {name}, then record it in Assisto.",
+  "@mbRentDueBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mbRentDueBodyNoName": "Collect this month's rent, then record it in Assisto.",
+  "mbRentDueDay": "Rent due day (reminder)",
+  "mbRentDueDayHelp": "We remind you at 9 am that day each month. If the month is already paid in full, we skip it.",
+  "mbRentDueDayNone": "No reminder",
+  "mbRentDueDayN": "Day {day} of the month",
+  "@mbRentDueDayN": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "mbCirclePick": "Pick from My Circle",
+  "mbCirclePickSub": "Name and number come in one tap — nothing to type twice.",
+  "cbarLowDataTitle": "Low-data calls",
+  "cbarLowDataSub": "Uses less mobile data: the voice is sent at a lower rate in fewer, bigger packets, and video is smaller. Works for both people on the call.",
+  "cbarLowDataChip": "Low-data call",
+  "cbarLowDataByOther": "{name} turned on low data, so this call already uses less data.",
+  "@cbarLowDataByOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarNetSheetTitle": "Call network and data",
+  "cbarNetGood": "Network: good",
+  "cbarNetFair": "Network: fair — the voice may break up a little",
+  "cbarNetPoor": "Network: weak — try low-data calls or move closer to Wi-Fi",
+  "cbarNetUnknown": "Network: checking…",
+  "cbarDataSoFar": "This call has used about {amount} so far",
+  "@cbarDataSoFar": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarDataUsed": "This call used about {amount}",
+  "@cbarDataUsed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarMyVideoPaused": "Your video is paused because the network is weak. The voice goes on.",
+  "cbarRemoteVideoPaused": "{name}'s network is weak, so their video is paused. The voice goes on.",
+  "@cbarRemoteVideoPaused": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarNoticeVideoPaused": "Weak network: your video is paused so the voice keeps going. It comes back by itself.",
+  "cbarNoticeVideoResumed": "The network is better. Your video is back.",
+  "cbarNoticeLowDataOn": "Low-data call is on for both of you.",
+  "cbarNoticeLowDataOff": "Low-data call is off.",
+  "cbarRateAsk": "How was the call?",
+  "cbarRateGood": "Good",
+  "cbarRateBad": "Bad",
+  "cbarRateWhat": "What went wrong?",
+  "cbarRateThanks": "Thank you. This helps us make calls better.",
+  "cbarIssueChoppy": "Voice broke up",
+  "cbarIssueEcho": "Echo",
+  "cbarIssueDelay": "Delay",
+  "cbarIssueNoise": "Noise",
+  "cbarIssueVideo": "Video problem",
+  "cbarIssueDropped": "Call dropped",
+  "cbarIssueOther": "Something else",
+  "cbarGroupTitle": "Group call",
+  "cbarGroupHonest": "Calls with 3 or more people at once are not ready yet. We are telling you honestly instead of showing a button that does nothing. You can call any one person below right now.",
+  "cbarGroupCallOne": "Call one person now",
+  "cbarGroupNoneCallable": "No one in this group is in your My Circle yet, so there is no one to call from here. Add them to your circle first, then call them in one tap.",
+  "cbarGroupNotInCircle": "Not in your circle — add them to My Circle to call:",
+  "cbarGroupBackToChat": "Back to the group chat",
+  "cbarGroupUnnamed": "Member",
+  "cbarGroupVoiceTo": "Voice call {name}",
+  "@cbarGroupVoiceTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarGroupVideoTo": "Video call {name}",
+  "@cbarGroupVideoTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cbarCallBack": "Call back",
+  "cbarMessage": "Message",
+  "cfaAll": "All",
+  "@cfaAll": {
+    "description": "People filter chip: everyone"
+  },
+  "cfaFamily": "Family",
+  "@cfaFamily": {
+    "description": "People filter chip / section: family"
+  },
+  "cfaChipFamily": "My family",
+  "@cfaChipFamily": {
+    "description": "Chat-list filter chip: chats with people marked Family"
+  },
+  "cfaOthers": "Others",
+  "@cfaOthers": {
+    "description": "People filter chip / section: everyone who is not family"
+  },
+  "cfaSearchPeople": "Search by name or number",
+  "cfaNoMatch": "No one matches that search.",
+  "cfaNoFamilyYet": "No one is marked as Family yet. Family comes first in SOS and in every list.",
+  "cfaNoOthersYet": "Everyone here is Family.",
+  "cfaHowToMark": "To mark someone: My Circle chats, hold a chat, then tap Family or others.",
+  "cfaShowEveryone": "Show everyone",
+  "cfaNoFamilyChats": "No family chats here yet",
+  "cfaNoOthersChats": "No chats with others here yet",
+  "cfaFamilyBenefit": "Keep family separate from everyone else: family comes first in SOS, alerts and every people list.",
+  "cfaHowToMarkChat": "Hold a chat and tap \"Family or others\" to move a person.",
+  "cfaShowAllChats": "Show all chats",
+  "cfaMarkMenu": "Family or others",
+  "@cfaMarkMenu": {
+    "description": "Chat/person menu item that opens the Family / Others choice"
+  },
+  "cfaMarkTitle": "Where does {name} belong?",
+  "@cfaMarkTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cfaMarkWhy": "Family comes first in SOS, alerts and every people list. Only you see this choice.",
+  "cfaAutomatic": "Automatic",
+  "cfaAutomaticSub": "Decided from the relation you set (mother, brother …)",
+  "cfaMarkedAs": "Moved to {group}",
+  "@cfaMarkedAs": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "cfaMarkFailed": "Could not save — check the internet and try again.",
+  "claLinkWarnTitle": "Check this link before opening",
+  "claLinkBadTitle": "This link may be a trap",
+  "claLinkGoesTo": "It really goes to: {host}",
+  "@claLinkGoesTo": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "claReasonLookalike": "It looks like {brand} but is not the real {brand} website. Never type your PIN or OTP here.",
+  "@claReasonLookalike": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "claReasonPunycode": "The address uses look-alike letters.",
+  "claReasonIp": "The address is only a number, not a website name.",
+  "claReasonShortener": "Short link — it hides the real website.",
+  "claReasonHttp": "Not secure (no https) — others on the network can see what you type.",
+  "claReasonTld": "Unusual web address ending, often used by scams.",
+  "claReasonUserinfo": "The address hides its real destination behind an @.",
+  "claReasonSafeBrowsing": "Google Safe Browsing lists this website as dangerous.",
+  "claReasonScheme": "This is not a normal web link.",
+  "claLinkCheckedOnPhone": "Checked before opening. In chats the link never leaves your phone.",
+  "claGoBack": "Go back",
+  "claOpenAnyway": "Open anyway",
+  "claCopyLink": "Copy link",
+  "claOpenLink": "Open link",
+  "claLinkCopied": "Link copied",
+  "claCantOpen": "Could not open the link",
+  "claLinkPreviewsSetting": "Link previews",
+  "claLinkPreviewsSettingSub": "Your phone fetches the title and picture before sending; they go inside the encrypted message.",
+  "cgaTitle": "Guardians",
+  "cgaWhoSeesMe": "Who can see me",
+  "cgaMyChildren": "Children I look after",
+  "cgaNobodySeesMe": "Nobody can see your location or school mode now.",
+  "cgaKidsEmptyBenefit": "Both parents (and grandparents) can look after the same child — everyone gets the alerts.",
+  "cgaKidsEmptyHow": "Start with a trip: ask to follow your child's way to school. They agree on their own phone.",
+  "cgaKidsStart": "Ask to follow a trip",
+  "cgaSrcWatch": "Kids watch",
+  "cgaSrcSchool": "School mode",
+  "cgaSrcJourney": "Trip",
+  "cgaWatchOnlyOwner": "The watch was set up by {name} — only they can change who sees it.",
+  "@cgaWatchOnlyOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemove": "Remove",
+  "cgaRemoveTitle": "Remove {name}?",
+  "@cgaRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveBody": "{name} will stop seeing your school mode and trips at once and will be told. You can add them again later.",
+  "@cgaRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveYes": "Yes, remove",
+  "cgaRemoved": "{name} was removed",
+  "@cgaRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemovedButWatch": "{name} was removed. The watch stays — ask {owner} to change it.",
+  "@cgaRemovedButWatch": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveFailed": "Could not remove — check the internet and try again.",
+  "cgaLoadFailed": "Could not load. Check the internet.",
+  "cgaOnlyYou": "Only you look after this child.",
+  "cgaAddCoGuardianHow": "To add the other parent: in School mode or the kids watch, tick them under \"Who else sees\".",
+  "cgaAlsoWatching": "Also looking after: {names}",
+  "@cgaAlsoWatching": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaFree": "Always free. Every guardian gets the safety alerts.",
+  "cgaSeenBy": "Seen by: {names}",
+  "@cgaSeenBy": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaSetUpBy": "Set up by {name} (you can see it, only they can change it)",
+  "@cgaSetUpBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bbCbHowTo": "Morning: set opening cash. Sales and dues collected come in by themselves. Night: count the drawer and tap close.",
+  "@bbCbHowTo": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCarried": "From yesterday's counted cash",
+  "@bbCbCarried": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCount": "{n} entries",
+  "@bbCbCount": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbCbOtherIn": "Other cash in (written by hand)",
+  "@bbCbOtherIn": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbOtherOut": "Other cash out (written by hand)",
+  "@bbCbOtherOut": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbDuesHint": "Dues written in the khata are counted as cash. If someone paid by bKash or Nagad, add it as 'Cash out' so the drawer matches.",
+  "@bbCbDuesHint": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbRecount": "Count again",
+  "@bbCbRecount": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockChip": "Low stock ({n})",
+  "@bbLowStockChip": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbLowStockNone": "No product is running low",
+  "@bbLowStockNone": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockHow": "A product shows here when its stock reaches its low-stock mark (set it when you edit the product).",
+  "@bbLowStockHow": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbShowAllProducts": "Show all products",
+  "@bbShowAllProducts": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockTitle": "{n} products are running low",
+  "@bbLowStockTitle": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbLowStockSub": "Tap to see them and re-order in time",
+  "@bbLowStockSub": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowAfterSale": "Low stock: {items}",
+  "@bbLowAfterSale": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "bbLowAfterSaleItem": "{name} ({n} left)",
+  "@bbLowAfterSaleItem": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbDueNeedsCustomer": "For a sale on due, write the customer's name or phone — it goes to their khata page.",
+  "@bbDueNeedsCustomer": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPaidEmptyIsExact": "Leave empty if the customer paid the exact amount.",
+  "@bbPaidEmptyIsExact": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbDueWho": "Whose due is this?",
+  "@bbDueWho": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbItems": "{n} items",
+  "@bbItems": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPdfButton": "Send statement as PDF",
+  "@bbPdfButton": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleCustomer": "Customer account statement",
+  "@bbPdfTitleCustomer": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleSupplier": "Supplier account statement",
+  "@bbPdfTitleSupplier": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfMade": "Made on {when}",
+  "@bbPdfMade": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPdfDate": "Date",
+  "@bbPdfDate": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfDetails": "Details",
+  "@bbPdfDetails": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGave": "Due given",
+  "@bbPdfGave": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGot": "Paid",
+  "@bbPdfGot": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupGot": "Goods on credit",
+  "@bbPdfSupGot": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupPaid": "Paid",
+  "@bbPdfSupPaid": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfBalance": "Balance",
+  "@bbPdfBalance": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTotal": "Total",
+  "@bbPdfTotal": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfClosing": "Balance now",
+  "@bbPdfClosing": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPending": "{n} entries made offline are still waiting to sync and are not in this statement.",
+  "@bbPdfPending": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPdfSavedCopy": "Made from the copy saved on this phone ({when}) — no internet then.",
+  "@bbPdfSavedCopy": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPdfFooter": "For bookkeeping only. Assisto never holds or moves money.",
+  "@bbPdfFooter": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPage": "Page {p} of {n}",
+  "@bbPdfPage": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "p": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPdfShareText": "{name}, here is your account statement from {shop}.",
+  "@bbPdfShareText": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "bbPartySavedOffline": "Saved on this phone — it goes to the server when you're online. You can write entries for them now.",
+  "@bbPartySavedOffline": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCrmDueTasks": "Tasks due",
+  "@bbCrmDueTasks": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupTitle": "Is my khata safe?",
+  "@bbBackupTitle": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupServer": "Every entry is saved on Assisto's server, not only on this phone.",
+  "@bbBackupServer": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupNewPhone": "Lost or new phone? Log in with the same number — the whole khata comes back.",
+  "@bbBackupNewPhone": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupStaff": "One shop, several phones: add staff under Business → Staff — they write sales and dues but never see cost or the supplier book.",
+  "@bbBackupStaff": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupOffline": "No internet? Keep writing — entries wait on the phone and go up by themselves, never counted twice.",
+  "@bbBackupOffline": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupCopyHow": "Want your own copy too? This makes one spreadsheet of every customer, supplier and entry (opens in Excel or Google Sheets).",
+  "@bbBackupCopyHow": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupExport": "Share a copy of the whole khata",
+  "@bbBackupExport": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupShareText": "My shop's khata (Assisto) — keep this copy safe.",
+  "@bbBackupShareText": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffTitle": "Staff (one shop, several phones)",
+  "@bbStaffTitle": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffHubSub": "Let your staff sell and write dues from their own phone",
+  "@bbStaffHubSub": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffBenefit": "Your staff sell, take dues and run the cashbox from their own phone — everything lands in your one khata.",
+  "@bbStaffBenefit": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffHow": "1) They install Assisto and log in. 2) Add them here. 3) On their phone: Business → Switch shop → your shop. They never see cost, minimum price, profit or the supplier book.",
+  "@bbStaffHow": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffFromCircle": "Pick from My Circle",
+  "@bbStaffFromCircle": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffByNumber": "Add by phone number",
+  "@bbStaffByNumber": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffAdd": "Add as staff",
+  "@bbStaffAdd": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffAdded": "Added. On their phone: Business → Switch shop.",
+  "@bbStaffAdded": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffNone": "No staff yet.",
+  "@bbStaffNone": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffPickTitle": "Who works in your shop?",
+  "@bbStaffPickTitle": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffRemove": "Remove",
+  "@bbStaffRemove": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffRemoveQ": "Remove {name}?",
+  "@bbStaffRemoveQ": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bbStaffRemoveBody": "They lose access to this shop at once. Their past sales stay in your khata.",
+  "@bbStaffRemoveBody": {
+    "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "lifebarExamMineTitle": "What we're watching for you",
+  "lifebarExamStopTitle": "Stop watching this result?",
+  "lifebarExamStop": "Stop watching",
+  "lifebarExamReady": "The result page changed — the result may be out. Open the official page and check with your roll.",
+  "lifebarExamChecking": "Our server checks this page every 6 hours, and every hour from result day. You'll get a notification when it changes.",
+  "lifebarExamReminderOnly": "No page link — only the result-day reminder on this phone.",
+  "lifebarExamOpenPage": "Open the page",
+  "lifebarExamSavedServer": "Saved. We'll watch the page and notify you when it changes.",
+  "lifebarExamStudentsNote": "For parents or teachers — keep several names and rolls on this phone, then check each one on the official site on result day. We never make up a result.",
+  "lifebarCeNew": "New estimate",
+  "lifebarDeleteConfirm": "Delete this?",
+  "lifebarGuideNeedNetTitle": "Connect to the internet once",
+  "lifebarGuideNeedNetBody": "The service guides download the first time you open them. After that they work without internet too.",
+  "lifebarNearbyNoneHint": "Nothing of this kind was found near you on the open map. Try another category, or look again after moving.",
+  "lifebarClearSearch": "Clear search",
+  "lbUwNameNijhumDwip": "Nijhum Dwip",
+  "lbUwBestNijhumDwip": "Nov-Feb",
+  "lbUwHowNijhumDwip": "Dhaka to Noakhali, then boat via Hatiya to Nijhum Dwip.",
+  "lbUwNearNijhumDwip": "Hatiya, Namar Bazar beach",
+  "lbUwTipNijhumDwip": "Go at dawn for spotted deer and mangroves; check tide times.",
+  "lbUwNameJaflong": "Jaflong",
+  "lbUwBestJaflong": "Jul-Oct",
+  "lbUwHowJaflong": "Dhaka to Sylhet by bus/train, then local CNG/car to Jaflong.",
+  "lbUwNearJaflong": "Lalakhal, Sremangal tea gardens",
+  "lbUwTipJaflong": "After the monsoon the stone river and Meghalaya hills look best.",
+  "lbUwNameRatargul": "Ratargul Swamp Forest",
+  "lbUwBestRatargul": "Jun-Sep",
+  "lbUwHowRatargul": "From Sylhet city, CNG/car to Gowainghat, then country boat.",
+  "lbUwNearRatargul": "Bisnakandi, Jaflong",
+  "lbUwTipRatargul": "Tour by boat in the wet season; do not break the branches.",
+  "lbUwNameNafakhum": "Nafakhum Waterfall",
+  "lbUwBestNafakhum": "Oct-Dec",
+  "lbUwHowNafakhum": "Bandarban to Thanchi, boat to Remakri, then a guided trek.",
+  "lbUwNearNafakhum": "Remakri, Amiakhum",
+  "lbUwTipNafakhum": "Needs a boat from Remakri and a trek; hire a local guide.",
+  "lbUwNameSajek": "Sajek Valley",
+  "lbUwBestSajek": "Sep-Mar",
+  "lbUwHowSajek": "Khagrachari, then Chander Gari (jeep) convoy up to Sajek.",
+  "lbUwNearSajek": "Konglak hill, Hajachara waterfall",
+  "lbUwTipSajek": "Arrive the night before for the morning clouds; carry water.",
+  "lbUwNameKuakata": "Kuakata",
+  "lbUwBestKuakata": "Nov-Mar",
+  "lbUwHowKuakata": "Dhaka to Patuakhali/Kuakata by bus; launch is an option too.",
+  "lbUwNearKuakata": "Fatrar Char, Gangamati forest",
+  "lbUwTipKuakata": "See both sunrise and sunset from the same beach.",
+  "lbUwNamePaharpur": "Paharpur (Somapura Mahavihara)",
+  "lbUwBestPaharpur": "Nov-Feb",
+  "lbUwHowPaharpur": "Dhaka to Naogaon/Jaypurhat, then local transport to Paharpur.",
+  "lbUwNearPaharpur": "Mahasthangarh, Kusumba Mosque",
+  "lbUwTipPaharpur": "UNESCO site; go in the cool morning and keep to marked paths.",
+  "lbUwNameMahasthangarh": "Mahasthangarh",
+  "lbUwBestMahasthangarh": "Nov-Feb",
+  "lbUwHowMahasthangarh": "Dhaka to Bogura by bus, then local transport north.",
+  "lbUwNearMahasthangarh": "Paharpur, Bogura town",
+  "lbUwTipMahasthangarh": "One of the oldest urban sites in the region; visit the museum.",
+  "lbUwNameSrimangal": "Srimangal",
+  "lbUwBestSrimangal": "Oct-Feb",
+  "lbUwHowSrimangal": "Dhaka to Srimangal by train or bus (tea-capital line).",
+  "lbUwNearSrimangal": "Lawachara forest, Madhabpur lake",
+  "lbUwTipSrimangal": "Try seven-layer tea; the forest is best early for birds.",
+  "lbUwNameSundarbans": "Sundarbans",
+  "lbUwBestSundarbans": "Nov-Feb",
+  "lbUwHowSundarbans": "Khulna/Mongla, then a licensed launch tour into the forest.",
+  "lbUwNearSundarbans": "Karamjal, Kotka",
+  "lbUwTipSundarbans": "Book a registered tour operator; never travel the forest alone.",
+  "lbUwNameMainamati": "Mainamati",
+  "lbUwBestMainamati": "Nov-Feb",
+  "lbUwHowMainamati": "Dhaka to Cumilla by bus/train, then a short local hop.",
+  "lbUwNearMainamati": "Shalban Vihara, Cumilla town",
+  "lbUwTipMainamati": "Buddhist ruins and museum; combine with Shalban Vihara.",
+  "lbUwNameBisnakandi": "Bisnakandi",
+  "lbUwBestBisnakandi": "Jun-Sep",
+  "lbUwHowBisnakandi": "From Sylhet, CNG to Gowainghat, then boat to Bisnakandi.",
+  "lbUwNearBisnakandi": "Ratargul, Pangthumai",
+  "lbUwTipBisnakandi": "Monsoon fills the stone riverbed below the hills; carry a dry bag.",
+  "lifebarUwNoMatchHint": "No place matches these filters. Clear them to see every place.",
+  "lifebarUwBrowseAll": "Browse all places",
+  "lifebarClearFilters": "Clear filters",
+  "lifebarRideCopied": "Destination copied — paste it in the app if it is not filled in.",
+  "lifebarDictNotFoundBody": "Check the spelling, or try the base form of the word (e.g. \"run\" instead of \"running\").",
+  "lifebarDictTryAgain": "Search another word",
+  "lbDRamadanMethodKarachi": "Karachi (University of Islamic Sciences)",
+  "lbDWatchUsdExists": "You already have a dollar-rate alert. It is in the list below.",
+  "lbDWatchUsdLabel": "Dollar (USD) to taka rate",
+  "lbDWatchUsdAdded": "Added. We'll tell you when the dollar rate changes.",
+  "lbDWatchEmptyHow": "How it works: add a rate alert, or turn on sources with the settings button at the top. Reminders, medicines and bills also show here when they are due.",
+  "lbDZoneUk": "UK, Portugal",
+  "lbDZoneEurope": "Italy, France, Spain, Germany",
+  "lbDZoneSaudi": "Saudi Arabia, Kuwait, Qatar, Bahrain",
+  "lbDZoneUae": "UAE (Dubai), Oman",
+  "lbDZoneMaldives": "Maldives, Pakistan",
+  "lbDZoneBd": "Bangladesh",
+  "lbDZoneMalaysia": "Malaysia, Singapore, Brunei",
+  "lbDZoneJapan": "Japan, South Korea",
+  "lbDDocPhotoThisPhone": "The photo is kept only on this phone.",
+  "lbDDocViewPhoto": "View photo",
+  "lbDDocPhotoMissing": "This photo is not on this phone (it stays on the phone that took it).",
+  "lbDClearFilters": "Clear search and filters",
+  "lbDTravelEndBeforeStart": "The end date is before the start date.",
+  "lbDQuizTooFew": "This deck needs at least 2 cards for a quiz. Practise with the cards first.",
+  "lbDQuizBackToCards": "Back to the cards",
+  "lbDKg": "{n} kg",
+  "@lbDKg": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lbWMiKwBank": "-",
+  "lbWMiSaved": "Saved — your score {score}/5",
+  "@lbWMiSaved": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "lbWMiDeleteFailed": "Couldn't delete. Check the internet and try again.",
+  "lbWQtTonePoliteBn": "Could you please consider this: @@ Thank you.",
+  "lbWQtToneWarmerBn": "Hope you're doing well! @@ Take care.",
+  "lbWQtToneFirmerBn": "To be clear: @@ Please confirm.",
+  "lbWQtToneFormalBn": "Dear recipient, I would like to note the following: @@ Regards.",
+  "lbWQtSavedTitle": "Saved results",
+  "lbWQtSavedEmptyTitle": "Nothing saved yet",
+  "lbWQtSavedEmptyBody": "Run a tool, then tap Save under the result — it stays here on this phone so you can copy it again later.",
+  "lbWQtTranslateLimitTitle": "Only common phrases here",
+  "lbWQtTranslateLimitBody": "This offline tool translates a few common phrases (hello, thank you, sorry…). For a full sentence, ask the Assisto chat. We never make up a translation.",
+  "lbWBwBnPack": "-",
+  "lbWBwBanglishNote": "Banglish drafts are not built yet — you will get the English template. Choose Bangla or English for a matching draft.",
+  "lbWTmNotSaved": "Not saved — no internet or a server problem. Your changes are kept; tap Retry.",
+  "lbWJobsTitleRequired": "Please write the job title",
+  "lbWJobsLocation": "Location (optional)",
+  "lbWJobsSalary": "Monthly salary in taka (optional)",
+  "lbWJobsSalaryHelp": "Only from the job ad — used for your own salary comparison.",
+  "lbWJobsAdded": "Job added",
+  "lbWJobsAddFailed": "Couldn't add the job — check the internet and try again.",
+  "lbWJobsDiscoverEmpty": "Add jobs you find (newspaper, Bdjobs, Facebook) — then search, filter, compare salaries and track each application here.",
+  "lbWJobsClearFilters": "Clear filters",
+  "lbWJobsSavedEmpty": "Tap the bookmark on any job in Discover to keep it here — it works without internet.",
+  "lbWJobsCvLabel": "CV",
+  "lbWJobsTailorFailed": "Couldn't make the draft — check the internet and try again.",
+  "lbWJobsAiOff": "AI drafting is not available right now. Your job and tracker still work.",
+  "lbWJobsTailorNote": "AI drafts a CV and cover letter from your own details — review before you send. Never sent for you.",
+  "lbWCvUnsavedTitle": "Save your CV changes?",
+  "lbWCvUnsavedBody": "You changed your CV but did not save. If you leave now, the changes will be lost.",
+  "lbWCvDiscard": "Leave without saving",
+  "lbWInboxNotLive": "No mailbox is connected to Assisto yet, so this inbox is empty — we never show sample mail. Your reminders and to-dos work as usual.",
+  "lbWPaGroupDaily": "Every day",
+  "lbWPaGroupOffice": "Office work",
+  "lbWPaGroupCompany": "For a company",
+  "lbWPaGroupPublic": "For public figures",
+  "lbWPaSocialManual": "Add each message yourself (from Facebook, Instagram or WhatsApp) to sort, prioritise and track replies in one place. Assisto does not read your social accounts.",
+  "rhbBanglaDate": "Bangla date: {date}",
+  "@rhbBanglaDate": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbLostAlarms": "{count} reminder alarm(s) vanished from this phone before their time (a restart, Force stop or a battery cleaner) — Assisto put them back on {date}. Turn on Autostart in the battery guide so it does not happen again.",
+  "@rhbLostAlarms": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbRestartOk": "After a restart, reminders set themselves again. Some phones (Xiaomi, realme, OPPO, vivo, Tecno, Infinix) need Autostart on for that — otherwise open Assisto once after a restart.",
+  "@rhbRestartOk": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictTag": "Edited on 2 phones",
+  "@rhbConflictTag": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictStrip": "A note was changed on this phone and on another phone at the same time — both versions are kept. This phone's copy has the label “{label}”: keep the one you want and delete the other.",
+  "@rhbConflictStrip": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbNotePhotoTitle": "Note photo {when}",
+  "@rhbNotePhotoTitle": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbNotePhotoFailed": "The photo could not be saved — check the internet and try again.",
+  "@rhbNotePhotoFailed": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoSaving": "Saving the photo in your Vault…",
+  "@rhbNotePhotoSaving": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoHint": "Or add a new photo — it is kept safely in your Vault and attached here.",
+  "@rhbNotePhotoHint": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbGoalWhy": "A goal turns this month's leftover money into real savings you can watch grow.",
+  "rhbGoalCreate": "Set a savings goal",
+  "rhbErrCategory": "Pick a category or type one.",
+  "rhbErrLimit": "Enter an amount more than 0.",
+  "rhbErrGoalTitle": "Write what you are saving for.",
+  "rhbCategoryOther": "Or type another category",
+  "rhbCategoryHelp": "Pick one you already use on expenses so the spending is counted.",
+  "rhbTemplateHow": "This is a guide only — nothing is created. Set a limit for each category with + on the Budget page.",
+  "rhbBudgetHow1": "Tap \"Add your first budget\" and pick a category, like Food.",
+  "rhbBudgetHow2": "Write the most you want to spend on it this month.",
+  "rhbBudgetHow3": "Write your expenses as usual — the bar fills from your real spending and turns orange at 80%.",
+  "rhbHistoryEmpty": "No budget in {month}",
+  "@rhbHistoryEmpty": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbSuggestionUsed": "{category} budget set to {amount} a month",
+  "@rhbSuggestionUsed": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbPlanEmpty": "Suggestions come from your real spending. Write your expenses for a month or two and they will appear here.",
+  "rhbConvLine": "{amount} {currency} × {rate} = {taka}",
+  "@rhbConvLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "taka": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvYours": "You received {taka} — this amount is saved.",
+  "@rhbConvYours": {
+    "placeholders": {
+      "taka": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvEffective": "That is {rate} taka for each one.",
+  "@rhbConvEffective": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvHonest": "Uses the rate you typed from your receipt. We never fetch or show a live or official rate.",
+  "rhbMonthEmptyTitle": "Nothing written for {month} yet",
+  "@rhbMonthEmptyTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbMonthBenefit": "Write each money that comes from abroad and see who sent how much, where it went and what is left.",
+  "rhbMonthHow1": "Tap \"Money came\" (or say it in one line below).",
+  "rhbMonthHow2": "Write the amount, the rate you got and who sent it — pick them from My Circle.",
+  "rhbMonthHow3": "Write the family's spending on the Budget tab; the report for the sender fills in by itself.",
+  "rhbShareA11y": "{name}: {taka}, {pct} percent, {count} times",
+  "@rhbShareA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "taka": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbWhoSentMonth": "Who sent how much this month",
+  "bpAboutKm": "about {km} km",
+  "@bpAboutKm": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "bpAgainOn": "Available again on {date}",
+  "@bpAgainOn": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bpAreaHelp": "No house or road number, no phone number.",
+  "@bpAreaHelp": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaLabel": "Area / upazila (e.g. Mirpur 10)",
+  "@bpAreaLabel": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaTitle": "Your area",
+  "@bpAreaTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaWhy": "Only the area name and a rough point (about 1 km) are kept — never your address.",
+  "@bpAreaWhy": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAskedBy": "Asked by {name}",
+  "@bpAskedBy": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBack": "Go back",
+  "@bpBack": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBags": "Bags needed",
+  "@bpBags": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksFindDonors": "Find donors near you",
+  "@bpBanksFindDonors": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksPending": "No official blood bank list in the app yet — the source is pending",
+  "@bpBanksPending": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksSource": "Source: {name} · {date}",
+  "@bpBanksSource": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBanksStep1": "We show blood banks only from an official list (DGHS / Red Crescent / Sandhani), with its date.",
+  "@bpBanksStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksStep2": "Until then, ask the hospital's own blood bank or transfusion department.",
+  "@bpBanksStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksStep3": "Find donors near you or post an urgent request.",
+  "@bpBanksStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksTitle": "Blood banks",
+  "@bpBanksTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBasicsCheck": "I am 18–60 years old, weigh at least 45 kg and I am healthy",
+  "@bpBasicsCheck": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeLead": "One donor can save up to three lives. Join free — you decide everything.",
+  "@bpBecomeLead": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep1": "Give your blood group, area and last donation date.",
+  "@bpBecomeStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep2": "Get a notification only when someone near you needs your group and you can give.",
+  "@bpBecomeStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep3": "Pause or leave any time. Your number stays private.",
+  "@bpBecomeStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeTitle": "Become a blood donor",
+  "@bpBecomeTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlock": "Block",
+  "@bpBlock": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockBody": "Neither of you can send messages here any more.",
+  "@bpBlockBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockTitle": "Block this conversation?",
+  "@bpBlockTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockedByMe": "You blocked this conversation",
+  "@bpBlockedByMe": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCall": "Call",
+  "@bpCall": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCallNote": "App calls work after you are in each other's My Circle — the donor decides.",
+  "@bpCallNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCanNow": "Can donate now",
+  "@bpCanNow": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCanSent": "The family has been told. Talk in the app.",
+  "@bpCanSent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCancel": "Cancel",
+  "@bpCancel": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCannotSent": "Okay — thank you for answering",
+  "@bpCannotSent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAccept": "Accept",
+  "@bpCircleAccept": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAccepted": "My Circle request accepted",
+  "@bpCircleAccepted": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAsk": "Ask to add to My Circle",
+  "@bpCircleAsk": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAskDonor": "This person asks to add you to My Circle (then you can call each other in the app). Only if you want.",
+  "@bpCircleAskDonor": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAsked": "Asked — the donor decides",
+  "@bpCircleAsked": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleDecline": "No, thanks",
+  "@bpCircleDecline": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleDeclined": "The donor prefers to talk here only",
+  "@bpCircleDeclined": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleSent": "My Circle request sent — they accept it in My Circle",
+  "@bpCircleSent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleWaiting": "My Circle request waiting for the donor",
+  "@bpCircleWaiting": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpClose": "Close request",
+  "@bpClose": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCloseBody": "Donors who said they can will be told it is no longer needed.",
+  "@bpCloseBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCloseTitle": "Close this request?",
+  "@bpCloseTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpClosed": "Request closed",
+  "@bpClosed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentBody": "Your blood group is health information. With your consent, other Assisto users can see your first name, blood group, area and whether you can donate now, and nearby people who need blood can send you notifications. You can pause or leave any time and your details are deleted.",
+  "@bpConsentBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentCheck": "I agree to be listed as a blood donor",
+  "@bpConsentCheck": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentTitle": "Your consent",
+  "@bpConsentTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpContactTitle": "Who can contact you",
+  "@bpContactTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDistrict": "District",
+  "@bpDistrict": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedConfirmBody": "We will pause requests to you until you can give again, and remind you that day.",
+  "@bpDonatedConfirmBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedConfirmTitle": "Did you give blood today?",
+  "@bpDonatedConfirmTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedTag": "donated",
+  "@bpDonatedTag": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedThanks": "Thank you for giving blood!",
+  "@bpDonatedThanks": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedToday": "I donated today",
+  "@bpDonatedToday": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEdit": "Edit my donor details",
+  "@bpEdit": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEmailPublic": "Show my e-mail",
+  "@bpEmailPublic": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEmailPublicSub": "Off by default.",
+  "@bpEmailPublicSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrAlready": "Already done.",
+  "@bpErrAlready": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrArea": "Pick your district or add a rough location.",
+  "@bpErrArea": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrAreaText": "Write only the area name — no house number or phone.",
+  "@bpErrAreaText": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrBanned": "Requests are paused for this account after a review.",
+  "@bpErrBanned": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrBlocked": "This conversation is blocked.",
+  "@bpErrBlocked": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrConsent": "Please tick both boxes to join.",
+  "@bpErrConsent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrFields": "Please check the marked fields.",
+  "@bpErrFields": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrGeneric": "Something went wrong. Please try again.",
+  "@bpErrGeneric": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrGroup": "Pick a blood group.",
+  "@bpErrGroup": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrHospital": "Write the hospital name (no phone number).",
+  "@bpErrHospital": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrIncompatible": "Your blood group does not match this request.",
+  "@bpErrIncompatible": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrLast": "Pick the date, or choose 'Never / don't remember'.",
+  "@bpErrLast": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNoContact": "Remove phone numbers / e-mails — donors answer in the app.",
+  "@bpErrNoContact": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotActive": "This request is no longer open.",
+  "@bpErrNotActive": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotAvailable": "This donor is not available right now.",
+  "@bpErrNotAvailable": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotDonor": "Join as a donor first.",
+  "@bpErrNotDonor": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotEligible": "It is too soon after your last donation.",
+  "@bpErrNotEligible": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrOff": "The blood donor panel is not open yet.",
+  "@bpErrOff": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrPhoto": "This photo could not be used. Try another.",
+  "@bpErrPhoto": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrRate": "Too many tries today. Please try again later.",
+  "@bpErrRate": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrReal": "Please confirm this is a real need.",
+  "@bpErrReal": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrTooManyActive": "You already have 2 open requests. Close one first.",
+  "@bpErrTooManyActive": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrTooManyReq": "You can post 3 urgent requests a day.",
+  "@bpErrTooManyReq": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindEmptyTitle": "Find a donor near you in a minute",
+  "@bpFindEmptyTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindLead": "Donors who agreed to be listed, near you. You see their area only — never an address.",
+  "@bpFindLead": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep1": "Pick the blood group.",
+  "@bpFindStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep2": "Tap 'Use where I am' or pick your district.",
+  "@bpFindStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep3": "Message a donor in the app — their number stays private.",
+  "@bpFindStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFound": "Blood found",
+  "@bpFound": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundBody": "We will tell the donors who answered, and stop the request.",
+  "@bpFoundBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundCount": "{n} donors found",
+  "@bpFoundCount": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "bpFoundDone": "Thank God! Donors have been told.",
+  "@bpFoundDone": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundShareAsk": "Also share a thank-you (optional)",
+  "@bpFoundShareAsk": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundShareSub": "Only if your family agrees. You can edit the text first.",
+  "@bpFoundShareSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundTitle": "Blood arranged?",
+  "@bpFoundTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupLabel": "Blood group {group}",
+  "@bpGroupLabel": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "bpGroupMine": "My blood group",
+  "@bpGroupMine": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupNeeded": "Blood group needed",
+  "@bpGroupNeeded": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupNotFamily": "Not copied from your Family card — chosen here, by you.",
+  "@bpGroupNotFamily": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupPick": "Blood group needed",
+  "@bpGroupPick": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHere": "Use where I am (approximate)",
+  "@bpHere": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHereOn": "Near me (approximate)",
+  "@bpHereOn": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHiddenNote": "Several people reported this request, so it is hidden while the Assisto team reviews it.",
+  "@bpHiddenNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHospital": "Hospital name",
+  "@bpHospital": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHospitalHelp": "Name only (e.g. Dhaka Medical College Hospital). No phone number.",
+  "@bpHospitalHelp": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpICan": "I can donate",
+  "@bpICan": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpICannot": "Can't this time",
+  "@bpICannot": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpIDonated": "I donated for this request",
+  "@bpIDonated": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpInHours": "In {h} hours",
+  "@bpInHours": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "h": {
+        "type": "int"
+      }
+    }
+  },
+  "bpIntervalNote": "Gap between whole-blood donations: {days} days (Bangladesh national guideline, 4 months).",
+  "@bpIntervalNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "bpJoin": "Join as a donor",
+  "@bpJoin": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpKm": "{n} km",
+  "@bpKm": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "bpLastDonation": "Last time you gave blood",
+  "@bpLastDonation": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLastOn": "Last donation: {date}",
+  "@bpLastOn": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bpLaunchFailed": "Could not open the phone app.",
+  "@bpLaunchFailed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeave": "Leave the donor panel",
+  "@bpLeave": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveConfirmBody": "Your donor details are deleted and you will not get blood requests. You can join again later.",
+  "@bpLeaveConfirmBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveConfirmTitle": "Leave the donor panel?",
+  "@bpLeaveConfirmTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveSub": "Deletes your group, area and dates from the panel.",
+  "@bpLeaveSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeft": "You left the donor panel",
+  "@bpLeft": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLess": "One less",
+  "@bpLess": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpListed": "You are listed as a donor",
+  "@bpListed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLoadFailed": "Could not load. Check the internet and try again.",
+  "@bpLoadFailed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLocationFailed": "Location is off or not allowed. Pick your district instead.",
+  "@bpLocationFailed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessage": "Message",
+  "@bpMessage": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessageRequester": "Message the family",
+  "@bpMessageRequester": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessages": "Messages",
+  "@bpMessages": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMine": "My requests",
+  "@bpMine": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMore": "One more",
+  "@bpMore": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgDefault": "Assalamu alaikum. We need blood urgently. Can you help?",
+  "@bpMsgDefault": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgLabel": "Write a message",
+  "@bpMsgLabel": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgPrivacy": "Your number is not shared. Share it yourself only if you want.",
+  "@bpMsgPrivacy": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgTitle": "Message {name}",
+  "@bpMsgTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bpNear": "Requests near you",
+  "@bpNear": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNearNeedsDonor": "Join as a donor to see and answer urgent requests near you.",
+  "@bpNearNeedsDonor": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNeededBy": "Needed by {when}",
+  "@bpNeededBy": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "bpNeededByTitle": "Needed by",
+  "@bpNeededByTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNeverDonated": "Never / don't remember",
+  "@bpNeverDonated": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonors": "No listed donor matches yet",
+  "@bpNoDonors": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep1": "Try a bigger distance (10 or 25 km).",
+  "@bpNoDonorsStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep2": "Post an urgent request — eligible donors nearby get a notification.",
+  "@bpNoDonorsStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep3": "Also ask your family and My Circle.",
+  "@bpNoDonorsStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoResponders": "Nobody answered this request.",
+  "@bpNoResponders": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoRespondersYet": "No answer yet. Donors get the notification now — also ask your family and My Circle.",
+  "@bpNoRespondersYet": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotCompatibleNote": "Your blood group cannot be given to this patient.",
+  "@bpNotCompatibleNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotDonorNote": "Join as a donor to answer requests.",
+  "@bpNotDonorNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotEligibleNote": "It is too soon after your last donation — please rest this time.",
+  "@bpNotEligibleNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNote": "Note (optional)",
+  "@bpNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoteHelp": "e.g. patient's ward or reason. No phone number.",
+  "@bpNoteHelp": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNowOnly": "Only donors who can give now",
+  "@bpNowOnly": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNumberPrivate": "Number private — message in the app.",
+  "@bpNumberPrivate": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPause": "Pause (hide me for now)",
+  "@bpPause": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPauseSub": "Sick, travelling or busy? Pause — no notifications, not listed.",
+  "@bpPauseSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPaused": "Paused — not shown to others",
+  "@bpPaused": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPhonePublic": "Show my phone number",
+  "@bpPhonePublic": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPhonePublicSub": "Off: people message you in the app only (recommended).",
+  "@bpPhonePublicSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPickDate": "Pick the date",
+  "@bpPickDate": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPickTime": "Pick date and time",
+  "@bpPickTime": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPointSaved": "Rough location added (about 1 km)",
+  "@bpPointSaved": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPrivacyBody": "Others see only: first name, blood group, area name, rough distance, and whether you can donate now. Never your address or exact location. Your phone and e-mail stay private unless you make them public. Your Family card blood group is never used here.",
+  "@bpPrivacyBody": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPrivacyTitle": "Your privacy",
+  "@bpPrivacyTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRadius": "Distance",
+  "@bpRadius": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReach": "Notified {pushed} donors · {listed} matched",
+  "@bpReach": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "pushed": {
+        "type": "int"
+      },
+      "listed": {
+        "type": "int"
+      }
+    }
+  },
+  "bpReachSub": "Only donors who can give now and whose group matches.",
+  "@bpReachSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReachTitle": "Notify donors within",
+  "@bpReachTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRealNeed": "This is a real need. I will never sell or buy blood.",
+  "@bpRealNeed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportFake": "Fake request",
+  "@bpReportFake": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportHarass": "Harassment",
+  "@bpReportHarass": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportNote": "Anything to add (optional)",
+  "@bpReportNote": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportOther": "Something else",
+  "@bpReportOther": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSelling": "Selling / buying blood or asking money",
+  "@bpReportSelling": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSend": "Send report",
+  "@bpReportSend": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSpam": "Spam",
+  "@bpReportSpam": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSub": "After 3 people report it, it is hidden until the Assisto team checks.",
+  "@bpReportSub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportTitle": "Report this request",
+  "@bpReportTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReported": "Thank you — reported",
+  "@bpReported": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqEmptyTitle": "Need blood? Reach eligible donors nearby in one minute",
+  "@bpReqEmptyTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqLead": "Takes about a minute. Donors answer in the app — no phone number or address is shown.",
+  "@bpReqLead": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep1": "Tap Urgent blood request and fill group, bags, hospital, time.",
+  "@bpReqStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep2": "Donors nearby who can give now get a notification.",
+  "@bpReqStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep3": "See who said 'I can donate' and talk in the app.",
+  "@bpReqStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqSubmit": "Send urgent request",
+  "@bpReqSubmit": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestCta": "Urgent blood request",
+  "@bpRequestCta": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestSent": "Request sent to donors nearby",
+  "@bpRequestSent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestTitle": "Blood request",
+  "@bpRequestTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResponders": "{n} can donate",
+  "@bpResponders": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "bpRespondersTitle": "Donors who can give",
+  "@bpRespondersTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResume": "List me again",
+  "@bpResume": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResumeListing": "Show me again",
+  "@bpResumeListing": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRetry": "Try again",
+  "@bpRetry": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSave": "Save",
+  "@bpSave": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSaved": "Saved",
+  "@bpSaved": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSend": "Send",
+  "@bpSend": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSetupLead": "Join the panel so people near you can find you when they need your blood group. This is separate from your Family card.",
+  "@bpSetupLead": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSex": "Sex (for the donation gap)",
+  "@bpSex": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexFemale": "Female",
+  "@bpSexFemale": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexMale": "Male",
+  "@bpSexMale": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexSkip": "Prefer not to say",
+  "@bpSexSkip": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexWhy": "Used only to count when you can give again. Never shown.",
+  "@bpSexWhy": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpShareHeadline": "Blood found — thank you, donors",
+  "@bpShareHeadline": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpShareText": "Alhamdulillah, we found {group} blood in time for our patient. Heartfelt thanks to the donors who came forward. We used the Assisto app's blood donor panel.",
+  "@bpShareText": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "bpShareTitle": "Say thank you",
+  "@bpShareTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSms": "SMS",
+  "@bpSms": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateActive": "Looking for donors",
+  "@bpStateActive": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateClosed": "Closed",
+  "@bpStateClosed": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateExpired": "Expired",
+  "@bpStateExpired": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateFound": "Blood found",
+  "@bpStateFound": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateHidden": "Under review",
+  "@bpStateHidden": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateRemoved": "Removed",
+  "@bpStateRemoved": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabFind": "Find donors",
+  "@bpTabFind": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabMe": "Me as donor",
+  "@bpTabMe": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabRequests": "Requests",
+  "@bpTabRequests": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadAsDonor": "You are the donor",
+  "@bpThreadAsDonor": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadAsSeeker": "You are looking for blood",
+  "@bpThreadAsSeeker": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadEmpty": "No messages yet. Say hello and what you need.",
+  "@bpThreadEmpty": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsEmpty": "Your blood-panel messages will show here",
+  "@bpThreadsEmpty": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep1": "Find a donor and tap Message.",
+  "@bpThreadsStep1": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep2": "Or answer a request with 'I can donate'.",
+  "@bpThreadsStep2": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep3": "Numbers stay private on both sides.",
+  "@bpThreadsStep3": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTitle": "Blood donors",
+  "@bpTitle": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUnblock": "Unblock",
+  "@bpUnblock": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUnits": "{group} · {units} bag(s)",
+  "@bpUnits": {
+    "description": "blood (owner 2 Nov): Blood donor panel",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "units": {
+        "type": "int"
+      }
+    }
+  },
+  "bpUsePoint": "Add my rough location (better distance)",
+  "@bpUsePoint": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUsePointReq": "Use where I am now (approximate)",
+  "@bpUsePointReq": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerified": "Verified donor",
+  "@bpVerified": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyCamera": "Take photo",
+  "@bpVerifyCamera": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyCta": "Get the verified donor badge",
+  "@bpVerifyCta": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyGallery": "Choose from gallery",
+  "@bpVerifyGallery": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyLead": "Take a clear photo of a blood donation slip or card (from a blood bank or hospital) with your name and the date.",
+  "@bpVerifyLead": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyPending": "Slip sent — being checked",
+  "@bpVerifyPending": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyPrivacy": "Only the Assisto team sees this photo. It is deleted right after checking and is never shown to anyone else.",
+  "@bpVerifyPrivacy": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyRejected": "Last slip could not be verified. You may send a clearer photo.",
+  "@bpVerifyRejected": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySend": "Send for checking",
+  "@bpVerifySend": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySent": "Sent — we will let you know",
+  "@bpVerifySent": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySub": "Send a photo of a donation slip. Only the Assisto team sees it; it is deleted after checking.",
+  "@bpVerifySub": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWhere": "Near where?",
+  "@bpWhere": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWhoGets": "Who gets it: donors who joined the panel, whose group can give to yours, who can donate by that time, and whose area is within the distance. Each donor gets at most 3 requests a day. The request ends by itself after the time passes.",
+  "@bpWhoGets": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWithdraw": "I can't make it any more",
+  "@bpWithdraw": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWithdrawn": "Okay — the family will see you can't come",
+  "@bpWithdrawn": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpYouSaidCan": "You said you can donate",
+  "@bpYouSaidCan": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
+  "@bpYouSaidCanLong": {
+    "description": "blood (owner 2 Nov): Blood donor panel"
+  }
 }

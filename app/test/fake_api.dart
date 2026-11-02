@@ -1,6 +1,7 @@
 import 'fake_famcare.dart'; // famcare
 import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
+import 'fake_blood.dart'; // blood
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -1593,6 +1594,12 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return rhb;
     }
+    // blood: Blood donor panel
+    final bp = fakeBloodGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (bp != null) {
+      if (mode == FakeMode.fail) _fail();
+      return bp;
+    }
     return super.getJson(path);
   }
 
@@ -1958,6 +1965,8 @@ class FakeApi extends ApiClient {
     if (kh != null) return kh;
     final ma = fakeMissingPost(path, bn: _bn); // missing
     if (ma != null) return ma;
+    final bp = fakeBloodPost(path, bn: _bn); // blood
+    if (bp != null) return bp;
     return super.postJsonRaw(path, body);
   }
 
@@ -1966,6 +1975,7 @@ class FakeApi extends ApiClient {
     if (path.contains('/business/khata/tagada/schedule/')) {
       return {'ok': true}; // ledger100
     }
+    if (path == '/blood-panel/me') return {'ok': true, 'me': {'enabled': false}}; // blood
     return super.deleteJson(path);
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
+import '../screens/blood/blood_hub_screen.dart'; // blood
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -457,6 +458,13 @@ class SidebarSections {
           feature: 'blood_donor',
           (_) => const BloodDonorScreen(),
           synonyms: ['blood', 'donor', 'donate', 'blood group', 'rokto']),
+      // blood (owner 2 Nov): Blood donor panel — find donors nearby, urgent
+      // requests, private contact (flag blood_donors OFF).
+      SidebarItem(Icons.volunteer_activism_rounded, (t) => t.bpTitle,
+          feature: 'blood_donors',
+          (_) => const BloodHubScreen(),
+          synonyms: ['blood donor', 'blood bank', 'urgent blood', 'need blood',
+              'rokto dorkar', 'rokto dan', 'donor panel']),
       // #27 Kid's school corner — notices → fees / exams / PTM per child.
       SidebarItem(Icons.school_rounded, (t) => t.kidTitle,
           feature: 'kid_school',

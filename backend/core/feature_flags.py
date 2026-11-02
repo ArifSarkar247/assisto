@@ -85,6 +85,10 @@ REGISTRY = (
     # (adult GD / child guardian), pushes only to opted-in nearby users,
     # private tips, I-am-safe. OFF until the owner's two-phone test.
     ('missing_alert', 'family_safety', 'Missing person alert', 'নিখোঁজ সতর্কতা', False, ('missing_alert',)),
+    # blood (owner 2 Nov): Blood donor panel — opt-in donors (separate consent,
+    # coarse area), urgent requests pushed to eligible donors nearby, private
+    # in-app contact, verified badge. Free forever. OFF until the two-phone test.
+    ('blood_donors', 'family_safety', 'Blood donor panel', 'রক্তদাতা প্যানেল', False, ('blood_panel',)),
     ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
     ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),

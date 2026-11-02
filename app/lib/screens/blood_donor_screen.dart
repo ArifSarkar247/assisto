@@ -6,6 +6,8 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../feature_flags.dart'; // blood
+import 'blood/blood_hub_screen.dart'; // blood
 
 /// BLOOD-DONOR NETWORK — ADVANCED (#188, SPEC v2.1 §20).
 ///
@@ -78,12 +80,12 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
-          appBar: AppBar(title: Text(tr.bloodTitle)),
+          appBar: AppBar(title: Text(tr.bloodTitle), actions: bloodPanelAction(context)),
           body: const SkeletonList());
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.bloodTitle)),
+        appBar: AppBar(title: Text(tr.bloodTitle), actions: bloodPanelAction(context)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
           tint: scheme.error,
@@ -98,7 +100,7 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
     }
     if (_donors.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.bloodTitle)),
+        appBar: AppBar(title: Text(tr.bloodTitle), actions: bloodPanelAction(context)),
         body: StateMessage(
           icon: Icons.bloodtype_rounded,
           tint: Brand.blue,
@@ -117,6 +119,7 @@ class _BloodDonorScreenState extends State<BloodDonorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(tr.bloodTitle),
+          actions: bloodPanelAction(context),
           bottom: TabBar(tabs: [
             Tab(text: tr.bloodTabRegistry),
             Tab(text: tr.bloodTabSearch),
@@ -812,4 +815,20 @@ class _Blood {
     out.sort(registrySort);
     return out;
   }
+}
+
+/// blood (owner 2 Nov): this personal registry links to the community Blood
+/// donor panel (find donors nearby, urgent requests) when its flag is on.
+List<Widget> bloodPanelAction(BuildContext context) {
+  if (!FeatureFlags.instance.isOn('blood_donors')) return const [];
+  final t = AppLocalizations.of(context);
+  return [
+    IconButton(
+      key: const ValueKey('blood-open-panel'),
+      tooltip: t.bpTitle,
+      onPressed: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const BloodHubScreen())),
+      icon: const Icon(Icons.volunteer_activism_rounded),
+    ),
+  ];
 }
