@@ -1878,7 +1878,8 @@ class StolenProtectionScenarioTests(APITestCase):
         self.phone.save()
         # A trusted place at (23.80, 90.40).
         self.home = SavedPlace.objects.create(
-            user=self.user, label="home", name="Home", lat=23.80, lng=90.40)
+            user=self.user, label="home", name="Home", lat=23.80, lng=90.40,
+            theft_safe=True)   # placesafe: Home is an anti-theft safe place
 
     # -- helpers ----------------------------------------------------------
     def _action(self, action, pin=None, lat=None, lng=None):
@@ -2258,7 +2259,7 @@ class LostPhoneRecoveryTests(APITestCase):
         self.assertTrue(self.phone.lost_mode)  # still on
         # The real path: security/action turn_off_lost (trusted => immediate).
         SavedPlace.objects.create(user=self.owner, label="home",
-                                  lat=23.80, lng=90.40)
+                                  lat=23.80, lng=90.40, theft_safe=True)
         act = self.client.post(
             "/api/v1/security/action",
             {"action": "turn_off_lost", "pin": self.PIN,
@@ -2480,7 +2481,7 @@ class AccountDeletionScenarioTests(APITestCase):
             owner=self.user, security_pin_hash=make_password(self.PIN))
         # A trusted place (home) so trusted/untrusted paths are testable.
         self.home = SavedPlace.objects.create(
-            user=self.user, label="Home", lat=23.80, lng=90.40)
+            user=self.user, label="Home", lat=23.80, lng=90.40, theft_safe=True)
         # Some data to prove the cascade.
         MemoryItem.objects.create(user=self.user, title="secret note")
 
