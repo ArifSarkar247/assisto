@@ -116,7 +116,7 @@ def create_entry(prof, user, data):
     if err:
         return None, False, err
     with transaction.atomic():
-        LedgerBook.objects.select_for_update().get(pk=book.pk)
+        book = LedgerBook.objects.select_for_update().get(pk=book.pk)
         old = _items(prof, COL_ENTRY).filter(data__client_id=clean["client_id"]).first()
         if old is not None:
             return entry_dict(old), False, None
@@ -142,6 +142,11 @@ def create_entry(prof, user, data):
                 category=name[:80], date=L.parse_day(clean["date"]),
                 note=("%s %s" % (clean["note"], marker)).strip()[:200])
             clean["expense_id"] = x.id
+        day = L.parse_day(clean["date"])
+        if book.start_date and day < book.start_date:
+            # the books start at the earliest thing in them (the core's rule)
+            book.start_date = day
+            book.save(update_fields=["start_date"])
         clean.update({"business": prof.id, "by": user.id,
                       "created_at": timezone.now().isoformat()})
         it = PaCollectionItem.objects.create(user=prof.user, collection=COL_ENTRY,

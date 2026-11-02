@@ -166,6 +166,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
         return;
       }
       if (st >= 400 && st < 500) {
+        if (!mounted) return;
         setState(() {
           _saving = false;
           _error = pair(context, r['detail'], fallback: t.acuSaveFailed);
