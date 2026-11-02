@@ -6,6 +6,7 @@ import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 import 'sale_void_dialog.dart';
+import 'invoice/invoice_screen.dart' show openSaleInvoice;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../messaging/date_separators.dart' show localDigits; // bizbar
 import '../../services/action_feedback.dart' show showNeedInput;
@@ -701,6 +702,16 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
       showDragHandle: true,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // invoices: the real paper — 58 / 80 mm thermal or A4, bn/en, VAT, QR
+          ListTile(
+            key: const ValueKey('sale-invoice'),
+            leading: const Icon(Icons.receipt_long_rounded),
+            title: Text(t.invMakeFromSale),
+            onTap: () {
+              Navigator.pop(ctx);
+              openSaleInvoice(host, id, businessId: widget.businessId);
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.share_rounded),
             title: Text(t.biz_receipt_share),

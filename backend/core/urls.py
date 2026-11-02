@@ -227,6 +227,7 @@ urlpatterns = [
     # invoices — 58/80 mm + A4 invoice data, VAT, manual service invoices
     path("business/sales/<int:pk>/invoice", invv.SaleInvoiceView.as_view()),
     path("business/invoice/settings", invv.InvoiceSettingsView.as_view()),
+    path("business/invoices/sales", invv.InvoiceSalesView.as_view()),
     path("business/invoices", invv.ManualInvoicesView.as_view()),
     path("business/invoices/<int:pk>", invv.ManualInvoiceDetailView.as_view()),
     path("business/invoices/<int:pk>/cancel", invv.ManualInvoiceCancelView.as_view()),

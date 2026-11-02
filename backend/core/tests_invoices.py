@@ -146,6 +146,9 @@ class InvoiceApiTests(APITestCase):
         self.assertEqual((r.data["calc"]["taxable"], r.data["calc"]["vat"],
                           r.data["calc"]["total"]), (10000, 1500, 11500))
         self.assertTrue(r.data["consistent"])
+        lst = self.client.get("/api/v1/business/invoices/sales").data["items"]
+        self.assertEqual([i["id"] for i in lst], [s.id])
+        self.assertEqual(lst[0]["buyer"], "Karim")
 
     def test_other_users_sale_is_404(self):
         other = User.objects.create_user(name="O", phone="+8801999000613",

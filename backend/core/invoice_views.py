@@ -1,8 +1,9 @@
 """invoices — business invoice API (owner PART 1 g).
 
   GET  business/invoice/settings          seller block + VAT setup (staff read)
-  PUT  business/invoice/settings          owner only
+  PUT|POST business/invoice/settings      owner only
   GET  business/sales/<id>/invoice        a POS sale as an invoice
+  GET  business/invoices/sales            latest POS sales (to print again)
   GET  business/invoices                  manual (service) invoices, newest first
   POST business/invoices                  create a manual invoice (server math)
   GET  business/invoices/<id>             one manual invoice
@@ -105,6 +106,9 @@ class InvoiceSettingsView(APIView):
             row.save(update_fields=["data", "updated_at"])
         return Response({"settings": s, "saved": True, "can_edit": True})
 
+    def post(self, request):   # the app's ApiClient has no PUT helper
+        return self.put(request)
+
 
 def _sale_for(prof, pk):
     from .models import Sale
@@ -161,6 +165,23 @@ class SaleInvoiceView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         settings, _ = load_settings(prof)
         return Response(sale_invoice(prof, s, settings))
+
+
+class InvoiceSalesView(APIView):
+    """GET business/invoices/sales — the latest POS sales to print again."""
+    def get(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        from .models import Sale
+        qs = (Sale.objects.filter(Q(business=prof) | Q(business__isnull=True,
+                                                         user_id=prof.user_id))
+              .select_related("customer").order_by("-created_at")[:50])
+        return Response({"items": [
+            {"id": s.id, "total": s.total, "issued_at": _local_iso(s.created_at),
+             "buyer": s.customer.name if s.customer_id else "",
+             "payment_method": s.payment_method,
+             "cancelled": s.voided_at is not None} for s in qs]})
 
 
 def _manual_rows(prof):

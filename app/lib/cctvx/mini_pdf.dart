@@ -109,15 +109,23 @@ class PdfPageImage {
 /// statement is drawn by Flutter's own text engine, so Bangla conjuncts are
 /// shaped right). Each picture is Flate-compressed once and the raw pixels
 /// can be dropped by the caller page by page (2 GB phones).
+///
+/// invoices: with [pageWidthPt] every page is that wide and exactly as tall as
+/// its picture (thermal roll paper, 58 / 80 mm): the picture is [imageWidthPt]
+/// wide (default: page width minus margins), centred, [marginPt] above/below.
 Uint8List imagePagesPdf(List<PdfPageImage> pages,
-    {PdfPaper paper = PdfPaper.a4, double marginPt = 0, String title = 'Assisto'}) {
+    {PdfPaper paper = PdfPaper.a4,
+    double marginPt = 0,
+    String title = 'Assisto',
+    double? pageWidthPt,
+    double? imageWidthPt}) {
   if (pages.isEmpty) throw ArgumentError('no pages');
   for (final p in pages) {
     if (p.width <= 0 || p.height <= 0 || p.rgb.length != p.width * p.height * 3) {
       throw ArgumentError('rgb size');
     }
   }
-  final (pw, ph) = pdfPaperSize(paper);
+  final (paperW, paperH) = pdfPaperSize(paper);
   String f(double v) => v.toStringAsFixed(2);
   final out = BytesBuilder(copy: false);
   final offsets = <int, int>{};
@@ -145,10 +153,22 @@ Uint8List imagePagesPdf(List<PdfPageImage> pages,
   obj(2, latin1.encode('<< /Type /Pages /Kids [$kids] /Count $n >>'));
   for (var i = 0; i < n; i++) {
     final p = pages[i];
-    final boxW = pw - 2 * marginPt, boxH = ph - 2 * marginPt;
-    final scale = (boxW / p.width < boxH / p.height) ? boxW / p.width : boxH / p.height;
-    final dw = p.width * scale, dh = p.height * scale;
-    final x = (pw - dw) / 2, y = (ph - dh) / 2;
+    double pw = paperW, ph = paperH, dw, dh, x, y;
+    if (pageWidthPt != null) {
+      pw = pageWidthPt;
+      dw = imageWidthPt ?? (pw - 2 * marginPt);
+      dh = p.height * dw / p.width;
+      ph = dh + 2 * marginPt;
+      x = (pw - dw) / 2;
+      y = marginPt;
+    } else {
+      final boxW = pw - 2 * marginPt, boxH = ph - 2 * marginPt;
+      final scale = (boxW / p.width < boxH / p.height) ? boxW / p.width : boxH / p.height;
+      dw = p.width * scale;
+      dh = p.height * scale;
+      x = (pw - dw) / 2;
+      y = (ph - dh) / 2;
+    }
     final po = pageObj(i);
     obj(po, latin1.encode('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f(pw)} ${f(ph)}] '
         '/Resources << /XObject << /Im0 ${po + 1} 0 R >> >> /Contents ${po + 2} 0 R >>'));

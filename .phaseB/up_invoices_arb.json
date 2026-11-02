@@ -1,0 +1,799 @@
+{
+ "en": {
+  "invAddLine": "Add a line",
+  "@invAddLine": {
+   "description": "invoices: invAddLine"
+  },
+  "invBillTo": "Customer",
+  "@invBillTo": {
+   "description": "invoices: invBillTo"
+  },
+  "invBin": "BIN",
+  "@invBin": {
+   "description": "invoices: invBin"
+  },
+  "invCancelAction": "Cancel this invoice",
+  "@invCancelAction": {
+   "description": "invoices: invCancelAction"
+  },
+  "invCancelConfirm": "Cancel invoice",
+  "@invCancelConfirm": {
+   "description": "invoices: invCancelConfirm"
+  },
+  "invCancelExplain": "The invoice stays in your list marked CANCELLED, and its QR check page will say so. This cannot be undone.",
+  "@invCancelExplain": {
+   "description": "invoices: invCancelExplain"
+  },
+  "invCancelNeedReason": "Write why you are cancelling it.",
+  "@invCancelNeedReason": {
+   "description": "invoices: invCancelNeedReason"
+  },
+  "invCancelReason": "Reason",
+  "@invCancelReason": {
+   "description": "invoices: invCancelReason"
+  },
+  "invCancelled": "CANCELLED",
+  "@invCancelled": {
+   "description": "invoices: invCancelled"
+  },
+  "invChange": "Change",
+  "@invChange": {
+   "description": "invoices: invChange"
+  },
+  "invClient": "Client",
+  "@invClient": {
+   "description": "invoices: invClient"
+  },
+  "invClientAddress": "Address",
+  "@invClientAddress": {
+   "description": "invoices: invClientAddress"
+  },
+  "invClientBin": "Client BIN (optional, 9 or 13 digits)",
+  "@invClientBin": {
+   "description": "invoices: invClientBin"
+  },
+  "invClientName": "Name",
+  "@invClientName": {
+   "description": "invoices: invClientName"
+  },
+  "invClientPhone": "Phone",
+  "@invClientPhone": {
+   "description": "invoices: invClientPhone"
+  },
+  "invCod": "Collect on delivery",
+  "@invCod": {
+   "description": "invoices: invCod"
+  },
+  "invColAmount": "Amount",
+  "@invColAmount": {
+   "description": "invoices: invColAmount"
+  },
+  "invColItem": "Item",
+  "@invColItem": {
+   "description": "invoices: invColItem"
+  },
+  "invColQty": "Qty",
+  "@invColQty": {
+   "description": "invoices: invColQty"
+  },
+  "invColRate": "Rate",
+  "@invColRate": {
+   "description": "invoices: invColRate"
+  },
+  "invCreate": "Make the invoice",
+  "@invCreate": {
+   "description": "invoices: invCreate"
+  },
+  "invDateL": "Date",
+  "@invDateL": {
+   "description": "invoices: invDateL"
+  },
+  "invDiscount": "Discount",
+  "@invDiscount": {
+   "description": "invoices: invDiscount"
+  },
+  "invDiscountTk": "Discount (optional)",
+  "@invDiscountTk": {
+   "description": "invoices: invDiscountTk"
+  },
+  "invDue": "Due",
+  "@invDue": {
+   "description": "invoices: invDue"
+  },
+  "invGotIt": "Got it",
+  "@invGotIt": {
+   "description": "invoices: invGotIt"
+  },
+  "invHubBenefit": "Give a clean invoice in one tap: 58 or 80 mm thermal or A4, Bangla or English, with VAT and a QR the customer can check.",
+  "@invHubBenefit": {
+   "description": "invoices: invHubBenefit"
+  },
+  "invHubEmptySales": "No shop sales yet. Ring one up in Quick Sell and it appears here.",
+  "@invHubEmptySales": {
+   "description": "invoices: invHubEmptySales"
+  },
+  "invHubEmptyTitle": "No invoices yet",
+  "@invHubEmptyTitle": {
+   "description": "invoices: invHubEmptyTitle"
+  },
+  "invHubManual": "Service invoices",
+  "@invHubManual": {
+   "description": "invoices: invHubManual"
+  },
+  "invHubManualEmpty": "None yet. Lawyers, consultants and any service: tap New invoice.",
+  "@invHubManualEmpty": {
+   "description": "invoices: invHubManualEmpty"
+  },
+  "invHubNew": "New invoice",
+  "@invHubNew": {
+   "description": "invoices: invHubNew"
+  },
+  "invHubRecentSales": "Shop sales (print again)",
+  "@invHubRecentSales": {
+   "description": "invoices: invHubRecentSales"
+  },
+  "invHubStep1": "Set up once: shop name, address, phone, VAT/BIN if you have one.",
+  "@invHubStep1": {
+   "description": "invoices: invHubStep1"
+  },
+  "invHubStep2": "Shop sale: Quick Sell → finish the sale → Sale options → Invoice / print.",
+  "@invHubStep2": {
+   "description": "invoices: invHubStep2"
+  },
+  "invHubStep3": "Service bill: New invoice → pick the client → add lines → share PDF.",
+  "@invHubStep3": {
+   "description": "invoices: invHubStep3"
+  },
+  "invHubSub": "58/80 mm thermal or A4, VAT, QR",
+  "@invHubSub": {
+   "description": "invoices: invHubSub"
+  },
+  "invHubTitle": "Invoices",
+  "@invHubTitle": {
+   "description": "invoices: invHubTitle"
+  },
+  "invInconsistent": "The totals of this sale do not add up. Check the sale before giving this invoice to the customer.",
+  "@invInconsistent": {
+   "description": "invoices: invInconsistent"
+  },
+  "invLangBn": "Bangla",
+  "@invLangBn": {
+   "description": "invoices: invLangBn"
+  },
+  "invLangEn": "English",
+  "@invLangEn": {
+   "description": "invoices: invLangEn"
+  },
+  "invLangLabel": "Invoice language",
+  "@invLangLabel": {
+   "description": "invoices: invLangLabel"
+  },
+  "invLineDesc": "Description (product or service)",
+  "@invLineDesc": {
+   "description": "invoices: invLineDesc"
+  },
+  "invLineQty": "Qty",
+  "@invLineQty": {
+   "description": "invoices: invLineQty"
+  },
+  "invLineUnit": "Price",
+  "@invLineUnit": {
+   "description": "invoices: invLineUnit"
+  },
+  "invLinesTitle": "Lines",
+  "@invLinesTitle": {
+   "description": "invoices: invLinesTitle"
+  },
+  "invLoadFailed": "Could not open the invoice. Check the internet and try again.",
+  "@invLoadFailed": {
+   "description": "invoices: invLoadFailed"
+  },
+  "invMadeWith": "Made with Assisto",
+  "@invMadeWith": {
+   "description": "invoices: invMadeWith"
+  },
+  "invMakeFromSale": "Invoice / print (58 mm, 80 mm, A4)",
+  "@invMakeFromSale": {
+   "description": "invoices: invMakeFromSale"
+  },
+  "invMore": "More",
+  "@invMore": {
+   "description": "invoices: invMore"
+  },
+  "invMushak": "Mushak-6.3",
+  "@invMushak": {
+   "description": "invoices: invMushak"
+  },
+  "invNeedClient": "Write the client's name, or pick one.",
+  "@invNeedClient": {
+   "description": "invoices: invNeedClient"
+  },
+  "invNeedLine": "Add at least one line with a description, quantity and price.",
+  "@invNeedLine": {
+   "description": "invoices: invNeedLine"
+  },
+  "invNewTitle": "New invoice",
+  "@invNewTitle": {
+   "description": "invoices: invNewTitle"
+  },
+  "invNo": "Invoice no.",
+  "@invNo": {
+   "description": "invoices: invNo"
+  },
+  "invNoCustomers": "No customers saved yet. Write the name below.",
+  "@invNoCustomers": {
+   "description": "invoices: invNoCustomers"
+  },
+  "invNoVat": "No VAT on this invoice (exempt or not taxable)",
+  "@invNoVat": {
+   "description": "invoices: invNoVat"
+  },
+  "invNotSetBanner": "Add your shop address, phone and VAT details once. Every invoice will carry them.",
+  "@invNotSetBanner": {
+   "description": "invoices: invNotSetBanner"
+  },
+  "invNote": "Note on the invoice (optional)",
+  "@invNote": {
+   "description": "invoices: invNote"
+  },
+  "invPage": "Page {n} of {m}",
+  "@invPage": {
+   "description": "invoices: invPage",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "m": {
+     "type": "String"
+    }
+   }
+  },
+  "invPaid": "Paid",
+  "@invPaid": {
+   "description": "invoices: invPaid"
+  },
+  "invPaidTk": "Received now (optional)",
+  "@invPaidTk": {
+   "description": "invoices: invPaidTk"
+  },
+  "invPaper58": "58 mm",
+  "@invPaper58": {
+   "description": "invoices: invPaper58"
+  },
+  "invPaper80": "80 mm",
+  "@invPaper80": {
+   "description": "invoices: invPaper80"
+  },
+  "invPaperA4": "A4",
+  "@invPaperA4": {
+   "description": "invoices: invPaperA4"
+  },
+  "invPaperLabel": "Paper size",
+  "@invPaperLabel": {
+   "description": "invoices: invPaperLabel"
+  },
+  "invPayBy": "Payment",
+  "@invPayBy": {
+   "description": "invoices: invPayBy"
+  },
+  "invPhone": "Phone",
+  "@invPhone": {
+   "description": "invoices: invPhone"
+  },
+  "invPickCircle": "From My Circle",
+  "@invPickCircle": {
+   "description": "invoices: invPickCircle"
+  },
+  "invPickCustomer": "From customers",
+  "@invPickCustomer": {
+   "description": "invoices: invPickCustomer"
+  },
+  "invPmBkash": "bKash",
+  "@invPmBkash": {
+   "description": "invoices: invPmBkash"
+  },
+  "invPmCash": "Cash",
+  "@invPmCash": {
+   "description": "invoices: invPmCash"
+  },
+  "invPmDue": "On credit (due)",
+  "@invPmDue": {
+   "description": "invoices: invPmDue"
+  },
+  "invPmNagad": "Nagad",
+  "@invPmNagad": {
+   "description": "invoices: invPmNagad"
+  },
+  "invPrintHowBody": "Assisto does not connect to Bluetooth printers by itself yet. To print:\n1. Pick 58 mm or 80 mm (the width of your paper roll).\n2. Tap Share image (or Share PDF).\n3. Choose your printer's app (for example RawBT, or the app that came with the printer) and print.\n\nThe picture is exactly your printer's width, so it prints sharp. For A4, share the PDF to any printer or save it.\nAssisto invoices are not an NBR EFD/SDC receipt.",
+  "@invPrintHowBody": {
+   "description": "invoices: invPrintHowBody"
+  },
+  "invPrintHowTitle": "How to print",
+  "@invPrintHowTitle": {
+   "description": "invoices: invPrintHowTitle"
+  },
+  "invQrPay": "Scan to pay",
+  "@invQrPay": {
+   "description": "invoices: invQrPay"
+  },
+  "invQrVerify": "Scan to check this receipt is genuine",
+  "@invQrVerify": {
+   "description": "invoices: invQrVerify"
+  },
+  "invRateNote": "VAT rate as entered by the business",
+  "@invRateNote": {
+   "description": "invoices: invRateNote"
+  },
+  "invRemoveLine": "Remove this line",
+  "@invRemoveLine": {
+   "description": "invoices: invRemoveLine"
+  },
+  "invRetry": "Try again",
+  "@invRetry": {
+   "description": "invoices: invRetry"
+  },
+  "invScreenTitle": "Invoice",
+  "@invScreenTitle": {
+   "description": "invoices: invScreenTitle"
+  },
+  "invSd": "SD ({rate})",
+  "@invSd": {
+   "description": "invoices: invSd",
+   "placeholders": {
+    "rate": {
+     "type": "String"
+    }
+   }
+  },
+  "invServiceCharge": "Service charge ({rate})",
+  "@invServiceCharge": {
+   "description": "invoices: invServiceCharge",
+   "placeholders": {
+    "rate": {
+     "type": "String"
+    }
+   }
+  },
+  "invSetAddress": "Address",
+  "@invSetAddress": {
+   "description": "invoices: invSetAddress"
+  },
+  "invSetBin": "BIN (9 or 13 digits)",
+  "@invSetBin": {
+   "description": "invoices: invSetBin"
+  },
+  "invSetBinBad": "This BIN does not look right: it should have 9 or 13 digits.",
+  "@invSetBinBad": {
+   "description": "invoices: invSetBinBad"
+  },
+  "invSetBinNeeded": "A VAT invoice needs your BIN.",
+  "@invSetBinNeeded": {
+   "description": "invoices: invSetBinNeeded"
+  },
+  "invSetBusinessType": "Business type (invoice template)",
+  "@invSetBusinessType": {
+   "description": "invoices: invSetBusinessType"
+  },
+  "invSetDefaultPaper": "Usual paper",
+  "@invSetDefaultPaper": {
+   "description": "invoices: invSetDefaultPaper"
+  },
+  "invSetFieldBad": "Please check this.",
+  "@invSetFieldBad": {
+   "description": "invoices: invSetFieldBad"
+  },
+  "invSetFixFields": "Some fields need a fix. They are marked in red.",
+  "@invSetFixFields": {
+   "description": "invoices: invSetFixFields"
+  },
+  "invSetFooter": "Line at the bottom (for example return policy)",
+  "@invSetFooter": {
+   "description": "invoices: invSetFooter"
+  },
+  "invSetName": "Name on the invoice",
+  "@invSetName": {
+   "description": "invoices: invSetName"
+  },
+  "invSetNotEfd": "Assisto invoices are not an NBR EFD/SDC receipt and are not tax advice.",
+  "@invSetNotEfd": {
+   "description": "invoices: invSetNotEfd"
+  },
+  "invSetPayLink": "Payment link (optional, https://...)",
+  "@invSetPayLink": {
+   "description": "invoices: invSetPayLink"
+  },
+  "invSetPayLinkHelp": "Your own bKash, Nagad or bank payment page. It prints as a QR only when money is still due. Assisto never holds money.",
+  "@invSetPayLinkHelp": {
+   "description": "invoices: invSetPayLinkHelp"
+  },
+  "invSetPhone": "Phone",
+  "@invSetPhone": {
+   "description": "invoices: invSetPhone"
+  },
+  "invSetPosNote": "Quick Sell totals are what the customer already paid, so on shop sales VAT is shown inside that total.",
+  "@invSetPosNote": {
+   "description": "invoices: invSetPosNote"
+  },
+  "invSetSave": "Save",
+  "@invSetSave": {
+   "description": "invoices: invSetSave"
+  },
+  "invSetSaved": "Invoice settings saved",
+  "@invSetSaved": {
+   "description": "invoices: invSetSaved"
+  },
+  "invSetSd": "Supplementary duty (SD) %, usually 0",
+  "@invSetSd": {
+   "description": "invoices: invSetSd"
+  },
+  "invSetSellerBlock": "Shown at the top of every invoice",
+  "@invSetSellerBlock": {
+   "description": "invoices: invSetSellerBlock"
+  },
+  "invSetService": "Service charge % (optional)",
+  "@invSetService": {
+   "description": "invoices: invSetService"
+  },
+  "invSetSignatory": "Authorised person (name, designation)",
+  "@invSetSignatory": {
+   "description": "invoices: invSetSignatory"
+  },
+  "invSetStaffNote": "Only the owner can change these.",
+  "@invSetStaffNote": {
+   "description": "invoices: invSetStaffNote"
+  },
+  "invSetTitle": "Invoice settings",
+  "@invSetTitle": {
+   "description": "invoices: invSetTitle"
+  },
+  "invSetUpNow": "Set up now",
+  "@invSetUpNow": {
+   "description": "invoices: invSetUpNow"
+  },
+  "invSetVatRate": "VAT rate %",
+  "@invSetVatRate": {
+   "description": "invoices: invSetVatRate"
+  },
+  "invSetVatRateHelp": "Standard rate is 15% (VAT and SD Act 2012, section 15). Some goods and services have a lower rate in the Act's Third Schedule; check with your VAT consultant. Assisto never guesses a rate.",
+  "@invSetVatRateHelp": {
+   "description": "invoices: invSetVatRateHelp"
+  },
+  "invSetVatTitle": "VAT (Mushak)",
+  "@invSetVatTitle": {
+   "description": "invoices: invSetVatTitle"
+  },
+  "invSetVerifyQr": "Print a QR so customers can check the receipt is genuine",
+  "@invSetVerifyQr": {
+   "description": "invoices: invSetVerifyQr"
+  },
+  "invShareFailed": "Could not make the file. Please try again.",
+  "@invShareFailed": {
+   "description": "invoices: invShareFailed"
+  },
+  "invShareImage": "Share image (thermal printer app)",
+  "@invShareImage": {
+   "description": "invoices: invShareImage"
+  },
+  "invSharePdf": "Share PDF / print",
+  "@invSharePdf": {
+   "description": "invoices: invSharePdf"
+  },
+  "invSignature": "Authorised signature",
+  "@invSignature": {
+   "description": "invoices: invSignature"
+  },
+  "invSubFees": "Professional fees",
+  "@invSubFees": {
+   "description": "invoices: invSubFees"
+  },
+  "invSubtotal": "Subtotal",
+  "@invSubtotal": {
+   "description": "invoices: invSubtotal"
+  },
+  "invTaxable": "Value before VAT",
+  "@invTaxable": {
+   "description": "invoices: invTaxable"
+  },
+  "invThanks": "Thank you, come again",
+  "@invThanks": {
+   "description": "invoices: invThanks"
+  },
+  "invTitleBill": "Bill",
+  "@invTitleBill": {
+   "description": "invoices: invTitleBill"
+  },
+  "invTitleInvoice": "Invoice",
+  "@invTitleInvoice": {
+   "description": "invoices: invTitleInvoice"
+  },
+  "invTitleMemo": "Cash memo",
+  "@invTitleMemo": {
+   "description": "invoices: invTitleMemo"
+  },
+  "invTitleTax": "Tax invoice",
+  "@invTitleTax": {
+   "description": "invoices: invTitleTax"
+  },
+  "invTotal": "Total",
+  "@invTotal": {
+   "description": "invoices: invTotal"
+  },
+  "invTplCafe": "Cafe",
+  "@invTplCafe": {
+   "description": "invoices: invTplCafe"
+  },
+  "invTplEcommerce": "Online shop",
+  "@invTplEcommerce": {
+   "description": "invoices: invTplEcommerce"
+  },
+  "invTplElectronics": "Electronics showroom",
+  "@invTplElectronics": {
+   "description": "invoices: invTplElectronics"
+  },
+  "invTplFineDining": "Fine dining",
+  "@invTplFineDining": {
+   "description": "invoices: invTplFineDining"
+  },
+  "invTplLawyer": "Lawyer",
+  "@invTplLawyer": {
+   "description": "invoices: invTplLawyer"
+  },
+  "invTplRestaurant": "Restaurant",
+  "@invTplRestaurant": {
+   "description": "invoices: invTplRestaurant"
+  },
+  "invTplRetail": "Retail shop",
+  "@invTplRetail": {
+   "description": "invoices: invTplRetail"
+  },
+  "invTplService": "Any service",
+  "@invTplService": {
+   "description": "invoices: invTplService"
+  },
+  "invTplTax": "VAT / tax consultant",
+  "@invTplTax": {
+   "description": "invoices: invTplTax"
+  },
+  "invVat": "VAT ({rate})",
+  "@invVat": {
+   "description": "invoices: invVat",
+   "placeholders": {
+    "rate": {
+     "type": "String"
+    }
+   }
+  },
+  "invVatExclusive": "VAT registered: add VAT on top of my prices",
+  "@invVatExclusive": {
+   "description": "invoices: invVatExclusive"
+  },
+  "invVatIncluded": "Prices include VAT",
+  "@invVatIncluded": {
+   "description": "invoices: invVatIncluded"
+  },
+  "invVatInclusive": "VAT registered: my prices already include VAT (MRP)",
+  "@invVatInclusive": {
+   "description": "invoices: invVatInclusive"
+  },
+  "invVatNone": "Not VAT registered: no VAT line",
+  "@invVatNone": {
+   "description": "invoices: invVatNone"
+  },
+  "invWarrantyKeep": "Keep this invoice for warranty",
+  "@invWarrantyKeep": {
+   "description": "invoices: invWarrantyKeep"
+  },
+  "invXCaseRef": "Case / file no.",
+  "@invXCaseRef": {
+   "description": "invoices: invXCaseRef"
+  },
+  "invXCourier": "Courier",
+  "@invXCourier": {
+   "description": "invoices: invXCourier"
+  },
+  "invXCourt": "Court / office",
+  "@invXCourt": {
+   "description": "invoices: invXCourt"
+  },
+  "invXDeliverTo": "Deliver to",
+  "@invXDeliverTo": {
+   "description": "invoices: invXDeliverTo"
+  },
+  "invXGuests": "Guests",
+  "@invXGuests": {
+   "description": "invoices: invXGuests"
+  },
+  "invXOrderRef": "Order no.",
+  "@invXOrderRef": {
+   "description": "invoices: invXOrderRef"
+  },
+  "invXPeriod": "Service period",
+  "@invXPeriod": {
+   "description": "invoices: invXPeriod"
+  },
+  "invXSerial": "Serial / IMEI",
+  "@invXSerial": {
+   "description": "invoices: invXSerial"
+  },
+  "invXServer": "Served by",
+  "@invXServer": {
+   "description": "invoices: invXServer"
+  },
+  "invXTable": "Table",
+  "@invXTable": {
+   "description": "invoices: invXTable"
+  },
+  "invXTaxYear": "Tax year",
+  "@invXTaxYear": {
+   "description": "invoices: invXTaxYear"
+  },
+  "invXTin": "Client TIN",
+  "@invXTin": {
+   "description": "invoices: invXTin"
+  },
+  "invXToken": "Token",
+  "@invXToken": {
+   "description": "invoices: invXToken"
+  },
+  "invXWarranty": "Warranty",
+  "@invXWarranty": {
+   "description": "invoices: invXWarranty"
+  }
+ },
+ "bn": {
+  "invAddLine": "আরেকটি লাইন যোগ করুন",
+  "invBillTo": "ক্রেতা",
+  "invBin": "BIN",
+  "invCancelAction": "এই ইনভয়েস বাতিল করুন",
+  "invCancelConfirm": "ইনভয়েস বাতিল",
+  "invCancelExplain": "ইনভয়েসটি তালিকায় \"বাতিল\" লেখা থাকবে, QR যাচাই পাতাতেও তা দেখাবে। এটা আর ফেরানো যাবে না।",
+  "invCancelNeedReason": "কেন বাতিল করছেন লিখুন।",
+  "invCancelReason": "কারণ",
+  "invCancelled": "বাতিল",
+  "invChange": "ফেরত",
+  "invClient": "ক্লায়েন্ট",
+  "invClientAddress": "ঠিকানা",
+  "invClientBin": "ক্লায়েন্টের BIN (ইচ্ছা হলে, ৯ বা ১৩ অঙ্ক)",
+  "invClientName": "নাম",
+  "invClientPhone": "ফোন",
+  "invCod": "ডেলিভারিতে নিতে হবে",
+  "invColAmount": "টাকা",
+  "invColItem": "বিবরণ",
+  "invColQty": "পরিমাণ",
+  "invColRate": "দর",
+  "invCreate": "ইনভয়েস তৈরি করুন",
+  "invDateL": "তারিখ",
+  "invDiscount": "ছাড়",
+  "invDiscountTk": "ছাড় (ইচ্ছা হলে)",
+  "invDue": "বাকি",
+  "invGotIt": "বুঝেছি",
+  "invHubBenefit": "এক ট্যাপে পরিষ্কার ইনভয়েস দিন — ৫৮ বা ৮০ মিমি থার্মাল অথবা A4, বাংলা বা ইংরেজি, VAT আর গ্রাহকের যাচাই করার QR সহ।",
+  "invHubEmptySales": "এখনো কোনো দোকান-বিক্রি নেই। দ্রুত বিক্রিতে একটা বিক্রি করলে এখানে দেখাবে।",
+  "invHubEmptyTitle": "এখনো কোনো ইনভয়েস নেই",
+  "invHubManual": "সেবার ইনভয়েস",
+  "invHubManualEmpty": "এখনো নেই। আইনজীবী, পরামর্শক বা যেকোনো সেবা: \"নতুন ইনভয়েস\" চাপুন।",
+  "invHubNew": "নতুন ইনভয়েস",
+  "invHubRecentSales": "দোকানের বিক্রি (আবার প্রিন্ট)",
+  "invHubStep1": "একবার সেট করুন: দোকানের নাম, ঠিকানা, ফোন, VAT/BIN থাকলে।",
+  "invHubStep2": "দোকানের বিক্রি: দ্রুত বিক্রি → বিক্রি শেষ → বিক্রির অপশন → ইনভয়েস / প্রিন্ট।",
+  "invHubStep3": "সেবার বিল: নতুন ইনভয়েস → ক্লায়েন্ট বাছুন → লাইন যোগ → PDF শেয়ার।",
+  "invHubSub": "৫৮/৮০ মিমি থার্মাল বা A4, VAT, QR",
+  "invHubTitle": "ইনভয়েস",
+  "invInconsistent": "এই বিক্রির মোট মিলছে না। গ্রাহককে দেওয়ার আগে বিক্রিটা দেখে নিন।",
+  "invLangBn": "বাংলা",
+  "invLangEn": "ইংরেজি",
+  "invLangLabel": "ইনভয়েসের ভাষা",
+  "invLineDesc": "বিবরণ (পণ্য বা সেবা)",
+  "invLineQty": "পরিমাণ",
+  "invLineUnit": "দাম",
+  "invLinesTitle": "লাইনগুলো",
+  "invLoadFailed": "ইনভয়েস খোলা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "invMadeWith": "Assisto দিয়ে তৈরি",
+  "invMakeFromSale": "ইনভয়েস / প্রিন্ট (৫৮ মিমি, ৮০ মিমি, A4)",
+  "invMore": "আরও",
+  "invMushak": "মূসক-৬.৩",
+  "invNeedClient": "ক্লায়েন্টের নাম লিখুন বা তালিকা থেকে বাছুন।",
+  "invNeedLine": "অন্তত একটি লাইনে বিবরণ, পরিমাণ ও দাম দিন।",
+  "invNewTitle": "নতুন ইনভয়েস",
+  "invNo": "ইনভয়েস নং",
+  "invNoCustomers": "এখনো কোনো গ্রাহক সেভ নেই। নিচে নাম লিখুন।",
+  "invNoVat": "এই ইনভয়েসে VAT নেই (অব্যাহতি বা করযোগ্য নয়)",
+  "invNotSetBanner": "দোকানের ঠিকানা, ফোন আর VAT তথ্য একবার দিন — সব ইনভয়েসে থাকবে।",
+  "invNote": "ইনভয়েসে নোট (ইচ্ছা হলে)",
+  "invPage": "পাতা {n}/{m}",
+  "invPaid": "পরিশোধ",
+  "invPaidTk": "এখন পেয়েছেন (ইচ্ছা হলে)",
+  "invPaper58": "৫৮ মিমি",
+  "invPaper80": "৮০ মিমি",
+  "invPaperA4": "A4",
+  "invPaperLabel": "কাগজের মাপ",
+  "invPayBy": "পেমেন্ট",
+  "invPhone": "ফোন",
+  "invPickCircle": "My Circle থেকে",
+  "invPickCustomer": "গ্রাহক তালিকা থেকে",
+  "invPmBkash": "বিকাশ",
+  "invPmCash": "ক্যাশ",
+  "invPmDue": "বাকিতে",
+  "invPmNagad": "নগদ",
+  "invPrintHowBody": "Assisto এখনো নিজে ব্লুটুথ প্রিন্টারে যুক্ত হয় না। প্রিন্ট করতে:\n১. ৫৮ মিমি বা ৮০ মিমি বাছুন (আপনার কাগজের রোলের মাপ)।\n২. \"ছবি শেয়ার\" (বা \"PDF শেয়ার\") চাপুন।\n৩. প্রিন্টারের অ্যাপ বাছুন (যেমন RawBT, বা প্রিন্টারের সাথে আসা অ্যাপ) — প্রিন্ট করুন।\n\nছবিটা ঠিক আপনার প্রিন্টারের প্রস্থে, তাই পরিষ্কার প্রিন্ট হয়। A4 হলে PDF যেকোনো প্রিন্টারে পাঠান বা সেভ করুন।\nAssisto-র ইনভয়েস NBR-এর EFD/SDC রসিদ নয়।",
+  "invPrintHowTitle": "কীভাবে প্রিন্ট করবেন",
+  "invQrPay": "পেমেন্ট করতে স্ক্যান করুন",
+  "invQrVerify": "রসিদ আসল কি না দেখতে স্ক্যান করুন",
+  "invRateNote": "মূসকের হার ব্যবসার দেওয়া",
+  "invRemoveLine": "এই লাইন মুছুন",
+  "invRetry": "আবার চেষ্টা করুন",
+  "invScreenTitle": "ইনভয়েস",
+  "invSd": "সম্পূরক শুল্ক ({rate})",
+  "invServiceCharge": "সার্ভিস চার্জ ({rate})",
+  "invSetAddress": "ঠিকানা",
+  "invSetBin": "BIN (৯ বা ১৩ অঙ্ক)",
+  "invSetBinBad": "BIN ঠিক মনে হচ্ছে না — ৯ বা ১৩ অঙ্ক হওয়ার কথা।",
+  "invSetBinNeeded": "VAT ইনভয়েসে আপনার BIN লাগবে।",
+  "invSetBusinessType": "ব্যবসার ধরন (ইনভয়েসের নকশা)",
+  "invSetDefaultPaper": "সাধারণত যে কাগজ",
+  "invSetFieldBad": "এটা একবার দেখে নিন।",
+  "invSetFixFields": "কিছু ঘর ঠিক করতে হবে — লাল দাগ দেওয়া আছে।",
+  "invSetFooter": "নিচের লাইন (যেমন ফেরতের নিয়ম)",
+  "invSetName": "ইনভয়েসে নাম",
+  "invSetNotEfd": "Assisto-র ইনভয়েস NBR-এর EFD/SDC রসিদ নয়, কর-পরামর্শও নয়।",
+  "invSetPayLink": "পেমেন্ট লিংক (ইচ্ছা হলে, https://...)",
+  "invSetPayLinkHelp": "আপনার নিজের বিকাশ/নগদ/ব্যাংকের পেমেন্ট পাতা। টাকা বাকি থাকলেই শুধু QR হিসেবে ছাপা হবে। Assisto কখনো টাকা রাখে না।",
+  "invSetPhone": "ফোন",
+  "invSetPosNote": "দ্রুত বিক্রির মোট টাকা গ্রাহক আগেই দিয়েছেন, তাই দোকান-বিক্রির ইনভয়েসে VAT সেই মোটের ভেতরে দেখানো হয়।",
+  "invSetSave": "সংরক্ষণ করুন",
+  "invSetSaved": "ইনভয়েস সেটিংস সংরক্ষিত",
+  "invSetSd": "সম্পূরক শুল্ক (SD) % — সাধারণত ০",
+  "invSetSellerBlock": "প্রতিটি ইনভয়েসের উপরে যা থাকবে",
+  "invSetService": "সার্ভিস চার্জ % (ইচ্ছা হলে)",
+  "invSetSignatory": "দায়িত্বপ্রাপ্ত ব্যক্তি (নাম, পদবি)",
+  "invSetStaffNote": "শুধু মালিক এগুলো বদলাতে পারেন।",
+  "invSetTitle": "ইনভয়েস সেটিংস",
+  "invSetUpNow": "এখনই সেট করুন",
+  "invSetVatRate": "VAT হার %",
+  "invSetVatRateHelp": "মানক হার ১৫% (মূসক ও সম্পূরক শুল্ক আইন ২০১২, ধারা ১৫)। কিছু পণ্য/সেবার কম হার আইনের তৃতীয় তফসিলে আছে — আপনার VAT পরামর্শকের সাথে মিলিয়ে নিন। Assisto কোনো হার আন্দাজ করে বসায় না।",
+  "invSetVatTitle": "VAT (মূসক)",
+  "invSetVerifyQr": "গ্রাহক যেন রসিদ আসল কি না দেখতে পারেন — QR ছাপুন",
+  "invShareFailed": "ফাইল বানানো গেল না। আবার চেষ্টা করুন।",
+  "invShareImage": "ছবি শেয়ার (থার্মাল প্রিন্টারের অ্যাপ)",
+  "invSharePdf": "PDF শেয়ার / প্রিন্ট",
+  "invSignature": "দায়িত্বপ্রাপ্ত ব্যক্তির স্বাক্ষর",
+  "invSubFees": "পেশাগত ফি",
+  "invSubtotal": "মোট দাম",
+  "invTaxable": "মূসক ছাড়া মূল্য",
+  "invThanks": "ধন্যবাদ, আবার আসবেন",
+  "invTitleBill": "বিল",
+  "invTitleInvoice": "ইনভয়েস",
+  "invTitleMemo": "ক্যাশ মেমো",
+  "invTitleTax": "কর চালানপত্র",
+  "invTotal": "সর্বমোট",
+  "invTplCafe": "ক্যাফে",
+  "invTplEcommerce": "অনলাইন শপ",
+  "invTplElectronics": "ইলেকট্রনিক্স শোরুম",
+  "invTplFineDining": "ফাইন ডাইনিং",
+  "invTplLawyer": "আইনজীবী",
+  "invTplRestaurant": "রেস্টুরেন্ট",
+  "invTplRetail": "খুচরা দোকান",
+  "invTplService": "যেকোনো সেবা",
+  "invTplTax": "VAT / ট্যাক্স পরামর্শক",
+  "invVat": "মূসক ({rate})",
+  "invVatExclusive": "VAT নিবন্ধিত — আমার দামের উপর VAT যোগ হবে",
+  "invVatIncluded": "দামের মধ্যে মূসক ধরা আছে",
+  "invVatInclusive": "VAT নিবন্ধিত — আমার দামে VAT ধরা আছে (MRP)",
+  "invVatNone": "VAT নিবন্ধিত নই — VAT লাইন নেই",
+  "invWarrantyKeep": "ওয়ারেন্টির জন্য এই রসিদ রাখুন",
+  "invXCaseRef": "মামলা / ফাইল নং",
+  "invXCourier": "কুরিয়ার",
+  "invXCourt": "আদালত / অফিস",
+  "invXDeliverTo": "ডেলিভারির ঠিকানা",
+  "invXGuests": "অতিথি",
+  "invXOrderRef": "অর্ডার নং",
+  "invXPeriod": "সেবার সময়কাল",
+  "invXSerial": "সিরিয়াল / IMEI",
+  "invXServer": "পরিবেশনকারী",
+  "invXTable": "টেবিল",
+  "invXTaxYear": "করবর্ষ",
+  "invXTin": "ক্লায়েন্টের TIN",
+  "invXToken": "টোকেন",
+  "invXWarranty": "ওয়ারেন্টি"
+ }
+}
