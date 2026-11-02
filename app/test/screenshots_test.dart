@@ -55,6 +55,14 @@ import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_thread_screen.dart'; // missing
 import 'package:assisto/widgets/success_share.dart'; // missing
+import 'package:assisto/screens/blood/blood_hub_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_request_detail_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_request_form_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_donor_setup_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_thread_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_banks_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_verify_screen.dart'; // blood
+import 'fake_blood.dart'; // blood
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -628,6 +636,23 @@ Map<String, GallerySpec> gallerySpecs() {
     'missing_post': (build: (_) => const MissingPostScreen(), mode: FakeMode.data, full: true),
     'missing_optin': (build: (_) => const MissingOptinScreen(), mode: FakeMode.data, full: true),
     'missing_thread': (build: (_) => const MissingThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
+    // blood (owner 2 Nov): Blood donor panel — find (donors near me), empty,
+    // error, requests, me (listed donor), my request (responders), a request
+    // near me (donor view), request form, become-a-donor (consent), thread,
+    // banks (source pending), verify
+    'blood_hub': (build: (_) => const BloodHubScreen(), mode: FakeMode.data, full: true),
+    'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
+    'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),
+    'blood_requests': (build: (_) => const BloodHubScreen(initialTab: 1), mode: FakeMode.data, full: true),
+    'blood_me': (build: (_) => const BloodHubScreen(initialTab: 2), mode: FakeMode.data, full: true),
+    'blood_me_empty': (build: (_) => const BloodHubScreen(initialTab: 2), mode: FakeMode.empty, full: true),
+    'blood_request_mine': (build: (_) => const BloodRequestDetailScreen(requestId: 31), mode: FakeMode.data, full: true),
+    'blood_request_near': (build: (_) => const BloodRequestDetailScreen(requestId: 41), mode: FakeMode.data, full: true),
+    'blood_request_form': (build: (l) => BloodRequestFormScreen(config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
+    'blood_setup': (build: (l) => BloodDonorSetupScreen(initial: const {'district': 'dhaka'}, config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
+    'blood_thread': (build: (_) => const BloodThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
+    'blood_banks': (build: (_) => const BloodBanksScreen(), mode: FakeMode.data, full: true),
+    'blood_verify': (build: (_) => const BloodVerifyScreen(), mode: FakeMode.data, full: true),
     'success_share': (build: (l) => SuccessShareScreen(
         title: l == 'bn' ? 'ধন্যবাদ জানান' : 'Say thank you',
         cardHeadline: l == 'bn' ? 'পাওয়া গেছে — সবাইকে ধন্যবাদ' : 'Found — thank you all',
