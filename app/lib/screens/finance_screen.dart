@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/finance_common.dart';
 import '../widgets/finance_calc.dart' as calc;
+import '../widgets/tax_widgets.dart' show openExternal; // moneybar
 
 /// Finance tools (feature 26) — ADVANCED.
 ///
@@ -801,6 +802,12 @@ class _ZakatState extends State<_ZakatCalculator> {
       FilledButton(onPressed: _calc, child: Text(t.financeCalculate)),
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
+        // moneybar: an empty nisab used to mean "zakat on any amount" silently
+        if ((parseNum(_nisab.text) ?? 0) <= 0)
+          FinanceErrorBanner(t.mbZakatNisabMissing,
+              key: const ValueKey('mb-fin-zakat-nisab-missing'))
+        else if (!r.aboveNisab)
+          FinanceErrorBanner(t.mbZakatBelowNisab),
         FinanceResultCard(
           noteLabel: t.financeNote,
           explanation: t.financeExplZakat,
@@ -1205,6 +1212,17 @@ class _ConvertState extends State<_ConvertCalculator> {
       if (_err != null) FinanceErrorBanner(_err!),
       FinanceField(controller: _amount, label: t.financeFieldAmount),
       FinanceField(controller: _rate, label: t.financeFieldFxRate),
+      // moneybar: we never guess a rate — the official one is one tap away
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          key: const ValueKey('mb-fin-bb-rate'),
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => openExternal(context, mbBbRateUrl, t.taxLinkCopied),
+          icon: const Icon(Icons.open_in_new_rounded, size: 18),
+          label: Text(t.mbFinBbRate),
+        ),
+      ),
       FilledButton(onPressed: () => _calc(t), child: Text(t.financeCalculate)),
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
@@ -1231,6 +1249,10 @@ class _ConvertState extends State<_ConvertCalculator> {
 // ---------------------------------------------------------------------------
 // Net worth (backend-computed — the one network call)
 // ---------------------------------------------------------------------------
+
+/// Bangladesh Bank's official exchange-rate page (moneybar).
+const String mbBbRateUrl =
+    'https://www.bb.org.bd/en/index.php/econdata/exchangerate';
 
 class _NetWorthTab extends StatefulWidget {
   const _NetWorthTab();

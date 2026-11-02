@@ -71,7 +71,25 @@
           "type": "String"
         }
       }
-    }
+    },
+    "mbSpendFromLedger": "My ledger (this month)",
+    "mbSpendTyped": "Typed by me",
+    "mbSpendLedgerNote": "Worked out from the expenses you already wrote in Money this month — nothing to type again. Change a number in Money and it changes here.",
+    "mbOffersFailedBody": "Offers could not load — check the internet and try again. Your choices are safe.",
+    "mbOffersEmptyBody": "Pick the kinds of things you buy (mobile, grocery, fashion…) — you'll see only those offers, at most a few a day. You can mute any brand.",
+    "mbOffersPickInterests": "Choose what I like",
+    "mbTaxNewYearTitle": "2026-27 tax rates are not in this calculator yet",
+    "mbTaxNewYearBody": "Returns filed now (deadline usually 30 November) use the 2026-27 rates, which changed. This estimate uses the 2024-25 / 2025-26 rates, so it can be wrong for this year. Check NBR's official circular before you file.",
+    "mbTaxOpenCircular": "Open NBR circular 2026-27",
+    "mbZakatPerVori": "Prices per vori (bhori)",
+    "mbZakatPerVoriSub": "Jewellers and BAJUS quote per vori. 1 vori = 11.664 g — we convert.",
+    "mbZakatGoldPerVori": "Gold price per vori",
+    "mbZakatSilverPerVori": "Silver price per vori",
+    "mbZakatBajusLink": "Today's gold and silver price (BAJUS)",
+    "mbZakatNisabMissing": "Nisab is empty, so this shows 2.5% of everything — zakat may not be due at all. Find today's nisab in Tax & Zakat (from the silver or gold price) and type it here.",
+    "mbZakatBelowNisab": "Your net wealth is below nisab — no zakat is due on it.",
+    "mbFinBbRate": "Today's official rate (Bangladesh Bank)",
+    "mbWrappedAddTxn": "Write an expense or income"
   },
   "bn": {
     "mbTcbTitle": "সরকারি বাজারদর (টিসিবি, ঢাকা)",
@@ -86,6 +104,24 @@
     "mbTcbMarkets": "যে বাজার থেকে নেওয়া: {markets}",
     "mbTcbSearch": "পণ্য খুঁজুন (চাল, পেঁয়াজ, তেল…)",
     "mbTcbNoMatch": "আজকের টিসিবি তালিকায় এই নামে কিছু নেই।",
-    "mbTcbMatchLine": "সরকারি দাম (টিসিবি, ঢাকা): {range} {unit} — {name}"
+    "mbTcbMatchLine": "সরকারি দাম (টিসিবি, ঢাকা): {range} {unit} — {name}",
+    "mbSpendFromLedger": "আমার খাতা (এই মাস)",
+    "mbSpendTyped": "নিজে লেখা",
+    "mbSpendLedgerNote": "এই মাসে 'টাকা'-য় যে খরচ লিখেছেন তা থেকেই হিসাব — আবার কিছু লিখতে হবে না। 'টাকা'-য় কোনো সংখ্যা বদলালে এখানেও বদলাবে।",
+    "mbOffersFailedBody": "অফার আনা গেল না — ইন্টারনেট দেখে আবার চেষ্টা করুন। আপনার পছন্দগুলো ঠিক আছে।",
+    "mbOffersEmptyBody": "কোন ধরনের জিনিস কেনেন বেছে নিন (মোবাইল, বাজার, পোশাক…) — শুধু সেগুলোর অফার দেখবেন, দিনে অল্প কয়েকটা। যেকোনো ব্র্যান্ড বন্ধ করা যায়।",
+    "mbOffersPickInterests": "আমার পছন্দ বাছুন",
+    "mbTaxNewYearTitle": "২০২৬-২৭ করবর্ষের হার এই হিসাবে এখনো নেই",
+    "mbTaxNewYearBody": "এখন যে রিটার্ন জমা হচ্ছে (সাধারণত শেষ তারিখ ৩০ নভেম্বর) তা ২০২৬-২৭ সালের হারে, আর সেই হার বদলেছে। এই হিসাব ২০২৪-২৫ / ২০২৫-২৬ সালের হারে — তাই এ বছরের জন্য ভুল হতে পারে। রিটার্ন দেওয়ার আগে NBR-এর সরকারি পরিপত্র দেখে নিন।",
+    "mbTaxOpenCircular": "NBR পরিপত্র ২০২৬-২৭ খুলুন",
+    "mbZakatPerVori": "দাম ভরিতে লিখব",
+    "mbZakatPerVoriSub": "দোকান ও BAJUS দাম বলে ভরিতে। ১ ভরি = ১১.৬৬৪ গ্রাম — আমরা হিসাব করে নিই।",
+    "mbZakatGoldPerVori": "সোনার দাম প্রতি ভরি",
+    "mbZakatSilverPerVori": "রুপার দাম প্রতি ভরি",
+    "mbZakatBajusLink": "আজকের সোনা-রুপার দাম (BAJUS)",
+    "mbZakatNisabMissing": "নিসাব খালি, তাই এখানে সব সম্পদের ২.৫% দেখাচ্ছে — আসলে যাকাত ফরজ নাও হতে পারে। 'কর ও যাকাত' পাতায় রুপা বা সোনার দাম দিয়ে আজকের নিসাব বের করে এখানে লিখুন।",
+    "mbZakatBelowNisab": "আপনার নিট সম্পদ নিসাবের কম — এর উপর যাকাত ফরজ নয়।",
+    "mbFinBbRate": "আজকের সরকারি রেট (বাংলাদেশ ব্যাংক)",
+    "mbWrappedAddTxn": "খরচ বা আয় লিখুন"
   }
 }
