@@ -31917,5 +31917,23 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "watchFeed2": "Today's updates",
+  "watchFeedTitle2": "For you today",
+  "watchAllClearBody2": "Nothing needs you right now. Assisto keeps your reminders, money, subscriptions and family updates in order for you.",
+  "j100Following": "Trips I'm following",
+  "gjSeesYourTrip": "{name} can see your trip",
+  "@gjSeesYourTrip": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWhoKnows": "Who will know",
+  "gjBannerNote2": "Your screen always shows who can see this trip. The trip's path is deleted when it ends.",
+  "gjSchoolModeDesc2": "Your child accepts once. Their screen always shows that you can see their trips, and they can stop any single trip.",
+  "lifebarExamMineTitle2": "Results we'll tell you about",
+  "mlpStatusArmedBody2": "Assisto is protecting this phone and will report its location whenever it comes online.",
+  "atStateOnBody2": "A quiet background service is protecting your phone. A permanent notification shows while it runs."
 }
