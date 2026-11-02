@@ -23,7 +23,7 @@ import 'store_billing.dart';
 _PlayBilling? _instance;
 StoreBilling createPlayBilling() => _instance ??= _PlayBilling();
 
-class _PlayBilling implements StoreBilling {
+class _PlayBilling implements StoreBilling, StoreOffers {
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _sub;
   final Map<String, PurchaseDetails> _toFinish = {};
@@ -126,6 +126,72 @@ class _PlayBilling implements StoreBilling {
           ? await _iap.buyNonConsumable(purchaseParam: param)
           : await _iap.buyConsumable(purchaseParam: param, autoConsume: false);
       if (!started) return const StoreBuyResult(StoreBuyStatus.error);
+      return await _waiting!.future.timeout(const Duration(minutes: 15),
+          onTimeout: () => const StoreBuyResult(StoreBuyStatus.pending));
+    } catch (e) {
+      return StoreBuyResult(StoreBuyStatus.error, error: '$e');
+    }
+  }
+
+  /// cctvprice: the running subscription of exactly this product.
+  Future<GooglePlayPurchaseDetails?> _sameProduct(String productId) async {
+    try {
+      final add =
+          _iap.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+      // ignore: deprecated_member_use
+      final r = await add.queryPastPurchases();
+      for (final p in r.pastPurchases) {
+        if (p.productID == productId &&
+            p.billingClientPurchase.purchaseState ==
+                PurchaseStateWrapper.purchased) {
+          return p;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  @override
+  Future<Map<String, String>> offers(String productId) async {
+    try {
+      if (!await _iap.isAvailable()) return const {};
+      final resp = await _iap
+          .queryProductDetails({productId})
+          .timeout(const Duration(seconds: 12));
+      return playOfferMap(resp.productDetails);
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  @override
+  Future<StoreBuyResult> buyOffer({
+    required String productId,
+    required String basePlanId,
+    String offerId = '',
+    required String accountId,
+  }) async {
+    try {
+      if (!await _iap.isAvailable()) {
+        return const StoreBuyResult(StoreBuyStatus.unavailable);
+      }
+      _listen();
+      final resp = await _iap.queryProductDetails({productId});
+      final pick = pickPlayOffer(resp.productDetails,
+          basePlanId: basePlanId, offerId: offerId);
+      if (pick == null) {
+        return const StoreBuyResult(StoreBuyStatus.unavailable,
+            error: 'offer not active in Play Console');
+      }
+      final param = GooglePlayPurchaseParam(
+          productDetails: pick,
+          applicationUserName: accountId,
+          changeSubscriptionParam: playChangeParam(await _sameProduct(productId)));
+      _waiting = Completer<StoreBuyResult>();
+      _waitingFor = productId;
+      if (!await _iap.buyNonConsumable(purchaseParam: param)) {
+        return const StoreBuyResult(StoreBuyStatus.error);
+      }
       return await _waiting!.future.timeout(const Duration(minutes: 15),
           onTimeout: () => const StoreBuyResult(StoreBuyStatus.pending));
     } catch (e) {
@@ -263,4 +329,40 @@ Map<String, String> playPriceMap(List<ProductDetails> list) {
     }
   }
   return out;
+}
+
+/// cctvprice: every offer of a subscription product this Google account may
+/// buy: `basePlanId` (base offer) or `basePlanId#offerId`, value = Play's
+/// formatted recurring price (last pricing phase).
+@visibleForTesting
+Map<String, String> playOfferMap(List<ProductDetails> list) {
+  final out = <String, String>{};
+  for (final d in list) {
+    if (d is! GooglePlayProductDetails || d.subscriptionIndex == null) continue;
+    final offers = d.productDetails.subscriptionOfferDetails;
+    final i = d.subscriptionIndex!;
+    if (offers == null || i >= offers.length) continue;
+    final o = offers[i];
+    if (o.pricingPhases.isEmpty) continue;
+    final key = o.offerId == null ? o.basePlanId : '${o.basePlanId}#${o.offerId}';
+    out[key] = o.pricingPhases.last.formattedPrice;
+  }
+  return out;
+}
+
+/// cctvprice: the exact offer to buy — the base offer when `offerId` is
+/// empty, else that offer of that base plan. Never another base plan.
+@visibleForTesting
+ProductDetails? pickPlayOffer(List<ProductDetails> list,
+    {required String basePlanId, String offerId = ''}) {
+  for (final d in list) {
+    if (d is! GooglePlayProductDetails) continue;
+    final i = d.subscriptionIndex;
+    final offers = d.productDetails.subscriptionOfferDetails;
+    if (i == null || offers == null || i >= offers.length) continue;
+    final o = offers[i];
+    if (o.basePlanId != basePlanId) continue;
+    if (offerId.isEmpty ? o.offerId == null : o.offerId == offerId) return d;
+  }
+  return null;
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../billing/cctv_plan_screen.dart'; // cctvprice
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
@@ -186,6 +187,21 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
           if (sites.isEmpty) _Welcome(onStart: _startSetup),
+          // cctvprice: the CCTV plan (price per camera count, trial, add-on)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Card(
+              child: ListTile(
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: Text(t.cplEntryTitle),
+                subtitle: Text(t.cplEntrySub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen())),
+              ),
+            ),
+          ),
           if (sites.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),

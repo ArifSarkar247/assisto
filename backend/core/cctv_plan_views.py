@@ -30,6 +30,13 @@ def _feature_off(lang):
                                     "This feature is not available yet.")}, status=403)
 
 
+def _cameras(user):
+    from .models import ShopCamera
+    return [{"id": c.id, "name": c.name or "", "vendor": c.vendor or ""}
+            for c in ShopCamera.objects.filter(site__owner=user, enabled=True)
+            .order_by("created", "id")[:50]]
+
+
 def plan_payload(user, lang="bn"):
     c = CPS.cfg()
     st = CPS.status(user)
@@ -64,6 +71,7 @@ def plan_payload(user, lang="bn"):
         "cameras_used": used,
         "over_by": max(0, used - st["cameras"]) if st["status"] == "active" else 0,
         "addon_cameras": CPS.addon_camera_ids(user)[0],
+        "cameras": _cameras(user),
         "notice": CPS.notice_for(user),
         "unpaid_line": pick(lang, bn, en),
         "play_account_id": account,
