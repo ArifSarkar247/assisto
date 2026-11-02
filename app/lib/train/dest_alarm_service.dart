@@ -71,8 +71,12 @@ class DestAlarmTexts {
   /// "Wake up! <stop> — <distance>" (distance phrase may be empty).
   final String Function(String stop, String distance) spoken;
   final String Function(String stop, String distance) ready;
+
+  /// Spoken distance words (e.g. "2 kilometres") from ARB strings.
+  final String Function(double metres) distance;
   const DestAlarmTexts(
-      {required this.notifTitle,
+      {required this.distance,
+      required this.notifTitle,
       required this.notifText,
       required this.stop,
       required this.lang,
@@ -176,14 +180,12 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   DestAlarmTexts? _texts;
   DistanceWatch? _dw;
   TrainLegWatch? _tw;
-  bool _bn = true;
 
   bool get on => value.phase != DestAlarmPhase.off;
 
   Future<void> start(DestPlan plan, DestAlarmTexts texts) async {
     await stop();
     _texts = texts;
-    _bn = texts.lang == 'bn';
     _dw = null;
     _tw = null;
     if (plan.mode == TransportMode.train && plan.prevStation != null) {
@@ -318,7 +320,7 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     }
     value = value.copyWith(
         distanceM: d, accuracyM: fix.accuracy, locationOff: false, interval: iv, lastEvent: ev);
-    final dist = spokenDistance(d, _bn);
+    final dist = _texts?.distance(d) ?? '';
     switch (ev) {
       case AlarmEvent.ring:
         await _ring(dist);
@@ -355,7 +357,7 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _repeat = Timer.periodic(repeatEvery, (_) => unawaited(say()));
   }
 
-  /// The big "আমি জেগে আছি" button (and the notification's Stop).
+  /// The big "I am awake" button (and the notification's Stop).
   Future<void> confirmAwake() => stop();
 
   Future<void> stop() async {

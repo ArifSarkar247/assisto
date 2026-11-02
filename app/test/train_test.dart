@@ -265,8 +265,9 @@ void main() {
       expect(searchStations(s, '', lat: 22.3, lng: 91.8).first.id, '2');
       final b = parseStations('{"stops":[{"id":"b1","en":"Farmgate","bn":"","lat":23.75,"lng":90.38}]}');
       expect(b.single.en, 'Farmgate');
-      expect(spokenDistance(500, true), '৫০০ মিটার');
-      expect(spokenDistance(2000, false), '2 kilometres');
+      expect(spokenDistanceParts(500), (false, '500'));
+      expect(spokenDistanceParts(2000), (true, '2'));
+      expect(spokenDistanceParts(2500), (true, '2.5'));
     });
   });
 
@@ -277,7 +278,8 @@ void main() {
         stop: 'Stop',
         lang: 'bn',
         spoken: (s, d) => 'জেগে উঠুন! $s আর $d',
-        ready: (s, d) => 'প্রস্তুত হোন $s');
+        ready: (s, d) => 'প্রস্তুত হোন $s',
+        distance: (m) => '${m.round()} মিটার');
 
     test('rings before the stop, voice repeats, keeps going until "I am awake"', () async {
       var dist = 3000.0;
@@ -389,7 +391,10 @@ void main() {
     test('compose only: TR <no> to 16318; dialer links never auto-dial', () {
       expect(trainSmsUri('701').toString(), 'sms:16318?body=TR%20701');
       expect(trainTelUri('999').scheme, 'tel');
-      expect(trainIsEmergency('একজন অসুস্থ'), isTrue);
+      final bnWords = parseEmergencyWords(File('assets/train/emergency_words.json').readAsStringSync());
+      expect(trainIsEmergency('একজন অসুস্থ', bnWords), isTrue);
+      expect(trainIsEmergency('একজন অসুস্থ'), isFalse); // Bangla list is data
+      expect(trainIsEmergency('একজন অসুস্থ', bnWords), isTrue);
       expect(trainIsEmergency('please HELP'), isTrue);
       expect(trainIsEmergency('ami osustho'), isTrue);
       expect(trainIsEmergency('very helpful'), isFalse);

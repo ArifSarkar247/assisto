@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,11 +40,16 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
   bool _emergency = false;
   String? _error;
   Timer? _poll;
+  List<String> _bnWords = const [];
 
   @override
   void initState() {
     super.initState();
     unawaited(_load());
+    unawaited(rootBundle
+        .loadString('assets/train/emergency_words.json')
+        .then((r) => _bnWords = parseEmergencyWords(r))
+        .catchError((_) => _bnWords));
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _load(quiet: true));
   }
 
@@ -106,7 +112,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
     final text = _text.text.trim();
     if (text.isEmpty || _sending) return;
     setState(() => _sending = true);
-    final local = trainIsEmergency(text);
+    final local = trainIsEmergency(text, _bnWords);
     try {
       final r = await _api.trainChatSay(widget.no, widget.date, text);
       _text.clear();

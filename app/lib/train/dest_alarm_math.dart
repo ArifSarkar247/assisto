@@ -279,18 +279,12 @@ List<DestStation> searchStations(List<DestStation> all, String q,
   return hits.take(limit).toList();
 }
 
-/// Bangla / English distance phrase for the voice ("৫০০ মিটার", "২ কিলোমিটার").
-String spokenDistance(double m, bool bn) {
-  String dg(String s) {
-    if (!bn) return s;
-    const z = 0x09E6;
-    return String.fromCharCodes(s.runes.map((r) => r >= 0x30 && r <= 0x39 ? z + r - 0x30 : r));
-  }
-
+/// Distance for the voice: (is kilometres, number text in ASCII digits).
+/// The screen turns it into words with its ARB strings (and Bangla digits).
+(bool, String) spokenDistanceParts(double m) {
   if (m >= 1000) {
-    final km = (m / 1000).toStringAsFixed(m >= 10000 ? 0 : 1).replaceAll('.0', '');
-    return bn ? '${dg(km)} কিলোমিটার' : '$km kilometres';
+    final km = (m / 1000).toStringAsFixed(m >= 10000 ? 0 : 1);
+    return (true, km.endsWith('.0') ? km.substring(0, km.length - 2) : km);
   }
-  final r = (m / 10).round() * 10;
-  return bn ? '${dg('$r')} মিটার' : '$r metres';
+  return (false, '${(m / 10).round() * 10}');
 }

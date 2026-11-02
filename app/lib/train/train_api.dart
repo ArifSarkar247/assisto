@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../api.dart';
 
 /// train: Train Tracker API (server: backend/core/train_views.py), built only
@@ -47,22 +49,28 @@ Uri trainSmsUri(String no) => Uri.parse('sms:16318?body=${Uri.encodeComponent('T
 /// One-tap dial (opens the dialer; never auto-dials).
 Uri trainTelUri(String number) => Uri.parse('tel:$number');
 
-/// Emergency words — the app shows 999 / 131 at once (also told by the server).
-const List<String> kTrainEmergencyWords = [
-  'অসুস্থ', 'সাহায্য', 'বাঁচাও', 'বাচাও', 'জরুরি', 'জরুরী', 'বিপদ', 'ডাকাত', 'ছিনতাই',
-  'হামলা', 'আগুন', 'অজ্ঞান', 'দুর্ঘটনা', 'help', 'sick', 'emergency', 'sos', 'fire',
-  'robbery', 'attack', 'accident', 'ambulance', 'police', 'osustho', 'shahajjo', 'sahajjo',
-  'bachao', 'bipod', 'dakat', 'agun',
+/// Emergency words — the app shows 999 / 131 at once (the server also
+/// flags every message). Latin (English + Banglish) words live here; the
+/// Bangla ones are data in assets/train/emergency_words.json (mirror of
+/// backend/core/logic/train_chat.py).
+const List<String> kTrainEmergencyLatin = [
+  'help', 'sick', 'emergency', 'sos', 'fire', 'robbery', 'attack', 'accident', 'ambulance',
+  'police', 'osustho', 'osusto', 'shahajjo', 'sahajjo', 'bachao', 'bipod', 'dakat', 'agun',
 ];
 
-bool trainIsEmergency(String text) {
-  final t = text.toLowerCase();
-  for (final w in kTrainEmergencyWords) {
-    if (RegExp(r'^[a-z]+$').hasMatch(w)) {
-      if (RegExp('(?<![a-z])$w(?![a-z])').hasMatch(t)) return true;
-    } else if (t.contains(w)) {
-      return true;
-    }
+List<String> parseEmergencyWords(String raw) {
+  try {
+    final j = jsonDecode(raw) as Map<String, dynamic>;
+    return [for (final w in (j['bn'] as List? ?? const [])) '$w'];
+  } catch (_) {
+    return const []; // best-effort: Latin words + server flag still work
   }
-  return false;
+}
+
+bool trainIsEmergency(String text, [List<String> bangla = const []]) {
+  final t = text.toLowerCase();
+  for (final w in kTrainEmergencyLatin) {
+    if (RegExp('(?<![a-z])$w(?![a-z])').hasMatch(t)) return true;
+  }
+  return bangla.any(t.contains);
 }

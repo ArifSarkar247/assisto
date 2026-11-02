@@ -1,0 +1,23 @@
+{
+ "_meta": "train chat emergency words (Bangla) — mirror of backend/core/logic/train_chat.py EMERGENCY_WORDS; the server also flags every message",
+ "bn": [
+  "অসুস্থ",
+  "সাহায্য",
+  "বাঁচাও",
+  "বাচাও",
+  "জরুরি",
+  "জরুরী",
+  "বিপদ",
+  "ডাকাত",
+  "ছিনতাই",
+  "হামলা",
+  "আগুন",
+  "রক্ত",
+  "অজ্ঞান",
+  "দুর্ঘটনা",
+  "পুলিশ",
+  "অ্যাম্বুলেন্স",
+  "এম্বুলেন্স",
+  "হয়রানি"
+ ]
+}

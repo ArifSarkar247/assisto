@@ -308,7 +308,23 @@
   "trRecordStop": "Stop recording",
   "trRecordAgain": "Record again",
   "trPlay": "Play",
-  "trDelete": "Delete"
+  "trDelete": "Delete",
+  "trSpokenKm": "{n} kilometres",
+  "@trSpokenKm": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "trSpokenMetres": "{n} metres",
+  "@trSpokenMetres": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  }
  },
  "bn": {
   "trTitle": "ট্রেন ট্র্যাকার",
@@ -457,6 +473,8 @@
   "trRecordStop": "রেকর্ড থামান",
   "trRecordAgain": "আবার রেকর্ড",
   "trPlay": "শুনুন",
-  "trDelete": "মুছুন"
+  "trDelete": "মুছুন",
+  "trSpokenKm": "{n} কিলোমিটার",
+  "trSpokenMetres": "{n} মিটার"
  }
 }

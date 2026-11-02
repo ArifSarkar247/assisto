@@ -208,7 +208,13 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     });
   }
 
+  String _spokenDist(AppLocalizations t, double m) {
+    final (km, n) = spokenDistanceParts(m);
+    return _d(km ? t.trSpokenKm(n) : t.trSpokenMetres(n));
+  }
+
   DestAlarmTexts _texts(AppLocalizations t, String targetName) => DestAlarmTexts(
+        distance: (m) => _spokenDist(t, m),
         notifTitle: t.trAlarmNotifTitle,
         notifText: t.trAlarmNotifText(targetName),
         stop: t.trStop,
