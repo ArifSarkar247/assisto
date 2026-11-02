@@ -1,3 +1,4 @@
+import '../messaging/msg_push_done.dart'; // notifs
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
@@ -519,13 +520,21 @@ class PushService {
     // Circle — a message push means badges / msg.new are waiting: poll now.
     if (chat != null) CallRuntime.instance.nudge();
     if (chat != null && tok != null && tok.isNotEmpty) {
-      if (MsgActiveChat.isOpen(chat.kind, chat.id)) return;
+      if (MsgActiveChat.isOpen(chat.kind, chat.id)) {
+        // notifs: no ring for the open chat — and no native fallback either
+        unawaited(MsgPushDone.mark(data));
+        return;
+      }
       final h = MsgPushHandler(
           backend: HttpMsgBackend(tok, lang: p.lang),
           identity: loadStoredIdentity,
           sink: FlnMsgSink());
       unawaited(h.onPush(p).then((ok) {
-        if (!ok) unawaited(PushNotifier.show(p));
+        if (ok) {
+          unawaited(MsgPushDone.mark(data));
+        } else {
+          unawaited(PushNotifier.show(p));
+        }
       }));
       return;
     }

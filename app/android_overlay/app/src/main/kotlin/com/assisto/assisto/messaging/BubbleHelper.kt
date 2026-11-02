@@ -113,18 +113,7 @@ object BubbleHelper {
             val icon = (if (kind == "group") null else photoIcon(context, n.getLargeIcon()))
                 ?: avatarIcon(context)
             publishShortcut(context, scId, kind, id, title, icon)
-            val intent = Intent(context, BubbleActivity::class.java)
-                .setAction(Intent.ACTION_VIEW)
-                .putExtra(EXTRA_CHAT, chatKey(kind, id))
-            val pi = PendingIntent.getActivity(
-                context, id.hashCode() xor kind.hashCode(), intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-            )
-            val meta = Notification.BubbleMetadata.Builder(pi, icon)
-                .setDesiredHeight(640)
-                .setAutoExpandBubble(false)
-                .setSuppressNotification(false)
-                .build()
+            val meta = bubbleMeta(context, kind, id, icon)
             val rebuilt = Notification.Builder.recoverBuilder(context, n)
                 .setShortcutId(scId)
                 .setLocusId(LocusId(scId))
@@ -136,6 +125,46 @@ object BubbleHelper {
         } catch (t: Throwable) {
             Log.w(TAG, "bubble attach skipped: ${t.javaClass.simpleName}")
             true
+        }
+    }
+
+    private fun bubbleMeta(context: Context, kind: String, id: String, icon: Icon): Notification.BubbleMetadata {
+        val intent = Intent(context, BubbleActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(EXTRA_CHAT, chatKey(kind, id))
+        val pi = PendingIntent.getActivity(
+            context, id.hashCode() xor kind.hashCode(), intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+        return Notification.BubbleMetadata.Builder(pi, icon)
+            .setDesiredHeight(640)
+            .setAutoExpandBubble(false)
+            .setSuppressNotification(false)
+            .build()
+    }
+
+    /**
+     * notifs' native builder (MessageNotifier.buildMessageNotification) calls
+     * this on its Notification.Builder before build(): the same gates as a
+     * Dart-drawn chat, so the native safety-net notification bubbles too.
+     * [hasShortcut] = false when the spec hides the name (locked / no
+     * preview) — then nothing is added. Never throws.
+     */
+    fun decorate(context: Context, b: Notification.Builder, kind: String, id: String,
+                 title: String, hasShortcut: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        try {
+            val k = if (kind == "group") "group" else "member"
+            if (!shouldAttach(context, k, id, hasShortcut)) return
+            if (!bubbleActivityDeclared(context)) return
+            val scId = shortcutIdFor(k, id)
+            val icon = avatarIcon(context)
+            publishShortcut(context, scId, k, id, title, icon)
+            b.setShortcutId(scId)
+                .setLocusId(LocusId(scId))
+                .setBubbleMetadata(bubbleMeta(context, k, id, icon))
+        } catch (t: Throwable) {
+            Log.w(TAG, "bubble decorate skipped: ${t.javaClass.simpleName}")
         }
     }
 

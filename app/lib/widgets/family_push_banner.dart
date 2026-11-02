@@ -15,7 +15,29 @@ import '../theme.dart';
 /// Xiaomi / Realme / Oppo / Vivo a killed app also misses alerts.
 /// Hidden when notifications are on — never a banner we can't justify.
 class FamilyPushBanner extends StatefulWidget {
-  const FamilyPushBanner({super.key, this.isEnabled, this.request});
+  const FamilyPushBanner(
+      {super.key,
+      this.isEnabled,
+      this.request,
+      this.titleOf,
+      this.bodyOf,
+      this.guideOf});
+
+  /// notifs: the same banner for My Circle messages (own title / body).
+  const FamilyPushBanner.messages(
+      {super.key, this.request, Future<bool> Function()? enabled})
+      : isEnabled = enabled ?? Notifications.messagesEnabled,
+        titleOf = _msgTitle,
+        bodyOf = _msgBody,
+        guideOf = _msgGuide;
+
+  static String _msgTitle(AppLocalizations t) => t.notifsMsgOffTitle;
+  static String _msgBody(AppLocalizations t) => t.notifsMsgOffBody;
+  static String _msgGuide(AppLocalizations t) => t.notifsMsgGuide;
+
+  final String Function(AppLocalizations t)? titleOf;
+  final String Function(AppLocalizations t)? bodyOf;
+  final String Function(AppLocalizations t)? guideOf;
 
   /// Test seams (default: [Notifications.isEnabled] / requestPermission).
   final Future<bool> Function()? isEnabled;
@@ -89,12 +111,12 @@ class _FamilyPushBannerState extends State<FamilyPushBanner>
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.fa100PushOffTitle,
+                    Text(widget.titleOf?.call(t) ?? t.fa100PushOffTitle,
                         style: AType.titleMedium.copyWith(
                             fontWeight: FontWeight.w700,
                             color: scheme.onErrorContainer)),
                     const SizedBox(height: Gap.xs),
-                    Text(t.fa100PushOffBody,
+                    Text(widget.bodyOf?.call(t) ?? t.fa100PushOffBody,
                         style: AType.bodyMedium
                             .copyWith(color: scheme.onErrorContainer)),
                   ]),
@@ -113,7 +135,7 @@ class _FamilyPushBannerState extends State<FamilyPushBanner>
                   foregroundColor: scheme.onErrorContainer),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const BatteryGuidanceScreen())),
-              child: Text(t.fa100BatteryGuide),
+              child: Text(widget.guideOf?.call(t) ?? t.fa100BatteryGuide),
             ),
           ]),
         ]),

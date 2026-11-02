@@ -41,6 +41,25 @@ from django.conf import settings
 
 log = logging.getLogger("assisto.push")
 
+# notifs (owner 2 Nov): ONE structured line per message-type push per device
+# (kind, user id, device hash, FCM status + message name — never content or
+# the token). Production has no LOGGING dict (root = WARNING), so this logger
+# carries its own stderr handler (gunicorn -> journal):
+#   journalctl -u assisto | grep "push.trace"
+trace = logging.getLogger("assisto.push.trace")
+if not trace.handlers:
+    _th = logging.StreamHandler()
+    _th.setFormatter(logging.Formatter("%(message)s"))
+    trace.addHandler(_th)
+    trace.setLevel(logging.INFO)
+    trace.propagate = False
+TRACE_KINDS = ("message", "msg_sync", "message_request", "call", "missed_call")
+
+
+def _tok_hash(token):
+    import hashlib
+    return hashlib.sha256((token or "").encode("utf-8")).hexdigest()[:10]
+
 DEFAULT_SA_FILE = "/home/ubuntu/.assisto_firebase_sa.json"
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 SCOPE = "https://www.googleapis.com/auth/firebase.messaging"
@@ -377,6 +396,8 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
             # srvperf/H: FCM down -> no 8 s wait per token per push; the
             # circuit opens after 5 failures in a row and probes every 30 s.
             if not XB.allow("fcm"):
+                if isinstance(result, dict):
+                    result["code"] = "breaker_open"
                 return False
             access = get_access_token(sa, force=bool(attempt))
             if not access:
@@ -389,6 +410,14 @@ def send_to_token(token, data, notification=None, priority="high", ttl_s=3600,
                 XB.fail("fcm", "send " + type(e).__name__)
                 raise
             XB.book("fcm", code < 500 and code != 429, "send http %s" % code)
+            if isinstance(result, dict):
+                result["code"] = code   # notifs: push.trace
+                try:
+                    st = ((js or {}).get("error") or {}).get("status")
+                    if st:
+                        result["status"] = str(st)[:40]
+                except Exception:
+                    pass
             if code == 200:
                 if isinstance(result, dict):
                     try:
@@ -454,6 +483,9 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                       .order_by("-last_seen", "-id")
                       .values_list("push_token", flat=True))
         if not tokens:
+            if kind in TRACE_KINDS:
+                trace.info("push.trace kind=%s user=%s dev=none (no push token)",
+                           kind, getattr(user, "pk", ""))
             if kind == "call":
                 _call_push_event((data or {}).get("call_id"), "no_device", user)
             return 0
@@ -491,6 +523,13 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                 sent += 1
                 if res.get("name"):
                     msg_ids.append(res["name"])
+            if kind in TRACE_KINDS:
+                trace.info(
+                    "push.trace kind=%s user=%s msg=%s dev=%s code=%s status=%s "
+                    "name=%s", kind, getattr(user, "pk", ""),
+                    payload.get("message_id", payload.get("call_id", "")),
+                    _tok_hash(tok), res.get("code", "none"),
+                    res.get("status", ""), res.get("name", ""))
         if kind == "call" and payload.get("call_id"):
             _record_call_push(payload.get("call_id"), sent, msg_ids)
             if not sent:

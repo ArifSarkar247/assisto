@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 
+import '../messaging/msg_push_done.dart'; // notifs
 import '../messaging/receipt_ack.dart';
 import '../crypto/key_wiring.dart';
 import 'firebase_lazy.dart';
@@ -141,7 +142,11 @@ Future<void> assistoFcmBackgroundHandler(RemoteMessage message) async {
     // MessagingStyle conversation. Any failure falls back to the plain
     // title/body notification so a message is never lost.
     if (p.kind == 'message' && message.notification == null) {
-      if (await PushNotifier.showMessageFromBackground(message.data)) return;
+      if (await PushNotifier.showMessageFromBackground(message.data)) {
+        // notifs: tell the native safety net Dart handled it
+        await MsgPushDone.mark(message.data);
+        return;
+      }
     }
     if (p.isDataOnly || message.notification == null) {
       await PushNotifier.showFromBackground(message.data);

@@ -18,6 +18,7 @@ import '../push/push_payload.dart';
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'chat_preview.dart' show mediaPreviewDetail;
+import 'msg_native.dart'; // bubbles
 import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
@@ -304,11 +305,21 @@ MsgNotifModel buildMsgNotifModel(
 }
 
 /// The Android notification for a model.
+///
+/// notifs: [useIcons] false = no drawable/photo icons at all — the SAFE
+/// retry when building with icons throws (build 282: the avatar drawable was
+/// stripped from the release APK, IconCompat threw for resource id 0 and
+/// every message notification was lost).
 NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
-    {required String channelId, bool silent = false, String? peerIconPath}) {
-  const avatar = DrawableResourceAndroidIcon(kAvatarDrawable);
+    {required String channelId,
+    bool silent = false,
+    String? peerIconPath,
+    bool useIcons = true}) {
+  final AndroidIcon<Object>? avatar =
+      useIcons ? const DrawableResourceAndroidIcon(kAvatarDrawable) : null;
+  if (!useIcons) peerIconPath = null;
   // x2-ticks (A3): the contact's real (circle-cropped, cached) photo.
-  final peerIcon = peerIconPath == null
+  final AndroidIcon<Object>? peerIcon = peerIconPath == null
       ? avatar
       : BitmapFilePathAndroidIcon(peerIconPath);
   final me = Person(name: t.c3You, key: 'me', icon: avatar);
@@ -478,17 +489,41 @@ class FlnMsgSink implements MsgNotifSink {
           icon = null; // offline / slow: the default person icon
         }
       }
-      await _plugin.show(
-        m.notificationId,
-        m.isGroup ? m.title : last.sender,
-        last.text,
-        msgNotificationDetails(m, t,
-            channelId: ch, silent: silent, peerIconPath: icon),
-        payload: m.payload,
-      );
+      try {
+        await _plugin.show(
+          m.notificationId,
+          m.isGroup ? m.title : last.sender,
+          last.text,
+          msgNotificationDetails(m, t,
+              channelId: ch, silent: silent, peerIconPath: icon),
+          payload: m.payload,
+        );
+      } catch (e) {
+        // notifs: an icon problem must never cost the message — draw the
+        // same conversation without any icon.
+        if (kDebugMode) debugPrint('c3 notif show failed, no-icon retry: $e');
+        await _plugin.show(
+          m.notificationId,
+          m.isGroup ? m.title : last.sender,
+          last.text,
+          msgNotificationDetails(m, t,
+              channelId: ch, silent: silent, useIcons: false),
+          payload: m.payload,
+        );
+      }
       await _summary(t, ch);
+      // bubbles: in the UI isolate, upgrade it to a bubble at once (native
+      // re-checks every gate; background isolates have no channel — the FCM
+      // service schedules those). Never for hidden / locked chats.
+      if (!m.hidden && !m.locked) {
+        unawaited(MsgNative.attachBubble(
+            m.kind, m.chatId, m.isGroup ? m.title : last.sender));
+      }
     } catch (e) {
+      // notifs: RETHROW so MsgPushHandler.onPush returns false and the caller
+      // draws the plain title/body notification (was swallowed → nothing).
       if (kDebugMode) debugPrint('c3 notif show failed: $e');
+      rethrow;
     }
   }
 

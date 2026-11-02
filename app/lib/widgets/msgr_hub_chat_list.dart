@@ -31,6 +31,7 @@ import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
+import 'family_push_banner.dart'; // notifs
 import 'msgr_avatar.dart';
 import 'robo_id.dart';
 import '../messaging/chat_decor/decor_store.dart'; // cde-chat
@@ -1018,6 +1019,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       },
       child: Column(children: [
       if (widget.header != null) widget.header!,
+      // notifs: messages can't ring this phone -> say so + fix in one tap
+      if (!_selecting)
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: Gap.lg),
+          child: FamilyPushBanner.messages(key: ValueKey('notifs-msg-off')),
+        ),
       if (_selecting) _selectionBar() else _searchBar(),
       if (_showLocked)
         _lockedHeader()
