@@ -26,6 +26,7 @@ import 'battery_guidance_screen.dart';
 import '../widgets/password_field.dart';
 import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
+import 'safe_journey/sj_where_now.dart' show sjAccText;
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -696,7 +697,10 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
     final dest = (_journey['destination'] as Map?)?['name']?.toString();
     final eta = DateTime.tryParse('${_journey['eta'] ?? ''}')?.toLocal();
-    final late = s.overdue == 'grace' || s.overdue == 'ask' || s.overdue == 'alert';
+    final late = !_share &&
+        (s.overdue == 'grace' || s.overdue == 'ask' || s.overdue == 'alert');
+    // sjlive: the honest accuracy of the last fix (Android's own estimate)
+    final acc = sjAccText(context, t, s.lastFix?.acc);
     return Semantics(
       liveRegion: true,
       container: true,
@@ -723,8 +727,14 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             Text(t.journeyToward(dest), style: AType.bodyMedium),
           ],
           if (eta != null)
-            Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
+            Text(
+                _share
+                    ? t.sjlShareUntil(TimeOfDay.fromDateTime(eta).format(context))
+                    : t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
+                key: const ValueKey('j100_eta'),
                 style: AType.bodyMedium),
+          if (acc != null)
+            Text(acc, key: const ValueKey('sjl_live_acc'), style: AType.bodyMedium),
           if (_toGo(s) case final m?)
             Text(t.j2ToGo(jKm(context, m)),
                 key: const ValueKey('j2_to_go'), style: AType.bodyMedium),
@@ -746,6 +756,11 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       ),
     );
   }
+
+  /// sjlive: this is a Live Location "share for a while" (or a location
+  /// request) — no destination, ends by itself.
+  bool get _share =>
+      _journey['share'] == true || (_journey['destination'] as Map?)?['share'] == true;
 
   @override
   Widget build(BuildContext context) {
@@ -784,6 +799,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         const SizedBox(height: Gap.lg),
         SosButton(label: t.emergencySosButton, onPressed: _openSos),
         const SizedBox(height: Gap.lg),
+        // sjlive: a "share for a while" has no destination to arrive at
+        if (!_share)
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
@@ -826,7 +843,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               onPressed: _stop),
         ),
         const SizedBox(height: Gap.md),
-        _rideCard(t),
+        if (!_share) _rideCard(t),
         const SizedBox(height: 20),
         Text(t.j100Footer,
             style: AType.bodySmall

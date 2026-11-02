@@ -12,6 +12,7 @@ import '../widgets/journey_dest_sheets.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
 import 'messenger/messenger_home_screen.dart';
 import '../widgets/local_counter.dart';
+import '../widgets/journey_ride.dart' show jDigits;
 
 /// Owner idea 1 — ask to follow someone's trip: pick the person from My
 /// Circle (one tap), where (name or a pasted Maps link), the day and the time
@@ -22,7 +23,12 @@ import '../widgets/local_counter.dart';
 /// always sees it. Adults are asked every time.
 class GuardianRequestScreen extends StatefulWidget {
   final List<Map<String, dynamic>> people;
-  const GuardianRequestScreen({super.key, required this.people});
+  /// sjlive "Request Location": no destination — where the person is, for
+  /// the time you pick (1 h / 3 h from now, or a window). In Bangladesh or
+  /// abroad; they must accept, always see it and can stop any time.
+  final bool locationOnly;
+  const GuardianRequestScreen(
+      {super.key, required this.people, this.locationOnly = false});
   @override
   State<GuardianRequestScreen> createState() => _GuardianRequestScreenState();
 }
@@ -39,6 +45,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
   bool _minor = false;
   final Set<String> _days = {'sun', 'mon', 'tue', 'wed', 'thu'};
   bool _sending = false;
+  int? _quickH = 1; // sjlive: "now for 1 h / 3 h"; null = the window below
 
   static const _week = ['sat', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri'];
 
@@ -68,6 +75,8 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
         _ => t.gjDayFri,
       };
 
+  String _digits(int n) => jDigits(context, n);
+
   String _hhmm(TimeOfDay x) =>
       '${x.hour.toString().padLeft(2, '0')}:${x.minute.toString().padLeft(2, '0')}';
 
@@ -88,7 +97,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
       messenger.showSnackBar(SnackBar(content: Text(t.gjNeedPerson)));
       return;
     }
-    if (_dest.text.trim().isEmpty && _lat == null) {
+    if (!widget.locationOnly && _dest.text.trim().isEmpty && _lat == null) {
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedDest)));
       return;
     }
@@ -99,7 +108,16 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
     };
     final body = <String, dynamic>{'member_id': _member, 'destination': dest,
         'note': _note.text.trim()};
-    if (_school && _child) {
+    if (widget.locationOnly) {
+      body
+        ..['kind'] = 'location'
+        ..['destination'] = <String, dynamic>{};
+    }
+    if (widget.locationOnly && _quickH != null) {
+      final now = DateTime.now();
+      body['start'] = now.toUtc().toIso8601String();
+      body['end'] = now.add(Duration(hours: _quickH!)).toUtc().toIso8601String();
+    } else if (_school && _child && !widget.locationOnly) {
       if (!_minor) {
         messenger.showSnackBar(SnackBar(content: Text(t.gjNeedMinor)));
         return;
@@ -154,12 +172,13 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
         padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.sm),
         child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)));
     return Scaffold(
-      appBar: AppBar(title: Text(t.gjAskTitle)),
+      appBar: AppBar(title: Text(widget.locationOnly ? t.sjlBtnRequest : t.gjAskTitle)),
       body: ListView(
           cacheExtent: 3000,
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
-            Text(t.gjAskIntro, style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+            Text(widget.locationOnly ? t.sjlReqIntro : t.gjAskIntro,
+                style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
             h(t.gjWho),
             if (widget.people.isEmpty) ...[
               Text(t.journeyNoWatchers),
@@ -187,6 +206,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                   }),
                 ),
             ]),
+            if (!widget.locationOnly) ...[
             h(t.journeyDestSection),
             TextField(
                 key: const ValueKey('gj_dest'),
@@ -203,7 +223,8 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                     avatar: const Icon(Icons.where_to_vote_rounded, color: Brand.successFill),
                     label: Text(t.journeyDestPinned)),
             ]),
-            if (_child)
+            ],
+            if (_child && !widget.locationOnly)
               SwitchListTile(
                 key: const ValueKey('gj_school'),
                 contentPadding: EdgeInsets.zero,
@@ -230,7 +251,25 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
               ]),
             ],
             h(t.gjWhen),
-            if (!(_school && _child))
+            if (widget.locationOnly) ...[
+              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                for (final h in const [1, 3])
+                  ChoiceChip(
+                    key: ValueKey('sjl_req_${h}h'),
+                    label: Text(t.sjlReqNowFor(t.sjlHours(_digits(h)))),
+                    selected: _quickH == h,
+                    onSelected: (_) => setState(() => _quickH = h),
+                  ),
+                ChoiceChip(
+                  key: const ValueKey('sjl_req_window'),
+                  label: Text(t.sjlReqPickTime),
+                  selected: _quickH == null,
+                  onSelected: (_) => setState(() => _quickH = null),
+                ),
+              ]),
+              const SizedBox(height: Gap.sm),
+            ],
+            if (!(_school && _child) && !(widget.locationOnly && _quickH != null))
               OutlinedButton.icon(
                 icon: const Icon(Icons.event_rounded),
                 label: Text(MaterialLocalizations.of(context).formatMediumDate(_day)),
@@ -245,6 +284,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                 },
               ),
             const SizedBox(height: Gap.sm),
+            if (!(widget.locationOnly && _quickH != null))
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               OutlinedButton.icon(
                 key: const ValueKey('gj_from'),
@@ -272,7 +312,8 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                 maxLength: 200,
                 buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.gjNote)),
-            Text(t.gjRulesNote, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+            Text(widget.locationOnly ? t.sjlReqRules : t.gjRulesNote,
+                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             FilledButton.icon(
               key: const ValueKey('gj_send'),
@@ -282,7 +323,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                   ? const SizedBox(
                       width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.send_rounded),
-              label: Text(t.gjSend),
+              label: Text(widget.locationOnly ? t.sjlReqAsk : t.gjSend),
             ),
           ]),
     );

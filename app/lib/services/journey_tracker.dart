@@ -67,7 +67,12 @@ class JourneyFix {
   /// 'app' (Assisto open) or 'bg' (the service alone, Assisto swiped away) —
   /// lets the server tell watchers the honest reason when fixes stop.
   final String src;
-  const JourneyFix(this.lat, this.lng, this.at, [this.battery, this.src = 'app']);
+  /// sjlive: Android's own accuracy estimate in metres (null when unknown) —
+  /// shown honestly as "± N m"; the server never counts a rough fix as
+  /// arrival.
+  final double? acc;
+  const JourneyFix(this.lat, this.lng, this.at,
+      [this.battery, this.src = 'app', this.acc]);
 
   Map<String, dynamic> toJson() => {
         'lat': lat,
@@ -75,6 +80,7 @@ class JourneyFix {
         'at': at.toUtc().toIso8601String(),
         if (battery != null) 'battery': battery,
         'src': src,
+        if (acc != null) 'acc': double.parse(acc!.toStringAsFixed(1)),
       };
 
   static JourneyFix? fromJson(Object? m) {
@@ -84,7 +90,7 @@ class JourneyFix {
     final at = DateTime.tryParse('${m['at']}');
     if (lat == null || lng == null || at == null) return null;
     return JourneyFix(lat, lng, at, (m['battery'] as num?)?.toInt(),
-        m['src'] == 'bg' ? 'bg' : 'app');
+        m['src'] == 'bg' ? 'bg' : 'app', (m['acc'] as num?)?.toDouble());
   }
 }
 
@@ -265,9 +271,10 @@ class JourneyTaskHandler extends TaskHandler {
     if (_url == null || _auth == null || _busy) return;
     _busy = true;
     try {
+      journeyLastAccM = null;
       final pos = await _defaultPosition();
       if (pos != null) {
-        _q.add(JourneyFix(pos.lat, pos.lng, DateTime.now(), null, 'bg'));
+        _q.add(JourneyFix(pos.lat, pos.lng, DateTime.now(), null, 'bg', journeyLastAccM));
         await _saveQ();
       }
       if (_q.items.isEmpty) return;
@@ -427,13 +434,14 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
       // journey100b: standing still / low battery -> fewer GPS fixes
       if (journeyShouldFix(now: now, recent: _recent, battery: batt)) {
         ({double lat, double lng})? pos;
+        journeyLastAccM = null;
         try {
           pos = await _position();
         } catch (_) {
           pos = null; // best-effort: shown as "location off" below
         }
         if (pos != null) {
-          fix = JourneyFix(pos.lat, pos.lng, now, batt);
+          fix = JourneyFix(pos.lat, pos.lng, now, batt, 'app', journeyLastAccM);
           _queue.add(fix);
           _recent.add(fix);
           if (_recent.length > 5) _recent.removeAt(0);
@@ -588,7 +596,27 @@ Future<({double lat, double lng})?> _defaultPosition() async {
   final p = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 20)));
+  journeyLastAccM = journeyCleanAcc(p.accuracy);
   return (lat: p.latitude, lng: p.longitude);
+}
+
+/// sjlive: accuracy (metres) of the fix the default position reader took
+/// last; null when unknown (a test's fake reader, an old plugin).
+double? journeyLastAccM;
+
+/// sjlive: a usable accuracy estimate, or null (0 / negative / NaN / junk).
+double? journeyCleanAcc(double? a) {
+  if (a == null || a.isNaN || a <= 0 || a > 20000) return null;
+  return a;
+}
+
+/// sjlive: honest accuracy wording bucket — 'good' (<= 30 m), 'ok'
+/// (<= 100 m), 'rough' (more: a phone-tower guess), or null (unknown).
+String? journeyAccBand(double? acc) {
+  if (acc == null) return null;
+  if (acc <= 30) return 'good';
+  if (acc <= 100) return 'ok';
+  return 'rough';
 }
 
 const MethodChannel _journeyChannel = MethodChannel('com.assisto/journey');
