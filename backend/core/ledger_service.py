@@ -117,6 +117,10 @@ def sync_books(prof, user=None):
         opening = _opening(book, prof, src)
         desired = L.desired_postings(src["sales"], src["khata"], src["expenses"],
                                      src["cash"], opening)
+        # acctui: the simple-entry screen + opening wizard (own file, no
+        # change to the rules above): core.ledger_entry_service
+        from .ledger_entry_service import extra_postings
+        desired.update(extra_postings(prof, book))
         live = {}
         for je in JournalEntry.objects.filter(business=prof, status="posted") \
                 .prefetch_related("lines__account"):

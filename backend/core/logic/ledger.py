@@ -219,7 +219,9 @@ def post_sale_void(s):
                       _m("বিক্রি বাতিল #%s" % s["id"], "Sale #%s voided" % s["id"]))
 
 
-BRIDGE_MARKERS = ("[sale#", "[void-sale#")
+# acctui: '[acct#<client_id>]' = a khata / expense row written by the simple
+# entry screen; core.ledger_entry_service posts it with its real money account.
+BRIDGE_MARKERS = ("[sale#", "[void-sale#", "[acct#")
 
 
 def is_bridge(note):
@@ -253,6 +255,8 @@ def post_khata(k):
 
 def post_expense(x):
     """x: {id, date, amount, category, note}"""
+    if is_bridge(x.get("note")):     # acctui: posted by the simple entry layer
+        return None
     amt = max(int(x.get("amount") or 0), 0)
     acc = expense_account(x.get("category"), x.get("note"))
     label = x.get("category") or x.get("note") or ""

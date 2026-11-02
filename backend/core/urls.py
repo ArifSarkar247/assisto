@@ -10,6 +10,7 @@ from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
 from . import ledger_views as lgv
+from . import ledger_entry_views as lev  # acctui
 from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
@@ -245,6 +246,14 @@ urlpatterns = [
     path("business/books/profit-loss", lgv.BooksProfitLossView.as_view()),
     path("business/books/balance-sheet", lgv.BooksBalanceSheetView.as_view()),
     path("business/books/lock", lgv.BooksLockView.as_view()),
+    # acctui: simple entry / opening / cash flow / VAT / audit (ledger_entry_views)
+    path("business/acct/entries", lev.AcctEntriesView.as_view()),
+    path("business/acct/entries/<str:client_id>/void", lev.AcctVoidView.as_view()),
+    path("business/acct/opening", lev.AcctOpeningView.as_view()),
+    path("business/acct/cash-flow", lev.AcctCashFlowView.as_view()),
+    path("business/acct/vat", lev.AcctVatView.as_view()),
+    path("business/acct/audit", lev.AcctAuditView.as_view()),
+    path("business/acct/export-log", lev.AcctExportLogView.as_view()),
     path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
     path("business/staff", bz.StaffView.as_view()),   # bizbar
     path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar
