@@ -1135,3 +1135,23 @@ def history_reason(rec):
 
 def member_for(user, pk):
     return CircleMember.objects.filter(user=user, pk=pk).first()
+
+
+# ---- callsbar ---- one quality report per call per side (measured numbers +
+# optional one-tap rating). Owner Admin -> Calls -> Call quality.
+class CallQualityView(APIView):
+    """POST circle/calls/<id>/quality {rating?, issue?, rtt_ms?, loss_pct?,
+    jitter_ms?, min_kbps?, relayed?, low_data?, video?, net?, talk_s?,
+    data_kb?, video_paused_s?, reconnects?} -> {ok, report}. Only the two
+    people on the call; one row per person per call (a later rating merges
+    into the end-of-call metrics; sent right after hang-up, so the record
+    may still be finishing — never refused for that)."""
+    def post(self, request, call_id):
+        from . import call_quality as Q
+        rec = _call_for(request.user, call_id)
+        if rec is None:
+            return Response({"detail": "not found"}, status=404)
+        row = Q.record(rec, request.user, side_of(rec, request.user),
+                       request.data or {})
+        return Response({"ok": True, "report": Q.as_dict(row)})
+# ---- /callsbar ----

@@ -952,6 +952,7 @@ urlpatterns += [
     path("rt/send", c2calls.RtSendView.as_view()),
     path("circle/calls/incoming", c2calls.IncomingCallsView.as_view()),
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
+    path("circle/calls/<int:call_id>/quality", c2calls.CallQualityView.as_view()),  # callsbar
 ]
 # ---- /c2-calls ----
 # ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears

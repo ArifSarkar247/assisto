@@ -1715,3 +1715,45 @@ BN.update({
     "agf_exported": "এক্সপোর্ট হয়েছে", "agf_not_exported": "এক্সপোর্টের অপেক্ষায়",
 })
 # ---- /af-12 ----
+
+
+# ---- callsbar ---- owner panel: Calls -> Call quality (last 7 days)
+EN.update({
+    "cq_title": "Call quality (last 7 days)",
+    "cq_note": "Each phone sends what it measured during the call (no audio, no content): round-trip time, packet loss, jitter, data used, TURN relay, low-data mode, seconds the video paused for a weak network. People can rate a call with one tap after it ends.",
+    "cq_reports": "Call reports", "cq_talk": "talk", "cq_min": "min",
+    "cq_rated_bad": "Rated bad", "cq_good": "good", "cq_bad": "bad",
+    "cq_net": "Median round-trip", "cq_loss": "loss", "cq_jitter": "jitter",
+    "cq_kbmin": "Data per minute (voice)", "cq_video": "video",
+    "cq_what": "What happened", "cq_relayed": "Calls that needed the TURN relay",
+    "cq_low_data": "Calls in low-data mode",
+    "cq_paused": "Video calls where the video paused for a weak network",
+    "cq_reconnects": "Calls that reconnected at least once",
+    "cq_nets": "Network at the end of the call", "cq_cell": "mobile data",
+    "cq_bad_because": "Rated bad —",
+    "cq_issue_echo": "echo", "cq_issue_choppy": "voice breaking up",
+    "cq_issue_delay": "delay", "cq_issue_video": "video problem",
+    "cq_issue_dropped": "call dropped", "cq_issue_noise": "noise",
+    "cq_issue_other": "other",
+    "cq_empty": "No call reports yet. Reports start with the build that has this feature.",
+})
+BN.update({
+    "cq_title": "কলের মান (গত ৭ দিন)",
+    "cq_note": "প্রতিটি ফোন কলের সময় যা মেপেছে তা পাঠায় (কোনো অডিও বা কথা নয়): রাউন্ড-ট্রিপ সময়, প্যাকেট হারানো, জিটার, কত ডেটা খরচ, TURN relay, কম-ডেটা মোড, দুর্বল নেটে ভিডিও কত সেকেন্ড থেমে ছিল। কল শেষে মানুষ এক চাপে মান জানাতে পারেন।",
+    "cq_reports": "কলের রিপোর্ট", "cq_talk": "কথা", "cq_min": "মিনিট",
+    "cq_rated_bad": "খারাপ বলেছেন", "cq_good": "ভালো", "cq_bad": "খারাপ",
+    "cq_net": "মাঝামাঝি রাউন্ড-ট্রিপ", "cq_loss": "হারানো", "cq_jitter": "জিটার",
+    "cq_kbmin": "প্রতি মিনিটে ডেটা (ভয়েস)", "cq_video": "ভিডিও",
+    "cq_what": "কী ঘটেছে", "cq_relayed": "যে কলে TURN relay লেগেছে",
+    "cq_low_data": "কম-ডেটা মোডে কল",
+    "cq_paused": "দুর্বল নেটে ভিডিও থেমেছিল এমন ভিডিও কল",
+    "cq_reconnects": "অন্তত একবার আবার সংযোগ হওয়া কল",
+    "cq_nets": "কল শেষের নেটওয়ার্ক", "cq_cell": "মোবাইল ডেটা",
+    "cq_bad_because": "খারাপ —",
+    "cq_issue_echo": "প্রতিধ্বনি", "cq_issue_choppy": "কথা কেটে কেটে আসে",
+    "cq_issue_delay": "দেরিতে শোনা যায়", "cq_issue_video": "ভিডিওর সমস্যা",
+    "cq_issue_dropped": "কল কেটে গেছে", "cq_issue_noise": "শব্দ/আওয়াজ",
+    "cq_issue_other": "অন্য কিছু",
+    "cq_empty": "এখনো কোনো কলের রিপোর্ট নেই। এই ফিচারওয়ালা বিল্ড থেকে রিপোর্ট আসা শুরু হবে।",
+})
+# ---- /callsbar ----
