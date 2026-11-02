@@ -289,7 +289,7 @@ class DeterTests(_X):
         t = self.client.get("/api/v1/shop/cameras/%d/deter" % cam.id).data["table"]
         light = [x for x in t if x["feature"] == "light"][0]
         self.assertFalse(light["supported"])
-        self.assertIn("এই ক্যামেরায় নেই", light["text"])
+        self.assertIn("not on this camera", light["text"])      # owner reads English
 
     def test_voice_needs_a_recorded_clip_then_ezviz_upload_once_and_send(self):
         from core.logic import ezviz as EZ
