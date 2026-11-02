@@ -183,7 +183,10 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
                 style: TextStyle(height: 1.4, color: scheme.onErrorContainer)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                  foregroundColor: scheme.onErrorContainer,
+                  side: BorderSide(color: scheme.onErrorContainer)),
               onPressed: () => openExternal(context, mbNbrCircularUrl, t.taxLinkCopied),
               icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.mbTaxOpenCircular),

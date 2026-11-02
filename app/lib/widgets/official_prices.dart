@@ -69,7 +69,7 @@ class OfficialPrices {
         ],
       );
 
-  /// Best official match for an item the user typed ("চাল", "onion"): an
+  /// Best official match for an item the user typed ("rice", "onion"): an
   /// official name that contains the user's word (case-insensitive) — first
   /// in TCB's order. Null when nothing matches; we never guess further.
   OfficialItem? match(String userItem) {
@@ -151,7 +151,11 @@ class OfficialPricesCard extends StatelessWidget {
               ),
             OutlinedButton.icon(
               key: const ValueKey('mb-official-open-site'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              // contrast: on secondaryContainer use its own "on" colour
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                  foregroundColor: scheme.onSecondaryContainer,
+                  side: BorderSide(color: scheme.onSecondaryContainer)),
               onPressed: () => openExternal(context, tcbPricesUrl, t.taxLinkCopied),
               icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.mbTcbOpenSite),
@@ -201,25 +205,28 @@ class _OfficialPricesScreenState extends State<OfficialPricesScreen> {
       }
       lastGroup = it.group;
       final ch = it.weekChangePct;
+      // 200% text: a Wrap, not a ListTile trailing (that overflowed)
       rows.add(Card(
-        child: ListTile(
-          title: Text(it.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(it.unit),
-          trailing: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(officialRange(it),
-                    style: const TextStyle(fontWeight: FontWeight.w800)),
-                if (ch != null && ch.abs() >= 0.05)
-                  Text(
-                      ch > 0
-                          ? t.mbTcbWeekUp(moneyDigits(ch.abs().toStringAsFixed(1)))
-                          : t.mbTcbWeekDown(moneyDigits(ch.abs().toStringAsFixed(1))),
-                      style: AType.labelSmall.copyWith(
-                          color: ch > 0 ? scheme.error : Brand.success,
-                          fontWeight: FontWeight.w700)),
-              ]),
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(it.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.xxs),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xxs,
+                crossAxisAlignment: WrapCrossAlignment.center, children: [
+              Text(officialRange(it),
+                  style: TextStyle(fontWeight: FontWeight.w800, color: scheme.onSurface)),
+              Text(it.unit, style: TextStyle(color: scheme.onSurfaceVariant)),
+              if (ch != null && ch.abs() >= 0.05)
+                Text(
+                    ch > 0
+                        ? t.mbTcbWeekUp(moneyDigits(ch.abs().toStringAsFixed(1)))
+                        : t.mbTcbWeekDown(moneyDigits(ch.abs().toStringAsFixed(1))),
+                    style: TextStyle(
+                        color: ch > 0 ? scheme.error : scheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w700)),
+            ]),
+          ]),
         ),
       ));
     }
