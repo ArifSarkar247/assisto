@@ -134,6 +134,9 @@ class ModeAwareStopTests(TrainJourneyBase):
     def stand(self, j, lat, lng, minutes):
         """Arrive at (lat, lng) `minutes` ago and stand there; sweep now."""
         now = timezone.now()
+        # the trip began before the stop (fixes older than the start are dropped)
+        Journey.objects.filter(pk=j.pk).update(created_at=now - timedelta(minutes=minutes + 15))
+        j.refresh_from_db()
         self.at_point(j, lat + 0.01, lng, now - timedelta(minutes=minutes + 1))
         self.at_point(j, lat, lng, now - timedelta(minutes=minutes))
         self.at_point(j, lat, lng, now - timedelta(seconds=30))

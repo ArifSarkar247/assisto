@@ -143,7 +143,8 @@ Future<void> _settle(WidgetTester tester, [int n = 15]) async {
 }
 
 Future<void> _open(WidgetTester tester, _Api api, Widget screen, {String lang = 'en'}) async {
-  await tester.binding.setSurfaceSize(const Size(400, 1600));
+  // journeymode: the start form gained "How are you going?" at the top
+  await tester.binding.setSurfaceSize(const Size(400, 2000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(_app(api, lang: lang));
   unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => screen)));
