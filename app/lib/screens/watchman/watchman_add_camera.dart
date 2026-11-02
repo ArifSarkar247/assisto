@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'camera_label.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
@@ -107,6 +109,30 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       : ['imou', 'hikvision', 'dahua', 'tapo', 'ezviz', 'onvif', 'rtsp'];
 
   bool get _fixedAdmin => _vendor == 'imou' || _vendor == 'ezviz';
+
+  /// cctv100: fill serial (+ safety code) from copied label-QR text.
+  Future<void> _pasteLabel() async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    ClipboardData? data;
+    try {
+      data = await Clipboard.getData(Clipboard.kTextPlain);
+    } catch (_) {
+      data = null;
+    }
+    final lab = parseCameraLabel(data?.text);
+    if (!mounted) return;
+    if (lab == null) {
+      messenger.showSnackBar(SnackBar(content: Text(t.wmPasteLabelNone)));
+      return;
+    }
+    setState(() {
+      _serial.text = lab.serial;
+      if (lab.code.isNotEmpty) _secret.text = lab.code;
+    });
+    messenger.showSnackBar(SnackBar(
+        content: Text(lab.code.isNotEmpty ? t.wmPasteLabelBoth : t.wmPasteLabelSerial)));
+  }
 
   String _secretLabel(AppLocalizations t) => switch (_vendor) {
         'imou' => t.wmSecretImou,
@@ -336,6 +362,17 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
           controller: _serial,
           textCapitalization: TextCapitalization.characters,
           decoration: InputDecoration(labelText: t.wmImouSerial, border: const OutlineInputBorder()),
+        ),
+        // cctv100: scan the sticker's QR with the phone camera, copy, paste
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            key: const Key('wmPasteLabel'),
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _pasteLabel,
+            icon: const Icon(Icons.qr_code_2_rounded),
+            label: Text(t.wmPasteLabel),
+          ),
         ),
         const SizedBox(height: 12),
       ],
