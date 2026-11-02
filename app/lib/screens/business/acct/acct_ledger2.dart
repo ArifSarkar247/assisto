@@ -751,13 +751,15 @@ class AcctCostGapBanner extends StatelessWidget {
                   foregroundColor: scheme.onErrorContainer,
                   side: BorderSide(color: scheme.onErrorContainer)),
               onPressed: () async {
-                final fixed = await showAppSheet<bool>(
+                var fixed = false;   // however the sheet is closed (drag too)
+                await showAppSheet<void>(
                   context: context,
                   isScrollControlled: true,
                   showDragHandle: true,
-                  builder: (_) => AcctCostGapsSheet(businessId: businessId, gaps: gaps),
+                  builder: (_) => AcctCostGapsSheet(
+                      businessId: businessId, gaps: gaps, onFixed: () => fixed = true),
                 );
-                if (fixed == true) onFixed();
+                if (fixed) onFixed();
               },
               icon: const Icon(Icons.list_alt_rounded),
               label: Text(t.lg2CostOpen),
@@ -772,7 +774,8 @@ class AcctCostGapBanner extends StatelessWidget {
 class AcctCostGapsSheet extends StatefulWidget {
   final int? businessId;
   final Map gaps;
-  const AcctCostGapsSheet({super.key, this.businessId, required this.gaps});
+  final VoidCallback? onFixed;
+  const AcctCostGapsSheet({super.key, this.businessId, required this.gaps, this.onFixed});
 
   @override
   State<AcctCostGapsSheet> createState() => _AcctCostGapsSheetState();
@@ -783,7 +786,6 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
       (widget.gaps['products'] as List? ?? const []).cast<Map>().toList();
   final Map<int, TextEditingController> _cost = {};
   int? _busy;
-  bool _fixedAny = false;
 
   @override
   void dispose() {
@@ -814,7 +816,7 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
           .acctApplyCost(widget.businessId, id, cost: cost);
       if (!mounted) return;
       if (_ok(r)) {
-        _fixedAny = true;
+        widget.onFixed?.call();
         final fixed = (r['fixed'] as num?)?.toInt() ?? 0;
         final skipped = (r['skipped_locked'] as num?)?.toInt() ?? 0;
         _snack(
@@ -836,29 +838,23 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (did, _) {
-        if (!did) Navigator.pop(context, _fixedAny);
-      },
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.viewInsetsOf(context).bottom),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Text(t.lg2CostTitle, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: Gap.sm),
-            Text(t.lg2CostExplain, style: const TextStyle(height: 1.5)),
-            const SizedBox(height: Gap.md),
-            if (_products.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: Gap.lg),
-                child: Text(t.lg2CostAllFixed,
-                    style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
-              ),
-            for (final p in _products) _productCard(t, scheme, p),
-          ],
-        ),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.viewInsetsOf(context).bottom),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Text(t.lg2CostTitle, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: Gap.sm),
+          Text(t.lg2CostExplain, style: const TextStyle(height: 1.5)),
+          const SizedBox(height: Gap.md),
+          if (_products.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: Gap.lg),
+              child: Text(t.lg2CostAllFixed,
+                  style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+            ),
+          for (final p in _products) _productCard(t, scheme, p),
+        ],
       ),
     );
   }
