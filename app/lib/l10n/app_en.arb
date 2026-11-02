@@ -34507,5 +34507,39 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "bbl2Title": "Turn on floating chat bubbles?",
+  "bbl2Body": "New messages appear as a round photo on your screen, so you can reply while using any other app.",
+  "bbl2TurnOn": "Turn on",
+  "bbl2Later": "Later",
+  "bbl2On": "Floating chat bubbles are on.",
+  "bbl2How": "On the next page, choose “All conversations can bubble”, then come back here.",
+  "bbl2NotYet": "Not on yet. On the settings page, choose “All conversations can bubble”.",
+  "bbl2SelectedOnly": "Only the chats you picked can float. Choose “All conversations can bubble” so every chat can.",
+  "bbl2PhoneSwitch": "Bubbles are switched off for the whole phone. Turn them on in Settings → Notifications → Bubbles, then choose “All conversations can bubble”.",
+  "bbl2Blocked": "This phone doesn't allow floating bubbles. Your messages will come as normal notifications.",
+  "bbl2NotifsOff": "Assisto's notifications are off. Turn them on first — bubbles come from notifications.",
+  "bbl2Continue": "Continue",
+  "bbl2SettingsTitle": "Floating chat bubbles",
+  "bbl2SetSub": "New My Circle messages float over other apps as a round photo. Tap to read and reply; drag it to ✕ to close. On for every chat — turn one chat off from its ⋮ menu.",
+  "bbl2SettingsOff": "Off on this phone. Turn on so new messages float as a round photo.",
+  "bbl2RowTitle": "Floating chats",
+  "bbl2FaceA11y": "{name}, {count} new. Open chat",
+  "@bbl2FaceA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bbl2NewMessage": "New message",
+  "bbl2DragToClose": "Drag to ✕ at the bottom to close",
+  "bbl2CloseBubbles": "Close bubbles",
+  "bbl2SettingsCircleSection": "My Circle",
+  "bbl2FlagPublic": "Public chats and channels",
+  "bbl2ChatOpenFailed": "Couldn't open the chat. Open My Circle once, then try again.",
+  "bbl2InviteCardBody": "A private, Bangla-first chat app and assistant."
 }
