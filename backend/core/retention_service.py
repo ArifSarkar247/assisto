@@ -1079,7 +1079,7 @@ def scores(business, lang="bn", limit=50, q=""):
     yr = now - timedelta(days=365)
     scan = cfg()["max_audience_scan"]
     agg = {}
-    for r in (_sales(business).filter(created_at__gte=yr).values("customer__phone_key")
+    for r in (_sales(business).filter(created_at__gte=yr).order_by().values("customer__phone_key")
               .annotate(n=Count("id"), spend=Sum("total"), last=Max("created_at"))[:scan]):
         agg[r["customer__phone_key"]] = r
     people = {}
