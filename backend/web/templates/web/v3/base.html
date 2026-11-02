@@ -52,7 +52,7 @@
       </details>
       <a class="nl" href="{{ U.security }}">{{ C.nav_security }}</a>
       <a class="nl" href="{{ U.help }}">{{ C.nav_help }}</a>
-      <a class="btn sm play-top" href="{{ play.header }}" rel="noopener" data-play>{{ C.cta_play }}</a>
+      <a class="btn sm play-top" href="{% if dist.public %}{{ play.header }}{% else %}#download{% endif %}"{% if dist.public %} rel="noopener" data-play{% endif %}>{{ C.install_now }}</a>
     </nav>
     <a class="lang" href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}" aria-label="{{ C.lang_label }}">{{ C.lang_name }}</a>
     <details class="mm">
@@ -64,7 +64,7 @@
         <a href="{{ U.security }}"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>{{ C.nav_security }}</a>
         <a href="{{ U.help }}"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>{{ C.nav_help }}</a>
         <a href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>{{ C.lang_name }}</a>
-        <a class="btn" href="{{ play.menu }}" rel="noopener" data-play>{{ C.cta_play }}</a>
+        <div class="mm-get">{% include "web/v3/_get.html" with g=get.menu %}</div>
       </nav>
     </details>
   </div>
@@ -77,7 +77,7 @@
   <div class="wrap">
     <h2>{{ C.cta_h }}</h2>
     <p>{{ C.cta_p }}</p>
-    <a class="badge" href="{{ play.footer }}" data-play rel="noopener"><img src="{{ badge }}" width="200" height="77" alt="{{ C.cta_play }}" loading="lazy" decoding="async"></a>
+    {% include "web/v3/_get.html" with g=get.footer full=True %}
   </div>
 </section>
 </main>
@@ -109,7 +109,8 @@
   </div>
   <div class="wrap ft-bot mut">© {% if lang == 'bn' %}২০২৬{% else %}2026{% endif %} {{ C.footer_company }} · {{ C.footer_made }} · <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></div>
 </footer>
-<div class="pbar"><a class="btn" href="{{ play.sticky_bar }}" rel="noopener" data-play><svg class="i sm" aria-hidden="true"><use href="#i-play"/></svg>{{ C.cta_play }}</a></div>
+<dialog class="zv" id="zv" aria-label="{{ C.viewer }}"><button class="zv-x" type="button" aria-label="{{ C.close }}">×</button><img alt=""></dialog>
+<div class="pbar">{% include "web/v3/_get.html" with g=get.sticky_bar %}</div>
 <a class="totop" href="#top" aria-label="{{ C.to_top }}"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
 <script>
 (function(){var d=document.documentElement;d.classList.add("js");
@@ -125,16 +126,32 @@ if(IO&&chips.length){var cur=null,seen={};var so=new IntersectionObserver(functi
  if(best&&best!==cur){chips.forEach(function(c){c.classList.toggle("on",c===best)});cur=best;var r=best.parentNode;r.scrollTo({left:best.offsetLeft-r.clientWidth/2+best.clientWidth/2,behavior:rm?"auto":"smooth"})}},{rootMargin:"-40% 0px -55% 0px"});
  chips.forEach(function(c){var t=document.getElementById(c.dataset.spy);if(t)so.observe(t)})}
 var ph=document.querySelector("[data-rot]");
-if(ph){var im=[].slice.call(ph.querySelectorAll("img")),k=0,tm=null,vis=true,paused=rm,btn=ph.querySelector(".rot-btn");
- function load(){im.forEach(function(x){if(x.dataset.srcset){x.srcset=x.dataset.srcset;x.src=x.dataset.src;x.removeAttribute("data-srcset")}})}
- function step(){im[k].classList.remove("on");k=(k+1)%im.length;im[k].classList.add("on")}
- function run(){clearInterval(tm);tm=null;if(!paused&&vis)tm=setInterval(step,3500)}
- addEventListener("load",function(){setTimeout(function(){load();run()},600)});
+if(ph){var tr=ph.querySelector(".track"),sl=[].slice.call(ph.querySelectorAll(".slide")),dots=[].slice.call(ph.querySelectorAll(".dot")),k=0,tm=null,vis=true,paused=rm,btn=ph.querySelector(".rot-btn");
+ function swipe(){return tr.scrollWidth>tr.clientWidth+4}
+ function show(n,user){k=(n+sl.length)%sl.length;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k);if(i===k)x.setAttribute("aria-current","true");else x.removeAttribute("aria-current")});
+  if(swipe())tr.scrollTo({left:sl[k].offsetLeft-(tr.clientWidth-sl[k].clientWidth)/2,behavior:rm?"auto":"smooth"})}
+ function run(){clearInterval(tm);tm=null;if(!paused&&vis)tm=setInterval(function(){show(k+1)},3500)}
+ dots.forEach(function(x,i){x.addEventListener("click",function(){show(i,true);paused=true;btn.setAttribute("aria-pressed","true");run()})});
+ var st=0;tr.addEventListener("scroll",function(){if(!swipe())return;clearTimeout(st);st=setTimeout(function(){var c=tr.scrollLeft+tr.clientWidth/2,b=0,bd=1e9;sl.forEach(function(x,i){var dd=Math.abs(x.offsetLeft+x.clientWidth/2-c);if(dd<bd){bd=dd;b=i}});if(b!==k){k=b;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k)})}},90)},{passive:true});
+ tr.addEventListener("touchstart",function(){paused=true;if(btn)btn.setAttribute("aria-pressed","true");run()},{passive:true});
  if(IO)new IntersectionObserver(function(es){vis=es[0].isIntersecting;run()}).observe(ph);
- if(btn){btn.setAttribute("aria-pressed",paused?"true":"false");btn.addEventListener("click",function(){paused=!paused;btn.setAttribute("aria-pressed",paused?"true":"false");load();run()})}}
+ if(btn){btn.setAttribute("aria-pressed",paused?"true":"false");btn.addEventListener("click",function(){paused=!paused;btn.setAttribute("aria-pressed",paused?"true":"false");run()})}
+ addEventListener("load",function(){setTimeout(run,800)})}
+var zv=document.getElementById("zv");
+if(zv&&zv.showModal){var zi=zv.querySelector("img"),opener=null;
+ document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-zoom]");if(!a)return;e.preventDefault();opener=a;var im=a.querySelector("img");zi.src=a.href;zi.alt=im?im.alt:"";zv.showModal();history.pushState({zv:1},"")});
+ zv.querySelector(".zv-x").addEventListener("click",function(){zv.close()});
+ zv.addEventListener("click",function(e){if(e.target===zv)zv.close()});
+ zv.addEventListener("close",function(){if(history.state&&history.state.zv)history.back();if(opener)opener.focus()});
+ addEventListener("popstate",function(){if(zv.open)zv.close()})}
 if(!IO||rm){d.classList.add("rm");return}
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{rootMargin:"0px 0px -8% 0px"});
-document.querySelectorAll(".rv").forEach(function(el){io.observe(el)});
+// reveal: only cards still BELOW the fold start hidden; anything that has
+// reached the viewport (or was scrolled past) is shown — never left blank.
+var pend=[].slice.call(document.querySelectorAll(".rv")).filter(function(el){return el.getBoundingClientRect().top>innerHeight});
+pend.forEach(function(el){el.classList.add("pre")});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})});
+pend.forEach(function(el){io.observe(el)});
+var rk=0;addEventListener("scroll",function(){if(rk)return;rk=1;requestAnimationFrame(function(){rk=0;pend=pend.filter(function(el){if(el.getBoundingClientRect().top<innerHeight){el.classList.add("in");return false}return true})})},{passive:true});
 })();
 </script>
 </body>

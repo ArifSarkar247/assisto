@@ -93,6 +93,7 @@ V3_WIDTHS = (360, 720)
 
 
 PLACEMENTS = ("hero", "chip_download", "sticky_bar", "footer", "header", "menu")
+GET_PLACES = ("hero", "sticky_bar", "footer", "menu")
 HERO_SLIDES = ("chat", "emergency_hub", "wm_alerts", "acct_home")
 
 
@@ -118,6 +119,8 @@ def _chips(C, page, group, base, U, groups, play):
     for key, anchor, url in rows:
         is_play = key == "chip_download"
         href = ("#" + anchor) if (home and not is_play) else url
+        if is_play and not play.get("_public"):
+            href = "#download"
         on = (not home) and ((page == "group" and key == "chip_" + str(group)) or (page == "pricing" and key == "chip_pricing"))
         out.append({"label": C[key], "href": href, "spy": anchor if (home and not is_play) else "",
                     "on": on, "play": is_play})
@@ -156,6 +159,11 @@ def _render(request, page, preview, group=None, status=200):
                      "help": SC.PAGES["help"]["title"][lang],
                      "features": ("সব ফিচার — Assisto" if lang == "bn" else "All features — Assisto")}[page]
             desc = SC.PAGES[page]["desc"][lang] if page != "features" else C["groups_lead"]
+    from . import site_v3_dist as DIST
+    play = play_links(lang)
+    pub = DIST.play_public()
+    play["_public"] = pub
+    dist = {"public": pub, "apk": DIST.apk_display(DIST.apk_info(), lang), "apk_url": DIST.apk_url()}
     monthly, yearly = OLD._plans(lang) if page in ("home", "pricing") else ([], [])
     icons = {"arrow", "play", "pause", "lock", "check", "shield", "home", "tag", "message", "globe", "camera"} | {g["icon"] for g in groups} | {i for i, *_ in C["what"]}
     for g in groups:
@@ -168,7 +176,9 @@ def _render(request, page, preview, group=None, status=200):
         "og_image": site + OLD.asset_url("og-%s.jpg" % lang), "og_url": en_url if lang == "en" else bn_url,
         "auto_strip": V3.auto_strip(groups), "faq": faq, "trust": SC.trust(lang), "tools": SC.tools(lang),
         "plans": monthly, "plans_yearly": yearly, "cctv_plan": V3.cctv_plan(lang),
-        "play_url": SC.play_url(lang), "play": play_links(lang),
+        "play_url": SC.play_url(lang), "play": play,
+        "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or play[p]),
+                                  "place": p} for p in GET_PLACES},
         "slides": [_shot(n, lang, C["shot_alt"] + C["slide_" + n], eager=(i == 0)) for i, n in enumerate(HERO_SLIDES)], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
@@ -246,3 +256,19 @@ def flip(actor_id, value):
     reason = "website v3 go-live (owner, Owner Admin → Website)" if value else \
         "website v3 rollback to the previous site (owner, Owner Admin → Website)"
     return flags_flip(actor_id, FLAG, not bool(value), reason)
+
+
+def download_apk(request):
+    """Streams settings.WEBSITE_APK_FILE (only when the owner set one and no
+    public URL is configured). The latest-build APK is served by the web
+    server at its /dl/ URL instead."""
+    from django.conf import settings
+    from django.http import FileResponse
+    from . import site_v3_dist as DIST
+    p = getattr(settings, "WEBSITE_APK_FILE", "")
+    if not p or not DIST.apk_info():
+        raise Http404
+    resp = FileResponse(open(p, "rb"), as_attachment=True, filename="assisto.apk",
+                        content_type="application/vnd.android.package-archive")
+    resp["Cache-Control"] = "no-cache"
+    return resp

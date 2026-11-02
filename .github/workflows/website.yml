@@ -118,6 +118,25 @@ jobs:
           name: website-v3-preview
           path: ${{ runner.temp }}/shots/v3
 
+      - name: screenshot clip check (v3 fails; BEFORE = live site at 360 px, report only)
+        if: always()
+        run: |
+          set -e
+          cd "$RUNNER_TEMP/pw"
+          cp "$GITHUB_WORKSPACE/tools/website/clipcheck.mjs" .
+          node clipcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/before360" before || true
+          node clipcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/clipcheck" v3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-before-360
+          path: ${{ runner.temp }}/shots/before360
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-clipcheck
+          path: ${{ runner.temp }}/shots/clipcheck
+
       - name: Lighthouse CI (fails under 95)
         if: always()
         run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc.json
