@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../services/journey_tracker.dart' show readBatteryLevel;
 import '../state.dart';
+import 'dest_alarm_decide.dart';
 import 'dest_alarm_math.dart';
 import 'dest_alarm_sound.dart';
 import 'train_fgs.dart';
@@ -52,6 +54,10 @@ class DestPlan {
   final List<MetroStation> metro;
   final int metroFrom, metroTo;
   final DateTime? metroLeftAt;
+
+  /// sjalarm: My Circle members (circle ids) told "arrived" when the user
+  /// confirms "I am awake" after the alarm rang. Empty = nobody (default).
+  final List<int> notifyCircleIds;
   const DestPlan(
       {required this.mode,
       required this.target,
@@ -61,8 +67,24 @@ class DestPlan {
       this.metro = const [],
       this.metroFrom = 0,
       this.metroTo = 0,
-      this.metroLeftAt});
+      this.metroLeftAt,
+      this.notifyCircleIds = const []});
+
+  DestPlan withMetroFrom(int from, DateTime leftAt) => DestPlan(
+      mode: mode,
+      target: target,
+      setM: setM,
+      alerts: alerts,
+      metro: metro,
+      metroFrom: from,
+      metroTo: metroTo,
+      metroLeftAt: leftAt,
+      notifyCircleIds: notifyCircleIds);
 }
+
+/// Sends the optional "arrived" notice (set by the screen: needs internet;
+/// the alarm itself never does). Returns true when the server accepted it.
+typedef DestArrivedFn = Future<bool> Function(DestPlan plan);
 
 /// Localised text builders (the screen passes them in).
 class DestAlarmTexts {
@@ -96,6 +118,14 @@ class DestAlarmState {
   final int? metroAt;          // metro: station index by the clock
   final DateTime? metroRingAt;
   final AlarmEvent lastEvent;
+
+  /// sjalarm: smoothed speed, why it rang, snooze end (null = not snoozed).
+  final double speedMps;
+  final RingReason reason;
+  final DateTime? snoozedUntil;
+
+  /// null = no family notice asked / not yet; true sent; false failed (offline).
+  final bool? arrivedSent;
   const DestAlarmState(
       {this.phase = DestAlarmPhase.off,
       this.plan,
@@ -106,7 +136,11 @@ class DestAlarmState {
       this.interval = kMinInterval,
       this.metroAt,
       this.metroRingAt,
-      this.lastEvent = AlarmEvent.none});
+      this.lastEvent = AlarmEvent.none,
+      this.speedMps = 0,
+      this.reason = RingReason.none,
+      this.snoozedUntil,
+      this.arrivedSent});
 
   DestAlarmState copyWith(
           {DestAlarmPhase? phase,
@@ -117,7 +151,11 @@ class DestAlarmState {
           Duration? interval,
           int? metroAt,
           DateTime? metroRingAt,
-          AlarmEvent? lastEvent}) =>
+          AlarmEvent? lastEvent,
+          double? speedMps,
+          RingReason? reason,
+          DateTime? snoozedUntil,
+          bool clearSnooze = false}) =>
       DestAlarmState(
           phase: phase ?? this.phase,
           plan: plan,
@@ -128,7 +166,11 @@ class DestAlarmState {
           interval: interval ?? this.interval,
           metroAt: metroAt ?? this.metroAt,
           metroRingAt: metroRingAt ?? this.metroRingAt,
-          lastEvent: lastEvent ?? this.lastEvent);
+          lastEvent: lastEvent ?? this.lastEvent,
+          speedMps: speedMps ?? this.speedMps,
+          reason: reason ?? this.reason,
+          snoozedUntil: clearSnooze ? null : (snoozedUntil ?? this.snoozedUntil),
+          arrivedSent: arrivedSent);
 }
 
 /// Per-mode memory: the distance and the alert switches are remembered for
@@ -156,12 +198,15 @@ class DestModeMemory {
 class DestAlarmController extends ValueNotifier<DestAlarmState> {
   DestAlarmController({
     DestPositionFn? position,
+    DestPositionFn? lowPowerPosition,
     DestBatteryFn? battery,
     DestAlarmSound? sound,
     DateTime Function()? clock,
     this.useService = true,
     this.repeatEvery = const Duration(seconds: 10),
   })  : _position = position ?? _gps,
+        // a test that injects [position] gets it for both (no real GPS)
+        _lowPower = lowPowerPosition ?? (position == null ? _gpsLow : position),
         _battery = battery ?? readBatteryLevel,
         _sound = sound ?? NativeDestAlarmSound(),
         _clock = clock ?? DateTime.now,
@@ -169,13 +214,23 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
 
   static DestAlarmController I = DestAlarmController();
 
-  final DestPositionFn _position;
+  final DestPositionFn _position, _lowPower;
+
+  /// sjalarm: optional family "arrived" notice (the screen sets it).
+  static DestArrivedFn? arrivedNotifier;
+
+  /// Snooze length ("I am awake" stops for good).
+  static const Duration kSnooze = Duration(minutes: 1);
   final DestBatteryFn _battery;
   final DestAlarmSound _sound;
   final DateTime Function() _clock;
   final bool useService;
   final Duration repeatEvery;
-  Timer? _timer, _repeat;
+  Timer? _timer, _repeat, _snooze;
+  DestEngine? _eng;
+  SpeedSmoother _trainSpeed = SpeedSmoother();
+  bool _lowNext = false;
+  String _lastDist = '';
   bool _busy = false;
   DestAlarmTexts? _texts;
   DistanceWatch? _dw;
@@ -188,6 +243,9 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _texts = texts;
     _dw = null;
     _tw = null;
+    _eng = null;
+    _trainSpeed = SpeedSmoother();
+    _lowNext = false;
     final pv = plan.prevStation;
     if (plan.mode == TransportMode.train && pv != null &&
         trainLegUsable(pv.lat, pv.lng, plan.target.lat, plan.target.lng)) {
@@ -195,7 +253,8 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
       _tw = TrainLegWatch(haversineM(p.lat, p.lng, plan.target.lat, plan.target.lng),
           fallbackM: plan.setM);
     } else if (plan.mode != TransportMode.metro) {
-      _dw = DistanceWatch(plan.mode, plan.setM);
+      _eng = DestEngine(plan.mode, plan.setM, plan.target.lat, plan.target.lng);
+      _dw = _eng!.watch;
     }
     value = DestAlarmState(phase: DestAlarmPhase.watching, plan: plan);
     if (useService) {
@@ -207,7 +266,10 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   }
 
   void _onFgs(String msg) {
-    if (msg == kTrainStopMsg) unawaited(stop());
+    // Stop in the notification while ringing = "I am awake"
+    if (msg == kTrainStopMsg) {
+      unawaited(value.phase == DestAlarmPhase.ringing ? confirmAwake() : stop());
+    }
     if (msg == kTrainTickMsg && _timer == null && value.phase == DestAlarmPhase.watching) {
       unawaited(tick());
     }
@@ -217,15 +279,7 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   Future<void> metroResync(int stationIdx) async {
     final p = value.plan;
     if (p == null || p.mode != TransportMode.metro) return;
-    final np = DestPlan(
-        mode: p.mode,
-        target: p.target,
-        setM: p.setM,
-        alerts: p.alerts,
-        metro: p.metro,
-        metroFrom: stationIdx,
-        metroTo: p.metroTo,
-        metroLeftAt: _clock());
+    final np = p.withMetroFrom(stationIdx, _clock());
     value = DestAlarmState(phase: DestAlarmPhase.watching, plan: np, serviceOn: value.serviceOn);
     if (_busy) {
       await _metroCount(np);
@@ -294,15 +348,24 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   Future<void> _gpsTick(DestPlan p) async {
     DestFix? fix;
     try {
-      fix = await _position();
+      // battery: a coarse fix while the ringing zone is far away; never used
+      // to ring — near (or when it says "near") a high-accuracy fix decides
+      fix = await (_lowNext ? _lowPower() : _position());
+      if (_lowNext && fix != null &&
+          !lowPowerGpsOk(haversineM(fix.lat, fix.lng, p.target.lat, p.target.lng), fix.accuracy,
+              p.setM, _eng?.speed.mps ?? _trainSpeed.mps)) {
+        fix = await _position();
+      }
     } catch (_) {
       fix = null; // best-effort: shown as "location off"
     }
     if (fix == null) {
+      _lowNext = false;
       value = value.copyWith(locationOff: true, interval: kMinInterval * 2);
       return;
     }
     final t = p.target;
+    final now = _clock();
     final d = haversineM(fix.lat, fix.lng, t.lat, t.lng);
     int? batt;
     try {
@@ -310,18 +373,32 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     } catch (_) {
       batt = null; // best-effort: optional
     }
-    final watchM = _tw != null ? TrainLegWatch.atM : p.setM;
-    final iv = adaptiveInterval(_tw != null ? haversineM(fix.lat, fix.lng, p.prevStation!.lat, p.prevStation!.lng) : d,
-        watchM, accuracyM: fix.accuracy, speedMps: fix.speedMps, batteryPct: batt);
     AlarmEvent ev;
+    Duration iv;
+    double v;
     if (_tw != null) {
+      v = _trainSpeed.update(fix.lat, fix.lng, fix.accuracy, now, gpsSpeedMps: fix.speedMps);
       final toPrev = haversineM(fix.lat, fix.lng, p.prevStation!.lat, p.prevStation!.lng);
-      ev = _tw!.update(toPrev, d, fix.accuracy);
+      iv = adaptiveInterval(math.min(toPrev, d), TrainLegWatch.atM,
+          accuracyM: fix.accuracy, speedMps: v, batteryPct: batt);
+      ev = _tw!.update(toPrev, d, fix.accuracy, speedMps: v);
+      _lowNext = false;
     } else {
-      ev = _dw!.update(d, fix.accuracy);
+      final st = _eng!.step(fix.lat, fix.lng, fix.accuracy, now,
+          gpsSpeedMps: fix.speedMps, batteryPct: batt);
+      ev = st.event;
+      iv = st.next;
+      v = st.speedMps;
+      _lowNext = st.lowPowerNext;
     }
     value = value.copyWith(
-        distanceM: d, accuracyM: fix.accuracy, locationOff: false, interval: iv, lastEvent: ev);
+        distanceM: d,
+        accuracyM: fix.accuracy,
+        locationOff: false,
+        interval: iv,
+        lastEvent: ev,
+        speedMps: v,
+        reason: _eng?.watch.reason ?? (ev == AlarmEvent.ring ? RingReason.distance : null));
     final dist = _texts?.distance(d) ?? '';
     switch (ev) {
       case AlarmEvent.ring:
@@ -342,7 +419,10 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     final p = value.plan!;
     _timer?.cancel();
     _timer = null;
-    value = value.copyWith(phase: DestAlarmPhase.ringing);
+    _snooze?.cancel();
+    _snooze = null;
+    _lastDist = dist;
+    value = value.copyWith(phase: DestAlarmPhase.ringing, clearSnooze: true);
     await _sound.start(sound: p.alerts.sound, vibrate: p.alerts.vibrate);
     Future<void> say() async {
       if (!p.alerts.voice || value.phase != DestAlarmPhase.ringing) return;
@@ -359,14 +439,45 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _repeat = Timer.periodic(repeatEvery, (_) => unawaited(say()));
   }
 
-  /// The big "I am awake" button (and the notification's Stop).
-  Future<void> confirmAwake() => stop();
+  /// sjalarm: "Snooze" — quiet for [kSnooze], then it rings again (the stop
+  /// is near; only "I am awake" ends it).
+  Future<void> snooze() async {
+    if (value.phase != DestAlarmPhase.ringing || value.snoozedUntil != null) return;
+    _repeat?.cancel();
+    _repeat = null;
+    await _sound.stop();
+    value = value.copyWith(snoozedUntil: _clock().add(kSnooze));
+    _snooze = Timer(kSnooze, () {
+      _snooze = null;
+      if (value.phase == DestAlarmPhase.ringing) unawaited(_ring(_lastDist));
+    });
+  }
+
+  /// The big "I am awake" button (and the notification's Stop while
+  /// ringing): stops, then sends the optional family "arrived" notice.
+  Future<void> confirmAwake() async {
+    final plan = value.plan;
+    final rang = value.phase == DestAlarmPhase.ringing;
+    await stop();
+    final fn = arrivedNotifier;
+    if (rang && plan != null && plan.notifyCircleIds.isNotEmpty && fn != null) {
+      bool ok;
+      try {
+        ok = await fn(plan);
+      } catch (_) {
+        ok = false; // offline: the alarm already did its job; the screen says so
+      }
+      value = DestAlarmState(arrivedSent: ok);
+    }
+  }
 
   Future<void> stop() async {
     _timer?.cancel();
     _timer = null;
     _repeat?.cancel();
     _repeat = null;
+    _snooze?.cancel();
+    _snooze = null;
     final wasRinging = value.phase == DestAlarmPhase.ringing;
     final plan = value.plan;
     value = const DestAlarmState();
@@ -377,15 +488,20 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   }
 }
 
-Future<DestFix?> _gps() async {
+Future<DestFix?> _gps() => _fix(LocationAccuracy.high);
+
+/// Battery-saving fix while the stop is far away (decides only the interval).
+Future<DestFix?> _gpsLow() => _fix(LocationAccuracy.medium);
+
+Future<DestFix?> _fix(LocationAccuracy accuracy) async {
   if (!await Geolocator.isLocationServiceEnabled()) return null;
   final perm = await Geolocator.checkPermission();
   if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
     return null;
   }
   final p = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 20)));
+      locationSettings:
+          LocationSettings(accuracy: accuracy, timeLimit: const Duration(seconds: 20)));
   return DestFix(p.latitude, p.longitude,
       accuracy: p.accuracy, speedMps: p.speed >= 0 ? p.speed : null);
 }

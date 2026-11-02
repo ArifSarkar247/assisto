@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'dest_alarm_decide.dart';
+
 /// train: destination-alarm maths (owner final order 2 Nov) — pure, offline,
 /// unit-tested with fixed coordinates. The alarm rings BEFORE the vehicle
 /// reaches the stop. No network: stations / bus stops / metro order are
@@ -92,13 +94,24 @@ class DistanceWatch {
   final int setM;
   double? tripStartM;
   bool gentleDone = false, readyDone = false, rung = false;
+
+  /// sjalarm: why it rang (distance setting or the 45-second speed rule).
+  RingReason reason = RingReason.none;
+
+  /// The speed rule's seconds (0 = distance only — used by the CI replay to
+  /// prove the rule is what saves the fast-bus traces).
+  int etaS = kEtaRingS;
   DistanceWatch(this.mode, this.setM);
 
-  AlarmEvent update(double distanceM, double accuracyM) {
+  /// [speedMps] = SMOOTHED speed (SpeedSmoother); 0 = distance rule only.
+  AlarmEvent update(double distanceM, double accuracyM, {double speedMps = 0}) {
     tripStartM ??= distanceM;
     if (rung) return AlarmEvent.none;
-    if (neverLate(distanceM, accuracyM, setM)) {
+    final why = decideRing(
+        distanceM: distanceM, accuracyM: accuracyM, setM: setM, speedMps: speedMps, etaS: etaS);
+    if (why != RingReason.none) {
       rung = true;
+      reason = why;
       return AlarmEvent.ring;
     }
     final s = kModeSpecs[mode]!;
@@ -128,12 +141,16 @@ class TrainLegWatch {
   bool seenPrev = false, rung = false;
   TrainLegWatch(this.prevToTargetM, {this.fallbackM = 2000});
 
-  AlarmEvent update(double toPrevM, double toTargetM, double accuracyM) {
+  AlarmEvent update(double toPrevM, double toTargetM, double accuracyM, {double speedMps = 0}) {
     if (rung) return AlarmEvent.none;
     if (neverLate(toPrevM, accuracyM, atM)) seenPrev = true;
     final left = seenPrev && toPrevM - math.max(0.0, accuracyM) > leftM &&
         toTargetM < prevToTargetM;
-    if (left || neverLate(toTargetM, accuracyM, fallbackM)) {
+    // sjalarm: the 45-second speed rule also guards the train's own station
+    if (left ||
+        decideRing(
+                distanceM: toTargetM, accuracyM: accuracyM, setM: fallbackM, speedMps: speedMps) !=
+            RingReason.none) {
       rung = true;
       return AlarmEvent.ring;
     }
