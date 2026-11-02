@@ -492,6 +492,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | কর্পোরেট মিটিং (গ্রুপ ভিডিও, স্ক্রিন শেয়ার) | **১৯** | আলাদা SFU সার্ভার, ~১০% | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | FS: corporate_meetings | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | রিমোট সাপোর্ট | **১৩** | শুধু নকশা (~২%) | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | FS: remote_support | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | মার্কেটিং অটোমেশন | **১৫** | ~১০% | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | FS: marketing | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| মার্কেটিং ইঞ্জিন v1 ("প্রচার", নতুন সুইচ `marketing_engine`) | **৫০** (নতুন, ৩ Nov; মালিকের প্রমাণ ছাড়া সর্বোচ্চ ৬০) | প্রশ্নমালা → আসল ক্যাটালগ/বিক্রি/CRM সংখ্যা দিয়ে অনুমোদনযোগ্য প্ল্যান (কনটেন্ট, ৩০ দিনের উৎসব ক্যালেন্ডার, কৌশল, ক্যাম্পেইন, ফলো-আপ); ফলো-আপ রিটেনশন দিয়ে সত্যিই যায়; AI কী ছাড়াও চলে | সুইচ বন্ধ · ১০০ হলে চালু | core.tests_mktengine, app/test/mktengine_test.dart, gallery mkt_*; FEATURE_CARD_MARKETING_ENGINE_BN.md | Mengo (mengo.si; দাম প্রকাশ নেই, ৩ দিনের ট্রায়াল) · BD এজেন্সি ৳৫,০০০–৩০,০০০/মাস (অনুমান) | আসল ফোনে পরীক্ষা হয়নি; Facebook/Instagram-এ এক ট্যাপে পোস্ট Meta App Review-এর অপেক্ষায়; পোস্টারের ছবি ও কোন পোস্ট থেকে অর্ডার এল তার মাপ নেই; ওয়েবসাইট/SEO/ইমেইল সিকোয়েন্স নেই |
 | Agent Mode | **১৪** | শুধু নকশা (AGENT_MODE_PLAN_BN.md) | কোডে লুকানো (দেখা যায় না) | AGENT_MODE_PLAN_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 
 ## ২১. Owner Admin (প্রতিটি পাতা) — গড় ৬৫.৫
