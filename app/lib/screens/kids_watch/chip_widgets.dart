@@ -504,19 +504,26 @@ class _ChipPairSheetState extends State<ChipPairSheet> {
         const SizedBox(height: Gap.sm),
         Text(t.v100BrandLabel, style: AType.titleSmall),
         const SizedBox(height: Gap.xs),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-          for (final b in kChipBrands)
-            ChoiceChip(
-              key: ValueKey('chip-brand-${b.$1}'),
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-              label: Text(vehBrandLabel(t, b.$1)),
-              selected: _brand == b.$1,
-              onSelected: (_) => setState(() {
-                _brand = b.$1;
-                _protocol = b.$2;
-              }),
-            ),
-        ]),
+        // radio rows (not chips): long brand names wrap at 200% text
+        RadioGroup<String>(
+          groupValue: _brand,
+          onChanged: (v) {
+            if (v == null) return;
+            setState(() {
+              _brand = v;
+              _protocol = kChipBrands.firstWhere((b) => b.$1 == v).$2;
+            });
+          },
+          child: Column(children: [
+            for (final b in kChipBrands)
+              RadioListTile<String>(
+                key: ValueKey('chip-brand-${b.$1}'),
+                contentPadding: EdgeInsets.zero,
+                value: b.$1,
+                title: Text(vehBrandLabel(t, b.$1)),
+              ),
+          ]),
+        ),
         const SizedBox(height: Gap.md),
         Text(t.chipSimOperator, style: AType.titleSmall),
         const SizedBox(height: Gap.xs),
