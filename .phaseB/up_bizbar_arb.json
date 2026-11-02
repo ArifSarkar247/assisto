@@ -108,6 +108,109 @@
      "type": "String"
     }
    }
+  },
+  "bbPdfButton": "Send statement as PDF",
+  "@bbPdfButton": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleCustomer": "Customer account statement",
+  "@bbPdfTitleCustomer": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleSupplier": "Supplier account statement",
+  "@bbPdfTitleSupplier": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfMade": "Made on {when}",
+  "@bbPdfMade": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfDate": "Date",
+  "@bbPdfDate": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfDetails": "Details",
+  "@bbPdfDetails": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGave": "Due given",
+  "@bbPdfGave": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGot": "Paid",
+  "@bbPdfGot": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupGot": "Goods on credit",
+  "@bbPdfSupGot": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupPaid": "Paid",
+  "@bbPdfSupPaid": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfBalance": "Balance",
+  "@bbPdfBalance": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTotal": "Total",
+  "@bbPdfTotal": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfClosing": "Balance now",
+  "@bbPdfClosing": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPending": "{n} entries made offline are still waiting to sync and are not in this statement.",
+  "@bbPdfPending": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfSavedCopy": "Made from the copy saved on this phone ({when}) — no internet then.",
+  "@bbPdfSavedCopy": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfFooter": "For bookkeeping only. Assisto never holds or moves money.",
+  "@bbPdfFooter": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPage": "Page {p} of {n}",
+  "@bbPdfPage": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "p": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfShareText": "{name}, here is your account statement from {shop}.",
+  "@bbPdfShareText": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "shop": {
+     "type": "String"
+    }
+   }
   }
  },
  "bn": {
@@ -129,6 +232,24 @@
   "bbDueNeedsCustomer": "বাকিতে বিক্রিতে গ্রাহকের নাম বা ফোন লিখুন — বাকিটা তাঁর খাতার পাতায় যাবে।",
   "bbPaidEmptyIsExact": "ঠিক যত দাম তত টাকা পেলে ঘরটা খালি রাখুন।",
   "bbDueWho": "কার বাকি?",
-  "bbItems": "{n}টি পণ্য"
+  "bbItems": "{n}টি পণ্য",
+  "bbPdfButton": "হিসাবের বিবরণী PDF পাঠান",
+  "bbPdfTitleCustomer": "গ্রাহকের হিসাবের বিবরণী",
+  "bbPdfTitleSupplier": "সাপ্লায়ারের হিসাবের বিবরণী",
+  "bbPdfMade": "তৈরি: {when}",
+  "bbPdfDate": "তারিখ",
+  "bbPdfDetails": "বিবরণ",
+  "bbPdfGave": "বাকি দিলাম",
+  "bbPdfGot": "জমা পেলাম",
+  "bbPdfSupGot": "বাকিতে মাল",
+  "bbPdfSupPaid": "টাকা দিলাম",
+  "bbPdfBalance": "ব্যালেন্স",
+  "bbPdfTotal": "মোট",
+  "bbPdfClosing": "এখন বাকি",
+  "bbPdfPending": "নেট ছাড়া লেখা {n}টি এন্ট্রি এখনো সিঙ্কের অপেক্ষায় — এই বিবরণীতে নেই।",
+  "bbPdfSavedCopy": "এই ফোনে সংরক্ষিত কপি থেকে তৈরি ({when}) — তখন নেট ছিল না।",
+  "bbPdfFooter": "শুধু হিসাব রাখার জন্য। Assisto কখনো টাকা রাখে না বা পাঠায় না।",
+  "bbPdfPage": "পাতা {p} / {n}",
+  "bbPdfShareText": "{name}, {shop} থেকে আপনার হিসাবের বিবরণী।"
  }
 }

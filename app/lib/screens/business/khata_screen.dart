@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -25,6 +26,8 @@ import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart'
     show FailKind, failKindOf, honestFailText; // qa2
 import '../../services/khata_offline.dart'; // ledger100
+import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
+import 'statement_pdf.dart'; // bizbar
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
 /// supplier payables. The supplier tab is hidden for staff (they must
@@ -1110,6 +1113,88 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
             title: '${widget.party['name'] ?? ''}')));
   }
 
+  bool _pdfBusy = false;
+
+  /// bizbar: the whole statement as a Bangla/English PDF, shared through the
+  /// owner's own tap (WhatsApp, email, print…). Built on the phone from the
+  /// statement on screen, so it also works offline (marked if it is the
+  /// saved copy or entries are still waiting to sync).
+  Future<void> _sharePdf() async {
+    final t = AppLocalizations.of(context);
+    final s = _stmt;
+    if (s == null || _pdfBusy) return;
+    setState(() => _pdfBusy = true);
+    try {
+      final lang = Localizations.localeOf(context).languageCode;
+      String money(int p) =>
+          pair(context, '৳${(p / 100).toStringAsFixed(2)}');
+      final lines = ((s['lines'] ?? const []) as List)
+          .whereType<Map>()
+          .map((m) => m.cast<String, dynamic>())
+          .toList()
+          .reversed;
+      var gave = 0, got = 0;
+      final rows = <StatementPdfRow>[];
+      for (final l in lines) {
+        final d = pair(context, l['debit_display']);
+        final cr = pair(context, l['credit_display']);
+        final amt = (l['amount'] as num?)?.toInt() ?? 0;
+        if (d.isNotEmpty) {
+          gave += amt;
+        } else {
+          got += amt;
+        }
+        rows.add(StatementPdfRow(
+            date: pair(context, l['at_display'], fallback: '${l['at'] ?? ''}'),
+            details: pair(context, l['particulars']),
+            gave: d,
+            got: cr,
+            balance: pair(context, l['balance_display'])));
+      }
+      final party = _partyNow;
+      final name = '${party['name'] ?? ''}';
+      final phone = '${party['phone'] ?? ''}';
+      final shop = '${widget.business['name'] ?? ''}';
+      final pending = _ops.where((o) => o.isPending).length;
+      final doc = StatementPdfDoc(
+        shop: shop,
+        title: _isCustomer ? t.bbPdfTitleCustomer : t.bbPdfTitleSupplier,
+        party: phone.isEmpty ? name : '$name · ${localDigits(phone, lang)}',
+        made: t.bbPdfMade(fmtDate('d MMM y, h:mm a', DateTime.now(), lang)),
+        colDate: t.bbPdfDate,
+        colDetails: t.bbPdfDetails,
+        colGave: _isCustomer ? t.bbPdfGave : t.bbPdfSupGot,
+        colGot: _isCustomer ? t.bbPdfGot : t.bbPdfSupPaid,
+        colBalance: t.bbPdfBalance,
+        rows: rows,
+        totalLabel: t.bbPdfTotal,
+        totalGave: money(gave),
+        totalGot: money(got),
+        closingLabel: t.bbPdfClosing,
+        closing: pair(context, party['balance_display']),
+        closingStatus: pair(context, party['balance_status']),
+        note: pending > 0
+            ? t.bbPdfPending(localDigits('$pending', lang))
+            : (_savedAt != null
+                ? t.bbPdfSavedCopy(_savedLabel(context, _savedAt!))
+                : null),
+        footer: t.bbPdfFooter,
+        pageLabel: (p, n) =>
+            t.bbPdfPage(localDigits('$p', lang), localDigits('$n', lang)),
+        emptyRows: t.khataNoDues,
+      );
+      final bytes = await buildStatementPdf(doc);
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/assisto_statement_$_partyId.pdf');
+      await f.writeAsBytes(bytes, flush: true);
+      await Share.shareXFiles([XFile(f.path, mimeType: 'application/pdf')],
+          text: t.bbPdfShareText(name, shop));
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'khata.statementPdf', e);
+    }
+    if (mounted) setState(() => _pdfBusy = false);
+  }
+
   Future<void> _invite() async {
     await showKhataInviteSheet(context,
         businessId: _bizId,
@@ -1198,7 +1283,9 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
                       ops: _ops,
                       savedAt: _savedAt,
                       onTapLine: _editLine,
-                      onDiscard: (o) => KhataOffline.discard(o.cid)),
+                      onDiscard: (o) => KhataOffline.discard(o.cid),
+                      onSharePdf: _sharePdf,
+                      pdfBusy: _pdfBusy),
                 )),
     );
   }
@@ -1212,6 +1299,8 @@ class _StatementBody extends StatelessWidget {
   final DateTime? savedAt;
   final void Function(Map<String, dynamic>) onTapLine;
   final void Function(KhataOp) onDiscard;
+  final VoidCallback? onSharePdf;
+  final bool pdfBusy;
   const _StatementBody(
       {required this.stmt,
       required this.party,
@@ -1219,7 +1308,9 @@ class _StatementBody extends StatelessWidget {
       required this.ops,
       required this.savedAt,
       required this.onTapLine,
-      required this.onDiscard});
+      required this.onDiscard,
+      this.onSharePdf,
+      this.pdfBusy = false});
 
   @override
   Widget build(BuildContext context) {
@@ -1271,6 +1362,22 @@ class _StatementBody extends StatelessWidget {
                     where: 'khata.call'),
               ),
             ),
+          if (onSharePdf != null) ...[
+            const SizedBox(height: Gap.sm),
+            OutlinedButton.icon(
+              key: const ValueKey('bb-stmt-pdf'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: pdfBusy ? null : onSharePdf,
+              icon: pdfBusy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.picture_as_pdf_rounded),
+              label: Text(t.bbPdfButton,
+                  maxLines: 2, textAlign: TextAlign.center),
+            ),
+          ],
           if (ops.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             for (final o in ops)
