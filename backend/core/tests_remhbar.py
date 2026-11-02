@@ -131,3 +131,48 @@ class RepeatingFamilyTaskTests(Base):
         self.assertEqual(r.status_code, 201)
         self.assertEqual(r.json()["task"]["repeat"], "none")
         self.assertEqual(Reminder.objects.get(user=self.b).recurrence, "none")
+
+
+class BirthdayDetailsKeptTests(TestCase):
+    """The app's pre-reminders (a LIST), relation, note, phone and "every
+    year" were dropped on save (clamp_lead_days(list) -> 1)."""
+
+    def setUp(self):
+        self.u = mk("01711300011", "Rina")
+        self.c = cl(self.u)
+
+    def test_clean_leads(self):
+        from core.logic import birthdays as B
+        self.assertEqual(B.clean_leads([0, 7, 1, 7]), ([7, 1, 0], 7))
+        self.assertEqual(B.clean_leads(3), ([3], 3))
+        self.assertEqual(B.clean_leads(None), ([1], 1))
+        self.assertEqual(B.clean_leads(["x", True, 500]), ([60], 60))
+        self.assertEqual(B.clean_leads([]), ([1], 1))
+
+    def test_everything_the_app_sends_is_kept(self):
+        r = self.c.post(f"{V}/birthdays", {
+            "name": "Ammu", "date": "1965-11-20", "kind": "birthday",
+            "lead_days": [7, 1, 0], "relation": "mother",
+            "notes": "likes roshogolla", "phone": "01711000000",
+            "yearly": True}, format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual(r.json()["leads"], [7, 1, 0])
+        g = self.c.get(f"{V}/birthdays").json()
+        row = g["all"][0]
+        self.assertEqual(row["lead_days"], [7, 1, 0])
+        self.assertEqual((row["relation"], row["notes"], row["phone"], row["yearly"]),
+                         ("mother", "likes roshogolla", "01711000000", True))
+
+    def test_old_app_single_int_still_works(self):
+        r = self.c.post(f"{V}/birthdays", {"name": "Bhai", "date": "1990-01-05",
+                                           "lead_days": 3}, format="json")
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.json()["lead_days"], 3)
+        self.assertEqual(self.c.get(f"{V}/birthdays").json()["all"][0]["lead_days"], [3])
+
+    def test_one_off_day_is_kept_as_one_off(self):
+        r = self.c.post(f"{V}/birthdays", {"name": "Wedding", "date": "2027-02-14",
+                                           "kind": "memorable", "yearly": False},
+                        format="json")
+        self.assertEqual(r.status_code, 201)
+        self.assertFalse(self.c.get(f"{V}/birthdays").json()["all"][0]["yearly"])

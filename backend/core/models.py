@@ -1143,6 +1143,13 @@ class Birthday(models.Model):
     date = models.DateField()                       # year<=1900 => unknown year
     kind = models.CharField(max_length=20, choices=KINDS, default="birthday")
     lead_days = models.PositiveSmallIntegerField(default=1)
+    # remhbar: every chosen pre-reminder (e.g. [7, 1, 0]) + the details the
+    # app always sent but the server dropped (migration 0125_remhbar)
+    leads = models.JSONField(default=list, blank=True)
+    relation = models.CharField(max_length=60, blank=True, default="")
+    notes = models.CharField(max_length=500, blank=True, default="")
+    phone = models.CharField(max_length=32, blank=True, default="")
+    yearly = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

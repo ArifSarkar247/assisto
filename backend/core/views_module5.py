@@ -92,8 +92,13 @@ class BirthdaysView(APIView):
     def get(self, request):
         lang = req_lang(request)
         rows = Birthday.objects.filter(user=request.user)
+        # remhbar: every pre-reminder + relation/note/phone/yearly come back
+        # (they used to be dropped on save)
         occasions = [{"id": b.id, "name": b.name, "date": b.date.isoformat(),
-                      "kind": b.kind, "lead_days": b.lead_days} for b in rows]
+                      "kind": b.kind,
+                      "lead_days": list(b.leads) if b.leads else b.lead_days,
+                      "relation": b.relation, "notes": b.notes,
+                      "phone": b.phone, "yearly": b.yearly} for b in rows]
         return Response({
             "upcoming": bdays.upcoming(occasions),
             "all": occasions,
@@ -105,12 +110,18 @@ class BirthdaysView(APIView):
         d = bdays.parse_date(data.get("date"))
         if d is None:
             return Response({"error": "date_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        leads, single = bdays.clean_leads(data.get("lead_days"))
         b = Birthday.objects.create(
             user=request.user,
             name=str(data.get("name", "")).strip()[:120],
             date=d,
             kind=bdays._kind(data.get("kind", "birthday"))["id"],
-            lead_days=bdays.clamp_lead_days(data.get("lead_days", bdays.LEAD_DAYS_DEFAULT)),
+            lead_days=single,
+            leads=leads,
+            relation=str(data.get("relation") or "").strip()[:60],
+            notes=str(data.get("notes") or "").strip()[:500],
+            phone=str(data.get("phone") or "").strip()[:32],
+            yearly=data.get("yearly") is not False,
         )
         return Response(BirthdaySerializer(b).data, status=status.HTTP_201_CREATED)
 
