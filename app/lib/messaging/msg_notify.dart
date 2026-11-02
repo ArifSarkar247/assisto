@@ -18,6 +18,7 @@ import '../push/push_payload.dart';
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'chat_preview.dart' show mediaPreviewDetail;
+import 'msg_native.dart'; // bubbles
 import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
@@ -511,6 +512,13 @@ class FlnMsgSink implements MsgNotifSink {
         );
       }
       await _summary(t, ch);
+      // bubbles: in the UI isolate, upgrade it to a bubble at once (native
+      // re-checks every gate; background isolates have no channel — the FCM
+      // service schedules those). Never for hidden / locked chats.
+      if (!m.hidden && !m.locked) {
+        unawaited(MsgNative.attachBubble(
+            m.kind, m.chatId, m.isGroup ? m.title : last.sender));
+      }
     } catch (e) {
       // notifs: RETHROW so MsgPushHandler.onPush returns false and the caller
       // draws the plain title/body notification (was swallowed → nothing).

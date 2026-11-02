@@ -229,6 +229,13 @@ object MessageNotifier {
             } catch (_: Throwable) {
             }
         }
+        // bubbles (Android 11+): same gates as Dart-drawn chats; no bubble
+        // when the name is hidden (locked chat / no preview / hide content).
+        try {
+            BubbleHelper.decorate(ctx, b, s.kind, s.chatId, s.title,
+                hasShortcut = s.canReply && s.title != "Assisto")
+        } catch (_: Throwable) {
+        }
         return b.build()
     }
 
