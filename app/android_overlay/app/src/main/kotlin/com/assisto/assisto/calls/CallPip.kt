@@ -27,6 +27,7 @@ object CallPip {
     private const val EXTRA_ID = "id"
     private const val EXTRA_TOKEN = "token"
     const val EXTRA_RETURN = "assisto_call_return"
+    private const val ACTION_RETURN = "com.assisto.assisto.CALL_RETURN"
     private const val REQ_PIP_BASE = 0x5a30
     private const val REQ_RETURN = 0x5a22
     private const val REQ_END = 0x5a23
@@ -196,8 +197,12 @@ object CallPip {
             val nm = c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (nm.getNotificationChannel(channel) == null) return false
             val launch = c.packageManager.getLaunchIntentForPackage(c.packageName) ?: return false
+            // same pattern as the proven warm call tap (IncomingCall.launchIntent):
+            // the launcher intent with OUR action -> the running MainActivity
+            // gets onNewIntent (never a second activity / engine)
+            launch.setAction(ACTION_RETURN)
             launch.putExtra(EXTRA_RETURN, true)
-            launch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             val ret = PendingIntent.getActivity(c, REQ_RETURN, launch,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             // flutter_foreground_task's button broadcast (its receiver runs
@@ -235,7 +240,7 @@ object CallPip {
 
     /** "Return to call" tapped (MainActivity.onNewIntent). */
     fun isReturn(i: Intent?): Boolean = try {
-        i?.getBooleanExtra(EXTRA_RETURN, false) == true
+        i?.action == ACTION_RETURN || i?.getBooleanExtra(EXTRA_RETURN, false) == true
     } catch (e: Throwable) {
         false
     }

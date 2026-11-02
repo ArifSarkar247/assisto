@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart' show AppLifecycleState;
+import 'dart:ui' show AppLifecycleState;
 
 /// callpip (owner phone test 2 Nov: "Back / Home / Facebook during a video
 /// call makes the video disappear"): every decision about leaving the call
