@@ -208,6 +208,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         'name': pick.name.isNotEmpty ? pick.name : jKindLabel(t, pick.kind),
         'lat': _dest!['lat'],
         'lng': _dest!['lng'],
+        'theft_safe': pick.theftSafe,
       });
       final rows = await api.savedPlaces();
       if (!mounted) return;
@@ -216,6 +217,23 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     } catch (e) {
       if (mounted) showActionFailed(context, 'journey.savePlace', e);
     }
+  }
+
+  /// placesafe: long-press -> the place's sheet (anti-theft switch +
+  /// Remove). Remove still asks once more.
+  Future<void> _editPlace(Map<String, dynamic> p) async {
+    final t = AppLocalizations.of(context);
+    final remove = await showJourneyPlaceEditSheet(
+        context, context.read<AppState>().api, p,
+        title: jPlaceLabel(t, p),
+        onChanged: (row) {
+          if (!mounted) return;
+          setState(() {
+            final i = _places.indexWhere((x) => x['id'] == row['id']);
+            if (i >= 0) _places[i] = row;
+          });
+        });
+    if (remove == true && mounted) await _removePlace(p);
   }
 
   Future<void> _removePlace(Map<String, dynamic> p) async {
@@ -445,9 +463,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             for (final p in _places)
               Semantics(
                 label: jPlaceLabel(t, p),
-                hint: t.j2PlaceLongPress,
+                hint: t.j2PlaceLongPressEdit,
+                onLongPress: () => _editPlace(p),
                 child: GestureDetector(
-                  onLongPress: () => _removePlace(p),
+                  onLongPress: () => _editPlace(p),
                   child: ActionChip(
                     key: ValueKey('j2_place_${p['id']}'),
                     avatar: Icon(jPlaceIcon(jPlaceKind(p)), size: 18),

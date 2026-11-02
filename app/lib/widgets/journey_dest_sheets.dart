@@ -247,11 +247,39 @@ class _SearchSheetState extends State<_SearchSheet> {
   }
 }
 
+/// The "Safe place for anti-theft" switch (owner decision 2 Nov): saved
+/// places are journey destinations; only the ones switched on here are also
+/// anti-theft safe places (protected changes are softer there). Home is on
+/// by default, everything else off. 48 dp row, the title is the TalkBack
+/// label, the honest one-line note wraps at 200% font.
+class PlaceTheftSafeSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  const PlaceTheftSafeSwitch({super.key, required this.value, this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return SwitchListTile(
+      key: const ValueKey('j2_place_theft_safe'),
+      contentPadding: EdgeInsets.zero,
+      secondary: Icon(Icons.shield_rounded, color: value ? cs.primary : cs.onSurfaceVariant),
+      title: Text(t.j2PlaceTheftSafe, style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+      subtitle: Text(t.j2PlaceTheftSafeNote,
+          style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      value: value,
+      onChanged: onChanged,
+    );
+  }
+}
+
 /// Save the current pin as Home / School / Office / other. Returns
-/// (kind, name) or null.
-Future<({String kind, String name})?> showJourneySavePlaceSheet(BuildContext context,
+/// (kind, name, theftSafe) or null.
+Future<({String kind, String name, bool theftSafe})?> showJourneySavePlaceSheet(
+    BuildContext context,
     {String kind = 'home', String name = ''}) {
-  return showAppSheet<({String kind, String name})>(
+  return showAppSheet<({String kind, String name, bool theftSafe})>(
     context: context,
     isScrollControlled: true,
     builder: (_) => _SaveSheet(kind: kind, name: name),
@@ -268,6 +296,9 @@ class _SaveSheet extends StatefulWidget {
 class _SaveSheetState extends State<_SaveSheet> {
   late String _kind = widget.kind;
   late final _ctl = TextEditingController(text: widget.name);
+  // Home on by default, everything else off — until the user touches it
+  late bool _safe = widget.kind == 'home';
+  bool _safeTouched = false;
 
   @override
   void dispose() {
@@ -291,7 +322,10 @@ class _SaveSheetState extends State<_SaveSheet> {
                 avatar: Icon(jPlaceIcon(k), size: 18),
                 label: Text(jKindLabel(t, k)),
                 selected: _kind == k,
-                onSelected: (_) => setState(() => _kind = k),
+                onSelected: (_) => setState(() {
+                  _kind = k;
+                  if (!_safeTouched) _safe = k == 'home';
+                }),
               ),
           ]),
           const SizedBox(height: Gap.md),
@@ -301,14 +335,97 @@ class _SaveSheetState extends State<_SaveSheet> {
             maxLength: 60,
             decoration: InputDecoration(labelText: t.j2SavePlaceName),
           ),
+          PlaceTheftSafeSwitch(
+              value: _safe,
+              onChanged: (v) => setState(() {
+                    _safe = v;
+                    _safeTouched = true;
+                  })),
           const SizedBox(height: Gap.sm),
           FilledButton.icon(
             key: const ValueKey('j2_place_save'),
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             icon: const Icon(Icons.bookmark_add_rounded),
             label: Text(t.j2SavePlace),
-            onPressed: () => Navigator.pop<({String kind, String name})>(
-                context, (kind: _kind, name: _ctl.text.trim())),
+            onPressed: () => Navigator.pop<({String kind, String name, bool theftSafe})>(
+                context, (kind: _kind, name: _ctl.text.trim(), theftSafe: _safe)),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// placesafe: long-press on a saved place — its anti-theft switch (saved at
+/// once, put back if the server says no) and Remove. Returns true when the
+/// user asked to remove it; [onChanged] gets the updated row.
+Future<bool?> showJourneyPlaceEditSheet(BuildContext context, ApiClient api,
+    Map<String, dynamic> place, {required String title,
+    ValueChanged<Map<String, dynamic>>? onChanged}) {
+  return showAppSheet<bool>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => _PlaceEditSheet(api: api, place: place, title: title, onChanged: onChanged),
+  );
+}
+
+class _PlaceEditSheet extends StatefulWidget {
+  final ApiClient api;
+  final Map<String, dynamic> place;
+  final String title;
+  final ValueChanged<Map<String, dynamic>>? onChanged;
+  const _PlaceEditSheet(
+      {required this.api, required this.place, required this.title, this.onChanged});
+  @override
+  State<_PlaceEditSheet> createState() => _PlaceEditSheetState();
+}
+
+class _PlaceEditSheetState extends State<_PlaceEditSheet> {
+  late bool _safe = widget.place['theft_safe'] == true;
+  bool _busy = false;
+
+  Future<void> _set(bool v) async {
+    final id = (widget.place['id'] as num?)?.toInt();
+    if (id == null) return;
+    setState(() {
+      _safe = v;
+      _busy = true;
+    });
+    try {
+      final row = await widget.api.setSavedPlaceTheftSafe(id, v);
+      if (!mounted) return;
+      final on = row['theft_safe'] is bool ? row['theft_safe'] as bool : v;
+      setState(() => _safe = on);
+      widget.onChanged?.call({...widget.place, 'theft_safe': on});
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _safe = !v);
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).j2PlaceTheftSafeFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
+          Text(widget.title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          PlaceTheftSafeSwitch(value: _safe, onChanged: _busy ? null : _set),
+          const SizedBox(height: Gap.sm),
+          OutlinedButton.icon(
+            key: const ValueKey('j2_place_remove'),
+            style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48), foregroundColor: cs.error),
+            icon: const Icon(Icons.delete_outline_rounded),
+            label: Text(t.j2PlaceRemove),
+            onPressed: () => Navigator.pop(context, true),
           ),
         ]),
       ),
