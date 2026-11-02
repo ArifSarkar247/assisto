@@ -363,6 +363,9 @@ class SdClipTests(_E):
         r = self.client.get("/api/v1/shop/events/%d/sd-clip" % ev.id)
         self.assertEqual(r.status_code, 200, r.data)
         self.assertEqual(r.data["status"], "ready")
+        self.assertTrue(r.data["url"].startswith("http://testserver/api/v1/m/shop/sdclip/"))
+        d = self.client.get("/api/v1/shop/events/%d" % ev.id)
+        self.assertEqual(d.data["actions"]["sd_clip"]["status"], "ready")
         body = APIClient().get(r.data["url"]).content
         import hashlib
         self.assertEqual(hashlib.sha256(body).hexdigest(), r.data["sha256"])

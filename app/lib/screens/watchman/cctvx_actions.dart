@@ -11,6 +11,8 @@ import '../../cashguard/cashguard_source.dart';
 import '../../cashguard/clip_crypto.dart';
 import '../../cctvx/cctvx_source.dart';
 import '../../cctvx/evidence_pack.dart';
+import '../../cctvx/evidence_pdf.dart';
+import '../../messaging/media/video_player_screen.dart' show openVideoPlayer;
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -170,11 +172,12 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
                 ? null
                 : () => shareClipFlow(context, widget.cash!, widget.source, widget.eventId),
           ),
+        if (wmMap(a['sd_clip']).isNotEmpty) _sdClipTile(t, wmMap(a['sd_clip'])),
         if (a['evidence'] == true)
           _action(
             icon: Icons.inventory_2_outlined,
             label: t.cxEvidence,
-            sub: t.cxEvidenceSubPhoto,
+            sub: t.cevEvidenceSub,
             onTap: _busy
                 ? null
                 : () => exportEvidenceFlow(context, widget.source, widget.eventId,
@@ -195,6 +198,48 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
         child: body,
       ),
     );
+  }
+
+  /// cctvevidence: the 10-s SD-card clip — play it, or say honestly why not.
+  Widget _sdClipTile(AppLocalizations t, Map<String, dynamic> sd) {
+    final status = (sd['status'] ?? '').toString();
+    final ready = status == 'ready' && (sd['url'] ?? '').toString().isNotEmpty;
+    final String sub;
+    if (ready) {
+      final until = DateTime.tryParse((sd['expires_at'] ?? '').toString())?.toLocal();
+      sub = t.cevSdClipReady(until == null
+          ? ''
+          : wmDigits(wmLang(context),
+              '${until.day.toString().padLeft(2, '0')}/${until.month.toString().padLeft(2, '0')}/${until.year}'));
+    } else if (status == 'pending') {
+      sub = t.cevSdClipPending;
+    } else {
+      sub = (sd['reason_text'] ?? '').toString().isNotEmpty
+          ? sd['reason_text'].toString()
+          : t.cevSdClipNone;
+    }
+    return _action(
+      icon: Icons.movie_rounded,
+      label: t.cevSdClipPlay,
+      sub: sub,
+      onTap: (!ready || _busy) ? null : () => _playSd(sd),
+    );
+  }
+
+  Future<void> _playSd(Map<String, dynamic> sd) async {
+    final t = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      final bytes = await widget.source.download(sd['url'].toString());
+      final dir = Directory('${(await getTemporaryDirectory()).path}/cctv_clip');
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final f = File('${dir.path}/sd_clip_${widget.eventId}.ts');
+      await f.writeAsBytes(bytes, flush: true);
+      if (mounted) await openVideoPlayer(context, f, caption: t.cevSdClipPlay);
+    } catch (e) {
+      _snack(wmError(e) ?? t.wmGenericError);
+    }
+    if (mounted) setState(() => _busy = false);
   }
 
   Widget _action(
@@ -315,13 +360,34 @@ Future<void> shareClipFlow(BuildContext context, CashGuardSource cash, CctvxSour
 Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int eventId,
     {String photoUrl = '', CashClip? clip}) async {
   final t = AppLocalizations.of(context);
+  final lang = Localizations.localeOf(context).languageCode;
   final messenger = ScaffoldMessenger.of(context);
   void say(String s) => messenger.showSnackBar(SnackBar(content: Text(s)));
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(t.cxEvidence),
-      content: Text(t.cxEvidenceConfirm),
+      scrollable: true, // 200% text
+      content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.cxEvidenceConfirm),
+            const SizedBox(height: 12),
+            // cctvevidence: privacy warning before anything leaves the phone
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: Theme.of(ctx).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(12)),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(Icons.privacy_tip_rounded,
+                    color: Theme.of(ctx).colorScheme.onErrorContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: Text(t.cevPrivacyWarn,
+                        style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer))),
+              ]),
+            ),
+          ]),
       actions: [
         TextButton(
             style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
@@ -346,9 +412,21 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
         photo = null;
       }
     }
+    // cctvevidence: the 10-s SD-card clip (video add-on), when there is one
+    Uint8List? sd;
+    DateTime? sdStart;
+    final sdInfo = wmMap(ev['sd_clip']);
+    if (sdInfo['status'] == 'ready' && (sdInfo['url'] ?? '').toString().isNotEmpty) {
+      try {
+        sd = await source.download(sdInfo['url'].toString());
+        sdStart = DateTime.tryParse((sdInfo['start'] ?? '').toString());
+      } catch (_) {
+        sd = null;
+      }
+    }
     final media = evidenceMedia(
         photo: photo, alertAt: created, frames: clip?.frames ?? const [],
-        frameTimes: clip?.times ?? const []);
+        frameTimes: clip?.times ?? const [], sdClip: sd, sdClipStart: sdStart);
     if (media.isEmpty) {
       say(t.cxEvidenceNothing);
       return;
@@ -363,6 +441,7 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
       'tz': ev['tz'],
       if (clip != null) 'clip_frame_offsets_s': clip.times,
       if (clip != null) 'clip_fps': clip.fps,
+      if (sd != null) 'sd_clip_sha256_server': sdInfo['sha256'],
     };
     final manifest = evidenceManifest(media, facts, exportedAt: now);
     final mh = sha256Hex(manifest);
@@ -373,14 +452,53 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
     } catch (_) {
       letter = '$letter\n\nmanifest.json SHA-256: $mh\n';
     }
-    final zip = assembleEvidencePack(media: media, manifest: manifest, letter: letter, now: now);
+    // cctvevidence: the Bangla (or English) PDF — facts, photo, every
+    // file's SHA-256, how to check, the GD draft
+    final extra = <EvidenceFile>[];
+    try {
+      final f0 = wmMap(ev['facts']);
+      final when = (f0['when'] ?? '').toString();
+      final words = EvPdfWords(
+        title: t.cevPdfTitle(wmDigits(lang, f0['event_id'] ?? eventId)),
+        shop: t.cevPdfShop,
+        address: t.cevPdfAddress,
+        camera: t.cevPdfCamera,
+        when: t.cevPdfWhen,
+        what: t.cevPdfWhat,
+        photo: t.cevPdfPhoto,
+        files: t.cevPdfFiles,
+        howCheck: t.cevPdfHowCheck,
+        letter: t.cevPdfLetter,
+        footer: t.cevPdfFooter(wmDigits(lang, now.toString().substring(0, 16))),
+      );
+      final blocks = evidencePdfBlocks(
+          w: words,
+          facts: {
+            ...f0,
+            'when': wmDigits(lang, when),
+            'what': (lang == 'en' ? f0['kind_en'] : f0['kind_bn']) ?? '',
+          },
+          files: [
+            ...media,
+            EvidenceFile('manifest.json', manifest),
+            EvidenceFile('gd_letter.txt', Uint8List.fromList(utf8.encode(letter))),
+          ],
+          letter: letter,
+          photo: photo);
+      extra.add(EvidenceFile('evidence_${lang == 'en' ? 'en' : 'bn'}.pdf',
+          await buildEvidencePdf(blocks)));
+    } catch (_) {
+      // the ZIP is still complete and verifiable without the PDF
+    }
+    final zip = assembleEvidencePack(
+        media: media, manifest: manifest, letter: letter, now: now, extra: extra);
     final dir = Directory('${(await getTemporaryDirectory()).path}/evidence');
     if (dir.existsSync()) dir.deleteSync(recursive: true);
     dir.createSync(recursive: true);
     final f = File('${dir.path}/assisto_evidence_$eventId.zip');
     await f.writeAsBytes(zip, flush: true);
     await Share.shareXFiles([XFile(f.path, mimeType: 'application/zip')],
-        text: t.cxEvidenceShareText(mh.substring(0, 16)));
+        text: '${t.cxEvidenceShareText(mh.substring(0, 16))}\n\n${t.cevPrivacyWarn}');
   } catch (e) {
     say(wmError(e) ?? t.wmGenericError);
   }

@@ -7,8 +7,10 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
+import '../../cctvx/cctv_evidence_source.dart';
 import '../../cctvx/cctvx_source.dart';
 import 'camera_label.dart';
+import 'cctv_recording_screen.dart';
 import 'cash_guard_screen.dart';
 import 'cctvx_inbox.dart';
 import 'watchman_add_camera.dart';
@@ -317,6 +319,14 @@ class _SiteCard extends StatelessWidget {
         return;
       case 'ezviz':
         await showEzvizLinkSheet(context, cam);
+      case 'recording':
+        // cctvevidence: SD card, video add-on, evidence-pack address
+        final api = context.read<AppState>().api;
+        await nav.push(MaterialPageRoute(
+            builder: (_) => CctvRecordingScreen(
+                source: ApiCctvEvidenceSource(api),
+                cameraId: (cam['id'] as num).toInt(),
+                cameraName: (cam['name'] ?? '').toString())));
       case 'remove':
         final ok = await showDialog<bool>(
           context: context,
@@ -578,6 +588,7 @@ class _CameraRow extends StatelessWidget {
               if (vendor == 'hikvision' || vendor == 'dahua')
                 PopupMenuItem(value: 'push', child: Text(t.shopHookTitle)),
               if (vendor == 'ezviz') PopupMenuItem(value: 'ezviz', child: Text(t.cgEzvizLink)),
+              if (vendor != 'phone') PopupMenuItem(value: 'recording', child: Text(t.cevTitle)),
               PopupMenuItem(value: 'remove', child: Text(t.wmRemove)),
             ],
           ),

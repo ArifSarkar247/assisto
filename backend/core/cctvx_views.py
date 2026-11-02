@@ -976,8 +976,18 @@ class EventDetailView(_OwnerBase):
         row = SV._event_row(ev, request)
         if role in ("escalated", "shared"):
             row.pop("signals", None)
+        actions = actions_for(ev, role)
+        # cctvevidence (W7): the 10-s SD clip (video add-on) for the owner,
+        # allowed viewers and the escalation chain — never a shared-clip guest
+        if role in ("owner", "viewer", "escalated"):
+            try:
+                from . import cctv_evidence as CE
+                actions["sd_clip"] = CE.sd_clip_json(getattr(ev, "sd_clip", None),
+                                                     lang, request)
+            except Exception:
+                actions["sd_clip"] = None
         return Response({"event": row, "role": role, "site_name": ev.site.name,
-                         "actions": actions_for(ev, role),
+                         "actions": actions,
                          "opened_at": SV._iso(ev.opened_at)})
 
 
@@ -1292,7 +1302,7 @@ class EventEvidenceView(_OwnerBase):
         f = self._facts(ev, lang)
         try:
             from . import cctv_evidence as CE
-            sd = CE.sd_clip_json(getattr(ev, "sd_clip", None), lang)
+            sd = CE.sd_clip_json(getattr(ev, "sd_clip", None), lang, request)
         except Exception:
             sd = None
         return Response({"facts": {k: f[k] for k in ("shop", "address", "camera", "when",

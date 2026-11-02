@@ -379,7 +379,7 @@ def purge_sd_clips(now=None):
     return n
 
 
-def sd_clip_json(clip, lang):
+def sd_clip_json(clip, lang, request=None):
     if clip is None:
         return None
     d = {"status": clip.status, "reason": clip.reason or None,
@@ -389,6 +389,8 @@ def sd_clip_json(clip, lang):
     if clip.status == "ready" and clip.name:
         from .media_sign import signed_url
         d["url"] = signed_url(clip.name)
+        if request is not None:
+            d["url"] = request.build_absolute_uri(d["url"])
         d["file"] = "sd_clip_%s.ts" % timezone.localtime(clip.start).strftime("%Y%m%d_%H%M%S")
     if clip.reason:
         d["reason_text"] = support_text(lang, clip.reason)
@@ -492,6 +494,8 @@ class SiteAddressView(_OwnerBase):
         type(site).objects.filter(pk=site.pk).update(address=addr)
         return Response({"ok": True, "address": addr})
 
+    post = put          # the app's ApiClient posts JSON
+
 
 class EventSdClipView(_OwnerBase):
     def get(self, request, pk):
@@ -508,7 +512,7 @@ class EventSdClipView(_OwnerBase):
                 clip.expires_at <= timezone.now():
             purge_sd_clips()
             clip.refresh_from_db()
-        out = sd_clip_json(clip, lang)
+        out = sd_clip_json(clip, lang, request)
         if out is None:
             cam = ev.camera
             has = cam is not None and active_addon(cam) is not None
