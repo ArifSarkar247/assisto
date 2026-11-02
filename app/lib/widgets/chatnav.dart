@@ -82,6 +82,7 @@ import '../screens/inbox_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
 import '../screens/watch_feed_screen.dart';
+import '../screens/account_standing_screen.dart'; // adminsafe
 import '../screens/business_screen.dart';
 import '../screens/business/bargain_rules_screen.dart';
 import '../screens/business/business_plans_screen.dart';
@@ -294,6 +295,9 @@ class ChatNav {
     'guide': (_) => const GuideScreen(),
     'nearby': (_) => const NearbyScreen(),
     'watch_feed': (_) => const WatchFeedScreen(),
+    // adminsafe: Account status + appeal (notification centre events of an
+    // Owner Admin decision open it; never gated — safety is never hidden).
+    'account_standing': (_) => const AccountStandingScreen(),
     'business': (_) => const BusinessScreen(),
     // Business orphans now reachable: per-product bargaining rules (Premium)
     // and the Free-vs-Premium plans comparison. Also in the Business Hub.

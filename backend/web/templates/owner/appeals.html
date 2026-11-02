@@ -1,0 +1,19 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_appeals }}{% endblock %}
+{% block content %}
+<p class="mut">{{ T.as_appeals_note }}</p>
+<p><a class="btn {% if st == 'open' %}primary{% else %}ghost{% endif %} small" href="/owner/appeals">{{ T.as_open }} ({{ n_open }})</a> <a class="btn {% if st != 'open' %}primary{% else %}ghost{% endif %} small" href="/owner/appeals?status=done">{{ T.as_decided }}</a></p>
+{% if rows %}{% for ap in rows %}
+<section class="card"><div class="row-between"><h2><a href="/owner/users/{{ ap.user_id }}">#{{ ap.user_id }} {{ ap.user.name|default:"—" }}</a></h2><span class="pill{% if ap.state == 'lifted' %} ok{% elif ap.state == 'upheld' %} bad{% endif %}">{{ ap.get_state_display }}</span></div>
+<p class="mut small">{{ ap.created_at|date:"Y-m-d H:i" }}{% if ap.action %} · {{ T.as_against }}: <b>{{ ap.action.get_kind_display }}</b> ({{ ap.action.created_at|date:"Y-m-d" }}) — {{ ap.action.reason }}{% if ap.action.until %} · {{ T.until }} {{ ap.action.until|date:"Y-m-d" }}{% endif %}{% endif %}</p>
+<blockquote>{{ ap.text|linebreaksbr }}</blockquote>
+{% if ap.state == 'open' %}{% if can_decide %}<div class="cols">
+<form method="post" action="/owner/appeals/{{ ap.id }}/decide" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="decision" value="lift">
+<label>{{ T.as_reply_user }}<input name="note" required maxlength="300"></label><button class="btn primary">{{ T.as_lift }}</button></form>
+<form method="post" action="/owner/appeals/{{ ap.id }}/decide" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="decision" value="uphold">
+<label>{{ T.as_reply_user }}<input name="note" required maxlength="300"></label><button class="btn danger">{{ T.as_uphold }}</button></form>
+</div>{% else %}<p class="mut small">{{ T.as_decide_role }}</p>{% endif %}
+{% else %}<p class="mut small">{{ T.as_decided }}: {{ ap.decided_at|date:"Y-m-d H:i" }}{% if ap.decided_by %} · #{{ ap.decided_by_id }}{% endif %} — {{ ap.decision_note }}</p>{% endif %}
+</section>{% endfor %}
+{% else %}<p class="empty">{{ T.as_no_appeals }}</p>{% endif %}
+{% endblock %}

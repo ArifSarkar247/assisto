@@ -84,7 +84,7 @@ def _dec(v):
 
 
 @require_http_methods(["GET", "POST"])
-@owner_view()
+@owner_view(perm="payments", write_perm="owner")   # adminsafe
 def refunds(request):
     from core.models import RefundRequest
     from core.payments import refunds as R
@@ -123,7 +123,7 @@ def refunds(request):
 
 
 @require_http_methods(["GET", "POST"])
-@owner_view()
+@owner_view(perm="payments", write_perm="owner")   # adminsafe
 def flagged(request):
     from core.models import CreditAccount, User
     from core.payments import refunds as R
@@ -141,7 +141,7 @@ def flagged(request):
 
 
 @require_http_methods(["GET"])
-@owner_view()
+@owner_view(perm="payments", write_perm="owner")   # adminsafe
 def reports(request):
     from core.models import BillingReport
     kinds = ("reconcile", "voided_poll", "credits_verify", "profit_guard", "entitlements_audit")
@@ -153,7 +153,7 @@ def reports(request):
 
 
 @require_http_methods(["GET"])
-@owner_view()
+@owner_view(perm="payments", write_perm="owner")   # adminsafe
 def unverified(request):
     """Read-only scan (never fixes from the page; --fix is a command)."""
     from core.payments import reconcile as RC

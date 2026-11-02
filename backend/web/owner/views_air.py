@@ -13,7 +13,7 @@ _PAGE = 50
 
 
 @require_http_methods(["GET"])
-@owner_view()
+@owner_view(perm="reports")   # adminsafe
 def ai_reports(request):
     from core.models import AiAnswerReport
     from django.db.models import Count
@@ -41,7 +41,7 @@ def ai_reports(request):
 
 
 @require_http_methods(["POST"])
-@owner_view()
+@owner_view(perm="reports")   # adminsafe
 def ai_report_resolve(request, pk):
     from core.models import AiAnswerReport
     r = AiAnswerReport.objects.filter(pk=pk).first()

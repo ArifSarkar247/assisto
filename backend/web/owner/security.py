@@ -266,6 +266,51 @@ def is_owner(user):
                 and not is_blocked(user))
 
 
+# adminsafe: least-privilege staff roles. The owner (superuser) is "owner";
+# a staff account has exactly one AdminStaffRole. Same password + TOTP flow.
+STAFF_ROLES = ("support", "moderator", "finance", "readonly")
+PERMS = {
+    # what each permission allows -> the roles that hold it
+    "users": ("owner", "support", "moderator", "finance", "readonly"),
+    "pii": ("owner", "support", "moderator", "finance"),       # full phone / email
+    "act_support": ("owner", "support", "moderator"),          # warn, force logout
+    "act_moderate": ("owner", "moderator"),                    # restrict/suspend/ban/remove
+    "appeals": ("owner", "support", "moderator"),
+    "appeals_decide": ("owner", "moderator"),
+    "reports": ("owner", "moderator"),
+    "payments": ("owner", "finance"),
+    "owner": ("owner",),                                       # everything else
+}
+ACTION_PERM = {"warn": "act_support", "force_logout": "act_support",
+               "restrict": "act_moderate", "unrestrict": "act_moderate",
+               "suspend": "act_moderate", "ban": "act_moderate",
+               "unblock": "act_moderate", "remove_content": "act_moderate"}
+
+
+def panel_role(user):
+    """'owner' | a staff role | None (no access to /owner/)."""
+    if user is None or not getattr(user, "pk", None):
+        return None
+    if is_owner(user):
+        return "owner"
+    from core.account_block import is_blocked
+    if not user.is_active or is_blocked(user):
+        return None
+    try:
+        r = user.admin_staff_role
+    except Exception:
+        return None
+    return r.role if (r.active and r.role in STAFF_ROLES) else None
+
+
+def can_enter(user):
+    return panel_role(user) is not None
+
+
+def has_perm(role, perm):
+    return role in PERMS.get(perm, ("owner",))
+
+
 # ---------------------------------------------------------------- throttle
 def lock_remaining(key):
     """Seconds this key is still locked (0 = free)."""

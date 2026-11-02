@@ -32,7 +32,7 @@ def _f(v):
 
 
 @require_http_methods(["GET", "POST"])
-@owner_view()
+@owner_view(perm="payments", write_perm="owner")   # adminsafe
 def payments(request):
     from core.payments import catalog, gateway as G, play, service
     from core.views_build61 import pricing_apply

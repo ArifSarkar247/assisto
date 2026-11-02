@@ -6,6 +6,9 @@ import '../../otp_api.dart';
 import '../../state.dart';
 import '../../widgets/password_field.dart';
 import 'otp_verify_screen.dart';
+import '../../api.dart' show ApiException; // adminsafe
+import '../../models.dart' show AppUser; // adminsafe
+import '../account_standing_screen.dart'; // adminsafe
 import '../../theme.dart';
 
 /// o1-otp — phone entry shared by "Sign in with SMS" and "Reset by SMS".
@@ -96,8 +99,23 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
       setState(() => _busy = false);
       return;
     }
-    final res = await backend.loginWithProof(phone, proof,
-        email: isEmail ? raw : null);
+    ({String token, AppUser user})? res;
+    try {
+      res = await backend.loginWithProof(phone, proof,
+          email: isEmail ? raw : null);
+    } on ApiException catch (e) {
+      // adminsafe: suspended / banned -> the reason + appeal screen
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = e.message.isNotEmpty ? e.message : t.otpLoginFailed;
+      });
+      if (e.reason == 'account_blocked' && e.body?['appeal_token'] is String) {
+        nav.push(MaterialPageRoute(
+            builder: (_) => AccountStandingScreen(blockedBody: e.body)));
+      }
+      return;
+    }
     if (!mounted) return;
     if (res == null) {
       setState(() {

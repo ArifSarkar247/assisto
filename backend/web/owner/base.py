@@ -34,10 +34,12 @@ def https_gate(request):
     return None
 
 
-def owner_view(stage="full"):
-    """Gate a view: HTTPS, live owner session at `stage`, superuser re-check
-    on every request, session-bound CSRF token on every POST (on top of
-    Django's CsrfViewMiddleware), security headers on every response."""
+def owner_view(stage="full", perm="owner", write_perm=None):
+    """Gate a view: HTTPS, live owner session at `stage`, owner / staff-role
+    re-check on every request, session-bound CSRF token on every POST (on top
+    of Django's CsrfViewMiddleware), security headers on every response.
+    adminsafe: `perm` names a security.PERMS entry; the default "owner" keeps
+    every existing page owner-only, a staff role sees only what it holds."""
     def deco(fn):
         @wraps(fn)
         def wrapper(request, *args, **kwargs):
@@ -46,7 +48,8 @@ def owner_view(stage="full"):
                 return refused
             sess = S.load_session(request)
             request.owner_lang = _lang_of(request, sess)
-            if sess is None or not S.is_owner(sess.user):
+            role = S.panel_role(sess.user) if sess is not None else None
+            if sess is None or role is None:
                 if sess is not None:
                     sess.delete()
                 resp = HttpResponseRedirect(LOGIN_URL)
@@ -63,6 +66,16 @@ def owner_view(stage="full"):
                 sess.save(update_fields=["lang"])
             request.owner_session = sess
             request.owner = sess.user
+            request.owner_role = role
+            need = (write_perm or perm) if request.method == "POST" else perm
+            if stage == "full" and not S.has_perm(role, need):
+                S.audit(request, sess.user, "staff.denied", target=request.path[:160],
+                        after={"role": role, "perm": need}, ok=False)
+                if request.method == "GET" and request.path == "/owner/" and \
+                        S.has_perm(role, "users"):
+                    return S.harden(HttpResponseRedirect("/owner/users"))
+                return S.harden(page(request, "owner/forbidden.html",
+                                     {"need": need}, status=403))
             return S.harden(fn(request, *args, **kwargs))
         return wrapper
     return deco
@@ -73,7 +86,12 @@ def page(request, template, ctx=None, status=200, nav=""):
     sess = getattr(request, "owner_session", None)
     c = {"T": strings(lang), "lang": lang, "other_lang": "en" if lang == "bn" else "bn",
          "ot": sess.csrf if sess else "", "owner": getattr(request, "owner", None),
-         "nav": nav, "path": request.path, "msg": request.GET.get("m", "")}
+         "nav": nav, "path": request.path, "msg": request.GET.get("m", ""),
+         # adminsafe: the signed-in role (owner / support / moderator /
+         # finance / readonly) and what it may do — the nav hides the rest
+         "role": getattr(request, "owner_role", "owner"),
+         "can": {k: S.has_perm(getattr(request, "owner_role", "owner"), k)
+                 for k in S.PERMS}}
     if sess is not None:
         # calls-health: a panel-wide banner while call setup is unhealthy
         try:

@@ -32,9 +32,13 @@ def _label(it):
         from core.models import ModerationReport, User
         u = User.objects.filter(pk=tid).first()
         who = ("%s (#%s)" % (u.name or "—", u.pk)) if u else "—"
+        # adminsafe: only what a REPORTER chose to share — the train-chat
+        # line they saw, or the messages their own device attached
+        # (report-last-5). The server never decrypts a chat.
         r = (ModerationReport.objects.filter(
             target_kind="person", target_id=str(tid),
-            snapshot_source="train_chat").order_by("-created_at").first())
+            snapshot_source__in=("train_chat", "reporter_device"))
+            .exclude(snapshot=[]).order_by("-created_at").first())
         if r and r.snapshot:
             txt = str((r.snapshot[0] or {}).get("text", ""))[:140]
             return "%s — %s: %s" % (who, r.note, txt)
@@ -44,7 +48,7 @@ def _label(it):
 
 
 @require_http_methods(["GET"])
-@owner_view()
+@owner_view(perm="reports")   # adminsafe
 def channel_reports(request):
     from core.models import ModerationItem
     st = request.GET.get("status") or "open"
@@ -64,7 +68,7 @@ def channel_reports(request):
 
 
 @require_http_methods(["POST"])
-@owner_view()
+@owner_view(perm="reports")   # adminsafe
 def channel_report_act(request, pk):
     from core.logic import msg_moderation as mmod
     from core.models import ModerationAudit, ModerationItem

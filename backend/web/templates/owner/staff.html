@@ -1,0 +1,22 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_staff }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<p class="mut">{{ T.as_staff_note }}</p>
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="grant">
+<h2>{{ T.as_grant }}</h2>
+<label>{{ T.as_staff_who }}<input name="who" required placeholder="01XXXXXXXXX / #id"></label>
+<label>{{ T.as_role }}<select name="role">{% for r in roles %}<option value="{{ r }}">{{ r }}</option>{% endfor %}</select></label>
+<label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
+<button class="btn primary">{{ T.as_grant }}</button>
+</form>
+<section class="card"><h2>{{ T.as_staff_list }}</h2>
+{% if rows %}<div class="tbl"><table><thead><tr><th>{{ T.name }}</th><th>{{ T.as_role }}</th><th>2FA</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:"—" }}</a></td><td>{{ r.get_role_display }}</td><td>{% if r.has_2fa %}<span class="pill ok">{{ T.as_2fa_on }}</span>{% else %}<span class="pill off">{{ T.as_2fa_pending }}</span>{% endif %}</td><td>{% if r.active %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill off">{{ T.as_revoked }}</span>{% endif %}</td>
+<td>{% if r.active %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="id" value="{{ r.id }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" aria-label="{{ T.reason }}"><button class="btn small" name="action" value="reset2fa">{{ T.as_reset2fa }}</button> <button class="btn danger small" name="action" value="revoke">{{ T.as_revoke }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.as_no_staff }}</p>{% endif %}
+</section>
+<section class="card"><h2>{{ T.as_perm_h }}</h2><div class="tbl"><table><thead><tr><th>{{ T.as_perm }}</th><th>{{ T.as_role }}</th></tr></thead><tbody>
+{% for p, rs in perm_rows %}<tr><td><code>{{ p }}</code></td><td>{{ rs|join:", " }}</td></tr>{% endfor %}
+</tbody></table></div><p class="mut small">{{ T.as_perm_note }}</p></section>
+{% endblock %}

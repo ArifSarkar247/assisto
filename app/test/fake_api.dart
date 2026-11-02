@@ -26,6 +26,7 @@ import 'at100_fakes.dart'; // at100
 import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
 import 'fake_books.dart'; // ledger
 import 'fake_acct.dart'; // acctui
+import 'fake_standing.dart'; // adminsafe
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -986,6 +987,10 @@ class FakeApi extends ApiClient {
     if (psec != null) {
       if (mode == FakeMode.fail) _fail();
       return psec;
+    }
+    if (path.split('?').first == '/account/standing') { // adminsafe
+      if (mode == FakeMode.fail) _fail();
+      return mode == FakeMode.empty ? fakeStandingEmpty() : fakeStandingRestricted(bn: _bn);
     }
     final c100 = fakeCrm100Get(path, empty: mode == FakeMode.empty); // crm100
     if (c100 != null) {
