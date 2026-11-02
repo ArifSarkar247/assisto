@@ -36,17 +36,34 @@ BLOOD = ("blood_donor", "bloodtype", "blood_panel",
 OLD_JOURNEY_TITLES = ("নিরাপদ যাত্রা", "Safe Journey")
 
 
+def legacy_plan(apps):
+    """DRY RUN (no writes): {old_rows, users, already_copied, to_copy}."""
+    Item = apps.get_model("core", "PaCollectionItem")
+    Saved = apps.get_model("core", "BloodSavedDonor")
+    old = Item.objects.filter(collection=BR.LEGACY_COLLECTION)
+    done = set(Saved.objects.filter(legacy_item_id__isnull=False)
+               .values_list("legacy_item_id", flat=True))
+    ids = list(old.values_list("id", flat=True))
+    already = sum(1 for i in ids if i in done)
+    return {"old_rows": len(ids), "users": old.order_by().values("user_id").distinct().count(),
+            "already_copied": already, "to_copy": len(ids) - already}
+
+
 def copy_legacy_donors(apps, schema_editor):
+    """-> rows copied now (0 on a re-run)."""
     Item = apps.get_model("core", "PaCollectionItem")
     Saved = apps.get_model("core", "BloodSavedDonor")
     today = date.today()
     done = set(Saved.objects.filter(legacy_item_id__isnull=False)
                .values_list("legacy_item_id", flat=True))
+    n = 0
     for it in Item.objects.filter(collection=BR.LEGACY_COLLECTION).iterator():
         if it.id in done:
             continue
-        Saved.objects.get_or_create(owner_id=it.user_id, legacy_item_id=it.id,
-                                    defaults=BR.legacy_to_saved(it.data, today))
+        _, made = Saved.objects.get_or_create(owner_id=it.user_id, legacy_item_id=it.id,
+                                              defaults=BR.legacy_to_saved(it.data, today))
+        n += int(made)
+    return n
 
 
 def _card(Card, spec):

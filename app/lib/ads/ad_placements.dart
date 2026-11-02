@@ -108,6 +108,11 @@ class AdPlacements {
     'crm', 'quran', 'ramadan', 'food_calories', 'health', 'health_tips',
     'medicine_db', 'reminders', 'notes_todos', 'task_manager', 'tasks',
     'school_mode', 'kids_watch', 'child',
+    // ownerfix (owner 3 Nov): NO ads anywhere in blood donor — every screen
+    // of the one panel, spelled out (the 'blood' token already blocks them).
+    'blood_panel', 'blood_hub', 'blood_saved', 'blood_request',
+    'blood_request_form', 'blood_thread', 'blood_threads', 'blood_setup',
+    'blood_verify', 'blood_banks',
   ];
 
   static Set<String> _allow(AdSurface slot) => switch (slot) {
