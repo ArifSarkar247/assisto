@@ -520,7 +520,16 @@ def _send_sms(b, text, now):
         return False
     if _sms_today(b.business, now) >= knob("booking_sms_per_biz_day"):
         return False
-    res = billing.charge(b.business.user, "sms", qty=1, note="booking.reminder")
+    # bizauto: a one-tap STOP link on the SMS, every SMS PART paid (a Bangla
+    # reminder is often 2 parts) at the 40 % price of the gateway it uses
+    from . import sms_segments, sms_service
+    from .tagada_engine import sms_final
+    text = sms_final(b.business, b.customer_phone, text)
+    parts = max(1, sms_segments.segments(text))
+    floor = sms_service.min_credits_for(ad, parts)
+    res = (billing.charge(b.business.user, "sms", qty=parts, note="booking.reminder",
+                          min_credits=floor) if floor
+           else billing.charge(b.business.user, "sms", qty=parts, note="booking.reminder"))
     if not res.get("ok"):
         return False
     ok, _detail = ad.send(b.customer_phone, text)
