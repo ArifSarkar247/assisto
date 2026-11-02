@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/circle_people_filter.dart'; // circlea
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -426,7 +427,8 @@ Future<ContactShare?> _pickCircleMember(BuildContext context) async {
   final pick = await Navigator.of(context).push<Map<String, dynamic>>(MaterialPageRoute(
       builder: (_) => SharePickerScreen<Map<String, dynamic>>(
             title: t.mc2ContactFromCircle,
-            items: rows,
+            // circlea: Family first
+            items: [for (final (_, rs) in sectionPeople(rows)) ...rs],
             nameOf: (m) => '${m['name'] ?? ''}',
           )));
   if (pick == null) return null;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/circle_people_filter.dart'; // circlea
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -251,7 +252,8 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
           Text(t.kwWhichChild, style: AType.titleSmall),
           if (_people.isEmpty)
             Text(t.kwNoCirclePeople, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
-          for (final p in _people)
+          for (final (_, rs) in sectionPeople(_people)) // circlea: Family first
+            for (final p in rs)
             RadioListTile<int>(
               value: p['id'] as int,
               groupValue: _child,
@@ -338,8 +340,11 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
         if (_people.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
           Text(t.kwWhoElseSees, style: AType.titleSmall),
-          for (final p in _people.where((p) => p['id'] != _child))
-            CheckboxListTile(
+          // circlea: Family first + chips/search
+          CirclePeopleList(
+            listKey: 'pick-school',
+            rows: [for (final p in _people) if (p['id'] != _child) p],
+            rowBuilder: (_, p) => CheckboxListTile(
               value: _watchers.contains(p['id']),
               title: Text('${p['name']}'),
               onChanged: (v) => setState(() {
@@ -350,6 +355,7 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
                 }
               }),
             ),
+          ),
         ],
         const SizedBox(height: Gap.sm),
         Text(_isWatch ? t.kwPlanWatchHonest : t.kwPlanPhoneHonest,

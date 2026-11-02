@@ -94,6 +94,7 @@ ENVELOPE_EXTRA_KEYS = {
 }
 
 # A link_preview sub-object may ONLY carry opaque ciphertext fields.
+LINK_PREVIEW_CT_MAX = 96 * 1024   # base64 of a ~48 KB image + text
 _PREVIEW_ALLOWED = {"ciphertext", "nonce", "scheme", "sender_key_id"}
 # ...and must NOT carry a readable url / title / description / image bytes.
 _PREVIEW_FORBIDDEN = {"url", "title", "description", "image", "image_url",
@@ -123,6 +124,9 @@ def validate_message_envelope(env):
             return False, "link_preview has disallowed keys: " + ",".join(sorted(extra))
         if lp and not lp.get("ciphertext"):
             return False, "link_preview missing ciphertext"
+        # circlea: a preview carries a small picture at most (~48 KB raw)
+        if len(str(lp.get("ciphertext") or "")) > LINK_PREVIEW_CT_MAX:
+            return False, "link_preview too large"
     # forward_hops sanity
     fh = env.get("forward_hops")
     if fh is not None and (not isinstance(fh, int) or fh < 0 or fh > 50):

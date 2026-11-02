@@ -20,6 +20,8 @@ import 'package:share_plus/share_plus.dart';
 import '../api.dart';
 import '../config.dart';
 import '../crypto/e2e.dart';
+import '../messaging/link_open.dart'; // circlea
+import '../messaging/linkify.dart'; // circlea
 import '../widgets/circle_bubble.dart' show e2rWaitingText; // e2e-recover
 import '../widgets/chat_jump_to_latest.dart'; // wa-polish
 import '../crypto/group_decrypt.dart'; // e2e-groups
@@ -2202,6 +2204,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   /// Render @mentions with emphasis (over already-decrypted text).
   Widget _highlightMentions(String text) {
+    // circlea: a message with a link gets tappable links (safe-link check,
+    // all on this phone — group messages are end-to-end encrypted)
+    if (firstLink(text) != null) {
+      return LinkifiedText(text, style: Theme.of(context).textTheme.bodyMedium);
+    }
     final spans = <TextSpan>[];
     final re = RegExp(r'(@[^\s@]+)');
     var last = 0;
@@ -2218,8 +2225,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       last = m.end;
     }
     if (last < text.length) spans.add(TextSpan(text: text.substring(last)));
-    return RichText(
-      text: TextSpan(
+    // circlea: Text.rich follows the phone's font size (RichText did not)
+    return Text.rich(
+      TextSpan(
         style: Theme.of(context).textTheme.bodyMedium,
         children: spans,
       ),

@@ -989,6 +989,9 @@ class CircleMessagesView(APIView):
             "edited_at": x.edited_at.isoformat() if x.edited_at else None,
             "forwarded": x.forwarded,
             "forward_hops": x.forward_hops,
+            # circlea: the sender-built link preview, still ciphertext
+            # ({ciphertext, nonce, scheme, sender_key_id}) — never a URL.
+            "link_preview": x.link_preview or None,
             # md2: my phone swaps its local bubble for this row in place
             # (same client_msg_id) — no frame where the message is missing.
             "client_msg_id": x.client_msg_id if x.sender_id == uid else "",

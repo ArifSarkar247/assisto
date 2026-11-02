@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'circle_guardians_screen.dart'; // circlea
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -223,6 +224,25 @@ class _FamilyScreenState extends State<FamilyScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.sm),
             child: _alertsTile(),
+          ),
+          // circlea: many guardians — who sees me + children I look after
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.sm),
+            child: Card(
+              margin: EdgeInsets.zero,
+              child: ListTile(
+                key: const ValueKey('cga-tile'),
+                minTileHeight: 56,
+                leading: Icon(Icons.supervisor_account_rounded,
+                    color: Theme.of(context).colorScheme.primary),
+                title: Text(_t.cgaTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text(_t.cgaTileSub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const CircleGuardiansScreen())),
+              ),
+            ),
           ),
         ],
       );

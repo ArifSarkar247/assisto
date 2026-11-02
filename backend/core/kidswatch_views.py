@@ -534,6 +534,8 @@ class PeopleView(APIView):
         from .models import CircleMember
         if not flag_on(request.user):
             return _off()
+        from . import circle_family   # circlea: Family / Others
+        gctx = circle_family.link_context(request.user)
         out, seen = [], set()
         for m in CircleMember.objects.filter(user=request.user, state="accepted",
                                              blocked=False, peer_user__isnull=False) \
@@ -542,7 +544,8 @@ class PeopleView(APIView):
                 continue
             seen.add(m.peer_user_id)
             out.append({"id": m.peer_user_id, "name": m.name or m.peer_user.name or "",
-                        "relation": m.relation})
+                        "relation": m.relation,
+                        **circle_family.group_fields(m, gctx)})
         return R({"people": out})
 
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 import '../theme.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -573,7 +574,12 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             ),
           ),
         ],
-        ..._watchers.map((m) {
+        // circlea: Family first + chips/search (remembered for this list)
+        if (_watchers.isNotEmpty)
+          CirclePeopleList(
+            listKey: 'pick-journey',
+            rows: _watchers,
+            rowBuilder: (_, m) {
           final id = (m['id'] as num?)?.toInt();
           return CheckboxListTile(
             key: ValueKey('j100_w_$id'),

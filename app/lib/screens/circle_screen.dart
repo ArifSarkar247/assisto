@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -326,7 +327,16 @@ class _CircleScreenState extends State<CircleScreen> {
                   ],
                   _sectionHeader(_t.circleYourCircle),
                   if (_acceptedMembers.isEmpty) _emptyState(scheme),
-                  for (final m in _acceptedMembers) _memberTile(m),
+                  // circlea: All / Family / Others + search, Family first
+                  if (_acceptedMembers.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+                      child: CirclePeopleList(
+                        listKey: 'people',
+                        rows: _acceptedMembers,
+                        rowBuilder: (_, m) => _memberTile(m),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -503,9 +513,22 @@ class _CircleScreenState extends State<CircleScreen> {
             case 'report':
               _report(m);
               break;
+            case 'group': // circlea
+              markCircleGroup(context, context.read<AppState>().api, m).then((r) {
+                if (r != null && mounted) {
+                  setState(() => _members = [
+                        for (final x in _members) x['id'] == m['id'] ? {...x, ...r} : x
+                      ]);
+                }
+              });
+              break;
           }
         },
         itemBuilder: (_) => [
+          PopupMenuItem(
+              key: const Key('cfa-people-mark'),
+              value: 'group',
+              child: Text(_t.cfaMarkMenu)),
           PopupMenuItem(value: 'sharing', child: Text(_t.circleSharingTitle)),
           PopupMenuItem(value: 'block', child: Text(_t.circleBlock)),
           PopupMenuItem(value: 'report', child: Text(_t.circleReport)),

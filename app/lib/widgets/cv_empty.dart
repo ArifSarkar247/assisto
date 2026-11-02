@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'circle_people_filter.dart'; // circlea
 
 import '../l10n/app_localizations.dart';
 import '../screens/messenger/messenger_home_screen.dart';
@@ -216,9 +217,11 @@ class _CvCirclePickState extends State<_CvCirclePick> {
         },
       );
     } else {
-      body = Column(mainAxisSize: MainAxisSize.min, children: [
-        for (final r in _rows!)
-          Builder(builder: (_) {
+      // circlea: chips (All / Family / Others) + search, Family first
+      body = CirclePeopleList(
+        rows: _rows!,
+        listKey: 'pick-circle',
+        rowBuilder: (_, r) => Builder(builder: (_) {
             final phone = '${r['phone'] ?? ''}';
             final taken = phone.isNotEmpty && already.contains(cvPhoneKey(phone));
             final name = '${r['name'] ?? ''}'.trim();
@@ -238,7 +241,7 @@ class _CvCirclePickState extends State<_CvCirclePick> {
               onTap: taken ? null : () => Navigator.pop(context, r),
             );
           }),
-      ]);
+      );
     }
     return Padding(
       padding: EdgeInsets.fromLTRB(

@@ -13,6 +13,8 @@ import '../messaging/media/media_outbox.dart';
 import '../messaging/view_once.dart';
 import '../messaging/share/share_flow.dart' show shareBubbleBody; // mc-media2
 import '../messaging/share/share_payload.dart' show decodeShare, kShareKinds;
+import '../messaging/link_open.dart'; // circlea
+import '../messaging/link_preview_client.dart'; // circlea
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -159,9 +161,14 @@ class CircleBubble extends StatelessWidget {
   /// sender (see messaging/bubble_grouping.dart) — tight spacing and no
   /// tail; only the run's first bubble has the tail.
   final bool continued;
+
+  /// circlea: the decrypted link preview (built on the sender's phone and
+  /// carried inside the E2E message); null = none.
+  final LinkPreviewData? linkPreview;
   const CircleBubble(
       {super.key,
       required this.msg,
+      this.linkPreview,
       this.continued = false,
       this.waitingName = '',
       this.onRetry,
@@ -219,6 +226,11 @@ class CircleBubble extends StatelessWidget {
                     if (msg.forwarded && !deleted) _forwardedLabel(context, t, mine, scheme),
                     if (msg.replyPreview != null && !deleted) _replyPreview(context, mine, scheme),
                     if (!deleted && msg.contentType != 'text') _mediaBody(context, t, fg),
+                    if (!deleted && !msg.decryptFailed && linkPreview != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: Gap.xs),
+                        child: LinkPreviewCard(data: linkPreview!, fg: fg),
+                      ),
                     _bodyText(context, t, fg, deleted),
                     const SizedBox(height: Gap.xs),
                     _metaRow(context, mine, scheme),
@@ -293,6 +305,14 @@ class CircleBubble extends StatelessWidget {
                   color: muted, fontStyle: FontStyle.italic, height: 1.4)),
         ),
       ]);
+    }
+    if (!deleted) {
+      // circlea: every link is tappable (safe-link check before it opens)
+      return LinkifiedText(
+        show,
+        style: TextStyle(color: fg, height: 1.4),
+        linkColor: msg.mine ? fg : Theme.of(context).colorScheme.primary,
+      );
     }
     return Text(
       show,

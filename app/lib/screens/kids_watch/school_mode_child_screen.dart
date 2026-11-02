@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../circle_guardians_screen.dart'; // circlea
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -152,7 +153,16 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.kwChildTitle)),
+      appBar: AppBar(title: Text(t.kwChildTitle), actions: [
+            // circlea: every guardian who can see me + children I look after
+            IconButton(
+              key: const Key('cga-open'),
+              tooltip: t.cgaTitle,
+              icon: const Icon(Icons.supervisor_account_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const CircleGuardiansScreen())),
+            ),
+          ]),
       body: _body(t),
     );
   }

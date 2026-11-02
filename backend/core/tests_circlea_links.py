@@ -248,3 +248,56 @@ class Endpoints(TestCase):
         r = self.c.post(V + "/links/check", {"url": "https://example.com", "context": "channel"},
                         format="json")
         self.assertEqual(r.status_code, 429)
+
+
+class E2EPreviewRelay(TestCase):
+    """End-to-end chats: the preview rides INSIDE the encryption; the relay
+    stores + returns it opaque and refuses anything readable."""
+
+    def setUp(self):
+        cache.clear()
+        from core.models import CircleMember
+        self.a = User.objects.create_user(name="A", phone="01711400011", password="pw12345!")
+        self.b = User.objects.create_user(name="B", phone="01711400012", password="pw12345!")
+        self.ab = CircleMember.objects.create(user=self.a, peer_user=self.b, name="B",
+                                              state="accepted")
+        CircleMember.objects.create(user=self.b, peer_user=self.a, name="A",
+                                    state="accepted", direction="incoming")
+        self.c = APIClient()
+        self.c.force_authenticate(self.a)
+
+    def env(self, **extra):
+        e = {"content_type": "text", "ciphertext": "Q0lQSEVS", "nonce": "bm9uY2U=",
+             "scheme": "x25519-xsalsa20poly1305", "sender_key_id": "k1",
+             "client_msg_id": "c1", "has_link": True}
+        e.update(extra)
+        return e
+
+    def test_opaque_preview_round_trip(self):
+        lp = {"ciphertext": "TFBDSVBIRVI=", "nonce": "bm9uY2U=",
+              "scheme": "x25519-xsalsa20poly1305", "sender_key_id": "k1"}
+        r = self.c.post(V + "/circle/%d/messages" % self.ab.id, self.env(link_preview=lp),
+                        format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        rows = self.c.get(V + "/circle/%d/messages" % self.ab.id).json()["results"]
+        self.assertEqual(rows[-1]["link_preview"], lp)
+        self.assertNotIn("http", str(rows[-1]))
+
+    def test_readable_preview_refused(self):
+        for lp in ({"url": "https://example.com"}, {"title": "T", "ciphertext": "eA=="},
+                   {"ciphertext": "eA==", "image_url": "https://x"}):
+            r = self.c.post(V + "/circle/%d/messages" % self.ab.id,
+                            self.env(link_preview=lp), format="json")
+            self.assertEqual(r.status_code, 400, lp)
+
+    def test_oversized_preview_refused(self):
+        lp = {"ciphertext": "A" * (100 * 1024), "nonce": "bm9uY2U="}
+        r = self.c.post(V + "/circle/%d/messages" % self.ab.id, self.env(link_preview=lp),
+                        format="json")
+        self.assertEqual(r.status_code, 400)
+
+    def test_no_url_ever_reaches_the_preview_endpoints_from_a_chat(self):
+        # the app never calls /links/* for a chat; if anything did, it is refused
+        r = self.c.post(V + "/links/preview", {"url": "https://example.com", "context": "chat"},
+                        format="json")
+        self.assertEqual(r.status_code, 400)
