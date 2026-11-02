@@ -39,6 +39,7 @@ from rest_framework.views import APIView
 
 from .logic import antitheft as at
 from .logic import security as sec
+from . import sos_triggers as _sos_triggers  # sosat
 from .models import (AntiTheftEngine, AntiTheftEvent, CircleMember, FamilyAlert,
                      NotifEvent, PhoneHeartbeat, ProtectedPhone, User)
 from .views_security import _primary_phone, _register_lockout, _verify_pin
@@ -940,6 +941,10 @@ def escalate_due(now=None, phone=None):
                 n += 1
         except Exception:
             continue
+    try:   # sosat: held falls whose "Are you OK?" window passed
+        n += _sos_triggers.escalate_due(now, phone=phone)
+    except Exception:
+        pass
     return n
 
 
@@ -1105,6 +1110,18 @@ class EngineIngestView(APIView):
                 phone.last_lat, phone.last_lng = lat, lng
                 eng.last_fix_at = fixt
                 eng.last_fix_acc = acc
+            # sosat: lock-screen / power-button SOS and the experimental fall
+            # alert — routed to the family SOS path (core/sos_triggers.py),
+            # never to the generic anti-theft alert below.
+            if kind in _sos_triggers.TRIGGER_KINDS:
+                new_events.pop()
+                try:
+                    esc = _sos_triggers.handle(phone, ev, now)
+                except Exception:
+                    esc = None
+                if esc is not None:
+                    held.append(esc)
+                continue
             # antitheft2: an "offline" that could only be delivered after the
             # phone was back online (late) is history, not news: kept on the
             # timeline, no alert (a long silence is the "went dark" alert).

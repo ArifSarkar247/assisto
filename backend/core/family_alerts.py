@@ -57,9 +57,13 @@ KINDS = {
     # quiet hours (the user asked for help now); carries no category, no words
     # and no location — only "{name} would like to talk to you right now".
     "crisis_support":  {"push": "family_alert", "route": "family/alerts", "urgent": True, "quiet_ok": True},
+    # sosat: experimental fall detection — no "I'm OK" within the window the
+    # user chose. Full-screen like SOS (push kind "sos"), rings in quiet hours.
+    "fall":            {"push": "sos", "route": "family/alerts", "urgent": True, "quiet_ok": True},
 }
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
-            "wellness_alert": "high", "scam_report": "high", "crisis_support": "high"}
+            "wellness_alert": "high", "scam_report": "high", "crisis_support": "high",
+            "fall": "high"}
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
@@ -157,6 +161,15 @@ def default_texts(kind, name, lang, payload=None):
         if en:
             return ("%s is safe now" % name, "They turned off the SOS.")
         return ("%s এখন নিরাপদ" % name, "উনি SOS বন্ধ করেছেন।")
+    if kind == "fall":
+        mins = p.get("window_min") or 1
+        if en:
+            return ("%s may have fallen" % name,
+                    "Their phone felt a hard fall and they did not tap \"I'm OK\" "
+                    "for %s min. Call them now. (Experimental fall detection.)" % mins)
+        return ("%s হয়তো পড়ে গেছেন" % name,
+                "ফোনে জোরে পড়ে যাওয়ার মতো ধাক্কা লেগেছে, আর %s মিনিটেও \"আমি ঠিক আছি\" "
+                "চাপেননি। এখনই ফোন করুন। (পরীক্ষামূলক পতন শনাক্ত)" % bn_num(mins))
     t = p.get("title_en" if en else "title_bn") or ""
     b = p.get("body_en" if en else "body_bn") or ""
     return t or ("Assisto" if en else "Assisto"), b
@@ -231,8 +244,10 @@ def _alert(sender, kind, event_key, payload, recipients, texts, lat, lng, now, s
                   if k in ("title_bn", "title_en", "body_bn", "body_en")}
             tbn, bbn = default_texts(kind, name, "bn", tp)
             ten, ben = default_texts(kind, name, "en", tp)
+        # SOS: pressing it is the consent; fall: switching fall detection on
+        # says "your family gets your location if you don't answer" (sosat).
         with_loc = lat is not None and lng is not None and (
-            kind == "sos" or _shares_location(edge))
+            kind in ("sos", "fall") or _shares_location(edge))
         try:
             with transaction.atomic():
                 d = FamilyAlertDelivery.objects.create(
@@ -367,6 +382,10 @@ def sweep(now=None, stats=None):
     from .models import FamilyAlertDelivery
     now = now or timezone.now()
     stats = stats if stats is not None else {}
+    try:
+        rering(now, stats)
+    except Exception as e:   # never break the minute sweep
+        log.warning("family_alerts: rering failed %s", type(e).__name__)
     for d in FamilyAlertDelivery.objects.filter(status="held").select_related(
             "recipient", "sender", "alert"):
         if d.sender is None or d.alert is None or d.alert.dismissed or \
@@ -391,6 +410,75 @@ def sweep(now=None, stats=None):
         d.save(update_fields=["status", "pushed_at"])
         stats["family_released"] = stats.get("family_released", 0) + 1
     return stats
+
+
+# ------------------------------------------------------- escalation ladder
+def rering(now=None, stats=None):
+    """sosat: an SOS (or fall alert) that nobody has OPENED after
+    sos_ladder.RERING_AFTER_S rings every silent phone once more — "still no
+    answer". Once per delivery (rerung_at), atomic, never after "I'm safe"
+    (card dismissed), only to people still in the circle. Free."""
+    from . import push
+    from .logic import sos_ladder as L
+    from .models import FamilyAlertDelivery
+    now = now or timezone.now()
+    stats = stats if stats is not None else {}
+    lo = now - timedelta(seconds=L.LADDER_WINDOW_S)
+    hi = now - timedelta(seconds=L.RERING_AFTER_S)
+    for d in FamilyAlertDelivery.objects.filter(
+            kind__in=("sos", "fall"), status="sent", seen_at__isnull=True,
+            rerung_at__isnull=True, created_at__gte=lo, created_at__lte=hi
+    ).select_related("recipient", "sender", "alert")[:200]:
+        if d.alert is None or d.alert.dismissed or d.sender is None:
+            continue
+        if not FamilyAlertDelivery.objects.filter(
+                pk=d.pk, rerung_at__isnull=True).update(rerung_at=now):
+            continue
+        if not is_member(d.sender, d.recipient):
+            continue
+        name = (d.alert.payload or {}).get("from_name") or push.seen_name(
+            d.recipient, d.sender)
+        data = dict(d.alert.payload or {})
+        data["rering"] = True
+        try:
+            push.safe_push(d.recipient, KINDS[d.kind]["push"],
+                           "এখনো কেউ সাড়া দেননি: %s" % name,
+                           "Still no answer: %s" % name,
+                           d.alert.body, d.alert.body, data=data,
+                           high_priority=True)
+        except Exception:
+            pass
+        stats["family_rerung"] = stats.get("family_rerung", 0) + 1
+    return stats
+
+
+def ladder(user, now=None):
+    """The sender's newest SOS/fall alert in the ladder window, with each
+    person's receipt and the honest next step (logic/sos_ladder.py)."""
+    from .logic import sos_ladder as L
+    from .models import FamilyAlertDelivery
+    from .push import seen_name
+    now = now or timezone.now()
+    since = now - timedelta(seconds=L.LADDER_WINDOW_S)
+    last = (FamilyAlertDelivery.objects.filter(
+        sender=user, kind__in=("sos", "fall"), created_at__gte=since)
+        .order_by("-created_at").first())
+    if last is None:
+        return {"stage": "none", "recipients": [], **L.counts([])}
+    rows = []
+    for d in FamilyAlertDelivery.objects.filter(
+            sender=user, event_key=last.event_key).select_related("recipient"):
+        rows.append({"name": seen_name(user, d.recipient), "status": d.status,
+                     "received": d.received_at is not None,
+                     "seen": d.seen_at is not None,
+                     "rerung": d.rerung_at is not None})
+    resolved = FamilyAlertDelivery.objects.filter(
+        sender=user, kind="sos_resolved", created_at__gte=last.created_at).exists()
+    age = (now - last.created_at).total_seconds()
+    return {"stage": L.stage(rows, age, resolved=resolved), "kind": last.kind,
+            "at": _iso(last.created_at), "age_s": int(age), "recipients": rows,
+            "rering_after_s": L.RERING_AFTER_S,
+            "suggest_999_after_s": L.SUGGEST_999_AFTER_S, **L.counts(rows)}
 
 
 # ------------------------------------------------------------- API shapes

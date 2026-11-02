@@ -14,6 +14,8 @@ import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
 import 'screens/always_on_protection_screen.dart'; // play-fgs
+import 'screens/fall_detect_screen.dart'; // sosat
+import 'screens/family_alerts_screen.dart'; // sosat
 import 'media/photo_picker_setup.dart'; // play-perm
 import 'play_update.dart'; // ota1
 import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
@@ -358,7 +360,17 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final v = await ch.invokeMethod<String>('notifOpen');
-      if (v != 'antitheft_off' || !mounted) return;
+      if (!mounted) return;
+      // sosat: the "Are you OK?" fall notification / the SOS countdown
+      // notification open the fall check / the Family alerts (ladder) screen.
+      if (v == 'fall_check' || v == 'sos_ladder') {
+        appNavigatorKey.currentState?.push(MaterialPageRoute<void>(
+            builder: (_) => v == 'fall_check'
+                ? const FallDetectScreen()
+                : const FamilyAlertsScreen()));
+        return;
+      }
+      if (v != 'antitheft_off') return;
       appNavigatorKey.currentState?.push(MaterialPageRoute<void>(
           builder: (_) => const AlwaysOnProtectionScreen()));
     } catch (_) {

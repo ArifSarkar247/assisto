@@ -61,7 +61,9 @@ void main() {
       expect(kMsgrChatBackupWired, isFalse);
       expect(kLostActionSwitchesWired, isFalse);
       expect(kSourcePermissionsEnforced, isFalse);
-      expect(FallDetectScreen.engineShipped, isFalse);
+      // sosat: the fall engine exists now (experimental, inside Always-on
+      // protection) — its entry points stay behind the fall_detect flag.
+      expect(FallDetectScreen.engineShipped, isTrue);
     });
 
     testWidgets('sidebar has no Agent Studio / Area board / Fall detect',
@@ -74,7 +76,14 @@ void main() {
       ];
       expect(screens, isNot(contains(AgentStudioScreen)));
       expect(screens, isNot(contains(AreaCommunityScreen)));
-      expect(screens, isNot(contains(FallDetectScreen)));
+      // sosat: fall detection is listed only behind its OFF-by-default flag
+      for (final sec in SidebarSections.all) {
+        for (final i in sec.items) {
+          if (i.builder(ctx).runtimeType == FallDetectScreen) {
+            expect(i.feature, 'fall_detect');
+          }
+        }
+      }
       expect(ChatNav.routes.containsKey('agent_studio'), isFalse);
     });
   });

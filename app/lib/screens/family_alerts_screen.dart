@@ -6,6 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset;
+import '../widgets/chatnav.dart';
 import '../widgets/family_push_banner.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits, notifWhen;
 
@@ -117,6 +119,7 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
         'checkin_overdue' => t.fa100KindCheckin,
         'wellness_alert' => t.fa100KindWellness,
         'scam_report' => t.fa100KindScam,
+        'fall' => t.saKindFall, // sosat
         _ => t.fa100KindOther,
       };
 
@@ -170,6 +173,20 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
               key: const ValueKey('fa100-empty'),
               style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ));
+        // sosat checklist: an empty state gets a primary action + how-to
+        if (_sent.isEmpty) {
+          children.add(Text(t.saAlertsHowTo,
+              key: const ValueKey('sosat-alerts-howto'),
+              style: AType.bodyMedium));
+          children.add(const SizedBox(height: Gap.md));
+          children.add(FilledButton.icon(
+            key: const ValueKey('sosat-alerts-circle'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            onPressed: () => ChatNav.push(context, 'circle'),
+            icon: const Icon(Icons.group_add_rounded),
+            label: Text(t.saAlertsAddFamily),
+          ));
+        }
       }
       for (final a in _received) {
         children.add(_AlertCard(
@@ -231,7 +248,7 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
         onRefresh: _load,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(Gap.lg),
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: children,
         ),
       ),

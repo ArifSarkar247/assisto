@@ -25,7 +25,7 @@ class Command(BaseCommand):
         # module (DRF views/serializers, ~0.1 s CPU) just to get 0.
         from django.utils import timezone
         from core.models import AntiTheftEvent
-        if not AntiTheftEvent.objects.filter(kind="snatch", alerted=False,
+        if not AntiTheftEvent.objects.filter(kind__in=("snatch", "fall"), alerted=False,
                                              escalate_at__lte=timezone.now()).exists():
             return
         from core.views_antitheft import escalate_due

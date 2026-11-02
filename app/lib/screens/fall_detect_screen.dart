@@ -1,61 +1,54 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:share_plus/share_plus.dart';
+
+import '../l10n/app_localizations.dart';
+import '../services/antitheft_service.dart';
+import '../services/safety_triggers_logic.dart';
+import '../services/sos_trigger_settings.dart';
+import '../sosat_api.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../l10n/app_localizations.dart';
-import '../widgets/skeleton.dart';
-import '../widgets/fall_alarm_overlay.dart';
-import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/app_sheet.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'always_on_protection_screen.dart';
+import 'emergency_screen.dart';
 
-/// P14 — Accident / fall-detection RUNTIME screen.
+/// sosat — EXPERIMENTAL fall detection (elders), for real now.
 ///
-/// Spec (ASSISTO_REPORT.md P14):
-///   * OFF by default; a battery-use disclosure is shown before enabling.
-///   * Countdown is a USER SETTING (default 2 min, range 30s–10min).
-///   * On a (mock-)detected fall: loud alarm + strong vibration + a LARGE
-///     "I'm OK" button (single key, resolves to the active language only).
-///   * On timeout: alert the chosen family + share location, then offer a 999
-///     call. ALWAYS cancellable.
-///   * In ELDERLY MODE a child may set it for a parent ONLY after an explicit
-///     parent-permission confirmation.
+/// The phone's own accelerometer, read ONLY inside the already-running,
+/// opt-in Always-on protection foreground service (no new background
+/// service, no WorkManager). Rules: free fall -> impact -> lying still with a
+/// new orientation (lib/services/safety_triggers_logic.dart, measured on
+/// labelled traces by test/sosat_fall_harness_test.dart). On a detection the
+/// phone asks "Are you OK?" (alarm-channel notification + "I'm OK"); the
+/// SERVER holds the alert for the chosen window and then tells the family in
+/// My Circle (full-screen, with the location) — even if the phone is broken
+/// or switched off meanwhile. Assisto NEVER calls 999 by itself.
 ///
-/// Honesty: there is NO native accelerometer yet. NO SHOWPIECES: until
-/// [FallDetectScreen.engineShipped] is true the "turn on fall detection"
-/// switches (here, in Settings and in Safety) and the sidebar entry are
-/// HIDDEN — a switch that detects nothing is a showpiece. The screen stays
-/// reachable only through the internal ChatNav route (CI native tour) with the
-/// honest sensor banner and the "simulate a fall" test. The countdown mirrors the backend
-/// safety fall-phase logic (core.logic.safety.fall_prompt_phase) with a local
-/// timer matching the 30s–10min setting — there is no fall endpoint to call.
+/// Off by default; the server flag `fall_detect` keeps the entry hidden until
+/// real-phone traces are in (owner decision). Labelled "experimental"
+/// everywhere; a dropped phone left on the floor also asks "Are you OK?".
 class FallDetectScreen extends StatefulWidget {
-  const FallDetectScreen({super.key});
+  const FallDetectScreen({super.key, this.isRunning, this.pending});
 
-  /// Flip to true when a real on-device fall sensor engine ships.
-  static bool get engineShipped => false;
+  /// The detector engine now exists (sosat). Entry points stay behind the
+  /// `fall_detect` feature flag (default OFF) until real-phone proof.
+  static bool get engineShipped => true;
+
+  /// Test seams.
+  final Future<bool> Function()? isRunning;
+  final Future<Map<String, dynamic>> Function()? pending;
+
   @override
   State<FallDetectScreen> createState() => _FallDetectScreenState();
 }
 
 class _FallDetectScreenState extends State<FallDetectScreen> {
-  // Mirrors core.logic.safety.default_fall_config()/clamp_fall_window.
-  static const int _winMin = 30;
-  static const int _winMax = 600; // 10 minutes
-  static const int _winDefault = 120; // 2 minutes
-  // The native fall sensor plugin is not wired yet (see engineShipped).
-  static bool get _sensorAvailable => FallDetectScreen.engineShipped;
-
-  bool _enabled = false;
-  int _windowSec = _winDefault;
-  bool _alarm = true;
-  bool _vibration = true;
-
-  bool _loading = true;
-  List<Map<String, dynamic>> _family = const [];
+  SosTriggerSettings? _s;
+  bool _running = false;
+  Map<String, dynamic>? _pending;
 
   @override
   void initState() {
@@ -63,463 +56,345 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     _load();
   }
 
-  int _clampWindow(int s) => s.clamp(_winMin, _winMax);
-
   Future<void> _load() async {
-    final api = context.read<AppState>().api;
-    // Local settings are the source of truth for the runtime screen; defaults
-    // match the backend (off / 120s / alarm+vibration on).
-    _enabled = await Settings.getBool('safety_fall_on', false);
-    _windowSec = _clampWindow(
-        int.tryParse(await Settings.getString('safety_fall_win') ?? '') ??
-            _winDefault);
-    _alarm = await Settings.getBool('safety_fall_alarm', true);
-    _vibration = await Settings.getBool('safety_fall_vib', true);
+    final s = await SosTriggerSettings.load();
+    final run = await (widget.isRunning ?? AntiTheftService.isRunning)();
+    Map<String, dynamic>? p;
     try {
-      final c = await api.getEmergency();
-      _family = ((c['contacts'] ?? []) as List)
-          .cast<Map<String, dynamic>>()
-          .where((e) => (e['phone'] ?? '').toString().trim().isNotEmpty)
-          .toList();
-    } catch (_) {
-      _family = const [];
-    }
-    if (mounted) setState(() => _loading = false);
+      final f = widget.pending ??
+          () => context.read<AppState>().api.fallPending();
+      final r = await f();
+      p = (r['pending'] as Map?)?.cast<String, dynamic>();
+    } catch (_) {} // best-effort: no held fall known offline; the server still holds it
+    if (!mounted) return;
+    setState(() {
+      _s = s;
+      _running = run;
+      _pending = p;
+    });
   }
 
   bool get _elderly => context.read<AppState>().user?.elderlyMode ?? false;
 
-  // ---- enable / disable -----------------------------------------------------
-
-  Future<void> _toggleEnabled(bool value) async {
-    if (!value) {
-      await _persistEnabled(false);
-      return;
+  Future<void> _toggle(bool on) async {
+    final t = AppLocalizations.of(context);
+    if (on) {
+      // Elderly mode: a child may enable this for a parent ONLY with the
+      // parent's explicit permission.
+      if (_elderly && !await _confirm(t.fallParentPermissionTitle,
+          t.fallParentPermissionBody, t.fallParentPermissionConfirm,
+          Icons.family_restroom_rounded)) {
+        return;
+      }
+      if (!mounted) return;
+      // What happens + battery + location — before switching on.
+      if (!await _confirm(t.saFallConsentTitle, t.saFallConsentBody,
+          t.saFallConsentAgree, Icons.personal_injury_rounded)) {
+        return;
+      }
     }
-    // Elderly mode: a child may enable this for a parent ONLY with the
-    // parent's explicit permission. Gate the enable behind that confirmation.
-    if (_elderly && !await _confirmParentPermission()) return;
-    // Battery-use disclosure must be shown before enabling.
-    if (!await _showBatteryDisclosure()) return;
-    await _persistEnabled(true);
-  }
-
-  Future<void> _persistEnabled(bool value) async {
-    setState(() => _enabled = value);
-    await Settings.setBool('safety_fall_on', value);
-    // Best-effort sync to the profile so family-side tooling knows the state.
+    if (!mounted) return;
+    setState(() => _s!.fallOn = on);
+    await _s!.save(t);
     try {
-      await context
-          .read<AppState>()
-          .saveProfile({'fall_detect': value, 'fall_countdown_sec': _windowSec});
-    } catch (_) {}
+      if (mounted) {
+        await context.read<AppState>().saveProfile(
+            {'fall_detect': on, 'fall_countdown_sec': _s!.fallWindowS});
+      }
+    } catch (_) {} // best-effort: profile copy only; the phone setting above is the truth
   }
 
-  Future<bool> _confirmParentPermission() async {
+  Future<bool> _confirm(String title, String body, String yes, IconData icon) async {
     final t = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        scrollable: true, // insets: 200% text / keyboard
-        icon: const Icon(Icons.family_restroom_rounded, color: Brand.blue),
-        title: Text(t.fallParentPermissionTitle),
-        content: Text(t.fallParentPermissionBody),
+        scrollable: true, // 200% text
+        icon: Icon(icon, color: Brand.blue),
+        title: Text(title),
+        content: Text(body),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t.fallParentPermissionDecline)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t.fallParentPermissionConfirm)),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(yes)),
         ],
       ),
     );
     return ok == true;
   }
 
-  Future<bool> _showBatteryDisclosure() async {
+  Future<void> _setWindow() async {
     final t = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        scrollable: true, // insets: 200% text / keyboard
-        icon: const Icon(Icons.battery_alert_rounded, color: Brand.warning),
-        title: Text(t.fallBatteryDisclosureTitle),
-        content: Text(t.fallBatteryDisclosureBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t.fallBatteryDisclosureAgree)),
-        ],
-      ),
-    );
-    return ok == true;
-  }
-
-  // ---- countdown setting ----------------------------------------------------
-
-  Future<void> _setCountdown() async {
-    final t = AppLocalizations.of(context);
-    int v = _windowSec;
+    var v = _s!.fallWindowS;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
+          scrollable: true,
           title: Text(t.fallCountdownSettingTitle),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.fallCountdownValue(v % 60, v ~/ 60) /* (seconds, minutes): gen-l10n metadata order */,
+            Text(t.fallCountdownValue(v % 60, v ~/ 60),
                 style: Theme.of(ctx).textTheme.titleLarge),
-            const SizedBox(height: Gap.sm),
             Slider(
               value: v.toDouble(),
-              min: _winMin.toDouble(),
-              max: _winMax.toDouble(),
-              // 30s steps across 30..600 => 19 divisions.
-              divisions: (_winMax - _winMin) ~/ 30,
-              label: '${v ~/ 60}:${(v % 60).toString().padLeft(2, '0')}',
-              onChanged: (x) => setD(() => v = _clampWindow(x.round())),
+              min: FallPolicy.windowMinS.toDouble(),
+              max: FallPolicy.windowMaxS.toDouble(),
+              divisions: (FallPolicy.windowMaxS - FallPolicy.windowMinS) ~/ 30,
+              onChanged: (x) => setD(() => v = FallPolicy.clampWindow(x.round())),
             ),
-            Text(t.fallCountdownHelp,
-                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           ]),
           actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(t.cancel)),
-            FilledButton(
-                onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
           ],
         ),
       ),
     );
-    if (ok == true) {
-      setState(() => _windowSec = v);
-      await Settings.setString('safety_fall_win', '$v');
-      try {
-        await context
-            .read<AppState>()
-            .saveProfile({'fall_countdown_sec': v});
-      } catch (_) {} // best-effort: the countdown is saved on this phone above; the profile copy syncs on the next save
-    }
+    if (ok != true || !mounted) return;
+    setState(() => _s!.fallWindowS = v);
+    await _s!.save(t);
   }
 
-  // ---- runtime: the detected-fall flow --------------------------------------
-
-  Future<void> _simulateFall() async {
-    // Shows the full-screen high-contrast alarm overlay with the large
-    // "I'm OK" button and a local countdown mirroring fall_prompt_phase.
-    final result = await Navigator.of(context).push<FallOutcome>(
-      MaterialPageRoute(
+  Future<void> _practice() async {
+    await Navigator.of(context).push(MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => FallAlarmOverlay(
-          windowSeconds: _windowSec,
-          alarm: _alarm,
-          vibration: _vibration,
-        ),
-      ),
-    );
-    if (!mounted || result == null) return;
-    final t = AppLocalizations.of(context);
-    switch (result) {
-      case FallOutcome.imOk:
-        _snack(t.fallImOkMsg);
-        break;
-      case FallOutcome.cancelled:
-        _snack(t.fallCancelledMsg);
-        break;
-      case FallOutcome.timedOut:
-        await _runAlertFlow();
-        break;
-    }
+        builder: (_) => FallCheckScreen(practiceSeconds: _s!.fallWindowS)));
   }
-
-  /// Timeout path: alert chosen family + share location, then offer 999.
-  /// Reuses the same family-alert + location mechanisms as the Safety screen
-  /// (getEmergency contacts, Geolocator + Share). No fall endpoint exists, so
-  /// alerting is surfaced locally/foreground like the rest of safety.
-  Future<void> _runAlertFlow() async {
-    final sharedLocation = await _shareLocationBestEffort();
-    if (!mounted) return;
-    final t = AppLocalizations.of(context);
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.campaign_rounded, color: Brand.danger, size: 36),
-        title: Text(t.fallAlertingTitle),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(t.fallAlertingBody, textAlign: TextAlign.center),
-          const SizedBox(height: Gap.md),
-          _resultRow(ctx, Icons.group_rounded, t.fallAlertSentFamily, _family.isNotEmpty),
-          _resultRow(ctx, Icons.location_on_rounded, t.fallAlertSharedLocation,
-              sharedLocation),
-        ]),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.fallImOkAfterAll)),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-                backgroundColor: Brand.danger,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(0, 52)),
-            onPressed: () {
-              Navigator.pop(ctx);
-              _call('999');
-            },
-            icon: const Icon(Icons.call_rounded),
-            label: Text(t.fallCall999),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _resultRow(BuildContext ctx, IconData icon, String label, bool done) {
-    final scheme = Theme.of(ctx).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: Row(children: [
-        Icon(done ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded,
-            size: 18, color: done ? Brand.success : scheme.onSurfaceVariant),
-        const SizedBox(width: Gap.sm),
-        Icon(icon, size: 16, color: scheme.onSurfaceVariant),
-        const SizedBox(width: Gap.xs),
-        Expanded(child: Text(label, style: AType.bodyMedium)),
-      ]),
-    );
-  }
-
-  Future<bool> _shareLocationBestEffort() async {
-    final t = AppLocalizations.of(context);
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) return false;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return false;
-      }
-      final pos = await Geolocator.getCurrentPosition();
-      final link = 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
-      await Share.share(t.sosShareText(link));
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<void> _call(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  void _snack(String msg) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
-  }
-
-  // ---- build ----------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.fallDetectTitle)),
-        body: const SkeletonList(count: 5),
-      );
-    }
     final scheme = Theme.of(context).colorScheme;
+    final s = _s;
     return Scaffold(
-      appBar: AppBar(title: Text(t.fallDetectTitle)),
-      body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        _hero(t),
-        const SizedBox(height: Gap.lg),
-
-        // Honest sensor gating — never pretend detection is live.
-        if (!_sensorAvailable) _sensorGatedBanner(t, scheme),
-
-        // No-family guidance (we must know who to alert).
-        if (_family.isEmpty) ...[
-          const SizedBox(height: Gap.md),
-          _infoCard(scheme, Brand.warning, Icons.group_add_rounded,
-              t.fallNoFamily, t.fallNoFamilyHelp),
-        ],
-
-        if (_sensorAvailable) ...[
-        const SizedBox(height: Gap.lg),
-        Text(t.fallSectionSettings,
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: Gap.sm),
-        Card(
-          child: Column(children: [
-            SwitchListTile(
-              title: Text(t.fallEnableTitle),
-              subtitle: Text(_enabled
-                  ? t.fallStatusOn
-                  : t.fallEnableSubtitle),
-              secondary: Icon(
-                  _enabled ? Icons.shield_rounded : Icons.shield_outlined,
-                  color: _enabled ? Brand.success : scheme.onSurfaceVariant),
-              value: _enabled,
-              onChanged: _toggleEnabled,
-            ),
-            if (_enabled) ...[
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.timer_rounded),
-                title: Text(t.fallCountdownLabel),
-                subtitle:
-                    Text(t.fallCountdownValue(_windowSec % 60, _windowSec ~/ 60) /* (seconds, minutes) */),
-                trailing: TextButton(
-                    onPressed: _setCountdown, child: Text(t.edit)),
-              ),
-              const Divider(height: 1),
-              SwitchListTile(
-                secondary: const Icon(Icons.volume_up_rounded),
-                title: Text(t.fallAlarmLabel),
-                value: _alarm,
-                onChanged: (v) async {
-                  setState(() => _alarm = v);
-                  await Settings.setBool('safety_fall_alarm', v);
-                },
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.vibration_rounded),
-                title: Text(t.fallVibrationLabel),
-                value: _vibration,
-                onChanged: (v) async {
-                  setState(() => _vibration = v);
-                  await Settings.setBool('safety_fall_vib', v);
-                },
-              ),
-            ],
-          ]),
-        ),
-
-        ],
-        const SizedBox(height: Gap.lg),
-        Text(t.fallSectionTest,
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: Gap.sm),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(t.fallSimulateTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: Gap.xs),
-                  Text(t.fallSimulateHelp,
-                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
-                  const SizedBox(height: Gap.md),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _simulateFall,
-                      icon: const Icon(Icons.bolt_rounded),
-                      label: Text(t.fallSimulateButton),
-                    ),
+      appBar: AppBar(title: Text(t.saFallTitle)),
+      body: s == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+              children: [
+                if (_pending != null) ...[
+                  FilledButton.icon(
+                    key: const ValueKey('sosat-fall-pending'),
+                    style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(56),
+                        backgroundColor: Brand.danger,
+                        foregroundColor: Colors.white),
+                    onPressed: () async {
+                      await Navigator.of(context).push(MaterialPageRoute<void>(
+                          fullscreenDialog: true,
+                          builder: (_) => FallCheckScreen(
+                              clientId: '${_pending!['client_id'] ?? ''}',
+                              seconds: (_pending!['seconds_left'] as num?)?.toInt() ?? 0)));
+                      await _load();
+                    },
+                    icon: const Icon(Icons.personal_injury_rounded),
+                    label: Text(t.saFallPendingOpen),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                Row(children: [
+                  Expanded(child: Text(t.saFallBenefit, style: AType.titleMedium)),
+                  const SizedBox(width: Gap.sm),
+                  Chip(
+                    key: const ValueKey('sosat-experimental'),
+                    label: Text(t.saExperimental),
+                    backgroundColor: Brand.warning.withValues(alpha: 0.18),
                   ),
                 ]),
-          ),
-        ),
-
-        const SizedBox(height: Gap.xl),
-        Text(t.fallFooterNote,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
-      ]),
-    );
-  }
-
-  Widget _hero(AppLocalizations t) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Icon(Icons.personal_injury_rounded, color: Colors.white, size: 30),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(t.fallDetectSubtitle,
-                      style: AType.titleMedium.copyWith(color: Colors.white,
-                          fontWeight: FontWeight.w700)),
-                ]),
-          ),
-        ]),
-        const SizedBox(height: Gap.sm),
-        Text(t.fallHeroCaption,
-            style: AType.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92),
-                height: 1.4)),
-      ]),
-    );
-  }
-
-  Widget _sensorGatedBanner(AppLocalizations t, ColorScheme scheme) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: Brand.warning.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: Brand.warning.withValues(alpha: 0.5)),
-      ),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.sensors_off_rounded, color: Brand.warnInk(context)),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t.fallSensorGatedTitle,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Brand.warnInk(context))),
-                const SizedBox(height: Gap.xs),
-                Text(t.fallSensorGatedBody,
-                    style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
-              ]),
-        ),
-      ]),
-    );
-  }
-
-  Widget _infoCard(ColorScheme scheme, Color tint, IconData icon, String title,
-      String body) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, color: tint),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: Gap.xs),
-                Text(body,
+                const SizedBox(height: Gap.sm),
+                Text(t.saFallHow, style: AType.bodyMedium),
+                const SizedBox(height: Gap.lg),
+                if (!_running) ...[
+                  Text(t.saNeedsProtectionBody, style: AType.bodyMedium),
+                  const SizedBox(height: Gap.sm),
+                  FilledButton.icon(
+                    key: const ValueKey('sosat-fall-protection'),
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                    onPressed: () async {
+                      await Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) => const AlwaysOnProtectionScreen()));
+                      await _load();
+                    },
+                    icon: const Icon(Icons.shield_rounded),
+                    label: Text(t.saTurnOnProtection),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                Card(
+                  child: Column(children: [
+                    SwitchListTile(
+                      key: const ValueKey('sosat-fall-switch'),
+                      secondary: Icon(
+                          s.fallOn ? Icons.shield_rounded : Icons.shield_outlined,
+                          color: s.fallOn ? Brand.success : scheme.onSurfaceVariant),
+                      title: Text(t.saFallSwitch,
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: Text(s.fallOn ? t.saOn : t.saFallSwitchSub),
+                      value: s.fallOn && _running,
+                      onChanged: _running ? _toggle : null,
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.timer_rounded),
+                      title: Text(t.fallCountdownLabel),
+                      subtitle: Text(t.fallCountdownValue(
+                          s.fallWindowS % 60, s.fallWindowS ~/ 60)),
+                      trailing: TextButton(onPressed: _setWindow, child: Text(t.edit)),
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: Gap.md),
+                OutlinedButton.icon(
+                  key: const ValueKey('sosat-fall-practice'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  onPressed: _practice,
+                  icon: const Icon(Icons.play_circle_outline_rounded),
+                  label: Text(t.saFallPractice),
+                ),
+                const SizedBox(height: Gap.lg),
+                Text(t.saFallLimits,
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
-              ]),
+              ],
+            ),
+    );
+  }
+}
+
+/// sosat — the "Are you OK?" screen after a detected fall (opened from the
+/// notification), or a PRACTICE run that sends nothing. A huge "I'm OK";
+/// "I need help" opens the Emergency screen (SOS stays one hold away).
+class FallCheckScreen extends StatefulWidget {
+  const FallCheckScreen({
+    super.key,
+    this.clientId,
+    this.seconds = 0,
+    this.practiceSeconds,
+    this.imOk,
+  });
+
+  final String? clientId;
+  final int seconds;
+
+  /// Non-null = practice: nothing is sent anywhere.
+  final int? practiceSeconds;
+
+  /// Test seam (default: POST /family/fall/ok + clear the phone notification).
+  final Future<void> Function(String? clientId)? imOk;
+
+  @override
+  State<FallCheckScreen> createState() => _FallCheckScreenState();
+}
+
+class _FallCheckScreenState extends State<FallCheckScreen> {
+  late int _left = widget.practiceSeconds ?? widget.seconds;
+  Timer? _tick;
+  bool _busy = false;
+
+  bool get _practice => widget.practiceSeconds != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_left <= 0) {
+        _tick?.cancel();
+        return;
+      }
+      setState(() => _left--);
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _ok() async {
+    final t = AppLocalizations.of(context);
+    final m = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    if (_practice) {
+      m.showSnackBar(SnackBar(content: Text(t.saFallPracticeDone)));
+      nav.pop();
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final f = widget.imOk ??
+          (String? cid) async {
+            await AntiTheftService.fallOk();
+            await context.read<AppState>().api.fallOk(clientId: cid);
+          };
+      await f(widget.clientId);
+      m.showSnackBar(SnackBar(content: Text(t.saFallOkSent)));
+      nav.pop();
+    } catch (_) {
+      m.showSnackBar(SnackBar(content: Text(t.saFallOkFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final mins = _left ~/ 60, secs = _left % 60;
+    final clock = notifLocalizeDigits(
+        context, '$mins:${secs.toString().padLeft(2, '0')}');
+    return Scaffold(
+      backgroundColor: Brand.dangerFill,
+      body: SafeArea(
+        child: ListView(
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
+          children: [
+            if (_practice)
+              Text(t.saFallPracticeBanner,
+                  key: const ValueKey('sosat-practice-banner'),
+                  textAlign: TextAlign.center,
+                  style: AType.labelLarge.copyWith(color: Colors.white)),
+            const SizedBox(height: Gap.lg),
+            const Icon(Icons.personal_injury_rounded, color: Colors.white, size: 56),
+            const SizedBox(height: Gap.md),
+            Text(t.saNotifFallTitle,
+                textAlign: TextAlign.center,
+                style: AType.headlineSmall.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.w800)),
+            const SizedBox(height: Gap.sm),
+            Text(_left > 0 ? t.saFallCheckBody(clock) : t.saFallCheckSent,
+                key: const ValueKey('sosat-fall-clock'),
+                textAlign: TextAlign.center,
+                style: AType.bodyLarge.copyWith(color: Colors.white)),
+            const SizedBox(height: Gap.xl),
+            FilledButton(
+              key: const ValueKey('sosat-im-ok'),
+              style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Brand.dangerFill,
+                  minimumSize: const Size.fromHeight(88)),
+              onPressed: _busy ? null : _ok,
+              child: Text(t.saNotifFallOk,
+                  style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800)),
+            ),
+            const SizedBox(height: Gap.md),
+            OutlinedButton.icon(
+              key: const ValueKey('sosat-need-help'),
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.white),
+                  minimumSize: const Size.fromHeight(52)),
+              onPressed: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(builder: (_) => const EmergencyScreen())),
+              icon: const Icon(Icons.sos_rounded),
+              label: Text(t.saNeedHelp),
+            ),
+            const SizedBox(height: Gap.lg),
+            Text(t.saNever999,
+                textAlign: TextAlign.center,
+                style: AType.bodySmall.copyWith(color: Colors.white)),
+          ],
         ),
-      ]),
+      ),
     );
   }
 }

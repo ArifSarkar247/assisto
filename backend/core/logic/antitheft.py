@@ -34,7 +34,9 @@ THRESHOLD_MIN, THRESHOLD_MAX = 2, 10
 
 EVENT_KINDS = {"snatch", "snatch_cleared", "sim_change", "offline", "online",
                "low_battery", "shutdown", "boot", "failed_unlock",
-               "intruder_photo", "test"}
+               "intruder_photo", "test",
+               # sosat: SOS triggers + experimental fall (core/sos_triggers.py)
+               "sos_lockscreen", "sos_power", "fall", "fall_ok"}
 # Kinds that are a theft SIGNAL (freeze Section-8 sensitive actions for 48h).
 SIGNAL_KINDS = {"snatch": "snatch", "sim_change": "sim_change"}
 # Kinds that never alert anyone (just stored for the timeline).

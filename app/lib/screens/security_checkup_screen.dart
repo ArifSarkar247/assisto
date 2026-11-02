@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -177,7 +178,8 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+                    padding: withNavBarInset(
+                        context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
                     children: [
                       _SecScoreCard(score: score, t: t),
                       const SizedBox(height: Gap.md),

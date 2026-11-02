@@ -224,4 +224,52 @@ class AntiTheftService {
       await _ch.invokeMethod('flush');
     } catch (_) {/* ignore */}
   }
+
+  // ---- sosat: SOS triggers inside the running engine ----------------------
+
+  /// Save the lock-screen SOS / power x5 / experimental fall settings and the
+  /// bn/en notification texts on the native side (SafetyTriggers.kt), then
+  /// let a running engine pick them up. Keys: lock_on, power_on, fall_on
+  /// (bool), fall_window_s (int), and text keys (String). Never throws.
+  static Future<bool> setSosTriggers(Map<String, Object> values) async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('setSosTriggers', {'values': values}) ??
+          false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// "I'm OK" from the open app: clears the phone's own "Are you OK?"
+  /// notification (the server is told separately). Never throws.
+  static Future<void> fallOk() async {
+    if (!supported) return;
+    try {
+      await _ch.invokeMethod('fallOk');
+    } catch (_) {}
+  }
+
+  /// Record [seconds] of raw accelerometer data to a CSV the harness can
+  /// read (only while protection runs). false = not possible right now.
+  static Future<bool> recordTrace(int seconds, Map<String, String> meta) async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>(
+              'recordTrace', {'seconds': seconds, 'meta': meta}) ??
+          false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Path of the newest recorded trace ('' = none yet).
+  static Future<String> lastTrace() async {
+    if (!supported) return '';
+    try {
+      return await _ch.invokeMethod<String>('lastTrace') ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import 'notif_models.dart' show notifLocalizeDigits;
 
 /// A full-screen SOS countdown overlay. Mirrors core.logic.safety.sos_phase:
 /// counts down `seconds` (0 = fire immediately); a large Cancel button stops it.
@@ -73,7 +74,8 @@ class _SafetySosCountdownState extends State<SafetySosCountdown> {
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Text('$_remaining',
+          // sosat: Bangla digits under bn (was always 0-9)
+          Text(notifLocalizeDigits(context, '$_remaining'),
               style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           SizedBox(

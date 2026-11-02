@@ -1,13 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/safety_sos_countdown.dart';
 import '../widgets/safety_checkin_card.dart';
 import 'voice_sos_screen.dart';
 import '../widgets/scam_safety_api.dart';
@@ -16,19 +10,17 @@ import 'journey_start_screen.dart';
 import 'journey_live_screen.dart';
 import 'journey_sos_screen.dart';
 import 'journey_settings_screen.dart';
+import 'sos_triggers_screen.dart'; // sosat
 import '../widgets/journey_api.dart';
-import 'fall_detect_screen.dart';
 import '../widgets/subs_common.dart' show fmtInt;
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import '../family_alerts_api.dart'; // family100
-import '../widgets/notif_models.dart' show notifLocalizeDigits; // family100
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
 ///   - safe-arrival check-in (arrived / "pouchechi"; overdue -> family alerted)
-///   - accident/fall-detection config (window, alarm, vibration) — the sensor
-///     itself is platform-gated and clearly marked.
+///   - sosat: "more ways to send SOS" (lock screen, power button x5,
+///     experimental fall detection) on SosTriggersScreen
 class SafetyScreen extends StatefulWidget {
   const SafetyScreen({super.key});
   @override
@@ -38,14 +30,6 @@ class SafetyScreen extends StatefulWidget {
 class _SafetyScreenState extends State<SafetyScreen> {
   // SOS
   int _sosCountdown = 5;
-  // fall detection
-  bool _fallEnabled = false;
-  int _fallWindow = 120; // seconds
-  bool _fallAlarm = true;
-  bool _fallVibration = true;
-  // the native accelerometer/fall sensor plugin is not wired yet.
-  static bool get _sensorAvailable => FallDetectScreen.engineShipped;
-
   // check-in (local, surfaced to family via foreground poll)
   String? _checkinPlace;
   DateTime? _checkinEta;
@@ -60,38 +44,11 @@ class _SafetyScreenState extends State<SafetyScreen> {
 
   Future<void> _load() async {
     _sosCountdown = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
-    _fallEnabled = await Settings.getBool('safety_fall_on', false);
-    _fallWindow = int.tryParse(await Settings.getString('safety_fall_win') ?? '') ?? 120;
-    _fallAlarm = await Settings.getBool('safety_fall_alarm', true);
-    _fallVibration = await Settings.getBool('safety_fall_vib', true);
     final place = await Settings.getString('safety_checkin_place');
     final eta = await Settings.getString('safety_checkin_eta');
     _checkinPlace = (place != null && place.isNotEmpty) ? place : null;
     _checkinEta = (eta != null && eta.isNotEmpty) ? DateTime.tryParse(eta) : null;
     if (mounted) setState(() => _loading = false);
-  }
-
-  Future<void> _call(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  Future<List<Map<String, dynamic>>> _contacts() async {
-    try {
-      final c = await context.read<AppState>().api.getEmergency();
-      return ((c['contacts'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  /// Mirror core.logic.safety.sos_alert_targets: skip entries without a phone,
-  /// keep the original (primary-first) order. Returns the first callable one.
-  Map<String, dynamic>? _firstCallable(List<Map<String, dynamic>> contacts) {
-    for (final c in contacts) {
-      if ((c['phone'] ?? '').toString().trim().isNotEmpty) return c;
-    }
-    return null;
   }
 
   /// Resume an in-progress journey if one exists, else open the start flow.
@@ -107,79 +64,6 @@ class _SafetyScreenState extends State<SafetyScreen> {
         builder: (_) => activeId != null
             ? JourneyLiveScreen(journeyId: activeId!)
             : const JourneyStartScreen()));
-  }
-
-  Future<void> _triggerSos() async {
-    final t = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final contacts = await _contacts();
-    if (!mounted) return;
-    // Pick the first contact that actually has a phone — never blindly dial
-    // contacts.first, which may be a blank/phoneless entry.
-    final primary = _firstCallable(contacts);
-    if (primary == null) {
-      messenger.showSnackBar(SnackBar(content: Text(t.emergencyAddContactFirst)));
-      return;
-    }
-    final fire = await SafetySosCountdown.show(context, _sosCountdown);
-    if (!fire || !mounted) return;
-    // family100: the server pushes the SOS to every family member first
-    // (rings even when their Assisto is closed); then share + call.
-    await _alertFamilyServer();
-    if (!mounted) return;
-    // share location best-effort, then call the primary contact
-    await _shareLocationBestEffort();
-    await _call(primary['phone'].toString());
-  }
-
-  Future<void> _alertFamilyServer() async {
-    final t = AppLocalizations.of(context);
-    final m = ScaffoldMessenger.of(context);
-    final api = context.read<AppState>().api;
-    double? lat, lng;
-    try {
-      if (await Geolocator.isLocationServiceEnabled()) {
-        final perm = await Geolocator.checkPermission();
-        if (perm == LocationPermission.always ||
-            perm == LocationPermission.whileInUse) {
-          final p = await Geolocator.getCurrentPosition()
-              .timeout(const Duration(seconds: 8));
-          lat = p.latitude;
-          lng = p.longitude;
-        }
-      }
-    } catch (_) {} // no location: the SOS still goes out
-    try {
-      final r = await api
-          .familySos(
-              lat: lat, lng: lng, source: 'safety', clientId: newSosClientId())
-          .timeout(const Duration(seconds: 12));
-      final n = (r['recipients'] as num?)?.toInt() ?? 0;
-      if (!mounted) return;
-      m.showSnackBar(SnackBar(
-          content: Text(n > 0
-              ? t.fa100SosSent(notifLocalizeDigits(context, '$n'))
-              : t.fa100SosNoCircle)));
-    } catch (_) {
-      m.showSnackBar(SnackBar(content: Text(t.fa100SosOffline)));
-    }
-  }
-
-  Future<void> _shareLocationBestEffort() async {
-    final t = AppLocalizations.of(context);
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) return;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition();
-      final link = 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
-      await Share.share(t.sosShareText(link));
-    } catch (_) {}
   }
 
   Future<void> _setCountdown() async {
@@ -342,15 +226,6 @@ class _SafetyScreenState extends State<SafetyScreen> {
               builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
         ),
         const SizedBox(height: Gap.sm),
-        // Legacy quick-call SOS (dials the first contact) kept as a fallback.
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _triggerSos,
-            icon: const Icon(Icons.call_rounded, size: 20),
-            label: Text(t.safetySosQuickCall),
-          ),
-        ),
         const SizedBox(height: 6),
         ListTile(
           dense: true,
@@ -383,119 +258,22 @@ class _SafetyScreenState extends State<SafetyScreen> {
         ),
         const Divider(height: 28),
 
-        // NO SHOWPIECES: the fall switch is hidden until a real fall sensor
-        // engine ships (FallDetectScreen.engineShipped).
-        if (_sensorAvailable) ...[
-        // Fall / accident detection
-        Text(t.safetyFallSection, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: Gap.xs),
-        SwitchListTile(
+        // sosat: lock-screen SOS, power button x5 and the EXPERIMENTAL fall
+        // detection live on one screen (each says honestly when it works:
+        // only while Always-on protection runs).
+        ListTile(
+          key: const ValueKey('sosat-more-ways'),
           contentPadding: EdgeInsets.zero,
-          title: Text(t.safetyFallEnable),
-          subtitle: Text(t.safetyFallEnableDesc),
-          value: _fallEnabled,
-          onChanged: (v) async {
-            setState(() => _fallEnabled = v);
-            await Settings.setBool('safety_fall_on', v);
-          },
+          leading: const Icon(Icons.touch_app_rounded),
+          title: Text(t.saMoreWaysTitle),
+          subtitle: Text(t.saMoreWaysSub, style: AType.bodySmall),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const SosTriggersScreen())),
         ),
-        if (_fallEnabled) ...[
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.safetyFallWindowLabel),
-            subtitle: Text(t.safetyFallWindowValue(_fallWindow ~/ 60, _fallWindow % 60)),
-          ),
-          Slider(
-            value: _fallWindow.toDouble(), min: 30, max: 600, divisions: 19,
-            label: '${_fallWindow ~/ 60}:${(_fallWindow % 60).toString().padLeft(2, '0')}',
-            onChanged: (x) => setState(() => _fallWindow = x.round()),
-            onChangeEnd: (x) async =>
-                await Settings.setString('safety_fall_win', '${x.round()}'),
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.safetyFallAlarm),
-            value: _fallAlarm,
-            onChanged: (v) async {
-              setState(() => _fallAlarm = v);
-              await Settings.setBool('safety_fall_alarm', v);
-            },
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.safetyFallVibration),
-            value: _fallVibration,
-            onChanged: (v) async {
-              setState(() => _fallVibration = v);
-              await Settings.setBool('safety_fall_vib', v);
-            },
-          ),
-          const SizedBox(height: Gap.sm),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.play_circle_outline_rounded),
-            label: Text(t.safetyFallPreview),
-            onPressed: () => _previewFall(t),
-          ),
-        ],
-        ],
         const SizedBox(height: 20),
         Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
-  }
-
-  // Shows the big "I'm OK" prompt so the user sees exactly what happens after a
-  // detected fall. Logic mirrors core.logic.safety.fall_prompt_phase.
-  Future<void> _previewFall(AppLocalizations t) async {
-    int remaining = _fallWindow;
-    Timer? timer;
-    final ok = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
-        timer ??= Timer.periodic(const Duration(seconds: 1), (_) {
-          if (remaining <= 0) {
-            timer?.cancel();
-            if (ctx.mounted) Navigator.pop(ctx, false);
-          } else {
-            setD(() => remaining--);
-          }
-        });
-        return Dialog(
-          backgroundColor: Colors.orange.shade800,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.xl),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.personal_injury_rounded, color: Colors.white, size: 44),
-              const SizedBox(height: 10),
-              Text(t.safetyFallPromptTitle,
-                  textAlign: TextAlign.center,
-                  style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-              const SizedBox(height: Gap.sm),
-              Text(t.safetyFallPromptBody(remaining),
-                  textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
-              const SizedBox(height: Gap.lg),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white, foregroundColor: Colors.orange.shade900,
-                      padding: const EdgeInsets.symmetric(vertical: 18)),
-                  onPressed: () {
-                    timer?.cancel();
-                    Navigator.pop(ctx, true);
-                  },
-                  child: Text(t.safetyImOk, style: AType.headlineSmall.copyWith(fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ]),
-          ),
-        );
-      }),
-    );
-    timer?.cancel();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(ok == true ? t.safetyFallPreviewOk : t.safetyFallPreviewAlert)));
   }
 }

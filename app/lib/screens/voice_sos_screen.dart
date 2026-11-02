@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -194,7 +195,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(Gap.lg),
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
                 _header(),
                 const SizedBox(height: Gap.lg),

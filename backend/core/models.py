@@ -4835,7 +4835,11 @@ class AntiTheftEvent(models.Model):
              ("shutdown", "shutdown"), ("boot", "boot"),
              ("failed_unlock", "failed_unlock"),
              ("intruder_photo", "intruder_photo"), ("test", "test"),
-             ("went_dark", "went_dark")]  # went_dark: written by the server cron
+             ("went_dark", "went_dark"),  # went_dark: written by the server cron
+             # sosat: SOS from the lock screen / power button, experimental
+             # fall (held for "Are you OK?") and its "I'm OK"
+             ("sos_lockscreen", "sos_lockscreen"), ("sos_power", "sos_power"),
+             ("fall", "fall"), ("fall_ok", "fall_ok")]
     phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
                               related_name="engine_events")
     client_id = models.CharField(max_length=64)
@@ -6522,6 +6526,8 @@ class FamilyAlertDelivery(models.Model):
     # arrives (any isolate) -> received_at - pushed_at = delivery time.
     received_at = models.DateTimeField(null=True, blank=True)
     seen_at = models.DateTimeField(null=True, blank=True)
+    # sosat: an SOS nobody opened was rung once more (escalation ladder)
+    rerung_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]
