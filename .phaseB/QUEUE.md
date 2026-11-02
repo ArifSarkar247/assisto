@@ -10,7 +10,7 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - P2 Safe Journey final (owner_actions/OWNER_SAFE_JOURNEY_ORDER_3NOV.md) — IN PROGRESS (board rows 75-89, no owner real-phone proof)
 - P2 Play listing pack (owner_actions/OWNER_PLAY_LISTING_ORDER_3NOV.md) — IN PROGRESS (same headline as website)
 - P3-A Rewrite this queue — DONE (this file)
-- P3-B Flag prep (read-only live cron check + ONE sudo command, train schedule path, agent_core 10% rollout, Data safety in Bangla) — WAITING (not started)
+- P3-B Flag prep (read-only live cron check + ONE sudo command, train schedule path, agent_core 10% rollout, Data safety in Bangla) — IN PROGRESS (agent flagprep; live crons checked 3 Nov 04:00: ops_cron_file --diff = 0 missing, ops_watch bad=0 → no sudo command needed)
 - P3-C Business automation real-life ready (crmauto, retention_auto, AI Sales Assistant, agent_core; opt-out, daily caps, SMS cost; Meta App Review steps) — IN PROGRESS (crmauto merged b280, board CRM 69.5; Meta review = owner)
 - P3-D Marketing engine v1 behind a switch — NOT STARTED (no code)
 - P3-E Assisto Market (reverse auction, group-buy, COD, Dhaka pilot) — NOT STARTED (no code)
