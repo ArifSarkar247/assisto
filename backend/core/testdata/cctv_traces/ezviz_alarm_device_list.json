@@ -1,0 +1,6 @@
+{"page": {"total": 2, "page": 0, "size": 10},
+ "data": [
+  {"alarmId": "a4c1-2", "alarmName": "C6N(BD1234567)", "alarmType": 10002, "alarmStart": "2026-11-02 23:20:12", "alarmTime": 1793726412000, "channelNo": 1, "isEncrypt": 1, "isChecked": 0, "recState": 0, "preTime": 10, "delayTime": 30, "deviceSerial": "BD1234567", "alarmPicUrl": "https://iot-alarm.ezvizlife.com/pic/BD1234567/2?sig=1", "relationAlarms": [], "customerType": null, "customerInfo": null},
+  {"alarmId": "a4c1-1", "alarmName": "C6N(BD1234567)", "alarmType": "pedestrian detection", "alarmStart": "2026-11-02 23:20:01", "alarmTime": 1793726401000, "channelNo": 1, "isEncrypt": 0, "isChecked": 0, "recState": 0, "preTime": 10, "delayTime": 30, "deviceSerial": "bd1234567", "alarmPicUrl": "https://iot-alarm.ezvizlife.com/pic/BD1234567/1?sig=1", "relationAlarms": [], "customerType": null, "customerInfo": null}
+ ],
+ "code": "200", "msg": "Operation succeeded!"}

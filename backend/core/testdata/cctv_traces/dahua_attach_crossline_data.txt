@@ -1,0 +1,33 @@
+Code=CrossLineDetection;action=Start;index=0;data={
+   "Class" : "Normal",
+   "DetectLine" : [
+      [ 1460, 2826 ],
+      [ 6290, 2753 ]
+   ],
+   "Direction" : "LeftToRight",
+   "EventID" : 10279,
+   "FrameSequence" : 288712,
+   "LocaleTime" : "2026-11-02 23:10:05",
+   "Mark" : 0,
+   "Name" : "Rule1",
+   "Object" : {
+      "Action" : "Appear",
+      "BoundingBox" : [ 3277, 2048, 4506, 6144 ],
+      "Center" : [ 3891, 4096 ],
+      "Confidence" : 0,
+      "ObjectID" : 527,
+      "ObjectType" : "Human",
+      "RelativeID" : 0,
+      "Speed" : 0
+   },
+   "PTS" : 43380319830.0,
+   "RuleId" : 1,
+   "Source" : 37838960.0,
+   "Track" : null,
+   "UTC" : 1793725805,
+   "UTCMS" : 701
+}
+Code=CrossLineDetection;action=Stop;index=0;data={
+   "Name" : "Rule1",
+   "UTC" : 1793725807
+}

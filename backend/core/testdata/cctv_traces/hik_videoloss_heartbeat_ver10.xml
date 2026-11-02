@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EventNotificationAlert version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">
+<ipAddress>192.168.1.64</ipAddress>
+<portNo>80</portNo>
+<protocol>HTTP</protocol>
+<macAddress>a4:d5:c2:00:00:01</macAddress>
+<channelID>1</channelID>
+<dateTime>2026-11-02T22:41:20+06:00</dateTime>
+<activePostCount>0</activePostCount>
+<eventType>videoloss</eventType>
+<eventState>inactive</eventState>
+<eventDescription>videoloss alarm</eventDescription>
+</EventNotificationAlert>

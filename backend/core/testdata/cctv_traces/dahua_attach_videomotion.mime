@@ -1,0 +1,11 @@
+--myboundary
+Content-Type: text/plain
+Content-Length: 39
+
+Code=VideoMotion;action=Start;index=0
+--myboundary
+Content-Type: text/plain
+Content-Length: 38
+
+Code=VideoMotion;action=Stop;index=0
+--myboundary--

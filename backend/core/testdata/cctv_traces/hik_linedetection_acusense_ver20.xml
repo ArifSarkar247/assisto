@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EventNotificationAlert version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+<ipAddress>192.168.1.64</ipAddress>
+<portNo>80</portNo>
+<protocol>HTTP</protocol>
+<macAddress>a4:d5:c2:00:00:01</macAddress>
+<channelID>1</channelID>
+<dateTime>2026-11-02T22:41:07+06:00</dateTime>
+<activePostCount>1</activePostCount>
+<eventType>linedetection</eventType>
+<eventState>active</eventState>
+<eventDescription>linedetection alarm</eventDescription>
+<channelName>Camera 01</channelName>
+<DetectionRegionList>
+<DetectionRegionEntry>
+<regionID>1</regionID>
+<sensitivityLevel>50</sensitivityLevel>
+<RegionCoordinatesList>
+<RegionCoordinates><positionX>212</positionX><positionY>380</positionY></RegionCoordinates>
+<RegionCoordinates><positionX>790</positionX><positionY>402</positionY></RegionCoordinates>
+</RegionCoordinatesList>
+<detectionTarget>human</detectionTarget>
+<TargetRect><X>0.412</X><Y>0.288</Y><width>0.118</width><height>0.402</height></TargetRect>
+</DetectionRegionEntry>
+</DetectionRegionList>
+</EventNotificationAlert>
