@@ -1562,7 +1562,7 @@ class JourneyRequest(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     arrived_at = models.DateTimeField(null=True, blank=True)
     ended_at = models.DateTimeField(null=True, blank=True)
-    outcome = models.CharField(max_length=16, blank=True, default="")
+    outcome = models.CharField(max_length=32, blank=True, default="")  # journey100b: was 16 < "stopped_by_traveller"
     log = models.JSONField(default=list, blank=True)          # audit, both sides see it
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

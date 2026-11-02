@@ -1169,7 +1169,10 @@ class JourneyStartView(APIView):
         retention = _int(d.get("location_retention_hours"), 24, 0, 24 * 7)
         stop_min = _int(d.get("stop_alert_min"), 20, 0, 180)
         # one live journey at a time: an older active one is closed quietly
-        for old in Journey.objects.filter(traveller=request.user, status="active"):
+        # (journey100b: a parent following it moves to the new trip — never
+        # dropped silently; see GJ.carry_over below)
+        olds = list(Journey.objects.filter(traveller=request.user, status="active"))
+        for old in olds:
             old.status, old.stopped_at = "stopped", now
             old.expires_at = JW.ended_expiry(old, now)
             old.save(update_fields=["status", "stopped_at", "expires_at"])
@@ -1191,6 +1194,10 @@ class JourneyStartView(APIView):
                                             state="accepted", blocked=False).first()
             if m:
                 JourneyWatcher.objects.get_or_create(journey=j, member=m)
+        if olds:
+            from . import guardian_journey as GJ
+            for old in olds:
+                GJ.carry_over(old, j, now)
         v = j.vehicle or {}
         JW.emit(j, "started", payload={**v, "mode": v.get("mode") or j.mode})
         out = _journey_dict(j, req_lang(request))
@@ -1230,7 +1237,11 @@ def _fixes(d, j, now):
             b = int(b) if b not in (None, "") else None
         except (TypeError, ValueError):
             b = None
-        out.append((at, lat, lng, b))
+        # journey100b: where the fix came from — "app" (Assisto open) or "bg"
+        # (Assisto swiped away; the foreground service sent it alone). Lets
+        # the "no location" alert say the honest likely reason.
+        src = str(p.get("src") or "")
+        out.append((at, lat, lng, b, src if src in ("app", "bg") else ""))
     out.sort(key=lambda x: x[0])
     return out
 
@@ -1257,11 +1268,11 @@ class JourneyLocationView(APIView):
                              "accepted": 0, "overdue_state": j.status})
         fixes = _fixes(d, j, now)
         newest_known = JW.fix_of(j)
-        for at, lat, lng, b in fixes:
+        for at, lat, lng, b, src in fixes:
             JourneyPoint.objects.create(journey=j, lat=lat, lng=lng, battery=b, at=at)
             JW.on_location(j, lat, lng, at, b, now=now)
             if newest_known is None or newest_known[2] is None or at >= newest_known[2]:
-                j.last_location = {"lat": lat, "lng": lng, "at": at.isoformat(), "battery": b}
+                j.last_location = JW.location_row(j.last_location, lat, lng, at, b, src)
                 newest_known = (lat, lng, at, b)
         j.last_activity_at = now
         arrived = False
@@ -1650,6 +1661,24 @@ class JourneyGeocodeView(APIView):
                                    near=near))
 
 
+def _lost_fields(j, fx, now):
+    """journey100b: last KNOWN battery (a background-service fix has none) and,
+    once no fix came for LOST_FIX_MIN, the honest likely reason."""
+    out = {}
+    if not fx:
+        return out
+    if fx[3] is None and (j.last_location or {}).get("battery_last") is not None:
+        out["battery_last"] = j.last_location["battery_last"]
+    if j.status == "active" and fx[2] is not None and \
+            (now - fx[2]).total_seconds() >= JW.LOST_FIX_MIN * 60:
+        why, b = JW.lost_reason(j)
+        if why:
+            out["why"] = why
+            if b is not None:
+                out["why_battery"] = b
+    return out
+
+
 class JourneyWatchingView(APIView):
     """GET /journey/watching — journeys the caller is a chosen watcher of
     (live, or ended within the privacy window). Location only while the trip
@@ -1679,6 +1708,7 @@ class JourneyWatchingView(APIView):
                 "battery": fx[3] if fx else None,
                 "ride": JD.clean_vehicle(j.vehicle),
                 **(JW.progress(j, fx) if fx and j.status == "active" else {}),
+                **_lost_fields(j, fx, now),
                 "url": JW.web_url(j)})
         return Response({"journeys": out})
 

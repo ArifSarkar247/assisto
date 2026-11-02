@@ -1344,10 +1344,11 @@ def _build_alerts(user, lang="bn"):
         # reach his own urgent card / briefing
         if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
             continue
-        # owner 27 Oct (C): owner-only alerts never reach a normal account
+        # owner 27 Oct (C): owner-only alerts never reach a normal account;
+        # journey100b (owner 2 Nov): and never sit among FAMILY alerts even for
+        # the owner — they live in the notification centre's Admin tab
         from . import push as _push
-        if not _push.is_owner_admin(user) and (
-                fa.kind in _push.OWNER_ALERT_FA_KINDS or
+        if (fa.kind in _push.OWNER_ALERT_FA_KINDS or
                 (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
             continue
         row = {"type": fa.kind, "text": fa.body or fa.title,
@@ -3427,8 +3428,9 @@ def _collect_events(user, lang="bn"):
     for e in user.notif_events.all()[:200]:
         m = e.meta if isinstance(e.meta, dict) else {}
         # owner 27 Oct (C): owner-only rows never show for a normal account
-        if not owner_admin and (e.type == "admin" or e.route == "owner"
-                                or m.get("source") in _push.OWNER_ALERT_SOURCES):
+        owner_only = (e.type == "admin" or e.route == "owner"
+                      or m.get("source") in _push.OWNER_ALERT_SOURCES)
+        if not owner_admin and owner_only:
             continue
         # antitheft2: alerts about the user's OWN protected phone are never
         # shown on it (a thief holding it would see them); the owner keeps
@@ -3437,7 +3439,8 @@ def _collect_events(user, lang="bn"):
                 and m.get("antitheft_kind") != "test"):
             continue
         events.append({
-            "id": f"notif:{e.id}", "type": e.type,
+            # journey100b: owner-only rows always carry type "admin" (own tab)
+            "id": f"notif:{e.id}", "type": _nc.TYPE_ADMIN if owner_only else e.type,
             "title": {"bn": e.title_bn, "en": e.title_en},
             "body": {"bn": e.body_bn, "en": e.body_en},
             "at": _dt(e.at), "seen": e.seen, "route": e.route or None,
@@ -3445,8 +3448,9 @@ def _collect_events(user, lang="bn"):
         })
     # reuse existing family alerts (missed medicine / safe-journey / scam relays)
     for fa in user.family_alerts.filter(dismissed=False)[:50]:
-        if not owner_admin and (fa.kind in _push.OWNER_ALERT_FA_KINDS or
-                                (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES):
+        fa_owner_only = (fa.kind in _push.OWNER_ALERT_FA_KINDS or
+                         (fa.payload or {}).get("source") in _push.OWNER_ALERT_SOURCES)
+        if not owner_admin and fa_owner_only:
             continue
         if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
             continue
@@ -3458,6 +3462,8 @@ def _collect_events(user, lang="bn"):
             etype = _nc.TYPE_SAFE_JOURNEY
         elif "sos" in k:
             etype = _nc.TYPE_SOS
+        if fa_owner_only:
+            etype = _nc.TYPE_ADMIN       # journey100b: Admin tab, never family
         events.append({
             "id": f"familyalert:{fa.id}", "type": etype,
             "title": {"bn": fa.title, "en": fa.title},

@@ -240,6 +240,9 @@ class PushNotifier {
             actions: AgentCorePush.actions(t)),
       );
     }
+    // journey100b (owner 2 Nov): a Safe Journey alert gets "Open map" /
+    // "Live view" buttons instead of long raw links in the text.
+    final jActs = journeyActions(p.data);
     return NotificationDetails(
       android: AndroidNotificationDetails(ch.id, ch.name,
           channelDescription: ch.description,
@@ -252,12 +255,47 @@ class PushNotifier {
                   largeIcon: ByteArrayAndroidBitmap(bigPicture),
                   hideExpandedLargeIcon: true),
           largeIcon: bigPicture == null ? null : ByteArrayAndroidBitmap(bigPicture),
+          actions: jActs.isEmpty
+              ? null
+              : [
+                  for (final a in jActs)
+                    AndroidNotificationAction(
+                        a, a == actionJourneyMap ? t.j100bActMap : t.j100bActLive,
+                        showsUserInterface: true),
+                ],
           category: p.kind == 'message'
               ? AndroidNotificationCategory.message
               : (p.kind == 'reminder'
                   ? AndroidNotificationCategory.reminder
                   : null)),
     );
+  }
+
+  static const actionJourneyMap = 'j_map';
+  static const actionJourneyLive = 'j_live';
+
+  /// Which Safe Journey buttons a push gets: "Open map" when it carries a
+  /// location, "Live view" when it carries the watcher page link. Pure.
+  static List<String> journeyActions(Map<String, String> d) {
+    if (d['kind'] != 'family_alert' || (d['journey_id'] ?? '').isEmpty) return const [];
+    return [
+      if ((d['lat'] ?? '').isNotEmpty && (d['lng'] ?? '').isNotEmpty) actionJourneyMap,
+      if ((d['url'] ?? '').startsWith('http')) actionJourneyLive,
+    ];
+  }
+
+  /// The URL a Safe Journey button opens (null = not a journey button).
+  static Uri? journeyActionUri(Map<String, String> d, String? action) {
+    if (action == actionJourneyMap) {
+      final lat = double.tryParse(d['lat'] ?? ''), lng = double.tryParse(d['lng'] ?? '');
+      if (lat == null || lng == null) return null;
+      return Uri.parse('https://maps.google.com/?q=${lat.toStringAsFixed(6)},${lng.toStringAsFixed(6)}');
+    }
+    if (action == actionJourneyLive) {
+      final u = d['url'] ?? '';
+      return u.startsWith('http') ? Uri.tryParse(u) : null;
+    }
+    return null;
   }
 
   static String titleFor(PushPayload p) {

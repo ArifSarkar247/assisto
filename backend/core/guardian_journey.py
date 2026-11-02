@@ -299,45 +299,130 @@ def start_trip(req, now=None):
     member = edge(req.traveller, req.requester)
     if member is None:
         return None, "not_in_circle"
-    from .models import JourneyRequest
-    shared = None
-    for old in Journey.objects.filter(traveller=req.traveller, status="active"):
-        # circlea (many guardians): another guardian's LIVE trip of the same
-        # child is JOINED (one location share, every guardian watching) —
-        # never stopped under the first parent's feet.
-        if shared is None and JourneyRequest.objects.filter(
-                journey=old, status="active").exclude(pk=req.pk).exists():
-            shared = old
-            continue
-        old.status, old.stopped_at = "stopped", now
-        old.expires_at = JW.ended_expiry(old, now)
-        old.save(update_fields=["status", "stopped_at", "expires_at"])
-    if shared is not None:
-        j = shared
-        tail = end + timedelta(minutes=HARD_TAIL_MIN + 30)
-        if j.eta is None or j.eta < end:
-            j.eta = end
-        if j.expires_at is None or j.expires_at < tail:
-            j.expires_at = tail
-        j.save(update_fields=["eta", "expires_at"])
-    else:
-        j = Journey.objects.create(
-            traveller=req.traveller, destination=dict(req.destination or {}), eta=end,
-            status="active", overdue_grace_min=10, location_retention_hours=0,
-            stop_alert_min=20, expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
-            last_activity_at=now, moved_at=now)
-    JourneyWatcher.objects.get_or_create(journey=j, member=member)
+    # journey100b (many parents): Baba AND Ma may both follow the same trip,
+    # and the traveller may already share a trip of their own. Never end
+    # someone else's sharing silently — JOIN the running journey instead:
+    # this requester becomes one more watcher, with their OWN window/end.
+    cur = (Journey.objects.filter(traveller=req.traveller, status="active")
+           .order_by("-created_at").first())
+    if cur is not None:
+        return _join_trip(req, cur, member, end, now), None
+    j = Journey.objects.create(
+        traveller=req.traveller, destination=dict(req.destination or {}), eta=end,
+        status="active", overdue_grace_min=10, location_retention_hours=0,
+        stop_alert_min=20, expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
+        last_activity_at=now, moved_at=now)
+    JourneyWatcher.objects.create(journey=j, member=member)
     req.journey, req.status, req.started_at, req.ended_at = j, "active", now, None
     req.arrived_at, req.outcome = None, ""
-    add_log(req, "traveller", "started", now)
+    add_log(req, "traveller", "started", now, journey=j.id, made=True, watcher=True)
     req.save()
     JW.emit(j, "started", payload={})
+    _tell_watching(req, end)
+    return j, None
+
+
+def _tell_watching(req, end):
     rn = _name(req.traveller, req.requester)
     notify(req.traveller, req, "watching",
            "%s আপনার যাত্রা দেখছেন" % rn, "%s is watching your trip" % rn,
            "%s পর্যন্ত। যেকোনো সময় এক ট্যাপে বন্ধ করতে পারেন।" % _hhmm(end, "bn"),
            "Until %s. You can stop it any time with one tap." % _hhmm(end, "en"))
-    return j, None
+
+
+def _join_trip(req, cur, member, end, now):
+    """Attach req to the traveller's running journey (journey100b)."""
+    from .models import JourneyWatcher
+    _w, added = JourneyWatcher.objects.get_or_create(journey=cur, member=member)
+    if cur.eta is None:
+        # a self-started trip without an arrival time: the requester's window
+        # end becomes the late-check time (the traveller can still extend)
+        cur.eta = end
+        cur.save(update_fields=["eta"])
+    cap = end + timedelta(minutes=HARD_TAIL_MIN + 30)
+    if cur.expires_at is not None and cur.expires_at < cap and _made_by_guardian(cur):
+        cur.expires_at = cap          # the longer window keeps the trip alive
+        cur.save(update_fields=["expires_at"])
+    req.journey, req.status, req.started_at, req.ended_at = cur, "active", now, None
+    req.arrived_at, req.outcome = None, ""
+    add_log(req, "traveller", "started", now, journey=cur.id, made=False, watcher=added)
+    req.save()
+    tn = _name(req.requester, req.traveller)
+    notify(req.requester, req, "started",
+           "%s-এর যাত্রা শেয়ার শুরু হয়েছে" % tn, "%s's trip sharing has started" % tn,
+           "%s পর্যন্ত লাইভ দেখতে পাবেন। পৌঁছালে বা বন্ধ করলে জানানো হবে।" % _hhmm(end, "bn"),
+           "You can follow live until %s. You'll be told on arrival or stop." % _hhmm(end, "en"))
+    _tell_watching(req, end)
+    return cur
+
+
+def carry_over(old, new, now=None):
+    """journey100b: the traveller started a NEW Safe Journey while a parent
+    was following the old one. The parent moves to the new trip (same own
+    window and hard end) instead of being dropped silently. Count moved."""
+    from .models import JourneyWatcher
+    now = now or _now()
+    n = 0
+    for req in active_requests(old):
+        member = edge(req.traveller, req.requester)
+        if member is None:
+            continue
+        _w, added = JourneyWatcher.objects.get_or_create(journey=new, member=member)
+        req.journey = new
+        add_log(req, "traveller", "started", now, journey=new.id, made=False,
+                watcher=added, moved=True)
+        req.save()
+        n += 1
+    return n
+
+
+def _start_entry(req, j):
+    """The log row that put req on journey j (None for rows written before
+    journey100b, which always made their own journey)."""
+    for row in reversed(req.log or []):
+        if row.get("what") == "started" and row.get("journey") == getattr(j, "id", None):
+            return row
+    return None
+
+
+def _made_by_guardian(j):
+    """True when a guardian request created journey j (not the traveller's own
+    Safe Journey). Legacy rows without the journey id count as made."""
+    reqs = list(j.guardian_requests.all())
+    if not reqs:
+        return False
+    for r in reqs:
+        e = _start_entry(r, j)
+        if e is not None:
+            if e.get("made"):
+                return True
+            continue
+        if any(x.get("what") == "started" for x in (r.log or [])):
+            return True               # legacy: started before journey100b
+    return False
+
+
+def _others_live(req, j):
+    return j.guardian_requests.filter(status="active").exclude(pk=req.pk).exists()
+
+
+def _detach(req, j):
+    """Remove only what this request added: the requester's watcher row (if
+    the traveller had not chosen them as a watcher already) and their urgent
+    cards. The journey itself keeps running for the others."""
+    from .models import JourneyWatcher
+    e = _start_entry(req, j)
+    if e is None or e.get("watcher", True):
+        member = edge(req.traveller, req.requester)
+        if member is not None:
+            JourneyWatcher.objects.filter(journey=j, member=member).delete()
+    JW.clear_urgent(j, user=req.requester)
+    if j.status == "active" and _made_by_guardian(j):
+        # the leaving parent may still hold the web link from the "started"
+        # push: turn it off (the parents still following get the fresh link
+        # in the app's watcher list)
+        j.web_gen = int(j.web_gen or 0) + 1
+        j.save(update_fields=["web_gen"])
 
 
 def _close_journey(j, now, status="stopped"):
@@ -355,16 +440,13 @@ def finish(req, outcome, now=None, by=""):
     'accepted' for the next school day."""
     now = now or _now()
     j = req.journey
-    if j is not None and j.status == "active":
-        if others_live(req):
-            # circlea: another guardian still follows this trip — only this
-            # guardian stops seeing it.
-            from .models import JourneyWatcher
-            member = edge(req.traveller, req.requester)
-            if member is not None:
-                JourneyWatcher.objects.filter(journey=j, member=member).delete()
-        else:
-            _close_journey(j, now)
+    shared = j is not None and (_others_live(req, j) or not _made_by_guardian(j))
+    if j is not None and shared:
+        # journey100b: another parent still follows, or it is the traveller's
+        # own Safe Journey — only THIS requester leaves; nothing else changes
+        _detach(req, j)
+    elif j is not None and j.status == "active":
+        _close_journey(j, now)
     elif j is not None and not j.sos_active and (j.last_location or j.points.exists()):
         # already arrived / stopped by the Safe Journey screen: the path goes
         # NOW (retention 0 h), not on the next privacy sweep
@@ -417,10 +499,17 @@ def stop_by_traveller(req, now=None):
 # ------------------------------------------- stop at once (decision 2 Nov)
 def active_request(j):
     """The live guardian request riding on journey j (or None)."""
+    reqs = active_requests(j)
+    return reqs[0] if reqs else None
+
+
+def active_requests(j):
+    """journey100b: EVERY live guardian request on journey j (Baba and Ma may
+    both follow one trip), oldest first."""
     if j is None or not getattr(j, "pk", None):
-        return None
-    return (j.guardian_requests.filter(status="active")
-            .select_related("requester", "traveller", "journey").first())
+        return []
+    return list(j.guardian_requests.filter(status="active")
+                .select_related("requester", "traveller", "journey").order_by("id"))
 
 
 def hard_end(req, j=None):
@@ -438,25 +527,23 @@ def on_journey_arrived(j, now=None):
     The requester already got the "arrived" notice from journey_watch.emit.
     Call AFTER the journey row is saved. True when a request was ended."""
     now = now or _now()
-    req = active_request(j)
-    if req is None:
-        return False
-    req.journey = j
-    req.arrived_at = j.stopped_at or now
-    finish(req, "arrived", now, by="traveller")
-    return True
+    reqs = active_requests(j)
+    for req in reqs:
+        req.journey = j
+        req.arrived_at = j.stopped_at or now
+        finish(req, "arrived", now, by="traveller")
+    return bool(reqs)
 
 
 def on_journey_stopped(j, now=None):
     """The traveller stopped the trip from the Safe Journey screen: same as
-    the one-tap Stop on the request — ends at once, requester told."""
+    the one-tap Stop on the request — ends at once, every requester told."""
     now = now or _now()
-    req = active_request(j)
-    if req is None:
-        return False
-    req.journey = j
-    stop_by_traveller(req, now)
-    return True
+    reqs = active_requests(j)
+    for req in reqs:
+        req.journey = j
+        stop_by_traveller(req, now)
+    return bool(reqs)
 
 
 def auto_end(req, now):
@@ -478,12 +565,14 @@ def enforce_hard_end(j, now=None):
     guardian journey ends there and then (the sweep runs once a minute; a
     fix must never slip in between). True when it was ended."""
     now = now or _now()
-    req = active_request(j)
-    if req is None or now < hard_end(req, j):
-        return False
-    req.journey = j
-    auto_end(req, now)
-    return True
+    ended = False
+    for req in active_requests(j):
+        if now < hard_end(req, j):
+            continue
+        req.journey = j
+        auto_end(req, now)          # shared trip: only this requester leaves
+        ended = True
+    return ended and j.status != "active"
 
 
 # --------------------------------------------------------------- sweep

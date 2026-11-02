@@ -29,7 +29,10 @@ import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/screens/credits_screen.dart';
 import 'package:assisto/screens/crm/crm_leads_screen.dart';
+import 'package:assisto/screens/guardian_journey_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
+import 'package:assisto/screens/journey_settings_screen.dart';
+import 'package:assisto/screens/journey_watch_screen.dart';
 import 'package:assisto/screens/photo_studio_screen.dart';
 import 'package:assisto/state.dart' show Settings;
 import 'package:assisto/widgets/photo_compare.dart';
@@ -206,6 +209,13 @@ void registerPerfFlows({List<String>? only}) {
     await f.pumpFor(const Duration(seconds: 5));
     p.jank['live_idle_5s'] = await w.stop(f.tester);
     await p.memory('live');
+    // journey100b: the other Safe Journey pages on the same 2 GB profile
+    await p.pushTimed('settings_screen', const JourneySettingsScreen());
+    await _pop(f);
+    await p.pushTimed('watch_screen', const JourneyWatchScreen());
+    await _pop(f);
+    await p.pushTimed('guardian_screen', const GuardianJourneyScreen());
+    await _pop(f);
     await f.net(() => api.postJson('/journey/$jid/arrived'));
   });
 

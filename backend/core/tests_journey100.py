@@ -272,6 +272,9 @@ class SweeperTests(Base):
         self.assertEqual(self.events(j, "off_route"), [])
         self.fix(j, 23.775, 90.47)                     # ~7 km east
         JW.sweep()
+        self.assertEqual(self.events(j, "off_route"), [])   # journey100b: one jump is not enough
+        self.fix(j, 23.776, 90.471)                    # still off: confirmed
+        JW.sweep()
         JW.sweep()
         ev = self.events(j, "off_route")
         self.assertEqual(len(ev), 1)

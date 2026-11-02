@@ -166,14 +166,14 @@ void main() {
         return {'status': 'active', 'overdue_state': 'on_time'};
       });
       for (var i = 0; i < 3; i++) {
-        now = now.add(const Duration(seconds: 31));
+        now = now.add(const Duration(seconds: 91));
         await tr.tick();
       }
       expect(tr.value.net, JourneyNet.offline);
       expect(tr.value.queued, greaterThanOrEqualTo(3));
       expect(sent, isEmpty);
       online = true;
-      now = now.add(const Duration(seconds: 31));
+      now = now.add(const Duration(seconds: 91));
       await tr.tick();
       expect(tr.value.net, JourneyNet.ok);
       expect(tr.value.queued, 0);
@@ -351,6 +351,36 @@ void main() {
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyWatchScreen())));
     await _settle(tester);
     expect(find.text(en.j100WatchError), findsOneWidget);
+    await tester.pumpWidget(const SizedBox()); // drop the 30 s refresh timer
+  });
+
+  testWidgets('journey100b watcher card: speed ETA, honest lost reason, last known battery',
+      (tester) async {
+    final api = _JApi()
+      ..watching = [
+        {'id': 1, 'name': 'Rina', 'status': 'active', 'sos': false, 'destination': 'Home',
+         'lat': 23.7, 'lng': 90.4, 'fix_age_s': 30, 'battery': 40, 'url': 'https://x/j/1',
+         'distance_m': 4200, 'rough_min': 35, 'eta_basis': 'speed'},
+        {'id': 2, 'name': 'Tuli', 'status': 'active', 'sos': false, 'destination': '',
+         'lat': 23.7, 'lng': 90.4, 'fix_age_s': 1200, 'url': 'https://x/j/2',
+         'battery_last': 55, 'why': 'killed', 'distance_m': 900, 'rough_min': 10,
+         'eta_basis': 'typical'},
+        {'id': 3, 'name': 'Mita', 'status': 'active', 'sos': false, 'destination': '',
+         'lat': 23.7, 'lng': 90.4, 'fix_age_s': 1200, 'battery': 3, 'url': 'https://x/j/3',
+         'why': 'battery', 'why_battery': 3},
+      ];
+    await tester.pumpWidget(_app(api));
+    unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyWatchScreen())));
+    await _settle(tester);
+    expect(find.text(en.j100bRoughSpeed(35)), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(en.j100bWhyKilled), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.text(en.j100bWhyKilled), findsOneWidget);
+    expect(find.text(en.j100bRoughTypical(10)), findsOneWidget);
+    expect(find.text(en.j100bBatteryLast(55)), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(en.j100bWhyBattery(3)), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.text(en.j100bWhyBattery(3)), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); // drop the 30 s refresh timer
   });
 

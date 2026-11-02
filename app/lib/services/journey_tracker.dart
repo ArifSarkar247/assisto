@@ -38,18 +38,42 @@ const String kPhonesKey = 'journey_sms_phones';
 const String kJourneyTickMsg = 'journey_tick';
 const String kJourneyAliveMsg = 'journey_alive';
 const String kServiceOwnKey = 'journey_service_own';
+/// journey100b: fixes the background service took while Assisto was swiped
+/// away, saved on disk (no session/token in it) so a service restart or the
+/// app coming back never loses them.
+const String kBgQueueKey = 'journey_bg_queue';
+/// journey100b battery saving: standing still -> a fix at most this often
+/// (the watcher page calls a fix "live" for 120 s, so this stays live).
+const Duration kStillFixEvery = Duration(seconds: 90);
+/// journey100b: at or below this battery % (not charging is unknown, so we
+/// just go by %) -> a fix at most every [kLowBattFixEvery].
+const int kLowBattPct = 15;
+const Duration kLowBattFixEvery = Duration(seconds: 60);
+/// Within this many metres the last few fixes count as "standing still".
+const double kStillMetres = 25;
+/// journey100b poor network: after the network comes back, send up to this
+/// many batches (100 fixes each) in one tick instead of one per 30 s.
+const int kMaxBatchesPerTick = 3;
+/// journey100b poor network: a send that hangs (2G edge, captive Wi-Fi) is
+/// given up after this, so the next wake-up still takes a fix — the plain
+/// HTTP client has no timeout and could block every tick for minutes.
+const Duration kSendTimeout = Duration(seconds: 20);
 
 class JourneyFix {
   final double lat, lng;
   final DateTime at;
   final int? battery;
-  const JourneyFix(this.lat, this.lng, this.at, [this.battery]);
+  /// 'app' (Assisto open) or 'bg' (the service alone, Assisto swiped away) —
+  /// lets the server tell watchers the honest reason when fixes stop.
+  final String src;
+  const JourneyFix(this.lat, this.lng, this.at, [this.battery, this.src = 'app']);
 
   Map<String, dynamic> toJson() => {
         'lat': lat,
         'lng': lng,
         'at': at.toUtc().toIso8601String(),
         if (battery != null) 'battery': battery,
+        'src': src,
       };
 
   static JourneyFix? fromJson(Object? m) {
@@ -58,8 +82,35 @@ class JourneyFix {
     final lng = (m['lng'] as num?)?.toDouble();
     final at = DateTime.tryParse('${m['at']}');
     if (lat == null || lng == null || at == null) return null;
-    return JourneyFix(lat, lng, at, (m['battery'] as num?)?.toInt());
+    return JourneyFix(lat, lng, at, (m['battery'] as num?)?.toInt(),
+        m['src'] == 'bg' ? 'bg' : 'app');
   }
+}
+
+/// journey100b — battery-aware cadence (pure, unit-tested). The tracker
+/// wakes every 30 s; this decides whether THIS wake-up takes a GPS fix.
+/// * Moving: every wake-up (30 s).
+/// * Standing still (last 3 fixes within [kStillMetres]): every 90 s.
+/// * Battery at/below [kLowBattPct] %: at most every 60 s.
+/// The queue is flushed on every wake-up either way.
+bool journeyShouldFix({
+  required DateTime now,
+  required List<JourneyFix> recent,
+  int? battery,
+}) {
+  if (recent.isEmpty) return true;
+  final since = now.difference(recent.last.at);
+  if (recent.length >= 3) {
+    final last3 = recent.sublist(recent.length - 3);
+    final still = last3.every((f) =>
+        Geolocator.distanceBetween(f.lat, f.lng, last3.last.lat, last3.last.lng) <=
+        kStillMetres);
+    if (still && since < kStillFixEvery) return false;
+  }
+  if (battery != null && battery <= kLowBattPct && since < kLowBattFixEvery) {
+    return false;
+  }
+  return true;
 }
 
 /// Pure offline queue (persisted as JSON by the tracker).
@@ -168,7 +219,22 @@ class JourneyTaskHandler extends TaskHandler {
   bool _busy = false;
 
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    try {
+      final raw = await FlutterForegroundTask.getData<String>(key: kBgQueueKey);
+      _q.items.addAll(JourneyFixQueue.decode(raw).items);
+    } catch (_) {
+      // best-effort: nothing saved from before a service restart
+    }
+  }
+
+  Future<void> _saveQ() async {
+    try {
+      await FlutterForegroundTask.saveData(key: kBgQueueKey, value: _q.encode());
+    } catch (_) {
+      // best-effort: kept in memory for the next tick
+    }
+  }
 
   @override
   void onReceiveData(Object data) {
@@ -193,7 +259,10 @@ class JourneyTaskHandler extends TaskHandler {
     _busy = true;
     try {
       final pos = await _defaultPosition();
-      if (pos != null) _q.add(JourneyFix(pos.lat, pos.lng, DateTime.now()));
+      if (pos != null) {
+        _q.add(JourneyFix(pos.lat, pos.lng, DateTime.now(), null, 'bg'));
+        await _saveQ();
+      }
       if (_q.items.isEmpty) return;
       final batch = _q.items.take(100).toList();
       final r = await http.post(Uri.parse(_url!),
@@ -206,6 +275,7 @@ class JourneyTaskHandler extends TaskHandler {
           .timeout(const Duration(seconds: 20));
       if (r.statusCode >= 200 && r.statusCode < 300) {
         _q.ack(batch.length);
+        await _saveQ();
         final body = jsonDecode(r.body);
         if (body is Map && (body['status'] ?? 'active') != 'active') {
           await FlutterForegroundTask.stopService();
@@ -228,6 +298,7 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
     JourneyBatteryFn? battery,
     this.useService = true,
     DateTime Function()? clock,
+    this.sendTimeout = kSendTimeout,
   })  : _position = position ?? _defaultPosition,
         _battery = battery ?? readBatteryLevel,
         _clock = clock ?? DateTime.now,
@@ -239,13 +310,39 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
   final JourneyBatteryFn _battery;
   final DateTime Function() _clock;
   final bool useService;
+  final Duration sendTimeout;
   JourneySendFn? _send;
   Timer? _timer;
   bool _busy = false;
   bool _ownService = false;
   DateTime? _lastTick;
   JourneyFixQueue _queue = JourneyFixQueue();
+  final List<JourneyFix> _recent = [];
   Map<String, String>? _session;
+
+  /// GPS fixes skipped by the battery-aware cadence (shown nowhere; tests).
+  @visibleForTesting
+  int fixesSkipped = 0;
+
+  /// Fixes the background service took while Assisto was swiped away and
+  /// could not send (no network) — sent with ours now.
+  Future<void> _mergeBgQueue() async {
+    if (!useService || _underFlutterTest()) return;
+    try {
+      final raw = await FlutterForegroundTask.getData<String>(key: kBgQueueKey);
+      final bg = JourneyFixQueue.decode(raw);
+      if (bg.items.isEmpty) return;
+      await FlutterForegroundTask.removeData(key: kBgQueueKey);
+      final all = [..._queue.items, ...bg.items]..sort((a, b) => a.at.compareTo(b.at));
+      _queue = JourneyFixQueue();
+      for (final f in all) {
+        _queue.add(f);
+      }
+      await Settings.setString(kQueueKey, _queue.encode());
+    } catch (_) {
+      // best-effort: the service keeps them and retries itself
+    }
+  }
 
   bool get running => value.journeyId != null && value.status == 'active';
 
@@ -261,6 +358,7 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
       return;
     }
     await stop(keepQueue: true);
+    _recent.clear();
     _queue = JourneyFixQueue.decode(await Settings.getString(kQueueKey));
     value = JourneyTrackState(journeyId: journeyId, queued: _queue.items.length);
     await Settings.setString(kActiveKey, '$journeyId');
@@ -282,6 +380,13 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
       _queue = JourneyFixQueue();
       await Settings.setString(kQueueKey, '');
       await Settings.setString(kActiveKey, '');
+      if (useService && !_underFlutterTest()) {
+        try {
+          await FlutterForegroundTask.removeData(key: kBgQueueKey);
+        } catch (_) {
+          // best-effort: nothing saved
+        }
+      }
     }
     await _stopService();
     if (value.journeyId != null && !keepQueue) {
@@ -304,12 +409,7 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
     _busy = true;
     _heartbeat();
     try {
-      ({double lat, double lng})? pos;
-      try {
-        pos = await _position();
-      } catch (_) {
-        pos = null; // best-effort: shown as "location off" below
-      }
+      await _mergeBgQueue();
       int? batt;
       try {
         batt = await _battery();
@@ -317,25 +417,45 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
         batt = null; // best-effort: battery is optional
       }
       JourneyFix? fix;
-      if (pos != null) {
-        fix = JourneyFix(pos.lat, pos.lng, now, batt);
-        _queue.add(fix);
-        await Settings.setString(kQueueKey, _queue.encode());
+      // journey100b: standing still / low battery -> fewer GPS fixes
+      if (journeyShouldFix(now: now, recent: _recent, battery: batt)) {
+        ({double lat, double lng})? pos;
+        try {
+          pos = await _position();
+        } catch (_) {
+          pos = null; // best-effort: shown as "location off" below
+        }
+        if (pos != null) {
+          fix = JourneyFix(pos.lat, pos.lng, now, batt);
+          _queue.add(fix);
+          _recent.add(fix);
+          if (_recent.length > 5) _recent.removeAt(0);
+          await Settings.setString(kQueueKey, _queue.encode());
+        }
+        value = value.copyWith(
+            locationOff: pos == null, queued: _queue.items.length, lastFix: fix);
+      } else {
+        fixesSkipped++;
+        value = value.copyWith(queued: _queue.items.length);
       }
-      value = value.copyWith(
-          locationOff: pos == null, queued: _queue.items.length, lastFix: fix);
       if (_queue.items.isEmpty) return;
-      final batch = _queue.items.take(100).toList();
-      Map<String, dynamic> r;
-      try {
-        r = await send(id, batch.map((f) => f.toJson()).toList());
-      } catch (_) {
-        // offline / server down: keep the queue, say so on screen
-        value = value.copyWith(net: JourneyNet.offline, queued: _queue.items.length);
-        return;
+      Map<String, dynamic> r = const {};
+      // journey100b: back from a dead zone -> send the whole backlog now
+      // (up to 3 x 100 fixes), not one batch per 30 s
+      for (var i = 0; i < kMaxBatchesPerTick && _queue.items.isNotEmpty; i++) {
+        final batch = _queue.items.take(100).toList();
+        try {
+          r = await send(id, batch.map((f) => f.toJson()).toList())
+              .timeout(sendTimeout);
+        } catch (_) {
+          // offline / server down: keep the queue, say so on screen
+          value = value.copyWith(net: JourneyNet.offline, queued: _queue.items.length);
+          return;
+        }
+        _queue.ack(batch.length);
+        await Settings.setString(kQueueKey, _queue.encode());
+        if ((r['status'] ?? 'active').toString() != 'active') break;
       }
-      _queue.ack(batch.length);
-      await Settings.setString(kQueueKey, _queue.encode());
       final status = (r['status'] ?? 'active').toString();
       value = value.copyWith(
         net: JourneyNet.ok,

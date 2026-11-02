@@ -24,6 +24,7 @@ FILE_GROUP = {
     "my_circle_ticks_flow": "circle", "circle_real_call_flow": "circle",
     "business_flow": "business", "docs_voice_settings_flow": "docs",
     "sweep_flow": "sweep",
+    "safe_journey_flow": "family",   # journey100b: registered under the family group
 }
 
 

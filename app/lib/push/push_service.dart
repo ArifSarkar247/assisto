@@ -3,6 +3,8 @@ import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScre
 import '../crypto/key_wiring.dart';
 import 'dart:async';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -583,6 +585,13 @@ class PushService {
 
   void _open(PushPayload p, String? action) {
     AppEntry.mark(p.isCall ? 'call' : (p.isSos ? 'sos' : 'notification'));
+    // journey100b: Safe Journey "Open map" / "Live view" buttons
+    final jUri = PushNotifier.journeyActionUri(p.data, action);
+    if (jUri != null) {
+      unawaited(launchUrl(jUri, mode: LaunchMode.externalApplication)
+          .then((_) {}, onError: (_) {}));
+      return;
+    }
     // calls-a: a call's Accept / tap goes straight to its screen (instant, no
     // wait for the profile sync) and only ONCE per call — the native launch
     // (MainActivity) usually got there first, then this copy is a no-op.
