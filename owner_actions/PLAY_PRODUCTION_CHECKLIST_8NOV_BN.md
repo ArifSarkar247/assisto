@@ -143,6 +143,16 @@
 
 সংখ্যা কম থাকলে Vitals-এ হার দেখাবে না। তখন Owner Admin → Vitals আর "রিপোর্ট ও ত্রুটি (crash)" পাতায় নিজের crash-রিপোর্ট দেখুন।
 
+## ধাপ ৮ক — লঞ্চের দিন: AdMob (আসল বিজ্ঞাপন) — admobump, ২ নভেম্বর
+
+আসল বিজ্ঞাপন চালু হবে **এই ক্রমে**, তাড়াহুড়ো নয় (বিস্তারিত: `ADS_LAUNCH_CHECKLIST_BN.md` → "লঞ্চের দিন"):
+1. প্রোডাকশন লাইভ হলে **সেদিনই** AdMob → Apps → Assisto → App settings → **Link to app store** → Google Play → Assisto।
+2. AdMob-এর অ্যাপ রিভিউ **"Ready"** হওয়া পর্যন্ত অপেক্ষা (কয়েক দিন–২ সপ্তাহ)। এই সময়ে অ্যাপ Google-এর **টেস্ট** বিজ্ঞাপন দেখায় — স্বাভাবিক।
+3. https://lifeassisto.com/app-ads.txt খুলে দেখুন এক লাইন আছে (`google.com, pub-…, DIRECT, f08c47fec0942fa0`)। ৪০৪ দেখালে Owner Admin → Integrations → Google AdMob → **Publisher ID** (`pub-` + ১৬ অঙ্ক) দিয়ে Save।
+4. "Ready" + app-ads.txt **Verified** হলে **তবেই** Owner Admin → Ads → **"আসল AdMob ইউনিট আইডি চালু"**। অ্যাপ আপডেট লাগে না।
+5. ডিবাগ বিল্ডে কখনো আসল আইডি যায় না (কোডে পাহারা) — শুধু Play/ওয়েবসাইটের রিলিজ বিল্ড।
+6. **US state regulations** মেসেজ AdMob → Privacy & messaging-এ প্রকাশ করুন (GDPR আগেই প্রকাশিত) — অ্যাপে কিছু বদলাতে হবে না।
+
 ## ধাপ ৯ — সমস্যা হলে ফেরার পথ (rollback)
 
 1. **সবচেয়ে দ্রুত (সেকেন্ডে):** যে ফিচারে সমস্যা, Owner Admin → Features-এ তার `enabled_play` তুলে দিন। ৩০ সেকেন্ড থেকে ১ মিনিটের মধ্যে সব ফোনে লুকিয়ে যায়, নতুন বিল্ড লাগে না।
