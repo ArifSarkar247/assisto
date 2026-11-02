@@ -12,6 +12,7 @@ import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
 import '../cashbox_screen.dart';
 import 'acct_common.dart';
+import '../../../widgets/local_counter.dart';
 
 /// ledger2 — business accounting phase 2 screens (flag accounting_v2):
 ///  * AcctCashboxScreen  — say once what each hand-written cashbox row was
@@ -358,6 +359,7 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
                   key: const ValueKey('acct-vat-note'),
                   controller: note,
                   maxLength: 120,
+                  buildCounter: localCounter,
                   decoration: InputDecoration(
                       labelText: t.lg2VatNoteLabel,
                       helperText: t.lg2VatNoteHelp,
@@ -591,6 +593,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
                 key: const ValueKey('acct-year-reason'),
                 controller: reason,
                 maxLength: 200,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.acuReopenReason, border: const OutlineInputBorder()),
                 onChanged: (_) => setSheet(() {}),
