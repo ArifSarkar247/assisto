@@ -80,7 +80,12 @@ class MsgrCommunityCard extends StatelessWidget {
               ),
               if (trailing != null) ...[
                 const SizedBox(width: Gap.sm),
-                trailing!,
+                // channels: cap so long labels / 200% text wrap, not overflow
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * 0.38),
+                  child: trailing!,
+                ),
               ],
             ],
           ),
@@ -146,7 +151,8 @@ class MsgrActionChip extends StatelessWidget {
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: FilledButton.styleFrom(
-        visualDensity: VisualDensity.compact,
+        minimumSize: const Size(48, 48), // channels a11y: 48dp
+        tapTargetSize: MaterialTapTargetSize.padded,
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
       ),
     );

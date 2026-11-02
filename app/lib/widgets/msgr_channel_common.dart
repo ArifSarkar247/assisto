@@ -160,7 +160,13 @@ class MsgrChannelTile extends StatelessWidget {
         ],
       ),
       subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: trailing,
+      // channels: a wide trailing (200% text) never squeezes the title
+      trailing: trailing == null
+          ? null
+          : ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+              child: trailing),
     );
   }
 }
@@ -195,7 +201,7 @@ class MsgrFollowButton extends StatelessWidget {
     }
     return FilledButton(
       onPressed: onPressed,
-      style: FilledButton.styleFrom(minimumSize: const Size(0, 38)),
+      style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
       child: Text(t.channelFollow),
     );
   }
