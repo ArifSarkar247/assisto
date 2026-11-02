@@ -1,0 +1,665 @@
+{
+ "en": {
+  "ctmGridTitle": "All cameras",
+  "@ctmGridTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridNote": "Still photos, not video — light on data and battery. Tap a camera for a bigger photo or live view (up to {n} live at a time).",
+  "@ctmGridNote": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmGridEmptyTitle": "No camera to show yet",
+  "@ctmGridEmptyTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyBenefit": "See every home and shop on one screen — each camera's latest photo and whether it is online.",
+  "@ctmGridEmptyBenefit": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep1": "Add a place (home or shop)",
+  "@ctmGridEmptyStep1": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep2": "Add a camera or turn an old phone into one",
+  "@ctmGridEmptyStep2": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep3": "Come back here to see them all together",
+  "@ctmGridEmptyStep3": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleOwner": "Owner",
+  "@ctmRoleOwner": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleFamily": "Family",
+  "@ctmRoleFamily": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleManager": "Manager",
+  "@ctmRoleManager": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleGuard": "Guard",
+  "@ctmRoleGuard": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleFamilyHelp": "Sees the cameras you allow and their alerts. Cannot change anything.",
+  "@ctmRoleFamilyHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleManagerHelp": "Sees the cameras you allow and can mark alerts as checked or wrong.",
+  "@ctmRoleManagerHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleGuardHelp": "Sees ONLY the cameras you tick (for example the gate) — nothing else at this place.",
+  "@ctmRoleGuardHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleTitle": "What {name} may see",
+  "@ctmRoleTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmRoleServerNote": "Assisto's server checks this on every photo, alert, clip and live view — not just the app.",
+  "@ctmRoleServerNote": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmAllCameras": "All cameras at this place",
+  "@ctmAllCameras": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPickCameras": "Choose cameras",
+  "@ctmPickCameras": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGuardPick": "Tick at least one camera the guard may see",
+  "@ctmGuardPick": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOk": "Allow live view",
+  "@ctmLiveOk": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOkHelp": "Only for the cameras above. Counts toward your 2 live views at a time.",
+  "@ctmLiveOkHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOkShort": "Live allowed",
+  "@ctmLiveOkShort": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCamerasCount": "{n} cameras",
+  "@ctmCamerasCount": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmTapToSetRole": "Tap a person to choose what they may see (family, manager or guard).",
+  "@ctmTapToSetRole": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmSave": "Save",
+  "@ctmSave": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOnline": "Online",
+  "@ctmStatusOnline": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOffline": "Offline",
+  "@ctmStatusOffline": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusNever": "Not connected yet",
+  "@ctmStatusNever": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOff": "Turned off",
+  "@ctmStatusOff": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmNoPhoto": "No photo yet",
+  "@ctmNoPhoto": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoFromCheck": "Photo from the setup check",
+  "@ctmPhotoFromCheck": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoJustNow": "Photo just now",
+  "@ctmPhotoJustNow": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoMinutes": "Photo {n} min ago",
+  "@ctmPhotoMinutes": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmPhotoAt": "Photo at {time}",
+  "@ctmPhotoAt": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmFreshPhoto": "Get a fresh photo now",
+  "@ctmFreshPhoto": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmFreshDone": "Fresh photo from the camera.",
+  "@ctmFreshDone": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmFreshUnsupported": "This camera can't send a fresh photo on request — you see its last alert photo. Open live to see it right now.",
+  "@ctmFreshUnsupported": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmOpenLive": "Watch live",
+  "@ctmOpenLive": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveNotAllowed": "The owner has not allowed you live view of this camera.",
+  "@ctmLiveNotAllowed": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveNotCapable": "Live view is not available for this camera yet.",
+  "@ctmLiveNotCapable": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareToWatch": "Share this photo with neighbours",
+  "@ctmShareToWatch": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchTitle": "Neighbourhood watch",
+  "@ctmWatchTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchIntro": "Your private community groups. A photo shared here is seen only by that group's members and is deleted when its time is up.",
+  "@ctmWatchIntro": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchMembers": "{n} members",
+  "@ctmWatchMembers": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmWatchEmptyTitle": "No private group yet",
+  "@ctmWatchEmptyTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyBenefit": "Warn trusted neighbours with one photo you choose — only your private group sees it, never the public.",
+  "@ctmWatchEmptyBenefit": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyRefresh": "Check again",
+  "@ctmWatchEmptyRefresh": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep1": "In My Circle → Communities, create a private community for your road or building",
+  "@ctmWatchEmptyStep1": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep2": "Invite neighbours you trust",
+  "@ctmWatchEmptyStep2": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep3": "Come back here — the group appears in this list",
+  "@ctmWatchEmptyStep3": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchNoPostsTitle": "No photo shared right now",
+  "@ctmWatchNoPostsTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchNoPostsBenefit": "When a neighbour shares a photo, it shows here until it expires.",
+  "@ctmWatchNoPostsBenefit": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep1": "Open All cameras and tap a camera",
+  "@ctmWatchShareStep1": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep2": "Tap 'Share this photo with neighbours'",
+  "@ctmWatchShareStep2": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep3": "Pick this group, confirm and send",
+  "@ctmWatchShareStep3": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchBy": "By {name} at {time}",
+  "@ctmWatchBy": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmWatchUntil": "Deleted at {time}",
+  "@ctmWatchUntil": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmWatchDelete": "Delete",
+  "@ctmWatchDelete": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchDeleted": "Deleted.",
+  "@ctmWatchDeleted": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchReport": "Report",
+  "@ctmWatchReport": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchReported": "Thanks — reported. It is hidden for you.",
+  "@ctmWatchReported": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReportHelp": "Three reports from members remove the photo for everyone.",
+  "@ctmReportHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonPrivate": "Shows a private place or person",
+  "@ctmReasonPrivate": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonWrongPerson": "Blames the wrong person",
+  "@ctmReasonWrongPerson": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonAbuse": "Abusive or hateful",
+  "@ctmReasonAbuse": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonSpam": "Spam",
+  "@ctmReasonSpam": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonOther": "Something else",
+  "@ctmReasonOther": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmBlockAuthor": "Also block {name}",
+  "@ctmBlockAuthor": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmBlockHelp": "You will not see their neighbourhood-watch photos again.",
+  "@ctmBlockHelp": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReportSend": "Send report",
+  "@ctmReportSend": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPickGroup": "Which private group?",
+  "@ctmPickGroup": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmDeleteAfter": "Delete the photo after",
+  "@ctmDeleteAfter": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmHours": "{n} hours",
+  "@ctmHours": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmCaption": "A short note (optional)",
+  "@ctmCaption": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCaptionHint": "Suspicious — please keep an eye out",
+  "@ctmCaptionHint": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchConfirm": "I chose this photo myself and want only this group to see it. I know faces are not blurred.",
+  "@ctmWatchConfirm": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchSend": "Share with the group",
+  "@ctmWatchSend": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShared": "Shared with your private group.",
+  "@ctmWatchShared": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksTitle": "Share link",
+  "@ctmLinksTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksIntro": "A view-only link for someone without the app — photos of the cameras you choose, until the time you set. No sound. Turn it off any time.",
+  "@ctmLinksIntro": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksEmptyTitle": "No share link yet",
+  "@ctmLinksEmptyTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksEmptyBenefit": "Let a relative or a security company check your cameras for an hour or a day — in any browser, no app needed.",
+  "@ctmLinksEmptyBenefit": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep1": "Choose the cameras",
+  "@ctmLinksStep1": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep2": "Choose 1 hour, 24 hours or your own time",
+  "@ctmLinksStep2": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep3": "Send the link — you can turn it off any time",
+  "@ctmLinksStep3": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmNewLink": "New share link",
+  "@ctmNewLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkHowLong": "Open for how long?",
+  "@ctmLinkHowLong": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCustom": "Choose time",
+  "@ctmCustom": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkLabel": "Who is it for? (only you see this)",
+  "@ctmLinkLabel": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkLabelHint": "e.g. Cousin Rafiq",
+  "@ctmLinkLabelHint": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkWarning": "Anyone who gets this link can see these cameras' photos until it ends. Photos only — never sound, never old video. You see each time it is opened.",
+  "@ctmLinkWarning": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmMakeLink": "Make the link",
+  "@ctmMakeLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkReady": "Link ready",
+  "@ctmLinkReady": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkOnce": "For safety the full link is shown only now. Lost it? Turn it off and make a new one.",
+  "@ctmLinkOnce": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareLink": "Send the link",
+  "@ctmShareLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCopyLink": "Copy the link",
+  "@ctmCopyLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCopied": "Copied.",
+  "@ctmCopied": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareMessage": "You can see the cameras of {place} until {time} (view only): {url}",
+  "@ctmShareMessage": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "place": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    },
+    "url": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmLinkUntil": "Shared until {time}",
+  "@ctmLinkUntil": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmLinkStateRevoked": "Turned off",
+  "@ctmLinkStateRevoked": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkStateExpired": "Expired",
+  "@ctmLinkStateExpired": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkViews": "Opened {n} times",
+  "@ctmLinkViews": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ctmLinkNoLabel": "Share link",
+  "@ctmLinkNoLabel": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRevoke": "Turn off now",
+  "@ctmRevoke": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkRevoked": "Link turned off — it shows nothing now.",
+  "@ctmLinkRevoked": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogTitle": "Who viewed",
+  "@ctmLogTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogEmptyTitle": "Nobody else has looked yet",
+  "@ctmLogEmptyTitle": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogEmptyBenefit": "Every time family, a guard, a manager or a share link looks at a camera, it shows here — for 30 days.",
+  "@ctmLogEmptyBenefit": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStep1": "Add people under Family viewers",
+  "@ctmLogStep1": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStep2": "Or make a share link",
+  "@ctmLogStep2": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogAlerts": "Opened the alert list",
+  "@ctmLogAlerts": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogAlert": "Opened an alert",
+  "@ctmLogAlert": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStill": "Looked at camera photos",
+  "@ctmLogStill": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogLive": "Watched live",
+  "@ctmLogLive": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogLink": "Opened the share link",
+  "@ctmLogLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogByLink": "Link: {label}",
+  "@ctmLogByLink": {
+   "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+   "placeholders": {
+    "label": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "ctmGridTitle": "সব ক্যামেরা",
+  "ctmGridNote": "ভিডিও নয়, স্থির ছবি — ডেটা ও ব্যাটারি কম খরচ। বড় ছবি বা লাইভ দেখতে ক্যামেরায় ট্যাপ করুন (একসাথে সর্বোচ্চ {n}টি লাইভ)।",
+  "ctmGridEmptyTitle": "দেখানোর মতো কোনো ক্যামেরা এখনো নেই",
+  "ctmGridEmptyBenefit": "সব বাড়ি ও দোকান এক পাতায় — প্রতিটি ক্যামেরার শেষ ছবি আর সেটা চালু কিনা।",
+  "ctmGridEmptyStep1": "একটি জায়গা যোগ করুন (বাড়ি বা দোকান)",
+  "ctmGridEmptyStep2": "ক্যামেরা যোগ করুন বা পুরনো ফোনকে ক্যামেরা বানান",
+  "ctmGridEmptyStep3": "সব একসাথে দেখতে এখানে ফিরে আসুন",
+  "ctmRoleOwner": "মালিক",
+  "ctmRoleFamily": "পরিবার",
+  "ctmRoleManager": "ম্যানেজার",
+  "ctmRoleGuard": "গার্ড",
+  "ctmRoleFamilyHelp": "আপনি যে ক্যামেরাগুলো দেবেন সেগুলো ও তার সতর্কতা দেখবেন। কিছু বদলাতে পারবেন না।",
+  "ctmRoleManagerHelp": "আপনি যে ক্যামেরাগুলো দেবেন সেগুলো দেখবেন, আর সতর্কতা 'দেখা হয়েছে' বা 'ভুল' চিহ্ন দিতে পারবেন।",
+  "ctmRoleGuardHelp": "শুধু আপনার বাছাই করা ক্যামেরা (যেমন গেট) দেখবেন — এই জায়গার আর কিছু নয়।",
+  "ctmRoleTitle": "{name} কী দেখতে পারবেন",
+  "ctmRoleServerNote": "প্রতিটি ছবি, সতর্কতা, ক্লিপ ও লাইভে Assisto-র সার্ভার এটা মিলিয়ে দেখে — শুধু অ্যাপে নয়।",
+  "ctmAllCameras": "এই জায়গার সব ক্যামেরা",
+  "ctmPickCameras": "ক্যামেরা বাছুন",
+  "ctmGuardPick": "গার্ড কোন ক্যামেরা দেখবেন — অন্তত একটি বাছুন",
+  "ctmLiveOk": "লাইভ দেখার অনুমতি",
+  "ctmLiveOkHelp": "শুধু ওপরের ক্যামেরাগুলোর জন্য। আপনার একসাথে ২টি লাইভের মধ্যে গোনা হবে।",
+  "ctmLiveOkShort": "লাইভ চালু",
+  "ctmCamerasCount": "{n}টি ক্যামেরা",
+  "ctmTapToSetRole": "কে কী দেখবেন ঠিক করতে নামের ওপর ট্যাপ করুন (পরিবার, ম্যানেজার বা গার্ড)।",
+  "ctmSave": "সংরক্ষণ করুন",
+  "ctmStatusOnline": "চালু",
+  "ctmStatusOffline": "অফলাইন",
+  "ctmStatusNever": "এখনো সংযোগ হয়নি",
+  "ctmStatusOff": "বন্ধ করা",
+  "ctmNoPhoto": "এখনো কোনো ছবি নেই",
+  "ctmPhotoFromCheck": "সেটআপ পরীক্ষার ছবি",
+  "ctmPhotoJustNow": "এইমাত্র তোলা ছবি",
+  "ctmPhotoMinutes": "ছবি {n} মিনিট আগের",
+  "ctmPhotoAt": "ছবি {time}-এর",
+  "ctmFreshPhoto": "এখনকার নতুন ছবি আনুন",
+  "ctmFreshDone": "ক্যামেরা থেকে নতুন ছবি এসেছে।",
+  "ctmFreshUnsupported": "এই ক্যামেরা চাইলেই নতুন ছবি পাঠাতে পারে না — শেষ সতর্কতার ছবি দেখছেন। এখনকার দৃশ্য দেখতে লাইভ খুলুন।",
+  "ctmOpenLive": "লাইভ দেখুন",
+  "ctmLiveNotAllowed": "মালিক এই ক্যামেরার লাইভ দেখার অনুমতি আপনাকে দেননি।",
+  "ctmLiveNotCapable": "এই ক্যামেরায় এখনো লাইভ দেখা যায় না।",
+  "ctmShareToWatch": "এই ছবিটি প্রতিবেশীদের সাথে শেয়ার",
+  "ctmWatchTitle": "পাড়া-পাহারা",
+  "ctmWatchIntro": "আপনার প্রাইভেট কমিউনিটি গ্রুপ। এখানে শেয়ার করা ছবি শুধু ওই গ্রুপের সদস্যরা দেখেন, আর সময় শেষে মুছে যায়।",
+  "ctmWatchMembers": "{n} জন সদস্য",
+  "ctmWatchEmptyTitle": "এখনো কোনো প্রাইভেট গ্রুপ নেই",
+  "ctmWatchEmptyBenefit": "নিজে বাছা একটি ছবি দিয়ে বিশ্বস্ত প্রতিবেশীদের সতর্ক করুন — শুধু আপনার প্রাইভেট গ্রুপ দেখবে, কখনো সবাই নয়।",
+  "ctmWatchEmptyRefresh": "আবার দেখুন",
+  "ctmWatchEmptyStep1": "My Circle → কমিউনিটিতে আপনার রাস্তা বা বিল্ডিংয়ের জন্য একটি প্রাইভেট কমিউনিটি খুলুন",
+  "ctmWatchEmptyStep2": "বিশ্বস্ত প্রতিবেশীদের যোগ করুন",
+  "ctmWatchEmptyStep3": "এখানে ফিরে আসুন — গ্রুপটি এই তালিকায় দেখাবে",
+  "ctmWatchNoPostsTitle": "এখন কোনো শেয়ার করা ছবি নেই",
+  "ctmWatchNoPostsBenefit": "কোনো প্রতিবেশী ছবি শেয়ার করলে মেয়াদ শেষ হওয়া পর্যন্ত এখানে দেখাবে।",
+  "ctmWatchShareStep1": "সব ক্যামেরা খুলে একটি ক্যামেরায় ট্যাপ করুন",
+  "ctmWatchShareStep2": "'এই ছবিটি প্রতিবেশীদের সাথে শেয়ার' চাপুন",
+  "ctmWatchShareStep3": "এই গ্রুপ বাছুন, নিশ্চিত করে পাঠান",
+  "ctmWatchBy": "{name} · {time}",
+  "ctmWatchUntil": "{time}-এ মুছে যাবে",
+  "ctmWatchDelete": "মুছে দিন",
+  "ctmWatchDeleted": "মুছে দেওয়া হয়েছে।",
+  "ctmWatchReport": "রিপোর্ট করুন",
+  "ctmWatchReported": "ধন্যবাদ — রিপোর্ট হয়েছে। আপনার কাছে আর দেখাবে না।",
+  "ctmReportHelp": "তিনজন সদস্য রিপোর্ট করলে ছবিটি সবার কাছ থেকে সরে যায়।",
+  "ctmReasonPrivate": "ব্যক্তিগত জায়গা বা মানুষ দেখাচ্ছে",
+  "ctmReasonWrongPerson": "ভুল মানুষকে দোষ দিচ্ছে",
+  "ctmReasonAbuse": "অপমানজনক বা ঘৃণামূলক",
+  "ctmReasonSpam": "স্প্যাম",
+  "ctmReasonOther": "অন্য কিছু",
+  "ctmBlockAuthor": "{name}-কেও ব্লক করুন",
+  "ctmBlockHelp": "তাঁর পাড়া-পাহারার ছবি আর দেখবেন না।",
+  "ctmReportSend": "রিপোর্ট পাঠান",
+  "ctmPickGroup": "কোন প্রাইভেট গ্রুপে?",
+  "ctmDeleteAfter": "ছবিটি মুছে যাবে",
+  "ctmHours": "{n} ঘণ্টা",
+  "ctmCaption": "ছোট একটি লেখা (ইচ্ছা হলে)",
+  "ctmCaptionHint": "সন্দেহজনক — একটু খেয়াল রাখুন",
+  "ctmWatchConfirm": "ছবিটি আমি নিজে বেছেছি, শুধু এই গ্রুপ দেখুক। আমি জানি মুখ ঝাপসা করা হয় না।",
+  "ctmWatchSend": "গ্রুপে শেয়ার করুন",
+  "ctmWatchShared": "আপনার প্রাইভেট গ্রুপে শেয়ার হয়েছে।",
+  "ctmLinksTitle": "শেয়ার লিংক",
+  "ctmLinksIntro": "অ্যাপ নেই এমন কাউকে শুধু দেখার লিংক — আপনার বাছা ক্যামেরার ছবি, আপনার ঠিক করা সময় পর্যন্ত। কোনো শব্দ নয়। যখন খুশি বন্ধ করুন।",
+  "ctmLinksEmptyTitle": "এখনো কোনো শেয়ার লিংক নেই",
+  "ctmLinksEmptyBenefit": "আত্মীয় বা নিরাপত্তা কোম্পানিকে এক ঘণ্টা বা এক দিনের জন্য ক্যামেরা দেখতে দিন — যেকোনো ব্রাউজারে, অ্যাপ লাগবে না।",
+  "ctmLinksStep1": "ক্যামেরা বাছুন",
+  "ctmLinksStep2": "১ ঘণ্টা, ২৪ ঘণ্টা বা নিজের সময় বাছুন",
+  "ctmLinksStep3": "লিংক পাঠান — যখন খুশি বন্ধ করতে পারবেন",
+  "ctmNewLink": "নতুন শেয়ার লিংক",
+  "ctmLinkHowLong": "কতক্ষণ খোলা থাকবে?",
+  "ctmCustom": "নিজে ঠিক করুন",
+  "ctmLinkLabel": "কার জন্য? (শুধু আপনি দেখবেন)",
+  "ctmLinkLabelHint": "যেমন: রফিক ভাই",
+  "ctmLinkWarning": "এই লিংক যে পাবে, মেয়াদ শেষ হওয়া পর্যন্ত এই ক্যামেরাগুলোর ছবি দেখতে পারবে। শুধু ছবি — কখনো শব্দ বা পুরনো ভিডিও নয়। প্রতিবার খোলা হলে আপনি দেখতে পাবেন।",
+  "ctmMakeLink": "লিংক বানান",
+  "ctmLinkReady": "লিংক তৈরি",
+  "ctmLinkOnce": "নিরাপত্তার জন্য পুরো লিংক শুধু এখনই দেখানো হয়। হারালে বন্ধ করে নতুন বানান।",
+  "ctmShareLink": "লিংক পাঠান",
+  "ctmCopyLink": "লিংক কপি করুন",
+  "ctmCopied": "কপি হয়েছে।",
+  "ctmShareMessage": "{place}-এর ক্যামেরা {time} পর্যন্ত দেখতে পারবেন (শুধু দেখা): {url}",
+  "ctmLinkUntil": "{time} পর্যন্ত শেয়ার করা",
+  "ctmLinkStateRevoked": "বন্ধ করা হয়েছে",
+  "ctmLinkStateExpired": "মেয়াদ শেষ",
+  "ctmLinkViews": "{n} বার খোলা হয়েছে",
+  "ctmLinkNoLabel": "শেয়ার লিংক",
+  "ctmRevoke": "এখনই বন্ধ করুন",
+  "ctmLinkRevoked": "লিংক বন্ধ — এখন আর কিছু দেখায় না।",
+  "ctmLogTitle": "কে দেখেছেন",
+  "ctmLogEmptyTitle": "এখনো অন্য কেউ দেখেননি",
+  "ctmLogEmptyBenefit": "পরিবার, গার্ড, ম্যানেজার বা শেয়ার লিংক যখনই কোনো ক্যামেরা দেখে, এখানে দেখাবে — ৩০ দিন পর্যন্ত।",
+  "ctmLogStep1": "'পরিবারের যারা দেখবেন'-এ মানুষ যোগ করুন",
+  "ctmLogStep2": "অথবা একটি শেয়ার লিংক বানান",
+  "ctmLogAlerts": "সতর্কতার তালিকা খুলেছেন",
+  "ctmLogAlert": "একটি সতর্কতা খুলেছেন",
+  "ctmLogStill": "ক্যামেরার ছবি দেখেছেন",
+  "ctmLogLive": "লাইভ দেখেছেন",
+  "ctmLogLink": "শেয়ার লিংক খুলেছে",
+  "ctmLogByLink": "লিংক: {label}"
+ }
+}

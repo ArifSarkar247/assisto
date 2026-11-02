@@ -876,7 +876,7 @@ class WatchPostsView(_TeamBase):
                                "পাড়া-পাহারা: %s একটি ছবি শেয়ার করেছেন" % (name or "একজন"),
                                "Neighbourhood watch: %s shared a photo" % (name or "Someone"),
                                m.group.name, m.group.name,
-                               data={"route": "cctv_watch", "group": m.group_id,
+                               data={"route": "watchman", "group": m.group_id,
                                      "post": p.id})
         except Exception:
             pass
