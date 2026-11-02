@@ -361,6 +361,13 @@ class _FamMembersSectionState extends State<FamMembersSection> {
         subtitle: Text([
           who,
           if (when.isNotEmpty) when,
+          // remhbar: a repeating family task says so (and is never "done")
+          switch ('${x['repeat'] ?? 'none'}') {
+            'daily' => t.remRecurDaily,
+            'weekly' => t.remRecurWeekly,
+            'monthly' => t.remRecurMonthly,
+            _ => '',
+          },
           done ? t.fcTaskDone : t.fcTaskWaiting,
         ].where((s) => s.trim().isNotEmpty).join(' · ')),
         trailing: done
