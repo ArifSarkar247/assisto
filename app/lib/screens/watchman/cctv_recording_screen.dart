@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/local_counter.dart';
 import '../../cctvx/cctv_evidence_source.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
@@ -323,6 +324,7 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
               TextField(
                 controller: _addr,
                 maxLength: 200,
+                buildCounter: localCounter,
                 minLines: 1,
                 maxLines: 3,
                 decoration: InputDecoration(

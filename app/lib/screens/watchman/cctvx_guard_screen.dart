@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../widgets/local_counter.dart';
 import '../../cctvx/cctvx_source.dart';
 import '../../cctvx/escalate_source.dart';
 import '../../l10n/app_localizations.dart';
@@ -308,6 +309,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
       TextField(
         controller: _addr,
         maxLength: 200,
+        buildCounter: localCounter,
         minLines: 1,
         maxLines: 3,
         decoration: InputDecoration(
