@@ -179,6 +179,8 @@ _A = {
     "retention": ("FFFFFFFFF", "hide", "~35% server parts; no user entry yet.", "~৩৫% সার্ভার অংশ; ব্যবহারকারীর এন্ট্রি নেই।"),
     "retention_auto": ("?PP?P??PP", "hide", "retention1: backend two-account flow + widget tests pass; no real two-phone run yet, 2 GB speed not measured, no reality-audit flow, Play Data safety answer (business messages) pending; WhatsApp/SMS live sends need the owner's keys.",
                        "retention1: সার্ভারে দুই-অ্যাকাউন্ট ফ্লো ও অ্যাপ টেস্ট পাস; আসল দুই ফোনে পরীক্ষা বাকি, ২ GB গতি মাপা হয়নি, রিয়ালিটি-অডিট ফ্লো নেই, Play Data safety উত্তর বাকি; WhatsApp/SMS আসল পাঠাতে মালিকের চাবি লাগবে।"),
+    "marketing_engine": ("?P??P??FF", "hide", "mktengine v1: questionnaire -> approvable plan from real catalog/sales/CRM numbers, BD calendar (lunar dates estimated), follow-ups via retention automation; CI tests + screenshots; no real-phone run; one-tap Facebook publish waits for Meta App Review.",
+                         "mktengine v1: প্রশ্নমালা থেকে আসল ক্যাটালগ/বিক্রি/CRM সংখ্যা দিয়ে অনুমোদনযোগ্য প্ল্যান, বাংলাদেশের ক্যালেন্ডার (চাঁদের তারিখ আনুমানিক), রিটেনশন দিয়ে ফলো-আপ; CI টেস্ট ও স্ক্রিনশট; আসল ফোনে চালানো হয়নি; Facebook-এ এক ট্যাপে পোস্ট Meta রিভিউর অপেক্ষায়।"),
     "booking": ("FFFFFFFFF", "hide", "~15%: not built.", "~১৫%: তৈরি হয়নি।"),
     # ---- App shell
     "home_v2": ("?PP???P??", "show", "New home (owner design v6): widget tests + bn/en/light/dark/200% screenshot gallery; old home stays as the OFF fallback for one week; real-phone 2 GB timing and the owner's 10-minute check pending.",
