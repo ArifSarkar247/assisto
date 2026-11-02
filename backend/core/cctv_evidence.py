@@ -88,6 +88,25 @@ def grant_addon(cam, tier, months=1, source="credits", ref="", now=None):
     return a
 
 
+def site_photo_max(site, now=None):
+    """7 (base) or 30 when any enabled camera of `site` has an active
+    30-day add-on. `site` None (a new site) -> 7."""
+    from .models import ShopVideoAddon
+    if site is None or getattr(site, "pk", None) is None:
+        return VA.BASE_PHOTO_DAYS
+    now = now or timezone.now()
+    has30 = ShopVideoAddon.objects.filter(camera__site=site, camera__enabled=True,
+                                          tier="30d", active_until__gt=now).exists()
+    return 30 if has30 else VA.BASE_PHOTO_DAYS
+
+
+def addon_camera_id(site):
+    """The camera whose Recording & evidence screen sells the add-on (the
+    first enabled one), or None when the site has no camera yet."""
+    c = site.cameras.filter(enabled=True).order_by("created", "id").first()
+    return c.id if c else None
+
+
 def photo_days_for(site, cam, now=None):
     return VA.photo_days(site.snapshot_retention_days, addon_tier(cam, now))
 

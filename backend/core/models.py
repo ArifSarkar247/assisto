@@ -3427,6 +3427,11 @@ class ShopSite(models.Model):
     # ---- cctvevidence (W7) ---- the site's address, printed in the
     # evidence pack / GD letter (owner-typed; never auto-located)
     address = models.CharField(max_length=200, blank=True, default="")
+    # NO retroactive deletion (integrator 3 Nov): the base-plan 7-day photo
+    # cap applies only to photos captured AT/AFTER this moment; older photos
+    # keep the site's own snapshot_retention_days. Set to the migration time
+    # for existing sites, creation time for new ones.
+    retention_v2_since = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-created"]

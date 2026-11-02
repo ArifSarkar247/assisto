@@ -441,6 +441,8 @@ class LifecycleTests(_E):
     def test_photos_base_7_days_30_with_addon(self):
         from core.management.commands.shop_prune_snapshots import prune
         self.sobj.snapshot_retention_days = 30
+        # the new policy has been on for 20 days for this site
+        self.sobj.retention_v2_since = timezone.now() - timedelta(days=20)
         self.sobj.save()
         ev = self.event(days_old=8)
         ev.snapshot.save("old.jpg", ContentFile(_jpeg(64, 64)), save=True)
@@ -454,6 +456,43 @@ class LifecycleTests(_E):
         ev.refresh_from_db()
         self.assertFalse(ev.snapshot)                                   # base: 7 days
         self.assertFalse(S.exists(name))
+
+    def test_no_retroactive_deletion_of_photos_taken_before_the_policy(self):
+        """A photo taken BEFORE this deploy under a 30-day site setting is not
+        deleted by the next daily run (old rule); a photo taken after it is
+        capped at the base 7 days."""
+        from core.management.commands.shop_prune_snapshots import prune
+        self.sobj.snapshot_retention_days = 30
+        self.sobj.retention_v2_since = timezone.now() - timedelta(days=5)
+        self.sobj.save()
+        old = self.event(days_old=12)                      # before the policy
+        old.snapshot.save("before.jpg", ContentFile(_jpeg(64, 64)), save=True)
+        new = self.event(days_old=0)
+        new.snapshot.save("after.jpg", ContentFile(_jpeg(64, 64)), save=True)
+        prune(timezone.now())                               # the next daily run
+        old.refresh_from_db()
+        self.assertTrue(old.snapshot)                       # kept (12 < 30 days)
+        self.assertTrue(S.exists(old.snapshot.name))
+        prune(timezone.now() + timedelta(days=8))           # new one: 8 > 7 days
+        new.refresh_from_db()
+        old.refresh_from_db()
+        self.assertFalse(new.snapshot)
+        self.assertTrue(old.snapshot)                       # 20 < 30 days: still kept
+        prune(timezone.now() + timedelta(days=19))          # old one ages out at 30
+        old.refresh_from_db()
+        self.assertFalse(old.snapshot)
+
+    def test_site_retention_setting_capped_by_server(self):
+        url = "/api/v1/shop/sites/%d" % self.sobj.id
+        r = self.client.patch(url, {"snapshot_retention_days": 30}, format="json")
+        self.assertEqual((r.data["snapshot_retention_days"], r.data["photo_days_max"]), (7, 7))
+        self.assertEqual(r.data["addon_camera_id"], self.camobj.id)
+        self.grant("7d")                                    # 7-day add-on: still 7
+        r = self.client.patch(url, {"snapshot_retention_days": 30}, format="json")
+        self.assertEqual(r.data["photo_days_max"], 7)
+        self.grant("30d")
+        r = self.client.patch(url, {"snapshot_retention_days": 30}, format="json")
+        self.assertEqual((r.data["snapshot_retention_days"], r.data["photo_days_max"]), (30, 30))
 
     def test_cash_clip_kept_for_addon_days_and_not_dropped_on_view(self):
         from core.models import ShopEventClip

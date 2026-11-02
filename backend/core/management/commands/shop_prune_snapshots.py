@@ -47,7 +47,13 @@ def prune(now=None):
             .select_related("site", "camera"):
         # cctvevidence (W7): base plan keeps photos at most 7 days (30 with
         # the 30-day video add-on); the owner's own shorter setting wins.
-        retention = CE.photo_days_for(ev.site, ev.camera, now)
+        # NO retroactive deletion: a photo taken before the site's
+        # retention_v2_since keeps the site's own (0-30 day) setting.
+        since = getattr(ev.site, "retention_v2_since", None)
+        if since is not None and ev.created < since:
+            retention = int(ev.site.snapshot_retention_days or 0)
+        else:
+            retention = CE.photo_days_for(ev.site, ev.camera, now)
         cutoff = now - timedelta(days=retention)
         # retention 0 => cutoff == now => every snapshot is "older" => pruned.
         if ev.created <= cutoff or retention == 0:
