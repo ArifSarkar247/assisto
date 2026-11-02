@@ -1,0 +1,15 @@
+OWNER SAFE JOURNEY FINAL (3 Nov 02:25 BD) — replaces the owner's earlier restructure, names and layout messages.
+RULE: real-life use only, no fakery: every button works end to end, no placeholder screens, no demo data, honest board scores, nothing above 70 without the owner's real-phone proof.
+LAYOUT: three cards at the top; Live Location SELECTED BY DEFAULT and clearly marked (filled accent, check mark, bold); others switch on tap; same names everywhere (home shortcuts, Discover, menu, notifications, website v3, Play pack).
+CARD 1 — Live Location, subtitle "Family sees where you are and gets notified when you arrive." Four big buttons:
+ • My Trip: destination, expected arrival, chosen family see live, arrival notice, late alert, phone-off alert with last location, low-battery notice to family, SOS and "I am OK" check-in, vehicle choice (local bus, long-distance bus, train, Dhaka Metro, launch, car, CNG with optional number photo).
+ • Child School: left home, reached school, left school, reached home; school days and holidays; alert if not reached by a set time; both parents; many children; CCTV gate snapshot if a camera exists.
+ • Request Location: inside Bangladesh or abroad; the other person accepts; chosen time; always visible; stop any time; never covert.
+ • Share for a While: 1 h, 3 h, custom.
+ Below: "Who is where now" list and map.
+ REAL LIFE: works with the app closed and screen off (foreground location service), survives OEM battery killers with a Bangla guide, buffers points offline and uploads later, shows accuracy honestly.
+CARD 2 — Destination Alarm, its own screen, subtitle "Wakes you before your stop, even without internet." FINAL SPEC from 2 Nov: pick destination by search, map, saved place, bus stop or train station list; DEFAULT city/local bus 10 m, long distance 2 km, user presets 100, 300, 500 m, 1 km and custom; voice and alarm separate on/off, DEFAULT voice, Bangla voice says the stop name; rings in silent mode on the alarm stream with vibration; plays in earphones when connected; works without internet; battery-saving GPS far away, high accuracy near; "I am awake" and snooze; optional notify family on arrival.
+ REAL LIFE: also fire early by speed so nobody passes the stop: ring when distance reaches the setting OR time-to-arrive at current speed ≈ 45 s, whichever first; honest GPS 5–20 m note.
+ PROOF: an owner-only trip recorder that saves real GPS traces from the owner's phone; replay those real traces in CI (Dhaka local bus, long-distance bus, train, walking) — the alarm must ring before the stop every time.
+CARD 3 — Train Tracker, subtitle "Where your train is now and when it arrives": search, schedule (show "schedule not verified" until the owner verifies), crowd live location with checks, estimated position clearly labelled, one-tap SMS 16318, train chat with nickname, report, block, delete after trip, 999 and 131, "Set alarm at this station" opens Destination Alarm.
+Bangla + English, screenshots and a real-world owner test per card in STATUS. Quality rules unchanged; no tests on the live server, CI only.
