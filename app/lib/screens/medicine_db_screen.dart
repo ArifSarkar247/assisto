@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';

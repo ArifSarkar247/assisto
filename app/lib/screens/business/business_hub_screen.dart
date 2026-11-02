@@ -1,4 +1,3 @@
-import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

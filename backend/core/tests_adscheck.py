@@ -189,8 +189,11 @@ class PlacementMapTests(SimpleTestCase):
         for s in A.INTERSTITIAL_MOMENTS:
             self.assertIsNone(self.FORBIDDEN.search(s), s)
 
-    def test_money_banner_is_not_a_payment_screen(self):
-        self.assertIn("money", A.BANNER_SCREENS)
+    def test_money_screens_carry_no_banner(self):
+        # OWNER ADS FINAL (2 Nov): money / budget are on the never list
+        for s in ("money", "budget", "money_report", "prepaid_meter", "crm"):
+            self.assertNotIn(s, A.BANNER_SCREENS)
+            self.assertTrue(A.is_blocked_screen(s), s)
         for s in ("payment", "checkout", "topup", "credits_topup", "plans",
                   "payment_ladder", "business_plans", "remittance"):
             self.assertTrue(A.is_blocked_screen(s), s)

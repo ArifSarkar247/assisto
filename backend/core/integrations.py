@@ -155,7 +155,7 @@ REGISTRY = {
                    _f("rewarded_unit", "Rewarded unit ID", "Rewarded unit ID", secret=False),
                    _f("app_open_unit", "App-open unit ID", "App-open unit ID", secret=False),
                    # ps1-photo: Photo Studio entry interstitial + SSV key note
-                   _f("interstitial_unit", "Interstitial unit ID (ফটো স্টুডিও)", "Interstitial unit ID (Photo Studio)", secret=False),
+                   _f("interstitial_unit", "Interstitial unit ID", "Interstitial unit ID", secret=False),
                    # h1-home: the home hero NATIVE ad (image or video, free plan only)
                    _f("native_unit", "Native unit ID (হোম হিরো)", "Native unit ID (home hero)", secret=False),
                    # l1-launch: lifeassisto.com/app-ads.txt (optional — derived from the App ID when blank)

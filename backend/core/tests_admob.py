@@ -66,14 +66,15 @@ class ConfigPureTests(SimpleTestCase):
         self.assertTrue(c["ads_enabled"])
         self.assertEqual(c["appopen_min_gap_sec"], 10800)   # owner 26 Oct: 3 h
         self.assertEqual(c["appopen_daily_cap"], 6)
-        self.assertEqual(c["interstitial_min_gap_sec"], 300)
-        self.assertEqual(c["interstitial_daily_cap"], 6)
+        # OWNER ADS FINAL (2 Nov): >= 800 s, max 4 a day
+        self.assertEqual(c["interstitial_min_gap_sec"], 800)
+        self.assertEqual(c["interstitial_daily_cap"], 4)
         self.assertGreaterEqual(c["appopen_min_bg_sec"], 5)
         # banners-everywhere (owner 26 Oct): every normal feature screen
         self.assertEqual(c["banner_screens"], list(A.BANNER_SCREENS))
         self.assertIn("circle_list", c["banner_screens"])
         self.assertEqual(c["banner_refresh_sec"], 60)
-        self.assertEqual(c["interstitial_moments"], ["photo_saved", "task_done"])
+        self.assertEqual(c["interstitial_moments"], list(A.INTERSTITIAL_MOMENTS))
         self.assertEqual(c["native_screens"], ["home"])
         p = c["placements"]
         self.assertTrue(p["app_open"] and p["native_home"] and p["banner"] and p["interstitial"])
@@ -109,19 +110,19 @@ class ConfigPureTests(SimpleTestCase):
 
     def test_per_placement_switches_and_allowlist_narrowing(self):
         caps = dict(P.DEFAULTS()["ad_rewards"], place_banner=False, place_app_open=False,
-                    interstitial_moments="task_done, vault, sos")
+                    interstitial_moments="quick_tool_exit, vault, sos, task_done")
         c = _cfg(ad_caps=caps)
         self.assertFalse(c["placements"]["banner"])
         self.assertEqual(c["banner_screens"], [])
         self.assertFalse(c["app_open_enabled"])
         # the server can only narrow the app's list — never add sos/vault
-        self.assertEqual(c["interstitial_moments"], ["task_done"])
+        self.assertEqual(c["interstitial_moments"], ["quick_tool_exit"])
 
     def test_pricing_bounds(self):
         n = P.normalize({"ad_rewards": {"interstitial_min_gap_sec": 10,
                                         "appopen_min_bg_sec": 0,
                                         "banner_screens": "sos,dictionary,login"}})["ad_rewards"]
-        self.assertEqual(n["interstitial_min_gap_sec"], 300)
+        self.assertEqual(n["interstitial_min_gap_sec"], 800)
         self.assertEqual(n["appopen_min_bg_sec"], 5)
         self.assertEqual(n["banner_screens"], "dictionary")
         self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"interstitial_min_gap_sec": 60}}))
@@ -144,11 +145,11 @@ class ConfigPureTests(SimpleTestCase):
             self.assertTrue(A.is_blocked_screen(bad), bad)
         # even typed in by the owner, a never-screen is dropped
         caps = dict(P.DEFAULTS()["ad_rewards"],
-                    banner_screens="money,sos,circle_chat,plans,circle_list,journey_live")
+                    banner_screens="dictionary,sos,circle_chat,plans,circle_list,journey_live,money")
         c = _cfg(ad_caps=caps)
-        self.assertEqual(c["banner_screens"], ["money", "circle_list"])
+        self.assertEqual(c["banner_screens"], ["dictionary", "circle_list"])
         n = P.normalize({"ad_rewards": {"banner_screens": "settings, chat_lock, budget"}})
-        self.assertEqual(n["ad_rewards"]["banner_screens"], "settings,budget")
+        self.assertEqual(n["ad_rewards"]["banner_screens"], "settings")
         # Premium: still nothing; refresh never under 60 s
         self.assertEqual(_cfg(plan="premium", paid=True, ad_caps=caps)["banner_screens"], [])
         self.assertGreaterEqual(A.BANNER_MIN_REFRESH_SEC, 60)

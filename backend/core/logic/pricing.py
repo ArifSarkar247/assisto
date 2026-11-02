@@ -590,9 +590,10 @@ def DEFAULTS():
             # only on a return from the background after >= N seconds
             "appopen_min_bg_sec": 30,
             "rewarded_daily_cap": 5,
-            # interstitial: natural breaks only, >= 5 min apart, max 6 a day
-            "interstitial_daily_cap": 6,
-            "interstitial_min_gap_sec": 300,
+            # OWNER ADS FINAL (2 Nov): interstitials only on the exit after a
+            # finished task, >= 800 s apart, max 4 a day
+            "interstitial_daily_cap": 4,
+            "interstitial_min_gap_sec": 800,
             "native_daily_cap": 20,
             # owner 27 Oct: the home native card's template — "compact"
             # (AdMob SMALL, ~90-110 dp; default) or "large" (MEDIUM, the old
@@ -619,7 +620,7 @@ def DEFAULTS():
             # banners-everywhere: a fresh config enables every app banner page
             "banner_screens": ",".join(BANNER_SCREENS),
             # which natural breaks may show an interstitial
-            "interstitial_moments": "photo_saved,task_done",
+            "interstitial_moments": ",".join(INTERSTITIAL_MOMENTS),
             # ---- /admob ----
             "hero_start_muted": True,
             # l3-ump: force Google UMP's EEA debug geography (testing only;
@@ -993,8 +994,8 @@ AD_BOUNDS = {
     "appopen_start_day": (1, 30),
     "appopen_skip_after_s": (5, 15),
     "rewarded_daily_cap": (0, 20),
-    "interstitial_daily_cap": (0, 20),
-    "interstitial_min_gap_sec": (300, 86400),
+    "interstitial_daily_cap": (0, 4),
+    "interstitial_min_gap_sec": (800, 86400),
     "appopen_min_bg_sec": (5, 3600),
     "native_daily_cap": (0, 50),
     "community_sponsored_min_members": (50, 10000000),
@@ -1013,15 +1014,9 @@ AD_BOOLS = ("hero_enabled", "hero_start_muted", "consent_debug_eea",
 # off; it can never add a screen the app does not allow.
 # banners-everywhere (owner 26 Oct): one bottom banner on every normal
 # Free-user feature screen (mirrors AdPlacements.bannerScreens).
-BANNER_SCREENS = (
-    "saved_items", "dictionary", "health_tips",
-    "money", "budget", "money_report", "money_trends", "money_networth", "money_tax",
-    "reminders", "notes_todos", "birthdays", "meetings",
-    "jobs", "cv_builder", "business", "crm", "contract", "prepaid_meter",
-    "all_services", "guide", "nearby", "quick_tools", "medicine_db", "ramadan", "exam",
-    "photo_gallery", "circle_list", "settings",
-)
-INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
+# OWNER ADS FINAL (2 Nov): one source of truth in core/logic/ads.py
+from .ads import (BANNER_SCREENS, INTERSTITIAL_MOMENTS,  # noqa: E402
+                  LEGACY_INTERSTITIAL_MOMENTS)
 AD_LISTS = {"banner_screens": BANNER_SCREENS,
             "interstitial_moments": INTERSTITIAL_MOMENTS}
 # one-of settings: the FIRST value is the default; anything else -> it
@@ -1063,7 +1058,15 @@ def _norm_ad_rewards(raw, base):
     for k in AD_BOOLS:
         out[k] = _bool(raw.get(k), base[k])
     for k, allowed in AD_LISTS.items():
-        out[k] = _norm_ad_list(raw.get(k), allowed, base[k])
+        v = raw.get(k)
+        if k == "interstitial_moments" and v is not None:
+            names = [str(p).strip().lower()
+                     for p in (v if isinstance(v, (list, tuple)) else str(v).split(","))
+                     if str(p).strip()]
+            # a pre-2-Nov list (photo_saved / task_done only) -> the defaults
+            if names and all(n in LEGACY_INTERSTITIAL_MOMENTS for n in names):
+                v = None
+        out[k] = _norm_ad_list(v, allowed, base[k])
     for k in AD_CHOICES:
         out[k] = norm_ad_choice(k, raw.get(k, base.get(k)))
     return out

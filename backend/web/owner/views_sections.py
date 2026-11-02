@@ -646,8 +646,12 @@ def ads(request):
         stats = admob_service.placement_stats(stat_days)
     except Exception:
         stats = []
+    # OWNER ADS FINAL: Ad impact — every exit placement on its own row
+    from core.logic.ads import ad_impact
+    impact = ad_impact(stats)
     ctx.update({
-        "stats": stats, "stat_days": stat_days,
+        "stats": [s for s in stats if s.get("format") != "exit"],
+        "impact": impact, "stat_days": stat_days,
         "ar": [(k, cfg["ad_rewards"].get(k),
                 "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
                 else ("str" if isinstance(cfg["ad_rewards"].get(k), str) else "num"),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_firstrun_screen.dart';
