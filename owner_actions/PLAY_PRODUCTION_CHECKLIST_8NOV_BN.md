@@ -19,7 +19,7 @@
 | `ANTITHEFT_PLAY_DECLARATION_BN.md` | Device admin, চুরি-রোধ |
 | `ADMOB_PLAY_DECLARATIONS_BN.md` | বিজ্ঞাপন |
 | `PLAY_LISTING_8NOV_ALL_BN.md` | স্টোর লিস্টিং আর স্ক্রিনশট |
-| `PLAY_REVIEWER_PATH_8NOV_BN.md` | রিভিউয়ার ও pre-launch robot-এর পথ (ফাইলটা না থাকলে লিস্টিং-ফাইলের শেষ অংশ দেখুন) |
+| `PLAY_LISTING_8NOV_ALL_BN.md` §ঘ | রিভিউয়ার ও pre-launch robot-এর পথ |
 
 > **মূল নিয়ম:** Play Console-এ যা ঘোষণা করবেন আর লিস্টিংয়ে যা লিখবেন, তা যেন **Play বিল্ডে সত্যিই চালু ও কাজ করা** ফিচারের সাথে মেলে। ম্যানিফেস্টে কোনো অনুমতি থাকলে তার ব্যবহারও রিভিউয়ারকে দেখাতে পারতে হবে। তাই অব্যবহৃত অনুমতি আর সার্ভিস সরানো হয়েছে, আর CI সেটা পাহারা দেয়।
 
@@ -33,10 +33,13 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 |---|---|---|---|
 | **আজই, ২ Nov** | Production access আছে কিনা দেখুন (ধাপ ১)। "১২ টেস্টার × ১৪ দিন" পূরণ না হলে **৮ Nov production অসম্ভব।** তখন নিচের বিকল্প দেখুন। | Play Console → Dashboard | পুরো তারিখ সরে যাবে |
 | **৩ Nov** | Owner Admin → Features-এ সুইচ বসান (`LAUNCH_SWITCHES_8NOV_BN.md`)। নিজের দ্বিতীয় (owner নয়) অ্যাকাউন্টে Play বিল্ড খুলে দেখুন, সব ঠিক দেখাচ্ছে কিনা। | Owner Admin | রিভিউয়ার বন্ধ ফিচার খুঁজে পাবে না, অথবা অসমাপ্ত ফিচার দেখবে |
-| **৩ Nov** | রিভিউয়ারের লগইন ঠিক করুন: App access, আর Pre-launch report → Sign-in credentials (ধাপ ৬)। | App content → App access | রিভিউ "লগইন করা যায়নি" বলে আটকাবে |
+| **৩ Nov** | **রিভিউয়ারের লগইন ঠিক করুন।** এর মধ্যে কোড নয়, শুধু আপনার কাজ: | App content → App access | রিভিউ "লগইন করা যায়নি" বলে আটকাবে |
+| | ১. এই বিল্ডের ব্যাকএন্ড ডিপ্লয় হওয়ার পরে সার্ভারে `manage.py seed_play_reviewer` চালান। এখন রিভিউয়ার পায় **Business** প্ল্যান, যাতে শপ বক্স আর CCTV-তে আপগ্রেড-দেয়াল না আসে। নমুনা ডেটায় আর "Doctor appointment" নেই (playall)। | সার্ভার | |
+| | ২. Play বিল্ডে ওই অ্যাকাউন্টে **পাসওয়ার্ড দিয়ে** একবার লগইন করে দেখুন। SMS-কোড পথ এখন চলে না, কারণ SMS বন্ধ (`otp.py:411`)। | ফোন | |
+| | ৩. App access-এ নম্বর (১১ অঙ্ক, হুবহু) আর পাসওয়ার্ড দিন। Pre-launch robot-এর জন্য **আলাদা** অ্যাকাউন্ট দিন, কারণ robot "Log out" চাপলে একই অ্যাকাউন্টের রিভিউয়ারও বেরিয়ে যান (`views.py:188-196`)। | Console | |
 | **৩–৪ Nov** | **সব ঘোষণা জমা দিন**, এই কোড থাকা প্রথম closed-testing বিল্ডের সাথে: FGS (মাইক + লোকেশন, ভিডিওসহ), Full-screen intent (Calling), Health apps + Health Connect, Data safety, Ads, Content rating, Target audience। | App content | ৮ Nov-এ রিভিউ শেষ হবে না। আগে জমা দিলে ৮ Nov-এর আগেই জানবেন কোনোটা প্রত্যাখ্যাত হলো কিনা। |
 | **৪ Nov** | তিনটা ভিডিও রেকর্ড করে লিংক দিন: Voice SOS + কল, নিরাপদ যাত্রা + চুরি-রোধ, Health Connect সংযোগ। ধাপ `PLAY_FGS_DECLARATION_BN.md`-এ। | YouTube unlisted | FGS ঘোষণা অসম্পূর্ণ থাকবে |
-| **৫ Nov** | স্টোর লিস্টিং (bn + en) আর স্ক্রিনশট বদলান (`PLAY_LISTING_8NOV_ALL_BN.md`)। লাইভ লিস্টিংয়ের ভুল দাবি সরান। | Grow → Store presence → Main store listing | ভুল দাবির জন্য রিভিউ আটকাবে (Misleading claims নীতি) |
+| **৫ Nov** | স্টোর লিস্টিং (bn + en) আর স্ক্রিনশট বদলান। `reminders` আর `home_v2` শট আবার তুলতে হবে, কারণ গ্যালারিতে "Take medicine" দেখায়। ইমার্জেন্সি, পরিবার বা মেডিকেলের শট দেবেন না। (`PLAY_LISTING_8NOV_ALL_BN.md`)। লাইভ লিস্টিংয়ের ভুল দাবি সরান। | Grow → Store presence → Main store listing | ভুল দাবির জন্য রিভিউ আটকাবে (Misleading claims নীতি) |
 | **৫ Nov** | AI চাবি লাইভ কিনা নিশ্চিত করুন। লাইভ না হলে লিস্টিংয়ের "AI" অংশ বাদ দিন। | Owner Admin → Integrations | লিস্টিংয়ের দাবি মিথ্যা হয়ে যাবে |
 | **৬ Nov** | Policy status-এ লাল কিছু নেই, আর App content-এর সব সারি "Completed", তা দেখুন। | Policy → Policy status | — |
 | **৭ Nov** | Production রিলিজ তৈরি করুন: internal-এ আপনার পরীক্ষা করা versionCode, staged ২০%। **Send for review।** | Test and release → Production | ৮ Nov-এ লাইভ হবে না |
@@ -191,7 +194,7 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 - **Target audience:** **শুধু ১৮+।**
   - `kids_watch` (শিশুর স্কুল-মোড, যা শিশুর ফোনে Assisto চালায়) **বন্ধ থাকবে** (`LAUNCH_SWITCHES` দেখুন)। চালু করলে শিশুরাও ব্যবহারকারী হয়ে যায়। তখন Families নীতি, শিশু-উপযুক্ত বিজ্ঞাপন আর আলাদা ঘোষণা লাগে।
   - ১৩–১৭ বাছবেন না।
-- **App access:** "All or some functionality is restricted" → রিভিউয়ারের লগইন দিন (`PLAY_REVIEWER_PATH_8NOV_BN.md`)। পাসওয়ার্ড এই রিপোতে কখনো লিখবেন না, শুধু Play Console-এ।
+- **App access:** "All or some functionality is restricted" → রিভিউয়ারের লগইন দিন (`PLAY_LISTING_8NOV_ALL_BN.md` §ঘ)। পাসওয়ার্ড এই রিপোতে কখনো লিখবেন না, শুধু Play Console-এ।
 - **অন্য প্রশ্ন:**
   - Government app: না;
   - Financial features: **না** (আমরা ঋণ, বিনিয়োগ বা ব্যাংকিং দিই না; বাজেট আর খাতা হলো নিজের হিসাব রাখা);
@@ -235,7 +238,7 @@ Test and release → Production → Create release → AAB (internal-এ যে�
   - Accessibility সতর্কতা (৪৮dp-এর কম বোতাম, কম কনট্রাস্ট, লেবেলবিহীন);
   - Security & trust;
   - Performance।
-- **Robot লগইন পার হতে পারে না।** তাই Pre-launch report settings → **Sign-in credentials**-এ রিভিউয়ারের অ্যাকাউন্ট দিন (`PLAY_REVIEWER_PATH_8NOV_BN.md`)।
+- **Robot লগইন পার হতে পারে না।** তাই Pre-launch report settings → **Sign-in credentials**-এ রিভিউয়ারের অ্যাকাউন্ট দিন (`PLAY_LISTING_8NOV_ALL_BN.md` §ঘ)।
 - **Quality → Android vitals:** শুধু লঞ্চ-বিল্ড বেছে দেখুন।
 - **Policy → Policy status:** কোনো লাল ব্যানার নেই।
 - **App content:** প্রতিটি সারি সবুজ "Completed" কিনা দেখুন:
@@ -261,7 +264,7 @@ Test and release → Production → Create release → AAB (internal-এ যে�
 | ১০ | `PLAY_VISIBILITY_0B_SIMPLE_BN.md` বনাম `PLAY_HEALTH_DECLARATION_BN.md` | ভিজিবিলিটি-ডক বলে স্বাস্থ্য লুকাও, স্বাস্থ্য-ডক বলে দেখাও | সব-চালু প্ল্যান: স্বাস্থ্য-ফিটনেস **চালু**, ওষুধ লুকানো। personal অ্যাকাউন্টে fitness/wellness চলে; শুধু medical অ্যাপে organization অ্যাকাউন্ট লাগে। | ভিজিবিলিটি-ডকে ব্যানার। স্বাস্থ্য-ডকই সঠিক উৎস, তাতে রক্তের গ্রুপ যোগ। |
 | ১১ | `PLAY_VISIBILITY_0B_SIMPLE_BN.md` | নিরাপদ যাত্রা ও গাড়িতে background-location ঘোষণা | `ACCESS_BACKGROUND_LOCATION` নেই। শুধু FGS ঘোষণা লাগে। | ডকে ঠিক করা |
 | ১২ | `PLAY_STORE_PACK.md`, `PLAY_LISTING_FIXED.md`, at100 | রিমোট লক নিয়ে তিন রকম কথা | **আছে।** মালিক বা বিশ্বস্ত মানুষ অন্য ফোন থেকে লক করতে পারেন, যদি device admin চালু থাকে (`RemoteCommands.kt` "lock")। মুছে ফেলা নেই। | লিস্টিংয়ে শর্তসহ: "device admin চালু থাকলে" |
-| ১৩ | `PLAY_LISTING_FIXED.md` / `PLAY_VISIBILITY_0B` | গাড়িতে "আসল ম্যাপ নেই" | `flutter_map` আছে | ডকে ঠিক করা |
+| ১৩ | `PLAY_LISTING_FIXED.md` / `PLAY_VISIBILITY_0B` | গাড়িতে "আসল ম্যাপ নেই" | `flutter_map` আছে। কিন্তু টাইল আসে সার্ভারের `MAP_TILE_URL` থেকে, সেটা না থাকলে শুধু রুটের ছবি দেখায়। | ডকে ঠিক করা। লাইভে `MAP_TILE_URL` নিশ্চিত না হওয়া পর্যন্ত লিস্টিংয়ে "map" লেখা হয়নি। |
 | ১৪ | `PLAY_LISTING_FIXED.md` | "ভুল আনলকে চোরের ছবি" | ছবি ওঠে শুধু Assisto খোলা থাকলে, ভুল Security PIN দিলে। ফোনের ভুল আনলক শুধু গোনা হয়, ছবি নয়। | ডকে ঠিক করা |
 | ১৫ | `PLAY_STORE_PACK.md` (বাংলা লিস্টিং) | বিজ্ঞাপন "ঐচ্ছিক, নন-পার্সোনালাইজড"; পেইডে শুধু "অ্যাপ-খোলার বিজ্ঞাপন নেই" | Free-তে বিজ্ঞাপন আছে, সম্মতি UMP দিয়ে। পেইডে **কোনো** বিজ্ঞাপন নেই। | নতুন লিস্টিং-ডকে ঠিক লাইন |
 | ১৬ | লাইভ Play লিস্টিং (`PLAY_LISTING_AUDIT_BN.md`) | ওষুধ, ডাক্তার, হ্যান্ডস-ফ্রি "Hey Assisto", কুরিয়ার বুকিং, জবস ইত্যাদি | প্রতিটি কোডে যাচাই করা (`PLAY_LISTING_8NOV_ALL_BN.md`-এর টেবিল) | নতুন লিস্টিং |
