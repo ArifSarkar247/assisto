@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
+import '../widgets/money_digits.dart' show moneyDigitsFor;
 import '../theme.dart';
 import '../widgets/ai_report.dart'; // ai-report
 import 'cv_backend.dart';
@@ -378,7 +379,7 @@ class _AnswerCard extends StatelessWidget {
             if (c.quote.option('credits') != null)
               OutlinedButton(
                   onPressed: () => c.requestDetailed('credits'),
-                  child: Text(t.h1UseCredits('${c.quote.option('credits')!.credits}'))),
+                  child: Text(t.h1UseCredits(moneyDigitsFor(context, '${c.quote.option('credits')!.credits}')))),
           ]),
         ]);
       case CvPhase.error:
@@ -439,11 +440,11 @@ class _AnswerCard extends StatelessWidget {
           FilledButton.icon(
               onPressed: () => c.requestDetailed('ads'),
               icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
-              label: Text(t.h1DetailedAds('${ads.ads}'))),
+              label: Text(t.h1DetailedAds(moneyDigitsFor(context, '${ads.ads}')))),
         if (credits != null)
           OutlinedButton(
               onPressed: () => c.requestDetailed('credits'),
-              child: Text(t.h1UseCredits('${credits.credits}'))),
+              child: Text(t.h1UseCredits(moneyDigitsFor(context, '${credits.credits}')))),
       ]),
     ]);
   }
