@@ -9,18 +9,21 @@ WHO MAY POST (gates, all server-side):
     poster keeps in Family (FamilyMember);
   * ADULT (18+): a police GD number + thana + GD date (format check only — we
     never claim we verified it with the police; every viewer sees that line);
-  * CHILD (<18): only a VERIFIED parent/guardian — guardian_check(), the ONE
-    function the integrator switches to agent/circlea's many-guardian helper.
-    Today: the child's own account and the poster agree parent/child in My
-    Circle (both edges), or a second close-family adult of the poster
-    co-signs in the app, or the family adds a GD number.
+  * CHILD (<18): only a VERIFIED parent/guardian — guardian_check(), which
+    asks core/guardianship.verified_parent (the ONE rule shared with child
+    emergency audio): the child's own account and the poster agree
+    parent/child in My Circle (both edges), or a second close-family adult
+    of the poster co-signs in the app, or the family adds a GD number.
 
 WHO GETS THE PUSH (honest — there is no background location):
   * users who OPTED IN to "nearby safety alerts" (NearbyAlertPref) whose
     coarse home area (district, or a point rounded to ~1 km) or whose
     "where I am" point sent while the app was OPEN in the last 12 h falls
     inside the alert's radius (+ district fuzz);
-  * the poster's other close-family My Circle peers;
+  * the poster's other close-family My Circle peers + every other guardian
+    of a missing CHILD from any feature (guardianship.alert_audience — e.g.
+    the other parent who set up the child's watch), while still an accepted
+    Circle peer of the child;
   * the missing person themself (if an Assisto user): "your family posted…
     tap I am safe" — adult autonomy.
   One push per alert per user (MissingRecipient unique), at most 3 nearby
@@ -114,9 +117,33 @@ def family_users(poster):
     return out
 
 
+def family_audience(alert):
+    """Who is pushed as FAMILY: the poster's close-family peers, then (for a
+    missing child with an account) every other guardian of that child from
+    core.guardianship (alert_audience: still-valid Circle peers only).
+    Deduplicated, never the poster, never the missing person."""
+    out, seen = [], {alert.poster_id, alert.subject_user_id}
+    for u, _rel in family_users(alert.poster):
+        if u.id not in seen:
+            seen.add(u.id)
+            out.append(u)
+    if alert.is_child and alert.subject_user_id:
+        from . import guardianship
+        try:
+            extra = guardianship.alert_audience(None, [], alert.subject_user)
+        except Exception:  # noqa: BLE001 — never block the family push
+            log.exception("missing family_audience guardians failed")
+            extra = []
+        for u in extra:
+            if u.id not in seen:
+                seen.add(u.id)
+                out.append(u)
+    return out
+
+
 def guardian_check(poster, subject_user=None, family_member=None, cosigner=None):
-    """THE guardian rule for a missing CHILD (one function on purpose:
-    agent/circlea's many-to-many guardianship replaces the body here).
+    """THE guardian rule for a missing CHILD (finish1: the parent/child test
+    is core.guardianship.verified_parent — one rule for every feature).
 
     -> {"ok": bool, "basis": "circle_mutual"|"cosigned"|"", "needs": "cosign"|None}
       * circle_mutual — the child's own account and the poster agree
@@ -126,10 +153,9 @@ def guardian_check(poster, subject_user=None, family_member=None, cosigner=None)
         parent / sibling, mutual edges) confirmed in the app;
       * otherwise the alert waits for a co-signer (or a GD number, checked
         by the caller)."""
-    if subject_user is not None:
-        a, b = edge(poster, subject_user), edge(subject_user, poster)
-        if a and b and a.relation == "child" and b.relation in PARENT_EDGES:
-            return {"ok": True, "basis": "circle_mutual", "needs": None}
+    from . import guardianship
+    if subject_user is not None and guardianship.verified_parent(poster, subject_user):
+        return {"ok": True, "basis": "circle_mutual", "needs": None}
     if cosigner is not None and cosigner.id != poster.id:
         pair = family_pair(poster, cosigner)
         if pair and pair[0].relation in GUARDIAN_COSIGN_EDGES:
@@ -301,8 +327,9 @@ def fan_out(alert_id):
     at = now()
     pushed = listed = 0
     tbn, ten, bbn, ben = _texts_new(alert)
-    # 1. family (close-family peers of the poster; always pushed)
-    for u, _rel in family_users(alert.poster):
+    # 1. family (close-family peers of the poster + a child's other guardians;
+    #    always pushed)
+    for u in family_audience(alert):
         if u.id == alert.subject_user_id:
             continue
         row, made = MissingRecipient.objects.get_or_create(alert=alert, user=u,
@@ -758,7 +785,7 @@ def report(alert, user, reason, note, at=None):
         return "already", False
     joined = getattr(user, "date_joined", None) or getattr(user, "created_at", None)
     young = bool(joined and at - joined < timedelta(days=MR.REPORTER_MIN_AGE_DAYS))
-    fam = {u.id for u, _r in family_users(alert.poster)}
+    fam = {u.id for u in family_audience(alert)}
     counted = not young and user.id not in fam and user.id != alert.poster_id
     MissingReport.objects.create(alert=alert, reporter=user, reason=reason,
                                  note=MR.clean_text(note, 300), counted=counted)

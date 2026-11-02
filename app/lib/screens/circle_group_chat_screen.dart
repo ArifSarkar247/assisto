@@ -22,6 +22,7 @@ import '../config.dart';
 import '../crypto/e2e.dart';
 import '../messaging/link_open.dart'; // circlea
 import '../messaging/linkify.dart'; // circlea
+import '../messaging/link_preview_client.dart'; // finish1: group link previews
 import '../widgets/circle_bubble.dart' show e2rWaitingText; // e2e-recover
 import '../widgets/chat_jump_to_latest.dart'; // wa-polish
 import '../crypto/group_decrypt.dart'; // e2e-groups
@@ -127,6 +128,15 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   final _e2e = SoftwareE2E();
   final _input = TextEditingController();
   final _inputFocus = FocusNode(); // db1
+  // finish1: link previews in GROUP chats — built on this phone while typing,
+  // sealed to every member with the text (per_recipient lp_ciphertext), so
+  // Assisto never sees the link. Same opt-out as 1:1 (Settings > Messages).
+  LinkPreviewData? _draftPreview;
+  String? _draftUrl;
+  String? _dismissedUrl;
+  Timer? _previewDebounce;
+  final Map<String, LinkPreviewData> _lpSent = {}; // my sends (id / cmid)
+  final Map<String, LinkPreviewData?> _lpCache = {}; // id|ring -> decrypted
   final _scroll = ScrollController();
 
   List<Map<String, dynamic>> _messages = [];
@@ -177,6 +187,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   @override
   void initState() {
     super.initState();
+    _input.addListener(_onDraftForPreview); // finish1
     DecorStore.instance.revision.addListener(_onDecor); // cde-chat
     if (_gid > 0) unawaited(_decor.load());
     MsgActiveChat.current = _chatKey;
@@ -441,6 +452,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   void dispose() {
     unawaited(PlainCache.instance.persist()); // e2e-recover
     _ringWait?.cancel(); // e2e-groups
+    _previewDebounce?.cancel(); // finish1
+    _input.removeListener(_onDraftForPreview);
     DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
@@ -715,6 +728,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
     var skipped = 0;
+    // finish1: the draft's link preview, only for the link this text carries
+    LinkPreviewData? pv;
+    final dp = _draftPreview;
+    if (!asCard && resendText == null && dp != null && dp.url == firstLink(text)) {
+      pv = await previewForGroup(dp, _recipients.length);
+      if (!mounted) return false;
+    }
+    final pvPlain = pv?.encode();
     for (final r in _recipients) {
       try {
         final pub = base64Decode('${r['public_key']}');
@@ -729,6 +750,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'ciphertext': ct.ciphertextB64,
           'nonce': ct.nonceB64,
         };
+        if (pvPlain != null) {
+          try {
+            final lp = _e2e.encrypt(
+              self: widget.identity,
+              recipientPublicKey: Uint8List.fromList(pub),
+              plaintext: pvPlain,
+            );
+            (perRecipient['$id'] as Map<String, dynamic>)
+              ..['lp_ciphertext'] = lp.ciphertextB64
+              ..['lp_nonce'] = lp.nonceB64;
+          } catch (_) {} // the text still goes; only the card is skipped
+        }
       } catch (_) {
         skipped++;
       }
@@ -754,6 +787,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       // md2: the sent text stays on screen (my bubble) until the reload /
       // poll lists its server copy — never a frame where it is missing.
       final sid = '${res['id'] ?? ''}';
+      if (pv != null) _lpSent[sid.isEmpty ? cmid : sid] = pv; // finish1
       if (mounted) {
         _addEcho({
           'id': sid.isEmpty ? cmid : sid,
@@ -773,6 +807,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       _input.clear();
       _replyTo = null;
       _failedText = null;
+      _draftPreview = null; // finish1
+      _dismissedUrl = null;
     } else if (asCard) {
       // p3: a card never touches the draft / reply context
     } else {
@@ -2142,6 +2178,15 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                         fg: Theme.of(context).colorScheme.onSurface,
                         messageId: int.tryParse('${msg['id']}') == null ? null : '${msg['id']}') ??
                     _highlightMentions(text),
+              // finish1: the sender's link preview, opened on this phone
+              if (!undecryptable && _linkPreviewOf(msg) != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: Gap.xs),
+                  child: LinkPreviewCard(
+                      key: ValueKey('grp-lp-${msg['id']}'),
+                      data: _linkPreviewOf(msg)!,
+                      fg: Theme.of(context).colorScheme.onSurface),
+                ),
               _reactionRow(msg),
               // c3-msg: ticks on my own messages (all members delivered /
               // read → ✓✓ / blue ✓✓; long-press → Info per member).
@@ -2163,6 +2208,53 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [bubble, ScamWarningBanner(verdict: scam)],
     );
+  }
+
+  /// finish1: build the preview for the first link while the user types
+  /// (debounced, on this phone only, opt-out in Settings) — as in 1:1.
+  void _onDraftForPreview() {
+    final url = firstLink(_input.text);
+    if (url == _draftUrl) return;
+    _draftUrl = url;
+    _previewDebounce?.cancel();
+    if (url == null || url == _dismissedUrl) {
+      if (_draftPreview != null) setState(() => _draftPreview = null);
+      return;
+    }
+    _previewDebounce = Timer(const Duration(milliseconds: 600), () async {
+      if (!await LinkPreviewPrefs.on()) return;
+      final d = await fetchLinkPreview(url);
+      if (!mounted || _draftUrl != url || url == _dismissedUrl) return;
+      setState(() => _draftPreview = (d == null || d.isEmpty) ? null : d);
+    });
+  }
+
+  /// finish1: the link preview sealed to me inside a group text (null when
+  /// there is none or it cannot be opened here). Cached per key-ring size.
+  LinkPreviewData? _linkPreviewOf(Map<String, dynamic> msg) {
+    final id = '${msg['id'] ?? ''}';
+    final mine = _lpSent[id] ?? _lpSent['${msg['client_msg_id'] ?? ''}'];
+    if (mine != null) return mine;
+    if ('${msg['deleted'] ?? ''}'.isNotEmpty ||
+        '${msg['content_type'] ?? 'text'}' != 'text') {
+      return null;
+    }
+    final per = msg['per_recipient'];
+    if (per is! Map ||
+        !per.values.any((v) => v is Map && '${v['lp_ciphertext'] ?? ''}'.isNotEmpty)) {
+      return null;
+    }
+    final ck = '$id|${_ring.length}';
+    if (_lpCache.containsKey(ck)) return _lpCache[ck];
+    String? pt;
+    for (final me in [
+      widget.identity,
+      ..._ring.where((k) => k.keyId != widget.identity.keyId),
+    ]) {
+      pt = _decryptUncached(msg, me, preview: true);
+      if (pt != null) break;
+    }
+    return _lpCache[ck] = LinkPreviewData.tryDecode(pt);
   }
 
   /// Render @mentions with emphasis (over already-decrypted text).
@@ -2360,6 +2452,20 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     return SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
+      // finish1: the link preview that will go (sealed per member) with the text
+      if (_draftPreview != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, 0),
+          child: LinkPreviewCard(
+            key: const Key('grp-draft-preview'),
+            data: _draftPreview!,
+            compact: true,
+            onClose: () => setState(() {
+              _dismissedUrl = _draftPreview?.url;
+              _draftPreview = null;
+            }),
+          ),
+        ),
       if (_p3HintShown)
         AssistoMentionHint(onTap: () {
           final i = parseAssisto(_input.text);
@@ -2672,7 +2778,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     return pt;
   }
 
-  String? _decryptUncached(Map<String, dynamic> msg, IdentityKeyPair me) {
+  String? _decryptUncached(Map<String, dynamic> msg, IdentityKeyPair me,
+      {bool preview = false}) {
+    // finish1: `preview` opens the sealed link preview of the same entry
+    final ctKey = preview ? 'lp_ciphertext' : 'ciphertext';
+    final nKey = preview ? 'lp_nonce' : 'nonce';
     try {
       final per = (msg['per_recipient'] as Map?)?.cast<String, dynamic>();
       // Resolve MY entry only: prefer the per-message my_member_id, else the
@@ -2691,13 +2801,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               orElse: () => const {});
           if (r.isEmpty || e.value is! Map) continue;
           final b = (e.value as Map).cast<String, dynamic>();
+          if (b[ctKey] == null) continue;
           final pt = _e2e.decrypt(
             self: me,
             senderPublicKey: Uint8List.fromList(base64Decode('${r['public_key']}')),
             ct: Ciphertext(
               scheme: '${msg['scheme'] ?? _e2e.scheme}',
-              ciphertextB64: '${b['ciphertext']}',
-              nonceB64: '${b['nonce']}',
+              ciphertextB64: '${b[ctKey]}',
+              nonceB64: '${b[nKey]}',
               senderKeyId: '${msg['sender_key_id'] ?? ''}',
             ),
           );
@@ -2714,12 +2825,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               "another recipient's envelope.");
         }
       } else {
+        if (preview) return null; // previews ride the per-member map only
         blob = {
           'ciphertext': msg['ciphertext'],
           'nonce': msg['nonce'],
         };
       }
-      if (blob == null || blob['ciphertext'] == null) return null;
+      if (blob == null || blob[ctKey] == null) return null;
       final senderPub = _senderPublicKey(msg);
       if (senderPub == null) return null;
       final pt = _e2e.decrypt(
@@ -2727,8 +2839,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         senderPublicKey: senderPub,
         ct: Ciphertext(
           scheme: '${msg['scheme'] ?? _e2e.scheme}',
-          ciphertextB64: '${blob['ciphertext']}',
-          nonceB64: '${blob['nonce']}',
+          ciphertextB64: '${blob[ctKey]}',
+          nonceB64: '${blob[nKey]}',
           senderKeyId: '${msg['sender_key_id'] ?? ''}',
         ),
       );

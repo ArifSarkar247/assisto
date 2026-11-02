@@ -600,7 +600,7 @@ def deliver_alert(tracker, alert, push=True):
     if tracker.kind == "chip":
         from . import chip_service
         (tb, bb), (te, be) = chip_service.alert_text(alert, tracker)
-        route, users = "kids_watch", chip_service.viewers(tracker)
+        route, users = "kids_watch", chip_service.alert_users(tracker)
     else:
         tb, bb = VT.alert_text(alert, name, "bn")
         te, be = VT.alert_text(alert, name, "en")

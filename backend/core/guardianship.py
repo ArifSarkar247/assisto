@@ -8,6 +8,14 @@ with whom?", built from the features that already carry consent:
                only while enabled; a phone plan only once the child accepted)
   journey      JourneyRequest.requester for a LIVE request whose traveller is
                the child (standing child mode or a one-off the child accepted)
+  chip         VehicleTracker(kind='chip').owner + its family grants
+               (child = VehicleTracker.child_user; finish1)
+
+and ONE "verified parent" rule (verified_parent): both My Circle edges agree
+parent/child, accepted and unblocked.  The missing-person alert
+(missing_alert.guardian_check), child emergency audio (kid_audio.is_guardian)
+and the tracker chip (chip_service) all ask THIS module (finish1, 2 Nov) —
+no feature keeps its own copy of the rule.
 
 Benchmark: Google Family Link (several parents per child, each parent sees
 every child, the child sees every parent), Life360 (everyone in the Circle
@@ -30,6 +38,9 @@ Public API (agent/missing builds on it):
     children_of(guardian)               -> [ {key, name, child_user_id,
                                              sources:[...], co_guardians:[...]} ]
     alert_audience(owner, ids, child)   -> [User] owner + ids + co-guardians
+    chosen_guardians(owner, ids)        -> [User] ids still valid Circle peers
+    chip_guardians(tracker)             -> [User] a chip's still-valid grants
+    verified_parent(guardian, child)    -> bool (mutual parent/child edges)
     guardian_user_ids(child)            -> set of user ids
     remove_guardian(child, guardian_id) -> {"removed": [...], "kept": [...]}
 """
@@ -40,6 +51,9 @@ from django.utils import timezone
 SRC_WATCH = "kids_watch"
 SRC_SCHOOL = "school_mode"
 SRC_JOURNEY = "journey"
+SRC_CHIP = "chip"
+CHILD_EDGE = "child"
+PARENT_EDGES = frozenset({"father", "mother", "parent"})
 JOURNEY_LIVE = ("pending", "accepted", "active")
 
 
@@ -47,6 +61,52 @@ def _peer_ok(owner_id, user_id):
     from .models import CircleMember
     return CircleMember.objects.filter(user_id=owner_id, peer_user_id=user_id,
                                        state="accepted", blocked=False).exists()
+
+
+def _edge(owner, peer):
+    from .models import CircleMember
+    if owner is None or peer is None:
+        return None
+    return (CircleMember.objects
+            .filter(user=owner, peer_user=peer, state="accepted", blocked=False)
+            .first())
+
+
+def verified_parent(guardian, child):
+    """THE verified-parent rule (one function for every feature): the
+    guardian's accepted, unblocked My Circle edge calls the other person
+    "child" AND the child's edge back calls the guardian father / mother /
+    parent.  Two parents and several children each hold their own pair of
+    edges, so Mom and Dad are both verified for every child they share."""
+    if guardian is None or child is None or guardian.pk == child.pk:
+        return False
+    a, b = _edge(guardian, child), _edge(child, guardian)
+    return bool(a and b and a.relation == CHILD_EDGE and b.relation in PARENT_EDGES)
+
+
+def chosen_guardians(owner, ids):
+    """The owner's chosen guardians that are STILL accepted, unblocked Circle
+    peers of the owner (order kept, no duplicates, never the owner)."""
+    from .models import User
+    if owner is None:
+        return []
+    want = []
+    for uid in _ids(ids):
+        if uid != owner.id and uid not in want and _peer_ok(owner.id, uid):
+            want.append(uid)
+    users = {u.id: u for u in User.objects.filter(pk__in=want)}
+    return [users[u] for u in want if u in users]
+
+
+def _chip_grant_ids(t):
+    return list(t.grants.filter(kind="family").order_by("id")
+                .values_list("grantee_id", flat=True))
+
+
+def chip_guardians(t):
+    """A tracker chip's guardians: the owner's family grants that are still
+    valid Circle peers (someone who left the Circle stops at once)."""
+    return chosen_guardians(t.owner, _chip_grant_ids(t))
 
 
 def _ids(raw):
@@ -70,7 +130,7 @@ def _name(viewer, user):
 # ------------------------------------------------------------- raw links
 def _links_for_child(child):
     """[(guardian_user_id, source_dict)] for one child account."""
-    from .models import JourneyRequest, KidsWatch, SchoolPlan
+    from .models import JourneyRequest, KidsWatch, SchoolPlan, VehicleTracker
     out = []
     for w in KidsWatch.objects.filter(child_user=child).exclude(state="disabled"):
         out.append((w.owner_id, {"kind": SRC_WATCH, "ref": w.id, "role": "owner",
@@ -94,6 +154,13 @@ def _links_for_child(child):
                                      "owner_id": r.requester_id,
                                      "standing": bool(r.standing),
                                      "live": r.status == "active"}))
+    for t in VehicleTracker.objects.filter(kind="chip", child_user=child) \
+            .select_related("owner"):
+        out.append((t.owner_id, {"kind": SRC_CHIP, "ref": t.id, "role": "owner",
+                                 "owner_id": t.owner_id}))
+        for u in chip_guardians(t):
+            out.append((u.id, {"kind": SRC_CHIP, "ref": t.id, "role": "guardian",
+                               "owner_id": t.owner_id}))
     return [(uid, s) for uid, s in out if uid and uid != child.id]
 
 
@@ -146,7 +213,7 @@ def children_of(guardian):
     """Every child `guardian` watches (own or shared), each with the OTHER
     guardians by name — "also watched by Dad".  Account-less children (a
     watch with no child account) are keyed by the watch."""
-    from .models import JourneyRequest, KidsWatch, SchoolPlan, User
+    from .models import JourneyRequest, KidsWatch, SchoolPlan, User, VehicleTracker
     me = guardian.id
     owners = _peers_of(guardian) | {me}
     kids = {}
@@ -177,6 +244,14 @@ def children_of(guardian):
             .select_related("traveller"):
         add("u%d" % r.traveller_id, _name(guardian, r.traveller), r.traveller_id,
             {"kind": SRC_JOURNEY, "ref": r.id, "role": "owner", "status": r.status})
+    for t in VehicleTracker.objects.filter(kind="chip", owner_id__in=owners) \
+            .select_related("owner"):
+        mine = t.owner_id == me
+        if not mine and me not in {u.id for u in chip_guardians(t)}:
+            continue
+        key = "u%d" % t.child_user_id if t.child_user_id else "c%d" % t.id
+        add(key, t.child_name, t.child_user_id,
+            {"kind": SRC_CHIP, "ref": t.id, "role": "owner" if mine else "guardian"})
     child_ids = {k["child_user_id"] for k in kids.values() if k["child_user_id"]}
     cusers = {u.id: u for u in User.objects.filter(pk__in=child_ids)}
     for k in kids.values():
@@ -200,7 +275,7 @@ def _co_name(viewer, g):
 
 def _co_from_sources(viewer, sources):
     """Co-guardians of an account-less child (watch / plan rows only)."""
-    from .models import KidsWatch, SchoolPlan, User
+    from .models import KidsWatch, SchoolPlan, User, VehicleTracker
     ids = set()
     for s in sources:
         if s["kind"] == SRC_WATCH:
@@ -213,6 +288,10 @@ def _co_from_sources(viewer, sources):
             if p:
                 ids |= {p.owner_id} | {u for u in _ids(p.watcher_ids)
                                        if _peer_ok(p.owner_id, u)}
+        elif s["kind"] == SRC_CHIP:
+            t = VehicleTracker.objects.filter(pk=s["ref"]).select_related("owner").first()
+            if t:
+                ids |= {t.owner_id} | {u.id for u in chip_guardians(t)}
     ids.discard(viewer.id)
     return [{"id": u.id, "name": _name(viewer, u)}
             for u in User.objects.filter(pk__in=ids).order_by("name")]
@@ -225,11 +304,10 @@ def alert_audience(owner, ids, child=None):
     child from any feature, while they are an accepted, unblocked Circle
     peer of the child.  Deduplicated, owner first, never the child."""
     from .models import User
-    first = [owner.id] if owner is not None else []
-    want = list(first)
-    for uid in _ids(ids):
-        if uid not in want and owner is not None and _peer_ok(owner.id, uid):
-            want.append(uid)
+    want = [owner.id] if owner is not None else []
+    for u in chosen_guardians(owner, ids):
+        if u.id not in want:
+            want.append(u.id)
     if child is not None:
         for uid in sorted(guardian_user_ids(child)):
             if uid not in want and (_peer_ok(child.id, uid) or _peer_ok(uid, child.id)):
@@ -290,8 +368,9 @@ def remove_guardian(child, guardian_id, now=None):
                   "%s withdrew consent" % tn, "এই যাত্রা আর শেয়ার হবে না।",
                   "Trips will not be shared any more.")
     for uid, src in _links_for_child(child):
-        if uid == gid and src["kind"] == SRC_WATCH:
+        if uid == gid and src["kind"] in (SRC_WATCH, SRC_CHIP):
+            # a watch / chip belongs to the parent who set it up
             owner = User.objects.filter(pk=src["owner_id"]).first()
-            kept.append({"kind": SRC_WATCH, "ref": src["ref"],
+            kept.append({"kind": src["kind"], "ref": src["ref"],
                          "set_up_by": _name(child, owner) if owner else ""})
     return {"removed": removed, "kept": kept}

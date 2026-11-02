@@ -81,6 +81,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
   String _src(AppLocalizations t, String kind) => switch (kind) {
         'kids_watch' => t.cgaSrcWatch,
         'school_mode' => t.cgaSrcSchool,
+        'chip' => t.cgaSrcChip, // finish1: bag / shoe tracker chip
         _ => t.cgaSrcJourney,
       };
 
@@ -133,7 +134,9 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
           content: Text(kept.isEmpty
               ? t.cgaRemoved(name)
-              : t.cgaRemovedButWatch(name, '${kept.first['set_up_by'] ?? ''}'))));
+              : (kept.first['kind'] == 'chip'
+                  ? t.cgaRemovedButChip(name, '${kept.first['set_up_by'] ?? ''}')
+                  : t.cgaRemovedButWatch(name, '${kept.first['set_up_by'] ?? ''}')))));
     } catch (_) {
       if (!mounted) return;
       setState(() => _busy = null);
@@ -243,9 +246,12 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             Chip(
               visualDensity: VisualDensity.compact,
               avatar: Icon(
-                  k == 'kids_watch'
-                      ? Icons.watch_rounded
-                      : (k == 'school_mode' ? Icons.school_rounded : Icons.route_rounded),
+                  switch (k) {
+                    'kids_watch' => Icons.watch_rounded,
+                    'school_mode' => Icons.school_rounded,
+                    'chip' => Icons.backpack_rounded,
+                    _ => Icons.route_rounded,
+                  },
                   size: 16),
               label: Text(_src(t, k)),
             ),
@@ -259,6 +265,11 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
     final watchOwners = {
       for (final s in sources)
         if (s is Map && s['kind'] == 'kids_watch' && s['removable'] != true)
+          '${s['set_up_by'] ?? ''}'
+    }..removeWhere((x) => x.isEmpty);
+    final chipOwners = {
+      for (final s in sources)
+        if (s is Map && s['kind'] == 'chip' && s['removable'] != true)
           '${s['set_up_by'] ?? ''}'
     }..removeWhere((x) => x.isEmpty);
     final uid = (g['id'] as num?)?.toInt();
@@ -279,6 +290,11 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           if (watchOwners.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.cgaWatchOnlyOwner(watchOwners.join(', ')),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+          if (chipOwners.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Text(t.cgaChipOnlyOwner(chipOwners.join(', ')),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
           if (g['removable'] == true) ...[

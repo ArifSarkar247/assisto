@@ -11,8 +11,8 @@ THE RULES (each one has a test in core/tests_kidaudio.py):
     "I'm safe"; OR a Safe Journey went late, the child got "Are you OK?"
     ("ঠিক আছো?") and did NOT answer, and the family was alerted; OR the
     child's paired kids watch raised SOS. Never in normal times.
-  * VERIFIED PARENT ONLY (is_guardian — THE one guardian check; when
-    core/guardianship.py guardians_of() lands it replaces this body): both
+  * VERIFIED PARENT ONLY (is_guardian -> core.guardianship.verified_parent,
+    the one rule shared with the missing-person alert; finish1): both
     My Circle edges agree parent/child (guardian -> child = "child", child ->
     guardian = father/mother/parent), accepted and unblocked.
   * UNDER 18, CONFIRMED (is_minor): the parent declares the birth year, the
@@ -85,12 +85,12 @@ def _edge(owner, peer):
 
 
 def is_guardian(guardian, child):
-    """THE guardian check (one function on purpose). Both sides must agree
-    parent/child in My Circle."""
-    if guardian is None or child is None or guardian.pk == child.pk:
-        return False
-    a, b = _edge(guardian, child), _edge(child, guardian)
-    return bool(a and b and a.relation == CHILD_EDGE and b.relation in PARENT_EDGES)
+    """THE guardian check — core.guardianship.verified_parent (both sides
+    agree parent/child in My Circle). Mom and Dad each pass for every child
+    they share; a co-guardian from a watch / chip alone does NOT (listening
+    is stricter than seeing an alert)."""
+    from . import guardianship
+    return guardianship.verified_parent(guardian, child)
 
 
 def is_minor(birth_year, now=None):

@@ -313,6 +313,13 @@ def _mentions_are_ids(mentions):
     return True
 
 
+# finish1: group link previews (one sealed copy per member). The phone gives
+# each copy a share of 160 KB of picture (app/lib/messaging/link_preview_client.dart);
+# the server caps one copy like a 1:1 preview and the whole message at 1 MB.
+GROUP_LP_CT_MAX = 96 * 1024
+GROUP_LP_TOTAL_MAX = 1024 * 1024
+
+
 def validate_group_envelope(env):
     """Full group envelope validation = base relay contract + group checks.
     Returns (ok, reason).  Enforces: a group_id is present; mentions are ids
@@ -333,6 +340,7 @@ def validate_group_envelope(env):
     if pr is not None:
         if not isinstance(pr, dict):
             return False, "per_recipient must be an object"
+        lp_total = 0
         for rid, sub in pr.items():
             if not isinstance(sub, dict):
                 return False, "per_recipient entry must be an object"
@@ -345,6 +353,19 @@ def validate_group_envelope(env):
             if env.get("content_type") in SHARE_TYPES and \
                     len(str(sub.get("ciphertext"))) > SHARE_CT_MAX:
                 return False, "ciphertext too large"
+            # finish1: an optional link preview sealed to this member (the
+            # sender's phone built it; Assisto never sees the link)
+            lpc, lpn = sub.get("lp_ciphertext"), sub.get("lp_nonce")
+            if lpc is not None or lpn is not None:
+                if env.get("content_type", "text") != "text":
+                    return False, "link preview only on text"
+                if not isinstance(lpc, str) or not isinstance(lpn, str) or not lpc or not lpn:
+                    return False, "link preview needs lp_ciphertext + lp_nonce"
+                if len(lpc) > GROUP_LP_CT_MAX or len(lpn) > 64:
+                    return False, "link preview too large"
+                lp_total += len(lpc)
+        if lp_total > GROUP_LP_TOTAL_MAX:
+            return False, "link preview too large"
     return True, "ok"
 
 
