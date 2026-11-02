@@ -10,6 +10,7 @@ import '../vehicle/vehicle_api.dart';
 import '../vehicle/veh_setup.dart'; // veh100
 import '../widgets/skeleton.dart';
 import '../widgets/cv_empty.dart';
+import '../widgets/where_to_buy.dart'; // chipbuy
 import 'car_mode_screen.dart';
 import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
@@ -129,6 +130,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
               onPrimary: _pair,
               steps: [tr.cvvVehStep1, tr.cvvVehStep2, tr.cvvVehStep3],
             ),
+          if (_trackers.isEmpty) const WhereToBuyLink(product: BuyProduct.vehicle),
           for (final t in _trackers) ...[
             _TrackerCard(t: t, onChanged: _load),
             const SizedBox(height: Gap.sm),
@@ -412,7 +414,8 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       Text(tr.vehPairTitle, style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: Gap.xs),
       Text(tr.vehPairBody, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
-      const SizedBox(height: Gap.md),
+      const WhereToBuyLink(product: BuyProduct.vehicle, dense: true),
+      const SizedBox(height: Gap.sm),
       TextField(
         controller: _imei,
         keyboardType: TextInputType.number,

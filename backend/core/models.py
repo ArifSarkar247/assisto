@@ -4007,6 +4007,16 @@ class VehicleTracker(models.Model):
     odometer_m = models.FloatField(default=0)
     odometer_base_km = models.FloatField(default=0)
     odometer_base_m = models.FloatField(default=0)    # odometer_m when the base was set
+    # chipbuy: a small GPS tracker chip for a child's school bag / shoe rides
+    # the SAME tracker server + ingest path; kind='chip' shows it on the child
+    # card (Kids screen), never in the vehicle list. Guardians = VehicleAccess
+    # Grant(kind='family'); the child sees only that it is on and who sees.
+    KINDS = [("vehicle", "vehicle"), ("chip", "chip")]
+    kind = models.CharField(max_length=8, choices=KINDS, default="vehicle")
+    child_name = models.CharField(max_length=60, blank=True, default="")
+    child_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="tracker_chips_carried")
+    battery_pct = models.IntegerField(null=True, blank=True)   # chip: derived 0..100
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -7131,6 +7141,8 @@ class SchoolPlan(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="school_plans")
     watch = models.OneToOneField(KidsWatch, null=True, blank=True, on_delete=models.SET_NULL,
                                  related_name="school_plan")
+    chip = models.OneToOneField(VehicleTracker, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="school_plan")
     child_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
                                    related_name="school_plans_as_child")
     child_name = models.CharField(max_length=60, default="")

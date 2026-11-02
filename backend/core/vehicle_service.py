@@ -156,7 +156,8 @@ def on_device_connect(imei, protocol, remote="", now=None):
             if t.protocol == "auto":
                 t.protocol = protocol
             t.save(update_fields=["state", "paired_at", "protocol", "updated_at"])
-        if not charge_month(t, now):
+        # chipbuy: a child's tracker chip is SAFETY (never paywalled)
+        if t.kind != "chip" and not charge_month(t, now):
             t.state = "disabled"
             t.disabled_reason = "no_credits"
             t.save(update_fields=["state", "disabled_reason", "updated_at"])
@@ -167,7 +168,7 @@ def on_device_connect(imei, protocol, remote="", now=None):
         queue_interval(t)
         _notify_owner(t, "paired")
         return t.id, "newly_paired"
-    if t.billed_until and t.billed_until < now:
+    if t.kind != "chip" and t.billed_until and t.billed_until < now:
         # renewal is the billing cron's job; a lapsed tracker is refused until paid
         audit(t, "refused_unpaid", remote=remote)
         return None, "disabled"
@@ -374,6 +375,9 @@ def ingest(batch, now=None):
         VehicleTracker.objects.filter(pk=tid).update(**fields)
     if rows:
         VehiclePosition.objects.bulk_create(rows, batch_size=500)
+    if any(t.kind == "chip" for t in trackers.values()):
+        from . import chip_service      # chipbuy: battery % + School Mode feed
+        chip_service.after_ingest(batch, trackers, now)
     for t, a, decision in delivered:
         if decision != "drop":
             deliver_alert(t, a, push=decision == "push")
@@ -587,13 +591,13 @@ def _vehicle_name(tracker):
 
 
 def _send(users, title_bn, title_en, body_bn, body_en, meta, family_alert_for=None,
-          severity="high", push_it=True):
+          severity="high", push_it=True, route="vehicles"):
     from .models import NotifEvent, FamilyAlert
     for u in users:
         try:
             NotifEvent.objects.create(user=u, type="security", title_bn=title_bn[:200],
                                       title_en=title_en[:200], body_bn=body_bn,
-                                      body_en=body_en, route="vehicles", meta=meta)
+                                      body_en=body_en, route=route, meta=meta)
         except Exception:
             pass
         if not push_it:
@@ -601,7 +605,7 @@ def _send(users, title_bn, title_en, body_bn, body_en, meta, family_alert_for=No
         try:
             from . import push
             push.safe_push(u, "family_alert", title_bn, title_en, body_bn, body_en,
-                           data={"route": "vehicles", **{k: str(v) for k, v in meta.items()}})
+                           data={"route": route, **{k: str(v) for k, v in meta.items()}})
         except Exception:
             pass
     if family_alert_for is not None:
@@ -619,8 +623,14 @@ def deliver_alert(tracker, alert, push=True):
     """In-app notification + FamilyAlert for every viewer; a push too unless
     the gate (quiet hours / daily cap) said in-app only."""
     name = _vehicle_name(tracker)
-    tb, bb = VT.alert_text(alert, name, "bn")
-    te, be = VT.alert_text(alert, name, "en")
+    route, users = "vehicles", None
+    if tracker.kind == "chip":
+        from . import chip_service
+        (tb, bb), (te, be) = chip_service.alert_text(alert, tracker)
+        route, users = "kids_watch", chip_service.viewers(tracker)
+    else:
+        tb, bb = VT.alert_text(alert, name, "bn")
+        te, be = VT.alert_text(alert, name, "en")
     meta = {"tracker_id": tracker.id, "alert": alert["kind"]}
     if alert.get("alarm"):
         meta["alarm"] = alert["alarm"]
@@ -628,11 +638,11 @@ def deliver_alert(tracker, alert, push=True):
         meta.update(lat=alert["lat"], lng=alert["lng"])
     audit(tracker, "alert_" + alert["kind"], pushed=bool(push),
           **{k: v for k, v in alert.items() if k != "kind"})
-    _send(_viewers(tracker), tb, te, bb, be, meta, family_alert_for=tracker.owner,
+    _send(users or _viewers(tracker), tb, te, bb, be, meta, family_alert_for=tracker.owner,
           severity="high" if alert["kind"] in ("night_ignition", "geofence_exit",
                                                  "off_route", "device_alarm",
                                                  "tracker_silent")
-          else "med", push_it=push)
+          else "med", push_it=push, route=route)
 
 
 def _notify_owner(tracker, what):

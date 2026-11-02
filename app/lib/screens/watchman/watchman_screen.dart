@@ -21,6 +21,7 @@ import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
+import '../../widgets/where_to_buy.dart'; // chipbuy
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -185,6 +186,11 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
           if (sites.isEmpty) _Welcome(onStart: _startSetup),
+          if (sites.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: WhereToBuyLink(product: BuyProduct.cctv),
+            ),
           for (final s in sites)
             _SiteCard(
               site: s,
@@ -400,6 +406,7 @@ class _SiteCard extends StatelessWidget {
               onPrimary: onAddCamera,
               steps: [t.cvvNoCamStep1, t.cvvNoCamStep2, t.cvvNoCamStep3],
             ),
+          if (cams.isEmpty && _owner) const WhereToBuyLink(product: BuyProduct.cctv),
           if (cams.isEmpty && !_owner)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
