@@ -80,9 +80,10 @@ Future<ChatMenuAction?> showChatMenu(
     _Row(ChatMenuAction.lockChat, locked ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
         (t) => locked ? t.eLockUnlockChat : t.eLockLockChat),
     const _Row.divider(),
-    _Row(ChatMenuAction.sendCallLink, Icons.link_rounded, (t) => t.msgrChatSendCallLink),
+    // callsbar: "Send call link" (always failed: the app read `link`, the
+    // server sends `url`, and the link opened no page) and "New group call"
+    // (it silently placed a 1:1 voice call) removed — dead / misleading.
     _Row(ChatMenuAction.scheduleCall, Icons.schedule_rounded, (t) => t.msgrChatScheduleCall),
-    _Row(ChatMenuAction.newGroupCall, Icons.groups_rounded, (t) => t.msgrChatNewGroupCall),
     const _Row.divider(),
     _Row(ChatMenuAction.summarise, Icons.auto_awesome_rounded, (t) => t.msgrChatSummarise),
     _Row(ChatMenuAction.makeReminder, Icons.alarm_add_rounded, (t) => t.msgrChatMakeReminder),

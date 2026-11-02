@@ -38,6 +38,10 @@ class PushNotifier {
   static const actionAccept = 'accept';
   static const actionDecline = 'decline';
 
+  /// callsbar: the missed-call notification's buttons (WhatsApp-style).
+  static const actionCallBack = 'call_back';
+  static const actionMessage = 'missed_message';
+
   /// Android FLAG_INSISTENT: repeat the ringtone until answered/cancelled.
   static const _flagInsistent = 4;
 
@@ -128,6 +132,16 @@ class PushNotifier {
             priority: Priority.high,
             category: AndroidNotificationCategory.missedCall,
             largeIcon: icon,
+            // callsbar: "Call back" + "Message" right on the notification
+            // (only when we know my circle edge for the caller)
+            actions: int.tryParse(p.chatId) == null
+                ? null
+                : <AndroidNotificationAction>[
+                    AndroidNotificationAction(actionCallBack, t.cbarCallBack,
+                        showsUserInterface: true),
+                    AndroidNotificationAction(actionMessage, t.cbarMessage,
+                        showsUserInterface: true),
+                  ],
             // x1-calls A1-g: one notification per caller, replaced in place
             onlyAlertOnce: false,
             autoCancel: true),

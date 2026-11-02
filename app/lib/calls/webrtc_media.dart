@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../audio/audio_route_service.dart' as ar;
 import '../audio/webrtc_audio_fallback.dart';
 import 'call_controller.dart';
+import 'call_net_policy.dart';
 import 'call_video.dart';
 import 'call_log.dart';
 
@@ -18,8 +19,16 @@ import 'call_log.dart';
 /// headset > speaker (video), live switch on connect / disconnect, restore on
 /// every end. This file never calls the plugin's routing helpers (CI guard
 /// test/audio_route_guard_test.dart).
-class WebRtcCallMedia implements CallMedia, CallVideoSurface {
+///
+/// callsbar: [AdaptiveCallMedia] — Opus FEC/DTX + bitrate caps in every local
+/// SDP, sender caps (audio / video bitrate, fps, scale, video on/off on the
+/// wire for the audio-only fallback) and TURN-relay-only ICE on demand.
+class WebRtcCallMedia
+    implements CallMedia, CallVideoSurface, AdaptiveCallMedia {
   RTCPeerConnection? _pc;
+  RTCRtpSender? _audioSender;
+  MediaPlan? _plan;
+  List<Map<String, dynamic>> _iceServers = const [];
   MediaStream? _local;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
@@ -146,6 +155,8 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     }
     cameraUnavailable = false;
     if (_renderersReady) localRenderer.srcObject = cam;
+    final plan = _plan;
+    if (plan != null) await _capVideo(plan);
   }
 
   @override
@@ -201,6 +212,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> createPeer(List<Map<String, dynamic>> iceServers) async {
+    _iceServers = iceServers;
     final pc = await createPeerConnection({
       'iceServers': iceServers,
       'sdpSemantics': 'unified-plan',
@@ -217,6 +229,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
       for (final t in local.getTracks()) {
         final s = await pc.addTrack(t, local);
         if (t.kind == 'video') _videoSender = s;
+        if (t.kind == 'audio') _audioSender = s;
       }
     }
     pc.onIceCandidate = (RTCIceCandidate c) {
@@ -280,15 +293,91 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
       'offerToReceiveVideo': true,
       if (iceRestart) 'iceRestart': true,
     });
-    await _peer.setLocalDescription(offer);
-    return {'type': offer.type, 'sdp': offer.sdp};
+    final tuned = _tuned(offer);
+    await _peer.setLocalDescription(tuned);
+    return {'type': tuned.type, 'sdp': tuned.sdp};
+  }
+
+  /// callsbar: Opus FEC + DTX + the bitrate we want to RECEIVE. Never fails
+  /// a call: an SDP the tuner can't read is used as it is.
+  RTCSessionDescription _tuned(RTCSessionDescription d) {
+    final sdp = d.sdp;
+    if (sdp == null) return d;
+    final cap = _plan?.opusMaxAverage ?? CallNetPolicy.audioNormal;
+    return RTCSessionDescription(
+        tuneOpusSdp(sdp,
+            maxAverageBitrate: cap, ptimeMs: _plan?.opusPtimeMs),
+        d.type);
+  }
+
+  @override
+  Future<void> applyPlan(MediaPlan plan) async {
+    _plan = plan;
+    final a = _audioSender;
+    if (a != null) {
+      try {
+        await a.setParameters(RTCRtpParameters(encodings: [
+          RTCRtpEncoding(
+              active: true,
+              maxBitrate: plan.audioMaxBps,
+              // video-only fields stay unset for the audio sender
+              numTemporalLayers: null,
+              scaleResolutionDownBy: null,
+              // voice first when the uplink is tight (video yields)
+              priority: RTCPriorityType.high,
+              networkPriority: RTCPriorityType.high)
+        ]));
+      } catch (e) {
+        callLog('webrtc_media#13', e);
+      }
+    }
+    await _capVideo(plan);
+  }
+
+  Future<void> _capVideo(MediaPlan plan) async {
+    final v = _videoSender;
+    if (v == null || _videoTrack == null) return;
+    try {
+      await v.setParameters(RTCRtpParameters(
+          degradationPreference: RTCDegradationPreference.BALANCED,
+          encodings: [
+            RTCRtpEncoding(
+                active: plan.videoActive,
+                maxBitrate: plan.videoMaxBps,
+                maxFramerate: plan.videoMaxFps,
+                scaleResolutionDownBy: plan.videoScaleDown)
+          ]));
+    } catch (e) {
+      callLog('webrtc_media#14', e);
+    }
+  }
+
+  @override
+  Future<bool> forceRelay() async {
+    final pc = _pc;
+    final hasTurn = _iceServers.any((s) {
+      final u = s['urls'];
+      final list = u is List ? u : [u];
+      return list.any((x) => '$x'.startsWith('turn'));
+    });
+    if (pc == null || !hasTurn) return false;
+    try {
+      await pc.setConfiguration({
+        'iceServers': _iceServers,
+        'iceTransportPolicy': 'relay',
+      });
+      return true;
+    } catch (e) {
+      callLog('webrtc_media#15', e);
+      return false;
+    }
   }
 
   @override
   Future<Map<String, dynamic>> acceptOffer(Map<String, dynamic> offer) async {
     await _peer.setRemoteDescription(RTCSessionDescription(
         offer['sdp'] as String?, offer['type'] as String?));
-    final ans = await _peer.createAnswer({});
+    final ans = _tuned(await _peer.createAnswer({}));
     await _peer.setLocalDescription(ans);
     return {'type': ans.type, 'sdp': ans.sdp};
   }
@@ -346,6 +435,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     double? rtt, jitter, avail;
     var relayed = false;
     var lost = 0, recv = 0;
+    int? sent, got;
     // x1-calls: the standard way to find the pair in use is
     // transport.selectedCandidatePairId (Android libwebrtc has no
     // `selected` flag on candidate-pair) — so `relayed` is reported right.
@@ -371,6 +461,14 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         if (l?['candidateType'] == 'relay' || rm?['candidateType'] == 'relay') {
           relayed = true;
         }
+        // callsbar: data used (this pair; the transport below wins)
+        final bs = v['bytesSent'], br = v['bytesReceived'];
+        if (sent == null && bs is num) sent = bs.toInt();
+        if (got == null && br is num) got = br.toInt();
+      } else if (r.type == 'transport') {
+        final bs = r.values['bytesSent'], br = r.values['bytesReceived'];
+        if (bs is num) sent = bs.toInt();
+        if (br is num) got = br.toInt();
       } else if (r.type == 'inbound-rtp') {
         final pl = v['packetsLost'];
         final pr = v['packetsReceived'];
@@ -395,7 +493,9 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         lossPct: loss,
         jitterMs: jitter,
         availableKbps: avail,
-        relayed: relayed);
+        relayed: relayed,
+        bytesSent: sent,
+        bytesReceived: got);
   }
 
   @override
@@ -415,6 +515,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
   Future<void> dispose() async {
     await _releaseCamera();
     _videoSender = null;
+    _audioSender = null;
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();

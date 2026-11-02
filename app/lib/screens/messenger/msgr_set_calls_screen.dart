@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
+import '../../calls/call_data_prefs.dart'; // callsbar
 import '../../calls/call_sound_tiles.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
@@ -111,6 +112,8 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                     _save();
                   },
                 ),
+                // callsbar: low-data calls (stored on this phone)
+                const CallLowDataTile(),
                 const Divider(),
                 MsgrSetRow(
                   icon: Icons.lock_outline_rounded,

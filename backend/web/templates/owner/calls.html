@@ -17,6 +17,24 @@
   {% for key, label, n in ch_steps %}<tr><td>{{ label }}</td><td class="num {% if n %}neg{% endif %}">{{ n }}</td></tr>{% endfor %}
   </tbody></table></div>
 </section>{% endif %}
+{% if cq %}<section class="card" id="call-quality"><h2>{{ T.cq_title }}</h2>
+  <p class="small">{{ T.cq_note }}</p>
+  {% if cq.reports %}<div class="tiles">
+    <div class="tile"><span>{{ T.cq_reports }}</span><b>{{ cq.reports }}</b><small>{{ T.cq_talk }} {{ cq.talk_min }} {{ T.cq_min }} · {{ cq.data_mb }} MB</small></div>
+    <div class="tile"><span>{{ T.cq_rated_bad }}</span><b class="{% if cq.bad_pct and cq.bad_pct >= 10 %}neg{% endif %}">{% if cq.bad_pct is not None %}{{ cq.bad_pct }}%{% else %}—{% endif %}</b><small>{{ T.cq_good }} {{ cq.good }} · {{ T.cq_bad }} {{ cq.bad }} / {{ cq.rated }}</small></div>
+    <div class="tile"><span>{{ T.cq_net }}</span><b>{% if cq.rtt_median is not None %}{{ cq.rtt_median }} ms{% else %}—{% endif %}</b><small>{{ T.cq_loss }} {% if cq.loss_median is not None %}{{ cq.loss_median }}%{% else %}—{% endif %} · {{ T.cq_jitter }} {% if cq.jitter_median is not None %}{{ cq.jitter_median }} ms{% else %}—{% endif %}</small></div>
+    <div class="tile"><span>{{ T.cq_kbmin }}</span><b>{% if cq.voice_kb_min is not None %}{{ cq.voice_kb_min }} KB{% else %}—{% endif %}</b><small>{{ T.cq_video }} {% if cq.video_kb_min is not None %}{{ cq.video_kb_min }} KB{% else %}—{% endif %}</small></div>
+  </div>
+  <div class="tbl"><table><thead><tr><th>{{ T.cq_what }}</th><th class="num">{{ T.ch_count }}</th></tr></thead><tbody>
+  <tr><td>{{ T.cq_relayed }}</td><td class="num">{% if cq.relayed_pct is not None %}{{ cq.relayed_pct }}%{% else %}—{% endif %}</td></tr>
+  <tr><td>{{ T.cq_low_data }}</td><td class="num">{% if cq.low_data_pct is not None %}{{ cq.low_data_pct }}%{% else %}—{% endif %}</td></tr>
+  <tr><td>{{ T.cq_paused }}</td><td class="num">{{ cq.video_paused_calls }}</td></tr>
+  <tr><td>{{ T.cq_reconnects }}</td><td class="num">{{ cq.reconnect_calls }}</td></tr>
+  <tr><td>{{ T.cq_nets }}</td><td class="num">Wi-Fi {{ cq.nets.wifi }} · {{ T.cq_cell }} {{ cq.nets.cellular }}</td></tr>
+  {% for label, n in cq.issue_rows %}<tr><td>{{ T.cq_bad_because }} {{ label }}</td><td class="num neg">{{ n }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="small">{{ T.cq_empty }}</p>{% endif %}
+</section>{% endif %}
 {% if rd %}<section class="card" id="ring-delivery"><h2>{% if rd_days == 30 %}{{ T.rd_title_30 }}{% else %}{{ T.rd_title }}{% endif %}</h2>
   <p class="small">{{ T.rd_note }}</p>
   <div class="seg" role="group" aria-label="{{ T.rd_period }}">

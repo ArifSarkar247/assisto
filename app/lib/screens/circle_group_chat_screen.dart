@@ -66,6 +66,7 @@ import '../widgets/group_menu_sheet.dart';
 import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
 import '../widgets/paywall_sheet.dart'; // p2-money
+import '../calls/group_call_sheet.dart'; // callsbar
 import '../messaging/chat_decor/chat_control.dart'; // cde-chat
 import '../messaging/chat_decor/chat_themes.dart';
 import '../messaging/chat_decor/decor_chat.dart';
@@ -832,50 +833,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     await _load();
   }
 
-  Future<void> _call(String kind) async {
-    // Group VOICE is free; group VIDEO requires a Premium initiator. The server
-    // is the authority (can_place_group_call); the client shows the result.
-    try {
-      final r = await _api
-          .postJson('/circle/groups/$_groupId/call', {'kind': kind});
-      if (!mounted) return;
-      if (r['allowed'] == false &&
-          (r['upgrade_required'] == true || r['needs_video_plan'] == true)) {
-        _showVideoUpgrade();
-        return;
-      }
-      if (r['allowed'] == false) {
-        _toast(_t.grpActionFailed);
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_t.circleGroupCallStarting)));
-    } catch (e) {
-      _fail(e);
-    }
-  }
-
-  void _showVideoUpgrade() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        scrollable: true, // insets: 200% text / keyboard
-        title: Text(_t.circleGroupVideoPremiumTitle),
-        content: Text(_t.circleGroupVideoPremiumBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
-          FilledButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                // p2-money: paywall at the moment of need, with the reason
-                PaywallSheet.show(context, PaywallReason.videoCall);
-              },
-              child: Text(_t.circleGroupGetPremium)),
-        ],
-      ),
-    );
-  }
+  /// callsbar: a call with 3+ people is NOT built yet (no group media) —
+  /// the buttons used to show "Starting call…" and then nothing. Now an
+  /// honest sheet: group calls are not ready + a real 1:1 voice / video call
+  /// with any member in my circle, in one tap.
+  Future<void> _call(String kind) => showGroupCallSheet(context,
+      members: _members, groupName: '${widget.group['name'] ?? ''}');
 
   Future<void> _createPoll() async {
     final poll = await showCircleGroupPollComposer(context);

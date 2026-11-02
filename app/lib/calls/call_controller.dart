@@ -6,8 +6,10 @@ import '../api.dart' show ApiException;
 import '../audio/audio_route_service.dart' show AudioRoute, isHeadset;
 import '../services/error_kind.dart';
 import 'call_log.dart';
+import 'call_net_policy.dart';
 
 export '../audio/audio_route_service.dart' show AudioRoute;
+export 'call_net_policy.dart' show MediaPlan, CallNetPolicy, NetTier;
 
 /// REAL 1:1 call state machine (c2-calls). Pure Dart: media, signalling and
 /// sounds are injected, so it is unit-tested with fakes and driven in the app
@@ -102,7 +104,9 @@ class MediaStats {
       this.lossPct,
       this.jitterMs,
       this.availableKbps,
-      this.relayed = false});
+      this.relayed = false,
+      this.bytesSent,
+      this.bytesReceived});
   final double? rttMs;
   final double? lossPct;
   final double? jitterMs;
@@ -110,6 +114,11 @@ class MediaStats {
   /// availableOutgoingBitrate of the selected candidate pair (kbit/s).
   final double? availableKbps;
   final bool relayed;
+
+  /// callsbar: bytes sent / received on the transport so far (cumulative,
+  /// all media + RTCP) — "this call used ~X MB". null = not reported.
+  final int? bytesSent;
+  final int? bytesReceived;
 
   CallQuality get quality => qualityFor();
 
@@ -173,6 +182,25 @@ enum CallNotice {
   cameraBlocked, // my camera permission off / camera busy
   remoteSwitchedToVoice, // they turned video off for both
   reconnected, // the network came back
+  // callsbar: audio-only fallback (my uplink can't carry video right now)
+  videoPausedNet, // my video paused for the weak network; voice goes on
+  videoResumedNet, // my video is back
+  lowDataOn, // low-data call mode switched on (by me or the other person)
+  lowDataOff,
+}
+
+/// callsbar: OPTIONAL media capabilities (the app's WebRtcCallMedia has
+/// them; test fakes and the broken-library fallback need not). Checked with
+/// `is`, so every existing [CallMedia] keeps compiling.
+abstract class AdaptiveCallMedia {
+  /// Cap OUR senders (Opus + video bitrate / fps / scale, video on/off on
+  /// the wire) and remember the Opus cap for the next local SDP.
+  Future<void> applyPlan(MediaPlan plan);
+
+  /// Gather ONLY TURN relay candidates from the next ICE restart on (the
+  /// fallback when direct / reflexive paths keep failing). false = could
+  /// not (no TURN in the config).
+  Future<bool> forceRelay();
 }
 
 /// The server refused a mid-call video request (plan gate). Thrown by
@@ -322,8 +350,14 @@ class CallController extends ChangeNotifier {
     this.networkEvents,
     this.onSetupFailure,
     String? clientCallId,
+    bool lowData = false,
+    CallNetPolicy? netPolicy,
+    this.relayAfterKicks = 2,
+    this.onQualityReport,
   })  : clientCallId = clientCallId ?? newClientCallId(),
-        videoOn = video;
+        videoOn = video,
+        lowData = lowData,
+        netPolicy = netPolicy ?? CallNetPolicy(lowData: lowData);
 
   /// calls-presence (owner 24 Oct "Call server busy — try again"): every
   /// call-setup step (rtc config, placing, accepting) is retried SILENTLY on
@@ -347,6 +381,14 @@ class CallController extends ChangeNotifier {
   /// (step: rtc_config | place | accept; code: throttled | server | network)
   /// — the app reports it for Owner Admin -> Call health (best effort).
   final void Function(String step, String code, int? callId)? onSetupFailure;
+
+  /// callsbar: called ONCE when a call that connected ends, with what this
+  /// phone measured ([qualityReport]) — the app posts it to
+  /// circle/calls/<id>/quality (best effort). Works even when the call ended
+  /// while minimized (no call screen on top).
+  final void Function(int callId, Map<String, dynamic> report)?
+      onQualityReport;
+  bool _reportSent = false;
 
   /// Silent setup retries used by this call (debug + tests).
   int setupRetries = 0;
@@ -416,6 +458,46 @@ class CallController extends ChangeNotifier {
   CallQuality quality = CallQuality.unknown;
   MediaStats lastStats = const MediaStats();
   bool relayed = false;
+
+  // ---- callsbar: poor networks -------------------------------------------
+  /// The bitrate / audio-only-fallback policy (one sample per stats poll).
+  final CallNetPolicy netPolicy;
+
+  /// MY "Low-data calls" choice (the screen persists it).
+  bool lowData;
+
+  /// The other phone asked for low data (its `media` signal) — both
+  /// directions then use the low-data caps.
+  bool remoteLowData = false;
+
+  /// The other phone paused ITS video because its network is weak.
+  bool remoteVideoPausedNet = false;
+
+  /// TURN-only (relay) ICE was forced after repeated failures.
+  bool relayForced = false;
+
+  /// ICE restarts during reconnecting before relay is forced.
+  final int relayAfterKicks;
+  int _reconnectKicks = 0;
+  MediaPlan? appliedPlan;
+  bool? _sentNetPaused;
+
+  /// Measured over the call (the end-of-call quality report).
+  int reconnects = 0;
+  double? worstRttMs, worstLossPct, worstJitterMs, minAvailableKbps;
+  int dataBytes = 0;
+
+  /// The last network kind the phone reported ('wifi' | 'cellular' | …).
+  String lastNetKind = '';
+
+  /// MY video is off the wire right now because of the network.
+  bool get videoPausedForNet => videoOn && netPolicy.pausedForNetwork;
+
+  /// Seconds my video was paused for the network (stats period x samples).
+  int get videoPausedSeconds =>
+      netPolicy.pausedSamplesTotal * statsEvery.inSeconds;
+
+  bool get effectiveLowData => lowData || remoteLowData;
   DateTime? connectedAt;
   Map<String, dynamic>? upgradePrompt;
 
@@ -649,6 +731,7 @@ class CallController extends ChangeNotifier {
     await media.createPeer(_ice);
     if (await _endedDuringSetup()) return;
     _wireMedia();
+    await _applyPlan(netPolicy.plan);
     final offer = await media.createOffer();
     if (await _endedDuringSetup()) return;
     await signaling.signal(callId!, 'offer', offer);
@@ -717,6 +800,7 @@ class CallController extends ChangeNotifier {
     await media.createPeer(_ice);
     if (await _endedDuringSetup()) return;
     _wireMedia();
+    await _applyPlan(netPolicy.plan);
     for (final s in await signaling.backlog(id)) {
       _early.add(s);
     }
@@ -782,6 +866,7 @@ class CallController extends ChangeNotifier {
   void onNetworkChanged(String kind) {
     if (isEnded || _disposed) return;
     log.add('net:$kind');
+    if (kind != 'lost') lastNetKind = kind;
     // circle2: the shared loop may be deep in its error backoff (it was 8-15
     // s) — poll now so the other phone's restart offer/answer is not late.
     final Object s = signaling;
@@ -885,6 +970,19 @@ class CallController extends ChangeNotifier {
         case 'media':
           remoteCameraOn = data['camera'] != false;
           remoteMicOn = data['mic'] != false;
+          remoteVideoPausedNet = data['net_paused'] == true;
+          final rl = data['low_data'] == true;
+          if (rl != remoteLowData) {
+            final before = effectiveLowData;
+            remoteLowData = rl;
+            if (effectiveLowData != before) {
+              netPolicy.lowData = effectiveLowData;
+              await _applyPlan(netPolicy.plan);
+              _notify(effectiveLowData
+                  ? CallNotice.lowDataOn
+                  : CallNotice.lowDataOff);
+            }
+          }
           notifyListeners();
           break;
         // ---- b1-calls: voice <-> video + reconnect -----------------------
@@ -1023,6 +1121,11 @@ class CallController extends ChangeNotifier {
           // (fresh candidates incl. TURN/TCP) inside the 20 s window.
           _preConnectRestarts++;
           unawaited(restartIce());
+        } else if (outgoing && _preConnectRestarts < 2 && _canForceRelay) {
+          // callsbar: the restart failed too — try TURN relay ONLY (UDP,
+          // TCP and TLS 443-style) once more inside the same window.
+          _preConnectRestarts++;
+          unawaited(_relayThenRestart());
         } else {
           // the 20 s connect timer turns this into a real fail on both sides
           _armConnectTimer();
@@ -1054,6 +1157,8 @@ class CallController extends ChangeNotifier {
     if (isEnded || phase == CallPhase.reconnecting) return;
     if (phase != CallPhase.connected) return;
     phase = CallPhase.reconnecting;
+    reconnects++;
+    _reconnectKicks = 0;
     log.add('phase:reconnecting');
     _hintSteady(false); // circle2: back to 0.3 s while media is down
     notifyListeners();
@@ -1086,6 +1191,13 @@ class CallController extends ChangeNotifier {
   /// Caller: a fresh ICE-restart offer. Callee: ask the caller for one (only
   /// the caller offers, so the two phones never collide).
   void _kickRestart() {
+    _reconnectKicks++;
+    if (_reconnectKicks > relayAfterKicks && _canForceRelay) {
+      // callsbar: restarts on the normal paths keep failing — gather TURN
+      // relay candidates only (both phones: the callee's next answer too).
+      unawaited(_relayThenRestart());
+      return;
+    }
     if (outgoing) {
       unawaited(restartIce());
     } else if (callId != null) {
@@ -1108,21 +1220,160 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  bool get _canForceRelay =>
+      !relayForced && turnAvailable && media is AdaptiveCallMedia;
+
+  /// callsbar: TURN-relay-only ICE, then the usual restart (caller offers;
+  /// the callee asks the caller).
+  Future<void> _relayThenRestart() async {
+    if (isEnded || relayForced) return;
+    final m = media;
+    if (m is! AdaptiveCallMedia) return;
+    relayForced = true;
+    try {
+      final ok = await (m as AdaptiveCallMedia).forceRelay();
+      log.add('relay-forced:$ok');
+    } catch (e) {
+      callLog('call_controller#40', e);
+    }
+    if (isEnded) return;
+    if (outgoing) {
+      await restartIce();
+    } else if (callId != null) {
+      unawaited(signaling
+          .signal(callId!, 'restart_request', const {})
+          .catchError((Object e) => callLog('call_controller#41', e)));
+      log.add('restart_request-sent');
+    }
+  }
+
+  /// callsbar: cap our senders (no-op for media without the capability).
+  Future<void> _applyPlan(MediaPlan p) async {
+    final m = media;
+    if (m is! AdaptiveCallMedia || isEnded) return;
+    if (appliedPlan == p) return;
+    appliedPlan = p;
+    log.add('plan:$p');
+    try {
+      await (m as AdaptiveCallMedia).applyPlan(p);
+    } catch (e) {
+      callLog('call_controller#42', e);
+    }
+  }
+
+  /// "Low-data calls" switched in the call (the screen persists the choice).
+  /// Applies to both directions at once: my caps now, the other phone's via
+  /// the `media` signal.
+  Future<void> setLowData(bool on) async {
+    if (lowData == on) return;
+    final before = effectiveLowData;
+    lowData = on;
+    netPolicy.lowData = effectiveLowData;
+    log.add('low-data:$on');
+    if (effectiveLowData != before) {
+      _notify(effectiveLowData ? CallNotice.lowDataOn : CallNotice.lowDataOff);
+    }
+    notifyListeners();
+    await _applyPlan(netPolicy.plan);
+    unawaited(_sendMediaState());
+  }
+
+  void _track(MediaStats st) {
+    double? worse(double? a, double? b, bool max) {
+      if (b == null) return a;
+      if (a == null) return b;
+      return max ? (b > a ? b : a) : (b < a ? b : a);
+    }
+
+    worstRttMs = worse(worstRttMs, st.rttMs, true);
+    worstLossPct = worse(worstLossPct, st.lossPct, true);
+    worstJitterMs = worse(worstJitterMs, st.jitterMs, true);
+    minAvailableKbps = worse(minAvailableKbps, st.availableKbps, false);
+    final b = (st.bytesSent ?? 0) + (st.bytesReceived ?? 0);
+    if (b > dataBytes) dataBytes = b;
+  }
+
+  /// callsbar test seam: one stats poll now (the timer is seconds apart).
+  @visibleForTesting
+  Future<void> debugPollStats() => _pollStats();
+
   Future<void> _pollStats() async {
     if (!isLive) return;
     try {
       final st = await media.stats();
       relayed = relayed || st.relayed;
       lastStats = st;
+      _track(st);
+      var changed = false;
       final q = st.qualityFor(video: videoOn);
       if (q != quality) {
         quality = q;
-        notifyListeners();
+        changed = true;
       }
+      // callsbar: bitrate caps + audio-only fallback (media connected only;
+      // a reconnecting link's numbers say nothing about the new path)
+      if (phase == CallPhase.connected) {
+        netPolicy.lowData = effectiveLowData;
+        final step = netPolicy.onSample(st,
+            sendingVideo: videoOn && cameraOn && !media.cameraUnavailable);
+        await _applyPlan(step.plan);
+        if (step.paused) _notify(CallNotice.videoPausedNet);
+        if (step.resumed) _notify(CallNotice.videoResumedNet);
+        final np = netPolicy.pausedForNetwork && videoOn;
+        if (_sentNetPaused != np && (_sentNetPaused != null || np)) {
+          _sentNetPaused = np;
+          changed = true;
+          unawaited(_sendMediaState());
+        }
+      }
+      if (changed) notifyListeners();
     } catch (e) {
       callLog('call_controller#5', e);
     }
   }
+
+  /// callsbar: what this phone measured, for POST circle/calls/<id>/quality
+  /// (numbers only; no media, no content). null = the call never connected.
+  Map<String, dynamic>? qualityReport() {
+    final talk = talkTime;
+    if (talk == null) return null;
+    int? r(double? v) => v?.round();
+    return {
+      'video': video || videoOn,
+      'low_data': effectiveLowData,
+      'relayed': relayed,
+      'net': lastNetKind,
+      if (worstRttMs != null) 'rtt_ms': r(worstRttMs),
+      if (worstLossPct != null)
+        'loss_pct': double.parse(worstLossPct!.toStringAsFixed(2)),
+      if (worstJitterMs != null) 'jitter_ms': r(worstJitterMs),
+      if (minAvailableKbps != null) 'min_kbps': r(minAvailableKbps),
+      'talk_s': talk.inSeconds,
+      'data_kb': (dataBytes / 1024).round(),
+      'video_paused_s': videoPausedSeconds,
+      'reconnects': reconnects,
+    };
+  }
+
+  void _sendQualityReport() {
+    final id = callId, cb = onQualityReport;
+    if (_reportSent || id == null || cb == null) return;
+    final r = qualityReport();
+    if (r == null) return;
+    _reportSent = true;
+    try {
+      cb(id, r);
+    } catch (e) {
+      callLog('call_controller#43', e);
+    }
+  }
+
+  /// callsbar: the call had a visible problem (always ask for a rating).
+  bool get hadProblem =>
+      reconnects > 0 ||
+      netPolicy.pausedSamplesTotal > 0 ||
+      (worstLossPct ?? 0) > 8 ||
+      (worstRttMs ?? 0) > 600;
 
   // --------------------------------------------------------------- controls
   Future<void> toggleMute() async {
@@ -1261,8 +1512,16 @@ class CallController extends ChangeNotifier {
     final id = callId;
     if (id == null || isEnded) return;
     try {
-      await signaling.signal(id, 'media',
-          {'camera': videoOn && cameraOn, 'mic': !muted, 'video': videoOn});
+      await signaling.signal(id, 'media', {
+        'camera': videoOn && cameraOn,
+        'mic': !muted,
+        'video': videoOn,
+        // callsbar: low-data for both directions + "my video is paused for
+        // a weak network" (the other screen says so instead of a frozen
+        // picture). Old builds ignore both keys.
+        'low_data': lowData,
+        'net_paused': videoPausedForNet,
+      });
     } catch (e) {
       callLog('call_controller#18', e);
     }
@@ -1559,6 +1818,7 @@ class CallController extends ChangeNotifier {
       callLog('call_controller#11', e);
     }
     await _closeMedia();
+    _sendQualityReport();
     if (!_disposed) notifyListeners();
     // the caller hears WHY it ended (generated tones; never blocks the UI)
     if (tone && outgoing) {

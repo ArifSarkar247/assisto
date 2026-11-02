@@ -36,6 +36,7 @@ import 'wa_polish2_shots.dart'; // wa-polish2
 import 'at100_shots.dart'; // at100
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
+import 'callsbar_shots.dart'; // callsbar
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -918,6 +919,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again
     for (final e in aibarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // callsbar: weak-network video call, rating, honest group call, low data
+    for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

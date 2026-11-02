@@ -7297,3 +7297,38 @@ class MissingEvent(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["actor", "kind", "at"], name="core_missev_actor_idx")]
 # ---- /missing ----
+# ---- callsbar ---- (owner 2 Nov: calls to the launch bar) One quality report
+# per call per side: what the phone MEASURED during the call (getStats: worst
+# round-trip, loss, jitter, lowest available send bandwidth, relayed via TURN,
+# data used, seconds the video was paused for a weak network, reconnects) +
+# the person's optional one-tap rating (good / bad + what went wrong). Media
+# never reaches the server — numbers only. Owner Admin -> Calls -> Call quality.
+class CallQualityReport(models.Model):
+    RATINGS = ("good", "bad")
+    ISSUES = ("echo", "choppy", "delay", "video", "dropped", "noise", "other")
+    call = models.ForeignKey(CallRecord, on_delete=models.CASCADE,
+                             related_name="quality_reports")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    side = models.CharField(max_length=8, default="")      # caller|callee
+    rating = models.CharField(max_length=8, blank=True, default="")
+    issue = models.CharField(max_length=16, blank=True, default="")
+    video = models.BooleanField(default=False)
+    low_data = models.BooleanField(default=False)
+    relayed = models.BooleanField(default=False)
+    net = models.CharField(max_length=12, blank=True, default="")
+    rtt_ms = models.PositiveIntegerField(null=True, blank=True)
+    loss_pct = models.FloatField(null=True, blank=True)
+    jitter_ms = models.PositiveIntegerField(null=True, blank=True)
+    min_kbps = models.PositiveIntegerField(null=True, blank=True)
+    talk_s = models.PositiveIntegerField(default=0)
+    data_kb = models.PositiveIntegerField(default=0)
+    video_paused_s = models.PositiveIntegerField(default=0)
+    reconnects = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+        constraints = [models.UniqueConstraint(
+            fields=["call", "user"], name="core_callq_call_user_uniq")]
+# ---- /callsbar ----

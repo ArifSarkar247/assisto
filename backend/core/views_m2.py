@@ -192,6 +192,41 @@ class CircleGroupDetailView(APIView):
         return Response(_group_dict(g, request.user))
 
 
+def _my_call_edges(me, users):
+    """callsbar: {co-member user id: MY accepted, unblocked CircleMember edge
+    id} — the id the app needs to call that person 1:1 from the group
+    (POST circle/<edge>/call). Matched by peer_user, else by any phone
+    spelling. Co-members who are not in my circle are simply absent.
+    Never raises (an empty map only hides the one-tap call)."""
+    out = {}
+    try:
+        edges = list(CircleMember.objects.filter(
+            user=me, state="accepted", blocked=False).only(
+            "id", "peer_user_id", "phone"))
+        by_peer, by_phone = {}, {}
+        for e in edges:
+            if e.peer_user_id:
+                by_peer.setdefault(e.peer_user_id, e.id)
+            if (e.phone or "").strip():
+                for v in _c1_variants(e.phone.strip()):
+                    by_phone.setdefault(v, e.id)
+        for u in users:
+            if u is None or u.id == me.id:
+                continue
+            eid = by_peer.get(u.id)
+            phone = (getattr(u, "phone", "") or "").strip()
+            if eid is None and phone:
+                for v in _c1_variants(phone):
+                    if v in by_phone:
+                        eid = by_phone[v]
+                        break
+            if eid is not None:
+                out[u.id] = eid
+    except Exception:
+        return {}
+    return out
+
+
 class CircleGroupMembersView(APIView):
     """GET  /circle/groups/<id>/members -> roster (per-viewer keys + roles)
        POST /circle/groups/<id>/members -> add a member (can_add_member, circle-
@@ -201,6 +236,8 @@ class CircleGroupMembersView(APIView):
         rows = CircleGroupMember.objects.filter(
             group=g, status=G.MEMBERSHIP_ACTIVE).select_related("member")
         out = []
+        rows = list(rows)
+        edges = _my_call_edges(me, [r.member for r in rows])  # callsbar
         for r in rows:
             is_self = (r.member_id == me.id)
             hist = []
@@ -224,6 +261,8 @@ class CircleGroupMembersView(APIView):
                 "key_id": kid,
                 "key_history": hist,
                 "is_self": is_self,
+                # callsbar: my circle edge for a one-tap 1:1 call (or None)
+                "circle_member_id": edges.get(r.member_id),
                 "my_member_id": (mine.id if mine else None),
                 "my_role": (mine.role if mine else None),
                 "joined_at": r.joined_at.isoformat(),
