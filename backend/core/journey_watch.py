@@ -199,6 +199,9 @@ def overdue(j, now):
     """(state, minutes) from the pure state machine, with the night grace and
     the journey's own response window."""
     eta = j.eta
+    if (getattr(j, "destination", None) or {}).get("share") and j.status == "active":
+        # sjlive: a share is never "late" — it ends by itself at eta
+        return SJ.overdue_state({"status": j.status, "eta": None}, now=now)
     if getattr(j, "vehicle", None) and (j.vehicle or {}).get("train") and j.status == "active":
         # journeymode: the traveller's own fix shows their train running
         # late -> the check waits for the train (estimate, capped)
@@ -309,6 +312,17 @@ def event_text(kind, j, name, lang, p, links=True):
     url = (p.get("url") or "") if links else ""
     link = pick(lang, " লাইভ পাতা: %s" % url, " Live page: %s" % url) if url else ""
     dest = _dest(j, lang)
+    share = bool((j.destination or {}).get("share"))
+    if kind == "started" and share:
+        # sjlive: "Share for a while" / location request — no destination
+        until = _hhmm(j.eta, lang)
+        return (pick(lang, "লাইভ লোকেশন: %s" % name, "Live Location: %s" % name),
+                pick(lang, "%s %s পর্যন্ত আপনাকে লাইভ লোকেশন দেখাচ্ছেন। সময় শেষে নিজে থেকে বন্ধ হবে।" % (name, until),
+                     "%s is sharing their Live Location with you until %s. It stops by itself then." % (name, until)))
+    if kind == "share_ended":
+        return (pick(lang, "লাইভ লোকেশন শেয়ার শেষ", "Live Location sharing ended"),
+                pick(lang, "%s-এর শেয়ারের সময় শেষ, তাই এখন আর লোকেশন দেখা যাবে না।" % name,
+                     "%s's sharing time is over, so their location is no longer shown." % name))
     if kind == "started":
         pl = SJ.journey_started_payload(name, dest, web_link=url or None, lang=lang)
         eta = _hhmm(j.eta, lang)
@@ -612,6 +626,10 @@ def _sweep_journey(j, now, stats):
     if j.expires_at and now >= j.expires_at:
         expire(j)
         stats["expired"] += 1
+        return
+    from . import sj_live as SL
+    if SL.end_share(j, now):
+        stats["share_ended"] += 1
         return
     state, mins = overdue(j, now)
     if state == "ask" and j.ask_sent_at is None:

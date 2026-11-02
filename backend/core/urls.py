@@ -556,6 +556,7 @@ urlpatterns = [
     path("journey/<int:pk>/vehicle-photo", b61.JourneyVehiclePhotoView.as_view()),
     path("journey/sos/cancel", b61.JourneySosCancelView.as_view()),
     path("journey/watching", b61.JourneyWatchingView.as_view()),
+    path("journey/where-now", b61.JourneyWhereNowView.as_view()),  # sjlive
     path("journey/routines/<int:pk>", b61.JourneyRoutineDetailView.as_view()),
 
     # ===== Messenger STEP 3 =====
@@ -1426,6 +1427,7 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/checkin", kwv.PlanCheckinView.as_view()),
     path("school-mode/plans/<int:pk>/events", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/events/clear", kwv.PlanEventsView.as_view()),
+    path("school-mode/plans/<int:pk>/gate-snapshot", kwv.GateSnapshotView.as_view()),  # sjlive
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----

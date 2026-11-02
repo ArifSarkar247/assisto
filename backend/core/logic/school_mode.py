@@ -104,6 +104,14 @@ def validate(cfg):
     if not days or any(d < 0 or d > 6 for d in days):
         raise ValueError("bad_days")
     out["days"] = days
+    # sjlive (owner 3 Nov): holidays — dates with no school (no late alerts)
+    out["holidays"] = clean_holidays(out.get("holidays"))
+    # sjlive: an optional CCTV gate camera (permission checked by the view)
+    try:
+        cam = int(out.get("gate_camera_id") or 0)
+    except (TypeError, ValueError):
+        raise ValueError("bad_camera")
+    out["gate_camera_id"] = cam if cam > 0 else None
     out["home"] = clean_place(out.get("home"))
     out["school"] = clean_place(out.get("school"))
     return out
@@ -154,7 +162,29 @@ def learn_wifi(place, wifi):
 
 # --------------------------------------------------------------- schedule
 
+HOLIDAYS_MAX = 120
+
+
+def clean_holidays(raw):
+    """Sorted unique 'YYYY-MM-DD' strings (at most HOLIDAYS_MAX, newest kept);
+    raises ValueError('bad_holiday') on a malformed date."""
+    from datetime import date
+    if not raw:
+        return []
+    if not isinstance(raw, (list, tuple)):
+        raise ValueError("bad_holiday")
+    out = set()
+    for v in raw:
+        try:
+            out.add(date.fromisoformat(str(v)[:10]).isoformat())
+        except ValueError:
+            raise ValueError("bad_holiday")
+    return sorted(out)[-HOLIDAYS_MAX:]
+
+
 def is_school_day(cfg, local_dt):
+    if local_dt.date().isoformat() in (cfg.get("holidays") or ()):
+        return False
     return local_dt.weekday() in cfg["days"]
 
 

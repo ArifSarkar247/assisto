@@ -58,6 +58,27 @@ def flag_on(user):
         return False
 
 
+def school_on(user):
+    """sjlive (owner 3 Nov): Child School (a PHONE plan) is part of Safe
+    Journey's Live Location card, so it is on wherever Safe Journey is on;
+    watches and tracker chips stay behind `kids_watch`."""
+    if flag_on(user):
+        return True
+    try:
+        from . import feature_flags as FF
+        return bool(FF.is_on("safe_journey", user))
+    except Exception:
+        return False
+
+
+def _gate_cam_refused(user, cfg):
+    from . import sj_live as SL
+    cam = (cfg or {}).get("gate_camera_id")
+    if cam and not SL.gate_camera_ok(user, cam):
+        return R({"ok": False, "reason": "camera_not_found"}, status=400)
+    return None
+
+
 def _off():
     return R({"ok": False, "reason": "feature_off"}, status=403)
 
@@ -487,7 +508,8 @@ def _load_plan(request, pk, manage=False):
 
 def _config_from(d, base=None):
     cfg = dict(base or {})
-    for k in ("start", "end", "commute_min", "late_min", "days", "home", "school"):
+    for k in ("start", "end", "commute_min", "late_min", "days", "home", "school",
+              "holidays", "gate_camera_id"):
         if k in d:
             cfg[k] = d[k]
     if "class_mode" in d:
@@ -533,7 +555,7 @@ class PeopleView(APIView):
 
     def get(self, request):
         from .models import CircleMember
-        if not flag_on(request.user):
+        if not school_on(request.user):
             return _off()
         from . import circle_family   # circlea: Family / Others
         gctx = circle_family.link_context(request.user)
@@ -555,7 +577,7 @@ class PlanListView(APIView):
 
     def get(self, request):
         from .models import SchoolPlan
-        if not flag_on(request.user):
+        if not school_on(request.user):
             return _off()
         now = timezone.now()
         mine = list(SchoolPlan.objects.filter(owner=request.user)
@@ -573,7 +595,7 @@ class PlanListView(APIView):
 
     def post(self, request):
         from .models import SchoolPlan, KidsWatch, User
-        if not flag_on(request.user):
+        if not school_on(request.user):
             return _off()
         d = dict(request.data or {})
         if SchoolPlan.objects.filter(owner=request.user).count() >= MAX_PLANS_PER_USER:
@@ -587,6 +609,11 @@ class PlanListView(APIView):
             return R({"ok": False, "reason": str(e)}, status=400)
         if not cfg["home"] or not cfg["school"]:
             return R({"ok": False, "reason": "places_required"}, status=400)
+        refused = _gate_cam_refused(request.user, cfg)
+        if refused:
+            return refused
+        if (d.get("chip_id") or d.get("watch_id")) and not flag_on(request.user):
+            return _off()   # watches / chips stay behind kids_watch
         watch, child, chip = None, None, None
         if d.get("chip_id"):
             # chipbuy: a tracker chip drives the plan automatically, like a watch
@@ -651,7 +678,7 @@ class PlanDetailView(APIView):
         return R({"plan": _plan_json(p, request.user)})
 
     def patch(self, request, pk):
-        if not flag_on(request.user):
+        if not school_on(request.user):
             return _off()
         p, err = _load_plan(request, pk, manage=True)
         if err:
@@ -666,6 +693,10 @@ class PlanDetailView(APIView):
             return R({"ok": False, "reason": str(e)}, status=400)
         if not cfg["home"] or not cfg["school"]:
             return R({"ok": False, "reason": "places_required"}, status=400)
+        if cfg.get("gate_camera_id") != (p.config or {}).get("gate_camera_id"):
+            refused = _gate_cam_refused(request.user, cfg)
+            if refused:
+                return refused
         p.config = cfg
         if "watcher_ids" in d:
             p.watcher_ids = KW.clean_guardians(request.user, d.get("watcher_ids"))
@@ -818,3 +849,38 @@ class PlanEventsView(APIView):
         p.last_known = {}
         p.save(update_fields=["last_known", "updated_at"])
         return R({"ok": True, "deleted": n})
+
+
+class GateSnapshotView(APIView):
+    """sjlive — GET school-mode/plans/<pk>/gate-snapshot?event=arrived_school|
+    left_school: the CCTV gate camera's snapshot nearest that moment today
+    (+-15 min), through the existing CCTV snapshot seam. 404 `no_camera`
+    when no camera is linked (the app hides the button), `no_snapshot` when
+    the camera kept no picture then."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        from . import sj_live as SL
+        from .logic.school_mode import _parse
+        p, err = _load_plan(request, pk)
+        if err:
+            return err
+        ev = str(request.query_params.get("event") or "arrived_school")
+        key = {"arrived_school": "arrived_school_at", "left_school": "left_school_at",
+               "left_home": "left_home_at", "reached_home": "home_at"}.get(ev)
+        if key is None:
+            return R({"ok": False, "reason": "bad_event"}, status=400)
+        day = p.day or {}
+        try:
+            at = _parse(day.get(key))
+        except ValueError:
+            at = None
+        if at is None:
+            return R({"ok": False, "reason": "not_yet"}, status=404)
+        if timezone.is_naive(at):
+            at = timezone.make_aware(at, KW.LOCAL_TZ)
+        e, why = SL.gate_snapshot(p, at)
+        if e is None:
+            return R({"ok": False, "reason": why}, status=404)
+        return R({"ok": True, "url": request.build_absolute_uri(e.snapshot.url),
+                  "at": e.created.isoformat(), "event_at": at.isoformat()})

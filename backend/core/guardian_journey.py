@@ -96,6 +96,8 @@ def _hhmm(dt, lang):
 
 
 def _dest(req, lang):
+    if (req.destination or {}).get("share"):
+        return pick(lang, "লাইভ লোকেশন", "Live Location")
     return (req.destination or {}).get("name") or pick(lang, "গন্তব্য", "the destination")
 
 
@@ -156,6 +158,13 @@ def validate_new(requester, traveller, d, now):
     dest = d.get("destination") if isinstance(d.get("destination"), dict) else {}
     name = " ".join(str(dest.get("name") or "").split())[:120]
     clean_dest = {"name": name}
+    if str(d.get("kind") or "") == "location":
+        # sjlive "Request Location": no destination — the traveller's place
+        # for the chosen time only (same consent, banner and one-tap stop)
+        if d.get("standing"):
+            return None, "standing_child_only"
+        clean_dest = {"name": "", "share": True}
+        dest, name = {}, "-"
     if dest.get("lat") not in (None, "") or dest.get("lng") not in (None, ""):
         got = JD._ok(dest.get("lat"), dest.get("lng"))
         if got is None:
@@ -228,6 +237,13 @@ def request_texts(req, lang, name):
                     _dest(req, lang), JW.bn_num(sch.get("start", "")), JW.bn_num(sch.get("end", ""))),
                      "%s, %s–%s on school days. Your screen always shows who is watching." % (
                     _dest(req, lang), sch.get("start", ""), sch.get("end", ""))))
+    if is_location_only(req):
+        return (pick(lang, "%s আপনার লাইভ লোকেশন দেখতে চান" % name,
+                     "%s asks to see your Live Location" % name),
+                pick(lang, "%s থেকে %s পর্যন্ত। রাজি হলে শুধু এই সময়টুকু দেখবেন; আপনার স্ক্রিনে সবসময় দেখা যাবে, যেকোনো সময় বন্ধ করতে পারবেন।" % (
+                    _hhmm(s, lang), _hhmm(e, lang)),
+                     "From %s to %s. If you agree they see it only in this time; your screen always shows it and you can stop any time." % (
+                    _hhmm(s, lang), _hhmm(e, lang))))
     return (pick(lang, "%s আজ আপনার যাত্রা দেখতে চান" % name,
                  "%s wants to follow your trip" % name),
             pick(lang, "%s, %s থেকে %s। রাজি হলে শুধু এই সময়টুকু আপনার লোকেশন দেখবেন।" % (
@@ -272,8 +288,9 @@ def as_dict(req, viewer, lang="bn"):
         # a late trip stays on up to HARD_TAIL_MIN after the end time and
         # stops at once on arrival / Stop. The number is this module's own
         # constant (the one the sweep uses) — the app never hard-codes it.
-        "late_tail_min": HARD_TAIL_MIN,
-        "late_note": late_note(lang),
+        "late_tail_min": 0 if is_location_only(req) else HARD_TAIL_MIN,
+        "late_note": "" if is_location_only(req) else late_note(lang),
+        "kind": "location" if is_location_only(req) else "trip",
     }
     if mine and live:
         fx = JW.fix_of(j)
@@ -310,7 +327,8 @@ def start_trip(req, now=None):
     j = Journey.objects.create(
         traveller=req.traveller, destination=dict(req.destination or {}), eta=end,
         status="active", overdue_grace_min=10, location_retention_hours=0,
-        stop_alert_min=20, expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
+        stop_alert_min=0 if is_location_only(req) else 20,
+        expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
         last_activity_at=now, moved_at=now)
     JourneyWatcher.objects.create(journey=j, member=member)
     req.journey, req.status, req.started_at, req.ended_at = j, "active", now, None
@@ -512,12 +530,20 @@ def active_requests(j):
                 .select_related("requester", "traveller", "journey").order_by("id"))
 
 
+def is_location_only(req):
+    """sjlive: a "Request Location" (no destination) — ends exactly at the
+    chosen time, no late tail (there is nothing to be late for)."""
+    return bool((req.destination or {}).get("share"))
+
+
 def hard_end(req, j=None):
     """The moment nothing may run past: the window end of the trip that
     started + HARD_TAIL_MIN. Fixed at the start — "I'm OK" / extend move the
     journey's eta for the late check but never this."""
     occ = occurrence(req, req.started_at) if req.started_at else None
     end = occ[1] if occ else ((j.eta if j is not None else None) or req.window_end)
+    if is_location_only(req):
+        return occ[1] if occ else req.window_end
     return end + timedelta(minutes=HARD_TAIL_MIN)
 
 
