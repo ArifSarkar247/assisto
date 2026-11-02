@@ -45,6 +45,7 @@ EN = {
     # discover
     "new_card": "New card", "edit_card": "Edit card", "cards": "Cards",
     "discover_note": "Sponsored cards reach every plan and always carry the “Sponsored” label; AdMob slots show to Free users only.",
+    "discover_order_rule": "Your order is what users see. A card appears only while its feature switch is ON. A Sponsored or ad card is never shown right next to SOS or Blood donor — the app moves it to the nearest allowed place (or hides it). Changes reach phones without a new app build.",
     "drag_hint": "Drag rows to reorder, or use the arrows.", "save_order": "Save order",
     "drag": "Drag", "title": "Title", "type": "Type", "audience": "Audience", "status": "Status",
     "impressions": "Impressions", "clicks": "Clicks", "sponsored": "Sponsored",
@@ -277,6 +278,7 @@ BN = {
     "target": "লক্ষ্য", "empty": "এখনো কিছু নেই।",
     "new_card": "নতুন কার্ড", "edit_card": "কার্ড সম্পাদনা", "cards": "কার্ডসমূহ",
     "discover_note": "স্পনসর্ড কার্ড সব প্ল্যানে যায় এবং সবসময় “স্পনসর্ড” লেবেল থাকে; AdMob স্লট শুধু ফ্রি ব্যবহারকারীরা দেখেন।",
+    "discover_order_rule": "আপনার সাজানো ক্রমেই ব্যবহারকারীরা দেখেন। কোনো কার্ড দেখা যায় শুধু তার ফিচার সুইচ চালু থাকলে। স্পনসর্ড বা বিজ্ঞাপন কার্ড কখনো SOS বা রক্তদাতা কার্ডের ঠিক পাশে বসে না — অ্যাপ সেটিকে কাছের অনুমোদিত জায়গায় সরায় (না হলে লুকায়)। নতুন অ্যাপ বিল্ড ছাড়াই পরিবর্তন ফোনে পৌঁছায়।",
     "drag_hint": "সারি টেনে ক্রম বদলান, অথবা তীর বোতাম ব্যবহার করুন।", "save_order": "ক্রম সংরক্ষণ",
     "drag": "টেনে আনুন", "title": "শিরোনাম", "type": "ধরন", "audience": "দর্শক", "status": "অবস্থা",
     "impressions": "দেখা হয়েছে", "clicks": "ক্লিক", "sponsored": "স্পনসর্ড",

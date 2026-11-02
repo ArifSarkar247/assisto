@@ -422,6 +422,30 @@ class DiscoverPanelTests(OwnerBase):
         self.assertEqual(a.before["type"], "SPONSORED")
         self.assertEqual(a.after["type"], "FEATURE")
 
+    def test_homeorder_sponsor_never_next_to_sos_in_owner_preview(self):
+        # homeorder (owner 2 Nov): owner adds SOS + a sponsored card straight
+        # after it from the panel; the preview (= what phones get) moves the
+        # sponsored card away from SOS, and the panel explains the rule.
+        r = self.post("/owner/discover/new", dict(CARD, title_en="SOS", title_bn="এসওএস",
+                                                  route="emergency", icon="emergency"))
+        self.assertEqual(r.status_code, 302)
+        r = self.post("/owner/discover/new", dict(CARD, type="SPONSORED", title_en="Acme deal",
+                                                  title_bn="অফার", route="",
+                                                  url="https://shop.example.com",
+                                                  sponsor_name="Acme"))
+        self.assertEqual(r.status_code, 302)
+        r = self.post("/owner/discover/new", dict(CARD, title_en="Notes card", title_bn="নোট"))
+        self.assertEqual(r.status_code, 302)
+        r = self.c.get("/owner/discover?lang=en")
+        self.assertContains(r, 'id="discover-order-rule"')
+        self.assertContains(r, "never shown right next to SOS or Blood donor")
+        body = r.content.decode()
+        prev = body[body.index('class="phone"'):]
+        self.assertLess(prev.index("SOS"), prev.index("Notes card"))
+        self.assertLess(prev.index("Notes card"), prev.index("Acme deal"))
+        r = self.c.get("/owner/discover?lang=bn")
+        self.assertContains(r, "রক্তদাতা")
+
     def test_toggle_reorder_delete(self):
         for t in ("One", "Two", "Three"):
             self.post("/owner/discover/new", dict(CARD, title_en=t))
