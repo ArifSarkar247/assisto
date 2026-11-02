@@ -63,6 +63,7 @@ import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'calls/kid_audio_child.dart'; // kidaudio
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
@@ -498,6 +499,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // cctvarm: a consenting member's "near Home?" for the camera guard
+      // (flag + consent + permission already granted; 10 min; never throws).
+      unawaited(HomePresenceSync.maybeSend(app.api));
       // kidaudio: a granted emergency-audio session waiting for this phone
       // (flag + server grant; visible notice first; never throws).
       unawaited(KidAudioChild.maybeStart(app.api));

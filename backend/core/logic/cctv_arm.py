@@ -190,11 +190,12 @@ def decide_family(state, summary, now, home_uids=(), privacy_on=False,
         if was_armed or was_priv:
             ev.append({"what": "family_off", "uids": []})
         st.update(fam_armed=False, privacy=False, privacy_by=None,
-                  all_away_since=None)
+                  all_away_since=None, privacy_paused=False)
         return st, ev
     if summary == "all_away":
         st["last_definite"] = iso(now)
         st["privacy"], st["privacy_by"] = False, None
+        st["privacy_paused"] = False      # the owner's pause lasts one stay
         since = parse_iso(st.get("all_away_since")) or now
         st["all_away_since"] = iso(since)
         if not was_armed and (now - since).total_seconds() >= ARM_DWELL_MIN * 60:
@@ -208,7 +209,8 @@ def decide_family(state, summary, now, home_uids=(), privacy_on=False,
         if was_armed:
             st["fam_armed"] = False
             ev.append({"what": "disarmed_return", "uids": uids[:1]})
-        want_priv = bool(privacy_on and has_indoor)
+        # the owner turned the indoor cameras back on for this stay
+        want_priv = bool(privacy_on and has_indoor and not st.get("privacy_paused"))
         if want_priv and not was_priv:
             ev.append({"what": "privacy_on", "uids": uids[:1]})
         st["privacy"] = want_priv

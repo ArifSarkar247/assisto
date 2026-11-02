@@ -256,6 +256,7 @@ class SiteArmView(_OwnerBase):
             if d.get("privacy_pause") is True and (a.get("state") or {}).get("privacy"):
                 st = dict(a["state"])
                 st["privacy"], st["privacy_by"] = False, None
+                st["privacy_paused"] = True       # until everyone is out again
                 a["state"] = st
                 ARM.add_log(a, now, "privacy_paused", (), s.name)
             if d.get("family_on") is False and (a.get("state") or {}).get("fam_armed"):

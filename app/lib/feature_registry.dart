@@ -199,6 +199,7 @@ const Map<String, String> kRouteFeature = {
   'watchman': 'home_watchman',
   // cctvx: alerts passed to me / clips shared with me
   'watchman_inbox': 'home_watchman',
+  'watchman_sos_live': 'home_watchman', // cctvarm
   'disaster': 'disaster_alerts',
   'contacts': 'contacts',
   'voice_assistant': 'voice_assistant',

@@ -38,7 +38,7 @@ class HomePresenceSync {
     return out;
   }
 
-  static Future<int> maybeSend(ApiClient api,
+  static Future<int> maybeSend(ApiClient? api,
       {AutoGuardSource? source,
       Future<({double lat, double lng, double acc})?> Function()? locate,
       bool force = false}) async {
@@ -47,7 +47,7 @@ class HomePresenceSync {
       final p = await SharedPreferences.getInstance();
       final now = DateTime.now().millisecondsSinceEpoch;
       if (!force && now - (p.getInt(_prefAt) ?? 0) < gap.inMilliseconds) return 0;
-      final src = source ?? ApiAutoGuardSource(api);
+      final src = source ?? ApiAutoGuardSource(api!);
       final mine = await src.mine();
       final sites = (mine['sites'] is List ? mine['sites'] as List : const [])
           .whereType<Map>()
