@@ -136,7 +136,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
     final accs =
         app.accounts.items.where((a) => a['serverId'] != null).toList();
     final defaultAcc = accs.isEmpty ? null : accs.first['serverId'] as int?;
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final today = DateFormat('yyyy-MM-dd').format(dhakaNow()); // remhbud: Dhaka day
 
     setState(() => _saving = true);
     var saved = 0;
@@ -369,7 +369,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                   style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              Text(d.amount != null ? tkFmt(d.amount) : t.mvoiceNoAmount,
+              Text(d.amount != null ? tkOf(context, d.amount) : t.mvoiceNoAmount, // remhbud: Bangla digits
                   style: TextStyle(fontFeatures: AFonts.tabular,
                       fontWeight: FontWeight.w800,
                       color: d.amount != null
@@ -389,6 +389,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               for (final ty in MoneyVoiceType.values)
                 ChoiceChip(
                   visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.padded, // remhbud: 48dp
                   label: Text(_typeLabel(ty)),
                   selected: d.type == ty,
                   onSelected: (_) => setState(() => d.type = ty),
@@ -402,7 +403,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       labelText: t.mvoiceFieldAmount, isDense: true),
-                  onChanged: (v) => setState(() => d.amount = num.tryParse(v)),
+                  onChanged: (v) => setState(() => d.amount = num.tryParse(moneyAscii(v))), // remhbud: Bangla keyboard
                 ),
               ),
               const SizedBox(width: Gap.sm),

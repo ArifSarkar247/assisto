@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/voice_input.dart';
 import 'remit_entry_screen.dart';
 import 'remit_parser.dart';
@@ -796,7 +797,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         await _load();
       },
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           if (_showGuide) RemitGuideCard(onClose: _closeGuide),
           _monthSwitcher(t),
@@ -1091,7 +1092,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           _monthSwitcher(t),
           RmSection(
@@ -1164,7 +1165,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     return RefreshIndicator(
       onRefresh: _loadYear,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, 0),
