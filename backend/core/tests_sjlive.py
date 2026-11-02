@@ -169,7 +169,7 @@ class RequestLocationTests(Base):
                          ("location", 0, ""))
         # pending: nothing is shared, and the requester cannot start it
         self.assertFalse(Journey.objects.filter(traveller=self.a).exists())
-        self.assertEqual(self.act(self.cb, rid, "start").status_code, 403)
+        self.assertEqual(self.act(self.cb, rid, "start").status_code, 404)
         self.assertEqual(self.act(self.ca, rid, "decline").status_code, 200)
         self.assertEqual(JourneyRequest.objects.get(pk=rid).status, "declined")
         self.assertFalse(Journey.objects.filter(traveller=self.a).exists())
