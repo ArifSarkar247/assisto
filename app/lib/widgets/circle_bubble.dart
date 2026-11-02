@@ -474,7 +474,7 @@ class CircleBubble extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final metaColor = mine
         ? MsgPalette.outMeta(context)
-        : scheme.onSurfaceVariant.withValues(alpha: 0.8);
+        : scheme.onSurfaceVariant; // full strength: 0.8 alpha was 4.08:1 on the incoming bubble (a11y)
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
