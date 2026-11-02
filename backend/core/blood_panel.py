@@ -133,11 +133,24 @@ def get_donor(user):
 
 
 def eligibility(d, on_day=None):
+    """Eligibility on `on_day` (the list moves forward daily by itself: the
+    numbers are computed from the date, nothing is stored)."""
     on_day = on_day or today()
     nxt = BR.next_eligible(d.last_donation, d.sex) if d else None
+    last = d.last_donation if d else None
     return {"eligible": nxt is None or nxt <= on_day,
             "next_date": nxt.isoformat() if nxt else None,
+            "days_left": max(0, (nxt - on_day).days) if nxt else 0,
+            "donated_days_ago": (on_day - last).days if last else None,
             "interval_days": BR.interval_days(d.sex if d else "")}
+
+
+def donor_status(d, el):
+    """available | waiting (inside the minimum interval — NEVER called
+    available) | paused (the donor's own pause: sick, travelling)."""
+    if not d.available:
+        return "paused"
+    return "available" if el["eligible"] else "waiting"
 
 
 def donor_json(d, lang="bn"):
@@ -157,6 +170,7 @@ def donor_json(d, lang="bn"):
     # finish1 (push-area honesty): requests reach the donor by the area they
     # SAVED (no background location). After DETAILS_STALE_DAYS without any
     # change the app asks "still in <area>?" — one tap keeps it.
+    out["helped"] = helped_count(d.user)       # owner final: people helped
     upd = d.updated_at or d.created_at
     out["details_checked"] = upd.date().isoformat() if upd else None
     out["details_stale"] = bool(upd and now() - upd > timedelta(days=DETAILS_STALE_DAYS))
@@ -281,6 +295,9 @@ def public_card(d, viewer_area, lang="bn", on_day=None):
            "km": BR.shown_km(km) if viewer_area and (d.lat is not None or d.district) else None,
            "eligible": el["eligible"], "next_date": el["next_date"],
            "verified": bool(d.verified_at),
+           # owner final 2 Nov: never hidden — status + exact days
+           "status": donor_status(d, el), "days_left": el["days_left"],
+           "donated_days_ago": el["donated_days_ago"],
            "phone": (u.phone or None) if d.phone_public else None,
            "email": (u.email or None) if d.email_public else None}
     return out
@@ -288,10 +305,16 @@ def public_card(d, viewer_area, lang="bn", on_day=None):
 
 def search(user, params, lang="bn", at=None):
     """-> (rows, error). Listed donors near the viewer, by group."""
+    rows, _counts, err = search_full(user, params, lang, at)
+    return rows, err
+
+
+def search_full(user, params, lang="bn", at=None):
+    """-> (rows, counts, error)."""
     from .models import BloodDonor
     at = at or now()
     if _searches_today(user, at) >= BR.MAX_SEARCH_DAY:
-        return None, "rate_limited"
+        return None, None, "rate_limited"
     group = BR.normalise_group(params.get("group"))
     radius = BR.clean_radius(params.get("radius"))
     la, ln = MR.coarse(params.get("lat")), MR.coarse(params.get("lng"))
@@ -303,10 +326,12 @@ def search(user, params, lang="bn", at=None):
         la, ln, code = me.lat, me.lng, me.district
     viewer = BR.area_of(la, ln, code if MR.district(code) else "")
     if viewer is None:
-        return None, "area_required"
+        return None, None, "area_required"
     groups = ([group] if params.get("compatible") not in ("1", "true", True) or not group
               else BR.donor_groups_for(group)) if group else list(BR.BLOOD_GROUPS)
-    qs = (BloodDonor.objects.filter(enabled=True, available=True, user__is_active=True,
+    # owner final 2 Nov: NEVER hide a donor — paused + waiting donors are
+    # listed with their status (only donors who left / switched off are not)
+    qs = (BloodDonor.objects.filter(enabled=True, user__is_active=True,
                                     blood_group__in=groups)
           .exclude(user=user).select_related("user"))
     on_day = timezone.localtime(at).date()
@@ -316,16 +341,40 @@ def search(user, params, lang="bn", at=None):
         if not ok:
             continue
         rows.append((d, km or 0.0))
-    only_now = params.get("eligible_only") in ("1", "true", True)
     out = []
     for d, km in rows:
         card = public_card(d, viewer, lang, on_day)
-        if only_now and not card["eligible"]:
-            continue
-        out.append((not card["eligible"], d.blood_group != group, km, card))
-    out.sort(key=lambda r: (r[0], r[1], r[2]))
-    log_event("search", None, user, group=group, radius=radius, n=len(out))
-    return [r[3] for r in out[:BR.MAX_LIST]], None
+        out.append((sort_key(card, km), card))
+    out.sort(key=lambda r: r[0])
+    cards = [r[1] for r in out]
+    log_event("search", None, user, group=group, radius=radius, n=len(cards))
+    return cards[:BR.MAX_LIST], list_counts(cards), None
+
+
+STATUS_ORDER = {"available": 0, "waiting": 1, "paused": 2}
+
+
+def sort_key(card, km):
+    """Available now first (nearest first), then waiting donors by days left
+    (fewest first, then nearest), then paused donors (nearest first)."""
+    st = card.get("status", "available")
+    return (STATUS_ORDER.get(st, 3), card.get("days_left", 0) if st == "waiting" else 0,
+            km or 0.0, card.get("id", 0))
+
+
+def list_counts(cards):
+    """Header numbers: total / available now / soon (waiting) / paused."""
+    c = {"total": len(cards), "available": 0, "soon": 0, "paused": 0}
+    for x in cards:
+        st = x.get("status")
+        if st == "available":
+            c["available"] += 1
+        elif st == "waiting":
+            c["soon"] += 1
+        elif st == "paused":
+            c["paused"] += 1
+    return c
+
 
 
 # ------------------------------------------------------------------ requests
@@ -568,6 +617,72 @@ def end_request(req, state, by, at=None):
                    "আপনি যে অনুরোধে রাজি হয়েছিলেন, সেটি আর লাগবে না। সাড়া দেওয়ার জন্য ধন্যবাদ।",
                    "The request you answered is no longer needed. Thank you for answering.",
                    request_id=req.id)
+    return None
+
+
+# ------------------------------------------------------------------ thank-you share
+# Owner final 2 Nov: the thank-you card is shared only when BOTH sides agree
+# (the family + at least one donor who answered "I can" / donated). The card
+# never carries a disease or a hospital (blood group + a thank-you only).
+SHARE_DONOR_ANSWERS = ("can", "donated")
+
+
+def helped_count(user):
+    """Requests this donor helped: said "I donated", or "I can" on a request
+    the family then marked "blood found"."""
+    from .models import BloodRecipient
+    from django.db.models import Q as _Q
+    return (BloodRecipient.objects.filter(user=user)
+            .filter(_Q(response="donated") | _Q(response="can", request__state="fulfilled"))
+            .values("request_id").distinct().count())
+
+
+def _share_oks(req):
+    from .models import BloodEvent
+    return set(BloodEvent.objects.filter(request=req, kind="share_ok")
+               .values_list("actor_id", flat=True))
+
+
+def _share_donor_ids(req):
+    return set(req.recipients.filter(response__in=SHARE_DONOR_ANSWERS)
+               .values_list("user_id", flat=True))
+
+
+def share_state(req, user):
+    if req.state != "fulfilled":
+        return {"possible": False}
+    oks = _share_oks(req)
+    donors = _share_donor_ids(req)
+    fam_ok = req.requester_id in oks
+    donor_ok = bool(oks & donors)
+    mine = user.id == req.requester_id or user.id in donors
+    return {"possible": mine, "family_ok": fam_ok, "donor_ok": donor_ok,
+            "me_ok": user.id in oks, "can_share": mine and fam_ok and donor_ok,
+            "has_donor": bool(donors)}
+
+
+def share_agree(req, user, at=None):
+    """One side says yes to the public thank-you. -> error or None."""
+    at = at or now()
+    if req.state != "fulfilled":
+        return "not_active"
+    donors = _share_donor_ids(req)
+    if user.id != req.requester_id and user.id not in donors:
+        return "not_allowed"
+    if user.id in _share_oks(req):
+        return None
+    log_event("share_ok", req, user)
+    if user.id == req.requester_id:
+        for row in req.recipients.filter(response__in=SHARE_DONOR_ANSWERS).select_related("user"):
+            notify(row.user, "share_ask", "একটা ধন্যবাদ শেয়ার করতে চান?",
+                   "Share a thank-you?",
+                   "পরিবারটি ধন্যবাদ-কার্ড শেয়ার করতে চায় (নাম, রোগ বা হাসপাতাল ছাড়া)। আপনি রাজি হলে তবেই।",
+                   "The family wants to share a thank-you card (no names, illness or hospital). Only if you agree.",
+                   request_id=req.id)
+    else:
+        notify(req.requester, "share_ok", "দাতা রাজি হয়েছেন", "The donor agreed",
+               "এখন ধন্যবাদ-কার্ড শেয়ার করতে পারেন।", "You can share the thank-you card now.",
+               request_id=req.id)
     return None
 
 

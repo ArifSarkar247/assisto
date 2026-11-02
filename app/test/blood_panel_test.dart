@@ -124,7 +124,7 @@ void main() {
     expect(find.byKey(const ValueKey('bp-donor-call-3')), findsNothing);   // private
     expect(find.byKey(const ValueKey('bp-donor-call-4')), findsOneWidget); // public by choice
     expect(find.byKey(const ValueKey('bp-donor-sms-4')), findsOneWidget);
-    expect(find.text(l.bpNumberPrivate), findsNWidgets(2));
+    expect(find.text(l.bpNumberPrivate), findsNWidgets(3)); // finish1: + a paused donor (shown)
     expect(find.text('01711000000'), findsNothing);                        // number not printed
     expect(find.textContaining(l.bpAboutKm(2)), findsOneWidget);
     expect(find.text(l.bpVerified), findsOneWidget);
@@ -212,7 +212,7 @@ void main() {
     expect(popped, 31);
   });
 
-  testWidgets('requester: responders; Found + agree opens the thank-you share', (t) async {
+  testWidgets('requester: responders; Found + agree asks the donor first (both sides)', (t) async {
     _tall(t);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final api = _Fake();
@@ -226,9 +226,11 @@ void main() {
     await t.pump();
     await _tap(t, 'bp-found-confirm');
     await t.pumpAndSettle();
-    expect(api.posts.single.$1, '/blood-panel/requests/31/found');
-    expect(find.byType(SuccessShareScreen), findsOneWidget);
-    expect(find.textContaining('B+'), findsWidgets);
+    // finish1 (owner final): the family's yes is recorded; the card opens
+    // only once a donor who helped agrees too
+    expect(api.posts.map((p) => p.$1).toList(),
+        ['/blood-panel/requests/31/found', '/blood-panel/requests/31/share']);
+    expect(find.byType(SuccessShareScreen), findsNothing);
   });
 
   testWidgets('requester: Found without agreeing does not open the share', (t) async {

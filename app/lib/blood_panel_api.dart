@@ -48,6 +48,8 @@ extension BloodPanelApi on ApiClient {
         return postJsonRaw('/blood-panel/requests/$id/close', body);
       case 'report':
         return postJsonRaw('/blood-panel/requests/$id/report', body);
+      case 'share': // finish1: this side agrees to the thank-you card
+        return postJsonRaw('/blood-panel/requests/$id/share', body);
     }
     throw ArgumentError.value(action, 'action');
   }

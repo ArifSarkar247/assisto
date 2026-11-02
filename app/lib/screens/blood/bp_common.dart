@@ -171,6 +171,51 @@ class BpEligibility extends StatelessWidget {
   }
 }
 
+/// finish1 (owner final 2 Nov): one donor's status in the list — never
+/// hidden: "Can donate now" (green), "Donated N days ago · M days left",
+/// or "Paused by the donor". The numbers come from today's date on the
+/// server, so the list moves forward daily by itself.
+class BpDonorStatus extends StatelessWidget {
+  const BpDonorStatus({super.key, required this.donor});
+  final Map<String, dynamic> donor;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final s = Theme.of(context).colorScheme;
+    final st = '${donor['status'] ?? (donor['eligible'] == true ? 'available' : 'waiting')}';
+    final left = (donor['days_left'] as num?)?.toInt() ?? 0;
+    final ago = (donor['donated_days_ago'] as num?)?.toInt();
+    final String label;
+    final IconData icon;
+    Color? color;
+    switch (st) {
+      case 'available':
+        label = t.bpCanNow;
+        icon = Icons.check_circle_rounded;
+        color = Brand.successFill;
+      case 'paused':
+        label = t.bpStPaused;
+        icon = Icons.pause_circle_outline_rounded;
+      default:
+        label = ago == null
+            ? t.bpStLeft(left)
+            : (ago == 0 ? t.bpStToday(left) : t.bpStAgoLeft(ago, left));
+        icon = Icons.schedule_rounded;
+    }
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 18, color: color ?? s.onSurfaceVariant),
+      const SizedBox(width: Gap.xs),
+      Flexible(
+        child: Text(bpD(context, label),
+            key: ValueKey('bp-status-${donor['id']}'),
+            style: TextStyle(color: color == null ? s.onSurfaceVariant : null,
+                fontWeight: st == 'available' ? FontWeight.w600 : null)),
+      ),
+    ]);
+  }
+}
+
 class BpVerifiedChip extends StatelessWidget {
   const BpVerifiedChip({super.key});
 

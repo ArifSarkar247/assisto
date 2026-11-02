@@ -1,5 +1,5 @@
 {
-  "_comment": "finish1 (2 Nov): My Circle chip guardians, blood banks list, donor push-area honesty. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_finish1_arb.json",
+  "_comment": "finish1 (2 Nov): My Circle chip guardians, blood banks list, donor push-area honesty, OWNER FINAL blood list/share/profile switch. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_finish1_arb.json",
   "en": {
     "cgaSrcChip": "Bag / shoe tracker",
     "cgaChipOnlyOwner": "The tracker was set up by {name} — only they can change who sees it.",
@@ -66,7 +66,67 @@
     "bpPushAreaStill": "Yes, still here",
     "bpPushAreaUpdate": "Update area",
     "bpPushAreaKept": "Thanks — your area is kept.",
-    "bpReachHonest": "Donors are matched by the area they saved, not by where their phone is right now."
+    "bpReachHonest": "Donors are matched by the area they saved, not by where their phone is right now.",
+    "bpListCounts": "{total} donors · {available} can donate now · {soon} soon",
+    "@bpListCounts": {
+      "placeholders": {
+        "total": {
+          "type": "int"
+        },
+        "available": {
+          "type": "int"
+        },
+        "soon": {
+          "type": "int"
+        }
+      }
+    },
+    "bpDoctorDecides": "The hospital doctor makes the final decision on who can donate.",
+    "bpStPaused": "Paused by the donor",
+    "bpStLeft": "{left} days left",
+    "@bpStLeft": {
+      "placeholders": {
+        "left": {
+          "type": "int"
+        }
+      }
+    },
+    "bpStToday": "Donated today · {left} days left",
+    "@bpStToday": {
+      "placeholders": {
+        "left": {
+          "type": "int"
+        }
+      }
+    },
+    "bpStAgoLeft": "Donated {ago} days ago · {left} days left",
+    "@bpStAgoLeft": {
+      "placeholders": {
+        "ago": {
+          "type": "int"
+        },
+        "left": {
+          "type": "int"
+        }
+      }
+    },
+    "bpHelped": "You have helped {count} people",
+    "@bpHelped": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "bpIAmDonor": "I am a blood donor",
+    "bpIAmDonorOffSub": "Turn on to be found by people nearby who need blood. Your group is sent only with your consent.",
+    "bpShareAgreed": "Your yes is saved",
+    "bpShareBothAgreed": "Both sides agreed — you can share the thank-you card.",
+    "bpShareWaitDonor": "Waiting for the donor to agree. The card is shared only when both sides say yes.",
+    "bpShareWaitFamily": "Waiting for the family to agree. The card is shared only when both sides say yes.",
+    "bpShareAskFamily": "Share a thank-you card? It has no names, illness or hospital. The donor must agree too.",
+    "bpShareAskDonor": "The family may share a thank-you card (no names, illness or hospital). Only if you agree.",
+    "bpShareAgree": "I agree to share"
   },
   "bn": {
     "cgaSrcChip": "ব্যাগ / জুতার ট্র্যাকার",
@@ -89,6 +149,22 @@
     "bpPushAreaStill": "হ্যাঁ, এখানেই আছি",
     "bpPushAreaUpdate": "এলাকা বদলান",
     "bpPushAreaKept": "ধন্যবাদ — আপনার এলাকা রাখা হলো।",
-    "bpReachHonest": "দাতাদের মেলানো হয় তাঁদের রাখা এলাকা ধরে, ফোন এখন কোথায় তা ধরে নয়।"
+    "bpReachHonest": "দাতাদের মেলানো হয় তাঁদের রাখা এলাকা ধরে, ফোন এখন কোথায় তা ধরে নয়।",
+    "bpListCounts": "মোট {total} জন দাতা · এখন দিতে পারবেন {available} জন · শিগগিরই {soon} জন",
+    "bpDoctorDecides": "কে রক্ত দিতে পারবেন, চূড়ান্ত সিদ্ধান্ত হাসপাতালের ডাক্তার নেবেন।",
+    "bpStPaused": "দাতা আপাতত বিরতিতে",
+    "bpStLeft": "{left} দিন বাকি",
+    "bpStToday": "আজ দিয়েছেন, {left} দিন বাকি",
+    "bpStAgoLeft": "{ago} দিন আগে দিয়েছেন, {left} দিন বাকি",
+    "bpHelped": "আপনি {count} জনকে সাহায্য করেছেন",
+    "bpIAmDonor": "আমি রক্তদাতা",
+    "bpIAmDonorOffSub": "চালু করলে কাছের যাঁদের রক্ত লাগবে তাঁরা আপনাকে খুঁজে পাবেন। আপনার গ্রুপ শুধু আপনার সম্মতিতেই পাঠানো হয়।",
+    "bpShareAgreed": "আপনার সম্মতি রাখা হলো",
+    "bpShareBothAgreed": "দুই পক্ষই রাজি — ধন্যবাদ-কার্ড শেয়ার করতে পারেন।",
+    "bpShareWaitDonor": "দাতার সম্মতির অপেক্ষা। দুই পক্ষ রাজি হলে তবেই কার্ড শেয়ার হবে।",
+    "bpShareWaitFamily": "পরিবারের সম্মতির অপেক্ষা। দুই পক্ষ রাজি হলে তবেই কার্ড শেয়ার হবে।",
+    "bpShareAskFamily": "ধন্যবাদ-কার্ড শেয়ার করবেন? এতে নাম, রোগ বা হাসপাতাল নেই। দাতাকেও রাজি হতে হবে।",
+    "bpShareAskDonor": "পরিবারটি ধন্যবাদ-কার্ড শেয়ার করতে চাইতে পারে (নাম, রোগ বা হাসপাতাল ছাড়া)। আপনি রাজি হলে তবেই।",
+    "bpShareAgree": "শেয়ারে রাজি"
   }
 }

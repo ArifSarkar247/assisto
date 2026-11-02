@@ -222,7 +222,10 @@ class SearchTests(Base):
                                               "radius": 25, "eligible_only": "1"})
         ids = [x["id"] for x in r.json()["donors"]]
         self.assertIn(far.id, ids)
-        self.assertNotIn(near_late.id, ids)
+        # finish1 (owner final 2 Nov): a donor is NEVER hidden — a waiting
+        # donor stays listed (last), whatever the client asks
+        self.assertIn(near_late.id, ids)
+        self.assertEqual(ids[-1], near_late.id)
         self.assertNotIn(other.id, ids)
 
     def test_needs_area_and_rate_limit(self):

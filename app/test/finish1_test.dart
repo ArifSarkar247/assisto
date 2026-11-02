@@ -22,7 +22,11 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/link_preview_client.dart';
 import 'package:assisto/messaging/outbox.dart';
+import 'package:assisto/feature_flags.dart';
 import 'package:assisto/screens/blood/blood_banks_screen.dart';
+import 'package:assisto/screens/blood/blood_donor_entry.dart';
+import 'package:assisto/screens/blood/blood_request_detail_screen.dart';
+import 'package:assisto/widgets/success_share.dart';
 import 'package:assisto/screens/blood/blood_hub_screen.dart';
 import 'package:assisto/screens/circle_group_chat_screen.dart';
 import 'package:assisto/screens/circle_guardians_screen.dart';
@@ -83,15 +87,19 @@ class _Api extends ApiClient {
 }
 
 class _BloodApi extends ApiClient {
-  _BloodApi({this.stale = false}) {
+  _BloodApi({this.stale = false, this.share}) {
     token = 't';
   }
   final bool stale;
+  final Map<String, dynamic>? share; // a fulfilled request's share state
   final posts = <(String, Map<String, dynamic>)>[];
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     final r = fakeBloodGet(path, bn: false, empty: false) ?? <String, dynamic>{};
+    if (share != null && path == '/blood-panel/requests/31') {
+      return {...r, 'state': 'fulfilled', 'share': share};
+    }
     if (stale && path == '/blood-panel/config') {
       final me = Map<String, dynamic>.from(r['me'] as Map)
         ..['details_stale'] = true
@@ -401,5 +409,63 @@ void main() {
     expect(find.byKey(const ValueKey('bp-push-area')), findsOneWidget);
     expect(find.byKey(const ValueKey('bp-area-still')), findsNothing);
     expect(find.byKey(const ValueKey('bp-area-update')), findsOneWidget);
+  });
+
+  // ------------------------------------- owner final blood list (2 Nov)
+  testWidgets('list: never hidden, status + days left, counts, doctor line', (tester) async {
+    _tall(tester);
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.pumpWidget(_app(const BloodHubScreen(), api: _BloodApi()));
+    await tester.pumpAndSettle();
+    expect(find.text(l.bpListCounts(4, 2, 1)), findsOneWidget);
+    expect(find.byKey(const ValueKey('bp-donor-6')), findsOneWidget);       // paused, shown
+    expect(find.text(l.bpStPaused), findsOneWidget);
+    expect(find.text(l.bpStAgoLeft(82, 38)), findsOneWidget);
+    expect(find.text(l.bpCanNow), findsNWidgets(2));
+    expect(find.byKey(const ValueKey('bp-doctor-decides')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bp-banks')), findsNothing);           // no bank list at launch
+    expect(find.byKey(const ValueKey('bp-now-only')), findsNothing);        // nothing hides a donor
+  });
+
+  testWidgets('share: both sides — ask, wait, then share', (tester) async {
+    _tall(tester);
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final ask = _BloodApi(share: {'possible': true, 'family_ok': false, 'donor_ok': true,
+      'me_ok': false, 'can_share': false});
+    await tester.pumpWidget(_app(const BloodRequestDetailScreen(requestId: 31), api: ask));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bp-share-agree')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bp-share-again')), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('bp-share-agree')));
+    await tester.tap(find.byKey(const ValueKey('bp-share-agree')));
+    await tester.pumpAndSettle();
+    expect(ask.posts.last.$1, '/blood-panel/requests/31/share');
+    final both = _BloodApi(share: {'possible': true, 'family_ok': true, 'donor_ok': true,
+      'me_ok': true, 'can_share': true});
+    await tester.pumpWidget(_app(
+        const BloodRequestDetailScreen(key: ValueKey('both'), requestId: 31), api: both));
+    await tester.pumpAndSettle();
+    expect(find.text(l.bpShareBothAgreed), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('bp-share-again')));
+    await tester.tap(find.byKey(const ValueKey('bp-share-again')));
+    await tester.pumpAndSettle();
+    expect(find.byType(SuccessShareScreen), findsOneWidget);
+  });
+
+  testWidgets('profile switch: hidden when the flag is off; shows listed state', (tester) async {
+    bloodDonorEntryLoaderOverride = () async => {'enabled': true, 'available': true};
+    addTearDown(() => bloodDonorEntryLoaderOverride = null);
+    FeatureFlags.instance.debugOverride = {'blood_donors': false};
+    addTearDown(() => FeatureFlags.instance.debugOverride = null);
+    await tester.pumpWidget(_app(const Scaffold(body: BloodDonorSwitchTile())));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bp-donor-switch')), findsNothing);
+    FeatureFlags.instance.debugOverride = {'blood_donors': true};
+    await tester.pumpWidget(_app(const Scaffold(body: BloodDonorSwitchTile(key: ValueKey('x')))));
+    await tester.pumpAndSettle();
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(find.text(l.bpIAmDonor), findsOneWidget);
+    expect(find.text(l.bpListed), findsOneWidget);
+    expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('bp-donor-switch'))).value, isTrue);
   });
 }

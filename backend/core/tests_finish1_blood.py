@@ -184,3 +184,95 @@ class GroupLinkPreviewEnvelope(TestCase):
         self.assertFalse(G.validate_group_envelope(e)[0])
         e = self.env(lp_ciphertext="bHA=", lp_nonce="bg==", text="https://x.y")
         self.assertFalse(G.validate_group_envelope(e)[0])            # never plaintext
+
+
+# --------------------------------------------------------------------------
+# Owner FINAL blood spec (2 Nov 17:25): never hide a donor; sort; exact days;
+# the list moves by itself daily; green + push when the interval ends; header
+# counts; privacy; both sides agree on the thank-you; people helped.
+from core.tests_blood import MIRPUR, NEAR, Base as BloodBase  # noqa: E402
+from core.logic import blood_rules as BR  # noqa: E402
+from core.models import BloodRequest, BloodRecipient  # noqa: E402
+
+
+class OwnerFinalList(BloodBase):
+    def rows(self, **q):
+        c = self.api(self.req_user)
+        p = {"group": "A+", "lat": MIRPUR[0], "lng": MIRPUR[1]}
+        p.update(q)
+        r = c.get("/api/v1/blood-panel/donors", p)
+        self.assertEqual(r.status_code, 200, r.content)
+        return r.json()
+
+    def test_sort_status_days_and_counts(self):
+        _a, far_ok = self.donor("Far", "A+", NEAR)            # available, ~3 km
+        _b, near_ok = self.donor("Near", "A+", MIRPUR)        # available, 0 km
+        _c, w30 = self.donor("Wait", "A+", MIRPUR, last_days=90)    # 30 days left
+        _d, w5 = self.donor("Soon", "A+", NEAR, last_days=115)      # 5 days left
+        _e, today = self.donor("Today", "A+", MIRPUR, last_days=None)
+        today.last_donation = timezone.localdate()
+        today.save()
+        _f, paused = self.donor("Paused", "A+", MIRPUR)
+        paused.available = False
+        paused.save()
+        j = self.rows()
+        ids = [x["id"] for x in j["donors"]]
+        self.assertEqual(ids, [near_ok.id, far_ok.id, w5.id, w30.id, today.id, paused.id])
+        by = {x["id"]: x for x in j["donors"]}
+        self.assertEqual(by[w5.id]["status"], "waiting")
+        self.assertEqual(by[w5.id]["days_left"], 5)
+        self.assertEqual(by[today.id]["donated_days_ago"], 0)
+        self.assertEqual(by[today.id]["days_left"], BR.interval_days("m"))
+        self.assertFalse(by[today.id]["eligible"])           # never "available" inside the interval
+        self.assertEqual(by[paused.id]["status"], "paused")  # shown, not hidden
+        self.assertEqual(j["counts"], {"total": 6, "available": 2, "soon": 3, "paused": 1})
+
+    def test_interval_never_shorter_than_who(self):
+        self.assertGreaterEqual(BR.interval_days("m"), 84)    # WHO 12 weeks
+        self.assertGreaterEqual(BR.interval_days("f"), 112)   # WHO 16 weeks
+        self.assertGreaterEqual(BR.interval_days("m"), 120)   # BD national 4 months
+        self.assertGreaterEqual(BR.interval_days("f"), 120)
+
+    def test_list_moves_daily_turns_green_and_push(self):
+        _u, d = self.donor("Moves", "A+", MIRPUR, last_days=119)
+        on = timezone.localdate()
+        self.assertEqual(BP.eligibility(d, on)["days_left"], 1)
+        tomorrow = on + timedelta(days=1)
+        el = BP.eligibility(d, tomorrow)
+        self.assertEqual((el["eligible"], el["days_left"]), (True, 0))
+        self.assertEqual(BP.donor_status(d, el), "available")
+        BP.sweep(at=timezone.now() + timedelta(days=1))
+        self.assertEqual(len(self.spy.to(d.user, "eligible")), 1)
+        BP.sweep(at=timezone.now() + timedelta(days=1, hours=1))
+        self.assertEqual(len(self.spy.to(d.user, "eligible")), 1)   # once
+
+    def test_privacy_no_number_no_point(self):
+        self.donor("Private", "A+", MIRPUR)
+        raw = str(self.rows())
+        self.assertNotIn("0181", raw)                         # no phone digits
+        self.assertNotIn("90.37", raw)                        # no point
+        self.assertNotIn("@example.com", raw)
+
+
+class OwnerFinalShare(BloodBase):
+    def test_both_sides_agree_and_helped(self):
+        donor_u, d = self.donor("Helper", "A+", MIRPUR)
+        r = self.post_req()
+        rid = r.json()["request"]["id"]
+        req = BloodRequest.objects.get(pk=rid)
+        self.assertIsNone(BP.respond(req, donor_u, "can"))
+        fam = self.api(self.req_user)
+        don = self.api(donor_u)
+        self.assertEqual(fam.post("/api/v1/blood-panel/requests/%d/share" % rid).status_code, 400)
+        fam.post("/api/v1/blood-panel/requests/%d/found" % rid)
+        s = fam.post("/api/v1/blood-panel/requests/%d/share" % rid).json()["share"]
+        self.assertEqual((s["family_ok"], s["donor_ok"], s["can_share"]), (True, False, False))
+        self.assertEqual(len(self.spy.to(donor_u, "share_ask")), 1)
+        stranger = self.mk("Stranger")
+        self.assertEqual(self.api(stranger).post(
+            "/api/v1/blood-panel/requests/%d/share" % rid).status_code, 403)
+        s = don.post("/api/v1/blood-panel/requests/%d/share" % rid).json()["share"]
+        self.assertTrue(s["can_share"])
+        self.assertTrue(fam.get("/api/v1/blood-panel/requests/%d" % rid).json()["share"]["can_share"])
+        self.assertEqual(BP.donor_json(d, "en")["helped"], 1)
+        self.assertEqual(BloodRecipient.objects.filter(request=req, response="can").count(), 1)
