@@ -11,6 +11,8 @@ import '../audio/audio_route_sheet.dart';
 import '../calls/api_call_signaling.dart';
 import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
+import '../calls/call_data_prefs.dart'; // callsbar
+import '../calls/call_rating.dart'; // callsbar
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
@@ -69,6 +71,10 @@ class CircleCallScreen extends StatefulWidget {
   final bool previewSwapped;
   final bool previewFullscreen;
 
+  /// callsbar gallery / tests: show the one-tap rating row on an ended
+  /// preview controller (a live screen decides with [shouldAskCallRating]).
+  final bool previewAskRating;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -80,6 +86,7 @@ class CircleCallScreen extends StatefulWidget {
     this.resumed = false,
     this.previewSwapped = false,
     this.previewFullscreen = false,
+    this.previewAskRating = false,
   });
 
   /// circle2 test seam: the video gate's navigation ('voice' | 'video' |
@@ -193,6 +200,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   }
 
   bool _duplicate = false;
+
+  /// callsbar: the one-tap rating row is shown for this ended call.
+  late bool _askRate = widget.previewAskRating;
+  late bool _rateDecided = widget.previewAskRating;
+
   bool _screenLive() => mounted && !_closed && (_c == null || !_c!.isEnded);
 
   void _onPip() {
@@ -240,6 +252,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       return;
     }
     if (!mounted) return;
+    // callsbar: "Low-data calls" (phone setting; a few ms, never blocks)
+    final lowData = await CallDataPrefs.lowData();
+    if (!mounted) return;
     final transport = CallRuntime.instance.transportFor(app);
     CallMedia media;
     try {
@@ -261,6 +276,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       // restart at once; a setup step that failed after the silent retries
       // is reported for Owner Admin -> Call health (best effort, never awaited)
       networkEvents: CallNative.networkChanges(),
+      lowData: lowData,
+      // callsbar: what this phone measured (numbers only) — Owner Admin ->
+      // Calls -> Call quality. Best effort, never awaited.
+      onQualityReport: (id, report) => unawaited(app.api
+          .postJson('/circle/calls/$id/quality', report)
+          .then((_) {}, onError: (Object _) {})),
       onSetupFailure: (step, code, id) => unawaited(app.api.postJson(
           '/rtc/health', {
         'step': step,
@@ -374,8 +395,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         }
         unawaited(CallNative.keepScreenOn(false));
         unawaited(CallKeepAlive.stop());
+        if (!_rateDecided) {
+          _rateDecided = true;
+          _askRate = c.callId != null && shouldAskCallRating(c);
+        }
         if (c.endReason == CallEndReason.hangup) {
-          _autoClose ??= Timer(const Duration(milliseconds: 1400), _close);
+          // callsbar: a little longer when the optional rating row shows
+          _autoClose ??= Timer(
+              Duration(milliseconds: _askRate ? 6000 : 1400), _close);
         }
       }
     }
@@ -451,6 +478,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _owns = true;
     _outgoing = true; // "Call again" always places a NEW call
     _claimed = false;
+    _askRate = false;
+    _rateDecided = false;
     _begin();
   }
 
@@ -564,7 +593,30 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             ),
           )
         : null;
-    final column = SafeArea(
+    // callsbar: the ended screen (summary, data used, optional rating, Call
+    // again) scrolls — at 200 % text it never overflows.
+    final column = c != null && c.isEnded
+        ? SafeArea(
+            child: Column(children: [
+              _topBar(c),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: Gap.xl),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      if (!remoteVideo) ...[
+                        _avatar(56),
+                        const SizedBox(height: Gap.lg),
+                      ],
+                      _nameAndStatus(c),
+                      _endedActions(c),
+                    ]),
+                  ),
+                ),
+              ),
+            ]),
+          )
+        : SafeArea(
       child: Column(
         children: [
           _topBar(c),
@@ -690,7 +742,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           ),
           SizedBox(
             width: Gap.xxxl,
-            child: live ? _QualityBars(c.quality) : null,
+            // callsbar: tap the bars -> network & data (low-data switch)
+            child: live
+                ? Semantics(
+                    button: true,
+                    label: t.cbarNetSheetTitle,
+                    child: InkResponse(
+                      key: const Key('call-net-button'),
+                      radius: 24,
+                      onTap: () => unawaited(_openNetSheet(c)),
+                      child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: Center(child: _QualityBars(c.quality))),
+                    ),
+                  )
+                : null,
           ),
         ],
       ),
@@ -764,6 +831,48 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                   textAlign: TextAlign.center,
                   style: _hintStyle),
             ),
+          // callsbar: low-data mode is on (mine or theirs) — tap to change
+          if (live && c.effectiveLowData)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: InkWell(
+                onTap: () => unawaited(_openNetSheet(c)),
+                borderRadius: BorderRadius.circular(Radii.lg),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Center(
+                    widthFactor: 1,
+                    child: _badge(Icons.data_saver_on_rounded,
+                        t.cbarLowDataChip, const Key('call-low-data-chip')),
+                  ),
+                ),
+              ),
+            ),
+          // callsbar: audio-only fallback, both sides said honestly
+          if (live && c.videoPausedForNet)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: _badge(Icons.videocam_off_rounded, t.cbarMyVideoPaused,
+                  const Key('call-my-video-paused')),
+            ),
+          if (live && _isVideo && c.remoteVideoPausedNet)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: _badge(Icons.wifi_off_rounded,
+                  t.cbarRemoteVideoPaused(_name),
+                  const Key('call-remote-video-paused')),
+            ),
+          // callsbar: "this call used ~X MB" (WhatsApp shows only totals)
+          if (c != null && ended && c.talkTime != null && c.dataBytes > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(
+                  t.cbarDataUsed(
+                      notifLocalizeDigits(context, callDataAmount(c.dataBytes))),
+                  key: const Key('call-data-used'),
+                  textAlign: TextAlign.center,
+                  style: _hintStyle),
+            ),
           if (live && kDebugMode)
             Text(c.relayed ? t.b1CallDebugRelay : t.b1CallDebugDirect,
                 key: const Key('call-debug-path'),
@@ -820,6 +929,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       CallNotice.cameraBlocked => t.b1CallNoticeCamera,
       CallNotice.remoteSwitchedToVoice => t.b1CallNoticeRemoteVoice(_name),
       CallNotice.reconnected => t.b1CallNoticeReconnected,
+      CallNotice.videoPausedNet => t.cbarNoticeVideoPaused,
+      CallNotice.videoResumedNet => t.cbarNoticeVideoResumed,
+      CallNotice.lowDataOn => t.cbarNoticeLowDataOn,
+      CallNotice.lowDataOff => t.cbarNoticeLowDataOff,
     };
     if (text == null) return const SizedBox.shrink();
     return Padding(
@@ -1095,6 +1208,95 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   }
 
   Widget _endedActions(CallController c) {
+    final rate = _askRate && c.callId != null;
+    final actions = _endedButtons(c);
+    if (!rate) return actions;
+    final id = c.callId!;
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      CallRatingRow(
+        key: const Key('call-rating'),
+        video: c.video || c.videoOn,
+        onInteract: () {
+          _autoClose?.cancel();
+          _autoClose = null;
+        },
+        onDone: () {
+          _autoClose?.cancel();
+          _autoClose = Timer(const Duration(milliseconds: 1500), _close);
+        },
+        onSend: (rating, issue) => context
+            .read<AppState>()
+            .api
+            .postJson('/circle/calls/$id/quality', {
+              'rating': rating,
+              if (issue != null) 'issue': issue,
+            })
+            .then((_) {}, onError: (Object _) {}),
+      ),
+      actions,
+    ]);
+  }
+
+  /// callsbar: the network & data sheet (tap the quality bars).
+  Future<void> _openNetSheet(CallController c) => showAppSheet<void>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (ctx) => ListenableBuilder(
+          listenable: c,
+          builder: (ctx, _) {
+            final t = AppLocalizations.of(ctx);
+            final q = switch (c.quality) {
+              CallQuality.good => t.cbarNetGood,
+              CallQuality.fair => t.cbarNetFair,
+              CallQuality.poor => t.cbarNetPoor,
+              CallQuality.unknown => t.cbarNetUnknown,
+            };
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(t.cbarNetSheetTitle, style: AType.titleLarge),
+                  const SizedBox(height: Gap.md),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.network_check_rounded),
+                    title: Text(q, key: const Key('call-net-quality')),
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.data_usage_rounded),
+                    title: Text(
+                        t.cbarDataSoFar(notifLocalizeDigits(
+                            ctx, callDataAmount(c.dataBytes))),
+                        key: const Key('call-net-data')),
+                  ),
+                  SwitchListTile(
+                    key: const Key('call-low-data-switch'),
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.data_saver_on_rounded),
+                    title: Text(t.cbarLowDataTitle),
+                    subtitle: Text(c.remoteLowData && !c.lowData
+                        ? t.cbarLowDataByOther(_name)
+                        : t.cbarLowDataSub),
+                    value: c.lowData,
+                    onChanged: c.isEnded
+                        ? null
+                        : (v) {
+                            unawaited(c.setLowData(v));
+                            unawaited(CallDataPrefs.setLowData(v));
+                          },
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _endedButtons(CallController c) {
     final t = _t;
     final denied = c.endReason == CallEndReason.mediaDenied;
     return Padding(

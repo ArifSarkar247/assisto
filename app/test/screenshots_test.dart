@@ -34,6 +34,7 @@ import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
 import 'at100_shots.dart'; // at100
 import 'aivoice_shots.dart'; // aivoice
+import 'callsbar_shots.dart'; // callsbar
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -871,6 +872,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // callsbar: weak-network video call, rating, honest group call, low data
+    for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

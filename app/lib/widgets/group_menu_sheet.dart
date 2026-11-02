@@ -85,8 +85,8 @@ Future<GroupMenuAction?> showGroupMenuSheet(
                 locked ? t.eLockUnlockChat : t.eLockLockChat,
                 GroupMenuAction.lockChat),
             const Divider(height: 1),
-            _item(ctx, Icons.link_rounded, t.grpMenuSendCallLink,
-                GroupMenuAction.sendCallLink),
+            // callsbar: "Send call link" removed — the link opened no page
+            // (/call/<token> has no handler): a dead button.
             _item(ctx, Icons.schedule_rounded, t.grpMenuScheduleCall,
                 GroupMenuAction.scheduleCall),
             _item(ctx, Icons.video_call_rounded, t.grpMenuNewGroupCall,
