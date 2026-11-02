@@ -55,8 +55,9 @@ class _Msg {
   /// aibar: the server's reply meta (credits taken, balance after, flags).
   Map<String, dynamic> meta;
 
-  /// aibar: a user turn's idempotency id (reused by "Send again").
-  final String? clientId;
+  /// aibar: a user turn's idempotency id (reused by "Send again"; a NEW id
+  /// when the text is edited).
+  String? clientId;
 
   /// aibar: this user turn did not go out; [failCause] says why.
   bool failed = false;
@@ -867,8 +868,15 @@ class _AiChatScreenState extends State<AiChatScreen>
     if (after != null && !after.user) {
       await _regenerate(after, edit: edited.trim());
     } else {
-      // No assistant reply yet — just resend as a fresh turn.
-      await _streamOrSend(_active!.id, edited.trim());
+      // No assistant reply yet — just resend as a fresh turn (edited text =
+      // a new message, so a new idempotency id).
+      setState(() {
+        userMsg.clientId = newChatClientId();
+        userMsg.failed = false;
+        userMsg.failCause = null;
+        _sending = true;
+      });
+      await _streamOrSend(_active!.id, edited.trim(), userMsg);
     }
   }
 
